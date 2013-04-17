@@ -21,6 +21,7 @@ package gda.gui.scanplot;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanPlotSettings;
 
+import java.util.Map;
 import java.util.Vector;
 
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ public class Config {
 	int numberOfDetectors;
 	int numberofChildScans;
 	Double[] initialDataAsDoubles;
+	Map<String, String> yAxesMap;
 
 	boolean isValid(IScanDataPoint pt) {
 		return id.equals(pt.getUniqueName());
@@ -92,6 +94,7 @@ public class Config {
 		String[] pointyAxesNotShown = null;
 		if (scanPlotSettings != null) {
 			xAxisHeader = scanPlotSettings.getXAxisName();
+			yAxesMap = scanPlotSettings.getyAxesMap();
 
 		}
 
@@ -163,11 +166,11 @@ public class Config {
 		initialDataAsDoubles = point.getAllValuesAsDoubles();
 		if (initialDataAsDoubles[xAxisIndex] != null) {
 			for (int j = 0; j < numberOfScannables; j++, index++) {
-				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, point
+				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, yAxesMap, point
 						.getPositionHeader().get(j), index, xAxisIndex);
 			}
 			for (int j = 0; j < point.getDetectorHeader().size(); j++, index++) {
-				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, point
+				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, yAxesMap, point
 						.getDetectorHeader().get(j), index, xAxisIndex);
 			}
 		} else {
@@ -178,16 +181,18 @@ public class Config {
 	}
 
 	private void addIfWanted(Vector<ConfigLine> linesToAdd, Double val, Vector<String> yAxesShown,
-			Vector<String> yAxesNotShown, String name, int index, int xAxisIndex) {
+			Vector<String> yAxesNotShown, Map<String, String> yAxesMap, String name, int index, int xAxisIndex) {
 		// do not add a line if we are unable to convert the string representation to a double
 		if (val == null)
 			return;
 		if (index != xAxisIndex) {
 			if (yAxesShown == null || yAxesShown.contains(name)) {
-				linesToAdd.add(new ConfigLine(index, name, true));
+				String yAxisName = yAxesMap != null ? yAxesMap.get(name):null;
+				linesToAdd.add(new ConfigLine(index, name, true, yAxisName));
 			} else {
 				if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
-					linesToAdd.add(new ConfigLine(index, name, false));
+					String ownYAxis = yAxesMap != null ? yAxesMap.get(name):null;
+					linesToAdd.add(new ConfigLine(index, name, false, ownYAxis));
 				}
 			}
 		}

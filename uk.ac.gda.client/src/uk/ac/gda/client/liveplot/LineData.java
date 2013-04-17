@@ -25,6 +25,7 @@ public class LineData {
 	Plot1DAppearance appearance;
 	AbstractDataset x;
 	AbstractDataset y;
+	String yAxisName;
 
 	public AbstractDataset getX() {
 		return x;
@@ -35,11 +36,17 @@ public class LineData {
 	public Plot1DAppearance getAppearance() {
 		return appearance;
 	}
-	public LineData(Plot1DAppearance appearance, AbstractDataset x, AbstractDataset y) {
+	
+	public String getyAxisName() {
+		return yAxisName;
+	}
+	
+	public LineData(Plot1DAppearance appearance, AbstractDataset x, AbstractDataset y, String yAxisName) {
 		super();
 		this.appearance = appearance;
 		this.x = x;
 		this.y = y;
+		this.yAxisName = yAxisName;
 	}
 	
 }

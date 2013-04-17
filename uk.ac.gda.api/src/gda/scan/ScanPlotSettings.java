@@ -21,6 +21,8 @@ package gda.scan;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,7 @@ public class ScanPlotSettings implements Serializable {
 	private boolean ignore = false;
 	private int unlistedColumnBehaviour = IGNORE;
 	private boolean allowUseOfPreviousScanSettings = true;
+	private Map<String, String> yAxesMap;
 
 	public String getXAxisName() {
 		return xAxisName;
@@ -194,4 +197,32 @@ public class ScanPlotSettings implements Serializable {
 				+ (xMax != null ? xMax.toString() : "null, unlisted columns: " + unlistedColumnBehaviour);
 	}
 
+
+
+	public Map<String, String> getyAxesMap() {
+		return yAxesMap;
+	}
+
+	/**
+	 * yAxesMap axis name map.
+	 * Key - name of y_axis being plotted. To match a value in y_axes
+	 * Entry - name of the y axis to use if the default axis is not to be used
+	 */
+	public void setyAxesMap(Map<String, String> yAxesMap) {
+		this.yAxesMap = yAxesMap;
+	}
+
+	public void SetyAxesMapToUseSeparateYAxesForAll(){
+		yAxesMap = new HashMap<String, String>();
+		if( getYAxesShown() != null){
+			for( String s : getYAxesShown()){
+				yAxesMap.put(s, s);
+			}
+		}
+		if( getYAxesNotShown() != null){
+			for( String s : getYAxesNotShown()){
+				yAxesMap.put(s, s);
+			}
+		}
+	}
 }

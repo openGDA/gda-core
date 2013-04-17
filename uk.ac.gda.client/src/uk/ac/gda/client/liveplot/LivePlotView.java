@@ -36,6 +36,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
@@ -255,7 +256,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 				@Override
 				public void run() {
 					try {
-						openFile(null, null);
+						openFile(null, null, null);
 					} catch (Throwable e) {
 						logger.error("Error opening a file", e);
 					}
@@ -296,7 +297,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		for (String y_axis : data.y_axes) {
 			xyDatasetNames.add(y_axis);
 		}
-		openFile(data.url, xyDatasetNames);
+		openFile(data.url, xyDatasetNames, data.yAxesMap);
 	}
 
 	private List<String> getXYDataSetNames(Shell shell, String[] possibleXYDataSetNames) {
@@ -334,17 +335,17 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 
 	}
 
-	private void openFile(String path, List<String> xyDataSetNames) throws NexusException, NexusExtractorException,
+	private void openFile(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap) throws NexusException, NexusExtractorException,
 			Exception {
-		if (fileDialog == null) {
-			fileDialog = new FileDialog(getSite().getShell(), SWT.OPEN);
-			String[] filterNames = new String[] { "All Files (*)" };
-			String[] filterExtensions = new String[] { "*" };
-			fileDialog.setFilterPath(PathConstructor.createFromDefaultProperty());
-			fileDialog.setFilterNames(filterNames);
-			fileDialog.setFilterExtensions(filterExtensions);
-		}
 		if (path == null) {
+			if (fileDialog == null) {
+				fileDialog = new FileDialog(getSite().getShell(), SWT.OPEN);
+				String[] filterNames = new String[] { "All Files (*)" };
+				String[] filterExtensions = new String[] { "*" };
+				fileDialog.setFilterPath(PathConstructor.createFromDefaultProperty());
+				fileDialog.setFilterNames(filterNames);
+				fileDialog.setFilterExtensions(filterExtensions);
+			}
 			path = fileDialog.open();
 			if (path == null)
 				return;
@@ -378,8 +379,10 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			}
 			DoubleDataset xData = sfh.getAxis(xyDataSetNames.get(0));
 			for (int i = 1; i < xyDataSetNames.size(); i++) {
-				DoubleDataset yData = sfh.getAxis(xyDataSetNames.get(i));
-				xyPlot.addData(path, path, xyDataSetNames.get(i) + "/" + xyDataSetNames.get(0), xData, yData, true, true);
+				String xyDataSetName = xyDataSetNames.get(i);
+				DoubleDataset yData = sfh.getAxis(xyDataSetName);
+				String ownYAxis = yAxesMap != null ? yAxesMap.get(xyDataSetName):null;
+				xyPlot.addData(path, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData, true, true, ownYAxis);
 			}
 		} else {
 			logger.warn("Unrecognized file type - " + path);

@@ -48,6 +48,7 @@ import javax.swing.tree.TreePath;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.axis.IAxis;
 import org.dawb.common.ui.plot.axis.IPositionListener;
 import org.dawb.common.ui.plot.axis.PositionEvent;
 import org.dawb.common.ui.plot.trace.ILineTrace;
@@ -111,6 +112,7 @@ public class LivePlotComposite extends Composite {
 	public static final String MEMENTO_XY_DATA = "XYData";
 	public static final String MEMENTO_XYDATA_XAXISHEADER = "xydata_xAxisHeader";
 	public static final String MEMENTO_XTDATA_YAXISHEADER = "xydata_yAxisHeader";
+	public static final String MEMENTO_XYDATA_YAXISNAME = "xydata_yAxisName";
 	public static final String MEMENTO_XYDATA_VISIBLE = "xydata_visible";
 	public static final String MEMENTO_XYDATA_NAME = "xydata_name";
 	static public final String MEMENTO_ARCHIVEFILENAME = "xydata_archivefilename";
@@ -334,9 +336,9 @@ public class LivePlotComposite extends Composite {
 	 * @param reload
 	 */
 	public void addData(String scanIdentifier, String fileName, String label, DoubleDataset xData, DoubleDataset yData,
-			boolean visible, boolean reload) {
+			boolean visible, boolean reload, String yAxisName) {
 		if (!isDisposed())
-			plotter.addData(scanIdentifier, fileName, null, xData, yData, xData.getName(), label, visible, reload);
+			plotter.addData(scanIdentifier, fileName, null, xData, yData, xData.getName(), label, visible, reload, yAxisName);
 	}
 
 	public void saveState(IMemento memento, String archiveFolder) {
@@ -372,8 +374,9 @@ public class LivePlotComposite extends Composite {
 					boolean visible = thisScan.getBoolean(MEMENTO_XYDATA_VISIBLE);
 					String xAxisHeader = thisScan.getString(MEMENTO_XYDATA_XAXISHEADER);
 					String yAxisHeader = thisScan.getString(MEMENTO_XTDATA_YAXISHEADER);
+					String  yAxisName = thisScan.getString(MEMENTO_XYDATA_YAXISNAME);
 
-					LiveData scan = new LiveData(0, uniquename, xAxisHeader, yAxisHeader, archiveFileName, dataFileName);
+					LiveData scan = new LiveData(0, uniquename, xAxisHeader, yAxisHeader, archiveFileName, dataFileName, yAxisName);
 					Vector<String> stepIds=new Vector<String>();
 					String [] parts = uniquename.split(",");
 					for(int i=1; i< parts.length-1;i++){
@@ -387,7 +390,7 @@ public class LivePlotComposite extends Composite {
 						if(xdata == null || xdata.getSize()==0)
 							continue;
 						plotter.addData(scanIdentifier, dataFileName, stepIds, xdata,
-								scan.archive.getyVals(), xAxisHeader, yAxisHeader, true, false);
+								scan.archive.getyVals(), xAxisHeader, yAxisHeader, true, false, yAxisName);
 						
 					}else {
 						/**
@@ -395,7 +398,7 @@ public class LivePlotComposite extends Composite {
 						 * dummy line and then change it to archive state by setting archivefilename 
 						 */
 						int linenum = plotter.addData(scanIdentifier, dataFileName, stepIds, new DoubleDataset(1),
-							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false);
+							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false, yAxisName);
 						plotView.getXYData(linenum).archiveFilename = scan.archiveFilename;//we need to set to archiveFilename in scan as currently equal to null
 						plotView.getXYData(linenum).archive=null;
 					}
@@ -437,6 +440,7 @@ public class LivePlotComposite extends Composite {
  * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
  */
 class SubLivePlotView extends Composite implements XYDataHandler {
+	private static final String UNKNOWN = "unknown";
 	private static final Logger logger = LoggerFactory.getLogger(SubLivePlotView.class);
 	static public final String ID = "uk.ac.gda.client.xyplotview";
 	protected AbstractPlottingSystem plottingSystem;
@@ -449,7 +453,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		
 		super(parent, style);
 		this.archiveFolder = archiveFolder;
-		dummy = new LiveData(1, "", "x", "y", null,null);
+		dummy = new LiveData(1, "", "x", "y", null,null, null);
 		dummy.addPointToLine(0., 0.);
 		dummy.addPointToLine(1., 1.);
 		dummy.setVisible(false, archiveFolder);
@@ -568,6 +572,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	public void deleteAllLines() {
 		if (!isDisposed()) {
 			plottingSystem.clear();
+			plottingSystem.reset();
 			scans = new LiveData[0];
 			nextUnInitialisedLine = 0;
 		}
@@ -612,10 +617,10 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	}
 
 	@Override
-	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName) {
+	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName, String yAxisName) {
 		checkScansArray(which);
 		//name = TraceUtils.getUniqueTrace(name, plottingSystem);
-		scans[which] = new LiveData(which, name, xAxisHeader, yAxisHeader, null, dataFileName);
+		scans[which] = new LiveData(which, name, xAxisHeader, yAxisHeader, null, dataFileName, yAxisName);
 		nextUnInitialisedLine = which + 1;
 	}
 
@@ -761,11 +766,12 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			String yAxisHeader = null;
 			boolean xAxisIsVarious = false;
 			boolean yAxisIsVarious = false;
+			boolean additionalYAxes = false;
 			for (LiveData sd : scans) {
 				if (sd != null  && sd.number > 1 ) {//do not show lines with only 1 point as the datasetplotter throws exceptions
 					if (sd.isVisible()) {
 						
-						xys.add( new LineData(sd.archive.getAppearance(), sd.archive.getxAxis().toDataset(),sd.archive.getyVals() ));
+						xys.add( new LineData(sd.archive.getAppearance(), sd.archive.getxAxis().toDataset(),sd.archive.getyVals(), sd.yAxisName ));
 						AbstractDataset y = sd.archive.getyVals();
 						if (y.getName()==null || "".equals(y.getName())) {
 							y.setName(sd.name);
@@ -778,13 +784,17 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 								xAxisIsVarious = true;
 							}
 						}
-						if (!yAxisIsVarious && StringUtils.hasLength(sd.yLabel)) {
-							if (yAxisHeader == null) {
-								yAxisHeader = sd.yLabel;
-							} else if (!sd.yLabel.equals(yAxisHeader)) {
-								yAxisHeader = "various";
-								yAxisIsVarious = true;
+						if( sd.yAxisName==null){
+							if (!yAxisIsVarious && StringUtils.hasLength(sd.yLabel)) {
+								if (yAxisHeader == null) {
+									yAxisHeader = sd.yLabel;
+								} else if (!sd.yLabel.equals(yAxisHeader)) {
+									yAxisHeader = "various";
+									yAxisIsVarious = true;
+								}
 							}
+						} else {
+							additionalYAxes = true;
 						}
 					} else {
 						try {
@@ -799,7 +809,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				plottingSystem.clear();
 				return;
 			}
-			createUpdatePlot(xAxisHeader, yAxisHeader, xys, invis);
+			createUpdatePlot(xAxisHeader, yAxisHeader, xys, invis, additionalYAxes);
 
 		} catch (Throwable e) {
 			logger.warn(e.getMessage(),e);
@@ -812,45 +822,57 @@ class SubLivePlotView extends Composite implements XYDataHandler {
        This horrendous way of doing it, results from the fact that we
        reuse XYPlotComposite. A better way would be with updating and 
        creating individual traces. TODO Convert to more logical design.	
+	 * @param additionalYAxes 
 	 */
-	private void createUpdatePlot(final String                xLabel, 
-			      				  final String                yLabel, 
+	private void createUpdatePlot(String                xLabelIn, 
+			      				  String                yLabelIn, 
 			                      final List<LineData> xys, 
-			                      final List<String>          invis) {
+			                      final List<String>          invis, boolean additionalYAxes) {
 		
-		final String title = yLabel + " / " + xLabel;
+		final String xLabel = xLabelIn != null ? xLabelIn : UNKNOWN;
+		final String yLabel = yLabelIn != null ? yLabelIn : UNKNOWN;
+		final String title = (additionalYAxes ? "various" : yLabel) + " / " + xLabel;
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
-				
+				plottingSystem.reset(); //remove all axes
 				plottingSystem.setTitle(title);
 				plottingSystem.getSelectedXAxis().setTitle(xLabel);
 				plottingSystem.getSelectedYAxis().setTitle(yLabel);
 				
-				final List<LineData> unfoundYs = new ArrayList<LineData>(xys.size());
-				
-				/**
-				 * Update what we can, after that create new plots.
-				 */
-				for (final LineData ld : xys) {
-					
-					final ITrace trace = plottingSystem.getTrace(ld.getY().getName());
-					if (trace!=null && trace instanceof ILineTrace) {
-						
-						final ILineTrace lineTrace = (ILineTrace)trace;
-						lineTrace.setData(ld.getX(), ld.getY());
-					} else {
-						unfoundYs.add(ld);
+				IAxis defaultYAxis = null;
+				for(IAxis axis : plottingSystem.getAxes()){
+					if( axis.isPrimaryAxis() && axis.isYAxis()){
+						defaultYAxis = axis;
+						defaultYAxis.setVisible(!yLabel.equals(UNKNOWN));
+						break;
 					}
 				}
-				
-				// We create the new ones and assign their new colour
-				for (final LineData ld : unfoundYs) {
+
+				for (final LineData ld : xys) {
 					AbstractDataset y = ld.getY();
-					if (y.getName()==null || "".equals(y.getName())) {
+					String name = y.getName();
+					if (name==null || "".equals(name)) {
 						logger.error("y dataset is not named - it should be!");
 					}
-					ILineTrace trace = plottingSystem.createLineTrace(y.getName());
+					String yAxisName = ld.getyAxisName();
+					if( yAxisName != null){
+						IAxis extraYAxis = null;
+						for(IAxis axis : plottingSystem.getAxes()){
+							String title2 = axis.getTitle();
+							if( title2 != null && title2.equals(yAxisName)){
+								extraYAxis = axis;
+								break;
+							}
+						}
+						if( extraYAxis == null){
+							extraYAxis = plottingSystem.createAxis(yAxisName, true, SWT.LEFT);
+						}
+						plottingSystem.setSelectedYAxis( extraYAxis);
+					} else {
+						plottingSystem.setSelectedYAxis( defaultYAxis);
+					}
+					ILineTrace trace = plottingSystem.createLineTrace(name);
 					trace.setLineWidth(1);
 					trace.setPointSize(3);
 					trace.setPointStyle(PointStyle.POINT);
@@ -859,6 +881,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
 					trace.setData(ld.getX(), ld.getY());
 					plottingSystem.addTrace(trace);
+					plottingSystem.setSelectedYAxis( defaultYAxis);
 				}
 				/**
 				 *  BODGE WARNING There is no clear start of scan or start of new plot in
@@ -919,6 +942,7 @@ class LiveData {
 	int which = 0;
 	String xLabel;
 	String yLabel;
+	String yAxisName;
 
 	/**
 	 * Scan file holding all the data of the scan
@@ -935,7 +959,7 @@ class LiveData {
 	 * @param dataFileName - the name of the file holding the scan data
 	 */
 	LiveData(int which, String name, String xLabel, String yLabel, String archiveFilename,
-			String dataFileName) {
+			String dataFileName, String yAxisName) {
 		this.name = name;
 		this.which = which;
 		this.xLabel = xLabel;
@@ -945,6 +969,7 @@ class LiveData {
 		if( archiveFilename == null){
 			resetArchive(which);
 		}
+		this.yAxisName =yAxisName;
 	}
 
 	public void deleteArchive(String archiveFolder) {
@@ -988,6 +1013,8 @@ class LiveData {
 		child.putString(LivePlotComposite.MEMENTO_XTDATA_YAXISHEADER, yLabel);
 		child.putBoolean(LivePlotComposite.MEMENTO_XYDATA_VISIBLE, archive != null ? archive.getAppearance().isVisible()
 				: false);
+		if( yAxisName != null)
+			child.putString(LivePlotComposite.MEMENTO_XYDATA_YAXISNAME, yAxisName);
 		return archivedFilename;
 	}
 

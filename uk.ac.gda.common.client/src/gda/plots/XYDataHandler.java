@@ -65,7 +65,7 @@ public interface XYDataHandler {
 	//needed by PlotTreeLegend
 	public void setLineColor(int which, Color color);
 	public void setLineMarker(int which, Marker marker);
-	public void initializeLine(int which, int axis, String name, String xLabel, String yLabel, String dataFileName);
+	public void initializeLine(int which, int axis, String name, String xLabel, String yLabel, String dataFileName, String yAxisName);
 	public void deleteLine(int which);
 	
 	void onUpdate(boolean force);

@@ -201,7 +201,7 @@ public class ScanDataPointPlotter {
 		boolean onlyOne = !makeGroupAlways && linesToAdd.size() == 1;
 		for (ConfigLine line : linesToAdd) {
 			createLineAndCheckBox(currentFilename, lineNumber, topGrouping, subGrouping, line.label,
-					line.visible, onlyOne, xAxisHeader, reload);
+					line.visible, onlyOne, xAxisHeader, line.yAxisName, reload);
 			lineNumber++;
 		}
 		if( xVal != null)
@@ -215,23 +215,23 @@ public class ScanDataPointPlotter {
 	}
 
 	private void createLineAndCheckBox(String currentFilename, int lineNumber, String topGrouping,
-			String[] subGrouping, String itemName, boolean visible, boolean onlyOne, String xAxisHeader, boolean reloadLegendModel) {
+			String[] subGrouping, String itemName, boolean visible, boolean onlyOne, String xAxisHeader, String yAxisName, boolean reloadLegendModel) {
 		String subGroupLabel="";
 		for( String s : subGrouping){
 			subGroupLabel += "," + s;
 		}
 		String id = topGrouping + " " + subGroupLabel + " " + itemName;
-		plot.initializeLine(lineNumber, XYDataHandler.LEFTYAXIS, id, xAxisHeader, itemName, currentFilename);
+		plot.initializeLine(lineNumber, XYDataHandler.LEFTYAXIS, id, xAxisHeader, itemName, currentFilename, yAxisName);
 		legendPanel.addScan(currentFilename, topGrouping, subGrouping, itemName, visible, id, lineNumber, plot
 				.getLineColor(lineNumber), plot.getLineMarker(lineNumber), onlyOne, xAxisHeader, reloadLegendModel);
 		plot.setLineVisibility(lineNumber, visible);
 	}
 
 	public int addData(String scanIdentifier, String currentFileName, 
-			Vector<String> stepIdsStrings, DoubleDataset xData, DoubleDataset yData, String xAxisHeader, String yAxisHeader, boolean visible, boolean reload) {
+			Vector<String> stepIdsStrings, DoubleDataset xData, DoubleDataset yData, String xAxisHeader, String yAxisHeader, boolean visible, boolean reload, String yAxisName) {
 		String sourceToLineKey = scanIdentifier + yAxisHeader;
 		Vector<ConfigLine> linesToAdd = new Vector<ConfigLine>();
-		linesToAdd.add(new ConfigLine(0, yAxisHeader,visible));
+		linesToAdd.add(new ConfigLine(0, yAxisHeader,visible, yAxisName));
 		int newLineNumber = createNewLines(scanIdentifier, currentFileName, stepIdsStrings, linesToAdd, null, null, true,xAxisHeader, reload);
 		plot.setsPointsForLine(newLineNumber, xData, yData);
 		sourceToLine.put(sourceToLineKey, new Integer(newLineNumber));

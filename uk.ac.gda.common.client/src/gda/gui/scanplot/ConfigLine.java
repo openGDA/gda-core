@@ -22,11 +22,13 @@ public class ConfigLine {
 	Integer indexToData;
 	String label;
 	boolean visible;
+	String yAxisName;
 
-	public ConfigLine(Integer indexToData, String label, boolean visible) {
+	public ConfigLine(Integer indexToData, String label, boolean visible, String yAxisName) {
 		super();
 		this.indexToData = indexToData;
 		this.label = label;
 		this.visible = visible;
+		this.yAxisName = yAxisName;
 	}
 }

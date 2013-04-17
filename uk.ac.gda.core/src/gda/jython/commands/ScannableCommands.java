@@ -543,6 +543,11 @@ public class ScannableCommands {
 	public static final String GDA_PLOT_SCAN_PLOT_SETTINGS_FROM_USER_LIST = "gda.plot.ScanPlotSettings.fromUserList";
 
 	/**
+	 * Name of Property read by LocalPropties.check. If TRUE a separate YAxis is used for each visible to be plotted
+	 */
+	public static final String GDA_PLOT_SCAN_PLOT_SETTINGS_SEPARATE_YAXES = "gda.plot.ScanPlotSettings.separateYAxes";
+
+	/**
 	 * Sets up and operates a ConcurrentScan. The scan which should be used most of the time.
 	 * 
 	 * @param args
@@ -598,6 +603,9 @@ public class ScannableCommands {
 		} else {
 			sps = ScanPlotSettingsUtils.createSettingsWithDetector(theScan.getScannables(), theScan.getDetectors(), theScan
 					.getNumberOfChildScans(), XaxisIndex, YAxesShownIndices, YAxesNotShownIndices);
+		}
+		if( LocalProperties.check(GDA_PLOT_SCAN_PLOT_SETTINGS_SEPARATE_YAXES,false)){
+			sps.SetyAxesMapToUseSeparateYAxesForAll();
 		}
 		return sps;
 	}
