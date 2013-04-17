@@ -53,6 +53,7 @@ import org.dawb.common.ui.plot.axis.IPositionListener;
 import org.dawb.common.ui.plot.axis.PositionEvent;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
+import org.dawb.common.ui.plot.trace.ILineTrace.TraceType;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
@@ -873,10 +874,29 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 						plottingSystem.setSelectedYAxis( defaultYAxis);
 					}
 					ILineTrace trace = plottingSystem.createLineTrace(name);
-					trace.setLineWidth(1);
+					trace.setLineWidth(ld.appearance.getLineWidth());
 					trace.setPointSize(3);
-					trace.setPointStyle(PointStyle.POINT);
-					
+					switch(ld.getAppearance().getStyle()){
+					case DASHED:
+						trace.setPointStyle(PointStyle.NONE);
+						trace.setTraceType(TraceType.DASH_LINE);
+						break;
+					case DASHED_POINT:
+						trace.setPointStyle(PointStyle.DIAMOND);
+						trace.setTraceType(TraceType.DASH_LINE);
+						break;
+					case SOLID:
+						trace.setPointStyle(PointStyle.NONE);
+						trace.setTraceType(TraceType.SOLID_LINE);
+						break;
+					case SOLID_POINT:
+						trace.setPointStyle(PointStyle.DIAMOND);
+						trace.setTraceType(TraceType.SOLID_LINE);
+						break;
+					case POINT:
+						trace.setPointStyle(PointStyle.DIAMOND);
+						trace.setTraceType(TraceType.POINT);
+					}
 					final Color color = ld.getAppearance().getColour();
 					trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
 					trace.setData(ld.getX(), ld.getY());
