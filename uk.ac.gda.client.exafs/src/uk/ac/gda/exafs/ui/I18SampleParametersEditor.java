@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -23,38 +23,23 @@ import java.net.URL;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-/**
- *
- */
 public final class I18SampleParametersEditor extends ExafsBeanFileSelectionEditor {
 
-	/**
-	 * @return class
-	 */
 	@Override
 	public Class<?> getBeanClass() {
 		return I18SampleParameters.class;
 	}
 
-	/**
-	 * @return mapping url
-	 */
 	@Override
 	public URL getMappingUrl() {
 		return I18SampleParameters.mappingURL; // Please make sure this field is present and the mapping
 	}
 
-	/**
-	 * @return SampleEditor
-	 */
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
 		return new I18SampleParametersUIEditor(path, getMappingUrl(), this, editingBean);
 	}
 
-	/**
-	 * @return schema url
-	 */
 	@Override
 	public URL getSchemaUrl() {
 		return I18SampleParameters.schemaURL; // Please make sure this field is present and the schema
