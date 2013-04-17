@@ -363,5 +363,34 @@
             icon="icons/layout_edit.png">
       </image>
    </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <actionProvider
+            class="org.opengda.detector.electronanalyser.client.actions.OpenSequenceActionProvider"
+            id="org.opengda.detector.electronanalyser.client.actions.OpenSequenceActionProvider">
+         <enablement>
+            <and>
+               <instanceof
+                     value="org.eclipse.core.resources.IFile">
+               </instanceof>
+               <test
+                     property="org.eclipse.core.resources.extension"
+                     value="seq">
+               </test>
+            </and>
+         </enablement>
+      </actionProvider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerActionBinding
+            viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+            <actionExtension
+                  pattern="org.opengda.detector.electronanalyser.client.actions.*">
+            </actionExtension>
+         </includes>
+      </viewerActionBinding>
+   </extension>
 
 </plugin>
