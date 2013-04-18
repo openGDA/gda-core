@@ -21,8 +21,8 @@ package uk.ac.diamond.tomography.reconstruction.dialogs;
 import java.util.Collections;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.PlotType;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -55,6 +55,7 @@ public abstract class BaseRoiDialog extends Dialog {
 		this.dialogHeight = dialogHeight;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected final Control createDialogArea(Composite parent) {
 		getShell().setText(SHELL_TITLE);

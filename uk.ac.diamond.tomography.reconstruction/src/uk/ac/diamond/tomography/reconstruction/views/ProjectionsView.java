@@ -21,14 +21,16 @@ import gda.analysis.io.ScanFileHolderException;
 
 import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.ROIEvent;
-import org.dawb.common.ui.plot.region.RegionUtils;
-import org.dawb.common.ui.plot.trace.IImageTrace;
-import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.region.IROIListener;
+import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.MouseEvent;
+import org.dawnsci.plotting.api.region.MouseListener;
+import org.dawnsci.plotting.api.region.ROIEvent;
+import org.dawnsci.plotting.api.region.RegionUtils;
+import org.dawnsci.plotting.api.trace.IImageTrace;
+import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -36,7 +38,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.MouseListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -66,7 +67,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
@@ -160,10 +161,10 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (!xHair.isTrackMouse()) {
-					ROIBase roi = xHair.getROI();
+					IROI roi = xHair.getROI();
 					if (roi.getPointY() >= SPLITS) {
 						roi.setPoint(roi.getPointX(), roi.getPointY() - SPLITS);
-						ROIBase roiModified = getYBounds(roi);
+						IROI roiModified = getYBounds(roi);
 						xHair.setROI(roiModified);
 						roiSet(roiModified.getPointY());
 					}
@@ -204,10 +205,10 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			public void widgetSelected(SelectionEvent e) {
 				if (!xHair.isTrackMouse() && dataset != null && dataset.getShape().length == 3) {
 					int max = dataset.getShape()[1];
-					ROIBase roi = xHair.getROI();
+					IROI roi = xHair.getROI();
 					if (roi.getPointY() < max - SPLITS) {
 						roi.setPoint(roi.getPointX(), roi.getPointY() + SPLITS);
-						ROIBase roiModified = getYBounds(roi);
+						IROI roiModified = getYBounds(roi);
 						xHair.setROI(roiModified);
 						roiSet(roiModified.getPointY());
 					}
@@ -335,21 +336,21 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 				plottingSystem.addRegion(xHair);
 				xHair.addROIListener(mouseFollowRoiListener);
 
-				xHair.addMouseListener(mouseFollowRegionMouseListner);
+				xHair.addMouseListener(mouseFollowRegionMouseListener);
 			}
 		} catch (Exception ne) {
 			logger.error("Cannot create cross-hairs!", ne);
 		}
 	}
 
-	private ROIBase yBounds;
+	private IROI yBounds;
 
-	private MouseListener mouseFollowRegionMouseListner = new MouseListener.Stub() {
+	private MouseListener mouseFollowRegionMouseListener = new MouseListener.Stub() {
 		@Override
-		public void mousePressed(org.eclipse.draw2d.MouseEvent me) {
+		public void mousePressed(MouseEvent me) {
 			try {
 				xHair.setTrackMouse(false);
-				ROIBase roi = getYBounds(yBounds);
+				IROI roi = getYBounds(yBounds);
 				xHair.setROI(roi);
 				roiSet(roi.getPointY());
 			} catch (Exception e) {
@@ -359,7 +360,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 	};
 
-	private ROIBase getYBounds(ROIBase bounds) {
+	private IROI getYBounds(IROI bounds) {
 		double pointY = bounds.getPointY();
 
 		double rem = pointY % SPLITS;
@@ -379,7 +380,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 		private void update(ROIEvent evt) {
 			final IRegion region = (IRegion) evt.getSource();
-			ROIBase roi = region.getROI();
+			IROI roi = region.getROI();
 			yBounds = roi;
 		}
 
@@ -396,7 +397,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			update(evt);
 			if (dragged && !(xHair.isTrackMouse())) {
 				dragged = false;
-				ROIBase roi = getYBounds(evt.getROI());
+				IROI roi = getYBounds(evt.getROI());
 				xHair.setROI(roi);
 				roiSet(roi.getPointY());
 			}

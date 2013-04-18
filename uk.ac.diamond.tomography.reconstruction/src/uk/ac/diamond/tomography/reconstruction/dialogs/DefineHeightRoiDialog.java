@@ -18,8 +18,8 @@
 
 package uk.ac.diamond.tomography.reconstruction.dialogs;
 
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.IRegion.RegionType;
+import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
 public class DefineHeightRoiDialog extends BaseRoiDialog {
@@ -80,7 +80,7 @@ public class DefineHeightRoiDialog extends BaseRoiDialog {
 			public void widgetSelected(SelectionEvent e) {
 				startEnd = new int[2];
 				if (plottingSystem.getRegions().contains(selectedRegion)) {
-					ROIBase roi = selectedRegion.getROI();
+					IROI roi = selectedRegion.getROI();
 					if (roi instanceof RectangularROI) {
 						RectangularROI rec = (RectangularROI) roi;
 						int[] intPoint = rec.getIntPoint();

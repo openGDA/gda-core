@@ -39,6 +39,7 @@
             name="Nexus Navigator"
             restorable="true">
       </view>
+      <!--
       <view
             allowMultiple="false"
             category="uk.ac.diamond.tomography.reconstruction"
@@ -56,6 +57,7 @@
             name="Recon Results"
             restorable="true">
       </view>
+      -->
    </extension>
    <extension
          point="org.eclipse.help.contexts">
@@ -234,6 +236,7 @@
          </commandParameter>
       </command>
    </extension>
+   <!--
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
@@ -288,4 +291,5 @@
             name="name">
       </category>
    </extension>
+   -->
 </plugin>
