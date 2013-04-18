@@ -220,7 +220,7 @@
                   commandId="org.opengda.detector.electronanalyser.client.plotlayoutdopdown"
                   label="SES Plot Layout"
                   style="pulldown"
-                  tooltip="Change SES data plot layout">
+                  tooltip="Plot Layout Control">
                <visibleWhen
                      checkEnabled="false">
                   <with
@@ -239,7 +239,7 @@
          <command
                commandId="org.opengda.detector.electronanalyser.client.showTile"
                icon="icons/tile_quad.png"
-               label="Tile Quad"
+               label="Quad"
                style="push">
             <parameter
                   name="org.opengda.detector.electronanalyser.client.plotLayoutPreference"
@@ -258,7 +258,7 @@
          <command
                commandId="org.opengda.detector.electronanalyser.client.showTile"
                icon="icons/stack.png"
-               label="Stack Plots"
+               label="Stack"
                style="push">
             <parameter
                   name="org.opengda.detector.electronanalyser.client.plotLayoutPreference"
@@ -277,7 +277,7 @@
          <command
                commandId="org.opengda.detector.electronanalyser.client.showTile"
                icon="icons/tile-vertical.png"
-               label="Tile Vertical"
+               label="Vertical"
                style="push">
             <parameter
                   name="org.opengda.detector.electronanalyser.client.plotLayoutPreference"
@@ -296,7 +296,7 @@
          <command
                commandId="org.opengda.detector.electronanalyser.client.showTile"
                icon="icons/tile-horizontal.png"
-               label="Tile Horizontal"
+               label="Horizontal"
                style="push">
             <parameter
                   name="org.opengda.detector.electronanalyser.client.plotLayoutPreference"
