@@ -9,24 +9,22 @@ import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
-import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
-import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * class to display data colection progress for a
  * {@link org.opengda.detector.electronanalyser.model.Region} It monitors EPICS
- * progress PVs to update the progress bar. It also provide 'Stop' button to
+ * progress PVs to update the progress bar. It also provides 'Stop' button to
  * abort current region collection. Users must provide 'analyser' object to enable the monitoring.
  * 
  * @author fy65
@@ -42,10 +40,15 @@ public class RegionProgressComposite extends Composite {
 		
 		this.setLayout(new FillLayout());
 		Composite rootComposite = new Composite(this, SWT.NONE);
-		GridLayout layout = new GridLayout(6, false);
+		GridLayout layout = new GridLayout(7, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		rootComposite.setLayout(layout);
+		Label lblIteration=new Label(rootComposite, SWT.None);
+		lblIteration.setText("Iteration: ");
+		
+		Label lblIterationValue=new Label(rootComposite, SWT.None);
+		lblIterationValue.setText("0/0");
 		
 		Label lblMin = new Label(rootComposite, SWT.NONE);
 		
@@ -62,12 +65,15 @@ public class RegionProgressComposite extends Composite {
 		lblStep.setText("Step:");
 		
 		txtCurrentStep = new Text(rootComposite, SWT.BORDER);
+		txtCurrentStep.setForeground(ColorConstants.green);
+		txtCurrentStep.setEditable(false);
+		txtCurrentStep.setBackground(ColorConstants.black);
 		txtCurrentStep.setText("currentStep");
 		txtCurrentStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
-		Button btnStop = new Button(rootComposite, SWT.CENTER);
-		btnStop.setImage(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_STOP));
-		btnStop.setToolTipText("Stop current region collection");
+//		Button btnStop = new Button(rootComposite, SWT.CENTER);
+//		btnStop.setImage(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_STOP));
+//		btnStop.setToolTipText("Stop current region collection");
 	}
 
 	public void initialise() {
