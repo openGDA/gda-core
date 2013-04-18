@@ -36,6 +36,7 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
+import gda.scan.AxisSpecProviderImpl;
 import gda.scan.CentroidScan;
 import gda.scan.ConcurrentScan;
 import gda.scan.ContinuousScan;
@@ -605,7 +606,7 @@ public class ScannableCommands {
 					.getNumberOfChildScans(), XaxisIndex, YAxesShownIndices, YAxesNotShownIndices);
 		}
 		if( LocalProperties.check(GDA_PLOT_SCAN_PLOT_SETTINGS_SEPARATE_YAXES,false)){
-			sps.SetyAxesMapToUseSeparateYAxesForAll();
+			sps.setAxisSpecProvider(new AxisSpecProviderImpl(true));
 		}
 		return sps;
 	}

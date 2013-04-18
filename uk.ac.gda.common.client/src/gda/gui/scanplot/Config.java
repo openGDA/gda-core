@@ -18,10 +18,11 @@
 
 package gda.gui.scanplot;
 
+import gda.scan.AxisSpec;
+import gda.scan.AxisSpecProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanPlotSettings;
 
-import java.util.Map;
 import java.util.Vector;
 
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class Config {
 	int numberOfDetectors;
 	int numberofChildScans;
 	Double[] initialDataAsDoubles;
-	Map<String, String> yAxesMap;
+	AxisSpecProvider yAxesMap;
 
 	boolean isValid(IScanDataPoint pt) {
 		return id.equals(pt.getUniqueName());
@@ -94,7 +95,7 @@ public class Config {
 		String[] pointyAxesNotShown = null;
 		if (scanPlotSettings != null) {
 			xAxisHeader = scanPlotSettings.getXAxisName();
-			yAxesMap = scanPlotSettings.getyAxesMap();
+			yAxesMap = scanPlotSettings.getAxisSpecProvider();
 
 		}
 
@@ -181,18 +182,18 @@ public class Config {
 	}
 
 	private void addIfWanted(Vector<ConfigLine> linesToAdd, Double val, Vector<String> yAxesShown,
-			Vector<String> yAxesNotShown, Map<String, String> yAxesMap, String name, int index, int xAxisIndex) {
+			Vector<String> yAxesNotShown, AxisSpecProvider axisSpecProvider, String name, int index, int xAxisIndex) {
 		// do not add a line if we are unable to convert the string representation to a double
 		if (val == null)
 			return;
 		if (index != xAxisIndex) {
 			if (yAxesShown == null || yAxesShown.contains(name)) {
-				String yAxisName = yAxesMap != null ? yAxesMap.get(name):null;
-				linesToAdd.add(new ConfigLine(index, name, true, yAxisName));
+				AxisSpec yaxisSpec = axisSpecProvider != null ? axisSpecProvider.getAxisSpec(name):null;
+				linesToAdd.add(new ConfigLine(index, name, true, yaxisSpec));
 			} else {
 				if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
-					String ownYAxis = yAxesMap != null ? yAxesMap.get(name):null;
-					linesToAdd.add(new ConfigLine(index, name, false, ownYAxis));
+					AxisSpec yaxisSpec = axisSpecProvider != null ? axisSpecProvider.getAxisSpec(name):null;
+					linesToAdd.add(new ConfigLine(index, name, false, yaxisSpec));
 				}
 			}
 		}

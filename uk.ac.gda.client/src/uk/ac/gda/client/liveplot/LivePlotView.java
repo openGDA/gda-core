@@ -28,6 +28,7 @@ import gda.observable.IObserver;
 import gda.plots.ScanTreeItem;
 import gda.plots.SingleScanLine;
 import gda.rcp.GDAClientActivator;
+import gda.scan.AxisSpec;
 import gda.scan.IScanDataPoint;
 
 import java.io.BufferedReader;
@@ -381,7 +382,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			for (int i = 1; i < xyDataSetNames.size(); i++) {
 				String xyDataSetName = xyDataSetNames.get(i);
 				DoubleDataset yData = sfh.getAxis(xyDataSetName);
-				String ownYAxis = yAxesMap != null ? yAxesMap.get(xyDataSetName):null;
+				AxisSpec ownYAxis = yAxesMap != null ? new AxisSpec(yAxesMap.get(xyDataSetName)):null;
 				xyPlot.addData(path, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData, true, true, ownYAxis);
 			}
 		} else {

@@ -19,6 +19,8 @@
 
 package gda.plots;
 
+import gda.scan.AxisSpec;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -65,7 +67,7 @@ public interface XYDataHandler {
 	//needed by PlotTreeLegend
 	public void setLineColor(int which, Color color);
 	public void setLineMarker(int which, Marker marker);
-	public void initializeLine(int which, int axis, String name, String xLabel, String yLabel, String dataFileName, String yAxisName);
+	public void initializeLine(int which, int axis, String name, String xLabel, String yLabel, String dataFileName, AxisSpec yAxisSpec);
 	public void deleteLine(int which);
 	
 	void onUpdate(boolean force);

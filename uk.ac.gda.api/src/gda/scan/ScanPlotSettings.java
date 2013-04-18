@@ -44,7 +44,7 @@ public class ScanPlotSettings implements Serializable {
 	private boolean ignore = false;
 	private int unlistedColumnBehaviour = IGNORE;
 	private boolean allowUseOfPreviousScanSettings = true;
-	private Map<String, String> yAxesMap;
+	AxisSpecProvider axisSpecProvider;
 
 	public String getXAxisName() {
 		return xAxisName;
@@ -134,6 +134,8 @@ public class ScanPlotSettings implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + (allowUseOfPreviousScanSettings ? 1231 : 1237);
+		result = prime * result + ((axisSpecProvider == null) ? 0 : axisSpecProvider.hashCode());
 		result = prime * result + (ignore ? 1231 : 1237);
 		result = prime * result + unlistedColumnBehaviour;
 		result = prime * result + ((xAxisName == null) ? 0 : xAxisName.hashCode());
@@ -153,6 +155,13 @@ public class ScanPlotSettings implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		ScanPlotSettings other = (ScanPlotSettings) obj;
+		if (allowUseOfPreviousScanSettings != other.allowUseOfPreviousScanSettings)
+			return false;
+		if (axisSpecProvider == null) {
+			if (other.axisSpecProvider != null)
+				return false;
+		} else if (!axisSpecProvider.equals(other.axisSpecProvider))
+			return false;
 		if (ignore != other.ignore)
 			return false;
 		if (unlistedColumnBehaviour != other.unlistedColumnBehaviour)
@@ -197,32 +206,12 @@ public class ScanPlotSettings implements Serializable {
 				+ (xMax != null ? xMax.toString() : "null, unlisted columns: " + unlistedColumnBehaviour);
 	}
 
-
-
-	public Map<String, String> getyAxesMap() {
-		return yAxesMap;
+	public AxisSpecProvider getAxisSpecProvider() {
+		return axisSpecProvider;
 	}
 
-	/**
-	 * yAxesMap axis name map.
-	 * Key - name of y_axis being plotted. To match a value in y_axes
-	 * Entry - name of the y axis to use if the default axis is not to be used
-	 */
-	public void setyAxesMap(Map<String, String> yAxesMap) {
-		this.yAxesMap = yAxesMap;
+	public void setAxisSpecProvider(AxisSpecProvider axisSpecProvider) {
+		this.axisSpecProvider = axisSpecProvider;
 	}
 
-	public void SetyAxesMapToUseSeparateYAxesForAll(){
-		yAxesMap = new HashMap<String, String>();
-		if( getYAxesShown() != null){
-			for( String s : getYAxesShown()){
-				yAxesMap.put(s, s);
-			}
-		}
-		if( getYAxesNotShown() != null){
-			for( String s : getYAxesNotShown()){
-				yAxesMap.put(s, s);
-			}
-		}
-	}
 }

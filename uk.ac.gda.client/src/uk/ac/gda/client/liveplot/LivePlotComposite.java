@@ -26,6 +26,7 @@ import gda.plots.Type;
 import gda.plots.UpdatePlotQueue;
 import gda.plots.XYDataHandler;
 import gda.rcp.GDAClientActivator;
+import gda.scan.AxisSpec;
 import gda.scan.IScanDataPoint;
 import gda.util.FileUtil;
 
@@ -339,7 +340,7 @@ public class LivePlotComposite extends Composite {
 	 * @param reload
 	 */
 	public void addData(String scanIdentifier, String fileName, String label, DoubleDataset xData, DoubleDataset yData,
-			boolean visible, boolean reload, String yAxisName) {
+			boolean visible, boolean reload, AxisSpec yAxisName) {
 		if (!isDisposed())
 			plotter.addData(scanIdentifier, fileName, null, xData, yData, xData.getName(), label, visible, reload, yAxisName);
 	}
@@ -378,8 +379,8 @@ public class LivePlotComposite extends Composite {
 					String xAxisHeader = thisScan.getString(MEMENTO_XYDATA_XAXISHEADER);
 					String yAxisHeader = thisScan.getString(MEMENTO_XTDATA_YAXISHEADER);
 					String  yAxisName = thisScan.getString(MEMENTO_XYDATA_YAXISNAME);
-
-					LiveData scan = new LiveData(0, uniquename, xAxisHeader, yAxisHeader, archiveFileName, dataFileName, yAxisName);
+					AxisSpec axisSpec = yAxisName != null ? new AxisSpec(yAxisName): null;
+					LiveData scan = new LiveData(0, uniquename, xAxisHeader, yAxisHeader, archiveFileName, dataFileName, axisSpec);
 					Vector<String> stepIds=new Vector<String>();
 					String [] parts = uniquename.split(",");
 					for(int i=1; i< parts.length-1;i++){
@@ -393,7 +394,7 @@ public class LivePlotComposite extends Composite {
 						if(xdata == null || xdata.getSize()==0)
 							continue;
 						plotter.addData(scanIdentifier, dataFileName, stepIds, xdata,
-								scan.archive.getyVals(), xAxisHeader, yAxisHeader, true, false, yAxisName);
+								scan.archive.getyVals(), xAxisHeader, yAxisHeader, true, false, axisSpec);
 						
 					}else {
 						/**
@@ -401,7 +402,7 @@ public class LivePlotComposite extends Composite {
 						 * dummy line and then change it to archive state by setting archivefilename 
 						 */
 						int linenum = plotter.addData(scanIdentifier, dataFileName, stepIds, new DoubleDataset(1),
-							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false, yAxisName);
+							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false, axisSpec);
 						plotView.getXYData(linenum).archiveFilename = scan.archiveFilename;//we need to set to archiveFilename in scan as currently equal to null
 						plotView.getXYData(linenum).archive=null;
 					}
@@ -625,10 +626,10 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	}
 
 	@Override
-	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName, String yAxisName) {
+	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName, AxisSpec yAxisSpec) {
 		checkScansArray(which);
 		//name = TraceUtils.getUniqueTrace(name, plottingSystem);
-		scans[which] = new LiveData(which, name, xAxisHeader, yAxisHeader, null, dataFileName, yAxisName);
+		scans[which] = new LiveData(which, name, xAxisHeader, yAxisHeader, null, dataFileName, yAxisSpec);
 		nextUnInitialisedLine = which + 1;
 	}
 
@@ -779,7 +780,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				if (sd != null  && sd.number > 1 ) {//do not show lines with only 1 point as the datasetplotter throws exceptions
 					if (sd.isVisible()) {
 						
-						xys.add( new LineData(sd.archive.getAppearance(), sd.archive.getxAxis().toDataset(),sd.archive.getyVals(), sd.yAxisName ));
+						xys.add( new LineData(sd.archive.getAppearance(), sd.archive.getxAxis().toDataset(),sd.archive.getyVals(), sd.yAxisSpec ));
 						AbstractDataset y = sd.archive.getyVals();
 						if (y.getName()==null || "".equals(y.getName())) {
 							y.setName(sd.name);
@@ -792,7 +793,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 								xAxisIsVarious = true;
 							}
 						}
-						if( sd.yAxisName==null){
+						if( sd.yAxisSpec==null){
 							if (!yAxisIsVarious && StringUtils.hasLength(sd.yLabel)) {
 								if (yAxisHeader == null) {
 									yAxisHeader = sd.yLabel;
@@ -856,6 +857,10 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 						break;
 					}
 				}
+				for(IAxis axis : plottingSystem.getAxes()){
+					if( !axis.isPrimaryAxis())
+						plottingSystem.removeAxis(axis);
+				}
 
 				for (final LineData ld : xys) {
 					AbstractDataset y = ld.getY();
@@ -863,7 +868,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					if (name==null || "".equals(name)) {
 						logger.error("y dataset is not named - it should be!");
 					}
-					String yAxisName = ld.getyAxisName();
+					AxisSpec axisSpec = ld.getyAxisSpec();
+					String yAxisName = axisSpec != null ? axisSpec.getName(): null;
 					if( yAxisName != null){
 						IAxis extraYAxis = null;
 						for(IAxis axis : plottingSystem.getAxes()){
@@ -969,7 +975,7 @@ class LiveData {
 	int which = 0;
 	String xLabel;
 	String yLabel;
-	String yAxisName;
+	AxisSpec yAxisSpec;
 
 	/**
 	 * Scan file holding all the data of the scan
@@ -986,7 +992,7 @@ class LiveData {
 	 * @param dataFileName - the name of the file holding the scan data
 	 */
 	LiveData(int which, String name, String xLabel, String yLabel, String archiveFilename,
-			String dataFileName, String yAxisName) {
+			String dataFileName, AxisSpec axisSpec) {
 		this.name = name;
 		this.which = which;
 		this.xLabel = xLabel;
@@ -996,7 +1002,7 @@ class LiveData {
 		if( archiveFilename == null){
 			resetArchive(which);
 		}
-		this.yAxisName =yAxisName;
+		this.yAxisSpec =axisSpec;
 	}
 
 	public void deleteArchive(String archiveFolder) {
@@ -1040,8 +1046,8 @@ class LiveData {
 		child.putString(LivePlotComposite.MEMENTO_XTDATA_YAXISHEADER, yLabel);
 		child.putBoolean(LivePlotComposite.MEMENTO_XYDATA_VISIBLE, archive != null ? archive.getAppearance().isVisible()
 				: false);
-		if( yAxisName != null)
-			child.putString(LivePlotComposite.MEMENTO_XYDATA_YAXISNAME, yAxisName);
+		if( yAxisSpec != null)
+			child.putString(LivePlotComposite.MEMENTO_XYDATA_YAXISNAME, yAxisSpec.getName());
 		return archivedFilename;
 	}
 

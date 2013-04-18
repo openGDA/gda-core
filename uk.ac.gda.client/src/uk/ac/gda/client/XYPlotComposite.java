@@ -26,6 +26,7 @@ import gda.plots.Type;
 import gda.plots.UpdatePlotQueue;
 import gda.plots.XYDataHandler;
 import gda.rcp.GDAClientActivator;
+import gda.scan.AxisSpec;
 import gda.scan.IScanDataPoint;
 import gda.util.FileUtil;
 
@@ -633,7 +634,7 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 	}
 
 	@Override
-	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName, String yAxisName) {
+	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName, AxisSpec yAxisSpec) {
 		checkScansArray(which);
 		scans[which] = new XYData(which, name, xAxisHeader, yAxisHeader, null, dataFileName);
 		nextUnInitialisedLine = which + 1;

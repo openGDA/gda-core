@@ -18,17 +18,19 @@
 
 package gda.gui.scanplot;
 
+import gda.scan.AxisSpec;
+
 public class ConfigLine {
 	Integer indexToData;
 	String label;
 	boolean visible;
-	String yAxisName;
+	AxisSpec yaxisSpec;
 
-	public ConfigLine(Integer indexToData, String label, boolean visible, String yAxisName) {
+	public ConfigLine(Integer indexToData, String label, boolean visible, AxisSpec yaxisSpec) {
 		super();
 		this.indexToData = indexToData;
 		this.label = label;
 		this.visible = visible;
-		this.yAxisName = yAxisName;
+		this.yaxisSpec = yaxisSpec;
 	}
 }
