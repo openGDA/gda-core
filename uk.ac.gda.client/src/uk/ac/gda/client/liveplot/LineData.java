@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.liveplot;
 
+import gda.scan.AxisSpec;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 
@@ -25,6 +26,7 @@ public class LineData {
 	Plot1DAppearance appearance;
 	AbstractDataset x;
 	AbstractDataset y;
+	AxisSpec yAxisSpec;
 
 	public AbstractDataset getX() {
 		return x;
@@ -35,11 +37,17 @@ public class LineData {
 	public Plot1DAppearance getAppearance() {
 		return appearance;
 	}
-	public LineData(Plot1DAppearance appearance, AbstractDataset x, AbstractDataset y) {
+	
+	public AxisSpec getyAxisSpec() {
+		return yAxisSpec;
+	}
+	
+	public LineData(Plot1DAppearance appearance, AbstractDataset x, AbstractDataset y, AxisSpec yAxisSpec) {
 		super();
 		this.appearance = appearance;
 		this.x = x;
 		this.y = y;
+		this.yAxisSpec = yAxisSpec;
 	}
 	
 }

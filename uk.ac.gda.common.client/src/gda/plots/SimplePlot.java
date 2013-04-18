@@ -20,6 +20,7 @@
 package gda.plots;
 
 import gda.observable.IObserver;
+import gda.scan.AxisSpec;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -2074,7 +2075,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 *            the axis - LEFTAXIS
 	 */
 	public void initializeLine(int which, int axis) {
-		initializeLine(which, axis, null, "","","");
+		initializeLine(which, axis, null, "","","", null);
 	}
 
 	/**
@@ -2087,7 +2088,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * @param name
 	 */
 	@Override
-	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName) {
+	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName, AxisSpec yAxisSpec) {
 		initializeLineImpl(which, axis, name, null);
 	}
 

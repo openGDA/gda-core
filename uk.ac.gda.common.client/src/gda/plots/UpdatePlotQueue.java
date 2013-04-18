@@ -44,6 +44,8 @@ public class UpdatePlotQueue implements Runnable {
 		this.killed = killed;
 	}
 
+	private int plotPeriodMS=500;
+
 	/**
 	 * @param simplePlot
 	 */
@@ -54,10 +56,11 @@ public class UpdatePlotQueue implements Runnable {
 			items.add(simplePlot);
 			if (thread == null) {
 				thread = uk.ac.gda.util.ThreadManager.getThread(this, "XYDataHandler:UpdatePlotQueue");
-				thread.start();
 			}
 			items.notifyAll();
 		}
+		if( !thread.isAlive())
+			thread.start();
 	}
 
 	@Override
@@ -74,7 +77,7 @@ public class UpdatePlotQueue implements Runnable {
 					}
 				}
 				if (itemsToBeHandled != null && !killed) {
-					Thread.sleep(50);
+					Thread.sleep(plotPeriodMS);
 					int numItems = itemsToBeHandled.length;
 					for (int index = 0; index < numItems; index++) {
 						try {
@@ -96,6 +99,10 @@ public class UpdatePlotQueue implements Runnable {
 				logger.error(th.getMessage(),th);
 			}
 		}
+	}
+
+	public void setPlotPeriodMS(int plotPeriodMS) {
+		this.plotPeriodMS = plotPeriodMS;
 	}
 }
 

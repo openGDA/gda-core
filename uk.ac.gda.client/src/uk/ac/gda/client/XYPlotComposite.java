@@ -25,6 +25,8 @@ import gda.plots.ScanPair;
 import gda.plots.Type;
 import gda.plots.UpdatePlotQueue;
 import gda.plots.XYDataHandler;
+import gda.rcp.GDAClientActivator;
+import gda.scan.AxisSpec;
 import gda.scan.IScanDataPoint;
 import gda.util.FileUtil;
 
@@ -56,6 +58,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -87,6 +90,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotDataTableDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
+import uk.ac.gda.preferences.PreferenceConstants;
 /**
  * Composite for displaying XY data from ScanDataPoints.
  */
@@ -373,7 +377,7 @@ public class XYPlotComposite extends Composite {
 	public void addData(String scanIdentifier, String fileName, String label, DoubleDataset xData, DoubleDataset yData,
 			boolean visible, boolean reload) {
 		if (!isDisposed())
-			plotter.addData(scanIdentifier, fileName, null, xData, yData, xData.getName(), label, visible, reload);
+			plotter.addData(scanIdentifier, fileName, null, xData, yData, xData.getName(), label, visible, reload, null);
 	}
 
 	public void saveState(IMemento memento, String archiveFolder) {
@@ -424,7 +428,7 @@ public class XYPlotComposite extends Composite {
 						if(xdata == null || xdata.getSize()==0)
 							continue;
 						plotter.addData(scanIdentifier, dataFileName, stepIds, xdata,
-								scan.archive.getyVals(), xAxisHeader, yAxisHeader, true, false);
+								scan.archive.getyVals(), xAxisHeader, yAxisHeader, true, false, null);
 						
 					}else {
 						/**
@@ -432,7 +436,7 @@ public class XYPlotComposite extends Composite {
 						 * dummy line and then change it to archive state by setting archivefilename 
 						 */
 						int linenum = plotter.addData(scanIdentifier, dataFileName, stepIds, new DoubleDataset(1),
-							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false);
+							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false, null);
 						plotView.getXYData(linenum).archiveFilename = scan.archiveFilename;//we need to set to archiveFilename in scan as currently equal to null
 						plotView.getXYData(linenum).archive=null;
 					}
@@ -512,6 +516,12 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 		datasetplotter.getColourTable().addEntryOnLegend(new Plot1DAppearance(Color.BLACK, "black"));
 		datasetplotter.setPlotActionEnabled(true);
 		datasetplotter.setPlotRightClickActionEnabled(true);
+		
+		
+		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+		int plotPeriodMS = preferenceStore.getInt(PreferenceConstants.GDA_CLIENT_PLOT_PERIOD_MS);
+		updateQueue.setPlotPeriodMS(plotPeriodMS);
+		
 	}
 
 	void saveState(IMemento memento, String archiveFolder) {
@@ -624,7 +634,7 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 	}
 
 	@Override
-	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName) {
+	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName, AxisSpec yAxisSpec) {
 		checkScansArray(which);
 		scans[which] = new XYData(which, name, xAxisHeader, yAxisHeader, null, dataFileName);
 		nextUnInitialisedLine = which + 1;

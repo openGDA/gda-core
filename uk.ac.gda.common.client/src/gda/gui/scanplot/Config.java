@@ -18,6 +18,8 @@
 
 package gda.gui.scanplot;
 
+import gda.scan.AxisSpec;
+import gda.scan.AxisSpecProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanPlotSettings;
 
@@ -37,6 +39,7 @@ public class Config {
 	int numberOfDetectors;
 	int numberofChildScans;
 	Double[] initialDataAsDoubles;
+	AxisSpecProvider yAxesMap;
 
 	boolean isValid(IScanDataPoint pt) {
 		return id.equals(pt.getUniqueName());
@@ -92,6 +95,7 @@ public class Config {
 		String[] pointyAxesNotShown = null;
 		if (scanPlotSettings != null) {
 			xAxisHeader = scanPlotSettings.getXAxisName();
+			yAxesMap = scanPlotSettings.getAxisSpecProvider();
 
 		}
 
@@ -163,11 +167,11 @@ public class Config {
 		initialDataAsDoubles = point.getAllValuesAsDoubles();
 		if (initialDataAsDoubles[xAxisIndex] != null) {
 			for (int j = 0; j < numberOfScannables; j++, index++) {
-				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, point
+				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, yAxesMap, point
 						.getPositionHeader().get(j), index, xAxisIndex);
 			}
 			for (int j = 0; j < point.getDetectorHeader().size(); j++, index++) {
-				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, point
+				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, yAxesMap, point
 						.getDetectorHeader().get(j), index, xAxisIndex);
 			}
 		} else {
@@ -178,16 +182,18 @@ public class Config {
 	}
 
 	private void addIfWanted(Vector<ConfigLine> linesToAdd, Double val, Vector<String> yAxesShown,
-			Vector<String> yAxesNotShown, String name, int index, int xAxisIndex) {
+			Vector<String> yAxesNotShown, AxisSpecProvider axisSpecProvider, String name, int index, int xAxisIndex) {
 		// do not add a line if we are unable to convert the string representation to a double
 		if (val == null)
 			return;
 		if (index != xAxisIndex) {
 			if (yAxesShown == null || yAxesShown.contains(name)) {
-				linesToAdd.add(new ConfigLine(index, name, true));
+				AxisSpec yaxisSpec = axisSpecProvider != null ? axisSpecProvider.getAxisSpec(name):null;
+				linesToAdd.add(new ConfigLine(index, name, true, yaxisSpec));
 			} else {
 				if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
-					linesToAdd.add(new ConfigLine(index, name, false));
+					AxisSpec yaxisSpec = axisSpecProvider != null ? axisSpecProvider.getAxisSpec(name):null;
+					linesToAdd.add(new ConfigLine(index, name, false, yaxisSpec));
 				}
 			}
 		}
