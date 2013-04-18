@@ -70,10 +70,10 @@ def generateScanPoints(inBeamPosition, outOfBeamPosition, theta_points, darkFiel
     shutterNoChange = 2
     scan_points = []
     if pattern == 'default' or pattern == 'DFPFD':
-        print "Using scan-points pattern = ", pattern
+        print "Using scan-point pattern:", pattern
         theta_pos = theta_points[0]
         index = 0
-        #Added shutterNoChange state for the shutter. The scan points are added using the ternary operator, 
+        #Added shutterNoChange state for the shutter. The scan points are added using the (pseudo) ternary operator, 
         #if index is 0 then the shutterPosition is added to the scan point, else shutterNoChange is added to scan points.
         for i in range(imagesPerDark):
             scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
@@ -123,7 +123,7 @@ def generateScanPoints(inBeamPosition, outOfBeamPosition, theta_points, darkFiel
                 scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
                 index = index + 1
     elif pattern == 'PFD':
-        print "Using scan-points pattern = ", pattern
+        print "Using scan-point pattern:", pattern
         theta_pos = theta_points[0]
         index = 0
         
@@ -168,7 +168,7 @@ def generateScanPoints(inBeamPosition, outOfBeamPosition, theta_points, darkFiel
                 scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
                 index = index + 1
     else:
-        print "Unsupported scan-points pattern requested = ", pattern
+        print "Unsupported scan-point pattern:", pattern
     
     return scan_points
 
@@ -176,15 +176,52 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
     if scanObject is None:
         raise "Input scanObject must not be None"
     
-    instrument_detector_data_target = "entry1/instrument/" + tomography_detector_name + "/image_data"
-    sample_rotation_angle_target = "entry1/instrument/tomoScanDevice/" + tomography_theta_name
-    #print "instrument_detector_data_target = " + instrument_detector_data_target
-    #print "sample_rotation_angle_target = " + sample_rotation_angle_target
-    
     nxLinkCreator = NXTomoEntryLinkCreator()
-    nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
-    nxLinkCreator.setSample_rotation_angle_target(sample_rotation_angle_target)
-    nxLinkCreator.setTitle_target("entry1/title")
+    
+    # detector independent items
+    nxLinkCreator.setControl_data_target("entry1:NXentry/instrument:NXinstrument/source:NXsource/current:NXdata")
+    
+    #instrument_detector_distance_target = "entry1:NXentry/scan_identifier:NXdata";
+    
+    nxLinkCreator.setInstrument_detector_image_key_target("entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:NXdata")
+    #instrument_detector_x_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
+    #instrument_detector_y_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
+    
+    nxLinkCreator.setInstrument_source_target("entry1:NXentry/instrument:NXinstrument/source:NXsource")
+    
+    sample_rotation_angle_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/" 
+    sample_rotation_angle_target += tomography_theta_name + ":NXdata"
+    nxLinkCreator.setSample_rotation_angle_target(sample_rotation_angle_target);
+    #sample_x_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplex:NXdata";
+    #sample_y_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_sampley:NXdata";
+    #sample_z_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplez:NXdata";
+    
+    nxLinkCreator.setTitle_target("entry1:NXentry/title:NXdata")
+    
+    # detector dependent items
+    if tomography_detector_name == "pco4000_dio_hdf":
+        # external file
+        instrument_detector_data_target = "!entry1:NXentry/instrument:NXinstrument/"
+        instrument_detector_data_target += tomography_detector_name + ":NXdetector/"
+        instrument_detector_data_target += "data:SDS"
+        nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
+    elif tomography_detector_name == "pco4000_dio_tif":
+        # image filenames
+        instrument_detector_data_target = "entry1:NXentry/instrument:NXinstrument/"
+        instrument_detector_data_target += tomography_detector_name + ":NXdetector/"
+        instrument_detector_data_target += "image_data:NXdata"
+        nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
+    elif tomography_detector_name == "pco":
+        # image filenames
+        instrument_detector_data_target = "entry1:NXentry/instrument:NXinstrument/"
+        instrument_detector_data_target += tomography_detector_name + ":NXdetector/"
+        instrument_detector_data_target += "data_file:NXnote/file_name:NXdata"
+        nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
+    else:
+        print "Defaults used for unsupported tomography detector in addNXTomoSubentry: " + tomography_detector_name
+    
+    print "instrument_detector_data_target = " + instrument_detector_data_target
+    print "sample_rotation_angle_target = " + sample_rotation_angle_target
     
     nxLinkCreator.afterPropertiesSet()
     
@@ -200,6 +237,8 @@ def reportJythonNamespaceMapping():
     objectOfInterest['tomography_shutter'] = jns.tomography_shutter
     objectOfInterest['tomography_translation'] = jns.tomography_translation
     objectOfInterest['tomography_detector'] = jns.tomography_detector
+    objectOfInterest['tomography_camera_stage'] = jns.tomography_camera_stage
+    objectOfInterest['tomography_sample_stage'] = jns.tomography_sample_stage
    
     for key, val in objectOfInterest.iteritems():
         print key + ' = ' + str(val)
@@ -244,7 +283,7 @@ image_key_project = 0 # also known as sample
 perform a simple tomography scan
 """
 def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=180., step=0.1, darkFieldInterval=0, flatFieldInterval=0,
-              imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, additionalScannables=[]):
+              imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, pattern="default", additionalScannables=[]):
     """
     Function to collect a tomogram
     Arguments:
@@ -295,6 +334,15 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         tomography_beammonitor = jns.tomography_beammonitor
         if tomography_beammonitor is None:
             raise "tomography_beammonitor is not defined in Jython namespace"
+        
+        tomography_camera_stage = jns.tomography_camera_stage
+        if tomography_camera_stage is None:
+            raise "tomography_camera_stage is not defined in Jython namespace"
+        
+        tomography_sample_stage = jns.tomography_sample_stage
+        if tomography_sample_stage is None:
+            raise "tomography_sample_stage is not defined in Jython namespace"
+        
         index = SimpleScannable()
         index.setCurrentPosition(0.0)
         index.setInputNames(["imageNumber"])
@@ -321,6 +369,7 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
             theta_points.append(nextPoint)
             previousPoint = nextPoint
         
+        #generateScanPoints
         optimizeBeamNo = 0
         optimizeBeamYes = 1
         shutterOpen = 1
@@ -329,7 +378,7 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         scan_points = []
         theta_pos = theta_points[0]
         index = 0
-        #Added shutterNoChange state for the shutter. The scan points are added using the ternary operator, 
+        #Added shutterNoChange state for the shutter. The scan points are added using the (pseudo) ternary operator, 
         #if index is 0 then the shutterPosition is added to the scan point, else shutterNoChange is added to scan points.
         for i in range(imagesPerDark):
             scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
@@ -377,9 +426,22 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
             for i in range(imagesPerDark):
                 scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
                 index = index + 1        
+        scan_points1 = generateScanPoints(inBeamPosition, outOfBeamPosition, theta_points, darkFieldInterval, flatFieldInterval,
+              imagesPerDark, imagesPerFlat, optimizeBeamInterval, pattern=pattern)
+        if pattern == 'default' or pattern == 'DFPFD':
+            i = 0
+            for pt1 in scan_points1:
+                pt = scan_points[i]
+                if pt1 != pt:
+                    print "Mismatch - please tell Kaz about your scan and its arguments!"
+                    print "i = ", i
+                    print "pt = ", pt
+                    print "pt1 = ", pt1
+                i += 1
+        #return None
         positionProvider = tomoScan_positions(start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat, \
                                                inBeamPosition, outOfBeamPosition, optimizeBeamInterval, scan_points) 
-        scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime ]
+        scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime, tomography_camera_stage, tomography_sample_stage]
         for scannable in additionalScannables:
             scan_args.append(scannable)
         ''' setting the description provided as the title'''
@@ -405,7 +467,7 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         handle_messages.log(None, "Error during tomography scan", exceptionType, exception, traceback, False)
         raise Exception("Error during tomography scan", exception)
     finally:
-        handle_messages.simpleLog("Data Format reset to " + dataFormat)
+        handle_messages.simpleLog("Data Format reset to the original setting: " + dataFormat)
         LocalProperties.set("gda.data.scan.datawriter.dataFormat", dataFormat)
 
 def __test1_tomoScan():

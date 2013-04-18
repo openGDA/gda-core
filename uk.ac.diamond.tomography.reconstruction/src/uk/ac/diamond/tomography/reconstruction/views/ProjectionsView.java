@@ -498,7 +498,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 			updateData();
 
-			UpdatePlotJob updatePlotJob = new UpdatePlotJob();
+			UpdatePlotJob updatePlotJob = new UpdatePlotJob(this);
 			updatePlotJob.setRule(new ReconSchedulingRule(nexusFile));
 			updatePlotJob.setPixelPosition(sliceNumber);
 			updatePlotJob.setName(String.format("Update plot after reconstruction:%s", nexusFile.getName()));
@@ -536,7 +536,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 	}
 
 	public void displayReconstruction(final String nexusFileLocation, final int pixelPosition) {
-		UpdatePlotJob updatePlotJob = new UpdatePlotJob();
+		UpdatePlotJob updatePlotJob = new UpdatePlotJob(this);
 		if (nexusFile != null) {
 			updatePlotJob.setName(String.format(UPDATING_DATA, nexusFile.getName()));
 		}

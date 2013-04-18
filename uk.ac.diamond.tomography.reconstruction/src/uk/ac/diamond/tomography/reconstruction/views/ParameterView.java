@@ -28,10 +28,8 @@ import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -129,6 +127,12 @@ import uk.ac.diamond.tomography.reconstruction.results.reconresults.util.Reconre
  */
 
 public class ParameterView extends BaseParameterView implements ISelectionListener, IParameterView, ISelectionProvider {
+
+	private static final String TOMO_QUICK_RECON_COMMAND = "%1$s -m 4 -p -e %2$d -n -t %3$s %4$s %5$s";
+
+	private static final String TOMO_FULL_RECON_COMMAND = "%1$s -m 20 -b %2$d -e %3$d -t %4$s %5$s %6$s";
+
+	private static final String ROI_ERROR_MESSAGE = "Unable to set ROI. Please run a 'Preview Recon' and try again";
 
 	private static final String DEFINE_ROI = "Define ROI";
 
@@ -468,7 +472,8 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			if (quick) {
 				pathToImages = new File(ReconUtil.getReconstructedReducedDataDirectoryPath(nexusFileLocation));
 			} else {
-				imagePath = String.format("%s/%s", ReconUtil.getReconOutDir(nexusFileLocation).toString(), imagePath);
+				imagePath = String.format("%s%s%s", ReconUtil.getReconOutDir(nexusFileLocation).toString(),
+						File.separator, imagePath);
 				pathToImages = new File(imagePath);
 			}
 
@@ -517,22 +522,21 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			String command = null;
 			if (quick) {
 				// to add -p
-				command = String.format("%s -m 4 -p -e %d -n -t %s %s %s", shScriptName, height, templateFileName,
-						fileName, pathToImages.toString());
+				command = String.format(TOMO_QUICK_RECON_COMMAND, shScriptName, height, templateFileName, fileName,
+						pathToImages.toString());
 
 				logger.debug("Command that will be run:{}", command);
 				jobNameToDisplay = String.format(JOB_NAME_QUICK_RECONSTRUCTION, nexusFile.getName());
 				runCommand(jobNameToDisplay, command);
 				updatePlotAfterQuickRecon(nexusFileLocation);
 			} else {
-
 				int startHeight = 0;
 				int endHeight = hdfShape[1];
 				if (startEnd != null) {
 					startHeight = startEnd[0];
 					endHeight = startEnd[1];
 				}
-				command = String.format("%s -m 4 -b %d -e %d -n -t %s %s %s", shScriptName, startHeight, endHeight,
+				command = String.format(TOMO_FULL_RECON_COMMAND, shScriptName, startHeight, endHeight,
 						templateFileName, fileName, pathToImages.toString());
 				logger.debug("Command that will be run:{}", command);
 
@@ -552,7 +556,6 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 							detail.setNexusFileName(nexusFile.getName());
 							detail.setReconstructedLocation(pathToImages.toString());
 
-							// DateFormat.getDateInstance("dd/MM/yyyy hh:mm:ss");
 							detail.setTimeReconStarted(formattedDate);
 
 							Command addCommand = AddCommand.create(reconResultsEditingDomain, results,
@@ -573,7 +576,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 								.getDefaultSaveOptions());
 					}
 				}
-				// runCommand(jobNameToDisplay, command);
+				runCommand(jobNameToDisplay, command);
 			}
 		} catch (URISyntaxException e) {
 			logger.error("Incorrect URI for script", e);
@@ -607,7 +610,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	protected void updatePlotAfterQuickRecon(String nexusFileLocation) {
 		int sliceNumber = getSliceSelectionFromProjectionsView();
 		if (sliceNumber >= 0) {
-			UpdatePlotJob updatePlotJob = new UpdatePlotJob();
+			UpdatePlotJob updatePlotJob = new UpdatePlotJob(this);
 			updatePlotJob.setRule(new ReconSchedulingRule(nexusFile));
 			updatePlotJob.setPixelPosition(sliceNumber);
 			updatePlotJob.setName(String.format("Update plot after reconstruction:%s", nexusFile.getName()));
@@ -814,11 +817,15 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 						runReconScript(true);
 					}
 				} else {
-					// ErrorDialog.openError(getViewSite().getShell(), "Problem setting ROI",
-					// "Unable to set ROI.\n\nPlease run a 'Preview Recon' and try again", new Status(
-					// IStatus.ERROR, Activator.PLUGIN_ID, "Problem loading image"));
-					getViewSite().getActionBars().getStatusLineManager()
-							.setErrorMessage("Unable to set ROI.Please run a 'Preview Recon' and try again");
+					getViewSite().getActionBars().getStatusLineManager().setErrorMessage(ROI_ERROR_MESSAGE);
+
+					getViewSite().getShell().getDisplay().timerExec(5000, new Runnable() {
+
+						@Override
+						public void run() {
+							getViewSite().getActionBars().getStatusLineManager().setErrorMessage(null);
+						}
+					});
 				}
 			}
 		});
@@ -1199,6 +1206,15 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	public void dispose() {
 		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(NexusNavigator.ID, this);
 		super.dispose();
+	}
+	
+	@Override
+	public void setSelection(ISelection selection) {
+		super.setSelection(selection);
+		if (selection instanceof ParametersSelection) {
+			runHdfReconstruction(true);
+		}
+		
 	}
 
 }
