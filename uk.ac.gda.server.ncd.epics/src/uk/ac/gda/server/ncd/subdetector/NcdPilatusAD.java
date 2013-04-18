@@ -42,13 +42,17 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import uk.ac.gda.server.ncd.pilatus.PilatusADController;
 
+/**
+ * the update method has some device specific code to flag errors when triggering (gating) is attempted
+ * outside the detector's capabilities
+ */
 public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IObserver, LastImageProvider {
 
 	// Setup the logging facilities
 	private static final Logger logger = LoggerFactory.getLogger(NcdPilatusAD.class);
-	private PilatusADController controller;
+	protected PilatusADController controller;
 	private Timer timer;
-	private DeviceException tfgMisconfigurationException = new DeviceException("Triggering not set up");
+	protected DeviceException tfgMisconfigurationException = new DeviceException("Triggering not set up");
 
 	@Override
 	public void clear() throws DeviceException {
@@ -212,38 +216,34 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		longestFrame = longestFrame / 1000;
 		longestWait = longestWait / 1000;
 
-		if (shortestWait < 0.003) {
-			tfgMisconfigurationException = new DeviceException("Readout time too short for " + getName()
-					+ ". Need more than 3ms.");
+		tfgMisconfigurationException = checkTiming(shortestFrame, longestFrame, shortestWait, longestWait);
+		if (tfgMisconfigurationException != null) 
 			return;
-		}
-		if ((shortestWait + shortestFrame) < 0.033) {
-			tfgMisconfigurationException = new DeviceException("Cycle time too short for " + getName()
-					+ ". Need more than 33ms live and dead time combined.");
-			return;
-		}
-		if ((shortestWait < 0.013) && ((longestFrame - shortestFrame) > 0.001 && (longestWait - shortestWait) > 0.001)) {
-			tfgMisconfigurationException = new DeviceException("Cannot vary trigger times with fast read out on "
-					+ getName() + ". Choose longer dead time.");
-			return;
-		}
-		if (longestWait > 90) {
-			tfgMisconfigurationException = new DeviceException(getName()
-					+ " will timeout waiting for dead frames of more than 90 seconds.");
-			return;
-		}
-		// TODO could flag error for varying times by too much in "relaxed" mode, but need to run some tests for that
-		tfgMisconfigurationException = null;
-
+		
 		try {
 			controller.setExposures(1);
 			controller.setNumImages(framecount);
 			controller.setAcquirePeriod(shortestFrame + shortestWait);
 			controller.setAcquireTime(shortestFrame);
-			controller.setReadTimeout(longestFrame + longestWait + 120.0);
+			controller.setReadTimeout(longestFrame + longestWait + 2000.0); // Wuge and Dora trigger on water bath reaching temperature
 		} catch (Exception e) {
 			logger.error("error setting up acqusition on area detector for " + getName(), e);
 		}
+	}
+	
+	@SuppressWarnings("unused")
+	protected DeviceException checkTiming(double shortestFrame, double longestFrame, double shortestWait, double longestWait) {
+
+		if (shortestWait < 0.00095) {
+			return new DeviceException("Readout time too short for " + getName()
+					+ ". Need more than 0.95ms.");
+		}
+		if ((shortestWait + shortestFrame) < 0.004) {
+			return new DeviceException("Cycle time too short for " + getName()
+					+ ". Need more than 4ms live and dead time combined.");
+		}
+
+		return null;
 	}
 
 	public void setThresholdkeV(double d) throws Exception {
@@ -345,5 +345,23 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		}
 
 		addMetadata(dataTree);
+		
+		// delay returning from that method until area detector had a chance to read in all files
+		// not pretty, but best solution I can come up with now.
+		// there should be some getstatus or are you ready call
+
+		try {
+			int totalmillis = 40000;
+			int grain = 25;
+			for (int i = 0; i < totalmillis / grain; i++) {
+				int state = getStatus();
+				if (state == Detector.IDLE) {
+					return;
+				}
+				Thread.sleep(grain);
+			}
+		} catch (InterruptedException e) {
+			logger.error("interupted waiting for ioc to read files", e);
+		}
 	}
 }
