@@ -53,6 +53,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	protected PilatusADController controller;
 	private Timer timer;
 	protected DeviceException tfgMisconfigurationException = new DeviceException("Triggering not set up");
+	private String predictedFilename = "/dev/null";
 
 	@Override
 	public void clear() throws DeviceException {
@@ -267,7 +268,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		}
 	}
 
-	private void setupFilename() throws Exception {
+	private String setupFilename() throws Exception {
 		String beamline = null;
 		try {
 			beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", null);
@@ -293,6 +294,8 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		Number scanNumber = runNumber.getCurrentFileNumber();
 
 		controller.setFileNumber(scanNumber);
+		
+		return controller.predictFilename();
 	}
 
 	/**
@@ -308,7 +311,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 				.getCurrentScanInformation();
 		try {
 			controller.setScanDimensions(scanInformation.getDimensions());
-			setupFilename();
+			predictedFilename = setupFilename();
 			controller.resetCounters();
 			controller.startRecording();
 		} catch (Exception e) {
@@ -335,14 +338,16 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 
 	@Override
 	public void writeout(int frames, NXDetectorData dataTree) throws DeviceException {
+		String filename = predictedFilename;
 		try {
-			dataTree.addScanFileLink(getName(), "nxfile://" + controller.getHDFFileName()
-					+ "#entry/instrument/detector/data");
-		} catch (DeviceException e) {
-			throw e;
+			filename = controller.getHDFFileName();
 		} catch (Exception e) {
-			throw new DeviceException("error getting HDF file name", e);
+			// will happen with LazyOpen
 		}
+		if (filename != null && !filename.equals(predictedFilename))
+			throw new DeviceException("predicted hdf5 filename is wrong, this code can not be relied on.");
+		
+		dataTree.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
 
 		addMetadata(dataTree);
 		

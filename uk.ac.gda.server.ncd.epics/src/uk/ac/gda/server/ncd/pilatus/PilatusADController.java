@@ -468,6 +468,10 @@ public class PilatusADController implements InitializingBean {
 		hdf5.setFileTemplate(String.format("%%s%%s-%%d-%s.h5", name));
 	}
 	
+	public String predictFilename() throws Exception {
+		return String.format(hdf5.getFileTemplate(), hdf5.getFilePath(), hdf5.getFileName(), hdf5.getFileNumber());
+	}
+	
 	public void resetCounters() throws Exception {
 		areaDetector.setArrayCounter(0);
 		array.getPluginBase().setArrayCounter(0);
