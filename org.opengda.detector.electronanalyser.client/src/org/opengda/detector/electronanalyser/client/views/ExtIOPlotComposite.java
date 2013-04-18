@@ -39,6 +39,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -90,12 +91,11 @@ public class ExtIOPlotComposite extends Composite {
 
 		Composite plotComposite = new Composite(this, SWT.None);
 		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		plotComposite.setLayout(new GridLayout(1, true));
+		plotComposite.setLayout(new FillLayout());
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, "ExtIO", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
 		: null, PlotType.XY_STACKED, part);
-//		initialise();
 	}
 
 	public void initialise() {

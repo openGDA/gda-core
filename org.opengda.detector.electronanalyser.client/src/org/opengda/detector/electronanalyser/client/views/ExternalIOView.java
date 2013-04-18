@@ -1,7 +1,7 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
@@ -23,7 +23,7 @@ public class ExternalIOView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
-		rootComposite.setLayout(new GridLayout());
+		rootComposite.setLayout(new FillLayout());
 
 		try {
 			ExtIOPlotComposite externalIOPlotComposite = new ExtIOPlotComposite(this, rootComposite, SWT.None);

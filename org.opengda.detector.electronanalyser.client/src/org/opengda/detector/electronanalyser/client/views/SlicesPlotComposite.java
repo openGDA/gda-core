@@ -148,10 +148,6 @@ public class SlicesPlotComposite extends Composite {
 		plottingSystem.createPlotPart(plotComposite, "Slices",
 				part instanceof IViewPart ? ((IViewPart) part).getViewSite()
 						.getActionBars() : null, PlotType.XY_STACKED, part);
-		// plottingSystem.createPlotPart(plotComposite, "Slices", null,
-		// PlotType.XY_STACKED, null);
-
-		// initialise();
 	}
 	/**
 	 * initialise object

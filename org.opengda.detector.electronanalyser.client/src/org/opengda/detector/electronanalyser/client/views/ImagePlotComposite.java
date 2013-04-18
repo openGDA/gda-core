@@ -92,11 +92,7 @@ public class ImagePlotComposite extends Composite {
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, "Image",
 				part instanceof IViewPart ? ((IViewPart) part).getViewSite()
-						.getActionBars() : null, PlotType.XY_STACKED, part);
-		//		plottingSystem.createPlotPart(plotComposite, "Image", null,
-//				PlotType.XY_STACKED, part);
-
-//		initialise();
+						.getActionBars() : null, PlotType.IMAGE, part);
 	}
 
 	public void initialise() {
@@ -107,8 +103,7 @@ public class ImagePlotComposite extends Composite {
 		try {
 			addMonitors();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		logger.error("Cannot add monitor to image data",e);
 		}
 		addMonitorListeners();
 	}

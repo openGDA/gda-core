@@ -116,13 +116,11 @@ public class SpectrumPlotComposite extends Composite {
 		this.setLayout(layout);
 
 		Composite plotComposite = new Composite(this, SWT.None);
-//		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-//		plotComposite.setLayout(new GridLayout(1, true));
+		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		plotComposite.setLayout(new FillLayout());
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
 				: null, PlotType.XY_STACKED, part);
-		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		statsComposite = new Composite(this, SWT.None);
 		statsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -175,8 +173,6 @@ public class SpectrumPlotComposite extends Composite {
 		txtArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtArea.setBackground(ColorConstants.yellow);
 		txtArea.setText("0000");
-
-//		initialise();
 
 	}
 
