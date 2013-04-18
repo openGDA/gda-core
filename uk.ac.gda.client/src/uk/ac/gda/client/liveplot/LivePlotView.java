@@ -382,8 +382,13 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			for (int i = 1; i < xyDataSetNames.size(); i++) {
 				String xyDataSetName = xyDataSetNames.get(i);
 				DoubleDataset yData = sfh.getAxis(xyDataSetName);
-				AxisSpec ownYAxis = yAxesMap != null ? new AxisSpec(yAxesMap.get(xyDataSetName)):null;
-				xyPlot.addData(path, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData, true, true, ownYAxis);
+				AxisSpec axisSpec = null;
+				if( yAxesMap != null){
+					String yAxisName = yAxesMap.get(xyDataSetName);
+					if( yAxisName != null)
+						axisSpec = new AxisSpec(yAxisName);
+				}
+				xyPlot.addData(path, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData, true, true, axisSpec);
 			}
 		} else {
 			logger.warn("Unrecognized file type - " + path);
