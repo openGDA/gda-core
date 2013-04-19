@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2011-2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -53,7 +53,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	protected PilatusADController controller;
 	private Timer timer;
 	protected DeviceException tfgMisconfigurationException = new DeviceException("Triggering not set up");
-	private String predictedFilename = "/dev/null";
+	private String filename = "/dev/null";
 
 	@Override
 	public void clear() throws DeviceException {
@@ -268,7 +268,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		}
 	}
 
-	private String setupFilename() throws Exception {
+	private void setupFilename() throws Exception {
 		String beamline = null;
 		try {
 			beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", null);
@@ -280,22 +280,15 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			beamline = "base";
 		}
 
-		controller.setFilenamePrefix(beamline);
-		controller.setFilenamePostfix(getName());
-
 		// Check to see if the data directory has been defined.
 		String dataDir = PathConstructor.createFromDefaultProperty();
-
-		controller.setDirectory(dataDir);
-
 		// Now lets try and setup the NumTracker...
 		NumTracker runNumber = new NumTracker(beamline);
 		// Get the current number
 		Number scanNumber = runNumber.getCurrentFileNumber();
 
-		controller.setFileNumber(scanNumber);
-		
-		return controller.predictFilename();
+		filename = String.format("%s/%s-%d-%s.h5", dataDir, beamline, scanNumber, getName());
+		controller.setAbsoluteFilename(filename);
 	}
 
 	/**
@@ -311,7 +304,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 				.getCurrentScanInformation();
 		try {
 			controller.setScanDimensions(scanInformation.getDimensions());
-			predictedFilename = setupFilename();
+			setupFilename();
 			controller.resetCounters();
 			controller.startRecording();
 		} catch (Exception e) {
@@ -329,7 +322,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			throw new DeviceException("error finalising data acquitision/writing", e);
 		} finally {
 			try {
-				FileRegistrarHelper.registerFile(controller.getHDFFileName());
+				FileRegistrarHelper.registerFile(filename);
 			} catch (Exception e) {
 				logger.warn("error getting file name for archiving from "+getName(), e);
 			}
@@ -338,15 +331,6 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 
 	@Override
 	public void writeout(int frames, NXDetectorData dataTree) throws DeviceException {
-		String filename = predictedFilename;
-		try {
-			filename = controller.getHDFFileName();
-		} catch (Exception e) {
-			// will happen with LazyOpen
-		}
-		if (filename != null && !filename.equals(predictedFilename))
-			throw new DeviceException("predicted hdf5 filename is wrong, this code can not be relied on.");
-		
 		dataTree.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
 
 		addMetadata(dataTree);

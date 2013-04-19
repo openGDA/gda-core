@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2011-2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -75,6 +75,9 @@ public class PilatusADController implements InitializingBean {
 		try {
 			hdf5.setAutoSave((short) 0);
 			hdf5.setAutoIncrement((short) 0);
+			hdf5.setFileNumber((short) 0);
+			hdf5.setFileName("unused");
+			hdf5.setFilePath("unused");
 			hdf5.getPluginBase().enableCallbacks();
 			array.getPluginBase().enableCallbacks();
 		} catch (Exception e) {
@@ -447,29 +450,13 @@ public class PilatusADController implements InitializingBean {
 		hdf5.stopCapture();
 	}
 
-	public String getHDFFileName() throws Exception {
+	public String getAbsoulteFileNameRBV() throws Exception {
 		throwIfWriteError();
 		return hdf5.getFullFileName_RBV();
 	}
 
-	public void setDirectory(String dataDir) throws Exception {
-		hdf5.setFilePath(dataDir);		
-	}
-
-	public void setFileNumber(Number scanNumber) throws Exception {
-		hdf5.setFileNumber(scanNumber.intValue());		
-	}
-
-	public void setFilenamePrefix(String beamline) throws Exception {
-			hdf5.setFileName(beamline);		
-	}
-
-	public void setFilenamePostfix(String name) throws Exception {
-		hdf5.setFileTemplate(String.format("%%s%%s-%%d-%s.h5", name));
-	}
-	
-	public String predictFilename() throws Exception {
-		return String.format(hdf5.getFileTemplate(), hdf5.getFilePath(), hdf5.getFileName(), hdf5.getFileNumber());
+	public void setAbsoluteFilename(String name) throws Exception {
+		hdf5.setFileTemplate(name);
 	}
 	
 	public void resetCounters() throws Exception {
