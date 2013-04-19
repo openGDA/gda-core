@@ -75,8 +75,12 @@ class ProcessingDetectorWrapperPositionCallable(Callable):
 		# 1. Register file
 		if self.pathToRegister:
 			self.fileRegistrar.registerFile(self.pathToRegister)
+		
 		# 2. generate position	
-		position = [self.collectionTime, self.filepathToReport]
+		position = [self.collectionTime]
+		if self.filepathToReport:
+			position.append(self.filepathToReport)
+		
 		processorResults = []
 		for processor in self.processors:
 			processorResults += list(processor.getPosition(self.datasetProvider.getDataset()))
@@ -137,6 +141,8 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 
 		self._operatingInScan = False
 		self._preparedForScan = False
+		
+		self.include_path_in_output = True
 	
 	
 	
@@ -149,7 +155,11 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 	
 	
 	def getExtraNames(self):
-		extraNames = ['path']
+		
+		extraNames = []
+		if self.include_path_in_output:
+			extraNames.append('path')
+		
 		if self.return_performance_metrics:
 			extraNames.append("t_process")
 		if self.process_image:
@@ -164,7 +174,12 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 			for processor in self.processors:
 				processorFormats += list(processor.getOutputFormat())
 		metricsFormats = ['%f'] if self.return_performance_metrics else []
-		return ['%f', self.__getFilePathFormat()] + metricsFormats + processorFormats
+		
+		format = ['%f']
+		if self.include_path_in_output:
+			format.append(self.__getFilePathFormat())
+		
+		return format + metricsFormats + processorFormats
 	
 	def __getFilePathFormat(self):
 		return '%i' if self.returnPathAsImageNumberOnly else '%s'
@@ -230,8 +245,13 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 		panelName = self.panel_name if self.display_image else None
 		panelNameRCP = self.panel_name_rcp if self.display_image else None
 		
+		if self.include_path_in_output:
+			filepathToReport = self.__getFilePathRepresentation()
+		else:
+			filepathToReport = None
+		
 		return ProcessingDetectorWrapperPositionCallable(
-			self.det.getCollectionTime(), self.__getFilePathRepresentation(),
+			self.det.getCollectionTime(), filepathToReport,
 			processors, pathToRegister, panelName, panelNameRCP,
 			self.getDatasetProvider(), self.renderer, self.fileRegistrar, self.return_performance_metrics)
 	
