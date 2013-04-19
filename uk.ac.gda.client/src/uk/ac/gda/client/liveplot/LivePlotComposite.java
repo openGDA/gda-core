@@ -892,23 +892,23 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					switch(ld.getAppearance().getStyle()){
 					case DASHED:
 						trace.setPointStyle(PointStyle.NONE);
-						trace.setTraceType(TraceType.DASH_LINE);
+						trace.setTraceType(ILineTrace.TraceType.DASH_LINE);
 						break;
 					case DASHED_POINT:
 						trace.setPointStyle(PointStyle.DIAMOND);
-						trace.setTraceType(TraceType.DASH_LINE);
+						trace.setTraceType(ILineTrace.TraceType.DASH_LINE);
 						break;
 					case SOLID:
 						trace.setPointStyle(PointStyle.NONE);
-						trace.setTraceType(TraceType.SOLID_LINE);
+						trace.setTraceType(ILineTrace.TraceType.SOLID_LINE);
 						break;
 					case SOLID_POINT:
 						trace.setPointStyle(PointStyle.DIAMOND);
-						trace.setTraceType(TraceType.SOLID_LINE);
+						trace.setTraceType(ILineTrace.TraceType.SOLID_LINE);
 						break;
 					case POINT:
 						trace.setPointStyle(PointStyle.DIAMOND);
-						trace.setTraceType(TraceType.POINT);
+						trace.setTraceType(ILineTrace.TraceType.POINT);
 					}
 					final Color color = ld.getAppearance().getColour();
 					trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
