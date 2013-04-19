@@ -77,7 +77,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 	private static final String JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH = "Update centre(%s): %.02f";
 	private static final String FIND_TOMO_CENTRE_SCRIPT_FILE_NAME = "platform:/plugin/%s/scripts/tomo_centre.sh";
 	private static final String FIND_CENTRE_JOB_NAME = "Finding Centre (%.02f) for %s";
-	private static final String FIND_CENTRE_COMMAND = "%s -s %d -c %f --ctot=%d --cstep=%f -n %s %s";
+	private static final String FIND_CENTRE_COMMAND = "%1$s -s %2$d -c %3$f -t %4$s --ctot=%5$d --cstep=%6$f -n %7$s %8$s";
 	private static final String PLOTVIEW_PLOT_1 = "Plot 1";
 	private static final String UPDATING_CENTRE_OF_ROTATION = "Updating Centre of Rotation";
 	private static final String MSG_ACTIVATE = "Please select a nexus file in the navigator view to activate the view.";
@@ -135,7 +135,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 			FileUtils.deleteContents(file);
 
 			String centreOfRotationCommand = String.format(FIND_CENTRE_COMMAND, shScriptName, sliceNumber,
-					centreOfCentre, totalSteps, stepSize, reducedNxsFileName, outDir);
+					centreOfCentre, getHmSettingsInProcessingDir(), totalSteps, stepSize, reducedNxsFileName, outDir);
 
 			logger.debug("Centre of rotation command : {}", centreOfRotationCommand);
 
@@ -415,7 +415,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 				List<String> fileNameList = Arrays.asList(fileNames);
 				Collections.sort(fileNameList);
 				fileNames = fileNameList.toArray(new String[0]);
-				
+
 				File fileName = new File(parentLocation, fileNames[position]);
 				logger.debug("File trying to display:{}", fileNames[position]);
 				if (fileName.exists()) {
