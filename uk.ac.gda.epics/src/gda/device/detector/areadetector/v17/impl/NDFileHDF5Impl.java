@@ -120,6 +120,8 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	private static final String NumFramesChunks_RBV = "NumFramesChunks_RBV";
 
 	private static final String NumFramesFlush = "NumFramesFlush";
+	private static final String LazyOpen = "LazyOpen";
+	private static final String LazyOpen_RBV = "LazyOpen_RBV";
 
 	private static final String NumFramesFlush_RBV = "NumFramesFlush_RBV";
 
@@ -975,4 +977,22 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 		}
 		
 	}
+
+	@Override
+	public void setLazyOpen(boolean open) throws Exception {
+		if (config != null) {
+			throw new IllegalArgumentException("LazyOpen not yet in the interface file");
+		}
+		EPICS_CONTROLLER.caputWait(getChannel(LazyOpen), open ? 1:0);
+	}
+
+	@Override
+	public boolean isLazyOpen() throws Exception {
+		if (config != null) {
+			throw new IllegalArgumentException("LazyOpen not yet in the interface file");
+		}
+		return EPICS_CONTROLLER.cagetInt(getChannel(LazyOpen_RBV))==1;
+	}
+
+
 }

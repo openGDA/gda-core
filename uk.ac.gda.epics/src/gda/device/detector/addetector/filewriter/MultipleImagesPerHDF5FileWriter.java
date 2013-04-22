@@ -20,6 +20,7 @@ package gda.device.detector.addetector.filewriter;
 
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
+import gda.device.detector.NXDetectorData;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
@@ -38,6 +39,7 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	
@@ -125,7 +127,22 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	private boolean storeAttr=false;
 
 	private boolean storePerform=false;
+
 	
+	private boolean lazyOpen=false;
+	
+	public boolean isLazyOpen() {
+		return lazyOpen;
+	}
+
+	/**
+	 * 
+	 * @param lazyOpen If true the HDF5 plugin supports LazyOpen and set it to 1
+	 */
+	public void setLazyOpen(boolean lazyOpen) {
+		this.lazyOpen = lazyOpen;
+	}
+
 	public boolean isSetChunking() {
 		return setChunking;
 	}
@@ -167,6 +184,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory 
 		getNdFileHDF5().setStoreAttr(storeAttr? 1:0);
 		getNdFileHDF5().setStorePerform(storePerform?1:0);
+		if( lazyOpen)
+			getNdFileHDF5().setLazyOpen(true);
 		getNdFile().setFileWriteMode(FileWriteMode.STREAM); 
 		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		//if not scan setup then act as if this is a 1 point scan
@@ -313,13 +332,17 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 			DeviceException {
 		NXDetectorDataAppender dataAppender;
 		if (firstReadoutInScan) {
-			String filepath;
-			try {
-				filepath = getFullFileName();
-			} catch (Exception e) {
-				throw new DeviceException(e);
+			if( isLazyOpen()){
+				dataAppender = new NXDetectorDataFileLinkAppenderDelayed();
+			} else {
+				String filepath;
+				try {
+					filepath = getFullFileName();
+				} catch (Exception e) {
+					throw new DeviceException(e);
+				}
+				dataAppender = new NXDetectorDataFileLinkAppender(filepath);
 			}
-			dataAppender = new NXDetectorDataFileLinkAppender(filepath);
 		}
 		else {
 			dataAppender = new NXDetectorDataNullAppender();
@@ -329,4 +352,28 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		appenders.add(dataAppender);
 		return appenders;
 	}
+
+
+	 class NXDetectorDataFileLinkAppenderDelayed implements NXDetectorDataAppender {
+
+			@Override
+			public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
+
+				try{
+					String filename = "";
+					do{
+						Thread.sleep(1000);
+						ScanBase.checkForInterrupts();
+						filename=getFullFileName();
+					}
+					while(!StringUtils.hasLength(filename));
+
+					data.addScanFileLink(detectorName, "nxfile://" + filename + "#entry/instrument/detector/data");
+				}catch(Exception ex){
+					throw new DeviceException("Exception getting filename");
+				}
+
+			}
+
+		}
 }
