@@ -61,15 +61,13 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	protected VortexParameters vortexParameters;
 	protected Timer tfg;
+	// flag to temporarily stop performing deadtime corrections (for diagnostic purposes).
 	protected boolean saveRawSpectrum = false;
 	/**
 	 * These are the fit parameters used in dead time correction.
 	 */
 	protected List<Double> eventProcessingTimes;
 
-	/**
-	 * 
-	 */
 	public Xmap() {
 		this.inputNames = new String[0];
 	}

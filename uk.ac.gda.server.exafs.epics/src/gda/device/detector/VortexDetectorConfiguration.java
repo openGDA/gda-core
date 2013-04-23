@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.OutputParameters;
+import uk.ac.gda.beans.exafs.i20.I20OutputParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
 
 
@@ -47,6 +48,8 @@ public class VortexDetectorConfiguration extends DetectorConfiguration {
 
 	private String additionalSavePath;
 
+	private OutputParameters output;
+
 	public VortexDetectorConfiguration(final Object controller, 
 			                           final String path,
 			                           final Object vortexName) throws Exception{
@@ -56,7 +59,8 @@ public class VortexDetectorConfiguration extends DetectorConfiguration {
 
 	public VortexDetectorConfiguration(final Object controller, 
 			                           final String path,
-			                           final Object vortexName, @SuppressWarnings("unused") final OutputParameters output) throws Exception{
+			                           final Object vortexName, final OutputParameters output) throws Exception{
+		this.output = output;
 		this.controller       = (ObservableComponent)controller;
 		this.vortexParameters = (VortexParameters)getBean(path,vortexName);
 	}
@@ -64,7 +68,8 @@ public class VortexDetectorConfiguration extends DetectorConfiguration {
 	public VortexDetectorConfiguration(final Object controller, 
 			                           final String path,
  final Object vortexName,
-			@SuppressWarnings("unused") final OutputParameters output, final String additionalSavePath) throws Exception{
+			final OutputParameters output, final String additionalSavePath) throws Exception{
+		this.output = output;
 		this.controller       = (ObservableComponent)controller;
 		this.vortexParameters = (VortexParameters)getBean(path,vortexName);
 		this.additionalSavePath = additionalSavePath;
@@ -93,7 +98,10 @@ public class VortexDetectorConfiguration extends DetectorConfiguration {
 			
 			// 2. Set windows.
 			xmapDetector.loadConfigurationFromFile();
-			if (vortexParameters != null){
+			if (output != null && output instanceof I20OutputParameters) {
+				I20OutputParameters op = (I20OutputParameters) output;
+				xmapDetector.setSaveRawSpectrum(op.isVortexSaveRawSpectrum());
+			} else if (vortexParameters != null){
 				xmapDetector.setSaveRawSpectrum(vortexParameters.isSaveRawSpectrum());
 			}
 			if(additionalSavePath != null)

@@ -47,7 +47,9 @@ import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
+import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObject;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
@@ -113,9 +115,12 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 		};
 		workingEnergyBtn.addSelectionListener(workingEnergyListener);
 
-		this.selectDefaultsBtn = new Button(workingEComp, SWT.NONE);
-		selectDefaultsBtn.setText("Set Default Gas Mixtures");
-		selectDefaultsBtn.setToolTipText("Click to set ion chamber gas types to defaults.");
+		if (!ExafsActivator.getDefault().getPreferenceStore()
+				.getBoolean(ExafsPreferenceConstants.HIDE_DEFAULT_GAS_MIXTURES_BUTTON)) {
+			this.selectDefaultsBtn = new Button(workingEComp, SWT.NONE);
+			selectDefaultsBtn.setText("Set Default Gas Mixtures");
+			selectDefaultsBtn.setToolTipText("Click to set ion chamber gas types to defaults.");
+		}
 		
 
 		IExperimentObject selectedScan = ExperimentFactory.getExperimentEditorManager().getSelectedScan();

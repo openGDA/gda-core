@@ -170,7 +170,7 @@ public class LN2CryoStageComposite extends FieldBeanComposite {
 		gd_sampleNumberA.widthHint = 60;
 		sampleNumberA.setLayoutData(gd_sampleNumberA);
 
-		sampleNumberA.setItems(new String[] { "1", "2", "3", "4", "5" });
+		sampleNumberA.setItems(new String[] { "0", "1", "2", "3", "4", "5" });
 
 		final Label sampleNumberBLabel = new Label(sampleComposite, SWT.NONE);
 		sampleNumberBLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -182,9 +182,9 @@ public class LN2CryoStageComposite extends FieldBeanComposite {
 		sampleNumberB.setLayoutData(gd_sampleNumberB);
 
 		if (bean.getLN2CryoStageParameters().getCylinderType().equals("fluo")) {
-			sampleNumberB.setItems(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" });
+			sampleNumberB.setItems(new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8" });
 		} else {
-			sampleNumberB.setItems(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11" });
+			sampleNumberB.setItems(new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11" });
 		}
 
 		transparentIdeaLabel = new Label(sampleNumbers, SWT.NONE);
