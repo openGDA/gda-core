@@ -178,23 +178,25 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
     
     nxLinkCreator = NXTomoEntryLinkCreator()
     
+    default_placeholder_target = "entry1:NXentry/scan_identifier:NXdata"
+    
     # detector independent items
     nxLinkCreator.setControl_data_target("entry1:NXentry/instrument:NXinstrument/source:NXsource/current:NXdata")
     
-    #instrument_detector_distance_target = "entry1:NXentry/scan_identifier:NXdata";
-    
+    nxLinkCreator.setInstrument_detector_distance_target(default_placeholder_target)
     nxLinkCreator.setInstrument_detector_image_key_target("entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:NXdata")
-    #instrument_detector_x_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
-    #instrument_detector_y_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
+    nxLinkCreator.setInstrument_detector_x_pixel_size_target(default_placeholder_target)
+    nxLinkCreator.setInstrument_detector_y_pixel_size_target(default_placeholder_target)
     
     nxLinkCreator.setInstrument_source_target("entry1:NXentry/instrument:NXinstrument/source:NXsource")
     
     sample_rotation_angle_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/" 
     sample_rotation_angle_target += tomography_theta_name + ":NXdata"
     nxLinkCreator.setSample_rotation_angle_target(sample_rotation_angle_target);
-    #sample_x_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplex:NXdata";
-    #sample_y_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_sampley:NXdata";
-    #sample_z_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplez:NXdata";
+    
+    nxLinkCreator.setSample_x_translation_target(default_placeholder_target)
+    nxLinkCreator.setSample_y_translation_target(default_placeholder_target)
+    nxLinkCreator.setSample_z_translation_target(default_placeholder_target)
     
     nxLinkCreator.setTitle_target("entry1:NXentry/title:NXdata")
     
@@ -218,10 +220,12 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
         instrument_detector_data_target += "data_file:NXnote/file_name:NXdata"
         nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
     else:
-        print "Defaults used for unsupported tomography detector in addNXTomoSubentry: " + tomography_detector_name
+        print "Default target used for unsupported tomography detector in addNXTomoSubentry: " + tomography_detector_name
+        instrument_detector_data_target = default_placeholder_target
+        nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
     
-    print "instrument_detector_data_target = " + instrument_detector_data_target
-    print "sample_rotation_angle_target = " + sample_rotation_angle_target
+    print "\t tomo sub-entry: sample_rotation_angle_target = " + sample_rotation_angle_target
+    print "\t tomo sub-entry: instrument_detector_data_target = " + instrument_detector_data_target
     
     nxLinkCreator.afterPropertiesSet()
     
