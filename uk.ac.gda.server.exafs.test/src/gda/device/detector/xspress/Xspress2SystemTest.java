@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
@@ -43,13 +44,11 @@ import uk.ac.gda.beans.xspress.XspressROI;
  */
 public class Xspress2SystemTest {
 	private Xspress2System xspress;
+	private static String testScratchDirectoryName;
 	final String TestFileFolder = "testfiles/gda/device/detector/xspress/";
-	String testScratchDirectoryName = null;
 
-	@Before
-	public void setUp() {
-		xspress = new Xspress2System();
-		
+	@BeforeClass
+	public static void setUpBeforeClass() {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(Xspress2SystemTest.class
 				.getCanonicalName());
 		try {
@@ -57,7 +56,12 @@ public class Xspress2SystemTest {
 		} catch (Exception e) {
 			fail(exceptionUtils.getFullStackMsg(e));
 		}
+	}
 
+	@Before
+	public void setUpEachTest() {
+		xspress = new Xspress2System();
+		
 		DummyDAServer daserver = new DummyDAServer();
 		daserver.setName("DummyDAServer");
 		daserver.setXspressMode(DUMMY_XSPRESS2_MODE.XSPRESS2_FULL_MCA);
@@ -69,8 +73,8 @@ public class Xspress2SystemTest {
 			xspress.setNumberOfDetectors(9);
 			xspress.setDaServer(daserver);
 			xspress.setTfg(tfg);
-			xspress.setConfigFileName(TestFileFolder + "/xspressConfig.xml");
-			xspress.setDtcConfigFileName(TestFileFolder + "/Xspress_DeadTime_Parameters.xml");
+			xspress.setConfigFileName(TestFileFolder + "xspressConfig.xml");
+			xspress.setDtcConfigFileName(TestFileFolder + "Xspress_DeadTime_Parameters.xml");
 			xspress.setName("xspressTest");
 			xspress.setDaServerName("DummyDAServer");
 			xspress.setTfgName("tfg");
