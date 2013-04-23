@@ -45,7 +45,7 @@ public class ReconUtil {
 		String reconUserSpecificDir = String.format("%s%s%s", RECON_OUTDIR_RELATIVE_TO_VISIT_DIR, File.separator,
 				getUserId());
 		File pathToRecon = new File(parentPath, reconUserSpecificDir);
-		return pathToRecon;
+		return pathToRecon; 
 	}
 
 	/**
@@ -106,16 +106,16 @@ public class ReconUtil {
 	}
 
 	/**
-	 * @param nexusFileLocation
+	 * @param nexusFullPath
 	 * @return the dir for the quick reconstruction - of the form
 	 *         /dls/i12/data/2013/cm5936-1/tmp/reduced/rsr31645/16077_data_quick
 	 */
-	public static String getReconstructedReducedDataDirectoryPath(String nexusFileLocation) {
-		File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFileLocation);
-		String reducedNxsFileName = new Path(reducedNexusFile.getPath()).removeFileExtension().toOSString();
-		logger.debug("reducedNexusFile {}", reducedNexusFile);
-		File pathToImages = new File(String.format("%s/%s_data_quick", getUserId(), reducedNxsFileName));
-		return pathToImages.toString();
+	public static String getReconstructedReducedDataDirectoryPath(String nexusFullPath) {
+		String visitDirectory = getVisitDirectory(nexusFullPath);
+		String nexusFileName = new Path(nexusFullPath).lastSegment();
+		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
+		return String.format("%s/tmp/reduced/data_quick/%s/%s/", visitDirectory, getUserId(),
+				nxsFileWithoutExtnPath.toString());
 	}
 
 	/**
