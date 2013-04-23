@@ -111,19 +111,11 @@ public class ReconUtil {
 	 *         /dls/i12/data/2013/cm5936-1/tmp/reduced/rsr31645/16077_data_quick
 	 */
 	public static String getReconstructedReducedDataDirectoryPath(String nexusFileLocation) {
-//		File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFileLocation);
-//		String reducedNxsFileName = new Path(reducedNexusFile.getPath()).removeFileExtension().toOSString();
-//		logger.debug("reducedNexusFile {}", reducedNexusFile);
-//		File pathToImages = new File(String.format("%s_data_quick/%s", reducedNxsFileName, getUserId()));
-//		return pathToImages.toString();
-		
-		String visitDirectory = getVisitDirectory(nexusFileLocation);
-		String nexusFileName = new Path(nexusFileLocation).lastSegment();
-		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
-		return String.format("%s/tmp/reduced/data_quick/%s/%s/", visitDirectory, getUserId(),
-				nxsFileWithoutExtnPath.toString());
-		
-		
+		File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFileLocation);
+		String reducedNxsFileName = new Path(reducedNexusFile.getPath()).removeFileExtension().toOSString();
+		logger.debug("reducedNexusFile {}", reducedNexusFile);
+		File pathToImages = new File(String.format("%s/%s_data_quick", getUserId(), reducedNxsFileName));
+		return pathToImages.toString();
 	}
 
 	/**
