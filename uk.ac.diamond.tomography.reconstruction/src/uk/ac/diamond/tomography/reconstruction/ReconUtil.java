@@ -110,7 +110,7 @@ public class ReconUtil {
 	 * @return the dir for the quick reconstruction - of the form
 	 *         /dls/i12/data/2013/cm5936-1/tmp/reduced/rsr31645/16077_data_quick
 	 */
-	public static String getReconstructedReducedDataDirectoryPath(String nexusFullPath) {
+	public static String getReconstructedReducedDataDirectoryPath(String nexusFullPath) { 
 		String visitDirectory = getVisitDirectory(nexusFullPath);
 		String nexusFileName = new Path(nexusFullPath).lastSegment();
 		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
