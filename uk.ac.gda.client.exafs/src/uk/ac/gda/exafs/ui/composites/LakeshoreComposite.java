@@ -79,6 +79,7 @@ public final class LakeshoreComposite extends FieldBeanComposite {
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("Setpoint Set");
 		this.setPointSet = new ScaleBox(this, SWT.NONE);
+		setPointSet.setUnit("C");
 		setPointSet.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblTolerance = new Label(this, SWT.NONE);

@@ -171,6 +171,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	}
 
 	private void createLeftGasProperties(final Composite left) {
+		
 		this.gasPropertiesGroup = new Group(left, SWT.NONE);
 		gasPropertiesGroup.setLayout(new GridLayout(2, false));
 		gasPropertiesGroup.setText("Gas Properties");

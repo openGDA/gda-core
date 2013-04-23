@@ -85,6 +85,12 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 				}
 			});	
 		}
+		workingEnergy.addValueListener(new ValueAdapter("workingEnergyListener") {
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				ionChamberComposite.calculatePressure();
+			}
+		});
 
 		this.selectDefaultsListener = new SelectionAdapter() {
 			@Override
