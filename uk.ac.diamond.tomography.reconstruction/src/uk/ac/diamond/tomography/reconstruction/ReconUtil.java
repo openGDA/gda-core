@@ -45,7 +45,7 @@ public class ReconUtil {
 		String reconUserSpecificDir = String.format("%s%s%s", RECON_OUTDIR_RELATIVE_TO_VISIT_DIR, File.separator,
 				getUserId());
 		File pathToRecon = new File(parentPath, reconUserSpecificDir);
-		return pathToRecon;
+		return pathToRecon; 
 	}
 
 	/**
