@@ -4,25 +4,10 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="uk.ac.gda.devices.mythen.visualisation.views.MythenDataView"
-            icon="icons/chart_curve.png"
-            id="uk.ac.gda.devices.mythen.visualisation.views.MythenDataView"
-            name="Mythen data"
-            restorable="true">
-      </view>
-      <view
             class="uk.ac.gda.devices.mythen.visualisation.views.MythenDataControlView"
             icon="icons/chart_curve.png"
             id="uk.ac.gda.devices.mythen.visualisation.views.MythenDataControlView"
             name="Mythen data control"
-            restorable="true">
-      </view>
-      <view
-            allowMultiple="false"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
-            icon="icons/chart_curve.png"
-            id="uk.ac.gda.devices.mythen.visualisation.views.mythen_plot"
-            name="Mythen"
             restorable="true">
       </view>
    </extension>
