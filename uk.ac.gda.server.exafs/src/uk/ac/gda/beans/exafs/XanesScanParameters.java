@@ -43,7 +43,11 @@ public class XanesScanParameters implements Serializable, IScanParameters {
 	public Double getFinalEnergy() {
 		return finalEnergy;
 	}
-
+	
+	public Double getInitialEnergy(){
+		return regions.get(0).getEnergy();
+	}
+	
 	/**
 	 * @param stopEnergy
 	 *            the stopEnergy to set
