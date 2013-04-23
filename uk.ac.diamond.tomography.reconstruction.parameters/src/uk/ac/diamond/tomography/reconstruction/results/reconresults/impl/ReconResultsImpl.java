@@ -72,6 +72,7 @@ public class ReconResultsImpl extends EObjectImpl implements ReconResults {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<ReconstructionDetail> getReconresult() {
 		if (reconresult == null) {
 			reconresult = new EObjectContainmentEList<ReconstructionDetail>(ReconstructionDetail.class, this, ReconresultsPackage.RECON_RESULTS__RECONRESULT);
@@ -82,12 +83,16 @@ public class ReconResultsImpl extends EObjectImpl implements ReconResults {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
+	@Override
 	public ReconstructionDetail getReconstructionDetail(String nexusFullFileLocation) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		for (ReconstructionDetail reconDetail : reconresult) {
+			if (reconDetail.getNexusFileLocation().equals(nexusFullFileLocation)) {
+				return reconDetail;
+			}
+		}
+		return null;
 	}
 
 	/**
