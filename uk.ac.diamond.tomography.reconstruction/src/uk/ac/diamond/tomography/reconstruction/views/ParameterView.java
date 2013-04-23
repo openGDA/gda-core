@@ -68,7 +68,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
@@ -550,6 +549,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 						ReconResults results = (ReconResults) eObject;
 						ReconstructionDetail reconstructionDetail = results.getReconstructionDetail(nexusFileLocation);
 						EditingDomain reconResultsEditingDomain = Activator.getDefault().getReconResultsEditingDomain();
+						Command commandToExecute = null;
 						if (reconstructionDetail == null) {
 							ReconstructionDetail detail = ReconresultsFactory.eINSTANCE.createReconstructionDetail();
 							detail.setNexusFileLocation(nexusFileLocation);
@@ -558,10 +558,9 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 
 							detail.setTimeReconStarted(formattedDate);
 
-							Command addCommand = AddCommand.create(reconResultsEditingDomain, results,
+							commandToExecute = AddCommand.create(reconResultsEditingDomain, results,
 									ReconresultsPackage.eINSTANCE.getReconResults_Reconresult(), detail);
 
-							reconResultsEditingDomain.getCommandStack().execute(addCommand);
 						} else {
 							CompoundCommand cmd = new CompoundCommand();
 							cmd.append(SetCommand.create(reconResultsEditingDomain, reconstructionDetail,
@@ -570,10 +569,15 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 							cmd.append(SetCommand.create(reconResultsEditingDomain, reconstructionDetail,
 									ReconresultsPackage.eINSTANCE.getReconstructionDetail_ReconstructedLocation(),
 									pathToImages.toString()));
-							reconResultsEditingDomain.getCommandStack().execute(cmd);
+							commandToExecute = cmd;
 						}
-						reconResultsResource.save(((ReconresultsResourceImpl) reconResultsResource)
-								.getDefaultSaveOptions());
+						try {
+							reconResultsEditingDomain.getCommandStack().execute(commandToExecute);
+							reconResultsResource.save(((ReconresultsResourceImpl) reconResultsResource)
+									.getDefaultSaveOptions());
+						} catch (Exception ex) {
+							logger.debug("Unable to add entry for recon results:", ex);
+						}
 					}
 				}
 				runCommand(jobNameToDisplay, command);
@@ -1145,19 +1149,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 					nexusFile = (IFile) firstElement;
 					newSelection = true;
 
-				} else if (part instanceof IEditorPart) {
-					IEditorPart ed = (IEditorPart) part;
-					Object adapter = ed.getAdapter(IParameterView.class);
-					if (adapter != null) {
-						if (adapter instanceof IFile) {
-							IFile hmFile = (IFile) adapter;
-							if (HM_FILE_EXTN.equals(hmFile.getFileExtension())) {
-								nexusFile = getNexusFileFromHmFileLocation(hmFile.getLocationURI().toString());
-								newSelection = true;
-							}
-						}
-					}
-				}
+				} 
 
 				if (nexusFile != null && newSelection) {
 					processNewNexusFile();
@@ -1198,23 +1190,19 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		}
 	}
 
-	private IFile getNexusFileFromHmFileLocation(String hmFileLocation) {
-		return ReconUtil.getNexusFileFromHmFileLocation(hmFileLocation);
-	}
-
 	@Override
 	public void dispose() {
 		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(NexusNavigator.ID, this);
 		super.dispose();
 	}
-	
+
 	@Override
 	public void setSelection(ISelection selection) {
 		super.setSelection(selection);
 		if (selection instanceof ParametersSelection) {
 			runHdfReconstruction(true);
 		}
-		
+
 	}
 
 }

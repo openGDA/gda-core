@@ -19,10 +19,8 @@
 package uk.ac.diamond.tomography.reconstruction;
 
 import java.io.File;
-import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.slf4j.Logger;
@@ -37,14 +35,16 @@ public class ReconUtil {
 			+ PROCESSING_DIR_RELATIVE_TO_VISIT_DIR + "/sino/";
 	private static final String RECON_OUTDIR_RELATIVE_TO_VISIT_DIR = IPath.SEPARATOR
 			+ PROCESSING_DIR_RELATIVE_TO_VISIT_DIR + "/reconstruction/";
-	private static final String NXS_FILE_EXTN = "nxs";
 	private static final Logger logger = LoggerFactory.getLogger(ReconUtil.class);
 
 	public static String RECONSTRUCTED_IMAGE_FILE_FORMAT = "recon_%05d.tif";
 
 	public static File getReconOutDir(String nexusFileLocation) {
 		String parentPath = getVisitDirectory(nexusFileLocation);
-		File pathToRecon = new File(parentPath, RECON_OUTDIR_RELATIVE_TO_VISIT_DIR);
+
+		String reconUserSpecificDir = String.format("%s%s%s", RECON_OUTDIR_RELATIVE_TO_VISIT_DIR, File.separator,
+				getUserId());
+		File pathToRecon = new File(parentPath, reconUserSpecificDir);
 		return pathToRecon;
 	}
 
@@ -68,23 +68,30 @@ public class ReconUtil {
 		return visitDir;
 	}
 
+	/**
+	 * @param nexusFile
+	 * @return the location for the settings file - most likely to be of the form
+	 *         /dls/i12/data/2013/cm5936-1/processing/sino/rsr31645/
+	 */
 	public static File getSettingsFileLocation(IFile nexusFile) {
 		Path nexusFilePath = new Path(nexusFile.getName());
 		String fileNameWithoutExtension = nexusFilePath.removeFileExtension().toOSString();
 		String parentPath = getVisitDirectory(nexusFile.getLocation().toOSString());
-		File pathToRecon = new File(parentPath, HM_SETTINGS_DIR_RELATIVE_TO_VISIT_DIR + fileNameWithoutExtension);
+
+		String hmSettingsDirForUser = String.format("%s%s%s%s", HM_SETTINGS_DIR_RELATIVE_TO_VISIT_DIR, File.separator,
+				getUserId(), File.separator);
+		File pathToRecon = new File(parentPath, hmSettingsDirForUser + fileNameWithoutExtension);
 		return pathToRecon;
 	}
 
-	public static IFile getNexusFileFromHmFileLocation(String hmFileLocation) {
-		Path path = new Path(hmFileLocation);
-		Path path2 = new Path(new Path(hmFileLocation).lastSegment());
-		String fileNameWithoutExtension = path2.removeFileExtension().toOSString();
-		IPath nxsFilePath = path.removeLastSegments(5).append(fileNameWithoutExtension).addFileExtension(NXS_FILE_EXTN)
-				.setDevice(null);
-		return ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(URI.create(nxsFilePath.toString()))[0];
+	private static String getUserId() {
+		return System.getProperty("user.name");
 	}
 
+	/**
+	 * @param nexusFile
+	 * @return the processing dir for the visit - of the form /dls/i12/data/2013/cm5936-1/processing/
+	 */
 	public static IPath getProcessingDir(IFile nexusFile) {
 		String parentPath = getVisitDirectory(nexusFile.getLocation().toOSString());
 		return new Path(parentPath).append(PROCESSING_DIR_RELATIVE_TO_VISIT_DIR);
@@ -93,34 +100,34 @@ public class ReconUtil {
 	public static File getReducedNexusFile(String nexusFileLocation) {
 		String nexusFileName = new Path(nexusFileLocation).lastSegment();
 		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
-		// HDF5Loader hdf5Loader = new HDF5Loader(nexusFileLocation);
-		// DataHolder loadFile;
-		// String beamlineName = null;
-		// try {
-		// loadFile = hdf5Loader.loadFile();
-		// beamlineName = loadFile.getDataset(NXS_PATH_TO_BEAMLINE_NAME).getStringAbs(0);
-		// } catch (Exception ex) {
-		// logger.error("Problem getting beamline name", ex);
-		// }
 		String nxsFileWithoutExtn = nxsFileWithoutExtnPath.toString();
 		String visitDirectory = getVisitDirectory(nexusFileLocation);
 		return new File(String.format("%s/tmp/reduced/%s.nxs", visitDirectory, nxsFileWithoutExtn));
 	}
 
+	/**
+	 * @param nexusFileLocation
+	 * @return the dir for the quick reconstruction - of the form
+	 *         /dls/i12/data/2013/cm5936-1/tmp/reduced/rsr31645/16077_data_quick
+	 */
 	public static String getReconstructedReducedDataDirectoryPath(String nexusFileLocation) {
 		File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFileLocation);
 		String reducedNxsFileName = new Path(reducedNexusFile.getPath()).removeFileExtension().toOSString();
 		logger.debug("reducedNexusFile {}", reducedNexusFile);
-		// File path = new File(nexusFileLocation);
-		// File pathToRecon = ReconUtil.getPathToWriteTo(nexusFileLocation);
-		File pathToImages = new File(String.format("%s_data_quick", reducedNxsFileName));
+		File pathToImages = new File(String.format("%s/%s_data_quick", getUserId(), reducedNxsFileName));
 		return pathToImages.toString();
 	}
 
+	/**
+	 * @param nexusFullPath
+	 * @return the dir for the centre of rotation - of the form
+	 *         /dls/i12/data/2013/cm5936-1/tmp/reduced/centerofrotation/rsr31645/16077/
+	 */
 	public static String getCentreOfRotationDirectory(String nexusFullPath) {
 		String visitDirectory = getVisitDirectory(nexusFullPath);
 		String nexusFileName = new Path(nexusFullPath).lastSegment();
 		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
-		return String.format("%s/tmp/reduced/centerofrotation/%s/", visitDirectory, nxsFileWithoutExtnPath.toString());
+		return String.format("%s/tmp/reduced/centerofrotation/%s/%s/", visitDirectory, getUserId(),
+				nxsFileWithoutExtnPath.toString());
 	}
 }
