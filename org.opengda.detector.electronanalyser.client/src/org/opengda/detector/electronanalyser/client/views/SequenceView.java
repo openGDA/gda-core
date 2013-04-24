@@ -1,6 +1,11 @@
 package org.opengda.detector.electronanalyser.client.views;
 
+import gda.commandqueue.CommandProgress;
+import gda.commandqueue.IFindableQueueProcessor;
+import gda.commandqueue.Processor;
+import gda.commandqueue.Queue;
 import gda.configuration.properties.LocalProperties;
+import gda.observable.IObserver;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,6 +16,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
@@ -25,6 +34,8 @@ import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
 import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
 import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
@@ -66,7 +77,12 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.detector.electronanalyser.RegionCommand;
 import org.opengda.detector.electronanalyser.client.Camera;
+import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
+import org.opengda.detector.electronanalyser.client.ImageConstants;
+import org.opengda.detector.electronanalyser.client.jobs.RegionJob;
+import org.opengda.detector.electronanalyser.client.jobs.RegionJobRule;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
@@ -79,6 +95,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISIT
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 import org.opengda.detector.electronanalyser.utils.OsUtil;
@@ -88,6 +105,8 @@ import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.CommandQueueViewFactory;
+
 public class SequenceView extends ViewPart implements ISelectionProvider,
 		IRegionDefinitionView, ISaveablePart {
 	private static final Logger logger = LoggerFactory
@@ -95,6 +114,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	private List<ISelectionChangedListener> selectionChangedListeners;
 	private Camera camera;
+	private IObserver processorObserver;
+	private Processor processor;
 
 	public SequenceView() {
 		setTitleToolTip("Create a new or editing an existing sequence");
@@ -133,16 +154,25 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			SequenceTableConstants.MODE };
 
 	private ColumnWeightData columnLayouts[] = {
-			new ColumnWeightData(10,20,false), new ColumnWeightData(10,20, false),
-			new ColumnWeightData(80,100,true), new ColumnWeightData(70,90,false),
-			new ColumnWeightData(40,50, false), new ColumnWeightData(40,50,true),
-			new ColumnWeightData(40,80, false), new ColumnWeightData(50,70, true),
-			new ColumnWeightData(50,70, true), new ColumnWeightData(50,90, true),
-			new ColumnWeightData(50,70, true), new ColumnWeightData(50,50, true),
-			new ColumnWeightData(50,70, true), new ColumnWeightData(50,50, true),
-			new ColumnWeightData(40,50, true), new ColumnWeightData(40,50, true),
-			new ColumnWeightData(40,50, true), new ColumnWeightData(40,50, true),
-			new ColumnWeightData(40,120, true) };
+			new ColumnWeightData(10, 20, false),
+			new ColumnWeightData(10, 20, false),
+			new ColumnWeightData(80, 100, true),
+			new ColumnWeightData(70, 90, false),
+			new ColumnWeightData(40, 50, false),
+			new ColumnWeightData(40, 50, true),
+			new ColumnWeightData(40, 80, false),
+			new ColumnWeightData(50, 70, true),
+			new ColumnWeightData(50, 70, true),
+			new ColumnWeightData(50, 90, true),
+			new ColumnWeightData(50, 70, true),
+			new ColumnWeightData(50, 50, true),
+			new ColumnWeightData(50, 70, true),
+			new ColumnWeightData(50, 50, true),
+			new ColumnWeightData(40, 50, true),
+			new ColumnWeightData(40, 50, true),
+			new ColumnWeightData(40, 50, true),
+			new ColumnWeightData(40, 50, true),
+			new ColumnWeightData(40, 120, true) };
 
 	private TableViewer sequenceTableViewer;
 	private List<Region> regions;
@@ -166,6 +196,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	private Resource resource;
 
 	private Text txtEstimatedTime;
+
+	private Action stopSequenceAction;
 
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
@@ -749,6 +781,86 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				.getSelectionService()
 				.addSelectionListener(RegionViewExtensionFactory.ID,
 						selectionListener);
+
+		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void done(IJobChangeEvent event) {
+				Job job = event.getJob();
+				if (job instanceof RegionJob) {
+					RegionJob regionJob = (RegionJob) job;
+					IStatus result = event.getResult();
+					if (result.isOK()) {
+						updateRegionStatus(regionJob, STATUS.COMPLETED);
+					} else if (result.getSeverity()==IStatus.CANCEL) {
+						updateRegionStatus(regionJob, STATUS.ABORTED);
+					} else if (result.getSeverity()==IStatus.ERROR) {
+						updateRegionStatus(regionJob, STATUS.ABORTED);
+					}
+				}
+				super.done(event);
+			}
+			
+			@Override
+			public void running(IJobChangeEvent event) {
+				Job job = event.getJob();
+				if (job instanceof RegionJob) {
+					RegionJob regionJob = (RegionJob) job;
+					updateRegionStatus(regionJob, STATUS.RUNNING);
+				}
+				super.running(event);
+			}
+		});
+		prepareRunOnClientActions();
+	}
+
+	protected void updateRegionStatus(RegionJob regionJob, STATUS status) {
+		Region region = regionJob.getRegion();
+		region.setStatus(status);
+		sequenceTableViewer.refresh();
+	}
+	
+	private void prepareRunOnClientActions() {
+		startSequenceAction = new Action() {
+			@Override
+			public void run() {
+				super.run();
+				logger.info("Calling start");
+				int order=0;
+				for (Region region : regions) {
+					if (region.isEnabled()) {
+						final RegionCommand command = new RegionCommand(region);
+						Job job = new RegionJob(command.getDescription(),command);
+						 job.setRule(new RegionJobRule(order));
+						 job.schedule();
+						 order++;
+					}
+				}
+				startSequenceAction.setEnabled(false);
+				stopSequenceAction.setEnabled(true);
+			}
+		};
+		startSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin
+				.getDefault().getImageRegistry()
+				.getDescriptor(ImageConstants.ICON_START));
+
+		stopSequenceAction = new Action() {
+			@Override
+			public void run() {
+				super.run();
+				logger.info("Calling stop");
+				Job.getJobManager().cancel(RegionJob.FAMILY_REGION_JOB);
+				stopSequenceAction.setEnabled(false);
+				startSequenceAction.setEnabled(true);
+			}
+		};
+		stopSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin
+				.getDefault().getImageRegistry()
+				.getDescriptor(ImageConstants.ICON_STOP));
+
+		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+		toolBarManager.add(startSequenceAction);
+		toolBarManager.add(stopSequenceAction);
+
 	}
 
 	protected List<String> getRegionNames() {
@@ -775,6 +887,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	};
 
 	private EditingDomain editingDomain;
+
+	private Queue queue;
 
 	private Region getSelectedRegion() {
 		ISelection selection = getSelection();
@@ -883,6 +997,63 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		// sequenceTableViewer.setSelection(new StructuredSelection(
 		// sequenceTableViewer.getElementAt(0)), true);
 		updateCalculatedData();
+		processor = CommandQueueViewFactory.getProcessor();
+		queue = CommandQueueViewFactory.getQueue();
+		if (processor != null) {
+			processorObserver = new IObserver() {
+
+				@Override
+				public void update(Object source, final Object arg) {
+					updateState(source, arg);
+				}
+			};
+			processor.addIObserver(processorObserver);
+		}
+	}
+
+	private void updateState(Object source, final Object arg) {
+		if (source instanceof IFindableQueueProcessor) {
+
+			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (arg instanceof CommandProgress) {
+						// nothing to do, we use EPICS Monitor to update Region Command
+						// Progress independently
+					} else if (arg instanceof gda.commandqueue.Command.STATE) {
+						gda.commandqueue.Command.STATE cmdState = (gda.commandqueue.Command.STATE) arg;
+						if (cmdState.equals(gda.commandqueue.Command.STATE.PAUSED)) {
+							// not supported
+						} else if (cmdState
+								.equals(gda.commandqueue.Command.STATE.RUNNING)) {
+							// TODO set to RUNNING image }
+						} else if (cmdState
+								.equals(gda.commandqueue.Command.STATE.COMPLETED)) {
+							// TODO set COMPLETED image
+						} else if (cmdState
+								.equals(gda.commandqueue.Command.STATE.ABORTED)) {
+							// TODO set ERROR image
+						}
+					} else if (arg instanceof Processor.STATE) {
+						Processor.STATE prcState = (Processor.STATE) arg;
+						switch (prcState) {
+						case PROCESSING_ITEMS:
+
+							break;
+						case UNKNOWN:
+							break;
+						case WAITING_QUEUE:
+							break;
+						case WAITING_START:
+							// reset all region state to their deafult: selected -
+							// ready, unselected to null/empty/no image.
+							break;
+						}
+					}
+				}
+			});
+		}
 	}
 
 	private void updateCalculatedData() {
@@ -1168,6 +1339,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	private Text txtSequenceFilePath;
 
+	private Action startSequenceAction;
+
 	@Override
 	public void dispose() {
 		try {
@@ -1180,6 +1353,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 							selectionListener);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		if (processor != null && processorObserver != null) {
+			processor.deleteIObserver(processorObserver);
+			processor=null;
+		}
+		if (queue!=null) {
+			queue=null;
 		}
 		super.dispose();
 	}
@@ -1221,5 +1401,4 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	public void setVisit(String visit) {
 		this.visit = visit;
 	}
-
 }

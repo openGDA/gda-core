@@ -11,6 +11,7 @@ import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin
 import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 
 public class SequenceViewLabelProvider extends LabelProvider implements
@@ -57,19 +58,21 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 			Region region = (Region) element;
 			if (columnIndex == SequenceTableConstants.COL_ENABLED) {
 				if (region.isEnabled()) {
-					return ElectronAnalyserClientPlugin.getDefault()
-							.getImageRegistry()
-							.get(ImageConstants.ICON_CHECKED_STATE);
+					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_CHECKED_STATE);
 				} else {
-					return ElectronAnalyserClientPlugin.getDefault()
-							.getImageRegistry()
-							.get(ImageConstants.ICON_UNCHECKED_STATE);
+					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_UNCHECKED_STATE);
 				}
 			} else if (columnIndex == SequenceTableConstants.COL_STATUS) {
 				if (region.isEnabled()) {
-					return ElectronAnalyserClientPlugin.getDefault()
-							.getImageRegistry()
-							.get(ImageConstants.ICON_RUN_READY);
+					if (region.getStatus()==STATUS.READY) {
+						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_READY);
+					} else if (region.getStatus()==STATUS.RUNNING) {
+						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUNNING);
+					} else if (region.getStatus()==STATUS.COMPLETED) {
+						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_COMPLETE);
+					} else if (region.getStatus()==STATUS.ABORTED) {
+						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_FAILURE);
+					}
 				}
 			}
 		}
@@ -94,8 +97,9 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 				return Integer.toString(region.getPassEnergy());
 			case SequenceTableConstants.COL_X_RAY_SOURCE:
 				if (isSourceSelectable()) {
-					if (region.getExcitationEnergy() < xRaySourceEnergyLimit)
+					if (region.getExcitationEnergy() < xRaySourceEnergyLimit) {
 						return "Soft";
+					}
 					return "Hard";
 				}
 				return Double.toString(region.getExcitationEnergy());

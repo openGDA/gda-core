@@ -6,7 +6,9 @@ import gda.commandqueue.CommandDetails;
 import gda.commandqueue.CommandSummary;
 import gda.commandqueue.SimpleCommandDetails;
 import gda.commandqueue.SimpleCommandSummary;
+import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+import gda.util.Sleep;
 
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
@@ -20,16 +22,14 @@ public class RegionCommand extends CommandBase implements Command {
 	CommandDetails details;
 	private Region region;
 	private VGScientaAnalyser analyser;
-	private static final Logger logger = LoggerFactory
-			.getLogger(RegionCommand.class);
+	private static final Logger logger = LoggerFactory.getLogger(RegionCommand.class);
 
 	public RegionCommand(Region region) {
 		this.region = region;
 		try {
 			setDetails(region.getName());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("cannot set command details", e);
 		}
 		setDescription(region.getName());
 	}
@@ -49,51 +49,72 @@ public class RegionCommand extends CommandBase implements Command {
 		beginRun();
 		configureCollection(region);
 		configureCamera(region);
-		addRegionStatusMonitor();
 		if (region.getRunMode().isConfirmAfterEachIteration()) {
+			throw new NotSupportedException("Confirm after each iteraction is not yet supported");
+			// if (region.getRunMode().isRepeatUntilStopped()) {
+			// while (region.getRunMode().isRepeatUntilStopped() &&
+			// !(getState()==STATE.ABORTED)) {
+			// startCollection();
+			// analyser.getCollectionStrategy().waitWhileBusy();
+			// // TODO ask user for input - continue?
+			// // if no, break; yes continue;
+			// }
+			// } else {
+			// int i = 0;
+			// while (region.getRunMode().getNumIterations() > i &&
+			// !(getState()==STATE.ABORTED)) {
+			// startCollection();
+			// analyser.getCollectionStrategy().waitWhileBusy();
+			// i++;
+			// // TODO ask user for input - continue?
+			// // if no, break; yes continue;
+			// }
+			// }
+		} else {
 			if (region.getRunMode().isRepeatUntilStopped()) {
-				while (region.getRunMode().isRepeatUntilStopped()) {
+				while (region.getRunMode().isRepeatUntilStopped() && !(getState() == STATE.ABORTED)) {
 					startCollection();
 					analyser.getCollectionStrategy().waitWhileBusy();
-					// TODO ask user for input - continue?
-					// if no, break; yes continue;
+					while (getState() == STATE.PAUSED) {
+						Sleep.sleep(1000);
+					}
 				}
 			} else {
 				int i = 0;
-				while (region.getRunMode().getNumIterations() > i) {
+				while (region.getRunMode().getNumIterations() > i && !(getState() == STATE.ABORTED)) {
 					startCollection();
 					analyser.getCollectionStrategy().waitWhileBusy();
 					i++;
-					// TODO ask user for input - continue?
-					// if no, break; yes continue;
+					while (getState() == STATE.PAUSED) {
+						Sleep.sleep(1000);
+					}
 				}
 			}
-		} else {
-			startCollection();
-			analyser.getCollectionStrategy().waitWhileBusy();
 		}
 		endRun();
 	}
 
+	@Override
+	public void abort() {
+		try {
+			analyser.stop();
+		} catch (DeviceException e) {
+			logger.error("Exception throw on stopping analyser.", e);
+		}
+		super.abort();
+	}
 
 	private void configureCamera(Region region2) throws Exception {
 		analyser.setCameraMinX(region.getFirstXChannel());
 		analyser.setCameraMinY(region.getFirstYChannel());
-		analyser.setCameraSizeX(region.getLastXChannel()
-				- region.getFirstXChannel());
-		analyser.setCameraSizeY(region.getLastYChannel()
-				- region.getFirstYChannel());
+		analyser.setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel());
+		analyser.setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel());
 		analyser.setSlices(region.getSlices());
 		analyser.setDetectorMode(region.getDetectorMode().getLiteral());
 	}
 
 	private void startCollection() throws Exception {
 		analyser.getCollectionStrategy().collectData();
-	}
-
-	private void addRegionStatusMonitor() {
-		// TODO Auto-generated method stub
-
 	}
 
 	private void configureCollection(Region region) throws Exception {
@@ -111,8 +132,7 @@ public class RegionCommand extends CommandBase implements Command {
 		analyser.setEnergyStep(region.getEnergyStep());
 		if (!region.getRunMode().isConfirmAfterEachIteration()) {
 			if (!region.getRunMode().isRepeatUntilStopped()) {
-				analyser.setNumberInterations(region.getRunMode()
-						.getNumIterations());
+				analyser.setNumberInterations(region.getRunMode().getNumIterations());
 				analyser.setImageMode(ImageMode.MULTIPLE);
 			} else {
 				analyser.setNumberInterations(1);
@@ -121,8 +141,7 @@ public class RegionCommand extends CommandBase implements Command {
 		} else {
 			analyser.setNumberInterations(1);
 			analyser.setImageMode(ImageMode.SINGLE);
-			throw new NotSupportedException(
-					"Confirm after each iteraction is not yet supported");
+			throw new NotSupportedException("Confirm after each iteraction is not yet supported");
 		}
 	}
 
@@ -131,4 +150,7 @@ public class RegionCommand extends CommandBase implements Command {
 		return new SimpleCommandSummary(getDescription());
 	}
 
+	public Region getRegion() {
+		return region;
+	}
 }

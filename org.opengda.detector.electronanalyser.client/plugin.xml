@@ -145,13 +145,13 @@
                name="org.opengda.detector.electronanalyser.client.separator1"
                visible="true">
          </separator>
-         <command
+         <!--command
                commandId="org.opengda.detector.electronanalyser.client.startcollection"
                icon="icons/run_exc.gif"
                label="Start"
                style="push"
                tooltip="Start collecting active regions in this sequence">
-         </command>
+         </command-->
          <command
                commandId="org.opengda.detector.electronanalyser.client.stopcollection"
                icon="icons/stop.gif"
@@ -164,13 +164,13 @@
       <menuContribution
             allPopups="false"
             locationURI="toolbar:org.opengda.detector.electronanalyser.client.sequenceeditor">
-         <command
+         <!--command
                commandId="org.opengda.detector.electronanalyser.client.startcollection"
                icon="icons/run_exc.gif"
                label="Start"
                style="push"
                tooltip="Start collecting active regions in this sequence">
-         </command>
+         </command-->
          <command
                commandId="org.opengda.detector.electronanalyser.client.stopcollection"
                icon="icons/stop.gif"

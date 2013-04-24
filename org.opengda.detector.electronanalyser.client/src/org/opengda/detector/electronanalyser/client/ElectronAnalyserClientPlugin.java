@@ -9,7 +9,7 @@ import org.osgi.framework.BundleContext;
 public class ElectronAnalyserClientPlugin extends AbstractUIPlugin {
 
 	public static final String EDITING_DOMAIN_ID = "org.opengda.detector.electronanalyser.client.sequence.editingdomain";
-	private static final String PLUGIN_ID = "org.opengda.detector.electronanalyser.client";
+	public static final String PLUGIN_ID = "org.opengda.detector.electronanalyser.client";
 
 	public static final String TILE_QUAD = "TILEQUAD";
 	public static final String STACK_PLOT = "STACKPLOT";

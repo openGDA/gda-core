@@ -18,7 +18,6 @@
 
 package org.opengda.detector.electronanalyser.client;
 
-
 /**
  *
  */
@@ -59,20 +58,26 @@ public class ImageConstants {
 	public static final String ICON_CTRL_BTN_10x10 = "icons/ctrl_btn_10x10.gif";
 	public static final String ICON_CTRL_BTN_12x12 = "icons/ctrl_btn_12x12.gif";
 	public static final String ICON_REMOTE_DESKTOP = "icons/remote_desktop.gif";
-	
+
 	public static final String ICON_RUN_READY = "icons/runready.png";
 	public static final String ICON_RUNNING = "icons/running.gif";
 	public static final String ICON_RUN_COMPLETE = "icons/runcomplete.png";
 	public static final String ICON_RUN_FAILURE = "icons/runerror.png";
 
+	public static final String ICON_START = "icons/run_exc.gif";
 	public static final String ICON_STOP = "icons/stop.gif";
 	public static final String ICON_STATUS = "icons/status.png";
-	
 
-	public static String[] IMAGES = new String[] { ICON_RESET_DETECTOR, ICON_HORIZONTAL_FLIP, ICON_PITCH_ROTATE,
-			ICON_ROLL_ROTATE, ICON_VERTICAL_FLIP, ICON_RAW_IMAGE, ICON_TOMO_ALIGNMENT, ICON_SAVE_CONFIGURATION,
-			ICON_TOMO_CONFIG, ICON_CHECKED_STATE, ICON_UNCHECKED_STATE, ICON_OPEN_PREF, ICON_UP_TO_DOWN,
-			ICON_DOWN_TO_UP, ICON_SHOPPING_CART, ICON_CTRL_BTN, ICON_CTRL_BTN_10x10, ICON_CTRL_BTN_12x12,
-			ICON_REMOTE_DESKTOP,ICON_RUN_READY,ICON_RUNNING,ICON_RUN_COMPLETE,ICON_RUN_FAILURE,ICON_STOP,ICON_STATUS };
+	public static final String ICON_SES = "icons/ses.gif";
+
+	public static String[] IMAGES = new String[] { ICON_RESET_DETECTOR,
+			ICON_HORIZONTAL_FLIP, ICON_PITCH_ROTATE, ICON_ROLL_ROTATE,
+			ICON_VERTICAL_FLIP, ICON_RAW_IMAGE, ICON_TOMO_ALIGNMENT,
+			ICON_SAVE_CONFIGURATION, ICON_TOMO_CONFIG, ICON_CHECKED_STATE,
+			ICON_UNCHECKED_STATE, ICON_OPEN_PREF, ICON_UP_TO_DOWN,
+			ICON_DOWN_TO_UP, ICON_SHOPPING_CART, ICON_CTRL_BTN,
+			ICON_CTRL_BTN_10x10, ICON_CTRL_BTN_12x12, ICON_REMOTE_DESKTOP,
+			ICON_RUN_READY, ICON_RUNNING, ICON_RUN_COMPLETE, ICON_RUN_FAILURE,
+			ICON_START, ICON_STOP, ICON_STATUS, ICON_SES };
 
 }
