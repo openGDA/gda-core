@@ -19,27 +19,54 @@ from exafsscripts.exafs.configFluoDetector import configFluoDetector
 from gda.jython.commands import ScannableCommands
 from java.lang import String
 from gda.device import Detector
-from gda.scan import ContinuousScan
 
 import java.lang.Exception
 
 class RasterMapReturnWrite(Map):
     
-    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, HTScaler, HTXmapMca, continuousSampleX, raster_xspress):
+    def __init__(self, d7a, d7b, counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress, rcpController):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
         self.finder = Finder.getInstance()
-        self.trajectoryX=trajectoryX
-        self.raster_counterTimer01=raster_counterTimer01
         self.raster_xmap=raster_xmap
-        self.realX=realX
-        self.HTScaler=HTScaler
-        self.HTXmapMca=HTXmapMca
+        self.traj1SampleX=traj1SampleX
+        self.traj3SampleX=traj3SampleX
+        self.trajSampleX=traj1SampleX
+        self.traj1PositionReader=traj1PositionReader
+        self.traj3PositionReader=traj3PositionReader
+        self.trajPositionReader=traj1PositionReader
+        self.traj1tfg=traj1tfg
+        self.traj3tfg=traj3tfg
+        self.trajtfg=traj1tfg
+        self.traj1xmap=traj1xmap
+        self.traj3xmap=traj3xmap
+        self.trajxmap=traj1xmap
         self.mfd = None
         self.detectorBeanFileName=""
-        self.continuousSampleX=continuousSampleX
         self.raster_xspress = raster_xspress
+        self.rcpController = rcpController
+        self.beamEnabled = True
+        
+    def enableBeam(self):
+        self.beamEnabled = True
+    
+    def disableBeam(self):
+        self.beamEnabled = False
+    
+    def setStage(self, stage):
+        if stage==1:
+            self.trajSampleX = self.traj1SampleX
+            self.trajPositionReader = self.traj1PositionReader
+            self.trajtfg=self.traj1tfg
+            self.trajxmap=self.traj1xmap
+        elif stage==3:
+            self.trajSampleX = self.traj3SampleX
+            self.trajPositionReader = self.traj3PositionReader
+            self.trajtfg=self.traj3tfg
+            self.trajxmap=self.traj3xmap
+        else:
+            print "please enter 1 or 3 as a parameter where 1 is the small stage and 3 is the large stage"
     
     def getMFD(self):
         return self.mfd
@@ -81,8 +108,8 @@ class RasterMapReturnWrite(Map):
         self.setup(beanGroup)
         
         finder = self.finder
-        nx = ScannableUtils.getNumberSteps(self.finder.find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
-        ny = ScannableUtils.getNumberSteps(self.finder.find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
+        nx = ScannableUtils.getNumberSteps(finder.find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
+        ny = ScannableUtils.getNumberSteps(finder.find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
         
         print "number of x points is ", str(nx)
         print "number of y points is ", str(ny)
@@ -92,7 +119,7 @@ class RasterMapReturnWrite(Map):
         
         for energy in energyList:
             self.mfd = TwoWayMicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
-            globals()["microfocusScanWriter"] = self.mfd
+            globals()["microfocusScanWriter"] = self.mfd # TODO I think this can be removed but check
             self.mfd.setPlotName("MapPlot")
             print " the detector is " 
             print detectorList
@@ -114,19 +141,19 @@ class RasterMapReturnWrite(Map):
     
                 self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
                 bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
-                detector = finder.find(bean.getDetectorName())   
+                detector = finder.find(bean.getDetectorName())
                 detectorList=[]
-                detectorList.append(finder.find("counterTimer01"))
+                detectorList.append(self.counterTimer01)
                 detectorList.append(detector)  
-                self.mfd.setDetectors(array(detectorList, Detector))     
+                self.mfd.setDetectors(array(detectorList, Detector))
                 self.mfd.setSelectedElement(selectedElement)
                 self.mfd.getWindowsfromBean()
             self.mfd.setEnergyValue(energy)
             self.mfd.setZValue(zScannablePos)
             
             yScannable = finder.find(scanBean.getYScannableName())
-            energyScannable = self.finder.find(scanBean.getEnergyScannableName())
-            zScannable = self.finder.find(scanBean.getZScannableName())
+            energyScannable = finder.find(scanBean.getEnergyScannableName())
+            zScannable = finder.find(scanBean.getZScannableName())
             print "energy is ", str(energy)
             print "energy scannable is " 
             print energyScannable  
@@ -140,16 +167,16 @@ class RasterMapReturnWrite(Map):
             try:
                 if(detectorType == "Silicon"):
                     point_collection_time = scanBean.getRowTime() / nx
-                    self.HTScaler.setIntegrateBetweenPoints(True)
-                    self.HTXmapMca.setIntegrateBetweenPoints(True)
-                    self.HTScaler.setCollectionTime(point_collection_time)
-                    self.HTXmapMca.setCollectionTime(point_collection_time)
-                    self.HTXmapMca.setScanNumberOfPoints(nx)
-                    sptw= ScanPositionsTwoWay(self.continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize())
-                    tsl = TrajectoryScanLine([self.continuousSampleX, sptw,  self.HTScaler, self.HTXmapMca, scanBean.getRowTime()/(nx)] )
+                    self.trajtfg.setIntegrateBetweenPoints(True)
+                    self.trajxmap.setIntegrateBetweenPoints(True)
+                    self.trajtfg.setCollectionTime(point_collection_time)
+                    self.trajxmap.setCollectionTime(point_collection_time)
+                    self.trajxmap.setScanNumberOfPoints(nx)
+                    sptw= ScanPositionsTwoWay(self.trajSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize())
+                    tsl = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, self.trajxmap, scanBean.getRowTime()/(nx)] )
                     tsl.setScanDataPointQueueLength(10000)
                     tsl.setPositionCallableThreadPoolSize(10)
-                    xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl, self.realX])
+                    xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl, self.trajPositionReader])
                     xmapRasterscan.getScanPlotSettings().setIgnore(1)
                     xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
                     rowR = TwoDScanRowReverser()
@@ -199,8 +226,8 @@ class RasterMapReturnWrite(Map):
             topupMonitor.setPauseBeforePoint(False)
             topupMonitor.setPauseBeforeLine(True)
             topupMonitor.setCollectionTime(collectionTime)
-        if(not (beam == None)):
-            #self.finder.find("command_server").addDefault(beam);
+        if(not (beam == None) and self.beamEnabled==True):
+            self.finder.find("command_server").addDefault(beam);
             beam.setPauseBeforePoint(False)
             beam.setPauseBeforeLine(True)
         if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" and not (detectorFillingMonitor == None)):
@@ -221,4 +248,4 @@ class RasterMapReturnWrite(Map):
         self.d7b(att2.getSelectedPosition())
         configFluoDetector(beanGroup)
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-        #self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
+        self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")

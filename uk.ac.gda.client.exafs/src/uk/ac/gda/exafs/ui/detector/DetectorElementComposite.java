@@ -248,7 +248,7 @@ public class DetectorElementComposite extends Composite {
 		if (windowComposite == null)
 			return;
 		// need to display windows tools all the time
-		GridUtils.setVisibleAndLayout(windowComposite, true);
+		GridUtils.setVisibleAndLayout(windowComposite, isWindows);
 	}
 
 	public void setMaximumRegions(final int maxRegions) {

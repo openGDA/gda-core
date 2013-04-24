@@ -260,7 +260,7 @@ def setupForVortexRaster(beanGroup):
     configFluoDetector(beanGroup)
     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
     redefineNexusMetadataForMaps(beanGroup)
-    finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
+    self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
 class MicroFocusEnvironment:
     testScriptFolder=None

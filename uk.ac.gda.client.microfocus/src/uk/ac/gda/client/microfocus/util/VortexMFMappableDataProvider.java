@@ -226,7 +226,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 	}
 	
 	@Override
-	public double[] getSpectrum(int detectorNo, int y, int x) {
+	public double[] getSpectrum(int detectorNo, int x, int y) {
 		// assuming the data set is 4D array [y,x,detectors, mca]
 		Object returnObject = null;
 		lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/fullSpectrum");
