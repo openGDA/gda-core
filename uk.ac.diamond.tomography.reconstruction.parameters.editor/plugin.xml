@@ -1,19 +1,5 @@
 <plugin>
 
-   <extension point="org.eclipse.ui.newWizards">
-      <category
-            id="org.eclipse.emf.ecore.Wizard.category.ID"
-            name="%_UI_Wizard_category"/>
-      <wizard
-            id="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmModelWizardID"
-            name="%_UI_HmModelWizard_label"
-            class="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmModelWizard"
-            category="org.eclipse.emf.ecore.Wizard.category.ID"
-            icon="icons/full/obj16/HmModelFile.gif">
-         <description>%_UI_HmModelWizard_description</description>
-         <selection class="org.eclipse.core.resources.IResource"/>
-      </wizard>
-   </extension>
 
    <extension point="org.eclipse.ui.editors">
       <editor
