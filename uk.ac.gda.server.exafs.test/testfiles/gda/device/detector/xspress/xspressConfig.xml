@@ -116,5 +116,4 @@
     <xspressOnlyShowFF>false</xspressOnlyShowFF>
     <xspressShowDTRawValues>false</xspressShowDTRawValues>
     <saveRawSpectrum>false</saveRawSpectrum>
-    <selectedRegionNumber>0</selectedRegionNumber>
 </XspressParameters>

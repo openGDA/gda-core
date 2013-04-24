@@ -115,7 +115,4 @@ public class ExafsPreferenceConstants {
 	 * individual detector editors.  The beans will also have to have matching information.
 	 */
 	public static final String DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS = "exafs.outputeditor.showFluoOptions.preference";
-	
-	public static final String HIDE_DEFAULT_GAS_MIXTURES_BUTTON = "exafs.hideDefaultGasMixturesButton.preference";
-	
 }

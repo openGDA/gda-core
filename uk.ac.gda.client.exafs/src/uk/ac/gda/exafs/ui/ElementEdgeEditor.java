@@ -36,12 +36,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.widgets.ActionBarWrapper;
-import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.PlotType;
-import org.dawnsci.plotting.api.trace.ILineTrace;
-import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -105,8 +102,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	protected Label estimatePointsLabel;
 	protected Label estimateTimeLabel;
 	protected Composite expandContainer;
-	protected IPlottingSystem plottingsystem;
-	protected ActionBarWrapper plottingsystemActionBarWrapper;
+	protected AbstractPlottingSystem plottingsystem;
 	protected AxisValues xAxisValues;
 	protected volatile boolean suspendGraphUpdate = false;
 	protected Object lastPlottedBean;
@@ -173,12 +169,13 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		grid.marginHeight = 0;
 		plotArea.setLayout(grid);
 
-		plottingsystemActionBarWrapper = ActionBarWrapper.createActionBars(plotArea, null);
+		ActionBarWrapper wrapper = ActionBarWrapper.createActionBars(plotArea,null);
 		plottingsystem.createPlotPart(plotArea, getTitle(), null, PlotType.XY, this);
-		plottingsystem.getPlotActionSystem().fillZoomActions(plottingsystemActionBarWrapper.getToolBarManager());
+		plottingsystem.getPlotActionSystem().fillZoomActions(wrapper.getToolBarManager());
+		plottingsystem.setRescale(true);
 		plottingsystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		plottingsystemActionBarWrapper.update(true);
-
+		wrapper.update(true);
+		
 		plotUpdateJob.createTrace();
 
 		xasScanExpandableComposite.setClient(plotArea);
@@ -679,7 +676,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 							plottingsystem.repaint();
 							first = false;
 						}
-						plottingsystem.autoscaleAxes();
+
 					}
 				});
 

@@ -417,12 +417,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		start();
 		lastFrameCollected = -1;
 	}
-	
-	@Override
-	public void atCommandFailure() throws DeviceException {
-		super.atCommandFailure();
-		lastFrameCollected = -1;
-	}
 
 	@Override
 	public String[] getOutputFormat() {
@@ -771,8 +765,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
 			sendCommand("disable ", scalerHandle);
 		}
-		
-		lastFrameCollected = -1;
 
 		close();
 	}
@@ -1204,7 +1196,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		// maybe used in a note in the future
 		protected String name; // unique name for this reading within this frame
 		protected double[][] mcacounts;
-		protected int[][] mcacounts_uncorrected;
 		@SuppressWarnings("unused")
 		protected int roiStart; // maybe used in a note in the future
 		@SuppressWarnings("unused")
@@ -1214,11 +1205,10 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 		// should only be the top 8
 
-		protected MCAReading(String roiName, int elementNumber, double[][] counts, int[][] counts_raw, String name, int roiStart,
+		protected MCAReading(String roiName, int elementNumber, double[][] counts, String name, int roiStart,
 				int roiEnd, double peakArea, double peakArea_bad) {
 			this.elementNumber = elementNumber;
 			this.mcacounts = counts;
-			this.mcacounts_uncorrected = counts_raw;
 			this.name = name;
 			this.roiStart = roiStart;
 			this.roiEnd = roiEnd;
@@ -1365,17 +1355,17 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	private MCAReading extractPartialMCA(int[][][][] unpackedMCAData, int frame, double[] deadtimeCorrectionFactor,
 			int element, int mcaPosition, XspressROI thisRoi, int mcaEndPosition) {
 		// get the raw data. Only interested in good counts if threshold set
-		int[][] mcas_raw;
+		int[][] mcas;
 		int[][] mcaDataForThisElement = unpackedMCAData[frame][element];
 		switch (getNumberofGrades()) {
 		case NO_RES_GRADE:
-			mcas_raw = new int[][] { getResGradesSlice(mcaDataForThisElement, mcaPosition, mcaEndPosition,
+			mcas = new int[][] { getResGradesSlice(mcaDataForThisElement, mcaPosition, mcaEndPosition,
 					thisRoi.getRoiStart(), thisRoi.getRoiEnd())[0] };
 			break;
 		case RES_THRES:
 			// all res grades
 		default:
-			mcas_raw = getResGradesSlice(mcaDataForThisElement, mcaPosition, mcaEndPosition, thisRoi.getRoiStart(),
+			mcas = getResGradesSlice(mcaDataForThisElement, mcaPosition, mcaEndPosition, thisRoi.getRoiStart(),
 					thisRoi.getRoiEnd());
 			break;
 		}
@@ -1385,20 +1375,20 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		if (deadtimeCorrectionFactor != null) {
 			dctFactor = deadtimeCorrectionFactor[element];
 		}
-		double[][] mcas_corrected = correctMCAArray(mcas_raw, dctFactor);
+		double[][] out = correctMCAArray(mcas, dctFactor);
 
 		double peakArea = 0;
 		double peakArea_bad = 0;
 
 		switch (getNumberofGrades()) {
 		case NO_RES_GRADE:
-			peakArea = sumPartialMCACounts(mcas_corrected[0]);
+			peakArea = sumPartialMCACounts(out[0]);
 			break;
 		case RES_THRES:
 			// correct for good events thrown away in badIn
-			double goodIn = sumPartialMCACounts(mcas_raw[1]);
-			double badIn = sumPartialMCACounts(mcas_raw[0]);
-			double goodOut = mcas_raw[1][mcas_raw[1].length - 1];
+			double goodIn = sumPartialMCACounts(mcas[1]);
+			double badIn = sumPartialMCACounts(mcas[0]);
+			double goodOut = mcas[1][mcas[1].length - 1];
 			// account for other ROIs by summing everything in the arrays
 			double allEvents = sumArrayContents(mcaDataForThisElement[0]) + sumArrayContents(mcaDataForThisElement[1]);
 			// so corrected value = goodIn * dct * (all/good)
@@ -1408,14 +1398,14 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		// all res grades
 		default:
 			for (int grade = 15; grade >= 8; grade--) {
-				peakArea += sumPartialMCACounts(mcas_corrected[grade]);
+				peakArea += sumPartialMCACounts(out[grade]);
 			}
 			break;
 		}
 		String elementName = "element_" + element + "_" + thisRoi.getRoiName();
 
 		// so MCAs are the deadtime corrected partial MCAs, but the scaler values are the sums: 15, 15+14 etc.
-		MCAReading reading = new MCAReading(thisRoi.getRoiName(), element, mcas_corrected, mcas_raw, elementName, thisRoi.getRoiStart(),
+		MCAReading reading = new MCAReading(thisRoi.getRoiName(), element, out, elementName, thisRoi.getRoiStart(),
 				thisRoi.getRoiEnd(), peakArea, peakArea_bad);
 		return reading;
 	}
@@ -1577,71 +1567,35 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 				for (String roiName : mcaROIs.keySet()) {
 					Vector<MCAReading> readingsInThisROI = mcaROIs.get(roiName);
 
-					// output depends on the number of resgrades and if the MCA are to be saved deadtime corrected or raw
 					if (getNumberofGrades() == 1) {
-						if (alwaysRecordRawMCAs || saveRawSpectrum) {
-							int[][] mcaDataInThisROI = new int[readingsInThisROI.size()][];
-							int i = 0;
-							for (MCAReading thisReading : readingsInThisROI) {
-								mcaDataInThisROI[i] = thisReading.mcacounts_uncorrected[0];
-								i++;
-							}
-							thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(), 4096 },
-									NexusFile.NX_INT32, mcaDataInThisROI, "counts", 1);
-						} else {
-							double[][] mcaDataInThisROI = new double[readingsInThisROI.size()][];
-							int i = 0;
-							for (MCAReading thisReading : readingsInThisROI) {
-								mcaDataInThisROI[i] = thisReading.mcacounts[0];
-								i++;
-							}
-							thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(), 4096 },
-									NexusFile.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
+						double[][] mcaDataInThisROI = new double[readingsInThisROI.size()][];
+						int i = 0;
+						for (MCAReading thisReading : readingsInThisROI) {
+							mcaDataInThisROI[i] = thisReading.mcacounts[0];
+							i++;
 						}
+						thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(), 4096 },
+								NexusFile.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
 					} else if (getNumberofGrades() == 2) {
-						if (alwaysRecordRawMCAs || saveRawSpectrum) {
-							int[][][] mcaDataInThisROI = new int[readingsInThisROI.size()][getNumberofGrades()][];
-							int i = 0;
-							for (MCAReading thisReading : readingsInThisROI) {
-								// data from detector comes out BAD,GOOD, but more intuitive for users to have GOOD,BAD
-								mcaDataInThisROI[i][0] = thisReading.mcacounts_uncorrected[1];
-								mcaDataInThisROI[i][1] = thisReading.mcacounts_uncorrected[0];
-								i++;
-							}
-							thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(),
-									getNumberofGrades(), 4096 }, NexusFile.NX_INT32, mcaDataInThisROI, "counts", 1);
-						} else {
-							double[][][] mcaDataInThisROI = new double[readingsInThisROI.size()][getNumberofGrades()][];
-							int i = 0;
-							for (MCAReading thisReading : readingsInThisROI) {
-								// data from detector comes out BAD,GOOD, but more intuitive for users to have GOOD,BAD
-								mcaDataInThisROI[i][0] = thisReading.mcacounts[1];
-								mcaDataInThisROI[i][1] = thisReading.mcacounts[0];
-								i++;
-							}
-							thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(),
-									getNumberofGrades(), 4096 }, NexusFile.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
+						double[][][] mcaDataInThisROI = new double[readingsInThisROI.size()][getNumberofGrades()][];
+						int i = 0;
+						for (MCAReading thisReading : readingsInThisROI) {
+							// data from detector comes out BAD,GOOD, but more intuitive for users to have GOOD,BAD
+							mcaDataInThisROI[i][0] = thisReading.mcacounts[1];
+							mcaDataInThisROI[i][1] = thisReading.mcacounts[0];
+							i++;
 						}
+						thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(), getNumberofGrades(),
+								4096 }, NexusFile.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
 					} else {
-						if (alwaysRecordRawMCAs || saveRawSpectrum) {
-							int[][][] mcaDataInThisROI = new int[readingsInThisROI.size()][getNumberofGrades()][];
-							int i = 0;
-							for (MCAReading thisReading : readingsInThisROI) {
-								mcaDataInThisROI[i] = flip2DArray(thisReading.mcacounts_uncorrected);
-								i++;
-							}
-							thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(), getNumberofGrades(),
-									4096 }, NexusFile.NX_INT32, mcaDataInThisROI, "counts", 1);
-						} else {
-							double[][][] mcaDataInThisROI = new double[readingsInThisROI.size()][getNumberofGrades()][];
-							int i = 0;
-							for (MCAReading thisReading : readingsInThisROI) {
-								mcaDataInThisROI[i] = flip2DArray(thisReading.mcacounts);
-								i++;
-							}
-							thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(), getNumberofGrades(),
-									4096 }, NexusFile.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
+						double[][][] mcaDataInThisROI = new double[readingsInThisROI.size()][getNumberofGrades()][];
+						int i = 0;
+						for (MCAReading thisReading : readingsInThisROI) {
+							mcaDataInThisROI[i] = flip2DArray(thisReading.mcacounts);
+							i++;
 						}
+						thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(), getNumberofGrades(),
+								4096 }, NexusFile.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
 					}
 				}
 				mcaROIs = null;
@@ -1697,25 +1651,19 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			NXDetectorData thisFrame = new NXDetectorData(this);
 			INexusTree detTree = thisFrame.getDetTree(getName());
 			double[] deadtimeCorrectionFactors = new double[getNumberOfDetectors()];
-			if (saveRawSpectrum) {
+			if (saveRawSpectrum || alwaysRecordRawMCAs) {
 				Arrays.fill(deadtimeCorrectionFactors, 1.0);
 			} else {
 				deadtimeCorrectionFactors = calculateDeadtimeCorrectionFactors(convertUnsignedIntToLong(unpackedScalerData[frame]));
 			}
 
 			double[][][] correctedMCAArrays = correctMCAArrays(data[frame], deadtimeCorrectionFactors);
-			
+
+			double[][] mcasSingleResGrade = null;
+			mcasSingleResGrade = removeSingleDimensionFromArray(correctedMCAArrays);
 			// add all MCA data in bulk
-			if (alwaysRecordRawMCAs || saveRawSpectrum) {
-				int[][] raw_mcasSingleResGrade = removeSingleDimensionFromArray(data[frame]);
-				thisFrame.addData(detTree, "MCAs", new int[] { numberOfDetectors, 4096 }, NexusFile.NX_INT32,
-						raw_mcasSingleResGrade, "counts", 1);
-				
-			} else {
-				double[][] mcasSingleResGrade = removeSingleDimensionFromArray(correctedMCAArrays);
-				thisFrame.addData(detTree, "MCAs", new int[] { numberOfDetectors, 4096 }, NexusFile.NX_FLOAT64,
-						mcasSingleResGrade, "counts", 1);
-			}
+			thisFrame.addData(detTree, "MCAs", new int[] { numberOfDetectors, 4096 }, NexusFile.NX_FLOAT64,
+					mcasSingleResGrade, "counts", 1);
 			// add all in-window scaler counts in bulk
 			thisFrame.addData(detTree, "scalers", new int[] { numberOfDetectors }, NexusFile.NX_FLOAT64,
 					scalerData[frame], "counts", 1);
@@ -1804,18 +1752,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		}
 		return out;
 	}
-	
-	private int[][] removeSingleDimensionFromArray(int[][][] rawMCAArrays) {
-		int[][] out = new int[rawMCAArrays.length][rawMCAArrays[0][0].length];
-
-		for (int element = 0; element < rawMCAArrays.length; element++) {
-			for (int mcaChannel = 0; mcaChannel < rawMCAArrays[0][0].length; mcaChannel++) {
-				out[element][mcaChannel] = rawMCAArrays[element][0][mcaChannel];
-			}
-		}
-		return out;
-	}
-
 
 	private NXDetectorData addDTValuesToNXDetectorData(NXDetectorData thisFrame, int[] unpackedScalerData) {
 		// always add raw scaler values to nexus data
@@ -1918,22 +1854,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		int secondDim = array[0].length; // 4096
 
 		double[][] newArray = new double[secondDim][firstDim];
-
-		for (int i = 0; i < secondDim; i++) {
-			for (int j = 0; j < firstDim; j++) {
-				newArray[i][j] = array[j][i];
-			}
-		}
-
-		return newArray;
-	}
-
-	private int[][] flip2DArray(int[][] array) {
-
-		int firstDim = array.length; // 2
-		int secondDim = array[0].length; // 4096
-
-		int[][] newArray = new int[secondDim][firstDim];
 
 		for (int i = 0; i < secondDim; i++) {
 			for (int j = 0; j < firstDim; j++) {

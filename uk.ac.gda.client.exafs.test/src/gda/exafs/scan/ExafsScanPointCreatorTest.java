@@ -196,43 +196,6 @@ public class ExafsScanPointCreatorTest {
 
 	}
 
-	/*
-	 * This is ExafsScanPointCreator2 test which fails when run on its own test Class with fails with a class cast
-	 * exception java.lang.ClassCastException: org.jscience.physics.quantities.Quantity cannot be cast to
-	 * gda.jscience.physics.quantities.Vector at gda.gui.exafs.Converter.convert(Converter.java:233) The reason for the
-	 * failure is presumably related to gda.gui.exafs.Converter being a singleton
-	 */
-	@Test
-	public void testCalculateValues() {
-		ExafsScanPointCreator2 creator = new ExafsScanPointCreator2();
-
-		creator.setInternalUnits(Converter.EV);
-		creator.setExternalUnits(Converter.KEV);
-		creator.setDefaultScan(7.111142);
-		creator.setNumberDetectors(1);
-
-		try {
-			double[][] energies = creator.calculateValues();
-			testValueAlwaysIncreases(energies[0]);
-			assertEquals(303, energies.length);
-			assertEquals(6960.0419999999995, energies[0][0], 0.0);
-			assertEquals(7000.0329999999999, energies[7][0], 0.0);
-			assertEquals(7175.81415317351, energies[105][0], 0.0);
-			assertEquals(7659.779363145995, energies[302][0], 0.0);
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-	}
-
-	private void testValueAlwaysIncreases(double[] values) {
-		double last = 0;
-		for (double thisValue : values) {
-			if (last >= thisValue) {
-				fail(thisValue + " not greater than " + last);
-			}
-		}
-	}
-
 	private void testValueAlwaysIncreases(PyTuple energies) {
 		double last = 0;
 		for (int i = 1; i < energies.__len__(); i++) {

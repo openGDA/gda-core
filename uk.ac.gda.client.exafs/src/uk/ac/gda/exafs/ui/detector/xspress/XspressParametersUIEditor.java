@@ -576,7 +576,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			@Override
 			public void run() {
 				isAdditiveResolutionGradeMode = isChecked();
-				plot(getDetectorList().getSelectedIndex(),false);
+				plot(getDetectorList().getSelectedIndex());
 			}
 		};
 		additiveResModeAction.setImageDescriptor(ResourceManager.getImageDescriptor(XspressParametersUIEditor.class,
@@ -862,7 +862,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			@Override
 			public void run() {
 				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-				plot(getDetectorList().getSelectedIndex(),true);
+				plot(getDetectorList().getSelectedIndex());
 				setEnabled(true);
 			}
 		});
@@ -976,7 +976,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 							public void run() {
 								acquireFileLabel.setText("Loaded: " + filePath);
 								getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-								plot(getDetectorList().getSelectedIndex(),false);
+								plot(getDetectorList().getSelectedIndex());
 								setEnabled(true);
 							}
 						});

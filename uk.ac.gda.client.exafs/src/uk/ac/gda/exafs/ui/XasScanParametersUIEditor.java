@@ -23,17 +23,7 @@ import gda.util.exafs.Element;
 
 import java.text.DecimalFormat;
 import java.util.EventObject;
-import java.util.List;
 
-import org.dawnsci.plotting.api.annotation.AnnotationUtils;
-import org.dawnsci.plotting.api.annotation.IAnnotation;
-import org.dawnsci.plotting.api.region.IROIListener;
-import org.dawnsci.plotting.api.region.IRegion;
-import org.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.dawnsci.plotting.api.region.ROIEvent;
-import org.dawnsci.plotting.api.trace.ITrace;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -45,7 +35,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -55,8 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ExafsActivator;
@@ -71,7 +58,6 @@ import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.util.schema.SchemaReader;
 
 /**
  * An editor part designed to be a page in a multipage editor. This class was auto-generated using RCP Developer and
@@ -83,22 +69,23 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	private static final Logger logger = LoggerFactory.getLogger(XasScanParametersUIEditor.class);
 
-	protected Combo exafsTimeType;
-	protected Combo abGafChoice;
+	private ComboWrapper exafsTimeType;
+	private ComboWrapper abGafChoice;
+	private ComboWrapper exafsStepType;
+
 	private ScaleBox gaf3;
 	private ScaleBox gaf2;
 	private ScaleBox gaf1;
-
-	private ComboWrapper exafsStepType;
 	private ScaleBox b, a, preEdgeTime, exafsTime, exafsStep, edgeTime, edgeStep, preEdgeStep, initialEnergy;
-	private ScaleBoxAndFixedExpression finalEnergy, c;
-
-	private Label exafsFromLabel, exafsToLabel;
-	private Link aLabel, bLabel, cLabel, e0Label, e1Label;
-	private Label exafsStepLabel;
 	private ScaleBox exafsFromTime;
 	private ScaleBox exafsToTime;
 
+	private ScaleBoxAndFixedExpression finalEnergy, c;
+
+	private Link aLabel, bLabel, cLabel, e0Label, e1Label;
+
+	private Label exafsFromLabel, exafsToLabel;
+	private Label exafsStepLabel;
 	private Label exafsStepEnergyLabel;
 	private Label kWeightingLabel;
 	private Label kStartLabel;
@@ -121,13 +108,15 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private IRegion bLine;
 	private IRegion cLine;
 	private IRegion edgeLine;
-	private boolean showLineAnnotations = false;
+	XasScanParameters bean;
 
 	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor,
-			final Object xasScanParameters) {
+			final XasScanParameters xasScanParameters) {
 
 		super(path, containingEditor.getMappingUrl(), containingEditor, xasScanParameters);
 
+		bean = xasScanParameters;
+		
 		containingEditor.addPageChangedListener(new IPageChangedListener() {
 			@Override
 			public void pageChanged(PageChangedEvent event) {
@@ -170,27 +159,16 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		createEstimationComposite(right);
 		createPlotRegions();
-		createShowHideLineAnnotationsButton();
-		
+
 		scrolledComposite.setMinSize(container.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(this);
-		
 
+		updateEdgeRegion();
+
+		updateExafsTimeType();
+		
 		updateLayout();
-	}
-	
-	private void createShowHideLineAnnotationsButton() {
-		Action menuAction = new Action("Show labels", IAction.AS_CHECK_BOX) {
-			@Override
-			public void run() {
-				showLineAnnotations = !showLineAnnotations;
-				updatePlottedPoints();
-				plottingsystem.repaint();
-			}
-		};
-		plottingsystemActionBarWrapper.getRightManager().add(menuAction);
-		plottingsystemActionBarWrapper.update(true);
 	}
 
 	/**
@@ -198,7 +176,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	 */
 	@SuppressWarnings("unused")
 	private void createPlotRegions() {
-		
+
 		try {
 			this.aLine = plottingsystem.createRegion("a", RegionType.XAXIS_LINE);
 			aLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
@@ -263,7 +241,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		cLine.setROI(new LinearROI(pnt, pnt));
 		pnt = new double[] { edgeEnergy, 0d };
 		edgeLine.setROI(new LinearROI(pnt, pnt));
-		
+
 		plottingsystem.repaint();
 
 	}
@@ -547,7 +525,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		final Label exafsTimeTypeLabel = new Label(edgeParametersGroup, SWT.NONE);
 		exafsTimeTypeLabel.setText("Exafs Time Type");
 
-		exafsTimeType = new Combo(edgeParametersGroup, SWT.READ_ONLY);
+		exafsTimeType = new ComboWrapper(edgeParametersGroup, SWT.READ_ONLY);
 		exafsTimeType.setItems(new String[] { "Constant Time", "Variable Time" });
 		exafsTimeType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
@@ -585,7 +563,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		kWeightingLabel.setText("K Weighting");
 
 		this.kWeighting = new ScaleBox(edgeParametersGroup, SWT.NONE);
-		this.kWeighting.setValue("1");
 		kWeighting.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		kWeighting.setMaximum(3);
 	}
@@ -661,17 +638,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		final Label edgeRegionLabel = new Label(topCentre, SWT.NONE);
 		edgeRegionLabel.setText("Edge Region");
 
-		abGafChoice = new Combo(topCentre, SWT.READ_ONLY);
+		abGafChoice = new ComboWrapper(topCentre, SWT.READ_ONLY);
 		abGafChoice.setItems(new String[] { "A/B", "Gaf1/Gaf2" });
-		abGafChoice.select(1);
+		abGafChoice.select(0);
 		abGafChoice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		this.abGafListener = new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				updateEdgeRegion();
-			}
-		};
-		abGafChoice.addSelectionListener(abGafListener);
+		
 		final Label gaf1Label = new Label(topCentre, SWT.NONE);
 		gaf1Label.setText("Gaf1");
 		gaf1Label.setToolTipText("Gamma function 1: B = Edge Energy - (Core Hole x gaf1)");
@@ -929,15 +900,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 				if (scanParams.getExafsTime() == null) {
 					exafsTimeType.select(1);
-				} else {
-					exafsTimeType.select(0);
 				}
 
-//				if (scanParams.getA() == null && !isPageChange) {
-//					abGafChoice.select(1);
-//				} else {
-//					abGafChoice.select(0);
-//				}
+				if (scanParams.getA() == null) {
+					abGafChoice.select(1);
+				}
 
 			} catch (Exception e1) {
 				logger.error("Cannot process ui.", e1);
@@ -950,17 +917,17 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				}
 			});
 
-			this.exafsTimeListener = new SelectionAdapter() {
+			exafsTimeType.addValueListener(new ValueAdapter("exafsTimeTypeListener") {
+				
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void valueChangePerformed(ValueEvent e) {
 					updateExafsTimeType();
-					updateLayout();
 				}
-			};
-			exafsTimeType.addSelectionListener(exafsTimeListener);
+			});
 
 			updateExafsTimeType();
 			updateEdgeRegion();
+			updateLayout();
 			setPointsUpdate(false);
 			updateElement(ELEMENT_EVENT_TYPE.INIT); // Must be before linkUI or switched on status fires events that
 			// lose original value.
@@ -1019,6 +986,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					suspendGraphUpdate = true;
 					drawLines();
 					updatePlottedPoints();
+					plottingsystem.repaint(true);
 				} catch (Exception e1) {
 					logger.error("Cannot update XAS points", e1);
 				} finally {
@@ -1027,6 +995,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				}
 			}
 		});
+<<<<<<< HEAD
 	}
 	
 	
@@ -1080,6 +1049,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			}
 
 		
+=======
+>>>>>>> refs/remotes/origin/8.30
 	}
 
 	@Override
@@ -1389,18 +1360,23 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	protected void updateExafsTimeType() {
-		final int index = exafsTimeType.getSelectionIndex();
-		boolean vis = (index == 1);
+		String exafsTimeTypeVal = bean.getExafsTimeType();
+		
+		boolean isVariableTime=false;
+		if(exafsTimeTypeVal.equals("Variable Time"))
+			isVariableTime=true;
+			
+		
 		// Bean fields use active
-		getExafsTime().setActive(!vis);
-		getExafsFromTime().setActive(vis);
-		getExafsToTime().setActive(vis);
-		getKWeighting().setActive(vis);
+		getExafsTime().setActive(!isVariableTime);
+		getExafsFromTime().setActive(isVariableTime);
+		getExafsToTime().setActive(isVariableTime);
+		getKWeighting().setActive(isVariableTime);
 		// Labels visible
-		this.exafsStepLabel.setVisible(!vis);
-		exafsToLabel.setVisible(vis);
-		exafsFromLabel.setVisible(vis);
-		kWeightingLabel.setVisible(vis);
+		this.exafsStepLabel.setVisible(!isVariableTime);
+		exafsToLabel.setVisible(isVariableTime);
+		exafsFromLabel.setVisible(isVariableTime);
+		kWeightingLabel.setVisible(isVariableTime);
 	}
 
 	@Override
@@ -1574,16 +1550,12 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			this.e0Label.removeSelectionListener(e0Listener);
 		if (e1Label != null && !e1Label.isDisposed())
 			this.e1Label.removeSelectionListener(e1Listener);
-		if (abGafChoice != null && !abGafChoice.isDisposed())
-			this.abGafChoice.removeSelectionListener(abGafListener);
 		if (aLabel != null && !aLabel.isDisposed())
 			this.aLabel.removeSelectionListener(aListener);
 		if (bLabel != null && !bLabel.isDisposed())
 			this.bLabel.removeSelectionListener(bListener);
 		if (cLabel != null && !cLabel.isDisposed())
 			this.cLabel.removeSelectionListener(cListener);
-		if (exafsTimeType != null && !exafsTimeType.isDisposed())
-			this.exafsTimeType.removeSelectionListener(exafsTimeListener);
 		ExafsActivator.getDefault().getPreferenceStore().removePropertyChangeListener(this);
 		super.dispose();
 	}
@@ -1642,4 +1614,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		return gaf3;
 	}
 
+	public ComboWrapper getExafsTimeType() {
+		return exafsTimeType;
+	}
+
+	public ComboWrapper getAbGafChoice() {
+		return abGafChoice;
+	}
 }
