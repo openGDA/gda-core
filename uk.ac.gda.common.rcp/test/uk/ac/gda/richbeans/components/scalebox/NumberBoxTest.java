@@ -74,6 +74,11 @@ public class NumberBoxTest {
 	public void testDecimalPlaces0() {
 		testDecimalPlaces(0, null, 0., "0.12345");
 	}
+
+	@Test
+	public void testDecimalPlaces6() {
+		testDecimalPlaces(2, null, 3.0, "3.");
+	}
 	
 	@Test
 	public void testInfinity() {

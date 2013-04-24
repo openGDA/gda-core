@@ -326,7 +326,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 	protected String getRegExpressionString() {
 
-		final String digitExpr = "^([-+\\s]?\\d*\\.?\\d+|[-+\\s]?Infinity)";
+		//We need to cope with 3., 3.0, .1, so use \\d*\\.?\\d*
+		final String digitExpr = "^([-+\\s]?\\d*\\.?\\d*|[-+\\s]?Infinity)";
 		
 		if (unit == null) {
 			return digitExpr;
@@ -447,24 +448,26 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		final Pattern pattern = getRegExpression();
 		final Matcher matcher = pattern.matcher(txt);
-
 		final boolean matches = matcher.matches();
-		double numericalValue = Double.NaN;
-
 		
+		// return to the text box the string
+		String extractedNumberString=null;
 		if (matches) {
-			numericalValue = Double.parseDouble(matcher.group(1));
+			extractedNumberString = matcher.group(1);
 		} else {
-			try {
-				numericalValue = Double.valueOf(txt);
-			} catch (NumberFormatException e) {
-				text.setForeground(red);
-				return;
-			}
+			extractedNumberString = txt;
 		}
-		text.setForeground(black);
-		StringBuilder buf = new StringBuilder(formatValue(numericalValue));
 		
+		// but checkBounds using a Double object
+		Double numericalValue = Double.NaN;
+		try {
+			numericalValue = Double.valueOf(extractedNumberString);
+		} catch (NumberFormatException e) {
+			text.setForeground(red);
+			return;
+		}
+
+		StringBuilder buf = new StringBuilder(extractedNumberString);
 		int pos = buf.toString().length() < text.getCaretOffset() ? buf.toString().length(): text.getCaretOffset();
 
 		if (unit != null && buf.length() > 0) {
@@ -472,6 +475,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			buf.append(unitLine);
 		}
 
+		text.setForeground(black);
 		text.setText(buf.toString());
 		text.setCaretOffset(pos);
 		
@@ -663,6 +667,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			return expressionManager.getExpressionValue();
 		}
 		final Pattern pattern = getRegExpression();
+		if( txt.equals("."))
+			return Double.NaN;
 		final Matcher matcher = pattern.matcher(txt);
 		if (matcher.matches()) {
 			String group = matcher.group(1);
