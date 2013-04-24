@@ -1149,7 +1149,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 					nexusFile = (IFile) firstElement;
 					newSelection = true;
 
-				} 
+				}
 
 				if (nexusFile != null && newSelection) {
 					processNewNexusFile();
@@ -1200,7 +1200,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	public void setSelection(ISelection selection) {
 		super.setSelection(selection);
 		if (selection instanceof ParametersSelection) {
-			runHdfReconstruction(true);
+			runReconScript(true);
 		}
 
 	}
