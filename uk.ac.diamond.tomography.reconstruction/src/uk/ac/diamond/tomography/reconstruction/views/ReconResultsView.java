@@ -208,12 +208,12 @@ public class ReconResultsView extends ViewPart {
 
 				@Override
 				public int getToolTipDisplayDelayTime(Object object) {
-					return 1;
+					return 2000;
 				}
 
 				@Override
 				public int getToolTipTimeDisplayed(Object object) {
-					return 20000;
+					return 5000;
 				}
 
 				@Override
