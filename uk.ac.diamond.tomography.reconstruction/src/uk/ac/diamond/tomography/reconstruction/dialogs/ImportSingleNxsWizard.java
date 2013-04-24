@@ -47,13 +47,18 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IImportWizard;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
+import org.eclipse.ui.navigator.CommonNavigator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.tomography.reconstruction.Activator;
+import uk.ac.diamond.tomography.reconstruction.views.NexusNavigator;
 
 public class ImportSingleNxsWizard extends Wizard implements IImportWizard {
 
@@ -210,6 +215,7 @@ public class ImportSingleNxsWizard extends Wizard implements IImportWizard {
 										}
 									}
 								}.run(monitor);
+
 							} catch (InvocationTargetException e) {
 								logger.error("Problem creating links", e);
 							} catch (InterruptedException e) {
@@ -225,6 +231,17 @@ public class ImportSingleNxsWizard extends Wizard implements IImportWizard {
 				logger.error("TODO put description of error here", e);
 			}
 
+			IViewPart nexusNavigatorView = null;
+			try {
+				nexusNavigatorView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+						.showView(NexusNavigator.ID);
+			} catch (PartInitException e) {
+				logger.error("TODO put description of error here", e);
+			}
+			if (nexusNavigatorView instanceof CommonNavigator) {
+				CommonNavigator cn = (CommonNavigator) nexusNavigatorView;
+				cn.getCommonViewer().refresh();
+			}
 		}
 		return true;
 	}
