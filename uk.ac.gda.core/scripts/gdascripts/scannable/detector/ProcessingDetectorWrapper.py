@@ -208,7 +208,7 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 	def atScanEnd(self):
 		self._operatingInScan = False
 		self._preparedForScan = False
-		print self.name + " %s saved last file to: %s" % (self.name, self.getFilepath())
+		#print self.name + " %s saved last file to: %s" % (self.name, self.getFilepath())
 		self.det.atScanEnd()
 		
 	def stop(self):
