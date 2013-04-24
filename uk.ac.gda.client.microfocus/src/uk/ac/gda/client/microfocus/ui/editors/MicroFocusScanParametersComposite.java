@@ -30,6 +30,8 @@ import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
+import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
+import uk.ac.gda.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
@@ -37,8 +39,8 @@ import uk.ac.gda.richbeans.event.ValueListener;
 
 public final class MicroFocusScanParametersComposite extends Composite {
 
-	private FieldComposite xScannableName;
-	private FieldComposite yScannableName;
+	private LabelWrapper xScannableName;
+	private LabelWrapper yScannableName;
 	private ScaleBox collectionTime;
 	private ScaleBox xStart;
 	private ScaleBox yStart;
@@ -48,8 +50,8 @@ public final class MicroFocusScanParametersComposite extends Composite {
 	private ScaleBox yStepSize;
 	private ScaleBox energy;
 	private ScaleBox zValue;
-	private FieldComposite zScannableName;
-	private FieldComposite energyScannableName;
+	private LabelWrapper zScannableName;
+	private LabelWrapper energyScannableName;
 	private BooleanWrapper raster;
 	private ScaleBox rowTime;
 	private Label rowDistanceLabel;
@@ -78,15 +80,17 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		}
 
 		label.setText("xScannableName");
-		this.xScannableName = new TextWrapper(tableComposite, SWT.NONE);
+		this.xScannableName = new LabelWrapper(tableComposite, SWT.NONE);
 		xScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		xScannableName.setEnabled(false);
+		xScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		xScannableName.setTextType(TEXT_TYPE.PLAIN_TEXT);
 
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("yScannableName");
-		this.yScannableName = new TextWrapper(tableComposite, SWT.NONE);
+		this.yScannableName = new LabelWrapper(tableComposite, SWT.NONE);
 		yScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		yScannableName.setEnabled(false);
+		yScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		yScannableName.setTextType(TEXT_TYPE.PLAIN_TEXT);
 
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("collectionTime");
@@ -100,7 +104,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateScanInfo();
-
 			}
 		});
 		label = new Label(tableComposite, SWT.NONE);
@@ -116,7 +119,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateScanInfo();
-
 			}
 		});
 		label = new Label(tableComposite, SWT.NONE);
@@ -132,7 +134,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateScanInfo();
-
 			}
 		});
 
@@ -149,7 +150,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateScanInfo();
-
 			}
 		});
 
@@ -166,7 +166,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateScanInfo();
-
 			}
 		});
 
@@ -183,7 +182,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateScanInfo();
-
 			}
 		});
 
@@ -200,30 +198,31 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateScanInfo();
-
 			}
 		});
 
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("EnergyScannableName");
-		this.energyScannableName = new TextWrapper(tableComposite, SWT.NONE);
+		energyScannableName = new LabelWrapper(tableComposite, SWT.NONE);
 		energyScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		energyScannableName.setEnabled(false);
-
+		energyScannableName.setTextType(TEXT_TYPE.PLAIN_TEXT);
+		
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("energies");
-		this.energy = new ScaleBox(tableComposite, SWT.NONE);
+		energy = new ScaleBox(tableComposite, SWT.NONE);
 		energy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		this.energy.setMinimum(0.0);
-		this.energy.setMaximum(35000.0);
-		this.energy.setUnit("eV");
-		this.energy.setDecimalPlaces(4);
+		energy.setMinimum(0.0);
+		energy.setMaximum(35000.0);
+		energy.setUnit("eV");
+		energy.setDecimalPlaces(4);
 		new Label(energy, SWT.NONE);
 
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("ZScannableName");
-		this.zScannableName = new TextWrapper(tableComposite, SWT.NONE);
+		zScannableName = new LabelWrapper(tableComposite, SWT.NONE);
 		zScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		zScannableName.setEnabled(true);
+		zScannableName.setTextType(TEXT_TYPE.PLAIN_TEXT);
 
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("zValue");
@@ -234,7 +233,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		this.zValue.setUnit("mm");
 		this.zValue.setDecimalPlaces(4);
 		new Label(zValue, SWT.NONE);
-		zScannableName.setEnabled(false);
 
 		infoComposite = new Composite(this, SWT.NONE);
 		infoComposite.setLayout(new GridLayout());
@@ -269,11 +267,9 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		raster.setLayoutData(gridData);
 
 		raster.addValueListener(new ValueListener() {
-
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				getShell().getDisplay().asyncExec(new Runnable() {
-
 					@Override
 					public void run() {
 						if (raster.getValue()) {
@@ -285,11 +281,8 @@ public final class MicroFocusScanParametersComposite extends Composite {
 						}
 						updateScanInfo();
 					}
-
 				});
-
 			}
-
 			@Override
 			public String getValueListenerName() {
 				return null;
@@ -310,7 +303,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateScanInfo();
-
 			}
 		});
 

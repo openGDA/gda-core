@@ -30,7 +30,6 @@ class B18DetectorPreparer:
         self._control_ionc(ion_chambers_bean, 2)
 
     def _control_ionc(self, ion_chambers_bean, ion_chamber_num):
-        
         ion_chamber = ion_chambers_bean[ion_chamber_num]
         change_sensitivity = ion_chamber.getChangeSensitivity()
         if change_sensitivity == True:

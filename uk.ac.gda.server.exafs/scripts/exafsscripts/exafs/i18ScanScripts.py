@@ -51,13 +51,9 @@ class I18XasScan(XasScan):
         if self.trajBeamMonitor!=None:
             self.trajBeamMonitor.setActive(False)
         
-        
-    def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean):
-        self.configureMonitors(beanGroup)
-        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean)
-        
     def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
         times = []
+        self.configureMonitors(beanGroup)
         if isinstance(beanGroup.getScan(),XasScanParameters):
             times = ExafsScanPointCreator.getScanTimeArray(beanGroup.getScan())
         elif isinstance(beanGroup.getScan(),XanesScanParameters):

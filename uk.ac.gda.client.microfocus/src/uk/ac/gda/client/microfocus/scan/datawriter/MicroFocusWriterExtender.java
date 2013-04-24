@@ -209,7 +209,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			fillRoiNames();
 			totalPoints = numberOfXPoints * numberOfYPoints;
 			scalerValues = new double[totalPoints][];
-			detectorValues = new double[roiNameMap.size()][];
+			if(roiNameMap!=null)
+				detectorValues = new double[roiNameMap.size()][];
 			xValues = new double[totalPoints];
 			yValues = new double[totalPoints];
 			// get the list of names from Scaler
@@ -250,9 +251,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 		}
 
-		if (lastDataPoint == null
+		if ((lastDataPoint == null
 				|| (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(
-						dataPoint.getCurrentFilename()))) {
+						dataPoint.getCurrentFilename())) )&&(xValues!=null||yValues!=null)) {
 			xValues[dataPoint.getCurrentPointNumber()] = xy[1];
 			yValues[dataPoint.getCurrentPointNumber()] = xy[0];
 			double value = 0;
@@ -291,7 +292,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					logger.info("The rgb Line with scaler values is " + rgbLine.toString());
 
 				} else if (obj instanceof NXDetectorData) {
-					if (roiTable == null || roiTable.size() == 0) {
+					if (roiNames!=null && (roiTable == null || roiTable.size() == 0)) {
 						roiTable = new Hashtable<String, Double>(roiNames.length);
 						for (String s : roiNames) {
 							roiTable.put(s, 0.0);
@@ -396,11 +397,13 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						}
 
 					}
-					for (String s : roiNames) {
-						double val = roiTable.get(s);
-						DecimalFormat df = new DecimalFormat("#");
-						rgbLine.append(df.format(val));
-						rgbLine.append("	");
+					if (roiNames != null){
+						for (String s : roiNames) {
+							double val = roiTable.get(s);
+							DecimalFormat df = new DecimalFormat("#");
+							rgbLine.append(df.format(val));
+							rgbLine.append("	");
+						}
 					}
 					logger.debug("The y value is " + xy[0]);
 					logger.debug("the x value is " + xy[1]);

@@ -57,6 +57,8 @@ public class XasScanParameters implements Serializable, IScanParameters {
 	private Double exafsToTime;
 	private Double exafsStep;
 	private String exafsStepType;
+	private String exafsTimeType;
+	private String abGafChoice;
 	private Double kWeighting;
 	private boolean shouldValidate = true;
 
@@ -372,6 +374,7 @@ public class XasScanParameters implements Serializable, IScanParameters {
 		result = prime * result + ((exafsFromTime == null) ? 0 : exafsFromTime.hashCode());
 		result = prime * result + ((exafsStep == null) ? 0 : exafsStep.hashCode());
 		result = prime * result + ((exafsStepType == null) ? 0 : exafsStepType.hashCode());
+		result = prime * result + ((exafsTimeType == null) ? 0 : exafsTimeType.hashCode());
 		result = prime * result + ((exafsTime == null) ? 0 : exafsTime.hashCode());
 		result = prime * result + ((exafsToTime == null) ? 0 : exafsToTime.hashCode());
 		result = prime * result + ((finalEnergy == null) ? 0 : finalEnergy.hashCode());
@@ -456,6 +459,13 @@ public class XasScanParameters implements Serializable, IScanParameters {
 				return false;
 		} else if (!exafsStepType.equals(other.exafsStepType))
 			return false;
+		
+		if (exafsTimeType == null) {
+			if (other.exafsTimeType != null)
+				return false;
+		} else if (!exafsTimeType.equals(other.exafsTimeType))
+			return false;
+		
 		if (exafsTime == null) {
 			if (other.exafsTime != null)
 				return false;
@@ -592,5 +602,21 @@ public class XasScanParameters implements Serializable, IScanParameters {
 
 	public Double getGaf3() {
 		return gaf3;
+	}
+
+	public String getExafsTimeType() {
+		return exafsTimeType;
+	}
+
+	public void setExafsTimeType(String exafsTimeType) {
+		this.exafsTimeType = exafsTimeType;
+	}
+
+	public String getAbGafChoice() {
+		return abGafChoice;
+	}
+
+	public void setAbGafChoice(String abGafChoice) {
+		this.abGafChoice = abGafChoice;
 	}
 }

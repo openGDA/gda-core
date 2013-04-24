@@ -43,7 +43,7 @@ public class XasScanParametersEditor extends XasXanesParametersEditor {
 
 	@Override
 	protected RichBeanEditorPart getRichBeanEditorPart(String path,Object editingBean) {
-		return new XasScanParametersUIEditor(path, this, editingBean);
+		return new XasScanParametersUIEditor(path, this, (XasScanParameters)editingBean);
 	}
 }
 

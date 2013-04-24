@@ -52,7 +52,6 @@
 					maxOccurs="1" minOccurs="1" />
 				<xsd:element name="edgeEnergy" type="xsd:double"
 					maxOccurs="1" minOccurs="0" />
-<!-- 				<xsd:choice> -->
 				<xsd:sequence maxOccurs="1" minOccurs="0" >
 					<xsd:element name="coreHole" type="xsd:double"
 						maxOccurs="1" minOccurs="0" />
@@ -71,7 +70,6 @@
 					<xsd:element name="C" type="xsd:double" maxOccurs="1"
 						minOccurs="0" />
 				</xsd:sequence>
-<!-- 				</xsd:choice> -->
 				<xsd:element name="preEdgeStep" type="xsd:double"
 					maxOccurs="1" minOccurs="1" />
 				<xsd:element name="preEdgeTime" type="xsd:double"
@@ -82,7 +80,6 @@
 					maxOccurs="1" minOccurs="1" />
 				<xsd:element name="exafsStep" type="xsd:double"
 					maxOccurs="1" minOccurs="1" />
-<!-- 				<xsd:choice> -->
 					<xsd:sequence maxOccurs="1"
 						minOccurs="0">
 						<xsd:element name="exafsTime" type="xsd:double"
@@ -97,14 +94,30 @@
 						<xsd:element name="kWeighting" type="xsd:double"
 							maxOccurs="1" minOccurs="1" />
 					</xsd:sequence>
-<!-- 				</xsd:choice> -->
-
 				<xsd:element name="exafsStepType" maxOccurs="1"
 					minOccurs="1">
 					<xsd:simpleType>
 						<xsd:restriction base="xsd:string">
 							<xsd:enumeration value="k" />
 							<xsd:enumeration value="E" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+				<xsd:element name="exafsTimeType" maxOccurs="1"
+					minOccurs="0">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="Constant Time" />
+							<xsd:enumeration value="Variable Time" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+				<xsd:element name="abGafChoice" maxOccurs="1"
+					minOccurs="0">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="A/B" />
+							<xsd:enumeration value="Gaf1/Gaf2" />
 						</xsd:restriction>
 					</xsd:simpleType>
 				</xsd:element>
@@ -153,7 +166,6 @@
 				</xsd:element>
 				<xsd:element name="finalEnergy" type="xsd:double"
 					maxOccurs="1" minOccurs="1" />
-
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
@@ -329,7 +341,7 @@
 							<xsd:element name="workingEnergy" type="xsd:double"
 								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="ionChamber" type="ionChamberType"
-								maxOccurs="3" minOccurs="3" />
+								maxOccurs="3" minOccurs="0" />
 							<xsd:element name="collectDiffractionImages" type="xsd:boolean"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="mythenEnergy" type="xsd:double"
@@ -348,7 +360,7 @@
 							<xsd:element name="workingEnergy" type="xsd:double"
 								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="ionChamber" type="ionChamberWOGasType"
-								maxOccurs="3" minOccurs="3" />
+								maxOccurs="3" minOccurs="0" />
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
@@ -386,7 +398,7 @@
 							<xsd:element name="collectDiffractionImages" type="xsd:boolean"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="ionChamber" type="ionChamberWOGasType"
-								maxOccurs="3" minOccurs="3" />
+								maxOccurs="3" minOccurs="0" />
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
@@ -440,11 +452,9 @@
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
-
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
-
 
 	<xsd:complexType name="signalType">
 		<xsd:sequence>
@@ -497,8 +507,6 @@
 		</xsd:complexType>
 	</xsd:element>
 
-	
-
 	<xsd:element name="QEXAFSParameters">
 		<xsd:complexType>
 			<xsd:sequence>
@@ -535,4 +543,3 @@
 	</xsd:element>
 
 </xsd:schema>
-	

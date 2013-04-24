@@ -18,12 +18,14 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.CurrentAmplifier;
 import gda.exafs.mucal.PressureBean;
 import gda.exafs.mucal.PressureCalculation;
 import gda.jython.JythonServerFacade;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,9 +80,7 @@ import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class IonChamberComposite extends Composite implements ListEditorUI {
-
 	private final Logger logger = LoggerFactory.getLogger(IonChamberComposite.class);
-
 	private LabelWrapper deviceName;
 	private TextWrapper name;
 	private TextWrapper currentAmplifierName;
@@ -97,36 +97,21 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	private ScaleBox gas_fill2_period_box;
 	private BooleanWrapper autoFillGas;
 	private BooleanWrapper flush;
-
 	private CLabel errorMessage;
-
 	private ExpandableComposite advancedExpandableComposite;
-
 	private ExpansionAdapter expansionListener;
-
 	private Link refreshLink;
-
 	private SelectionAdapter refreshListener;
-
 	private BooleanWrapper changeSensitivity;
-
 	private String flushString = "False";
-
 	private VerticalListEditor provider;
-
 	private Button fillGasButton;
 	private Button abortFillButton;
-
 	private DetectorParameters detParams;
 	private IonChamberParameters ionParams;
 	private boolean useGasProperties = true;
-
 	private Label gainLabel;
 	private Label offsetLabel;
-
-	public void setExperimentType(String type) {
-		detParams.setExperimentType(type);
-	}
 
 	/**
 	 * @param parent
@@ -344,7 +329,21 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 
 		gain = new ComboWrapper(gainProperties, SWT.READ_ONLY);
 		gain.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		final List<String> notches = GainCalculation.getGainNotches();
+		
+		List<String> notches = null;
+		if (!LocalProperties.get("gda.factory.factoryName").equals("I18"))
+			notches = GainCalculation.getGainNotches();
+		else{
+			notches = new ArrayList<String>(8);
+			notches.add("10^3 V/A");
+			notches.add("10^4 V/A");
+			notches.add("10^5 V/A");
+			notches.add("10^6 V/A");
+			notches.add("10^7 V/A");
+			notches.add("10^8 V/A");
+			notches.add("10^9 V/A");
+			notches.add("10^10 V/A");
+		}
 		gain.setItems(notches.toArray(new String[notches.size()]));
 		gain.addButtonListener(new SelectionAdapter() {
 			@Override
@@ -798,4 +797,8 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	public void setGasType(String gasTypeVal) {
 		this.gasType.select(findFilterIndex(gasTypeVal, gasType));
 	}	
+	
+	public void setExperimentType(String type) {
+		detParams.setExperimentType(type);
+	}
 }
