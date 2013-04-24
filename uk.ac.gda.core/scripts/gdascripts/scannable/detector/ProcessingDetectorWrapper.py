@@ -507,15 +507,18 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 
 	def setHardwareTriggering(self, b):
 		self.hardware_triggering = b
+		
+	def setNumberImagesToCollect(self, n):
+		self.hardware_triggered_detector.setNumberImagesToCollect(n)
+		
+	def getNumberImagesToCollect(self):
+		return self.hardware_triggered_detector.getNumberImagesToCollect()
 								
 	def isHardwareTriggering(self):
 		return self.hardware_triggering
 
 	def integratesBetweenPoints(self):
 		return self.hardware_triggered_detector.integratesBetweenPoints()
-
-	def arm(self):
-		self.hardware_triggered_detector.arm()
 
 	# Detector
 		
@@ -534,7 +537,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	def atScanStart(self):
 		ProcessingDetectorWrapper.atScanStart(self)
 		if self.array_monitor_for_hardware_triggering:
-			self.array_monitor_for_hardware_triggering.prepareForCollection(999) # Number not used
+			self.array_monitor_for_hardware_triggering.prepareForCollection(999, None) # Number not used
 
 
 	def getCollectionTime(self):
@@ -545,8 +548,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 
 	def collectData(self):
 		self.clearLastAcquisitionState()
-		if not self.isHardwareTriggering():
-			self.det.collectData()
+		self.det.collectData()
 		
 	def getStatus(self):
 		return self.det.getStatus()
@@ -585,8 +587,8 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 
 	def atScanEnd(self):
 		ProcessingDetectorWrapper.atScanEnd(self)
-		if self.array_monitor_for_hardware_triggering:
-			self.array_monitor_for_hardware_triggering.prepareForCollection(999) # Number not used
+#		if self.array_monitor_for_hardware_triggering:
+#			self.array_monitor_for_hardware_triggering.prepareForCollection(999, None) # Number not used
 
 	def getDataDimensions(self):
 		return [len(self.getExtraNames())]
@@ -609,7 +611,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	def getPositionCallable(self):
 		if self.isHardwareTriggering():
 			self.clearLastAcquisitionState()
-			self.hardware_triggered_detector.lastReadoutValue = None
+			# self.hardware_triggered_detector.lastReadoutValue = None
 		return ProcessingDetectorWrapper.getPositionCallable(self)
 
 
