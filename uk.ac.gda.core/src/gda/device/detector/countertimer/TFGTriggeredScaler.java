@@ -40,22 +40,15 @@ import org.slf4j.LoggerFactory;
 //TODO change class name as it wrongly suggests that it's generic
 public class TFGTriggeredScaler extends TfgScalerWithLogValues implements HardwareTriggeredDetector, 
 PositionCallableProvider<double[]> {
-	
 	static final Logger logger = LoggerFactory.getLogger(TFGTriggeredScaler.class);
-	
 	private int ttlSocket = 0; // the TTL Trig In socket [0-3] default is 0
 	private int numberScanPointsToCollect = 1;
-
 	private boolean returnCountRates = false;
 	private boolean integrateBetweenPoints;
 	private boolean busy;
-
 	private AtomicBoolean readingOut = new AtomicBoolean(false);
-
 	private PositionStreamIndexer<double[]> indexer;
-	
 	private DAServer daserver;
-	
 	private HardwareTriggerProvider triggerProvider;
 
 	public void setHardwareTriggerProvider(HardwareTriggerProvider triggerProvider) {
@@ -91,7 +84,6 @@ PositionCallableProvider<double[]> {
 	}
 	
 	public int getNumberFrames() throws DeviceException {
-		
 		String[] cmds = new String[]{"status show-armed","progress","status","full","lap","frame"};
 		HashMap <String,String> currentVals = new HashMap<String,String>();
 		for (String cmd : cmds){
@@ -101,9 +93,7 @@ PositionCallableProvider<double[]> {
 		
 		if (currentVals.isEmpty())
 			return 0;
-		
-		// else either scan not started (return -1) or has finished (return continuousParameters.getNumberDataPoints())
-		
+
 		// if started but nothing collected yet
 		if (currentVals.get("status show-armed").equals("EXT-ARMED") /*&& currentVals.get("status").equals("IDLE")*/ )
 			return 0;
@@ -196,7 +186,6 @@ PositionCallableProvider<double[]> {
 				thisFrame = appendLogValues(thisFrame);
 			output[i] = thisFrame;
 		}
-
 		return output;
 	}
 
@@ -235,10 +224,14 @@ PositionCallableProvider<double[]> {
 				waitedSoFarMilliSeconds += waitTime;
 				totalCollectedByHarwdare =  getNumberFrames();
 			}
-			
+			//log waitedSoFarMilliSeconds totalCollectedByHarwdare
+			logger.info("waitedSoFarMilliSeconds=" + waitedSoFarMilliSeconds + ", totalCollectedByHarwdare="+totalCollectedByHarwdare);
 			List<double[]> container = new ArrayList<double[]>();
-			if(totalCollectedByHarwdare <= 0)
+			//if there is no data to read then treat as an error and thro
+			if(totalCollectedByHarwdare <= 0){
+				logger.info("Nothing collected so returning");
 				return container;
+			}
 			int startFrame = readOutFromHardwareSoFar;
 			int finalFrame = totalCollectedByHarwdare - 1;
 			double dataRead[][] = readData(startFrame, finalFrame); // readData must block until the range is available
@@ -247,8 +240,10 @@ PositionCallableProvider<double[]> {
 				setReadingOut(true);
 				container.add(dataRead[i]);
 			}
+			//add log on 	totalCollectedByHarwdare and 	readOutFromHardwareSoFar
+			logger.info("readOutFromHardwareSoFar=" + readOutFromHardwareSoFar + ", totalCollectedByHarwdare="+totalCollectedByHarwdare);
+
 			readOutFromHardwareSoFar = totalCollectedByHarwdare;
-		
 			if(readOutFromHardwareSoFar >= numberScanPointsToCollect)
 				setReadingOut(false);
 			return container;
@@ -303,17 +298,9 @@ PositionCallableProvider<double[]> {
 		this.numberScanPointsToCollect = numberImagesToCollect;
 	}
 	
-	//TODO arm method used to set armedForNewScan = false used in unmerged version from 8.22 
-//	@Override
-//	public void arm() throws DeviceException {
-//		armedForNewScan = false;
-//		//super.start();	
-//		
-//	}
-	
 	@Override
 	public void collectData() throws DeviceException {
-		super.start();		
+		clearMemory();
 		setTimeFrames();
 	}
 	
@@ -334,7 +321,6 @@ PositionCallableProvider<double[]> {
 		}
 	}
 
-	// daserver get/set has been put back as previous revision had an unsettable daserver
 	public DAServer getDaserver() {
 		return daserver;
 	}
