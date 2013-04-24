@@ -420,7 +420,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		this.position = pos;
 		if (nexusFile != null) {
 			// refreshJob.cancel();
-			getRefreshJob().setRule(new ReconSchedulingRule(nexusFile));
+			getRefreshJob().setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 			getRefreshJob().schedule(200);
 		}
 	}
@@ -467,7 +467,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			}
 		};
 
-		findPositionToUpdate.setRule(new ReconSchedulingRule(nexusFile));
+		findPositionToUpdate.setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 		findPositionToUpdate.schedule();
 
 	}
@@ -499,7 +499,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			updateData();
 
 			UpdatePlotJob updatePlotJob = new UpdatePlotJob(this);
-			updatePlotJob.setRule(new ReconSchedulingRule(nexusFile));
+			updatePlotJob.setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 			updatePlotJob.setPixelPosition(sliceNumber);
 			updatePlotJob.setName(String.format("Update plot after reconstruction:%s", nexusFile.getName()));
 			updatePlotJob.setNexusFileLocation(nexusFile.getLocation().toOSString());
@@ -544,7 +544,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		updatePlotJob.setNexusFileLocation(nexusFileLocation);
 		updatePlotJob.setPixelPosition(pixelPosition);
 
-		updatePlotJob.setRule(new ReconSchedulingRule(nexusFile));
+		updatePlotJob.setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 		updatePlotJob.schedule();
 
 	}

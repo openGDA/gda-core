@@ -501,7 +501,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 					return Status.OK_STATUS;
 				}
 			};
-			deleteOldReconJob.setRule(new ReconSchedulingRule(nexusFile));
+			deleteOldReconJob.setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 			deleteOldReconJob.schedule();
 
 			String fileName = fullPath.toOSString();
@@ -615,7 +615,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		int sliceNumber = getSliceSelectionFromProjectionsView();
 		if (sliceNumber >= 0) {
 			UpdatePlotJob updatePlotJob = new UpdatePlotJob(this);
-			updatePlotJob.setRule(new ReconSchedulingRule(nexusFile));
+			updatePlotJob.setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 			updatePlotJob.setPixelPosition(sliceNumber);
 			updatePlotJob.setName(String.format("Update plot after reconstruction:%s", nexusFile.getName()));
 			updatePlotJob.setNexusFileLocation(nexusFileLocation);
@@ -710,7 +710,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		if (getDefaultSettingFile().exists()) {
 			try {
 
-				IProject tomoSettingsProject = Activator.getDefault().getTomoSettingsProject();
+				IProject tomoSettingsProject = Activator.getDefault().getTomoFilesProject();
 				final IFile tomoSettingsFile = tomoSettingsProject.getFile(getHmSettingsInProcessingDir().getName());
 				if (!tomoSettingsFile.exists()) {
 					new WorkspaceModifyOperation() {

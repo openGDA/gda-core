@@ -54,6 +54,7 @@ public class TomoReconPerspective implements IPerspectiveFactory {
 		layout.addShowViewShortcut(ProjectionsView.ID);
 		layout.addShowViewShortcut(ParameterView.ID);
 		layout.addShowViewShortcut(CenterOfRotationView.ID);
+		layout.addShowViewShortcut(ReconResultsView.ID);
 		layout.addShowViewShortcut(IPageLayout.ID_PROGRESS_VIEW);
 
 	}

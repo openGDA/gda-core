@@ -74,7 +74,7 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 
-	public static final String PROJECT_TOMOGRAPHY_SETTINGS = "TomographySettings";
+	public static final String PROJECT_TOMOGRAPHY_SETTINGS = "Tomography Files";
 
 	/**
 	 * The constructor
@@ -132,7 +132,7 @@ public class Activator extends AbstractUIPlugin {
 
 	private static final Logger logger = LoggerFactory.getLogger(Activator.class);
 
-	public IProject getTomoSettingsProject() {
+	public IProject getTomoFilesProject() {
 		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_TOMOGRAPHY_SETTINGS);
 		if (!project.exists()) {
 			try {
@@ -195,7 +195,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public Resource getReconResultsResource() {
-		IProject tomoSettingsProject = Activator.getDefault().getTomoSettingsProject();
+		IProject tomoSettingsProject = Activator.getDefault().getTomoFilesProject();
 		IFile reconResultsFile = tomoSettingsProject.getFile(RECON_RESULTS_FILE_NAME);
 
 		Resource reconResultsRes = null;

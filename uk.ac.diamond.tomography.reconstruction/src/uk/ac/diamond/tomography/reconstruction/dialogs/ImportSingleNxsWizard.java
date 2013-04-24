@@ -195,7 +195,7 @@ public class ImportSingleNxsWizard extends Wizard implements IImportWizard {
 
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						final IProject tomoSettingsProject = Activator.getDefault().getTomoSettingsProject();
+						final IProject tomoSettingsProject = Activator.getDefault().getTomoFilesProject();
 						final String fileLocation = wizPage.getFileLocation();
 						Path fileLocPath = new Path(fileLocation);
 						String fileNameOnly = fileLocPath.lastSegment();

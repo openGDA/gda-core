@@ -18,32 +18,36 @@
 
 package uk.ac.diamond.tomography.reconstruction.jobs;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+
+import uk.ac.diamond.tomography.reconstruction.Activator;
 
 public class ReconSchedulingRule implements ISchedulingRule {
 
-	private IFile nexusFile;
+	private String nexusFile;
 
-	public ReconSchedulingRule(IFile nexusFile) {
-		this.nexusFile = nexusFile;
+	public ReconSchedulingRule(String nexusFileLocation) {
+		this.nexusFile = nexusFileLocation;
 	}
 
-	public IFile getNexusFile() {
+	public String getNexusFileFullLocation() {
 		return nexusFile;
 	}
 
 	@Override
 	public boolean isConflicting(ISchedulingRule rule) {
 		if (rule instanceof ReconSchedulingRule) {
-			return this.getNexusFile().equals(((ReconSchedulingRule) rule).getNexusFile());
+			return this.getNexusFileFullLocation().equals(((ReconSchedulingRule) rule).getNexusFileFullLocation());
 		}
 		return false;
 	}
 
 	@Override
 	public boolean contains(ISchedulingRule rule) {
-		return rule.equals(this);
+		return rule.equals(this)
+				|| Activator.getDefault().getTomoFilesProject().equals(rule)
+				|| (rule instanceof ReconSchedulingRule && (getNexusFileFullLocation()
+						.equals(((ReconSchedulingRule) rule).getNexusFileFullLocation())));
 	}
 
 }

@@ -212,7 +212,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 				return Status.OK_STATUS;
 			}
 		};
-		job2.setRule(new ReconSchedulingRule(nexusFile));
+		job2.setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 		job2.setSystem(true);
 		job2.schedule();
 
@@ -237,7 +237,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 				return Status.OK_STATUS;
 			}
 		};
-		job.setRule(new ReconSchedulingRule(nexusFile));
+		job.setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 		job.schedule();
 
 		job2 = new UIJob(getViewSite().getShell().getDisplay(), "") {
@@ -251,7 +251,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 			}
 		};
 		job2.setSystem(true);
-		job2.setRule(new ReconSchedulingRule(nexusFile));
+		job2.setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 		job2.schedule();
 
 		scheduleUpdatePlotterJob(centreOfCentre, totalSteps / 2);
@@ -545,7 +545,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 		UpdatePlotViewJob plotViewJob = new UpdatePlotViewJob();
 		plotViewJob.setName(String.format(JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH, nexusFile.getName(), value));
 		plotViewJob.setStepperPosition(position);
-		plotViewJob.setRule(new ReconSchedulingRule(nexusFile));
+		plotViewJob.setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 		plotViewJob.setUser(true);
 		plotViewJob.schedule();
 	}

@@ -352,7 +352,7 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 				return Status.OK_STATUS;
 			}
 		};
-		job.setRule(new ReconSchedulingRule(nexusFile));
+		job.setRule(new ReconSchedulingRule(nexusFile.getLocation().toOSString()));
 		job.schedule();
 	}
 
