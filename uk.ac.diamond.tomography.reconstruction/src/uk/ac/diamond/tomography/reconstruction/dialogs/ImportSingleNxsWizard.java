@@ -48,7 +48,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
@@ -185,65 +187,74 @@ public class ImportSingleNxsWizard extends Wizard implements IImportWizard {
 
 	@Override
 	public boolean performFinish() {
-		if (selection != null || StructuredSelection.EMPTY.equals(selection)) {
 
-		} else {
+		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
+		try {
+			dialog.run(true, false, new IRunnableWithProgress() {
 
-			ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
-			try {
-				dialog.run(true, false, new IRunnableWithProgress() {
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					final IProject tomoSettingsProject = Activator.getDefault().getTomoFilesProject();
+					final String fileLocation = wizPage.getFileLocation();
+					Path fileLocPath = new Path(fileLocation);
+					String fileNameOnly = fileLocPath.lastSegment();
 
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						final IProject tomoSettingsProject = Activator.getDefault().getTomoFilesProject();
-						final String fileLocation = wizPage.getFileLocation();
-						Path fileLocPath = new Path(fileLocation);
-						String fileNameOnly = fileLocPath.lastSegment();
+					final IFile nxsFile = tomoSettingsProject.getFile(fileNameOnly);
+					if (!nxsFile.exists()) {
+						try {
+							new WorkspaceModifyOperation() {
 
-						final IFile nxsFile = tomoSettingsProject.getFile(fileNameOnly);
-						if (!nxsFile.exists()) {
-							try {
-								new WorkspaceModifyOperation() {
-
-									@Override
-									protected void execute(IProgressMonitor monitor) throws CoreException,
-											InvocationTargetException, InterruptedException {
-										try {
-											nxsFile.createLink(new Path(fileLocation), IResource.REPLACE, monitor);
-										} catch (IllegalArgumentException ex) {
-											logger.debug("Problem identified - eclipse doesn't refresh the right folder");
-										}
+								@Override
+								protected void execute(IProgressMonitor monitor) throws CoreException,
+										InvocationTargetException, InterruptedException {
+									try {
+										nxsFile.createLink(new Path(fileLocation), IResource.REPLACE, monitor);
+									} catch (IllegalArgumentException ex) {
+										logger.debug("Problem identified - eclipse doesn't refresh the right folder");
 									}
-								}.run(monitor);
+								}
+							}.run(monitor);
 
-							} catch (InvocationTargetException e) {
-								logger.error("Problem creating links", e);
-							} catch (InterruptedException e) {
-								logger.error("Problem creating links - interrupted.", e);
-							}
+						} catch (InvocationTargetException e) {
+							logger.error("Problem creating links", e);
+						} catch (InterruptedException e) {
+							logger.error("Problem creating links - interrupted.", e);
 						}
-
 					}
-				});
-			} catch (InvocationTargetException e) {
-				logger.error("TODO put description of error here", e);
-			} catch (InterruptedException e) {
-				logger.error("TODO put description of error here", e);
-			}
 
-			IViewPart nexusNavigatorView = null;
-			try {
-				nexusNavigatorView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-						.showView(NexusNavigator.ID);
-			} catch (PartInitException e) {
-				logger.error("TODO put description of error here", e);
-			}
-			if (nexusNavigatorView instanceof CommonNavigator) {
-				CommonNavigator cn = (CommonNavigator) nexusNavigatorView;
-				cn.getCommonViewer().refresh();
+				}
+			});
+		} catch (InvocationTargetException e) {
+			logger.error("Problem executing import nexus wizard", e);
+		} catch (InterruptedException e) {
+			logger.error("Problem executing import nexus wizard - Interrupted", e);
+		}
+
+		refreshNexusNavigatorIfOpened();
+
+		return true;
+	}
+
+	private void refreshNexusNavigatorIfOpened() {
+		IViewPart nexusNavigatorView = null;
+
+		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IViewReference[] viewReferences = activePage.getViewReferences();
+
+		for (IViewReference iViewReference : viewReferences) {
+			if (NexusNavigator.ID.equals(iViewReference.getId())) {
+				try {
+					nexusNavigatorView = activePage.showView(NexusNavigator.ID);
+				} catch (PartInitException e) {
+					logger.error("Unable to show Refresh view", e);
+				}
+				if (nexusNavigatorView instanceof CommonNavigator) {
+					CommonNavigator cn = (CommonNavigator) nexusNavigatorView;
+					cn.getCommonViewer().refresh();
+				}
+				break;
 			}
 		}
-		return true;
 	}
 
 }
