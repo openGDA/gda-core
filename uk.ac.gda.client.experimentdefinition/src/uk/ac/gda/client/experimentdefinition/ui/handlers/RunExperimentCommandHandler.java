@@ -87,18 +87,18 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 			return;
 		}
 
-		AbstractValidator validator = ExperimentFactory.getValidator();
-		if (validator != null) {
-			try {
-				validator.validate(ob);
-			} catch (InvalidBeanException e) {
-				MessageDialog md = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						"Error(s) in XML file(s)",null,e.getMessage(),MessageDialog.ERROR,new String[]{"Ignore errors","Cancel"},1);
-				int choice = md.open();
-				if(choice == 1)
-					return;
-			}
-		}
+//		AbstractValidator validator = ExperimentFactory.getValidator();
+//		if (validator != null) {
+//			try {
+//				validator.validate(ob);
+//			} catch (InvalidBeanException e) {
+//				MessageDialog md = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+//						"Error(s) in XML file(s)",null,e.getMessage(),MessageDialog.ERROR,new String[]{"Ignore errors","Cancel"},1);
+//				int choice = md.open();
+//				if(choice == 1)
+//					return;
+//			}
+//		}
 
 		ExperimentCommandProvider command;
 		try {
