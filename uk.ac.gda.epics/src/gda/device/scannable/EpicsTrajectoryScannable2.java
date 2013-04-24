@@ -31,6 +31,8 @@ import gda.scan.TrajectoryScanController.ReadStatus;
 import gda.scan.TrajectoryScanController.TrajectoryScanProperty;
 import gda.util.OutOfRangeException;
 import gov.aps.jca.TimeoutException;
+
+//TODO EpicsTrajectoryScannable2 is a terrible name. How does it differ to EpicsTrajectoryScannable??
 public class EpicsTrajectoryScannable2 extends ScannableMotionUnitsBase implements ContinuouslyScannable, IObserver {
 
 //	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryScannable2.class);

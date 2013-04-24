@@ -125,9 +125,10 @@ public class Trajectory implements Configurable {
 	 * default constructor required by CASTOR if used.
 	 */
 	public Trajectory() {
-		Finder finder = Finder.getInstance();
-		controller = (TrajectoryScanController) finder.find("epicsTrajectoryScanController");
-		accelerationTime = controller.getAccelerationTime();
+		//TODO below hard coded object name epicsTrajectoryScanController
+		//Finder finder = Finder.getInstance();
+		//controller = (TrajectoryScanController) finder.find("epicsTrajectoryScanController");
+		
 	}
 
 	/**
@@ -136,14 +137,25 @@ public class Trajectory implements Configurable {
 	 * @param offset
 	 */
 	public Trajectory(@SuppressWarnings("unused") double offset) {
-		Finder finder = Finder.getInstance();
-		controller = (TrajectoryScanController) finder.find("epicsTrajectoryScanController");
-		accelerationTime = controller.getAccelerationTime();
+		//TODO wyh take an offset parameter when it doesn't do anything with it?
+		//TODO below hard coded object name epicsTrajectoryScanController
+		//Finder finder = Finder.getInstance();
+		//controller = (TrajectoryScanController) finder.find("epicsTrajectoryScanController");
+	}
+
+	
+	
+	public TrajectoryScanController getController() {
+		return controller;
+	}
+
+	public void setController(TrajectoryScanController controller) {
+		this.controller = controller;
 	}
 
 	@Override
 	public void configure() throws FactoryException {
-
+		accelerationTime = controller.getAccelerationTime();
 	}
 
 	/**
