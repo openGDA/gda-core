@@ -152,14 +152,14 @@
                style="push"
                tooltip="Start collecting active regions in this sequence">
          </command-->
-         <command
+         <!--command
                commandId="org.opengda.detector.electronanalyser.client.stopcollection"
                icon="icons/stop.gif"
                id="org.opengda.detector.electronanalyser.client.sequence.stop"
                label="Stop"
                style="push"
                tooltip="Stop current data collection">
-         </command>
+         </command-->
       </menuContribution>
       <menuContribution
             allPopups="false"
@@ -171,13 +171,13 @@
                style="push"
                tooltip="Start collecting active regions in this sequence">
          </command-->
-         <command
+         <!--command
                commandId="org.opengda.detector.electronanalyser.client.stopcollection"
                icon="icons/stop.gif"
                label="Stop"
                style="push"
                tooltip="Stop current data collection">
-         </command>
+         </command-->
          <separator
                name="org.opengda.detector.electronanalyser.client.separator2"
                visible="true">

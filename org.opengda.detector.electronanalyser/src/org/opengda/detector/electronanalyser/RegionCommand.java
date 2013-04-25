@@ -10,13 +10,15 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.util.Sleep;
 
+import java.io.Serializable;
+
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RegionCommand extends CommandBase implements Command {
+public class RegionCommand extends CommandBase implements Command, Serializable{
 
 	private static final long serialVersionUID = 3312489818289239027L;
 	CommandDetails details;

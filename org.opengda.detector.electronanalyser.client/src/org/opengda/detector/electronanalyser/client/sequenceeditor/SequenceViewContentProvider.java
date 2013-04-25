@@ -12,6 +12,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,10 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 		public void notifyChanged(Notification notification) {
 			super.notifyChanged(notification);
 			if (notification.getNotifier() != null) {
+				// do not want to refresh when Region status change only.
+				if (notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_Status())) {
+					return;
+				}
 				viewer.refresh();
 				Table table = ((TableViewer) viewer).getTable();
 				int itemCount = table.getItemCount();
