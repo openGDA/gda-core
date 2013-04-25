@@ -22,7 +22,8 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.epics.client;bundle-version="1.0.0",
  org.eclipse.ui.navigator,
  org.eclipse.ui.ide;bundle-version="3.8.2",
- org.opengda.detector.electronanalyser;bundle-version="1.0.0"
+ org.opengda.detector.electronanalyser;bundle-version="1.0.0",
+ org.dawnsci.plotting.api;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.eclipse.ui.dialogs,
