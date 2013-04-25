@@ -28,6 +28,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.liveplot.LivePlotView;
+
 /**
  * Handler to disconnect the current XYPlotView and create a new one
  */
@@ -44,6 +46,15 @@ public class XYPlotNewHandler extends AbstractHandler{
 				}
 				final IWorkbenchPage page = HandlerUtil.getActiveSite(event).getPage();
 				final IViewPart      part = page.showView(XYPlotView.ID, XYPlotView.getUniqueSecondaryId(), IWorkbenchPage.VIEW_VISIBLE);
+				page.activate(part);
+			}
+			if(view instanceof LivePlotView){
+				LivePlotView xyview = (LivePlotView)view;
+				if(!xyview.isDisconnected()){
+					xyview.setConnect(false);
+				}
+				final IWorkbenchPage page = HandlerUtil.getActiveSite(event).getPage();
+				final IViewPart      part = page.showView(LivePlotView.ID, LivePlotView.getUniqueSecondaryId(), IWorkbenchPage.VIEW_VISIBLE);
 				page.activate(part);
 			}
 		}

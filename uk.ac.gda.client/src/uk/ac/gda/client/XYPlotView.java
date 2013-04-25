@@ -535,7 +535,7 @@ public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver, 
 	 * @return true if the plot not accepted scandatapoints
 	 */
 	public boolean isDisconnected() {
-		return connected;
+		return !connected;
 	}
 
 	@Override
