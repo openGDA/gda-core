@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -30,13 +30,9 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class I20SampleParameters implements Serializable, ISampleParameters {
 
-	/**
-	 * Valid sample stages.
-	 */
-	public static final String[] SAMPLE_ENV = new String[] { "None", "Room Temperature", "Cryostat"/*, "Furnace", "Microreactor",
-			"Custom (XYZ)", "Custom" */};
+	public static final String[] SAMPLE_ENV = new String[] { "None", "Room Temperature", "Cryostat" };
 
-	public static final String[] SAMPLE_ENV_XES = new String[] { "None", "Room Temperature"/*, "Custom (XYZ)", "Custom" */};
+	public static final String[] SAMPLE_ENV_XES = new String[] { "None", "Room Temperature" };
 
 	static public final URL mappingURL = I20SampleParameters.class.getResource("I20SampleParametersMapping.xml");
 
@@ -54,12 +50,12 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	}
 
 	private List<String> descriptions;
-	private String name;  // use as file prefix
+	private String name; // use as file prefix
 	private String sampleWheelPosition;
 	private Boolean useSampleWheel = false;
 	private String sampleEnvironment = "None";
 
-	private SampleStageParameters roomTemperatureParameters;
+	private List<SampleStagePosition> roomTemperatureParameters;
 	private CryostatParameters cryostatParameters;
 	private FurnaceParameters furnaceParameters;
 	private MicroreactorParameters microreactorParameters;
@@ -79,12 +75,15 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 			customParameters.clear();
 		if (customXYZParameters != null)
 			customXYZParameters.clear();
+		if (roomTemperatureParameters != null)
+			roomTemperatureParameters.clear();
 	}
 
 	public I20SampleParameters() {
 		descriptions = new ArrayList<String>(7);
 		customParameters = new ArrayList<CustomParameter>(7);
 		customXYZParameters = new ArrayList<CustomXYZParameter>(7);
+		roomTemperatureParameters = new ArrayList<SampleStagePosition>(7);
 	}
 
 	@Override
@@ -123,12 +122,16 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		this.sampleWheelPosition = sampleWheelPosition;
 	}
 
-	public SampleStageParameters getRoomTemperatureParameters() {
+	public List<SampleStagePosition> getRoomTemperatureParameters() {
 		return roomTemperatureParameters;
 	}
 
-	public void setRoomTemperatureParameters(SampleStageParameters sampleStageParameters) {
-		this.roomTemperatureParameters = sampleStageParameters;
+	public void setRoomTemperatureParameters(List<SampleStagePosition> roomTemperatureParameters) {
+		this.roomTemperatureParameters = roomTemperatureParameters;
+	}
+
+	public void addRoomTemperatureParameter(SampleStagePosition roomTempParameter) {
+		roomTemperatureParameters.add(roomTempParameter);
 	}
 
 	public CryostatParameters getCryostatParameters() {
@@ -182,7 +185,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	public void setCustomXYZParameters(List<CustomXYZParameter> customParameters) {
 		this.customXYZParameters = customParameters;
 	}
-	
+
 	@Override
 	public String toString() {
 		try {
@@ -282,7 +285,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		if (roomTemperatureParameters == null) {
 			if (other.roomTemperatureParameters != null)
 				return false;
-		} else if (!roomTemperatureParameters.equals(other.roomTemperatureParameters))
+		} else if (!listEquals(roomTemperatureParameters, other.roomTemperatureParameters))
 			return false;
 		if (sampleEnvironment == null) {
 			if (other.sampleEnvironment != null)
@@ -303,5 +306,20 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 			return false;
 		return true;
 	}
-	
+
+	private boolean listEquals(List<?> list1, List<?> list2) {
+
+		if (list1.size() != list2.size()) {
+			return false;
+		}
+
+		for (int element = 0; element < list1.size(); element++) {
+			if (!list1.get(element).equals(list2.get(element))) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 }
