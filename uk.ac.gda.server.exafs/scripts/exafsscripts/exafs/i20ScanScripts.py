@@ -70,108 +70,22 @@ class I20XasScan(XasScan):
         try:
             # XAS / XANES room temperature sample stage 
             if beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
-                sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
-                # there are 4 samples in the bean
-                for i in range(0,4):
-                    doUse = sampleStageParameters.getUses()[i]
-                    
-                    if not doUse:
-                        continue
-                    
-                    x = sampleStageParameters.getXs()[i]
-                    y = sampleStageParameters.getYs()[i]
-                    z = sampleStageParameters.getZs()[i]
-                    rotation = sampleStageParameters.getRotations()[i]
-                    roll = sampleStageParameters.getRolls()[i]
-                    pitch = sampleStageParameters.getPitches()[i]
-                    samplename = sampleStageParameters.getSampleNames()[i]
-                    sampledescription = sampleStageParameters.getSampleDescriptions()[i]
-                    
-                    samx = self.finder.find("sample_x")
-                    samy = self.finder.find("sample_y")
-                    samz = self.finder.find("sample_z")
-                    samrot = self.finder.find("sample_rot")
-                    samroll = self.finder.find("sample_roll")
-                    sampitch = self.finder.find("sample_pitch")
-                    
-                    if samx == None or samy ==None or samz == None or samrot == None or samroll == None or sampitch == None:
-                        raise DeviceException("I20 scan script - could not find all sample stage motors!")
-                    
-                    
-                    self.log( "Moving sample stage to",x,y,z,rotation,roll,pitch,"...")
-                    samx.asynchronousMoveTo(x)
-                    samy.asynchronousMoveTo(y)
-                    samz.asynchronousMoveTo(z)
-                    samrot.asynchronousMoveTo(rotation)
-                    samroll.asynchronousMoveTo(roll)
-                    sampitch.asynchronousMoveTo(pitch)
-                    samx.waitWhileBusy()
-                    samy.waitWhileBusy()
-                    samz.waitWhileBusy()
-                    samrot.waitWhileBusy()
-                    samroll.waitWhileBusy()
-                    sampitch.waitWhileBusy()
-                    self.log( "Sample stage move complete.\n")
-                    ScriptBase.checkForPauses()
-                    
-                    # change the strings in the filewriter so that the ascii filename changes
-                    beanGroup.getSample().setName(samplename)
-                    beanGroup.getSample().setDescriptions([sampledescription])
-                    
-                    #TODO add to metadata?
-                    
-                    energy_scannable.waitWhileBusy()
-                    self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+                for i in range(1,numRepetitions+1):
+                    if numRepetitions > 1:
+                         print "Loop",i,"of",numRepetitions,"total repetitions"
+                    self._runXASXANES_roomtemp_loop(beanGroup,scriptType,scan_unique_id, xmlFolderName, controller)
             # XES room temp sample stage
             elif beanGroup.getDetector().getExperimentType() == 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
-                sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
-                # there are 4 samples in the bean
-                for i in range(0,4):
-                    doUse = sampleStageParameters.getUses()[i]
-                    
-                    if not doUse:
-                        continue
-                    
-                    x = sampleStageParameters.getXs()[i]
-                    y = sampleStageParameters.getYs()[i]
-                    z = sampleStageParameters.getZs()[i]
-                    rotation = sampleStageParameters.getRotations()[i]
-                    finerotation = sampleStageParameters.getFineRotations()[i]
-                    samplename = sampleStageParameters.getSampleNames()[i]
-                    sampledescription = sampleStageParameters.getSampleDescriptions()[i]
-                    
-                    samx = self.finder.find("sample_x")
-                    samy = self.finder.find("sample_y")
-                    samz = self.finder.find("sample_z")
-                    samrot = self.finder.find("sample_rot")
-                    samfinerot = self.finder.find("sample_fine_rot")
-                    
-                    if samx == None or samy ==None or samz == None or samrot == None or samfinerot == None:
-                        raise DeviceException("I20 scan script - could not find all sample stage motors!")
-                    
-                    print "Moving sample stage to",x,y,z,rotation,finerotation,"..."
-                    samx.asynchronousMoveTo(x)
-                    samy.asynchronousMoveTo(y)
-                    samz.asynchronousMoveTo(z)
-                    samrot.asynchronousMoveTo(rotation)
-                    samfinerot.asynchronousMoveTo(finerotation)
-                    samx.waitWhileBusy()
-                    samy.waitWhileBusy()
-                    samz.waitWhileBusy()
-                    samrot.waitWhileBusy()
-                    samfinerot.waitWhileBusy()
-                    print "Sample stage move complete.\n"
-                    ScriptBase.checkForPauses()
-                    
-                    # change the strings in the filewriter so that the ascii filename changes
-                    beanGroup.getSample().setName(samplename)
-                    beanGroup.getSample().setDescriptions([sampledescription])
-                    
-                    energy_scannable.waitWhileBusy()
-                    self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+                for i in range(1,numRepetitions+1):
+                    if numRepetitions > 1:
+                         print "Loop",i,"of",numRepetitions,"total repetitions"
+                    self._runXES_roomtemp_loop(beanGroup,scriptType,scan_unique_id, xmlFolderName, controller)
             #XAS/XANES cryostat
             elif beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
-                self._runCryoStatLoop(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+                for i in range(1,numRepetitions+1):
+                    if numRepetitions > 1:
+                         print "Loop",i,"of",numRepetitions,"total repetitions"
+                    self._runCryoStatLoop(beanGroup,scriptType,scan_unique_id, xmlFolderName, controller)
             else :
                 energy_scannable.waitWhileBusy()
                 self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
@@ -237,13 +151,111 @@ class I20XasScan(XasScan):
             print "Setting the topup checker to pause scans for",topupPauseTime,"s before topup"
             self.jython_mapper.topupChecker.collectionTime = maxTime
             
-    def _runCryoStatLoop(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
+    def _runXASXANES_roomtemp_loop(self,beanGroup,scriptType,scan_unique_id, xmlFolderName, controller):
+        energy_scannable_name = beanGroup.getScan().getScannableName()
+        energy_scannable = self.finder.find(energy_scannable_name)
+        samples = beanGroup.getSample().getRoomTemperatureParameters()
+        for i in range(0,len(samples)):
+            
+            x = samples.get(i).getSample_x()
+            y = samples.get(i).getSample_y()
+            z = samples.get(i).getSample_z()
+            rotation = samples.get(i).getSample_rotation()
+            roll = samples.get(i).getSample_roll()
+            pitch = samples.get(i).getSample_pitch()
+            samplename = samples.get(i).getSample_name()
+            sampledescription = samples.get(i).getSample_description()
+            sample_repeats = samples.get(i).getNumberOfRepetitions()
+            
+            samx = self.finder.find("sample_x")
+            samy = self.finder.find("sample_y")
+            samz = self.finder.find("sample_z")
+            samrot = self.finder.find("sample_rot")
+            samroll = self.finder.find("sample_roll")
+            sampitch = self.finder.find("sample_pitch")
+            
+            if samx == None or samy ==None or samz == None or samrot == None or samroll == None or sampitch == None:
+                raise DeviceException("I20 scan script - could not find all sample stage motors!")
+            
+            
+            self.log( "Moving sample stage to",x,y,z,rotation,roll,pitch,"...")
+            samx.asynchronousMoveTo(x)
+            samy.asynchronousMoveTo(y)
+            samz.asynchronousMoveTo(z)
+            samrot.asynchronousMoveTo(rotation)
+            samroll.asynchronousMoveTo(roll)
+            sampitch.asynchronousMoveTo(pitch)
+            samx.waitWhileBusy()
+            samy.waitWhileBusy()
+            samz.waitWhileBusy()
+            samrot.waitWhileBusy()
+            samroll.waitWhileBusy()
+            sampitch.waitWhileBusy()
+            self.log( "Sample stage move complete.\n")
+            ScriptBase.checkForPauses()
+            
+            # change the strings in the filewriter so that the ascii filename changes
+            beanGroup.getSample().setName(samplename)
+            beanGroup.getSample().setDescriptions([sampledescription])
+            
+            energy_scannable.waitWhileBusy()
+            self._doScan(beanGroup,scriptType,scan_unique_id, sample_repeats, xmlFolderName, controller)
+                
+    def _runXES_roomtemp_loop(self,beanGroup,scriptType,scan_unique_id, xmlFolderName, controller):
+        energy_scannable_name = beanGroup.getScan().getScannableName()
+        energy_scannable = self.finder.find(energy_scannable_name)
+        samples = beanGroup.getSample().getRoomTemperatureParameters()
+        for i in range(0,len(samples)):
+            
+            x = samples.get(i).getSample_x()
+            y = samples.get(i).getSample_y()
+            z = samples.get(i).getSample_z()
+            rotation = samples.get(i).getSample_rotation()
+            finerotation = samples.get(i).getSample_finerotation()
+            samplename = samples.get(i).getSample_name()
+            sampledescription = samples.get(i).getSample_description()
+            sample_repeats = samples.get(i).getNumberOfRepetitions()
+             
+            samx = self.finder.find("sample_x")
+            samy = self.finder.find("sample_y")
+            samz = self.finder.find("sample_z")
+            samrot = self.finder.find("sample_rot")
+            samfinerot = self.finder.find("sample_fine_rot")
+            
+            if samx == None or samy ==None or samz == None or samrot == None or samfinerot == None:
+                raise DeviceException("I20 scan script - could not find all sample stage motors!")
+            
+            print "Moving sample stage to",x,y,z,rotation,finerotation,"..."
+            samx.asynchronousMoveTo(x)
+            samy.asynchronousMoveTo(y)
+            samz.asynchronousMoveTo(z)
+            samrot.asynchronousMoveTo(rotation)
+            samfinerot.asynchronousMoveTo(finerotation)
+            samx.waitWhileBusy()
+            samy.waitWhileBusy()
+            samz.waitWhileBusy()
+            samrot.waitWhileBusy()
+            samfinerot.waitWhileBusy()
+            print "Sample stage move complete.\n"
+            ScriptBase.checkForPauses()
+            
+            # change the strings in the filewriter so that the ascii filename changes
+            beanGroup.getSample().setName(samplename)
+            beanGroup.getSample().setDescriptions([sampledescription])
+            
+            energy_scannable.waitWhileBusy()
+            self._doScan(beanGroup,scriptType,scan_unique_id, sample_repeats, xmlFolderName, controller)
+
+
+    def _runCryoStatLoop(self,beanGroup,scriptType,scan_unique_id, xmlFolderName, controller):
         cryoStatParameters = beanGroup.getSample().getCryostatParameters()
         loopSampleFirst = cryoStatParameters.getLoopChoice() == CryostatParameters.LOOP_OPTION[0]
         
         temperatures = [cryoStatParameters.getTemperature()]
         if DOEUtils.isRange(cryoStatParameters.getTemperature(),None):
-            temperatures = DOEUtils.getRange(cryoStatParameters.getTemperature(),None)
+            temperatures = DOEUtils.expand(cryoStatParameters.getTemperature(),None)
+            
+        samples = cryoStatParameters.getSamples()
 
         energy_scannable_name = beanGroup.getScan().getScannableName()
         energy_scannable = self.finder.find(energy_scannable_name)
@@ -253,15 +265,13 @@ class I20XasScan(XasScan):
         
         if loopSampleFirst:
                 # there are 3 samples in the bean
-                for i in range(0,3):
-                    doUse = cryoStatParameters.getUses()[i]
-                    if not doUse:
-                        continue
+                for i in range(0,len(samples)):
                     
-                    y = cryoStatParameters.getYs()[i]
-                    finepos = cryoStatParameters.getFinePositions()[i]
-                    name = cryoStatParameters.getSampleNames()[i]
-                    desc = cryoStatParameters.getSampleDescriptions()[i]
+                    y = samples.get(i).getPosition()
+                    finepos = samples.get(i).getFinePosition()
+                    name = samples.get(i).getSample_name()
+                    desc = samples.get(i).getSampleDescription()
+                    sample_repeats = samples.get(i).getNumberOfRepetitions()
                     
                     samy = self.finder.find("sample_y")
                     sam_fine_pos = self.finder.find("sample_fine_rot")
@@ -284,7 +294,7 @@ class I20XasScan(XasScan):
                         print "Cryostat temperature change complete."
                         # wait for async move of mono to the initial scan energy
                         energy_scannable.waitWhileBusy()
-                        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+                        self._doScan(beanGroup,scriptType,scan_unique_id, sample_repeats, xmlFolderName, controller)
                         
         else:
                 for temp in temperatures:
@@ -292,15 +302,12 @@ class I20XasScan(XasScan):
                     cryostat_scannable.moveTo(temp)
                     print "Cryostat temperature change complete."
                     
-                    for i in range(0,3):
-                        doUse = cryoStatParameters.getUses()[i]
-                        if not doUse:
-                            continue
-                        
-                        y = cryoStatParameters.getYs()[i]
-                        finepos = cryoStatParameters.getFinePositions()[i]
-                        name = cryoStatParameters.getSampleNames()[i]
-                        desc = cryoStatParameters.getSampleDescriptions()[i]
+                    for i in range(0,len(samples)):                        
+                        y = samples.get(i).getPosition()
+                        finepos = samples.get(i).getFinePosition()
+                        name = samples.get(i).getSample_name()
+                        desc = samples.get(i).getSampleDescription()
+                        sample_repeats = samples.get(i).getNumberOfRepetitions()
                         
                         samy = self.finder.find("sample_y")
                         sam_fine_pos = self.finder.find("sample_fine_rot")
@@ -319,7 +326,7 @@ class I20XasScan(XasScan):
                         
                         # wait for async move of mono to the initial scan energy
                         energy_scannable.waitWhileBusy()
-                        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+                        self._doScan(beanGroup,scriptType,scan_unique_id, sample_repeats, xmlFolderName, controller)
 
                     
     def _createTemperaturesArrayFromString(self,tempString):
@@ -332,8 +339,8 @@ class I20XasScan(XasScan):
         
     def _configureCryostat(self, cryoStatParameters):
         cryostat_scannable = self.finder.find("cryostat")
-        #hold the logic in Java
-        cryostat_scannable.setupFromBean(cryoStatParameters)
+        if LocalProperties.get("gda.mode") != 'dummy':
+            cryostat_scannable.setupFromBean(cryoStatParameters)
         
 class I20XesScan(XasScan):
     
