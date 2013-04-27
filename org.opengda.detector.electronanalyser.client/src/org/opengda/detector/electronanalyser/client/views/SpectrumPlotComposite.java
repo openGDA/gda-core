@@ -97,8 +97,7 @@ public class SpectrumPlotComposite extends Composite {
 	 * @param style
 	 * @throws Exception
 	 */
-	public SpectrumPlotComposite(IWorkbenchPart part, Composite parent,
-			int style) throws Exception {
+	public SpectrumPlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
 		if (Display.getCurrent() != null) {
 			fontRegistry = new FontRegistry(Display.getCurrent());
@@ -119,8 +118,8 @@ public class SpectrumPlotComposite extends Composite {
 		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		plotComposite.setLayout(new FillLayout());
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
-				: null, PlotType.XY_STACKED, part);
+		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars() : null,
+				PlotType.XY_STACKED, part);
 
 		statsComposite = new Composite(this, SWT.None);
 		statsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -137,8 +136,7 @@ public class SpectrumPlotComposite extends Composite {
 		lblPosition.setBackground(ColorConstants.yellow);
 		lblPosition.setText("Postion:");
 
-		txtPosition = new Text(statsComposite, SWT.None | SWT.LEFT
-				| SWT.READ_ONLY);
+		txtPosition = new Text(statsComposite, SWT.None | SWT.LEFT | SWT.READ_ONLY);
 		txtPosition.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtPosition.setBackground(ColorConstants.yellow);
 		txtPosition.setText("0.00000");
@@ -148,8 +146,7 @@ public class SpectrumPlotComposite extends Composite {
 		lblHeight.setBackground(ColorConstants.yellow);
 		lblHeight.setText("Height:");
 
-		txtHeight = new Text(statsComposite, SWT.None | SWT.LEFT
-				| SWT.READ_ONLY);
+		txtHeight = new Text(statsComposite, SWT.None | SWT.LEFT | SWT.READ_ONLY);
 		txtHeight.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtHeight.setBackground(ColorConstants.yellow);
 		txtHeight.setText("0000");
@@ -288,25 +285,32 @@ public class SpectrumPlotComposite extends Composite {
 	private class SpectrumDataListener implements MonitorListener {
 
 		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			logger.debug("receiving spectrum data from "
-					+ ((Channel) (arg0.getSource())).getName() + " to plot on "
-					+ plottingSystem.getPlotName() + " with axes from "
-					+ getAnalyser().getName());
-			if (SpectrumPlotComposite.this.isVisible()) {
-				DBR dbr = arg0.getDBR();
-				double[] value = null;
-				if (dbr.isDOUBLE()) {
-					value = ((DBR_Double) dbr).getDoubleValue();
-				}
-				IProgressMonitor monitor = new NullProgressMonitor();
-				updateSpectrumPlot(monitor, value);
+		public void monitorChanged(final MonitorEvent arg0) {
+			logger.debug("receiving spectrum data from " + ((Channel) (arg0.getSource())).getName() + " to plot on " + plottingSystem.getPlotName()
+					+ " with axes from " + getAnalyser().getName());
+
+			if (!getDisplay().isDisposed()) {
+				getDisplay().syncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						boolean visible = SpectrumPlotComposite.this.isVisible();
+						if (visible) {
+							DBR dbr = arg0.getDBR();
+							double[] value = null;
+							if (dbr.isDOUBLE()) {
+								value = ((DBR_Double) dbr).getDoubleValue();
+							}
+							IProgressMonitor monitor = new NullProgressMonitor();
+							updateSpectrumPlot(monitor, value);
+						}
+					}
+				});
 			}
 		}
 	}
 
-	private void updateSpectrumPlot(final IProgressMonitor monitor,
-			double[] value) {
+	private void updateSpectrumPlot(final IProgressMonitor monitor, double[] value) {
 		final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
 		DoubleDataset dataset = new DoubleDataset(value, new int[] { value.length });
 		dataset.setName("Intensity (counts");
@@ -345,13 +349,13 @@ public class SpectrumPlotComposite extends Composite {
 	}
 
 	private double fwhm(DoubleDataset dataset) {
-		List<Double> crossings = DatasetUtils.crossings(dataset, (dataset.max().doubleValue()+dataset.min().doubleValue()/2));
-		double fwhm=Double.NaN;
-		if (crossings.size()==2) {
+		List<Double> crossings = DatasetUtils.crossings(dataset, (dataset.max().doubleValue() + dataset.min().doubleValue() / 2));
+		double fwhm = Double.NaN;
+		if (crossings.size() == 2) {
 			// single peak
-			fwhm = crossings.get(1)-crossings.get(0);
+			fwhm = crossings.get(1) - crossings.get(0);
 		} else {
-			//TODO multiple peaks
+			// TODO multiple peaks
 		}
 		return fwhm;
 	}

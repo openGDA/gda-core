@@ -53,7 +53,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 /**
- *	monitor and display external IO data update in the plot.
+ * monitor and display external IO data update in the plot.
  */
 public class ExtIOPlotComposite extends Composite {
 
@@ -61,7 +61,7 @@ public class ExtIOPlotComposite extends Composite {
 
 	private IVGScientaAnalyser analyser;
 	private String arrayPV;
-	private EpicsController controller=EpicsController.getInstance();
+	private EpicsController controller = EpicsController.getInstance();
 
 	private static final String EXTIO_PLOT = "External IO plot";
 
@@ -77,8 +77,7 @@ public class ExtIOPlotComposite extends Composite {
 	 * @param style
 	 * @throws Exception
 	 */
-	public ExtIOPlotComposite(IWorkbenchPart part, Composite parent, int style)
-			throws Exception {
+	public ExtIOPlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
 		this.setBackground(ColorConstants.white);
 
@@ -94,8 +93,8 @@ public class ExtIOPlotComposite extends Composite {
 		plotComposite.setLayout(new FillLayout());
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "ExtIO", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
-		: null, PlotType.XY_STACKED, part);
+		plottingSystem.createPlotPart(plotComposite, "ExtIO", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars() : null,
+				PlotType.XY_STACKED, part);
 	}
 
 	public void initialise() {
@@ -161,19 +160,25 @@ public class ExtIOPlotComposite extends Composite {
 	private class ExtIODataListener implements MonitorListener {
 
 		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			logger.debug("receiving external IO data from "
-					+ ((Channel) (arg0.getSource())).getName() + " to plot on "
-					+ plottingSystem.getPlotName() + " with axes from "
-					+ getAnalyser().getName());
-			if (ExtIOPlotComposite.this.isVisible()) {
-				DBR dbr = arg0.getDBR();
-				double[] value = null;
-				if (dbr.isDOUBLE()) {
-					value = ((DBR_Double) dbr).getDoubleValue();
-				}
-				IProgressMonitor monitor = new NullProgressMonitor();
-				updateExtIOPlot(monitor, value);
+		public void monitorChanged(final MonitorEvent arg0) {
+			logger.debug("receiving external IO data from " + ((Channel) (arg0.getSource())).getName() + " to plot on "
+					+ plottingSystem.getPlotName() + " with axes from " + getAnalyser().getName());
+			if (!getDisplay().isDisposed()) {
+				getDisplay().syncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						if (ExtIOPlotComposite.this.isVisible()) {
+							DBR dbr = arg0.getDBR();
+							double[] value = null;
+							if (dbr.isDOUBLE()) {
+								value = ((DBR_Double) dbr).getDoubleValue();
+							}
+							IProgressMonitor monitor = new NullProgressMonitor();
+							updateExtIOPlot(monitor, value);
+						}
+					}
+				});
 			}
 		}
 	}
@@ -185,7 +190,7 @@ public class ExtIOPlotComposite extends Composite {
 		plotDataSets.add(extiodata);
 		try {
 			double[] xdata = getAnalyser().getEnergyAxis(); // TODO once per analyser
-														// region
+			// region
 			final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 			xAxis.setName("energies (eV)");
 			if (!getDisplay().isDisposed()) {

@@ -222,22 +222,30 @@ public class SlicesPlotComposite extends Composite {
 	private class SlicesDataListener implements MonitorListener {
 
 		@Override
-		public void monitorChanged(MonitorEvent arg0) {
+		public void monitorChanged(final MonitorEvent arg0) {
 			logger.debug("receiving image data from " + arg0.toString()
 					+ " to plot on " + plottingSystem.getPlotName()
 					+ " with axes from " + getAnalyser().getName());
-			if (SlicesPlotComposite.this.isVisible()) {
-				DBR dbr = arg0.getDBR();
-				if (dbr.isDOUBLE()) {
-					value = ((DBR_Double) dbr).getDoubleValue();
-				}
-				IProgressMonitor monitor = new NullProgressMonitor();
-				try {
-					updateSlicesPlot(monitor, value, selectedSlice);
-				} catch (Exception e) {
-					logger.error(
-							"exception caught preparing analyser live plot", e);
-				}
+			if (!getDisplay().isDisposed()) {
+				getDisplay().syncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						if (SlicesPlotComposite.this.isVisible()) {
+							DBR dbr = arg0.getDBR();
+							if (dbr.isDOUBLE()) {
+								value = ((DBR_Double) dbr).getDoubleValue();
+							}
+							IProgressMonitor monitor = new NullProgressMonitor();
+							try {
+								updateSlicesPlot(monitor, value, selectedSlice);
+							} catch (Exception e) {
+								logger.error(
+										"exception caught preparing analyser live plot", e);
+							}
+						}
+					}
+				});
 			}
 		}
 	}
