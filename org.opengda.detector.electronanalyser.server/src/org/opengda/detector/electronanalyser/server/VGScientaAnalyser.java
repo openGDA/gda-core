@@ -502,4 +502,9 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public int getNdarrayYsize() throws Exception {
 		return getNdArray().getPluginBase().getArraySize1_RBV();
 	}
+
+	@Override
+	public void start() throws Exception {
+		getCollectionStrategy().collectData();
+	}
 }

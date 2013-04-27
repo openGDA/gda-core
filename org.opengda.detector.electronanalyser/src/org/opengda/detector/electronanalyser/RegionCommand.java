@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 	private static final long serialVersionUID = 3312489818289239027L;
 	CommandDetails details;
 	private Region region;
-	private VGScientaAnalyser analyser;
+	private IVGScientaAnalyser analyser;
 	private static final Logger logger = LoggerFactory.getLogger(RegionCommand.class);
 
 	public RegionCommand(Region region) {
@@ -76,7 +76,7 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 			if (region.getRunMode().isRepeatUntilStopped()) {
 				while (region.getRunMode().isRepeatUntilStopped() && !(getState() == STATE.ABORTED)) {
 					startCollection();
-					analyser.getCollectionStrategy().waitWhileBusy();
+					getAnalyser().waitWhileBusy();
 					while (getState() == STATE.PAUSED) {
 						Sleep.sleep(1000);
 					}
@@ -85,7 +85,7 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 				int i = 0;
 				while (region.getRunMode().getNumIterations() > i && !(getState() == STATE.ABORTED)) {
 					startCollection();
-					analyser.getCollectionStrategy().waitWhileBusy();
+					getAnalyser().waitWhileBusy();
 					i++;
 					while (getState() == STATE.PAUSED) {
 						Sleep.sleep(1000);
@@ -99,7 +99,7 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 	@Override
 	public void abort() {
 		try {
-			analyser.stop();
+			getAnalyser().stop();
 		} catch (DeviceException e) {
 			logger.error("Exception throw on stopping analyser.", e);
 		}
@@ -107,42 +107,42 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 	}
 
 	private void configureCamera(Region region2) throws Exception {
-		analyser.setCameraMinX(region.getFirstXChannel());
-		analyser.setCameraMinY(region.getFirstYChannel());
-		analyser.setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel());
-		analyser.setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel());
-		analyser.setSlices(region.getSlices());
-		analyser.setDetectorMode(region.getDetectorMode().getLiteral());
+		getAnalyser().setCameraMinX(region.getFirstXChannel());
+		getAnalyser().setCameraMinY(region.getFirstYChannel());
+		getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel());
+		getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel());
+		getAnalyser().setSlices(region.getSlices());
+		getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral());
 	}
 
 	private void startCollection() throws Exception {
-		analyser.getCollectionStrategy().collectData();
+		getAnalyser().start();
 	}
 
 	private void configureCollection(Region region) throws Exception {
-		analyser.setLensMode(region.getLensMode());
-		analyser.setAcquisitionMode(region.getAcquisitionMode().getLiteral());
-		analyser.setEnergysMode(region.getEnergyMode().getLiteral());
-		analyser.setPassEnergy(region.getPassEnergy());
+		getAnalyser().setLensMode(region.getLensMode());
+		getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral());
+		getAnalyser().setEnergysMode(region.getEnergyMode().getLiteral());
+		getAnalyser().setPassEnergy(region.getPassEnergy());
 		if (region.getAcquisitionMode() == ACQUISITION_MODE.SWEPT) {
-			analyser.setStartEnergy(region.getLowEnergy());
-			analyser.setEndEnergy(region.getHighEnergy());
+			getAnalyser().setStartEnergy(region.getLowEnergy());
+			getAnalyser().setEndEnergy(region.getHighEnergy());
 		} else {
-			analyser.setCentreEnergy(region.getFixEnergy());
+			getAnalyser().setCentreEnergy(region.getFixEnergy());
 		}
-		analyser.setStepTime(region.getStepTime());
-		analyser.setEnergyStep(region.getEnergyStep());
+		getAnalyser().setStepTime(region.getStepTime());
+		getAnalyser().setEnergyStep(region.getEnergyStep());
 		if (!region.getRunMode().isConfirmAfterEachIteration()) {
 			if (!region.getRunMode().isRepeatUntilStopped()) {
-				analyser.setNumberInterations(region.getRunMode().getNumIterations());
-				analyser.setImageMode(ImageMode.MULTIPLE);
+				getAnalyser().setNumberInterations(region.getRunMode().getNumIterations());
+				getAnalyser().setImageMode(ImageMode.MULTIPLE);
 			} else {
-				analyser.setNumberInterations(1);
-				analyser.setImageMode(ImageMode.CONTINUOUS);
+				getAnalyser().setNumberInterations(1);
+				getAnalyser().setImageMode(ImageMode.CONTINUOUS);
 			}
 		} else {
-			analyser.setNumberInterations(1);
-			analyser.setImageMode(ImageMode.SINGLE);
+			getAnalyser().setNumberInterations(1);
+			getAnalyser().setImageMode(ImageMode.SINGLE);
 			throw new NotSupportedException("Confirm after each iteraction is not yet supported");
 		}
 	}
@@ -154,5 +154,13 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 
 	public Region getRegion() {
 		return region;
+	}
+
+	public IVGScientaAnalyser getAnalyser() {
+		return analyser;
+	}
+
+	public void setAnalyser(IVGScientaAnalyser analyser) {
+		this.analyser = analyser;
 	}
 }

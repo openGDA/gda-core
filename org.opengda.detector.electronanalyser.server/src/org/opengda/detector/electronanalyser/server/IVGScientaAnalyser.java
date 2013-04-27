@@ -110,4 +110,10 @@ public interface IVGScientaAnalyser extends Findable {
 
 	public abstract void zeroSupplies() throws Exception;
 
+	public abstract void stop() throws DeviceException;
+	public abstract void start() throws Exception;
+
+	public abstract void waitWhileBusy() throws InterruptedException, DeviceException;
+	
+
 }
