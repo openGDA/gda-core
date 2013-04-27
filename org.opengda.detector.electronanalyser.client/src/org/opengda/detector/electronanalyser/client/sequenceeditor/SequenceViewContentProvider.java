@@ -18,8 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SequenceViewContentProvider implements IStructuredContentProvider {
-	private static final Logger logger = LoggerFactory
-			.getLogger(SequenceViewContentProvider.class);
+	private static final Logger logger = LoggerFactory.getLogger(SequenceViewContentProvider.class);
 
 	private Viewer viewer;
 	private RegionDefinitionResourceUtil resUtil;
@@ -27,8 +26,9 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 	public SequenceViewContentProvider(RegionDefinitionResourceUtil resUtil) {
 		this.resUtil = resUtil;
 	}
+
 	/**
-	 * resource notify listener to update table selection during model instance modification. 
+	 * resource notify listener to update table selection during model instance modification.
 	 */
 	private Adapter notifyListener = new EContentAdapter() {
 		@Override
@@ -36,31 +36,30 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 			super.notifyChanged(notification);
 			if (notification.getNotifier() != null) {
 				// do not want to refresh when Region status change only.
-				if (notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_Status())) {
-					return;
-				}
-				viewer.refresh();
-				Table table = ((TableViewer) viewer).getTable();
-				int itemCount = table.getItemCount();
-				if (notification.getEventType() == Notification.ADD) {
-					if (itemCount > 0) {
-						TableItem item = table.getItem(itemCount - 1);
-						viewer.setSelection(new StructuredSelection(item
-								.getData()));
-					}
-				} else if (notification.getEventType() == Notification.REMOVE) {
-					int position = notification.getPosition();
-					TableItem item;
-					if (itemCount > 0) {
-						if (itemCount > position) {
-							item = table.getItem(position);
-						} else {
-							item = table.getItem(itemCount - 1);
+				if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null
+						&& !notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_Status())) {
+
+					viewer.refresh();
+					Table table = ((TableViewer) viewer).getTable();
+					int itemCount = table.getItemCount();
+					if (notification.getEventType() == Notification.ADD) {
+						if (itemCount > 0) {
+							TableItem item = table.getItem(itemCount - 1);
+							viewer.setSelection(new StructuredSelection(item.getData()));
 						}
-						viewer.setSelection(new StructuredSelection(item
-								.getData()));
-					} else {
-						viewer.setSelection(StructuredSelection.EMPTY);
+					} else if (notification.getEventType() == Notification.REMOVE) {
+						int position = notification.getPosition();
+						TableItem item;
+						if (itemCount > 0) {
+							if (itemCount > position) {
+								item = table.getItem(position);
+							} else {
+								item = table.getItem(itemCount - 1);
+							}
+							viewer.setSelection(new StructuredSelection(item.getData()));
+						} else {
+							viewer.setSelection(StructuredSelection.EMPTY);
+						}
 					}
 				}
 			}
@@ -74,14 +73,12 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 				resUtil.getResource().eAdapters().remove(notifyListener);
 			}
 		} catch (Exception e) {
-			logger.error(
-					"Cannot get resource from RegionDefinitionResourceUtil", e);
+			logger.error("Cannot get resource from RegionDefinitionResourceUtil", e);
 		}
 	}
 
 	/**
-	 * set input changed, also remove and add model instance modification notify
-	 * listener from old input and new input respectively.
+	 * set input changed, also remove and add model instance modification notify listener from old input and new input respectively.
 	 */
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {

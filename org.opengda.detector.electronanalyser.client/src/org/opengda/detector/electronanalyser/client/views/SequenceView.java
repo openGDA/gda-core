@@ -20,6 +20,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -102,6 +103,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
@@ -202,7 +204,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 		Composite tableViewerContainer = new Composite(rootComposite, SWT.None);
 
-		sequenceTableViewer = new TableViewer(tableViewerContainer, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.VIRTUAL);
+		sequenceTableViewer = new TableViewer(tableViewerContainer, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
 		sequenceTableViewer.getTable().setHeaderVisible(true);
 		sequenceTableViewer.getTable().setLinesVisible(true);
 
@@ -714,9 +716,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				super.run();
 				logger.info("Calling start");
 				int order = 0;
+				resetRegionStatus();
 				for (Region region : regions) {
 					if (region.isEnabled()) {
 						final RegionCommand command = new RegionCommand(region);
+						command.setAnalyser(analyser); // TODO not good to have to set this.
 						Job job = new RegionJob(command.getDescription(), command);
 						job.setRule(new RegionJobRule(order));
 						job.schedule();
@@ -745,6 +749,21 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		toolBarManager.add(startSequenceAction);
 		toolBarManager.add(stopSequenceAction);
 
+	}
+
+	protected void resetRegionStatus() {
+		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				for (Region region : regions) {
+					if (region.isEnabled()) {
+						region.setStatus(STATUS.READY);
+					}
+				}
+				sequenceTableViewer.refresh();
+			}
+		});
 	}
 
 	protected List<String> getRegionNames() {
@@ -1191,8 +1210,25 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	 */
 	@Override
 	public void refreshTable(String seqFileName, boolean newFile) {
+		if (isDirty()) {
+			MessageDialog msgDialog = new MessageDialog(
+					getViewSite().getShell(),
+					"Unsaved Data",
+					null,
+					"Current sequence contains unsaved data. Do you want to save them first?",
+					MessageDialog.WARNING,
+					new String[] { "Yes", "No" }, 0);
+			int result = msgDialog.open();
+			if (result == 0) {
+				doSave(new NullProgressMonitor());
+			} else {
+				isDirty=false;
+				firePropertyChange(PROP_DIRTY);
+			}
+		}
 		try {
 			resource.eAdapters().remove(notifyListener);
+			//
 			regionDefinitionResourceUtil.setFileName(seqFileName);
 			if (newFile) {
 				regionDefinitionResourceUtil.createSequence();
@@ -1301,7 +1337,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		@Override
 		public void notifyChanged(Notification notification) {
 			super.notifyChanged(notification);
-			if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null) {
+			if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null
+					&& !notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_Status())) {
 				isDirty = true;
 				firePropertyChange(PROP_DIRTY);
 			}
@@ -1313,6 +1350,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Text txtSequenceFilePath;
 
 	private Action startSequenceAction;
+
+	private IVGScientaAnalyser analyser;
 
 	@Override
 	public void dispose() {
@@ -1367,5 +1406,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	public void setVisit(String visit) {
 		this.visit = visit;
+	}
+
+	public void setAnalyser(IVGScientaAnalyser analyser) {
+		this.analyser = analyser;
+
 	}
 }

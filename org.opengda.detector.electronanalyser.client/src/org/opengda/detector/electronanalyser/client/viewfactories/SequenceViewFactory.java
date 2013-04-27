@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.views.SequenceView;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,7 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 	private Camera camera;
 	private String location;
 	private String user;
+	private IVGScientaAnalyser analyser;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -72,12 +74,18 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		sequenceView.setViewPartName(viewPartName);
 		sequenceView
 				.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
-		if (camera != null)
+		if (camera != null) {
 			sequenceView.setCamera(camera);
-		if (location != null)
+		}
+		if (location != null) {
 			sequenceView.setLocation(location);
-		if (user != null)
+		}
+		if (user != null) {
 			sequenceView.setUser(user);
+		}
+		if (analyser!=null) {
+			sequenceView.setAnalyser(analyser);
+		}
 		return sequenceView;
 	}
 
@@ -112,5 +120,13 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 
 	public void setUser(String user) {
 		this.user = user;
+	}
+
+	public IVGScientaAnalyser getAnalyser() {
+		return analyser;
+	}
+
+	public void setAnalyser(IVGScientaAnalyser analyser) {
+		this.analyser = analyser;
 	}
 }

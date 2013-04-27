@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -75,6 +74,13 @@ public class RegionDefinitionResourceUtil {
 	 * @param fileName
 	 */
 	public void setFileName(String fileName) {
+		try {
+			if(getResource()!=null) {
+				getResource().unload();
+			}
+		} catch (Exception e) {
+			logger.debug("Unable to unload resource");
+		}
 		this.fileName = fileName;
 	}
 

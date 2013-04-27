@@ -4,18 +4,13 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.opengda.detector.electronanalyser.client.dialogs.NewSequenceFileWizard;
-import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
-import org.opengda.detector.electronanalyser.client.views.SequenceView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,25 +25,13 @@ public class NewSequenceAction extends AbstractHandler implements IHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-		if (activePart instanceof IRegionDefinitionView) {
-			IRegionDefinitionView regionDefView = (IRegionDefinitionView) activePart;
-			if (regionDefView instanceof SequenceView) {
-				if (((SequenceView) regionDefView).isDirty()) {
-					MessageDialog msgDialog = new MessageDialog(
-							HandlerUtil.getActiveShell(event),
-							"Unsaved Data",
-							null,
-							"Current sequence contains unsaved data. Do you want to save them first?",
-							MessageDialog.WARNING,
-							new String[] { "Yes", "No" }, 0);
-					int result = msgDialog.open();
-					if (result == 0) {
-						((SequenceView) regionDefView).doSave(new NullProgressMonitor());
-					}
-				}
-			}
-		} 
+//		IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
+//		if (activePart instanceof IRegionDefinitionView) {
+//			IRegionDefinitionView regionDefView = (IRegionDefinitionView) activePart;
+//			if (regionDefView instanceof SequenceView) {
+//				
+//			}
+//		} 
 		Shell shell = HandlerUtil.getActiveShell(event);
 		NewSequenceFileWizard newWizard = new NewSequenceFileWizard();
 		IWorkbench workbench = HandlerUtil.getActiveWorkbenchWindow(event)

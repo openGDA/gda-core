@@ -60,7 +60,7 @@ public class ImageConstants {
 	public static final String ICON_REMOTE_DESKTOP = "icons/remote_desktop.gif";
 
 	public static final String ICON_RUN_READY = "icons/runready.png";
-	public static final String ICON_RUNNING = "icons/running.gif";
+	public static final String ICON_RUNNING = "icons/running.png";
 	public static final String ICON_RUN_COMPLETE = "icons/runcomplete.png";
 	public static final String ICON_RUN_FAILURE = "icons/runerror.png";
 

@@ -337,6 +337,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.opengda.detector.electronanalyser.client.SESPerspective"
+            icon="icons/ses.gif"
             id="org.opengda.detector.electronanalyser.client.ses.perspective"
             name="SES Perspective">
       </perspective>
