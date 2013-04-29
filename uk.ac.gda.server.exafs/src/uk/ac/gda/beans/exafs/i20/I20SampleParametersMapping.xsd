@@ -139,6 +139,7 @@
 								minOccurs="1">
 								<xsd:simpleType>
 									<xsd:restriction base="xsd:string">
+										<xsd:enumeration value="None" />
 										<xsd:enumeration value="Manual PID" />
 										<xsd:enumeration value="Zone control" />
 										<xsd:enumeration value="Open Loop" />
