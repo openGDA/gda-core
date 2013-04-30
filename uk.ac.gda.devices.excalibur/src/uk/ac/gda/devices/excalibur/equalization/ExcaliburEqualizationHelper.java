@@ -1131,11 +1131,11 @@ public class ExcaliburEqualizationHelper {
 		
 	}
 
-	public void setDACPixelFromFile(String edgeThresholdNResponseFile, List<ExcaliburReadoutNodeFem> readoutFems,
+	public void setDACPixelFromFile(String dacPixelOptFilename, List<ExcaliburReadoutNodeFem> readoutFems,
 			int rows, int columns, boolean[] chipPresent) throws Exception {
 
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		Hdf5HelperData hdata = hdf.readDataSetAll(edgeThresholdNResponseFile, getEqualisationLocation()
+		Hdf5HelperData hdata = hdf.readDataSetAll(dacPixelOptFilename, getEqualisationLocation()
 				.getLocationForOpen(), DACPIXEL_OPT, true);
 		if (hdata.dims.length != 2)
 			throw new IllegalArgumentException("data.dims.length!=2");
@@ -1158,99 +1158,17 @@ public class ExcaliburEqualizationHelper {
 	}
 
 	/**
-	 * Creates the final thresholdAjd data and a mask to indicate if a no valid value for a pixel can be found
-	 * mask =1 - value is invalid
-	 */
-/*	public void createThresholdAdjAndMask(String configThresholdNOn, String configThresholdNOff, String resultFile)
-			throws Exception {
-
-		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		Hdf5HelperData hdataOn = getConfigFromFile(configThresholdNOn);
-		Hdf5HelperData hdataOff = getConfigFromFile(configThresholdNOff);
-
-		long lenFromOn = hdf.lenFromDims(hdataOn.dims);
-		long lenFromOff = hdf.lenFromDims(hdataOff.dims);
-
-		if (lenFromOn != lenFromOff)
-			throw new IllegalArgumentException("lenFromOn != lenFromOff ");
-
-		short[] onA = (short[]) hdataOn.data;
-		short[] offA = (short[]) hdataOff.data;
-		short[] configA = new short[onA.length];
-		short[] maskA = new short[onA.length];
-		for (int i = 0; i < (int) lenFromOn; i++) {
-			short mask = 0;
-			short config = 0;
-			short on = onA[i];
-			short off = offA[i];
-
-			mask = 1;
-			if (on >= 16 && on < 32) { // on is valid
-				config = on;// thresholdN on
-				mask = 0;
-			}
-			if (off >= 0 && off < 16) { // off is valid
-				config = off; // thresholdN off
-				mask = 0;
-			}
-			maskA[i] = mask;
-			configA[i] = config;
-
-		}
-		Hdf5Helper.getInstance().writeToFileSimple(new Hdf5HelperData(hdataOn.dims, maskA), resultFile,
-				getEqualisationLocation(), THRESHOLDADJ_MASK_DATASET);
-		Hdf5Helper.getInstance().writeToFileSimple(new Hdf5HelperData(hdataOn.dims, configA), resultFile,
-				getEqualisationLocation(), THRESHOLDADJ_DATASET);
-	}*/
-	/**
-	 * Set thresholdAdj in the hardware to the values in the thresholdAdjFile
 	 * 
-	 * @param thresholdAdjFile
-	 * @param readoutFems
+	 * Combines bit values together to make pixel specific thresholdAdj values and send them to hardware
+	 * @param thresholdAdjFile - initial pixel values
+	 * @param thresholdAdjOrValFile - if not null contains values to be OR with the above
+	 * @param readoutFems 
+	 * @param rows - number of chips per column
+	 * @param columns - number of chips per row
+	 * @param chipPresent - chip specific flag - true if present
+	 * @param valueToOr - global value to OR with above -default is 0
 	 * @throws Exception
 	 */
-	
-	/**
-	 * Set thresholdAdj in the hardware to the values in the thresholdAdjFile
-	 * 
-//	 * @param thresholdAdjFile  file containing thresholdAjd values in dataset THRESHOLDADJ_DATASET
-	 * @param readoutFems list of readout fems
-	 * @param rows  - number of rows of chips
-	 * @param columns - number of columns of chips
-	 * @param chipPresent - array of booleans to indicate which chips are to have thresholdAdj set
-	 * if null then it is assumed that all chips are to be set
-	 * @throws Exception
-	 */
-/*	public void setThresholAdjFromFile(String thresholdAdjFile, List<ExcaliburReadoutNodeFem> readoutFems,
-			int rows, int columns, boolean[] chipPresent) throws Exception {
-	
-		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
-		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(thresholdAdjFile, getEqualisationLocation()
-					.getLocationForOpen(), THRESHOLDADJ_DATASET, false);
-		
-		Hdf5HelperLazyLoader maskloader = new Hdf5HelperLazyLoader(thresholdAdjFile, getEqualisationLocation()
-				.getLocationForOpen(), THRESHOLDADJ_MASK_DATASET, false);
-		
-		int[] shape = loader.getLazyDataSet().getShape();
-		chipset.checkLoaderShape(shape);
-		shape = maskloader.getLazyDataSet().getShape();
-		chipset.checkLoaderShape(shape);
-		for (Chip chip : chipset.getChips()) {
-			ExcaliburReadoutNodeFem fem = readoutFems.get(chip.row);
-			MpxiiiChipReg chipReg = fem.getIndexedMpxiiiChipReg(chip.column);
-			
-			ShortDataset dataset = (ShortDataset) chip.getDataset(loader);
-			short[] thresholdA = (short[]) dataset.getBuffer();
-			chipReg.getPixel().setThresholdA(thresholdA);
-
-			dataset = (ShortDataset) chip.getDataset(maskloader);
-			short[] mask = (short[]) dataset.getBuffer();
-			chipReg.getPixel().setMask(mask);
-			
-			chipReg.loadPixelConfig();
-		}
-		
-	}*/
 	public void setThresholdAdjFromFile(String thresholdAdjFile, String thresholdAdjOrValFile , List<ExcaliburReadoutNodeFem> readoutFems,
 			int rows, int columns, boolean[] chipPresent, short valueToOr) throws Exception {
 
