@@ -58,8 +58,6 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	private String pvNameGetPoint;
 
-	private String pvName;
-
 	private double latestValue;
 
 	private Channel theChannelSet;
@@ -104,10 +102,6 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 			// Original implementation of EPICS interface
 			if ((getEpicsRecordNameSetPoint() != null) & (getEpicsRecordNameGetPoint() != null)) {
 
-				if (getEpicsRecordNameSetPoint().equals(getEpicsRecordNameGetPoint())) {
-					logger.warn("The EPICS record name set/set points may not be the same");
-				}
-				
 				// Set point
 				epicsRecordSetPoint = (EpicsRecord) Finder.getInstance().find(epicsRecordNameSetPoint);
 				if (epicsRecordSetPoint != null) {
@@ -160,10 +154,6 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 			// Two different deviceNames are used for get and set point respectively
 			else if ((getDeviceNameSetPoint() != null) & (getDeviceNameGetPoint() != null)) {
 
-				if (getDeviceNameSetPoint().equals(getDeviceNameGetPoint())) {
-					logger.warn("The device name set point and device name get point may not be the same");
-				}
-				
 				// Set point
 				try {
 					SimplePvType simplePvSet = Configurator.getConfiguration(getDeviceNameSetPoint(),
@@ -189,23 +179,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 				} catch (ConfigurationNotFoundException e) {
 					throw new FactoryException("No SimplePv for Control Point Get", e);
 				}
-			} else if (getPvName() != null) {
-				try {
-					recordNameSetPoint = getPvName();
-					theChannelSet = channelManager.createChannel(recordNameSetPoint, getMonitorListener(), false);
-					channelManager.creationPhaseCompleted();
-					
-					recordNameGetPoint = recordNameSetPoint;
-					theChannelGet = theChannelSet;
-				} catch (CAException e) {
-					throw new FactoryException("failed to create Channel for Control Point Set", e);
-				}
 			} else if ((getPvNameSetPoint() != null) & (getPvNameGetPoint() != null)) {
-
-				if (getPvNameSetPoint().equals(getPvNameGetPoint())) {
-					logger.warn("The PV name set point and PV name get point may not be the same");
-				}
-				
 				try {
 					recordNameSetPoint = getPvNameSetPoint();
 					theChannelSet = channelManager.createChannel(recordNameSetPoint, getMonitorListener(), false);
@@ -289,14 +263,6 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	 */
 	public String getPvNameGetPoint() {
 		return pvNameGetPoint;
-	}
-
-	public String getPvName() {
-		return pvName;
-	}
-
-	public void setPvName(String pvName) {
-		this.pvName = pvName;
 	}
 
 	/**

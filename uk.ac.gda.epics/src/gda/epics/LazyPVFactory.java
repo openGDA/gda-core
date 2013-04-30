@@ -152,10 +152,6 @@ public class LazyPVFactory {
 		return new LazyPV<Short[]>(EPICS_CONTROLLER, pvName, Short[].class);
 	}
 
-	public static PV<Boolean> newBooleanFromDoublePV(String pvName) {
-		return new BooleanFromDouble(new LazyPV<Double>(EPICS_CONTROLLER, pvName, Double.class));
-	}
-
 	public static PV<Boolean> newBooleanFromIntegerPV(String pvName) {
 		return new BooleanFromInteger(new LazyPV<Integer>(EPICS_CONTROLLER, pvName, Integer.class));
 	}
@@ -308,10 +304,6 @@ public class LazyPVFactory {
 	// NOTE: just uses a short under the covers, so there is no enumType parameter.
 	public static ReadOnlyPV<Boolean> newReadOnlyBooleanFromEnumPV(String pvName) {
 		return new ReadOnly<Boolean>(newBooleanFromEnumPV(pvName));
-	}
-
-	public static ReadOnlyPV<Boolean> newReadOnlyBooleanFromDoublePV(String pvName) {
-		return new ReadOnly<Boolean>(newBooleanFromDoublePV(pvName));
 	}
 
 	static private class LazyPV<T> implements PV<T> {
@@ -1317,27 +1309,6 @@ public class LazyPVFactory {
 		
 	}
 
-	static private class BooleanFromDouble extends AbstractPVAdapter<Double, Boolean> implements PV<Boolean> {
-
-		private BooleanFromDouble(LazyPV<Double> pv) {
-			super(pv);
-		}
-
-		@Override
-		public String toString() {
-			return MessageFormat.format("BooleanFromDouble({0})", getPV().toString());
-		}
-		
-		@Override
-		protected Boolean innerToOuter(Double innerValue) {
-			return innerValue > 0;
-		}
-
-		@Override
-		protected Double outerToInner(Boolean outerValue) {
-			return (outerValue ? 1.0 : 0.0);
-		}
-	}
 }
 
 /**

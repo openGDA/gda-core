@@ -31,8 +31,6 @@ import gda.scan.TrajectoryScanController.ReadStatus;
 import gda.scan.TrajectoryScanController.TrajectoryScanProperty;
 import gda.util.OutOfRangeException;
 import gov.aps.jca.TimeoutException;
-
-//TODO Explain the meaning of this class
 public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase implements ContinuouslyScannable, IObserver {
 
 //	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryScannable2.class);
@@ -72,11 +70,10 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 		this.mode = mode;
 	}
 	@Override
-	public void configure() throws FactoryException {	
-		//TODO Too implicit!! epicsTrajectoryScanController as a default. How are you supposed to know
-		//Also on I18 we want two different trajectory stages with differing stade indices. hard coded epicsTrajectoryScanController makes this impossible.
-		//if(tracController == null)
-		//	tracController = (TrajectoryScanController)Finder.getInstance().find("epicsTrajectoryScanController");
+	public void configure() throws FactoryException {
+		
+		if(tracController == null)
+			tracController = (TrajectoryScanController)Finder.getInstance().find("epicsTrajectoryScanController");
 		tracController.addIObserver(this);
 	}
 	@Override
@@ -158,7 +155,6 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 			Trajectory trajectory = new Trajectory();
 			trajectory.setTotalElementNumber(continuousParameters.getNumberDataPoints() +1 );
 			trajectory.setTotalPulseNumber(continuousParameters.getNumberDataPoints()+ 1 );
-			trajectory.setController(tracController);
 			double[] path = trajectory.defineCVPath(continuousParameters.getStartPosition(), 
 					continuousParameters.getEndPosition(), continuousParameters.getTotalTime());
 			
@@ -210,9 +206,13 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 				if(arg instanceof ExecuteStatus)
 				{
 					if(((ExecuteStatus)arg) == ExecuteStatus.SUCCESS)
+					{
 						trajMoveComplete = true;
+					}
 					else
+					{
 						trajMoveComplete = false;
+					}
 							
 				}
 			}

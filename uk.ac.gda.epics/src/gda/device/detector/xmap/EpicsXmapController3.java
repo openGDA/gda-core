@@ -290,9 +290,7 @@ public class EpicsXmapController3 extends DeviceBase implements XmapController ,
 			rois[i][0] = actualRois[i][0];
 			rois[i][1] = actualRois[i][1];
 		}
-		EDXDElement subDetector = edxdController.getSubDetector(mcaIndex);
-		if(subDetector!=null)
-			subDetector.setROIs(rois);
+		edxdController.getSubDetector(mcaIndex).setROIs(rois);
 		edxdController.activateROI();
 		actualNumberOfROIs = actualRois.length;
 	}

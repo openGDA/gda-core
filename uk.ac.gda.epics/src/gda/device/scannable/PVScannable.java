@@ -75,42 +75,45 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	}
 
 	private Channel theChannel;
-	private EpicsController controller = EpicsController.getInstance();
+	private EpicsController controller;
 	private EpicsChannelManager channelManager;
 	
 	public PVScannable() {
-		channelManager = new EpicsChannelManager(this);
+		
 	}
 
+	public PVScannable(String name, String pv) {
+		setName(name);
+		this.pvName=pv;
+	}
 	/**
 	 * @see gda.device.DeviceBase#configure()
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!isConfigured()) {
-			this.setInputNames(new String[] { getName() });
+		this.setInputNames(new String[] { getName() });
 
-			// connect to PV
-			if (pvName==""){
-				SimplePvType config;
-				try {
-					config = Configurator.getConfiguration(getDeviceName(), SimplePvType.class);
-				} catch (ConfigurationNotFoundException e) {
-					logger.error(
-							"Can NOT find EPICS configuration for PV scannable " + getDeviceName() + "."
-									+ e.getMessage(), e);
-					throw new FactoryException("Can NOT find EPICS configuration for PV scannable " + getDeviceName()
-							+ "." + e.getMessage(), e);
-				}	
-				pvName=config.getRECORD().getPv();
-			}
+		// connect to PV
+		controller = EpicsController.getInstance();
+		channelManager = new EpicsChannelManager(this);
+		if (pvName==""){
+			SimplePvType config;
 			try {
-				theChannel = channelManager.createChannel(pvName, this);
-				channelManager.creationPhaseCompleted();
-			} catch (CAException e) {
-				logger.warn("CAException while configuring " + getName() + ": " + e.getMessage());
-			}
-			setConfigured(true);
+				config = Configurator.getConfiguration(getDeviceName(), SimplePvType.class);
+			} catch (ConfigurationNotFoundException e) {
+				logger.error(
+						"Can NOT find EPICS configuration for PV scannable " + getDeviceName() + "."
+								+ e.getMessage(), e);
+				throw new FactoryException("Can NOT find EPICS configuration for PV scannable " + getDeviceName()
+						+ "." + e.getMessage(), e);
+			}	
+			pvName=config.getRECORD().getPv();
+		}
+		try {
+			theChannel = channelManager.createChannel(pvName, this);
+			channelManager.creationPhaseCompleted();
+		} catch (CAException e) {
+			logger.warn("CAException while configuring " + getName() + ": " + e.getMessage());
 		}
 	}
 
