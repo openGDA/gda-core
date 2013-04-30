@@ -847,7 +847,7 @@ public class ExcaliburEqualizationHelper {
 		return xyvals;
 	}
 
-	public void createThresholdNOpt(String thresholdNChipResponseFile, String thresholdN50ChipThresholdFile,
+	public void createThresholdNOpt(String thresholdNChipResponseFile, String thresholdNUpperChipThresholdFile,
 			double equalisationTarget, String resultFile) throws Exception {
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
 		// read the offset and slope - a1, a2
@@ -857,7 +857,7 @@ public class ExcaliburEqualizationHelper {
 				.getLocationForOpen(), THRESHOLD_RESPONSE_SLOPES_DATASET, true);
 
 		// read the fwhm for thresholdN=50
-		Hdf5HelperData sigmaData = hdf.readDataSetAll(thresholdN50ChipThresholdFile, getEqualisationLocation()
+		Hdf5HelperData sigmaData = hdf.readDataSetAll(thresholdNUpperChipThresholdFile, getEqualisationLocation()
 				.getLocationForOpen(), CHIP_THRESHOLD_GAUSSIAN_SIGMA_DATASET, true);
 
 		long lenFromOffsetData = hdf.lenFromDims(offsetData.dims);
@@ -870,7 +870,7 @@ public class ExcaliburEqualizationHelper {
 		short[] thresholdNOpt = new short[(int) lenFromOffsetData];
 		double[] threshold0opt = new double[(int) lenFromOffsetData];
 		for (int i = 0; i < lenFromOffsetData; i++) {
-			threshold0opt[i] = 3.2 * Array.getDouble(sigmaData.data, i) + equalisationTarget;
+			threshold0opt[i] = 3.2 * Array.getDouble(sigmaData.data, i) + equalisationTarget ;
 			double val = (threshold0opt[i] - Array.getDouble(offsetData.data, i)) / (Array.getDouble(
 					slopeData.data, i));
 			thresholdNOpt[i] = (short) Math.round( val);
@@ -982,7 +982,7 @@ public class ExcaliburEqualizationHelper {
 	}
 
 	public void createMaskFromEdgePositionValidData(String edgeFile, 
-			int numChipsRows, int numChipsAcross, String resultFile) throws Exception {
+			int numChipsRows, int numChipsAcross, short eqTarget , String resultFile) throws Exception {
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
 		Hdf5HelperData hthresholdNotUsingThresholdN = hdf.readDataSetAll(edgeFile,
 				getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
@@ -1002,7 +1002,7 @@ public class ExcaliburEqualizationHelper {
 			while (iterator.hasNext()) {
 				long index = iterator.next();
 				short using = notUsingThresholdN[(int) index];
-				if (!thresholdEdgePosIsValid(using))
+				if (!thresholdEdgePosIsValid(using) || using < eqTarget)	// JL Proposed change: edgePosition<eqTarget
 					mask[(int) index] = 16; 
 			}
 
@@ -1100,7 +1100,7 @@ public class ExcaliburEqualizationHelper {
 	}
 	
 	/**
-	 * Reads the edhe positions from 2 sets of dacpixel and saves the difference 2 - 1
+	 * Reads the edge positions from 2 sets of dacpixel and saves the difference 2 - 1
 	 * @param dacPixel1EdgeFile
 	 * @param dacPixel2EdgeFile
 	 * @param resultFile
