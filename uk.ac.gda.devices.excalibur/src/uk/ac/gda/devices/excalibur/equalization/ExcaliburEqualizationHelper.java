@@ -1282,6 +1282,74 @@ public class ExcaliburEqualizationHelper {
 		
 	}
 	
+	/**
+	 * Writes to resultFile the thresholdAdj on a pixel basis that gives an edge position closest to the equalisation target
+	 * @param edgeFilename1
+	 * @param edgeFilename2
+	 * @param thresholdAdjFilename1
+	 * @param thresholdAdjFilename2
+	 * @param eqTarget
+	 * @param resultFile
+	 * @throws Exception
+	 */
+	public void selectClosestThresholdAdj(String edgeFilename1, String edgeFilename2, String thresholdAdjFilename1,String thresholdAdjFilename2, int eqTarget,String resultFile) throws Exception{
+		Hdf5HelperData currentAdjData1 = Hdf5Helper.getInstance().readDataSetAll(thresholdAdjFilename1,
+				getEqualisationLocation().getLocationForOpen(), THRESHOLDADJ_DATASET, true);		
+		
+		short[] currentAdj1 = (short[]) currentAdjData1.data;
+
+		Hdf5HelperData currentAdjData2 = Hdf5Helper.getInstance().readDataSetAll(thresholdAdjFilename2,
+				getEqualisationLocation().getLocationForOpen(), THRESHOLDADJ_DATASET, true);		
+		
+		short[] currentAdj2 = (short[]) currentAdjData2.data;
+		
+		
+		Hdf5HelperData edgePositionHdf1 = Hdf5Helper.getInstance().readDataSetAll(edgeFilename1,
+				getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
+		
+		short [] edgePostion1 = (short[]) edgePositionHdf1.data;
+		
+
+		Hdf5HelperData edgePositionHdf2 = Hdf5Helper.getInstance().readDataSetAll(edgeFilename2,
+				getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
+		
+		short [] edgePostion2 = (short[]) edgePositionHdf2.data;
+		
+		if (currentAdj1.length != currentAdj2.length)
+			throw new IllegalArgumentException("currentAdj.length != currentAdj2.length");
+
+		if (currentAdj1.length != edgePostion1.length)
+			throw new IllegalArgumentException("currentAdj.length != edgePostion1.length");
+
+		if (currentAdj1.length != edgePostion2.length)
+			throw new IllegalArgumentException("currentAdj.length != edgePostion2.length");
+		
+		for( int i=0; i< currentAdj1.length;i++){
+			//check the edge is valid
+			//choose between the 2 
+			//if only 1 is valid choose that one
+			//if both valid switch to first set if it gives an edge closer to the eqTarget
+			short edge1 = edgePostion1[i];
+			short edge2 = edgePostion2[i];
+			boolean edge1Valid = thresholdEdgePosIsValid(edge1);
+			boolean edge2Valid = thresholdEdgePosIsValid(edge2);
+			boolean useCurrentAdj1=false;
+			if( edge1Valid && edge2Valid){
+				int distance1 = Math.abs(edge1-eqTarget);
+				int distance2 = Math.abs(edge2-eqTarget);
+				if( distance1 < distance2){
+					useCurrentAdj1=true;
+				}
+			} else if( edge1Valid){
+				useCurrentAdj1=true;
+			}
+			if(useCurrentAdj1)
+				currentAdj2[i]=currentAdj1[i];
+		}
+		Hdf5Helper.getInstance().writeToFileSimple(currentAdjData2, resultFile,
+				getEqualisationLocation(), THRESHOLDADJ_DATASET);		
+	}
+	
 	
 	public void tweakThresholdAdj(String edgeFilename, String thresholdAdjFilename, int eqTarget,String resultFile) throws Exception{
 		Hdf5HelperData currentAdjData = Hdf5Helper.getInstance().readDataSetAll(thresholdAdjFilename,
