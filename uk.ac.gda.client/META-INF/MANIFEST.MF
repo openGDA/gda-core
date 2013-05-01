@@ -31,7 +31,10 @@ Require-Bundle: org.eclipse.help.ui,
  org.eclipse.ui.editors;bundle-version="3.7.0",
  org.dawnsci.plotting.jreality;bundle-version="1.0.0",
  org.dawnsci.plotting,
- org.csstudio.swt.xygraph
+ org.csstudio.swt.xygraph,
+ com.springsource.slf4j.api;bundle-version="1.5.6",
+ com.springsource.slf4j.org.apache.commons.logging;bundle-version="1.5.6",
+ com.springsource.slf4j.org.apache.log4j;bundle-version="1.5.6"
 Bundle-ActivationPolicy: lazy
 Bundle-Version: 1.0.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core
