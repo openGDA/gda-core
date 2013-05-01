@@ -19,6 +19,7 @@
 package gda.util.userOptions;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.util.VisitPath;
 import gda.util.exceptionUtils;
@@ -363,6 +364,12 @@ public class UserOptions extends java.util.TreeMap<String, UserOption> implement
 		return UserOptions.getUserOptionsFromConfigFromGUI(configDirTemplate, configNameTemplate, configDirValues(),
 				configNameValues);
 	}
+	
+	public static UserOptions getUserOptionsFromRcpGui() throws DeviceException {
+		final String visitDirectory = PathConstructor.createFromRCPProperties();
+		final UserOptions options = getUserOptionsFromConfigFromGUI(configDirTemplate, configNameTemplate, visitDirectory, configNameValues);
+		return options;
+	}
 
 	/**
 	 * @param options
@@ -370,6 +377,11 @@ public class UserOptions extends java.util.TreeMap<String, UserOption> implement
 	 */
 	public static void saveUserOptionsFromGUI(UserOptions options) throws DeviceException {
 		options.saveValuesToConfigFromGUI(configDirValues(), configNameValues);
+	}
+	
+	public static void saveUserOptionsFromRcpGui(UserOptions options) throws DeviceException {
+		final String visitDirectory = PathConstructor.createFromRCPProperties();
+		options.saveValuesToConfigFromGUI(visitDirectory, configNameValues);
 	}
 
 	/**
