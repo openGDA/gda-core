@@ -23,11 +23,12 @@ import gda.factory.FactoryException;
 
 import java.util.ArrayList;
 
+//TODO Explain the meaning of this class
 public class EpicsTrajectoryScanRealPositionReader extends EpicsSingleTrajectoryScannable implements RealPositionReader {
 
 	private int lastIndex = -1;
 	private int numberOfScanPointsPerRow =-1;
-	private ArrayList <double[]> positions = new ArrayList<double[]>() ;
+	public ArrayList <double[]> positions = new ArrayList<double[]>() ;
 	
 	@Override
 	public void atScanStart() throws DeviceException{
@@ -42,13 +43,17 @@ public class EpicsTrajectoryScanRealPositionReader extends EpicsSingleTrajectory
 	public void atScanLineEnd() throws DeviceException{
 		try {
 			double tempPositions[]= tracController.getMActual(trajectoryIndex);
+			int stopPulseElement = tracController.getStopPulseElement();
 			//for the first scan line end get the total number of points per row
 			if(numberOfScanPointsPerRow == -1)
 			{				
-				numberOfScanPointsPerRow = tempPositions.length;
+				numberOfScanPointsPerRow = stopPulseElement;
 			}
 			int lineIndex = ((lastIndex )/numberOfScanPointsPerRow);
-			positions.add(lineIndex ,tempPositions);
+			if(positions.size()==0)
+				positions.add(tempPositions);
+			else if(positions.size()<lineIndex+1)
+				positions.add(lineIndex ,tempPositions);
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " exception in atScanLineEnd",e);
 		}
@@ -74,8 +79,15 @@ public class EpicsTrajectoryScanRealPositionReader extends EpicsSingleTrajectory
 				lineNumber = index / numberOfScanPointsPerRow;
 				pointNumber = index % numberOfScanPointsPerRow;
 			}
-		
-			return positions.get(lineNumber)[pointNumber];
+			
+			//TODO after a gda servers restart the instance of this (realX for i18) has an empty list of positions
+			//so the scan fails. Run again and it's fine.
+			//this is because get() is called before atScanLineEnd() where positions are added.
+			//return null if there are no positions to return.
+			if(positions.size()>0)
+				return positions.get(lineNumber)[pointNumber];
+			
+			return null;
 	
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
