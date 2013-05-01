@@ -23,15 +23,7 @@ import gda.util.exafs.Element;
 
 import java.text.DecimalFormat;
 import java.util.EventObject;
-import java.util.List;
 
-import org.dawnsci.plotting.api.annotation.AnnotationUtils;
-import org.dawnsci.plotting.api.annotation.IAnnotation;
-import org.dawnsci.plotting.api.region.IROIListener;
-import org.dawnsci.plotting.api.region.IRegion;
-import org.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.dawnsci.plotting.api.region.ROIEvent;
-import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -52,8 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ExafsActivator;
@@ -68,7 +58,6 @@ import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.util.schema.SchemaReader;
 
 /**
  * An editor part designed to be a page in a multipage editor. This class was auto-generated using RCP Developer and
@@ -119,9 +108,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private IRegion bLine;
 	private IRegion cLine;
 	private IRegion edgeLine;
-	private boolean showLineAnnotations = false;
-	private XasScanParameters bean;
-	
+	XasScanParameters bean;
+
 	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor,
 			final XasScanParameters xasScanParameters) {
 
@@ -1007,6 +995,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				}
 			}
 		});
+<<<<<<< HEAD
 	}
 	
 	
@@ -1058,6 +1047,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				// TODO Auto-generated catch block
 				logger.error("TODO put description of error here", e);
 			}
+
+		
+=======
+>>>>>>> refs/remotes/origin/8.30
 	}
 
 	@Override
