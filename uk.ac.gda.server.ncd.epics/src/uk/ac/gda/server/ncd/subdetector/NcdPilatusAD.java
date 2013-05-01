@@ -338,19 +338,6 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		// delay returning from that method until area detector had a chance to read in all files
 		// not pretty, but best solution I can come up with now.
 		// there should be some getstatus or are you ready call
-
-		try {
-			int totalmillis = 40000;
-			int grain = 25;
-			for (int i = 0; i < totalmillis / grain; i++) {
-				int state = getStatus();
-				if (state == Detector.IDLE) {
-					return;
-				}
-				Thread.sleep(grain);
-			}
-		} catch (InterruptedException e) {
-			logger.error("interupted waiting for ioc to read files", e);
-		}
+		controller.waitForReady();
 	}
 }
