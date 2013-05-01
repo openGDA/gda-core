@@ -114,7 +114,7 @@ public class ReconUtil {
 		String visitDirectory = getVisitDirectory(nexusFullPath);
 		String nexusFileName = new Path(nexusFullPath).lastSegment();
 		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
-		return String.format("%s/tmp/reduced/data_quick/%s/%s/", visitDirectory, getUserId(),
+		return String.format("%s/tmp/reduced/%s/data_quick/%s/", visitDirectory, getUserId(),
 				nxsFileWithoutExtnPath.toString());
 	}
 
@@ -127,7 +127,7 @@ public class ReconUtil {
 		String visitDirectory = getVisitDirectory(nexusFullPath);
 		String nexusFileName = new Path(nexusFullPath).lastSegment();
 		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
-		return String.format("%s/tmp/reduced/centerofrotation/%s/%s/", visitDirectory, getUserId(),
+		return String.format("%s/tmp/reduced/%s/centerofrotation/%s/", visitDirectory, getUserId(),
 				nxsFileWithoutExtnPath.toString());
 	}
 }

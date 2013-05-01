@@ -28,6 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -41,10 +42,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
+import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
+import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
+import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -63,6 +68,7 @@ import uk.ac.diamond.tomography.reconstruction.ReconUtil;
 import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.DocumentRoot;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.HMxmlType;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.provider.HmItemProviderAdapterFactory;
 import uk.ac.gda.util.io.FileUtils;
 
 public abstract class BaseParameterView extends BaseTomoReconPart implements ISelectionProvider {
@@ -92,6 +98,7 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 	protected int[] reducedDataShape;
 
 	protected Text txtFileName;
+	private EditingDomain editingDomain;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -99,10 +106,30 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		createSettingsFile();
 	}
 
+	protected void initializeEditingDomain() {
+		// Create an adapter factory that yields item providers.
+
+		if (editingDomain == null) {
+			ComposedAdapterFactory adapterFactory = new ComposedAdapterFactory(
+					ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
+
+			adapterFactory.addAdapterFactory(new ResourceItemProviderAdapterFactory());
+			adapterFactory.addAdapterFactory(new HmItemProviderAdapterFactory());
+			adapterFactory.addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
+
+			// Create the command stack that will notify this editor as commands are executed.
+			//
+			BasicCommandStack commandStack = new BasicCommandStack();
+
+			editingDomain = new AdapterFactoryEditingDomain(adapterFactory, commandStack,
+					new HashMap<Resource, Boolean>());
+		}
+	}
+
 	protected HMxmlType getHmXmlModel() {
 		if (hmSettingsInProcessingDir != null && hmSettingsInProcessingDir.exists()) {
-			ResourceSet rset = new ResourceSetImpl();
-			Resource hmRes = rset.getResource(
+
+			Resource hmRes = getEditingDomain().getResourceSet().getResource(
 					org.eclipse.emf.common.util.URI.createFileURI(hmSettingsInProcessingDir.getAbsolutePath()), true);
 
 			EObject eObject = hmRes.getContents().get(0);
@@ -116,6 +143,13 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		}
 
 		return null;
+	}
+
+	public EditingDomain getEditingDomain() {
+		if (editingDomain == null) {
+			initializeEditingDomain();
+		}
+		return editingDomain;
 	}
 
 	protected ILazyDataset getDataSetFromFileLocation(String path) {
@@ -136,10 +170,14 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 	protected void processNewNexusFile() {
 		hmSettingsInProcessingDir = null;
 		hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
-		getReducedDataShape();
+		try {
+			getReducedDataShape();
+		} catch (Exception e) {
+			logger.error("Unable to get reduced data shape", e);
+		}
 	}
 
-	protected int[] getReducedDataShape() {
+	protected int[] getReducedDataShape() throws Exception {
 		reducedNexusFile = getReducedNexusFile(nexusFile);
 		if (reducedNexusFile.exists()) {
 			ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
@@ -152,7 +190,7 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		return reducedDataShape;
 	}
 
-	private File getReducedNexusFile(IFile nexusFile) {
+	private File getReducedNexusFile(IFile nexusFile) throws Exception {
 		File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFile.getLocation().toString());
 		if (!reducedNexusFile.exists()) {
 			createReducedNexusFile(nexusFile.getLocation().toOSString(), reducedNexusFile.getPath());
@@ -160,7 +198,8 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		return reducedNexusFile;
 	}
 
-	private void createReducedNexusFile(String actualNexusFileLocation, String outputNexusFileLocation) {
+	private void createReducedNexusFile(String actualNexusFileLocation, String outputNexusFileLocation)
+			throws Exception {
 		URL compressNxsURL = null;
 		try {
 			String compressNxsUrlString = String.format(COMPRESS_NXS_URL_FORMAT, Activator.PLUGIN_ID);
@@ -235,7 +274,8 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		} catch (IOException e) {
 			logger.error("File not found problem", e);
 		}
-		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(Activator.PROJECT_TOMOGRAPHY_SETTINGS);
+		final IProject project = ResourcesPlugin.getWorkspace().getRoot()
+				.getProject(Activator.PROJECT_TOMOGRAPHY_SETTINGS);
 		if (!project.exists()) {
 			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
 
@@ -330,7 +370,7 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		return defaultSettingFile;
 	}
 
-	protected void runCommand(final String jobName, final String command) {
+	protected void runCommand(final String jobName, final String command) throws Exception {
 		Job job = new Job(jobName) {
 			@Override
 			public IStatus run(IProgressMonitor monitor) {

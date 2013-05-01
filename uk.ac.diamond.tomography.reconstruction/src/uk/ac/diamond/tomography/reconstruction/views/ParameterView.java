@@ -30,6 +30,8 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -50,13 +52,21 @@ import org.eclipse.emf.edit.command.AddCommand;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.ComboBoxCellEditor;
+import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -67,6 +77,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewPart;
@@ -74,14 +85,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.eclipse.ui.forms.events.ExpansionAdapter;
-import org.eclipse.ui.forms.events.ExpansionEvent;
-import org.eclipse.ui.forms.events.HyperlinkEvent;
-import org.eclipse.ui.forms.events.IHyperlinkListener;
-import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.PageBook;
@@ -104,10 +109,13 @@ import uk.ac.diamond.tomography.reconstruction.parameters.hm.FBPType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.FlatDarkFieldsType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.FlatFieldType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.HMxmlType;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.HmPackage;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.ROIType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.RingArtefactsType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditor;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.IParameterView;
+import uk.ac.diamond.tomography.reconstruction.properties.PropertyDescriptor;
+import uk.ac.diamond.tomography.reconstruction.properties.TextPropertyDescriptor;
 import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconResults;
 import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconresultsFactory;
 import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconresultsPackage;
@@ -126,6 +134,58 @@ import uk.ac.diamond.tomography.reconstruction.results.reconresults.util.Reconre
  */
 
 public class ParameterView extends BaseParameterView implements ISelectionListener, IParameterView, ISelectionProvider {
+
+	private static final String LBL_INCORRECTION_STRENGTH = "	Incorrection Strength";
+
+	private static final String ID_INCORRECTION_STRENGTH = "IncorrectionStrength";
+
+	private static final String LBL_DARK_FIELD_TYPE = "Dark field type";
+
+	private static final String LBL_VALUE_AFTER = "	Value After";
+
+	private static final String LBL_VALUE_BEFORE = "	Value Before";
+
+	private static final String LBL_FLAT_FIELD_TYPE = "Flat field type";
+
+	private static final String LBL_HIGH_ASPECT_RATIO_COMPENSATION = "	High Aspect Ratio Compensation";
+
+	private static final String LBL_RING_ARTEFACTS = "Ring Artefacts";
+
+	private static final String LBL_Y_MAX = "	Y Max";
+
+	private static final String LBL_Y_MIN = "	Y Min";
+
+	private static final String LBL_X_MAX = "	X Max";
+
+	private static final String LBL_X_MIN = "	X Min";
+
+	private static final String LBL_ROI = "Region of Interest (ROI)";
+
+	private static final String ID_DARK_FIELD_VALUE_AFTER = "DarkFieldValueAfter";
+
+	private static final String ID_DARK_FIELD_VALUE_BEFORE = "DarkFieldValueBefore";
+
+	private static final String ID_DARK_FIELD_TYPE = "DarkFieldType";
+
+	private static final String ID_FLAT_FIELD_VALUE_AFTER = "FlatFieldValueAfter";
+
+	private static final String ID_FLAT_FIELD_VALUE_BEFORE = "FlatFieldValueBefore";
+
+	private static final String ID_FLAT_FIELD_TYPE = "FlatFieldType";
+
+	private static final String ID_HIGH_ASPECT_RATIO_COMPENSATION = "HighAspectRatioCompensation";
+
+	private static final String ID_RING_ARTEFACTS = "RingArtefacts";
+
+	private static final String ID_ROI_Y_MAX = "RoiYMax";
+
+	private static final String ID_ROI_Y_MIN = "RoiYMin";
+
+	private static final String ID_ROI_X_MAX = "RoiXMax";
+
+	private static final String ID_ROI_X_MIN = "RoiXMin";
+
+	private static final String ID_ROI_TYPE = "RoiType";
 
 	private static final String TOMO_QUICK_RECON_COMMAND = "%1$s -m 4 -p -e %2$d -n -t %3$s %4$s %5$s";
 
@@ -150,30 +210,12 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	private static final String FULL_RECONSTRUCTION = "Full Reconstruction";
 	private static final String ADVANCED_SETTINGS = "Advanced Settings";
 	private static final String FILE_NAME = "File Name";
-	private static final String DARK_FIELDS = "Dark Fields";
 
 	private static final String RECTANGLE = "Rectangle";
 	private static final String STANDARD = "Standard";
-	private static final String Y_MAX = "Y max";
-	private static final String Y_MIN = "Y min";
-	private static final String X_MAX = "X max";
-	private static final String X_MIN = "X min";
-	private static final String REGION_OF_INTEREST = "Region of Interest";
-	private static final String VALUE_AFTER = "Value After";
-	private static final String FILE_BEFORE = "File Before";
-	private static final String VALUE_BEFORE = "Value Before";
-	private static final String TYPE = "Type";
-	private static final String ROW = "Row";
-	private static final String USER = "User";
-	private static final String FLAT_FIELDS = "Flat Fields";
 	private static final String PREVIEW_RECONSTRUCTION_SETTINGS = "Preview Recon";
 	private static final String SCRIPTS_TOMODO_PY = "scripts/tomodo.py";
 	private static final String SCRIPTS_TOMODO_SH = "scripts/tomodo.sh";
-	private static final String NUM_SERIES = "Num Series";
-	private static final String AML = "AML";
-	private static final String AML_COLUMN = "Column";
-	private static final String AML_NO = "No";
-	private static final String RING_ARTEFACTS = "Ring Artefacts";
 	private static final String ROTATION_CENTRE = "Rotation Centre";
 
 	private static final Logger logger = LoggerFactory.getLogger(ParameterView.class);
@@ -184,35 +226,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	 */
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.views.ParameterView";
 
-	private CCombo cmbAml;
-
-	private Text txtNumSeries;
-
-	private CCombo cmbFlatFieldType;
-
-	private Text txtFlatFieldValueBefore;
-
-	private Text txtFlatFieldValueAfter;
-
-	private Text txtFlatFieldFileBefore;
-
-	private CCombo cmbDarkFieldType;
-
-	private Text txtDarkFieldValueBefore;
-
-	private Text txtDarkFieldFileBefore;
-
-	private Text txtDarkFieldValueAfter;
-
-	private CCombo cmbRoiType;
-
-	private Text txtRoiXMin;
-
-	private Text txtRoiXMax;
-
-	private Text txtRoiYMin;
-
-	private Text txtRoiYMax;
+	private LinkedHashMap<String, PropertyDescriptor> propertyDescriptors;
 
 	/**
 	 * This is a callback that will allow us to create the viewer and initialize it.
@@ -239,6 +253,8 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
 		formComposite.setLayout(layout);
 
 		Composite subFormContainer = toolkit.createComposite(formComposite);
@@ -252,7 +268,11 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 
 		Composite topComposite = toolkit.createComposite(scrolledCmp);
 
-		topComposite.setLayout(new GridLayout());
+		GridLayout gl = new GridLayout();
+		gl.marginHeight = 0;
+		gl.marginWidth = 0;
+
+		topComposite.setLayout(gl);
 		Composite rotationCenterCmp = toolkit.createComposite(topComposite);
 		rotationCenterCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		rotationCenterCmp.setLayout(new GridLayout(3, false));
@@ -294,29 +314,16 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			}
 		});
 		btnFindCentre.setLayoutData(new GridData());
-		// ROI
-		Composite roiComp = createRoi(topComposite);
-		roiComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		// Ring Artefacts
-		Composite ringArtefacts = createRingArtefacts(topComposite);
-		ringArtefacts.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		// Flat fields
-		Composite flatFields = createFlatFields(topComposite);
-		flatFields.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		// Dark Fields
-		Composite darkFields = createDarkFields(topComposite);
-		darkFields.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		// scrolledCmp.setContent(topComposite);
-
-		Composite cmpButtons = toolkit.createComposite(formComposite);
+		Composite cmpButtons = toolkit.createComposite(topComposite);
 		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData2.horizontalSpan = 2;
-		layoutData2.verticalAlignment = SWT.END;
 		cmpButtons.setLayoutData(layoutData2);
-		GridLayout layout2 = new GridLayout(3, false);
+		GridLayout gridLayout = new GridLayout(3, false);
+		gl.marginWidth = 0;
+		gl.marginHeight = 0;
+		gl.horizontalSpacing = 0;
+		gl.verticalSpacing = 0;
+		GridLayout layout2 = gridLayout;
 		cmpButtons.setLayout(layout2);
 
 		Button btnPreview = new Button(cmpButtons, SWT.PUSH);
@@ -348,9 +355,191 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			}
 
 		});
+		Composite cmpRoi = toolkit.createComposite(topComposite);
+		cmpRoi.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridLayout gl2 = new GridLayout(2, true);
+		gl2.marginHeight = 0;
+		gl2.marginWidth = 0;
+
+		cmpRoi.setLayout(gl2);
+
+		Button defineRoi = toolkit.createButton(cmpRoi, DEFINE_ROI, SWT.None);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		defineRoi.setLayoutData(gd);
+
+		defineRoi.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				final AbstractDataset[] images = new AbstractDataset[1];
+				BusyIndicator.showWhile(getViewSite().getShell().getDisplay(), new Runnable() {
+
+					@Override
+					public void run() {
+
+						String pathToImages = ReconUtil.getReconstructedReducedDataDirectoryPath(nexusFile
+								.getLocation().toOSString());
+						int sliceNumber = getSliceSelectionFromProjectionsView();
+
+						if (sliceNumber >= 0) {
+							File imageFile = new File(pathToImages, String.format(
+									ReconUtil.RECONSTRUCTED_IMAGE_FILE_FORMAT, sliceNumber / ProjectionsView.SPLITS));
+							logger.debug("Looking for image file {}", imageFile.getPath());
+							if (imageFile.exists()) {
+								DataHolder data = null;
+								try {
+									data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
+								} catch (ScanFileHolderException e1) {
+									logger.error("Problem loading data", e1);
+								}
+
+								// update monitor
+								if (data != null) {
+									AbstractDataset image = data.getDataset(0);
+									image.isubtract(image.min());
+									image.imultiply(1000.0);
+									images[0] = image;
+								}
+							}
+						}
+
+					}
+				});
+
+				if (images[0] != null) {
+
+					DefineRoiDialog defineRoiDialog = new DefineRoiDialog(getViewSite().getShell(), images[0]);
+					defineRoiDialog.open();
+					int[] roi = defineRoiDialog.getRoi();
+					logger.debug("Roi values:{}", roi);
+					if (roi != null) {
+						String roiState = getPropertyDescriptor(ID_ROI_TYPE).getValue();
+						if (STANDARD.equals(roiState)) {
+							getPropertyDescriptor(ID_ROI_TYPE).setValue(RECTANGLE);
+							getPropertyDescriptor(ID_ROI_X_MIN).setValue(roi[0]);
+							getPropertyDescriptor(ID_ROI_Y_MIN).setValue(roi[1]);
+							getPropertyDescriptor(ID_ROI_X_MAX).setValue(roi[2]);
+							getPropertyDescriptor(ID_ROI_Y_MAX).setValue(roi[3]);
+						} else {
+							getPropertyDescriptor(ID_ROI_X_MIN).setValue(
+									roi[0] + Integer.parseInt(getPropertyDescriptor(ID_ROI_X_MIN).getValue()));
+							getPropertyDescriptor(ID_ROI_Y_MIN).setValue(
+									roi[1] + Integer.parseInt(getPropertyDescriptor(ID_ROI_Y_MIN).getValue()));
+							getPropertyDescriptor(ID_ROI_X_MAX).setValue(
+									roi[2] + Integer.parseInt(getPropertyDescriptor(ID_ROI_X_MAX).getValue()));
+							getPropertyDescriptor(ID_ROI_Y_MAX).setValue(
+									roi[3] + Integer.parseInt(getPropertyDescriptor(ID_ROI_Y_MAX).getValue()));
+						}
+						propertyTableViewer.refresh();
+						runReconScript(true);
+					}
+				} else {
+					getViewSite().getActionBars().getStatusLineManager().setErrorMessage(ROI_ERROR_MESSAGE);
+
+					getViewSite().getShell().getDisplay().timerExec(5000, new Runnable() {
+
+						@Override
+						public void run() {
+							getViewSite().getActionBars().getStatusLineManager().setErrorMessage(null);
+						}
+					});
+				}
+
+			}
+		});
+
+		Button resetRoi = toolkit.createButton(cmpRoi, "Reset ROI", SWT.None);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		resetRoi.setLayoutData(gd);
+
+		resetRoi.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getPropertyDescriptor(ID_ROI_TYPE).setValue(STANDARD);
+				propertyTableViewer.refresh();
+				runReconScript(true);
+			}
+		});
+
+		propertyTableViewer = new TableViewer(topComposite);
+		propertyTableViewer.getTable().setLayoutData(new GridData(GridData.FILL_BOTH));
+		// propertyTableViewer.getTable().setHeaderVisible(true);
+		propertyTableViewer.getTable().setLinesVisible(true);
+
+		createColumns(propertyTableViewer);
+
+		propertyTableViewer.setContentProvider(new IStructuredContentProvider() {
+
+			@Override
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+
+			}
+
+			@Override
+			public void dispose() {
+
+			}
+
+			@SuppressWarnings("rawtypes")
+			@Override
+			public Object[] getElements(Object inputElement) {
+				if (inputElement instanceof HashMap) {
+					return ((HashMap) inputElement).values().toArray();
+				}
+				return null;
+			}
+		});
 
 		// Read settings file from resource and copy to /tmp
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(NexusNavigator.ID, this);
+	}
+
+	private void createColumns(TableViewer tableViewer) {
+		TableViewerColumn lblColumn = new TableViewerColumn(tableViewer, SWT.None);
+		lblColumn.getColumn().setWidth(320);
+		lblColumn.getColumn().setText("Property");
+		lblColumn.setLabelProvider(new CellLabelProvider() {
+
+			@Override
+			public void update(ViewerCell cell) {
+				cell.setText(((PropertyDescriptor) cell.getElement()).getLabel());
+			}
+		});
+
+		TableViewerColumn valueColumn = new TableViewerColumn(tableViewer, SWT.None);
+		valueColumn.getColumn().setWidth(200);
+		valueColumn.getColumn().setText("Value");
+		valueColumn.setLabelProvider(new CellLabelProvider() {
+
+			@Override
+			public void update(ViewerCell cell) {
+				cell.setText(((PropertyDescriptor) cell.getElement()).getValue());
+			}
+		});
+		EditingSupport valueColumnEditingSupport = new EditingSupport(tableViewer) {
+
+			@Override
+			protected void setValue(Object element, Object value) {
+				((PropertyDescriptor) element).setValue(value);
+				propertyTableViewer.refresh();
+			}
+
+			@Override
+			protected Object getValue(Object element) {
+				return ((PropertyDescriptor) element).getSelectedValue();
+			}
+
+			@Override
+			protected CellEditor getCellEditor(Object element) {
+				return ((PropertyDescriptor) element).createCellEditor();
+			}
+
+			@Override
+			protected boolean canEdit(Object element) {
+				return ((PropertyDescriptor) element).canEdit();
+			}
+		};
+		valueColumn.setEditingSupport(valueColumnEditingSupport);
+
 	}
 
 	public static class SampleInOutBeamPosition extends Dialog {
@@ -431,13 +620,17 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	private void runReconScript(boolean quick) {
 		saveModel();
 		if (isHdf) {
-			runHdfReconstruction(quick);
+			try {
+				runHdfReconstruction(quick);
+			} catch (Exception ex) {
+				logger.error("Unable to run reconstruction script", ex);
+			}
 		} else {
 			runTiffReconstruction(quick);
 		}
 	}
 
-	private void runHdfReconstruction(boolean quick) {
+	private void runHdfReconstruction(boolean quick) throws Exception {
 		File tomoDoShScript = null;
 
 		int[] startEnd = null;
@@ -735,275 +928,6 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		}
 	}
 
-	private Composite createRoi(Composite formComposite) {
-		ExpandableComposite roiExpCmp = toolkit.createExpandableComposite(formComposite, ExpandableComposite.TWISTIE
-				| ExpandableComposite.EXPANDED);
-		roiExpCmp.setText(REGION_OF_INTEREST);
-		roiExpCmp.addExpansionListener(expansionAdapter);
-		roiExpCmp.setLayout(new FillLayout());
-
-		Composite cmpRoi = toolkit.createComposite(roiExpCmp);
-		cmpRoi.setLayout(new GridLayout(4, false));
-
-		Hyperlink defineRoi = toolkit.createHyperlink(cmpRoi, DEFINE_ROI, SWT.None);
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 2;
-		defineRoi.setLayoutData(gd);
-		defineRoi.addHyperlinkListener(new IHyperlinkListener() {
-
-			@Override
-			public void linkExited(HyperlinkEvent e) {
-				// do nothing
-			}
-
-			@Override
-			public void linkEntered(HyperlinkEvent e) {
-				// do nothing
-			}
-
-			@Override
-			public void linkActivated(HyperlinkEvent e) {
-				final AbstractDataset[] images = new AbstractDataset[1];
-				BusyIndicator.showWhile(getViewSite().getShell().getDisplay(), new Runnable() {
-
-					@Override
-					public void run() {
-
-						String pathToImages = ReconUtil.getReconstructedReducedDataDirectoryPath(nexusFile
-								.getLocation().toOSString());
-						int sliceNumber = getSliceSelectionFromProjectionsView();
-
-						if (sliceNumber >= 0) {
-							File imageFile = new File(pathToImages, String.format(
-									ReconUtil.RECONSTRUCTED_IMAGE_FILE_FORMAT, sliceNumber / ProjectionsView.SPLITS));
-							logger.debug("Looking for image file {}", imageFile.getPath());
-							if (imageFile.exists()) {
-								DataHolder data = null;
-								try {
-									data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
-								} catch (ScanFileHolderException e1) {
-									logger.error("Problem loading data", e1);
-								}
-
-								// update monitor
-								if (data != null) {
-									AbstractDataset image = data.getDataset(0);
-									image.isubtract(image.min());
-									image.imultiply(1000.0);
-									images[0] = image;
-								}
-							}
-						}
-
-					}
-				});
-
-				if (images[0] != null) {
-
-					DefineRoiDialog defineRoiDialog = new DefineRoiDialog(getViewSite().getShell(), images[0]);
-					defineRoiDialog.open();
-					int[] roi = defineRoiDialog.getRoi();
-					logger.debug("Roi values:{}", roi);
-					if (roi != null) {
-						String roiState = cmbRoiType.getText();
-						if (STANDARD.equals(roiState)) {
-							cmbRoiType.setText(RECTANGLE);
-							txtRoiXMin.setText(Integer.toString(roi[0]));
-							txtRoiYMin.setText(Integer.toString(roi[1]));
-							txtRoiXMax.setText(Integer.toString(roi[2]));
-							txtRoiYMax.setText(Integer.toString(roi[3]));
-						} else {
-							txtRoiXMin.setText(Integer.toString(roi[0] + Integer.parseInt(txtRoiXMin.getText())));
-							txtRoiYMin.setText(Integer.toString(roi[1] + Integer.parseInt(txtRoiYMin.getText())));
-							txtRoiXMax.setText(Integer.toString(roi[2] + Integer.parseInt(txtRoiXMin.getText())));
-							txtRoiYMax.setText(Integer.toString(roi[3] + Integer.parseInt(txtRoiYMin.getText())));
-						}
-						runReconScript(true);
-					}
-				} else {
-					getViewSite().getActionBars().getStatusLineManager().setErrorMessage(ROI_ERROR_MESSAGE);
-
-					getViewSite().getShell().getDisplay().timerExec(5000, new Runnable() {
-
-						@Override
-						public void run() {
-							getViewSite().getActionBars().getStatusLineManager().setErrorMessage(null);
-						}
-					});
-				}
-			}
-		});
-
-		Hyperlink resetRoi = toolkit.createHyperlink(cmpRoi, "Reset", SWT.None);
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 2;
-		resetRoi.setLayoutData(gd);
-		resetRoi.addHyperlinkListener(new IHyperlinkListener() {
-
-			@Override
-			public void linkExited(HyperlinkEvent e) {
-
-			}
-
-			@Override
-			public void linkEntered(HyperlinkEvent e) {
-
-			}
-
-			@Override
-			public void linkActivated(HyperlinkEvent e) {
-				cmbRoiType.setText(STANDARD);
-				runReconScript(true);
-			}
-		});
-
-		Label lblRoiType = toolkit.createLabel(cmpRoi, TYPE);
-		lblRoiType.setLayoutData(new GridData());
-
-		cmbRoiType = new CCombo(cmpRoi, SWT.FLAT | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.BORDER);
-		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData2.horizontalSpan = 3;
-		cmbRoiType.setLayoutData(layoutData2);
-		cmbRoiType.setItems(new String[] { STANDARD, RECTANGLE });
-
-		Label lblXmin = toolkit.createLabel(cmpRoi, X_MIN);
-		lblXmin.setLayoutData(new GridData());
-
-		txtRoiXMin = toolkit.createText(cmpRoi, BLANK);
-		txtRoiXMin.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblXmax = toolkit.createLabel(cmpRoi, X_MAX);
-		lblXmax.setLayoutData(new GridData());
-
-		txtRoiXMax = toolkit.createText(cmpRoi, BLANK);
-		txtRoiXMax.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblYmin = toolkit.createLabel(cmpRoi, Y_MIN);
-		lblYmin.setLayoutData(new GridData());
-
-		txtRoiYMin = toolkit.createText(cmpRoi, BLANK);
-		txtRoiYMin.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblYmax = toolkit.createLabel(cmpRoi, Y_MAX);
-		lblYmax.setLayoutData(new GridData());
-
-		txtRoiYMax = toolkit.createText(cmpRoi, BLANK);
-		txtRoiYMax.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		roiExpCmp.setClient(cmpRoi);
-		return roiExpCmp;
-	}
-
-	private Composite createDarkFields(Composite formComposite) {
-		ExpandableComposite darkFieldsExpCmp = toolkit.createExpandableComposite(formComposite,
-				ExpandableComposite.TWISTIE);
-		darkFieldsExpCmp.setText(DARK_FIELDS);
-		darkFieldsExpCmp.addExpansionListener(expansionAdapter);
-		darkFieldsExpCmp.setLayout(new FillLayout());
-
-		Composite cmpDarkFields = toolkit.createComposite(darkFieldsExpCmp);
-		cmpDarkFields.setLayout(new GridLayout(4, false));
-
-		Label lblDarkType = toolkit.createLabel(cmpDarkFields, TYPE);
-		lblDarkType.setLayoutData(new GridData());
-
-		cmbDarkFieldType = new CCombo(cmpDarkFields, SWT.FLAT | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.BORDER);
-		cmbDarkFieldType.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		cmbDarkFieldType.setItems(new String[] { USER, ROW });
-
-		Label lblDarkValueBefore = toolkit.createLabel(cmpDarkFields, VALUE_BEFORE);
-		lblDarkValueBefore.setLayoutData(new GridData());
-
-		txtDarkFieldValueBefore = toolkit.createText(cmpDarkFields, BLANK);
-		txtDarkFieldValueBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblDarkFileBefore = toolkit.createLabel(cmpDarkFields, FILE_BEFORE);
-		lblDarkFileBefore.setLayoutData(new GridData());
-
-		txtDarkFieldFileBefore = toolkit.createText(cmpDarkFields, BLANK);
-		txtDarkFieldFileBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblDarkValueAfter = toolkit.createLabel(cmpDarkFields, VALUE_AFTER);
-		lblDarkValueAfter.setLayoutData(new GridData());
-
-		txtDarkFieldValueAfter = toolkit.createText(cmpDarkFields, BLANK);
-		txtDarkFieldValueAfter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		darkFieldsExpCmp.setClient(cmpDarkFields);
-		return darkFieldsExpCmp;
-	}
-
-	private Composite createFlatFields(Composite formComposite) {
-		ExpandableComposite flatFieldsExpCmp = toolkit.createExpandableComposite(formComposite,
-				ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED);
-		flatFieldsExpCmp.setText(FLAT_FIELDS);
-		flatFieldsExpCmp.addExpansionListener(expansionAdapter);
-		flatFieldsExpCmp.setLayout(new FillLayout());
-
-		Composite cmpFlatFields = toolkit.createComposite(flatFieldsExpCmp);
-		cmpFlatFields.setLayout(new GridLayout(4, false));
-
-		Label lblType = toolkit.createLabel(cmpFlatFields, TYPE);
-		lblType.setLayoutData(new GridData());
-
-		cmbFlatFieldType = new CCombo(cmpFlatFields, SWT.FLAT | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.BORDER);
-		cmbFlatFieldType.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		cmbFlatFieldType.setItems(new String[] { USER, ROW });
-
-		Label lblValueBefore = toolkit.createLabel(cmpFlatFields, VALUE_BEFORE);
-		lblValueBefore.setLayoutData(new GridData());
-
-		txtFlatFieldValueBefore = toolkit.createText(cmpFlatFields, BLANK);
-		txtFlatFieldValueBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblFileBefore = toolkit.createLabel(cmpFlatFields, FILE_BEFORE);
-		lblFileBefore.setLayoutData(new GridData());
-
-		txtFlatFieldFileBefore = toolkit.createText(cmpFlatFields, BLANK);
-		txtFlatFieldFileBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblValueAfter = toolkit.createLabel(cmpFlatFields, VALUE_AFTER);
-		lblValueAfter.setLayoutData(new GridData());
-
-		txtFlatFieldValueAfter = toolkit.createText(cmpFlatFields, BLANK);
-		txtFlatFieldValueAfter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		flatFieldsExpCmp.setClient(cmpFlatFields);
-		return flatFieldsExpCmp;
-	}
-
-	private Composite createRingArtefacts(Composite formComposite) {
-		ExpandableComposite ringArtefactsExpCmp = toolkit.createExpandableComposite(formComposite,
-				ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED);
-		ringArtefactsExpCmp.setText(RING_ARTEFACTS);
-		ringArtefactsExpCmp.addExpansionListener(expansionAdapter);
-		ringArtefactsExpCmp.setLayout(new FillLayout());
-
-		Composite artefactsCmp = toolkit.createComposite(ringArtefactsExpCmp);
-		artefactsCmp.setLayout(new GridLayout(4, false));
-
-		Label lblAML = toolkit.createLabel(artefactsCmp, RING_ARTEFACTS);
-		lblAML.setLayoutData(new GridData());
-
-		cmbAml = new CCombo(artefactsCmp, SWT.FLAT | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.BORDER);
-		cmbAml.setItems(new String[] { AML_NO, AML_COLUMN, AML });
-		cmbAml.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblNumSeries = toolkit.createLabel(artefactsCmp, NUM_SERIES);
-		lblNumSeries.setLayoutData(new GridData());
-
-		txtNumSeries = toolkit.createText(artefactsCmp, BLANK);
-		txtNumSeries.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		ringArtefactsExpCmp.setClient(artefactsCmp);
-		return ringArtefactsExpCmp;
-	}
-
-	private ExpansionAdapter expansionAdapter = new ExpansionAdapter() {
-		@Override
-		public void expansionStateChanged(ExpansionEvent e) {
-			scrolledForm.reflow(true);
-		}
-	};
 	private ScrolledForm scrolledForm;
 	private Form mainForm;
 	private PageBook pgBook;
@@ -1011,43 +935,21 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	private boolean isHdf = false;
 	private int[] hdfShape;
 
+	private TableViewer propertyTableViewer;
+
+	private PropertyDescriptor getPropertyDescriptor(String id) {
+		return propertyDescriptors.get(id);
+	}
+
 	protected void saveModel() {
 		HMxmlType model = getHmXmlModel();
 		try {
-			FBPType fbp = model.getFBP();
-			BackprojectionType backprojection = fbp.getBackprojection();
-			//
-			backprojection.setImageCentre(BigDecimal.valueOf(Double.parseDouble(txtCentreOfRotation.getText())));
-			RingArtefactsType ringArtefacts = fbp.getPreprocessing().getRingArtefacts();
-
-			ringArtefacts.getType().setValue(cmbAml.getText());
-			ringArtefacts.getNumSeries().setValue(BigDecimal.valueOf(Double.parseDouble(txtNumSeries.getText())));
-
-			FlatDarkFieldsType flatDarkFields = fbp.getFlatDarkFields();
-
-			FlatFieldType flatField = flatDarkFields.getFlatField();
-
-			flatField.getType().setValue(cmbFlatFieldType.getText());
-
-			flatField.setValueBefore(Double.parseDouble(txtFlatFieldValueBefore.getText()));
-			flatField.setValueAfter(Double.parseDouble(txtFlatFieldValueAfter.getText()));
-			flatField.setFileBefore(txtFlatFieldFileBefore.getText());
-
-			DarkFieldType darkField = flatDarkFields.getDarkField();
-
-			darkField.getType().setValue(cmbDarkFieldType.getText());
-
-			darkField.setValueBefore(Double.parseDouble(txtDarkFieldValueBefore.getText()));
-			darkField.setValueAfter(Double.parseDouble(txtDarkFieldValueAfter.getText()));
-			darkField.setFileBefore(txtDarkFieldFileBefore.getText());
-
-			//
-			ROIType roi = backprojection.getROI();
-			roi.getType().setValue(cmbRoiType.getText());
-			roi.setXmin(Integer.parseInt(txtRoiXMin.getText()));
-			roi.setXmax(Integer.parseInt(txtRoiXMax.getText()));
-			roi.setYmin(Integer.parseInt(txtRoiYMin.getText()));
-			roi.setYmax(Integer.parseInt(txtRoiYMax.getText()));
+			// ROIType roi = backprojection.getROI();
+			// roi.getType().setValue(getPropertyDescriptor(ID_ROI_TYPE).getValue());
+			// roi.setXmin(Integer.parseInt(getPropertyDescriptor(ID_ROI_X_MIN).getValue()));
+			// roi.setXmax(Integer.parseInt(getPropertyDescriptor(ID_ROI_X_MAX).getValue()));
+			// roi.setYmin(Integer.parseInt(getPropertyDescriptor(ID_ROI_Y_MIN).getValue()));
+			// roi.setYmax(Integer.parseInt(getPropertyDescriptor(ID_ROI_Y_MAX).getValue()));
 
 			model.eResource().save(Collections.emptyMap());
 		} catch (IOException e) {
@@ -1069,40 +971,8 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			float floatValue = backprojection.getImageCentre().floatValue();
 			txtCentreOfRotation.setText(Float.toString(floatValue));
 
-			RingArtefactsType ringArtefacts = fbp.getPreprocessing().getRingArtefacts();
-			String amlValue = ringArtefacts.getType().getValue();
-			cmbAml.setText(amlValue);
-
-			float numSeriesVal = ringArtefacts.getNumSeries().getValue().floatValue();
-			txtNumSeries.setText(Float.toString(numSeriesVal));
-
-			FlatDarkFieldsType flatDarkFields = fbp.getFlatDarkFields();
-
-			FlatFieldType flatField = flatDarkFields.getFlatField();
-
-			cmbFlatFieldType.setText(flatField.getType().getValue());
-
-			txtFlatFieldValueBefore.setText(Double.toString(flatField.getValueBefore()));
-
-			txtFlatFieldValueAfter.setText(Double.toString(flatField.getValueAfter()));
-			txtFlatFieldFileBefore.setText(flatField.getFileBefore());
-
-			DarkFieldType darkField = flatDarkFields.getDarkField();
-
-			cmbDarkFieldType.setText(darkField.getType().getValue());
-
-			txtDarkFieldValueBefore.setText(Double.toString(darkField.getValueBefore()));
-
-			txtDarkFieldValueAfter.setText(Double.toString(darkField.getValueAfter()));
-			txtDarkFieldFileBefore.setText(darkField.getFileBefore());
-
-			//
-			ROIType roi = backprojection.getROI();
-			cmbRoiType.setText(roi.getType().getValue());
-			txtRoiXMin.setText(Integer.toString(roi.getXmin()));
-			txtRoiXMax.setText(Integer.toString(roi.getXmax()));
-			txtRoiYMin.setText(Integer.toString(roi.getYmin()));
-			txtRoiYMax.setText(Integer.toString(roi.getYmax()));
+			propertyDescriptors = createPropertyDescriptors(hmxmlType);
+			propertyTableViewer.setInput(propertyDescriptors);
 
 			String centreOfRot = getCentreOfRotationFromCentreOfRotationView();
 			if (centreOfRot != null) {
@@ -1110,6 +980,549 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			}
 		}
 
+	}
+
+	private LinkedHashMap<String, PropertyDescriptor> createPropertyDescriptors(HMxmlType hmXmlType) {
+
+		FBPType fbp = hmXmlType.getFBP();
+
+		BackprojectionType backprojection = fbp.getBackprojection();
+
+		//
+		final ROIType roi = backprojection.getROI();
+
+		// Roi Type property descriptor
+		PropertyDescriptor roiType = createRoiTypePropertyDescriptor(roi);
+
+		// Roi X min property descriptor
+		PropertyDescriptor roiXMin = createRoiXMinPropertyDescriptor(roi);
+
+		// Roi X max property descriptor
+		PropertyDescriptor roiXMax = createRoiXMaxPropertyDescriptor(roi);
+
+		// Roi Y min property descriptor
+		PropertyDescriptor roiYMin = createRoiYMinPropertyDescriptor(roi);
+
+		// Roi X max property descriptor
+		PropertyDescriptor roiYMax = createRoiYMaxPropertyDescriptor(roi);
+
+		final RingArtefactsType ringArtefacts = fbp.getPreprocessing().getRingArtefacts();
+		final Table propViewTable = propertyTableViewer.getTable();
+
+		// Ring Artefacts
+		PropertyDescriptor amlProp = createRingArtefactsPropertyDescriptor(ringArtefacts, propViewTable);
+
+		// High Aspect Ratio compensation
+		PropertyDescriptor highAspectRatioComp = createHighAspectRatioCompensationPropertyDescriptor(ringArtefacts,
+				propViewTable);
+		// Incorrection Strength
+		PropertyDescriptor incorrectionStrength = createIncorrectionStrengthPropertyDescriptor(ringArtefacts,
+				propViewTable);
+
+		FlatDarkFieldsType flatDarkFields = fbp.getFlatDarkFields();
+
+		final FlatFieldType flatField = flatDarkFields.getFlatField();
+
+		// Flat field type
+		PropertyDescriptor flatFieldType = createFlatFieldTypePropertyDescriptor(propViewTable, flatField);
+
+		// Flat field value before
+		PropertyDescriptor flatFieldValueBefore = createFlatFieldValueBeforePropertyDescriptor(propViewTable, flatField);
+
+		// flat field value after
+		PropertyDescriptor flatFieldValueAfter = createFlatFieldValueAfterPropertyDescriptor(propViewTable, flatField);
+
+		final DarkFieldType darkField = flatDarkFields.getDarkField();
+
+		// dark field type
+		PropertyDescriptor darkFieldType = createDarkFieldTypePropertyDescriptor(propViewTable, darkField);
+
+		// dark field value before
+		PropertyDescriptor darkFieldValueBefore = createDarkFieldValueBeforePropertyDescriptor(propViewTable, darkField);
+
+		// Dark field value after
+		PropertyDescriptor darkFieldValueAfter = createDarkFieldValueAfterPropertyDescriptor(propViewTable, darkField);
+
+		propertyDescriptors = new LinkedHashMap<String, PropertyDescriptor>();
+
+		propertyDescriptors.put(ID_ROI_TYPE, roiType);
+		propertyDescriptors.put(ID_ROI_X_MIN, roiXMin);
+		propertyDescriptors.put(ID_ROI_X_MAX, roiXMax);
+		propertyDescriptors.put(ID_ROI_Y_MIN, roiYMin);
+		propertyDescriptors.put(ID_ROI_Y_MAX, roiYMax);
+		propertyDescriptors.put(ID_RING_ARTEFACTS, amlProp);
+		propertyDescriptors.put(ID_HIGH_ASPECT_RATIO_COMPENSATION, highAspectRatioComp);
+		propertyDescriptors.put(ID_INCORRECTION_STRENGTH, incorrectionStrength);
+		propertyDescriptors.put(ID_FLAT_FIELD_TYPE, flatFieldType);
+		propertyDescriptors.put(ID_FLAT_FIELD_VALUE_BEFORE, flatFieldValueBefore);
+		propertyDescriptors.put(ID_FLAT_FIELD_VALUE_AFTER, flatFieldValueAfter);
+		propertyDescriptors.put(ID_DARK_FIELD_TYPE, darkFieldType);
+		propertyDescriptors.put(ID_DARK_FIELD_VALUE_BEFORE, darkFieldValueBefore);
+		propertyDescriptors.put(ID_DARK_FIELD_VALUE_AFTER, darkFieldValueAfter);
+
+		return propertyDescriptors;
+
+	}
+
+	private PropertyDescriptor createIncorrectionStrengthPropertyDescriptor(final RingArtefactsType ringArtefacts,
+			Table propViewTable) {
+		PropertyDescriptor incorrectionStrengthPropDescriptor = new TextPropertyDescriptor(ID_INCORRECTION_STRENGTH,
+				LBL_INCORRECTION_STRENGTH, propViewTable) {
+			@Override
+			public String getValue() {
+				return Float.toString(ringArtefacts.getParameterR().floatValue());
+			}
+
+			@Override
+			public void setValue(Object value) {
+				try {
+					BigDecimal floatVal = BigDecimal.valueOf(Float.parseFloat((String) value));
+					getEditingDomain().getCommandStack().execute(
+							SetCommand.create(getEditingDomain(), ringArtefacts,
+									HmPackage.eINSTANCE.getRingArtefactsType_ParameterR(), floatVal));
+
+				} catch (NumberFormatException e) {
+					getViewSite().getActionBars().getStatusLineManager()
+							.setErrorMessage("Invalid value for incorrection strength");
+					getViewSite().getShell().getDisplay().timerExec(5000, new Runnable() {
+
+						@Override
+						public void run() {
+							getViewSite().getActionBars().getStatusLineManager().setErrorMessage(null);
+						}
+					});
+				}
+
+			}
+		};
+		return incorrectionStrengthPropDescriptor;
+	}
+
+	private PropertyDescriptor createRoiYMaxPropertyDescriptor(final ROIType roi) {
+		PropertyDescriptor roiYMax = new PropertyDescriptor(ID_ROI_Y_MAX, LBL_Y_MAX) {
+			@Override
+			public void setValue(Object value) {
+				if (value instanceof Integer) {
+
+					getEditingDomain().getCommandStack().execute(
+							SetCommand.create(getEditingDomain(), roi, HmPackage.eINSTANCE.getROIType_Ymax(), value));
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(roi.getYmax());
+			}
+		};
+		return roiYMax;
+	}
+
+	private PropertyDescriptor createRoiYMinPropertyDescriptor(final ROIType roi) {
+		PropertyDescriptor roiYMin = new PropertyDescriptor(ID_ROI_Y_MIN, LBL_Y_MIN) {
+			@Override
+			public void setValue(Object value) {
+				getEditingDomain().getCommandStack().execute(
+						SetCommand.create(getEditingDomain(), roi, HmPackage.eINSTANCE.getROIType_Ymin(), value));
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(roi.getYmin());
+			}
+		};
+		return roiYMin;
+	}
+
+	private PropertyDescriptor createRoiXMaxPropertyDescriptor(final ROIType roi) {
+		PropertyDescriptor roiXMax = new PropertyDescriptor(ID_ROI_X_MAX, LBL_X_MAX) {
+			@Override
+			public void setValue(Object value) {
+				getEditingDomain().getCommandStack().execute(
+						SetCommand.create(getEditingDomain(), roi, HmPackage.eINSTANCE.getROIType_Xmax(), value));
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(roi.getXmax());
+			}
+		};
+		return roiXMax;
+	}
+
+	private PropertyDescriptor createRoiXMinPropertyDescriptor(final ROIType roi) {
+		PropertyDescriptor roiXMin = new PropertyDescriptor(ID_ROI_X_MIN, LBL_X_MIN) {
+			@Override
+			public void setValue(Object value) {
+				getEditingDomain().getCommandStack().execute(
+						SetCommand.create(getEditingDomain(), roi, HmPackage.eINSTANCE.getROIType_Xmin(), value));
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(roi.getXmin());
+			}
+		};
+		return roiXMin;
+	}
+
+	private PropertyDescriptor createRoiTypePropertyDescriptor(final ROIType roi) {
+		PropertyDescriptor roiType = new PropertyDescriptor(ID_ROI_TYPE, LBL_ROI) {
+
+			@Override
+			public void setValue(Object value) {
+				getEditingDomain().getCommandStack().execute(
+						SetCommand.create(getEditingDomain(), roi.getType(), HmPackage.eINSTANCE.getTypeType3_Value(),
+								value));
+			}
+
+			@Override
+			public String getValue() {
+				return roi.getType().getValue();
+			}
+		};
+		return roiType;
+	}
+
+	private PropertyDescriptor createDarkFieldValueAfterPropertyDescriptor(final Table propViewTable,
+			final DarkFieldType darkField) {
+		PropertyDescriptor darkFieldValueAfter = new TextPropertyDescriptor(ID_DARK_FIELD_VALUE_AFTER, LBL_VALUE_AFTER,
+				propViewTable) {
+			@Override
+			public String getValue() {
+				return Double.toString(darkField.getValueAfter());
+			}
+
+			@Override
+			public void setValue(Object value) {
+				try {
+					Double doubleValue = Double.parseDouble((String) value);
+					getEditingDomain().getCommandStack().execute(
+							SetCommand.create(getEditingDomain(), darkField,
+									HmPackage.eINSTANCE.getDarkFieldType_ValueAfter(), doubleValue));
+
+				} catch (NumberFormatException e) {
+					getViewSite().getActionBars().getStatusLineManager()
+							.setErrorMessage("Invalid value for flat field after");
+					getViewSite().getShell().getDisplay().timerExec(5000, new Runnable() {
+
+						@Override
+						public void run() {
+							getViewSite().getActionBars().getStatusLineManager().setErrorMessage(null);
+						}
+					});
+				}
+
+			}
+		};
+		return darkFieldValueAfter;
+	}
+
+	private PropertyDescriptor createDarkFieldValueBeforePropertyDescriptor(final Table propViewTable,
+			final DarkFieldType darkField) {
+		PropertyDescriptor darkFieldValueBefore = new TextPropertyDescriptor(ID_DARK_FIELD_VALUE_BEFORE,
+				LBL_VALUE_BEFORE, propViewTable) {
+			@Override
+			public String getValue() {
+				return Double.toString(darkField.getValueBefore());
+			}
+
+			@Override
+			public void setValue(Object value) {
+				try {
+					Double doubleValue = Double.parseDouble((String) value);
+					getEditingDomain().getCommandStack().execute(
+							SetCommand.create(getEditingDomain(), darkField,
+									HmPackage.eINSTANCE.getDarkFieldType_ValueBefore(), doubleValue));
+
+				} catch (NumberFormatException e) {
+					getViewSite().getActionBars().getStatusLineManager()
+							.setErrorMessage("Invalid value for dark field before");
+					getViewSite().getShell().getDisplay().timerExec(5000, new Runnable() {
+
+						@Override
+						public void run() {
+							getViewSite().getActionBars().getStatusLineManager().setErrorMessage(null);
+						}
+					});
+				}
+
+			}
+		};
+		return darkFieldValueBefore;
+	}
+
+	private PropertyDescriptor createDarkFieldTypePropertyDescriptor(final Table propViewTable,
+			final DarkFieldType darkField) {
+		PropertyDescriptor darkFieldType = new PropertyDescriptor(ID_DARK_FIELD_TYPE, LBL_DARK_FIELD_TYPE, darkField
+				.getType().getValue()) {
+
+			@Override
+			public String getValue() {
+
+				String value = darkField.getType().getValue();
+				if (value.equals("Row")) {
+					return "Use Image";
+				}
+				return "Use Constant";
+			}
+
+			@Override
+			public Object getSelectedValue() {
+				String value = getValue();
+				if (value.equals("Use Image")) {
+					return 0;
+				}
+				return 1;
+			}
+
+			@Override
+			public boolean canEdit() {
+				return true;
+			}
+
+			@Override
+			public CellEditor createCellEditor() {
+				return new ComboBoxCellEditor(propViewTable, new String[] { "Use Image", "Use Constant" },
+						SWT.READ_ONLY);
+			}
+
+			@Override
+			public void setValue(Object value) {
+				if (value instanceof Integer) {
+					Integer intVal = (Integer) value;
+					String valueToSet = "Row";
+					switch (intVal) {
+					case 0:
+						valueToSet = "Row";
+						break;
+					case 1:
+						valueToSet = "User";
+						break;
+					}
+
+					getEditingDomain().getCommandStack().execute(
+							SetCommand.create(getEditingDomain(), darkField.getType(),
+									HmPackage.eINSTANCE.getTypeType13_Value(), valueToSet));
+
+				}
+			}
+		};
+		return darkFieldType;
+	}
+
+	private PropertyDescriptor createFlatFieldValueAfterPropertyDescriptor(final Table propViewTable,
+			final FlatFieldType flatField) {
+		PropertyDescriptor flatFieldValueAfter = new TextPropertyDescriptor(ID_FLAT_FIELD_VALUE_AFTER, LBL_VALUE_AFTER,
+				propViewTable) {
+			@Override
+			public String getValue() {
+				return Double.toString(flatField.getValueAfter());
+			}
+
+			@Override
+			public void setValue(Object value) {
+				try {
+					Double floatVal = Double.parseDouble((String) value);
+					getEditingDomain().getCommandStack().execute(
+							SetCommand.create(getEditingDomain(), flatField,
+									HmPackage.eINSTANCE.getFlatFieldType_ValueAfter(), floatVal));
+
+				} catch (NumberFormatException e) {
+					getViewSite().getActionBars().getStatusLineManager()
+							.setErrorMessage("Invalid value for flat field after");
+					getViewSite().getShell().getDisplay().timerExec(5000, new Runnable() {
+
+						@Override
+						public void run() {
+							getViewSite().getActionBars().getStatusLineManager().setErrorMessage(null);
+						}
+					});
+				}
+
+			}
+		};
+		return flatFieldValueAfter;
+	}
+
+	private PropertyDescriptor createFlatFieldValueBeforePropertyDescriptor(final Table propViewTable,
+			final FlatFieldType flatField) {
+		PropertyDescriptor flatFieldValueBefore = new TextPropertyDescriptor(ID_FLAT_FIELD_VALUE_BEFORE,
+				LBL_VALUE_BEFORE, propViewTable) {
+			@Override
+			public String getValue() {
+				return Double.toString(flatField.getValueBefore());
+			}
+
+			@Override
+			public void setValue(Object value) {
+				try {
+					Double floatVal = Double.parseDouble((String) value);
+					getEditingDomain().getCommandStack().execute(
+							SetCommand.create(getEditingDomain(), flatField,
+									HmPackage.eINSTANCE.getFlatFieldType_ValueBefore(), floatVal));
+
+				} catch (NumberFormatException e) {
+					getViewSite().getActionBars().getStatusLineManager()
+							.setErrorMessage("Invalid value for flat field before");
+					getViewSite().getShell().getDisplay().timerExec(5000, new Runnable() {
+
+						@Override
+						public void run() {
+							getViewSite().getActionBars().getStatusLineManager().setErrorMessage(null);
+						}
+					});
+				}
+
+			}
+		};
+		return flatFieldValueBefore;
+	}
+
+	private PropertyDescriptor createFlatFieldTypePropertyDescriptor(final Table propViewTable,
+			final FlatFieldType flatField) {
+		PropertyDescriptor flatFieldType = new PropertyDescriptor(ID_FLAT_FIELD_TYPE, LBL_FLAT_FIELD_TYPE) {
+			@Override
+			public Object getSelectedValue() {
+				String value = getValue();
+				if (value.equals("Use Image")) {
+					return 0;
+				}
+				return 1;
+			}
+
+			@Override
+			public boolean canEdit() {
+				return true;
+			}
+
+			@Override
+			public CellEditor createCellEditor() {
+				return new ComboBoxCellEditor(propViewTable, new String[] { "Use Image", "Use Constant" },
+						SWT.READ_ONLY);
+			}
+
+			@Override
+			public String getValue() {
+				String value = flatField.getType().getValue();
+				if (value.equals("Row")) {
+					return "Use Image";
+				}
+				return "Use Constant";
+			}
+
+			@Override
+			public void setValue(Object value) {
+				if (value instanceof Integer) {
+					Integer intVal = (Integer) value;
+					String valueToSet = "Row";
+					switch (intVal) {
+					case 0:
+						valueToSet = "Row";
+						break;
+					case 1:
+						valueToSet = "User";
+						break;
+					}
+
+					getEditingDomain().getCommandStack().execute(
+							SetCommand.create(getEditingDomain(), flatField.getType(),
+									HmPackage.eINSTANCE.getTypeType15_Value(), valueToSet));
+
+				}
+			}
+		};
+		return flatFieldType;
+	}
+
+	private PropertyDescriptor createHighAspectRatioCompensationPropertyDescriptor(
+			final RingArtefactsType ringArtefacts, final Table propViewTable) {
+		PropertyDescriptor highAspectRatioComp = new TextPropertyDescriptor(ID_HIGH_ASPECT_RATIO_COMPENSATION,
+				LBL_HIGH_ASPECT_RATIO_COMPENSATION, propViewTable) {
+			@Override
+			public String getValue() {
+				return Float.toString(ringArtefacts.getNumSeries().getValue().floatValue());
+			}
+
+			@Override
+			public void setValue(Object value) {
+				try {
+					BigDecimal floatVal = BigDecimal.valueOf(Float.parseFloat((String) value));
+					getEditingDomain().getCommandStack().execute(
+							SetCommand.create(getEditingDomain(), ringArtefacts.getNumSeries(),
+									HmPackage.eINSTANCE.getNumSeriesType_Value(), floatVal));
+
+				} catch (NumberFormatException e) {
+					getViewSite().getActionBars().getStatusLineManager()
+							.setErrorMessage("Invalid value for high aspect ratio compensation");
+					getViewSite().getShell().getDisplay().timerExec(5000, new Runnable() {
+
+						@Override
+						public void run() {
+							getViewSite().getActionBars().getStatusLineManager().setErrorMessage(null);
+						}
+					});
+				}
+
+			}
+		};
+		return highAspectRatioComp;
+	}
+
+	private PropertyDescriptor createRingArtefactsPropertyDescriptor(final RingArtefactsType ringArtefacts,
+			final Table propViewTable) {
+		PropertyDescriptor amlProp = new PropertyDescriptor(ID_RING_ARTEFACTS, LBL_RING_ARTEFACTS) {
+
+			@Override
+			public String getValue() {
+				return ringArtefacts.getType().getValue();
+			}
+
+			@Override
+			public Object getSelectedValue() {
+				String value = getValue();
+				if (value.equals("No")) {
+					return 0;
+				}
+				if (value.equals("Column")) {
+					return 1;
+				}
+
+				return 2;
+			}
+
+			@Override
+			public boolean canEdit() {
+				return true;
+			}
+
+			@Override
+			public CellEditor createCellEditor() {
+				return new ComboBoxCellEditor(propViewTable, new String[] { "No", "Column", "AML" }, SWT.READ_ONLY);
+			}
+
+			@Override
+			public void setValue(Object value) {
+				if (value instanceof Integer) {
+					Integer intVal = (Integer) value;
+					String valueToSet = "AML";
+					switch (intVal) {
+					case 0:
+						valueToSet = "No";
+						break;
+					case 1:
+						valueToSet = "Column";
+						break;
+					case 2:
+						valueToSet = "AML";
+						break;
+					}
+					getEditingDomain().getCommandStack().execute(
+							SetCommand.create(getEditingDomain(), ringArtefacts.getType(),
+									HmPackage.eINSTANCE.getTypeType5_Value(), valueToSet));
+				}
+			}
+		};
+		return amlProp;
 	}
 
 	private String getCentreOfRotationFromCentreOfRotationView() {
@@ -1142,7 +1555,6 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			if (selection instanceof IStructuredSelection) {
 				IStructuredSelection iss = (IStructuredSelection) selection;
 				Object firstElement = iss.getFirstElement();
-				// nexusFile = null;
 				boolean newSelection = false;
 				if (firstElement instanceof IFile
 						&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {

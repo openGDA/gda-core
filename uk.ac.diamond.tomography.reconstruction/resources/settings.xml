@@ -55,7 +55,7 @@
       <FlatField>
         <Type info="User, Row">User</Type>
         <ValueBefore>33000</ValueBefore>
-        <ValueAfter>16000</ValueAfter>
+        <ValueAfter>33000</ValueAfter>
         <FileBefore>flat.tif</FileBefore>
         <FileAfter/>
         <ProfileType info="Constant, Linear, Profile">Constant</ProfileType>
