@@ -37,11 +37,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.imageio.ImageIO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageDecoder;
 
 /**
  * Task that captures frames from the MJPEG stream. A task is created to decode each frame, and the frame is added to a
@@ -248,8 +247,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 	public BufferedImage readJPG(DataInputStream dis) { // read the embedded jpeg image
 		BufferedImage image = null;
 		try {
-			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(dis);
-			image = decoder.decodeAsBufferedImage();
+			image = ImageIO.read(dis);
 		} catch (Throwable e) {
 			logger.error("Problem reading JPG->", e);
 			disconnect(dis);
@@ -334,5 +332,4 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 	public boolean isRunning() {
 		return this.keepRunning;
 	}
-
 }
