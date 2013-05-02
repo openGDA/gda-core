@@ -85,6 +85,12 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 				}
 			});	
 		}
+		workingEnergy.addValueListener(new ValueAdapter("workingEnergyListener") {
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				ionChamberComposite.calculatePressure();
+			}
+		});
 
 		if (!ExafsActivator.getDefault().getPreferenceStore()
 				.getBoolean(ExafsPreferenceConstants.HIDE_DEFAULT_GAS_MIXTURES_BUTTON)) {

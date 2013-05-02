@@ -13,7 +13,7 @@ class Scan:
         self.beamlineReverter = beamlineReverter
         
     def log(self,*msg):
-        self.logger = LoggerFactory.getLogger("exafsscripts.exafs.i20ScanScripts")
+        self.logger = LoggerFactory.getLogger("exafsscripts.exafs.scan")
         message = ""
         for part in msg:
             message += str(part) + " "
