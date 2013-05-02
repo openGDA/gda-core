@@ -28,13 +28,13 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
+import uk.ac.gda.exafs.ExafsActivator;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 // Apologies for the long name, feel free to rename it if you can come up with something shorter
 public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposite {
@@ -86,20 +86,23 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 			});	
 		}
 
-		this.selectDefaultsListener = new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				double workingEnergy = 0;
-				if (provider.getExperimentType().toString().equals("Transmission")) {
-					workingEnergy = provider.getTransmissionParameters().getWorkingEnergy();
-				} else if (provider.getExperimentType().toString().equals("Fluorescence")) {
-					workingEnergy = provider.getFluorescenceParameters().getWorkingEnergy();
+		if (!ExafsActivator.getDefault().getPreferenceStore()
+				.getBoolean(ExafsPreferenceConstants.HIDE_DEFAULT_GAS_MIXTURES_BUTTON)) {
+			this.selectDefaultsListener = new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					double workingEnergy = 0;
+					if (provider.getExperimentType().toString().equals("Transmission")) {
+						workingEnergy = provider.getTransmissionParameters().getWorkingEnergy();
+					} else if (provider.getExperimentType().toString().equals("Fluorescence")) {
+						workingEnergy = provider.getFluorescenceParameters().getWorkingEnergy();
+					}
+	
+					ionChamberComposite.calculateDefaultGasType(workingEnergy);
 				}
-
-				ionChamberComposite.calculateDefaultGasType(workingEnergy);
-			}
-		};
-		selectDefaultsBtn.addSelectionListener(selectDefaultsListener);
+			};
+			selectDefaultsBtn.addSelectionListener(selectDefaultsListener);
+		}
 	}
 
 	/**
