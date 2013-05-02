@@ -698,6 +698,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 							SCAN_STOP_MSG);
 					if (openConfirm) {
 						logger.debug("Calling stop tomo runs");
+						JythonServerFacade.getInstance().haltCurrentScan();
 						tomoConfigViewController.stopScan();
 						try {
 							CommandQueueViewFactory.getProcessor().stop(100);
