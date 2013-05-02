@@ -163,7 +163,7 @@ public class TiltController implements ITiltController {
 					// 2. scan 0 to 340 deg in steps of 20
 					logger.debug("will run scan command next");
 					if (!monitor.isCanceled()) {
-						//scanThetha(progress, exposureTime);
+						scanThetha(progress, exposureTime);
 						if (!monitor.isCanceled()) {
 
 							// 3. call matlab - first time
