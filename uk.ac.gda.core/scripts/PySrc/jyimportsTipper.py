@@ -6,6 +6,8 @@ import java.lang #@UnresolvedImport
 import sys
 from _tipper_common import DoFind
 
+#the following import is there to resolve an issue on B18 where autocorrect doesn't work on object methods or attributes
+from java.util import HashMap
 
 try:
     False

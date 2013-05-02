@@ -267,6 +267,21 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			actions.add(action);
 		}
 
+		{
+			IAction action = new Action("", IAction.AS_CHECK_BOX) {
+				@Override
+				public void run() {
+					xyPlot.setLog10(!xyPlot.isLog10());
+					this.setChecked(xyPlot.isLog10());
+				}
+			};
+			action.setChecked(xyPlot.isLog10());
+			action.setToolTipText("Log10 YAxis");
+			action.setText("Log10");
+			actions.add(action);
+		}
+
+		
 		xyPlot.createAndRegisterPlotActions(parent, getViewSite().getActionBars(), getPartName(), actions);
 
 		try {
@@ -532,7 +547,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	 * @return true if the plot not accepted scandatapoints
 	 */
 	public boolean isDisconnected() {
-		return connected;
+		return !connected;
 	}
 
 	@Override

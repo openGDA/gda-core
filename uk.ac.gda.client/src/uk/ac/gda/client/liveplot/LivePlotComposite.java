@@ -48,6 +48,7 @@ import javax.swing.tree.TreePath;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.axis.IAxis;
 import org.dawb.common.ui.plot.axis.IPositionListener;
 import org.dawb.common.ui.plot.axis.PositionEvent;
 import org.dawb.common.ui.plot.trace.ILineTrace;
@@ -427,6 +428,22 @@ public class LivePlotComposite extends Composite {
 
 	public Object getPlottingSystem() {
 		return this.plotView.plottingSystem;
+	}
+
+	public boolean isLog10() {
+		boolean asLog = true;
+		for(IAxis axis : plotView.plottingSystem.getAxes()){
+			if( axis.isVisible() && axis.isYAxis())
+				asLog &= axis.isLog10();
+		}
+		return asLog;
+	}
+
+	public void setLog10(boolean isLog10) {
+		for(IAxis axis : plotView.plottingSystem.getAxes()){
+			if( axis.isVisible() && axis.isYAxis())
+				axis.setLog10(isLog10);
+		}
 	}
 }
 
