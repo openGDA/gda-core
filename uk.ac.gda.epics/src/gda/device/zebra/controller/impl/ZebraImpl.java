@@ -66,10 +66,12 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	final public static String PCPulseWidth = "PC_PULSE_WID";
 	final public static String PCPulseStep = "PC_PULSE_STEP";
 	final public static String PCPulseStatus = "PC_PULSE_OUT";
-	public static final String PCCaptureBitField = "PC_NUM_CAP";
+	public static final String PCCaptureBitField = "PC_BIT_CAP";
 	public static final String PCEnc = "PC_ENC";
 	public static final String PCEnc1Aval = "PC_ENC1.AVAL";
+	public static final String PCTime = "PC_TIME";
 	public static final String PCNumberOfPointsCaptured = "PC_NUM_CAP";
+	public static final String PCNumberOfPointsDownloaded = "PC_NUM_DOWN";
 	public static final String PCPulseStepRBV = "PC_PULSE_STEP:RBV";
 	public static final String PCPulseWidthRBV = "PC_PULSE_WID:RBV";
 	public static final String PCPulseDelayRBV = "PC_PULSE_DLY:RBV";
@@ -291,7 +293,17 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public ReadOnlyPV<Integer> getNumberOfPointsCapturedPV() {
-		return dev.getPVInteger(PCNumberOfPointsCaptured);
+		return dev.getReadOnlyPVInteger(PCNumberOfPointsCaptured);
+	}
+
+	@Override
+	public ReadOnlyPV<Integer> getNumberOfPointsDownloadedPV() {
+		return dev.getReadOnlyPVInteger(PCNumberOfPointsDownloaded);
+	}
+
+	@Override
+	public ReadOnlyPV<Double[]> getPCTimePV() {
+		return dev.getReadOnlyPVDoubleArray(PCTime);
 	}
 
 	
