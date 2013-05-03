@@ -35,6 +35,8 @@ import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
+import uk.ac.gda.richbeans.event.ValueAdapter;
+import uk.ac.gda.richbeans.event.ValueEvent;
 
 // Apologies for the long name, feel free to rename it if you can come up with something shorter
 public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposite {
