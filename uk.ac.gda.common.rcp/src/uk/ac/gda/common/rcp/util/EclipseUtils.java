@@ -54,6 +54,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IURIEditorInput;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -607,6 +608,20 @@ public class EclipseUtils {
 				}
 			}
 		});
+	}
+	
+	public static IViewPart findView(String id) {
+		IViewPart view = null;
+		IWorkbench wb = PlatformUI.getWorkbench();
+		for (IWorkbenchWindow win : wb.getWorkbenchWindows()) {
+			for (IWorkbenchPage page : win.getPages()) {
+				view = page.findView(id);
+				if (view != null) {
+					return view;
+				}
+			}
+		}
+		return null;
 	}
 }
 
