@@ -82,10 +82,9 @@ public class MicroFocusDisplayController {
 
 	}
 
-	@SuppressWarnings("static-access")
 	public boolean displayPlot(int x, int y) throws Exception {
 		if (currentDetectorProvider != null && ObjectStateManager.isActive(detectorProvider)) {
-			double[] spectrum = currentDetectorProvider.getSpectrum(this.currentDetectorElementNo, y, x);
+			double[] spectrum = currentDetectorProvider.getSpectrum(this.currentDetectorElementNo, x, y);
 			if (spectrum != null) {
 				AbstractDataset yaxis = AbstractDataset.array(spectrum);
 
@@ -113,7 +112,6 @@ public class MicroFocusDisplayController {
 			currentDetectorProvider = detectorProvider;
 		else
 			currentDetectorProvider = null;
-
 	}
 
 	public void displayMap(String selectedElement) throws Exception {
@@ -152,7 +150,6 @@ public class MicroFocusDisplayController {
 		detectorProvider.setZScannableName(zScannableName);
 		detectorProvider.setTrajectoryCounterTimerName(trajectoryCounterTimerName);
 
-		
 		detectorProvider.loadBean(bean);
 		detectorProvider.loadData(filePath);
 		ObjectStateManager.setActive(detectorProvider);

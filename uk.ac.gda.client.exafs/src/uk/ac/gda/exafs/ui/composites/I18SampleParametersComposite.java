@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -30,26 +30,14 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
 import uk.ac.gda.beans.exafs.i18.AttenuatorParameters;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
-import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
-import uk.ac.gda.richbeans.editors.DirtyContainer;
 
-import org.eclipse.swt.widgets.ExpandBar;
-import org.eclipse.swt.widgets.ExpandItem;
-import org.eclipse.ui.forms.events.ExpansionAdapter;
-import org.eclipse.ui.forms.events.ExpansionEvent;
-import org.eclipse.ui.forms.widgets.ExpandableComposite;
-
-
-/**
- *
- */
 public final class I18SampleParametersComposite extends Composite {
 
 	private SampleStageParametersComposite sampleStageParameters;
@@ -65,7 +53,6 @@ public final class I18SampleParametersComposite extends Composite {
 	private ExpandableComposite kbExpandableComposite;
 	private Boolean vfmxActive;
 	
-	@SuppressWarnings("unused")
 	public I18SampleParametersComposite(Composite parent, int style, I18SampleParameters newBean) {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
@@ -75,7 +62,6 @@ public final class I18SampleParametersComposite extends Composite {
 		createSampleStageSection();
 		createAttenuatorSection();
 		createKBSection();
-		
 	}
 
 	public void createNameAndDescription(){
@@ -106,6 +92,7 @@ public final class I18SampleParametersComposite extends Composite {
 		description.setLayoutData(gd_description);
 	}
 	
+	@SuppressWarnings("unused")
 	private void createSampleStageSection(){
 		
 		Group sampleSatgeGroup = new Group(this, SWT.BORDER);
@@ -167,6 +154,7 @@ public final class I18SampleParametersComposite extends Composite {
 		});
 	}
 	
+	@SuppressWarnings("unused")
 	private void createAttenuatorSection(){
 
 		Group attenGroup = new Group(this, SWT.NONE);
@@ -193,7 +181,7 @@ public final class I18SampleParametersComposite extends Composite {
 		centre.setLayoutData(gridData_4);
 		
 		attenuator1 = new AttenuatorParametersComposite(centre, SWT.NONE);
-		GridData gridData_1 = (GridData) attenuator1.getPosition().getLayoutData();
+		GridData gridData_1 = (GridData) attenuator1.getSelectedPosition().getLayoutData();
 		gridData_1.grabExcessVerticalSpace = false;
 		gridData_1.heightHint = -1;
 		((GridData) attenuator1.getName().getLayoutData()).heightHint = 22;
@@ -204,7 +192,7 @@ public final class I18SampleParametersComposite extends Composite {
 		attenuator1.setLayoutData(gridData);
 		
 		attenuator2 = new AttenuatorParametersComposite(centre, SWT.NONE);
-		GridData gridData_2 = (GridData) attenuator2.getPosition().getLayoutData();
+		GridData gridData_2 = (GridData) attenuator2.getSelectedPosition().getLayoutData();
 		gridData_2.grabExcessVerticalSpace = false;
 		gridData_2.heightHint = -1;
 		((GridData) attenuator2.getName().getLayoutData()).heightHint = 22;
@@ -224,6 +212,7 @@ public final class I18SampleParametersComposite extends Composite {
 		new Label(centre, SWT.NONE);
 	}
 	
+	@SuppressWarnings("unused")
 	private void createKBSection(){
 		kbExpandableComposite = new ExpandableComposite(this, SWT.NONE);
 		kbExpandableComposite.setText("KB Mirror");
@@ -279,6 +268,7 @@ public final class I18SampleParametersComposite extends Composite {
 	public FieldComposite getDescription() {
 		return description;
 	}
+
 	public SampleStageParametersComposite getSampleStageParameters() {
 		return sampleStageParameters;
 	}
@@ -286,24 +276,24 @@ public final class I18SampleParametersComposite extends Composite {
 	public AttenuatorParametersComposite getAttenuatorParameter1() {
 		return attenuator1;
 	}
+
 	public AttenuatorParametersComposite getAttenuatorParameter2() {
 		return attenuator2;
 	}
-	public Button getCurrentPosition()
-	{
+
+	public Button getCurrentPosition() {
 		return currentPosition;
 	}
-	public Button getAttnCurrentPosition()
-	{
+
+	public Button getAttnCurrentPosition() {
 		return attnCurrentPosition;
 	}
-	
-	public void disableSample()
-	{
+
+	public void disableSample() {
 		sampleStageParameters.setEnabled(false);
 	}
-	public void enableSample()
-	{
+
+	public void enableSample() {
 		sampleStageParameters.setEnabled(true);
 	}
 
@@ -327,6 +317,5 @@ public final class I18SampleParametersComposite extends Composite {
 		this.vfmxActive = vfmxActive;
 		bean.setVfmxActive(vfmxActive);
 	}
-	
-	
+
 }

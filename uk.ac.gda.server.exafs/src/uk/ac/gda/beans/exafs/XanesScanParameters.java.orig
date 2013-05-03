@@ -47,7 +47,11 @@ public class XanesScanParameters implements Serializable, IScanParameters {
 	public Double getInitialEnergy(){
 		return regions.get(0).getEnergy();
 	}
+<<<<<<< HEAD
+	
+=======
 
+>>>>>>> origin/8.30.i18
 	/**
 	 * @param stopEnergy
 	 *            the stopEnergy to set

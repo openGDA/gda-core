@@ -122,8 +122,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private IRegion bLine;
 	private IRegion cLine;
 	private IRegion edgeLine;
+<<<<<<< HEAD
 	private boolean showLineAnnotations = false;
+=======
 	XasScanParameters bean;
+>>>>>>> origin/8.30.i18
 
 	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor,
 			final XasScanParameters xasScanParameters) {
@@ -180,6 +183,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(this);
 		
+
 		updateEdgeRegion();
 
 		updateExafsTimeType();
@@ -931,9 +935,17 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					exafsTimeType.select(1);
 				}
 
+<<<<<<< HEAD
+//				if (scanParams.getA() == null && !isPageChange) {
+//					abGafChoice.select(1);
+//				} else {
+//					abGafChoice.select(0);
+//				}
+=======
 				if (scanParams.getA() == null) {
 					abGafChoice.select(1);
 				}
+>>>>>>> origin/8.30.i18
 
 			} catch (Exception e1) {
 				logger.error("Cannot process ui.", e1);

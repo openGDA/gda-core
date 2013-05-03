@@ -33,6 +33,13 @@ class Map(Scan):
         self.mfd = None
         self.detectorBeanFileName = ""
         self.rcpController = rcpController
+        self.beamEnabled = True
+    
+    def enableBeam(self):
+        self.beamEnabled = True
+    
+    def disableBeam(self):
+        self.beamEnabled = False
     
     def getMFD(self):
         return self.mfd
@@ -52,6 +59,8 @@ class Map(Scan):
             
         scanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
         
+        
+        print "*************************", xmlFolderName, "*********", detectorFileName
         detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
         outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
     
@@ -222,7 +231,8 @@ class Map(Scan):
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setCollectionTime(collectionTime)
             
-            self.finder.find("command_server").addDefault(beam);
+            if(not (beam == None) and self.beamEnabled==True):
+                self.finder.find("command_server").addDefault(beam);
             
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setPauseBeforeLine(False)

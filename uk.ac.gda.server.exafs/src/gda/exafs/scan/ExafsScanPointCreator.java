@@ -300,11 +300,11 @@ public class ExafsScanPointCreator {
 		int num = dn(cEnergy, exafsEnergies[i][0], edgeStep, kStep);
 
 		while (num < EXAFS_SMOOTH_COUNT) {
-			i += 1;
 			num = dn(cEnergy, exafsEnergies[i][0], edgeStep, kStep);
 			if (num > EXAFS_SMOOTH_COUNT)
 				break;
 			kStep = exafsEnergies[i + 1][0] - exafsEnergies[i][0];
+			i += 1;
 		}
 
 		double[] steps = ExafsScanRegionCalculator.calculateVariableStepRegion(cEnergy, exafsEnergies[i][0], edgeStep,

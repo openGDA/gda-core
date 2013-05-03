@@ -239,8 +239,8 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			public void run() {
 				try {
 					if (getViewSite().getPage().isPartVisible(MicroFocusElementListView.this)) {
-						plotY = event.getImagePosition()[1];
 						plotX = event.getImagePosition()[0];
+						plotY = event.getImagePosition()[1];
 						displayController.displayPlot(event.getImagePosition()[0], event.getImagePosition()[1]);
 					}
 				} catch (Exception e) {
@@ -319,7 +319,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		}
 
 		if (metaNames.contains("xspress2system")) {
-			HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/XspressParameters");
+			HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
 			String xml = nl.toString();
 			xml = xml.substring(xml.indexOf("<?xml"));
 			ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
@@ -369,7 +369,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		}
 
 		if (metaNames.contains("xmapMca")) {
-			HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/VortexParameters");
+			HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
 			String xml = nl.toString();
 			xml = xml.substring(xml.indexOf("<?xml"));
 			ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());

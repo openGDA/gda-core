@@ -97,7 +97,12 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	private int normaliseElementIndex = -1;
 	private double normaliseValue = 1.0;
 	private double lastFilledValue;
+	private boolean active = false;
 
+	public boolean isActive() {
+		return active;
+	}
+	
 	public AbstractDataset getDataSet() {
 		return dataSet;
 	}
@@ -191,6 +196,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	@SuppressWarnings("static-access")
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
+		active = true;
 		updateDataSetFromSDP(dataPoint );
 		if(plottedSoFar % plotUpdateFrequency == 0 || (plottedSoFar + 1 ) == (numberOfXPoints * numberOfYPoints))
 			RCPPlotter.imagePlot(plotName,dataSet);
@@ -458,36 +464,20 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			}			
 		}
 		lastFilledValue = minValue2;
-		//filling the buffer
-		/*double[] dataBuffer = (double[])dataSet.getBuffer();
-		for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
-		{
-			if(dataBuffer[rowsPlottedSoFar -1  * numberOfXPoints + xindex] == lastFilledValue)
-				dataBuffer[rowsPlottedSoFar -1  * numberOfXPoints + xindex] =minValue2;
-		}
-		for(int yindex =rowsPlottedSoFar ; yindex < numberOfYPoints ; yindex++)
-		{
-			for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
-			{
-				dataBuffer[yindex * numberOfXPoints +xindex] = minValue2;
-			}			
-		}
-		lastFilledValue = minValue2;*/
 	}
 
 	@SuppressWarnings("static-access")
-	public void plotSpectrum(int detNo, int y, int x) throws Exception
+	public void plotSpectrum(int detNo, int x, int y) throws Exception
 	{
 		//always make sure the spectrum asked to plot is less than the last data point to prevent crashing of the server
 		if(lastDataPoint.getCurrentPointNumber() > (y*numberOfXPoints + x)){
-			IDataset slice = getSpectrum(detNo,y,  x);
+			IDataset slice = getSpectrum(detNo,x,  y);
 			if(slice != null)
 			{
 				try {
 					RCPPlotter.plot("McaPlot",slice);
 				} catch (DeviceException e) {
 					logger.error("Unable to plot the spectrum for "+ x + " " + y, e);
-					//TODO create a DisplayException class
 					throw new Exception("Unable to plot the spectrum for "+ x + " " + y,e);
 					
 				}
@@ -498,7 +488,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		dataHolder = null;
 	}
 
-	public IDataset getSpectrum(int detNo, int y, int x){
+	public IDataset getSpectrum(int detNo, int x, int y){
 		IDataset slice = null;
 		try {
 			dataHolder = hdf5Loader.loadFile();
@@ -519,8 +509,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 				 slice = lazyDataset.getSlice(new int[]{y, x, detNo,0}, new int[]{y+1, x+1, detNo+1, spectrumLength}, new int[]{1,1,1,1});
 			}
 		}} catch (ScanFileHolderException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error slicing xmap data", e);
 		}
 		
 		if(slice != null)
@@ -529,8 +518,8 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			return (IDataset)sqSlice;
 		}
 		return slice;
-		//IDataset slice = lazyDataset.getSlice(new int[]{y, x, detNo,0}, new int[]{y+1, x+1, detNo+1, spectrumLength}, new int[]{1,1,1,1});
 	}
+	
 	@SuppressWarnings("static-access")
 	public void displayPlot(String selectedElement)throws Exception
 	{
@@ -539,22 +528,20 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		
 		//is selected element in the Scaler list
 		for(Detector det : detectors){
-			if(det instanceof TfgScaler)
-			{
+			if(det instanceof TfgScaler){
 				String[] s = det.getExtraNames();
 				for (int i = 0; i < s.length; i++) {
-				if (s[i].equals(selectedElement)) {
-					selectedElementIndex = i;
-					break;
+					if (s[i].equals(selectedElement)) {
+						selectedElementIndex = i;
+						break;
+					}
+				selectedElementIndex = -1;
 				}
-					selectedElementIndex = -1;
-				
-			}
 			}
 		}
-		if(selectedElementIndex != -1)//the selected emenet is a scaler value
-		//displaying the map for the scaler
-		{
+		
+		if(selectedElementIndex != -1){//the selected element is a scaler value
+			//displaying the map for the scaler
 			createDataSet();
 			minValue =  Double.MAX_VALUE;
 			logger.info("about to fill the data set");
@@ -578,8 +565,8 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			selectedElementIndex = -1;
 			return;
 		}
-		else if(isXspressScan())
-		{
+		
+		else if(isXspressScan()){
 			minValue = Double.MAX_VALUE;
 			@SuppressWarnings("unused")
 			boolean mapFound = false;
@@ -601,13 +588,10 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 				if(plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
 					fillDataSet((minValue - fillDecrement));
 				RCPPlotter.imagePlot(plotName, dataSet);
-		
 			return;
-
 		}
-		else if( isXmapScan())
-
-		{
+		
+		else if(isXmapScan()){
 			minValue = Double.MAX_VALUE;
 			Integer elementIndex = roiNameMap.get(selectedElement);
 			if(elementIndex != null){
@@ -629,10 +613,11 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			RCPPlotter.imagePlot(plotName, dataSet);
 			return;			
 		}
+		
 		throw new Exception("unable to determine the detector for the selected element ");
 		//is it xspress or the vortex detector
-		
 	}
+	
 	private boolean isXspressScan() {
 		for(Detector det : detectors){
 			if(det instanceof XspressDetector || det instanceof Xspress2BufferedDetector)
@@ -727,6 +712,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		writer = null;
 		scalerValues = null;
 		detectorValues = null;
+		active = false;
 	}
 
 	public void setZValue(double zValue) {
