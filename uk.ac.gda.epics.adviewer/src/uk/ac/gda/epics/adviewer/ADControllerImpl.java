@@ -527,6 +527,11 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		this.imageNDROI = imageNDROI;
 	}
 
+	@Override
+	public void stopExposure() throws Exception {
+		getAdBase().stopAcquiring();
+	}
+
 
 	
 }

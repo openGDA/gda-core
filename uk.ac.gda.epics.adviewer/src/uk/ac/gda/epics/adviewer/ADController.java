@@ -106,5 +106,8 @@ public interface ADController {
 	//NDROI for the ROI plugin that controls the ImageArray
 	public abstract NDROI getImageNDROI();
 
+	// stops the continuous exposure
+	public abstract void stopExposure() throws Exception;
+
 	
 }

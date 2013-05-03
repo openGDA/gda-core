@@ -52,6 +52,7 @@ public class CameraStatus extends Composite {
 	private Observable<Double> timeObservable;
 	private Observer<Double> timeObserver;
 	private Button btnStart;
+	private Button btnStop;
 
 	public CameraStatus(Composite parent, int style) {
 		super(parent, style);
@@ -59,17 +60,22 @@ public class CameraStatus extends Composite {
 		
 		Group group = new Group(this, SWT.NONE);
 		group.setText("Camera");
-		group.setLayout(new GridLayout(2, false));
+		group.setLayout(new GridLayout(3, false));
 		
 		btnStart = new Button(group, SWT.NONE);
+
+		btnStart.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
 		btnStart.setText("Start");
+		
+		btnStop = new Button(group, SWT.NONE);
+		btnStop.setText("Stop");
 		
 		
 		lblAcquireState = new Label(group, SWT.NONE);
 		lblAcquireState.setText("acquireState");
 		
 		acquireTimeBox = new StandardBox(group, SWT.NONE);
-		acquireTimeBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+		acquireTimeBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		acquireTimeBox.setLabelWidth(60);
 		acquireTimeBox.setActive(true);
 		acquireTimeBox.setUnit("s");
@@ -101,8 +107,8 @@ public class CameraStatus extends Composite {
 					@Override
 					public void run() {
 						boolean acquisitionStopped = arg.equals("Done");
-						lblAcquireState.setText(acquisitionStopped ? "Stopped": "Acquiring");
-						btnStart.setEnabled(acquisitionStopped);
+						lblAcquireState.setText(acquisitionStopped ? "Stopped   ": "Acquiring");
+						btnStart.setEnabled(true);
 					}
 				});
 			}
@@ -145,6 +151,16 @@ public class CameraStatus extends Composite {
 					});
 				} catch (Exception e1) {
 					logger.error("Error setting exposureTime ", e1);
+				}
+			}
+		});
+		btnStop.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					adController.stopExposure();
+				} catch (Exception e1) {
+					logger.error("Error stopping exposure", e1);
 				}
 			}
 		});
