@@ -944,12 +944,10 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	protected void saveModel() {
 		HMxmlType model = getHmXmlModel();
 		try {
-			// ROIType roi = backprojection.getROI();
-			// roi.getType().setValue(getPropertyDescriptor(ID_ROI_TYPE).getValue());
-			// roi.setXmin(Integer.parseInt(getPropertyDescriptor(ID_ROI_X_MIN).getValue()));
-			// roi.setXmax(Integer.parseInt(getPropertyDescriptor(ID_ROI_X_MAX).getValue()));
-			// roi.setYmin(Integer.parseInt(getPropertyDescriptor(ID_ROI_Y_MIN).getValue()));
-			// roi.setYmax(Integer.parseInt(getPropertyDescriptor(ID_ROI_Y_MAX).getValue()));
+			FBPType fbp = model.getFBP();
+			BackprojectionType backprojection = fbp.getBackprojection();
+			
+			backprojection.setImageCentre(BigDecimal.valueOf(Double.parseDouble(txtCentreOfRotation.getText())));
 
 			model.eResource().save(Collections.emptyMap());
 		} catch (IOException e) {
