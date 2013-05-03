@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,25 +18,21 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
-import uk.ac.gda.richbeans.components.FieldComposite;
+import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
-/**
- *
- */
 public final class AttenuatorParametersComposite extends FieldBeanComposite {
 
-	private FieldComposite name;
-	private Combo position;
-	private FieldComposite selectedPosition;
+	private TextWrapper name;
+	private ComboWrapper selectedPosition;
 
 	public AttenuatorParametersComposite(Composite parent, int style) {
 		super(parent, style);
@@ -51,33 +47,26 @@ public final class AttenuatorParametersComposite extends FieldBeanComposite {
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("position");
-		this.position = new Combo(this, SWT.READ_ONLY);
+		this.selectedPosition = new ComboWrapper(this, SWT.READ_ONLY);
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1);
 		gridData.heightHint = 188;
-		position.setLayoutData(gridData);
+		selectedPosition.setLayoutData(gridData);
 	}
 	
 	public void setPosition(String pos){
-		String[] items = this.position.getItems();
-		int index=0;
-		for(int i=0;i<items.length;i++){
-			if(items[i].equals(pos))
-				index=i;
+		String[] items = this.selectedPosition.getItems();
+		int index = ArrayUtils.indexOf(items,pos);
+		if (index >= 0) {
+			this.selectedPosition.select(index);
 		}
-		this.position.select(index);
 	}
 
 	@SuppressWarnings("all")
-	public FieldComposite getName() {
+	public TextWrapper getName() {
 		return name;
 	}
 
-	public FieldComposite getSelectedPosition() {
+	public ComboWrapper getSelectedPosition() {
 		return selectedPosition;
 	}
-
-	public Combo getPosition() {
-		return position;
-	}
-
 }

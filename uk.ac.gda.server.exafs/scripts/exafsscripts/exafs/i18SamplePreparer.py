@@ -4,7 +4,7 @@ from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentS
 from time import sleep
 
 class I18SamplePreparer:
-	def __init__(self, rcpController, sc_MicroFocusSampleX, sc_MicroFocusSampleY, sc_sample_z, D7A, D7B):
+	def __init__(self, rcpController, sc_MicroFocusSampleX, sc_MicroFocusSampleY, sc_sample_z, D7A, D7B, kb_vfm_x):
 		self.logging_enabled = True
 		self.rcpController = rcpController
 		self.sc_MicroFocusSampleX = sc_MicroFocusSampleX
@@ -12,6 +12,7 @@ class I18SamplePreparer:
 		self.sc_sample_z = sc_sample_z
 		self.D7A = D7A
 		self.D7B = D7B
+		self.kb_vfm_x = kb_vfm_x
 	
 	def setLoggingEnabled(self, enabled):
 		self.logging_enabled = enabled
@@ -24,7 +25,7 @@ class I18SamplePreparer:
 	
 	def prepare(self, sampleParameters):
 		
-		#self.rcpController.openPesrpective("org.diamond.exafs.ui.PlottingPerspective")
+		self.rcpController.openPerspective("org.diamond.exafs.ui.PlottingPerspective")
 
 		stage = sampleParameters.getSampleStageParameters()
 		self.sc_MicroFocusSampleX(stage.getX())
@@ -36,3 +37,6 @@ class I18SamplePreparer:
 		
 		self.D7A(att1.getSelectedPosition())
 		self.D7B(att2.getSelectedPosition())
+		
+		if sampleParameters.isVfmxActive():
+			self.kb_vfm_x(sampleParameters.getVfmx)

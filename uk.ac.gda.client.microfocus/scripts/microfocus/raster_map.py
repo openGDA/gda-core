@@ -2,10 +2,8 @@ from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 from uk.ac.gda.beans import BeansFactory
 from gda.factory import Finder
 from gda.exafs.scan import BeanGroup
-from gda.jython.commands.ScannableCommands import scan
 from java.io import File
 from java.lang import System
-from gda.configuration.properties import LocalProperties
 from jarray import array
 from gda.data import PathConstructor
 from gda.data.scan.datawriter import XasAsciiDataWriter
@@ -16,7 +14,7 @@ from gdascripts.messages import handle_messages
 from gda.device.scannable import ScannableUtils
 from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
 from map import Map
-from microfocus_elements import showElementsList, getElementNamesfromIonChamber
+from microfocus_elements import showElementsList
 from gda.scan import ContinuousScan
 import time
 from java.lang import String
@@ -24,19 +22,46 @@ from gda.device import Detector
 from gda.configuration.properties import LocalProperties
 
 class RasterMap(Map):
-    
-    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, raster_xspress):
+    # TODO why are counterTimer01 and raster_counterTimer01 both used
+    def __init__(self, d7a, d7b, counterTimer01, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, rcpController):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
         self.finder = Finder.getInstance()
-        self.trajectoryX=trajectoryX
+        
+        self.traj1ContiniousX=traj1ContiniousX
+        self.traj3ContiniousX=traj3ContiniousX
+        self.trajContiniousX=traj1ContiniousX
+        
         self.raster_counterTimer01=raster_counterTimer01
         self.raster_xmap=raster_xmap
-        self.realX=realX
+        
+        self.traj1PositionReader = traj1PositionReader
+        self.traj3PositionReader = traj3PositionReader
+        self.trajPositionReader = traj1PositionReader
+        
         self.raster_xspress=raster_xspress
         self.mfd = None
         self.detectorBeanFileName=""
+        self.rcpController = rcpController
+        
+        self.beamEnabled = True
+        
+    def enableBeam(self):
+        self.beamEnabled = True
+    
+    def disableBeam(self):
+        self.beamEnabled = False
+    
+    def setStage(self, stage):
+        if stage==1:
+            self.trajContiniousX = self.traj1ContiniousX
+            self.trajPositionReader = self.traj1PositionReader
+        elif stage==3:
+            self.trajContiniousX = self.traj3ContiniousX
+            self.trajPositionReader = self.traj3PositionReader
+        else:
+            print "please enter 1 or 3 as a parameter where 1 is the small stage and 3 is the large stage"
     
     def getMFD(self):
         return self.mfd
@@ -104,7 +129,6 @@ class RasterMap(Map):
                 self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
                 bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
                 detector = self.finder.find(bean.getDetectorName())   
-                firstDetector = detectorList[0]
                 detectorList=[]
                 detectorList.append(self.finder.find("counterTimer01"))
                 detectorList.append(detector)  
@@ -113,10 +137,8 @@ class RasterMap(Map):
                 self.mfd.getWindowsfromBean()
             self.mfd.setEnergyValue(energy)
             self.mfd.setZValue(zScannablePos)
-            xScannable = self.finder.find(scanBean.getXScannableName())
             yScannable = self.finder.find(scanBean.getYScannableName())
             
-            useFrames = False
             energyScannable = self.finder.find(scanBean.getEnergyScannableName())
             zScannable = self.finder.find(scanBean.getZScannableName())
             print "energy is ", str(energy)
@@ -137,16 +159,12 @@ class RasterMap(Map):
                 self.counterTimer01.setCollectionTime(collectionTime)
                 print "row time = ", float(scanBean.getRowTime())
                 print "no. points = ", float(numberPoints)
-                
-                #if(detectorBean.getExperimentType() == "Fluorescence" and useFrames):
-                #    print "setting the collection time for frames as ", str(collectionTime)
-                #    self.counterTimer01.clearFrameSets()
-                #    self.counterTimer01.addFrameSet(int(nx),1.0E-4,collectionTime*1000.0,0,7,-1,0)
 
+                #TODO the if/else below looks remarkably like something that can be turned into a method that takes a single parameter.
                 if(detectorType == "Silicon"):
                     print "Vortex raster scan"
-                    cs = ContinuousScan(self.trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap]) 
-                    xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.realX])
+                    cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap]) 
+                    xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
                     xmapRasterscan.getScanPlotSettings().setIgnore(1)
                     xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
                     xasWriter.addDataWriterExtender(self.mfd)
@@ -155,7 +173,8 @@ class RasterMap(Map):
                     xmapRasterscan.runScan()
                 else:
                     print "Xspress Raster Scan"
-                    xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(self.trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress]),self.realX])
+                    cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress])
+                    xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
                     xspressRasterscan.getScanPlotSettings().setIgnore(1)
                     xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
                     xasWriter.addDataWriterExtender(self.mfd)
@@ -190,7 +209,7 @@ class RasterMap(Map):
                 topupMonitor1.setPauseBeforePoint(False)
                 topupMonitor1.setPauseBeforeLine(True)
                 topupMonitor1.setCollectionTime(collectionTime)
-            if(not (beam == None)):
+            if(not (beam == None) and self.beamEnabled==True):
                 self.finder.find("command_server").addDefault(beam);
                 beam.setPauseBeforePoint(False)
                 beam.setPauseBeforeLine(True)
@@ -224,4 +243,4 @@ class RasterMap(Map):
       
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
        
-        #self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
+        self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")

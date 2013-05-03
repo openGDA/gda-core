@@ -300,6 +300,13 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		}
 	}
 	
+	@Override
+	public void stop() throws DeviceException {
+		atScanEnd();
+		//xmap.stop();
+		//controller.stop();
+	}
+	
 	private void setupFilename() throws Exception {
 		String beamline = null;
 		try {
@@ -473,16 +480,16 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	public void waitForFile(String fileName) throws DeviceException, InterruptedException {
 		//Should actually use getHardwareTriggerProvider().getNumberTriggers()
 				//but this is always null before the scan is run once
-		double timeoutMilliSeconds = getCollectionTime() * this.scanNumberOfPoints*1000;
+		double timeoutMilliSeconds = getCollectionTime() * this.scanNumberOfPoints*1000 + 1000000;
 		double waitedSoFarMilliSeconds = 0;
 		int waitTime = 1000;
-		while(isStillWriting(fileName) || waitedSoFarMilliSeconds <=  timeoutMilliSeconds)
+		while(isStillWriting(fileName) && waitedSoFarMilliSeconds <=  timeoutMilliSeconds)
 		{
 			Thread.sleep(waitTime);
 			waitedSoFarMilliSeconds += waitTime;
 		}
 		//wait for another second to file to be closed
-		//Thread.sleep(waitTime);
+		Thread.sleep(waitTime);
 		
 	}
 

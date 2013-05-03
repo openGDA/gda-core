@@ -174,20 +174,35 @@ public abstract class MicroFocusMappableDataProvider {
 
 			if (xscannableDS == null) {
 				location = "/entry1/instrument/trajectoryX/value";
+				if(!dataHolder.getNames().toString().contains(location))
+					location = "/entry1/instrument/traj3SampleX/traj3SampleX";
+				else{
+					location = "/entry1/instrument/traj1SampleX/traj1SampleX";
+					if(!dataHolder.getNames().toString().contains(location))
+						location = "/entry1/instrument/traj1SampleX/traj1SampleX";
+				}
 				xscannableDS = dataHolder.getLazyDataset(location);
 			}
 
 			AbstractDataset xdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(xscannableDS));
 			xAxisLengthFromFile = xdata.getShape()[1];
 
-			ILazyDataset yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/" + yScannableName + "/"
-					+ yScannableName);
+			
+			location = "/entry1/instrument/sc_MicroFocusSampleY";
+			if(!dataHolder.getNames().toString().contains(location))
+				location = "/entry1/instrument/table_y/table_y";
+			
+			ILazyDataset yscannableDS = dataHolder.getLazyDataset(location);
 			AbstractDataset ydata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(yscannableDS));
 			yAxisLengthFromFile = ydata.getShape()[0];
 			double[] x = (double[]) xdata.getBuffer();
 			double[] y = (double[]) ydata.getBuffer();
-			ILazyDataset zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/" + zScannableName + "/"
-					+ zScannableName);
+			
+			location = "/entry1/instrument/sc_sample_z";
+			if(!dataHolder.getNames().toString().contains(location))
+				location = "/entry1/instrument/table_z/table_z";
+			
+			ILazyDataset zscannableDS = dataHolder.getLazyDataset(location);
 			// zValue is included as part of the scan
 			if (zscannableDS != null) {
 				AbstractDataset zdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(zscannableDS));
