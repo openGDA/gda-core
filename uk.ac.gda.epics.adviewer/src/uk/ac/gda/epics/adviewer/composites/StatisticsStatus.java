@@ -61,12 +61,19 @@ public class StatisticsStatus extends Composite {
 		Group stateGroup = new Group(this, SWT.NONE);
 		stateGroup.setText("Statistics");
 		GridLayout gl_stateGroup = new GridLayout(1, false);
+		gl_stateGroup.verticalSpacing = 2;
+		gl_stateGroup.horizontalSpacing = 2;
 		gl_stateGroup.marginWidth = 0;
 		gl_stateGroup.marginHeight = 0;
 		stateGroup.setLayout(gl_stateGroup);
 		
 		composite_1 = new Composite(stateGroup, SWT.NONE);
-		composite_1.setLayout(new GridLayout(2, false));
+		GridLayout gl_composite_1 = new GridLayout(2, false);
+		gl_composite_1.verticalSpacing = 0;
+		gl_composite_1.marginWidth = 0;
+		gl_composite_1.marginHeight = 0;
+		gl_composite_1.horizontalSpacing = 0;
+		composite_1.setLayout(gl_composite_1);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		monitoringLbl = new Label(composite_1, SWT.CENTER);
 		monitoringLbl.setText("Running__");
@@ -82,6 +89,7 @@ public class StatisticsStatus extends Composite {
 		min.setDecimalPlaces(1);
 		min.setMaximum(Double.MAX_VALUE);
 		min.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
+		new Label(min, SWT.NONE);
 		
 		max = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) max.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
@@ -90,6 +98,7 @@ public class StatisticsStatus extends Composite {
 		max.setDecimalPlaces(1);
 		max.setMaximum(Double.MAX_VALUE);
 		max.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
+		new Label(max, SWT.NONE);
 		
 		mean = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) mean.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
@@ -98,6 +107,7 @@ public class StatisticsStatus extends Composite {
 		mean.setDecimalPlaces(1);
 		mean.setMaximum(Double.MAX_VALUE);
 		mean.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
+		new Label(mean, SWT.NONE);
 		
 		total = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) total.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
@@ -107,6 +117,7 @@ public class StatisticsStatus extends Composite {
 		total.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
 		total.setNumberFormat(new DecimalFormat("0.###E0"));
 		total.setDecimalPlaces(3);
+		new Label(total, SWT.NONE);
 		
 		sigma = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) sigma.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
@@ -116,6 +127,7 @@ public class StatisticsStatus extends Composite {
 		sigma.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
 		sigma.setNumberFormat(new DecimalFormat("0.###E0"));
 		sigma.setDecimalPlaces(3);
+		new Label(sigma, SWT.NONE);
 		
 		addDisposeListener(new DisposeListener() {
 			

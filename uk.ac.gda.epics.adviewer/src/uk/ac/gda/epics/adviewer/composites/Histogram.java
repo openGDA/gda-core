@@ -115,7 +115,12 @@ public class Histogram extends Composite {
 		RowLayout layout = new RowLayout(SWT.VERTICAL);
 		layout.center = true;
 		layout.pack = false;
-		left.setLayout(new GridLayout(1, false));
+		GridLayout gl_left = new GridLayout(1, false);
+		gl_left.verticalSpacing = 2;
+		gl_left.marginWidth = 2;
+		gl_left.marginHeight = 2;
+		gl_left.horizontalSpacing = 2;
+		left.setLayout(gl_left);
 
 		statusComposite = new IOCStatus(left, SWT.NONE);
 		GridData gd_statusComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -125,7 +130,12 @@ public class Histogram extends Composite {
 		minCallbackTimeComposite = new MinCallbackTimeComposite(left, SWT.NONE);
 
 		histogramStatus = new HistogramStatus(left, SWT.NONE);
-		histogramStatus.setLayout(new GridLayout(1, false));
+		GridLayout gl_histogramStatus = new GridLayout(1, false);
+		gl_histogramStatus.horizontalSpacing = 2;
+		gl_histogramStatus.verticalSpacing = 2;
+		gl_histogramStatus.marginWidth = 2;
+		gl_histogramStatus.marginHeight = 2;
+		histogramStatus.setLayout(gl_histogramStatus);
 
 		statisticsStatus = new StatisticsStatus(left, SWT.NONE);
 
@@ -137,7 +147,7 @@ public class Histogram extends Composite {
 		txtPos.setText("XY value");
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(txtPos);
 		Composite plotArea = new Composite(right, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(plotArea);
+		GridDataFactory.fillDefaults().hint(300, 300).applyTo(plotArea);
 
 		plotArea.setLayout(new FillLayout());
 
@@ -145,6 +155,7 @@ public class Histogram extends Composite {
 		plottingSystem.createPlotPart(plotArea, "", parentViewPart.getViewSite().getActionBars(), PlotType.XY,
 				parentViewPart);
 		plottingSystem.setXfirst(true);
+		plottingSystem.setShowLegend(false);
 		plottingSystemPositionListener = new IPositionListener() {
 			
 			@Override
@@ -156,7 +167,12 @@ public class Histogram extends Composite {
 		grpMjpegRange = new Group(left, SWT.NONE);
 		grpMjpegRange.setText("MJPeg Range");
 		grpMjpegRange.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		grpMjpegRange.setLayout(new GridLayout(2, false));
+		GridLayout gl_grpMjpegRange = new GridLayout(2, false);
+		gl_grpMjpegRange.verticalSpacing = 2;
+		gl_grpMjpegRange.marginWidth = 2;
+		gl_grpMjpegRange.marginHeight = 2;
+		gl_grpMjpegRange.horizontalSpacing = 2;
+		grpMjpegRange.setLayout(gl_grpMjpegRange);
 
 		btnDisplayMJPegRange = new Button(grpMjpegRange, SWT.CHECK);
 		btnDisplayMJPegRange.setSelection(true);
