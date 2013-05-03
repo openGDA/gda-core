@@ -160,7 +160,13 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 					logger.debug("sending startup command: "+command);
 					out.write(command + "\n");
 					out.flush();
-					getReply(false);
+					// another XH hack. If the initial reply is empty, because 
+					// we have been sent a prompt '>' straight away before the startup command has fully run
+					Object reply = getReply(false);
+					if (reply.toString().isEmpty()){
+						getReply(false);
+					}
+					
 					}
 				} catch (IOException e) {
 					throw new FactoryException("da.server config failed", e);
@@ -331,7 +337,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 					try {
 						Thread.sleep(25);
 						waitIterations++;
-						if (waitIterations > 4000) {
+						if (waitIterations > 80000) {
 							throw new IOException("waited too long");
 						}
 					} catch (InterruptedException e) {
@@ -469,7 +475,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 					// we got a prompt, so the last message was the return value
 					return reply;
 				}
-				if (stampIn.getTime() + 300 * 1000 < new Date().getTime()) {
+				if (stampIn.getTime() + 600 * 1000 < new Date().getTime()) {
 					throw new IOException("no sensible reply in ages");
 				}
 				if (multiline){
