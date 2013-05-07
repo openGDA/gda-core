@@ -314,8 +314,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			public void selectionChanged(BeanSelectionEvent evt) {
 
 				if (getDetectorList().getSelectedIndex() == lastSelectedElementIndex) {
-					System.out.println(getDetectorList().getSelectedIndex());
-					System.out.println(lastSelectedElementIndex);
 					selectedRegionIndex = evt.getSelectionIndex();
 					if (bean instanceof XspressParameters) {
 						XspressParameters detBean = (XspressParameters) bean;
