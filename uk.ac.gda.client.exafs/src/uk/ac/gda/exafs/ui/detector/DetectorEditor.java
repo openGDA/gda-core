@@ -610,10 +610,13 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	
 	private void updateUIAfterDetectorElementCompositeChange() {
 		if (updatingAfterROIDrag == null){
-			updatingAfterROIDrag = false;
-			calculateAndPlotCountTotals(null);
-			updateROIAfterElementCompositeChange();
-			updatingAfterROIDrag = null;
+			try {
+				updatingAfterROIDrag = false;
+				calculateAndPlotCountTotals(null);
+				updateROIAfterElementCompositeChange();
+			} finally {
+				updatingAfterROIDrag = null;
+			}
 		}
 	}
 
@@ -702,14 +705,17 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		@Override
 		public void roiChanged(ROIEvent evt) {
 			if (updatingAfterROIDrag == null) {
-				updatingAfterROIDrag = true;
-				final double start = ((RectangularROI)sashPlotForm.getRegionOnDisplay().getROI()).getPoint()[0];
-				final double end = ((RectangularROI)sashPlotForm.getRegionOnDisplay().getROI()).getEndPoint()[0];
-				getDetectorElementComposite().getStart().setValue(start);
-				getDetectorElementComposite().getEnd().setValue(end);
-				// then update the totals
-				calculateAndPlotCountTotals(null);
-				updatingAfterROIDrag = null;
+				try {
+					updatingAfterROIDrag = true;
+					final double start = ((RectangularROI) sashPlotForm.getRegionOnDisplay().getROI()).getPoint()[0];
+					final double end = ((RectangularROI) sashPlotForm.getRegionOnDisplay().getROI()).getEndPoint()[0];
+					getDetectorElementComposite().getStart().setValue(start);
+					getDetectorElementComposite().getEnd().setValue(end);
+					// then update the totals
+					calculateAndPlotCountTotals(null);
+				} finally {
+					updatingAfterROIDrag = null;
+				}
 			}
 		}
 		
