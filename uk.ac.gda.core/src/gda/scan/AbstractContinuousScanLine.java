@@ -518,6 +518,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			// 4a. Prepare the controller and move to the start position
 			// (some detectors timeout waiting for a first trigger once armed)
 			getController().prepareForMove();
+			
 			// 4b. Prepare hardware in parallel and wait for it all to be ready
 			armDetectors();
 

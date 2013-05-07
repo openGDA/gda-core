@@ -293,6 +293,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	public synchronized void start() throws DeviceException {
 		checkOKToSendCommand();
 		if (!framesLoaded) {
+			//loadFrameSets();
 			throw new DeviceException(getName() + " no frames loaded");
 		}
 		

@@ -75,8 +75,12 @@ class ProcessingDetectorWrapperPositionCallable(Callable):
 		# 1. Register file
 		if self.pathToRegister:
 			self.fileRegistrar.registerFile(self.pathToRegister)
+		
 		# 2. generate position	
-		position = [self.collectionTime, self.filepathToReport]
+		position = [self.collectionTime]
+		if self.filepathToReport:
+			position.append(self.filepathToReport)
+		
 		processorResults = []
 		for processor in self.processors:
 			processorResults += list(processor.getPosition(self.datasetProvider.getDataset()))
@@ -137,6 +141,8 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 
 		self._operatingInScan = False
 		self._preparedForScan = False
+		
+		self.include_path_in_output = True
 	
 	
 	
@@ -149,7 +155,11 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 	
 	
 	def getExtraNames(self):
-		extraNames = ['path']
+		
+		extraNames = []
+		if self.include_path_in_output:
+			extraNames.append('path')
+		
 		if self.return_performance_metrics:
 			extraNames.append("t_process")
 		if self.process_image:
@@ -164,7 +174,12 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 			for processor in self.processors:
 				processorFormats += list(processor.getOutputFormat())
 		metricsFormats = ['%f'] if self.return_performance_metrics else []
-		return ['%f', self.__getFilePathFormat()] + metricsFormats + processorFormats
+		
+		format = ['%f']
+		if self.include_path_in_output:
+			format.append(self.__getFilePathFormat())
+		
+		return format + metricsFormats + processorFormats
 	
 	def __getFilePathFormat(self):
 		return '%i' if self.returnPathAsImageNumberOnly else '%s'
@@ -208,7 +223,7 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 	def atScanEnd(self):
 		self._operatingInScan = False
 		self._preparedForScan = False
-		print self.name + " %s saved last file to: %s" % (self.name, self.getFilepath())
+		#print self.name + " %s saved last file to: %s" % (self.name, self.getFilepath())
 		self.det.atScanEnd()
 		
 	def stop(self):
@@ -230,8 +245,13 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 		panelName = self.panel_name if self.display_image else None
 		panelNameRCP = self.panel_name_rcp if self.display_image else None
 		
+		if self.include_path_in_output:
+			filepathToReport = self.__getFilePathRepresentation()
+		else:
+			filepathToReport = None
+		
 		return ProcessingDetectorWrapperPositionCallable(
-			self.det.getCollectionTime(), self.__getFilePathRepresentation(),
+			self.det.getCollectionTime(), filepathToReport,
 			processors, pathToRegister, panelName, panelNameRCP,
 			self.getDatasetProvider(), self.renderer, self.fileRegistrar, self.return_performance_metrics)
 	
@@ -507,15 +527,18 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 
 	def setHardwareTriggering(self, b):
 		self.hardware_triggering = b
+		
+	def setNumberImagesToCollect(self, n):
+		self.hardware_triggered_detector.setNumberImagesToCollect(n)
+		
+	def getNumberImagesToCollect(self):
+		return self.hardware_triggered_detector.getNumberImagesToCollect()
 								
 	def isHardwareTriggering(self):
 		return self.hardware_triggering
 
 	def integratesBetweenPoints(self):
 		return self.hardware_triggered_detector.integratesBetweenPoints()
-
-	def arm(self):
-		self.hardware_triggered_detector.arm()
 
 	# Detector
 		
@@ -534,7 +557,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	def atScanStart(self):
 		ProcessingDetectorWrapper.atScanStart(self)
 		if self.array_monitor_for_hardware_triggering:
-			self.array_monitor_for_hardware_triggering.prepareForCollection(999) # Number not used
+			self.array_monitor_for_hardware_triggering.prepareForCollection(999, None) # Number not used
 
 
 	def getCollectionTime(self):
@@ -545,8 +568,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 
 	def collectData(self):
 		self.clearLastAcquisitionState()
-		if not self.isHardwareTriggering():
-			self.det.collectData()
+		self.det.collectData()
 		
 	def getStatus(self):
 		return self.det.getStatus()
@@ -585,8 +607,8 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 
 	def atScanEnd(self):
 		ProcessingDetectorWrapper.atScanEnd(self)
-		if self.array_monitor_for_hardware_triggering:
-			self.array_monitor_for_hardware_triggering.prepareForCollection(999) # Number not used
+#		if self.array_monitor_for_hardware_triggering:
+#			self.array_monitor_for_hardware_triggering.prepareForCollection(999, None) # Number not used
 
 	def getDataDimensions(self):
 		return [len(self.getExtraNames())]
@@ -609,7 +631,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	def getPositionCallable(self):
 		if self.isHardwareTriggering():
 			self.clearLastAcquisitionState()
-			self.hardware_triggered_detector.lastReadoutValue = None
+			# self.hardware_triggered_detector.lastReadoutValue = None
 		return ProcessingDetectorWrapper.getPositionCallable(self)
 
 
