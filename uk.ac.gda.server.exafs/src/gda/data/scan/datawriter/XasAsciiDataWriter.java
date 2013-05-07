@@ -23,7 +23,9 @@ import gda.data.PathConstructor;
 import gda.device.Detector;
 import gda.device.detector.DarkCurrentDetector;
 import gda.device.detector.DarkCurrentResults;
+import gda.device.detector.xspress.Xspress2System;
 import gda.exafs.scan.BeanGroup;
+import gda.factory.Finder;
 import gda.scan.IScanDataPoint;
 
 import java.io.File;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
+import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.util.io.FileUtils;
 
 /**
@@ -141,6 +144,24 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 				String xmapName = LocalProperties.get("gda.exafs.xmapName","xmapMca");
 				if (dataPoint.isDetector(xspressName)) {
 					file.write("# Detector: Ge (XSPRESS)\n");
+					StringBuffer buf = new StringBuffer();
+					buf.append("Disabled elements: ");
+					boolean found = false;
+					Xspress2System xspress = Finder.getInstance().find(xspressName);
+					if (xspress != null){
+						for (DetectorElement element : xspress.getDetectorList()){
+							if (element.isExcluded()){
+								if (found) {
+									buf.append(",");
+								}
+								found = true;
+								buf.append(element.getNumber());
+							}
+						}
+					}
+					if (found) {
+						file.write("# "+buf);
+					}
 				} else if (dataPoint.isDetector(xmapName)) {
 					file.write("# Detector: Si (XIA)\n");
 				} else {
