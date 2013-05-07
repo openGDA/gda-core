@@ -1366,7 +1366,7 @@ public class ExcaliburEqualizationHelper {
 			throw new IllegalArgumentException("currentAdj.length != edgePostion.length");
 		
 		for( int i=0; i< currentAdj.length;i++){
-			if( edgePostion[i] > eqTarget && (currentAdj[i] & 0xFF)< 15){
+			if( edgePostion[i] > eqTarget && (currentAdj[i] & 0xFF)< 31){
 				currentAdj[i]++;
 			} else if( edgePostion[i] < eqTarget && (currentAdj[i] & 0xFF)> 0){
 				currentAdj[i]--;
