@@ -505,7 +505,7 @@ public class ExcaliburEqualizationHelper {
 			}
 		}
 		hdf.writeToFileSimple(new Hdf5HelperData(pixelsDims, concatenatedData), resultfilename, equalisationLocation, THRESHOLD_DATASET);
-		
+		hdf.writeToFileSimple(threshold0Vals, resultfilename, equalisationLocation, threshold0Name);
 		hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLD_LIMIT_ATTR,
 				edgeThreshold);
 		if( thresholdABNName != null && thresholdABNName.length() > 0){
