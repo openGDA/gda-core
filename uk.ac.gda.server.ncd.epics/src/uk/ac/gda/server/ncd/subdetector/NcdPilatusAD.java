@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2011-2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -42,13 +42,18 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import uk.ac.gda.server.ncd.pilatus.PilatusADController;
 
+/**
+ * the update method has some device specific code to flag errors when triggering (gating) is attempted
+ * outside the detector's capabilities
+ */
 public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IObserver, LastImageProvider {
 
 	// Setup the logging facilities
 	private static final Logger logger = LoggerFactory.getLogger(NcdPilatusAD.class);
-	private PilatusADController controller;
+	protected PilatusADController controller;
 	private Timer timer;
-	private DeviceException tfgMisconfigurationException = new DeviceException("Triggering not set up");
+	protected DeviceException tfgMisconfigurationException = new DeviceException("Triggering not set up");
+	private String filename = "/dev/null";
 
 	@Override
 	public void clear() throws DeviceException {
@@ -212,38 +217,34 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		longestFrame = longestFrame / 1000;
 		longestWait = longestWait / 1000;
 
-		if (shortestWait < 0.003) {
-			tfgMisconfigurationException = new DeviceException("Readout time too short for " + getName()
-					+ ". Need more than 3ms.");
+		tfgMisconfigurationException = checkTiming(shortestFrame, longestFrame, shortestWait, longestWait);
+		if (tfgMisconfigurationException != null) 
 			return;
-		}
-		if ((shortestWait + shortestFrame) < 0.033) {
-			tfgMisconfigurationException = new DeviceException("Cycle time too short for " + getName()
-					+ ". Need more than 33ms live and dead time combined.");
-			return;
-		}
-		if ((shortestWait < 0.013) && ((longestFrame - shortestFrame) > 0.001 && (longestWait - shortestWait) > 0.001)) {
-			tfgMisconfigurationException = new DeviceException("Cannot vary trigger times with fast read out on "
-					+ getName() + ". Choose longer dead time.");
-			return;
-		}
-		if (longestWait > 90) {
-			tfgMisconfigurationException = new DeviceException(getName()
-					+ " will timeout waiting for dead frames of more than 90 seconds.");
-			return;
-		}
-		// TODO could flag error for varying times by too much in "relaxed" mode, but need to run some tests for that
-		tfgMisconfigurationException = null;
-
+		
 		try {
 			controller.setExposures(1);
 			controller.setNumImages(framecount);
 			controller.setAcquirePeriod(shortestFrame + shortestWait);
 			controller.setAcquireTime(shortestFrame);
-			controller.setReadTimeout(longestFrame + longestWait + 120.0);
+			controller.setReadTimeout(longestFrame + longestWait + 2000.0); // Wuge and Dora trigger on water bath reaching temperature
 		} catch (Exception e) {
 			logger.error("error setting up acqusition on area detector for " + getName(), e);
 		}
+	}
+	
+	@SuppressWarnings("unused")
+	protected DeviceException checkTiming(double shortestFrame, double longestFrame, double shortestWait, double longestWait) {
+
+		if (shortestWait < 0.00095) {
+			return new DeviceException("Readout time too short for " + getName()
+					+ ". Need more than 0.95ms.");
+		}
+		if ((shortestWait + shortestFrame) < 0.004) {
+			return new DeviceException("Cycle time too short for " + getName()
+					+ ". Need more than 4ms live and dead time combined.");
+		}
+
+		return null;
 	}
 
 	public void setThresholdkeV(double d) throws Exception {
@@ -279,20 +280,15 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			beamline = "base";
 		}
 
-		controller.setFilenamePrefix(beamline);
-		controller.setFilenamePostfix(getName());
-
 		// Check to see if the data directory has been defined.
 		String dataDir = PathConstructor.createFromDefaultProperty();
-
-		controller.setDirectory(dataDir);
-
 		// Now lets try and setup the NumTracker...
 		NumTracker runNumber = new NumTracker(beamline);
 		// Get the current number
 		Number scanNumber = runNumber.getCurrentFileNumber();
 
-		controller.setFileNumber(scanNumber);
+		filename = String.format("%s/%s-%d-%s.h5", dataDir, beamline, scanNumber, getName());
+		controller.setAbsoluteFilename(filename);
 	}
 
 	/**
@@ -326,7 +322,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			throw new DeviceException("error finalising data acquitision/writing", e);
 		} finally {
 			try {
-				FileRegistrarHelper.registerFile(controller.getHDFFileName());
+				FileRegistrarHelper.registerFile(filename);
 			} catch (Exception e) {
 				logger.warn("error getting file name for archiving from "+getName(), e);
 			}
@@ -335,15 +331,13 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 
 	@Override
 	public void writeout(int frames, NXDetectorData dataTree) throws DeviceException {
-		try {
-			dataTree.addScanFileLink(getName(), "nxfile://" + controller.getHDFFileName()
-					+ "#entry/instrument/detector/data");
-		} catch (DeviceException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new DeviceException("error getting HDF file name", e);
-		}
+		dataTree.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
 
 		addMetadata(dataTree);
+		
+		// delay returning from that method until area detector had a chance to read in all files
+		// not pretty, but best solution I can come up with now.
+		// there should be some getstatus or are you ready call
+		controller.waitForReady();
 	}
 }

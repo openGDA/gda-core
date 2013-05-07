@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2011-2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -52,8 +52,6 @@ public class PilatusADController implements InitializingBean {
 
 	private static final String ACQUISITION_MODE_RBV = "AcquisitionMode_RBV";
 
-	private int framesinscan = 1;
-	
 	/**
 	 * Map that stores the channel against the PV name
 	 */
@@ -75,6 +73,9 @@ public class PilatusADController implements InitializingBean {
 		try {
 			hdf5.setAutoSave((short) 0);
 			hdf5.setAutoIncrement((short) 0);
+			hdf5.setFileNumber((short) 0);
+			hdf5.setFileName("unused");
+			hdf5.setFilePath("unused");
 			hdf5.getPluginBase().enableCallbacks();
 			array.getPluginBase().enableCallbacks();
 		} catch (Exception e) {
@@ -82,7 +83,6 @@ public class PilatusADController implements InitializingBean {
 		}
 	}
 	
-	// Getters and Setters for Spring
 	public ADBase getAreaDetector() {
 		return areaDetector;
 	}
@@ -236,16 +236,6 @@ public class PilatusADController implements InitializingBean {
 		if (stats == null) {
 			throw new IllegalArgumentException("'stats' needs to be declared");
 		}
-		
-//		if (proc == null) {
-//			throw new IllegalArgumentException("'proc' needs to be declared");
-//		}
-//		if (draw == null) {
-//			throw new IllegalArgumentException("'draw' needs to be declared");
-//		}
-//		if (mjpeg == null) {
-//			throw new IllegalArgumentException("'mjpeg' needs to be declared");
-//		}
 	}
 
 	public void acquire() throws Exception {
@@ -401,11 +391,14 @@ public class PilatusADController implements InitializingBean {
 
 		throwIfWriteError();
 		
-		int totalFramesCollected = areaDetector.getArrayCounter();
+		int totalFramesCollected = 1;
+		int totalmillis = 30 * 1000;
 		
-		int totalmillis = 30 * 1000 + framesinscan * 60;
-		int grain = 50;
+		int grain = 80;
 		for (int i = 0; i < totalmillis/grain; i++) {
+			totalFramesCollected = areaDetector.getArrayCounter_RBV();
+			totalmillis = 30 * 1000 + totalFramesCollected * 100;
+
 			
 			if (hdf5.getFile().getCapture_RBV() == 0) return;
 			
@@ -420,7 +413,7 @@ public class PilatusADController implements InitializingBean {
 				
 			
 			if (hdf5.getPluginBase().getDroppedArrays_RBV() > 0)
-				throw new DeviceException("hdf5 recording missed frames");
+				throw new DeviceException("dropped frames in the hdf5 recording");
 			
 			throwIfWriteError();
 				
@@ -447,25 +440,13 @@ public class PilatusADController implements InitializingBean {
 		hdf5.stopCapture();
 	}
 
-	public String getHDFFileName() throws Exception {
+	public String getAbsoulteFileNameRBV() throws Exception {
 		throwIfWriteError();
 		return hdf5.getFullFileName_RBV();
 	}
 
-	public void setDirectory(String dataDir) throws Exception {
-		hdf5.setFilePath(dataDir);		
-	}
-
-	public void setFileNumber(Number scanNumber) throws Exception {
-		hdf5.setFileNumber(scanNumber.intValue());		
-	}
-
-	public void setFilenamePrefix(String beamline) throws Exception {
-			hdf5.setFileName(beamline);		
-	}
-
-	public void setFilenamePostfix(String name) throws Exception {
-		hdf5.setFileTemplate(String.format("%%s%%s-%%d-%s.h5", name));
+	public void setAbsoluteFilename(String name) throws Exception {
+		hdf5.setFileTemplate(name);
 	}
 	
 	public void resetCounters() throws Exception {
@@ -474,5 +455,21 @@ public class PilatusADController implements InitializingBean {
 		array.getPluginBase().setDroppedArrays(0);
 		hdf5.getPluginBase().setArrayCounter(0);
 		hdf5.getPluginBase().setDroppedArrays(0);
+	}
+
+	public void waitForReady() throws DeviceException {
+
+		try {
+			int totalmillis = 100 * areaDetector.getNumImages();
+			int grain = 25;
+			for (int i = 0; i < totalmillis/grain; i++) {
+				if (getAcquireState() == 0)
+					return;
+				Thread.sleep(grain);
+			}
+			logger.error("took too long to read in the frames, expect this scan to fall over any second.");
+		} catch (Exception e) {
+			throw new DeviceException("interrupted waiting for frames to be read in");
+		}
 	}
 }
