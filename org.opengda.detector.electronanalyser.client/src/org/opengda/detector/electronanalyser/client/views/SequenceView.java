@@ -680,6 +680,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					} else if (result.getSeverity() == IStatus.ERROR) {
 						updateRegionStatus(regionJob, STATUS.ABORTED);
 					}
+					if (Job.getJobManager().find(RegionJob.FAMILY_REGION_JOB).length==0) {
+						logger.info("Sequence {} collection completed.",regionDefinitionResourceUtil.getFileName());
+						runningonclient=false;
+						updateActionIconsState();
+					}
 				}
 				super.done(event);
 			}
@@ -695,6 +700,25 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		});
 		prepareRunOnClientActions();
+		updateActionIconsState();
+	}
+	private void updateActionIconsState() {
+		if (!runningonclient && !runningonserver) {
+			startSequenceAction.setEnabled(true);
+			stopSequenceAction.setEnabled(false);
+			startRunOnServerAction.setEnabled(true);
+			stopRunOnServerAction.setEnabled(false);
+		} else if (runningonclient) {
+			startSequenceAction.setEnabled(false);
+			stopSequenceAction.setEnabled(true);
+			startRunOnServerAction.setEnabled(false);
+			stopRunOnServerAction.setEnabled(false);
+		} else if (runningonserver) {
+			startSequenceAction.setEnabled(false);
+			stopSequenceAction.setEnabled(false);
+			startRunOnServerAction.setEnabled(false);
+			stopRunOnServerAction.setEnabled(true);
+		}
 	}
 
 	protected void updateRegionStatus(final RegionJob regionJob, final STATUS status) {
@@ -709,14 +733,19 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		});
 	}
 
+	private boolean runningonclient=false;
+	private boolean runningonserver=false;
 	private void prepareRunOnClientActions() {
 		startSequenceAction = new Action() {
+
 			@Override
 			public void run() {
 				super.run();
 				logger.info("Calling start");
 				int order = 0;
 				resetRegionStatus();
+				runningonclient=true;
+				updateActionIconsState();
 				for (Region region : regions) {
 					if (region.isEnabled()) {
 						final RegionCommand command = new RegionCommand(region);
@@ -727,24 +756,24 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						order++;
 					}
 				}
-				startSequenceAction.setEnabled(false);
-				stopSequenceAction.setEnabled(true);
 			}
 		};
 		startSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_START));
-
+		startSequenceAction.setToolTipText("Run on client.");
+		
 		stopSequenceAction = new Action() {
 			@Override
 			public void run() {
 				super.run();
 				logger.info("Calling stop");
 				Job.getJobManager().cancel(RegionJob.FAMILY_REGION_JOB);
-				stopSequenceAction.setEnabled(false);
-				startSequenceAction.setEnabled(true);
+				runningonclient=false;
+				updateActionIconsState();
 			}
 		};
 		stopSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
-
+		stopSequenceAction.setToolTipText("Stop run on client");
+		
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(startSequenceAction);
 		toolBarManager.add(stopSequenceAction);
@@ -912,18 +941,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						try {
 							if (queue.getSummaryList().isEmpty()) {
 								// when queue processing completed, reset controls and all regions' status to READY.
-								stopSequenceAction.setEnabled(false);
-								startSequenceAction.setEnabled(true);
-								for (Region region : regions) {
-									if (region.isEnabled()) {
-										region.setStatus(STATUS.READY);
-									}
-								}
-								sequenceTableViewer.refresh();
+								runningonserver=false;
+								updateActionIconsState();
+								resetRegionStatus();
 							}
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							logger.error("Cannot get summary list from queue.",e);
 						}
 					}
 				}
@@ -972,6 +995,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			public void run() {
 				super.run();
 				logger.info("Calling start on server.");
+				runningonserver=true;
+				updateActionIconsState();
 				for (Region region : regions) {
 					if (region.isEnabled()) {
 						final RegionCommand command = new RegionCommand(region);
@@ -987,14 +1012,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					processor.start(500);
 				} catch (Exception e) {
 					logger.error("exception throws on start queue processor.", e);
+					//TODO empty the queue??
+					runningonserver=false;
+					updateActionIconsState();
 				}
-				startRunOnServerAction.setEnabled(false);
-				stopRunOnServerAction.setEnabled(true);
 			}
 		};
 		startRunOnServerAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry()
 				.getDescriptor(ImageConstants.ICON_RUN_ON_SERVER));
-
+		startRunOnServerAction.setToolTipText("Run on server");
+		
 		stopRunOnServerAction = new Action() {
 			@Override
 			public void run() {
@@ -1002,16 +1029,20 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				logger.info("Calling stop on server");
 				try {
 					processor.stop(1000);
+					if (!queue.getSummaryList().isEmpty()) {
+						queue.removeAll();
+					}
+					runningonserver=false;
 				} catch (Exception e) {
 					logger.error("exception throws on stop queue processor.", e);
 				}
-				stopRunOnServerAction.setEnabled(false);
-				startRunOnServerAction.setEnabled(true);
+				updateActionIconsState();
 			}
 		};
 		stopRunOnServerAction
-				.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
-
+				.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP_SERVER));
+		stopRunOnServerAction.setToolTipText("Stop run on server");
+		
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(startRunOnServerAction);
 		toolBarManager.add(stopRunOnServerAction);
