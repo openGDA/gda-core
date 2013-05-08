@@ -258,11 +258,11 @@ public class MotorPositionViewer {
 	}
 	
 	private void createReadbacksGroup(Composite readBacksGroup) {
-		Label label = new Label(readBacksGroup, SWT.NONE);
 		if (!motor.getDescriptor().getHideLabel()) {
+			Label label = new Label(readBacksGroup, SWT.NONE);
 			label.setText( motor.getDescriptor().getLabelText());
+			label.setLayoutData(labelLayoutData);
 		}
-		label.setLayoutData(labelLayoutData);
 		motorBox = new DemandBox(readBacksGroup, SWT.NONE, 60);
 		GridDataFactory.swtDefaults().hint(120, SWT.DEFAULT).applyTo(motorBox);
 	}

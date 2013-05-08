@@ -434,6 +434,22 @@ public class LivePlotComposite extends Composite {
 	public Object getPlottingSystem() {
 		return this.plotView.plottingSystem;
 	}
+
+	public boolean isLog10() {
+		boolean asLog = true;
+		for(IAxis axis : plotView.plottingSystem.getAxes()){
+			if( axis.isVisible() && axis.isYAxis())
+				asLog &= axis.isLog10();
+		}
+		return asLog;
+	}
+
+	public void setLog10(boolean isLog10) {
+		for(IAxis axis : plotView.plottingSystem.getAxes()){
+			if( axis.isVisible() && axis.isYAxis())
+				axis.setLog10(isLog10);
+		}
+	}
 }
 
 /**

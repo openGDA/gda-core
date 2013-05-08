@@ -282,7 +282,7 @@ public class NeXusUtils {
 	}
 
 	private static void writeGeneralMetaData(NeXusFileInterface file, Metadata metadata) throws NexusException{
-		//TODO This dumps metadata that doesnot belong in any identified group. maybe use an interface
+		//TODO This dumps metadata that does not belong in any identified group. maybe use an interface
 		//to identify which metadata entries are to be dumped
 		file.makegroup("general_metadata", "NXuser");
 		file.opengroup("general_metadata", "NXuser");
@@ -472,11 +472,12 @@ public class NeXusUtils {
 			file.opengroup("insertion_device", "NXinsertion_device");
 
 			try {
-				if (metadata.getMetadataValue("instrument.monochromator.wavelength") != null) {
-					writeNexusDouble(file, "gap", Double.parseDouble(metadata.getMetadataValue("instrument.insertion_device.gap")), "mm");
+				String gap = metadata.getMetadataValue("instrument.insertion_device.gap");
+				if (gap != null) {
+					writeNexusDouble(file, "gap", Double.parseDouble(gap), "mm");
 				}
 			} catch (DeviceException e) {
-				logger.warn("NXmonochromator: Problem reading one or more items of metadata.");
+				logger.warn("NXinsertion_device: Problem reading one or more items of metadata.");
 			}
 			// name
 			// type
