@@ -356,6 +356,7 @@ public class SpectrumPlotComposite extends Composite {
 			fwhm = crossings.get(1) - crossings.get(0);
 		} else {
 			// TODO multiple peaks
+			fwhm=Double.NaN;
 		}
 		return fwhm;
 	}
