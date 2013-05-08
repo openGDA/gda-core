@@ -53,6 +53,7 @@ class XasScan(Scan):
         # Create the beans from the file names
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
 
+        print "**********************************"
         self.log( "xmlFolderName=" + str(xmlFolderName))
         self.log( "sampleFileName=" + str(sampleFileName))
         self.log( "scanFileName=" + str(scanFileName))
@@ -68,7 +69,7 @@ class XasScan(Scan):
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
         
         # update to terminal
-        print "**********************************"
+        print ""
         self.log( "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'...")
         print ""
         self.log( "Output to",xmlFolderName)
@@ -80,19 +81,18 @@ class XasScan(Scan):
         self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
 
     def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
-        # Insert sample environment looping logic here by subclassing
-        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+        """
+        This is the basic looping based on the number of repetitions set in the UI.
         
-    def _doScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
-        scanBean = beanGroup.getScan()
-        outputBean = beanGroup.getOutput()
+        Beamlines should override this method if extra looping logic is required e.g. from sample environment settings
+        """
         # reset the properties used to control repetition behaviour
         LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
         timeRepetitionsStarted = System.currentTimeMillis();
-
+        
         try:
             while True:
                 repetitionNumber+= 1
@@ -100,69 +100,20 @@ class XasScan(Scan):
                 XasAsciiDataWriter.setBeanGroup(beanGroup)
                 self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller,repetitionNumber)
         
-                # create the list of scan points
-                points = ()
-                if isinstance(beanGroup.getScan(), XanesScanParameters):
-                    points = XanesScanPointCreator.calculateEnergies(beanGroup.getScan())
-                else:
-                    points = ExafsScanPointCreator.calculateEnergies(beanGroup.getScan())
-                    
-                # create the scannable to control energy and time
-                xas_scannable = self._configureScannable(beanGroup)
-    
-                # send out initial messages for logging and display to user
-                outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
-                
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
-                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
-                #self.loggingcontroller.update(None,logmsg)
-                self.loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
-                loggingbean = XasProgressUpdater(self.loggingcontroller,logmsg,timeRepetitionsStarted)
-    
-                # work out which detectors to use (they will need to have been configured already by the GUI)
-                detectorList = self._getDetectors(beanGroup.getDetector(), beanGroup.getScan()) 
-                xas_scannable.setDetectors(detectorList)
-                
-                # work out extra scannables to include
-                signalParameters = self._getSignalList(beanGroup.getOutput())
-                
-                # run the beamline specific preparers            
-                self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
-                sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
-                outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
-                scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
-                #print scanPlotSettings
-                # run the before scan script
-                self._runScript(beanGroup.getOutput().getBeforeScriptName())
-     
-                # build the scan command arguments
-                args = [xas_scannable, points]
-                if sampleScannables != None:
-                    args += sampleScannables
-                if outputScannables != None:
-                    args += outputScannables
-                args += detectorList 
-                args += signalParameters
-                args += [loggingbean]
-                
-                # run the scan
+
+                # Insert sample environment looping logic here by subclassing
                 try:
-                    controller.update(None, ScriptProgressEvent("Running scan"))
-                    ScanBase.interrupted = False
                     if numRepetitions > 1:
                         print ""
                         self.log( "Starting repetition", str(repetitionNumber),"of",numRepetitions)
                     else:
                         print ""
                         self.log( "Starting "+scriptType+" scan...")
-                    thisscan = ConcurrentScan(args)
-                    thisscan = self._setUpDataWriter(thisscan,beanGroup)
-                    thisscan.setReturnScannablesToOrginalPositions(False)
-                    controller.update(None, ScanCreationEvent(thisscan.getName()))
-                    if (scanPlotSettings != None):
-                        self.log( "Setting the filter for columns to plot...")
-                        thisscan.setScanPlotSettings(scanPlotSettings)
-                    thisscan.runScan()
+                    timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
+                    logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
+                    self._doScan(beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,logmsg,timeRepetitionsStarted)
+        
                 except InterruptedException, e:
                     ScanBase.interrupted = False
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
@@ -197,6 +148,7 @@ class XasScan(Scan):
                     self.log( "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end.")
                     break
                 elif numRepsFromProperty <= (repetitionNumber):
+                    # normal end to loop
                     break
                 numRepetitions = numRepsFromProperty
         finally:    
@@ -214,6 +166,72 @@ class XasScan(Scan):
                 Finder.getInstance().find("datawriterconfig").setHeader(original_header)
                 
             print "**********************************"
+
+    def _doScan(self,beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,logmsg,timeRepetitionsStarted):
+        """
+        Runs a single XAS/XANES scan.
+        """
+        scanBean = beanGroup.getScan()
+        outputBean = beanGroup.getOutput()
+        
+        # create the list of scan points
+        points = ()
+        if isinstance(beanGroup.getScan(), XanesScanParameters):
+            points = XanesScanPointCreator.calculateEnergies(beanGroup.getScan())
+        else:
+            points = ExafsScanPointCreator.calculateEnergies(beanGroup.getScan())
+            
+        # create the scannable to control energy and time
+        xas_scannable = self._configureScannable(beanGroup)
+        
+        # send out initial messages for logging and display to user
+        outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
+        
+        #self.loggingcontroller.update(None,logmsg)
+        self.loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
+        loggingbean = XasProgressUpdater(self.loggingcontroller,logmsg,timeRepetitionsStarted)
+        
+        # work out which detectors to use (they will need to have been configured already by the GUI)
+        detectorList = self._getDetectors(beanGroup.getDetector(), beanGroup.getScan()) 
+        xas_scannable.setDetectors(detectorList)
+        
+        # work out extra scannables to include
+        signalParameters = self._getSignalList(beanGroup.getOutput())
+        
+        # run the beamline specific preparers            
+        self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
+        sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
+        outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
+        scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
+        #print scanPlotSettings
+        # run the before scan script
+        self._runScript(beanGroup.getOutput().getBeforeScriptName())
+        
+        # build the scan command arguments
+        args = [xas_scannable, points]
+        if sampleScannables != None:
+            args += sampleScannables
+        if outputScannables != None:
+            args += outputScannables
+        args += detectorList 
+        args += signalParameters
+        args += [loggingbean]
+        
+        # run the scan
+        controller.update(None, ScriptProgressEvent("Running scan"))
+        ScanBase.interrupted = False
+        thisscan = ConcurrentScan(args)
+        thisscan = self._setUpDataWriter(thisscan,beanGroup)
+        thisscan.setReturnScannablesToOrginalPositions(False)
+        controller.update(None, ScanCreationEvent(thisscan.getName()))
+        if (scanPlotSettings != None):
+            self.log( "Setting the filter for columns to plot...")
+            thisscan.setScanPlotSettings(scanPlotSettings)
+        thisscan.runScan()
+        
+        #update observers
+        controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
+
     
     def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
         return
