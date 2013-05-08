@@ -13,6 +13,14 @@ public class ProgressView extends ViewPart {
 	private static final Logger logger=LoggerFactory .getLogger(ProgressView.class);
 	private String currentPointPV;
 	private String totalPointsPV;
+	private String totalIterationsPV;
+	private String currentIterationPV;
+	private String leadPointsPV;
+	private String endPointsPV;
+	private String currentLeadPointPV;
+	private String currentDataPointPV;
+	private String regionProgressPV;
+	private String inLeadPV;
 
 	public ProgressView() {
 		setTitleToolTip("display progress view");
@@ -30,6 +38,14 @@ public class ProgressView extends ViewPart {
 
 		try {
 			RegionProgressComposite regionProgressComposite = new RegionProgressComposite(rootComposite, SWT.None);
+			regionProgressComposite.setLeadPointsPV(leadPointsPV);
+			regionProgressComposite.setEndPointsPV(endPointsPV);
+			regionProgressComposite.setCurrentLeadPointPV(currentLeadPointPV);
+			regionProgressComposite.setCurrentDataPointPV(currentDataPointPV);
+			regionProgressComposite.setRegionProgressPV(regionProgressPV);
+			regionProgressComposite.setInLeadPV(inLeadPV);
+			regionProgressComposite.setTotalIterationsPV(getTotalIterationsPV());
+			regionProgressComposite.setCurrentIterationPV(getCurrentIterationPV());
 			regionProgressComposite.setCurrentPointPV(currentPointPV);
 			regionProgressComposite.setTotalPointsPV(totalPointsPV);
 			regionProgressComposite.initialise();
@@ -64,6 +80,48 @@ public class ProgressView extends ViewPart {
 
 	public void setTotalPointsPV(String totalPointsPV) {
 		this.totalPointsPV = totalPointsPV;
+	}
+
+	public String getTotalIterationsPV() {
+		return totalIterationsPV;
+	}
+
+	public void setTotalIterationsPV(String totalIterationsPV) {
+		this.totalIterationsPV = totalIterationsPV;
+	}
+
+	public String getCurrentIterationPV() {
+		return currentIterationPV;
+	}
+
+	public void setCurrentIterationPV(String currentIterationPV) {
+		this.currentIterationPV = currentIterationPV;
+	}
+
+	public void setLeadPointsPV(String leadPointsPV) {
+		this.leadPointsPV=leadPointsPV;		
+	}
+
+	public void setEndPointsPV(String endPointsPV) {
+		this.endPointsPV=endPointsPV;		
+	}
+
+	public void setCurrentLeadPointPV(String currentLeadPointPV) {
+		this.currentLeadPointPV=currentLeadPointPV;
+	}
+
+	public void setCurrentDataPointPV(String currentDataPointPV) {
+		this.currentDataPointPV=currentDataPointPV;
+	}
+
+	public void setRegionProgressPV(String regionProgressPV) {
+		this.regionProgressPV=regionProgressPV;
+		
+	}
+
+	public void setInLeadPV(String inLeadPV) {
+		this.inLeadPV=inLeadPV;
+		
 	}
 
 }
