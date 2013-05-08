@@ -71,6 +71,7 @@ public class ImageConstants {
 	public static final String ICON_SES = "icons/ses.gif";
 
 	public static final String ICON_RUN_ON_SERVER = "icons/run_on_server.gif";
+	public static final String ICON_STOP_SERVER = "icons/server_stop.png";
 
 	public static String[] IMAGES = new String[] { ICON_RESET_DETECTOR,
 			ICON_HORIZONTAL_FLIP, ICON_PITCH_ROTATE, ICON_ROLL_ROTATE,
@@ -80,6 +81,6 @@ public class ImageConstants {
 			ICON_DOWN_TO_UP, ICON_SHOPPING_CART, ICON_CTRL_BTN,
 			ICON_CTRL_BTN_10x10, ICON_CTRL_BTN_12x12, ICON_REMOTE_DESKTOP,
 			ICON_RUN_READY, ICON_RUNNING, ICON_RUN_COMPLETE, ICON_RUN_FAILURE,
-			ICON_START, ICON_STOP, ICON_STATUS, ICON_SES,ICON_RUN_ON_SERVER };
+			ICON_START, ICON_STOP, ICON_STATUS, ICON_SES,ICON_RUN_ON_SERVER, ICON_STOP_SERVER };
 
 }
