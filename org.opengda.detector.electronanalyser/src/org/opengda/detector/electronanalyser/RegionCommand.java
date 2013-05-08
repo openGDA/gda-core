@@ -118,7 +118,17 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 	private void startCollection() throws Exception {
 		getAnalyser().start();
 	}
-
+	private void triggerPointsUpdate(Region region) throws Exception {
+		//TODO remove this hacks when EPICS solved the total point update issues
+		String acqmode=getAnalyser().getAcquisitionMode();
+		if (acqmode.equals("Fixed")) {
+			getAnalyser().setAcquisitionMode("Swept");
+		} else {
+			getAnalyser().setAcquisitionMode("Fixed");
+		}
+		Sleep.sleep(500);
+		getAnalyser().setAcquisitionMode(acqmode);
+	}
 	private void configureCollection(Region region) throws Exception {
 		getAnalyser().setLensMode(region.getLensMode());
 		getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral());
@@ -131,7 +141,7 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 			getAnalyser().setCentreEnergy(region.getFixEnergy());
 		}
 		getAnalyser().setStepTime(region.getStepTime());
-		getAnalyser().setEnergyStep(region.getEnergyStep());
+		getAnalyser().setEnergyStep(region.getEnergyStep()/1000.0);
 		if (!region.getRunMode().isConfirmAfterEachIteration()) {
 			if (!region.getRunMode().isRepeatUntilStopped()) {
 				getAnalyser().setNumberInterations(region.getRunMode().getNumIterations());
@@ -145,6 +155,7 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 			getAnalyser().setImageMode(ImageMode.SINGLE);
 			throw new NotSupportedException("Confirm after each iteraction is not yet supported");
 		}
+		triggerPointsUpdate(region);
 	}
 
 	@Override
