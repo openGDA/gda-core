@@ -24,7 +24,7 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 
 //	private final PV<Integer> tsNumPointsPV;
 
-	private final ReadOnlyPV<Integer> numCapturePV;
+	private final ReadOnlyPV<Integer> numDownloadedPV;
 
 	private final ReadOnlyPV<Double[]> tsArrayPV;
 
@@ -41,17 +41,15 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 	/**
 	 * Create and start a time series collection.
 	 * 
-	 * @param numCapturePV
-	 * @param tsArrayPV
 	 */
-	public ZebraCaptureInputStreamCollection(	ReadOnlyPV<Integer> numCapturePV, ReadOnlyPV<Double[]> tsArrayPV){
-		this.numCapturePV = numCapturePV;
+	public ZebraCaptureInputStreamCollection(ReadOnlyPV<Integer> numDownloadedPV,  ReadOnlyPV<Double[]> tsArrayPV){
+		this.numDownloadedPV = numDownloadedPV;
 		this.tsArrayPV = tsArrayPV;
 	}
 
 	public void start(int numPointsToCollect) throws IOException {
 		this.numPointsToCollect = numPointsToCollect;
-		numCapturePV.setValueMonitoring(true);
+		numDownloadedPV.setValueMonitoring(true);
 		numPointsReturned=0;
 		started = true;
 	}
@@ -81,7 +79,7 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 	}
 
 	private void tidyup() throws IOException {
-		numCapturePV.setValueMonitoring(false);
+		numDownloadedPV.setValueMonitoring(false);
 	}
 
 	@Override
@@ -100,7 +98,7 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 			while(numPointsAvailable <  desiredPoint){
 				try
 				{
-					numPointsAvailable = numCapturePV.waitForValue(new GreaterThanOrEqualTo(desiredPoint), 5);
+					numPointsAvailable = numDownloadedPV.waitForValue(new GreaterThanOrEqualTo(desiredPoint), 5);
 				} catch(TimeoutException e){
 					ScanBase.checkForInterrupts();	 		
 				}
@@ -118,8 +116,8 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 		Double[] completeArray;
 		try {
 			//TODO Speak to Tom as this is a bug
-			Thread.sleep(1000); //allow time for array pv is to setup properly 
-			completeArray = tsArrayPV.get(numPointsAvailable);
+			Thread.sleep(100); //allow time for array pv is to setup properly 
+			completeArray = tsArrayPV.get(numPointsAvailable);  
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}
@@ -142,5 +140,6 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 		}
 		return pointList;
 	}
+
 
 }

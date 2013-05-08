@@ -18,17 +18,23 @@
 
 package gda.device.zebra;
 
-import gda.device.DeviceBase;
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
+import gda.device.continuouscontroller.ContinuousMoveController;
+import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionStreamIndexer;
+import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import gda.device.zebra.controller.Zebra;
+import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
 import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
@@ -36,14 +42,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class ZebraConstantVelocityMoveController extends DeviceBase implements ConstantVelocityMoveController,
-		InitializingBean {
+public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController, 
+PositionCallableProvider<Double>, ContinuouslyScannableViaController, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveController.class);
 
 	double pcPulseDelay = 0.01;
 	short pcCaptureBitField = 1;
 	Zebra zebra;
-	short pcEnc = 0;
 
 	ZebraScannableMotor zSM;
 
@@ -53,6 +58,13 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 
 	private int mode=Zebra.PC_MODE_TIME;
 
+
+	public ZebraConstantVelocityMoveController() {
+		super();
+		setExtraNames(new String[]{"Time"});
+		setInputNames(new String[]{});
+		setOutputFormat(new String[]{"%5.5g"});
+	}
 
 	@SuppressWarnings("unused")
 	@Override
@@ -78,7 +90,7 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 				zebra.setPCPulseSource(mode);// Position 
 
 				//set motor before setting gates and pulse parameters
-				zebra.setPCEnc(pcEnc); // enc1
+				zebra.setPCEnc(zSM.getPcEnc()); // enc1
 				zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_SEC); //s
 				
 				zebra.setPCGateStart(start);
@@ -135,7 +147,11 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 			int numberTriggers = getNumberTriggers();
 			zebra.setPCPulseMax(numberTriggers);
 			zebra.pcArm();
-			timeSeriesCollection.start(numberTriggers);
+			if( timeSeriesCollection != null){
+				for(ZebraCaptureInputStreamCollection ts : timeSeriesCollection){
+					ts.start(numberTriggers);
+				}
+			}
 
 		} catch (Exception e) {
 			throw new DeviceException("Error arming the zebra", e);
@@ -185,7 +201,8 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 	private double step;
 	private double start;
 
-	public PositionStreamIndexer<Double> lastImageNumberStreamIndexer;
+	@SuppressWarnings("unchecked")
+	public PositionStreamIndexer<Double> lastImageNumberStreamIndexer[] = new PositionStreamIndexer[11];
 
 	@Override
 	public void startMove() throws DeviceException {
@@ -211,11 +228,15 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 		}
 		try {
 			boolean done=false;
-			boolean complete=false;
-			while( !done || !complete){
+			while( !done ){
 				done = moveFuture.isDone();
-				complete = timeSeriesCollection.isComplete();
+				if( timeSeriesCollection != null){
+					for( ZebraCaptureInputStreamCollection ts : timeSeriesCollection){
+						done &= ts.isComplete();
+					}
+				}
 				ScanBase.checkForInterrupts();
+				Thread.sleep(500);
 			}
 		} catch (InterruptedException e) {
 			zSM.stop();
@@ -282,7 +303,7 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 	// copied from EpicsTrajectoryMoveControllerAdapter - need a base class
 	List<Double> points = null;
 
-	public ZebraCaptureInputStreamCollection timeSeriesCollection;
+	public List<ZebraCaptureInputStreamCollection> timeSeriesCollection;
 
 	public void addPoint(Double point) {
 		if(points == null){
@@ -330,6 +351,7 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 	}
 
 	int numPosCallableReturned = 0;
+	int numPosCallableReturned1 = 0;
 
 	private double pcPulseDelayRBV;
 
@@ -338,22 +360,79 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 	private double pcPulseStepRBV;
 
 	private double requiredSpeed;
-	public Callable<Double> getPositionCallable() {
-		if( lastImageNumberStreamIndexer == null){
-			logger.info("Creating lastImageNumberStreamIndexer");
-			timeSeriesCollection = new ZebraCaptureInputStreamCollection(zebra.getNumberOfPointsCapturedPV(),
-					zebra.getEnc1AvalPV());
-			lastImageNumberStreamIndexer = new PositionStreamIndexer<Double>(timeSeriesCollection);
+
+	private boolean operatingContinously=false;
+	
+	public PositionStreamIndexer<Double> getPositionSteamIndexer(int index) {
+		if( lastImageNumberStreamIndexer[index] == null){
+			logger.info("Creating lastImageNumberStreamIndexer " + index);
+			ReadOnlyPV<Double[]> rdDblArrayPV = zebra.getEnc1AvalPV();
+			switch(index){
+			case 0:
+				rdDblArrayPV = zebra.getEnc1AvalPV();
+				break;
+			case 10:
+				rdDblArrayPV = zebra.getPCTimePV();
+				break;
+			}
+			if( timeSeriesCollection == null)
+				timeSeriesCollection = new Vector<ZebraCaptureInputStreamCollection>();
+			
+				
+			ZebraCaptureInputStreamCollection sc = new ZebraCaptureInputStreamCollection(zebra.getNumberOfPointsDownloadedPV(), rdDblArrayPV);
+			lastImageNumberStreamIndexer[index] = new PositionStreamIndexer<Double>(sc);
+			timeSeriesCollection.add(sc);
 		}
 		numPosCallableReturned++;
-		return lastImageNumberStreamIndexer.getNamedPositionCallable(zSM.getName(),1);
+		return lastImageNumberStreamIndexer[index];
 	}
 
+	
+	@SuppressWarnings("unchecked")
+	@Override
 	public void atScanLineStart() {
-		lastImageNumberStreamIndexer=null;
+		lastImageNumberStreamIndexer = new PositionStreamIndexer[11];
+		timeSeriesCollection = null;
 		points = null;
 		moveFuture=null;
 		numPosCallableReturned=0;
 	}
 
+	@Override
+	public boolean isBusy() throws DeviceException {
+		return false;
+	}
+
+	@Override
+	public Callable<Double> getPositionCallable() throws DeviceException {
+		return getPositionSteamIndexer(10).getNamedPositionCallable(getExtraNames()[0], 1);
+	}
+
+	@Override
+	public Object rawGetPosition() throws DeviceException {
+		return 0.; // getPositionCallable will be called during the scan
+	}
+
+	@Override
+	public void setOperatingContinuously(boolean b) throws DeviceException {
+		operatingContinously = b;
+		
+	}
+
+	@Override
+	public boolean isOperatingContinously() {
+		return operatingContinously;
+	}
+
+	@Override
+	public ContinuousMoveController getContinuousMoveController() {
+		return this;
+	}
+
+	public Scannable createScannable(Scannable delegate){
+		ContinuousScannable cs = new ContinuousScannable();
+		cs.setDelegate(delegate);
+		cs.setContinuousMoveController(this);
+		return cs;
+	}
 }

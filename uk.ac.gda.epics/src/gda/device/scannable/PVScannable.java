@@ -75,17 +75,13 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	}
 
 	private Channel theChannel;
-	private EpicsController controller;
+	private EpicsController controller = EpicsController.getInstance();
 	private EpicsChannelManager channelManager;
 	
 	public PVScannable() {
-		
+		channelManager = new EpicsChannelManager(this);
 	}
 
-	public PVScannable(String name, String pv) {
-		setName(name);
-		this.pvName=pv;
-	}
 	/**
 	 * @see gda.device.DeviceBase#configure()
 	 */
@@ -95,8 +91,6 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 			this.setInputNames(new String[] { getName() });
 
 			// connect to PV
-			controller = EpicsController.getInstance();
-			channelManager = new EpicsChannelManager(this);
 			if (pvName==""){
 				SimplePvType config;
 				try {
@@ -116,8 +110,8 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 			} catch (CAException e) {
 				logger.warn("CAException while configuring " + getName() + ": " + e.getMessage());
 			}
+			setConfigured(true);
 		}
-		setConfigured(true);
 	}
 
 	/**

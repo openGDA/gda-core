@@ -83,6 +83,10 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 	String pvName="";
 	private boolean getAsString=false;
 
+	public String getPvName() {
+		return pvName;
+	}
+
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
 	}

@@ -37,6 +37,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	private ZebraConstantVelocityMoveController continuousMoveController;
 	private double constantVelocitySpeedFactor=0.8;
 	private double scurveTimeToVelocity=.03;//default set to rotation stage on I13
+	private int pcEnc=0;
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
@@ -92,20 +93,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 
 	@Override
 	public Callable<Double> getPositionCallable() throws DeviceException {
-		return continuousMoveController.getPositionCallable(); 
-	}
-
-	@Override
-	public void atScanLineEnd() throws DeviceException {
-		logger.info("atScanLineEnd");
-		super.atScanLineEnd();
-	}
-
-	@Override
-	public void atScanLineStart() throws DeviceException {
-		logger.info("atScanLineStart");
-		continuousMoveController.atScanLineStart();
-		super.atScanLineStart();
+		return continuousMoveController.getPositionSteamIndexer(getPcEnc()).getNamedPositionCallable(getName(),1); 
 	}
 
 	@Override
@@ -139,8 +127,26 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 		return scurveTimeToVelocity;
 	}
 
+	/**
+	 * 
+	 * @param scurveTimeToVelocity - if using linear acceleration this is the ACCEL field of the 
+	 * motor in EPICS (Time to Velocity)
+	 */
 	public void setScurveTimeToVelocity(double scurveTimeToVelocity) {
 		this.scurveTimeToVelocity = scurveTimeToVelocity;
+	}
+
+	
+	public int getPcEnc() {
+		return pcEnc;
+	}
+
+	/**
+	 * 
+	 * @param pcEnc index of Posn Trig PV of Zebra for this motor Enc1 = 0
+	 */
+	public void setPcEnc(int pcEnc) {
+		this.pcEnc = pcEnc;
 	}
 
 }
