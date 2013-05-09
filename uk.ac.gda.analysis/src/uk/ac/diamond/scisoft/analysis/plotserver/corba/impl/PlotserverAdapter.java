@@ -173,14 +173,11 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 	public void updateGui(String guiName, GuiBean guiData) throws DeviceException {
 		if(delegate != null && viewIsLocal(guiName)){
 			
-			//run file operations locally on client rather than server
-			if ((FileOperationBean) guiData.get(GuiParameters.FILEOPERATION) != null) {
-				try {
-					delegate.updateGui(guiName, guiData);
-					return;
-				} catch (Exception e) {
-					throw new DeviceException(e.getMessage());
-				}
+			try {
+				delegate.updateGui(guiName, guiData);
+				return;
+			} catch (Exception e) {
+				throw new DeviceException(e.getMessage());
 			}
 		}
 
