@@ -31,7 +31,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	private Scannable cut2Scannable;
 	private Scannable cut3Scannable;
 	private Scannable materialScannable;
-	
+
 	@Override
 	public void configure() {
 		this.inputNames = new String[] { getName() };
