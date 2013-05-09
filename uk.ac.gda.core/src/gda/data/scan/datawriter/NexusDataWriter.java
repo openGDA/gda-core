@@ -45,6 +45,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
@@ -87,7 +88,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	static final int MAX_DATAFILENAME = 255;
 
 	/** Default NeXus format */
-	private String defaultNeXusBackend = null;
+	protected String defaultNeXusBackend = null;
 
 	/** Are we going to write an SRS file as well ? */
 	private boolean createSrsFile = false;
@@ -134,7 +135,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		return scanNumber;
 	}
 
-	protected Vector<SelfCreatingLink> scannableID;
+	protected Collection<SelfCreatingLink> scannableID;
 
 	boolean firstData = true;
 
@@ -358,7 +359,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				scanDimensions = dataPoint.getScanDimensions();
 				dataDimPrefix = new int[scanDimensions.length];
 				Arrays.fill(dataDimPrefix, 1);
-				this.prepareForCollection();
+				this.prepareFileAndStructure();
 				firstData = false;
 			}
 		} finally {
@@ -733,7 +734,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		return file;
 	}
 
-	private void prepareForCollection() throws Exception {
+	private void prepareFileAndStructure() throws Exception {
 		setupProperties();
 		createNextFile();
 		makeMetadata();
@@ -777,7 +778,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	protected void createCustomMetaData() throws NexusException {
 	}
 
-	private String getGroupNameFor(@SuppressWarnings("unused") Scannable s) {
+	private String getGroupClassFor(@SuppressWarnings("unused") Scannable s) {
 		String groupName = "NXpositioner";
 		return groupName;
 	}
@@ -787,7 +788,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 */
 	private void makeScannablesAndMonitors() {
 		scannableID = new Vector<SelfCreatingLink>();
-		Vector<Scannable> scannablesAndMonitors = new Vector<Scannable>();
+		Collection<Scannable> scannablesAndMonitors = new Vector<Scannable>();
+		scannablesAndMonitors.addAll(thisPoint.getScannables());
+		makeScannablesAndMonitors(scannablesAndMonitors);
+	}
+	
+	protected void makeScannablesAndMonitors(Collection<Scannable> scannablesAndMonitors) {
 
 		String axislist = "1";
 		for (int j = 2; j <= thisPoint.getScanDimensions().length; j++) {
@@ -798,20 +804,16 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			file.opengroup(this.entryName, "NXentry");
 			file.opengroup("instrument", "NXinstrument");
 
-			scannablesAndMonitors.addAll(thisPoint.getScannables());
-			// create an NXpositioner for each scannable...
 			int[] dataDim = generateDataDim(true, scanDimensions, null);
 
 			int inputnameindex = 0;
 			int extranameindex = 0;
 			for (Scannable scannable : scannablesAndMonitors) {
 
-				// Get names
 				String[] inputNames = scannable.getInputNames();
 				String[] extraNames = scannable.getExtraNames();
 
-				// Create (and open) group for the scannable
-				String groupName = getGroupNameFor(scannable);
+				String groupName = getGroupClassFor(scannable);
 				file.makegroup(scannable.getName(), groupName);
 				file.opengroup(scannable.getName(), groupName);
 
@@ -1308,6 +1310,16 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	/**
+	 * wrap the dreaded static so behaviour can be customised
+	 * 
+	 * @return reference to file
+	 * @throws Exception
+	 */
+	protected NeXusFileInterface createFile() throws Exception {
+		return NexusFileFactory.createFile(nexusFileUrl, defaultNeXusBackend, LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
+	}
+	
+	/**
 	 * Create the next file. First increment the file number and then try and get a NeXus file handle from
 	 * {@link NexusFileFactory}.
 	 * @throws Exception 
@@ -1372,8 +1384,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 
 			// create nexus file and return handle
-			file = NexusFileFactory.createFile(nexusFileUrl, defaultNeXusBackend,
-					LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
+			file = createFile();
 			if (createSrsFile) {
 				// Check to see if the file(s) already exists!
 				final File textFile = new File(txtFileUrl);
@@ -1470,7 +1481,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * @param scannable
 	 * @throws NexusException
 	 */
-	private void writeScannable(Scannable scannable) throws NexusException {
+	protected void writeScannable(Scannable scannable) throws NexusException {
 		int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
 		int[] dimArray = generateDataDim(false, dataDimPrefix, null);
 
@@ -1484,7 +1495,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// Navigate to correct location in the file.
 		file.opengroup(this.entryName, "NXentry");
 		file.opengroup("instrument", "NXinstrument");
-		file.opengroup(scannable.getName(), getGroupNameFor(scannable));
+		file.opengroup(scannable.getName(), getGroupClassFor(scannable));
 
 		// Loop over inputNames...
 		for (int i = 0; i < inputNames.length; i++) {
