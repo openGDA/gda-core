@@ -19,8 +19,10 @@
 package gda.scan;
 
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
+import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.PositionConvertorFunctions;
 
 import org.slf4j.Logger;
@@ -39,6 +41,26 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 		start = PositionConvertorFunctions.toDouble(args[1]);
 		stop = PositionConvertorFunctions.toDouble(args[2]);
 		step = PositionConvertorFunctions.toDouble(args[3]);
+		int argIndex=4;
+		boolean allowDetectorCollectionTime = false;
+		while(argIndex < args.length){
+			if( args[argIndex] instanceof ContinuouslyScannable || args[argIndex] instanceof PositionGrabbingAdapter){
+				argIndex++;
+				allowDetectorCollectionTime=false;
+				continue;
+			}
+			if( args[argIndex] instanceof Detector){
+				argIndex++;
+				allowDetectorCollectionTime=true;
+				continue;
+			}
+			if( allowDetectorCollectionTime ){
+				argIndex++;
+				allowDetectorCollectionTime=false;
+				continue;
+			}
+			throw new IllegalArgumentException("Invalid argument " + args[argIndex]);
+		}
 	}
 
 	@Override
@@ -48,9 +70,6 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 	
 	@Override
 	protected void extractScannablesToScan() {
-		if (allScannables.size() != 1) {
-			throw new IllegalArgumentException("Constant-velocity scans expect only one Scannable to move");
-		}
 		super.extractScannablesToScan();
 	}
 	
