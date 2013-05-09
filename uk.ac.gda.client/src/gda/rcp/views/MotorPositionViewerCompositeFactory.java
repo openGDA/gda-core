@@ -41,6 +41,7 @@ public class MotorPositionViewerCompositeFactory implements CompositeFactory, In
 	private Boolean layoutHoriz=true;
 	private String label=null;
 	private Integer decimalPlaces = null;
+	private static Boolean restoreValueWhenFocusLost;
 	
 	public Scannable getScannable() {
 		return scannable;
@@ -81,12 +82,26 @@ public class MotorPositionViewerCompositeFactory implements CompositeFactory, In
 
 	public static Composite createComposite(Composite parent, int style, final Display display, Scannable scannable, Boolean layoutHoriz,
 			String label, Integer decimalPlaces){
-		return new MotorPositionViewerComposite(parent, style, display, scannable, layoutHoriz, label, decimalPlaces);
+		return new MotorPositionViewerComposite(parent, style, display, scannable, layoutHoriz, label, decimalPlaces, null, getRestoreValueWhenFocusLost());
 	}
 	@Override
 	public Composite createComposite(Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite) {
 		return new MotorPositionViewerComposite(parent, style, iWorkbenchPartSite.getShell().getDisplay(), scannable, layoutHoriz, label, 
-				decimalPlaces);
+				decimalPlaces, commandFormat, getRestoreValueWhenFocusLost());
+	}
+
+	private String commandFormat;
+	
+	public void setCommandFormat(String commandFormat) {
+		this.commandFormat = commandFormat;
+	}
+	
+	public static Boolean getRestoreValueWhenFocusLost() {
+		return restoreValueWhenFocusLost;
+	}
+
+	public void setRestoreValueWhenFocusLost(Boolean restoreValueWhenFocusLost) {
+		MotorPositionViewerCompositeFactory.restoreValueWhenFocusLost = restoreValueWhenFocusLost;
 	}
 
 	@Override
@@ -118,10 +133,10 @@ public class MotorPositionViewerCompositeFactory implements CompositeFactory, In
 		Shell shell = new Shell(display);
 		shell.setLayout(new BorderLayout());
 
-		final MotorPositionViewerComposite comp = new MotorPositionViewerComposite(shell, SWT.NONE, display, scannableMotor, true, "North", null);
+		final MotorPositionViewerComposite comp = new MotorPositionViewerComposite(shell, SWT.NONE, display, scannableMotor, true, "North", null, null, getRestoreValueWhenFocusLost());
 		comp.setLayoutData(BorderLayout.NORTH);
 		comp.setVisible(true);
-		final MotorPositionViewerComposite comp1 = new MotorPositionViewerComposite(shell, SWT.NONE, display, scannableMotor, false, null, null);
+		final MotorPositionViewerComposite comp1 = new MotorPositionViewerComposite(shell, SWT.NONE, display, scannableMotor, false, null, null, null, getRestoreValueWhenFocusLost());
 		comp1.setLayoutData(BorderLayout.SOUTH);
 		comp1.setVisible(true);
 		shell.pack();
@@ -133,13 +148,20 @@ class MotorPositionViewerComposite extends Composite {
 
 	@SuppressWarnings("unused")
 	MotorPositionViewerComposite(Composite parent, int style, final Display display, Scannable scannable, Boolean layoutHoriz,
-			String label, Integer decimalPlaces) {
+			String label, Integer decimalPlaces, String commandFormat, Boolean restoreValueWhenFocusLost) {
 		super(parent, style);
 		
 		GridLayoutFactory.fillDefaults().numColumns(layoutHoriz ? 2: 1).applyTo(this);
 		GridDataFactory.fillDefaults().applyTo(this);
 		MotorPositionViewer mpv = new MotorPositionViewer(this, scannable, label);		
+		mpv.setCommandFormat(commandFormat);
 		mpv.setDecimalPlaces(2);
+		if (restoreValueWhenFocusLost != null) {
+			mpv.setRestoreValueWhenFocusLost(restoreValueWhenFocusLost);
+		}
+		else {
+			mpv.setRestoreValueWhenFocusLost(false);
+		}
 
 		if (decimalPlaces != null) 
 			mpv.setDecimalPlaces(decimalPlaces.intValue());

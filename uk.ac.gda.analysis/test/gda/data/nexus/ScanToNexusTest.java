@@ -32,8 +32,11 @@ import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeNodeSelection;
 import gda.data.scan.datawriter.AsciiWriterExtender;
 import gda.data.scan.datawriter.AsciiWriterExtenderConfig;
+import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.IDataWriterExtender;
+import gda.data.scan.datawriter.NXLinkCreator;
+import gda.data.scan.datawriter.NXSubEntryWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.scan.ConcurrentScan;
@@ -41,9 +44,14 @@ import gda.scan.ConcurrentScan;
 import java.io.File;
 import java.util.LinkedList;
 
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.nexusformat.NexusFile;
+
+import uk.ac.gda.analysis.hdf5.Hdf5Helper;
+import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
 
 /**
  * Class to test writing of nexus files during a scan
@@ -52,7 +60,7 @@ public class ScanToNexusTest {
 
 	final static String TestFileFolder = "testfiles/gda/data/nexus/";
 
-	static void runScanToCreateFile(IDataWriterExtender dataWriterExtender) throws InterruptedException, Exception {
+	static void runScanToCreateFile(DataWriter dataWriter, IDataWriterExtender dataWriterExtender) throws InterruptedException, Exception {
 		Scannable simpleScannable1 = TestHelpers.createTestScannable("SimpleScannable1", 0., new String[] {},
 				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
 
@@ -73,11 +81,11 @@ public class ScanToNexusTest {
 
 		Object[] args = new Object[] { simpleScannable1, 0., 10., 1., simpleScannable2, simpleDetector1 };
 		ConcurrentScan scan = new ConcurrentScan(args);
-		scan.setDataWriter(DefaultDataWriterFactory.createDataWriterFromFactory());
+		scan.setDataWriter(dataWriter != null ? dataWriter : DefaultDataWriterFactory.createDataWriterFromFactory());
 		if( dataWriterExtender != null)
 			scan.getDataWriter().addDataWriterExtender(dataWriterExtender);
 		scan.runScan();
-		scan.getDataWriter().completeCollection();
+//		scan.getDataWriter().completeCollection();
 	}
 
 	static void runNestedScanToCreateFile(IDataWriterExtender dataWriterExtender) throws InterruptedException,
@@ -138,7 +146,7 @@ public class ScanToNexusTest {
 				"Description of Experiment"));
 		metadata.addMetadataEntry(new StoredMetadataEntry(GDAMetadataProvider.SCAN_IDENTIFIER, "12345678"));
 
-		runScanToCreateFile(null);
+		runScanToCreateFile(null, null);
 		// read nexus file
 		String filename = testScratchDirectoryName + "/Data/" + "1.nxs";
 
@@ -182,7 +190,7 @@ public class ScanToNexusTest {
 				.setUpTest(ScanToNexusTest.class, "testCreateScanToSRSFile", true);
 
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "SrsDataFile");
-		runScanToCreateFile(null);
+		runScanToCreateFile(null,null);
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanToSRSFile_expected.dat"),
 				new File(testScratchDirectoryName + "/Data/1.dat"));
 	}
@@ -200,7 +208,7 @@ public class ScanToNexusTest {
 
 		LocalProperties.set("gda.data.scan.datawriter.dataFormat.SrsDataFile.aligncolumns", "True");
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "SrsDataFile");
-		runScanToCreateFile(null);
+		runScanToCreateFile(null,null);
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanToAlignedSRSFile_expected.dat"),
 				new File(testScratchDirectoryName + "/Data/1.dat"));
 	}
@@ -230,7 +238,7 @@ public class ScanToNexusTest {
 		final AsciiWriterExtender writer = new AsciiWriterExtender(output, config, "\t", null, true);
 		writer.addVariable("I0", "SimpleScannable1", 0);
 		writer.addVariable("it", "SimpleScannable2", 0);
-		runScanToCreateFile(writer);
+		runScanToCreateFile(null, writer);
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testDataWriterExtender_expected.txt"),
 				new File(output));
 	}
@@ -345,4 +353,59 @@ public class ScanToNexusTest {
 		LocalProperties.set("gda.nexus.createSRS", "false");
 		runNestedScanToCreateFile(null);
 	}
+	
+	
+	
+	@Test
+	public void testNexusSubEntryCreator() throws Exception {
+		String testScratchDirectoryName = TestHelpers.setUpTest(ScanToNexusTest.class, "testNexusSubEntryCreator", true);
+		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter");
+		LocalProperties.set("gda.nexus.createSRS", "false");
+
+		runScanToCreateFile(null, null);
+		
+		NXLinkCreator nxLinkCreator = new NXLinkCreator();
+		//create 3 links
+		//add link to simpleScannable1 in current file
+		nxLinkCreator.addLink("/entry2:NXentry/test", null, "entry1/default/simpleScannable1");
+		//add link to simpleScannable1 in 1.nxs via nxfile 
+		nxLinkCreator.addLink("/entry2:NXentry/test2", (new File(testScratchDirectoryName + "/Data/1.nxs")).getAbsolutePath(), "entry1/SimpleDetector1/simpleScannable1");
+		//add link to entry2/test2 in this file - which itself points to simpleScannable1 in 1.nxs using currentfile  
+		nxLinkCreator.addLink("/entry2:NXentry/test3", "", "entry2/test2");
+		
+
+		Scannable simpleScannable1 = TestHelpers.createTestScannable("SimpleScannable1", 0., new String[] {},
+				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
+
+		Object[] args = new Object[] { simpleScannable1, 0., 10., 2. };
+		ConcurrentScan scan = new ConcurrentScan(args);
+		
+		DataWriter dw = DefaultDataWriterFactory.createDataWriterFromFactory();
+		IDataWriterExtender writer = new NXSubEntryWriter(nxLinkCreator);
+		dw.addDataWriterExtender(writer);
+		scan.setDataWriter(dw);
+		scan.runScan();
+
+
+		//1. test points to 2.nxs 
+		Hdf5HelperData helperData = Hdf5Helper.getInstance().readDataSetAll(testScratchDirectoryName + "/Data/2.nxs", "/entry2", "test", true);
+		double[] data = (double[]) helperData.data;
+		Assert.assertEquals(10.0, data[5], 1e-6);
+
+		
+		//2. test2 points to 1.nxs 
+		helperData = Hdf5Helper.getInstance().readDataSetAll(testScratchDirectoryName + "/Data/2.nxs", "/entry2", "test2", true);
+		data = (double[]) helperData.data;
+		Assert.assertEquals(5.0, data[5], 1e-6);
+
+		//3. test3 points to test2 so should be the same assertion 2
+		helperData = Hdf5Helper.getInstance().readDataSetAll(testScratchDirectoryName + "/Data/2.nxs", "/entry2", "test3", true);
+		data = (double[]) helperData.data;
+		Assert.assertEquals(5.0, data[5], 1e-6);
+		
+	}
+	
+	
 }
+
+

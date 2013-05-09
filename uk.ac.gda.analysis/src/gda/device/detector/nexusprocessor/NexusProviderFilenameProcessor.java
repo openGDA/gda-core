@@ -20,6 +20,7 @@ package gda.device.detector.nexusprocessor;
 
 import gda.data.nexus.FileNameBufToStrings;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.scan.ScanBase;
 
 import java.io.File;
 import java.util.List;
@@ -65,14 +66,25 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 	protected AbstractDataset getAbstractDatasetFromNexusGroupData(NexusGroupData ngd) throws Exception {
 		if (!isEnabled())
 			return null;
-		if( ngd.type == NexusFile.NX_CHAR){
+		if( ngd.type == NexusFile.NX_CHAR){ 
 			String[] filenames = (new FileNameBufToStrings( ngd.dimensions, (byte[])ngd.getBuffer())).getFilenames();
 			if( filenames.length == 1){ 
 				String path = filenames[0];
 				if( !(new File(path)).exists()){
 					Thread.sleep(1000);
 				}
-				DataHolder data = LoaderFactory.getData(path);
+				DataHolder data=null;
+				while( data == null){
+					data = LoaderFactory.getData(path);
+					if(data == null){ 
+						//TODO if( data == null)
+						//	logger.warn("Unable to find data at '" + path + "' within existing file:'" + path +"'");
+						if(ScanBase.isInterrupted())
+							throw new Exception("Interrupted whilst reading '" + path + "' from within existing file:'" + path +"'");
+						
+						Thread.sleep(1000);
+					}
+				}
 				return data.getDataset(dataset_index);
 			}
 		}

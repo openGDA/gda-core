@@ -510,4 +510,12 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 		}
 	}
 
+	@Override
+	public boolean isDrawable(double xSize, double ySize) {
+		if (Math.abs(xSize) < 1 || Math.abs(ySize) < 1) {
+			return false;
+		}
+		return true;
+	}
+
 }

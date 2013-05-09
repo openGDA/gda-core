@@ -76,7 +76,6 @@ PositionCallableProvider<double[]> {
 
 	@Override
 	public boolean integratesBetweenPoints() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	
@@ -111,17 +110,20 @@ PositionCallableProvider<double[]> {
 		daserver.sendCommand(buffer.toString());
 		daserver.sendCommand("tfg arm");
 	}
+	
 	/**
 	 * switch off external triggering by the TTL0 input
+	 * @throws DeviceException 
 	 */
-	private void switchOffExtTrigger() {
+	private void switchOffExtTrigger() throws DeviceException {
 		daserver.sendCommand("tfg setup-trig start");
 	}
 
 	/**
 	 * switch on external triggering by the TTL0 input
+	 * @throws DeviceException 
 	 */
-	private void switchOnExtTrigger() {
+	private void switchOnExtTrigger() throws DeviceException {
 		daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
 	}
 

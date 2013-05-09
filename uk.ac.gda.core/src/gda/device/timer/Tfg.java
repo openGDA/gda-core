@@ -163,7 +163,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 		this.updateInterval = updateInterval;
 	}
 
-	protected String getAcqStatus() {
+	protected String getAcqStatus() throws DeviceException {
 		String status = "IDLE";
 		Object obj = daServer.sendCommand("tfg read status");
 		// this might fail and return -1
@@ -178,7 +178,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	}
 
 	@Override
-	public int getStatus() {
+	public int getStatus() throws DeviceException {
 		int state = Timer.IDLE;
 		if (daServer != null && daServer.isConnected()) {
 			// null reply is returned from daServer of not connected.
@@ -203,8 +203,9 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 
 	/**
 	 * get the tfg progress message
+	 * @throws DeviceException 
 	 */
-	public String getProgress() {
+	public String getProgress() throws DeviceException {
 		if (daServer != null && daServer.isConnected()) {
 			// null reply is returned from daServer of not connected.
 			// do we want to return IDLE if not connected or error?
@@ -252,7 +253,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	}
 
 	@Override
-	public int getCurrentFrame() {
+	public int getCurrentFrame() throws DeviceException {
 		int frame = 0;
 		if (daServer != null && daServer.isConnected()) {
 			frame = ((Integer) daServer.sendCommand("tfg read frame")).intValue();
@@ -262,7 +263,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	}
 
 	@Override
-	public int getCurrentCycle() {
+	public int getCurrentCycle() throws DeviceException {
 		int cycle = 0;
 		if (daServer != null && daServer.isConnected()) {
 			cycle = ((Integer) daServer.sendCommand("tfg read lap")).intValue();
@@ -405,9 +406,10 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 
 	/**
 	 * Count the specified time (in ms)
+	 * @throws DeviceException 
 	 */
 	@Override
-	public synchronized void countAsync(double time) {
+	public synchronized void countAsync(double time) throws DeviceException {
 		if (daServer != null && daServer.isConnected()) {
 			// The da.server tfg generate command expects cycles (integer)
 			// frames(integer) deadTime (seconds, double) liveTime
@@ -424,7 +426,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	}
 
 	@Override
-	public void output(String file) {
+	public void output(String file) throws DeviceException {
 		Object obj;
 		int handle;
 		if (host == null || user == null || password == null || host.equals("") || user.equals("")
@@ -635,14 +637,14 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 					notifyIObservers(this, timerStatus);
 					wait(updateInterval);
 				}
-			} catch (InterruptedException iox) {
-				logger.debug("tfg run thread interrupted");
+			} catch (Exception iox) {
+				logger.info("tfg run thread interrupted",iox);
 			}
 		}
 	}
 
 	// this method is only for Junit testing
-	protected void setFail() {
+	protected void setFail() throws DeviceException {
 		if (daServer != null && daServer.isConnected()) {
 			daServer.sendCommand("Fail");
 		}

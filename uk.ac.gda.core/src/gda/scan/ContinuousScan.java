@@ -130,7 +130,9 @@ public class ContinuousScan extends ConcurrentScanChild {
 		qscanAxis.setContinuousParameters(params);
 		// prepare the hardware for the continuous move and revise the number of scans points to the actual number which
 		// the hardware will do.
-		numberScanpoints = qscanAxis.prepareForContinuousMove();
+		
+		//I18 had a negative number of pulses in epics. Though theres no such thing, It is working and should be handled
+		numberScanpoints = Math.abs(qscanAxis.prepareForContinuousMove());
 		params.setNumberDataPoints(numberScanpoints);
 		super.setTotalNumberOfPoints(numberScanpoints);
 
@@ -189,6 +191,12 @@ public class ContinuousScan extends ConcurrentScanChild {
 				highestFrameNumberRead = frameNumberReached;
 				logger.info("number of frames completed:" + new Integer(frameNumberReached + 1));
 			}
+			
+			// make sure axis has stopped. otherwise next repetition will set things while the axis is moving
+			while (qscanAxis.isBusy()){
+				Thread.sleep(100);
+			}
+			
 		} catch (InterruptedException e) {
 			// scan has been aborted, so stop the motion and let the scan write out the rest of the data point which
 			// have been collected so far
@@ -197,7 +205,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		}
 
 		// have we read all the frames?
-		if (highestFrameNumberRead == numberScanpoints - 1) {
+		if (highestFrameNumberRead == numberScanpoints - 2) {
 			return;
 		}
 
@@ -293,8 +301,9 @@ public class ContinuousScan extends ConcurrentScanChild {
 					+ e1.getMessage(), e1);
 		}
 		logger.info("data read successfully");
-
-		for (int thisFrame = lowFrame; thisFrame < highFrame; thisFrame++) {
+		
+		//thisFrame <= highFrame. this was thisFrame < highFrame which caused each frame to lose a point at the end
+		for (int thisFrame = lowFrame; thisFrame <= highFrame; thisFrame++) {
 			checkForInterrupts();
 			currentPointCount++;
 			this.stepId = new ScanStepId(qscanAxis.getName(), currentPointCount);
@@ -308,14 +317,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 			// add the scannables. For the qscanAxis scannable calculate the position.
 			double stepSize = (stop - start) / (numberScanpoints - 1);
-			/*thisPoint.addScannable(qscanAxis);
-			thisPoint.addScannablePosition(start + (thisFrame - 1) * stepSize, qscanAxis.getOutputFormat());
-			for (Scannable scannable : allScannables) {
-				if (!scannable.equals(qscanAxis)) {
-					thisPoint.addScannable(scannable);
-					thisPoint.addScannablePosition(scannable.getPosition(), scannable.getOutputFormat());
-				}
-			}*/
+
 			for (Scannable scannable : allScannables) {
 				if (scannable.equals(qscanAxis)) {
 					thisPoint.addScannable(qscanAxis);
@@ -350,7 +352,6 @@ public class ContinuousScan extends ConcurrentScanChild {
 			// (This is implemented as setters at the moment, as I didn't want to risk changing the constructor
 			// statement above and risk breaking the scanning system!)
 			thisPoint.setCurrentPointNumber(this.currentPointCount);
-//			thisPoint.setNumberOfPoints(super.getTotalNumberOfPoints());
 			thisPoint.setInstrument(instrument);
 			thisPoint.setCommand(getCommand());
 			setScanIdentifierInScanDataPoint(thisPoint);

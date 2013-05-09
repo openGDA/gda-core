@@ -161,11 +161,19 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 	@Override
 	public void scanStarted() {
 		++scanNumber;
-		xAxisValues.clear();
+		if (xAxisValues != null)
+			xAxisValues.clear();
 		// Prime numbers grow better.
 		scanning = true;
 		legendEntries = false;
 		plotter.getColourTable().clearLegend();
+		stack.topControl = lblNoDataMessage;
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				stackComposite.layout();
+			}
+		});
 	}
 
 	/**

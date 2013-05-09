@@ -83,7 +83,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		
 		double[][] frame = readData(startFrame, finalFrame);
 		framesRead=frame;
-		return readData(startFrame, finalFrame);
+		return frame;
 	}
 	
 	@Override
@@ -218,15 +218,17 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 
 	/**
 	 * switch off external triggering by the TTL0 input
+	 * @throws DeviceException 
 	 */
-	private void switchOffExtTrigger() {
+	private void switchOffExtTrigger() throws DeviceException {
 		daserver.sendCommand("tfg setup-trig start");
 	}
 
 	/**
 	 * switch on external triggering by the TTL0 input
+	 * @throws DeviceException 
 	 */
-	private void switchOnExtTrigger() {
+	private void switchOnExtTrigger() throws DeviceException {
 		daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
 	}
 

@@ -26,13 +26,11 @@ import org.eclipse.jface.viewers.TextCellEditor;
 public class DescriptionEditingSupport extends EditingSupport {
 	private TableViewer viewer;
 	private SimpleScan bean;
-	private SimpleScanUIEditor editor;
 	
-	public DescriptionEditingSupport(TableViewer viewer, SimpleScan bean, SimpleScanUIEditor editor) {
+	public DescriptionEditingSupport(TableViewer viewer, SimpleScan bean) {
 		super(viewer);
 		this.viewer = viewer;
 		this.bean = bean;
-		this.editor = editor;
 	}
 
 	@Override

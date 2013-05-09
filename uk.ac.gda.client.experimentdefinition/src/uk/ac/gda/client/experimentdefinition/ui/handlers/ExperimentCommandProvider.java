@@ -45,7 +45,6 @@ public class ExperimentCommandProvider implements CommandProvider {
 		try {
 			File varDir = new File(LocalProperties.getVarDir());
 			tempFile = File.createTempFile(ob.getRunName() + "_", ".py", varDir);
-			tempFile.deleteOnExit();
 
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(tempFile)));
 			out.print(ob.getCommandString());

@@ -522,9 +522,6 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 
 	@Override
 	public boolean ignoreRestOfLine(String thisGroup) {
-		boolean containsComment = thisGroup.contains("#");
-		if( containsComment)
-			return true;
-		return false;
+		return thisGroup.trim().startsWith("#");
 	}
 }

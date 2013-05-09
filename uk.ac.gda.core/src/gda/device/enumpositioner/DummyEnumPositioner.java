@@ -26,6 +26,7 @@ import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 /**
  * A dummy class implementing the EnumPositioner for testing.
@@ -69,6 +70,14 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 			array.add(position);
 		}
 		return array;
+	}
+	
+	public void setPositions(ArrayList<String> positionsArray ) {
+		Vector<String> array = new Vector<String>();
+		for (String position : positionsArray) {
+			array.add(position);
+		}
+		this.positions = array;
 	}
 
 	@Override

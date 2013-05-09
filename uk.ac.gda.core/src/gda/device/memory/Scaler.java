@@ -58,15 +58,28 @@ public class Scaler extends Gdhist {
 
 		ensureOpen();
 
-		data = daServer.getFloatBinaryData("read " + t + " " + y + " " + x + " " + dt + " " + dy + " " + dx + " "
-				+ localEndian + " float from " + handle, npoints);
+		try {
+			data = daServer.getFloatBinaryData("read " + t + " " + y + " " + x + " " + dt + " " + dy + " " + dx + " "
+					+ localEndian + " float from " + handle, npoints);
+		} catch (Exception e) {
+			throwDeviceException(e);
+		}
 		
 		if (data == null) {
-			close();
-			throw new DeviceException("read null from daserver");
+			throwNullException();
 		}
 		return data;
 	}
+	
+	private void throwDeviceException(Exception e) throws DeviceException {
+		throw new DeviceException(e.getMessage(),e);
+	}
+	
+	private void throwNullException() throws DeviceException {
+		close();
+		throw new DeviceException("read null from daserver");
+	}
+
 
 	@Override
 	public float[] readFloat(int frame) throws DeviceException {
@@ -77,11 +90,14 @@ public class Scaler extends Gdhist {
 
 		// frame in this case is calibration channel
 		npoints = totalFrames;
-		data = daServer.getFloatBinaryData("read " + frame + " 0 0 1 1 " + totalFrames + " " + localEndian
-				+ " float from " + handle, npoints);
+		try {
+			data = daServer.getFloatBinaryData("read " + frame + " 0 0 1 1 " + totalFrames + " " + localEndian
+					+ " float from " + handle, npoints);
+		} catch (Exception e) {
+			throwDeviceException(e);
+		}
 		if (data == null) {
-			close();
-			throw new DeviceException("read null from daserver");
+			throwNullException();
 		}
 		return data;
 	}
@@ -93,11 +109,14 @@ public class Scaler extends Gdhist {
 
 		ensureOpen();
 
-		data = daServer.getBinaryData("read " + t + " " + y + " " + x + " " + dt + " " + dy + " " + dx + " "
-				+ localEndian + " float from " + handle, npoints);
+		try {
+			data = daServer.getBinaryData("read " + t + " " + y + " " + x + " " + dt + " " + dy + " " + dx + " "
+					+ localEndian + " float from " + handle, npoints);
+		} catch (Exception e) {
+			throwDeviceException(e);
+		}
 		if (data == null) {
-			close();
-			throw new DeviceException("read null from daserver");
+			throwNullException();
 		}
 		return data;
 	}
@@ -111,11 +130,14 @@ public class Scaler extends Gdhist {
 
 		// frame in this case is calibration channel
 		npoints = totalFrames;
-		data = daServer.getBinaryData("read " + frame + " 0 0 1 1 " + totalFrames + " " + localEndian + " float from "
-				+ handle, npoints);
+		try {
+			data = daServer.getBinaryData("read " + frame + " 0 0 1 1 " + totalFrames + " " + localEndian + " float from "
+					+ handle, npoints);
+		} catch (Exception e) {
+			throwDeviceException(e);
+		}
 		if (data == null) {
-			close();
-			throw new DeviceException("read null from daserver");
+			throwNullException();
 		}
 		return data;
 	}

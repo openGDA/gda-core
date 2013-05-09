@@ -49,7 +49,16 @@ class CentroidReaderSim:
         val = self.centroids[voltageStep][slitPosIndex] 
         return val 
 
-def runOptimisation(bimorphScannable=None, mirror_type = None,numberOfElectrodes = None,voltageIncrement = None,files = None,error_file =  None,desiredFocSize = None,user_offset =  None,bm_voltages=None, beamOffset=None, autoDist=None, scalingFactor=None, scanDir=None, minSlitPos=None, maxSlitPos=None):
+def headingExists(headings, headingToFind):
+    for h in headings:
+        if h == headingToFind:
+            return True
+    return False
+   
+
+
+def runOptimisation(bimorphScannable=None, mirror_type = None,numberOfElectrodes = None,voltageIncrement = None,files = None,error_file =  None,desiredFocSize = None,user_offset =  None,bm_voltages=None, beamOffset=None, autoDist=None, scalingFactor=None, scanDir=None, minSlitPos=None, maxSlitPos=None, \
+                    slitPosScannableName=None):
     ''' 
     >>> runOptimisation(bimorphScannable)
     
@@ -59,8 +68,7 @@ def runOptimisation(bimorphScannable=None, mirror_type = None,numberOfElectrodes
     
     '''
     
-    
-    ro=RunOptimisation(bimorphScannable, mirror_type,numberOfElectrodes,voltageIncrement,files,error_file,desiredFocSize,user_offset,bm_voltages, beamOffset, autoDist, scalingFactor, scanDir, minSlitPos, maxSlitPos)
+    ro=RunOptimisation(bimorphScannable, mirror_type,numberOfElectrodes,voltageIncrement,files,error_file,desiredFocSize,user_offset,bm_voltages, beamOffset, autoDist, scalingFactor, scanDir, minSlitPos, maxSlitPos,slitPosScannableName)
     ro()
     return ro
 
@@ -82,7 +90,8 @@ class RunOptimisation():
                   scalingFactor=None,
                   scanDir=None, 
                   minSlitPos=None, 
-                  maxSlitPos=None):
+                  maxSlitPos=None,
+                  slitPosScannableName=None):
         
         self.bimorphScannable = bimorphScannable
         
@@ -102,6 +111,7 @@ class RunOptimisation():
         self.scanDir = scanDir
         self.minSlitPos = minSlitPos
         self.maxSlitPos = maxSlitPos
+        self.slitPosScannableName = slitPosScannableName
         
     def __call__(self):
         self.requestInputs()
@@ -138,7 +148,6 @@ class RunOptimisation():
             if self.bm_voltages == None:
                 self.bm_voltages = eval(inputCommand.requestInput("Please enter the current voltages separated by commas e.g. 0,1,2,3,4,5,6,7"))
 
-
     def calculateVoltages(self):
         
         int_files = []
@@ -157,21 +166,28 @@ class RunOptimisation():
 
         #print LocalProperties.get("gda.data.scan.datawriter.dataFormat")
         if self.mirror_type == "hfm" or self.mirror_type == "x" or self.mirror_type == "HFM":
-            centroid_column_name="peak2d_peakx"
+            centroid_column_name_suffix="peak2d_peakx"
         elif self.mirror_type == "vfm" or self.mirror_type == "y" or self.mirror_type == "VFM":
-            centroid_column_name="peak2d_peaky"
+            centroid_column_name_suffix="peak2d_peaky"
         
         headings = errorData.getNames()
-        
-        for h in headings:
-            if h.__contains__("cen") and h.__contains__("s"):
-                slit_column_name = h
 
-       
-
-        slitPos = errorData.getDataset(0).getData()
         if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
-            slitPos = errorData.getDataset(slit_column_name).getData()
+            err_slit_column_name = "/entry1/instrument/" + self.slitPosScannableName + "/" + self.slitPosScannableName
+            if not headingExists(headings, err_slit_column_name):
+                err_slit_column_name = "/entry1/instrument/pa/idx"
+            print "err_slit_column_name=" + err_slit_column_name
+
+            err_centroid_column_name = "/entry1/instrument/peak2d/" + centroid_column_name_suffix
+            if not headingExists(headings, err_centroid_column_name):
+                err_centroid_column_name = "/entry1/instrument/pa/"  + centroid_column_name_suffix
+            print "err_centroid_column_name=" + err_centroid_column_name
+            slitPos = errorData.getLazyDataset(err_slit_column_name).getSlice(None).getBuffer()
+        else:
+            if headings[0]=="idx":
+                slitPos = errorData.getLazyDataset(1).getSlice(None).getBuffer()
+            else:
+                slitPos = errorData.getLazyDataset(0).getSlice(None).getBuffer()
         
         if self.minSlitPos!=None or self.maxSlitPos!=None:
             startIndex = 0
@@ -186,18 +202,41 @@ class RunOptimisation():
                             startFound=True
                     endIndex+=1
                 index+=1
-        
+#        startIndex=0
+#        endIndex=22
+            print "startIndex:"+`startIndex` + "endIndex:" + `endIndex`
+            
+            
+        headings = ScanFileLoader(files[0], self.scanDir).getSFH().getNames()
+
+        if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
+#            data_slit_column_name = "/entry1/instrument/" + self.slitPosScannableName + "/" + self.slitPosScannableName
+#            if not headingExists(headings, data_slit_column_name):
+#                data_slit_column_name = "/entry1/instrument/pa/idx"
+#            print "data_slit_column_name=" + data_slit_column_name
+
+            data_centroid_column_name = "/entry1/instrument/peak2d/" + centroid_column_name_suffix
+            if not headingExists(headings, data_centroid_column_name):
+                data_centroid_column_name = "/entry1/instrument/pa/"  + centroid_column_name_suffix
+            print "data_centroid_column_name=" + data_centroid_column_name
+            
+            
         centroidMatrix = []
-        
         for file in files:
             data = ScanFileLoader(file, self.scanDir).getSFH()
-            centroids = data.getDataset(centroid_column_name).getData()
-            error_centroids = errorData.getDataset(centroid_column_name).getData()
+            centroids = data.getLazyDataset(data_centroid_column_name).getSlice(None).getBuffer()
+            error_centroids = errorData.getLazyDataset(err_centroid_column_name).getSlice(None).getBuffer()
 
             if(self.minSlitPos!=None or self.maxSlitPos!=None):
                 centroids = centroids[startIndex:endIndex]
                 error_centroids = error_centroids[startIndex:endIndex]
-                slitPos = errorData.getDataset(0).getData()[startIndex:endIndex]
+                if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
+                    slitPos = errorData.getLazyDataset(err_slit_column_name).getSlice(None).getBuffer()[startIndex:endIndex]
+                else:                
+                    if headings[0]=="idx":
+                        slitPos = errorData.getLazyDataset(1).getSlice(None).getBuffer()[startIndex:endIndex]
+                    else:
+                        slitPos = errorData.getLazyDataset(0).getSlice().getBuffer()[startIndex:endIndex]
 
             centroidMatrix.append(centroids)
             

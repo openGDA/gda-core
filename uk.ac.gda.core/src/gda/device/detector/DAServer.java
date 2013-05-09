@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * Provides Ethernet communications with OS9/Linux DAServer
  */
 public class DAServer extends DeviceBase implements Configurable, Findable {
-	
+
 	public static final double CLOCKRATE = 12.5e-09;
 	private static final Logger logger = LoggerFactory.getLogger(DAServer.class);
 	private String host = "none";
@@ -166,9 +166,8 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 					if (reply.toString().isEmpty()){
 						getReply(false);
 					}
-					
-					}
-				} catch (IOException e) {
+				}
+				} catch (Exception e) {
 					throw new FactoryException("da.server config failed", e);
 				}
 			}
@@ -238,7 +237,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			unlock();
 		}
 	}
-	
+
 	private void ensureConnected() {
 		lock();
 
@@ -248,19 +247,21 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 				try {
 					configure();
 				} catch (FactoryException e) {
-					logger.error("error connecting",e);
+					logger.error("error connecting", e);
 				}
 			}
 		} finally {
 			unlock();
 		}
 	}
-	
+
 	/**
 	 * Tidy existing socket streams and try to connect them again within the thread. This method is synchronized as both
 	 * the main thread and run thread use this method.
+	 * 
+	 * @throws DeviceException
 	 */
-	public synchronized void reconnect() {
+	public synchronized void reconnect() throws DeviceException {
 		try {
 			close();
 		} catch (DeviceException e) {
@@ -311,7 +312,6 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		}
 	}
 
-
 	/**
 	 * Returns the state of the socket connection
 	 * 
@@ -324,7 +324,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		return connected;
 	}
 
-	private String myReadLine() throws IOException {
+	private String myReadLine() throws IOException, InterruptedException {
 		char ch;
 		StringBuffer reply = new StringBuffer("");
 
@@ -341,7 +341,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 							throw new IOException("waited too long");
 						}
 					} catch (InterruptedException e) {
-						throw new IOException("interrupted waiting for reply");
+						throw new InterruptedException("interrupted waiting for reply");
 					}
 				}
 
@@ -369,7 +369,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	private boolean isPrompt(String message) {
 		return message.charAt(0) == '>';
 	}
-	
+
 	/**
 	 * Send command to the server and specify a timeout on this command
 	 * 
@@ -378,8 +378,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	 * @param timeout
 	 *            value in milliseconds
 	 * @return the reply which may be integer or string.
+	 * @throws DeviceException
 	 */
-	public Object sendCommand(String msg, int timeout) {
+	public Object sendCommand(String msg, int timeout) throws DeviceException {
 		try {
 			socket.setSoTimeout(timeout);
 		} catch (SocketException sx) {
@@ -388,18 +389,19 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		return sendCommand(msg);
 	}
 
-	public Object sendCommand(String msg){
-		return sendCommand(msg,false);
+	public Object sendCommand(String msg) throws DeviceException {
+		return sendCommand(msg, false);
 	}
-	
+
 	/**
 	 * Send command to the server.
 	 * 
 	 * @param msg
 	 *            an unterminated command
 	 * @return the reply which may be integer or string.
+	 * @throws DeviceException
 	 */
-	public Object sendCommand(String msg, Boolean multiline) {
+	public Object sendCommand(String msg, Boolean multiline) throws DeviceException {
 		String command = msg + '\n';
 		Object reply = null;
 
@@ -411,13 +413,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			out.write(command);
 			out.flush();
 			reply = getReply(multiline);
-		} catch (IOException ex) {
-			logger.error(getName() + ": sendCommand: " + ex.getMessage());
-			//try {
-				//close();
-			//} catch (DeviceException e) {
-				// we know
-			//}
+		} catch (Exception ex) {
+			// logger.error(getName() + ": sendCommand: " + ex.getMessage());
+			throw new DeviceException(getName() + ": sendCommand: " + ex.getMessage());
 		} finally {
 			unlock();
 		}
@@ -430,8 +428,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	 * @param msg
 	 *            an unterminated command
 	 * @return returns data as an array of string objects.
+	 * @throws Exception
 	 */
-	public Object[] getData(String msg) {
+	public Object[] getData(String msg) throws Exception {
 		Object reply = null;
 		Object[] dataArray = null;
 
@@ -461,7 +460,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		return dataArray;
 	}
 
-	private Object getReply(Boolean multiline) throws IOException {
+	private Object getReply(Boolean multiline) throws Exception {
 		Object reply = "";
 		Date stampIn = new Date();
 
@@ -478,7 +477,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 				if (stampIn.getTime() + 600 * 1000 < new Date().getTime()) {
 					throw new IOException("no sensible reply in ages");
 				}
-				if (multiline){
+				if (multiline) {
 					Object replyObj = parseReply(message);
 					if (replyObj != null) {
 						reply = reply.toString() + "\n" + message.toString();
@@ -493,7 +492,8 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			unlock();
 		}
 	}
-	private void doStartupScript() {
+
+	private void doStartupScript() throws DeviceException {
 		if (isConnected() && startupCommands.size() != 0) {
 			for (String command : startupCommands) {
 				sendCommand(command);
@@ -515,10 +515,10 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			// XH hack: the read-status verbose command returns something useful in the # part of the returned message.
 			String restOfMessage = message.substring(2);
 			String[] parts = restOfMessage.split(":");
-			if (parts[0].equals("Idle") || parts[0].equals("Running") || parts[0].equals("Paused")){
+			if (parts[0].equals("Idle") || parts[0].equals("Running") || parts[0].equals("Paused")) {
 				return restOfMessage;
 			}
-			
+
 			// nothing interesting - diagnostics?
 			return null;
 		} else if (message.charAt(0) == '!') {
@@ -562,7 +562,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	}
 
 	@SuppressWarnings("null")
-	protected ByteBuffer getBinaryDataBuffer(String command, int ndata) {
+	protected ByteBuffer getBinaryDataBuffer(String command, int ndata) throws Exception {
 		ByteBuffer bb = ByteBuffer.allocate(ndata * (Float.SIZE / Byte.SIZE));
 
 		if (dataport < 0) {
@@ -613,7 +613,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 				try {
 					Thread.sleep(25);
 				} catch (InterruptedException e) {
-					throw new IOException("interrupted while waiting for connection");
+					throw new InterruptedException("interrupted while waiting for connection");
 				}
 			}
 			logger.debug(getName() + " getBinaryDataBuffer(): socket connection established");
@@ -641,7 +641,6 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		return bb;
 	}
 
-
 	/**
 	 * Get binary data from the server and transform to double
 	 * 
@@ -650,18 +649,47 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	 * @param ndata
 	 *            number of data values to fetch.
 	 * @return returns data as an array.
+	 * @throws Exception
 	 */
-	public double[] getBinaryData(String message, int ndata) {
+	public double[] getBinaryData(String message, int ndata) throws Exception {
 		if (!isConnected()) {
 			return null;
 		}
 
+		boolean retry = false;
+		int numRetries = 0;
+		double[] results = null;
+		do {
+			try {
+				results = tryToGetBinaryData(message, ndata);
+			} catch (Exception e) {
+				if (numRetries >= 5) {
+					throw e;
+				}
+				logger.warn("Buffer returned from da.server was too small, retrying");
+				numRetries++;
+				retry = true;
+			}
+
+		} while (retry);
+		return results;
+	}
+
+	private double[] tryToGetBinaryData(String message, int ndata) throws Exception {
 		String command = message;
 		double[] binaryData = new double[ndata];
 		ByteBuffer bb = getBinaryDataBuffer(command, ndata);
-		if (bb == null) return null;
+		if (bb == null)
+			return null;
+		int bufferSize = bb.array().length;
+		if (bufferSize != ndata * 4){
+			throw new Exception("Asked for " + ndata * 4 + "bytes but received " + bufferSize);
+		}
 		for (int i = 0; i < binaryData.length; i++) {
-	        binaryData[i] = bb.getFloat();
+			if (!bb.hasRemaining()) {
+				throw new Exception("Ran off end of buffer!");
+			}
+			binaryData[i] = bb.getFloat();
 		}
 		return binaryData;
 	}
@@ -674,8 +702,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	 * @param ndata
 	 *            number of data values to fetch.
 	 * @return returns data as an array.
+	 * @throws Exception
 	 */
-	public float[] getFloatBinaryData(String message, int ndata) {
+	public float[] getFloatBinaryData(String message, int ndata) throws Exception {
 		if (!isConnected()) {
 			return null;
 		}
@@ -683,7 +712,8 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		String command = message;
 		float[] binaryData = new float[ndata];
 		ByteBuffer bb = getBinaryDataBuffer(command, ndata);
-		if (bb == null) return null;
+		if (bb == null)
+			return null;
 		bb.asFloatBuffer().get(binaryData);
 		return binaryData;
 	}
@@ -696,8 +726,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	 * @param ndata
 	 *            number of data values to fetch.
 	 * @return returns data as an array.
+	 * @throws Exception
 	 */
-	public long[] getLongBinaryData(String message, int ndata) {
+	public long[] getLongBinaryData(String message, int ndata) throws Exception {
 		if (!isConnected()) {
 			return null;
 		}
@@ -705,7 +736,8 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		String command = message;
 		long[] binaryData = new long[ndata];
 		ByteBuffer bb = getBinaryDataBuffer(command, ndata);
-		if (bb == null) return null;
+		if (bb == null)
+			return null;
 		bb.asLongBuffer().get(binaryData);
 		return binaryData;
 	}
@@ -718,8 +750,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	 * @param ndata
 	 *            number of data values to fetch.
 	 * @return returns data as an array.
+	 * @throws Exception
 	 */
-	public int[] getIntBinaryData(String message, int ndata) {
+	public int[] getIntBinaryData(String message, int ndata) throws Exception {
 		if (!isConnected()) {
 			return null;
 		}
@@ -727,15 +760,18 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		String command = message;
 		int[] binaryData = new int[ndata];
 		ByteBuffer bb = getBinaryDataBuffer(command, ndata);
-		if (bb == null) return null;
+		if (bb == null)
+			return null;
 		bb.asIntBuffer().get(binaryData);
 		return binaryData;
 	}
 
 	/**
 	 * test method
+	 * 
+	 * @throws Exception
 	 */
-	public void test() {
+	public void test() throws Exception {
 		int[] testIntData;
 		double[] testDoubleData;
 		float[] testFloatData;

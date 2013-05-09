@@ -486,6 +486,27 @@
            tooltip="New">
      </command>
 	</menuContribution>
+	<menuContribution
+	        locationURI="toolbar:uk.ac.gda.client.liveplotview">
+	    <command
+           commandId="uk.ac.gda.client.xyPlotHideAllCommand"
+           icon="icons/chart_curve_hide.png"
+           label="Hide All"
+           tooltip="Hide all scans">
+	    </command>
+     <command
+           commandId="uk.ac.gda.client.xyPlotClearGraphCommand"
+           icon="icons/chart_curve_remove.png"
+           tooltip="Clear plots">
+     </command>
+     <command
+           commandId="uk.ac.gda.client.xyPlotNewCommand"
+           icon="icons/chart_curve_go.png"
+           label="New"
+           tooltip="New">
+     </command>
+	</menuContribution>
+	
  <menuContribution
        locationURI="toolbar:gda.rcp.views.baton.BatonView">
     <command
@@ -981,16 +1002,6 @@
          type="java.lang.Object">
    </propertyTester>
 </extension>
-<extension point="org.eclipse.ui.editors">
-    <editor class="gda.simplescan.SimpleScanEditor"
-            default="true"
-            id="gda.simplescan.SimpleScanEditor"
-            name="SimpleScan">
-            <contentTypeBinding
-                contentTypeId="gda.simplescan.SimpleScanContentType">
-            </contentTypeBinding>
-     </editor>
-  </extension>
   <extension point="org.eclipse.core.contenttype.contentTypes">
      <content-type
        base-type="org.eclipse.core.runtime.xml"

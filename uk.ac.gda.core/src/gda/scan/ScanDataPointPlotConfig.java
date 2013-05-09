@@ -126,11 +126,11 @@ public class ScanDataPointPlotConfig {
 		if( initialDataAsDoubles[xAxisIndex] != null){
 			for (int j = 0; j < numberOfScannables; j++, index++) {
 				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, point.getPositionHeader().get(
-						j), index, xAxisIndex);
+						j), index, xAxisIndex,this.scanPlotSettings.getUnlistedColumnBehaviour());
 			}
 			for (int j = 0; j < point.getDetectorHeader().size(); j++, index++) {
 				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, point.getDetectorHeader().get(
-						j), index, xAxisIndex);
+						j), index, xAxisIndex,this.scanPlotSettings.getUnlistedColumnBehaviour());
 			}
 		} else {
 			logger.warn("xAxis is not plottable for scan "+ point.getUniqueName());
@@ -141,19 +141,20 @@ public class ScanDataPointPlotConfig {
 	}
 
 	private void addIfWanted(Vector<ScanDataPlotConfigLine> linesToAdd, Double val, Vector<String> yAxesShown,
-			Vector<String> yAxesNotShown, String name, int index, int xAxisIndex) {
+			Vector<String> yAxesNotShown, String name, int index, int xAxisIndex, int defaultBehaviour) {
 		// do not add a line if we are unable to convert the string representation to a double
 		if (val == null)
 			return;
 		if (index != xAxisIndex) {
 			if (yAxesShown == null || yAxesShown.contains(name)) {
 				linesToAdd.add(new ScanDataPlotConfigLine(index, name, true));
-			} else {
-				if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
-					linesToAdd.add(new ScanDataPlotConfigLine(index, name, false));
-				}
+			} else if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
+				linesToAdd.add(new ScanDataPlotConfigLine(index, name, false));
+			} else if (defaultBehaviour == ScanPlotSettings.PLOT) {
+				linesToAdd.add(new ScanDataPlotConfigLine(index, name, true));
+			} else if (defaultBehaviour == ScanPlotSettings.PLOT_NOT_VISIBLE) {
+				linesToAdd.add(new ScanDataPlotConfigLine(index, name, false));
 			}
 		}
-
 	}
 }

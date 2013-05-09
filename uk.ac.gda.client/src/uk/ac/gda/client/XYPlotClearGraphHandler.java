@@ -34,13 +34,15 @@ public class XYPlotClearGraphHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbenchPart view = HandlerUtil.getActivePartChecked(event);
-		if (view instanceof XYPlotView) {
+		if (view instanceof ScanPlotView) {
 			boolean b = MessageDialog.openQuestion(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 					"Clearing all plots",
 					"This will clear all the plots in the graph.\n Are you sure you want to do this?");
 			if (b) {
-				XYPlotView xYPlotView = (XYPlotView) view;
-				xYPlotView.clearGraph();
+				if( view instanceof ScanPlotView){
+					ScanPlotView xYPlotView = (ScanPlotView) view;
+					xYPlotView.clearGraph();
+				}
 			}
 		}
 		return null;
