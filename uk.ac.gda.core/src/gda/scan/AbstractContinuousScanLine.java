@@ -379,7 +379,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 				// ignore zero input-output name devices
 				if (!(scn instanceof ContinuouslyScannableViaController)) {
 					throw new IllegalArgumentException("Scannable " + scn.getName()
-							+ " is not ContinouselyScannable so cannot be used in a TrajectoryScanLine");
+							+ " is not ContinuouslyScannableViaController so cannot be used in a TrajectoryScanLine");
 				}
 				scannablesToMove.add((ContinuouslyScannableViaController) scn);
 			}
