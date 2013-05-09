@@ -22,7 +22,6 @@ package gda.data.nexus;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -278,28 +277,6 @@ public class NeXusUtils {
 			logger.warn("NXuser: Problem reading one or more items of metadata.");
 		}
 
-		file.closegroup();
-	}
-
-	private static void writeGeneralMetaData(NeXusFileInterface file, Metadata metadata) throws NexusException{
-		//TODO This dumps metadata that does not belong in any identified group. maybe use an interface
-		//to identify which metadata entries are to be dumped
-		file.makegroup("general_metadata", "NXuser");
-		file.opengroup("general_metadata", "NXuser");
-
-		try {
-			for (IMetadataEntry entry : metadata.getMetadataEntries()) {
-				String metadataValue = entry.getMetadataValue();
-				String name = entry.getName();
-				if( !metadataValue.isEmpty() && !name.isEmpty()){
-					if( file.groupdir().get(name) == null){
-						NeXusUtils.writeNexusString(file, name, metadataValue);
-					}
-				}
-			}
-		} catch (DeviceException e) {
-			logger.error("problem in writeGeneralMetaData",e);
-		}
 		file.closegroup();
 	}
 		
