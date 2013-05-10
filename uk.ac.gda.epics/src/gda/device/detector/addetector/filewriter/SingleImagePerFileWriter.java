@@ -55,6 +55,8 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	private String filePathUsed="";
 	private String fileTemplateUsed="";
 	private long nextExpectedFileNumber = 0;
+		
+	private boolean returnPathRelativeToDatadir = false;  // TODO: should really be enabled by default RobW
 
 	private int SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES = 10;
 
@@ -297,7 +299,16 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 		String filepath;
 		try {
-			filepath = getFullFileName();
+			if (isReturnPathRelativeToDatadir()) {	
+				if (!StringUtils.startsWith(getFilePathTemplate(), "$datadir$")) {
+					throw new IllegalStateException(
+							"If configured to return a path relative to the datadir, the configured filePathTemplate must begin wiht $datadir$. It is :'"
+									+ getFilePathTemplate() + "'");
+				}
+				filepath = getFilePathRelativeToDataDirIfPossible();
+			} else {
+				filepath = getFullFileName();
+			}
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
@@ -308,6 +319,14 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
 		appenders.add(dataAppender);
 		return appenders;
+	}
+
+	public boolean isReturnPathRelativeToDatadir() {
+		return returnPathRelativeToDatadir;
+	}
+
+	public void setReturnPathRelativeToDatadir(boolean returnPathRelativeToDatadir) {
+		this.returnPathRelativeToDatadir = returnPathRelativeToDatadir;
 	}
 
 }
