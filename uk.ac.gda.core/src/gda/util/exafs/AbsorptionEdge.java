@@ -100,4 +100,39 @@ public class AbsorptionEdge implements Serializable{
 		return "" + getElementSymbol() + " " + getEdgeType() + " " + getEnergy();
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((edgeType == null) ? 0 : edgeType.hashCode());
+		result = prime * result + ((elementSymbol == null) ? 0 : elementSymbol.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(energy);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbsorptionEdge other = (AbsorptionEdge) obj;
+		if (edgeType == null) {
+			if (other.edgeType != null)
+				return false;
+		} else if (!edgeType.equals(other.edgeType))
+			return false;
+		if (elementSymbol == null) {
+			if (other.elementSymbol != null)
+				return false;
+		} else if (!elementSymbol.equals(other.elementSymbol))
+			return false;
+		if (Double.doubleToLongBits(energy) != Double.doubleToLongBits(other.energy))
+			return false;
+		return true;
+	}
 }
