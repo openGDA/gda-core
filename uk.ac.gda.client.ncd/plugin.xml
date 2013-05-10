@@ -158,13 +158,6 @@
       </view>
       <view
             category="gda.rcp.ncd"
-            class="gda.rcp.ncd.views.ReductionSetup"
-            icon="icons/sample.gif"
-            id="gda.rcp.ncd.views.ReductionSetup"
-            name="Automatic Reduction">
-      </view>
-      <view
-            category="gda.rcp.ncd"
             class="gda.rcp.ncd.views.NcdDataSourceWaxs"
             icon="icons/sample.gif"
             id="gda.rcp.ncd.views.NcdDataSourceWaxs"

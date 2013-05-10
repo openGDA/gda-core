@@ -8,6 +8,8 @@ import ncdutils
 import math
 import os.path
 
+# this code is dead. irakli has replaced the interesting part with java code
+
 class NcdRedux:
     
     def __init__(self, detsystem):

@@ -39,6 +39,12 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Group;
 
+/**
+ * the code that this used to drive is not working for Pilatus or other 
+ * "external" detectors 
+ * it was never used anyway, so we can retire it in favor of supporting dawn reduction
+ */
+@Deprecated
 public class ReductionSetup extends ViewPart {
 	public ReductionSetup() {
 	}
