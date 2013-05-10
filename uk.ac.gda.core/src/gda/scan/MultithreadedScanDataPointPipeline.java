@@ -281,6 +281,8 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			 */
 			boolean interrupted = Thread.interrupted();
 			getBroadcaster().shutdown();
+			if(interrupted)
+				Thread.currentThread().interrupt();
 		} catch (Exception e) {
 			// TODO: Why are we absorbing this?
 		}
