@@ -8,14 +8,14 @@ Bundle-Activator: uk.ac.gda.devices.bssc.Activator
 Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui.ide,
+ org.eclipse.gef;bundle-version="3.7.1",
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.common,
  uk.ac.gda.common.rcp,
  uk.ac.gda.client,
- org.eclipse.core.resources,
- org.eclipse.ui.ide,
- org.eclipse.gef;bundle-version="3.7.1",
  uk.ac.gda.video;bundle-version="1.0.0",
  uk.ac.gda.video.mjpeg;bundle-version="1.0.0",
  uk.ac.gda.video.views;bundle-version="1.0.0"
