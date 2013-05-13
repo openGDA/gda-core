@@ -419,9 +419,9 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		assertEquals(55.0, spectrum.getDouble(625), 0.0);
 		spectrum = mfWriterExtender.getSpectrum(2, 0, 0);
 		assertEquals(64.0, spectrum.getDouble(625), 0.0);
-		spectrum = mfWriterExtender.getSpectrum(2, 0, 6);
+		spectrum = mfWriterExtender.getSpectrum(2, 6, 0);
 		assertEquals(48.0, spectrum.getDouble(634), 0.0);
-		spectrum = mfWriterExtender.getSpectrum(1, 0, 6);
+		spectrum = mfWriterExtender.getSpectrum(1, 6, 0);
 		assertEquals(43.0, spectrum.getDouble(634), 0.0);
 	}
 	@Test

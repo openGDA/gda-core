@@ -128,9 +128,9 @@ public class VortexMFMappableDataProviderTest {
 		//vortexDataProvider.constructMappableData();
 		double[] d = vortexDataProvider.getSpectrum(0, 0, 0);
 		assertEquals(1024, d.length, 0.0);
-		double []d1 = vortexDataProvider.getSpectrum(0, 2, 3);
+		double []d1 = vortexDataProvider.getSpectrum(0, 3, 2);
 		assertEquals(8132554.0, d1[3], 0.0);
-		d1 = vortexDataProvider.getSpectrum(2, 2, 3);
+		d1 = vortexDataProvider.getSpectrum(2, 3, 2);
 		assertEquals(9847832.0, d1[4], 0.0);
 	}
 	@SuppressWarnings("unused")
