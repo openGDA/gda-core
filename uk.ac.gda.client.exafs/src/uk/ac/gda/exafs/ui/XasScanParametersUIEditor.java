@@ -955,6 +955,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				public void widgetSelected(SelectionEvent e) {
 					updateExafsTimeType();
 					updateLayout();
+					dirtyContainer.setDirty(true);
 				}
 			};
 			exafsTimeType.addSelectionListener(exafsTimeListener);
