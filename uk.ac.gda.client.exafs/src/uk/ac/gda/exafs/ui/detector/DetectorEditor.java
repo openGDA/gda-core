@@ -320,6 +320,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				sashPlotForm.getLeftScroll().setMinSize(sashPlotForm.getLeft().computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			}
 		};
+
+		
+		expansionListener = new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				sashPlotForm.getLeftScroll().setMinSize(sashPlotForm.getLeft().computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			}
+		};
 		detectorListComposite.addExpansionListener(expansionListener);
 
 		getDetectorElementComposite().getRegionList().addBeanSelectionListener(new BeanSelectionListener() {
@@ -628,6 +636,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			} finally {
 				updatingAfterROIDrag = null;
 			}
+		}
 	}
 
 	protected void updateROIAfterElementCompositeChange() {
