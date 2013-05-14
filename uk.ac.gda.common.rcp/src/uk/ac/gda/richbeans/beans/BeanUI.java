@@ -132,11 +132,8 @@ public class BeanUI {
 			@Override
 			public void process(Entry<Object, Object> prop, IFieldWidget box) throws Exception {
 				final Object ob = box.getValue();
-				if (ob != null && !isNaN(ob) && !isInfinity(ob)) {
+				if (ob != null && !"".equals(ob) && !isNaN(ob) && !isInfinity(ob)) {
 					prop.setValue(ob); // Throws IllegalArgumentException if method does not exist.
-				}
-				if(ob != null && ob.equals("")){
-					System.out.println(ob);
 				}
 			}
 
