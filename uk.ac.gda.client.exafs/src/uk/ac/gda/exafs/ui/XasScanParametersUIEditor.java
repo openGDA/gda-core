@@ -103,7 +103,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private Label kWeightingLabel;
 	private Label kStartLabel;
 
-	private SelectionAdapter e0Listener, e1Listener, abGafListener, aListener, bListener, cListener, exafsTimeListener;
+	private SelectionAdapter e0Listener, e1Listener, aListener, bListener, cListener;
 
 	private ScaleBox kWeighting;
 	private ScaleBoxAndFixedExpression kStart;
@@ -122,21 +122,18 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private IRegion cLine;
 	private IRegion edgeLine;
 	private boolean showLineAnnotations = false;
-	XasScanParameters bean;
 
 	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor,
 			final XasScanParameters xasScanParameters) {
 
 		super(path, containingEditor.getMappingUrl(), containingEditor, xasScanParameters);
-
-		bean = xasScanParameters;
 		
 		containingEditor.addPageChangedListener(new IPageChangedListener() {
 			@Override
 			public void pageChanged(PageChangedEvent event) {
 				final int ipage = containingEditor.getActivePage();
 				if (ipage == 1)
-					cachedElement = ((XasScanParameters) xasScanParameters).getElement();
+					cachedElement = xasScanParameters.getElement();
 			}
 		});
 	}
@@ -1236,7 +1233,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		} catch (Exception ne) {
 			logger.error("Cannot set value", ne);
 		} finally {
-			setPointsUpdate(true);
+			if (type != ELEMENT_EVENT_TYPE.INIT) {
+				setPointsUpdate(true);
+			}
 		}
 	}
 
@@ -1384,7 +1383,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	protected void updateExafsTimeType() {
-		String exafsTimeTypeVal = bean.getExafsTimeType();
+		String exafsTimeTypeVal = ((XasScanParameters) this.editingBean).getExafsTimeType();
 		
 		boolean isVariableTime=false;
 		if(exafsTimeTypeVal.equals("Variable Time"))
