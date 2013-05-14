@@ -326,7 +326,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 	protected String getRegExpressionString() {
 
-		final String digitExpr = "^([-+\\s]?\\d*\\.?\\d+|[-+\\s]?Infinity)";
+		//We need to cope with 3., 3.0, .1, so use \\d*\\.?\\d*
+		final String digitExpr = "^([-+\\s]?\\d*\\.?\\d*|[-+\\s]?Infinity)";
 		
 		if (unit == null) {
 			return digitExpr;
@@ -666,6 +667,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			return expressionManager.getExpressionValue();
 		}
 		final Pattern pattern = getRegExpression();
+		if( txt.equals("."))
+			return Double.NaN;
 		final Matcher matcher = pattern.matcher(txt);
 		if (matcher.matches()) {
 			String group = matcher.group(1);
