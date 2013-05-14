@@ -115,14 +115,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private IRegion bLine;
 	private IRegion cLine;
 	private IRegion edgeLine;
-	XasScanParameters bean;
-
 	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor,
 			final XasScanParameters xasScanParameters) {
 
 		super(path, containingEditor.getMappingUrl(), containingEditor, xasScanParameters);
 
-		bean = xasScanParameters;
 		
 		containingEditor.addPageChangedListener(new IPageChangedListener() {
 			@Override
@@ -960,10 +957,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			if (finalEnergy.isOn()) {
 				finalEnergy.off();
 			}
-			if (energyInK) {
-				correctFinalEnergy();
-				correctC();
-			}
 
 			rebuildGraph();
 			setupEstimationWidgets();
@@ -1163,7 +1156,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		} catch (Exception ne) {
 			logger.error("Cannot set value", ne);
 		} finally {
-			setPointsUpdate(true);
+			if (type != ELEMENT_EVENT_TYPE.INIT) {
+				setPointsUpdate(true);
+			}
 		}
 	}
 
@@ -1311,7 +1306,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	protected void updateExafsTimeType() {
-		String exafsTimeTypeVal = bean.getExafsTimeType();
+		String exafsTimeTypeVal = ((XasScanParameters) editingBean).getExafsTimeType();
 		
 		boolean isVariableTime=false;
 		if(exafsTimeTypeVal.equals("Variable Time"))
@@ -1521,10 +1516,17 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	protected Object fetchEditingBean() {
 		if (energyInK) {
 			DecimalFormat twoDForm = new DecimalFormat("#.##");
-			((XasScanParameters) this.editingBean).setFinalEnergy(Double.valueOf(twoDForm.format(getKInEv().getValue(
-					getFinalEnergy().getBoundValue()))));
-			((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
-					getC().getBoundValue()))));
+//			((XasScanParameters) this.editingBean).setFinalEnergy(Double.valueOf(twoDForm.format(getKInEv().getValue(
+//					getFinalEnergy().getBoundValue()))));
+//			((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
+//					getC().getBoundValue()))));
+			
+			//String finalEnergyBoundValueString = twoDForm.format(getKInEv().getValue(getFinalEnergy().getBoundValue()));
+			//double finalEnergyBoundValue = Double.valueOf(finalEnergyBoundValueString);
+			
+			//((XasScanParameters) this.editingBean).setFinalEnergy(finalEnergyBoundValue);
+			//((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
+			//		getC().getBoundValue()))));
 		}
 		return editingBean;
 	}
