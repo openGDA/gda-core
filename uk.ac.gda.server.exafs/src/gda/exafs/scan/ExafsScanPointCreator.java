@@ -120,7 +120,7 @@ public class ExafsScanPointCreator {
 		// ksteps in exafs region?
 		creator.setExafsConstantEnergyStep(parameters.getExafsStepType().equals("E"));
 		// varying time in exafs region?
-		creator.setExafsConstantTime(parameters.getExafsTime() != null);
+		creator.setExafsConstantTime(parameters.getExafsTimeType().equalsIgnoreCase("Constant Time"));
 		// set the edge Energy if it is null
 		if (parameters.getEdgeEnergy() == null) {
 			creator.setEdgeEnergy(Element.getElement(parameters.getElement()).getEdgeEnergy(parameters.getEdge()));
@@ -227,7 +227,7 @@ public class ExafsScanPointCreator {
 		}
 		// now change all the exafs times if they vary
 		if (!exafsConstantTime) {
-			exafsTime = null;
+//			exafsTime = null;
 			exafsEnergies = convertTimes(exafsEnergies, exafsFromTime, exafsToTime);
 		}
 
