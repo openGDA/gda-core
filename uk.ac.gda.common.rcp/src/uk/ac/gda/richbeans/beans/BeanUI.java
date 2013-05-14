@@ -160,7 +160,7 @@ public class BeanUI {
 		if (!box.isActivated())
 			return;
 		final Object ob = box.getValue();
-		if (ob != null && !"".equals(ob) && !isNaN(ob) && !isInfinity(ob)) {
+		if (ob != null && !isNaN(ob) && !isInfinity(ob)) {
 			BeansFactory.setBeanValue(bean, fieldName, ob);
 		} else {
 			// Required to fix fields inside a list editor being edited to no value.
