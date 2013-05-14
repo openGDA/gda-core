@@ -61,11 +61,6 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 	 * Constructor
 	 */
 	public EpicsQuadraCurrentAmplifier() {
-
-		String[] myNames = new String[1];
-		myNames[0] = getName();
-		setInputNames(myNames);
-
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
 		monitorCurrent1 = new CurrentMonitorListener();

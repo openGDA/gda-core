@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.python.core.PyString;
+
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -91,6 +93,28 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 			return null;
 		}
 		return ImutableRectangularIntegerROI.valueOf(scisoftRoiList.get(index));
+	}
+	
+	public PyString __str__() {
+		String str = "Regions from: '" + viewName +"'";
+		str += "\n";
+		List<RectangularROI<Integer>> roiList;
+		try {
+			roiList = getActiveRoiList();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		for (int i = 0; i < maximumActiveRois; i++) {
+			String roiRepr;
+			if ((i >= roiList.size()) || (roiList.get(i) == null)) {
+				roiRepr = "---";
+			} else {
+				roiRepr = roiList.get(i).toString();
+			}
+			str += (i + 1) + ". " + roiRepr + "\n";
+		}
+		return new PyString(str);
+
 	}
 
 }

@@ -258,13 +258,16 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 	}
 
 	public String getInputStreamNamesPrefix() {
+		if (roiProvider == null) {
+			return "";
+		}
 		RectangularROI<Integer> roi;
 		try {
 			roi = roiProvider.getRoi();
 		} catch (Exception e) {
 			throw new RuntimeException("Problem getting ROI", e);
 		}
-		return (roi == null) ? "" : roi.getName() + "_";
+		return (roi == null) ? "" : roi.getName().replace(" ", "") + "_";
 	}
 
 }
