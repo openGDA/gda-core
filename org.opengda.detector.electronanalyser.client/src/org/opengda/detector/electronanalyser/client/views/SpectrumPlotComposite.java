@@ -18,10 +18,13 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.epics.connection.EpicsController;
+import gda.device.DeviceException;
+import gda.epics.connection.EpicsChannelManager;
+import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.InitializationListener;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
-import gov.aps.jca.Monitor;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
@@ -30,6 +33,7 @@ import gov.aps.jca.event.MonitorListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawnsci.plotting.api.PlotType;
@@ -61,7 +65,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 /**
  *
  */
-public class SpectrumPlotComposite extends Composite {
+public class SpectrumPlotComposite extends Composite implements InitializationListener {
 
 	private FontRegistry fontRegistry;
 	private static final Logger logger = LoggerFactory.getLogger(SpectrumPlotComposite.class);
@@ -89,8 +93,8 @@ public class SpectrumPlotComposite extends Composite {
 	private Text txtArea;
 	private SpectrumDataListener spectrumDataListener;
 	private Channel spectrumChannel;
-	private EpicsController controller = EpicsController.getInstance();
-	private Monitor spectrumMonitor;
+	private EpicsChannelManager controller;
+	private boolean first = false;
 
 	/**
 	 * @param parent
@@ -99,6 +103,8 @@ public class SpectrumPlotComposite extends Composite {
 	 */
 	public SpectrumPlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
+
+		controller = new EpicsChannelManager(this);
 		if (Display.getCurrent() != null) {
 			fontRegistry = new FontRegistry(Display.getCurrent());
 			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
@@ -118,12 +124,15 @@ public class SpectrumPlotComposite extends Composite {
 		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		plotComposite.setLayout(new FillLayout());
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars() : null,
+		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart ? ((IViewPart)part).getViewSite().getActionBars() : null,
 				PlotType.XY_STACKED, part);
-
+		plottingSystem.setTitle(SPECTRUM_PLOT);
+		plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
+		plottingSystem.getSelectedXAxis().setFormatPattern("#####.#");
+		
 		statsComposite = new Composite(this, SWT.None);
 		statsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		statsComposite.setBackground(ColorConstants.yellow);
+		statsComposite.setBackground(ColorConstants.lightBlue);
 		GridLayout layout3 = new GridLayout(8, true);
 		layout3.marginHeight = 0;
 		layout3.marginWidth = 0;
@@ -133,44 +142,43 @@ public class SpectrumPlotComposite extends Composite {
 
 		Label lblPosition = new Label(statsComposite, SWT.None | SWT.RIGHT);
 		lblPosition.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		lblPosition.setBackground(ColorConstants.yellow);
+		lblPosition.setBackground(ColorConstants.lightBlue);
 		lblPosition.setText("Postion:");
 
 		txtPosition = new Text(statsComposite, SWT.None | SWT.LEFT | SWT.READ_ONLY);
 		txtPosition.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtPosition.setBackground(ColorConstants.yellow);
+		txtPosition.setBackground(ColorConstants.lightBlue);
 		txtPosition.setText("0.00000");
 
 		Label lblHeight = new Label(statsComposite, SWT.None | SWT.RIGHT);
 		lblHeight.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		lblHeight.setBackground(ColorConstants.yellow);
+		lblHeight.setBackground(ColorConstants.lightBlue);
 		lblHeight.setText("Height:");
 
 		txtHeight = new Text(statsComposite, SWT.None | SWT.LEFT | SWT.READ_ONLY);
 		txtHeight.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtHeight.setBackground(ColorConstants.yellow);
+		txtHeight.setBackground(ColorConstants.lightBlue);
 		txtHeight.setText("0000");
 
 		Label lblFWHM = new Label(statsComposite, SWT.None | SWT.RIGHT);
 		lblFWHM.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		lblFWHM.setBackground(ColorConstants.yellow);
+		lblFWHM.setBackground(ColorConstants.lightBlue);
 		lblFWHM.setText("FWHM:");
 
 		txtFWHM = new Text(statsComposite, SWT.None | SWT.LEFT | SWT.READ_ONLY);
 		txtFWHM.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtFWHM.setBackground(ColorConstants.yellow);
+		txtFWHM.setBackground(ColorConstants.lightBlue);
 		txtFWHM.setText("N/A");
 
 		Label lblArea = new Label(statsComposite, SWT.None | SWT.RIGHT);
 		lblArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		lblArea.setBackground(ColorConstants.yellow);
+		lblArea.setBackground(ColorConstants.lightBlue);
 		lblArea.setText("Area:");
 
 		txtArea = new Text(statsComposite, SWT.None | SWT.LEFT | SWT.READ_ONLY);
 		txtArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtArea.setBackground(ColorConstants.yellow);
+		txtArea.setBackground(ColorConstants.lightBlue);
 		txtArea.setText("0000");
-
 	}
 
 	public void initialise() {
@@ -179,40 +187,23 @@ public class SpectrumPlotComposite extends Composite {
 		}
 		spectrumDataListener = new SpectrumDataListener();
 		try {
-			addMonitors();
-		} catch (Exception e) {
-			logger.error("exception caught on adding a monitor to spectrum data channel. ", e);
+			createChannels();
+		} catch (CAException | TimeoutException e1) {
+			logger.error("failed to create required spectrum channels", e1);
 		}
-		addMonitorListeners();
 	}
 
-	public void addMonitors() throws Exception {
-		spectrumChannel = controller.createChannel(arrayPV);
-		spectrumMonitor = controller.addMonitor(spectrumChannel);
-	}
-
-	public void removeMonitors() throws CAException {
-		spectrumMonitor.clear();
-	}
-
-	public void addMonitorListeners() {
-		spectrumMonitor.addMonitorListener(spectrumDataListener);
-	}
-
-	public void removeMonitorListeners() {
-		spectrumMonitor.removeMonitorListener(spectrumDataListener);
+	public void createChannels() throws CAException, TimeoutException {
+		first = true;
+		spectrumChannel = controller.createChannel(arrayPV, spectrumDataListener, MonitorType.NATIVE, false);
+		controller.creationPhaseCompleted();
+		logger.debug("Spectrum channel is created");
 	}
 
 	@Override
 	public void dispose() {
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
-		}
-		removeMonitorListeners();
-		try {
-			removeMonitors();
-		} catch (CAException e) {
-			logger.error("Failed to remove monitors on Spectrum Plot dispose.", e);
 		}
 		spectrumChannel.dispose();
 		super.dispose();
@@ -263,7 +254,7 @@ public class SpectrumPlotComposite extends Composite {
 					if (fwhmValue == Double.NaN) {
 						lblProfileIntensityValue.setText("N/A");
 					} else {
-						lblProfileIntensityValue.setText(String.format("%.3f", fwhmValue));
+						txtFWHM.setText(String.format("%.3f", fwhmValue));
 					}
 				}
 			});
@@ -276,7 +267,7 @@ public class SpectrumPlotComposite extends Composite {
 
 				@Override
 				public void run() {
-					lblProfileIntensityValue.setText(String.format("%.3f", areaValue));
+					txtArea.setText(String.format("%.3f", areaValue));
 				}
 			});
 		}
@@ -286,12 +277,17 @@ public class SpectrumPlotComposite extends Composite {
 
 		@Override
 		public void monitorChanged(final MonitorEvent arg0) {
+			if (first) {
+				first = false;
+				logger.debug("Spectrum listener connected.");
+				return;
+			}
 			logger.debug("receiving spectrum data from " + ((Channel) (arg0.getSource())).getName() + " to plot on " + plottingSystem.getPlotName()
 					+ " with axes from " + getAnalyser().getName());
 
 			if (!getDisplay().isDisposed()) {
 				getDisplay().syncExec(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						boolean visible = SpectrumPlotComposite.this.isVisible();
@@ -310,42 +306,52 @@ public class SpectrumPlotComposite extends Composite {
 		}
 	}
 
+	DoubleDataset dataset;
+	double[] xdata=null;
+	private boolean newRegion=true; 
 	private void updateSpectrumPlot(final IProgressMonitor monitor, double[] value) {
-		final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
-		DoubleDataset dataset = new DoubleDataset(value, new int[] { value.length });
-		dataset.setName("Intensity (counts");
-		plotDataSets.add(dataset);
-		try {
-			double[] xdata = getAnalyser().getEnergyAxis(); // TODO once per
-															// analyser region
-			final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-			xAxis.setName("energies (eV)");
-			if (!getDisplay().isDisposed()) {
-				getDisplay().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, plotDataSets, monitor);
-
-						if (!profileLineTraces.isEmpty()) {
-							profileLineTrace = (ILineTrace) profileLineTraces.get(0);
-							profileLineTrace.setTraceColor(ColorConstants.blue);
-						}
-
-						plottingSystem.setTitle(SPECTRUM_PLOT);
-						plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
-						plottingSystem.getSelectedXAxis().setFormatPattern("#####.#");
-						// plottingSystem.getSelectedYAxis().setRange(0, 5);
-						// plottingSystem.getSelectedXAxis().setRange(0, 4008);
-					}
-				});
+		if (isNewRegion()) {
+			try {
+				xdata = getAnalyser().getEnergyAxis();
+			} catch (Exception e) {
+				logger.error("cannot get enegery axis fron the analyser", e);
 			}
-			setPositionValue(xdata[dataset.argMax()]);
-			setHeightValue(dataset.max().intValue());
-			setFWHMValue(fwhm(dataset));
-			setAreaValue(Double.valueOf(dataset.sum().toString()));
-		} catch (Exception e) {
-			logger.error("exception caught preparing analyser live spectrum plot", e);
 		}
+		
+		final DoubleDataset xAxis= new DoubleDataset(xdata, new int[] { xdata.length });
+		xAxis.setName("energies (eV)");
+		
+		ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
+		double[] data=ArrayUtils.subarray(value, 0, xdata.length);
+		dataset = new DoubleDataset(data, new int[] { data.length });
+		dataset.setName("Intensity (counts)");
+		plotDataSets.add(dataset);
+		logger.debug("xais {}", xAxis.getData());
+		logger.debug("yAxis {}", dataset.getData());
+		final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, plotDataSets, monitor);
+		if (!getDisplay().isDisposed()) {
+			getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					
+					if (isNewRegion() && !profileLineTraces.isEmpty()) {
+						plottingSystem.setShowLegend(false);
+						plottingSystem.getSelectedYAxis().setTitle(dataset.getName());
+						profileLineTrace = (ILineTrace) profileLineTraces.get(0);
+						profileLineTrace.setTraceColor(ColorConstants.blue);
+						setNewRegion(false);
+					}
+					plottingSystem.autoscaleAxes();
+				}
+			});
+		}
+	}
+
+	public void updateStat() {
+		setPositionValue(xdata[dataset.argMax()]);
+		setHeightValue(dataset.max().intValue());
+		setFWHMValue(fwhm(dataset));
+		setAreaValue(Double.valueOf(dataset.sum().toString()));
 	}
 
 	private double fwhm(DoubleDataset dataset) {
@@ -356,7 +362,7 @@ public class SpectrumPlotComposite extends Composite {
 			fwhm = crossings.get(1) - crossings.get(0);
 		} else {
 			// TODO multiple peaks
-			fwhm=Double.NaN;
+			fwhm = Double.NaN;
 		}
 		return fwhm;
 	}
@@ -376,4 +382,19 @@ public class SpectrumPlotComposite extends Composite {
 	public void setArrayPV(String arrayPV) {
 		this.arrayPV = arrayPV;
 	}
+
+	@Override
+	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
+		logger.info("Spectrum EPICS Channel initialisation completed!");
+
+	}
+
+	public void setNewRegion(boolean b) {
+		this.newRegion=b;
+		
+	}
+	public boolean isNewRegion() {
+		return newRegion;
+	}
 }
+

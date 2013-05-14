@@ -1,9 +1,15 @@
 package org.opengda.detector.electronanalyser.client.views;
 
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.INullSelectionListener;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
+import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,20 +26,32 @@ public class ExternalIOView extends ViewPart {
 		setPartName("ExternalIO");
 	}
 
+	ExtIOPlotComposite externalIOPlotComposite;
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(new FillLayout());
 
 		try {
-			ExtIOPlotComposite externalIOPlotComposite = new ExtIOPlotComposite(this, rootComposite, SWT.None);
+			externalIOPlotComposite = new ExtIOPlotComposite(this, rootComposite, SWT.None);
 			externalIOPlotComposite.setAnalyser(getAnalyser());
 			externalIOPlotComposite.setArrayPV(arrayPV);
 			externalIOPlotComposite.initialise();
 		} catch (Exception e) {
 			logger.error("Cannot create external IO plot composite.", e);
 		}
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SequenceViewExtensionFactory.ID, selectionListener);
 	}
+
+	private ISelectionListener selectionListener = new INullSelectionListener() {
+		@Override
+		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (selection instanceof RegionRunCompletedSelection) {
+				externalIOPlotComposite.setNewRegion(true);
+			} 
+		}
+	};
+
 
 	@Override
 	public void setFocus() {

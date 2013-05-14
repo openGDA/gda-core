@@ -18,10 +18,14 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.epics.connection.EpicsController;
+import gda.device.DeviceException;
+import gda.epics.connection.EpicsChannelManager;
+import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.InitializationListener;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
@@ -53,20 +57,26 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 /**
  * Monitor and plotting live image data from the electron analyser.
  */
-public class ImagePlotComposite extends Composite {
+public class ImagePlotComposite extends Composite implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(ImagePlotComposite.class);
 
+	private static final String IMAGE_PLOT = "Image plot";
+
 	private IVGScientaAnalyser analyser;
 	private String arrayPV;
-	private EpicsController controller = EpicsController.getInstance();
+	private EpicsChannelManager controller;
 
 	private AbstractPlottingSystem plottingSystem;
 
 	private ImageDataListener dataListener;
 	private Channel dataChannel;
 	private Monitor dataMonitor;
+
+	private boolean first=false;
+
+	private boolean newRegion=true;
 
 	/**
 	 * @param parent
@@ -78,6 +88,7 @@ public class ImagePlotComposite extends Composite {
 		super(parent, style);
 		this.setBackground(ColorConstants.white);
 
+		controller=new EpicsChannelManager(this);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -93,51 +104,33 @@ public class ImagePlotComposite extends Composite {
 		plottingSystem.createPlotPart(plotComposite, "Image",
 				part instanceof IViewPart ? ((IViewPart) part).getViewSite()
 						.getActionBars() : null, PlotType.IMAGE, part);
+		plottingSystem.setTitle(IMAGE_PLOT);
+		plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
+		plottingSystem.getSelectedXAxis().setFormatPattern("######.#");
 	}
 
 	public void initialise() {
-		if (getAnalyser() == null) {
+		if (getAnalyser() == null || getArrayPV()==null) {
 			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
 		}
 		dataListener = new ImageDataListener();
 		try {
-			addMonitors();
-		} catch (Exception e) {
-		logger.error("Cannot add monitor to image data",e);
-		}
-		addMonitorListeners();
-	}
-
-	public void addMonitors() throws Exception {
-		dataChannel = controller.createChannel(arrayPV);
-		dataMonitor = controller.addMonitor(dataChannel);
-	}
-
-	public void removeMonitors() throws CAException {
-		if (dataMonitor != null) {
-			dataMonitor.clear();
+			createChannels();
+		} catch (CAException | TimeoutException e1) {
+			logger.error("failed to create required spectrum channels", e1);
 		}
 	}
-
-	public void addMonitorListeners() {
-		dataMonitor.addMonitorListener(dataListener);
-	}
-
-	public void removeMonitorListeners() {
-		dataMonitor.removeMonitorListener(dataListener);
+	public void createChannels() throws CAException, TimeoutException {
+		first=true;
+		dataChannel = controller.createChannel(arrayPV, dataListener, MonitorType.NATIVE,false);
+		controller.creationPhaseCompleted();
+		logger.debug("Image channel is created");
 	}
 
 	@Override
 	public void dispose() {
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
-		}
-		removeMonitorListeners();
-		try {
-			removeMonitors();
-		} catch (CAException e) {
-			logger.error("Failed to remove monitors on Spectrum Plot dispose.",
-					e);
 		}
 		dataChannel.dispose();
 		super.dispose();
@@ -158,6 +151,11 @@ public class ImagePlotComposite extends Composite {
 
 		@Override
 		public void monitorChanged(final MonitorEvent arg0) {
+			if (first) {
+				first=false;
+				logger.debug("Image lietener connected.");
+				return;
+			}
 			logger.debug("receiving image data from " + arg0.toString()
 					+ " to plot on " + plottingSystem.getPlotName()
 					+ " with axes from " + getAnalyser().getName());
@@ -186,12 +184,20 @@ public class ImagePlotComposite extends Composite {
 			}
 		}
 	}
-
-	private void updateImagePlot(final IProgressMonitor monitor,
-			final double[] value) {
+	double[] xdata=null;
+	private void updateImagePlot(final IProgressMonitor monitor,final double[] value) {
+		if (isNewRegion()) {
+			try {
+				xdata = getAnalyser().getEnergyAxis();
+			} catch (Exception e) {
+				logger.error("cannot get enegery axis fron the analyser", e);
+			}
+			setNewRegion(false);
+		}
+		DoubleDataset xAxis= new DoubleDataset(xdata, new int[] { xdata.length });
+		xAxis.setName("energies (eV)");
 		try {
-			int[] dims = new int[] { getAnalyser().getNdarrayYsize(),
-					getAnalyser().getNdarrayXsize() };
+			int[] dims = new int[] { getAnalyser().getSlices(),xdata.clone().length };
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;
@@ -199,35 +205,29 @@ public class ImagePlotComposite extends Composite {
 			double[] values = Arrays.copyOf(value, arraysize);
 			final AbstractDataset ds = new DoubleDataset(values, dims);
 
-			double[] xdata = getAnalyser().getEnergyAxis(); // TODO do this once
-															// per
 			// analyser region
 			double[] ydata = getAnalyser().getAngleAxis();
-			DoubleDataset xAxis = new DoubleDataset(xdata,
-					new int[] { xdata.length });
-			DoubleDataset yAxis = new DoubleDataset(ydata,
-					new int[] { ydata.length });
-			xAxis.setName("energies (eV)");
+			DoubleDataset yAxis = new DoubleDataset(ydata,	new int[] { ydata.length });
 			if ("Transmission".equalsIgnoreCase(getAnalyser().getLensMode())) {
 				yAxis.setName("location (mm)");
 			} else {
 				yAxis.setName("angles (deg)");
 			}
-			final ArrayList<AbstractDataset> axes = new ArrayList<AbstractDataset>();
+			ArrayList<AbstractDataset> axes = new ArrayList<AbstractDataset>();
 			axes.add(xAxis);
 			axes.add(yAxis);
+			plottingSystem.updatePlot2D(ds, axes, monitor);
 			if (!getDisplay().isDisposed()) {
-				getDisplay().syncExec(new Runnable() {
+				getDisplay().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
-						plottingSystem.updatePlot2D(ds, axes, monitor);
+						plottingSystem.autoscaleAxes();
 					}
 				});
 			}
 		} catch (Exception e) {
-			logger.error("exception caught preparing analyser live image plot",
-					e);
+			logger.error("exception caught preparing analyser live image plot",e);
 		}
 	}
 
@@ -246,4 +246,20 @@ public class ImagePlotComposite extends Composite {
 	public void setArrayPV(String arrayPV) {
 		this.arrayPV = arrayPV;
 	}
+
+	@Override
+	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
+		logger.info("Image EPICS Channel initialisation completed!");
+		
+	}
+
+	public void setNewRegion(boolean b) {
+		this.newRegion=b;
+		
+	}
+
+	public boolean isNewRegion() {
+		return newRegion;
+	}
+	
 }

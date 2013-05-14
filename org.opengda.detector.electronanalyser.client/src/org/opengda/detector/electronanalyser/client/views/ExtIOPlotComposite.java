@@ -18,10 +18,14 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.epics.connection.EpicsController;
+import gda.device.DeviceException;
+import gda.epics.connection.EpicsChannelManager;
+import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.InitializationListener;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
@@ -55,13 +59,13 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 /**
  * monitor and display external IO data update in the plot.
  */
-public class ExtIOPlotComposite extends Composite {
+public class ExtIOPlotComposite extends Composite implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExtIOPlotComposite.class);
 
 	private IVGScientaAnalyser analyser;
 	private String arrayPV;
-	private EpicsController controller = EpicsController.getInstance();
+	private EpicsChannelManager controller;
 
 	private static final String EXTIO_PLOT = "External IO plot";
 
@@ -72,6 +76,10 @@ public class ExtIOPlotComposite extends Composite {
 	private Channel dataChannel;
 	private Monitor dataMonitor;
 
+	private boolean first=false;
+
+	private boolean newRegion=true;
+
 	/**
 	 * @param parent
 	 * @param style
@@ -81,6 +89,7 @@ public class ExtIOPlotComposite extends Composite {
 		super(parent, style);
 		this.setBackground(ColorConstants.white);
 
+		controller=new EpicsChannelManager(this);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -95,50 +104,33 @@ public class ExtIOPlotComposite extends Composite {
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, "ExtIO", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars() : null,
 				PlotType.XY_STACKED, part);
+		plottingSystem.setTitle(EXTIO_PLOT);
+		plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
+		plottingSystem.getSelectedXAxis().setFormatPattern("#####.#");
 	}
 
 	public void initialise() {
-		if (getAnalyser() == null) {
+		if (getAnalyser() == null || getArrayPV()==null) {
 			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
 		}
 		dataListener = new ExtIODataListener();
 		try {
-			addMonitors();
-		} catch (Exception e) {
-			logger.error("Exception on adding a monitor to ExtIO channel. ", e);
-		}
-		addMonitorListeners();
-	}
-
-	public void addMonitors() throws Exception {
-		dataChannel = controller.createChannel(arrayPV);
-		dataMonitor = controller.addMonitor(dataChannel);
-	}
-
-	public void removeMonitors() throws CAException {
-		if (dataMonitor != null) {
-			dataMonitor.clear();
+			createChannels();
+		} catch (CAException | TimeoutException e1) {
+			logger.error("failed to create required ExtIO channel", e1);
 		}
 	}
-
-	public void addMonitorListeners() {
-		dataMonitor.addMonitorListener(dataListener);
-	}
-
-	public void removeMonitorListeners() {
-		dataMonitor.removeMonitorListener(dataListener);
+	public void createChannels() throws CAException, TimeoutException {
+		first=true;
+		dataChannel = controller.createChannel(arrayPV, dataListener, MonitorType.NATIVE,false);
+		controller.creationPhaseCompleted();
+		logger.debug("Image channel is created");
 	}
 
 	@Override
 	public void dispose() {
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
-		}
-		removeMonitorListeners();
-		try {
-			removeMonitors();
-		} catch (CAException e) {
-			logger.error("Failed to remove monitors on Spectrum Plot dispose.", e);
 		}
 		dataChannel.dispose();
 		super.dispose();
@@ -161,6 +153,11 @@ public class ExtIOPlotComposite extends Composite {
 
 		@Override
 		public void monitorChanged(final MonitorEvent arg0) {
+			if (first) {
+				first=false;
+				logger.debug("ExtIO listener is connected.");
+				return;
+			}
 			logger.debug("receiving external IO data from " + ((Channel) (arg0.getSource())).getName() + " to plot on "
 					+ plottingSystem.getPlotName() + " with axes from " + getAnalyser().getName());
 			if (!getDisplay().isDisposed()) {
@@ -182,36 +179,37 @@ public class ExtIOPlotComposite extends Composite {
 			}
 		}
 	}
-
+	double[] xdata;
 	private void updateExtIOPlot(final IProgressMonitor monitor, double[] value) {
+		if (isNewRegion()) {
+			try {
+				xdata = getAnalyser().getEnergyAxis();
+			} catch (Exception e) {
+				logger.error("cannot get enegery axis fron the analyser", e);
+			}
+		}
+		final DoubleDataset xAxis = new DoubleDataset(xdata,new int[] { xdata.length });
+		xAxis.setName("energies (eV)");
+		
 		final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
 		DoubleDataset extiodata = new DoubleDataset(value, new int[] { value.length });
 		extiodata.setName("External IO Data");
+		final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, plotDataSets, monitor);
 		plotDataSets.add(extiodata);
-		try {
-			double[] xdata = getAnalyser().getEnergyAxis(); // TODO once per analyser
-			// region
-			final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-			xAxis.setName("energies (eV)");
 			if (!getDisplay().isDisposed()) {
-				getDisplay().syncExec(new Runnable() {
+				getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, plotDataSets, monitor);
 
-						if (!profileLineTraces.isEmpty()) {
+						if (isNewRegion()&&!profileLineTraces.isEmpty()) {
 							profileLineTrace = (ILineTrace) profileLineTraces.get(0);
 							profileLineTrace.setTraceColor(ColorConstants.blue);
+							setNewRegion(false);
 						}
-						plottingSystem.setTitle(EXTIO_PLOT);
-						plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
-						plottingSystem.getSelectedXAxis().setFormatPattern("#####.#");
+						plottingSystem.autoscaleAxes();
 					}
 				});
 			}
-		} catch (Exception e) {
-			logger.error("exception caught preparing analyser live external IO data plot", e);
-		}
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -228,5 +226,19 @@ public class ExtIOPlotComposite extends Composite {
 
 	public void setArrayPV(String arrayPV) {
 		this.arrayPV = arrayPV;
+	}
+
+	@Override
+	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
+		logger.info("ExtIO EPICS Channel initialisation completed!");
+		
+	}
+
+	public void setNewRegion(boolean b) {
+		this.newRegion=b;
+	}
+
+	public boolean isNewRegion() {
+		return newRegion;
 	}
 }

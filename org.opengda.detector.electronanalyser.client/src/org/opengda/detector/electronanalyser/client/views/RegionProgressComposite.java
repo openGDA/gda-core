@@ -57,10 +57,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 	private String totalIterationsPV;
 	private LeadPointsListener leadPointsListener;
 	private EndPointsListener endPointsListener;
-	private CurrentLeadPointListener currentLeadPointListener;
-	private CurrentDataPointListener currentDataPointListener;
 	private RegionProgressListener regionProgressListener;
-	private InLeadListener inLeadListener;
 	private static final Logger logger=LoggerFactory.getLogger(RegionProgressComposite.class);
 
 	public RegionProgressComposite(Composite parent, int style) {
@@ -77,9 +74,17 @@ public class RegionProgressComposite extends Composite implements Initialization
 		lblIteration.setText("Iteration: ");
 		
 		lblIterationValue = new Label(rootComposite, SWT.None);
+		lblIterationValue.setAlignment(SWT.RIGHT);
+		GridData gd_lblIterationValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lblIterationValue.widthHint = 38;
+		lblIterationValue.setLayoutData(gd_lblIterationValue);
 		updateIterationDispay(currentiteration, totalIterations);
 		
 		lblMin = new Label(rootComposite, SWT.NONE);
+		lblMin.setAlignment(SWT.RIGHT);
+		GridData gd_lblMin = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblMin.widthHint = 28;
+		lblMin.setLayoutData(gd_lblMin);
 		
 		progressBar = new ProgressBar(rootComposite, SWT.HORIZONTAL);
 		progressBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -89,10 +94,15 @@ public class RegionProgressComposite extends Composite implements Initialization
 		lblMin.setText(String.valueOf(progressBar.getMinimum()));
 		
 		lblMax = new Label(rootComposite, SWT.NONE);
+		GridData gd_lblMax = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lblMax.widthHint = 56;
+		lblMax.setLayoutData(gd_lblMax);
 		lblMax.setText(String.valueOf(progressBar.getMaximum()));
 		
 		Label lblStep = new Label(rootComposite, SWT.NONE);
-		lblStep.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		GridData gd_lblStep = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblStep.widthHint = 36;
+		lblStep.setLayoutData(gd_lblStep);
 		lblStep.setText("Step:");
 		
 		txtCurrentStep = new Text(rootComposite, SWT.BORDER);
@@ -100,7 +110,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 		txtCurrentStep.setEditable(false);
 		txtCurrentStep.setBackground(ColorConstants.black);
 		txtCurrentStep.setText("currentStep");
-		txtCurrentStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		GridData gd_txtCurrentStep = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_txtCurrentStep.widthHint = 82;
+		txtCurrentStep.setLayoutData(gd_txtCurrentStep);
 		
 //		Button btnStop = new Button(rootComposite, SWT.CENTER);
 //		btnStop.setImage(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_STOP));
@@ -113,10 +125,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 		}
 		leadPointsListener = new LeadPointsListener();
 		endPointsListener = new EndPointsListener();
-		currentLeadPointListener=new CurrentLeadPointListener();
-		currentDataPointListener=new CurrentDataPointListener();
 		regionProgressListener=new RegionProgressListener();
-		inLeadListener=new InLeadListener();
 		currentPointListener = new CurrentPointListener();
 		totalPointsListener = new TotalPointsListener();
 		currentIterationListener=new CurrentIterationListener();
@@ -145,10 +154,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 	public void createChannels() throws CAException, TimeoutException {
 		leadPointsChannel = controller.createChannel(leadPointsPV, leadPointsListener, MonitorType.NATIVE,false);
 		endPointsChannel = controller.createChannel(endPointsPV,endPointsListener,MonitorType.NATIVE, false);
-		currentLeadPointChannel=controller.createChannel(currentLeadPointPV,currentLeadPointListener,MonitorType.NATIVE,false );
-		currentDataPointChannel=controller.createChannel(currentDataPointPV,currentDataPointListener, MonitorType.NATIVE,false );
 		regionProgressChannel = controller.createChannel(regionProgressPV, regionProgressListener, MonitorType.NATIVE,false);
-		inLeadChannel = controller.createChannel(inLeadPV,inLeadListener,MonitorType.NATIVE, false);
 		currentPointChannel=controller.createChannel(currentPointPV,currentPointListener,MonitorType.NATIVE,false );
 		totalPointsChannel = controller.createChannel(totalPointsPV,totalPointsListener,MonitorType.NATIVE, false);
 		currentIterationChannel=controller.createChannel(currentIterationPV,currentIterationListener,MonitorType.NATIVE,false );
@@ -170,6 +176,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 		totalPointsChannel.dispose();
 		
 		logger.debug("all channels are disposed");
+		
 	}
 
 	int totalSteps = 0;
@@ -195,7 +202,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
-				final int leadPoints = (int)((DBR_Double) dbr).getDoubleValue()[0];
+				final int leadPoints = -(int)((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
 						
@@ -230,51 +237,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			}
 		}
 	}
-	private class CurrentLeadPointListener implements MonitorListener {
 
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				final int currentpoint =(int) ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-						
-						@Override
-						public void run() {
-							if (inLead) {
-								txtCurrentStep.setText(String.valueOf(currentpoint));
-							}
-						}
-					});
-				}
-				logger.debug("current lead point updated to {}", currentpoint);
-			}
-		}
-	}
-
-	private class CurrentDataPointListener implements MonitorListener {
-
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				final int currentpoint = (int)((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-						
-						@Override
-						public void run() {
-							if (!inLead) {
-								txtCurrentStep.setText(String.valueOf(currentpoint));
-							}
-						}
-					});
-				}
-				logger.debug("current data point updated to {}", currentpoint);
-			}
-		}
-	}
 	private class RegionProgressListener implements MonitorListener {
 
 		@Override
@@ -296,25 +259,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 		}
 	}
 
-	private boolean inLead;
-	private class InLeadListener implements MonitorListener {
-
-
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				final int value = (int)((DBR_Double) dbr).getDoubleValue()[0];
-				if (value==0) {
-					inLead=false;
-				} else {
-					inLead=true;
-				}
-				logger.debug("In lead range updated to {}", inLead);
-			}
-		}
-	}
-	private class TotalIterationsListener implements MonitorListener {
+	public class TotalIterationsListener implements MonitorListener {
 
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
@@ -337,7 +282,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 	private void updateIterationDispay(int currentiteration, int totalIterations) {
 		lblIterationValue.setText(String.valueOf(currentiteration)+"/"+String.valueOf(totalIterations));
 	}
-	private class CurrentIterationListener implements MonitorListener {
+	public class CurrentIterationListener implements MonitorListener {
 
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
@@ -363,12 +308,13 @@ public class RegionProgressComposite extends Composite implements Initialization
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
-				final double currentpoint = ((DBR_Double) dbr).getDoubleValue()[0];
+				final int currentpoint =(int) ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
 						
 						@Override
 						public void run() {
+							txtCurrentStep.setText(String.valueOf(currentpoint));
 							// reset progress bar when completed
 							if (currentpoint == totalSteps) {
 								progressBar.setSelection(0);

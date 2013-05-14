@@ -18,10 +18,14 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.epics.connection.EpicsController;
+import gda.device.DeviceException;
+import gda.epics.connection.EpicsChannelManager;
+import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.InitializationListener;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
@@ -60,14 +64,14 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
-public class SlicesPlotComposite extends Composite {
+public class SlicesPlotComposite extends Composite implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(SlicesPlotComposite.class);
 
 	private IVGScientaAnalyser analyser;
 	private String arrayPV;
-	private EpicsController controller = EpicsController.getInstance();
+	private EpicsChannelManager controller;
 
 	private static final String SLICE_PLOT = "Slice plot";
 
@@ -81,6 +85,8 @@ public class SlicesPlotComposite extends Composite {
 
 	private Monitor dataMonitor;
 
+	private boolean first;
+
 	/**
 	 * @param parent
 	 * @param style
@@ -91,6 +97,7 @@ public class SlicesPlotComposite extends Composite {
 		super(parent, style);
 		this.setBackground(ColorConstants.white);
 
+		controller=new EpicsChannelManager(this);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -148,6 +155,11 @@ public class SlicesPlotComposite extends Composite {
 		plottingSystem.createPlotPart(plotComposite, "Slices",
 				part instanceof IViewPart ? ((IViewPart) part).getViewSite()
 						.getActionBars() : null, PlotType.XY_STACKED, part);
+
+		plottingSystem.setTitle(SLICE_PLOT);
+		plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
+		plottingSystem.getSelectedXAxis().setFormatPattern("#####.#");
+
 	}
 	/**
 	 * initialise object
@@ -161,43 +173,22 @@ public class SlicesPlotComposite extends Composite {
 		}
 		dataListener = new SlicesDataListener();
 		try {
-			addMonitors();
-		} catch (Exception e) {
-			logger.error("Slice Plot Composite cannot add monitor to its data channel.",e);
-		}
-		addMonitorListeners();
-	}
-
-	public void addMonitors() throws Exception {
-		dataChannel = controller.createChannel(arrayPV);
-		dataMonitor = controller.addMonitor(dataChannel);
-	}
-
-	public void removeMonitors() throws CAException {
-		if (dataMonitor != null) {
-			dataMonitor.clear();
+			createChannels();
+		} catch (CAException | TimeoutException e1) {
+			logger.error("failed to create required data channel", e1);
 		}
 	}
-
-	public void addMonitorListeners() {
-		dataMonitor.addMonitorListener(dataListener);
-	}
-
-	public void removeMonitorListeners() {
-		dataMonitor.removeMonitorListener(dataListener);
+	public void createChannels() throws CAException, TimeoutException {
+		first=true;
+		dataChannel = controller.createChannel(arrayPV, dataListener, MonitorType.NATIVE,false);
+		controller.creationPhaseCompleted();
+		logger.debug("Slices channel is created");
 	}
 
 	@Override
 	public void dispose() {
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
-		}
-		removeMonitorListeners();
-		try {
-			removeMonitors();
-		} catch (CAException e) {
-			logger.error("Failed to remove monitors on Spectrum Plot dispose.",
-					e);
 		}
 		dataChannel.dispose();
 		super.dispose();
@@ -219,11 +210,18 @@ public class SlicesPlotComposite extends Composite {
 	private double[] value;
 	private int selectedSlice;
 
+	private boolean newRegion=true;
+
 	private class SlicesDataListener implements MonitorListener {
 
 		@Override
 		public void monitorChanged(final MonitorEvent arg0) {
-			logger.debug("receiving image data from " + arg0.toString()
+			if (first) {
+				first=false;
+				logger.debug("Slices Data Listener connected.");
+				return;
+			}
+			logger.debug("receiving slices data from " + arg0.toString()
 					+ " to plot on " + plottingSystem.getPlotName()
 					+ " with axes from " + getAnalyser().getName());
 			if (!getDisplay().isDisposed()) {
@@ -250,8 +248,18 @@ public class SlicesPlotComposite extends Composite {
 		}
 	}
 
-	private void updateSlicesPlot(final IProgressMonitor monitor,
-			final double[] value, final int slice) {
+	double[] xdata;
+	private void updateSlicesPlot(final IProgressMonitor monitor,final double[] value, final int slice) {
+		if (isNewRegion()) {
+			try {
+				xdata = getAnalyser().getEnergyAxis();
+			} catch (Exception e) {
+				logger.error("cannot get enegery axis fron the analyser", e);
+			}
+		}
+		DoubleDataset xAxis = new DoubleDataset(xdata,new int[] { xdata.length });
+		xAxis.setName("energies (eV)");
+		
 		try {
 			int[] dims = new int[] { getAnalyser().getNdarrayYsize(),
 					getAnalyser().getNdarrayXsize() };
@@ -262,12 +270,6 @@ public class SlicesPlotComposite extends Composite {
 			double[] values = Arrays.copyOf(value, arraysize);
 			final AbstractDataset ds = new DoubleDataset(values, dims);
 
-			double[] xdata = getAnalyser().getEnergyAxis(); // TODO do this once
-															// per analyser
-															// region
-			final DoubleDataset xAxis = new DoubleDataset(xdata,
-					new int[] { xdata.length });
-			xAxis.setName("energies (eV)");
 			final ArrayList<AbstractDataset> yaxes = new ArrayList<AbstractDataset>();
 
 			for (int i = 0; i < dims[0]; i++) {
@@ -277,27 +279,21 @@ public class SlicesPlotComposite extends Composite {
 				yaxes.add(slice2);
 			}
 
+			final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, yaxes, monitor);
 			if (!getDisplay().isDisposed()) {
-				getDisplay().syncExec(new Runnable() {
+				getDisplay().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
-						final List<ITrace> profileLineTraces = plottingSystem
-								.updatePlot1D(xAxis, yaxes, monitor);
 
-						if (!profileLineTraces.isEmpty()
+						if (isNewRegion()&&!profileLineTraces.isEmpty()
 								&& profileLineTraces.size() > slice) {
 							// Highlight selected slice in blue color
-							profileLineTrace = (ILineTrace) profileLineTraces
-									.get(slice);
+							profileLineTrace = (ILineTrace) profileLineTraces.get(slice);
 							profileLineTrace.setTraceColor(ColorConstants.blue);
+							setNewRegion(false);
 						}
-
-						plottingSystem.setTitle(SLICE_PLOT);
-						plottingSystem.getSelectedYAxis().setFormatPattern(
-								"######.#");
-						plottingSystem.getSelectedXAxis().setFormatPattern(
-								"#####.#");
+						plottingSystem.autoscaleAxes();
 					}
 				});
 			}
@@ -321,5 +317,17 @@ public class SlicesPlotComposite extends Composite {
 
 	public void setArrayPV(String arrayPV) {
 		this.arrayPV = arrayPV;
+	}
+	@Override
+	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
+		logger.info("Slices EPICS Channel initialisation completed!");
+		
+	}
+	public void setNewRegion(boolean b) {
+		this.newRegion=b;
+		
+	}
+	public boolean isNewRegion() {
+		return newRegion;
 	}
 }

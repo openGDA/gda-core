@@ -1,9 +1,15 @@
 package org.opengda.detector.electronanalyser.client.views;
 
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.INullSelectionListener;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
+import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +25,7 @@ public class SlicesView extends ViewPart {
 		// setContentDescription("A view for displaying integrated slices.");
 		setPartName("Slices");
 	}
+	SlicesPlotComposite slicesPlotComposite;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -26,14 +33,25 @@ public class SlicesView extends ViewPart {
 		rootComposite.setLayout(new FillLayout());
 
 		try {
-			SlicesPlotComposite slicesPlotComposite = new SlicesPlotComposite(this, rootComposite, SWT.None);
+			slicesPlotComposite = new SlicesPlotComposite(this, rootComposite, SWT.None);
 			slicesPlotComposite.setAnalyser(getAnalyser());
 			slicesPlotComposite.setArrayPV(arrayPV);
 			slicesPlotComposite.initialise();
 		} catch (Exception e) {
 			logger.error("Cannot create slices plot composite.", e);
 		}
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SequenceViewExtensionFactory.ID, selectionListener);
 	}
+
+	private ISelectionListener selectionListener = new INullSelectionListener() {
+		@Override
+		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (selection instanceof RegionRunCompletedSelection) {
+				slicesPlotComposite.setNewRegion(true);
+			} 
+		}
+	};
+
 
 	@Override
 	public void setFocus() {

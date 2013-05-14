@@ -90,6 +90,7 @@ import org.opengda.detector.electronanalyser.client.jobs.RegionJob;
 import org.opengda.detector.electronanalyser.client.jobs.RegionJobRule;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
+import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
@@ -680,6 +681,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					} else if (result.getSeverity() == IStatus.ERROR) {
 						updateRegionStatus(regionJob, STATUS.ABORTED);
 					}
+					fireSelectionChanged(new RegionRunCompletedSelection());
 					if (Job.getJobManager().find(RegionJob.FAMILY_REGION_JOB).length==0) {
 						logger.info("Sequence {} collection completed.",regionDefinitionResourceUtil.getFileName());
 						runningonclient=false;
