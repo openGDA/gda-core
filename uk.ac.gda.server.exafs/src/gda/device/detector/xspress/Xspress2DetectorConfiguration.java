@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.OutputParameters;
+import uk.ac.gda.beans.exafs.i20.I20OutputParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 
 /**
@@ -44,16 +45,20 @@ public class Xspress2DetectorConfiguration extends DetectorConfiguration {
 	private XspressParameters xspressParameters;
 	private ObservableComponent controller;
 
+	private OutputParameters outputParams;
+
 	public Xspress2DetectorConfiguration(final ObservableComponent controller, final String path, final Object beanName,
-			@SuppressWarnings("unused") final OutputParameters outputParams) throws Exception {
+			final OutputParameters outputParams) throws Exception {
 
 		this.controller = controller;
+		this.outputParams = outputParams;
 		this.xspressParameters = (XspressParameters) getBean(path, beanName);
 	}
 	public Xspress2DetectorConfiguration(final ObservableComponent controller, final String path, final Object beanName,
-			@SuppressWarnings("unused") final OutputParameters outputParams, @SuppressWarnings("unused") final String addtionalSavePath) throws Exception {
+			final OutputParameters outputParams, @SuppressWarnings("unused") final String addtionalSavePath) throws Exception {
 
 		this.controller = controller;
+		this.outputParams = outputParams;
 		this.xspressParameters = (XspressParameters) getBean(path, beanName);
 	}
 
@@ -82,7 +87,12 @@ public class Xspress2DetectorConfiguration extends DetectorConfiguration {
 			// 2. Tell detector to configure
 			xspress2.configure();
 			// 3. set the ascii output options
-			if (xspressParameters != null){
+			if (outputParams != null && outputParams instanceof I20OutputParameters) {
+				I20OutputParameters op = (I20OutputParameters) outputParams;
+				xspress2.setOnlyDisplayFF(op.isXspressOnlyShowFF());
+				xspress2.setAddDTScalerValuesToAscii(op.isXspressShowDTRawValues());
+				xspress2.setSaveRawSpectrum(op.isXspressSaveRawSpectrum());
+			} else if (xspressParameters != null) {
 				xspress2.setOnlyDisplayFF(xspressParameters.isXspressOnlyShowFF());
 				xspress2.setAddDTScalerValuesToAscii(xspressParameters.isXspressShowDTRawValues());
 				xspress2.setSaveRawSpectrum(xspressParameters.isSaveRawSpectrum());

@@ -46,7 +46,7 @@ class I20XasScan(XasScan):
         if beanGroup.getSample().getUseSampleWheel():
             filter = beanGroup.getSample().getSampleWheelPosition()
             self.log( "Moving filter wheel to",filter,"...")
-
+            self.jython_mapper.filterwheel(filter)
             ScriptBase.checkForPauses()
             
         # I20 always moves things back to initial positions after ecah scan. To save time, move mono to intial position here
@@ -343,6 +343,8 @@ class I20XesScan(XasScan):
         self.outputPreparer = outputPreparer
         self.loggingcontroller = loggingcontroller
         self.beamlineReverter = beamlineReverter
+        self.jython_mapper = JythonNameSpaceMapping()
+        self.finder = Finder.getInstance()
 
         
     def __call__ (self,sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
@@ -361,12 +363,7 @@ class I20XesScan(XasScan):
         # create unique ID for this scan (all repetitions will share the same ID)
         scriptType = "Xes"
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
-        
-        # update to terminal
-        print "Starting xes scan..."
-        print ""
-        print "Output to",xmlFolderName
-        print ""
+
 
         # give the beans to the xasdatawriter class to help define the folders/filenames 
         beanGroup = BeanGroup()
@@ -565,13 +562,12 @@ class I20XesScan(XasScan):
         else:
             raise "scan type in XES Scan Parameters bean/xml not acceptable"
 
-        # may want to do all of these?
-        self.log( "Setting up the Vortex detector...")
+        self.log( "Setting up the detectors...")
         self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
-        self.log( "Vortex configured.")
-        #sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
-        #outputScannables = self.outputPreparer.prepare(beanGroup.getOutput())
-        #scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
+        self.log( "Vortex and ionchambers configured.")
+        sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
+        outputScannables = self.outputPreparer.prepare(beanGroup.getOutput(), beanGroup.getScan())
+        scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
 
         # run the before scan script
         self._runScript(beanGroup.getOutput().getBeforeScriptName())
@@ -617,7 +613,8 @@ class I20XesScan(XasScan):
                     if numRepetitions > 1:
                         print ""
                     thisscan = ConcurrentScan(argsForThisScan)
-                    self.log( "Starting repetition", str(repetitionNumber),"of",numRepetitions)
+                    if numRepetitions != 1:
+                        self.log( "Starting repetition", str(repetitionNumber),"of",numRepetitions)
 
                     thisscan = self._setUpDataWriter(thisscan,beanGroup)
                     thisscan.setReturnScannablesToOrginalPositions(False)

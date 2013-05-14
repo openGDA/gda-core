@@ -156,6 +156,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	}
 
 	private void createLeftGasProperties(final Composite left) {
+		
 		this.gasPropertiesGroup = new Group(left, SWT.NONE);
 		gasPropertiesGroup.setLayout(new GridLayout(2, false));
 		gasPropertiesGroup.setText("Gas Properties");
@@ -620,14 +621,16 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 									boolean originalFlush = ionParams.getFlush();
 
 									if (pressureVal > totalPressure.getNumericValue() || pressureVal < 0.003) {
-										fillGasButton.setEnabled(false);
+										if (fillGasButton != null)
+											fillGasButton.setEnabled(false);
 										autoFillGas.setEnabled(false);
 										flush.setEnabled(false);
 										autoFillGas.setValue(false);
 										flush.setValue(false);
 										pressure.setLabelColor(new Color(null, 255, 0, 0));
 									} else {
-										fillGasButton.setEnabled(true);
+										if (fillGasButton != null)
+											fillGasButton.setEnabled(true);
 										autoFillGas.setEnabled(true);
 										flush.setEnabled(true);
 										autoFillGas.setValue(originalAutoFillGas);

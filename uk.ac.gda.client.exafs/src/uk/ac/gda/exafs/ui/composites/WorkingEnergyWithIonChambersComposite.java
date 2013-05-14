@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
+import uk.ac.gda.exafs.ExafsActivator;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
@@ -85,21 +87,30 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 				}
 			});	
 		}
-
-		this.selectDefaultsListener = new SelectionAdapter() {
+		workingEnergy.addValueListener(new ValueAdapter("workingEnergyListener") {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				double workingEnergy = 0;
-				if (provider.getExperimentType().toString().equals("Transmission")) {
-					workingEnergy = provider.getTransmissionParameters().getWorkingEnergy();
-				} else if (provider.getExperimentType().toString().equals("Fluorescence")) {
-					workingEnergy = provider.getFluorescenceParameters().getWorkingEnergy();
-				}
-
-				ionChamberComposite.calculateDefaultGasType(workingEnergy);
+			public void valueChangePerformed(ValueEvent e) {
+				ionChamberComposite.calculatePressure();
 			}
-		};
-		selectDefaultsBtn.addSelectionListener(selectDefaultsListener);
+		});
+
+		if (!ExafsActivator.getDefault().getPreferenceStore()
+				.getBoolean(ExafsPreferenceConstants.HIDE_DEFAULT_GAS_MIXTURES_BUTTON)) {
+			this.selectDefaultsListener = new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					double workingEnergy = 0;
+					if (provider.getExperimentType().toString().equals("Transmission")) {
+						workingEnergy = provider.getTransmissionParameters().getWorkingEnergy();
+					} else if (provider.getExperimentType().toString().equals("Fluorescence")) {
+						workingEnergy = provider.getFluorescenceParameters().getWorkingEnergy();
+					}
+	
+					ionChamberComposite.calculateDefaultGasType(workingEnergy);
+				}
+			};
+			selectDefaultsBtn.addSelectionListener(selectDefaultsListener);
+		}
 	}
 
 	/**
