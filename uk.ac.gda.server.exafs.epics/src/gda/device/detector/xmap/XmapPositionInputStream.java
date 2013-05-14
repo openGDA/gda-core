@@ -65,14 +65,17 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		String fileName=null;
 		try {
 			System.out.println("wating for file");
+			//TODO On I18 the detector never stops acquiring for Traj Stage 3
 			hardwareTriggeredNexusXmap.waitForCurrentScanFile();
-			 fileName= this.hardwareTriggeredNexusXmap.getHDFFileName();
+			fileName= this.hardwareTriggeredNexusXmap.getHDFFileName();
 			List <NexusTreeProvider> container = new ArrayList<NexusTreeProvider>();
 			
-			//change to linux format
 			String beamline = LocalProperties.get("gda.factory.factoryName","");
 			beamline = beamline.toLowerCase();
+			
+			//change filename to linux format
 			fileName = fileName.replace("X:/", "/dls/" + beamline);
+			
 			if(hardwareTriggeredNexusXmap.isInBufferMode())
 				fileLoader = new XmapBufferedHdf5FileLoader(fileName);
 			else
@@ -100,9 +103,6 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		}
 	}
 
-	
-
-
 	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] s) throws DeviceException {
 		NXDetectorData output = new NXDetectorData(this.hardwareTriggeredNexusXmap.getXmap());
 		INexusTree detTree = output.getDetTree(this.hardwareTriggeredNexusXmap.getXmap().getName());
@@ -121,7 +121,6 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		short detectorData[][] = s;
 
 		for (int element = 0; element < this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size(); element++) {
-
 			DetectorElement thisElement = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(element);
 			if (thisElement.isExcluded())
 				continue;
@@ -160,7 +159,6 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 					summation[i] += detectorData[element][i];
 				}
 			}
-
 		}
 
 		// add total counts
@@ -210,13 +208,12 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 			output.addData(detTree, "allElementSum", new int[] { summation.length }, NexusFile.NX_FLOAT64, summation,
 					"counts", 1);
 		return output;
-		
 	}
+	
 	private double getEvents(int dataPointNumber, int element) {
 		double event = fileLoader.getEvents(dataPointNumber, element);
 		return event;
 	}
-
 
 	private double calculateScalerData(int dataPointNumber, int numberOfROIs, short[][] detectorData) throws DeviceException {
 		final double[]k = new double[this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size()];
@@ -229,7 +226,6 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 			k[i] = correctionFactor;
 		}
 
-		
 		// Correct mca counts using K as we go
 		Double[] rois = new Double[numberOfROIs];
 		for (int i = 0; i < rois.length; i++) {
@@ -250,7 +246,6 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		return ff;
 	}
 
-
 	private double getICR(int dataPointNumber,int element) {
 		double trigger =0.0;
 		double liveTime = 0.0;
@@ -261,6 +256,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 				return trigger / liveTime;
 		return 0.0;
 	}
+	
 	private double getOCR(int dataPointNumber, int element) {
 		double event = fileLoader.getEvents(dataPointNumber, element);
 		double realTime = fileLoader.getRealTime(dataPointNumber, element);
@@ -269,7 +265,6 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		return 0;
 	}
 	
-
 	private double calculateROICounts(int regionLow, int regionHigh, short[] data) {
 		double count = 0.0;
 		for (int i = regionLow; i <= regionHigh; i++)
@@ -277,18 +272,11 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		return count;
 	}
 
-
-
 	public boolean isSumAllElementData() {
 		return sumAllElementData;
 	}
 
-
-
-
 	public void setSumAllElementData(boolean sumAllElementData) {
 		this.sumAllElementData = sumAllElementData;
 	}
-	
-	
 }

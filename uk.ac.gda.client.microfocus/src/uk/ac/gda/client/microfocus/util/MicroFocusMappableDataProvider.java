@@ -172,28 +172,51 @@ public abstract class MicroFocusMappableDataProvider {
 			String location = "/entry1/instrument/" + xScannableName + "/" + xScannableName;
 			ILazyDataset xscannableDS = dataHolder.getLazyDataset(location);
 
+			String[] namesList = dataHolder.getNames();
+			String names = "";
+			for(int i=0;i<namesList.length;i++){
+				String name = namesList[i];
+				names = names + name+", ";
+			}
+			
 			if (xscannableDS == null) {
-				location = "/entry1/instrument/trajectoryX/value";
-				xscannableDS = dataHolder.getLazyDataset(location);
+				
+				if(names.contains("/entry1/instrument/trajectoryX/value"))
+					xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/trajectoryX/value");
+				else if(names.contains("/entry1/instrument/traj3SampleX/traj3SampleX"))
+					xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj3SampleX/traj3SampleX");
+				else if(names.contains("/entry1/instrument/traj1SampleX/traj1SampleX"))
+					xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj1SampleX/traj1SampleX");
+				else if(names.contains("/entry1/instrument/traj1ContiniousX/value"))
+					xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj1ContiniousX/value");
 			}
 
 			AbstractDataset xdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(xscannableDS));
 			xAxisLengthFromFile = xdata.getShape()[1];
 
-			ILazyDataset yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/" + yScannableName + "/"
-					+ yScannableName);
+			ILazyDataset yscannableDS = null;
+			
+			if(names.contains("/entry1/instrument/sc_MicroFocusSampleY/sc_MicroFocusSampleY"))
+				yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_MicroFocusSampleY/sc_MicroFocusSampleY");
+			else if(names.contains("/entry1/instrument/sc_MicroFocusSampleY"))
+				yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_MicroFocusSampleY");
+			else if(names.contains("/entry1/instrument/table_y/table_y"))
+				yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_y/table_y");
+			
 			AbstractDataset ydata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(yscannableDS));
 			yAxisLengthFromFile = ydata.getShape()[0];
 			double[] x = (double[]) xdata.getBuffer();
 			double[] y = (double[]) ydata.getBuffer();
-			ILazyDataset zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/" + zScannableName + "/"
-					+ zScannableName);
+			ILazyDataset zscannableDS = null;
+			if(names.contains("/entry1/instrument/sc_sample_z"))
+				zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_sample_z");
+			else if(names.contains("/entry1/instrument/Sample_Stage/sc_sample_z"))
+				zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Sample_Stage/sc_sample_z");
+			
 			// zValue is included as part of the scan
 			if (zscannableDS != null) {
 				AbstractDataset zdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(zscannableDS));
-				double[] z = (double[]) zdata.getBuffer();
-				if (null != z)
-					zValue = z[0];
+				zValue = Double.parseDouble(zdata.getString(0));
 			} else {
 				// Read the zvalue from the metadata
 				zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Sample_Stage" + "/" + zScannableName);

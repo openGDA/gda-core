@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -22,13 +22,9 @@ import gda.jython.JythonServerFacade;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -37,7 +33,6 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.exafs.ui.composites.AttenuatorParametersComposite;
 import uk.ac.gda.exafs.ui.composites.I18SampleParametersComposite;
@@ -46,49 +41,39 @@ import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-/**
- *
- */
 public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(I18SampleParametersUIEditor.class);
-	private DirtyContainer dirtyContainer;
-	
-	public I18SampleParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean);
-		this.dirtyContainer=dirtyContainer;
-	}
 
 	private I18SampleParametersComposite beanComposite;
 
-	/**
-	 * @return editor text
-	 */
+	public I18SampleParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+		super(path, mappingURL, dirtyContainer, editingBean);
+	}
+
 	@Override
 	public String getRichEditorTabText() {
 		return "I18SampleParameters";
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void createPartControl(Composite comp) {
 		final ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		this.beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE, (I18SampleParameters)editingBean);
+		this.beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE,
+				(I18SampleParameters) editingBean);
 		try {
-			if(((I18SampleParameters)editingBean).getSampleStageParameters().getDisable())
+			if (((I18SampleParameters) editingBean).getSampleStageParameters().getDisable())
 				this.beanComposite.disableSample();
 			else
 				this.beanComposite.enableSample();
-			
+
 		} catch (Exception e) {
 			logger.error("Error enabling/disabling sample", e);
 		}
-		
+
 		ExpansionAdapter stageExpansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
@@ -97,7 +82,7 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 			}
 		};
 		beanComposite.getKbExpandableComposite().addExpansionListener(stageExpansionListener);
-		
+
 		fillAttenuatorPositions();
 		addListeners();
 		scrolledComposite.setContent(beanComposite);
@@ -106,65 +91,34 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 	}
 
 	private void addListeners() {
-		
+
 		beanComposite.getAttnCurrentPosition().addListener(SWT.Selection, new Listener() {
-		@Override
-		public void handleEvent(Event event) {
-			String att1val = JythonServerFacade.getInstance().evaluateCommand("D7A()");
-			String att2val = JythonServerFacade.getInstance().evaluateCommand("D7B()");
-			beanComposite.getAttenuatorParameter1().getSelectedPosition().setValue(att1val);
-			beanComposite.getAttenuatorParameter2().getSelectedPosition().setValue(att2val);
-			beanComposite.getAttenuatorParameter1().setPosition(att1val);
-			beanComposite.getAttenuatorParameter2().setPosition(att2val);
-	}
-	});
-
-		this.beanComposite.getAttenuatorParameter1().getPosition().addSelectionListener(new SelectionListener(){
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				beanComposite.getAttenuatorParameter1().getSelectedPosition().setValue(beanComposite.getAttenuatorParameter1().getPosition().getText());
-			}
-		});
-		this.beanComposite.getAttenuatorParameter2().getPosition().addSelectionListener(new SelectionListener(){
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				beanComposite.getAttenuatorParameter2().getSelectedPosition().setValue(beanComposite.getAttenuatorParameter2().getPosition().getText());
+			public void handleEvent(Event event) {
+				String att1val = JythonServerFacade.getInstance().evaluateCommand("D7A()");
+				String att2val = JythonServerFacade.getInstance().evaluateCommand("D7B()");
+				beanComposite.getAttenuatorParameter1().getSelectedPosition().setValue(att1val);
+				beanComposite.getAttenuatorParameter2().getSelectedPosition().setValue(att2val);
+				beanComposite.getAttenuatorParameter1().setPosition(att1val);
+				beanComposite.getAttenuatorParameter2().setPosition(att2val);
 			}
 		});
 	}
-			
+
 	private void fillAttenuatorPositions() {
 		AttenuatorParametersComposite at1 = this.beanComposite.getAttenuatorParameter1();
 		AttenuatorParametersComposite at2 = this.beanComposite.getAttenuatorParameter2();
 		I18SampleParameters sampleBean = (I18SampleParameters) editingBean;
-		ArrayList <String>positions1 = sampleBean.getAttenuatorParameter1().getPosition();
-		for (String pos : positions1)
-			{
-				at1.getPosition().add(pos);
-			}
-			at1.getPosition().setText(sampleBean.getAttenuatorParameter1().getSelectedPosition());
-		ArrayList <String>positions2 = sampleBean.getAttenuatorParameter2().getPosition();
-		for (String pos : positions2)
-			{
-				at2.getPosition().add(pos);
-			}
-		at2.getPosition().setText(sampleBean.getAttenuatorParameter2().getSelectedPosition());
+
+		ArrayList<String> positions1 = sampleBean.getAttenuatorParameter1().getPosition();
+		ArrayList<String> positions2 = sampleBean.getAttenuatorParameter2().getPosition();
+		
+		at1.getSelectedPosition().setItems(positions1.toArray(new String[]{}));
+		at2.getSelectedPosition().setItems(positions2.toArray(new String[]{}));
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void setFocus() {
-		//TODO
 	}
 
 	public FieldComposite getName() {
@@ -173,7 +127,8 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	public FieldComposite getDescription() {
 		return beanComposite.getDescription();
-	} 
+	}
+
 	public SampleStageParametersComposite getSampleStageParameters() {
 		return beanComposite.getSampleStageParameters();
 	}
@@ -181,23 +136,24 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 	public AttenuatorParametersComposite getAttenuatorParameter1() {
 		return beanComposite.getAttenuatorParameter1();
 	}
+
 	public AttenuatorParametersComposite getAttenuatorParameter2() {
 		return beanComposite.getAttenuatorParameter2();
 	}
-	
+
 	public FieldComposite getVfmx() {
 		return beanComposite.getVfmx();
-	} 
+	}
 
 	public boolean isVfmxActive() {
 		return beanComposite.isVfmxActive();
 	}
-	
+
 	@Override
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
 		try {
-			if(((I18SampleParameters)editingBean).getSampleStageParameters().getDisable())
+			if (((I18SampleParameters) editingBean).getSampleStageParameters().getDisable())
 				this.beanComposite.disableSample();
 			else
 				this.beanComposite.enableSample();

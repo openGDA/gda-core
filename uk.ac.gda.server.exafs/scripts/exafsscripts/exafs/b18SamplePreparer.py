@@ -117,22 +117,23 @@ class B18SamplePreparer:
 			min = float(temp) - float(tolerance)
 			max = float(temp) + float(tolerance)
 			temp_final = False
-			self.log("starting temperature control loop")	
+			self.log("Starting temperature control loop...")	
 			while temp_final == False:
 				temp_readback = float(self.lakeshore_scannable());
-				if temp_readback in range(min, max):
-					self.log("Temperature reached, checking if it has stabalised")
+				if temp_readback > min and temp_readback < max:
+					self.log("Temperature reached, checking if it has stabilised.")
 					finalised = True;
 					time = 0;
 					while finalised == True and time < wait_time:
-						self.log("Temperature stable")
+						
 						temp_readback = float(self.lakeshore_scannable());
-						if (temp_readback in range(min, max)) == False:
+						if temp_readback < min or temp_readback > max:
 							self.log("Temperature unstable")
 							finalised = False
 						time += 1
 						sleep(1)
 					if finalised == True:
+						self.log("Temperature stable")
 						temp_final = True 
 				else:
 					self.log("Temperature = " + str(temp_readback))

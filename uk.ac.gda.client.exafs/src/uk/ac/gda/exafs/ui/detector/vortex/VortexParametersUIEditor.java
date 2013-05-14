@@ -408,7 +408,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 				@Override
 				public void run() {
 					getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
-					plot(getDetectorList().getSelectedIndex());
+					plot(getDetectorList().getSelectedIndex(),true);
 					setEnabled(true);
 					deadTimeLabel.setValue(deadTimeFinal);
 					lblDeadTime.setVisible(true);
@@ -603,7 +603,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 							public void run() {
 								acquireFileLabel.setText("Loaded: " + filePath);
 								getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-								plot(getDetectorList().getSelectedIndex());
+								plot(getDetectorList().getSelectedIndex(),false);
 								setEnabled(true);
 							}
 						});

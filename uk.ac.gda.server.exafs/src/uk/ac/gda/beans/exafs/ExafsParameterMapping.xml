@@ -96,8 +96,12 @@
 		<field name="exafsStepType" type="string">
 			<bind-xml name="exafsStepType" node="element" />
 		</field>
-
-
+		<field name="exafsTimeType" type="string">
+			<bind-xml name="exafsTimeType" node="element" />
+		</field>
+		<field name="abGafChoice" type="string">
+			<bind-xml name="abGafChoice" node="element" />
+		</field>
 	</class>
 
 	<class name="uk.ac.gda.beans.exafs.XanesScanParameters">
