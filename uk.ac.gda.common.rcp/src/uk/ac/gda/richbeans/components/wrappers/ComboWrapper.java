@@ -147,18 +147,23 @@ public class ComboWrapper extends ButtonComposite implements IFieldWidget{
 
 	@Override
 	public Object getValue() {
-		if (combo==null) return null;
-		if (combo.isDisposed()) return null;
+		if (combo == null)
+			return null;
+		if (combo.isDisposed())
+			return null;
 		final String text = combo.getText();
-		final int index   = combo.getSelectionIndex();
-		if (index<0&&text!=null) {
-			return itemMap!=null ? itemMap.get(text) : text;
-		} else if (index>-1) {
-			return itemMap!=null ? itemMap.get(combo.getItem(index)) : combo.getItem(index);
+		if (text.isEmpty()) {
+			System.out.println("empty!");
+		}
+		final int index = combo.getSelectionIndex();
+		if (index < 0) {
+			return itemMap != null ? itemMap.get(text) : text;
+		} else if (index > -1) {
+			return itemMap != null ? itemMap.get(combo.getItem(index)) : combo.getItem(index);
 		}
 		return null;
 	}
-	
+
 	@Override
 	public void setValue(Object value) {
 		if (value == null) {
@@ -177,9 +182,10 @@ public class ComboWrapper extends ButtonComposite implements IFieldWidget{
 			final int index = combo.indexOf(textValue);
 			if (index < 0) {
 				combo.clearSelection();
-				throw new IllegalArgumentException("String '" + textValue + "' was not found for ComboBox");
+//				throw new IllegalArgumentException("String '" + textValue + "' was not found for ComboBox");
+			} else {
+				combo.select(index);
 			}
-			combo.select(index);
 		}
 	}
 
