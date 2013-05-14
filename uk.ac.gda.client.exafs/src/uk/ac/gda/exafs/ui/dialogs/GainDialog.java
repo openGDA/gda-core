@@ -350,10 +350,10 @@ public class GainDialog extends Dialog {
 						bean.setEnergy(bean.getFinalEnergy());
 
 						final double i0_orig = GainCalculation.getIntensity(bean);
-						System.out.println("I0 = " + i0_orig);
+//						System.out.println("I0 = " + i0_orig);
 
 						final String i0_gain = GainCalculation.getSuggestedGain(bean);
-						System.out.println(i0_gain);
+//						System.out.println(i0_gain);
 
 						// bean.setIonChamber(ionChambers.get(1));
 						// final String it_gain = GainCalculation.getSuggestedGain(bean);
