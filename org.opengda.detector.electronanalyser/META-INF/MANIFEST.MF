@@ -13,5 +13,7 @@ Require-Bundle: uk.ac.gda.api;bundle-version="8.26.0",
  uk.ac.gda.core;bundle-version="8.26.0",
  org.opengda.detector.electronanalyser.model;bundle-version="1.0.0",
  org.opengda.detector.electronanalyser.server;bundle-version="1.0.0",
- uk.ac.gda.epics;bundle-version="1.0.0"
-Export-Package: org.opengda.detector.electronanalyser
+ uk.ac.gda.epics;bundle-version="1.0.0",
+ org.opengda.detector.electronanalyser.model.edit;bundle-version="1.0.0"
+Export-Package: org.opengda.detector.electronanalyser,
+ org.opengda.detector.electronanalyser.utils

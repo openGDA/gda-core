@@ -13,7 +13,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.domain.EditingDomain;
-import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
+import org.opengda.detector.electronanalyser.Activator;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
@@ -175,7 +175,7 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	private ResourceSet getResourceSet() throws Exception {
-		EditingDomain sequenceEditingDomain = ElectronAnalyserClientPlugin
+		EditingDomain sequenceEditingDomain = Activator
 				.getDefault().getSequenceEditingDomain();
 		// Create a resource set to hold the resources.
 		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
@@ -209,7 +209,7 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	public EditingDomain getEditingDomain() throws Exception {
-		return ElectronAnalyserClientPlugin.getDefault()
+		return Activator.getDefault()
 				.getSequenceEditingDomain();
 	}
 

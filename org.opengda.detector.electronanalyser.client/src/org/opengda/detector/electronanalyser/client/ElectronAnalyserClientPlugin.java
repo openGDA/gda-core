@@ -1,9 +1,7 @@
 package org.opengda.detector.electronanalyser.client;
 
-import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.opengda.detector.electronanalyser.utils.SequenceEditingDomain;
 import org.osgi.framework.BundleContext;
 
 public class ElectronAnalyserClientPlugin extends AbstractUIPlugin {
@@ -44,17 +42,6 @@ public class ElectronAnalyserClientPlugin extends AbstractUIPlugin {
 	 */
 	public static ElectronAnalyserClientPlugin getDefault() {
 		return plugin;
-	}
-
-	public EditingDomain getSequenceEditingDomain() throws Exception {
-		try {
-			// return TransactionalEditingDomain.Registry.INSTANCE
-			// .getEditingDomain(EDITING_DOMAIN_ID);
-			return SequenceEditingDomain.INSTANCE.getEditingDomain();
-		} catch (Exception ex) {
-			throw new Exception("Unable to get editing domain:"
-					+ ex.getMessage());
-		}
 	}
 
 	@Override
