@@ -331,7 +331,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 
 	@Override
 	public void writeout(int frames, NXDetectorData dataTree) throws DeviceException {
-		dataTree.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
+		dataTree.addScanFileLink(getTreeName(), "nxfile://" + filename + "#entry/instrument/detector/data");
 
 		addMetadata(dataTree);
 		

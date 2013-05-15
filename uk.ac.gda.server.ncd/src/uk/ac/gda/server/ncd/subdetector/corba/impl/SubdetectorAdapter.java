@@ -35,6 +35,7 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
+import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 import uk.ac.gda.server.ncd.subdetector.corba.CorbaNcdsubDetector;
 import uk.ac.gda.server.ncd.subdetector.corba.CorbaNcdsubDetectorHelper;
@@ -249,5 +250,10 @@ public class SubdetectorAdapter extends DeviceAdapter implements INcdSubDetector
             }
     }
     throw new DeviceException("Communication failure: retry failed");
+	}
+
+	@Override
+	public DetectorProperties getDetectorProperties() throws DeviceException {
+        throw new DeviceException("not implemented over corba (yet) - request if needed");
 	}
 }

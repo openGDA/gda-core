@@ -93,7 +93,7 @@ public class NcdWireDetector extends NcdSubDetector implements INcdSubDetector {
 
 		NexusGroupData ngd = new NexusGroupData(datadims, NexusFile.NX_FLOAT32, data);
 		ngd.isDetectorEntryData = true;
-		nxdata.addData(getName(), ngd, "counts", 1, getInterpretation());
+		nxdata.addData(getTreeName(), ngd, "counts", 1, getInterpretation());
 
 		addMetadata(nxdata);
 	}

@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 
 public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
@@ -55,6 +56,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	protected String description;
 	protected DoubleDataset mask = null;
 	protected String interpretation = null;
+	private DetectorProperties dp = null;
 
 	public Detector getDetector() {
 		return detector;
@@ -64,6 +66,13 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		this.detector = detector;
 	}
 
+	public String getTreeName() throws DeviceException {
+		if (NcdDetectorSystem.SAXS_DETECTOR.equals(getDetectorType())) {
+			return "detector";
+		}
+		return getName();
+	}
+	
 	@Override
 	public void configure() throws FactoryException {
 		if (detector != null) {
@@ -128,6 +137,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	@Override
 	public void setDataDimensions(int[] detectorSize) throws DeviceException {
 		detector.setAttribute("DataDimensions", detectorSize);
+		dp = null;
 	}
 
 	/**
@@ -160,6 +170,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
+		dp = null;
 		if (descriptionLabel.equals(attributeName)) {
 			description = (String) value;
 		} else if (value != null) {
@@ -202,14 +213,24 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			throw new DeviceException("Detector readout type not supported: " + data);
 		}
 		ngd.isDetectorEntryData = true;
-		dataTree.addData(getName(), ngd, "counts", 1, getInterpretation());
+		dataTree.addData(getTreeName(), ngd, "counts", 1, getInterpretation());
 		addMetadata(dataTree);
 	}
 
 	protected void addMetadata(NXDetectorData nxdata) throws DeviceException {
 		NexusGroupData ngd;
-		INexusTree detTree = nxdata.getDetTree(getName());
+		INexusTree detTree = nxdata.getDetTree(getTreeName());
 
+		if (getName() != null) {
+			ngd = new NexusGroupData(getName());
+			ngd.isDetectorEntryData = false;
+
+			NexusTreeNode type_node = new NexusTreeNode("name", NexusExtractor.SDSClassName, null, ngd);
+			type_node.setIsPointDependent(false);
+
+			detTree.addChildNode(type_node);
+		}
+		
 		if (getDetectorType() != null) {
 			ngd = new NexusGroupData(getDetectorType());
 			ngd.isDetectorEntryData = false;
@@ -276,11 +297,10 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		return pixelSize;
 	}
 
-	@SuppressWarnings("unused")
-	public void setPixelSize(double pixelSize) throws DeviceException {
+	@SuppressWarnings("unused") // subclasses require the throws
+	public void setPixelSize(double pixelSize) throws DeviceException{
 		this.pixelSize = pixelSize;
 	}
-	
 
 	public AbstractDataset getMask() {
 		return mask;
@@ -303,8 +323,8 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	}
 
 	@Override
-    public void atScanEnd() throws DeviceException {
-    }
+	public void atScanEnd() throws DeviceException {
+	}
 
 	@Override
 	public void setTimer(Timer timer) {
@@ -316,5 +336,17 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 	public void setInterpretation(String interpretation) {
 		this.interpretation = interpretation;
+	}
+
+	@Override
+	public DetectorProperties getDetectorProperties() throws DeviceException {
+		if (dp == null) {
+			if (getPixelSize() == 0.0 || getAttribute("distance") == null || getAttribute("beam_center_x") == null || getAttribute("beam_center_y") == null) {
+				dp = new DetectorProperties();
+			} else {
+				dp = new DetectorProperties(((Double) getAttribute("distance"))*1000, ((Double) getAttribute("beam_center_x"))*getPixelSize()*1000, ((Double) getAttribute("beam_center_y"))*getPixelSize()*1000, getDataDimensions()[0], getDataDimensions()[1], getPixelSize()*1000, getPixelSize()*1000);
+			}
+		}
+		return dp;
 	}
 }

@@ -90,7 +90,7 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 	@Override
 	protected void addMetadata(NXDetectorData nxdata) throws DeviceException {
 		NexusGroupData ngd;
-		INexusTree detTree = nxdata.getDetTree(getName());
+		INexusTree detTree = nxdata.getDetTree(getTreeName());
 
 		if (detectorType != null) {
 			ngd = new NexusGroupData(detectorType);

@@ -58,7 +58,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 		try {
 			setupNexusFile(getDetectorType().toLowerCase());
 			String filename = nexusFileName;
-			dataTree.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
+			dataTree.addScanFileLink(getTreeName(), "nxfile://" + filename + "#entry/instrument/detector/data");
 			writeSubFile(frames);
 		} catch (Exception e) {
 			throw new DeviceException("error getting HDF file name", e);

@@ -51,7 +51,7 @@ public class Average extends ReductionDetectorBase {
 			
 			int[] imagedim = Arrays.copyOfRange(parentngd.dimensions, 1, parentngd.dimensions.length);
 			NexusGroupData myngd = new NexusGroupData(imagedim, NexusFile.NX_FLOAT32, mydata);
-			nxdata.addData(getName(), myngd, "1", 1);
+			nxdata.addData(getTreeName(), myngd, "1", 1);
 			addQAxis(nxdata, parentngd.dimensions.length - 1);
 
 			addMetadata(nxdata);
