@@ -160,8 +160,9 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 		if (positions.contains(position.toString())) {
 			int target = positions.indexOf(position.toString());
 			try {
-				controller.caput(chRange, target, channelManager);
-				Thread.sleep(1000);
+//				controller.caput(chRange, target, channelManager);
+//				Thread.sleep(1000);
+				controller.caput(chRange, target, 10);
 			} catch (Throwable th) {
 				throw new DeviceException(chRange.getName() + " failed to moveTo " + position.toString(), th);
 			}
