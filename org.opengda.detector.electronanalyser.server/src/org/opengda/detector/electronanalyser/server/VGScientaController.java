@@ -66,6 +66,8 @@ public class VGScientaController implements Configurable {
 	public static final String INTERATIONS = "NumExposures";
 	public static final String ZERO_SUPPLIES = "ZERO_SUPPLIES";
 	public static final String TOTALPOINTS = "TOTAL_POINTS_RBV";
+	public static final String TOTALLEADPOINTS="TOTAL_LEAD_POINTS_RBV";
+	public static final String TOTALDATAPOINTS="TOTAL_DATA_POINTS_RBV";
 	public static final String CURRENTPOINT = "CURRENT_CHANNEL_RBV";
 	public static final String SPECTRUMDATA = "INT_SPECTRUM";
 	public static final String IMAGEDATA = "IMAGE";
@@ -172,8 +174,9 @@ public class VGScientaController implements Configurable {
 		try {
 			positionLabels = EPICS_CONTROLLER.cagetLabels(getChannel(PASSENERGY));
 		} catch (Exception e) {
-			if (e instanceof RuntimeException)
+			if (e instanceof RuntimeException) {
 				throw (RuntimeException) e;
+			}
 			throw new DeviceException(" exception in getPositions", e);
 		}
 		return positionLabels;
@@ -247,6 +250,12 @@ public class VGScientaController implements Configurable {
 
 	public Integer getTotalSteps() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(TOTALPOINTS));
+	}
+	public Integer getTotalLeadPoints() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(TOTALLEADPOINTS));
+	}
+	public Integer getTotalDataPoints() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(TOTALDATAPOINTS));
 	}
 
 	public Integer getCurrentPoint() throws Exception {
