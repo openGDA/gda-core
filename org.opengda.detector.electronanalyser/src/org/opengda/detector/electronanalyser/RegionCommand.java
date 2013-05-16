@@ -8,7 +8,6 @@ import gda.commandqueue.SimpleCommandDetails;
 import gda.commandqueue.SimpleCommandSummary;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
-import gda.util.Sleep;
 
 import java.io.Serializable;
 
@@ -18,7 +17,7 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RegionCommand extends CommandBase implements Command, Serializable{
+public class RegionCommand extends CommandBase implements Command, Serializable {
 
 	private static final long serialVersionUID = 3312489818289239027L;
 	CommandDetails details;
@@ -73,25 +72,8 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 			// }
 			// }
 		} else {
-			if (region.getRunMode().isRepeatUntilStopped()) {
-				while (region.getRunMode().isRepeatUntilStopped() && !(getState() == STATE.ABORTED)) {
-					startCollection();
-					getAnalyser().waitWhileBusy();
-					while (getState() == STATE.PAUSED) {
-						Sleep.sleep(1000);
-					}
-				}
-			} else {
-				int i = 0;
-				while (region.getRunMode().getNumIterations() > i && !(getState() == STATE.ABORTED)) {
-					startCollection();
-					getAnalyser().waitWhileBusy();
-					i++;
-					while (getState() == STATE.PAUSED) {
-						Sleep.sleep(1000);
-					}
-				}
-			}
+			startCollection();
+			getAnalyser().waitWhileBusy();
 		}
 		endRun();
 	}
@@ -118,20 +100,9 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 	private void startCollection() throws Exception {
 		getAnalyser().start();
 	}
-	private void triggerPointsUpdate(Region region) throws Exception {
-		//TODO remove this hacks when EPICS solved the total point update issues
-		String acqmode=getAnalyser().getAcquisitionMode();
-		if (acqmode.equals("Fixed")) {
-			getAnalyser().setAcquisitionMode("Swept");
-		} else {
-			getAnalyser().setAcquisitionMode("Fixed");
-		}
-		Sleep.sleep(500);
-		getAnalyser().setAcquisitionMode(acqmode);
-	}
+
 	private void configureCollection(Region region) throws Exception {
 		getAnalyser().setLensMode(region.getLensMode());
-		getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral());
 		getAnalyser().setEnergysMode(region.getEnergyMode().getLiteral());
 		getAnalyser().setPassEnergy(region.getPassEnergy());
 		if (region.getAcquisitionMode() == ACQUISITION_MODE.SWEPT) {
@@ -141,21 +112,21 @@ public class RegionCommand extends CommandBase implements Command, Serializable{
 			getAnalyser().setCentreEnergy(region.getFixEnergy());
 		}
 		getAnalyser().setStepTime(region.getStepTime());
-		getAnalyser().setEnergyStep(region.getEnergyStep()/1000.0);
+		getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0);
 		if (!region.getRunMode().isConfirmAfterEachIteration()) {
 			if (!region.getRunMode().isRepeatUntilStopped()) {
 				getAnalyser().setNumberInterations(region.getRunMode().getNumIterations());
-				getAnalyser().setImageMode(ImageMode.MULTIPLE);
+				getAnalyser().setImageMode(ImageMode.SINGLE); // TODO do I need to set this?
 			} else {
-				getAnalyser().setNumberInterations(1);
-				getAnalyser().setImageMode(ImageMode.CONTINUOUS);
+				getAnalyser().setNumberInterations(100000000);
+				getAnalyser().setImageMode(ImageMode.SINGLE);
 			}
 		} else {
 			getAnalyser().setNumberInterations(1);
 			getAnalyser().setImageMode(ImageMode.SINGLE);
 			throw new NotSupportedException("Confirm after each iteraction is not yet supported");
 		}
-		triggerPointsUpdate(region);
+		getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral());
 	}
 
 	@Override
