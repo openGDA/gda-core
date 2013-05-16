@@ -75,7 +75,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	 */
 	@Override
 	public int getNumberOfSweeptSteps() throws Exception {
-		return controller.getTotalSteps();
+		return controller.getTotalDataPoints();
 	}
 
 	/* (non-Javadoc)
