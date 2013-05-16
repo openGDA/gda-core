@@ -49,7 +49,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsEnumPositioner.class);
 
-	private String recordName;
+	private String pvBase;
 
 	private EpicsController controller;
 
@@ -84,71 +84,72 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 	public void configure() throws FactoryException {
 
 		if (!configured) {
-			if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
-				monitorInstalledSet = new HashSet<Channel>();
-
-				recordName = epicsRecord.getFullRecordName();
-
-				if (recordName.endsWith("SELECT") || recordName.endsWith("SELECT:")) {
-					recordName = recordName.substring(0, recordName.indexOf("SELECT"));
+			if (pvBase == null) {
+				if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
+					pvBase = epicsRecord.getFullRecordName();
+				} else {
+					return;
 				}
+			}
+			monitorInstalledSet = new HashSet<Channel>();
 
-				// remove any final :
-				if (recordName.endsWith(":")) {
-					recordName = recordName.substring(0, recordName.lastIndexOf(":"));
-				}
 
+			if (pvBase.endsWith("SELECT") || pvBase.endsWith("SELECT:")) {
+				pvBase = pvBase.substring(0, pvBase.indexOf("SELECT"));
+			}
+
+			// remove any final :
+			if (pvBase.endsWith(":")) {
+				pvBase = pvBase.substring(0, pvBase.lastIndexOf(":"));
+			}
+
+			try {
+				// create required channels asynchronously.
+				currentPositionChnl = controller.createChannel(pvBase + ":SELECT.VAL", this);
+				inPositionChnl = controller.createChannel(pvBase + ":INPOS.VAL", this);
+				doneMovingChnl = controller.createChannel(pvBase + ":DMOV.VAL", this);
+				statusChnl = controller.createChannel(pvBase + ":SELECT.STAT", this);
+
+				// alarmSeverityChnl = controller.createChannel(templateName
+				// + "SELECT.SEVR");
+
+				stopChnl = controller.createChannel(pvBase + ":STOP.VAL", this);
+			} catch (Throwable th) {
+				throw new FactoryException("failed to crate chanenl", th);
+			}
+
+			// get the list of positions from the SELECT record and fill the
+			// positions attribute
+			String[] channelNames = new String[12];
+			channelNames[0] = "ZRST";
+			channelNames[1] = "ONST";
+			channelNames[2] = "TWST";
+			channelNames[3] = "THST";
+			channelNames[4] = "FRST";
+			channelNames[5] = "FVST";
+			channelNames[6] = "SXST";
+			channelNames[7] = "SVST";
+			channelNames[8] = "EIST";
+			channelNames[9] = "NIST";
+			channelNames[10] = "TEST";
+			channelNames[11] = "ELST";
+
+			// loop over the pv's in the record
+			for (int i = 0; i < 12; i++) {
 				try {
-					// create required channels asynchronously.
-					currentPositionChnl = controller.createChannel(recordName + ":SELECT.VAL", this);
-					inPositionChnl = controller.createChannel(recordName + ":INPOS.VAL", this);
-					doneMovingChnl = controller.createChannel(recordName + ":DMOV.VAL", this);
-					statusChnl = controller.createChannel(recordName + ":SELECT.STAT", this);
+					Channel thisStringChannel = controller.createChannel(pvBase + ":SELECT." + channelNames[i]);
+					String positionName = controller.cagetString(thisStringChannel);
+					controller.destroy(thisStringChannel);
 
-					// alarmSeverityChnl = controller.createChannel(templateName
-					// + "SELECT.SEVR");
-
-					stopChnl = controller.createChannel(recordName + ":STOP.VAL", this);
-				} catch (Throwable th) {
-					throw new FactoryException("failed to crate chanenl", th);
-				}
-
-				// get the list of positions from the SELECT record and fill the
-				// positions attribute
-				String[] channelNames = new String[12];
-				channelNames[0] = "ZRST";
-				channelNames[1] = "ONST";
-				channelNames[2] = "TWST";
-				channelNames[3] = "THST";
-				channelNames[4] = "FRST";
-				channelNames[5] = "FVST";
-				channelNames[6] = "SXST";
-				channelNames[7] = "SVST";
-				channelNames[8] = "EIST";
-				channelNames[9] = "NIST";
-				channelNames[10] = "TEST";
-				channelNames[11] = "ELST";
-
-				// loop over the pv's in the record
-				for (int i = 0; i < 12; i++) {
-					try {
-						Channel thisStringChannel = controller.createChannel(recordName + ":SELECT." + channelNames[i]);
-						String positionName = controller.cagetString(thisStringChannel);
-						controller.destroy(thisStringChannel);
-
-						// if the string is not "" then save it to the array
-						if (positionName.compareTo("") != 0) {
-							super.positions.add(positionName);
-						}
-					} catch (Throwable th) {
-						logger.error("failed to get position name for " + this.getName());
+					// if the string is not "" then save it to the array
+					if (positionName.compareTo("") != 0) {
+						super.positions.add(positionName);
 					}
+				} catch (Throwable th) {
+					logger.error("failed to get position name for " + this.getName());
 				}
+			}
 
-				// create required channel monitors
-				// controller.setMonitor(doneMovingChnl, this);
-				// controller.setMonitor(statusChnl, this);
-			}// end of if(epicspv)
 			configured = true;
 		}// end of if(!configured)
 	}
@@ -305,5 +306,13 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 		} else if (ch.getConnectionState() == Channel.CLOSED) {
 			logger.info(ch.getName() + " is closed");
 		}
+	}
+
+	public String getPvBase() {
+		return pvBase;
+	}
+
+	public void setPvBase(String pvBase) {
+		this.pvBase = pvBase;
 	}
 }
