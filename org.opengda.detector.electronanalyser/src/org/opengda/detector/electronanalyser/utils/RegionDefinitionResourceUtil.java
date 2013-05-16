@@ -124,6 +124,15 @@ public class RegionDefinitionResourceUtil {
 		return Collections.emptyList();
 	}
 
+	public List<Region> getRegions(String filename) throws Exception {
+		setFileName(filename);
+		Sequence sequence = getSequence();
+		if (sequence != null) {
+			return sequence.getRegion();
+		}
+		return Collections.emptyList();
+	}
+
 	public Sequence createSequence() throws Exception {
 		final Resource newResource = getResourceSet().createResource(
 				URI.createFileURI(fileName));
