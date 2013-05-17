@@ -267,9 +267,17 @@ public class ComboWrapper extends ButtonComposite implements IFieldWidget{
 		}
 		return ret;
 	}
-	
-	/*******************************************************************/
 
+	public void demandStep(){
+		combo.setEnabled(false);
+	}
+
+	public void demandComplete(String position) {
+		off();
+		setValue(position);
+		combo.setEnabled(true);
+		on();
+	}
 }
 
 	
