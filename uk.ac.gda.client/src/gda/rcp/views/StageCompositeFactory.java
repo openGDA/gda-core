@@ -26,6 +26,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -50,7 +51,7 @@ public class StageCompositeFactory implements CompositeFactory {
 	}
 
 	String label;
-	private int labelWidth;
+	private Integer labelWidth = null;
 
 	public String getLabel() {
 		return label;
@@ -107,7 +108,7 @@ public class StageCompositeFactory implements CompositeFactory {
 		
 		GridLayoutFactory rotationGroupLayoutFactory = GridLayoutFactory.swtDefaults().numColumns(3).margins(0,0).spacing(0,0);
 		GridLayoutFactory layoutFactory = GridLayoutFactory.swtDefaults().numColumns(3).margins(0,0).spacing(0,0);
-		GridDataFactory dataFactory = GridDataFactory.swtDefaults().hint(labelWidth, SWT.DEFAULT);
+		GridData gd = labelWidth != null ?  GridDataFactory.swtDefaults().hint(labelWidth, SWT.DEFAULT).create(): null;
 
 
 		Label sep = new Label(cmp, SWT.SEPARATOR | SWT.HORIZONTAL);
@@ -122,7 +123,7 @@ public class StageCompositeFactory implements CompositeFactory {
 			}
 			rotViewer.createControls(cmp, s.isSingleLineNudge() ? SWT.SINGLE : SWT.NONE, s.isSingleLine(),
 					rotationGroupLayoutFactory.create(), layoutFactory.create(),
-					dataFactory.create());
+					gd);
 			Label sep1 = new Label(cmp, SWT.SEPARATOR | SWT.HORIZONTAL);
 			GridDataFactory.fillDefaults().grab(true,false).applyTo(sep1);
 		}
