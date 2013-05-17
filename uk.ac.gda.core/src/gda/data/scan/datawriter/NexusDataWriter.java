@@ -39,6 +39,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NexusDetector;
 import gda.device.scannable.ScannableUtils;
+import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.scan.IScanDataPoint;
 
@@ -223,11 +224,20 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, true);
 
 		String metaDataProviderName = LocalProperties.get(GDA_NEXUS_METADATAPROVIDER_NAME);
-		if( metaDataProviderName != null){
-			metaDataProvider = Finder.getInstance().find(metaDataProviderName);
+		if( metaDataProviderName != null && beforeScanMetaData == null){
+			NXMetaDataProvider metaDataProvider = Finder.getInstance().find(metaDataProviderName);
+			beforeScanMetaData = metaDataProvider.getBeforeScanMetaData();
 		}
 		setupPropertiesDone = true;
 
+	}
+
+	public INexusTree getBeforeScanMetaData() {
+		return beforeScanMetaData;
+	}
+
+	public void setBeforeScanMetaData(INexusTree beforeScanMetaData) {
+		this.beforeScanMetaData = beforeScanMetaData;
 	}
 
 	@Override
@@ -340,7 +350,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 */
 	int[] dataDimPrefix;
 
-	private NXMetaDataProvider metaDataProvider;
+	private INexusTree beforeScanMetaData;
 
 	@Override
 	public void addData(IScanDataPoint dataPoint) throws Exception {
@@ -787,9 +797,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	// allow inheriting classes to throw this exception
 	protected void createCustomMetaData() throws NexusException {
 		
-		if( metaDataProvider != null ){
-			INexusTree nexusTree = metaDataProvider.getAtScanStartNexusTree();
-			writeHere(file, nexusTree, true, false, null);
+		if( beforeScanMetaData != null ){
+			writeHere(file, beforeScanMetaData, true, false, null);
 		}
 	}
 
