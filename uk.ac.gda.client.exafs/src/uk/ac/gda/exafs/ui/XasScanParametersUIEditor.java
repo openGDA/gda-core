@@ -978,10 +978,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			if (finalEnergy.isOn()) {
 				finalEnergy.off();
 			}
-			if (energyInK) {
-				correctFinalEnergy();
-				correctC();
-			}
 
 			rebuildGraph();
 			setupEstimationWidgets();
@@ -1134,15 +1130,15 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 //		}
 	}
 
-	private void correctC() {
-		double value = getC().getBoundValue();
-		getC().setValue(getKProvider().getValue(value));
-	}
-
-	private void correctFinalEnergy() {
-		double value = getFinalEnergy().getBoundValue();
-		getFinalEnergy().setValue(getKProvider().getValue(value));
-	}
+//	private void correctC() {
+//		double value = getC().getBoundValue();
+//		getC().setValue(getKProvider().getValue(value));
+//	}
+//
+//	private void correctFinalEnergy() {
+//		double value = getFinalEnergy().getBoundValue();
+//		getFinalEnergy().setValue(getKProvider().getValue(value));
+//	}
 
 	@Override
 	protected void updateElement(ELEMENT_EVENT_TYPE type) {
@@ -1383,7 +1379,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	protected void updateExafsTimeType() {
-		String exafsTimeTypeVal = ((XasScanParameters) this.editingBean).getExafsTimeType();
+		String exafsTimeTypeVal = ((XasScanParameters) editingBean).getExafsTimeType();
 		
 		boolean isVariableTime=false;
 		if(exafsTimeTypeVal.equals("Variable Time"))
@@ -1591,13 +1587,20 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	@Override
 	protected Object fetchEditingBean() {
-		if (energyInK) {
-			DecimalFormat twoDForm = new DecimalFormat("#.##");
-			((XasScanParameters) this.editingBean).setFinalEnergy(Double.valueOf(twoDForm.format(getKInEv().getValue(
-					getFinalEnergy().getBoundValue()))));
-			((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
-					getC().getBoundValue()))));
-		}
+//		if (energyInK) {
+//			DecimalFormat twoDForm = new DecimalFormat("#.##");
+//			((XasScanParameters) this.editingBean).setFinalEnergy(Double.valueOf(twoDForm.format(getKInEv().getValue(
+//					getFinalEnergy().getBoundValue()))));
+//			((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
+//					getC().getBoundValue()))));
+			
+			//String finalEnergyBoundValueString = twoDForm.format(getKInEv().getValue(getFinalEnergy().getBoundValue()));
+			//double finalEnergyBoundValue = Double.valueOf(finalEnergyBoundValueString);
+			
+			//((XasScanParameters) this.editingBean).setFinalEnergy(finalEnergyBoundValue);
+			//((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
+			//		getC().getBoundValue()))));
+//		}
 		return editingBean;
 	}
 

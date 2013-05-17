@@ -23,6 +23,7 @@ import gda.jython.JythonServerFacade;
 import java.net.URL;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -73,7 +74,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		super(path, mappingURL, dirtyContainer, editingBean);
 		bean=(OutputParameters) editingBean;
 	}
-
+	
 	@Override
 	protected String getRichEditorTabText() {
 		return "Output Parameters";
