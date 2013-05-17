@@ -9,16 +9,22 @@ import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
 import org.opengda.detector.electronanalyser.NotSupportedException;
+import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
+import org.opengda.detector.electronanalyser.event.RegionFinishEvent;
+import org.opengda.detector.electronanalyser.event.RegionFinishEvent.FinishType;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
+import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RegionScannable extends ScannableBase implements Scannable {
 	private ObservableComponent oc=new ObservableComponent();
 	private Region region;
 	private String name;
-	private IVGScientaAnalyser analyser;
+	private VGScientaAnalyser analyser;
 	private boolean busy;
+	private static final Logger logger=LoggerFactory.getLogger(RegionScannable.class);
 	public RegionScannable() {
 	}
 	@Override
@@ -28,9 +34,63 @@ public class RegionScannable extends ScannableBase implements Scannable {
 
 	@Override
 	public Object getPosition() throws DeviceException {
+		if (region==null) {
+			//no poistion is not setted by GDA Scan
+			try {
+				return getPositionFromEPICS();
+			} catch (Exception e) {
+				logger.error("Cannot get region parameters from EPICS IOC.",e);
+				throw new DeviceException("Cannot get region parameters from EPICS IOC.",e);
+			}
+			//return "No region is set by default in this scannable object. It will be set dynamically during a analyserscan";
+		}
 		return region;
 	}
 
+	private String getPositionFromEPICS() throws Exception {
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (Current region parameters in EPICS IOC for the analyser: "); //$NON-NLS-1$
+		result.append(", lensMode: "); //$NON-NLS-1$
+		result.append(getAnalyser().getLensMode());
+		result.append(", passEnergy: "); //$NON-NLS-1$
+		result.append(getAnalyser().getPassEnergy());
+		result.append(", acquisitionMode: "); //$NON-NLS-1$
+		result.append(getAnalyser().getAcquisitionMode());
+		result.append(", energyMode: "); //$NON-NLS-1$
+		String energysMode = getAnalyser().getEnergysMode();
+		result.append(energysMode);
+		if (energysMode.equalsIgnoreCase("Fixed")) {
+			result.append(", fixEnergy: "); //$NON-NLS-1$
+			result.append(getAnalyser().getCentreEnergy());
+		} else {
+			result.append(", lowEnergy: "); //$NON-NLS-1$
+			result.append(getAnalyser().getStartEnergy());
+			result.append(", highEnergy: "); //$NON-NLS-1$
+			result.append(getAnalyser().getEndEnergy());
+		}
+		result.append(", energyStep: "); //$NON-NLS-1$
+		result.append(getAnalyser().getEnergyStep());
+		result.append(", stepTime: "); //$NON-NLS-1$
+		result.append(getAnalyser().getCollectionTime());
+		result.append(", firstXChannel: "); //$NON-NLS-1$
+		result.append(getAnalyser().getAdBase().getMinX_RBV());
+		result.append(", lastXChannel: "); //$NON-NLS-1$
+		result.append(getAnalyser().getAdBase().getMaxSizeX_RBV()+getAnalyser().getAdBase().getMinX_RBV());
+		result.append(", firstYChannel: "); //$NON-NLS-1$
+		result.append(getAnalyser().getAdBase().getMinY_RBV());
+		result.append(", lastYChannel: "); //$NON-NLS-1$
+		result.append(getAnalyser().getAdBase().getMaxSizeY_RBV()+getAnalyser().getAdBase().getMinY_RBV());
+		result.append(", slices: "); //$NON-NLS-1$
+		result.append(getAnalyser().getSlices());
+		result.append(", detectorMode: "); //$NON-NLS-1$
+		result.append(getAnalyser().getDetectorMode());
+		result.append(", totalSteps: "); //$NON-NLS-1$
+		result.append(getAnalyser().getTotalSteps());
+		result.append(", totalTime: "); //$NON-NLS-1$
+		result.append(getAnalyser().getTotalSteps()*getAnalyser().getCollectionTime());
+		result.append(')');
+		return result.toString();
+	}
 	@Override
 	@MethodAccessProtected(isProtected = true)
 	public void asynchronousMoveTo(Object position) throws DeviceException {
@@ -84,16 +144,12 @@ public class RegionScannable extends ScannableBase implements Scannable {
 		} finally {
 			busy=false;
 		}
-		notifyObservers(region);
+		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId()));
 	}
 
-	
-	private void notifyObservers(Region region) {
-		oc.notifyIObservers(this, region);		
-	}
-	
 	@Override
 	public void stop() throws DeviceException {
+		oc.notifyIObservers(this,new RegionFinishEvent(region.getRegionId(), FinishType.INTERRUPTED));
 	}
 
 	@Override
@@ -126,47 +182,11 @@ public class RegionScannable extends ScannableBase implements Scannable {
 		return super.getOutputFormat();
 	}
 
-	@Override
-	public void atScanStart() throws DeviceException {
-		super.atScanStart();		
-	}
-
-	@Override
-	public void atScanEnd() throws DeviceException {
-		super.atScanEnd();
-	}
-
-	@Override
-	public void atScanLineStart() throws DeviceException {
-		super.atScanLineStart();
-	}
-
-	@Override
-	public void atScanLineEnd() throws DeviceException {
-		super.atScanLineEnd();
-	}
-
-	@Override
-	public void atPointStart() throws DeviceException {
-		super.atPointStart();
-	}
-
-	@Override
-	public void atPointEnd() throws DeviceException {
-		super.atPointEnd();
-	}
-
-
-	@Override
-	public String toFormattedString() {
-		return region.toString();
-	}
-
-	public IVGScientaAnalyser getAnalyser() {
+	public VGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(IVGScientaAnalyser analyser) {
+	public void setAnalyser(VGScientaAnalyser analyser) {
 		this.analyser = analyser;
 	}
 	@Override

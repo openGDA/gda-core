@@ -1,13 +1,13 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.commandqueue.CommandProgress;
-import gda.commandqueue.CommandQueue;
 import gda.commandqueue.IFindableQueueProcessor;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.Queue;
-import gda.commandqueue.QueueChangeEvent;
 import gda.configuration.properties.LocalProperties;
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 
 import java.io.IOException;
@@ -97,6 +97,7 @@ import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTable
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
 import org.opengda.detector.electronanalyser.client.viewextensionfactories.RegionViewExtensionFactory;
+import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
@@ -104,6 +105,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
+import org.opengda.detector.electronanalyser.scan.RegionScannable;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
@@ -112,9 +114,7 @@ import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.CommandQueueViewFactory;
-
-public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart {
+public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(SequenceView.class);
 
 	private List<ISelectionChangedListener> selectionChangedListeners;
@@ -735,6 +735,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		});
 	}
 
+	protected void updateRegionStatus(final Region region, final STATUS status) {
+		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				region.setStatus(status);
+				sequenceTableViewer.refresh();
+			}
+		});
+	}
+
 	private boolean runningonclient=false;
 	private boolean runningonserver=false;
 	private void prepareRunOnClientActions() {
@@ -827,6 +838,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private IObserver queueObserver;
 
 	private Action startRunOnServerAction;
+
+	private Scriptcontroller controller;
 
 	private Region getSelectedRegion() {
 		ISelection selection = getSelection();
@@ -922,40 +935,45 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		// sequenceTableViewer.setSelection(new StructuredSelection(
 		// sequenceTableViewer.getElementAt(0)), true);
 		updateCalculatedData();
-		processor = CommandQueueViewFactory.getProcessor();
-		queue = CommandQueueViewFactory.getQueue();
-		if (processor != null) {
-			processorObserver = new IObserver() {
-
-				@Override
-				public void update(Object source, final Object arg) {
-					updateState(source, arg);
-				}
-			};
-			processor.addIObserver(processorObserver);
-		}
-		if (queue != null) {
-			queueObserver = new IObserver() {
-
-				@Override
-				public void update(Object source, Object arg) {
-					if (source instanceof CommandQueue && arg instanceof QueueChangeEvent) {
-						try {
-							if (queue.getSummaryList().isEmpty()) {
-								// when queue processing completed, reset controls and all regions' status to READY.
-								runningonserver=false;
-								updateActionIconsState();
-								resetRegionStatus();
-							}
-						} catch (Exception e) {
-							logger.error("Cannot get summary list from queue.",e);
-						}
-					}
-				}
-			};
-			queue.addIObserver(queueObserver);
-		}
-		prepareRunOnServerActions();
+/* using command queue to process data collection specified in this table */
+//		processor = CommandQueueViewFactory.getProcessor();
+//		queue = CommandQueueViewFactory.getQueue();
+//		if (processor != null) {
+//			processorObserver = new IObserver() {
+//
+//				@Override
+//				public void update(Object source, final Object arg) {
+//					updateState(source, arg);
+//				}
+//			};
+//			processor.addIObserver(processorObserver);
+//		}
+//		if (queue != null) {
+//			queueObserver = new IObserver() {
+//
+//				@Override
+//				public void update(Object source, Object arg) {
+//					if (source instanceof CommandQueue && arg instanceof QueueChangeEvent) {
+//						try {
+//							if (queue.getSummaryList().isEmpty()) {
+//								// when queue processing completed, reset controls and all regions' status to READY.
+//								runningonserver=false;
+//								updateActionIconsState();
+//								resetRegionStatus();
+//							}
+//						} catch (Exception e) {
+//							logger.error("Cannot get summary list from queue.",e);
+//						}
+//					}
+//				}
+//			};
+//			queue.addIObserver(queueObserver);
+//		}
+//		prepareRunOnServerActions();
+		controller=Finder.getInstance().find("SequenceFileObserver");
+		controller.addIObserver(this);
+		regionScannable = Finder.getInstance().find("regions");
+		regionScannable.addIObserver(this);
 	}
 
 	private IObserver commandObserver = new IObserver() {
@@ -1386,6 +1404,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private IVGScientaAnalyser analyser;
 
+	private RegionScannable regionScannable;
+
+	private Region currentRegion;
+
 	@Override
 	public void dispose() {
 		try {
@@ -1444,5 +1466,22 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
 
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		if (source.equals(controller) && arg instanceof SequenceFileChangeEvent) {
+			refreshTable(((SequenceFileChangeEvent)arg).getFilename(), false);
+		}
+		if (source.equals(regionScannable)) {
+			String currentRegionID=(String)arg;
+			for (Region region : regions) {
+				if (region.getRegionId().equalsIgnoreCase(currentRegionID)) {
+					currentRegion=region;
+				}
+				// TODO auto select this region in the viewer
+			}
+		}
+		
 	}
 }
