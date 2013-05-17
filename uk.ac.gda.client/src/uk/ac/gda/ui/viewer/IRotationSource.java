@@ -22,7 +22,7 @@ import gda.device.DeviceException;
 
 
 
-public interface IRotationSource extends IPositionSource {
+public interface IRotationSource extends IPositionSource<Double> {
 
 	/**
 	 * Move the source by adding a relative amount to the

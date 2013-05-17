@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,30 +19,26 @@
 package uk.ac.gda.ui.internal.viewer;
 
 import gda.device.DeviceException;
-import gda.device.Scannable;
+import gda.device.EnumPositioner;
 import uk.ac.gda.ui.viewer.IPositionSource;
 import uk.ac.gda.ui.viewer.IUnitsDescriptor;
 
-public class ScannablePositionSource implements IPositionSource<Double>, IUnitsDescriptor{
-	private String label=null;
-	
-	private boolean hideLabel = false;
-	
-	public String getLabel() {
-		return label;
-	}
-	public void setLabel(String label) {
-		this.label = label;
-	}
+/**
+ * An IPositionSource for EnumPositioner Scannables
+ */
+public class EnumPositionerSource implements IPositionSource<String>, IUnitsDescriptor {
 
-	protected Scannable scannable; 
-	
-	public ScannablePositionSource(Scannable scannable){
+	protected EnumPositioner scannable;
+	private String label = null;
+	private boolean hideLabel = false;
+
+	public EnumPositionerSource(EnumPositioner scannable) {
 		this.scannable = scannable;
 	}
+
 	@Override
-	public Double getPosition() throws DeviceException {
-		return (Double)scannable.getPosition();
+	public String getPosition() throws DeviceException {
+		return (String) scannable.getPosition();
 	}
 
 	@Override
@@ -50,12 +46,10 @@ public class ScannablePositionSource implements IPositionSource<Double>, IUnitsD
 		return scannable.isBusy();
 	}
 
-
 	@Override
-	public void setPosition(final Double value) throws DeviceException {
+	public void setPosition(final String value) throws DeviceException {
 		scannable.moveTo(value);
 	}
-	
 
 	@Override
 	public IUnitsDescriptor getDescriptor() {
@@ -74,12 +68,12 @@ public class ScannablePositionSource implements IPositionSource<Double>, IUnitsD
 
 	@Override
 	public double getMaximumLimit() throws DeviceException {
-		return Double.MAX_VALUE;
+		return scannable.getPositions().length;
 	}
 
 	@Override
 	public double getMinimumLimit() throws DeviceException {
-		return -Double.MAX_VALUE;
+		return 0;
 	}
 
 	@Override
@@ -95,9 +89,21 @@ public class ScannablePositionSource implements IPositionSource<Double>, IUnitsD
 	public void setHideLabel(boolean hideLabel) {
 		this.hideLabel = hideLabel;
 	}
+
 	@Override
 	public boolean getHideLabel() {
 		return hideLabel;
-	}	
-	
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public String[] getPositions() throws DeviceException {
+		return scannable.getPositions();
+	}
 }

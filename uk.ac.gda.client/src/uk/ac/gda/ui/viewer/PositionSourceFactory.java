@@ -18,8 +18,10 @@
 
 package uk.ac.gda.ui.viewer;
 
+import gda.device.EnumPositioner;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
+import uk.ac.gda.ui.internal.viewer.EnumPositionerSource;
 import uk.ac.gda.ui.internal.viewer.ScannableMotionUnitsPositionSource;
 import uk.ac.gda.ui.internal.viewer.ScannablePositionSource;
 
@@ -30,10 +32,12 @@ public class PositionSourceFactory {
 	 * @param scannable 
 	 * @return a suitable implementation of IPositionSource
 	 */
-	public static IPositionSource getPositionSource(Scannable scannable){
-		IPositionSource motor;
+	public static IPositionSource<? extends Object> getPositionSource(Scannable scannable){
+		IPositionSource<? extends Object> motor;
 		if (scannable instanceof ScannableMotionUnits) {
 			motor = new ScannableMotionUnitsPositionSource((ScannableMotionUnits)scannable);
+		} else if (scannable instanceof EnumPositioner) {
+			motor = new EnumPositionerSource((EnumPositioner)scannable);
 		} else {
 			motor = new ScannablePositionSource(scannable);
 		}

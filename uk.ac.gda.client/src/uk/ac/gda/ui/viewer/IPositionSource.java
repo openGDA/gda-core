@@ -23,7 +23,7 @@ import gda.device.DeviceException;
 /**
  * An interface to an object that gets and sets a position
  */
-public interface IPositionSource {
+public interface IPositionSource<E> {
 
 	/**
 	 * Returns the units descriptor of the position source. 
@@ -48,14 +48,8 @@ public interface IPositionSource {
 	 * @return double current position
 	 * @throws DeviceException
 	 */
-	public double getPosition() throws DeviceException;
+	public E getPosition() throws DeviceException;
 
-	/**
-	 * Set the position
-	 * 
-	 * @param value new position
-	 * @throws DeviceException
-	 */
-	public void setPosition(double value) throws DeviceException;
+	public void setPosition(E value) throws DeviceException;
 
 }

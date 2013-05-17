@@ -22,5 +22,5 @@ import org.eclipse.swt.widgets.Shell;
 
 public interface IPositionVerifierDialogCreator {
 	
-	boolean userAccepts(Shell shell, double currentPosition, double desiredPosition);
+	boolean userAccepts(Shell shell, Object currentPosition, Object desiredPosition);
 }

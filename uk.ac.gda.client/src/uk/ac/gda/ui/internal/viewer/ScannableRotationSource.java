@@ -18,10 +18,10 @@
 
 package uk.ac.gda.ui.internal.viewer;
 
-import uk.ac.gda.ui.viewer.IRotationSource;
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableUtils;
+import uk.ac.gda.ui.viewer.IRotationSource;
 
 public class ScannableRotationSource extends ScannableMotionUnitsPositionSource implements IRotationSource{
 

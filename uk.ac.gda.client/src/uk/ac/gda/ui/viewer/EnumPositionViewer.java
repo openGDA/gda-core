@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,8 +19,7 @@
 package uk.ac.gda.ui.viewer;
 
 import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
+import gda.device.EnumPositioner;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 
@@ -39,157 +38,133 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.richbeans.components.scalebox.DemandBox;
+import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.ui.internal.viewer.ScannableMotionUnitsPositionSource;
-import uk.ac.gda.ui.internal.viewer.ScannablePositionSource;
+import uk.ac.gda.ui.internal.viewer.EnumPositionerSource;
 
 /**
- * A concrete viewer that displays position information about an underlying motor.
- * Users may use the viewer to change position of the motor, in which case this 
- * viewer displays the target position as well as the updating position.
+ * MotorPositionViewer for EnumPositioner scannables
  * <p>
- * This class is designed to be instantiated with a pre-existing{@link Scannable}
- * which supplies the position information. The viewer registers a listener to receive
- * position updates from the underlying scannable. 
- * </p>
- * <p>
- * This class is  not intended to be subclassed outside the viewer framework.
- * </p>
+ * 
+ * @see MotorPositionViewer
  */
-public class MotorPositionViewer {
-	private static final Logger logger = LoggerFactory.getLogger(MotorPositionViewer.class);	
-	
-	private IPositionSource<Double> motor;
+public class EnumPositionViewer {
+	private static final Logger logger = LoggerFactory.getLogger(MotorPositionViewer.class);
 
-	private DemandBox motorBox;
+	private EnumPositionerSource motor;
+
+	private ComboWrapper motorBox;
 	private Composite parent;
 
-	private Scannable scannable;
-	private double demandPrev;
-	
+	private EnumPositioner scannable;
+	private String demandPrev;
+
 	private String commandFormat;
 
 	private Job motorPositionJob;
 
-	private boolean restoreValueWhenFocusLost;
-	
 	private IPositionVerifierDialogCreator newPositionDialog;
 
 	private Object labelLayoutData;
 
-	public MotorPositionViewer(Composite parent, Scannable scannable){
+	public EnumPositionViewer(Composite parent, EnumPositioner scannable) {
 		this(parent, scannable, null, false, null);
 	}
-	
-	public MotorPositionViewer(Composite parent, Scannable scannable, String label){
+
+	public EnumPositionViewer(Composite parent, EnumPositioner scannable, String label) {
 		this(parent, scannable, label, false, null);
 	}
 
-	public MotorPositionViewer(Composite parent, Scannable scannable, String label, boolean hideLabel){
+	public EnumPositionViewer(Composite parent, EnumPositioner scannable, String label, boolean hideLabel) {
 		this(parent, scannable, label, hideLabel, null);
 	}
-	
-	public MotorPositionViewer(Composite parent, Scannable scannable, String label, boolean hideLabel, Object labelLayoutData){
+
+	public EnumPositionViewer(Composite parent, EnumPositioner scannable, String label, boolean hideLabel,
+			Object labelLayoutData) {
 		this.scannable = scannable;
 		this.labelLayoutData = labelLayoutData;
-		if( this.labelLayoutData == null){
+		if (this.labelLayoutData == null) {
 			this.labelLayoutData = GridDataFactory.swtDefaults().create();
 		}
-		ScannablePositionSource positionSource=null;
-		if (scannable instanceof ScannableMotionUnits) {
-			positionSource = new ScannableMotionUnitsPositionSource((ScannableMotionUnits)scannable);
-		} else {
-			positionSource = new ScannablePositionSource(scannable);
-		}
+		EnumPositionerSource positionSource = new EnumPositionerSource(scannable);
+
 		positionSource.setLabel(label);
 		positionSource.setHideLabel(hideLabel);
 		motor = positionSource;
 		this.parent = parent;
 		createControls(parent);
 	}
-	
+
 	public void setCommandFormat(String commandFormat) {
 		this.commandFormat = commandFormat;
 	}
-	
+
 	private void setDemandPrev() {
 		try {
 			demandPrev = motor.getPosition();
 		} catch (DeviceException e1) {
 			logger.error("Error setting current value of demandBox", e1);
-		}		
-	}
-		
-	private void createControls(Composite comp){
-		createReadbacksGroup(comp);
-		motorBox.setUnit(motor.getDescriptor().getUnit());
-		try {
-			motorBox.setMaximum(motor.getDescriptor().getMaximumLimit());
-			motorBox.setMinimum(motor.getDescriptor().getMinimumLimit());
-		} catch (DeviceException e2) {
-			logger.error("Error getting limits from motor", e2);
 		}
-		setDemandPrev();
+	}
 
-		motorBox.addValueListener(new ValueAdapter("MotorPositionviewer") {			
-			
+	private void createControls(Composite comp) {
+		createReadbacksGroup(comp);
+		setDemandPrev();
+		fillCombo();
+
+		motorBox.addValueListener(new ValueAdapter("MotorPositionviewer") {
+
 			@Override
-			public void valueChangePerformed(ValueEvent e) {	
-				final double demand = motorBox.getNumericValue();
+			public void valueChangePerformed(ValueEvent e) {
+				final int demandIndex = motorBox.getSelectionIndex();
+				final String demandString = motorBox.getItems()[demandIndex];
 				setDemandPrev();
-				if(Double.isNaN(demand))
-				{
-					logger.error("Invalid position " + demand);
-					motorBox.setValue(demandPrev);
-					return;
-				}
+
 				String reply = null;
 				try {
-					reply = scannable.checkPositionValid(demand);
+					reply = scannable.checkPositionValid(demandString);
 				} catch (DeviceException e1) {
 					logger.error("Unable to check the validity of the input position , no move will be performed", e1);
 					motorBox.setValue(demandPrev);
 					return;
 				}
-				if(reply != null)
-				{
+				if (reply != null) {
 					logger.error("Invalid position " + reply);
 					motorBox.setValue(demandPrev);
 					return;
 				}
-				
+
 				if (newPositionDialog != null) {
 					Shell shell = Display.getCurrent().getActiveShell();
-					if (!newPositionDialog.userAccepts(shell, demandPrev, demand)) {
+					if (!newPositionDialog.userAccepts(shell, demandPrev, demandString)) {
 						return;
 					}
 				}
-				
-				if (demand != demandPrev){
-					motorBox.demandBegin(demandPrev);
-					final String msg = "Moving " + motor.getDescriptor().getLabelText() + " to " + demand;
-					Job job = new Job(msg){
+
+				if (!demandString.equals(demandPrev)) {
+					// motorBox.demandBegin(demandPrev);
+					final String msg = "Moving " + motor.getDescriptor().getLabelText() + " to " + demandString;
+					Job job = new Job(msg) {
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
 							try {
 								if (commandFormat == null) {
-									motor.setPosition(demand);
+									motor.setPosition(demandString);
 								}
-								
+
 								else {
-									final String commandToRun = String.format(commandFormat, demand);
+									final String commandToRun = String.format(commandFormat, demandString);
 									InterfaceProvider.getCommandRunner().evaluateCommand(commandToRun);
 								}
-								
-								demandPrev = demand;
+
+								demandPrev = demandString;
 							} catch (DeviceException e) {
-								logger.error("Exception: " + msg + " " + e.getMessage(),e);
+								logger.error("Exception: " + msg + " " + e.getMessage(), e);
 							}
 							refresh();
-							return Status.OK_STATUS; 
-						}			
+							return Status.OK_STATUS;
+						}
 					};
 					job.setUser(true);
 					job.schedule();
@@ -197,40 +172,41 @@ public class MotorPositionViewer {
 			}
 		});
 		motorBox.on();
-		
+
 		final IObserver iObserver = new IObserver() {
 			@Override
 			public void update(final Object source, Object arg) {
 				refresh();
 			}
 		};
-		
-		scannable.addIObserver(iObserver);	
-		motorBox.addDisposeListener(new DisposeListener() {		
+
+		scannable.addIObserver(iObserver);
+		motorBox.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				scannable.deleteIObserver(iObserver);
 				motorPositionJob.cancel();
 			}
 		});
-		
-		
-		motorPositionJob = new Job("Motor Position " + motor.getDescriptor().getLabelText()) {
+
+		motorPositionJob = new Job("Combo Updater") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					final boolean isBusy = motor.isBusy();
-					final double position = motor.getPosition();
+					final String position = motor.getPosition();
 					parent.getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							if (!motorBox.isDisposed()) {
+								motorBox.setEnabled(!isBusy);
 								if (isBusy) {
-									motorBox.demandStep(position);
+									motorBox.demandStep();
 								} else {
 									motorBox.demandComplete(position);
 								}
 							}
+
 						}
 					});
 
@@ -240,73 +216,73 @@ public class MotorPositionViewer {
 					}
 				} catch (DeviceException e) {
 					logger.error("Error getting position", e);
+				} finally {
+					parent.getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							motorBox.setEnabled(true);
+						}
+					});
 				}
 				return Status.OK_STATUS;
 			}
 		};
-		refresh();//get initial values
+		refresh();// get initial values
 	}
-	
+
+	private void fillCombo() {
+		try {
+			motorBox.setItems(motor.getPositions());
+		} catch (DeviceException e) {
+			logger.error("Could not get positions from " + motor.getUnit() + ": " + e.getMessage(), e);
+			motorBox.setItems(new String[] { "Not connected!" });
+		}
+	}
 
 	public void refresh() {
 		motorPositionJob.cancel();
 		motorPositionJob.schedule();
 	}
-	
+
 	public void setFocus() {
-		if (motorBox != null) motorBox.setFocus();
+		if (motorBox != null)
+			motorBox.setFocus();
 	}
-	
+
 	private void createReadbacksGroup(Composite readBacksGroup) {
 		if (!motor.getDescriptor().getHideLabel()) {
 			Label label = new Label(readBacksGroup, SWT.NONE);
-			label.setText( motor.getDescriptor().getLabelText());
+			label.setText(motor.getDescriptor().getLabelText());
 			label.setLayoutData(labelLayoutData);
 		}
-		motorBox = new DemandBox(readBacksGroup, SWT.NONE, 60);
+		motorBox = new ComboWrapper(readBacksGroup, SWT.NONE);
 		GridDataFactory.swtDefaults().hint(120, SWT.DEFAULT).applyTo(motorBox);
 	}
-	
+
 	@Override
 	public String toString() {
 		return "MotorPositionViewer for " + scannable.getName();
 	}
-	
+
 	/**
 	 * Return the underlying demandBox for this viewer
+	 * 
 	 * @return DemandBox for this viewer
 	 */
-	public DemandBox getDemandBox(){
+	public ComboWrapper getComboWrapper() {
 		return motorBox;
 	}
-	
-	public void setDecimalPlaces(int dp) {
-		motorBox.setDecimalPlaces(dp);
-		motorBox.setValue(demandPrev);
-	}
-	
+
 	public void setEnabled(boolean enabled) {
-		if (motorBox != null) motorBox.setEnabled(enabled);
+		if (motorBox != null)
+			motorBox.setEnabled(enabled);
 	}
-	public boolean isRestoreValueWhenFocusLost() {
-		return restoreValueWhenFocusLost;
-	}
-	public void setRestoreValueWhenFocusLost(boolean restoreValueWhenFocusLost) {
-		this.restoreValueWhenFocusLost = restoreValueWhenFocusLost;
-		motorBox.setRestoreValueWhenFocusLost(restoreValueWhenFocusLost);
-	}
+
 	public IPositionVerifierDialogCreator getNewPositionDialog() {
 		return newPositionDialog;
 	}
+
 	public void setNewPositionDialog(IPositionVerifierDialogCreator newPositionDialog) {
 		this.newPositionDialog = newPositionDialog;
-	}
-	
-	public void setPermanentlyEnabled(boolean enabled) {
-		motorBox.setPermanentlyEnabled(enabled);
-	}
-	
-	public void setEditable(boolean editable) {
-		motorBox.setEditable(editable);
 	}
 }
