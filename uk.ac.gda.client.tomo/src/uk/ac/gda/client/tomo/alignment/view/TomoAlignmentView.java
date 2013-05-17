@@ -1527,6 +1527,8 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 						// number of projections
 						configuration.setNumProjections(tomoControlComposite.getFramesPerProjection());
 						//
+						
+						//if(not present)
 						configuration.setTomoRotationAxis(leftWindowImageViewer.getCrossWire1XRelativeToImage()
 								* tomoAlignmentController.getLeftWindowBinValue());
 
