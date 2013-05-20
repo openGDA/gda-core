@@ -23,6 +23,7 @@ import gda.data.PathConstructor;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
+import gda.device.DeviceBase;
 import gda.factory.Localizable;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
@@ -48,6 +49,8 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	private IScanDataPoint lastScanDataPoint = null;
 
 	private IcatXMLCreator icatXMLCreator = new IcatXMLCreator();
+	
+	private DeviceBase sockPuppet;
 
 	private Vector<String> files = new Vector<String>();
 
@@ -143,6 +146,8 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 				try {
 					logger.info("icatXMLCreator.registerFiles started");
 					icatXMLCreator.registerFiles(datasetId, fileArr);
+					if (sockPuppet != null)
+						sockPuppet.notifyIObservers(sockPuppet, fileArr);
 				} catch (Exception e) {
 					logger.error("Catching " + e.getClass() + " thrown in the XML generation step", e);
 				}
@@ -206,5 +211,19 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	@Override
 	public void setLocal(boolean local) {
 		this.local = local;
+	}
+
+	public DeviceBase getClientFileAnnouncer() {
+		return sockPuppet;
+	}
+
+	/**
+	 * Clients can listen to this DeviceBase object for 
+	 * String arrays with filenames of recently created files 
+	 * to update their data projects.
+	 * @param clientFileAnnouncer
+	 */
+	public void setClientFileAnnouncer(DeviceBase clientFileAnnouncer) {
+		this.sockPuppet = clientFileAnnouncer;
 	}
 }
