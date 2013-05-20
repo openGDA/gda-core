@@ -10,8 +10,8 @@ import gda.observable.ObservableComponent;
 
 import org.opengda.detector.electronanalyser.NotSupportedException;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
-import org.opengda.detector.electronanalyser.event.RegionFinishEvent;
-import org.opengda.detector.electronanalyser.event.RegionFinishEvent.FinishType;
+import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
+import org.opengda.detector.electronanalyser.event.RegionStatusEvent.Status;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
@@ -146,10 +146,17 @@ public class RegionScannable extends ScannableBase implements Scannable {
 		}
 		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId()));
 	}
-
+	@Override
+	public void atPointStart() throws DeviceException {
+		super.atPointStart();
+	}
+	@Override
+	public void atPointEnd() throws DeviceException {
+		super.atPointEnd();
+	}
 	@Override
 	public void stop() throws DeviceException {
-		oc.notifyIObservers(this,new RegionFinishEvent(region.getRegionId(), FinishType.INTERRUPTED));
+		oc.notifyIObservers(this,new RegionStatusEvent(region.getRegionId(), Status.ABORTED));
 	}
 
 	@Override

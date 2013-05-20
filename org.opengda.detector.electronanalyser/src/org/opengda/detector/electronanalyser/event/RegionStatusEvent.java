@@ -9,14 +9,14 @@ import org.opengda.detector.electronanalyser.scan.RegionScannable;
  * {@link SequenceView}
  * 
  */
-public class RegionFinishEvent implements Serializable {
+public class RegionStatusEvent implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6492439515246163536L;
 
-	public static enum FinishType {
-		OK, INTERRUPTED, ERROR
+	public static enum Status {
+		READY, RUNNING, ABORTED, COMPLETED, ERROR
 	}
 
 	String regionId;
@@ -28,19 +28,19 @@ public class RegionFinishEvent implements Serializable {
 		this.regionId = regionId;
 	}
 
-	FinishType finishType;
+	Status status;
 
-	public RegionFinishEvent(String regionId, FinishType finishType) {
+	public RegionStatusEvent(String regionId, Status status) {
 		this.regionId = regionId;
-		this.finishType = finishType;
+		this.status = status;
 	}
 
-	public FinishType getFinishType() {
-		return finishType;
+	public Status getStatus() {
+		return status;
 	}
 
-	public void setFinishType(FinishType finishType) {
-		this.finishType = finishType;
+	public void setStatus(Status status) {
+		this.status = status;
 	}
 
 }
