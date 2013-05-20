@@ -43,6 +43,7 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 	private String location;
 	private String user;
 	private IVGScientaAnalyser analyser;
+	private String detectorStatePV;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -85,6 +86,9 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		}
 		if (analyser!=null) {
 			sequenceView.setAnalyser(analyser);
+		}
+		if (detectorStatePV != null) {
+			sequenceView.setDetectorStatePV(detectorStatePV);
 		}
 		return sequenceView;
 	}
