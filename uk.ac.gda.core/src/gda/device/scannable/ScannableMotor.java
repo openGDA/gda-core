@@ -237,8 +237,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 				} else {
 					logger.debug("{}: move to {} ", getName(), internalPosition);
 				}
-				this.motor.moveTo(internalDoublePosition);
 				notifyIObservers(this, new ScannableStatus(getName(), ScannableStatus.BUSY));
+				this.motor.moveTo(internalDoublePosition);
 				lastDemandedInternalPosition = internalDoublePosition;
 			} catch (IllegalArgumentException e) {
 				throw new DeviceException(getName() + ".rawAsynchronousMoveTo() could not convert "
