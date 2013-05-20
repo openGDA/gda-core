@@ -23,7 +23,7 @@ public interface IVGScientaAnalyser extends Findable {
 
 	public abstract double[] getAngleAxis() throws Exception;
 
-	public abstract void prepareFixedMode() throws Exception;
+	public abstract void setFixedMode(boolean b) throws Exception;
 
 	public abstract int[] getFixedModeRegion();
 
