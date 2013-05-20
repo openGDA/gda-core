@@ -38,7 +38,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -47,7 +46,12 @@ import org.eclipse.swt.widgets.Layout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.richbeans.components.EventListenersDelegate;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
+import uk.ac.gda.richbeans.event.ValueAdapter;
+import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.richbeans.event.ValueListener;
+import uk.ac.gda.ui.internal.viewer.ScannablePositionSource;
 import uk.ac.gda.ui.internal.viewer.ScannableRotationSource;
 
 /**
@@ -122,6 +126,8 @@ public class RotationViewer {
 	private Button resetToZeroButton;
 
 	private MotorPositionViewer motorPositionViewer;
+	
+	private EventListenersDelegate valueEventDelegate;
 
 	private static final int ACCEPTED_STYLES = SWT.SINGLE;
 	
@@ -209,8 +215,36 @@ public class RotationViewer {
 		if (showFixedSteps){
 			addFixedStepButtonsListeners();
 		}
+
+		motorPositionViewer.addValueListener(new ValueAdapter("Rotation Viewer" + this.toString()) {
+			
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				notifyListenersOfMove(e);
+			}
+		});
+
+		valueEventDelegate = new EventListenersDelegate();
 	}
 
+	protected void notifyListenersOfMove(ValueEvent e) {
+		valueEventDelegate.notifyValueListeners(e);
+	}
+	
+	/**
+	 * @see EventListenersDelegate#addValueListener(ValueListener)
+	 */
+	public void addValueListener(final ValueListener l) {
+		valueEventDelegate.addValueListener(l);
+	}
+	
+	/**
+	 * @see EventListenersDelegate#removeValueListener(ValueListener)
+	 */
+	public void removeValueListener(final ValueListener l) {
+		valueEventDelegate.removeValueListener(l);
+	}
+	
 	/**
 	 * 
 	 * @param parent
@@ -311,12 +345,18 @@ public class RotationViewer {
 		final double targetVal = calculateTargetPosition(dir, step);
 		motorPositionViewer.getDemandBox().setNumericValue(targetVal);
 		motorPositionViewer.getDemandBox().demandBegin(targetVal);
+		
+		ValueEvent event = new ValueEvent(this,scannable.getName());
+		event.setDoubleValue(targetVal);
+		event.setFieldName(motorLabel);
+		
+		notifyListenersOfMove(event);
 
 		Job job = new Job(msg){
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					((IPositionSource)motor).setPosition(targetVal);
+					((ScannablePositionSource)motor).setPosition(targetVal);
 				} catch (DeviceException e) {
 					logger.error("Exception when " + msg + ":" + e.getMessage(),e);
 				}
@@ -427,7 +467,7 @@ public class RotationViewer {
 							@Override
 							protected IStatus run(IProgressMonitor monitor) {
 								try {
-									((IPositionSource)motor).setPosition(0);
+									((ScannablePositionSource)motor).setPosition(0.0);
 								} catch (DeviceException e) {
 									logger.error("Exception when " + msg + ":" + e.getMessage(),e);
 								}
@@ -536,15 +576,40 @@ public class RotationViewer {
 	
 	public void setEnabled(boolean enabled) {
 		nudgeSizeBox.setEnabled(enabled);
-		
-		plusBigButton.setEnabled(enabled);
-		plusLittleButton.setEnabled(enabled);
-		minusBigButton.setEnabled(enabled);
-		minusLittleButton.setEnabled(enabled);
-		posNudgeButton.setEnabled(enabled);
-		negNudgeButton.setEnabled(enabled);
-		resetToZeroButton.setEnabled(enabled);
-		
-		motorPositionViewer.setEnabled(enabled);
+
+		if (plusBigButton != null) {
+			plusBigButton.setEnabled(enabled);
+			plusLittleButton.setEnabled(enabled);
+			minusBigButton.setEnabled(enabled);
+			minusLittleButton.setEnabled(enabled);
+		}
+		if (posNudgeButton != null) {
+			posNudgeButton.setEnabled(enabled);
+			negNudgeButton.setEnabled(enabled);
+		}
+		if (resetToZeroButton != null)
+			resetToZeroButton.setEnabled(enabled);
+		if (motorPositionViewer != null)
+			motorPositionViewer.setEnabled(enabled);
+	}
+	
+	public void dispose() {
+		nudgeSizeBox.dispose();
+		valueEventDelegate.dispose();
+
+		if (plusBigButton != null) {
+			plusBigButton.dispose();
+			plusLittleButton.dispose();
+			minusBigButton.dispose();
+			minusLittleButton.dispose();
+		}
+		if (posNudgeButton != null) {
+			posNudgeButton.dispose();
+			negNudgeButton.dispose();
+		}
+		if (resetToZeroButton != null)
+			resetToZeroButton.dispose();
+		if (motorPositionViewer != null)
+			motorPositionViewer.dispose();
 	}
 }

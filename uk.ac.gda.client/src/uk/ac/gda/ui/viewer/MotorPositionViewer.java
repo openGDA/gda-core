@@ -39,9 +39,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.richbeans.components.EventListenersDelegate;
 import uk.ac.gda.richbeans.components.scalebox.DemandBox;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.richbeans.event.ValueListener;
 import uk.ac.gda.ui.internal.viewer.ScannableMotionUnitsPositionSource;
 import uk.ac.gda.ui.internal.viewer.ScannablePositionSource;
 
@@ -79,6 +81,9 @@ public class MotorPositionViewer {
 
 	private Object labelLayoutData;
 
+	private EventListenersDelegate valueEventDelegate;
+	
+
 	public MotorPositionViewer(Composite parent, Scannable scannable){
 		this(parent, scannable, null, false, null);
 	}
@@ -108,6 +113,29 @@ public class MotorPositionViewer {
 		motor = positionSource;
 		this.parent = parent;
 		createControls(parent);
+		
+		valueEventDelegate = new EventListenersDelegate();
+		motorBox.addValueListener(new ValueAdapter() {
+			
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				valueEventDelegate.notifyValueListeners(e);
+			}
+		});
+	}
+	
+	/**
+	 * @see EventListenersDelegate#addValueListener(ValueListener)
+	 */
+	public void addValueListener(final ValueListener l) {
+		valueEventDelegate.addValueListener(l);
+	}
+	
+	/**
+	 * @see EventListenersDelegate#removeValueListener(ValueListener)
+	 */
+	public void removeValueListener(final ValueListener l) {
+		valueEventDelegate.removeValueListener(l);
 	}
 	
 	public void setCommandFormat(String commandFormat) {
@@ -308,5 +336,9 @@ public class MotorPositionViewer {
 	
 	public void setEditable(boolean editable) {
 		motorBox.setEditable(editable);
+	}
+
+	public void dispose() {
+		motorBox.dispose();
 	}
 }
