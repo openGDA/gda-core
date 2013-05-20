@@ -18,6 +18,7 @@
 
 package org.opengda.detector.electronanalyser.server;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
@@ -38,57 +39,40 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private AnalyserCapabilities capabilites;
 	private int[] fixedModeRegion;
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getCapabilities()
-	 */
+	private int[] sweptModeRegion;
+
 	@Override
 	public AnalyserCapabilities getCapabilities() {
 		return capabilites;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setCapabilities(org.opengda.detector.electronanalyser.server.AnalyserCapabilities)
-	 */
 	@Override
 	public void setCapabilities(AnalyserCapabilities ac) {
 		this.capabilites = ac;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getController()
-	 */
 	@Override
 	public VGScientaController getController() {
 		return controller;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setController(org.opengda.detector.electronanalyser.server.VGScientaController)
-	 */
 	@Override
 	public void setController(VGScientaController controller) {
 		this.controller = controller;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getNumberOfSweeptSteps()
-	 */
 	@Override
 	public int getNumberOfSweeptSteps() throws Exception {
 		return controller.getTotalDataPoints();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getEnergyAxis()
-	 */
 	@Override
 	public double[] getEnergyAxis() throws Exception {
 		double start, step;
 		int length, startChannel = 0;
 		if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
 			int pass = controller.getPassEnergy().intValue();
-			start = controller.getCentreEnergy()
-					- (getCapabilities().getEnergyWidthForPass(pass) / 2);
+			start = controller.getCentreEnergy() - (getCapabilities().getEnergyWidthForPass(pass) / 2);
 			// TODO the following does not suitable for I09?
 			step = getCapabilities().getEnergyStepForPass(pass);
 			length = getAdBase().getSizeX();
@@ -106,9 +90,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		return axis;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getAngleAxis()
-	 */
 	@Override
 	public double[] getAngleAxis() throws Exception {
 		return getCapabilities().getAngleAxis(controller.getLensMode(),
@@ -117,64 +98,114 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	@Override
 	protected void appendDataAxes(NXDetectorData data) throws Exception {
+		short state = getAdBase().getDetectorState_RBV();
+		switch (state) {
+			case 6:
+				throw new DeviceException("analyser in error state during readout");
+			case 1:
+				// The IOC can report acquiring for quite a while after being stopped
+				logger.debug("analyser status is acquiring during readout although we think it has stopped");
+				break;
+			case 10:
+				logger.warn("analyser in aborted state during readout");
+				break;
+			default:
+				break;
+		}
 		if (firstReadoutInScan) {
 			int i = 1;
 			String aname = "energies";
 			String aunit = "eV";
 			double[] axis = getEnergyAxis();
 
-			data.addAxis(getName(), aname, new int[] { axis.length },
-					NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
 
 			i = 0;
 			if ("Transmission".equals(getLensMode())) {
-				aname = "angles";
-				aunit = "degree";
-			} else {
 				aname = "location";
 				aunit = "mm";
+			} else {
+				aname = "angles";
+				aunit = "degree";
 			}
 			axis = getAngleAxis();
 
-			data.addAxis(getName(), aname, new int[] { axis.length },
-					NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+
+			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
+			
+			data.addData(getName(), "pass_energy", new int[] {1}, NexusFile.NX_INT32, new int[] { getPassEnergy() }, null, null);
+
+			data.addData(getName(), "acquisition_mode", new NexusGroupData(getAcquisitionMode()), null, null);
+			
+			data.addData(getName(), "energy_mode", new NexusGroupData( getPassEnergy() ), null, null);
+
+			data.addData(getName(), "detector_mode", new NexusGroupData( getDetectorMode() ), null, null);
+
+			data.addData(getName(), "sensor_size", new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }, null, null);
+
+			data.addData(getName(), "region_origin", new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }, null, null);
+
+			data.addData(getName(), "region_size", new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }, null, null);
+
+			data.addData(getName(), "number_of_iterations", new int[] {1}, NexusFile.NX_INT32, new int[] { getNumberIterations() }, null, null);
 		}
 	}
-
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#prepareFixedMode()
-	 */
 	@Override
-	public void prepareFixedMode() throws Exception {
-		controller.setAcquisitionMode("Fixed");
-		getAdBase().setMinX(fixedModeRegion[0]);
-		getAdBase().setMinY(fixedModeRegion[1]);
-		getAdBase().setSizeX(fixedModeRegion[2]);
-		getAdBase().setSizeY(fixedModeRegion[3]);
+	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
+		super.appendNXDetectorDataFromCollectionStrategy(data);
+		// add additional data (image/array data are already added by the framework createNXDetectorData() by default)
+		double[] spectrum=null;
+		spectrum = getSpectrum();
+		if (spectrum!=null) {
+			data.addData(getName(), "spectrum", new int[] {spectrum.length}, NexusFile.NX_FLOAT64, spectrum, "counts", null);
+		}
+		double[] externalIO=null;
+		externalIO = getExternalIOData();
+		if (externalIO!=null) {
+			data.addData(getName(), "externalIO", new int[] {spectrum.length}, NexusFile.NX_FLOAT64, spectrum, null, null);
+		}
+	
+	}
+	
+	@Override
+	public void setFixedMode(boolean fixed) throws Exception {
+		int[] region = fixedModeRegion;
+		if (fixed) {
+			controller.setAcquisitionMode("Fixed");
+		} else {
+			controller.setAcquisitionMode("Swept");
+			if (getSweptModeRegion() != null) {
+				region = getSweptModeRegion();
+			}
+		}
+		getAdBase().setMinX(region[0]);
+		getAdBase().setMinY(region[1]);
+		getAdBase().setSizeX(region[2]);
+		getAdBase().setSizeY(region[3]);
+		controller.setSlice(region[3]);
 		getAdBase().setImageMode(0);
 		getAdBase().setTriggerMode(0);
-		controller.setSlice(fixedModeRegion[3]);
+	}
+	
+	public int[] getSweptModeRegion() {
+		return sweptModeRegion;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getFixedModeRegion()
-	 */
+	public void setSweptModeRegion(int[] sweptModeRegion) {
+		this.sweptModeRegion = sweptModeRegion;
+	}
+
 	@Override
 	public int[] getFixedModeRegion() {
 		return fixedModeRegion;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setFixedModeRegion(int[])
-	 */
 	@Override
 	public void setFixedModeRegion(int[] fixedModeRegion) {
 		this.fixedModeRegion = fixedModeRegion;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getCollectionTime()
-	 */
 	@Override
 	public double getCollectionTime() throws DeviceException {
 		try {
@@ -184,9 +215,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setCollectionTime(double)
-	 */
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		try {
@@ -196,170 +224,99 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setNumberInterations(int)
-	 */
 	@Override
 	public void setNumberInterations(int value) throws Exception {
 		getAdBase().setNumExposures(value);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getNumberIterations()
-	 */
 	@Override
 	public Integer getNumberIterations() throws Exception {
 		return getAdBase().getNumExposures_RBV();
 	}
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setCameraMinX(int)
-	 */
 	@Override
 	public void setCameraMinX(int value) throws Exception {
 		getAdBase().setMinX(value);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getCameraMinX()
-	 */
 	@Override
 	public int getCameraMinX() throws Exception {
 		return getAdBase().getMinX_RBV();
 	}
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setCameraMinY(int)
-	 */
 	@Override
 	public void setCameraMinY(int value) throws Exception {
 		getAdBase().setMinY(value);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getCameraMinY()
-	 */
 	@Override
 	public int getCameraMinY() throws Exception {
 		return getAdBase().getMinY_RBV();
 	}
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setCameraSizeX(int)
-	 */
 	@Override
 	public void setCameraSizeX(int value) throws Exception {
 		getAdBase().setSizeX(value);
 	}
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getCameraSizeX()
-	 */
 	@Override
 	public int getCameraSizeX() throws Exception {
 		return getAdBase().getSizeX_RBV();
 	}
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setCameraSizeY(int)
-	 */
 	@Override
 	public void setCameraSizeY(int value) throws Exception {
 		getAdBase().setSizeY(value);
 	}
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setImageMode(gda.device.detector.areadetector.v17.ADBase.ImageMode)
-	 */
 	@Override
 	public void setImageMode(ImageMode imagemode) throws Exception {
 		getAdBase().setImageMode(imagemode);
 	}
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getCameraSizeY()
-	 */
 	@Override
 	public int getCameraSizeY() throws Exception {
 		return getAdBase().getSizeY_RBV();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setLensMode(java.lang.String)
-	 */
 	@Override
 	public void setLensMode(String value) throws Exception {
 		controller.setLensMode(value);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getLensMode()
-	 */
 	@Override
 	public String getLensMode() throws Exception {
 		return controller.getLensMode();
 	}
-
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setAcquisitionMode(java.lang.String)
-	 */
 	@Override
 	public void setAcquisitionMode(String value) throws Exception {
 		controller.setAcquisitionMode(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getAcquisitionMode()
-	 */
 	@Override
 	public String getAcquisitionMode() throws Exception {
 		return controller.getAcquisitionMode();
 	}
-
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setEnergysMode(java.lang.String)
-	 */
 	@Override
 	public void setEnergysMode(String value) throws Exception {
 		controller.setEnergyMode(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getEnergysMode()
-	 */
 	@Override
 	public String getEnergysMode() throws Exception {
 		return controller.getEnergyMode();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setDetectorMode(java.lang.String)
-	 */
 	@Override
 	public void setDetectorMode(String value) throws Exception {
 		controller.setDetectorMode(value);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getDetectorMode()
-	 */
 	@Override
 	public String getDetectorMode() throws Exception {
 		return controller.getDetectorMode();
 	}
-
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setElement(java.lang.String)
-	 */
 	@Override
 	public void setElement(String value) throws Exception {
 		controller.setElement(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getElement()
-	 */
 	@Override
 	public String getElement() throws Exception {
 		return controller.getElement();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setPassEnergy(java.lang.Integer)
-	 */
 	@Override
 	public void setPassEnergy(Integer value) throws Exception {
 		controller.setPassEnergy(value);
@@ -373,121 +330,72 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		return controller.getPassEnergy();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setStartEnergy(java.lang.Double)
-	 */
 	@Override
 	public void setStartEnergy(Double value) throws Exception {
 		controller.setStartEnergy(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getStartEnergy()
-	 */
 	@Override
 	public Double getStartEnergy() throws Exception {
 		return getStartEnergy();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setCentreEnergy(java.lang.Double)
-	 */
 	@Override
 	public void setCentreEnergy(Double value) throws Exception {
 		controller.setCentreEnergy(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getCentreEnergy()
-	 */
 	@Override
 	public Double getCentreEnergy() throws Exception {
 		return controller.getCentreEnergy();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setEndEnergy(java.lang.Double)
-	 */
 	@Override
 	public void setEndEnergy(Double value) throws Exception {
 		controller.setEndEnergy(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getEndEnergy()
-	 */
 	@Override
 	public Double getEndEnergy() throws Exception {
 		return controller.getEndEnergy();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setEnergyStep(java.lang.Double)
-	 */
 	@Override
 	public void setEnergyStep(Double value) throws Exception {
 		controller.setEnergyStep(value);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getEnergyStep()
-	 */
 	@Override
 	public Double getEnergyStep() throws Exception {
 		return controller.getEnergyStep();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setFrames(java.lang.Integer)
-	 */
 	@Override
 	public void setFrames(Integer value) throws Exception {
 		controller.setFrames(value);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getFrames()
-	 */
 	@Override
 	public Integer getFrames() throws Exception {
 		return controller.getFrames();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setStepTime(double)
-	 */
 	@Override
 	public void setStepTime(double value) throws Exception {
 		controller.setStepTime(value);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#setSlices(int)
-	 */
 	@Override
 	public void setSlices(int value) throws Exception {
 		controller.setSlice(value);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getSlices()
-	 */
 	@Override
 	public int getSlices() throws Exception {
 		return controller.getSlice();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getTotalSteps()
-	 */
 	@Override
 	public Integer getTotalSteps() throws Exception {
 		return controller.getTotalSteps();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#zeroSupplies()
-	 */
 	@Override
 	public void zeroSupplies() throws Exception {
 		controller.zeroSupplies();
@@ -503,8 +411,20 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		return getNdArray().getPluginBase().getArraySize1_RBV();
 	}
 
+
+	public double[] getExternalIOData() throws Exception {
+		return controller.getExtIO();
+	}
+
+	public double[] getSpectrum() throws Exception {
+		return controller.getSpectrum();
+	}
+
+
 	@Override
 	public void start() throws Exception {
 		getCollectionStrategy().collectData();
 	}
+
+
 }
