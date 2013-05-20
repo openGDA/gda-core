@@ -58,7 +58,7 @@ public class EnumPositionViewer {
 	private Composite parent;
 
 	private EnumPositioner scannable;
-	private String demandPrev;
+	private volatile String demandPrev;
 
 	private String commandFormat;
 
@@ -67,6 +67,8 @@ public class EnumPositionViewer {
 	private IPositionVerifierDialogCreator newPositionDialog;
 
 	private Object labelLayoutData;
+
+	protected Job job;
 
 	public EnumPositionViewer(Composite parent, EnumPositioner scannable) {
 		this(parent, scannable, null, false, null);
@@ -142,33 +144,35 @@ public class EnumPositionViewer {
 					}
 				}
 
-				if (!demandString.equals(demandPrev)) {
-					// motorBox.demandBegin(demandPrev);
-					final String msg = "Moving " + motor.getDescriptor().getLabelText() + " to " + demandString;
-					Job job = new Job(msg) {
-						@Override
-						protected IStatus run(IProgressMonitor monitor) {
-							try {
-								if (commandFormat == null) {
-									motor.setPosition(demandString);
-								}
+					if (!demandString.equals(demandPrev)  && (job == null || job.getState() == Job.NONE)) {
+						demandPrev = demandString;
+						final String msg = "Moving " + motor.getDescriptor().getLabelText() + " to " + demandString;
+						job = new Job(msg) {
+							@Override
+							protected IStatus run(IProgressMonitor monitor) {
+								try {
+									if (commandFormat == null) {
+										motor.setPosition(demandString);
+									}
 
-								else {
-									final String commandToRun = String.format(commandFormat, demandString);
-									InterfaceProvider.getCommandRunner().evaluateCommand(commandToRun);
-								}
+									else {
+										final String commandToRun = String.format(commandFormat, demandString);
+										InterfaceProvider.getCommandRunner().evaluateCommand(commandToRun);
+									}
 
-								demandPrev = demandString;
-							} catch (DeviceException e) {
-								logger.error("Exception: " + msg + " " + e.getMessage(), e);
+									return Status.OK_STATUS;
+								} catch (DeviceException e) {
+									logger.error("Exception: " + msg + " " + e.getMessage(), e);
+									return new Status(IStatus.ERROR, "uk.ac.gda.client", e.getMessage());
+								} finally {
+									refresh();
+								}
 							}
-							refresh();
-							return Status.OK_STATUS;
-						}
-					};
-					job.setUser(true);
-					job.schedule();
-				}
+						};
+						job.setUser(true);
+						job.schedule();
+					}
+				
 			}
 		});
 		motorBox.on();
