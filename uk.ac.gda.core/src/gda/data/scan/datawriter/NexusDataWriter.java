@@ -49,7 +49,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import org.nexusformat.NXlink;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
@@ -61,6 +60,7 @@ import org.slf4j.LoggerFactory;
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
  */
 public class NexusDataWriter extends DataWriterBase implements DataWriter {
+	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriter.class);
 
 	/**
 	 * Property to control the level of instrumentation of the nexus api
@@ -82,8 +82,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * files will be named (e.g.) {@code "i23-999.nxs"} instead of just {@code "999.nxs"}
 	 */
 	public static final String GDA_NEXUS_BEAMLINE_PREFIX = "gda.nexus.beamlinePrefix";
-
-	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriter.class);
 
 	static final int MAX_DATAFILENAME = 255;
 
@@ -148,33 +146,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	private boolean setupPropertiesDone = false;
 
 	private boolean fileNumberConfigured = false;
-
-	class SelfCreatingLink {
-		NXlink nxlink;
-
-		public SelfCreatingLink(NXlink nxlink) {
-			this.nxlink = nxlink;
-		}
-
-		void create(NeXusFileInterface file) throws NexusException {
-			file.makelink(nxlink);
-		}
-	}
-
-	class ExteneralNXlink extends SelfCreatingLink {
-		String name, url;
-
-		public ExteneralNXlink(String name, String url) {
-			super(null);
-			this.name = name;
-			this.url = url;
-		}
-
-		@Override
-		void create(NeXusFileInterface file) throws NexusException {
-			file.linkexternaldataset(name, url);
-		}
-	}
 
 	/**
 	 * Constructor. This attempts to read the java.property which defines the beamline name.
@@ -248,7 +219,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		}
 	}
 
-	static private int[] generateStartPosPrefix(int currentPoint, int[] scanDimensions) {
+	protected static int[] generateStartPosPrefix(int currentPoint, int[] scanDimensions) {
 		if (scanDimensions.length == 1) {
 			return new int[] { currentPoint };
 		}
@@ -271,7 +242,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		return scanNumbers;
 	}
 
-	static private int[] generateDataStartPos(int[] dataStartPosPrefix, int[] dataDimensions) {
+	protected static int[] generateDataStartPos(int[] dataStartPosPrefix, int[] dataDimensions) {
 		int[] dataStartPos = null;
 		if (dataStartPosPrefix != null) {
 			dataStartPos = Arrays.copyOf(dataStartPosPrefix, dataStartPosPrefix.length
@@ -292,7 +263,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * @param dataDimensions
 	 * @return dimensions
 	 */
-	static private int[] generateDataDim(boolean make, int[] dataDimPrefix, int[] dataDimensions) {
+	protected static int[] generateDataDim(boolean make, int[] dataDimPrefix, int[] dataDimensions) {
 		int[] dataDim = null;
 		if (dataDimPrefix != null) {
 			// do not attempt to add dataDimensions if not set or indicates single point
@@ -778,7 +749,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	protected void createCustomMetaData() throws NexusException {
 	}
 
-	private String getGroupClassFor(@SuppressWarnings("unused") Scannable s) {
+	protected String getGroupClassFor(@SuppressWarnings("unused") Scannable s) {
 		String groupName = "NXpositioner";
 		return groupName;
 	}
@@ -890,6 +861,16 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		file.makegroup("default", "NXdata");
 		file.opengroup("default", "NXdata");
 
+		makeAxesLinks();
+
+		// close NXdata
+		file.closegroup();
+
+		// close NXentry
+		file.closegroup();
+	}
+
+	protected void makeAxesLinks() {
 		// Make links to all scannables.
 		for (SelfCreatingLink id : scannableID) {
 			try {
@@ -899,12 +880,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						+ e.getMessage());
 			}
 		}
-
-		// close NXdata
-		file.closegroup();
-
-		// close NXentry
-		file.closegroup();
 	}
 
 	/**
@@ -1085,14 +1060,14 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// close NXinstrument
 		file.closegroup();
 
+		//FIXME this data group does not contain detector data, 
+		// we should not create this
+		// if this is the only detector the fallback group would be better 
 		// Make and open NXdata
 		file.makegroup(detectorName, "NXdata");
 		file.opengroup(detectorName, "NXdata");
 
-		// Make links to all scannables.
-		for (SelfCreatingLink id : scannableID) {
-			id.create(file);
-		}
+		makeAxesLinks();
 
 		// close NXdata
 		file.closegroup();
@@ -1164,10 +1139,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					file.makegroup(((Detector) detector).getName(), "NXdata");
 					file.opengroup(((Detector) detector).getName(), "NXdata");
 
-					// Make links to all scannables.
-					for (SelfCreatingLink id : scannableID) {
-						id.create(file);
-					}
+					makeAxesLinks();
 				} else {
 					// Just open it.
 					file.opengroup(((Detector) detector).getName(), "NXdata");
@@ -1213,10 +1185,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			link.create(file);
 		}
 
-		// Make links to all scannables.
-		for (SelfCreatingLink id : scannableID) {
-			id.create(file);
-		}
+		makeAxesLinks();
 
 		// close NXdata
 		file.closegroup();
@@ -1277,10 +1246,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				file.makegroup(detector.getName(), "NXdata");
 				file.opengroup(detector.getName(), "NXdata");
 
-				// Make links to all scannables.
-				for (SelfCreatingLink id : scannableID) {
-					id.create(file);
-				}
+				makeAxesLinks();
 			} else {
 				// Just open it.
 				file.opengroup(detector.getName(), "NXdata");
