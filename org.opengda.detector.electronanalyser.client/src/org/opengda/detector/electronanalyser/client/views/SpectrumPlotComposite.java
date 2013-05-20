@@ -286,7 +286,7 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 					+ " with axes from " + getAnalyser().getName());
 
 			if (!getDisplay().isDisposed()) {
-				getDisplay().syncExec(new Runnable() {
+				getDisplay().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
