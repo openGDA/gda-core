@@ -184,8 +184,9 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	private ResourceSet getResourceSet() throws Exception {
-		EditingDomain sequenceEditingDomain = Activator
-				.getDefault().getSequenceEditingDomain();
+		EditingDomain sequenceEditingDomain = SequenceEditingDomain.INSTANCE.getEditingDomain();
+		//the following line only works in RCP/OSGi, not on server
+		//Activator.getDefault().getSequenceEditingDomain();
 		// Create a resource set to hold the resources.
 		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
 		// Register the appropriate resource factory to handle all file

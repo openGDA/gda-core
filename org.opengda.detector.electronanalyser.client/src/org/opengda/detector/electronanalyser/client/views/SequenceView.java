@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -84,6 +85,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
@@ -1305,6 +1307,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	 */
 	@Override
 	public void refreshTable(String seqFileName, boolean newFile) {
+//		FilenameUtil.setPrefix("D:");
+//		seqFileName=FilenameUtil.convertSeparator(seqFileName);
+		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
 		if (isDirty()) {
 			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
 					"Current sequence contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
@@ -1507,9 +1512,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	@Override
-	public void update(Object source, Object arg) {
+	public void update(Object source, final Object arg) {
 		if (source.equals(controller) && arg instanceof SequenceFileChangeEvent) {
-			refreshTable(((SequenceFileChangeEvent) arg).getFilename(), false);
+			Display.getDefault().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					logger.debug("Sequence file changed to {}", ((SequenceFileChangeEvent)arg).getFilename());
+					refreshTable(((SequenceFileChangeEvent) arg).getFilename(), false);
+					
+				}
+			});
 		}
 		// if (source.equals(regionScannable)) {
 		if (source instanceof RegionScannable) {

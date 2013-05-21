@@ -1,31 +1,26 @@
 package org.opengda.detector.electronanalyser.scan;
 
-import gda.data.PathConstructor;
 import gda.scan.ScanPositionProvider;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RegionPositionProvider implements ScanPositionProvider {
 	List<Region> points=new ArrayList<Region>();
-	RegionDefinitionResourceUtil regionResourceutil;
+	RegionDefinitionResourceUtil regionResourceutil=new RegionDefinitionResourceUtil();
 	private static final Logger logger=LoggerFactory.getLogger(RegionPositionProvider.class);
 
 
 	public RegionPositionProvider(String filename) {
+		//String filepath = FilenameUtils.separatorsToUnix(filename);
 
-		String xmldir;
-		if ((OsUtil.isUnix() && !filename.startsWith("/")) || (OsUtil.isWindows() && !filename.matches("^[a-zA-Z]:\\*"))) {
-			xmldir = PathConstructor.createFromDefaultProperty()+File.pathSeparator+"xml";
-			filename=xmldir+File.pathSeparator+filename;
-		}
+		logger.debug("Sequence file changed to {}{}", FilenameUtils.getFullPath(filename), FilenameUtils.getName(filename));
 		try {
 			List<Region> regions=regionResourceutil.getRegions(filename);
 			for (Region region : regions) {
