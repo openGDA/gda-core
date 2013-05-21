@@ -103,7 +103,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private Label kWeightingLabel;
 	private Label kStartLabel;
 
-	private SelectionAdapter e0Listener, e1Listener, abGafListener, aListener, bListener, cListener, exafsTimeListener;
+	private SelectionAdapter e0Listener, e1Listener, aListener, bListener, cListener;
 
 	private ScaleBox kWeighting;
 	private ScaleBoxAndFixedExpression kStart;
@@ -133,7 +133,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			public void pageChanged(PageChangedEvent event) {
 				final int ipage = containingEditor.getActivePage();
 				if (ipage == 1)
-					cachedElement = ((XasScanParameters) xasScanParameters).getElement();
+					cachedElement = xasScanParameters.getElement();
 			}
 		});
 	}
@@ -665,8 +665,14 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		abGafChoice = new ComboWrapper(topCentre, SWT.READ_ONLY);
 		abGafChoice.setItems(new String[] { "A/B", "Gaf1/Gaf2" });
-		abGafChoice.select(1);
+//		abGafChoice.select(1);
 		abGafChoice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		abGafChoice.addValueListener(new ValueAdapter("abgafchoiceListener") {
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateEdgeRegion();
+			}
+		});
 		
 		final Label gaf1Label = new Label(topCentre, SWT.NONE);
 		gaf1Label.setText("Gaf1");
@@ -951,7 +957,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			});
 
 			updateExafsTimeType();
-			updateEdgeRegion();
+			
 			updateLayout();
 			setPointsUpdate(false);
 			updateElement(ELEMENT_EVENT_TYPE.INIT); // Must be before linkUI or switched on status fires events that
@@ -959,6 +965,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 			// Sets value and switches on the listeners.
 			super.linkUI(isPageChange); // Will also switch back on widgets.
+			updateEdgeRegion();
 			setPointsUpdate(false);
 			suspendGraphUpdate = true;
 
@@ -977,6 +984,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			}
 			if (finalEnergy.isOn()) {
 				finalEnergy.off();
+			}
+			
+			if (energyInK && ! isPageChange) {
+				correctFinalEnergy();
+				correctC();
 			}
 
 			rebuildGraph();
@@ -1030,7 +1042,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			} else {
 				max = Double.valueOf(ds.max().toString());
 			}
-//			Integer plotMax = (Integer) ds.max();
 			Double stepHeight = (double) (max /6);
 
 			try {
@@ -1131,12 +1142,12 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	private void correctC() {
-		double value = getC().getBoundValue();
+		double value = ((XasScanParameters)editingBean).getC();
 		getC().setValue(getKProvider().getValue(value));
 	}
 
 	private void correctFinalEnergy() {
-		double value = getFinalEnergy().getBoundValue();
+		double value = ((XasScanParameters)editingBean).getFinalEnergy();
 		getFinalEnergy().setValue(getKProvider().getValue(value));
 	}
 
@@ -1594,12 +1605,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 //			((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
 //					getC().getBoundValue()))));
 			
-			//String finalEnergyBoundValueString = twoDForm.format(getKInEv().getValue(getFinalEnergy().getBoundValue()));
-			//double finalEnergyBoundValue = Double.valueOf(finalEnergyBoundValueString);
-			
-			//((XasScanParameters) this.editingBean).setFinalEnergy(finalEnergyBoundValue);
-			//((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
-			//		getC().getBoundValue()))));
+			String finalEnergyBoundValueString = twoDForm.format(getKInEv().getValue(getFinalEnergy().getBoundValue()));
+			double finalEnergyBoundValue = Double.valueOf(finalEnergyBoundValueString);
+			((XasScanParameters) this.editingBean).setFinalEnergy(finalEnergyBoundValue);
+			((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
+					getC().getBoundValue()))));
 		}
 		return editingBean;
 	}
