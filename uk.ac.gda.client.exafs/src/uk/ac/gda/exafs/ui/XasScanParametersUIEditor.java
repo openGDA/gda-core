@@ -63,6 +63,7 @@ import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
+import uk.ac.gda.richbeans.components.scalebox.NumberBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
@@ -1083,6 +1084,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	@Override
 	protected void setPointsUpdate(boolean isUpdate) {
+		super.setPointsUpdate(isUpdate);
 		updateValueAllowed = isUpdate;
 		if (isUpdate) {
 			updatePointsLabels();
@@ -1094,8 +1096,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			gaf3.on();
 			initialEnergy.on();
 			finalEnergy.on();
-			edge.on();
-			element.on();
 			exafsStep.on();
 			edgeStep.on();
 			edgeTime.on();
@@ -1117,8 +1117,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			gaf3.off();
 			initialEnergy.off();
 			finalEnergy.off();
-			edge.off();
-			element.off();
 			exafsStep.off();
 			edgeStep.off();
 			edgeTime.off();
@@ -1424,14 +1422,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	public ScaleBox getPreEdgeStep() {
 		return preEdgeStep;
-	}
-
-	public ComboWrapper getEdge() {
-		return edge;
-	}
-
-	public ComboWrapper getElement() {
-		return element;
 	}
 
 	public ScaleBox getEdgeStep() {

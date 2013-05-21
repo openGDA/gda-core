@@ -185,13 +185,6 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		return ele.getCoreHole(edge);
 	}
 
-	/**
-	 * @return ScaleBox
-	 */
-	public ComboWrapper getElement() {
-		return element;
-	}
-
 	@Override
 	protected void updateElement(ELEMENT_EVENT_TYPE type) {
 		try {
@@ -203,20 +196,12 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 
 	@Override
 	public void linkUI(final boolean isPageChange) {
-
 		setPointsUpdate(false);
-
 		try {
-			setupElementAndEdge("XasScanParameters");
+			setupElementAndEdge("QEXAFSParameters");
 		} catch (Exception e) {
 			logger.error("Could not update element list", e);
 		}
 		super.linkUI(isPageChange);
-
 	}
-
-	public ComboWrapper getEdge() {
-		return edge;
-	}
-
 }

@@ -410,8 +410,13 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	protected void setPointsUpdate(boolean isUpdate) {
 		updateValueAllowed = isUpdate;
 		if (isUpdate) {
-
 			updatePointsLabels();
+			edge.on();
+			element.on();
+		}
+		else{
+			edge.off();
+			element.off();
 		}
 	}
 
@@ -702,5 +707,12 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			}
 		}
 
+	}
+	public ComboWrapper getEdge() {
+		return edge;
+	}
+	
+	public ComboWrapper getElement() {
+		return element;
 	}
 }

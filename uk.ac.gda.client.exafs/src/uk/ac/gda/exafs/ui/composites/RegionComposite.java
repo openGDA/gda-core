@@ -205,7 +205,8 @@ public class RegionComposite extends Composite {
 				double startEnergy = ((XanesRegionParameters) cell.getElement()).getStartEnergy();
 				cell.setText(String.valueOf(startEnergy));
 				try {
-					editor.updatePlottedPoints();
+					if(editor.getElement().isOn())
+						editor.updatePlottedPoints();
 				} catch (Exception e) {
 				}
 			}
@@ -225,7 +226,8 @@ public class RegionComposite extends Composite {
 				String strStep = String.valueOf(step);
 				cell.setText(strStep);
 				try {
-					editor.updatePlottedPoints();
+					if(editor.getElement().isOn())
+						editor.updatePlottedPoints();
 				} catch (Exception e) {
 				}
 			}
@@ -245,7 +247,8 @@ public class RegionComposite extends Composite {
 				String strTime = String.valueOf(time);
 				cell.setText(strTime);
 				try {
-					editor.updatePlottedPoints();
+					if(editor.getElement().isOn())
+						editor.updatePlottedPoints();
 				} catch (Exception e) {
 				}
 			}

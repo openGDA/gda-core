@@ -231,14 +231,6 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 		}
 	}
 
-	public ComboWrapper getElement() {
-		return element;
-	}
-
-	public ComboWrapper getEdge() {
-		return edge;
-	}
-
 	@Override
 	protected String getRichEditorTabText() {
 		return "XANES Scan";
