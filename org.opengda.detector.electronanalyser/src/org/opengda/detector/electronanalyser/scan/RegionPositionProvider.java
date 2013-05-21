@@ -27,9 +27,14 @@ public class RegionPositionProvider implements ScanPositionProvider {
 			filename=xmldir+File.pathSeparator+filename;
 		}
 		try {
-			this.points=regionResourceutil.getRegions(filename);
+			List<Region> regions=regionResourceutil.getRegions(filename);
+			for (Region region : regions) {
+				if (region.isEnabled()) { // only add selected/enabled region to the list of points to collect
+					this.points.add(region);
+				}
+			}
 		} catch (Exception e) {
-			logger.error("");
+			logger.error("Cannot get region list from file.", e);
 		}
 	}
 	@Override
