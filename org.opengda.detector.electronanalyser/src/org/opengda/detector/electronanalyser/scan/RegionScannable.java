@@ -4,6 +4,10 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.scannable.ScannableBase;
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.device.scannable.corba.impl.ScannableImpl;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -18,14 +22,18 @@ import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@CorbaImplClass(ScannableImpl.class)
+@CorbaAdapterClass(ScannableAdapter.class)
 public class RegionScannable extends ScannableBase implements Scannable {
 	private ObservableComponent oc=new ObservableComponent();
 	private Region region;
 	private String name;
 	private VGScientaAnalyser analyser;
+	//private Scriptcontroller scriptController;
 	private boolean busy;
 	private static final Logger logger=LoggerFactory.getLogger(RegionScannable.class);
 	public RegionScannable() {
+		//scriptController=Finder.getInstance().find("SequenceFileObserver");
 	}
 	@Override
 	public boolean isBusy() throws DeviceException {
@@ -144,6 +152,9 @@ public class RegionScannable extends ScannableBase implements Scannable {
 		} finally {
 			busy=false;
 		}
+//		if (scriptController!=null) {
+//			((ScriptControllerBase)scriptController).update(this, new RegionChangeEvent(region.getRegionId()));
+//		}
 		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId()));
 	}
 	@Override
