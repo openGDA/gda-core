@@ -1,5 +1,7 @@
 package org.opengda.detector.electronanalyser.client;
 
+import gda.rcp.views.JythonTerminalView;
+
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -22,6 +24,7 @@ public class SESPerspective implements IPerspectiveFactory {
 	private static final String SPECTRUMVIEW =SpectrumViewExtensionFactory.ID;
 	private static final String REGIONEDITOR = RegionViewExtensionFactory.ID;
 	private static final String SEQUENCEEDITOR = SequenceViewExtensionFactory.ID;
+	private static final String JYTHONCONSOLE=JythonTerminalView.ID;
 	public static final String ID = "org.opengda.detector.electronanalyser.client.ses.perspective";
 
 	@Override
@@ -40,8 +43,9 @@ public class SESPerspective implements IPerspectiveFactory {
 		String plotLayoutString = ElectronAnalyserClientPlugin.getDefault().getPreferenceStore().getString(ElectronAnalyserClientPlugin.PLOT_LAYOUT);
 		if (plotLayoutString == null || plotLayoutString.isEmpty() 
 				|| ElectronAnalyserClientPlugin.STACK_PLOT.equals(plotLayoutString)) {
-			plotFolder = layout.createFolder("PlotFolder", IPageLayout.BOTTOM, 0.5f, SEQUENCEEDITOR);
 			layout.addView(REGIONEDITOR, IPageLayout.RIGHT, 0.7f, SEQUENCEEDITOR);
+			plotFolder = layout.createFolder("PlotFolder", IPageLayout.BOTTOM, 0.5f, SEQUENCEEDITOR);
+			layout.addView(JYTHONCONSOLE, IPageLayout.BOTTOM, 0.5f, REGIONEDITOR);
 
 			plotFolder.addView(SPECTRUMVIEW);
 			plotFolder.addView(EXTERNALIOVIEW);
@@ -51,14 +55,16 @@ public class SESPerspective implements IPerspectiveFactory {
 			layout.addView(PROGRESSVIEW, IPageLayout.BOTTOM, 0.875f, "PlotFolder");
 			
 		} else if (ElectronAnalyserClientPlugin.TILE_QUAD.equals(plotLayoutString)) {
+			layout.addView(REGIONEDITOR, IPageLayout.RIGHT, 0.7f, SEQUENCEEDITOR);
 			layout.addView(SPECTRUMVIEW, IPageLayout.BOTTOM, 0.5f, SEQUENCEEDITOR);
 			layout.addView(PROGRESSVIEW, IPageLayout.BOTTOM, 0.875f, SPECTRUMVIEW);
 			layout.addView(IMAGEVIEW, IPageLayout.RIGHT, 0.5f, SPECTRUMVIEW);
 			layout.addView(SLICEVIEW, IPageLayout.BOTTOM, 0.5f, IMAGEVIEW);
 			layout.addView(EXTERNALIOVIEW, IPageLayout.BOTTOM, 0.5f, SPECTRUMVIEW);
-			layout.addView(REGIONEDITOR, IPageLayout.RIGHT, 0.7f, SEQUENCEEDITOR);
+			layout.addView(JYTHONCONSOLE, IPageLayout.BOTTOM, 0.5f, REGIONEDITOR);
 
 		} else if (ElectronAnalyserClientPlugin.TILE_VERTICAL.equals(plotLayoutString)) {
+			layout.addView(REGIONEDITOR, IPageLayout.RIGHT, 0.7f, SEQUENCEEDITOR);
 			IFolderLayout topPlotfolder = layout.createFolder("topPlot", IPageLayout.BOTTOM, 0.5f, SEQUENCEEDITOR);
 			topPlotfolder.addView(SPECTRUMVIEW);
 			topPlotfolder.addView(IMAGEVIEW);
@@ -66,18 +72,19 @@ public class SESPerspective implements IPerspectiveFactory {
 			bottomPlotFolder.addView(EXTERNALIOVIEW);
 			bottomPlotFolder.addView(SLICEVIEW);
 			layout.addView(PROGRESSVIEW, IPageLayout.BOTTOM, 0.8f, "bottomPlot");
-			layout.addView(REGIONEDITOR, IPageLayout.RIGHT, 0.7f, SEQUENCEEDITOR);
-			
+			layout.addView(JYTHONCONSOLE, IPageLayout.BOTTOM, 0.5f, REGIONEDITOR);
+
 		} else if (ElectronAnalyserClientPlugin.TILE_HORIZONTAL.equals(plotLayoutString)) {
+			layout.addView(REGIONEDITOR, IPageLayout.RIGHT, 0.7f, SEQUENCEEDITOR);
 			layout.addView(SPECTRUMVIEW, IPageLayout.BOTTOM, 0.5f, SEQUENCEEDITOR);
 			layout.addView(PROGRESSVIEW, IPageLayout.BOTTOM, 0.875f, SPECTRUMVIEW);
 			layout.addView(IMAGEVIEW, IPageLayout.RIGHT, 0.25f, SPECTRUMVIEW);
 			layout.addView(EXTERNALIOVIEW, IPageLayout.RIGHT, 0.33f, IMAGEVIEW);
 			layout.addView(SLICEVIEW, IPageLayout.RIGHT, 0.5f, EXTERNALIOVIEW);
-			layout.addView(REGIONEDITOR, IPageLayout.RIGHT, 0.7f, SEQUENCEEDITOR);
+			layout.addView(JYTHONCONSOLE, IPageLayout.BOTTOM, 0.5f, REGIONEDITOR);
 		}
 
-		layout.addView(COMMANDQUEUEVIEW, IPageLayout.BOTTOM, 0.5f, "topLeft");
+		//layout.addView(COMMANDQUEUEVIEW, IPageLayout.BOTTOM, 0.5f, "topLeft");
 		layout.setEditorAreaVisible(false);
 		
 		layout.addShowViewShortcut(SEQUENCEEDITOR);
