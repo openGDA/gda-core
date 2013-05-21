@@ -87,8 +87,8 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		if (analyser!=null) {
 			sequenceView.setAnalyser(analyser);
 		}
-		if (detectorStatePV != null) {
-			sequenceView.setDetectorStatePV(detectorStatePV);
+		if (getDetectorStatePV() != null) {
+			sequenceView.setDetectorStatePV(getDetectorStatePV());
 		}
 		return sequenceView;
 	}
@@ -132,5 +132,13 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 
 	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
+	}
+
+	public String getDetectorStatePV() {
+		return detectorStatePV;
+	}
+
+	public void setDetectorStatePV(String detectorStatePV) {
+		this.detectorStatePV = detectorStatePV;
 	}
 }

@@ -1,12 +1,15 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.commandqueue.CommandProgress;
+import gda.commandqueue.CommandQueue;
 import gda.commandqueue.IFindableQueueProcessor;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.Queue;
+import gda.commandqueue.QueueChangeEvent;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -127,6 +130,8 @@ import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.client.CommandQueueViewFactory;
 
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 	private static final Logger logger = LoggerFactory.getLogger(SequenceView.class);
@@ -960,46 +965,47 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		// sequenceTableViewer.getElementAt(0)), true);
 		updateCalculatedData();
 		/* using command queue to process data collection specified in this table */
-		// processor = CommandQueueViewFactory.getProcessor();
-		// queue = CommandQueueViewFactory.getQueue();
-		// if (processor != null) {
-		// processorObserver = new IObserver() {
-		//
-		// @Override
-		// public void update(Object source, final Object arg) {
-		// updateState(source, arg);
-		// }
-		// };
-		// processor.addIObserver(processorObserver);
-		// }
-		// if (queue != null) {
-		// queueObserver = new IObserver() {
-		//
-		// @Override
-		// public void update(Object source, Object arg) {
-		// if (source instanceof CommandQueue && arg instanceof QueueChangeEvent) {
-		// try {
-		// if (queue.getSummaryList().isEmpty()) {
-		// // when queue processing completed, reset controls and all regions' status to READY.
-		// runningonserver=false;
-		// updateActionIconsState();
-		// resetRegionStatus();
-		// }
-		// } catch (Exception e) {
-		// logger.error("Cannot get summary list from queue.",e);
-		// }
-		// }
-		// }
-		// };
-		// queue.addIObserver(queueObserver);
-		// }
-		// prepareRunOnServerActions();
-		channelmanager=new EpicsChannelManager(this);
+		processor = CommandQueueViewFactory.getProcessor();
+		queue = CommandQueueViewFactory.getQueue();
+		if (processor != null) {
+			processorObserver = new IObserver() {
+
+				@Override
+				public void update(Object source, final Object arg) {
+					updateState(source, arg);
+				}
+			};
+			processor.addIObserver(processorObserver);
+		}
+		if (queue != null) {
+			queueObserver = new IObserver() {
+
+				@Override
+				public void update(Object source, Object arg) {
+					if (source instanceof CommandQueue && arg instanceof QueueChangeEvent) {
+						try {
+							if (queue.getSummaryList().isEmpty()) {
+								// when queue processing completed, reset controls and all regions' status to READY.
+								runningonserver = false;
+								updateActionIconsState();
+								resetRegionStatus();
+							}
+						} catch (Exception e) {
+							logger.error("Cannot get summary list from queue.", e);
+						}
+					}
+				}
+			};
+			queue.addIObserver(queueObserver);
+		}
+		prepareRunOnServerActions();
+		channelmanager = new EpicsChannelManager(this);
 		controller = Finder.getInstance().find("SequenceFileObserver");
 		controller.addIObserver(this);
-		regionScannable = Finder.getInstance().find("regions");
-		regionScannable.addIObserver(this);
-		analyserStateListener=new AnalyserStateListener();
+		// TODO why scannable can not be find on client side???
+		 regionScannable = Finder.getInstance().find("regions");
+		 regionScannable.addIObserver(this);
+		analyserStateListener = new AnalyserStateListener();
 		try {
 			createChannels();
 		} catch (CAException | TimeoutException e1) {
@@ -1437,7 +1443,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private IVGScientaAnalyser analyser;
 
-	private RegionScannable regionScannable;
+	private Scannable regionScannable;
 
 	private Region currentRegion;
 
@@ -1505,7 +1511,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		if (source.equals(controller) && arg instanceof SequenceFileChangeEvent) {
 			refreshTable(((SequenceFileChangeEvent) arg).getFilename(), false);
 		}
-		if (source.equals(regionScannable)) {
+		// if (source.equals(regionScannable)) {
+		if (source instanceof RegionScannable) {
 			if (arg instanceof RegionChangeEvent) {
 				String regionId = ((RegionChangeEvent) arg).getRegionId();
 				for (Region region : regions) {
@@ -1516,7 +1523,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				// TODO auto select this region in the viewer????
 				sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
 			} else if (arg instanceof RegionStatusEvent) {
-				Status status = ((RegionStatusEvent)arg).getStatus();
+				Status status = ((RegionStatusEvent) arg).getStatus();
+				if (currentRegion == null) {
+					String regionId = ((RegionStatusEvent) arg).getRegionId();
+					for (Region region : regions) {
+						if (region.getRegionId().equalsIgnoreCase(regionId)) {
+							currentRegion = region;
+						}
+					}
+				}
 				switch (status) {
 				case READY:
 					updateRegionStatus(currentRegion, STATUS.READY);
@@ -1566,32 +1581,36 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (dbr.isSHORT()) {
 				state = ((DBR_Short) dbr).getShortValue()[0];
 			}
-			switch (state) {
-			case 0:
-				if (currentRegion.getStatus()==STATUS.RUNNING) {
-					updateRegionStatus(currentRegion, STATUS.COMPLETED);
-					logger.debug("analyser is in completed state for current region: {}", currentRegion.toString());
-				} else {
-					updateRegionStatus(currentRegion, STATUS.READY);
-					logger.debug("analyser is in ready state for current region: {}", currentRegion.toString());
-				}
-				break;
-			case 1:
-				updateRegionStatus(currentRegion, STATUS.RUNNING);
-				logger.debug("analyser is in running state for current region: {}", currentRegion.toString());
-				break;
-			case 6:
-				updateRegionStatus(currentRegion, STATUS.ABORTED);
-				logger.error("analyser in error state for region; {}", currentRegion.toString());
-				break;
-			case 10:
-				updateRegionStatus(currentRegion, STATUS.ABORTED);
-				logger.warn("analyser is in aborted state for currentregion: {}", currentRegion.toString());
-				break;
-			default:
-				logger.debug("analysre is in a unhandled state: {}", state);
-				break;
+			if (currentRegion != null) {
+				switch (state) {
+				case 0:
+					if (currentRegion.getStatus() == STATUS.RUNNING) {
+						updateRegionStatus(currentRegion, STATUS.COMPLETED);
+						logger.debug("analyser is in completed state for current region: {}", currentRegion.toString());
+					} else {
+						updateRegionStatus(currentRegion, STATUS.READY);
+						logger.debug("analyser is in ready state for current region: {}", currentRegion.toString());
+					}
+					break;
+				case 1:
+					updateRegionStatus(currentRegion, STATUS.RUNNING);
+					logger.debug("analyser is in running state for current region: {}", currentRegion.toString());
+					break;
+				case 6:
+					updateRegionStatus(currentRegion, STATUS.ABORTED);
+					logger.error("analyser in error state for region; {}", currentRegion.toString());
+					break;
+				case 10:
+					updateRegionStatus(currentRegion, STATUS.ABORTED);
+					logger.warn("analyser is in aborted state for currentregion: {}", currentRegion.toString());
+					break;
+				default:
+					logger.debug("analysre is in a unhandled state: {}", state);
+					break;
 
+				}
+			} else {
+				logger.debug("currentRegion object is null, no region state to update!!!");
 			}
 		}
 	}
