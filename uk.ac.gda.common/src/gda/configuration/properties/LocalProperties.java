@@ -150,6 +150,13 @@ public class LocalProperties {
 	 * Boolean property that indicates whether GDA baton management is enabled.
 	 */
 	public static final String GDA_BATON_MANAGEMENT_ENABLED = "gda.accesscontrol.useBatonControl";
+	
+	
+	/**
+	 * Boolean property that indicates that clients with the same user and visit can share the baton.
+	 */
+	private static final String GDA_BATON_SHARING_ENABLED = "gda.accesscontrol.sameUserVisitShareBaton";
+
 
 	/**
 	 * Property that specifies the server-side XML file used by the XmlObjectCreator to create an
@@ -548,6 +555,13 @@ public class LocalProperties {
 	 */
 	public static boolean isBatonManagementEnabled() {
 		return check(LocalProperties.GDA_BATON_MANAGEMENT_ENABLED, false);
+	}
+	
+	/**
+	 * @return true if with the same user and visit ID can share the baton. False by default.
+	 */
+	public static boolean canShareBaton() {
+		return check(LocalProperties.GDA_BATON_SHARING_ENABLED, false);
 	}
 
 	/**
