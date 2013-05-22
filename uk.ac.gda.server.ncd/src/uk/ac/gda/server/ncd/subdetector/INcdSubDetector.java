@@ -20,6 +20,8 @@ package uk.ac.gda.server.ncd.subdetector;
 
 import java.util.List;
 
+import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
+
 import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -69,4 +71,6 @@ public interface INcdSubDetector extends Device {
     public void atScanEnd() throws DeviceException;
     
     public void setTimer(Timer timer) throws DeviceException;
+    
+    public DetectorProperties getDetectorProperties() throws DeviceException;
 }

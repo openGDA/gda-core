@@ -48,7 +48,9 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
+import uk.ac.diamond.scisoft.analysis.io.DiffractionMetadata;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
+import uk.ac.gda.server.ncd.scannable.EnergyScannable;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 import uk.ac.gda.server.ncd.subdetector.LastImageProvider;
 import uk.ac.gda.server.ncd.subdetector.NcdWireDetector;
@@ -78,6 +80,8 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 	private int currentFrame = 0;
 	private boolean detectorLive = false;
 	private Map<String, RequestObject> wishList = new HashMap<String, RequestObject>();
+	
+	private EnergyScannable energyScannable = null;
 
 	public ListenerDispatcher() {
 	}
@@ -151,10 +155,11 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 				for (String type : new String[] { NcdDetectorSystem.SAXS_DETECTOR, NcdDetectorSystem.WAXS_DETECTOR,
 						NcdDetectorSystem.FLUORESCENCE_DETECTOR, NcdDetectorSystem.OTHER_DETECTOR }) {
 					if (sub.getDetectorType().equalsIgnoreCase(type)) {
+						AbstractDataset ds = null;
 						if (sub instanceof NcdWireDetector) {
 							double[] data = ((NcdWireDetector) sub).read(frame);
 							int[] dims = sub.getDataDimensions();
-							DoubleDataset ds = new DoubleDataset(data, dims);
+							ds = new DoubleDataset(data, dims);
 							ds.setName(String.format("%s frame %d of %d", type, frame + 1, det.getNumberOfFrames()));
 
 							/*
@@ -167,21 +172,20 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 								DetectorRates dr = createDetectorRate(sub, countingTime, ds);
 								rateCollection.add(dr);
 							}
-
-							for (String panel : wishList.keySet()) {
-								RequestObject request = wishList.get(panel);
-								if (request.type.equalsIgnoreCase("LIVE") && request.entity.equalsIgnoreCase(type)) {
-									plotData(panel, ds);
-								}
-							}
-
-							break;
 						}
 						if (sub instanceof LastImageProvider) {
-
-							AbstractDataset ds = ((LastImageProvider) sub).readLastImage();
+							ds = ((LastImageProvider) sub).readLastImage();
 							ds.setName(String.format("%s ", type));
 
+							// see above
+							if (frame != (currentFrameUFC - 1)) {
+								DetectorRates dr = createDetectorRate(sub, countingTime, ds);
+								rateCollection.add(dr);
+							}
+						}
+						if (ds != null) {
+							DiffractionMetadata dm = new DiffractionMetadata(null, sub.getDetectorProperties(), energyScannable == null ? null : energyScannable.getDiffractionCrystalEnvironment());
+							ds.setMetadata(dm);
 							for (String panel : wishList.keySet()) {
 								RequestObject request = wishList.get(panel);
 								if (request.type.equalsIgnoreCase("LIVE") && request.entity.equalsIgnoreCase(type)) {
@@ -190,13 +194,6 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 									plotData(panel, ds);
 								}
 							}
-
-							// see above
-							if (frame != (currentFrameUFC - 1)) {
-								DetectorRates dr = createDetectorRate(sub, countingTime, ds);
-								rateCollection.add(dr);
-							}
-
 							break;
 						}
 					}
@@ -438,5 +435,13 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 			// we return null in this case
 		}
 		return object;
+	}
+
+	public EnergyScannable getEnergyScannable() {
+		return energyScannable;
+	}
+
+	public void setEnergyScannable(EnergyScannable energyScannable) {
+		this.energyScannable = energyScannable;
 	}
 }

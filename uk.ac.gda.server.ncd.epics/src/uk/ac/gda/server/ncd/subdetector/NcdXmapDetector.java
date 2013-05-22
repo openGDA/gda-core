@@ -109,13 +109,13 @@ public class NcdXmapDetector extends NcdSubDetector  {
 		
 		NexusGroupData ngd = new NexusGroupData(new int[]{detectorData[0].length}, NexusFile.NX_INT32, detectorData[0]);
 		ngd.isDetectorEntryData = true;
-		dataTree.addData(getName(), ngd, "counts", 1);
+		dataTree.addData(getTreeName(), ngd, "counts", 1);
 
 		if (xmapcontroller instanceof EpicsXmapController2) {
 			EpicsXmapController2 emc2 = (EpicsXmapController2) xmapcontroller;
 			double[] energyaxis = emc2.getEnergyBins()[0];
 			NexusGroupData angd = new NexusGroupData(new int[]{energyaxis.length}, NexusFile.NX_FLOAT64, energyaxis);
-			dataTree.addAxis(getName(), "energy", angd, 1, 1, "keV", false);
+			dataTree.addAxis(getTreeName(), "energy", angd, 1, 1, "keV", false);
 		}
 		
 		addMetadata(dataTree);
