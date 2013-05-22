@@ -245,7 +245,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 			try {
 				org.omg.CORBA.Any any = corbaPlotServer.getGuiNames();
 				String [] otherNames = (String[]) any.extract_Value();
-				if( otherNames != null){
+				if( otherNames != null && otherNames.length>0){
 					if( guiNames != null && guiNames.length>0){
 						List<String> asList = Arrays.asList(guiNames);
 						asList.addAll(Arrays.asList(otherNames));

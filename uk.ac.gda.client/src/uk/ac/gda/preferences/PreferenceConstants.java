@@ -121,4 +121,6 @@ public class PreferenceConstants {
 	 * This would help avoid confusion with similar icons in other views which do similar but different jobs.
 	 */
 	public static final String GDA_COMMAND_QUEUE_SHOW_TEXT = "gda.commandqueue.showtext";
+
+	public static final String GDA_DEFAULT_NXS_HDF5_EDITOR_ID = "gda.default.nxs_hdf5.editor.id";
 }
