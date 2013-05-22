@@ -26,6 +26,7 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
+import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
@@ -37,7 +38,7 @@ import org.springframework.beans.factory.InitializingBean;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.gda.epics.adviewer.views.ADViewerCompositeFactory;
 
-public abstract class ADControllerImpl implements ADController, InitializingBean {
+public class ADControllerImpl implements ADController, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ADControllerImpl.class);
 
 	public NDStats imageNDStats;
@@ -235,7 +236,11 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	}
 
 	@Override
-	abstract public void setExposure(double d);
+	public void setExposure(double d) throws Exception{
+		adBase.setAcquireTime(d);
+		adBase.setImageMode(ImageMode.CONTINUOUS.ordinal());
+		adBase.startAcquiring();
+	}
 
 	@Override
 	public ADBase getAdBase() {
