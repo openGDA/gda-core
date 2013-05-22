@@ -139,7 +139,11 @@ public class CameraStatus extends Composite {
 							String title = "Setting exposure time to " + exposureTime;
 
 							monitor.beginTask(title, 100);
-							adController.setExposure(exposureTime);
+							try {
+								adController.setExposure(exposureTime);
+							} catch (Exception e) {
+								logger.error("Error setting exposureTime ", e);
+							}
 							monitor.done();
 						}
 					});

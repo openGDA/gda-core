@@ -47,7 +47,7 @@ public interface ADController {
 
 	public abstract ImageData getImageData() throws Exception;
 
-	public abstract void setExposure(double d);
+	public abstract void setExposure(double d) throws Exception;
 
 	public abstract ADBase getAdBase();
 
