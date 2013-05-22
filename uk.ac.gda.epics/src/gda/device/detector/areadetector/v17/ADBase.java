@@ -846,4 +846,16 @@ public interface ADBase  {
 	Observable<Double> createAcquireTimeObservable() throws Exception;
 
 	void setImageMode(ImageMode imagemode) throws Exception;
+
+	void setMinXWait(int minx, double timeout) throws Exception;
+
+	void setMinYWait(int value, double timeout) throws Exception;
+
+	void setSizeXWait(int sizex, double timeout) throws Exception;
+
+	void setSizeYWait(int sizey, double timeout) throws Exception;
+
+	void setNumExposures(int numexposures, double timeout) throws Exception;
+
+	void setImageModeWait(ImageMode imagemode, double timeout) throws Exception;
 }

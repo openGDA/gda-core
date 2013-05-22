@@ -417,6 +417,20 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}
 	}
 
+	@Override
+	public void setMinXWait(int minx, double timeout) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caputWait(createChannel(config.getMinX().getPv()), minx, timeout);
+			} else {
+				EPICS_CONTROLLER.caputWait(getChannel(MinX), minx, timeout);
+			}
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setMinX", ex);
+			throw ex;
+		}
+	}
+
 	/**
 	*
 	*/
@@ -459,6 +473,19 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(createChannel(config.getMinY().getPv()), miny);
 			} else {
 				EPICS_CONTROLLER.caput(getChannel(MinY), miny);
+			}
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setMinY", ex);
+			throw ex;
+		}
+	}
+	@Override
+	public void setMinYWait(int miny, double timeout) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caputWait(createChannel(config.getMinY().getPv()), miny, timeout);
+			} else {
+				EPICS_CONTROLLER.caputWait(getChannel(MinY), miny,timeout);
 			}
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setMinY", ex);
@@ -514,6 +541,22 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			throw ex;
 		}
 	}
+	/**
+	*
+	*/
+	@Override
+	public void setSizeXWait(int sizex, double timeout) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caputWait(createChannel(config.getSizeX().getPv()), sizex, timeout);
+			} else {
+				EPICS_CONTROLLER.caputWait(getChannel(SizeX), sizex, timeout);
+			}
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setSizeX", ex);
+			throw ex;
+		}
+	}
 
 	/**
 	*
@@ -557,6 +600,22 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(createChannel(config.getSizeY().getPv()), sizey);
 			} else {
 				EPICS_CONTROLLER.caput(getChannel(SizeY), sizey);
+			}
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setSizeY", ex);
+			throw ex;
+		}
+	}
+	/**
+	*
+	*/
+	@Override
+	public void setSizeYWait(int sizey, double timeout) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caputWait(createChannel(config.getSizeY().getPv()), sizey, timeout);
+			} else {
+				EPICS_CONTROLLER.caputWait(getChannel(SizeY), sizey, timeout);
 			}
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setSizeY", ex);
@@ -1102,6 +1161,22 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}
 	}
 
+	/**
+	*
+	*/
+	@Override
+	public void setNumExposures(int numexposures, double timeout) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caputWait(createChannel(config.getNumExposures().getPv()), numexposures, timeout);
+			} else {
+				EPICS_CONTROLLER.caputWait(getChannel(NumExposures), numexposures, timeout);
+			}
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setNumExposures", ex);
+			throw ex;
+		}
+	}
 	/**
 	*
 	*/
@@ -2371,4 +2446,19 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}
 
 	}
+	@Override
+	public void setImageModeWait(ImageMode imagemode, double timeout) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getImageMode().getPv()), imagemode.ordinal(), timeout);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode.ordinal(), timeout);
+			}
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setImageMode", ex);
+			throw ex;
+		}
+
+	}
+
 }

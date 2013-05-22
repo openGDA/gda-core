@@ -2489,4 +2489,12 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public Monitor addMonitor(Channel dataChannel) throws IllegalStateException, CAException {
 		return dataChannel.addMonitor(Monitor.VALUE);
 	}
+
+	public void caputWait(Channel channel, String value, double timeout) throws CAException, TimeoutException, InterruptedException {
+		caput(channel,value, timeout);		
+	}
+
+	public void caputWait(Channel channel, Double value, double timeout) throws CAException, TimeoutException, InterruptedException {
+		caput(channel,value.doubleValue(), timeout);		
+	}
 }
