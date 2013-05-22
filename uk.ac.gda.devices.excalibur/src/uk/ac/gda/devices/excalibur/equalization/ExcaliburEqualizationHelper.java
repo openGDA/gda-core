@@ -343,54 +343,26 @@ public class ExcaliburEqualizationHelper {
 		hdf.concatenateDataSetsFromFiles(inputFiles, getEqualisationLocation(), THRESHOLD_LIMIT_DATASET, resultFile);
 	}
 	
-	
 	/**
-	 * For each chip present get thresholdLimit.
-	 * Evaluate configA for each pixel in chip  THRESHOLDADJ_DATASET
-	 * @param resultFile
+	 * Combine the 4 bits of the DACPixel and the thresnoldN mask to create a full thresholdAdj value to send to hardware
 	 * @throws Exception 
 	 */
-/*	public void createConfigAFromThresholdLimit(String thresholdFile, String thresholdLimitFile, int rows, int columns,
-			boolean chipPresent[], short equalisationTarget, String resultFile) throws Exception{
-		
-		
-		Hdf5HelperData thresholdLimitHdf = Hdf5Helper.getInstance().readDataSetAll(thresholdLimitFile,
-				getEqualisationLocation().getLocationForOpen(), THRESHOLD_LIMIT_DATASET, true);
+	public void createThresholdAdj(String DACPixelControlBitsFilename, String ThresholdNMaskFilename, String resultFileName) throws Exception{
+		Hdf5HelperData DACPixelControlBits = Hdf5Helper.getInstance().readDataSetAll(DACPixelControlBitsFilename, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLDADJ_DATASET, true);
 
-		Hdf5HelperData thresholdHdf = Hdf5Helper.getInstance().readDataSetAll(thresholdFile,
-				getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
+		Hdf5HelperData ThresholdNMaskFile = Hdf5Helper.getInstance().readDataSetAll(ThresholdNMaskFilename, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLDADJ_DATASET, true);
 		
-		ChipSet chipSet = new ChipSet(rows, columns, chipPresent);
-
-		short [] thresholds = (short[]) thresholdHdf.data;
-		long numPixels = Hdf5Helper.getInstance().lenFromDims(thresholdHdf.dims);
-		short [] configA = new short[(int) numPixels];
-		Arrays.fill(configA,(short)0);
-		long[] configADims = thresholdHdf.dims;
-		
-		short[] thresholdLimit = (short[]) thresholdLimitHdf.data;
-		for(Chip chip : chipSet.getChips()){
-			short tmax = thresholdLimit[chip.index];
-			Iterator<Long> iterator = chip.getPixelIndexIterator();
-			while( iterator.hasNext()){
-				long index = iterator.next();
-				short threshold = thresholds[(int) index];
-				if( thresholdEdgePosIsValid(threshold)){
-					short floor = (short) Math.floor(16.0*(threshold - equalisationTarget)/(tmax-equalisationTarget));
-					if( floor >=16)
-						floor = 15;
-					if( floor <0)
-						floor = 0;
-					
-					configA[(int)index]= floor;
-				}
-			}
+		short [] thresholdAdj = (short [])DACPixelControlBits.data;
+		short [] thresholdN = (short [])ThresholdNMaskFile.data;
+		for( int i=0; i< thresholdAdj.length;i++){
+			thresholdAdj[i] |= thresholdN[i];
 		}
+		Hdf5Helper.getInstance().writeToFileSimple(DACPixelControlBits, resultFileName, getEqualisationLocation(),
+				THRESHOLDADJ_DATASET);
 		
-		Hdf5Helper.getInstance().writeToFileSimple(new Hdf5HelperData(configADims, configA), resultFile,
-				getEqualisationLocation(), THRESHOLDADJ_DATASET);		
-		
-	}*/
+	}
 	
 	
 	
@@ -505,7 +477,7 @@ public class ExcaliburEqualizationHelper {
 			}
 		}
 		hdf.writeToFileSimple(new Hdf5HelperData(pixelsDims, concatenatedData), resultfilename, equalisationLocation, THRESHOLD_DATASET);
-		
+		hdf.writeToFileSimple(threshold0Vals, resultfilename, equalisationLocation, threshold0Name);
 		hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLD_LIMIT_ATTR,
 				edgeThreshold);
 		if( thresholdABNName != null && thresholdABNName.length() > 0){
@@ -1131,11 +1103,11 @@ public class ExcaliburEqualizationHelper {
 		
 	}
 
-	public void setDACPixelFromFile(String edgeThresholdNResponseFile, List<ExcaliburReadoutNodeFem> readoutFems,
+	public void setDACPixelFromFile(String dacPixelOptFilename, List<ExcaliburReadoutNodeFem> readoutFems,
 			int rows, int columns, boolean[] chipPresent) throws Exception {
 
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		Hdf5HelperData hdata = hdf.readDataSetAll(edgeThresholdNResponseFile, getEqualisationLocation()
+		Hdf5HelperData hdata = hdf.readDataSetAll(dacPixelOptFilename, getEqualisationLocation()
 				.getLocationForOpen(), DACPIXEL_OPT, true);
 		if (hdata.dims.length != 2)
 			throw new IllegalArgumentException("data.dims.length!=2");
@@ -1158,99 +1130,17 @@ public class ExcaliburEqualizationHelper {
 	}
 
 	/**
-	 * Creates the final thresholdAjd data and a mask to indicate if a no valid value for a pixel can be found
-	 * mask =1 - value is invalid
-	 */
-/*	public void createThresholdAdjAndMask(String configThresholdNOn, String configThresholdNOff, String resultFile)
-			throws Exception {
-
-		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		Hdf5HelperData hdataOn = getConfigFromFile(configThresholdNOn);
-		Hdf5HelperData hdataOff = getConfigFromFile(configThresholdNOff);
-
-		long lenFromOn = hdf.lenFromDims(hdataOn.dims);
-		long lenFromOff = hdf.lenFromDims(hdataOff.dims);
-
-		if (lenFromOn != lenFromOff)
-			throw new IllegalArgumentException("lenFromOn != lenFromOff ");
-
-		short[] onA = (short[]) hdataOn.data;
-		short[] offA = (short[]) hdataOff.data;
-		short[] configA = new short[onA.length];
-		short[] maskA = new short[onA.length];
-		for (int i = 0; i < (int) lenFromOn; i++) {
-			short mask = 0;
-			short config = 0;
-			short on = onA[i];
-			short off = offA[i];
-
-			mask = 1;
-			if (on >= 16 && on < 32) { // on is valid
-				config = on;// thresholdN on
-				mask = 0;
-			}
-			if (off >= 0 && off < 16) { // off is valid
-				config = off; // thresholdN off
-				mask = 0;
-			}
-			maskA[i] = mask;
-			configA[i] = config;
-
-		}
-		Hdf5Helper.getInstance().writeToFileSimple(new Hdf5HelperData(hdataOn.dims, maskA), resultFile,
-				getEqualisationLocation(), THRESHOLDADJ_MASK_DATASET);
-		Hdf5Helper.getInstance().writeToFileSimple(new Hdf5HelperData(hdataOn.dims, configA), resultFile,
-				getEqualisationLocation(), THRESHOLDADJ_DATASET);
-	}*/
-	/**
-	 * Set thresholdAdj in the hardware to the values in the thresholdAdjFile
 	 * 
-	 * @param thresholdAdjFile
-	 * @param readoutFems
+	 * Combines bit values together to make pixel specific thresholdAdj values and send them to hardware
+	 * @param thresholdAdjFile - initial pixel values
+	 * @param thresholdAdjOrValFile - if not null contains values to be OR with the above
+	 * @param readoutFems 
+	 * @param rows - number of chips per column
+	 * @param columns - number of chips per row
+	 * @param chipPresent - chip specific flag - true if present
+	 * @param valueToOr - global value to OR with above -default is 0
 	 * @throws Exception
 	 */
-	
-	/**
-	 * Set thresholdAdj in the hardware to the values in the thresholdAdjFile
-	 * 
-//	 * @param thresholdAdjFile  file containing thresholdAjd values in dataset THRESHOLDADJ_DATASET
-	 * @param readoutFems list of readout fems
-	 * @param rows  - number of rows of chips
-	 * @param columns - number of columns of chips
-	 * @param chipPresent - array of booleans to indicate which chips are to have thresholdAdj set
-	 * if null then it is assumed that all chips are to be set
-	 * @throws Exception
-	 */
-/*	public void setThresholAdjFromFile(String thresholdAdjFile, List<ExcaliburReadoutNodeFem> readoutFems,
-			int rows, int columns, boolean[] chipPresent) throws Exception {
-	
-		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
-		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(thresholdAdjFile, getEqualisationLocation()
-					.getLocationForOpen(), THRESHOLDADJ_DATASET, false);
-		
-		Hdf5HelperLazyLoader maskloader = new Hdf5HelperLazyLoader(thresholdAdjFile, getEqualisationLocation()
-				.getLocationForOpen(), THRESHOLDADJ_MASK_DATASET, false);
-		
-		int[] shape = loader.getLazyDataSet().getShape();
-		chipset.checkLoaderShape(shape);
-		shape = maskloader.getLazyDataSet().getShape();
-		chipset.checkLoaderShape(shape);
-		for (Chip chip : chipset.getChips()) {
-			ExcaliburReadoutNodeFem fem = readoutFems.get(chip.row);
-			MpxiiiChipReg chipReg = fem.getIndexedMpxiiiChipReg(chip.column);
-			
-			ShortDataset dataset = (ShortDataset) chip.getDataset(loader);
-			short[] thresholdA = (short[]) dataset.getBuffer();
-			chipReg.getPixel().setThresholdA(thresholdA);
-
-			dataset = (ShortDataset) chip.getDataset(maskloader);
-			short[] mask = (short[]) dataset.getBuffer();
-			chipReg.getPixel().setMask(mask);
-			
-			chipReg.loadPixelConfig();
-		}
-		
-	}*/
 	public void setThresholdAdjFromFile(String thresholdAdjFile, String thresholdAdjOrValFile , List<ExcaliburReadoutNodeFem> readoutFems,
 			int rows, int columns, boolean[] chipPresent, short valueToOr) throws Exception {
 
@@ -1364,6 +1254,74 @@ public class ExcaliburEqualizationHelper {
 		
 	}
 	
+	/**
+	 * Writes to resultFile the thresholdAdj on a pixel basis that gives an edge position closest to the equalisation target
+	 * @param edgeFilename1
+	 * @param edgeFilename2
+	 * @param thresholdAdjFilename1
+	 * @param thresholdAdjFilename2
+	 * @param eqTarget
+	 * @param resultFile
+	 * @throws Exception
+	 */
+	public void selectClosestThresholdAdj(String edgeFilename1, String edgeFilename2, String thresholdAdjFilename1,String thresholdAdjFilename2, int eqTarget,String resultFile) throws Exception{
+		Hdf5HelperData currentAdjData1 = Hdf5Helper.getInstance().readDataSetAll(thresholdAdjFilename1,
+				getEqualisationLocation().getLocationForOpen(), THRESHOLDADJ_DATASET, true);		
+		
+		short[] currentAdj1 = (short[]) currentAdjData1.data;
+
+		Hdf5HelperData currentAdjData2 = Hdf5Helper.getInstance().readDataSetAll(thresholdAdjFilename2,
+				getEqualisationLocation().getLocationForOpen(), THRESHOLDADJ_DATASET, true);		
+		
+		short[] currentAdj2 = (short[]) currentAdjData2.data;
+		
+		
+		Hdf5HelperData edgePositionHdf1 = Hdf5Helper.getInstance().readDataSetAll(edgeFilename1,
+				getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
+		
+		short [] edgePostion1 = (short[]) edgePositionHdf1.data;
+		
+
+		Hdf5HelperData edgePositionHdf2 = Hdf5Helper.getInstance().readDataSetAll(edgeFilename2,
+				getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
+		
+		short [] edgePostion2 = (short[]) edgePositionHdf2.data;
+		
+		if (currentAdj1.length != currentAdj2.length)
+			throw new IllegalArgumentException("currentAdj.length != currentAdj2.length");
+
+		if (currentAdj1.length != edgePostion1.length)
+			throw new IllegalArgumentException("currentAdj.length != edgePostion1.length");
+
+		if (currentAdj1.length != edgePostion2.length)
+			throw new IllegalArgumentException("currentAdj.length != edgePostion2.length");
+		
+		for( int i=0; i< currentAdj1.length;i++){
+			//check the edge is valid
+			//choose between the 2 
+			//if only 1 is valid choose that one
+			//if both valid switch to first set if it gives an edge closer to the eqTarget
+			short edge1 = edgePostion1[i];
+			short edge2 = edgePostion2[i];
+			boolean edge1Valid = thresholdEdgePosIsValid(edge1);
+			boolean edge2Valid = thresholdEdgePosIsValid(edge2);
+			boolean useCurrentAdj1=false;
+			if( edge1Valid && edge2Valid){
+				int distance1 = Math.abs(edge1-eqTarget);
+				int distance2 = Math.abs(edge2-eqTarget);
+				if( distance1 < distance2){
+					useCurrentAdj1=true;
+				}
+			} else if( edge1Valid){
+				useCurrentAdj1=true;
+			}
+			if(useCurrentAdj1)
+				currentAdj2[i]=currentAdj1[i];
+		}
+		Hdf5Helper.getInstance().writeToFileSimple(currentAdjData2, resultFile,
+				getEqualisationLocation(), THRESHOLDADJ_DATASET);		
+	}
+	
 	
 	public void tweakThresholdAdj(String edgeFilename, String thresholdAdjFilename, int eqTarget,String resultFile) throws Exception{
 		Hdf5HelperData currentAdjData = Hdf5Helper.getInstance().readDataSetAll(thresholdAdjFilename,
@@ -1380,11 +1338,23 @@ public class ExcaliburEqualizationHelper {
 			throw new IllegalArgumentException("currentAdj.length != edgePostion.length");
 		
 		for( int i=0; i< currentAdj.length;i++){
-			if( edgePostion[i] > eqTarget && (currentAdj[i] & 0xFF)< 15){
-				currentAdj[i]++;
-			} else if( edgePostion[i] < eqTarget && (currentAdj[i] & 0xFF)> 0){
-				currentAdj[i]--;
+			int val = (currentAdj[i] & 0xFF);
+			if( edgePostion[i] > eqTarget ){
+				if (val ==31 ){
+					currentAdj[i]=0;
+				} else {
+					currentAdj[i]++;
+				}
+				
+			} else if( edgePostion[i] < eqTarget){
+				if (val ==0 ){
+					currentAdj[i]=31;
+				} else {
+					currentAdj[i]--;
+				}
 			}
+			if( val > 31 || val < 0)
+				throw new Exception("Invalid value for thresholdAdj");
 		}
 		Hdf5Helper.getInstance().writeToFileSimple(currentAdjData, resultFile,
 				getEqualisationLocation(), THRESHOLDADJ_DATASET);		
