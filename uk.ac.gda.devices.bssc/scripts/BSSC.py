@@ -122,7 +122,7 @@ class BSSCRun:
             self.monitorAsynchronousMethod(taskid)
         else:
             print "sample speed %5.1f outside allowed range, will do static exposure" % speed
-            filename = self.doTheScan([self.detector])
+            filename = self.doTheScan(self.scannables)
         return filename
             
     def openShutter(self):
