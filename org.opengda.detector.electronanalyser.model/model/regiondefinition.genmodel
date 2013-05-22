@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.opengda.detector.electronanalyser.model/src"
+    modelPluginID="org.opengda.detector.electronanalyser.model" templateDirectory=""
+    redirection="" forceOverwrite="true" modelName="Regiondefinition" nonNLSMarkers="true"
+    featureMapWrapperInterface="" featureMapWrapperInternalInterface="" booleanFlagsField=""
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="6.0" copyrightFields="false"
+    providerRootExtendsClass="" tableProviders="true" interfaceNamePattern="" classNamePattern="">
+  <foreignModel>regiondefinition.ecore</foreignModel>
+  <genPackages prefix="Regiondefinition" basePackage="org.opengda.detector.electronanalyser.model"
+      resource="XML" disposableProviderFactory="true" loadInitialization="true" interfacePackageSuffix="api"
+      metaDataPackageSuffix="api" contentTypeIdentifier="" fileExtensions="seq" ecorePackage="regiondefinition.ecore#/">
+    <genEnums ecoreEnum="regiondefinition.ecore#//RUN_MODES">
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//RUN_MODES/NORMAL"/>
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//RUN_MODES/ADD_DIMENSION"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//ACQUISITION_MODE">
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//ACQUISITION_MODE/SWEPT"/>
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//ACQUISITION_MODE/FIXED"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//ENERGY_MODE">
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//ENERGY_MODE/KINETIC"/>
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//ENERGY_MODE/BINDING"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//DETECTOR_MODE">
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//DETECTOR_MODE/ADC"/>
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//DETECTOR_MODE/PULSE_COUNTING"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//STATUS">
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//STATUS/READY"/>
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//STATUS/RUNNING"/>
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//STATUS/COMPLETED"/>
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//STATUS/ABORTED"/>
+    </genEnums>
+    <genClasses ecoreClass="regiondefinition.ecore#//DocumentRoot">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference regiondefinition.ecore#//DocumentRoot/sequence"/>
+    </genClasses>
+    <genClasses ecoreClass="regiondefinition.ecore#//Sequence">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/filename"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference regiondefinition.ecore#//Sequence/region"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/runMode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/runModeIndex"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/numIterations"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/numInterationOption"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/repeatUntilStopped"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/confirmAfterEachIteration"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference regiondefinition.ecore#//Sequence/spectrum"/>
+      <genOperations ecoreOperation="regiondefinition.ecore#//Sequence/getRegionById">
+        <genParameters ecoreParameter="regiondefinition.ecore#//Sequence/getRegionById/regionId"/>
+      </genOperations>
+      <genOperations ecoreOperation="regiondefinition.ecore#//Sequence/getRegionsByName">
+        <genParameters ecoreParameter="regiondefinition.ecore#//Sequence/getRegionsByName/regionName"/>
+      </genOperations>
+    </genClasses>
+    <genClasses ecoreClass="regiondefinition.ecore#//Region">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/regionId"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/Status"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/Enabled"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/lensMode"/>
+      <genFeatures createChild="false" propertyCategory="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/passEnergy"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference regiondefinition.ecore#//Region/runMode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/excitationEnergy"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/acquisitionMode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/energyMode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/fixEnergy"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/lowEnergy"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/highEnergy"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/energyStep"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/stepTime"/>
+      <genFeatures createChild="false" propertyCategory="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/firstXChannel"/>
+      <genFeatures createChild="false" propertyDescription="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/lastXChannel"/>
+      <genFeatures createChild="false" propertyDescription="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/firstYChannel"/>
+      <genFeatures createChild="false" propertyCategory="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/lastYChannel"/>
+      <genFeatures createChild="false" propertyDescription="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/slices"/>
+      <genFeatures createChild="false" propertyCategory="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/detectorMode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/ADCMask"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/discriminatorLevel"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/totalSteps"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/totalTime"/>
+    </genClasses>
+    <genClasses ecoreClass="regiondefinition.ecore#//RunMode">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/mode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/runModeIndex"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/numIterations"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/repeatUntilStopped"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/confirmAfterEachIteration"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/numIterationOption"/>
+    </genClasses>
+    <genClasses ecoreClass="regiondefinition.ecore#//Spectrum">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/location"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/User"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/sampleName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/filenamePrefix"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/baseDirectory"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/filenameFormat"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/fileExtension"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/numberOfComments"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/comments"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
