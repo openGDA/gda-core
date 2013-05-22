@@ -272,6 +272,11 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 		NXDetectorData ndd = new NXDetectorData();
 		IntegerDataset image = readLastImage();
 		ndd.addData(getName(), image.getShape(), NexusFile.NX_INT32, image.getData(), null, null);
+		try {
+			ndd.setDoubleVals(new Double[] {new Double(array.getPluginBase().getArrayCounter_RBV())});
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
 		addMetadata(ndd);
 		return ndd;
 	}
@@ -338,14 +343,14 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		try {
-			return new int[] { areaDetector.getArraySizeY_RBV(), areaDetector.getArraySizeX_RBV() };
+			return new int[] { array.getPluginBase().getArraySize1_RBV(), array.getPluginBase().getArraySize0_RBV() };
 		} catch (Exception e) {
 			throw new DeviceException("error getting camera dimensions", e);
 		}
 	}
 	
 	public int[] cagetArrayUnsigned() throws Exception {
-		byte[] values = EPICS_CONTROLLER.cagetByteArray(getChannel("ARR:ArrayData"));
+		byte[] values = array.getByteArrayData();;
 		int[] uvalues = new int[values.length];
 		for(int i=0; i<values.length; i++){
 			uvalues[i] = values[i]&0xff;
