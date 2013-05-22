@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: uk.ac.gda.core plugin
 Bundle-SymbolicName: uk.ac.gda.core;singleton:=true
-Bundle-Version: 8.26.0.qualifier
+Bundle-Version: 8.32.0.qualifier
 Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  org.junit4,
  com.springsource.org.aopalliance,
@@ -61,7 +61,6 @@ Export-Package: gda,
  gda.device.adc.corba.impl,
  gda.device.amplifier,
  gda.device.amplifier.corba.impl,
- gda.device.attenuator,
  gda.device.auxiliary,
  gda.device.bpm,
  gda.device.bpm.corba.impl,
