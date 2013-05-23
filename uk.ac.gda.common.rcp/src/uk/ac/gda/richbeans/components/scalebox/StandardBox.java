@@ -50,6 +50,9 @@ public class StandardBox extends NumberBox {
 		super(parent, style);
 	}
 	
+	
+//	addSelectionListerner(ISelectionListener listener)
+	
 	/**
 	 * Change listeners to only notify if focus lost or enter pressed.
 	 */
