@@ -188,16 +188,17 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
 			
-			data.addData(getName(), "pass_energy", new int[] {1}, NexusFile.NX_INT32, new int[] { getPassEnergy() }, null, null);
+			data.addData(getName(), "pass_energy", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { getPassEnergy() }), null, null);
 
-			data.addData(getName(), "sensor_size", new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }, null, null);
+			data.addData(getName(), "sensor_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }), null, null);
 
-			data.addData(getName(), "region_origin", new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }, null, null);
+			data.addData(getName(), "region_origin", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }), null, null);
 
-			data.addData(getName(), "region_size", new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }, null, null);
+			data.addData(getName(), "region_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }), null, null);
 		}
 		
 		int acquired = flex.getLastAcquired(); 
+		// TODO provide this without it making its way into the NXdata
 		data.addData(getName(), "number_of_cycles", new int[] {1}, NexusFile.NX_INT32, new int[] { acquired }, null, null);
 	}
 	
