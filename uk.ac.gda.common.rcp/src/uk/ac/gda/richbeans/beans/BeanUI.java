@@ -132,7 +132,7 @@ public class BeanUI {
 			@Override
 			public void process(Entry<Object, Object> prop, IFieldWidget box) throws Exception {
 				final Object ob = box.getValue();
-				if (ob != null && !"".equals(ob) && !isNaN(ob) && !isInfinity(ob)) {
+				if (ob != null && !isNaN(ob) && !isInfinity(ob)) {
 					prop.setValue(ob); // Throws IllegalArgumentException if method does not exist.
 				}
 			}
@@ -160,7 +160,7 @@ public class BeanUI {
 		if (!box.isActivated())
 			return;
 		final Object ob = box.getValue();
-		if (ob != null && !"".equals(ob) && !isNaN(ob) && !isInfinity(ob)) {
+		if (ob != null && !isNaN(ob) && !isInfinity(ob)) {
 			BeansFactory.setBeanValue(bean, fieldName, ob);
 		} else {
 			// Required to fix fields inside a list editor being edited to no value.
