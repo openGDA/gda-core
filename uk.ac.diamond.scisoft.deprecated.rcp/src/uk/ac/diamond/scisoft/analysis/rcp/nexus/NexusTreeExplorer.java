@@ -94,12 +94,10 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 	private String filename;
 
 	private class NXSelection extends DatasetSelection {
-		private String fileName;
 		private String node;
 
 		public NXSelection(InspectorType type, String filename, String node, List<AxisSelection> axes, ILazyDataset... dataset) {
-			super(type, axes, dataset);
-			this.fileName = filename;
+			super(type, filename, axes, dataset);
 			this.node = node;
 		}
 
@@ -107,9 +105,9 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 		public boolean equals(Object other) {
 			if (super.equals(other) && other instanceof NXSelection) {
 				NXSelection that = (NXSelection) other;
-				if (fileName == null && that.fileName == null)
+				if (filePath == null && that.filePath == null)
 					return node.equals(that.node);
-				if (fileName != null && fileName.equals(that.fileName))
+				if (filePath != null && filePath.equals(that.filePath))
 					return node.equals(that.node);
 			}
 			return false;
