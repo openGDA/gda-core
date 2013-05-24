@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.opengda.detector.electronanalyser;bundle-version="1.0.0",
  org.dawnsci.plotting.api;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.6.0",
- com.springsource.org.apache.commons.io;bundle-version="1.4.0"
+ com.springsource.org.apache.commons.io;bundle-version="1.4.0",
+ org.dawnsci.rcp.histogram;bundle-version="1.1.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.eclipse.ui.dialogs,
