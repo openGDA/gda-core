@@ -47,7 +47,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 	@Override
 	public Color getBackground(Object element, int columnIndex) {
 		if (columnIndex == SequenceTableConstants.COL_STATUS) {
-			return ColorConstants.green;
+			return ColorConstants.white;
 		}
 		return null;
 	}
