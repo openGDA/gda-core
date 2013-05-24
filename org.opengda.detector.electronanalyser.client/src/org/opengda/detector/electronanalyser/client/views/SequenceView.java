@@ -169,7 +169,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			SequenceTableConstants.X_CHANNEL_FROM, SequenceTableConstants.X_CHANNEL_TO, SequenceTableConstants.Y_CHANNEL_FROM,
 			SequenceTableConstants.Y_CHANNEL_TO, SequenceTableConstants.SLICES, SequenceTableConstants.MODE };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 20, false), new ColumnWeightData(10, 20, false),
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 30, false), new ColumnWeightData(10, 30, false),
 			new ColumnWeightData(80, 100, true), new ColumnWeightData(70, 90, false), new ColumnWeightData(40, 50, false),
 			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 80, false), new ColumnWeightData(50, 70, true),
 			new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true),
@@ -296,7 +296,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		GridData gd_grpRegion = new GridData(GridData.FILL_HORIZONTAL);
 		gd_grpRegion.grabExcessHorizontalSpace = false;
 		gd_grpRegion.horizontalAlignment = SWT.LEFT;
-		gd_grpRegion.widthHint = 257;
+		gd_grpRegion.widthHint = 300;
 		grpRegion.setLayoutData(gd_grpRegion);
 		grpRegion.setText("Region Control");
 		grpRegion.setLayout(new RowLayout());
@@ -668,6 +668,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		});
 		btnConfirmAfterEachInteration.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnConfirmAfterEachInteration.setText("Confirm after each iteration");
+		btnConfirmAfterEachInteration.setEnabled(false);
 
 		new Label(grpSequnceRunMode, SWT.NONE);
 

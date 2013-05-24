@@ -252,6 +252,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		btnConfirmAfterEachInteration.setText("Confirm after each iteration");
 		btnConfirmAfterEachInteration
 				.setToolTipText("Enable confirm after each iteration");
+		btnConfirmAfterEachInteration.setEnabled(false);
 
 		new Label(grpRunMode, SWT.NONE);
 
