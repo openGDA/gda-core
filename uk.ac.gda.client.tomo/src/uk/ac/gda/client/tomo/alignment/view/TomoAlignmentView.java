@@ -323,7 +323,8 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 				@Override
 				public void run() {
 					// Check if there is already an existing image in the imageviewer
-					if (image != null && (fullImgReceiverStarted || zoomReceiverStarted)) {
+					if (image != null
+							&& (isSingle() || ((fullImgReceiverStarted || zoomReceiverStarted)))) {
 						try {
 							imgViewer.loadMainImage(image);
 
@@ -345,6 +346,23 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 						}
 
 					}
+				}
+
+				private boolean isSingle() {
+					ViewerDisplayMode leftWindowViewerDisplayMode = getLeftWindowViewerDisplayMode();
+					switch (leftWindowViewerDisplayMode) {
+					case DARK_SINGLE:
+					case FLAT_SINGLE:
+					case SAMPLE_SINGLE:
+					case STATIC_FLAT:
+						return true;
+					case FLAT_STREAM_LIVE:
+					case ROTATION_AXIS:
+					case SAMPLE_STREAM_LIVE:
+					case STREAM_STOPPED:
+						return false;
+					}
+					return false;
 				}
 			});
 		}
@@ -1509,6 +1527,8 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 						// number of projections
 						configuration.setNumProjections(tomoControlComposite.getFramesPerProjection());
 						//
+						
+						//if(not present)
 						configuration.setTomoRotationAxis(leftWindowImageViewer.getCrossWire1XRelativeToImage()
 								* tomoAlignmentController.getLeftWindowBinValue());
 

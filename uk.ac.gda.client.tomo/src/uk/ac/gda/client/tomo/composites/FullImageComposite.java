@@ -124,7 +124,7 @@ public class FullImageComposite extends FixedImageViewerComposite {
 	}
 
 	public FullImageComposite(Composite parent, int style) {
-		super(parent, style);
+		this(parent, style, false);
 	}
 
 	public FullImageComposite(Composite parent, int style, boolean showProfileComposite) {

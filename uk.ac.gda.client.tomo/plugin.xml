@@ -192,11 +192,4 @@
           </control>
        </menuContribution>
     </extension>
-   <extension
-         point="org.eclipse.emf.transaction.editingDomains">
-      <editingDomain
-            factory="uk.ac.gda.client.tomo.TomoConfigTransactionEditingDomainFactory"
-            id="uk.ac.gda.tomography.config.editingDomain">
-      </editingDomain>
-   </extension>
 </plugin>

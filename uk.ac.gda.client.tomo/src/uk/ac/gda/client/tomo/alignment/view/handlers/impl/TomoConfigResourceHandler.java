@@ -29,12 +29,11 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.edit.domain.EditingDomain;
-import org.eclipse.emf.transaction.RecordingCommand;
-import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -87,9 +86,8 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 		TomoExperiment experiment = getTomoConfigResource(monitor, true);
 
 		if (experiment != null) {
-			AddTomoExperimentCommand command = new AddTomoExperimentCommand(
-					(TransactionalEditingDomain) TomoClientActivator.getDefault().getTomoConfigEditingDomain(),
-					experiment, saveableConfiguration);
+			AddTomoExperimentCommand command = new AddTomoExperimentCommand(TomoClientActivator.getDefault()
+					.getTomoConfigEditingDomain(), experiment, saveableConfiguration);
 
 			TomoClientActivator.getDefault().getTomoConfigEditingDomain().getCommandStack().execute(command);
 			Collection<?> result = TomoClientActivator.getDefault().getTomoConfigEditingDomain().getCommandStack()
@@ -108,15 +106,14 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 
 	}
 
-	private class AddTomoExperimentCommand extends RecordingCommand {
+	private class AddTomoExperimentCommand implements Command {
 
 		private final SaveableConfiguration saveableConfiguration;
 		private final TomoExperiment experiment;
 		private String configurationId;
 
-		public AddTomoExperimentCommand(TransactionalEditingDomain ed, TomoExperiment experiment,
+		public AddTomoExperimentCommand(EditingDomain ed, TomoExperiment experiment,
 				SaveableConfiguration saveableConfiguration) {
-			super(ed);
 			this.experiment = experiment;
 			this.saveableConfiguration = saveableConfiguration;
 		}
@@ -127,7 +124,18 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 		}
 
 		@Override
-		protected void doExecute() {
+		public boolean canExecute() {
+			return true;
+		}
+
+		@Override
+		public boolean canUndo() {
+			return true;
+		}
+
+		@Override
+		public void execute() {
+
 			AlignmentConfiguration expConfiguration = TomoParametersFactory.eINSTANCE.createAlignmentConfiguration();
 
 			// in beam position
@@ -164,6 +172,45 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 			experiment.getParameters().getConfigurationSet().add(expConfiguration);
 			configurationId = expConfiguration.getId();
 
+		}
+
+		@Override
+		public void undo() {
+			AlignmentConfiguration alignmentConfiguration = experiment.getParameters().getAlignmentConfiguration(
+					configurationId);
+			if (alignmentConfiguration != null) {
+				experiment.getParameters().getConfigurationSet().remove(alignmentConfiguration);
+			}
+		}
+
+		@Override
+		public void redo() {
+			execute();
+		}
+
+		@Override
+		public Collection<?> getAffectedObjects() {
+			return Collections.singletonList(experiment.getParameters());
+		}
+
+		@Override
+		public String getLabel() {
+			return "Add Tomo Experiment";
+		}
+
+		@Override
+		public String getDescription() {
+			return "Add Tomo Experiment";
+		}
+
+		@Override
+		public void dispose() {
+
+		}
+
+		@Override
+		public Command chain(Command command) {
+			return null;
 		}
 
 	}
@@ -294,7 +341,7 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 	@Override
 	public void reloadResource() throws Exception {
 		TomoExperiment tomoConfigResource = getTomoConfigResource(new NullProgressMonitor(), false);
-		if(tomoConfigResource != null){
+		if (tomoConfigResource != null) {
 			resourceUtil.reloadResource(getResourceSet(), tomoConfigResource.eResource());
 		}
 	}

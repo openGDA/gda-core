@@ -21,6 +21,50 @@ from contextlib import contextmanager
 
 import Image
 
+
+def preModifyAbsolutePaths(inList, prePath):
+	inList_len = len(inList)
+	outList=np.empty((inList_len,1),dtype='object')
+	for i in range(0,inList_len):
+		inPath = inList[i][0]
+		preModifyAbsolutePath(inPath, prePath)
+	return outList
+
+def preModifyAbsolutePathsss(inList, prePath, outList):
+	inList_len = len(inList)
+	for i in range(0,inList_len):
+		inPath = inList[i][0]
+		outList[i][0] = preModifyAbsolutePath(inPath, prePath)
+
+def preModifyAbsolutePath(inPath, prePath):		
+	if not os.path.isabs(inPath):
+		raise Exception("Input inPath is not absolute:"+`inPath`)
+	if not os.path.isabs(prePath):
+		raise Exception("Input prePath is not absolute:"+`prePath`)
+	
+	inParts = inPath.split(os.path.sep)
+	preParts = prePath.split(os.path.sep)
+	inParts_len = len(inParts)
+	preParts_len = len(preParts)
+	
+	if preParts_len <= inParts_len and preParts_len > 0:
+		for i in range(1, preParts_len):
+			inParts[i] = preParts[i]
+	else:
+		raise Exception("The input inPath is shorter than the input prePath: " + `inPath` + "vs." +`prePath`)
+	return os.path.sep.join(inParts)
+
+def convertFromRelativeToAbsolutePaths(inList, prePath):
+	outList=np.empty((len(inList),1),dtype='object')
+	for i in range(0,len(inList)):
+		s = inList[i][0]
+		if s[:1]==".":
+			s1 = str(s[1:])
+			outList[i][0]=prePath + s1
+		else:
+			outList[i][0]=s
+	return outList
+
 @contextmanager
 def opened_w_error(filename, mode="r"):
 	try:
@@ -535,14 +579,44 @@ def makeLinksForNXSFile(\
 
 	#take care of any relative paths 
 	tif=np.empty((len(tif_),1),dtype='object')
-	for i in range(0,len(tif_)):
-		s = tif_[i][0]
-		if s[:1]==".":
-			s1 = str(s[1:])
-			tif[i][0]=dirNXS + s1
-		else:
-			tif[i][0]=s
+	#for i in range(0,len(tif_)):
+	#	s = tif_[i][0]
+	#	if s[:1]==".":
+	#		s1 = str(s[1:])
+	#		tif[i][0]=dirNXS + s1
+	#	else:
+	#		tif[i][0]=s
 	
+	tif = convertFromRelativeToAbsolutePaths(tif_, dirNXS)
+	test_filename = tif[0][0]
+	does_testfile_exist = True 
+	# check if the test file exists
+	if not os.path.exists(test_filename):
+		does_testfile_exist = False
+		msg1 = "INFO: Attempt 0 -> Fail: file does not exist or insufficient filesystem permissions: "+`test_filename`
+		print msg1
+		
+		msg2 = "INFO: Attempting to locate the file relative to the input NeXus file directory: "+`dirNXS`
+		print msg2
+		
+		# modify the location of the test file
+		attempt_dir = dirNXS
+		test_filename_attempt = preModifyAbsolutePath(test_filename, attempt_dir)
+		
+		if os.path.exists(test_filename_attempt):
+			does_testfile_exist = True
+			msg3 = "INFO: Attempt 1 -> Success: located the file in the directory: "+ attempt_dir
+			print msg3
+		else:
+			attempt_dir = None
+			msg3 = "INFO: Attempt 1 -> Fail: file does not exist or insufficient filesystem permissions: "+`test_filename_attempt`
+			print msg3
+		if does_testfile_exist and attempt_dir is not None:
+			preModifyAbsolutePathsss(tif, attempt_dir, tif)
+		else:
+			msg4 = "INFO: Unable to locate the file - proceeding by using the defunct filepath(s) recorded in input NeXus file:"+`test_filename`
+			print msg4
+		
 	if verbose:
 		print 'tif[0][0]=',tif[0][0]
 	#return

@@ -178,23 +178,25 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
     
     nxLinkCreator = NXTomoEntryLinkCreator()
     
+    default_placeholder_target = "entry1:NXentry/scan_identifier:NXdata"
+    
     # detector independent items
     nxLinkCreator.setControl_data_target("entry1:NXentry/instrument:NXinstrument/source:NXsource/current:NXdata")
     
-    #instrument_detector_distance_target = "entry1:NXentry/scan_identifier:NXdata";
-    
+    nxLinkCreator.setInstrument_detector_distance_target(default_placeholder_target)
     nxLinkCreator.setInstrument_detector_image_key_target("entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:NXdata")
-    #instrument_detector_x_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
-    #instrument_detector_y_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
+    nxLinkCreator.setInstrument_detector_x_pixel_size_target(default_placeholder_target)
+    nxLinkCreator.setInstrument_detector_y_pixel_size_target(default_placeholder_target)
     
     nxLinkCreator.setInstrument_source_target("entry1:NXentry/instrument:NXinstrument/source:NXsource")
     
     sample_rotation_angle_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/" 
     sample_rotation_angle_target += tomography_theta_name + ":NXdata"
     nxLinkCreator.setSample_rotation_angle_target(sample_rotation_angle_target);
-    #sample_x_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplex:NXdata";
-    #sample_y_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_sampley:NXdata";
-    #sample_z_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplez:NXdata";
+    
+    nxLinkCreator.setSample_x_translation_target(default_placeholder_target)
+    nxLinkCreator.setSample_y_translation_target(default_placeholder_target)
+    nxLinkCreator.setSample_z_translation_target(default_placeholder_target)
     
     nxLinkCreator.setTitle_target("entry1:NXentry/title:NXdata")
     
@@ -218,10 +220,12 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
         instrument_detector_data_target += "data_file:NXnote/file_name:NXdata"
         nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
     else:
-        print "Defaults used for unsupported tomography detector in addNXTomoSubentry: " + tomography_detector_name
+        print "Default target used for unsupported tomography detector in addNXTomoSubentry: " + tomography_detector_name
+        instrument_detector_data_target = default_placeholder_target
+        nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
     
-    print "instrument_detector_data_target = " + instrument_detector_data_target
-    print "sample_rotation_angle_target = " + sample_rotation_angle_target
+    print "\t tomo sub-entry: sample_rotation_angle_target = " + sample_rotation_angle_target
+    print "\t tomo sub-entry: instrument_detector_data_target = " + instrument_detector_data_target
     
     nxLinkCreator.afterPropertiesSet()
     
@@ -231,7 +235,7 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
     scanObject.setDataWriter(dataWriter)
 
 def reportJythonNamespaceMapping():
-    jns=beamline_parameters.JythonNameSpaceMapping()
+    jns = beamline_parameters.JythonNameSpaceMapping()
     objectOfInterest = {}
     objectOfInterest['tomography_theta'] = jns.tomography_theta
     objectOfInterest['tomography_shutter'] = jns.tomography_shutter
@@ -283,7 +287,7 @@ image_key_project = 0 # also known as sample
 perform a simple tomography scan
 """
 def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=180., step=0.1, darkFieldInterval=0, flatFieldInterval=0,
-              imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, pattern="default", additionalScannables=[]):
+              imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, pattern="default", tomoRotationAxis=0, additionalScannables=[]):
     """
     Function to collect a tomogram
     Arguments:
@@ -442,6 +446,7 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         positionProvider = tomoScan_positions(start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat, \
                                                inBeamPosition, outOfBeamPosition, optimizeBeamInterval, scan_points) 
         scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime, tomography_camera_stage, tomography_sample_stage]
+        scan_args.append(RotationAxisScannable("approxCOR", tomoRotationAxis))
         for scannable in additionalScannables:
             scan_args.append(scannable)
         ''' setting the description provided as the title'''
@@ -539,3 +544,22 @@ def standardtomoScan():
     if positions[0] != 180. or positions[4] != 40.:
         print "Error - points are not correct :" + `positions`
     return sc
+
+class RotationAxisScannable(ScannableBase):
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+#        self.count = 0
+        pass
+    
+    def isBusy(self):
+        return False
+    
+    def rawAsynchronousMoveTo(self, new_position):
+        return
+    
+    def rawGetPosition(self):
+#        if self.count > 0:
+#            return None
+#        self.count = 1
+        return self.value
