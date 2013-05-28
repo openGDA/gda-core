@@ -22,7 +22,7 @@ package uk.ac.gda.epics.adviewer.views;
 public class MJPegViewCreator extends AreaDetectorViewCreatorBase {
 	
 	@Override
-	protected Object getView(ViewCreator adController) throws Exception {
-		return adController.createLiveView();
+	protected Object getView(ViewCreator viewCreator) throws Exception {
+		return viewCreator.createLiveView();
 	}	
 }
