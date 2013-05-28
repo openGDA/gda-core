@@ -206,7 +206,7 @@ class SlitScanner():
     def setScanAborter(self, aborter):
         self.scanAborter = aborter
         
-    def run(self, namespace, mirrorName=None, increment=None, slitToScanSizeName=None, slitToScanPosName=None, slitSize=None, otherSlitSizeName=None, otherSlitPosName=None, slitStart=None, slitEnd=None, slitStep=None, detectorName=None, exposure=None, settleTime=None, otherSlitSizeValue=None, otherSlitPosValue=None, doOptimization=None, grouped=None, groups_string=None):
+    def run(self, namespace, mirrorName=None, increment=None, slitToScanSizeName=None, slitToScanPosName=None, slitSize=None, otherSlitSizeName=None, otherSlitPosName=None, slitStart=None, slitEnd=None, slitStep=None, detectorName=None, exposure=None, settleTime=None, otherSlitSizeValue=None, otherSlitPosValue=None, doOptimization=None, grouped=None, groups_string=""):
         
         if self.scanAborter==None:
             self.scanAborter=defScanAborter
@@ -231,7 +231,7 @@ class SlitScanner():
         self.grouped = grouped
         self.groups_string = groups_string
         number_electrodes = len(self.mirror.inputNames)
-        if grouped==None:
+        if grouped==None or not groups_string:
             targetPositions = generatePositions(self.mirror.getPosition()[0:number_electrodes],self.increment)
         else:
             targetPositions = generateGroupedPositions(self.mirror.getPosition()[0:number_electrodes], self.increment, groups_string)
