@@ -18,6 +18,7 @@ Export-Package: uk.ac.gda.devices,
  uk.ac.gda.excalibur.config.model.fit,
  uk.ac.gda.excalibur.config.model.impl,
  uk.ac.gda.excalibur.config.model.util
+Eclipse-RegisterBuddy: uk.ac.gda.core
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.ecore.xmi;bundle-version="2.7.0",
