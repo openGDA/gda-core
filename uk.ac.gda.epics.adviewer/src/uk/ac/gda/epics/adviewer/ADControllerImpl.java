@@ -72,6 +72,8 @@ public class ADControllerImpl implements ADController, InitializingBean {
 
 	private NDROI imageNDROI;
 
+	private String imageNDArrayPortInput;
+
 	@Override
 	public NDStats getImageNDStats() {
 		return imageNDStats;
@@ -532,11 +534,18 @@ public class ADControllerImpl implements ADController, InitializingBean {
 		this.imageNDROI = imageNDROI;
 	}
 
-	@Override
 	public void stopExposure() throws Exception {
 		getAdBase().stopAcquiring();
 	}
 
 
+	@Override
+	public String getImageNDArrayPortInput() {
+		return imageNDArrayPortInput;
+	}
+
+	public void setImageNDArrayPortInput(String imageNDArrayPortInput) {
+		this.imageNDArrayPortInput = imageNDArrayPortInput;
+	}
 	
 }

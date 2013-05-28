@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,35 +16,19 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.nxdetector.plugin.areadetector;
+package uk.ac.gda.epics.adviewer;
 
-public class ADRectangularROI {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-	final private int xstart;
-	final private int xsize;
-	final private int ystart;
-	final private int ysize;
+public class NoExposureSettingADController extends ADControllerImpl {
+	
+	private static final Logger logger = LoggerFactory.getLogger(NoExposureSettingADController.class);
 
-	public ADRectangularROI(int xstart, int xsize, int ystart, int ysize) {
-		this.xstart = xstart;
-		this.xsize = xsize;
-		this.ystart = ystart;
-		this.ysize = ysize;
+
+	@Override
+	public void setExposure(double d) {
+		logger.warn("Slilently ignoring attempt to set exposure to " + d);
 	}
 
-	public int getXstart() {
-		return xstart;
-	}
-
-	public int getXsize() {
-		return xsize;
-	}
-
-	public int getYstart() {
-		return ystart;
-	}
-
-	public int getYsize() {
-		return ysize;
-	}
 }

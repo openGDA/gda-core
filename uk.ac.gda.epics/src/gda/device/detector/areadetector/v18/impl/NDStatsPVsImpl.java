@@ -20,6 +20,7 @@ package gda.device.detector.areadetector.v18.impl;
 
 import gda.device.detector.areadetector.v17.NDPluginBasePVs;
 import gda.device.detector.areadetector.v17.impl.ADDriverPilatusImpl;
+import gda.device.detector.areadetector.v17.impl.NDPluginBasePVsImpl;
 import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
@@ -34,15 +35,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class NDStatsImpl implements InitializingBean, NDStatsPVs {
+public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 
 	static final Logger logger = LoggerFactory.getLogger(ADDriverPilatusImpl.class);
 
+	public static NDStatsPVsImpl createFromBasePVName(String basePVName) {
+		NDPluginBasePVsImpl pluginBasePVs =  NDPluginBasePVsImpl.createFromBasePVName(basePVName);
+		
+		NDStatsPVsImpl statsPVsImpl = new NDStatsPVsImpl();
+		statsPVsImpl.setBasePVName(basePVName);
+		statsPVsImpl.setPluginBasePVs(pluginBasePVs);
+		try {
+			statsPVsImpl.afterPropertiesSet();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		return statsPVsImpl;
+	}
+	
 	/**
 	 * Map to PV names
 	 */
 	private enum PVNames {
-		ComputeCentroid, computeCentroid_RBV, ComputeStatistics, ComputeStatistics_RBV, TSControl, TSNumPoints, TSCurrentPoint
+		ComputeCentroid, ComputeCentroid_RBV, ComputeStatistics, ComputeStatistics_RBV, TSControl, TSNumPoints, TSCurrentPoint // also TSRead.SCAN
 	}
 
 	private String basePVName;
@@ -62,6 +78,8 @@ public class NDStatsImpl implements InitializingBean, NDStatsPVs {
 	private ReadOnlyPV<Integer> tsCurrentPointPV;
 
 	private Map<Stat, ReadOnlyPV<Double[]>> tsArrayPVMap;
+
+	private PV<Integer> tsReadScanPV;
 
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
@@ -96,13 +114,15 @@ public class NDStatsImpl implements InitializingBean, NDStatsPVs {
 
 		computeCentroidPVPair = new PVWithSeparateReadback<Boolean>(
 				LazyPVFactory.newBooleanFromIntegerPV(fullname(PVNames.ComputeCentroid.name())),
-				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.computeCentroid_RBV.name())));
+				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.ComputeCentroid_RBV.name())));
 
 		tsControlPV = LazyPVFactory.newEnumPV(fullname(PVNames.TSControl.name()), TSControlCommands.class);
 
 		tsNumPointsPV = LazyPVFactory.newIntegerPV(fullname(PVNames.TSNumPoints.name()));
 
 		tsCurrentPointPV = LazyPVFactory.newReadOnlyIntegerPV(fullname(PVNames.TSCurrentPoint.name()));
+		
+		tsReadScanPV = LazyPVFactory.newIntegerPV(fullname("TSRead.SCAN"));
 
 		tsArrayPVMap = new HashMap<NDStatsPVs.Stat, ReadOnlyPV<Double[]>>();
 
@@ -148,6 +168,11 @@ public class NDStatsImpl implements InitializingBean, NDStatsPVs {
 	@Override
 	public ReadOnlyPV<Double[]> getTSArrayPV(Stat stat) {
 		return tsArrayPVMap.get(stat);
+	}
+
+	@Override
+	public PV<Integer> getTSReadScanPV() {
+		return tsReadScanPV;
 	}
 
 }

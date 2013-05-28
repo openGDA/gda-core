@@ -29,6 +29,20 @@ import org.springframework.beans.factory.InitializingBean;
 
 public class NDROIPVsImpl implements NDROIPVs, InitializingBean {
 
+	public static NDROIPVs createFromBasePVName(String basePVName) {
+		NDPluginBasePVsImpl pluginBasePVs =  NDPluginBasePVsImpl.createFromBasePVName(basePVName);
+		
+		NDROIPVsImpl ndroiPVsImpl = new NDROIPVsImpl();
+		ndroiPVsImpl.setBasePVName(basePVName);
+		ndroiPVsImpl.setPluginBasePVs(pluginBasePVs);
+		try {
+			ndroiPVsImpl.afterPropertiesSet();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return ndroiPVsImpl;
+	}
+	
 	private NDPluginBasePVs pluginBasePvs;
 	
 	private String basePVName;
@@ -76,7 +90,7 @@ public class NDROIPVsImpl implements NDROIPVs, InitializingBean {
 	}
 
 	private void createLazyPvs() {
-		namePV = LazyPVFactory.newStringFromWaveformPV(basePVName +"Name");
+		namePV = LazyPVFactory.newStringPV(basePVName +"Name");
 		
 		dataTypeOutPV = LazyPVFactory.newEnumPV(basePVName +"DataTypeOut", NDDataType.class);
 
@@ -130,7 +144,7 @@ public class NDROIPVsImpl implements NDROIPVs, InitializingBean {
 	public ROIDimensionPVs getZDimension() {
 		return zDimensionPVs;
 	}
-	
+
 }
 
 class ROIDimensionPVsImpl implements ROIDimensionPVs {

@@ -34,6 +34,8 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.plugin.areadetector.ADTimeSeriesStatsPlugin;
+import gda.device.detector.nxdetector.roi.RectangularROIProvider;
+import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.epics.predicate.GreaterThanOrEqualTo;
@@ -96,6 +98,9 @@ public class ADTimeSeriesStatsPluginTest {
 	private PV<Boolean> computeCentroidPV;
 
 	private ADTimeSeriesStatsPlugin plugin;
+	
+	private RectangularROIProvider<Integer> roiProvider = new SimpleRectangularROIProvider();
+	
 	@Before
 	public void setUp() {
 		when(pvs.getComputeStatistsicsPVPair()).thenReturn(computeStatisticsPV);
@@ -107,7 +112,7 @@ public class ADTimeSeriesStatsPluginTest {
 		when(pvs.getTSNumPointsPV()).thenReturn(tsNumPointsPV);
 		when(pvs.getPluginBasePVs()).thenReturn(pluginBasePVs);
 		when(pluginBasePVs.getEnableCallbacksPVPair()).thenReturn(enableCallbacksPV);
-		plugin = new ADTimeSeriesStatsPlugin(pvs, "name");
+		plugin = new ADTimeSeriesStatsPlugin(pvs, "name", roiProvider);
 	}
 
 	@Test
