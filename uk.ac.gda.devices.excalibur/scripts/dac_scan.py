@@ -1,5 +1,6 @@
 from gda.device.scannable import ScannableBase, ScannableUtils
 from gda.scan import ScanPositionProvider, ScanBase
+from gda.configuration.properties import LocalProperties
 import gda.jython.commands.ScannableCommands.scan
 import time
 import math
@@ -7,6 +8,7 @@ from epics_scripts.simple_channel_access import caput, caget
 from  uk.ac.gda.devices.excalibur.scannable import ChipRegAnperScannable 
 from gda.device.detector.addetector import ADDetector
 from gda.device.detector import NXDetector
+
 class   dacScan_positions(ScanPositionProvider):
     def __init__(self, firstScannable, start, stop, step):
         self.firstScannable = firstScannable
@@ -86,9 +88,10 @@ from gda.device.detector.addetector.triggering import SimpleAcquire
 class BurstModeTrigger(SimpleAcquire):
     def __init__(self, adBase):
         SimpleAcquire.__init__(self,adBase, 0.)
+        self.prefix = LocalProperties.get("gda.epics.excalibur.pvprefix")
     def prepareForCollection(self, collectionTime, numImages):
         SimpleAcquire.prepareForCollection(self,collectionTime, numImages)
-        caput('EXCALIBUR:CONFIG:ACQUIRE:OperationMode',"Burst")
+        caput(self.prefix +':CONFIG:ACQUIRE:OperationMode',"Burst")
     def collectData(self):
         SimpleAcquire.collectData(self)
 
@@ -102,27 +105,28 @@ class DacScanTrigger(SimpleAcquire):
         self.stop = stop
         self.step = step
         self.dacNumber = dacNumber
+        self.prefix = LocalProperties.get("gda.epics.excalibur.pvprefix")
     def prepareForCollection(self, collectionTime, numImages):
         #need to clear capture here as it stays high
-        caput("EXCALIBUR:CONFIG:HDF:NumCapture", 0)
-        caput("EXCALIBUR:CONFIG:HDF:Capture", 0)
+        caput(self.prefix +":CONFIG:HDF:NumCapture", 0)
+        caput(self.prefix +":CONFIG:HDF:Capture", 0)
 
         SimpleAcquire.prepareForCollection(self,collectionTime, numImages)
         
-        caput('EXCALIBUR:CONFIG:ACQUIRE:OperationMode',"DAC Scan")
-        caput('EXCALIBUR:CONFIG:ACQUIRE:ScanDac',self.dacNumber)
-        caput('EXCALIBUR:CONFIG:ACQUIRE:ScanStart',self.start)         # param
-        caput('EXCALIBUR:CONFIG:ACQUIRE:ScanStop',self.stop)        # param
-        caput('EXCALIBUR:CONFIG:ACQUIRE:ScanStep',self.step)          # param
+        caput(self.prefix +':CONFIG:ACQUIRE:OperationMode',"DAC Scan")
+        caput(self.prefix +':CONFIG:ACQUIRE:ScanDac',self.dacNumber)
+        caput(self.prefix +':CONFIG:ACQUIRE:ScanStart',self.start)         # param
+        caput(self.prefix +':CONFIG:ACQUIRE:ScanStop',self.stop)        # param
+        caput(self.prefix +':CONFIG:ACQUIRE:ScanStep',self.step)          # param
         #ensure divisors of readoutNodes are all set to 1
-        caput("EXCALIBUR:1:MASTER:FrameDivisor", 1)
-        caput("EXCALIBUR:2:MASTER:FrameDivisor", 1)
-#        caput("EXCALIBUR:3:MASTER:FrameDivisor", 1)
-#        caput("EXCALIBUR:4:MASTER:FrameDivisor", 1)
-#        caput("EXCALIBUR:5:MASTER:FrameDivisor", 1)
-#        caput("EXCALIBUR:6:MASTER:FrameDivisor", 1)
+        caput(self.prefix +":1:MASTER:FrameDivisor", 1)
+        caput(self.prefix +":2:MASTER:FrameDivisor", 1)
+#        caput(self.prefix +":3:MASTER:FrameDivisor", 1)
+#        caput(self.prefix +":4:MASTER:FrameDivisor", 1)
+#        caput(self.prefix +":5:MASTER:FrameDivisor", 1)
+#        caput(self.prefix +":6:MASTER:FrameDivisor", 1)
 # do not send RESYNC as it puts starts hdf writers and sets NUMCapture_RBV to 0
-#        caput("EXCALIBUR:SYNC:RESEND.PROC", 1)
+#        caput(self.prefix +":SYNC:RESEND.PROC", 1)
 #        print "Waiting 2 seconds for RESYNC"
 #        time.sleep(2.)
 #        print "Wait complete"

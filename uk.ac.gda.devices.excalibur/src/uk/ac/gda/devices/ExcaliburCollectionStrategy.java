@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.SingleExposureStandard;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -28,7 +30,7 @@ import gda.epics.PV;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
-public class ExcaliburCollectionStrategy extends SingleExposureStandard{
+public class ExcaliburCollectionStrategy extends SingleExposureStandard implements InitializingBean{
 
 	private PV<String> operationModePV;
 	private boolean burst=false;
@@ -38,9 +40,14 @@ public class ExcaliburCollectionStrategy extends SingleExposureStandard{
 	
 	
 
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		super.afterPropertiesSet();
+		operationModePV = LazyPVFactory.newStringPV(operationModePVName);
+	}
+
 	public ExcaliburCollectionStrategy(ADBase adBase) {
 		super(adBase, -1);
-		operationModePV = LazyPVFactory.newStringPV(operationModePVName);
 	}
 
 	@Override
