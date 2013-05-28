@@ -50,7 +50,7 @@ import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class TwoDArrayROI extends Composite {
 	private static final String SWITCH_ON = "Start";
-	private static final String SWITCH_OFF = "Stop";
+	private static final String SWITCH_OFF = "Stop ";
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArrayROI.class);
 	private boolean roiActive = false;
 	private Button monitoringBtn;

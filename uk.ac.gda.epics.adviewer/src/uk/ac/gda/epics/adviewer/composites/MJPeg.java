@@ -86,6 +86,9 @@ public class MJPeg extends Composite {
 		statusComposite.setLayoutData(gd_grpIocStatus1);
 
 		cameraStatus = new CameraStatus(left, SWT.NONE);
+		GridData gd_cameraStatus = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_cameraStatus.widthHint = 153;
+		cameraStatus.setLayoutData(gd_cameraStatus);
 
 		Group stateGroup = new Group(left, SWT.NONE);
 		GridData gd_stateGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);

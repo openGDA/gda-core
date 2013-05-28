@@ -81,7 +81,11 @@ public class TwoDArray extends Composite {
 	private Button arrayMonitoringBtn;
 	private Label arrayMonitoringLbl;
 
-	protected boolean autoScale;
+	protected boolean autoScale, subtractStore;
+
+	protected AbstractDataset store;
+
+	private Button btnMinusStore;
 
 
 	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) {
@@ -131,6 +135,36 @@ public class TwoDArray extends Composite {
 		autoScale = true;
 		btnAutoscale.setSelection(autoScale);
 
+		Button btnStore = new Button(left, SWT.PUSH);
+		btnStore.setText("Store");
+		btnStore.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if( ads != null){
+					store = ads;
+				}
+				btnMinusStore.setEnabled(store!=null);
+			}
+
+		});
+		
+		btnMinusStore = new Button(left, SWT.CHECK);
+		btnMinusStore.setText("Subtract Store");
+		btnMinusStore.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				subtractStore = btnMinusStore.getSelection();
+			}
+
+		});
+		subtractStore = false;
+		btnMinusStore.setSelection(subtractStore);
+		btnMinusStore.setEnabled(store!=null);
+		
+		
 		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		right.setLayout(new FillLayout());
@@ -306,6 +340,7 @@ public class TwoDArray extends Composite {
 	private NDPluginBase imageNDROIPluginBase;
 
 	private Observer<Double> minCallbackTimeObserver;
+	AbstractDataset ads = null;
 
 	public void start() throws Exception {
 		config.getImageNDArray().getPluginBase().enableCallbacks();
@@ -331,7 +366,6 @@ public class TwoDArray extends Composite {
 					if (updateArrayJob == null) {
 						updateArrayJob = new Job("Update array") {
 
-							AbstractDataset ads = null;
 							Boolean setMinMax;
 							Integer min = null;
 							Integer max = null;
@@ -384,6 +418,16 @@ public class TwoDArray extends Composite {
 													+ object.getClass().getName());
 										}
 										ads.setName(getArrayName());
+										
+										if( subtractStore && store!= null){
+											if( Arrays.equals(store.getShape(), ads.getShape() )){
+												try{
+													ads = ads.isubtract(store);
+												} catch (Exception e){
+													logger.error("Unable to substract store", e);
+												}
+											}
+										}
 
 										setMinMax = autoScale;
 										if (min == null || setMinMax) {
