@@ -65,6 +65,8 @@ public class RegionGuiParameterAdapter implements
 
 	ObservableUtil<Map<GuiParameters, Serializable>> observableComponent;
 
+	private IRegionSystem regionSystem;
+
 	/**
 	 * Constructs an Observable<Map<GuiParameters, Serializable>> adapter to an
 	 * {@link IRegionSystem}. The last changed ROI is returned via
@@ -80,6 +82,8 @@ public class RegionGuiParameterAdapter implements
 	 *            {@link IRegionSystem} to adapt
 	 */
 	public RegionGuiParameterAdapter(final IRegionSystem regionSystem) {
+		
+		this.regionSystem = regionSystem;
 
 		observableComponent = new ObservableUtil<Map<GuiParameters, Serializable>>();
 
@@ -126,6 +130,13 @@ public class RegionGuiParameterAdapter implements
 		observableComponent.removeObserver(observer);
 	}
 
+	/**
+	 * Fires the current region list. Useful after first creation of a client side view to initialise the server.
+	 */
+	public void fireCurrentRegionList() {
+		fireChange(null, regionSystem.getRegions());
+	}
+	
 	private void fireChange(ROIBase changedRoi,
 			Collection<IRegion> roiCollection) {
 		HashMap<GuiParameters, Serializable> changedParameters = new HashMap<GuiParameters, Serializable>();

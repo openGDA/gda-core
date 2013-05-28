@@ -39,7 +39,12 @@ public abstract class AreaDetectorViewCreatorBase implements IExecutableExtensio
 	@Override
 	public Object create() throws CoreException {
 		Object namedService = Activator.getNamedService(ViewCreator.class, serviceName);
+		if (namedService == null) {
+			throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+					"Error creating view : Could not get serive named '" + serviceName +"'"));
+		}
 		ViewCreator adController = (ViewCreator) namedService;
+		
 		try {
 			return getView(adController);
 		} catch (Exception e) {

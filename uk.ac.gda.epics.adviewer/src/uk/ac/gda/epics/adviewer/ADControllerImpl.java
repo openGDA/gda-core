@@ -71,6 +71,8 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 
 	private NDROI imageNDROI;
 
+	private String imageNDArrayPortInput;
+
 	@Override
 	public NDStats getImageNDStats() {
 		return imageNDStats;
@@ -527,6 +529,14 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		this.imageNDROI = imageNDROI;
 	}
 
+	@Override
+	public String getImageNDArrayPortInput() {
+		return imageNDArrayPortInput;
+	}
+
+	public void setImageNDArrayPortInput(String imageNDArrayPortInput) {
+		this.imageNDArrayPortInput = imageNDArrayPortInput;
+	}
 
 	
 }

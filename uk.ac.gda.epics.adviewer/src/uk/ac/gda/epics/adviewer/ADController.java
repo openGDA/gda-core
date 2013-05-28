@@ -44,6 +44,8 @@ public interface ADController {
 	public abstract String getDetectorName();
 
 	public abstract NDArray getImageNDArray();
+	
+	public String getImageNDArrayPortInput();
 
 	public abstract ImageData getImageData() throws Exception;
 

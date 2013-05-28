@@ -179,10 +179,13 @@ public class TwoDArray extends Composite {
 		String viewName = config.getDetectorName() + " Array View"; // WARNING: Duplicated in TwoDArrayView
 
 		// Connect the plotting system via an adapter and an updater to the gui bean named after this view.
-		Observable<Map<GuiParameters, Serializable>> regionParameterObservable = new RegionGuiParameterAdapter(
+		RegionGuiParameterAdapter regionParameterObservable = new RegionGuiParameterAdapter(
 				plottingSystem);
 
 		Observer<Map<GuiParameters, Serializable>> plotServerGuiBeanUpdater = new PlotServerGuiBeanUpdater(viewName);
+		
+		regionParameterObservable.fireCurrentRegionList();
+		
 
 		try {
 			regionParameterObservable.addObserver(plotServerGuiBeanUpdater);
@@ -330,6 +333,12 @@ public class TwoDArray extends Composite {
 
 	public void start() throws Exception {
 		config.getImageNDArray().getPluginBase().enableCallbacks();
+		String portName = config.getImageNDArrayPortInput();
+		if (portName == null) {
+			logger.warn("No imageNDArrayPortInput has been configured. The view will fail to update if it is not set properly dircetly in epics.");
+		} else {
+			config.getImageNDArray().getPluginBase().setNDArrayPort(portName);
+		}
 		if (arrayArrayCounterObservable == null) {
 			arrayArrayCounterObservable = config.getImageNDArray().getPluginBase().createArrayCounterObservable();
 		}
