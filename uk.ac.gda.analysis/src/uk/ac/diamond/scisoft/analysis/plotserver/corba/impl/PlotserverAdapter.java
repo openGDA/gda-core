@@ -28,15 +28,14 @@ import gda.observable.IObserver;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.FileOperationBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.SimplePlotServer;
 import uk.ac.diamond.scisoft.analysis.plotserver.corba.CorbaPlotServer;
 import uk.ac.diamond.scisoft.analysis.plotserver.corba.CorbaPlotServerHelper;
@@ -247,7 +246,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 				String [] otherNames = (String[]) any.extract_Value();
 				if( otherNames != null && otherNames.length>0){
 					if( guiNames != null && guiNames.length>0){
-						List<String> asList = Arrays.asList(guiNames);
+						List<String> asList = new Vector<String>(Arrays.asList(guiNames));
 						asList.addAll(Arrays.asList(otherNames));
 						return asList.toArray(new String[0]);
 					}
