@@ -228,6 +228,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public void setNumberInterations(int value) throws Exception {
 		getAdBase().setNumExposures(value);
 	}
+	@Override
+	public void setNumberInterations(int value, double timeout) throws Exception {
+		getAdBase().setNumExposures(value, timeout);
+	}
 	
 	@Override
 	public Integer getNumberIterations() throws Exception {
@@ -237,6 +241,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public void setCameraMinX(int value) throws Exception {
 		getAdBase().setMinX(value);
 	}
+
+	@Override
+	public void setCameraMinX(int value, double timeout) throws Exception {
+		getAdBase().setMinXWait(value, timeout);
+	}
 	
 	@Override
 	public int getCameraMinX() throws Exception {
@@ -245,6 +254,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	@Override
 	public void setCameraMinY(int value) throws Exception {
 		getAdBase().setMinY(value);
+	}
+	@Override
+	public void setCameraMinY(int value, double timeout) throws Exception {
+		getAdBase().setMinYWait(value, timeout);
 	}
 	
 	@Override
@@ -256,6 +269,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		getAdBase().setSizeX(value);
 	}
 	@Override
+	public void setCameraSizeX(int value, double timeout) throws Exception {
+		getAdBase().setSizeXWait(value, timeout);
+	}
+	@Override
 	public int getCameraSizeX() throws Exception {
 		return getAdBase().getSizeX_RBV();
 	}
@@ -264,8 +281,16 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		getAdBase().setSizeY(value);
 	}
 	@Override
+	public void setCameraSizeY(int value, double timeout) throws Exception {
+		getAdBase().setSizeYWait(value, timeout);
+	}
+	@Override
 	public void setImageMode(ImageMode imagemode) throws Exception {
 		getAdBase().setImageMode(imagemode);
+	}
+	@Override
+	public void setImageMode(ImageMode imagemode, double timeout) throws Exception {
+		getAdBase().setImageModeWait(imagemode, timeout);
 	}
 	@Override
 	public int getCameraSizeY() throws Exception {
@@ -277,12 +302,20 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		controller.setLensMode(value);
 	}
 	@Override
+	public void setLensMode(String value, double timeout) throws Exception {
+		controller.setLensMode(value, timeout);
+	}
+	@Override
 	public String getLensMode() throws Exception {
 		return controller.getLensMode();
 	}
 	@Override
 	public void setAcquisitionMode(String value) throws Exception {
 		controller.setAcquisitionMode(value);
+	}
+	@Override
+	public void setAcquisitionMode(String value, double timeout) throws Exception {
+		controller.setAcquisitionMode(value, timeout);
 	}
 
 	@Override
@@ -293,6 +326,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public void setEnergysMode(String value) throws Exception {
 		controller.setEnergyMode(value);
 	}
+	@Override
+	public void setEnergysMode(String value, double timeout) throws Exception {
+		controller.setEnergyMode(value, timeout);
+	}
 
 	@Override
 	public String getEnergysMode() throws Exception {
@@ -302,6 +339,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	@Override
 	public void setDetectorMode(String value) throws Exception {
 		controller.setDetectorMode(value);
+	}
+	@Override
+	public void setDetectorMode(String value, double timeout) throws Exception {
+		controller.setDetectorMode(value,timeout);
 	}
 	@Override
 	public String getDetectorMode() throws Exception {
@@ -322,9 +363,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		controller.setPassEnergy(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opengda.detector.electronanalyser.server.IVGScientaAnalyser#getPassEnergy()
-	 */
+	@Override
+	public void setPassEnergy(Integer value, double timeout) throws Exception {
+		controller.setPassEnergy(value, timeout);
+	}
 	@Override
 	public Integer getPassEnergy() throws Exception {
 		return controller.getPassEnergy();
@@ -336,6 +378,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	}
 
 	@Override
+	public void setStartEnergy(Double value, double timeout) throws Exception {
+		controller.setStartEnergy(value, timeout);
+	}
+	@Override
 	public Double getStartEnergy() throws Exception {
 		return getStartEnergy();
 	}
@@ -345,6 +391,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		controller.setCentreEnergy(value);
 	}
 
+	@Override
+	public void setCentreEnergy(Double value, double timeout) throws Exception {
+		controller.setCentreEnergy(value, timeout);
+	}
 	@Override
 	public Double getCentreEnergy() throws Exception {
 		return controller.getCentreEnergy();
@@ -356,6 +406,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	}
 
 	@Override
+	public void setEndEnergy(Double value, double timeout) throws Exception {
+		controller.setEndEnergy(value, timeout);
+	}
+	@Override
 	public Double getEndEnergy() throws Exception {
 		return controller.getEndEnergy();
 	}
@@ -363,6 +417,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	@Override
 	public void setEnergyStep(Double value) throws Exception {
 		controller.setEnergyStep(value);
+	}
+	@Override
+	public void setEnergyStep(Double value, double timeout) throws Exception {
+		controller.setEnergyStep(value, timeout);
 	}
 	@Override
 	public Double getEnergyStep() throws Exception {
@@ -383,8 +441,16 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		controller.setStepTime(value);
 	}
 	@Override
+	public void setStepTime(double value, double timeout) throws Exception {
+		controller.setStepTime(value, timeout);
+	}
+	@Override
 	public void setSlices(int value) throws Exception {
 		controller.setSlice(value);
+	}
+	@Override
+	public void setSlices(int value, double timeout) throws Exception {
+		controller.setSlice(value, timeout);
 	}
 	@Override
 	public int getSlices() throws Exception {

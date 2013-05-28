@@ -109,6 +109,9 @@ public class VGScientaController implements Configurable {
 	public void setLensMode(String value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(LENSMODE), value);
 	}
+	public void setLensMode(String value, double timeout) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(LENSMODE), value, timeout);
+	}
 
 	public String getLensMode() throws Exception {
 		return EPICS_CONTROLLER.cagetString(getChannel(LENSMODE_RBV));
@@ -118,12 +121,18 @@ public class VGScientaController implements Configurable {
 		EPICS_CONTROLLER.caput(getChannel(ACQMODE), value);
 	}
 
+	public void setAcquisitionMode(String value, double timeout) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(ACQMODE), value, timeout);
+	}
 	public String getAcquisitionMode() throws Exception {
 		return EPICS_CONTROLLER.cagetString(getChannel(ACQMODE_RBV));
 	}
 
 	public void setEnergyMode(String value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(ENERGYMODE), value);
+	}
+	public void setEnergyMode(String value, double timeout) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(ENERGYMODE), value, timeout);
 	}
 
 	public String getEnergyMode() throws Exception {
@@ -132,6 +141,9 @@ public class VGScientaController implements Configurable {
 
 	public void setDetectorMode(String value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(DETECTORMODE), value);
+	}
+	public void setDetectorMode(String value, double timeout) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(DETECTORMODE), value, timeout);
 	}
 
 	public String getDetectorMode() throws Exception {
@@ -158,7 +170,18 @@ public class VGScientaController implements Configurable {
 
 		throw new Exception("unknown pass energy");
 	}
+	public void setPassEnergy(Integer value, double timeout) throws Exception {
+		int i = 0;
+		for (Integer pes : passenergies) {
+			if (value.equals(pes)) {
+				EPICS_CONTROLLER.caputWait(getChannel(PASSENERGY), i, timeout);
+				return;
+			}
+			i = i + 1;
+		}
 
+		throw new Exception("unknown pass energy");
+	}
 	public Integer getPassEnergy() throws Exception {
 		return passenergies.get(EPICS_CONTROLLER.cagetInt(getChannel(PASSENERGY_RBV)));
 	}
@@ -199,6 +222,9 @@ public class VGScientaController implements Configurable {
 	public void setStartEnergy(Double value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(STARTENERGY), value);
 	}
+	public void setStartEnergy(Double value, double timeout) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(STARTENERGY), value, timeout);
+	}
 
 	public Double getStartEnergy() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(STARTENERGY_RBV));
@@ -206,6 +232,9 @@ public class VGScientaController implements Configurable {
 
 	public void setCentreEnergy(Double value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(CENTREENERGY), value);
+	}
+	public void setCentreEnergy(Double value, double timeout) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(CENTREENERGY), value, timeout);
 	}
 
 	public Double getCentreEnergy() throws Exception {
@@ -215,6 +244,9 @@ public class VGScientaController implements Configurable {
 	public void setEndEnergy(Double value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(ENDENERGY), value);
 	}
+	public void setEndEnergy(Double value, double timeout) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(ENDENERGY), value, timeout);
+	}
 
 	public Double getEndEnergy() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(ENDENERGY_RBV));
@@ -222,6 +254,9 @@ public class VGScientaController implements Configurable {
 
 	public void setEnergyStep(Double value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(ENERGYSTEP), value);
+	}
+	public void setEnergyStep(Double value, double timeout) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(ENERGYSTEP), value, timeout);
 	}
 
 	public Double getEnergyStep() throws Exception {
@@ -239,12 +274,18 @@ public class VGScientaController implements Configurable {
 	public void setStepTime(Double value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(STEPTIME), value);
 	}
+	public void setStepTime(Double value, double timeout) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(STEPTIME), value, timeout);
+	}
 
 	public void setSlice(Integer value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(SLICE), value);
 	}
 
-	public Integer getSlice() throws Exception {
+	public void setSlice(Integer value, double timeout) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(SLICE), value, timeout);
+	}
+ 	public Integer getSlice() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(SLICE_RBV));
 	}
 

@@ -114,6 +114,40 @@ public interface IVGScientaAnalyser extends Findable {
 	public abstract void start() throws Exception;
 
 	public abstract void waitWhileBusy() throws InterruptedException, DeviceException;
+
+	void setCameraMinX(int value, double timeout) throws Exception;
+
+	void setCameraMinY(int value, double timeout) throws Exception;
+
+	void setCameraSizeX(int value, double timeout) throws Exception;
+
+	void setCameraSizeY(int value, double timeout) throws Exception;
+
+	void setSlices(int value, double timeout) throws Exception;
+
+	void setLensMode(String value, double timeout) throws Exception;
+
+	void setDetectorMode(String value, double timeout) throws Exception;
+
+	void setEnergysMode(String value, double timeout) throws Exception;
+
+	void setPassEnergy(Integer value, double timeout) throws Exception;
+
+	void setStartEnergy(Double value, double timeout) throws Exception;
+
+	void setEndEnergy(Double value, double timeout) throws Exception;
+
+	void setCentreEnergy(Double value, double timeout) throws Exception;
+
+	void setStepTime(double value, double timeout) throws Exception;
+
+	void setEnergyStep(Double value, double timeout) throws Exception;
+
+	void setNumberInterations(int value, double timeout) throws Exception;
+
+	void setImageMode(ImageMode imagemode, double timeout) throws Exception;
+
+	void setAcquisitionMode(String value, double timeout) throws Exception;
 	
 
 }
