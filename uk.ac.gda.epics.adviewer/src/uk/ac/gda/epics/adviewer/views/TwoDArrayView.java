@@ -62,7 +62,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 			logger.error("Error configuring twoDArray composite", e);
 		}
 		setTitleImage(config.getTwoDarrayViewImageDescriptor().createImage());
-		setPartName(config.getDetectorName() + " Array View" );
+		setPartName(config.getDetectorName() + " Array View" ); // WARNING: Duplicated in TwoDArray
 
 		partListener = new IPartListener2() {
 			

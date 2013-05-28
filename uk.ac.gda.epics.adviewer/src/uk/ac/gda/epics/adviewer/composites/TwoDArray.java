@@ -23,9 +23,11 @@ import gda.device.detector.areadetector.v17.NDROI;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
@@ -63,8 +65,11 @@ import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.ImageData;
+import uk.ac.gda.epics.adviewer.composites.tomove.PlotServerGuiBeanUpdater;
+import uk.ac.gda.epics.adviewer.composites.tomove.RegionGuiParameterAdapter;
 
 public class TwoDArray extends Composite {
 
@@ -204,6 +209,25 @@ public class TwoDArray extends Composite {
 	public void setADController(ADController config) throws Exception {
 		this.config = config;
 
+
+		String viewName = config.getDetectorName() + " Array View"; // WARNING: Duplicated in TwoDArrayView
+
+		// Connect the plotting system via an adapter and an updater to the gui bean named after this view.
+		RegionGuiParameterAdapter regionParameterObservable = new RegionGuiParameterAdapter(
+				plottingSystem);
+
+		Observer<Map<GuiParameters, Serializable>> plotServerGuiBeanUpdater = new PlotServerGuiBeanUpdater(viewName);
+		
+		regionParameterObservable.fireCurrentRegionList();
+		
+
+		try {
+			regionParameterObservable.addObserver(plotServerGuiBeanUpdater);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		// Configure AreaDetector
 		NDPluginBase pluginBase = config.getImageNDArray().getPluginBase();
 		minCallbackTimeComposite.setPluginBase(pluginBase);
 		try {
@@ -344,6 +368,12 @@ public class TwoDArray extends Composite {
 
 	public void start() throws Exception {
 		config.getImageNDArray().getPluginBase().enableCallbacks();
+		String portName = config.getImageNDArrayPortInput();
+		if (portName == null) {
+			logger.warn("No imageNDArrayPortInput has been configured. The view will fail to update if it is not set properly dircetly in epics.");
+		} else {
+			config.getImageNDArray().getPluginBase().setNDArrayPort(portName);
+		}
 		if (arrayArrayCounterObservable == null) {
 			arrayArrayCounterObservable = config.getImageNDArray().getPluginBase().createArrayCounterObservable();
 		}

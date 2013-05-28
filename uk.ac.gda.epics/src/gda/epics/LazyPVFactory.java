@@ -21,6 +21,7 @@ package gda.epics;
 import static java.text.MessageFormat.format;
 import static org.apache.commons.lang.ArrayUtils.toObject;
 import static org.apache.commons.lang.ArrayUtils.toPrimitive;
+import gda.configuration.properties.LocalProperties;
 import gda.epics.connection.EpicsController;
 import gda.epics.util.EpicsGlobals;
 import gda.observable.Observable;
@@ -374,6 +375,15 @@ public class LazyPVFactory {
 			} else {
 				dbrType = javaTypeToDBRType.get(javaType);
 			}
+			if (LocalProperties.check(LocalProperties.GDA_EPICS_LAZYPVFACTORY_CHECK_CHANNELS)) {
+				logger.warn("Checking channel : '" + pvName + "'");
+				try {
+					channel = (controller.createChannel(pvName));
+					controller.destroy(channel);
+				} catch (Exception e) {
+					logger.error("Could not connect to channel  : '" + pvName + "'", e);
+				}	
+			}
 		}
 		
 		void setShowTypeMismatchWarnings(boolean showTypeMismatchWarnings) {
@@ -684,13 +694,11 @@ public class LazyPVFactory {
 				} else {
 					throw new IllegalStateException("Unexpected type configured");
 				}
-			} catch (CAException e) {
-				throw new IOException(format("Problem putting value to EPICS pv ''{0}'', (value was: {1})", pvName,
-						value), e);
+			
 			} catch (InterruptedException e) {
 				throw new InterruptedIOException(format(
 						"Interupted while putting value to EPICS pv ''{0}'', (value was: {1})", pvName, value));
-			} catch (IOException e) {
+			} catch (Exception e) {
 				throw new IOException(format("Problem putting value to EPICS pv ''{0}'', (value was: {1})", pvName,
 						value), e);
 			}
@@ -734,13 +742,10 @@ public class LazyPVFactory {
 				} else {
 					throw new IllegalStateException("Unexpected type configured");
 				}
-			} catch (CAException e) {
-				throw new IOException(format("Problem putting (with listener) value to EPICS pv ''{0}'', (value was: {1})", pvName,
-						value), e);
 			} catch (InterruptedException e) {
 				throw new InterruptedIOException(format(
 						"Interupted while putting (with listener) value to EPICS pv ''{0}'', (value was: {1})", pvName, value));
-			} catch (IOException e) {
+			} catch (Exception e) {
 				throw new IOException(format("Problem putting (with listener)  value to EPICS pv ''{0}'', (value was: {1})", pvName,
 						value), e);
 			}

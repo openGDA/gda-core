@@ -27,6 +27,7 @@ Import-Package: org.dawb.common.ui.plot,
  org.slf4j;version="[1.5.0,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
  org.springframework.util;version="3.0.4"
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.epics.adviewer,
  uk.ac.gda.epics.adviewer.composites,
  uk.ac.gda.epics.adviewer.composites.imageviewer,

@@ -99,4 +99,6 @@ public interface NDStatsPVs {
 
 	public ReadOnlyPV<Double[]> getTSArrayPV(Stat stat);
 
+	public PV<Integer> getTSReadScanPV();
+
 }

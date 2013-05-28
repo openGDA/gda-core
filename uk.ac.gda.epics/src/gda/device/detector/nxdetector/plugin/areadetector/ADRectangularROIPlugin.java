@@ -19,46 +19,39 @@
 package gda.device.detector.nxdetector.plugin.areadetector;
 
 import gda.device.detector.areadetector.v17.NDROIPVs;
+import gda.device.detector.areadetector.v17.impl.NDROIPVsImpl;
 import gda.device.detector.nxdetector.plugin.NullNXPlugin;
+import gda.device.detector.nxdetector.roi.RectangularROI;
+import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.scan.ScanInformation;
 
-public class ADRectangularROIPlugin extends NullNXPlugin {
+import java.io.IOException;
 
+public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
+
+	public static ADRectangularROIPlugin createFromBasePVName(String pluginName, String basePVName, RectangularROIProvider<Integer> roiProvider) {
+		NDROIPVs ndROIPVs = NDROIPVsImpl.createFromBasePVName(basePVName);
+		return new ADRectangularROIPlugin(ndROIPVs, pluginName, roiProvider);
+	}
 
 	private final NDROIPVs pvs;
 
 	private final String pluginName;
 	
-	private String roiName;
-
-	private ADRectangularROI roi;
-
-	/**
-	 * The name of the roi to push to Epics, and that {@link ADStatsROIPair} will use to prefix input names.
-	 */
-	public String getRoiName() {
-		return roiName;
-	}
-
-	public void setRoiName(String roiName) {
-		this.roiName = roiName;
-	}
+	private final RectangularROIProvider<Integer> roiProvider; // optional
 	
-	public ADRectangularROI getRoi() {
-		return roi;
-	}
+	public final String INACTIVE_ROI_NAME = "gda_inactive";
 
-	/**
-	 * @param roi null to disable
-	 */
-	public void setRoi(ADRectangularROI roi) {
-		this.roi = roi;
-	}
-	
-	public ADRectangularROIPlugin(NDROIPVs ndROIPVs, String name) {
+	private String ndInputArrayPort;
+
+	public ADRectangularROIPlugin(NDROIPVs ndROIPVs, String pluginName, RectangularROIProvider<Integer> roiProvider) {
 		this.pvs = ndROIPVs;
-		this.pluginName = name;
-		this.setRoiName(name); // initial value only
+		this.roiProvider = roiProvider;
+		this.pluginName = pluginName;
+	}
+	
+	public RectangularROI<Integer> getRoi() throws IllegalArgumentException, IndexOutOfBoundsException, Exception {
+		return roiProvider.getRoi();
 	}
 	
 	@Override
@@ -68,13 +61,20 @@ public class ADRectangularROIPlugin extends NullNXPlugin {
 
 	@Override
 	public boolean willRequireCallbacks() {
-		return getRoi() != null;
+		try {
+			return getRoi() != null;
+		} catch (Exception e) {
+			throw new IllegalStateException("Could not get ROI", e);
+		}
 	}
 	
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if (getRoi() != null) {
-			pvs.getNamePV().putWait(getRoiName());
+			if (getInputNDArrayPort() != null) {
+				pvs.getPluginBasePVs().getNDArrayPortPVPair().putWait(getInputNDArrayPort());
+			}
+			pvs.getNamePV().putWait(getRoi().getName());
 			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(true);
 			pvs.getXDimension().getEnablePVPair().putWait(true);
 			pvs.getYDimension().getEnablePVPair().putWait(true);
@@ -84,12 +84,43 @@ public class ADRectangularROIPlugin extends NullNXPlugin {
 			pvs.getYDimension().getMinPVPair().putWait(getRoi().getYstart());
 			pvs.getYDimension().getSizePVPair().putWait(getRoi().getYsize());
 		} else {
-			pvs.getNamePV().putWait("gda_inactive");
+			pvs.getNamePV().putWait(INACTIVE_ROI_NAME);
 			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(false);
 			pvs.getXDimension().getEnablePVPair().putWait(false);
 			pvs.getYDimension().getEnablePVPair().putWait(false);
 			pvs.getZDimension().getEnablePVPair().putWait(false);
 		}
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return ndArrayPort name that will be configured during prepareforCollection if an roi were configured.
+	 */
+	@Override
+	public String getInputNDArrayPort() {
+		return ndInputArrayPort; 
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param nDArrayPort ndArrayPort name that will be configured during prepareforCollection if an roi were configured.
+	 */
+	@Override
+	public void setInputNDArrayPort(String nDArrayPort) {
+		this.ndInputArrayPort = nDArrayPort;
+	}
+
+	/**
+	 * Get the permanent Epics port name.
+	 * @return portName
+	 * @throws IOException 
+	 */
+	@Override
+	public String getPortName() throws IOException {
+		return pvs.getPluginBasePVs().getPortNamePV().get();
+	}
+
 
 }
