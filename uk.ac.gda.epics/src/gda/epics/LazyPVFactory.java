@@ -79,6 +79,8 @@ import org.slf4j.LoggerFactory;
 public class LazyPVFactory {
 
 	private static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
+	
+	public static final String CHECK_CHANNELS_PROPERTY_NAME = "gda.epics.lazypvfactory.check.channels";
 
 	/**
 	 * Envisaged for testing only. EpicsController is a singleton.
@@ -375,7 +377,7 @@ public class LazyPVFactory {
 			} else {
 				dbrType = javaTypeToDBRType.get(javaType);
 			}
-			if (LocalProperties.check(LocalProperties.GDA_EPICS_LAZYPVFACTORY_CHECK_CHANNELS)) {
+			if (LocalProperties.check(CHECK_CHANNELS_PROPERTY_NAME)) {
 				logger.warn("Checking channel : '" + pvName + "'");
 				try {
 					channel = (controller.createChannel(pvName));
