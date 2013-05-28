@@ -45,7 +45,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -64,6 +63,7 @@ import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
+import uk.ac.gda.richbeans.components.scalebox.NumberBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
@@ -104,7 +104,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private Label kWeightingLabel;
 	private Label kStartLabel;
 
-	private SelectionAdapter e0Listener, e1Listener, abGafListener, aListener, bListener, cListener, exafsTimeListener;
+	private SelectionAdapter e0Listener, e1Listener, aListener, bListener, cListener;
 
 	private ScaleBox kWeighting;
 	private ScaleBoxAndFixedExpression kStart;
@@ -123,21 +123,18 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private IRegion cLine;
 	private IRegion edgeLine;
 	private boolean showLineAnnotations = false;
-	XasScanParameters bean;
 
 	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor,
 			final XasScanParameters xasScanParameters) {
 
 		super(path, containingEditor.getMappingUrl(), containingEditor, xasScanParameters);
-
-		bean = xasScanParameters;
 		
 		containingEditor.addPageChangedListener(new IPageChangedListener() {
 			@Override
 			public void pageChanged(PageChangedEvent event) {
 				final int ipage = containingEditor.getActivePage();
 				if (ipage == 1)
-					cachedElement = ((XasScanParameters) xasScanParameters).getElement();
+					cachedElement = xasScanParameters.getElement();
 			}
 		});
 	}
@@ -669,8 +666,14 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		abGafChoice = new ComboWrapper(topCentre, SWT.READ_ONLY);
 		abGafChoice.setItems(new String[] { "A/B", "Gaf1/Gaf2" });
-		abGafChoice.select(1);
+//		abGafChoice.select(1);
 		abGafChoice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		abGafChoice.addValueListener(new ValueAdapter("abgafchoiceListener") {
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateEdgeRegion();
+			}
+		});
 		
 		final Label gaf1Label = new Label(topCentre, SWT.NONE);
 		gaf1Label.setText("Gaf1");
@@ -955,7 +958,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			});
 
 			updateExafsTimeType();
-			updateEdgeRegion();
+			
 			updateLayout();
 			setPointsUpdate(false);
 			updateElement(ELEMENT_EVENT_TYPE.INIT); // Must be before linkUI or switched on status fires events that
@@ -963,6 +966,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 			// Sets value and switches on the listeners.
 			super.linkUI(isPageChange); // Will also switch back on widgets.
+			updateEdgeRegion();
 			setPointsUpdate(false);
 			suspendGraphUpdate = true;
 
@@ -982,7 +986,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			if (finalEnergy.isOn()) {
 				finalEnergy.off();
 			}
-			if (energyInK) {
+			
+			if (energyInK && ! isPageChange) {
 				correctFinalEnergy();
 				correctC();
 			}
@@ -1038,7 +1043,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			} else {
 				max = Double.valueOf(ds.max().toString());
 			}
-//			Integer plotMax = (Integer) ds.max();
 			Double stepHeight = (double) (max /6);
 
 			try {
@@ -1080,6 +1084,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	@Override
 	protected void setPointsUpdate(boolean isUpdate) {
+		super.setPointsUpdate(isUpdate);
 		updateValueAllowed = isUpdate;
 		if (isUpdate) {
 			updatePointsLabels();
@@ -1091,8 +1096,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			gaf3.on();
 			initialEnergy.on();
 			finalEnergy.on();
-			edge.on();
-			element.on();
 			exafsStep.on();
 			edgeStep.on();
 			edgeTime.on();
@@ -1114,8 +1117,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			gaf3.off();
 			initialEnergy.off();
 			finalEnergy.off();
-			edge.off();
-			element.off();
 			exafsStep.off();
 			edgeStep.off();
 			edgeTime.off();
@@ -1139,12 +1140,12 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	private void correctC() {
-		double value = getC().getBoundValue();
+		double value = ((XasScanParameters)editingBean).getC();
 		getC().setValue(getKProvider().getValue(value));
 	}
 
 	private void correctFinalEnergy() {
-		double value = getFinalEnergy().getBoundValue();
+		double value = ((XasScanParameters)editingBean).getFinalEnergy();
 		getFinalEnergy().setValue(getKProvider().getValue(value));
 	}
 
@@ -1237,7 +1238,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		} catch (Exception ne) {
 			logger.error("Cannot set value", ne);
 		} finally {
-			setPointsUpdate(true);
+			if (type != ELEMENT_EVENT_TYPE.INIT) {
+				setPointsUpdate(true);
+			}
 		}
 	}
 
@@ -1385,7 +1388,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	protected void updateExafsTimeType() {
-		String exafsTimeTypeVal = bean.getExafsTimeType();
+		String exafsTimeTypeVal = ((XasScanParameters) editingBean).getExafsTimeType();
 		
 		boolean isVariableTime=false;
 		if(exafsTimeTypeVal.equals("Variable Time"))
@@ -1419,14 +1422,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	public ScaleBox getPreEdgeStep() {
 		return preEdgeStep;
-	}
-
-	public ComboWrapper getEdge() {
-		return edge;
-	}
-
-	public ComboWrapper getElement() {
-		return element;
 	}
 
 	public ScaleBox getEdgeStep() {
@@ -1595,8 +1590,14 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	protected Object fetchEditingBean() {
 		if (energyInK) {
 			DecimalFormat twoDForm = new DecimalFormat("#.##");
-			((XasScanParameters) this.editingBean).setFinalEnergy(Double.valueOf(twoDForm.format(getKInEv().getValue(
-					getFinalEnergy().getBoundValue()))));
+//			((XasScanParameters) this.editingBean).setFinalEnergy(Double.valueOf(twoDForm.format(getKInEv().getValue(
+//					getFinalEnergy().getBoundValue()))));
+//			((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
+//					getC().getBoundValue()))));
+			
+			String finalEnergyBoundValueString = twoDForm.format(getKInEv().getValue(getFinalEnergy().getBoundValue()));
+			double finalEnergyBoundValue = Double.valueOf(finalEnergyBoundValueString);
+			((XasScanParameters) this.editingBean).setFinalEnergy(finalEnergyBoundValue);
 			((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
 					getC().getBoundValue()))));
 		}

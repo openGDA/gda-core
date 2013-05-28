@@ -294,7 +294,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 					return;
 				}
 			}
-			System.out.println("the beans found are " + this.currentDetectorList.getValue());
+//			System.out.println("the beans found are " + this.currentDetectorList.getValue());
 			try {
 			final List<?> elements = (List<?>) this.currentDetectorList.getValue();
 			final List<?> regionClone = BeanUI.cloneBeans(regionToCopy);

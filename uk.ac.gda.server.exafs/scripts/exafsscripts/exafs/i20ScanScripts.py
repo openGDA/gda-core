@@ -20,6 +20,7 @@ from gda.jython.scriptcontroller.logging import LoggingScriptController
 from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.jython.scriptcontroller.logging import XasProgressUpdater
 from gda.scan import ScanBase, ContinuousScan, ConcurrentScan
+from gda.util import Element
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from uk.ac.gda.beans.exafs import XesScanParameters
@@ -36,8 +37,10 @@ class I20XasScan(XasScan):
         
         # fluo detector, if in use
         if beanGroup.getDetector().getExperimentType() == 'Fluorescence':
-            self.setDetectorCorrectionParameters(beanGroup)
-            ScriptBase.checkForPauses()
+            detType = beanGroup.getDetector().getFluorescenceParameters().getDetectorType()
+            if detType == "Germanium":
+                self.setDetectorCorrectionParameters(beanGroup)
+                ScriptBase.checkForPauses()
             
         # ion chambers
         self.setUpIonChambers(beanGroup)
@@ -196,14 +199,50 @@ class I20XasScan(XasScan):
 
     def setDetectorCorrectionParameters(self,beanGroup):
         scanObj = beanGroup.getScan()
-        edgeEnergy = 0.0
+        dtEnergy = 0.0
+        # Use the fluo (emission) energy of the nearest transition based on the element and excitation edge
+        # to calculate the energy dependent deadtime parameters.
         if isinstance(scanObj,XasScanParameters):
-            edgeEnergy = scanObj.getEdgeEnergy()
-            edgeEnergy /= 1000 # convert from eV to keV
+            edge = scanObj.getEdge()
+            element = scanObj.getElement()
+            elementObj = Element.getElement(element)
+            dtEnergy = self._getEmissionEnergy(elementObj,edge)
+            dtEnergy /= 1000 # convert from eV to keV
+            print "Setting Ge detector deadtime calculation energy to be",str(dtEnergy),"keV based on element",element,"and edge",edge
+        elif isinstance(scanObj,XanesScanParameters):
+            edge = scanObj.getEdge()
+            element = scanObj.getElement()
+            elementObj = Element.getElement(element)
+            dtEnergy = self._getEmissionEnergy(elementObj,edge)
+            dtEnergy /= 1000 # convert from eV to keV
+            print "Setting Ge detector deadtime calculation energy to be",str(dtEnergy),"keV based on element",element,"and edge",edge
         else :
-            edgeEnergy = scanObj.getFinalEnergy() 
-            edgeEnergy /= 1000 # convert from eV to keV
-        self.jython_mapper.xspress2system.setDeadtimeCalculationEnergy(edgeEnergy)
+            dtEnergy = scanObj.getFinalEnergy() 
+            dtEnergy /= 1000 # convert from eV to keV
+        
+        self.jython_mapper.xspress2system.setDeadtimeCalculationEnergy(dtEnergy)
+ 
+    def _getEmissionEnergy(self,elementObj,edge):
+        if str(edge) == "K":
+            return elementObj.getEmissionEnergy("Ka1")
+        elif str(edge) == "L1":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "L2":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "L3":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "M1":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M2":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M3":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M4":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M5":
+            return elementObj.getEmissionEnergy("Ma1")
+        else:
+            return elementObj.getEmissionEnergy("Ka1")
  
     
     def setUpIonChambers(self,beanGroup):    

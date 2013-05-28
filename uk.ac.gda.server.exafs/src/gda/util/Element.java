@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -109,48 +109,49 @@ public final class Element {
 			m5EdgeEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 10);
 
 		} catch (Throwable e) {
-			logger.error("Failed to read Element-Edge.txt file. All core holes will be null!",e);
+			logger.error("Failed to read Element-Edge.txt file. All edge energies will be null!",e);
 		}
 	}
 	private static Double[][] edgeEnergies = { kEdgeEnergies, l1EdgeEnergies, l2EdgeEnergies, l3EdgeEnergies,
 			m1EdgeEnergies, m2EdgeEnergies, m3EdgeEnergies, m4EdgeEnergies, m5EdgeEnergies };
+	
+	
+	private static Double[] ka1EmissionEnergies, ka2EmissionEnergies, kb1EmissionEnergies, la1EmissionEnergies,
+			la2EmissionEnergies, lb1EmissionEnergies, lb2EmissionEnergies, lg1EmissionEnergies, ma1EmissionEnergies;
+	static {
+		try {
+			final TokenFileParser p = new TokenFileParser(Element.class.getResource("Element-Emission.txt"));
+			p.parse();
+			ka1EmissionEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 2);
+			ka2EmissionEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 3);
+			kb1EmissionEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 4);
+			la1EmissionEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 5);
+			la2EmissionEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 6);
+			lb1EmissionEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 7);
+			lb2EmissionEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 8);
+			lg1EmissionEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 9);
+			ma1EmissionEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 10);
 
-	/**
-	 * 
-	 */
+		} catch (Throwable e) {
+			logger.error(
+					"Failed to read Element-Emission.txt file. All emission (fluorescence) energies will be null!", e);
+		}
+	}
+	private static Double[][] emissionEnergies = { ka1EmissionEnergies, ka2EmissionEnergies, kb1EmissionEnergies,
+			la1EmissionEnergies, la2EmissionEnergies, lb1EmissionEnergies, lb2EmissionEnergies, lg1EmissionEnergies,
+			ma1EmissionEnergies };
+
+
 	public static final int METAL = 0;
-
-	/**
-	 * 
-	 */
 	public static final int NONMETAL = 1;
-
-	/**
-	 * 
-	 */
 	public static final int METALLOID = 2;
-
-	/**
-	 * 
-	 */
 	public static final int NOBLEGAS = 3;
-
-	/**
-	 * 
-	 */
 	public static final int LANTHANIDE = 4;
-
-	/**
-	 * 
-	 */
 	public static final int ACTINIDE = 5;
 
-	// private static final int KEDGE = 0;
-	// private static final int L1EDGE = 1;
-	// private static final int L2EDGE = 2;
-	// private static final int L3EDGE = 3;
 
 	private static final String[] edgeNames = { "K", "L1", "L2", "L3", "M1", "M2", "M3", "M4", "M5" };
+	private static final String[] emissionLineNames = { "Ka1", "Ka2", "Kb1", "La1", "La2", "Lb1", "Lb2", "Lg1", "Ma1" };
 
 	private static Map<String, Element> ALL_ELEMENTS;
 
@@ -407,6 +408,19 @@ public final class Element {
 	 */
 	public double getEdgeEnergyInkeV(String edgeName) {
 		return getEdgeEnergy(edgeName) / 1000d;
+	}
+	
+	public double getEmissionEnergy(String emissionLineName) throws IllegalArgumentException {
+		int index = ArrayUtils.indexOf(emissionLineNames, emissionLineName);
+		if (index >= 0) {
+			return getEmissionEnergy(index);
+		}
+		throw new IllegalArgumentException("Emission line name " + emissionLineName + " not found.\nShould be one of: "
+				+ Arrays.toString(emissionLineNames));
+	}
+
+	private double getEmissionEnergy(int index) {
+		return emissionEnergies[index][arrayRef];
 	}
 
 	/**
