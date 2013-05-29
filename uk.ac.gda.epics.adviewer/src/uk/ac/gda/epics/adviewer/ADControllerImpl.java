@@ -534,6 +534,7 @@ public class ADControllerImpl implements ADController, InitializingBean {
 		this.imageNDROI = imageNDROI;
 	}
 
+	@Override
 	public void stopExposure() throws Exception {
 		getAdBase().stopAcquiring();
 	}
@@ -546,6 +547,17 @@ public class ADControllerImpl implements ADController, InitializingBean {
 
 	public void setImageNDArrayPortInput(String imageNDArrayPortInput) {
 		this.imageNDArrayPortInput = imageNDArrayPortInput;
+	}
+
+	boolean connectToPlotServer=true;
+
+	@Override
+	public boolean isConnectToPlotServer() {
+		return connectToPlotServer;
+	}
+
+	public void setConnectToPlotServer(boolean connectToPlotServer) {
+		this.connectToPlotServer = connectToPlotServer;
 	}
 	
 }

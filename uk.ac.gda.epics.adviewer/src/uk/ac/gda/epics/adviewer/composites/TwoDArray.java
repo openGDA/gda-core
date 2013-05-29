@@ -20,6 +20,7 @@ package uk.ac.gda.epics.adviewer.composites;
 
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDROI;
+import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
@@ -185,6 +186,8 @@ public class TwoDArray extends Composite {
 		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setTitle("");
 		}
+		
+		
 		addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -210,23 +213,7 @@ public class TwoDArray extends Composite {
 		this.config = config;
 
 
-		String viewName = config.getDetectorName() + " Array View"; // WARNING: Duplicated in TwoDArrayView
-
-		// Connect the plotting system via an adapter and an updater to the gui bean named after this view.
-		RegionGuiParameterAdapter regionParameterObservable = new RegionGuiParameterAdapter(
-				plottingSystem);
-
-		Observer<Map<GuiParameters, Serializable>> plotServerGuiBeanUpdater = new PlotServerGuiBeanUpdater(viewName);
 		
-		regionParameterObservable.fireCurrentRegionList();
-		
-
-		try {
-			regionParameterObservable.addObserver(plotServerGuiBeanUpdater);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
 		// Configure AreaDetector
 		NDPluginBase pluginBase = config.getImageNDArray().getPluginBase();
 		minCallbackTimeComposite.setPluginBase(pluginBase);
