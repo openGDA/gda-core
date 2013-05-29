@@ -29,19 +29,19 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.IRegionListener;
-import org.dawb.common.ui.plot.region.IRegionSystem;
-import org.dawb.common.ui.plot.region.ROIEvent;
-import org.dawb.common.ui.plot.region.RegionEvent;
+import org.dawnsci.plotting.api.region.IROIListener;
+import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.IRegionListener;
+import org.dawnsci.plotting.api.region.IRegionSystem;
+import org.dawnsci.plotting.api.region.ROIEvent;
+import org.dawnsci.plotting.api.region.RegionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
 
@@ -137,12 +137,12 @@ public class RegionGuiParameterAdapter implements
 		fireChange(null, regionSystem.getRegions());
 	}
 	
-	private void fireChange(ROIBase changedRoi,
+	private void fireChange(IROI changedRoi,
 			Collection<IRegion> roiCollection) {
 		HashMap<GuiParameters, Serializable> changedParameters = new HashMap<GuiParameters, Serializable>();
 		RectangularROIList roiList = new RectangularROIList();
 		for (IRegion region : roiCollection) {
-			ROIBase roi = region.getROI();
+			IROI roi = region.getROI();
 			roiList.add((RectangularROI) roi); // TODO: Only works for
 												// rectangular regions
 		}
