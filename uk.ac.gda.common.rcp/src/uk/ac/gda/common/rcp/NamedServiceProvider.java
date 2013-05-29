@@ -20,6 +20,7 @@ package uk.ac.gda.common.rcp;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -47,10 +48,12 @@ public class NamedServiceProvider {
 
 	@SuppressWarnings("rawtypes")
 	public void close() {
-		for (ServiceTracker st : serviceTrackers.entrySet().toArray(new ServiceTracker[] {})) {
-			st.close();
+		if( !serviceTrackers.isEmpty()){
+			for (Entry<String, ServiceTracker> st : serviceTrackers.entrySet()) {
+				st.getValue().close();
+			}
+			serviceTrackers.clear();
 		}
-		serviceTrackers.clear();
 		bundleContext = null;
 	}
 
