@@ -268,8 +268,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		try { // TODO beamline reported sometime exposure need to be set twice to succeed
-			if(LiveModeUtil.isLiveMode()){
-				if(controller.isArmed()){
+			if (LiveModeUtil.isLiveMode()) {
+				if (controller.isArmed()) {
 					controller.disarmCamera();
 				}
 			}
@@ -287,8 +287,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		int numImagesPerPoint = Integer.parseInt(collectspec[1].toString());
 		int totalNumImages = Integer.parseInt(collectspec[2].toString());
 		try {
-			if(LiveModeUtil.isLiveMode()){
-				if(controller.isArmed()){
+			if (LiveModeUtil.isLiveMode()) {
+				if (controller.isArmed()) {
 					controller.disarmCamera();
 				}
 			}
@@ -513,6 +513,15 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		scanSaveFolder = createMainFileStructure(); // this statement rely on GDA file tracker increment properly
 													// already
 		setFilePath(scanSaveFolder);
+		
+		//Initialise the file template
+		NDFile fullFrameSaver;
+		if (hdfFormat) {
+			fullFrameSaver = controller.getHdf().getFile();
+		} else {
+			fullFrameSaver = controller.getTiff();
+		}
+		fullFrameSaver.setFileTemplate(fullFrameSaver.getInitialFileTemplate());
 	}
 
 	private void setFileName() throws IOException, Exception {
@@ -922,7 +931,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			throw new IllegalArgumentException("'detectorType' is required");
 		}
 		if (controller == null) {
-			throw new IllegalArgumentException("'pixiumController' needs to be set");
+			throw new IllegalArgumentException("'pcoController' needs to be set");
 		}
 	}
 
