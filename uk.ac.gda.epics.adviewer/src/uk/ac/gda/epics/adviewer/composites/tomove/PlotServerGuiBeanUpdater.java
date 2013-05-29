@@ -33,6 +33,7 @@ import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
 // TODO: Fails to get the corba PlotServer and instead creates an RMI one. Other views have a CORBA service injected via
 // AnalysisRCPActivator.start(). Works if one of these views update their bean first
@@ -55,6 +56,8 @@ public class PlotServerGuiBeanUpdater implements Observer<Map<GuiParameters, Ser
 	 */
 	public PlotServerGuiBeanUpdater(String guiName) {
 		this.guiName = guiName;
+		//We need to activate the SciSoftRCP bundle as that sets up the PlotServer
+		AnalysisRCPActivator.getDefault();
 	}
 
 	/**

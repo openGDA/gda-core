@@ -380,8 +380,9 @@ public class LazyPVFactory {
 			if (LocalProperties.check(CHECK_CHANNELS_PROPERTY_NAME)) {
 				logger.warn("Checking channel : '" + pvName + "'");
 				try {
-					channel = (controller.createChannel(pvName));
-					controller.destroy(channel);
+					Channel temp = (controller.createChannel(pvName));
+					controller.destroy(temp);
+					temp=null;
 				} catch (Exception e) {
 					logger.error("Could not connect to channel  : '" + pvName + "'", e);
 				}	

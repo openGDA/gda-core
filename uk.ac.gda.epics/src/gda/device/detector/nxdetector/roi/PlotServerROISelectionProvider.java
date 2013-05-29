@@ -36,12 +36,17 @@ import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
  */
 public class PlotServerROISelectionProvider implements IndexedRectangularROIProvider<Integer>{
 	
+	private static final String ROIViewNameSuffix = " Array View";
+
+	public static String getGuiName(String detectorName){
+		return detectorName + ROIViewNameSuffix;
+	}
 	final private int maximumActiveRois;
 	
 	private String viewName;
 
 	public PlotServerROISelectionProvider(String detectorName, int maximumActiveRois) {
-		viewName = detectorName + " Array View";  // WARNING: Duplicated in TwoDArray and TwoDArrayView
+		viewName = getGuiName(detectorName);
 		this.maximumActiveRois = maximumActiveRois;
 	}
 

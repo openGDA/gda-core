@@ -19,6 +19,7 @@
 package uk.ac.gda.epics.adviewer.views;
 
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -31,15 +32,17 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.composites.TwoDArray;
+import uk.ac.gda.epics.adviewer.composites.tomove.PlottingSystemIRegionPlotServerConnector;
 
 public class TwoDArrayView extends ViewPart implements InitializingBean{
-	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArrayView.class);
 
 	private TwoDArray twoDArray;
 	ADController config;
 
 	private IPartListener2 partListener;
+
+	private PlottingSystemIRegionPlotServerConnector plotServerConnector;
 	
 	public TwoDArrayView(ADController config) {
 		this.config = config;
@@ -62,7 +65,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 			logger.error("Error configuring twoDArray composite", e);
 		}
 		setTitleImage(config.getTwoDarrayViewImageDescriptor().createImage());
-		setPartName(config.getDetectorName() + " Array View" ); // WARNING: Duplicated in TwoDArray
+		setPartName(config.getDetectorName() + " Array View" ); 
 
 		partListener = new IPartListener2() {
 			
@@ -103,6 +106,12 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 			}
 		};
 		getSite().getWorkbenchWindow().getPartService().addPartListener(partListener);
+		
+		if( config.isConnectToPlotServer()){
+			plotServerConnector = new PlottingSystemIRegionPlotServerConnector(this.twoDArray.getPlottingSystem(), PlotServerROISelectionProvider.getGuiName(config.getDetectorName()));
+		}
+		
+		
 	}
 
 	@Override
@@ -115,6 +124,10 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 		if( partListener != null){
 			getSite().getWorkbenchWindow().getPartService().removePartListener(partListener);
 			partListener = null;
+		}
+		if( plotServerConnector != null){
+			plotServerConnector.disconnect();
+			plotServerConnector = null;
 		}
 		super.dispose();
 	}

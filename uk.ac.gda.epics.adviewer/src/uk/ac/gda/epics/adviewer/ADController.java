@@ -111,5 +111,8 @@ public interface ADController {
 	// stops the continuous exposure
 	public abstract void stopExposure() throws Exception;
 
+	// return true is the regions of interest are linked to the plotserver
+	public abstract boolean isConnectToPlotServer();
+
 	
 }
