@@ -143,4 +143,7 @@ public interface NDFileHDF5 {
 	int getNumCaptured_RBV() throws Exception;
 	
 	String getArrayPort() throws Exception ;
+	
+	void setLazyOpen(boolean open) throws Exception;
+	boolean isLazyOpen() throws Exception;
 }
