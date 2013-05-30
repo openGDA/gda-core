@@ -567,6 +567,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 					updateFeature(region, RegiondefinitionPackage.eINSTANCE
 							.getRegion_FirstYChannel(), spinnerYChannelFrom
 							.getSelection());
+					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()-spinnerYChannelFrom.getSelection()+1);
 				}
 			}
 		});
@@ -587,6 +588,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 					updateFeature(region, RegiondefinitionPackage.eINSTANCE
 							.getRegion_LastYChannel(), spinnerYChannelTo
 							.getSelection());
+					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()-spinnerYChannelFrom.getSelection()+1);
 				}
 			}
 		});
@@ -612,6 +614,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		spinnerSlices.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerSlices.setToolTipText("Number of slices");
 		spinnerSlices.setMinimum(1);
+		spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()-spinnerYChannelFrom.getSelection()+1);
 
 		new Label(grpDetector, SWT.NONE);
 		new Label(grpDetector, SWT.NONE);
