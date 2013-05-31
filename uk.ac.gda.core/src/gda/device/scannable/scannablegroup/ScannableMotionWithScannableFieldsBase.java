@@ -689,6 +689,10 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 	public ContinuousMoveController getContinuousMoveController() {
 		return controller;
 	}
+	
+	public void setContinuousMoveController(TrajectoryMoveController controller) {
+		this.controller = controller;
+	}
 
 //	@Override
 //	public void asynchronousMoveTo(Object position) throws DeviceException {
