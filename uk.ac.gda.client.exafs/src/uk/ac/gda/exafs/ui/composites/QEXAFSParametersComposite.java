@@ -233,8 +233,9 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		speed.addValueListener(new ValueAdapter("speedListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if (speed.getNumericValue() != 0 && !speed.getValue().toString().equals(""))
+				if (speed.getNumericValue() != 0 && !speed.getValue().toString().equals("")){
 					calculate(provider);
+				}
 			}
 		});
 

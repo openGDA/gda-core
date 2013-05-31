@@ -36,13 +36,12 @@ import org.slf4j.LoggerFactory;
 
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
-import uk.ac.gda.beans.exafs.b18.LakeshoreParameters;
 import uk.ac.gda.exafs.ui.composites.QEXAFSParametersComposite;
-import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
+import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
 /**
@@ -130,6 +129,12 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		} catch (Exception e) {
 			logger.error("Cannot get and set core hole", e);
 		}
+		
+		beanComposite.getSpeed().on();
+		beanComposite.getStepSize().on();
+		beanComposite.getTime().on();
+		beanComposite.getInitialEnergy().on();
+		beanComposite.getFinalEnergy().on();
 	}
 
 	/**
@@ -205,5 +210,46 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 			logger.error("Could not update element list", e);
 		}
 		super.linkUI(isPageChange);
+	}
+	
+	public ComboWrapper getEdge() {
+		return edge;
+	}
+
+	@Override
+	protected void setPointsUpdate(boolean isUpdate) {
+		updateValueAllowed = isUpdate;
+		if (isUpdate) {
+			updatePointsLabels();
+			edge.on();
+			element.on();
+			beanComposite.getSpeed().on();
+			beanComposite.getStepSize().on();
+			beanComposite.getTime().on();
+			beanComposite.getInitialEnergy().on();
+			beanComposite.getFinalEnergy().on();
+			getCoreHole_unused().on();
+			getEdgeEnergy().on();
+		} else {
+			edge.off();
+			element.off();
+//			beanComposite.getSpeed().off();
+//			beanComposite.getStepSize().off();
+//			beanComposite.getTime().off();
+			beanComposite.getInitialEnergy().off();
+			beanComposite.getFinalEnergy().off();
+			getCoreHole_unused().off();
+			getEdgeEnergy().off();
+
+			getCoreHole_unused().off();
+			getEdgeEnergy().off();
+		}
+// 		not sure if this works as it relies on calling every getter method in the class...
+//		try {
+//			BeanUI.switchState(this, isUpdate);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			logger.error("TODO put description of error here", e);
+//		}
 	}
 }
