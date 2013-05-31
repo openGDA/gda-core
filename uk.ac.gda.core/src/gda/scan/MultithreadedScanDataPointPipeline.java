@@ -273,7 +273,16 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		}
 		List<Runnable> remainingPointsInQueue = broadcasterQueue.shutdownNow();
 		try {
+			/**
+			 * This call clears the interrupted flag.
+			 * This is important so that the normal completeCollection() and 
+			 * other ordinary cleanup code can run and do file and terminal 
+			 * I/O which would fail (by design) in interrupted state. 
+			 */
+			boolean interrupted = Thread.interrupted();
 			getBroadcaster().shutdown();
+			if(interrupted)
+				Thread.currentThread().interrupt();
 		} catch (Exception e) {
 			// TODO: Why are we absorbing this?
 		}

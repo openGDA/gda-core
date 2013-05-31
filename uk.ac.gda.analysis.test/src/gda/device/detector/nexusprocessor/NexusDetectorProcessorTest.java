@@ -418,9 +418,8 @@ public class NexusDetectorProcessorTest {
 		processor.setProcessors(processorList);
 		ndp.setProcessor(processor);
 		
-		
 		GDANexusDetectorData position = (GDANexusDetectorData) ndp.getPosition();
-		Assert.assertEquals(2, position.getDoubleVals().length);
+		Assert.assertEquals(3, position.getDoubleVals().length);
 		Double sum = position.getDoubleVals()[1];
 		Double expected=(double) (xSlice.getNumSteps()*xSlice.getNumSteps());
 		Assert.assertEquals(expected, sum, 0.);

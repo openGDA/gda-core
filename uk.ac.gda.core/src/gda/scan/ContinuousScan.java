@@ -157,8 +157,8 @@ public class ContinuousScan extends ConcurrentScanChild {
 		int highestFrameNumberRead = -1;
 		
 		try {
-			while (qscanAxis.isBusy() && highestFrameNumberRead < numberScanpoints - 1) {
-				// sleep for a second
+			while (qscanAxis.isBusy() && highestFrameNumberRead < numberScanpoints -1) {
+				// sleep for a second. For what reason?
 				Thread.sleep(1000);
 				checkForInterrupts();
 				// get lowest number of frames from all detectors

@@ -71,6 +71,7 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
@@ -374,6 +375,13 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 			listenForUserMessages();
 			
+			String defaultEditorId = preferenceStore.getString(PreferenceConstants.GDA_DEFAULT_NXS_HDF5_EDITOR_ID);
+			if( defaultEditorId !=null && defaultEditorId.length()>0){
+				IEditorRegistry registry = 
+				           PlatformUI.getWorkbench().getEditorRegistry();
+				   registry.setDefaultEditor("*.nxs", defaultEditorId);
+			}
+			
 			// should these two be done during initialize instead of now when Windows have been created?
 			final WorkspaceModifyOperation wkspaceModifyOperation = new WorkspaceModifyOperation() {
 
@@ -399,7 +407,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 					monitor.done();
 				}
 			};
-			final WorkspaceJob workspaceJob = new WorkspaceJob("postStartup"){
+			final WorkspaceJob workspaceJob = new WorkspaceJob("Setting up workspace") {
 
 				@Override
 				public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {

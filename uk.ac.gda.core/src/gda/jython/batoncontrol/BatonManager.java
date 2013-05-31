@@ -85,7 +85,7 @@ public class BatonManager implements IBatonManager {
 			return 0;
 		}
 
-		int authLevel = facadeNames.get(uniqueID).authorisationLevel;
+		int authLevel = getClientInfo(uniqueID).authorisationLevel;
 
 		// always skip if its a server
 		if (authLevel == Integer.MAX_VALUE) {
@@ -114,7 +114,7 @@ public class BatonManager implements IBatonManager {
 			return 0;
 		}
 		String uniqueID = idFromIndex(index);
-		return facadeNames.get(uniqueID).authorisationLevel;
+		return getClientInfo(uniqueID).authorisationLevel;
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class BatonManager implements IBatonManager {
 	@Override
 	public void switchUser(String uniqueFacadeName, String username, int accessLevel, String visitID) {
 		// overwrite the entry in facadeNames
-		ClientInfo info = facadeNames.get(uniqueFacadeName);
+		ClientInfo info = getClientInfo(uniqueFacadeName);
 		
 		boolean changeMade = false;
 		//only change if information is supplied
@@ -202,14 +202,44 @@ public class BatonManager implements IBatonManager {
 			}
 			renewLease(myJSFIdentifier);
 		}
+	}
 
+	private boolean canTheseShareTheBaton(String myJSFIdentifier, String theirJSFIdentifier) {
+		
+		if (!LocalProperties.canShareBaton()){
+			return false;
+		}
+		
+		if (myJSFIdentifier.equals(theirJSFIdentifier))
+			return true;
+		if (myJSFIdentifier.isEmpty() || theirJSFIdentifier.isEmpty())
+			return false;
+		
+		String myFedID = getClientInfo(myJSFIdentifier).userID;
+		String theirFedID = getClientInfo(theirJSFIdentifier).userID;
+		String myVisitID = getClientInfo(myJSFIdentifier).visitID;
+		String theirVisitID = getClientInfo(theirJSFIdentifier).visitID;
+		
+		if (myFedID == null && theirFedID == null)
+			return true;
+		if (myFedID == null || theirFedID == null)
+			return false;
+		
+		return myFedID.equals(theirFedID) && myVisitID.equals(theirVisitID);
 	}
 
 	@Override
 	public ClientDetails getClientInformation(String myJSFIdentifier) {
 		boolean hasBaton = amIBatonHolder(myJSFIdentifier, false);
-		ClientInfo info = facadeNames.get(myJSFIdentifier);
+		ClientInfo info = getClientInfo(myJSFIdentifier);
 		return new ClientDetails(info, hasBaton);
+	}
+	
+	/*
+	 * Returns static information and does not say if this client holds the baton.
+	 */
+	private ClientInfo getClientInfo(String myJSFIdentifier) {
+		return facadeNames.get(myJSFIdentifier);
 	}
 
 	@Override
@@ -220,7 +250,7 @@ public class BatonManager implements IBatonManager {
 		// loop through facades and find matching index
 		for (String uniqueID : facadeNames.keySet()) {
 			boolean hasBaton = amIBatonHolder(uniqueID, false);
-			ClientInfo info = facadeNames.get(uniqueID);
+			ClientInfo info = getClientInfo(uniqueID);
 			ClientDetails details = new ClientDetails(info, hasBaton);
 
 			// add other clients whose lease has not run out
@@ -249,8 +279,8 @@ public class BatonManager implements IBatonManager {
 
 		// if there is a baton holder
 		if (isJSFRegistered(uniqueIdentifier)) {
-			ClientInfo currentHolder = facadeNames.get(this.batonHolder);
-			ClientInfo other = facadeNames.get(uniqueIdentifier);
+			ClientInfo currentHolder = getClientInfo(this.batonHolder);
+			ClientInfo other = getClientInfo(uniqueIdentifier);
 
 			// if requester has higher auth than current baton holder then take
 			if (other.authorisationLevel > currentHolder.authorisationLevel
@@ -273,7 +303,7 @@ public class BatonManager implements IBatonManager {
 		if (!uniqueIdentifier.equals("")) {
 			//log any change
 			if (!uniqueIdentifier.equals(batonHolder)){
-				logger.info("Baton now held by " + facadeNames.get(uniqueIdentifier).userID);
+				logger.info("Baton now held by " + getClientInfo(uniqueIdentifier).userID);
 			}
 			changeUserIDDefinedMetadata(uniqueIdentifier);
 		}
@@ -287,8 +317,8 @@ public class BatonManager implements IBatonManager {
 			Metadata metadata = GDAMetadataProvider.getInstance();
 			if (metadata != null) {
 
-				String currentUser = facadeNames.get(uniqueIdentifier).getUserID();
-				String visitID = facadeNames.get(uniqueIdentifier).getVisitID();
+				String currentUser = getClientInfo(uniqueIdentifier).getUserID();
+				String visitID = getClientInfo(uniqueIdentifier).getVisitID();
 
 				// first change the metadata values for current user
 				if (metadataContainsKey(metadata,"userid")){
@@ -372,18 +402,18 @@ public class BatonManager implements IBatonManager {
 
 	private boolean amIBatonHolder(String myJSFIdentifier, boolean refresh) {
 		if (useBaton) {
-		if (refresh) {
-			renewLease(myJSFIdentifier);
+			if (refresh) {
+				renewLease(myJSFIdentifier);
+			}
+			return this.batonHolder.equals(myJSFIdentifier) || canTheseShareTheBaton(myJSFIdentifier,this.batonHolder);
 		}
-		return this.batonHolder.equals(myJSFIdentifier);
-	}
 		return true;
 	}
 
 	private String idFromIndex(int index) {
 		// loop through facades and find matching index
 		for (String uniqueID : facadeNames.keySet()) {
-			ClientInfo details = facadeNames.get(uniqueID);
+			ClientInfo details = getClientInfo(uniqueID);
 			if (details.index == index) {
 				return uniqueID;
 			}
@@ -407,7 +437,7 @@ public class BatonManager implements IBatonManager {
 	
 	private synchronized void renewLease(String myJSFIdentifier) {
 		// update the start time of this lease, but only for clients
-		if (facadeNames.containsKey(myJSFIdentifier) && !facadeNames.get(myJSFIdentifier).userID.equals("")) {
+		if (facadeNames.containsKey(myJSFIdentifier) && !getClientInfo(myJSFIdentifier).userID.equals("")) {
 			leaseHolders.put(myJSFIdentifier, new GregorianCalendar().getTimeInMillis());
 		}
 	}

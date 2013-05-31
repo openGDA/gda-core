@@ -379,7 +379,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 				// ignore zero input-output name devices
 				if (!(scn instanceof ContinuouslyScannableViaController)) {
 					throw new IllegalArgumentException("Scannable " + scn.getName()
-							+ " is not ContinouselyScannable so cannot be used in a TrajectoryScanLine");
+							+ " is not ContinuouslyScannableViaController so cannot be used in a TrajectoryScanLine");
 				}
 				scannablesToMove.add((ContinuouslyScannableViaController) scn);
 			}
@@ -518,6 +518,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			// 4a. Prepare the controller and move to the start position
 			// (some detectors timeout waiting for a first trigger once armed)
 			getController().prepareForMove();
+			
 			// 4b. Prepare hardware in parallel and wait for it all to be ready
 			armDetectors();
 
