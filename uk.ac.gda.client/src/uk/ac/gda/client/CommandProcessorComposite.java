@@ -440,7 +440,7 @@ public class CommandProcessorComposite extends Composite {
 					txtState.setText("Unknown");
 					break;
 				case WAITING_QUEUE:
-					JythonControlsFactory.disableUIControls();
+					JythonControlsFactory.enableUIControls();
 					if (showText){
 						btnRunPause.setText(strPause);
 					} else {
