@@ -95,15 +95,8 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	private Double desiredSpeed; // in deg/sec
 	
 	private double extraRunUp=0;
-	
-	
-	public double getExtraRunUp() {
-		return extraRunUp;
-	}
-
-	public void setExtraRunUp(double extraRunUp) {
-		this.extraRunUp = extraRunUp;
-	}
+	private boolean runUpOn=true;
+	private boolean runDownOn=true;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -161,7 +154,10 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			controller.caputWait(currentSpeedChnl, getMaxSpeed()); // ensure at max speed for the run-up movement
 			// move to run-up position so ready to collect
 			//super.asynchronousMoveTo(angleToEV(runupPosition));
-			super.moveTo(angleToEV(runupPosition));
+			if(runUpOn)
+				super.moveTo(angleToEV(runupPosition));
+			else
+				super.moveTo(angleToEV(startAngle));
 			
 			controller.caputWait(startChnl, startDeg);
 			controller.caputWait(stopChnl, stopDeg);
@@ -226,7 +222,10 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 							+ getMaxSpeed() + " deg/s");
 				}
 				controller.caputWait(outputModeChnl, 2);
-				super.asynchronousMoveTo(angleToEV(runDownPosition));
+				if(runDownOn)
+					super.asynchronousMoveTo(angleToEV(runDownPosition));
+				else
+					super.asynchronousMoveTo(angleToEV(endAngle));
 			} catch (Exception e) {
 				throw new DeviceException(e.getMessage(), e);
 			}
@@ -463,4 +462,29 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	public void setBraggCurrentSpeedPV(String braggCurrentSpeedPV) {
 		this.braggCurrentSpeedPV = braggCurrentSpeedPV;
 	}
+	
+	public double getExtraRunUp() {
+		return extraRunUp;
+	}
+
+	public void setExtraRunUp(double extraRunUp) {
+		this.extraRunUp = extraRunUp;
+	}
+
+	public boolean isRunUpOn() {
+		return runUpOn;
+	}
+
+	public void setRunUpOn(boolean runUpOn) {
+		this.runUpOn = runUpOn;
+	}
+
+	public boolean isRunDownOn() {
+		return runDownOn;
+	}
+
+	public void setRunDownOn(boolean runDownOn) {
+		this.runDownOn = runDownOn;
+	}
+
 }
