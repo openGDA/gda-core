@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
+import uk.ac.gda.exafs.ui.ElementEdgeEditor.ELEMENT_EVENT_TYPE;
 import uk.ac.gda.exafs.ui.composites.QEXAFSParametersComposite;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.FieldComposite;
@@ -132,6 +133,12 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		} catch (Exception e) {
 			logger.error("Cannot get and set core hole", e);
 		}
+		
+		beanComposite.getSpeed().on();
+		beanComposite.getStepSize().on();
+		beanComposite.getTime().on();
+		beanComposite.getInitialEnergy().on();
+		beanComposite.getFinalEnergy().on();
 	}
 
 	/**
@@ -203,7 +210,6 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 
 	@Override
 	public void linkUI(final boolean isPageChange) {
-
 		setPointsUpdate(false);
 
 		try {
@@ -219,4 +225,40 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		return edge;
 	}
 
+	@Override
+	protected void setPointsUpdate(boolean isUpdate) {
+		updateValueAllowed = isUpdate;
+		if (isUpdate) {
+			updatePointsLabels();
+			edge.on();
+			element.on();
+			beanComposite.getSpeed().on();
+			beanComposite.getStepSize().on();
+			beanComposite.getTime().on();
+			beanComposite.getInitialEnergy().on();
+			beanComposite.getFinalEnergy().on();
+			getCoreHole_unused().on();
+			getEdgeEnergy().on();
+		} else {
+			edge.off();
+			element.off();
+//			beanComposite.getSpeed().off();
+//			beanComposite.getStepSize().off();
+//			beanComposite.getTime().off();
+			beanComposite.getInitialEnergy().off();
+			beanComposite.getFinalEnergy().off();
+			getCoreHole_unused().off();
+			getEdgeEnergy().off();
+
+			getCoreHole_unused().off();
+			getEdgeEnergy().off();
+		}
+		// not sure if this works as it relies on calling every getter method in the class...
+//		try {
+//			BeanUI.switchState(this, isUpdate);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			logger.error("TODO put description of error here", e);
+//		}
+	}
 }

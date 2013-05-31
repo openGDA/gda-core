@@ -24,10 +24,17 @@ import gda.device.DeviceException;
 import gda.device.detector.xspress.Xspress2System;
 import gda.device.detector.xspress.XspressDetector;
 
+import java.util.HashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * To operate the Xspress through TFGv2 in the ContinuousScan framework
  */
 public class Xspress2BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector {
+
+	private static final Logger logger = LoggerFactory.getLogger(Xspress2BufferedDetector.class);
 
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = false;
@@ -75,7 +82,64 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		xspress2system.start();
 	}
 
-	
+	@Override
+	public int getNumberFrames() throws DeviceException {
+
+		if (!isContinuousMode) {
+			return 0;
+		}
+
+		String[] cmds = new String[] { "status show-armed", "progress", "status", "full", "lap", "frame" };
+		HashMap<String, String> currentVals = new HashMap<String, String>();
+		for (String cmd : cmds) {
+			currentVals.put(cmd, runDAServerCommand("tfg read " + cmd).toString());
+			logger.info("tfg read " + cmd + ": " + currentVals.get(cmd));
+		}
+
+		if (currentVals.isEmpty()) {
+			return 0;
+		}
+
+		// else either scan not started (return -1) or has finished (return continuousParameters.getNumberDataPoints())
+
+		// if started but nothing collected yet
+		if (currentVals.get("status show-armed").equals("EXT-ARMED") /* && currentVals.get("status").equals("IDLE") */) {
+			return 0;
+		}
+
+		// if frame is non-0 then work out the current frame
+		if (!currentVals.get("frame").equals("0")) {
+			String numFrames = currentVals.get("frame");
+			return extractCurrentFrame(Integer.parseInt(numFrames));
+		}
+
+		return continuousParameters.getNumberDataPoints();
+	}
+
+	private int extractCurrentFrame(int frameValue) {
+		if (isEven(frameValue)) {
+			Integer numFrames = frameValue / 2;
+			return numFrames;
+		}
+		Integer numFrames = (frameValue - 1) / 2;
+		return numFrames;
+	}
+
+	private boolean isEven(int x) {
+		return (x % 2) == 0;
+	}
+
+	private Object runDAServerCommand(String command) throws DeviceException {
+		Object obj = null;
+		if (xspress2system.getDaServer() != null && xspress2system.getDaServer().isConnected()) {
+			if ((obj = xspress2system.getDaServer().sendCommand(command)) == null) {
+				throw new DeviceException("Null reply received from daserver during " + command);
+			}
+			return obj;
+		}
+		return null;
+	}
+
 	@Override
 	public boolean isContinuousMode() {
 		return isContinuousMode;
@@ -104,9 +168,19 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 
 		if (!isSlave) {
 			if (on) {
-				setTimeFrames();
+				try {
+					setTimeFrames();
+				} catch (DeviceException e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
+				}
 			} else {
-				switchOffExtTrigger();
+				try {
+					switchOffExtTrigger();
+				} catch (DeviceException e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
+				}
 			}
 		}
 	}
@@ -187,14 +261,6 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		}
 
 		return maxNumberOfInts / frameSize;
-	}
-	
-	@Override
-	public int getNumberFrames() throws DeviceException {
-		if (!isContinuousMode){
-			return 0;
-		}
-		return xspress2system.getNumberFrames();
 	}
 
 	@Override
