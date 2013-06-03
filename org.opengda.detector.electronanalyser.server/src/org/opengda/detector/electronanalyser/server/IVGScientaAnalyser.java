@@ -148,6 +148,10 @@ public interface IVGScientaAnalyser extends Findable {
 	void setImageMode(ImageMode imagemode, double timeout) throws Exception;
 
 	void setAcquisitionMode(String value, double timeout) throws Exception;
+
+	public abstract String[] getPassENergies() throws DeviceException;
+
+	public abstract String[] getLensModes() throws DeviceException;
 	
 
 }

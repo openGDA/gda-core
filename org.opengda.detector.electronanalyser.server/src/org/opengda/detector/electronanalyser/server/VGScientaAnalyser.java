@@ -508,5 +508,15 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		getCollectionStrategy().collectData();
 	}
 
+	@Override
+	public String[] getPassENergies() throws DeviceException {
+		return controller.getPassEnergies();
+	}
+
+	@Override
+	public String[] getLensModes() throws DeviceException {
+		return controller.getLensModes();
+	}
+
 
 }

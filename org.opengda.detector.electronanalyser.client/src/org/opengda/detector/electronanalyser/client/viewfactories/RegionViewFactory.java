@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.views.RegionView;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,7 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	private Camera camera;
 	private ScannableMotor dcmenergy;
 	private ScannableMotor pgmenergy;
+	private IVGScientaAnalyser analyser; 
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -73,6 +75,7 @@ public class RegionViewFactory implements FindableExecutableExtension {
 		if (getCamera()!=null) regionView.setCamera(camera);
 		if (dcmenergy!=null) regionView.setDcmEnergy(dcmenergy);
 		if (pgmenergy!=null) regionView.setPgmEnergy(pgmenergy);
+		if (getAnalyser()!=null) regionView.setAnalyser(getAnalyser());
 		
 		return regionView;
 	}
@@ -106,6 +109,14 @@ public class RegionViewFactory implements FindableExecutableExtension {
 
 	public void setCamera(Camera camera) {
 		this.camera = camera;
+	}
+
+	public IVGScientaAnalyser getAnalyser() {
+		return analyser;
+	}
+
+	public void setAnalyser(IVGScientaAnalyser analyser) {
+		this.analyser = analyser;
 	}
 
 }

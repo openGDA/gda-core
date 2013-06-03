@@ -204,6 +204,18 @@ public class VGScientaController implements Configurable {
 		}
 		return positionLabels;
 	}
+	public String[] getLensModes() throws DeviceException {
+		String[] positionLabels = new String[0];
+		try {
+			positionLabels = EPICS_CONTROLLER.cagetLabels(getChannel(LENSMODE));
+		} catch (Exception e) {
+			if (e instanceof RuntimeException) {
+				throw (RuntimeException) e;
+			}
+			throw new DeviceException(" exception in getPositions", e);
+		}
+		return positionLabels;
+	}
 
 	@Override
 	public void configure() {

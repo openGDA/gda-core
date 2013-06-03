@@ -60,6 +60,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_M
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
@@ -777,6 +778,8 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		}
 	};
 
+	private IVGScientaAnalyser analyser;
+
 	private Region getSelectedRegionInSequenceView() {
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		IWorkbenchWindow activeWorkbenchWindow = workbench
@@ -802,14 +805,20 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 	}
 
 	private void initialisation() {
-		// TODO replace the following values by sourcing it from detector at
-		// initialisation
-		lensMode.setItems(new String[] { "Transmission", "Angular45",
-				"Angular60" });
-		// TODO replace the following values by sourcing it from detector at
-		// initialisation
-		passEnergy.setItems(new String[] { "5", "10", "50", "75", "100", "200",
-				"500" });
+		try {
+			lensMode.setItems(getAnalyser().getLensModes());
+		} catch (DeviceException e) {
+			logger.error("Cannot get lens mode list from analyser.", e);
+			e.printStackTrace();
+		}
+		//new String[] { "Transmission", "Angular45",	"Angular60" });
+		try {
+			passEnergy.setItems(getAnalyser().getPassENergies());
+		} catch (DeviceException e) {
+			logger.error("Cannot get pass energy list from analyser.", e);
+			e.printStackTrace();
+		}
+		//(new String[] { "5", "10", "20","50", "75", "100", "200","500" });
 
 		try {
 			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
@@ -1137,11 +1146,12 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		txtTotalTime.setText(String.format("%.3f", calculateTotalTime));
 		updateFeature(region,
 				RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
-				calculateTotalTime);
+				Double.parseDouble(txtTotalTime.getText()));
 		fireSelectionChanged(new TotalTimeSelection());
 	}
 
 	private void updateTotalSteps() {
+		if (btnSwept.getSelection()) {
 		txtTotalSteps
 				.setText(String.format(
 						"%d",
@@ -1154,6 +1164,10 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 										- Integer
 												.parseInt(spinnerEnergyChannelFrom
 														.getText()) + 1)))));
+		}
+		if (btnFixed.getSelection()) {
+			txtTotalSteps.setText("1");
+		}
 		updateFeature(region,
 				RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(),
 				Integer.parseInt(txtTotalSteps.getText()));
@@ -1257,18 +1271,14 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 	private void setToFixedMode() {
 		txtLow.setEditable(false);
 		txtHigh.setEditable(false);
-		txtWidth.setEnabled(false);
 		txtSize.setEditable(false);
 		txtSize.setText(String.format("%.3f", fixedEnergyRange()));
 		txtWidth.setText(txtSize.getText());
 		txtLow.setText(String.valueOf(Double.parseDouble(txtCenter.getText())-1/2*Double.parseDouble(txtWidth.getText())));
 		txtHigh.setText(String.valueOf(Double.parseDouble(txtCenter.getText())+1/2*Double.parseDouble(txtWidth.getText())));
-		txtTotalSteps.setText("1");
-		txtTotalTime.setText(String.format(
-				"%.3f",
-				RegionStepsTimeEstimation.calculateTotalTime(
-						Double.parseDouble(txtTime.getText()),
-						Integer.parseInt(txtTotalSteps.getText()))));
+		if (btnFixed.getSelection()) {
+			updateTotalSteps();
+		}
 	}
 
 	private double fixedEnergyRange() {
@@ -1337,38 +1347,43 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			txtSize.setText(String.format("%.3f", sweptStepSize));
 		}
 		if (btnSwept.getSelection()) {
-			txtTotalSteps
-					.setText(String.format(
-							"%d",
-							RegionStepsTimeEstimation.calculateTotalSteps(
-									Double.parseDouble(txtWidth.getText()),
-									Double.parseDouble(txtSize.getText()),
-									(Double.parseDouble(txtMinimumSize
-											.getText()) * (Integer
-											.parseInt(spinnerEnergyChannelTo
-													.getText())
-											- Integer
-													.parseInt(spinnerEnergyChannelFrom
-															.getText()) + 1)))));
-			double calculateTotalTime = RegionStepsTimeEstimation
-					.calculateTotalTime(Double.parseDouble(txtTime.getText()),
-							Integer.parseInt(txtTotalSteps.getText()));
-			txtTotalTime.setText(String.format("%.3f", calculateTotalTime));
+			updateTotalSteps();
+//			txtTotalSteps
+//					.setText(String.format(
+//							"%d",
+//							RegionStepsTimeEstimation.calculateTotalSteps(
+//									Double.parseDouble(txtWidth.getText()),
+//									Double.parseDouble(txtSize.getText()),
+//									(Double.parseDouble(txtMinimumSize
+//											.getText()) * (Integer
+//											.parseInt(spinnerEnergyChannelTo
+//													.getText())
+//											- Integer
+//													.parseInt(spinnerEnergyChannelFrom
+//															.getText()) + 1)))));
+//			double calculateTotalTime = RegionStepsTimeEstimation
+//					.calculateTotalTime(Double.parseDouble(txtTime.getText()),
+//							Integer.parseInt(txtTotalSteps.getText()));
+//			txtTotalTime.setText(String.format("%.3f", calculateTotalTime));
 		}
 	}
 
 	private void updateEnergyStep() {
-		if (txtSize.getText().isEmpty()
-				|| (Double.parseDouble(txtSize.getText()) < Double
-						.parseDouble(txtMinimumSize.getText()))) {
-			sweptStepSize = Double.parseDouble(txtMinimumSize.getText());
-			txtSize.setText(String.format("%.3f", sweptStepSize));
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
-					sweptStepSize);
-		}
+//		if (txtSize.getText().isEmpty()
+//				|| (Double.parseDouble(txtSize.getText()) < Double
+//						.parseDouble(txtMinimumSize.getText()))) {
+//			sweptStepSize = Double.parseDouble(txtMinimumSize.getText());
+//			txtSize.setText(String.format("%.3f", sweptStepSize));
+//			updateFeature(region,
+//					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
+//					sweptStepSize);
+//		}
 		if (btnSwept.getSelection()) {
+			setToSweptMode();
 			updateTotalSteps();
+		}
+		if (btnFixed.getSelection()) {
+			setToFixedMode();
 		}
 	}
 
@@ -1647,6 +1662,14 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		for (ISelectionChangedListener listener : selectionChangedListeners) {
 			listener.selectionChanged(event);
 		}
+	}
+
+	public IVGScientaAnalyser getAnalyser() {
+		return analyser;
+	}
+
+	public void setAnalyser(IVGScientaAnalyser analyser) {
+		this.analyser = analyser;
 	}
 
 }
