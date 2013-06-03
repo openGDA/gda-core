@@ -20,14 +20,21 @@ package org.opengda.detector.electronanalyser.server;
 
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
+import gda.device.corba.impl.DeviceAdapter;
+import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+import gda.device.detector.areadetector.v17.NDProcess;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
 
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@CorbaAdapterClass(DeviceAdapter.class)
+@CorbaImplClass(DeviceImpl.class)
 public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser {
 
 	private static final long serialVersionUID = -2907729482321978030L;
@@ -40,6 +47,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private int[] fixedModeRegion;
 
 	private int[] sweptModeRegion;
+
+	private NDProcess ndProc;
 
 	@Override
 	public AnalyserCapabilities getCapabilities() {
@@ -486,6 +495,13 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		return controller.getSpectrum();
 	}
 
+	public NDProcess getNdProc() {
+		return ndProc;
+	}
+
+	public void setNdProc(NDProcess ndProc) {
+		this.ndProc = ndProc;
+	}
 
 	@Override
 	public void start() throws Exception {
