@@ -1257,8 +1257,12 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 	private void setToFixedMode() {
 		txtLow.setEditable(false);
 		txtHigh.setEditable(false);
+		txtWidth.setEnabled(false);
 		txtSize.setEditable(false);
 		txtSize.setText(String.format("%.3f", fixedEnergyRange()));
+		txtWidth.setText(txtSize.getText());
+		txtLow.setText(String.valueOf(Double.parseDouble(txtCenter.getText())-1/2*Double.parseDouble(txtWidth.getText())));
+		txtHigh.setText(String.valueOf(Double.parseDouble(txtCenter.getText())+1/2*Double.parseDouble(txtWidth.getText())));
 		txtTotalSteps.setText("1");
 		txtTotalTime.setText(String.format(
 				"%.3f",
@@ -1316,13 +1320,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 					RegionStepsTimeEstimation.calculateTotalTime(
 							Double.parseDouble(txtTime.getText()),
 							Integer.parseInt(txtTotalSteps.getText())));
-			fireSelectionChanged(new TotalTimeSelection());
-			fireSelectionChanged(new TotalTimeSelection());
-			fireSelectionChanged(new TotalTimeSelection());
-			fireSelectionChanged(new TotalTimeSelection());
-			fireSelectionChanged(new TotalTimeSelection());
-			fireSelectionChanged(new TotalTimeSelection());
-
+			//fireSelectionChanged(new TotalTimeSelection());
 		}
 	}
 
