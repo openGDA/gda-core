@@ -34,6 +34,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 
 	public RegionScannable() {
 		// scriptController=Finder.getInstance().find("SequenceFileObserver");
+		setOutputFormat(new String[] {"%s"});
 	}
 
 	@Override
