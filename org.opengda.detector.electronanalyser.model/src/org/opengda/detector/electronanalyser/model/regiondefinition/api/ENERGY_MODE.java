@@ -26,7 +26,7 @@ public enum ENERGY_MODE implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	KINETIC(0, "KINETIC", "KINETIC"),
+	KINETIC(1, "KINETIC", "Kinetic"),
 
 	/**
 	 * The '<em><b>BINDING</b></em>' literal object.
@@ -36,7 +36,7 @@ public enum ENERGY_MODE implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	BINDING(1, "BINDING", "BINDING");
+	BINDING(0, "BINDING", "Binding");
 
 	/**
 	 * The '<em><b>KINETIC</b></em>' literal value.
@@ -47,11 +47,11 @@ public enum ENERGY_MODE implements Enumerator {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @see #KINETIC
-	 * @model
+	 * @model literal="Kinetic"
 	 * @generated
 	 * @ordered
 	 */
-	public static final int KINETIC_VALUE = 0;
+	public static final int KINETIC_VALUE = 1;
 
 	/**
 	 * The '<em><b>BINDING</b></em>' literal value.
@@ -62,11 +62,11 @@ public enum ENERGY_MODE implements Enumerator {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @see #BINDING
-	 * @model
+	 * @model literal="Binding"
 	 * @generated
 	 * @ordered
 	 */
-	public static final int BINDING_VALUE = 1;
+	public static final int BINDING_VALUE = 0;
 
 	/**
 	 * An array of all the '<em><b>ENERGY MODE</b></em>' enumerators.

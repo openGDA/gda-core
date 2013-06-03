@@ -104,16 +104,16 @@
     <eLiterals name="ADD_DIMENSION" value="1"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="ACQUISITION_MODE">
-    <eLiterals name="SWEPT"/>
-    <eLiterals name="FIXED" value="1"/>
+    <eLiterals name="SWEPT" literal="Swept"/>
+    <eLiterals name="FIXED" value="1" literal="Fixed"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="ENERGY_MODE">
-    <eLiterals name="KINETIC"/>
-    <eLiterals name="BINDING" value="1"/>
+    <eLiterals name="KINETIC" value="1" literal="Kinetic"/>
+    <eLiterals name="BINDING" literal="Binding"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="DETECTOR_MODE">
-    <eLiterals name="ADC"/>
-    <eLiterals name="PULSE_COUNTING" value="1"/>
+    <eLiterals name="ADC" value="1"/>
+    <eLiterals name="PULSE_COUNTING" literal="Pulse Counting"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Spectrum">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="location" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"

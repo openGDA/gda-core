@@ -26,7 +26,7 @@ public enum DETECTOR_MODE implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	ADC(0, "ADC", "ADC"),
+	ADC(1, "ADC", "ADC"),
 
 	/**
 	 * The '<em><b>PULSE COUNTING</b></em>' literal object.
@@ -36,7 +36,7 @@ public enum DETECTOR_MODE implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	PULSE_COUNTING(1, "PULSE_COUNTING", "PULSE_COUNTING");
+	PULSE_COUNTING(0, "PULSE_COUNTING", "Pulse Counting");
 
 	/**
 	 * The '<em><b>ADC</b></em>' literal value.
@@ -51,7 +51,7 @@ public enum DETECTOR_MODE implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int ADC_VALUE = 0;
+	public static final int ADC_VALUE = 1;
 
 	/**
 	 * The '<em><b>PULSE COUNTING</b></em>' literal value.
@@ -62,11 +62,11 @@ public enum DETECTOR_MODE implements Enumerator {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @see #PULSE_COUNTING
-	 * @model
+	 * @model literal="Pulse Counting"
 	 * @generated
 	 * @ordered
 	 */
-	public static final int PULSE_COUNTING_VALUE = 1;
+	public static final int PULSE_COUNTING_VALUE = 0;
 
 	/**
 	 * An array of all the '<em><b>DETECTOR MODE</b></em>' enumerators.

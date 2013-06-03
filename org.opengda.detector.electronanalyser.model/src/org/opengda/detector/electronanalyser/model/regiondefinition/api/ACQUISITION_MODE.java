@@ -26,7 +26,7 @@ public enum ACQUISITION_MODE implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	SWEPT(0, "SWEPT", "SWEPT"), //$NON-NLS-1$ //$NON-NLS-2$
+	SWEPT(0, "SWEPT", "Swept"), //$NON-NLS-1$ //$NON-NLS-2$
 
 	/**
 	 * The '<em><b>FIXED</b></em>' literal object.
@@ -36,7 +36,7 @@ public enum ACQUISITION_MODE implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	FIXED(1, "FIXED", "FIXED"); //$NON-NLS-1$ //$NON-NLS-2$
+	FIXED(1, "FIXED", "Fixed"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	/**
 	 * The '<em><b>SWEPT</b></em>' literal value.
@@ -47,7 +47,7 @@ public enum ACQUISITION_MODE implements Enumerator {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @see #SWEPT
-	 * @model
+	 * @model literal="Swept"
 	 * @generated
 	 * @ordered
 	 */
@@ -62,7 +62,7 @@ public enum ACQUISITION_MODE implements Enumerator {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @see #FIXED
-	 * @model
+	 * @model literal="Fixed"
 	 * @generated
 	 * @ordered
 	 */
