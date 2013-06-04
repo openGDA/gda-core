@@ -1053,8 +1053,9 @@ public abstract class ScanBase implements Scan {
 				report("Ending scan and rethrowing exception");
 				
 				report("====================================================================================================");
-				
-				throw e;
+
+				interrupted = true; // causes endscan to behave differently
+				throw e; 
 			} finally {
 				try {
 					// TODO: endScan now duplicates some of the exception handling performed above. 
