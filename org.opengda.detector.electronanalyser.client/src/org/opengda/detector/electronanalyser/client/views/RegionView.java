@@ -2,6 +2,9 @@ package org.opengda.detector.electronanalyser.client.views;
 
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotor;
+import gda.device.scannable.ScannableStatus;
+import gda.factory.Finder;
+import gda.observable.IObserver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,7 +77,8 @@ import org.slf4j.LoggerFactory;
  * @author fy65
  * 
  */
-public class RegionView extends ViewPart implements ISelectionProvider {
+public class RegionView extends ViewPart implements ISelectionProvider,
+		IObserver {
 	private static final Logger logger = LoggerFactory
 			.getLogger(RegionView.class);
 
@@ -568,7 +572,8 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 					updateFeature(region, RegiondefinitionPackage.eINSTANCE
 							.getRegion_FirstYChannel(), spinnerYChannelFrom
 							.getSelection());
-					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()-spinnerYChannelFrom.getSelection()+1);
+					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()
+							- spinnerYChannelFrom.getSelection() + 1);
 				}
 			}
 		});
@@ -589,7 +594,8 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 					updateFeature(region, RegiondefinitionPackage.eINSTANCE
 							.getRegion_LastYChannel(), spinnerYChannelTo
 							.getSelection());
-					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()-spinnerYChannelFrom.getSelection()+1);
+					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()
+							- spinnerYChannelFrom.getSelection() + 1);
 				}
 			}
 		});
@@ -615,7 +621,8 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		spinnerSlices.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerSlices.setToolTipText("Number of slices");
 		spinnerSlices.setMinimum(1);
-		spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()-spinnerYChannelFrom.getSelection()+1);
+		spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()
+				- spinnerYChannelFrom.getSelection() + 1);
 
 		new Label(grpDetector, SWT.NONE);
 		new Label(grpDetector, SWT.NONE);
@@ -732,7 +739,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 					regions = regionDefinitionResourceUtil.getRegions();
 					populateRegionNameCombo(regions);
 					if (regions.isEmpty()) {
-						region=null;
+						region = null;
 						regionPageBook.showPage(plainComposite);
 					} else {
 						regionPageBook.showPage(regionComposite);
@@ -761,7 +768,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 				}
 			} else if (selection instanceof IStructuredSelection) {
 				if (StructuredSelection.EMPTY.equals(selection)) {
-					region=null;
+					region = null;
 					regionPageBook.showPage(plainComposite);
 				} else {
 					IStructuredSelection sel = (IStructuredSelection) selection;
@@ -811,14 +818,14 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			logger.error("Cannot get lens mode list from analyser.", e);
 			e.printStackTrace();
 		}
-		//new String[] { "Transmission", "Angular45",	"Angular60" });
+		// new String[] { "Transmission", "Angular45", "Angular60" });
 		try {
 			passEnergy.setItems(getAnalyser().getPassENergies());
 		} catch (DeviceException e) {
 			logger.error("Cannot get pass energy list from analyser.", e);
 			e.printStackTrace();
 		}
-		//(new String[] { "5", "10", "20","50", "75", "100", "200","500" });
+		// (new String[] { "5", "10", "20","50", "75", "100", "200","500" });
 
 		try {
 			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
@@ -830,6 +837,18 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			regions = regionDefinitionResourceUtil.getRegions();
 		} catch (Exception e1) {
 			logger.error("Cannot get regions from resource: ", e1);
+		}
+		dcmenergy = (ScannableMotor) Finder.getInstance().find("dcmenergy");
+		if (dcmenergy == null) {
+			logger.error("Finder failed to find 'dcmenergy'");
+		} else {
+			dcmenergy.addIObserver(this);
+		}
+		pgmenergy = (ScannableMotor) Finder.getInstance().find("pgmenergy");
+		if (pgmenergy == null) {
+			logger.error("Finder failed to find 'pgmenergy'");
+		} else {
+			pgmenergy.addIObserver(this);
 		}
 
 		if (regions.isEmpty()) {
@@ -887,8 +906,6 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		numberOfIterationSpinner
 				.addSelectionListener(numIterationSpinnerSelAdaptor);
 
-		// TODO add monitor to dcmenergy in EPICS
-		// TODO add monitor to pgmenergy in EPICS
 		// TODO add monitor to total steps in EPICS
 	}
 
@@ -1114,7 +1131,10 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		}
 	}
 
+	private double sweptLowEnergy;
+	private double sweptHighEnergy;
 	private SelectionAdapter sizeSelectionListener = new SelectionAdapter() {
+
 		public void widgetDefaultSelected(SelectionEvent e) {
 			Object source = e.getSource();
 			if (source.equals(txtSize)) {
@@ -1152,18 +1172,19 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 
 	private void updateTotalSteps() {
 		if (btnSwept.getSelection()) {
-		txtTotalSteps
-				.setText(String.format(
-						"%d",
-						RegionStepsTimeEstimation.calculateTotalSteps(
-								Double.parseDouble(txtWidth.getText()),
-								Double.parseDouble(txtSize.getText()),
-								(Double.parseDouble(txtMinimumSize.getText()) * (Integer
-										.parseInt(spinnerEnergyChannelTo
-												.getText())
-										- Integer
-												.parseInt(spinnerEnergyChannelFrom
-														.getText()) + 1)))));
+			txtTotalSteps
+					.setText(String.format(
+							"%d",
+							RegionStepsTimeEstimation.calculateTotalSteps(
+									Double.parseDouble(txtWidth.getText()),
+									Double.parseDouble(txtSize.getText()),
+									(Double.parseDouble(txtMinimumSize
+											.getText()) * (Integer
+											.parseInt(spinnerEnergyChannelTo
+													.getText())
+											- Integer
+													.parseInt(spinnerEnergyChannelFrom
+															.getText()) + 1)))));
 		}
 		if (btnFixed.getSelection()) {
 			txtTotalSteps.setText("1");
@@ -1203,6 +1224,8 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		}
 	};
 
+	private double fixedCentreEnergy;
+
 	protected void onModifyEnergy(Object source) {
 		if (source.equals(txtLow) && txtLow.isFocusControl()) {
 			updateEnergyFields(txtLow);
@@ -1217,12 +1240,25 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			txtHigh.setText(String.format("%.4f", high));
 			txtCenter.setText(String.format("%.4f",
 					Double.parseDouble(txtCenter.getText())));
+			double width = Double.parseDouble(txtHigh.getText())
+					- Double.parseDouble(txtLow.getText());
+			txtWidth.setText(String.format("%.4f", width));
 			updateFeature(region,
 					RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(),
 					Double.parseDouble(txtLow.getText()));
 			updateFeature(region,
 					RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(),
 					Double.parseDouble(txtHigh.getText()));
+			updateFeature(region,
+					RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(),
+					Double.parseDouble(txtCenter.getText()));
+		}
+		if (btnSwept.getSelection()) {
+			sweptLowEnergy = Double.parseDouble(txtLow.getText());
+			sweptHighEnergy = Double.parseDouble(txtHigh.getText());
+		}
+		if (btnFixed.getSelection()) {
+			fixedCentreEnergy = Double.parseDouble(txtCenter.getText());
 		}
 	}
 
@@ -1248,6 +1284,9 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		double center = (Double.parseDouble(txtLow.getText()) + Double
 				.parseDouble(txtHigh.getText())) / 2;
 		txtCenter.setText(String.format("%.4f", center));
+		updateFeature(region,
+				RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(),
+				Double.parseDouble(txtCenter.getText()));
 		double width = Double.parseDouble(txtHigh.getText())
 				- Double.parseDouble(txtLow.getText());
 		txtWidth.setText(String.format("%.4f", width));
@@ -1272,10 +1311,14 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		txtLow.setEditable(false);
 		txtHigh.setEditable(false);
 		txtSize.setEditable(false);
+		// restore the original energy step size for the FIXED
+		txtCenter.setText(String.format("%.4f", fixedCentreEnergy));
 		txtSize.setText(String.format("%.3f", fixedEnergyRange()));
 		txtWidth.setText(txtSize.getText());
-		txtLow.setText(String.valueOf(Double.parseDouble(txtCenter.getText())-1/2*Double.parseDouble(txtWidth.getText())));
-		txtHigh.setText(String.valueOf(Double.parseDouble(txtCenter.getText())+1/2*Double.parseDouble(txtWidth.getText())));
+		txtLow.setText(String.valueOf(Double.parseDouble(txtCenter.getText())
+				- 1 / 2 * Double.parseDouble(txtWidth.getText())));
+		txtHigh.setText(String.valueOf(Double.parseDouble(txtCenter.getText())
+				+ 1 / 2 * Double.parseDouble(txtWidth.getText())));
 		if (btnFixed.getSelection()) {
 			updateTotalSteps();
 		}
@@ -1330,7 +1373,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 					RegionStepsTimeEstimation.calculateTotalTime(
 							Double.parseDouble(txtTime.getText()),
 							Integer.parseInt(txtTotalSteps.getText())));
-			//fireSelectionChanged(new TotalTimeSelection());
+			// fireSelectionChanged(new TotalTimeSelection());
 		}
 	}
 
@@ -1339,6 +1382,12 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		txtHigh.setEditable(true);
 		txtSize.setEditable(true);
 		// restore the original energy step size for the SWEPT
+		txtLow.setText(String.format("%.4f", sweptLowEnergy));
+		txtHigh.setText(String.format("%.4f", sweptHighEnergy));
+		txtCenter.setText(String.format("%.4f",
+				(sweptLowEnergy + sweptHighEnergy) / 2));
+		txtWidth.setText(String.format("%.4f",
+				(sweptHighEnergy - sweptLowEnergy)));
 		txtSize.setText(String.format("%.3f", sweptStepSize));
 		if (txtSize.getText().isEmpty()
 				|| (Double.parseDouble(txtSize.getText()) < Double
@@ -1348,36 +1397,36 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		}
 		if (btnSwept.getSelection()) {
 			updateTotalSteps();
-//			txtTotalSteps
-//					.setText(String.format(
-//							"%d",
-//							RegionStepsTimeEstimation.calculateTotalSteps(
-//									Double.parseDouble(txtWidth.getText()),
-//									Double.parseDouble(txtSize.getText()),
-//									(Double.parseDouble(txtMinimumSize
-//											.getText()) * (Integer
-//											.parseInt(spinnerEnergyChannelTo
-//													.getText())
-//											- Integer
-//													.parseInt(spinnerEnergyChannelFrom
-//															.getText()) + 1)))));
-//			double calculateTotalTime = RegionStepsTimeEstimation
-//					.calculateTotalTime(Double.parseDouble(txtTime.getText()),
-//							Integer.parseInt(txtTotalSteps.getText()));
-//			txtTotalTime.setText(String.format("%.3f", calculateTotalTime));
+			// txtTotalSteps
+			// .setText(String.format(
+			// "%d",
+			// RegionStepsTimeEstimation.calculateTotalSteps(
+			// Double.parseDouble(txtWidth.getText()),
+			// Double.parseDouble(txtSize.getText()),
+			// (Double.parseDouble(txtMinimumSize
+			// .getText()) * (Integer
+			// .parseInt(spinnerEnergyChannelTo
+			// .getText())
+			// - Integer
+			// .parseInt(spinnerEnergyChannelFrom
+			// .getText()) + 1)))));
+			// double calculateTotalTime = RegionStepsTimeEstimation
+			// .calculateTotalTime(Double.parseDouble(txtTime.getText()),
+			// Integer.parseInt(txtTotalSteps.getText()));
+			// txtTotalTime.setText(String.format("%.3f", calculateTotalTime));
 		}
 	}
 
 	private void updateEnergyStep() {
-//		if (txtSize.getText().isEmpty()
-//				|| (Double.parseDouble(txtSize.getText()) < Double
-//						.parseDouble(txtMinimumSize.getText()))) {
-//			sweptStepSize = Double.parseDouble(txtMinimumSize.getText());
-//			txtSize.setText(String.format("%.3f", sweptStepSize));
-//			updateFeature(region,
-//					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
-//					sweptStepSize);
-//		}
+		// if (txtSize.getText().isEmpty()
+		// || (Double.parseDouble(txtSize.getText()) < Double
+		// .parseDouble(txtMinimumSize.getText()))) {
+		// sweptStepSize = Double.parseDouble(txtMinimumSize.getText());
+		// txtSize.setText(String.format("%.3f", sweptStepSize));
+		// updateFeature(region,
+		// RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
+		// sweptStepSize);
+		// }
 		if (btnSwept.getSelection()) {
 			setToSweptMode();
 			updateTotalSteps();
@@ -1541,7 +1590,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		} else {
 			if (dcmenergy != null) {
 				try {
-					hardXRayEnergy = (double) dcmenergy.getPosition();
+					hardXRayEnergy = (double) dcmenergy.getPosition() * 1000;
 				} catch (DeviceException e) {
 					logger.error("Cannot get X-ray energy from DCM.", e);
 				}
@@ -1672,4 +1721,32 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		this.analyser = analyser;
 	}
 
+	@Override
+	public void update(Object source, Object arg) {
+		if (source == dcmenergy && arg instanceof ScannableStatus) {
+			if (((ScannableStatus) arg).getStatus() == ScannableStatus.IDLE) {
+				try {
+					hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+				} catch (DeviceException e) {
+					logger.error("Cannot get X-ray energy from DCM.", e);
+				}
+				if (btnHard.getSelection()) {
+					excitationEnergy = hardXRayEnergy;
+				}
+				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+			}
+		}
+		if (source == pgmenergy && arg instanceof ScannableStatus) {
+			if (((ScannableStatus) arg).getStatus() == ScannableStatus.IDLE) {
+				try {
+					softXRayEnergy = (double) pgmenergy.getPosition();
+				} catch (DeviceException e) {
+					logger.error("Cannot get X-ray energy from PGM.", e);
+				}
+				if (btnSoft.getSelection()) {
+					excitationEnergy=softXRayEnergy;				}
+				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+			}
+		}
+	}
 }
