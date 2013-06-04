@@ -530,7 +530,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 				det.waitWhileBusy();
 			}
 		} catch (Exception e) {
-			String msg = "Problem in doCollection() so calling " + getController().getName() + " stopAndReset";
+			String msg = "Problem in doCollection() '" + e.getMessage() + "' so calling " + getController().getName() + " stopAndReset";
 			logger.error(msg,e);
 			InterfaceProvider.getTerminalPrinter().print(msg);
 			getController().stopAndReset();
