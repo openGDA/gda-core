@@ -48,7 +48,6 @@ import static org.jscience.physics.units.SI.RADIAN;
 import static org.jscience.physics.units.SI.VOLT;
 import static org.jscience.physics.units.Unit.ONE;
 import gda.device.DeviceException;
-import gda.device.Temperature;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.jscience.physics.quantities.Count;
 import gda.jscience.physics.units.NonSIext;
@@ -69,6 +68,7 @@ import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Force;
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.quantities.Temperature;
 import org.jscience.physics.units.NonSI;
 import org.jscience.physics.units.SI;
 import org.jscience.physics.units.Unit;
@@ -553,7 +553,7 @@ public class UnitsComponent implements PositionConvertor {
 		}
 		
 		else {
-			throw new IllegalArgumentException("Hardware unit string " + hardwareUnitString + " not supportd.");
+			throw new IllegalArgumentException("Hardware unit string " + hardwareUnitString + " not supported.");
 		}
 		return unitList;
 	}

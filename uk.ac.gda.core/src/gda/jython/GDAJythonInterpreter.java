@@ -345,7 +345,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 				// plotting
 				this.interp.runsource("from gda.analysis import *");
-				this.interp.runsource("from gda.analysis.utils import *");
+				
+				//the following import fails on b18. don't know why
+				//this.interp.runsource("from gda.analysis.utils import *");
 				// not there in 8.2 this.interp.runsource("from gda.analysis.functions import *");
 
 				// import other interfaces to use with list command

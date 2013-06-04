@@ -23,7 +23,6 @@ import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.QueueChangeEvent;
-import gda.configuration.properties.LocalProperties;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
 
@@ -45,10 +44,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -113,13 +108,7 @@ public class CommandProcessorComposite extends Composite {
 		final ImageDescriptor showLogImage = GDAClientActivator.getImageDescriptor("icons/book_open.png");
 
 		
-		final String newLayoutPropName = String.format("%s.showgroups", getClass().getName());
-		final boolean useNewLayout = LocalProperties.check(newLayoutPropName);
-		if (useNewLayout) {
-			createComponentsUsingNewLayout();
-		} else {
-			createComponentsUsingOldLayout();
-		}
+		createComponents();
 		
 		btnRunPause = new Action(null, SWT.NONE) {
 			@Override
@@ -296,41 +285,7 @@ public class CommandProcessorComposite extends Composite {
 		updateStateAndDescription(null);
 	}
 	
-	private void createComponentsUsingOldLayout() {
-		setLayout(new FormLayout());
-		
-		Composite btnPanel = new Composite(this, SWT.NONE);
-		
-		FormData fd_txtState = new FormData();
-		fd_txtState.top = new FormAttachment(0, 7);
-		fd_txtState.left = new FormAttachment(0, 5);
-		fd_txtState.right = new FormAttachment(100, -5);
-		btnPanel.setLayoutData(fd_txtState);
-		
-		btnPanel.setLayout(new RowLayout(SWT.HORIZONTAL));
-		
-		txtState = new Label(btnPanel, SWT.NONE);
-		txtState.setText("Waiting Start..."); // make long enough for all text values
-		
-		txtCurrentDescription = new Label(this, SWT.WRAP | SWT.BORDER);
-		FormData fd_txtCurrentDescription = new FormData();
-		fd_txtCurrentDescription.left = new FormAttachment(btnPanel, 0, SWT.LEFT);
-		fd_txtCurrentDescription.bottom = new FormAttachment(txtCurrentDescription, 30, SWT.TOP);
-		fd_txtCurrentDescription.right = new FormAttachment(100, -5);
-		fd_txtCurrentDescription.top = new FormAttachment(btnPanel, 5, SWT.BOTTOM);
-		txtCurrentDescription.setLayoutData(fd_txtCurrentDescription);
-		
-		progressBar = new ProgressBar(this, SWT.SMOOTH | SWT.BORDER);
-		FormData fd_txtCurrentProgress = new FormData();
-		fd_txtCurrentProgress.left = new FormAttachment(btnPanel, 0, SWT.LEFT);
-		// fd_txtCurrentProgress.bottom = new FormAttachment(100, -5);
-		fd_txtCurrentProgress.right = new FormAttachment(100, -5);
-		fd_txtCurrentProgress.top = new FormAttachment(txtCurrentDescription, 5, SWT.BOTTOM);
-		fd_txtCurrentProgress.bottom = new FormAttachment(100, -5);
-		progressBar.setLayoutData(fd_txtCurrentProgress);
-	}
-	
-	private void createComponentsUsingNewLayout() {
+	private void createComponents() {
 		GridLayoutFactory.swtDefaults().applyTo(this);
 		
 		final Group statusGroup = new Group(this, SWT.BORDER);
@@ -440,7 +395,7 @@ public class CommandProcessorComposite extends Composite {
 					txtState.setText("Unknown");
 					break;
 				case WAITING_QUEUE:
-					JythonControlsFactory.disableUIControls();
+					JythonControlsFactory.enableUIControls();
 					if (showText){
 						btnRunPause.setText(strPause);
 					} else {

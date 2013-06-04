@@ -27,7 +27,7 @@
  *      and call their registerFile method(s) or use the FileRegistrarHelper class to ease that task.
  *      <p> The other route is implemented in the concrete FileRegistrar class which also implements 
  *      DataWriterExtender. If that extender is added to a DataWriter (via a DataWriterFactory for example)
- *      it received ScanDataPoint through it. The SDP are inspected and Filenames in it that originate from 
+ *      it receives ScanDataPoints through it. The SDP are inspected and Filenames in it that originate from 
  *      file-writing detectors are registered automatically. 
  *      
  */

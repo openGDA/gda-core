@@ -184,7 +184,9 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 			}
 			return new ScriptControllerLogResultDetails(uniqueID, details);
 		} catch (SQLException e) {
-			logger.error("Exception fetching log entry details in " + getName(), e);
+			//This exception occurs per scan point and causes the jython console, logging and plot to gring to a halt
+			//Removed until we can understand why
+			//logger.error("Exception adding to log by " + getName(), e);
 			return new ScriptControllerLogResultDetails(uniqueID, new HashMap<String, String>());
 		} finally {
 			if (rs != null) {
@@ -423,7 +425,9 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 			return new ScriptControllerLogResults(arg.getUniqueID(), arg.getName(), now, now);
 
 		} catch (SQLException e) {
-			logger.error("Exception adding to log by " + getName(), e);
+			//This exception occurs per scan point and causes the jython console, logging and plot to gring to a halt
+			//Removed until we can understand why
+			//logger.error("Exception adding to log by " + getName(), e);
 			return null;
 		} finally {
 			if (rs != null) {

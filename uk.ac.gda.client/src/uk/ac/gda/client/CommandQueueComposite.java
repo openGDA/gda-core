@@ -24,7 +24,6 @@ import gda.commandqueue.CommandId;
 import gda.commandqueue.Queue;
 import gda.commandqueue.QueuedCommandSummary;
 import gda.commandqueue.SimpleCommandSummary;
-import gda.configuration.properties.LocalProperties;
 import gda.observable.IObserver;
 
 import java.io.File;
@@ -118,25 +117,20 @@ public class CommandQueueComposite extends Composite {
 		table.setLayoutData(fd_table);
 		table.setLinesVisible(true);
 
-		final String showRowNumbersPropName = String.format("%s.showrownumbers", getClass().getName());
-		final boolean showRowNumbers = LocalProperties.check(showRowNumbersPropName);
-		
-		if (showRowNumbers) {
-			final TableViewerColumn rowNumViewerColumn = new TableViewerColumn(tableViewer, SWT.LEFT);
-			final TableColumn rowNumColumn = rowNumViewerColumn.getColumn();
-			rowNumColumn.setText("#");
-			rowNumColumn.setWidth(30);
-			rowNumColumn.setResizable(true);
-			rowNumColumn.setMoveable(false);
-			rowNumViewerColumn.setLabelProvider(new ColumnLabelProvider() {
-				@Override
-				public String getText(Object element) {
-					final NumberedQueueEntry item = (NumberedQueueEntry) element;
-					final QueuedCommandSummary entry = item.entry;
-					return (entry.id == CommandId.noneCommand) ? "" : Integer.toString(item.index);
-				}
-			});
-		}
+		final TableViewerColumn rowNumViewerColumn = new TableViewerColumn(tableViewer, SWT.LEFT);
+		final TableColumn rowNumColumn = rowNumViewerColumn.getColumn();
+		rowNumColumn.setText("#");
+		rowNumColumn.setWidth(30);
+		rowNumColumn.setResizable(true);
+		rowNumColumn.setMoveable(false);
+		rowNumViewerColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				final NumberedQueueEntry item = (NumberedQueueEntry) element;
+				final QueuedCommandSummary entry = item.entry;
+				return (entry.id == CommandId.noneCommand) ? "" : Integer.toString(item.index);
+			}
+		});
 		
 		// add Label and Content providers for Description column
 		TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.LEFT);
