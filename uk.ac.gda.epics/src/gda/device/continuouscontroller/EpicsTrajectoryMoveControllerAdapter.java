@@ -491,7 +491,7 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 			moveFuture.get();
 		} catch (ExecutionException e) {
 			moveFuture = null;
-			throw new DeviceException(getName() + " problem executing move: " + e.getMessage(), e.getCause());
+			throw new DeviceException(getName() + " problem executing move: ...\n   " + e.getMessage(), e.getCause());
 		}
 	}
 
