@@ -44,10 +44,12 @@ public interface ADController {
 	public abstract String getDetectorName();
 
 	public abstract NDArray getImageNDArray();
+	
+	public String getImageNDArrayPortInput();
 
 	public abstract ImageData getImageData() throws Exception;
 
-	public abstract void setExposure(double d);
+	public abstract void setExposure(double d) throws Exception;
 
 	public abstract ADBase getAdBase();
 
@@ -106,5 +108,10 @@ public interface ADController {
 	//NDROI for the ROI plugin that controls the ImageArray
 	public abstract NDROI getImageNDROI();
 
+	// stops the continuous exposure
+	public abstract void stopExposure() throws Exception;
+
+	// return true is the regions of interest are linked to the plotserver
+	public abstract boolean isConnectToPlotServer();
 	
 }

@@ -69,6 +69,8 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	// GDA names map to EPICS trajectory move axis for CASTOR config
 	
 	private String maxis[] = new String[MAX_TRAJECTORY];
+	
+	//TODO This is not used!
 	/**
 	 * the acceleration time for the motor
 	 */

@@ -548,12 +548,15 @@ public class EDXDController extends DetectorBase implements Configurable {
 	}
 
 	/**
-	 * Get one of teh elements specifialy by name
+	 * Get one of the elements specifialy by name
 	 * @param index
-	 * @return An teh EDXDElement requested
+	 * @return An the EDXDElement requested
 	 */
 	public EDXDElement getSubDetector(int index) {
-		return subDetectors.get(index);
+		//check that sub detectors exist before attempting to access any.
+		if(subDetectors.size()>0)
+			return subDetectors.get(index);
+		return null;
 	}	
 
 	/**

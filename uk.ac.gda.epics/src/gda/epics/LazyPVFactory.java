@@ -21,6 +21,7 @@ package gda.epics;
 import static java.text.MessageFormat.format;
 import static org.apache.commons.lang.ArrayUtils.toObject;
 import static org.apache.commons.lang.ArrayUtils.toPrimitive;
+import gda.configuration.properties.LocalProperties;
 import gda.epics.connection.EpicsController;
 import gda.epics.util.EpicsGlobals;
 import gda.observable.Observable;
@@ -78,6 +79,8 @@ import org.slf4j.LoggerFactory;
 public class LazyPVFactory {
 
 	private static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
+	
+	public static final String CHECK_CHANNELS_PROPERTY_NAME = "gda.epics.lazypvfactory.check.channels";
 
 	/**
 	 * Envisaged for testing only. EpicsController is a singleton.
@@ -150,6 +153,10 @@ public class LazyPVFactory {
 
 	public static PV<Short[]> newShortArrayPV(String pvName) {
 		return new LazyPV<Short[]>(EPICS_CONTROLLER, pvName, Short[].class);
+	}
+
+	public static PV<Boolean> newBooleanFromDoublePV(String pvName) {
+		return new BooleanFromDouble(new LazyPV<Double>(EPICS_CONTROLLER, pvName, Double.class));
 	}
 
 	public static PV<Boolean> newBooleanFromIntegerPV(String pvName) {
@@ -306,6 +313,10 @@ public class LazyPVFactory {
 		return new ReadOnly<Boolean>(newBooleanFromEnumPV(pvName));
 	}
 
+	public static ReadOnlyPV<Boolean> newReadOnlyBooleanFromDoublePV(String pvName) {
+		return new ReadOnly<Boolean>(newBooleanFromDoublePV(pvName));
+	}
+
 	static private class LazyPV<T> implements PV<T> {
 
 		private static final Logger logger = LoggerFactory.getLogger(LazyPV.class);
@@ -365,6 +376,16 @@ public class LazyPVFactory {
 				dbrType = javaTypeToDBRType.get(javaType.getComponentType());
 			} else {
 				dbrType = javaTypeToDBRType.get(javaType);
+			}
+			if (LocalProperties.check(CHECK_CHANNELS_PROPERTY_NAME)) {
+				logger.warn("Checking channel : '" + pvName + "'");
+				try {
+					Channel temp = (controller.createChannel(pvName));
+					controller.destroy(temp);
+					temp=null;
+				} catch (Exception e) {
+					logger.error("Could not connect to channel  : '" + pvName + "'", e);
+				}	
 			}
 		}
 		
@@ -676,13 +697,11 @@ public class LazyPVFactory {
 				} else {
 					throw new IllegalStateException("Unexpected type configured");
 				}
-			} catch (CAException e) {
-				throw new IOException(format("Problem putting value to EPICS pv ''{0}'', (value was: {1})", pvName,
-						value), e);
+			
 			} catch (InterruptedException e) {
 				throw new InterruptedIOException(format(
 						"Interupted while putting value to EPICS pv ''{0}'', (value was: {1})", pvName, value));
-			} catch (IOException e) {
+			} catch (Exception e) {
 				throw new IOException(format("Problem putting value to EPICS pv ''{0}'', (value was: {1})", pvName,
 						value), e);
 			}
@@ -726,13 +745,10 @@ public class LazyPVFactory {
 				} else {
 					throw new IllegalStateException("Unexpected type configured");
 				}
-			} catch (CAException e) {
-				throw new IOException(format("Problem putting (with listener) value to EPICS pv ''{0}'', (value was: {1})", pvName,
-						value), e);
 			} catch (InterruptedException e) {
 				throw new InterruptedIOException(format(
 						"Interupted while putting (with listener) value to EPICS pv ''{0}'', (value was: {1})", pvName, value));
-			} catch (IOException e) {
+			} catch (Exception e) {
 				throw new IOException(format("Problem putting (with listener)  value to EPICS pv ''{0}'', (value was: {1})", pvName,
 						value), e);
 			}
@@ -1309,6 +1325,27 @@ public class LazyPVFactory {
 		
 	}
 
+	static private class BooleanFromDouble extends AbstractPVAdapter<Double, Boolean> implements PV<Boolean> {
+
+		private BooleanFromDouble(LazyPV<Double> pv) {
+			super(pv);
+		}
+
+		@Override
+		public String toString() {
+			return MessageFormat.format("BooleanFromDouble({0})", getPV().toString());
+		}
+		
+		@Override
+		protected Boolean innerToOuter(Double innerValue) {
+			return innerValue > 0;
+		}
+
+		@Override
+		protected Double outerToInner(Boolean outerValue) {
+			return (outerValue ? 1.0 : 0.0);
+		}
+	}
 }
 
 /**

@@ -113,4 +113,8 @@ public interface Zebra {
 
 	int getPCPulseMax() throws IOException;
 
+	ReadOnlyPV<Integer> getNumberOfPointsDownloadedPV();
+
+	ReadOnlyPV<Double[]> getPCTimePV();
+
 }

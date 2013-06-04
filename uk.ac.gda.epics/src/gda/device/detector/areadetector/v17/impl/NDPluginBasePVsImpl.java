@@ -19,9 +19,11 @@
 package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDPluginBasePVs;
+import gda.device.detector.areadetector.v18.impl.NDStatsPVsImpl;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;
+import gda.epics.ReadOnlyPV;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +33,22 @@ public class NDPluginBasePVsImpl implements NDPluginBasePVs, InitializingBean {
 	
 	static final Logger logger = LoggerFactory.getLogger(NDPluginBasePVsImpl.class);
 
+	public static NDPluginBasePVsImpl createFromBasePVName(String basePVName) {
+		NDPluginBasePVsImpl pluginBasePVs = new NDPluginBasePVsImpl();
+		pluginBasePVs.setBasePVName(basePVName);
+		try {
+			pluginBasePVs.afterPropertiesSet();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return pluginBasePVs;
+	}
+	
 	/**
 	 * Map to PV names
 	 */
 	private enum PVNames {
-		EnableCallbacks, EnableCallbacks_RBV, BlockingCallbacks, BlockingCallbacks_RBV, DroppedArrays, DroppedArrays_RBV, ArrayCounter, ArrayCounter_RBV, NDArrayPort, NDArrayPort_RBV 
+		EnableCallbacks, EnableCallbacks_RBV, BlockingCallbacks, BlockingCallbacks_RBV, DroppedArrays, DroppedArrays_RBV, ArrayCounter, ArrayCounter_RBV, NDArrayPort, NDArrayPort_RBV, PortName_RBV
 	}
 
 	private String basePVName;
@@ -49,6 +62,8 @@ public class NDPluginBasePVsImpl implements NDPluginBasePVs, InitializingBean {
 	private PV<Boolean> arrayCounterPVPair;
 	
 	private PV<String> ndArrayPortPVPair;
+
+	private ReadOnlyPV<String> portNamePV;
 
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
@@ -88,6 +103,7 @@ public class NDPluginBasePVsImpl implements NDPluginBasePVs, InitializingBean {
 				LazyPVFactory.newStringPV(fullname(PVNames.NDArrayPort)),
 				LazyPVFactory.newReadOnlyStringPV(fullname(PVNames.NDArrayPort_RBV)));
 
+		portNamePV = LazyPVFactory.newReadOnlyStringPV(fullname(PVNames.PortName_RBV));
 	}
 
 	private String fullname(Enum<?> pvName) {
@@ -117,6 +133,11 @@ public class NDPluginBasePVsImpl implements NDPluginBasePVs, InitializingBean {
 	@Override
 	public PV<String> getNDArrayPortPVPair() {
 		return ndArrayPortPVPair;
+	}
+
+	@Override
+	public ReadOnlyPV<String> getPortNamePV() {
+		return portNamePV;
 	}
 
 }

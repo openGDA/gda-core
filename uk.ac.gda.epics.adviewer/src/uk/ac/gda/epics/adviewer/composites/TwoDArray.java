@@ -20,12 +20,15 @@ package uk.ac.gda.epics.adviewer.composites;
 
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDROI;
+import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
@@ -63,8 +66,11 @@ import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.ImageData;
+import uk.ac.gda.epics.adviewer.composites.tomove.PlotServerGuiBeanUpdater;
+import uk.ac.gda.epics.adviewer.composites.tomove.RegionGuiParameterAdapter;
 
 public class TwoDArray extends Composite {
 
@@ -81,7 +87,11 @@ public class TwoDArray extends Composite {
 	private Button arrayMonitoringBtn;
 	private Label arrayMonitoringLbl;
 
-	protected boolean autoScale;
+	protected boolean autoScale, subtractStore;
+
+	protected AbstractDataset store;
+
+	private Button btnMinusStore;
 
 
 	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) {
@@ -131,6 +141,36 @@ public class TwoDArray extends Composite {
 		autoScale = true;
 		btnAutoscale.setSelection(autoScale);
 
+		Button btnStore = new Button(left, SWT.PUSH);
+		btnStore.setText("Store");
+		btnStore.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if( ads != null){
+					store = ads;
+				}
+				btnMinusStore.setEnabled(store!=null);
+			}
+
+		});
+		
+		btnMinusStore = new Button(left, SWT.CHECK);
+		btnMinusStore.setText("Subtract Store");
+		btnMinusStore.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				subtractStore = btnMinusStore.getSelection();
+			}
+
+		});
+		subtractStore = false;
+		btnMinusStore.setSelection(subtractStore);
+		btnMinusStore.setEnabled(store!=null);
+		
+		
 		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		right.setLayout(new FillLayout());
@@ -146,6 +186,8 @@ public class TwoDArray extends Composite {
 		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setTitle("");
 		}
+		
+		
 		addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -170,6 +212,9 @@ public class TwoDArray extends Composite {
 	public void setADController(ADController config) throws Exception {
 		this.config = config;
 
+
+		
+		// Configure AreaDetector
 		NDPluginBase pluginBase = config.getImageNDArray().getPluginBase();
 		minCallbackTimeComposite.setPluginBase(pluginBase);
 		try {
@@ -306,9 +351,16 @@ public class TwoDArray extends Composite {
 	private NDPluginBase imageNDROIPluginBase;
 
 	private Observer<Double> minCallbackTimeObserver;
+	AbstractDataset ads = null;
 
 	public void start() throws Exception {
 		config.getImageNDArray().getPluginBase().enableCallbacks();
+		String portName = config.getImageNDArrayPortInput();
+		if (portName == null) {
+			logger.warn("No imageNDArrayPortInput has been configured. The view will fail to update if it is not set properly dircetly in epics.");
+		} else {
+			config.getImageNDArray().getPluginBase().setNDArrayPort(portName);
+		}
 		if (arrayArrayCounterObservable == null) {
 			arrayArrayCounterObservable = config.getImageNDArray().getPluginBase().createArrayCounterObservable();
 		}
@@ -331,7 +383,6 @@ public class TwoDArray extends Composite {
 					if (updateArrayJob == null) {
 						updateArrayJob = new Job("Update array") {
 
-							AbstractDataset ads = null;
 							Boolean setMinMax;
 							Integer min = null;
 							Integer max = null;
@@ -384,6 +435,16 @@ public class TwoDArray extends Composite {
 													+ object.getClass().getName());
 										}
 										ads.setName(getArrayName());
+										
+										if( subtractStore && store!= null){
+											if( Arrays.equals(store.getShape(), ads.getShape() )){
+												try{
+													ads = ads.isubtract(store);
+												} catch (Exception e){
+													logger.error("Unable to substract store", e);
+												}
+											}
+										}
 
 										setMinMax = autoScale;
 										if (min == null || setMinMax) {
