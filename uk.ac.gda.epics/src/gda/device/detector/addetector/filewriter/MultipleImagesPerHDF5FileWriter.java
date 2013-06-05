@@ -128,6 +128,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 
 	private boolean storePerform=false;
 
+	private boolean alreadyPrepared=false;
 	
 	private boolean lazyOpen=false;
 	
@@ -179,6 +180,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if(!isEnabled())
 			return;
+		if( alreadyPrepared)
+			return;
 		setNDArrayPortAndAddress();
 		getNdFile().getPluginBase().disableCallbacks();
 		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory 
@@ -197,6 +200,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		startRecording();
 		getNdFile().getPluginBase().enableCallbacks();
 		firstReadoutInScan = true;
+		alreadyPrepared=true;
 	}
 	
 	private void setScanDimensions(int[] dimensions, int numberImagesPerCollection) throws Exception {
@@ -283,6 +287,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		FileRegistrarHelper.registerFile(getNdFileHDF5().getFullFileName_RBV());
 		endRecording();
 		disableFileWriting();
+		alreadyPrepared=false;
 	}
 	
 	private void endRecording() throws Exception {
