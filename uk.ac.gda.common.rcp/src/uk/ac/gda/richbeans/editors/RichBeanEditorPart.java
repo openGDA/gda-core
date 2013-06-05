@@ -30,6 +30,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IReusableEditor;
@@ -153,6 +154,11 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 								ifile.refreshLocal(IResource.DEPTH_ZERO, null);
 							}
 						} catch (Exception e) {
+							logger.error("Error - RichBeanEditorPart.doSave() failed. Path="+path+e.getMessage());
+							MessageDialog dialog = new MessageDialog(getSite().getShell(), "File didn't save", null,
+									"Path="+path, MessageDialog.ERROR, new String[] {}, 0);
+								int result = dialog.open();
+								System.out.println(result); 
 							throw new InvocationTargetException(e);
 						}					
 					}
@@ -164,14 +170,15 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 				dirtyContainer.setDirty(false);
 				
 				
-			} catch (Exception e2) {
-				// FIXME inform user that file did not save?
-				// Unsure now as save maybe less important than transmit to the server.
-				logger.error("Cannot save file", e2);
+			} catch (Exception e) {
+				// Saving is very important as it saves the state of the editors when switching between editors, perspectives, etc.
+				
+				logger.error("Error - RichBeanEditorPart.doSave() failed. Path="+path+e.getMessage());
+				MessageDialog dialog = new MessageDialog(getSite().getShell(), "File didn't save", null,
+						"Path="+path, MessageDialog.ERROR, new String[] {}, 0);
+					int result = dialog.open();
+					System.out.println(result); 
 			}
-
-
-			
 		} finally {
 			monitor.done();
 		}
