@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ public class EnumPositionViewer {
 
 	private Job motorPositionJob;
 
-	private IPositionVerifierDialogCreator newPositionDialog;
+	private IPositionVerifierDialogCreator<String> newPositionDialog;
 
 	private Object labelLayoutData;
 
@@ -144,35 +145,48 @@ public class EnumPositionViewer {
 					}
 				}
 
-					if (!demandString.equals(demandPrev)  && (job == null || job.getState() == Job.NONE)) {
-						demandPrev = demandString;
-						final String msg = "Moving " + motor.getDescriptor().getLabelText() + " to " + demandString;
-						job = new Job(msg) {
-							@Override
-							protected IStatus run(IProgressMonitor monitor) {
-								try {
-									if (commandFormat == null) {
-										motor.setPosition(demandString);
+				if (!demandString.equals(demandPrev) && (job == null || job.getState() == Job.NONE)) {
+					demandPrev = demandString;
+					final String msg = "Moving " + motor.getDescriptor().getLabelText() + " to " + demandString;
+					job = new Job(msg) {
+						@Override
+						protected IStatus run(IProgressMonitor monitor) {
+							try {
+								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+									@Override
+									public void run() {
+										motorBox.setEnabled(false);
 									}
+								});
 
-									else {
-										final String commandToRun = String.format(commandFormat, demandString);
-										InterfaceProvider.getCommandRunner().evaluateCommand(commandToRun);
-									}
-
-									return Status.OK_STATUS;
-								} catch (DeviceException e) {
-									logger.error("Exception: " + msg + " " + e.getMessage(), e);
-									return new Status(IStatus.ERROR, "uk.ac.gda.client", e.getMessage());
-								} finally {
-									refresh();
+								if (commandFormat == null) {
+									motor.setPosition(demandString);
 								}
+
+								else {
+									final String commandToRun = String.format(commandFormat, demandString);
+									InterfaceProvider.getCommandRunner().evaluateCommand(commandToRun);
+								}
+
+								return Status.OK_STATUS;
+							} catch (DeviceException e) {
+								logger.error("Exception: " + msg + " " + e.getMessage(), e);
+								return new Status(IStatus.ERROR, "uk.ac.gda.client", e.getMessage());
+							} finally {
+								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+									@Override
+									public void run() {
+										motorBox.setEnabled(true);
+									}
+								});
+								refresh();
 							}
-						};
-						job.setUser(true);
-						job.schedule();
-					}
-				
+						}
+					};
+					job.setUser(true);
+					job.schedule();
+				}
+
 			}
 		});
 		motorBox.on();
@@ -282,11 +296,11 @@ public class EnumPositionViewer {
 			motorBox.setEnabled(enabled);
 	}
 
-	public IPositionVerifierDialogCreator getNewPositionDialog() {
+	public IPositionVerifierDialogCreator<String> getNewPositionDialog() {
 		return newPositionDialog;
 	}
 
-	public void setNewPositionDialog(IPositionVerifierDialogCreator newPositionDialog) {
+	public void setNewPositionDialog(IPositionVerifierDialogCreator<String> newPositionDialog) {
 		this.newPositionDialog = newPositionDialog;
 	}
 }
