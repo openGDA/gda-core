@@ -1,6 +1,7 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableStatus;
 import gda.factory.Finder;
@@ -9,8 +10,6 @@ import gda.observable.IObserver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.swing.SpinnerDateModel;
 
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.ecore.EObject;
@@ -73,16 +72,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A Region Editor View for defining new or editing existing Region Definition
- * for VG Scienta Electron Analyser.
+ * A Region Editor View for defining new or editing existing Region Definition for VG Scienta Electron Analyser.
  * 
  * @author fy65
  * 
  */
-public class RegionView extends ViewPart implements ISelectionProvider,
-		IObserver {
-	private static final Logger logger = LoggerFactory
-			.getLogger(RegionView.class);
+public class RegionView extends ViewPart implements ISelectionProvider, IObserver {
+	private static final Logger logger = LoggerFactory.getLogger(RegionView.class);
 
 	public RegionView() {
 		setTitleToolTip("Editing a selected region parameters");
@@ -106,8 +102,8 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 	private Region region;
 	private EditingDomain editingDomain = null;
 	private Button btnSoft;
-	private ScannableMotor dcmenergy;
-	private ScannableMotor pgmenergy;
+	private Scannable dcmenergy;
+	private Scannable pgmenergy;
 	private Button btnFixed;
 	private Button btnBinding;
 	private Combo regionName;
@@ -138,7 +134,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 	private Spinner spinnerSlices;
 	private Button btnADCMode;
 	private Text txtHardEnergy;
-	private ScannableMotor xrayenergy;
+	private Scannable xrayenergy;
 	private List<Region> regions;
 	private PageBook regionPageBook;
 	private Composite plainComposite;
@@ -151,8 +147,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		plainComposite.setLayout(new FillLayout());
 
 		// regionPageBook.showPage(plainComposite);
-		regionComposite = new ScrolledComposite(regionPageBook, SWT.H_SCROLL
-				| SWT.V_SCROLL | SWT.BORDER);
+		regionComposite = new ScrolledComposite(regionPageBook, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
 		regionComposite.setExpandHorizontal(true);
 		regionComposite.setExpandVertical(true);
@@ -172,14 +167,10 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		GridData namelayoutData = new GridData(GridData.FILL_HORIZONTAL);
 		regionName.setLayoutData(namelayoutData);
 		regionName.setToolTipText("List of available active regions to select");
-		final ControlDecoration regionNameControlDecorator = new ControlDecoration(
-				regionName, SWT.TOP | SWT.LEFT);
-		FieldDecoration fieldDecoration = FieldDecorationRegistry.getDefault()
-				.getFieldDecoration(FieldDecorationRegistry.DEC_INFORMATION);
+		final ControlDecoration regionNameControlDecorator = new ControlDecoration(regionName, SWT.TOP | SWT.LEFT);
+		FieldDecoration fieldDecoration = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_INFORMATION);
 		regionNameControlDecorator.setImage(fieldDecoration.getImage());
-		FieldDecoration dec = FieldDecorationRegistry.getDefault()
-				.getFieldDecoration(
-						FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
+		FieldDecoration dec = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
 		namelayoutData.horizontalIndent = dec.getImage().getBounds().width;
 		regionName.addModifyListener(new ModifyListener() {
 			@Override
@@ -189,8 +180,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 				} else {
 					regionNameControlDecorator.show();
 					if (region != null) {
-						regionNameControlDecorator.setDescriptionText(region
-								.getName() + " is not enabled");
+						regionNameControlDecorator.setDescriptionText(region.getName() + " is not enabled");
 					}
 					regionNameControlDecorator.setShowHover(true);
 				}
@@ -237,28 +227,23 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		new Label(grpRunMode, SWT.NONE);
 
 		btnNumberOfIterations = new Button(grpRunMode, SWT.RADIO);
-		btnNumberOfIterations
-				.setToolTipText("Enable a number of iterations option");
+		btnNumberOfIterations.setToolTipText("Enable a number of iterations option");
 		btnNumberOfIterations.setText("Number of iterations");
 
 		numberOfIterationSpinner = new Spinner(grpRunMode, SWT.BORDER);
 		numberOfIterationSpinner.setMinimum(1);
-		numberOfIterationSpinner
-				.setToolTipText("Set number of iterations required here");
+		numberOfIterationSpinner.setToolTipText("Set number of iterations required here");
 
 		btnRepeatuntilStopped = new Button(grpRunMode, SWT.RADIO);
-		btnRepeatuntilStopped
-				.setToolTipText("Enable repeat until stopped option");
+		btnRepeatuntilStopped.setToolTipText("Enable repeat until stopped option");
 		btnRepeatuntilStopped.setText("Repeat until stopped");
 
 		new Label(grpRunMode, SWT.NONE);
 
 		btnConfirmAfterEachInteration = new Button(grpRunMode, SWT.CHECK);
-		btnConfirmAfterEachInteration.setLayoutData(new GridData(
-				GridData.FILL_HORIZONTAL));
+		btnConfirmAfterEachInteration.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnConfirmAfterEachInteration.setText("Confirm after each iteration");
-		btnConfirmAfterEachInteration
-				.setToolTipText("Enable confirm after each iteration");
+		btnConfirmAfterEachInteration.setToolTipText("Enable confirm after each iteration");
 		btnConfirmAfterEachInteration.setEnabled(false);
 
 		new Label(grpRunMode, SWT.NONE);
@@ -267,8 +252,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		grpAcquisitionMode.setText("Acquisition Mode");
 		GridLayout gl_grpAcquisitionMode = new GridLayout();
 		grpAcquisitionMode.setLayout(gl_grpAcquisitionMode);
-		grpAcquisitionMode
-				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		grpAcquisitionMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		btnSwept = new Button(grpAcquisitionMode, SWT.RADIO);
 		btnSwept.addFocusListener(new FocusAdapter() {
@@ -449,8 +433,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		lblFramesPerSecond.setText("Frames/s");
 
 		txtFramesPerSecond = new Text(grpStep, SWT.BORDER);
-		txtFramesPerSecond
-				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtFramesPerSecond.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtFramesPerSecond.setToolTipText("Camera frame rate");
 		txtFramesPerSecond.setEditable(false);
 		txtFramesPerSecond.setText(String.format("%d", camera.getFrameRate()));
@@ -469,8 +452,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		txtMinimumTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtMinimumTime.setToolTipText("Minimum time per step allowed");
 		txtMinimumTime.setEditable(false);
-		txtMinimumTime
-				.setText(String.format("%f", 1.0 / camera.getFrameRate()));
+		txtMinimumTime.setText(String.format("%f", 1.0 / camera.getFrameRate()));
 
 		Label lblSize = new Label(grpStep, SWT.NONE);
 		lblSize.setText("Size [meV]");
@@ -491,8 +473,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 
 		txtTotalTime = new Text(grpStep, SWT.BORDER);
 		txtTotalTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtTotalTime
-				.setToolTipText("Anticipated total time for this collection");
+		txtTotalTime.setToolTipText("Anticipated total time for this collection");
 		txtTotalTime.setEditable(false);
 
 		Label lblTotalSteps = new Label(grpStep, SWT.NONE);
@@ -500,8 +481,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 
 		txtTotalSteps = new Text(grpStep, SWT.BORDER);
 		txtTotalSteps.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtTotalSteps
-				.setToolTipText("Total number of steps for this collection");
+		txtTotalSteps.setToolTipText("Total number of steps for this collection");
 		txtTotalSteps.setEditable(false);
 
 		Group grpDetector = new Group(rootComposite, SWT.NONE);
@@ -520,21 +500,17 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerEnergyChannelFrom)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE
-							.getRegion_FirstXChannel(),
-							spinnerEnergyChannelFrom.getSelection());
+					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FirstXChannel(), spinnerEnergyChannelFrom.getSelection());
 					if (btnFixed.getSelection()) {
-						txtSize.setText(String.format("%.3f",
-								fixedEnergyRange()));
+						txtSize.setText(String.format("%.3f", fixedEnergyRange()));
 					}
 				}
 			}
 		});
-		spinnerEnergyChannelFrom.setLayoutData(new GridData(
-				GridData.FILL_HORIZONTAL));
+		spinnerEnergyChannelFrom.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerEnergyChannelFrom.setToolTipText("Low bound");
-		spinnerEnergyChannelFrom.setMinimum(1);
-		spinnerEnergyChannelFrom.setMaximum(camera.getCameraXSize());
+		spinnerEnergyChannelFrom.setMinimum(0);
+		spinnerEnergyChannelFrom.setMaximum(camera.getCameraXSize() - 1);
 
 		Label lblEnergyChannelTo = new Label(grpDetector, SWT.NONE);
 		lblEnergyChannelTo.setText("To");
@@ -544,18 +520,14 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerEnergyChannelTo)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE
-							.getRegion_LastXChannel(), spinnerEnergyChannelTo
-							.getSelection());
+					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LastXChannel(), spinnerEnergyChannelTo.getSelection());
 					if (btnFixed.getSelection()) {
-						txtSize.setText(String.format("%.3f",
-								fixedEnergyRange()));
+						txtSize.setText(String.format("%.3f", fixedEnergyRange()));
 					}
 				}
 			}
 		});
-		spinnerEnergyChannelTo.setLayoutData(new GridData(
-				GridData.FILL_HORIZONTAL));
+		spinnerEnergyChannelTo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerEnergyChannelTo.setToolTipText("High bound");
 		spinnerEnergyChannelTo.setMinimum(1);
 		spinnerEnergyChannelTo.setMaximum(camera.getCameraXSize());
@@ -571,19 +543,15 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerYChannelFrom)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE
-							.getRegion_FirstYChannel(), spinnerYChannelFrom
-							.getSelection());
-					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()
-							- spinnerYChannelFrom.getSelection());
+					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FirstYChannel(), spinnerYChannelFrom.getSelection());
+					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection());
 				}
 			}
 		});
-		spinnerYChannelFrom
-				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		spinnerYChannelFrom.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerYChannelFrom.setToolTipText("Low bound");
 		spinnerYChannelFrom.setMinimum(0);
-		spinnerYChannelFrom.setMaximum(camera.getCameraYSize()-1);
+		spinnerYChannelFrom.setMaximum(camera.getCameraYSize() - 1);
 
 		Label lblYChannelTo = new Label(grpDetector, SWT.NONE);
 		lblYChannelTo.setText("To");
@@ -593,11 +561,8 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerYChannelTo)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE
-							.getRegion_LastYChannel(), spinnerYChannelTo
-							.getSelection());
-					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()
-							- spinnerYChannelFrom.getSelection());
+					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LastYChannel(), spinnerYChannelTo.getSelection());
+					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection());
 				}
 			}
 		});
@@ -615,16 +580,14 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerSlices)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE
-							.getRegion_Slices(), spinnerSlices.getSelection());
+					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerSlices.getSelection());
 				}
 			}
 		});
 		spinnerSlices.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerSlices.setToolTipText("Number of slices");
 		spinnerSlices.setMinimum(1);
-		spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()
-				- spinnerYChannelFrom.getSelection());
+		spinnerSlices.setMaximum(camera.getCameraYSize());
 
 		new Label(grpDetector, SWT.NONE);
 		new Label(grpDetector, SWT.NONE);
@@ -639,8 +602,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(btnADCMode)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE
-							.getRegion_DetectorMode(), DETECTOR_MODE.ADC);
+					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_DetectorMode(), DETECTOR_MODE.ADC);
 				}
 			}
 		});
@@ -654,9 +616,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(btnPulseMode)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE
-							.getRegion_DetectorMode(),
-							DETECTOR_MODE.PULSE_COUNTING);
+					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_DetectorMode(), DETECTOR_MODE.PULSE_COUNTING);
 				}
 			}
 		});
@@ -664,8 +624,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 
 		Group grpExcitationEnergy = new Group(rootComposite, SWT.NONE);
 		grpExcitationEnergy.setText("Excitation Energy [eV]");
-		grpExcitationEnergy
-				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		grpExcitationEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
 			grpExcitationEnergy.setLayout(new GridLayout(3, true));
 
@@ -699,13 +658,11 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
 			lblCurrentValue.setText("Beam energy:");
 
-			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER
-					| SWT.READ_ONLY);
+			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
 			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			txtHardEnergy.setToolTipText("Current hard X-ray beam energy");
 
-			txtSoftEnergy = new Text(grpExcitationEnergy, SWT.BORDER
-					| SWT.READ_ONLY);
+			txtSoftEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
 			txtSoftEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			txtSoftEnergy.setToolTipText("Current soft X-ray beam energy");
 		} else {
@@ -714,22 +671,16 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
 			lblCurrentValue.setText("Beam energy:");
 
-			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER
-					| SWT.READ_ONLY);
+			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
 			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			txtHardEnergy.setToolTipText("Current X-ray beam energy");
 		}
 
-		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT,
-				SWT.DEFAULT));
+		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		initialisation();
 		getViewSite().setSelectionProvider(this);
-		getViewSite()
-				.getWorkbenchWindow()
-				.getSelectionService()
-				.addSelectionListener(SequenceViewExtensionFactory.ID,
-						selectionListener);
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SequenceViewExtensionFactory.ID, selectionListener);
 	}
 
 	private ISelectionListener selectionListener = new INullSelectionListener() {
@@ -758,8 +709,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 						}
 					}
 				} catch (Exception e) {
-					logger.error("Cannot get regions list from {}",
-							regionDefinitionResourceUtil.getFileName(), e);
+					logger.error("Cannot get regions list from {}", regionDefinitionResourceUtil.getFileName(), e);
 				}
 			} else if (selection instanceof RegionActivationSelection) {
 				populateRegionNameCombo(regions);
@@ -791,16 +741,14 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 
 	private Region getSelectedRegionInSequenceView() {
 		IWorkbench workbench = PlatformUI.getWorkbench();
-		IWorkbenchWindow activeWorkbenchWindow = workbench
-				.getActiveWorkbenchWindow();
+		IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
 		IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
 		IViewPart findView = null;
 		if (activePage != null) {
 			findView = activePage.findView(SequenceViewExtensionFactory.ID);
 		}
 		if (findView != null) {
-			ISelection selection = findView.getViewSite()
-					.getSelectionProvider().getSelection();
+			ISelection selection = findView.getViewSite().getSelectionProvider().getSelection();
 			if (selection instanceof IStructuredSelection) {
 				IStructuredSelection structuredSel = (IStructuredSelection) selection;
 				Object firstElement = structuredSel.getFirstElement();
@@ -840,13 +788,13 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		} catch (Exception e1) {
 			logger.error("Cannot get regions from resource: ", e1);
 		}
-		dcmenergy = (ScannableMotor) Finder.getInstance().find("dcmenergy");
+		dcmenergy = Finder.getInstance().find("dcmenergy");
 		if (dcmenergy == null) {
 			logger.error("Finder failed to find 'dcmenergy'");
 		} else {
 			dcmenergy.addIObserver(this);
 		}
-		pgmenergy = (ScannableMotor) Finder.getInstance().find("pgmenergy");
+		pgmenergy = Finder.getInstance().find("pgmenergy");
 		if (pgmenergy == null) {
 			logger.error("Finder failed to find 'pgmenergy'");
 		} else {
@@ -856,12 +804,10 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		if (regions.isEmpty()) {
 			// open an empty sequence - no region
 			region = null;
-			new Label(plainComposite, SWT.None)
-					.setText("There is no regions to be displayed in this sequence.");
+			new Label(plainComposite, SWT.None).setText("There is no regions to be displayed in this sequence.");
 			regionPageBook.showPage(plainComposite);
 		} else {
-			new Label(plainComposite, SWT.None)
-					.setText("There is no region selected in this sequence.");
+			new Label(plainComposite, SWT.None).setText("There is no region selected in this sequence.");
 			regionPageBook.showPage(regionComposite);
 			populateRegionNameCombo(regions);
 			Region selectedRegionInSequenceView = getSelectedRegionInSequenceView();
@@ -899,14 +845,10 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		regionName.addSelectionListener(regionNameSelAdapter);
 		lensMode.addSelectionListener(lensModeSelAdaptor);
 		runMode.addSelectionListener(runModeSelAdaptor);
-		btnNumberOfIterations
-				.addSelectionListener(btnNumberOfIterationSelAdaptor);
-		btnRepeatuntilStopped
-				.addSelectionListener(repeatUntilStoopedSelAdaptor);
-		btnConfirmAfterEachInteration
-				.addSelectionListener(confirmAfterEachIterationSelAdaptor);
-		numberOfIterationSpinner
-				.addSelectionListener(numIterationSpinnerSelAdaptor);
+		btnNumberOfIterations.addSelectionListener(btnNumberOfIterationSelAdaptor);
+		btnRepeatuntilStopped.addSelectionListener(repeatUntilStoopedSelAdaptor);
+		btnConfirmAfterEachInteration.addSelectionListener(confirmAfterEachIterationSelAdaptor);
+		numberOfIterationSpinner.addSelectionListener(numIterationSpinnerSelAdaptor);
 
 		// TODO add monitor to total steps in EPICS
 	}
@@ -930,8 +872,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 	private void updateFeature(EObject region, Object feature, Object value) {
 		if (region != null) {
 			if (editingDomain != null) {
-				Command setNameCmd = SetCommand.create(editingDomain, region,
-						feature, value);
+				Command setNameCmd = SetCommand.create(editingDomain, region, feature, value);
 				editingDomain.getCommandStack().execute(setNameCmd);
 			}
 		}
@@ -941,29 +882,22 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		public void widgetDefaultSelected(SelectionEvent e) {
 			// on enter - change region name
 			if (e.getSource().equals(regionName)) {
-				String regionNamePrefix = StringUtils
-						.prefixBeforeInt(regionName.getText());
+				String regionNamePrefix = StringUtils.prefixBeforeInt(regionName.getText());
 				if (!regionNamePrefix.isEmpty()) {
-					int largestIntInNames = StringUtils
-							.largestIntAtEndStringsWithPrefix(getRegionNames(),
-									regionNamePrefix);
+					int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(), regionNamePrefix);
 					if (largestIntInNames != -1) {
 						largestIntInNames++;
-						regionName
-								.setText(regionNamePrefix + largestIntInNames);
+						regionName.setText(regionNamePrefix + largestIntInNames);
 					}
 				}
-				updateFeature(region,
-						RegiondefinitionPackage.eINSTANCE.getRegion_Name(),
-						regionName.getText());
+				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Name(), regionName.getText());
 			}
 		}
 
 		// on selection from list
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(regionName)) {
-				Object data = regionName.getData(String.valueOf(regionName
-						.getSelectionIndex()));
+				Object data = regionName.getData(String.valueOf(regionName.getSelectionIndex()));
 				if (data instanceof Region) {
 					initialiseViewWithRegionData((Region) data);
 					fireSelectionChanged((Region) data);
@@ -985,9 +919,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(lensMode)) {
-				updateFeature(region,
-						RegiondefinitionPackage.eINSTANCE.getRegion_LensMode(),
-						lensMode.getText());
+				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LensMode(), lensMode.getText());
 			}
 		}
 	};
@@ -998,12 +930,8 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 				// need to use index because string in display is different from
 				// those defined in ENUM literal
 				int index = runMode.getSelectionIndex();
-				updateFeature(region.getRunMode(),
-						RegiondefinitionPackage.eINSTANCE.getRunMode_Mode(),
-						RUN_MODES.get(index));
-				updateFeature(region.getRunMode(),
-						RegiondefinitionPackage.eINSTANCE
-								.getRunMode_RunModeIndex(), index);
+				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_Mode(), RUN_MODES.get(index));
+				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_RunModeIndex(), index);
 			}
 		}
 	};
@@ -1011,12 +939,8 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(btnNumberOfIterations)) {
-				updateFeature(region.getRunMode(),
-						RegiondefinitionPackage.eINSTANCE
-								.getRunMode_NumIterationOption(), true);
-				updateFeature(region.getRunMode(),
-						RegiondefinitionPackage.eINSTANCE
-								.getRunMode_RepeatUntilStopped(), false);
+				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_NumIterationOption(), true);
+				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_RepeatUntilStopped(), false);
 			}
 		}
 	};
@@ -1024,12 +948,8 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(btnRepeatuntilStopped)) {
-				updateFeature(region.getRunMode(),
-						RegiondefinitionPackage.eINSTANCE
-								.getRunMode_RepeatUntilStopped(), true);
-				updateFeature(region.getRunMode(),
-						RegiondefinitionPackage.eINSTANCE
-								.getRunMode_NumIterationOption(), false);
+				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_RepeatUntilStopped(), true);
+				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_NumIterationOption(), false);
 			}
 		}
 	};
@@ -1037,9 +957,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(btnConfirmAfterEachInteration)) {
-				updateFeature(region.getRunMode(),
-						RegiondefinitionPackage.eINSTANCE
-								.getRunMode_ConfirmAfterEachIteration(),
+				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_ConfirmAfterEachIteration(),
 						btnConfirmAfterEachInteration.getSelection());
 			}
 		}
@@ -1048,9 +966,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
 			if (e.getSource().equals(numberOfIterationSpinner)) {
-				updateFeature(region.getRunMode(),
-						RegiondefinitionPackage.eINSTANCE
-								.getRunMode_NumIterations(),
+				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_NumIterations(),
 						numberOfIterationSpinner.getSelection());
 			}
 		}
@@ -1058,9 +974,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(numberOfIterationSpinner)) {
-				updateFeature(region.getRunMode(),
-						RegiondefinitionPackage.eINSTANCE
-								.getRunMode_NumIterations(),
+				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_NumIterations(),
 						numberOfIterationSpinner.getSelection());
 			}
 		}
@@ -1097,11 +1011,8 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		if (source.equals(passEnergy)) {
 			String passEnergyFromCombo = passEnergy.getText();
 			int passEnergyIntValue = Integer.parseInt(passEnergyFromCombo);
-			txtMinimumSize.setText(String.format("%.3f",
-					camera.getEnergyResolution() * passEnergyIntValue));
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_PassEnergy(),
-					passEnergyIntValue);
+			txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * passEnergyIntValue));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_PassEnergy(), passEnergyIntValue);
 			updateEnergyStep();
 		}
 	}
@@ -1122,13 +1033,8 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 
 	private void onModifyFrames(Object source) {
 		if (source.equals(spinnerFrames)) {
-			txtTime.setText(String.format(
-					"%.3f",
-					Double.parseDouble(txtMinimumTime.getText())
-							* Integer.parseInt(spinnerFrames.getText())));
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(),
-					Double.parseDouble(txtTime.getText()));
+			txtTime.setText(String.format("%.3f", Double.parseDouble(txtMinimumTime.getText()) * Integer.parseInt(spinnerFrames.getText())));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(), Double.parseDouble(txtTime.getText()));
 			updateTotalTime();
 		}
 	}
@@ -1140,17 +1046,12 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		public void widgetDefaultSelected(SelectionEvent e) {
 			Object source = e.getSource();
 			if (source.equals(txtSize)) {
-				if (Double.parseDouble(txtSize.getText()) < Double
-						.parseDouble(txtMinimumSize.getText())) {
+				if (Double.parseDouble(txtSize.getText()) < Double.parseDouble(txtMinimumSize.getText())) {
 					txtSize.setText(txtMinimumSize.getText());
 				} else {
-					txtSize.setText(String.format("%.3f",
-							Double.parseDouble(txtSize.getText())));
+					txtSize.setText(String.format("%.3f", Double.parseDouble(txtSize.getText())));
 				}
-				updateFeature(region,
-						RegiondefinitionPackage.eINSTANCE
-								.getRegion_EnergyStep(),
-						Double.parseDouble(txtSize.getText()));
+				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtSize.getText()));
 				// set Total steps
 				// TODO set to EPICS size PV to get total size update
 				updateTotalSteps();
@@ -1162,38 +1063,25 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 	};
 
 	private void updateTotalTime() {
-		double calculateTotalTime = RegionStepsTimeEstimation
-				.calculateTotalTime(Double.parseDouble(txtTime.getText()),
-						Integer.parseInt(txtTotalSteps.getText()));
+		double calculateTotalTime = RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()),
+				Integer.parseInt(txtTotalSteps.getText()));
 		txtTotalTime.setText(String.format("%.3f", calculateTotalTime));
-		updateFeature(region,
-				RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
-				Double.parseDouble(txtTotalTime.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(), Double.parseDouble(txtTotalTime.getText()));
 		fireSelectionChanged(new TotalTimeSelection());
 	}
 
 	private void updateTotalSteps() {
 		if (btnSwept.getSelection()) {
-			txtTotalSteps
-					.setText(String.format(
-							"%d",
-							RegionStepsTimeEstimation.calculateTotalSteps(
-									Double.parseDouble(txtWidth.getText()),
-									Double.parseDouble(txtSize.getText()),
-									(Double.parseDouble(txtMinimumSize
-											.getText()) * (Integer
-											.parseInt(spinnerEnergyChannelTo
-													.getText())
-											- Integer
-													.parseInt(spinnerEnergyChannelFrom
-															.getText()) + 1)))));
+			txtTotalSteps.setText(String.format("%d", RegionStepsTimeEstimation.calculateTotalSteps(
+					Double.parseDouble(txtWidth.getText()),
+					Double.parseDouble(txtSize.getText()),
+					(Double.parseDouble(txtMinimumSize.getText()) * (Integer.parseInt(spinnerEnergyChannelTo.getText())
+							- Integer.parseInt(spinnerEnergyChannelFrom.getText()) + 1)))));
 		}
 		if (btnFixed.getSelection()) {
 			txtTotalSteps.setText("1");
 		}
-		updateFeature(region,
-				RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(),
-				Integer.parseInt(txtTotalSteps.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()));
 		updateTotalTime();
 	}
 
@@ -1206,15 +1094,11 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 
 	protected void onModifyTime(Object source) {
 		if (source.equals(txtTime) && !txtTime.getText().isEmpty()) {
-			long frames = Math.round(Double.parseDouble(txtTime.getText())
-					/ Double.parseDouble(txtMinimumTime.getText()));
+			long frames = Math.round(Double.parseDouble(txtTime.getText()) / Double.parseDouble(txtMinimumTime.getText()));
 			spinnerFrames.setSelection((int) frames);
-			txtTime.setText(String.format("%.3f",
-					Double.parseDouble(txtTime.getText())));
+			txtTime.setText(String.format("%.3f", Double.parseDouble(txtTime.getText())));
 			updateTotalTime();
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(),
-					Double.parseDouble(txtTime.getText()));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(), Double.parseDouble(txtTime.getText()));
 		}
 	}
 
@@ -1234,26 +1118,16 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		} else if (source.equals(txtHigh) && txtHigh.isFocusControl()) {
 			updateEnergyFields(txtHigh);
 		} else if (source.equals(txtCenter) && txtCenter.isFocusControl()) {
-			double low = Double.parseDouble(txtCenter.getText())
-					- Double.parseDouble(txtWidth.getText()) / 2;
+			double low = Double.parseDouble(txtCenter.getText()) - Double.parseDouble(txtWidth.getText()) / 2;
 			txtLow.setText(String.format("%.4f", low));
-			double high = Double.parseDouble(txtCenter.getText())
-					+ Double.parseDouble(txtWidth.getText()) / 2;
+			double high = Double.parseDouble(txtCenter.getText()) + Double.parseDouble(txtWidth.getText()) / 2;
 			txtHigh.setText(String.format("%.4f", high));
-			txtCenter.setText(String.format("%.4f",
-					Double.parseDouble(txtCenter.getText())));
-			double width = Double.parseDouble(txtHigh.getText())
-					- Double.parseDouble(txtLow.getText());
+			txtCenter.setText(String.format("%.4f", Double.parseDouble(txtCenter.getText())));
+			double width = Double.parseDouble(txtHigh.getText()) - Double.parseDouble(txtLow.getText());
 			txtWidth.setText(String.format("%.4f", width));
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(),
-					Double.parseDouble(txtLow.getText()));
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(),
-					Double.parseDouble(txtHigh.getText()));
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(),
-					Double.parseDouble(txtCenter.getText()));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtCenter.getText()));
 		}
 		if (btnSwept.getSelection()) {
 			sweptLowEnergy = Double.parseDouble(txtLow.getText());
@@ -1265,32 +1139,22 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 	}
 
 	private void updateEnergyFields(Text txt) {
-		if (Double.parseDouble(txtLow.getText()) > Double.parseDouble(txtHigh
-				.getText())) {
+		if (Double.parseDouble(txtLow.getText()) > Double.parseDouble(txtHigh.getText())) {
 			String low = txtHigh.getText();
-			txtHigh.setText(String.format("%.4f",
-					Double.parseDouble(txtLow.getText())));
+			txtHigh.setText(String.format("%.4f", Double.parseDouble(txtLow.getText())));
 			txtLow.setText(String.format("%.4f", Double.parseDouble(low)));
 			// TODO set lowEnergy, highEnergy to EPICS to get updated total
 			// steps.
 		} else {
 			txt.setText(String.format("%.4f", Double.parseDouble(txt.getText())));
 		}
-		updateFeature(region,
-				RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(),
-				Double.parseDouble(txtLow.getText()));
-		updateFeature(region,
-				RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(),
-				Double.parseDouble(txtHigh.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
 
-		double center = (Double.parseDouble(txtLow.getText()) + Double
-				.parseDouble(txtHigh.getText())) / 2;
+		double center = (Double.parseDouble(txtLow.getText()) + Double.parseDouble(txtHigh.getText())) / 2;
 		txtCenter.setText(String.format("%.4f", center));
-		updateFeature(region,
-				RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(),
-				Double.parseDouble(txtCenter.getText()));
-		double width = Double.parseDouble(txtHigh.getText())
-				- Double.parseDouble(txtLow.getText());
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtCenter.getText()));
+		double width = Double.parseDouble(txtHigh.getText()) - Double.parseDouble(txtLow.getText());
 		txtWidth.setText(String.format("%.4f", width));
 		updateTotalSteps();
 	}
@@ -1300,10 +1164,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(btnFixed) && btnFixed.getSelection()) {
 				onModifyAcquisitionMode(e.getSource());
-				updateFeature(region,
-						RegiondefinitionPackage.eINSTANCE
-								.getRegion_AcquisitionMode(),
-						ACQUISITION_MODE.FIXED);
+				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_AcquisitionMode(), ACQUISITION_MODE.FIXED);
 				fireSelectionChanged(new TotalTimeSelection());
 			}
 		}
@@ -1316,14 +1177,11 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		// restore the original energy step size for the FIXED
 		txtCenter.setText(String.format("%.4f", fixedCentreEnergy));
 		txtSize.setText(String.format("%.3f", fixedEnergyRange()));
-		txtWidth.setText(txtSize.getText());
-		txtLow.setText(String.valueOf(Double.parseDouble(txtCenter.getText())
-				- 1 / 2 * Double.parseDouble(txtWidth.getText())));
-		txtHigh.setText(String.valueOf(Double.parseDouble(txtCenter.getText())
-				+ 1 / 2 * Double.parseDouble(txtWidth.getText())));
-		spinnerSlices.setSelection(spinnerYChannelTo.getSelection()-spinnerYChannelFrom.getSelection());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE
-				.getRegion_Slices(), spinnerSlices.getSelection());
+		txtWidth.setText(String.format("%.4f",Double.parseDouble(txtSize.getText())/1000));
+		txtLow.setText(String.format("%.4f",Double.parseDouble(txtCenter.getText()) - Double.parseDouble(txtWidth.getText())/2));
+		txtHigh.setText(String.format("%.4f",Double.parseDouble(txtCenter.getText()) + Double.parseDouble(txtWidth.getText())/2));
+		spinnerSlices.setSelection(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection());
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerSlices.getSelection());
 		if (btnFixed.getSelection()) {
 			updateTotalSteps();
 		}
@@ -1331,8 +1189,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 
 	private double fixedEnergyRange() {
 		return Double.parseDouble(txtMinimumSize.getText())
-				* (Integer.parseInt(spinnerEnergyChannelTo.getText())
-						- Integer.parseInt(spinnerEnergyChannelFrom.getText()) + 1);
+				* (Integer.parseInt(spinnerEnergyChannelTo.getText()) - Integer.parseInt(spinnerEnergyChannelFrom.getText()) + 1);
 	}
 
 	private SelectionAdapter sweptSelectionListener = new SelectionAdapter() {
@@ -1340,10 +1197,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(btnSwept) && btnSwept.getSelection()) {
 				onModifyAcquisitionMode(e.getSource());
-				updateFeature(region,
-						RegiondefinitionPackage.eINSTANCE
-								.getRegion_AcquisitionMode(),
-						ACQUISITION_MODE.SWEPT);
+				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_AcquisitionMode(), ACQUISITION_MODE.SWEPT);
 				fireSelectionChanged(new TotalTimeSelection());
 			}
 		}
@@ -1352,32 +1206,16 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 	private void onModifyAcquisitionMode(Object source) {
 		if (source.equals(btnSwept)) {
 			setToSweptMode();
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
-					sweptStepSize);
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(),
-					Integer.parseInt(txtTotalSteps.getText()));
-			updateFeature(
-					region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
-					RegionStepsTimeEstimation.calculateTotalTime(
-							Double.parseDouble(txtTime.getText()),
-							Integer.parseInt(txtTotalSteps.getText())));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), sweptStepSize);
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
+					RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()), Integer.parseInt(txtTotalSteps.getText())));
 		} else if (source.equals(btnFixed)) {
 			setToFixedMode();
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
-					fixedEnergyRange());
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(),
-					Integer.parseInt(txtTotalSteps.getText()));
-			updateFeature(
-					region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
-					RegionStepsTimeEstimation.calculateTotalTime(
-							Double.parseDouble(txtTime.getText()),
-							Integer.parseInt(txtTotalSteps.getText())));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), fixedEnergyRange());
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
+					RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()), Integer.parseInt(txtTotalSteps.getText())));
 			// fireSelectionChanged(new TotalTimeSelection());
 		}
 	}
@@ -1389,14 +1227,10 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		// restore the original energy step size for the SWEPT
 		txtLow.setText(String.format("%.4f", sweptLowEnergy));
 		txtHigh.setText(String.format("%.4f", sweptHighEnergy));
-		txtCenter.setText(String.format("%.4f",
-				(sweptLowEnergy + sweptHighEnergy) / 2));
-		txtWidth.setText(String.format("%.4f",
-				(sweptHighEnergy - sweptLowEnergy)));
+		txtCenter.setText(String.format("%.4f", (sweptLowEnergy + sweptHighEnergy) / 2));
+		txtWidth.setText(String.format("%.4f", (sweptHighEnergy - sweptLowEnergy)));
 		txtSize.setText(String.format("%.3f", sweptStepSize));
-		if (txtSize.getText().isEmpty()
-				|| (Double.parseDouble(txtSize.getText()) < Double
-						.parseDouble(txtMinimumSize.getText()))) {
+		if (txtSize.getText().isEmpty() || (Double.parseDouble(txtSize.getText()) < Double.parseDouble(txtMinimumSize.getText()))) {
 			sweptStepSize = Double.parseDouble(txtMinimumSize.getText());
 			txtSize.setText(String.format("%.3f", sweptStepSize));
 		}
@@ -1473,8 +1307,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		setPartName(viewPartName);
 	}
 
-	public void setRegionDefinitionResourceUtil(
-			RegionDefinitionResourceUtil regionDefinition) {
+	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinition) {
 		this.regionDefinitionResourceUtil = regionDefinition;
 	}
 
@@ -1486,33 +1319,29 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		this.camera = camera;
 	}
 
-	public void setDcmEnergy(ScannableMotor energy) {
+	public void setDcmEnergy(Scannable energy) {
 		this.dcmenergy = energy;
 	}
 
-	public ScannableMotor getDcmEnergy() {
+	public Scannable getDcmEnergy() {
 		return this.dcmenergy;
 	}
 
-	public void setPgmEnergy(ScannableMotor energy) {
+	public void setPgmEnergy(Scannable energy) {
 		this.pgmenergy = energy;
 	}
 
-	public ScannableMotor getPgmEnergy() {
+	public Scannable getPgmEnergy() {
 		return this.pgmenergy;
 	}
 
 	private void onModifyEnergyMode(Object source) {
 		if (source.equals(btnKinetic) && btnKinetic.getSelection()) {
 			updateEnergyFields();
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(),
-					ENERGY_MODE.KINETIC);
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.KINETIC);
 		} else if (source.equals(btnBinding) && btnBinding.getSelection()) {
 			updateEnergyFields();
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(),
-					ENERGY_MODE.BINDING);
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.BINDING);
 		}
 	}
 
@@ -1523,35 +1352,73 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		txtLow.setText(String.format("%.4f", excitationEnergy - high));
 		txtHigh.setText(String.format("%.4f", (excitationEnergy - low)));
 		txtCenter.setText(String.format("%.4f", (excitationEnergy - center)));
-		updateFeature(region,
-				RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(),
-				Double.parseDouble(txtLow.getText()));
-		updateFeature(region,
-				RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(),
-				Double.parseDouble(txtHigh.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
 	}
 
 	@Override
 	public void dispose() {
-		getViewSite()
-				.getWorkbenchWindow()
-				.getSelectionService()
-				.removeSelectionListener(SequenceViewExtensionFactory.ID,
-						selectionListener);
+		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(SequenceViewExtensionFactory.ID, selectionListener);
 		super.dispose();
 	}
 
 	private void updateExcitationEnergy(Text txt) {
 		excitationEnergy = Double.parseDouble(txt.getText());
-		updateFeature(region,
-				RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(),
-				excitationEnergy);
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy);
 	}
 
 	private void initialiseRegionView(final Region region) {
+		setExcitationEnergy(region);
+
+		if (region.isEnabled()) {
+			regionName.setText(region.getName());
+			// regionName.setEnabled(true);
+		} else {
+			regionName.setText("");
+			// regionName.setEnabled(false);
+		}
+		lensMode.setText(region.getLensMode());
+		passEnergy.setText(String.valueOf(region.getPassEnergy()));
+		txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * Integer.parseInt(passEnergy.getText())));
+		runMode.setText(runMode.getItem(region.getRunMode().getMode().getValue()));
+		btnNumberOfIterations.setSelection(!region.getRunMode().isRepeatUntilStopped());
+		btnRepeatuntilStopped.setSelection(region.getRunMode().isRepeatUntilStopped());
+		btnConfirmAfterEachInteration.setSelection(region.getRunMode().isConfirmAfterEachIteration());
+		numberOfIterationSpinner.setSelection(region.getRunMode().getNumIterations());
+		btnSwept.setSelection(region.getAcquisitionMode().getLiteral().equalsIgnoreCase("Swept"));
+		btnFixed.setSelection(region.getAcquisitionMode().getLiteral().equalsIgnoreCase("Fixed"));
+		btnKinetic.setSelection(region.getEnergyMode().getLiteral().equalsIgnoreCase("Kinetic"));
+		btnBinding.setSelection(region.getEnergyMode().getLiteral().equalsIgnoreCase("Binding"));
+//		txtLow.setText(String.format("%.4f", region.getLowEnergy()));
+//		txtHigh.setText(String.format("%.4f", region.getHighEnergy()));
+		sweptLowEnergy=region.getLowEnergy();
+		sweptHighEnergy=region.getHighEnergy();
+		sweptStepSize = region.getEnergyStep();
+		fixedCentreEnergy=region.getFixEnergy();
+//		txtCenter.setText(String.format("%.4f", (region.getLowEnergy() + region.getHighEnergy()) / 2));
+//		txtSize.setText(String.format("%.3f", region.getEnergyStep()));
+//		txtWidth.setText(String.format("%.4f", (region.getHighEnergy() - region.getLowEnergy())));
+		txtTime.setText(String.format("%.3f", region.getStepTime()));
+		long frames = Math.round(Double.parseDouble(txtTime.getText()) / Double.parseDouble(txtMinimumTime.getText()));
+		spinnerFrames.setSelection((int) frames);
+		spinnerEnergyChannelFrom.setSelection(region.getFirstXChannel());
+		spinnerEnergyChannelTo.setSelection(region.getLastXChannel());
+		spinnerYChannelFrom.setSelection(region.getFirstYChannel());
+		spinnerYChannelTo.setSelection(region.getLastYChannel());
+		spinnerSlices.setSelection(region.getSlices());
+		btnADCMode.setSelection(region.getDetectorMode().getLiteral().equalsIgnoreCase("ADC"));
+		btnPulseMode.setSelection(region.getDetectorMode().getLiteral().equalsIgnoreCase("Pulse Counting"));
+		if (btnSwept.getSelection()) {
+			setToSweptMode();
+		} else {
+			setToFixedMode();
+		}
+		fireSelectionChanged(new TotalTimeSelection());
+	}
+
+	private void setExcitationEnergy(final Region region) {
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			if (region.getExcitationEnergy() > regionDefinitionResourceUtil
-					.getXRaySourceEnergyLimit()) {
+			if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
 				btnHard.setSelection(true);
 				btnSoft.setSelection(false);
 				if (dcmenergy != null) {
@@ -1603,64 +1470,6 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			excitationEnergy = hardXRayEnergy;
 			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
 		}
-
-		if (region.isEnabled()) {
-			regionName.setText(region.getName());
-			// regionName.setEnabled(true);
-		} else {
-			regionName.setText("");
-			// regionName.setEnabled(false);
-		}
-		lensMode.setText(region.getLensMode());
-		passEnergy.setText(String.valueOf(region.getPassEnergy()));
-		txtMinimumSize.setText(String.format(
-				"%.3f",
-				camera.getEnergyResolution()
-						* Integer.parseInt(passEnergy.getText())));
-		runMode.setText(runMode.getItem(region.getRunMode().getMode()
-				.getValue()));
-		btnNumberOfIterations.setSelection(!region.getRunMode()
-				.isRepeatUntilStopped());
-		btnRepeatuntilStopped.setSelection(region.getRunMode()
-				.isRepeatUntilStopped());
-		btnConfirmAfterEachInteration.setSelection(region.getRunMode()
-				.isConfirmAfterEachIteration());
-		numberOfIterationSpinner.setSelection(region.getRunMode()
-				.getNumIterations());
-		btnSwept.setSelection(region.getAcquisitionMode().getLiteral()
-				.equalsIgnoreCase("SWEPT"));
-		btnFixed.setSelection(region.getAcquisitionMode().getLiteral()
-				.equalsIgnoreCase("FIXED"));
-		btnKinetic.setSelection(region.getEnergyMode().getLiteral()
-				.equalsIgnoreCase("KINETIC"));
-		btnBinding.setSelection(region.getEnergyMode().getLiteral()
-				.equalsIgnoreCase("BINDING"));
-		txtLow.setText(String.format("%.4f", region.getLowEnergy()));
-		txtHigh.setText(String.format("%.4f", region.getHighEnergy()));
-		txtCenter.setText(String.format("%.4f",
-				(region.getLowEnergy() + region.getHighEnergy()) / 2));
-		txtWidth.setText(String.format("%.4f",
-				(region.getHighEnergy() - region.getLowEnergy())));
-		txtTime.setText(String.format("%.3f", region.getStepTime()));
-		long frames = Math.round(Double.parseDouble(txtTime.getText())
-				/ Double.parseDouble(txtMinimumTime.getText()));
-		spinnerFrames.setSelection((int) frames);
-		spinnerEnergyChannelFrom.setSelection(region.getFirstXChannel());
-		spinnerEnergyChannelTo.setSelection(region.getLastXChannel());
-		spinnerYChannelFrom.setSelection(region.getFirstYChannel());
-		spinnerYChannelTo.setSelection(region.getLastYChannel());
-		spinnerSlices.setSelection(region.getSlices());
-		btnADCMode.setSelection(region.getDetectorMode().getLiteral()
-				.equalsIgnoreCase("ADC"));
-		btnPulseMode.setSelection(region.getDetectorMode().getLiteral()
-				.equalsIgnoreCase("PULSE_COUNTING"));
-		if (btnSwept.getSelection()) {
-			sweptStepSize = region.getEnergyStep();
-			setToSweptMode();
-		} else {
-			setToFixedMode();
-		}
-		fireSelectionChanged(new TotalTimeSelection());
 	}
 
 	@Override
@@ -1675,8 +1484,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 			if (selectedRegionInSequenceView != null) {
 				return new StructuredSelection(selectedRegionInSequenceView);
 			} else {
-				List<Region> regions = regionDefinitionResourceUtil
-						.getRegions();
+				List<Region> regions = regionDefinitionResourceUtil.getRegions();
 				if (!regions.isEmpty()) {
 					for (Region region : regions) {
 						if (region.isEnabled()) {
@@ -1692,8 +1500,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 	}
 
 	@Override
-	public void removeSelectionChangedListener(
-			ISelectionChangedListener listener) {
+	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
 		selectionChangedListeners.remove(listener);
 	}
 
@@ -1749,7 +1556,8 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 					logger.error("Cannot get X-ray energy from PGM.", e);
 				}
 				if (btnSoft.getSelection()) {
-					excitationEnergy=softXRayEnergy;				}
+					excitationEnergy = softXRayEnergy;
+				}
 				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
 			}
 		}
