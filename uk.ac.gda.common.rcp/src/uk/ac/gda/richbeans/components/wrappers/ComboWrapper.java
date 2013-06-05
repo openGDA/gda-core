@@ -152,9 +152,6 @@ public class ComboWrapper extends ButtonComposite implements IFieldWidget{
 		if (combo.isDisposed())
 			return null;
 		final String text = combo.getText();
-		if (text.isEmpty()) {
-			System.out.println("empty!");
-		}
 		final int index = combo.getSelectionIndex();
 		if (index < 0) {
 			return itemMap != null ? itemMap.get(text) : text;
