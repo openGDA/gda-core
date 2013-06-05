@@ -136,6 +136,9 @@ public class Histogram extends Composite {
 		gl_histogramStatus.marginWidth = 2;
 		gl_histogramStatus.marginHeight = 2;
 		histogramStatus.setLayout(gl_histogramStatus);
+		
+		@SuppressWarnings("unused")
+		Label label = new Label(histogramStatus, SWT.SEPARATOR | SWT.HORIZONTAL);
 
 		statisticsStatus = new StatisticsStatus(left, SWT.NONE);
 
