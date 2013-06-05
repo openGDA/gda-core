@@ -26,6 +26,7 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionStreamIndexer;
 import gda.device.scannable.ScannableBase;
+import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableUtils;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.ReadOnlyPV;
@@ -50,7 +51,8 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 	short pcCaptureBitField = 1;
 	Zebra zebra;
 
-	ZebraScannableMotor zSM;
+	ScannableMotor scannableMotor;
+	ZebraMotorInfoProvider zebraMotorInfoProvider;
 
 	private double pcGateWidthRBV;
 
@@ -72,78 +74,71 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 		try {
 			logger.info("prepare for move");
 
-			boolean operatingContinously = zSM.isOperatingContinously();
-			try {
-				zebra.pcDisarm();
-				//if we want to check it is disarmed we will need to wait >2s as that is the zebra bus update period
+			zebra.pcDisarm();
+			//if we want to check it is disarmed we will need to wait >2s as that is the zebra bus update period
 
-				if (operatingContinously)
-					zSM.setOperatingContinuously(false);
-				requiredSpeed = (Math.abs(step)/triggerPeriod);
-				
-				zSM.asynchronousMoveTo(start - (step>0 ? 1.0 : -1.0)*zSM.distanceToAccToVelocity(requiredSpeed));
-
-				//sources must be set first
-				zebra.setPCGateSource(step > 0 ? 0 : 3);// Posn +ve/-ve
-				zebra.setPCArmSource(0);// Soft
-				
-				zebra.setPCPulseSource(mode);// Position 
-
-				//set motor before setting gates and pulse parameters
-				zebra.setPCEnc(zSM.getPcEnc()); // enc1
-				zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_SEC); //s
-				
-				zebra.setPCGateStart(start);
-				zebra.setPCGateNumberOfGates(1);
-				
-				
-				zebra.setPCCaptureBitField(pcCaptureBitField);
-
-				zebra.setPCPulseDelay(0.);
-				pcPulseDelayRBV = zebra.getPCPulseDelayRBV();
-
-				switch(mode){
-				case Zebra.PC_MODE_POSITION:
-					if(true)
-						throw new IllegalStateException("PC_MODE_POSITION is not yet tested");
-					zebra.setPCPulseWidth(Math.abs(step/2));
-					pcPulseWidthRBV = zebra.getPCPulseWidthRBV();
-					zebra.setPCPulseStep(Math.abs(step));
-
-					pcPulseStepRBV = zebra.getPCPulseStepRBV();
-					
-					double gateWidthPosn = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
-					
-					zebra.setPCGateWidth(gateWidthPosn);
-					
-					pcGateWidthRBV = zebra.getPCGateWidthRBV();
-					pcGateStartRBV = zebra.getPCGateStartRBV();
-					requiredSpeed = (Math.abs(pcPulseStepRBV) / triggerPeriod)*zSM.getConstantVelocitySpeedFactor();
-					break;
-				case Zebra.PC_MODE_TIME:
-					zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS); //s
-					zebra.setPCPulseWidth(.1); //.01ms
-					pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
-					zebra.setPCPulseStep(triggerPeriod*1000); // in  ms
-
-					pcPulseStepRBV = zebra.getPCPulseStepRBV()/1000;
-					
-					double gateWidthTime = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
-					requiredSpeed = (Math.abs(step)/pcPulseStepRBV);
-					zebra.setPCGateWidth((gateWidthTime * requiredSpeed));
-					
-					pcGateWidthRBV = zebra.getPCGateWidthRBV();
-					pcGateStartRBV = zebra.getPCGateStartRBV();
-					break;
-				default:
-					throw new DeviceException("Unacceptable mode " + mode);
-				}
-				
-				zSM.waitWhileBusy();
+			requiredSpeed = (Math.abs(step)/triggerPeriod);
 			
-			} finally {
-				zSM.setOperatingContinuously(operatingContinously);
+			scannableMotor.asynchronousMoveTo(start - (step>0 ? 1.0 : -1.0)*zebraMotorInfoProvider.distanceToAccToVelocity(requiredSpeed));
+
+			//sources must be set first
+			zebra.setPCGateSource(0 );// Always position
+			zebra.setPCArmSource(0);// Soft
+			
+			zebra.setPCPulseSource(mode);// Position 
+
+			//set motor before setting gates and pulse parameters
+			zebra.setPCEnc(zebraMotorInfoProvider.getPcEnc()); // enc1
+			zebra.setPCDir(step>0 ? 0:1 );
+			zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_SEC); //s
+			
+			zebra.setPCGateStart(start);
+			zebra.setPCGateNumberOfGates(1);
+			
+			
+			zebra.setPCCaptureBitField(pcCaptureBitField);
+
+			zebra.setPCPulseDelay(0.);
+			pcPulseDelayRBV = zebra.getPCPulseDelayRBV();
+
+			switch(mode){
+			case Zebra.PC_MODE_POSITION:
+				if(true)
+					throw new IllegalStateException("PC_MODE_POSITION is not yet tested");
+				zebra.setPCPulseWidth(Math.abs(step/2));
+				pcPulseWidthRBV = zebra.getPCPulseWidthRBV();
+				zebra.setPCPulseStep(Math.abs(step));
+
+				pcPulseStepRBV = zebra.getPCPulseStepRBV();
+				
+				double gateWidthPosn = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
+				
+				zebra.setPCGateWidth(gateWidthPosn);
+				
+				pcGateWidthRBV = zebra.getPCGateWidthRBV();
+				pcGateStartRBV = zebra.getPCGateStartRBV();
+				requiredSpeed = (Math.abs(pcPulseStepRBV) / triggerPeriod)*zebraMotorInfoProvider.getConstantVelocitySpeedFactor();
+				break;
+			case Zebra.PC_MODE_TIME:
+				zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS); //s
+				zebra.setPCPulseWidth(.1); //.01ms
+				pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
+				zebra.setPCPulseStep(triggerPeriod*1000); // in  ms
+
+				pcPulseStepRBV = zebra.getPCPulseStepRBV()/1000;
+				
+				double gateWidthTime = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
+				requiredSpeed = (Math.abs(step)/pcPulseStepRBV);
+				zebra.setPCGateWidth((gateWidthTime * requiredSpeed));
+				
+				pcGateWidthRBV = zebra.getPCGateWidthRBV();
+				pcGateStartRBV = zebra.getPCGateStartRBV();
+				break;
+			default:
+				throw new DeviceException("Unacceptable mode " + mode);
 			}
+			scannableMotor.waitWhileBusy();
+
 			int numberTriggers = getNumberTriggers();
 			zebra.setPCPulseMax(numberTriggers);
 			zebra.pcArm();
@@ -173,17 +168,13 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 		@Override
 		public Void call() throws DeviceException, InterruptedException {
 			try {
-				double speed = zSM.getSpeed();
-				boolean operatingContinously = zSM.isOperatingContinously();
+				double speed = scannableMotor.getSpeed();
 				try {
-					if (operatingContinously)
-						zSM.setOperatingContinuously(false);
-					zSM.setSpeed(requiredSpeed);
-					zSM.moveTo(pcGateStartRBV + (pcGateWidthRBV*(step > 0? 1: -1)+(step>0 ? 1.0 : -1.0)*zSM.distanceToAccToVelocity(requiredSpeed))); 
+					scannableMotor.setSpeed(requiredSpeed);
+					scannableMotor.moveTo(pcGateStartRBV + (pcGateWidthRBV*(step > 0? 1: -1)+(step>0 ? 1.0 : -1.0)*zebraMotorInfoProvider.distanceToAccToVelocity(requiredSpeed))); 
 					
 				} finally {
-					zSM.setSpeed(speed);
-					zSM.setOperatingContinuously(operatingContinously);
+					scannableMotor.setSpeed(speed);
 				}
 			} catch (DeviceException e) {
 				logger.error("Problem in trajectory move Thread (will be thrown in waitWhileMoving()): \n",
@@ -239,7 +230,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 				Thread.sleep(500);
 			}
 		} catch (InterruptedException e) {
-			zSM.stop();
+			scannableMotor.stop();
 			throw e;
 		} finally{
 			moveFuture=null;
@@ -249,7 +240,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 	@Override
 	public void stopAndReset() throws DeviceException, InterruptedException {
 		logger.info("stopAndReset");
-		
+		points = null;
 	}
 
 	@Override
@@ -263,7 +254,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 	public int getNumberTriggers() {
 		logger.info("getNumberTriggers");
 		try {
-			return ScannableUtils.getNumberSteps(zSM, new Double(start),new Double(end),new Double(step))+1;
+			return ScannableUtils.getNumberSteps(scannableMotor, new Double(start),new Double(end),new Double(step))+1;
 		} catch (Exception e) {
 			logger.error("Error getting number of triggers", e);
 			return 0;
@@ -336,12 +327,22 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 		this.zebra = zebra;
 	}
 
-	public ZebraScannableMotor getzSM() {
-		return zSM;
+
+
+	public ScannableMotor getScannableMotor() {
+		return scannableMotor;
 	}
 
-	public void setzSM(ZebraScannableMotor zSM) {
-		this.zSM = zSM;
+	public void setScannableMotor(ScannableMotor scannableMotor) {
+		this.scannableMotor = scannableMotor;
+	}
+
+	public ZebraMotorInfoProvider getZebraMotorInfoProvider() {
+		return zebraMotorInfoProvider;
+	}
+
+	public void setZebraMotorInfoProvider(ZebraMotorInfoProvider zebraMotorInfoProvider) {
+		this.zebraMotorInfoProvider = zebraMotorInfoProvider;
 	}
 
 	@Override
@@ -390,10 +391,18 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void atScanLineStart() {
+	public void atScanLineStart() throws DeviceException {
+		//ensure the callables have all been called
+		boolean done=true;
+		if( timeSeriesCollection != null){
+			for( ZebraCaptureInputStreamCollection ts : timeSeriesCollection){
+				done &= ts.isComplete();
+			}
+		}
+		if(!done)
+			throw new DeviceException("stopAndReset called before all callables have been processed");
 		lastImageNumberStreamIndexer = new PositionStreamIndexer[11];
 		timeSeriesCollection = null;
-		points = null;
 		moveFuture=null;
 		numPosCallableReturned=0;
 	}

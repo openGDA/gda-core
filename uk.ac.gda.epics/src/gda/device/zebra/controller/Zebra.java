@@ -117,4 +117,7 @@ public interface Zebra {
 
 	ReadOnlyPV<Double[]> getPCTimePV();
 
+	void setPCDir(int i)  throws IOException;
+	int getPCDir()  throws IOException;
+
 }

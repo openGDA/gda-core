@@ -52,6 +52,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	final public static String PCArmOut = "PC_ARM_OUT";
 	final public static String PCArmSourceSoft = "Soft";
 	final public static String PCArmSourceExternal = "External";
+	final public static String PCDir = "PC_DIR";
 
 	final public static String PCGateSource = "PC_GATE_SEL";
 	final public static String PCGateStart = "PC_GATE_START";
@@ -306,5 +307,14 @@ public class ZebraImpl implements Zebra, InitializingBean {
 		return dev.getReadOnlyPVDoubleArray(PCTime);
 	}
 
+	@Override
+	public void setPCDir(int val) throws IOException {
+		dev.getPVInteger(PCDir).putWait(val);
+	}
+
+	@Override
+	public int getPCDir() throws IOException {
+		return dev.getPVInteger(PCDir).get();
+	}
 	
 }
