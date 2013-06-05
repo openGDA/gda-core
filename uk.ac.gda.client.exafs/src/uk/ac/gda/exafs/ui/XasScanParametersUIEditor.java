@@ -63,7 +63,6 @@ import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
-import uk.ac.gda.richbeans.components.scalebox.NumberBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
@@ -122,13 +121,14 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private IRegion bLine;
 	private IRegion cLine;
 	private IRegion edgeLine;
+	
 	private boolean showLineAnnotations = false;
 
 	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor,
 			final XasScanParameters xasScanParameters) {
 
 		super(path, containingEditor.getMappingUrl(), containingEditor, xasScanParameters);
-		
+
 		containingEditor.addPageChangedListener(new IPageChangedListener() {
 			@Override
 			public void pageChanged(PageChangedEvent event) {
@@ -666,7 +666,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		abGafChoice = new ComboWrapper(topCentre, SWT.READ_ONLY);
 		abGafChoice.setItems(new String[] { "A/B", "Gaf1/Gaf2" });
-//		abGafChoice.select(1);
 		abGafChoice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		abGafChoice.addValueListener(new ValueAdapter("abgafchoiceListener") {
 			@Override
@@ -958,7 +957,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			});
 
 			updateExafsTimeType();
-			
+
+			updateEdgeRegion();
 			updateLayout();
 			setPointsUpdate(false);
 			updateElement(ELEMENT_EVENT_TYPE.INIT); // Must be before linkUI or switched on status fires events that
@@ -1389,12 +1389,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	protected void updateExafsTimeType() {
 		String exafsTimeTypeVal = ((XasScanParameters) editingBean).getExafsTimeType();
-		
 		boolean isVariableTime=false;
-		if(exafsTimeTypeVal.equals("Variable Time"))
-			isVariableTime=true;
-			
-		
+		if(exafsTimeTypeVal!=null)
+			if(exafsTimeTypeVal.equals("Variable Time"))
+				isVariableTime=true;
 		// Bean fields use active
 		getExafsTime().setActive(!isVariableTime);
 		getExafsFromTime().setActive(isVariableTime);
@@ -1590,14 +1588,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	protected Object fetchEditingBean() {
 		if (energyInK) {
 			DecimalFormat twoDForm = new DecimalFormat("#.##");
-//			((XasScanParameters) this.editingBean).setFinalEnergy(Double.valueOf(twoDForm.format(getKInEv().getValue(
-//					getFinalEnergy().getBoundValue()))));
-//			((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
-//					getC().getBoundValue()))));
-			
-			String finalEnergyBoundValueString = twoDForm.format(getKInEv().getValue(getFinalEnergy().getBoundValue()));
-			double finalEnergyBoundValue = Double.valueOf(finalEnergyBoundValueString);
-			((XasScanParameters) this.editingBean).setFinalEnergy(finalEnergyBoundValue);
+			((XasScanParameters) this.editingBean).setFinalEnergy(Double.valueOf(twoDForm.format(getKInEv().getValue(
+					getFinalEnergy().getBoundValue()))));
 			((XasScanParameters) this.editingBean).setC(Double.valueOf(twoDForm.format(getKInEv().getValue(
 					getC().getBoundValue()))));
 		}

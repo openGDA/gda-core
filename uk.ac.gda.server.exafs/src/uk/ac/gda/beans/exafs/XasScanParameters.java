@@ -30,7 +30,6 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  */
 public class XasScanParameters implements Serializable, IScanParameters {
 
-
 	static public final URL mappingURL = XasScanParameters.class.getResource("ExafsParameterMapping.xml");
 
 	static public final URL schemaUrl = XasScanParameters.class.getResource("ExafsParameterMapping.xsd");

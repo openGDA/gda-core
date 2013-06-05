@@ -493,6 +493,9 @@
 		<field name="coreHole" type="double">
 			<bind-xml name="coreHole" node="element" />
 		</field>
+		<field name="bothWays" type="boolean">
+			<bind-xml name="bothWays" node="element" />
+		</field>
 	</class>
 
 

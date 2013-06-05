@@ -67,7 +67,7 @@ public class QexafsTestingScannable extends ScannableMotor implements Continuous
 		double end = continuousParameters.getEndPosition();
 		double speed = (end-start) / continuousParameters.getTotalTime();
 		super.setSpeed(speed);
-		super.asynchronousMoveTo(continuousParameters.getEndPosition()+1);
+		super.asynchronousMoveTo(continuousParameters.getEndPosition());
 	}
 	
 	@Override

@@ -447,7 +447,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		}
 		// for best8 grades for each element
 		for (int i = 0; i < xspressParameters.getDetectorList().size(); i++) {
-			if (!xspressParameters.getDetectorList().get(i).isExcluded()) {
+			if (!isDetectorElementExcluded(i)) {
 				format.add(super.getOutputFormat()[0]);
 			}
 		}
@@ -456,7 +456,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 		if (addDTScalerValuesToAscii) {
 			for (int i = 0; i < xspressParameters.getDetectorList().size(); i++) {
-				if (!xspressParameters.getDetectorList().get(i).isExcluded()) {
+				if (!isDetectorElementExcluded(i)) {
 					for (int j = 0; j < 4; j++) {
 						format.add(super.getOutputFormat()[0]);
 					}
@@ -466,9 +466,15 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		return format.toArray(new String[0]);
 	}
 
+	private boolean isDetectorElementExcluded(int i) {
+		return xspressParameters.getDetectorList().get(i).isExcluded();
+	}
+
 	@Override
 	public String[] getExtraNames() {
-		return getChannelLabels().toArray(new String[0]);
+		ArrayList<String> labels = getChannelLabels();
+		return labels.toArray(new String[0]);
+//		return getChannelLabels().toArray(new String[0]);
 	}
 
 	@Override
@@ -1306,6 +1312,10 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 			// loop over all the elements
 			for (int element = 0; element < xspressParameters.getDetectorList().size(); element++) {
+				
+				if (isDetectorElementExcluded(element)){
+					continue;
+				}
 
 				// calculate the windowingCorrectionFactor based on good and bad
 				DetectorElement thisElement = xspressParameters.getDetectorList().get(element);
@@ -1786,11 +1796,11 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 				VSReading thisReading = (VSReading) readings[reading];
 				if (!groupedROIs.containsKey(thisROIName)) {
 					Vector<VSReading> vectorOfReadings = new Vector<VSReading>();
-					vectorOfReadings.add(thisReading.elementNumber, thisReading);
+					vectorOfReadings.add(thisReading);
 					groupedROIs.put(thisROIName, vectorOfReadings);
 				} else {
 					Vector<VSReading> vectorOfReadings = groupedROIs.get(thisROIName);
-					vectorOfReadings.add(thisReading.elementNumber, thisReading);
+					vectorOfReadings.add(thisReading);
 				}
 			}
 		}
@@ -1843,28 +1853,43 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			return thisFrame;
 		}
 		
-		int[] totalCounts = new int[numberOfDetectors];
-		int[] numResets = new int[numberOfDetectors];
-		int[] inWinCounts = new int[numberOfDetectors];
-		int[] numClockCounts = new int[numberOfDetectors];
+		int numFilteredDetectors = getNumberOfIncludedDetectors();
 		
-		for (int i = 0; i < numberOfDetectors; i++){
-			totalCounts[i] = unpackedScalerData[i*4];
-			numResets[i] = unpackedScalerData[i*4 + 1];
-			inWinCounts[i] = unpackedScalerData[i*4 + 2];
-			numClockCounts[i] = unpackedScalerData[i*4 + 3];
+		int[] totalCounts = new int[numFilteredDetectors];
+		int[] numResets = new int[numFilteredDetectors];
+		int[] inWinCounts = new int[numFilteredDetectors];
+		int[] numClockCounts = new int[numFilteredDetectors];
+		
+		int i = 0;
+		for (int element = 0; element < numberOfDetectors; element++){
+			if (!getDetectorList().get(element).isExcluded()) {
+				totalCounts[i] = unpackedScalerData[element*4];
+				numResets[i] = unpackedScalerData[element*4 + 1];
+				inWinCounts[i] = unpackedScalerData[element*4 + 2];
+				numClockCounts[i] = unpackedScalerData[element*4 + 3];
+			}
 		}
 		
 		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler total",
-				new int[] { numberOfDetectors }, NexusFile.NX_INT32, totalCounts, "counts", 1);
+				new int[] { numFilteredDetectors }, NexusFile.NX_INT32, totalCounts, "counts", 1);
 		thisFrame.addData(thisFrame.getDetTree(getName()), "tfg resets",
-				new int[] { numberOfDetectors }, NexusFile.NX_INT32, numResets, "counts", 1);
+				new int[] { numFilteredDetectors }, NexusFile.NX_INT32, numResets, "counts", 1);
 		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler in-window",
-				new int[] { numberOfDetectors }, NexusFile.NX_INT32, inWinCounts, "counts", 1);
+				new int[] { numFilteredDetectors }, NexusFile.NX_INT32, inWinCounts, "counts", 1);
 		thisFrame.addData(thisFrame.getDetTree(getName()), "tfg clock cycles",
-				new int[] { numberOfDetectors }, NexusFile.NX_INT32, numClockCounts, "counts", 1);
+				new int[] { numFilteredDetectors }, NexusFile.NX_INT32, numClockCounts, "counts", 1);
 
 		return thisFrame;
+	}
+
+	private int getNumberOfIncludedDetectors() {
+		int numFilteredDetectors = 0;
+		for (int element = 0; element < numberOfDetectors; element++){
+			if (!getDetectorList().get(element).isExcluded()) {
+				numFilteredDetectors++;
+			}
+		}
+		return numFilteredDetectors;
 	}
 
 	/*
@@ -1872,7 +1897,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	private NXDetectorData addFFIfPossible(INexusTree detTree, NXDetectorData thisFrame, double[] ds) {
 		ArrayList<String> elementNames = new ArrayList<String>();
-		getChannelLabels(elementNames,false);
+		getChannelLabels(elementNames,true);
 		int ffColumn = elementNames.indexOf("FF");
 
 		if (elementNames.size() == ds.length && ffColumn > -1) {
@@ -1898,20 +1923,23 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	private NXDetectorData fillNXDetectorDataWithScalerData(NXDetectorData thisFrame, double[] scalerData,
 			int[] rawScalervalues) {
 		
+		double[] dataToPlot;
 		ArrayList<String> allElementNames = new ArrayList<String>();
-		getChannelLabels(allElementNames, false);
+		getChannelLabels(allElementNames, true);
 		int ffColumn = allElementNames.indexOf("FF");
 		if (onlyDisplayFF) {
 			// only add FF, so filter out rest of scalerdata
-			scalerData = new double[] { scalerData[ffColumn] };
+			dataToPlot = new double[] { scalerData[ffColumn] };
+		} else if (mcaGrades == ALL_RES){
+			dataToPlot = scalerData;
 		} else {
 			double[] plottableData = new double[0];
 			for (int i = 0; i < scalerData.length; i++) {
-				if (i == ffColumn || !getDetectorList().get(i).isExcluded()) {
+				if (i == ffColumn ||  i < allElementNames.size()) {
 					plottableData = ArrayUtils.add(plottableData, scalerData[i]);
 				}
 			}
-			scalerData = plottableData;
+			dataToPlot = plottableData;
 		}
 
 		// add the raw scaler values used to calculate the deadtime to ascii
@@ -1919,7 +1947,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			double[] dblRawScalerValues = new double[0];
 			for (int i = 0; i < getDetectorList().size(); i++) {
 				if (!getDetectorList().get(i).isExcluded()) {
-					int firstRawScalerValueElement = (i - 1) * 4;
+					int firstRawScalerValueElement = i * 4;
 					dblRawScalerValues = ArrayUtils
 							.add(dblRawScalerValues, rawScalervalues[firstRawScalerValueElement]);
 					dblRawScalerValues = ArrayUtils.add(dblRawScalerValues,
@@ -1930,13 +1958,13 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 							rawScalervalues[firstRawScalerValueElement + 3]);
 				}
 			}
-			scalerData = ArrayUtils.addAll(scalerData, dblRawScalerValues);
+			dataToPlot = ArrayUtils.addAll(scalerData, dblRawScalerValues);
 		}
 
 		// by now, the scalerData array should match the extraNames.
 		String[] names = getExtraNames();
 		for (int i = 0; i < names.length; i++) {
-			thisFrame.setPlottableValue(names[i], scalerData[i]);
+			thisFrame.setPlottableValue(names[i], dataToPlot[i]);
 		}
 
 		return thisFrame;
@@ -2081,7 +2109,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 				// when ALL_RES then make a sum of each resGrade over all the elements/ROIs in each resGrade bin i.e.
 				// 15, 15+14...; add to this array the sum of best 8 res grades, not corrected for DT
 				if (mcaGrades == ALL_RES) {
-					scalerData[frame] = new double[16 + getNumberOfDetectors()];
+					scalerData[frame] = new double[16];
 				}
 				double ff = 0;
 				double ff_bad = 0;
@@ -2125,7 +2153,9 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 							// best 8 resGrades for each element, but not corrected for deadtime
 							if (readingsUncorrected != null) {
-								scalerData[frame][vsreading.getElementNumber() + 16] = ((VSReading) readingsUncorrected[frame][vs]).counts[7];
+								// in this case, add to the end of the scalerData array (initally this array has 16 elements, so add on counts of included channels to the end)
+								scalerData[frame] = ArrayUtils.add(scalerData[frame],((VSReading) readingsUncorrected[frame][vs]).counts[7]);
+//								scalerData[frame][vsreading.getElementNumber() + 16] = ((VSReading) readingsUncorrected[frame][vs]).counts[7];
 							}
 							if (vsreading.contributesToFF) {
 								ff += vsreading.counts[7];
@@ -2187,11 +2217,13 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 					Arrays.fill(deadtimeCorrectionFactors, 1.0);
 				}
 
-				scalerData[frame] = new double[numberOfDetectors];
+				scalerData[frame] = new double[0];
 				int counter = 2;
 				for (int element = 0; element < numberOfDetectors; element++) {
-					scalerData[frame][element] = unpackedScalerData[frame][counter]
-							* deadtimeCorrectionFactors[element];
+					if (!isDetectorElementExcluded(element)) {
+						scalerData[frame] = ArrayUtils.add(scalerData[frame],unpackedScalerData[frame][counter]
+								* deadtimeCorrectionFactors[element]);
+					}
 					counter += 4;
 				}
 

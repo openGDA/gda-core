@@ -35,6 +35,7 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	String element;
 	String edge;
 	Double coreHole;
+	boolean bothWays;
 	
 	private boolean shouldValidate = true;
 
@@ -97,6 +98,7 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 		result = prime * result + ((stepSize == null) ? 0 : stepSize.hashCode());
 		result = prime * result + ((time == null) ? 0 : time.hashCode());
 		result = prime * result + (shouldValidate ? 1231 : 1237);
+		result = prime * result + (bothWays ? 1231 : 1237);
 		return result;
 	}
 
@@ -141,6 +143,9 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 			return false;
 		
 		if (shouldValidate != other.shouldValidate)
+			return false;
+		
+		if (bothWays != other.bothWays)
 			return false;
 		
 		return true;
@@ -226,4 +231,13 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	public void setCoreHole(Double coreHole) {
 		this.coreHole = coreHole;
 	}
+
+	public boolean getBothWays() {
+		return bothWays;
+	}
+
+	public void setBothWays(boolean bothWays) {
+		this.bothWays = bothWays;
+	}
+	
 }
