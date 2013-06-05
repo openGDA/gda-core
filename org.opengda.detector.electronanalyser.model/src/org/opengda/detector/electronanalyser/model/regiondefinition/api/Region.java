@@ -672,7 +672,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Step Time</b></em>' attribute.
-	 * The default value is <code>"0.043"</code>.
+	 * The default value is <code>"1.0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Step Time</em>' attribute isn't clear,
@@ -684,7 +684,7 @@ public interface Region extends EObject {
 	 * @see #unsetStepTime()
 	 * @see #setStepTime(double)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_StepTime()
-	 * @model default="0.043" unsettable="true"
+	 * @model default="1.0" unsettable="true"
 	 * @generated
 	 */
 	double getStepTime();
@@ -726,7 +726,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>First XChannel</b></em>' attribute.
-	 * The default value is <code>"1"</code>.
+	 * The default value is <code>"0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>First XChannel</em>' attribute isn't clear,
@@ -738,7 +738,7 @@ public interface Region extends EObject {
 	 * @see #unsetFirstXChannel()
 	 * @see #setFirstXChannel(int)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_FirstXChannel()
-	 * @model default="1" unsettable="true"
+	 * @model default="0" unsettable="true"
 	 * @generated
 	 */
 	int getFirstXChannel();
@@ -780,7 +780,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Last XChannel</b></em>' attribute.
-	 * The default value is <code>"1024"</code>.
+	 * The default value is <code>"1000"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Last XChannel</em>' attribute isn't clear,
@@ -792,7 +792,7 @@ public interface Region extends EObject {
 	 * @see #unsetLastXChannel()
 	 * @see #setLastXChannel(int)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_LastXChannel()
-	 * @model default="1024" unsettable="true"
+	 * @model default="1000" unsettable="true"
 	 * @generated
 	 */
 	int getLastXChannel();
@@ -834,7 +834,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>First YChannel</b></em>' attribute.
-	 * The default value is <code>"1"</code>.
+	 * The default value is <code>"0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>First YChannel</em>' attribute isn't clear,
@@ -846,7 +846,7 @@ public interface Region extends EObject {
 	 * @see #unsetFirstYChannel()
 	 * @see #setFirstYChannel(int)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_FirstYChannel()
-	 * @model default="1" unsettable="true"
+	 * @model default="0" unsettable="true"
 	 * @generated
 	 */
 	int getFirstYChannel();
@@ -888,7 +888,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Last YChannel</b></em>' attribute.
-	 * The default value is <code>"1024"</code>.
+	 * The default value is <code>"900"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Last YChannel</em>' attribute isn't clear,
@@ -900,7 +900,7 @@ public interface Region extends EObject {
 	 * @see #unsetLastYChannel()
 	 * @see #setLastYChannel(int)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_LastYChannel()
-	 * @model default="1024" unsettable="true"
+	 * @model default="900" unsettable="true"
 	 * @generated
 	 */
 	int getLastYChannel();

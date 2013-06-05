@@ -420,7 +420,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double STEP_TIME_EDEFAULT = 0.043;
+	protected static final double STEP_TIME_EDEFAULT = 1.0;
 
 	/**
 	 * The cached value of the '{@link #getStepTime() <em>Step Time</em>}' attribute.
@@ -448,7 +448,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int FIRST_XCHANNEL_EDEFAULT = 1;
+	protected static final int FIRST_XCHANNEL_EDEFAULT = 0;
 
 	/**
 	 * The cached value of the '{@link #getFirstXChannel() <em>First XChannel</em>}' attribute.
@@ -477,7 +477,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int LAST_XCHANNEL_EDEFAULT = 1024;
+	protected static final int LAST_XCHANNEL_EDEFAULT = 1000;
 
 	/**
 	 * The cached value of the '{@link #getLastXChannel() <em>Last XChannel</em>}' attribute.
@@ -506,7 +506,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int FIRST_YCHANNEL_EDEFAULT = 1;
+	protected static final int FIRST_YCHANNEL_EDEFAULT = 0;
 
 	/**
 	 * The cached value of the '{@link #getFirstYChannel() <em>First YChannel</em>}' attribute.
@@ -535,7 +535,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int LAST_YCHANNEL_EDEFAULT = 1024;
+	protected static final int LAST_YCHANNEL_EDEFAULT = 900;
 
 	/**
 	 * The cached value of the '{@link #getLastYChannel() <em>Last YChannel</em>}' attribute.

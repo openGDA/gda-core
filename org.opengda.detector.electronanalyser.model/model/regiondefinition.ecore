@@ -63,15 +63,15 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="energyStep" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
         defaultValueLiteral="200.0" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="stepTime" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
-        defaultValueLiteral="0.043" unsettable="true"/>
+        defaultValueLiteral="1.0" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstXChannel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
-        defaultValueLiteral="1" unsettable="true"/>
+        defaultValueLiteral="0" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastXChannel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
-        defaultValueLiteral="1024" unsettable="true"/>
+        defaultValueLiteral="1000" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstYChannel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
-        defaultValueLiteral="1" unsettable="true"/>
+        defaultValueLiteral="0" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastYChannel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
-        defaultValueLiteral="1024" unsettable="true"/>
+        defaultValueLiteral="900" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="slices" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="1" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="detectorMode" eType="#//DETECTOR_MODE"
