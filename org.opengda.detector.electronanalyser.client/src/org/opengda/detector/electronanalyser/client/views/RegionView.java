@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.SpinnerDateModel;
+
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.edit.command.SetCommand;
@@ -573,15 +575,15 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 							.getRegion_FirstYChannel(), spinnerYChannelFrom
 							.getSelection());
 					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()
-							- spinnerYChannelFrom.getSelection() + 1);
+							- spinnerYChannelFrom.getSelection());
 				}
 			}
 		});
 		spinnerYChannelFrom
 				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerYChannelFrom.setToolTipText("Low bound");
-		spinnerYChannelFrom.setMinimum(1);
-		spinnerYChannelFrom.setMaximum(camera.getCameraYSize());
+		spinnerYChannelFrom.setMinimum(0);
+		spinnerYChannelFrom.setMaximum(camera.getCameraYSize()-1);
 
 		Label lblYChannelTo = new Label(grpDetector, SWT.NONE);
 		lblYChannelTo.setText("To");
@@ -595,7 +597,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 							.getRegion_LastYChannel(), spinnerYChannelTo
 							.getSelection());
 					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()
-							- spinnerYChannelFrom.getSelection() + 1);
+							- spinnerYChannelFrom.getSelection());
 				}
 			}
 		});
@@ -622,7 +624,7 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 		spinnerSlices.setToolTipText("Number of slices");
 		spinnerSlices.setMinimum(1);
 		spinnerSlices.setMaximum(spinnerYChannelTo.getSelection()
-				- spinnerYChannelFrom.getSelection() + 1);
+				- spinnerYChannelFrom.getSelection());
 
 		new Label(grpDetector, SWT.NONE);
 		new Label(grpDetector, SWT.NONE);
@@ -1319,6 +1321,9 @@ public class RegionView extends ViewPart implements ISelectionProvider,
 				- 1 / 2 * Double.parseDouble(txtWidth.getText())));
 		txtHigh.setText(String.valueOf(Double.parseDouble(txtCenter.getText())
 				+ 1 / 2 * Double.parseDouble(txtWidth.getText())));
+		spinnerSlices.setSelection(spinnerYChannelTo.getSelection()-spinnerYChannelFrom.getSelection());
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE
+				.getRegion_Slices(), spinnerSlices.getSelection());
 		if (btnFixed.getSelection()) {
 			updateTotalSteps();
 		}
