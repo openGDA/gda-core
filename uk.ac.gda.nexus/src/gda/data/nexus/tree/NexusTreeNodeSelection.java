@@ -38,16 +38,16 @@ final public class NexusTreeNodeSelection {
 	/**
 	 * values for dataType
 	 */
-	static int NAME_ONLY = 0;
-	static int NAME_AND_DIMS = 1; //name, attributes and dims
-	static int NAME_DIMS_AND_DATA = 2; //name, attributes, dims and data
+	public static int NAME_ONLY = 0;
+	public static int NAME_AND_DIMS = 1; //name, attributes and dims
+	public static int NAME_DIMS_AND_DATA = 2; //name, attributes, dims and data
 
 	/**
 	 * values for wanted
 	 */
-	static int SKIP_THIS_ITEM = 0;
-	static int GET_THIS_ITEM = 1;
-	static int GET_THIS_AND_BELOW = 2;
+	public static int SKIP_THIS_ITEM = 0;
+	public static int GET_THIS_ITEM = 1;
+	public static int GET_THIS_AND_BELOW = 2;
 
 	/**
 	 * Value to indicate no items are to be selected
