@@ -63,7 +63,6 @@ import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
-import uk.ac.gda.richbeans.components.scalebox.NumberBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
@@ -1087,7 +1086,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		super.setPointsUpdate(isUpdate);
 		updateValueAllowed = isUpdate;
 		if (isUpdate) {
-			updatePointsLabels();
+//			updatePointsLabels();
 			a.on();
 			b.on();
 			c.on();
