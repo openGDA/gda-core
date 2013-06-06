@@ -25,7 +25,6 @@ import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
-import gda.data.metadata.NXMetaDataProvider;
 import gda.data.nexus.INeXusInfoWriteable;
 import gda.data.nexus.NeXusUtils;
 import gda.data.nexus.NexusFileFactory;
@@ -33,14 +32,16 @@ import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeAppender;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NexusDetector;
 import gda.device.scannable.ScannableUtils;
-import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 
 import java.io.File;
@@ -58,6 +59,7 @@ import org.nexusformat.NexusFile;
 import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
@@ -223,10 +225,21 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// Check to see if we want to create a text/SRS file as well.
 		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, true);
 
-		String metaDataProviderName = LocalProperties.get(GDA_NEXUS_METADATAPROVIDER_NAME);
-		if( metaDataProviderName != null && beforeScanMetaData == null){
-			NXMetaDataProvider metaDataProvider = Finder.getInstance().find(metaDataProviderName);
-			beforeScanMetaData = metaDataProvider.getBeforeScanMetaData();
+		if( beforeScanMetaData!= null ){
+			String metaDataProviderName = LocalProperties.get(GDA_NEXUS_METADATAPROVIDER_NAME);
+			if( StringUtils.hasLength(metaDataProviderName)){
+				NexusTreeAppender metaDataProvider = Finder.getInstance().find(metaDataProviderName);
+				InterfaceProvider.getTerminalPrinter().print("Getting meta data before scan");
+				beforeScanMetaData = new NexusTreeNode("before_scan", NexusExtractor.NXCollectionClassName, null);
+				metaDataProvider.appendToTopNode(beforeScanMetaData);
+			}
+		}
+		if( beforeScanMetaData == null){
+			InterfaceProvider.getTerminalPrinter().print("Meta data before_scan is not being added");
+			beforeScanMetaData = new NexusTreeNode("before_scan", NexusExtractor.NXCollectionClassName, null);
+			beforeScanMetaData.addChildNode(new NexusTreeNode("disabled", NexusExtractor.AttrClassName, beforeScanMetaData,
+					new NexusGroupData("True")));
+
 		}
 		setupPropertiesDone = true;
 

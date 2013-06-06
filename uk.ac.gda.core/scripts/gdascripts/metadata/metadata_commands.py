@@ -25,3 +25,8 @@ def meta_ll():
 def meta_ls():
     metashop=Finder.getInstance().find("metashop")
     return metashop.list(False)
+
+def meta_rm(farg, *vargs):
+    metashop=Finder.getInstance().find("metashop")
+    metashop.remove([farg]+list(vargs))
+    return metashop.list(False)
