@@ -288,4 +288,14 @@
             name="name">
       </category>
    </extension>
+   <extension
+         point="org.dawnsci.introRegister">
+      <introPageRegister
+            class="uk.ac.diamond.tomography.reconstruction.TomoPerspectiveLaunch"
+            description="Tools to reconstruct NeXus tomography data"
+            icon="icons/TOMO_intro.png"
+            id="uk.ac.diamond.tomography.reconstruction.intropage"
+            name="(Pre-release) Tomography Reconstruction">
+      </introPageRegister>
+   </extension>
 </plugin>
