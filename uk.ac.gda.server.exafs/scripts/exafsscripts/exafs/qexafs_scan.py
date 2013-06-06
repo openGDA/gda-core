@@ -17,6 +17,7 @@ from scan import Scan
 from exafs_environment import ExafsEnvironment
 from gda.epics import CAClient
 from time import sleep
+import math
 
 class QexafsScan(Scan):
     
@@ -103,8 +104,7 @@ class QexafsScan(Scan):
                     finder = Finder.getInstance()
                     cirrus=finder.find("cirrus")
                     cirrus.setMasses([2, 28, 32])
-                    energyScannable = finder.find("qexafs_energy")
-                    self.t = ThreadClass(cirrus, energyScannable, initial_energy, final_energy, "cirrus_scan.dat")
+                    self.t = ThreadClass(cirrus, self.energy_scannable, initial_energy, final_energy, "cirrus_scan.dat")
                     self.t.setName("cirrus")
                     self.t.start()
                     ###
@@ -122,16 +122,39 @@ class QexafsScan(Scan):
                             from time import sleep
                             sleep(2)
             
-                print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
+                current_energy = self.energy_scannable();
+                dist_to_init = math.fabs(initial_energy - current_energy)
+                dist_to_final = math.fabs(final_energy - current_energy)
+
+                print "energy currently at ", current_energy
+                print "initial_energy ", initial_energy
+                print "final_energy", final_energy
+                print "dist_to_init", dist_to_init
+                print "dist_to_final", dist_to_final
+                
+                start=initial_energy
+                end=final_energy
+                
+                if scanBean.getBothWays() == True:
+                    if dist_to_init < dist_to_final:
+                        #go forward
+                        start=initial_energy
+                        end=final_energy
+                    else:
+                        #go reverse
+                        start=final_energy
+                        end=initial_energy
+                
+                print "running QEXAFS scan:", self.energy_scannable.getName(), start, end, numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
-                thisscan = ContinuousScan(self.energy_scannable , scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList)
+                thisscan = ContinuousScan(self.energy_scannable , start, end, numberPoints, scan_time, detectorList)
                 controller.update(None, ScanCreationEvent(thisscan.getName()))
                 try:
                     if numRepetitions > 1:
                         print ""
                         print "Starting repetition", str(repetitionNumber),"of",numRepetitions
                     loggingbean.atScanStart()
-                    thisscan.runScan()  
+                    thisscan.runScan()
                     controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
                     loggingbean.atScanEnd()            
                 except InterruptedException, e:

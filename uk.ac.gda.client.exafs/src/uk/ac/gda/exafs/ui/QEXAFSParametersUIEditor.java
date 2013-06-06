@@ -23,11 +23,14 @@ import gda.util.exafs.Element;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +40,9 @@ import uk.ac.gda.exafs.ui.composites.QEXAFSParametersComposite;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
+import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 
 /**
  *
@@ -80,9 +81,6 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		};
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void createPartControl(Composite comp) {
 
@@ -120,18 +118,23 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 				} catch (Exception e1) {
 					logger.error("Cannot update energies from element selection", e1);
 				}
-
 			}
 		});
 		updateElementBtn.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		updateElementBtn.setText("Update Values");
 		new Label(grpQuickExafsParameters, SWT.NONE);
-
+		
 		try {
 			getCoreHole_unused().setValue(getCfromElement());
 		} catch (Exception e) {
 			logger.error("Cannot get and set core hole", e);
 		}
+		
+		beanComposite.getSpeed().on();
+		beanComposite.getStepSize().on();
+		beanComposite.getTime().on();
+		beanComposite.getInitialEnergy().on();
+		beanComposite.getFinalEnergy().on();
 	}
 
 	/**
@@ -164,6 +167,10 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 
 	public FieldComposite getShouldValidate() {
 		return beanComposite.getShouldValidate();
+	}
+	
+	public BooleanWrapper getBothWays() {
+		return beanComposite.getBothWays();
 	}
 
 	protected double getInitialEnergyFromElement() throws Exception {
@@ -203,5 +210,46 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 			logger.error("Could not update element list", e);
 		}
 		super.linkUI(isPageChange);
+	}
+	
+	public ComboWrapper getEdge() {
+		return edge;
+	}
+
+	@Override
+	protected void setPointsUpdate(boolean isUpdate) {
+		updateValueAllowed = isUpdate;
+		if (isUpdate) {
+			updatePointsLabels();
+			edge.on();
+			element.on();
+			beanComposite.getSpeed().on();
+			beanComposite.getStepSize().on();
+			beanComposite.getTime().on();
+			beanComposite.getInitialEnergy().on();
+			beanComposite.getFinalEnergy().on();
+			getCoreHole_unused().on();
+			getEdgeEnergy().on();
+		} else {
+			edge.off();
+			element.off();
+//			beanComposite.getSpeed().off();
+//			beanComposite.getStepSize().off();
+//			beanComposite.getTime().off();
+			beanComposite.getInitialEnergy().off();
+			beanComposite.getFinalEnergy().off();
+			getCoreHole_unused().off();
+			getEdgeEnergy().off();
+
+			getCoreHole_unused().off();
+			getEdgeEnergy().off();
+		}
+// 		not sure if this works as it relies on calling every getter method in the class...
+//		try {
+//			BeanUI.switchState(this, isUpdate);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			logger.error("TODO put description of error here", e);
+//		}
 	}
 }

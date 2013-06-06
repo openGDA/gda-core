@@ -42,6 +42,9 @@ public class Xspress2SystemOutputTest {
 	
 	private static Xspress2System xspress = new Xspress2System();
 	final static String TestFileFolder = "testfiles/gda/device/detector/xspress";
+	
+	private static final int NUM_ENABLED_ELEMENTS = 8;
+	private static final int SIZE_SCALER_DATA = NUM_ENABLED_ELEMENTS + 1; // for FF
 
 	/**
 	 */
@@ -57,8 +60,10 @@ public class Xspress2SystemOutputTest {
 		try {
 			xspress.setDaServer(daserver);
 			xspress.setTfg(tfg);
-			xspress.setConfigFileName(TestFileFolder + "/xspressConfig2.xml");
-			xspress.setDtcConfigFileName(TestFileFolder + "/Xspress_DeadTime_Parameters.xml");
+			String configFile = Xspress2SystemOutputTest.class.getResource("xspressConfig.xml").getPath();
+			String DTFile = Xspress2SystemOutputTest.class.getResource("Xspress_DeadTime_Parameters.xml").getPath();
+			xspress.setConfigFileName(configFile);
+			xspress.setDtcConfigFileName(DTFile);
 			xspress.setName("xspressTest");
 			xspress.setDaServerName("DummyDAServer");
 			xspress.setTfgName("tfg");
@@ -89,10 +94,11 @@ public class Xspress2SystemOutputTest {
 		xspress.setOnlyDisplayFF(true);
 		assertEquals(1,xspress.getExtraNames().length);
 		xspress.setOnlyDisplayFF(false);
-		assertEquals(10,xspress.getExtraNames().length);
+		String[] extraNames = xspress.getExtraNames();
+		assertEquals(SIZE_SCALER_DATA,extraNames.length);
 		xspress.setOnlyDisplayFF(false);
 		xspress.setAddDTScalerValuesToAscii(true);
-		assertEquals((4*9+9+1),xspress.getExtraNames().length);
+		assertEquals((4*NUM_ENABLED_ELEMENTS+SIZE_SCALER_DATA),xspress.getExtraNames().length);
 	}
 	
 	@Test
@@ -110,7 +116,7 @@ public class Xspress2SystemOutputTest {
 			String asciiData = results.toString();
 			String[] asciiDataParts = asciiData.split("\t");
 			// test ascii
-			assertEquals(10,asciiDataParts.length);
+			assertEquals(SIZE_SCALER_DATA,asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 			//test when DTC values added
@@ -121,7 +127,7 @@ public class Xspress2SystemOutputTest {
 			asciiData = results.toString();
 			asciiDataParts = asciiData.split("\t");
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
-			assertEquals((4*9+9+1),asciiDataParts.length);
+			assertEquals((4*NUM_ENABLED_ELEMENTS+SIZE_SCALER_DATA),asciiDataParts.length);
 			
 		} catch (DeviceException e) {
 			fail(e.getMessage());
@@ -144,7 +150,7 @@ public class Xspress2SystemOutputTest {
 			String asciiData = results.toString();
 			String[] asciiDataParts = asciiData.split("\t");
 			// test ascii
-			assertEquals(10,asciiDataParts.length);
+			assertEquals(SIZE_SCALER_DATA,asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 			//test when DTC values added
@@ -154,7 +160,7 @@ public class Xspress2SystemOutputTest {
 			results = xspress.readout();
 			asciiData = results.toString();
 			asciiDataParts = asciiData.split("\t");
-			assertEquals((4*9+9+1),asciiDataParts.length);
+			assertEquals((4*NUM_ENABLED_ELEMENTS+SIZE_SCALER_DATA),asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 		} catch (DeviceException e) {
@@ -178,7 +184,7 @@ public class Xspress2SystemOutputTest {
 			String asciiData = results.toString();
 			String[] asciiDataParts = asciiData.split("\t");
 			// test ascii
-			assertEquals(1,asciiDataParts.length);
+			assertEquals(SIZE_SCALER_DATA,asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 			//test when DTC values added
@@ -188,8 +194,9 @@ public class Xspress2SystemOutputTest {
 			results = xspress.readout();
 			asciiData = results.toString();
 			asciiDataParts = asciiData.split("\t");
-			assertEquals((4*9+1),asciiDataParts.length);
-			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
+			String[] extraNames = xspress.getExtraNames();
+			assertEquals(extraNames.length,asciiDataParts.length);
+			assertEquals((NUM_ENABLED_ELEMENTS + 1 + 4 * NUM_ENABLED_ELEMENTS),asciiDataParts.length);
 			
 		} catch (DeviceException e) {
 			fail(e.getMessage());
@@ -212,7 +219,7 @@ public class Xspress2SystemOutputTest {
 			String asciiData = results.toString();
 			String[] asciiDataParts = asciiData.split("\t");
 			// test ascii
-			assertEquals(2,asciiDataParts.length);
+			assertEquals(SIZE_SCALER_DATA + 1,asciiDataParts.length);  // +1 for ff_bad
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 			//test when DTC values added
@@ -222,7 +229,7 @@ public class Xspress2SystemOutputTest {
 			results = xspress.readout();
 			asciiData = results.toString();
 			asciiDataParts = asciiData.split("\t");
-			assertEquals((4*9+1 + 1),asciiDataParts.length);  // 4 *  numElements + good for each element + FF + FF_bad
+			assertEquals((NUM_ENABLED_ELEMENTS + 4*NUM_ENABLED_ELEMENTS+1 + 1),asciiDataParts.length);  // 4 *  numElements + good for each element + FF + FF_bad
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 		} catch (DeviceException e) {
@@ -257,7 +264,7 @@ public class Xspress2SystemOutputTest {
 			results = xspress.readout();
 			asciiData = results.toString();
 			asciiDataParts = asciiData.split("\t");
-			assertEquals((16 +9+1),asciiDataParts.length);  // 16 resGrade bins, 9 'best grades', FF
+			assertEquals((16 +NUM_ENABLED_ELEMENTS+1),asciiDataParts.length);  // 16 resGrade bins, 9 'best grades', FF
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 
 			//test when DTC values added
@@ -268,7 +275,7 @@ public class Xspress2SystemOutputTest {
 			results = xspress.readout();
 			asciiData = results.toString();
 			asciiDataParts = asciiData.split("\t");
-			assertEquals((4*9+16 +9+1),asciiDataParts.length); // 4*numElements, 16 resGrade bins, 'best grades' per element ,FF
+			assertEquals((4*NUM_ENABLED_ELEMENTS+16 +NUM_ENABLED_ELEMENTS+1),asciiDataParts.length); // 4*numElements, 16 resGrade bins, 'best grades' per element ,FF
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 		} catch (DeviceException e) {

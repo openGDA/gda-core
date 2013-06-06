@@ -45,18 +45,21 @@ import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
+import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
+import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
+import org.eclipse.swt.widgets.Button;
 
 /**
  *
  */
-public final class QEXAFSParametersComposite extends Composite {
+public final class QEXAFSParametersComposite extends FieldBeanComposite {
 
 	private ScaleBox initialEnergy;
 	private ScaleBoxAndFixedExpression finalEnergy;
@@ -70,6 +73,7 @@ public final class QEXAFSParametersComposite extends Composite {
 
 	private NumberFormat formatter = new DecimalFormat("#0.00000");
 	private Length crystal = null;
+	private BooleanWrapper btnBothWays;
 
 	public QEXAFSParametersComposite(Composite parent, int style, final QEXAFSParameters provider, ExpressionProvider k) {
 		super(parent, SWT.NONE);
@@ -205,7 +209,11 @@ public final class QEXAFSParametersComposite extends Composite {
 		GridData gd_avgTimePerPoint = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_avgTimePerPoint.widthHint = 159;
 		avgTimePerPoint.setLayoutData(gd_avgTimePerPoint);
-
+		
+		btnBothWays = new BooleanWrapper(this, SWT.NONE);
+		btnBothWays.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		btnBothWays.setText("Scan mono both ways");
+		
 		initialEnergy.addValueListener(new ValueAdapter("initialEnergyListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -225,8 +233,9 @@ public final class QEXAFSParametersComposite extends Composite {
 		speed.addValueListener(new ValueAdapter("speedListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if (speed.getNumericValue() != 0 && !speed.getValue().toString().equals(""))
+				if (speed.getNumericValue() != 0 && !speed.getValue().toString().equals("")){
 					calculate(provider);
+				}
 			}
 		});
 
@@ -239,8 +248,6 @@ public final class QEXAFSParametersComposite extends Composite {
 		});
 		calculate(provider);
 	}
-	
-	
 	
 	private void calculate(QEXAFSParameters provider) {
 		try {
@@ -306,6 +313,10 @@ public final class QEXAFSParametersComposite extends Composite {
 
 	public FieldComposite getShouldValidate() {
 		return shouldValidate;
+	}
+
+	public BooleanWrapper getBothWays() {
+		return btnBothWays;
 	}
 
 }

@@ -210,7 +210,9 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 				logger.error("Cannot update Xanes points graph!", e);
 			}
 		} finally {
-			setPointsUpdate(true);
+			if (type != ELEMENT_EVENT_TYPE.INIT) {
+				setPointsUpdate(true);
+			}
 		}
 	}
 
