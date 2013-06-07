@@ -42,15 +42,18 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 	@Override
 	public void preWindowOpen() {
-		
-		boolean useToolBar = LocalProperties.check(LocalProperties.GDA_GUI_USE_TOOL_BAR,true);
-		boolean usePerspectiveBar = LocalProperties.check(LocalProperties.GDA_GUI_USE_PERSPECTIVE_BAR,true);
-		boolean useIntroScreen = LocalProperties.check(LocalProperties.GDA_GUI_FORCE_INTRO,false);
-		int width = LocalProperties.getAsInt(LocalProperties.GDA_GUI_START_WIDTH,1450);
-		int height = LocalProperties.getAsInt(LocalProperties.GDA_GUI_START_HEIGHT,900);
+
+		boolean useToolBar = LocalProperties.check(LocalProperties.GDA_GUI_USE_TOOL_BAR, true);
+		boolean usePerspectiveBar = LocalProperties.check(LocalProperties.GDA_GUI_USE_PERSPECTIVE_BAR, true);
+		Boolean useIntroScreen = null;
+		if (LocalProperties.contains(LocalProperties.GDA_GUI_FORCE_INTRO)) {
+			useIntroScreen = LocalProperties.check(LocalProperties.GDA_GUI_FORCE_INTRO);
+		}
+		int width = LocalProperties.getAsInt(LocalProperties.GDA_GUI_START_WIDTH, 1450);
+		int height = LocalProperties.getAsInt(LocalProperties.GDA_GUI_START_HEIGHT, 900);
 
 		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
-		configurer.setInitialSize(new Point(width,height));
+		configurer.setInitialSize(new Point(width, height));
 		configurer.setShowCoolBar(useToolBar);
 		configurer.setShowStatusLine(true);
 		configurer.setShowProgressIndicator(true);
@@ -61,15 +64,16 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 			title = prefix + " - GDA - " + gda.util.Version.getRelease();
 		} else {
 			String beamLineName = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
-			title = String.format("Data Acquisition Client - Beamline %s - %s",
-					beamLineName == null ? "Unknown" : beamLineName.toUpperCase(),
-				gda.util.Version.getRelease());
+			title = String.format("Data Acquisition Client - Beamline %s - %s", beamLineName == null ? "Unknown"
+					: beamLineName.toUpperCase(), gda.util.Version.getRelease());
 		}
 		configurer.setTitle(title);
-		
-		 // Option to save and restore the GUI state between sessions. For GDA default is 'false'. 
-		 // If LocalProperties.GDA_GUI_SAVE_RESTORE is set to true, this setting to force Intro may have no effect
-		PlatformUI.getPreferenceStore().setValue(IWorkbenchPreferenceConstants.SHOW_INTRO,useIntroScreen);
+
+		// Option to save and restore the GUI state between sessions. For GDA default is 'false'.
+		// If LocalProperties.GDA_GUI_SAVE_RESTORE is set to true, this setting to force Intro may have no effect
+		if (useIntroScreen != null) {
+			PlatformUI.getPreferenceStore().setValue(IWorkbenchPreferenceConstants.SHOW_INTRO, useIntroScreen);
+		}
 	}
 	
 	@Override
