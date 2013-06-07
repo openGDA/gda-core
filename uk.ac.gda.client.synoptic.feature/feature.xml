@@ -45,6 +45,10 @@
          id="org.eclipse.jdt"
          version="0.0.0"/>
 
+   <includes
+         id="uk.ac.gda.client.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.gda.client.synoptic"
          download-size="0"

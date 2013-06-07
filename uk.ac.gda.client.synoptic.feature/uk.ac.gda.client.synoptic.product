@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="GDA Generic Client" id="uk.ac.gda.client.synoptic.product" application="uk.ac.gda.client.application" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="false">
+<product name="GDA Generic Client" id="uk.ac.gda.client.synoptic.product" application="uk.ac.gda.client.application" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>
@@ -33,7 +33,6 @@ The GDA project is an open-source framework for creating customised data acquisi
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
