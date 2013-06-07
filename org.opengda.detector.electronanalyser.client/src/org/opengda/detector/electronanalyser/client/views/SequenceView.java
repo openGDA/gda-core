@@ -1514,19 +1514,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	@Override
 	public void update(Object source, final Object arg) {
-		if (source.equals(controller) && arg instanceof SequenceFileChangeEvent) {
+		if (source == controller && arg instanceof SequenceFileChangeEvent) {
 			Display.getDefault().asyncExec(new Runnable() {
 				
 				@Override
 				public void run() {
 					logger.debug("Sequence file changed to {}", ((SequenceFileChangeEvent)arg).getFilename());
 					refreshTable(((SequenceFileChangeEvent) arg).getFilename(), false);
-					
 				}
 			});
 		}
 		// if (source.equals(regionScannable)) {
-		if (source instanceof RegionScannable) {
+		if (source == regionScannable) {
 			if (arg instanceof RegionChangeEvent) {
 				String regionId = ((RegionChangeEvent) arg).getRegionId();
 				for (Region region : regions) {
@@ -1536,36 +1535,37 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 				// TODO auto select this region in the viewer????
 				sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
-			} else if (arg instanceof RegionStatusEvent) {
-				Status status = ((RegionStatusEvent) arg).getStatus();
-				if (currentRegion == null) {
-					String regionId = ((RegionStatusEvent) arg).getRegionId();
-					for (Region region : regions) {
-						if (region.getRegionId().equalsIgnoreCase(regionId)) {
-							currentRegion = region;
-						}
-					}
-				}
-				switch (status) {
-				case READY:
-					updateRegionStatus(currentRegion, STATUS.READY);
-					break;
-				case RUNNING:
-					updateRegionStatus(currentRegion, STATUS.RUNNING);
-					break;
-				case ABORTED:
-					updateRegionStatus(currentRegion, STATUS.ABORTED);
-					break;
-				case COMPLETED:
-					updateRegionStatus(currentRegion, STATUS.COMPLETED);
-					break;
-				case ERROR:
-					updateRegionStatus(currentRegion, STATUS.ABORTED);
-					break;
-				default:
-					break;
-				}
-			}
+			} 
+//			else if (arg instanceof RegionStatusEvent) {
+//				Status status = ((RegionStatusEvent) arg).getStatus();
+//				if (currentRegion == null) {
+//					String regionId = ((RegionStatusEvent) arg).getRegionId();
+//					for (Region region : regions) {
+//						if (region.getRegionId().equalsIgnoreCase(regionId)) {
+//							currentRegion = region;
+//						}
+//					}
+//				}
+//				switch (status) {
+//				case READY:
+//					updateRegionStatus(currentRegion, STATUS.READY);
+//					break;
+//				case RUNNING:
+//					updateRegionStatus(currentRegion, STATUS.RUNNING);
+//					break;
+//				case ABORTED:
+//					updateRegionStatus(currentRegion, STATUS.ABORTED);
+//					break;
+//				case COMPLETED:
+//					updateRegionStatus(currentRegion, STATUS.COMPLETED);
+//					break;
+//				case ERROR:
+//					updateRegionStatus(currentRegion, STATUS.ABORTED);
+//					break;
+//				default:
+//					break;
+//				}
+//			}
 		}
 		// TODO update current region status from detector or EPICS IOC
 
@@ -1583,6 +1583,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private class AnalyserStateListener implements MonitorListener {
 
+		private boolean running;
+
 		@Override
 		public void monitorChanged(final MonitorEvent arg0) {
 			if (first) {
@@ -1598,8 +1600,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (currentRegion != null) {
 				switch (state) {
 				case 0:
-					if (currentRegion.getStatus() == STATUS.RUNNING) {
+					if (running) {
 						updateRegionStatus(currentRegion, STATUS.COMPLETED);
+						running=false;
 						logger.debug("analyser is in completed state for current region: {}", currentRegion.toString());
 					} else {
 						updateRegionStatus(currentRegion, STATUS.READY);
@@ -1608,6 +1611,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					break;
 				case 1:
 					updateRegionStatus(currentRegion, STATUS.RUNNING);
+					running=true;
 					logger.debug("analyser is in running state for current region: {}", currentRegion.toString());
 					break;
 				case 6:
