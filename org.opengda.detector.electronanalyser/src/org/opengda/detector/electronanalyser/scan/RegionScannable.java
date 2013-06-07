@@ -1,5 +1,7 @@
 package org.opengda.detector.electronanalyser.scan;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
@@ -29,12 +31,13 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	private VGScientaAnalyser analyser;
 	// private Scriptcontroller scriptController;
 	private boolean busy;
+	private AtomicInteger count=new AtomicInteger(); // enabled region position count
 	private static final Logger logger = LoggerFactory
 			.getLogger(RegionScannable.class);
 
 	public RegionScannable() {
 		// scriptController=Finder.getInstance().find("SequenceFileObserver");
-		setOutputFormat(new String[] {"%s"});
+		//setOutputFormat(new String[] {"%s"});
 	}
 
 	@Override
@@ -44,19 +47,20 @@ public class RegionScannable extends ScannableBase implements Scannable {
 
 	@Override
 	public Object getPosition() throws DeviceException {
-		if (region == null) {
-			// no poistion is not setted by GDA Scan
-			try {
-				return getPositionFromEPICS();
-			} catch (Exception e) {
-				logger.error("Cannot get region parameters from EPICS IOC.", e);
-				throw new DeviceException(
-						"Cannot get region parameters from EPICS IOC.", e);
-			}
-			// return
-			// "No region is set by default in this scannable object. It will be set dynamically during a analyserscan";
-		}
-		return region;
+//		if (region == null) {
+//			// no poistion is not setted by GDA Scan
+//			try {
+//				return getPositionFromEPICS();
+//			} catch (Exception e) {
+//				logger.error("Cannot get region parameters from EPICS IOC.", e);
+//				throw new DeviceException(
+//						"Cannot get region parameters from EPICS IOC.", e);
+//			}
+//			// return
+//			// "No region is set by default in this scannable object. It will be set dynamically during a analyserscan";
+//		}
+//		return region;
+		return count.intValue(); // return the position number of active regions in the sequence
 	}
 
 	private String getPositionFromEPICS() throws Exception {
@@ -176,7 +180,13 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	}
 
 	@Override
+	public void atScanLineStart() throws DeviceException {
+		count.set(0);
+		super.atScanLineStart();
+	}
+	@Override
 	public void atPointStart() throws DeviceException {
+		count.incrementAndGet();
 		super.atPointStart();
 	}
 
