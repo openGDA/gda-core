@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.nxdetector.plugin.areadetector;
+package gda.device.detector.nxdetector.plugin;
 
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
@@ -24,46 +24,44 @@ import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.epics.LazyPVFactory;
+import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
 import gda.scan.ScanInformation;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.nexusformat.NexusFile;
+
 import static gda.device.detector.addetector.ADDetector.readoutArrayIntoNXDetectorData;
 
-public class ADArrayPlugin implements NXPlugin {
+public class PVArrayPlugin extends NullNXPlugin {
 	
-	final private NDArray ndArray;
 
-	private boolean enabled = true;
+	private ReadOnlyPV<Float[]> pv;
 
-	private boolean firstReadoutInScan = true;
 
-	public ADArrayPlugin(NDArray ndArray) {
-		this.ndArray = ndArray;
+	public PVArrayPlugin(String pvName) {
+		pv = LazyPVFactory.newReadOnlyFloatArrayPV(pvName);
 	}
 
 	@Override
 	public String getName() {
-		return "array";
+		return "pv_array_plugin";
 	}
 
 	@Override
 	public boolean willRequireCallbacks() {
-		return isEnabled();
+		return false;
 	}
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		if (isEnabled()) {
-			ndArray.getPluginBase().enableCallbacks();
-			ndArray.getPluginBase().setBlockingCallbacks((short) 1);
-		} else {
-			ndArray.getPluginBase().disableCallbacks();
-			ndArray.getPluginBase().setBlockingCallbacks((short) 0);
-		}
-		firstReadoutInScan = true;
 	}
 
 	@Override
@@ -99,47 +97,37 @@ public class ADArrayPlugin implements NXPlugin {
 	@Override
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
+
+		float[] floats;
+		try {
+			floats = ArrayUtils.toPrimitive(pv.get());
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to get data from " +pv.getPvName(), e);
+		}
 		
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
-		if (isEnabled()) {
-			appenders.add(new NXDetectorDataArrayAppender(ndArray, firstReadoutInScan));
-		} else {
-			appenders.add(new NXDetectorDataNullAppender());
-		}
-		firstReadoutInScan = false;
-		// disabled
+		appenders.add(new NXDetectorDataArrayAppender(floats));
 		return appenders;
 	}
 
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-
-	public NDArray getNdArray() {
-		return ndArray;
-	}
 }
 class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 
-	private boolean firstReadoutInScan;
-	private NDArray ndArray;
 
-	NXDetectorDataArrayAppender(NDArray ndArray, boolean firstReadoutInScan) {
-		this.ndArray = ndArray;
-		this.firstReadoutInScan = firstReadoutInScan;
+	final private float[] arrayData;
+
+	NXDetectorDataArrayAppender(float[] arrayData) {
+		this.arrayData = arrayData;
+		
 	}
 	
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException{
 		try {
-			readoutArrayIntoNXDetectorData(data, ndArray, detectorName);
-			if (firstReadoutInScan) {
-				// TODO add sensible axes
-			}
+			int[] dims = new int[] {arrayData.length};
+			
+			int nexusType =  NexusFile.NX_FLOAT64;
+			data.addData(detectorName, "data", dims , nexusType, arrayData, "count", 1);
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
