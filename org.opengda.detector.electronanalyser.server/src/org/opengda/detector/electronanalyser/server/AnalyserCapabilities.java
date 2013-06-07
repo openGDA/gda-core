@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
+
 public class AnalyserCapabilities implements Findable {
 
 	private String name = "AnalyserCapabilties";
@@ -80,7 +82,9 @@ public class AnalyserCapabilities implements Findable {
 			throw new ArrayIndexOutOfBoundsException("unknown lens table "+lensTable);
 		}
 		double[] doubles = lens2angles.get(lensTable);
-		return Arrays.copyOfRange(doubles, startChannel, startChannel + length);
+		double[] copyOfRange = Arrays.copyOfRange(doubles, startChannel, startChannel + length);
+		ArrayUtils.reverse(copyOfRange);
+		return copyOfRange;
 	}
 	
 	public String[] getLensModes() {

@@ -34,6 +34,7 @@ import gov.aps.jca.event.MonitorListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawnsci.plotting.api.PlotType;
@@ -189,6 +190,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		if (isNewRegion()) {
 			try {
 				xdata = getAnalyser().getEnergyAxis();
+				//ArrayUtils.reverse(xdata);
 			} catch (Exception e) {
 				logger.error("cannot get enegery axis fron the analyser", e);
 			}
@@ -197,7 +199,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		DoubleDataset xAxis= new DoubleDataset(xdata, new int[] { xdata.length });
 		xAxis.setName("energies (eV)");
 		try {
-			int[] dims = new int[] { getAnalyser().getSlices(),xdata.clone().length };
+			int[] dims = new int[] { getAnalyser().getSlices(), xdata.clone().length };
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;
@@ -207,9 +209,10 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 
 			// analyser region
 			double[] ydata = getAnalyser().getAngleAxis();
+			//ArrayUtils.reverse(ydata);
 			DoubleDataset yAxis = new DoubleDataset(ydata,	new int[] { ydata.length });
 			if ("Transmission".equalsIgnoreCase(getAnalyser().getLensMode())) {
-				yAxis.setName("location (mm)");
+				yAxis.setName("pixel");
 			} else {
 				yAxis.setName("angles (deg)");
 			}
