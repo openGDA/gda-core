@@ -12,7 +12,7 @@
  <extension
          point="org.eclipse.ui.views">
       <category
-            name="Reconstruction"
+            name="Data Analysis - Tomography Reconstruction"
             id="uk.ac.diamond.tomography.reconstruction">
       </category>
       <view
