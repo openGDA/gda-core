@@ -25,8 +25,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
-import gda.device.detector.NXDetector;
-import gda.device.detector.nxdetector.plugin.NullNXCollectionStrategy;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Factory;
@@ -274,10 +272,6 @@ public class NXMetaDataProviderTest {
 	public void testInScan1() throws InterruptedException, Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testInScan1", true);
 
-		NXDetector d = new NXDetector();
-		d.setName("det");
-		d.setCollectionStrategy(new NullNXCollectionStrategy("test"));
-		d.configure();
 
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 		populateNXMetaDataProvider(metaDataProvider, 4, "key", "value");
@@ -365,7 +359,7 @@ public class NXMetaDataProviderTest {
 		// setup property to be read by NexusDataWriter
 		LocalProperties.set("gda.nexus.metadata.provider.name", metaDataProvider.getName());
 
-		ConcurrentScan conScan = new ConcurrentScan(new Object[] { s, 0, 10, 1, d });
+		ConcurrentScan conScan = new ConcurrentScan(new Object[] { s, 0, 10, 1});
 		conScan.runScan();
 
 	}
@@ -551,9 +545,6 @@ public class NXMetaDataProviderTest {
 
 		userSuppliedItems.clear();
 		userSuppliedItems.add(new MetaDataUserSuppliedItem(userSuppliedKey, userSuppliedValue, null));
-
-		String xxx = generateExpectedUserSupplied(userSuppliedItems, true);
-		// System.out.println("xxx2 = " + xxx);
 
 		// list
 		boolean withValues = true;
@@ -1393,7 +1384,7 @@ public class NXMetaDataProviderTest {
 
 	@Test
 	public void testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn3Ex0() throws InterruptedException, Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList",
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn3Ex0",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
@@ -1454,7 +1445,7 @@ public class NXMetaDataProviderTest {
 
 	@Test
 	public void testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn3Ex2() throws InterruptedException, Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList",
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn3Ex2",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
@@ -1515,7 +1506,7 @@ public class NXMetaDataProviderTest {
 
 	@Test
 	public void testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn0Ex2() throws InterruptedException, Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList",
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn0Ex2",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
@@ -1576,7 +1567,7 @@ public class NXMetaDataProviderTest {
 
 	@Test
 	public void testAddForScannableGeneratedWithoutUnitsAgainstList_scnGroup() throws InterruptedException, Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList",
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstList_scnGroup",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
