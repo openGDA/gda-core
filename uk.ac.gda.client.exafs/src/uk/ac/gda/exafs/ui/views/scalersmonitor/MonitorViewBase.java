@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -21,20 +21,23 @@ package uk.ac.gda.exafs.ui.views.scalersmonitor;
 import gda.device.DeviceException;
 import gda.rcp.GDAClientActivator;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlottingFactory;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPartReference;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.gda.client.CommandQueueViewFactory;
 
 /**
@@ -52,7 +55,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 
 	protected int numElements;
 
-	protected DataSetPlotter myPlotter;
+	protected AbstractPlottingSystem myPlotter;
 
 	protected boolean amVisible = true;
 
@@ -65,6 +68,16 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	private ImageDescriptor pauseImage;
 
 	ImageDescriptor runImage;
+
+	@Override
+	public void init(IViewSite site) throws PartInitException {
+		try {
+			myPlotter = PlottingFactory.createPlottingSystem();
+		} catch (Exception e) {
+			throw new PartInitException("Exception creating PlottingSystem", e);
+		}
+		super.init(site);
+	}
 
 	/**
 	 * Collect the data from the fluorescence detector
@@ -193,7 +206,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	 * @return DoubleDataset
 	 */
 	protected DoubleDataset createFullRangeDataset(double maxValue) {
-		return new DoubleDataset(new double[] {0, maxValue});
+		return new DoubleDataset(new double[] { 0, maxValue });
 	}
 
 	public void setRunMonitoring(boolean runMonitoring) {
@@ -218,6 +231,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	public void dispose() {
 		keepOnTrucking = false;
 		amVisible = false;
+		myPlotter.dispose();
 		super.dispose();
 	}
 

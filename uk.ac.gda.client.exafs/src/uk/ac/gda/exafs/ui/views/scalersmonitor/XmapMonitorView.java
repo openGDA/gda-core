@@ -26,13 +26,12 @@ import gda.factory.Finder;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 
-import java.util.Vector;
-
-import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
-import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
-import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
-import org.dawnsci.plotting.jreality.impl.PlotException;
+import org.dawb.common.ui.plot.PlotType;
+import org.dawb.common.ui.plot.axis.IAxis;
+import org.dawb.common.ui.plot.trace.ILineTrace;
+import org.dawb.common.ui.plot.trace.ILineTrace.TraceType;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -40,13 +39,12 @@ import org.eclipse.swt.widgets.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 
 public class XmapMonitorView extends MonitorViewBase {
 	
-	private static final Double MAX_FLUO_RATE = 399000.0;
+	private static final Double MAX_FLUO_RATE = 500000.0;
 
 	public static final String ID = "uk.ac.gda.exafs.ui.views.xmapmonitor"; //$NON-NLS-1$
 
@@ -54,6 +52,10 @@ public class XmapMonitorView extends MonitorViewBase {
 	protected static final Logger logger = LoggerFactory.getLogger(XmapMonitorView.class);
 
 	protected ScalersMonitorViewData displayData;
+
+	private IAxis primaryAxis;
+
+	private IAxis dtAxis;
 
 	public XmapMonitorView() {
 	}
@@ -68,6 +70,13 @@ public class XmapMonitorView extends MonitorViewBase {
 		grpCurrentCountRates.setLayout(new GridLayout());
 
 		displayData = new ScalersMonitorViewData(grpCurrentCountRates);
+
+		myPlotter.createPlotPart(grpCurrentCountRates, "Rates", null, PlotType.XY, null);
+		myPlotter.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		primaryAxis = myPlotter.getSelectedYAxis();
+		primaryAxis.setTitle("Counts (Hz)");
+		dtAxis = myPlotter.createAxis("Deadtime (%)", true, SWT.RIGHT);
 		
 		String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");
 		XmapDetector xmap = (XmapDetector) Finder.getInstance().find(xmapName);
@@ -75,15 +84,6 @@ public class XmapMonitorView extends MonitorViewBase {
 			numElements = xmap.getNumberOfMca();
 		} catch (DeviceException e) {
 			logger.error("Exception while fetching number of elements in the Si detector. Is it properly configured/connected?", e);
-		}
-
-		if (numElements > 1){
-			myPlotter = new DataSetPlotter(PlottingMode.ONED, grpCurrentCountRates, true);
-			myPlotter.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-			myPlotter.setXAxisLabel("Xmap element");
-	
-			myPlotter.updateAllAppearance();
-			myPlotter.refresh(false);
 		}
 
 		super.createPartControl(parent);
@@ -102,73 +102,84 @@ public class XmapMonitorView extends MonitorViewBase {
 	}
 
 	protected void updateXmapGrid(Double[] xmapStats, Double[] values) {
-		try {
-			double[] rates = new double[numElements];
-			double[] dts = new double[numElements];
-			Double FF = 0.0;
-			double maxRate = 0;
-			double maxDT = 0.0;
-			for (int element = 0; element < numElements; element++) {
-				rates[element] = xmapStats[element * 3]; // Hz
-				dts[element] = (xmapStats[element * 3 + 1] - 1) * 100; // %
-				FF += xmapStats[element * 3 + 2] * xmapStats[element * 3 + 1];
+		double[] rates = new double[numElements];
+		double[] dts = new double[numElements];
+		Double FF = 0.0;
+		double maxRate = 0;
+		double maxDT = 0.0;
+		for (int element = 0; element < numElements; element++) {
+			rates[element] = xmapStats[element * 3]; // Hz
+			dts[element] = (xmapStats[element * 3 + 1] - 1) * 100; // %
+			FF += xmapStats[element * 3 + 2] * xmapStats[element * 3 + 1];
 
-				maxRate = xmapStats[element * 3] > maxRate ? xmapStats[element * 3] : maxRate;
-				maxDT = xmapStats[element * 3 + 1] > maxDT ? xmapStats[element * 3 + 1] : maxDT;
-			}
-			displayData.setFF(FF);
+			maxRate = xmapStats[element * 3] > maxRate ? xmapStats[element * 3] : maxRate;
+			maxDT = xmapStats[element * 3 + 1] > maxDT ? xmapStats[element * 3 + 1] : maxDT;
+		}
+		displayData.setFF(FF);
 
-			// get the normalised in window counts for one of the highest rate elements
-			switch (numElements) {
-			case 9:
-				displayData.setFFI0(xmapStats[8 * 3 + 2] / values[0]);
-				break;
-			case 64:
-				// TODO check that this is one of the higher rate elements in the 64Ge
-				displayData.setFFI0(xmapStats[16 * 3 + 2] / values[0]);
-				break;
-			default:
-				displayData.setFFI0(FF / values[0]);
-				break;
-			}
-
-//			int rateOOM = findOrderOfMagnitude(maxRate);
-//			int dtOOM = findOrderOfMagnitude(maxDT);
-			
-			if (myPlotter == null){
-				return;
-			}
-
-			for (int element = 0; element < numElements; element++) {
-				rates[element] = rates[element];// / Math.pow(10, rateOOM);
-				dts[element] = dts[element] * 10000;//  / Math.pow(10, dtOOM);
-			}
-
-			Vector<DoubleDataset> dataSets = new Vector<DoubleDataset>();
-			dataSets.add(new DoubleDataset(rates));
-			dataSets.add(new DoubleDataset(dts));
-			dataSets.add(createFullRangeDataset(MAX_FLUO_RATE));
-			myPlotter.replaceAllPlots(dataSets);
-
-			Plot1DGraphTable legend = myPlotter.getColourTable();
-			legend.clearLegend();
-			legend.addEntryOnLegend(0, new Plot1DAppearance(java.awt.Color.BLUE, Plot1DStyles.SOLID,
-					"All Counts Rate (Hz)"));
-			legend.addEntryOnLegend(1, new Plot1DAppearance(java.awt.Color.RED, Plot1DStyles.DASHED,
-					"Deadtime (100K = 10%)"));
-			Plot1DAppearance whiteLine = new Plot1DAppearance(java.awt.Color.WHITE, Plot1DStyles.DASHED,
-					"");
-			whiteLine.setVisible(false);
-			legend.addEntryOnLegend(2, whiteLine);
-
-			myPlotter.updateAllAppearance();
-			myPlotter.refresh(true);
-		} catch (PlotException e) {
-			// log and stop plotting
-			runMonitoring = false;
-			logger.error("Exception trying to plot Xmap statistics " + e.getMessage());
+		// get the normalised in window counts for one of the highest rate elements
+		switch (numElements) {
+		case 9:
+			displayData.setFFI0(xmapStats[8 * 3 + 2] / values[0]);
+			break;
+		case 64:
+			displayData.setFFI0(xmapStats[16 * 3 + 2] / values[0]);
+			break;
+		default:
+			displayData.setFFI0(FF / values[0]);
+			break;
 		}
 
+		if (myPlotter == null) {
+			return;
+		}
+
+		for (int element = 0; element < numElements; element++) {
+			rates[element] = rates[element];
+			dts[element] = dts[element];
+		}
+
+		AbstractDataset dsRates = new DoubleDataset(rates);
+		dsRates.setName("Rates (Hz)");
+
+		AbstractDataset dsDeadTime = new DoubleDataset(dts);
+		dsDeadTime.setName("Deadtime (%)");
+
+		AbstractDataset x = AbstractDataset.arange(numElements, AbstractDataset.FLOAT32);
+		x.setName("Element");
+
+		myPlotter.clear();
+
+		// rates plot
+		myPlotter.setSelectedYAxis(primaryAxis);
+		ILineTrace ratesTrace = myPlotter.createLineTrace("Rates (Hz)");
+		ratesTrace.setTraceType(TraceType.HISTO);
+		ratesTrace.setLineWidth(5);
+		ratesTrace.setTraceColor(new Color(null, 0, 0, 128));
+		ratesTrace.setData(x, dsRates);
+		myPlotter.addTrace(ratesTrace);
+		if (numElements == 1) {
+			myPlotter.getSelectedXAxis().setRange(-1, numElements);
+		} else {
+			myPlotter.getSelectedXAxis().setRange(0, numElements);
+		}
+		myPlotter.getSelectedXAxis().setTitle("Element");
+		myPlotter.getSelectedYAxis().setRange(0, MAX_FLUO_RATE);
+
+		// deadtime plot
+		myPlotter.setSelectedYAxis(dtAxis);
+		ILineTrace deadTimeTrace = myPlotter.createLineTrace("Red (%)");
+		deadTimeTrace.setTraceType(TraceType.HISTO);
+		deadTimeTrace.setLineWidth(10);
+		deadTimeTrace.setTraceColor(new Color(null, 255, 0, 0));
+		deadTimeTrace.setData(x, dsDeadTime);
+		myPlotter.addTrace(deadTimeTrace);
+		myPlotter.getSelectedYAxis().setShowMajorGrid(false);
+		myPlotter.getSelectedYAxis().setRange(0, 100);
+
+		myPlotter.setSelectedYAxis(primaryAxis);
+		myPlotter.setShowLegend(false);
+		myPlotter.repaint(false);
 	}
 
 	@Override
