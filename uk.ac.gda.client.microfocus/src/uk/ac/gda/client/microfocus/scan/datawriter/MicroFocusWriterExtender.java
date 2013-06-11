@@ -522,7 +522,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				}
 			}
 		}
-		if (selectedElementIndex != -1)// the selected emenet is a scaler value
+		if (selectedElementIndex != -1)// the selected element is a scaler value
 		// displaying the map for the scaler
 		{
 			createDataSet();

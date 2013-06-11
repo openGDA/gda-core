@@ -114,7 +114,7 @@ public class MicroFocusDisplayController {
 			currentDetectorProvider = null;
 	}
 
-	public void displayMap(String selectedElement) throws Exception {
+	public void displayMap(String selectedElement) {
 		// check whether map scan is running
 		String active = JythonServerFacade.getInstance().evaluateCommand("map.getMFD().isActive()");
 
@@ -125,20 +125,25 @@ public class MicroFocusDisplayController {
 			}
 		}
 
-		if (ObjectStateManager.isActive(detectorProvider)) {
+		if (selectedElement.equals("I0"))
+			plotter.plotDataset(detectorProvider.getI0data());
+		
+		else if(selectedElement.equals("It"))
+			plotter.plotDataset(detectorProvider.getItdata());
+		
+		else if (ObjectStateManager.isActive(detectorProvider)) {
 			if (plotter != null) {
 				setDataProviderForElement(selectedElement);
-				// if (currentDetectorProvider != null) {
 				plotter.setDataProvider(currentDetectorProvider);
 				plotter.plotElement(selectedElement);
-				// } else
-				// throw new Exception("Unable to display map for element " + selectedElement);
 			}
-		} else
+		} 
+		
+		else
 			JythonServerFacade.getInstance().evaluateCommand("map.getMFD().displayPlot(\"" + selectedElement + "\")");
 	}
 
-	public void displayMap(String selectedElement, String filePath, Object bean) throws Exception {
+	public void displayMap(String selectedElement, String filePath, Object bean) {
 		if (plotter == null)
 			plotter = new MicroFocusNexusPlotter();
 		plotter.setPlottingWindowName("MapPlot");
@@ -158,7 +163,7 @@ public class MicroFocusDisplayController {
 		logger.info("displayed map for " + selectedElement + " " + currentDetectorProvider);
 	}
 
-	public void displayMap(String selectedElement, String filePath) throws Exception {
+	public void displayMap(String selectedElement, String filePath) {
 		if (plotter == null)
 			plotter = new MicroFocusNexusPlotter();
 		plotter.setPlottingWindowName("MapPlot");

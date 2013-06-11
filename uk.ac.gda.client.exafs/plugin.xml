@@ -95,6 +95,12 @@
             id="uk.ac.gda.client.exafs.cirrus"
             name="cirrus"
             restorable="true">
+      </view>
+      <view
+            class="uk.ac.gda.exafs.ui.views.amplifier.StanfordAmplifierView"
+            id="uk.ac.gda.client.exafs.view1"
+            name="Stanford Amplifiers"
+            restorable="true">
       </view> 
    </extension>
    <extension
