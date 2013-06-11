@@ -205,8 +205,8 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 				return;
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
-			final AbstractDataset ds = new DoubleDataset(values, dims);
-
+			//ArrayUtils.reverse(values);
+			final AbstractDataset ds = new DoubleDataset(values, dims).getSlice(null, null, new int[] {-1,1});
 			// analyser region
 			double[] ydata = getAnalyser().getAngleAxis();
 			//ArrayUtils.reverse(ydata);
@@ -220,15 +220,15 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 			axes.add(xAxis);
 			axes.add(yAxis);
 			plottingSystem.updatePlot2D(ds, axes, monitor);
-			if (!getDisplay().isDisposed()) {
-				getDisplay().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						plottingSystem.autoscaleAxes();
-					}
-				});
-			}
+//			if (!getDisplay().isDisposed()) {
+//				getDisplay().asyncExec(new Runnable() {
+//
+//					@Override
+//					public void run() {
+//						//plottingSystem.autoscaleAxes();
+//					}
+//				});
+//			}
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live image plot",e);
 		}
