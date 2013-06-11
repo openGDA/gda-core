@@ -37,7 +37,6 @@ import org.python.core.PySystemState;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
-import uk.ac.diamond.scisoft.analysis.dataset.SliceIterator;
 import Jama.Matrix;
 
 /**
@@ -1268,10 +1267,10 @@ public class DataSetTest {
 
 		starts[startaxis] = start;
 
-		SliceIterator iter = (SliceIterator) t.getSliceIterator(starts.clone(), null, steps);
+		IndexIterator iter = t.getSliceIterator(starts.clone(), null, steps);
 
 		int[] pos = iter.getPos();
-		int[] sshape = iter.getSliceShape();
+		int[] sshape = iter.getShape();
 
 //		System.out.println("Shape: original " + Arrays.toString(oshape) + "; new " + Arrays.toString(t.getShape()) + "; true " + Arrays.toString(t.getTrueShape()));
 //		System.out.println("Step " + Arrays.toString(iter.getStep()) + "; slice " + Arrays.toString(sshape) + "; gaps " + Arrays.toString(iter.getGap()));
