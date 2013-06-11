@@ -19,6 +19,8 @@
 package uk.ac.gda.beans.exafs.i20;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -43,47 +45,7 @@ public class CryostatParameters implements Serializable {
 	private String heaterRange = "";
 	private Double p, i, d, manualOutput;
 
-	private Boolean useSample1 = false;
-	private Double position1 = 0.0;
-	private Double finePosition1 = 0.0;
-	private String sample1_name  = "";
-	private String sampleDescription1 = "";
-
-	private Boolean useSample2 = false;
-	private Double position2 = 0.0;
-	private Double finePosition2 = 0.0;
-	private String sample2_name  = "";
-	private String sampleDescription2 = "";
-
-	private Boolean useSample3 = false;
-	private Double position3 = 0.0;
-	private Double finePosition3 = 0.0;
-	private String sample3_name  = "";
-	private String sampleDescription3 = "";
-	
-	/*
-	 * useful methods when used in scripts
-	 */
-	
-	public Boolean[] getUses() {
-		return new Boolean[]{useSample1,useSample2,useSample3};
-	}
-
-	public Double[] getYs() {
-		return new Double[] { position1, position2, position3 };
-	}
-
-	public Double[] getFinePositions() {
-		return new Double[] { finePosition1, finePosition2, finePosition3 };
-	}
-
-	public String[] getSampleNames() {
-		return new String[] { sample1_name, sample2_name, sample3_name };
-	}
-	
-	public String[] getSampleDescriptions() {
-		return new String[] { sampleDescription1, sampleDescription2, sampleDescription3 };
-	}
+	private List<CryostatSampleDetails> samples = new ArrayList<CryostatSampleDetails>();
 
 	@Override
 	public String toString() {
@@ -174,124 +136,16 @@ public class CryostatParameters implements Serializable {
 		this.manualOutput = manualOutput;
 	}
 
-	public Boolean getUseSample1() {
-		return useSample1;
+	public List<CryostatSampleDetails> getSamples() {
+		return samples;
 	}
 
-	public void setUseSample1(Boolean useSample1) {
-		this.useSample1 = useSample1;
+	public void setSamples(List<CryostatSampleDetails> samples) {
+		this.samples = samples;
 	}
 
-	public Double getPosition1() {
-		return position1;
-	}
-
-	public void setPosition1(Double position1) {
-		this.position1 = position1;
-	}
-
-	public Double getFinePosition1() {
-		return finePosition1;
-	}
-
-	public void setFinePosition1(Double finePosition1) {
-		this.finePosition1 = finePosition1;
-	}
-
-	public String getSample1_name() {
-		return sample1_name;
-	}
-
-	public void setSample1_name(String sample1_name) {
-		this.sample1_name = sample1_name;
-	}
-
-	public String getSampleDescription1() {
-		return sampleDescription1;
-	}
-
-	public void setSampleDescription1(String sampleDescription1) {
-		this.sampleDescription1 = sampleDescription1;
-	}
-
-	public Boolean getUseSample2() {
-		return useSample2;
-	}
-
-	public void setUseSample2(Boolean useSample2) {
-		this.useSample2 = useSample2;
-	}
-
-	public Double getPosition2() {
-		return position2;
-	}
-
-	public void setPosition2(Double position2) {
-		this.position2 = position2;
-	}
-
-	public Double getFinePosition2() {
-		return finePosition2;
-	}
-
-	public void setFinePosition2(Double finePosition2) {
-		this.finePosition2 = finePosition2;
-	}
-
-	public String getSample2_name() {
-		return sample2_name;
-	}
-
-	public void setSample2_name(String sample2_name) {
-		this.sample2_name = sample2_name;
-	}
-
-	public String getSampleDescription2() {
-		return sampleDescription2;
-	}
-
-	public void setSampleDescription2(String sampleDescription2) {
-		this.sampleDescription2 = sampleDescription2;
-	}
-
-	public Boolean getUseSample3() {
-		return useSample3;
-	}
-
-	public void setUseSample3(Boolean useSample3) {
-		this.useSample3 = useSample3;
-	}
-
-	public Double getPosition3() {
-		return position3;
-	}
-
-	public void setPosition3(Double position3) {
-		this.position3 = position3;
-	}
-
-	public Double getFinePosition3() {
-		return finePosition3;
-	}
-
-	public void setFinePosition3(Double finePosition3) {
-		this.finePosition3 = finePosition3;
-	}
-
-	public String getSample3_name() {
-		return sample3_name;
-	}
-
-	public void setSample3_name(String sample3_name) {
-		this.sample3_name = sample3_name;
-	}
-
-	public String getSampleDescription3() {
-		return sampleDescription3;
-	}
-
-	public void setSampleDescription3(String sampleDescription3) {
-		this.sampleDescription3 = sampleDescription3;
+	public void addSample(CryostatSampleDetails sample) {
+		samples.add(sample);
 	}
 
 	@Override
@@ -300,28 +154,14 @@ public class CryostatParameters implements Serializable {
 		int result = 1;
 		result = prime * result + ((controlMode == null) ? 0 : controlMode.hashCode());
 		result = prime * result + ((d == null) ? 0 : d.hashCode());
-		result = prime * result + ((finePosition1 == null) ? 0 : finePosition1.hashCode());
-		result = prime * result + ((finePosition2 == null) ? 0 : finePosition2.hashCode());
-		result = prime * result + ((finePosition3 == null) ? 0 : finePosition3.hashCode());
 		result = prime * result + ((heaterRange == null) ? 0 : heaterRange.hashCode());
 		result = prime * result + ((i == null) ? 0 : i.hashCode());
 		result = prime * result + ((loopChoice == null) ? 0 : loopChoice.hashCode());
 		result = prime * result + ((manualOutput == null) ? 0 : manualOutput.hashCode());
 		result = prime * result + ((p == null) ? 0 : p.hashCode());
-		result = prime * result + ((position1 == null) ? 0 : position1.hashCode());
-		result = prime * result + ((position2 == null) ? 0 : position2.hashCode());
-		result = prime * result + ((position3 == null) ? 0 : position3.hashCode());
-		result = prime * result + ((sample1_name == null) ? 0 : sample1_name.hashCode());
-		result = prime * result + ((sample2_name == null) ? 0 : sample2_name.hashCode());
-		result = prime * result + ((sample3_name == null) ? 0 : sample3_name.hashCode());
-		result = prime * result + ((sampleDescription1 == null) ? 0 : sampleDescription1.hashCode());
-		result = prime * result + ((sampleDescription2 == null) ? 0 : sampleDescription2.hashCode());
-		result = prime * result + ((sampleDescription3 == null) ? 0 : sampleDescription3.hashCode());
+		result = prime * result + ((samples == null) ? 0 : samples.hashCode());
 		result = prime * result + ((temperature == null) ? 0 : temperature.hashCode());
 		result = prime * result + ((tolerance == null) ? 0 : tolerance.hashCode());
-		result = prime * result + ((useSample1 == null) ? 0 : useSample1.hashCode());
-		result = prime * result + ((useSample2 == null) ? 0 : useSample2.hashCode());
-		result = prime * result + ((useSample3 == null) ? 0 : useSample3.hashCode());
 		result = prime * result + ((waitTime == null) ? 0 : waitTime.hashCode());
 		return result;
 	}
@@ -344,21 +184,6 @@ public class CryostatParameters implements Serializable {
 			if (other.d != null)
 				return false;
 		} else if (!d.equals(other.d))
-			return false;
-		if (finePosition1 == null) {
-			if (other.finePosition1 != null)
-				return false;
-		} else if (!finePosition1.equals(other.finePosition1))
-			return false;
-		if (finePosition2 == null) {
-			if (other.finePosition2 != null)
-				return false;
-		} else if (!finePosition2.equals(other.finePosition2))
-			return false;
-		if (finePosition3 == null) {
-			if (other.finePosition3 != null)
-				return false;
-		} else if (!finePosition3.equals(other.finePosition3))
 			return false;
 		if (heaterRange == null) {
 			if (other.heaterRange != null)
@@ -385,50 +210,10 @@ public class CryostatParameters implements Serializable {
 				return false;
 		} else if (!p.equals(other.p))
 			return false;
-		if (position1 == null) {
-			if (other.position1 != null)
+		if (samples == null) {
+			if (other.samples != null)
 				return false;
-		} else if (!position1.equals(other.position1))
-			return false;
-		if (position2 == null) {
-			if (other.position2 != null)
-				return false;
-		} else if (!position2.equals(other.position2))
-			return false;
-		if (position3 == null) {
-			if (other.position3 != null)
-				return false;
-		} else if (!position3.equals(other.position3))
-			return false;
-		if (sample1_name == null) {
-			if (other.sample1_name != null)
-				return false;
-		} else if (!sample1_name.equals(other.sample1_name))
-			return false;
-		if (sample2_name == null) {
-			if (other.sample2_name != null)
-				return false;
-		} else if (!sample2_name.equals(other.sample2_name))
-			return false;
-		if (sample3_name == null) {
-			if (other.sample3_name != null)
-				return false;
-		} else if (!sample3_name.equals(other.sample3_name))
-			return false;
-		if (sampleDescription1 == null) {
-			if (other.sampleDescription1 != null)
-				return false;
-		} else if (!sampleDescription1.equals(other.sampleDescription1))
-			return false;
-		if (sampleDescription2 == null) {
-			if (other.sampleDescription2 != null)
-				return false;
-		} else if (!sampleDescription2.equals(other.sampleDescription2))
-			return false;
-		if (sampleDescription3 == null) {
-			if (other.sampleDescription3 != null)
-				return false;
-		} else if (!sampleDescription3.equals(other.sampleDescription3))
+		} else if (!samples.equals(other.samples))
 			return false;
 		if (temperature == null) {
 			if (other.temperature != null)
@@ -440,21 +225,6 @@ public class CryostatParameters implements Serializable {
 				return false;
 		} else if (!tolerance.equals(other.tolerance))
 			return false;
-		if (useSample1 == null) {
-			if (other.useSample1 != null)
-				return false;
-		} else if (!useSample1.equals(other.useSample1))
-			return false;
-		if (useSample2 == null) {
-			if (other.useSample2 != null)
-				return false;
-		} else if (!useSample2.equals(other.useSample2))
-			return false;
-		if (useSample3 == null) {
-			if (other.useSample3 != null)
-				return false;
-		} else if (!useSample3.equals(other.useSample3))
-			return false;
 		if (waitTime == null) {
 			if (other.waitTime != null)
 				return false;
@@ -462,5 +232,5 @@ public class CryostatParameters implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 }

@@ -1087,7 +1087,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		super.setPointsUpdate(isUpdate);
 		updateValueAllowed = isUpdate;
 		if (isUpdate) {
-			updatePointsLabels();
+//			updatePointsLabels();
 			a.on();
 			b.on();
 			c.on();
