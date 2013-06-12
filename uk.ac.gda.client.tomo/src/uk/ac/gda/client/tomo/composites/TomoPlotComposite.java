@@ -489,78 +489,84 @@ public class TomoPlotComposite extends Composite {
 				final DoublePointList centers2 = tiltPoints.getCenters2();
 
 				final DoublePointList line2 = tiltPoints.getLine2();
-				DoubleDataset y3 = new DoubleDataset(line2.getYDoubleArray());
-				y3.setName("Line1");
-				DoubleDataset x3 = new DoubleDataset(line2.getXDoubleArray());
-				ArrayList<AbstractDataset> singletonList = new ArrayList<AbstractDataset>(1);
-				singletonList.add(y3);
-				plottingSystem.updatePlot1D(x3, singletonList, progress);
-
+				if (line2 != null) {
+					DoubleDataset y3 = new DoubleDataset(line2.getYDoubleArray());
+					y3.setName("Line1");
+					DoubleDataset x3 = new DoubleDataset(line2.getXDoubleArray());
+					ArrayList<AbstractDataset> singletonList = new ArrayList<AbstractDataset>(1);
+					singletonList.add(y3);
+					plottingSystem.updatePlot1D(x3, singletonList, progress);
+				}
 				plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
 
 				try {
-
-					ITrace centers1Trace = plottingSystem.getTrace("Centers1");
-					if (centers1Trace != null) {
-						plottingSystem.removeTrace(centers1Trace);
+					if (centers1 != null) {
+						ITrace centers1Trace = plottingSystem.getTrace("Centers1");
+						if (centers1Trace != null) {
+							plottingSystem.removeTrace(centers1Trace);
+						}
+						DoubleDataset centers1Yds = new DoubleDataset(centers1.getYDoubleArray());
+						centers1Yds.setName("Centers1");
+						DoubleDataset centers1Xds = new DoubleDataset(centers1.getXDoubleArray());
+						ArrayList<AbstractDataset> dsList = new ArrayList<AbstractDataset>();
+						dsList.add(centers1Yds);
+						List<ITrace> traces1 = plottingSystem.updatePlot1D(centers1Xds, dsList, progress);
+						((ILineTrace) traces1.get(0)).setUserTrace(true);
+						((ILineTrace) traces1.get(0)).setPointStyle(PointStyle.CROSS);
 					}
-					DoubleDataset centers1Yds = new DoubleDataset(centers1.getYDoubleArray());
-					centers1Yds.setName("Centers1");
-					DoubleDataset centers1Xds = new DoubleDataset(centers1.getXDoubleArray());
-					ArrayList<AbstractDataset> dsList = new ArrayList<AbstractDataset>();
-					dsList.add(centers1Yds);
-					List<ITrace> traces1 = plottingSystem.updatePlot1D(centers1Xds, dsList, progress);
-					((ILineTrace) traces1.get(0)).setUserTrace(true);
-					((ILineTrace) traces1.get(0)).setPointStyle(PointStyle.CROSS);
-
-					ITrace centers2Trace = plottingSystem.getTrace("Centers2");
-					if (centers2Trace != null) {
-						plottingSystem.removeTrace(centers2Trace);
-					}
-					centers2Trace = plottingSystem.createLineTrace("Centers2");
-					centers2Trace.setUserTrace(true);
-					centers2Trace.setVisible(true);
-					DoubleDataset centers2Yds = new DoubleDataset(centers2.getYDoubleArray());
-					centers2Yds.setName("Centers2");
-					DoubleDataset centers2Xds = new DoubleDataset(centers2.getXDoubleArray());
-					dsList = new ArrayList<AbstractDataset>();
-					dsList.add(centers2Yds);
-					plottingSystem.updatePlot1D(centers2Xds, dsList, progress);
-
-					IRegion region1 = plottingSystem.getRegion("RegionFit1");
-					if (region1 != null) {
-						plottingSystem.removeRegion(region1);
+					if (centers2 != null) {
+						ITrace centers2Trace = plottingSystem.getTrace("Centers2");
+						if (centers2Trace != null) {
+							plottingSystem.removeTrace(centers2Trace);
+						}
+						centers2Trace = plottingSystem.createLineTrace("Centers2");
+						centers2Trace.setUserTrace(true);
+						centers2Trace.setVisible(true);
+						DoubleDataset centers2Yds = new DoubleDataset(centers2.getYDoubleArray());
+						centers2Yds.setName("Centers2");
+						DoubleDataset centers2Xds = new DoubleDataset(centers2.getXDoubleArray());
+						ArrayList<AbstractDataset> dsList = new ArrayList<AbstractDataset>();
+						dsList.add(centers2Yds);
+						plottingSystem.updatePlot1D(centers2Xds, dsList, progress);
 					}
 
-					region1 = plottingSystem.createRegion("RegionFit1", RegionType.ELLIPSEFIT);
-					region1.setLineWidth(1);
+					if (tiltPoints.getEllipse1() != null) {
+						IRegion region1 = plottingSystem.getRegion("RegionFit1");
+						if (region1 != null) {
+							plottingSystem.removeRegion(region1);
+						}
 
-					PolygonalROI roi1 = new PolygonalROI();
-					for (DoublePoint dp : tiltPoints.getEllipse1().getDoublePointList()) {
-						roi1.insertPoint(dp.getX(), dp.getY());
+						region1 = plottingSystem.createRegion("RegionFit1", RegionType.ELLIPSEFIT);
+						region1.setLineWidth(1);
+
+						PolygonalROI roi1 = new PolygonalROI();
+						for (DoublePoint dp : tiltPoints.getEllipse1().getDoublePointList()) {
+							roi1.insertPoint(dp.getX(), dp.getY());
+						}
+
+						plottingSystem.addRegion(region1);
+						region1.setROI(roi1);
+						region1.setMobile(false);
 					}
+					if (tiltPoints.getEllipse2() != null) {
+						//
+						IRegion region2 = plottingSystem.getRegion(REGION_FIT2);
+						if (region2 != null) {
+							plottingSystem.removeRegion(region2);
+						}
 
-					plottingSystem.addRegion(region1);
-					region1.setROI(roi1);
-					region1.setMobile(false);
+						region2 = plottingSystem.createRegion(REGION_FIT2, RegionType.ELLIPSEFIT);
+						region2.setLineWidth(1);
+						region2.setRegionColor(ColorConstants.blue);
+						PolygonalROI roi2 = new PolygonalROI();
+						for (DoublePoint dp : tiltPoints.getEllipse2().getDoublePointList()) {
+							roi2.insertPoint(dp.getX(), dp.getY());
+						}
 
-					//
-					IRegion region2 = plottingSystem.getRegion(REGION_FIT2);
-					if (region2 != null) {
-						plottingSystem.removeRegion(region2);
+						plottingSystem.addRegion(region2);
+						region2.setROI(roi2);
+						region2.setMobile(false);
 					}
-
-					region2 = plottingSystem.createRegion(REGION_FIT2, RegionType.ELLIPSEFIT);
-					region2.setLineWidth(1);
-					region2.setRegionColor(ColorConstants.blue);
-					PolygonalROI roi2 = new PolygonalROI();
-					for (DoublePoint dp : tiltPoints.getEllipse2().getDoublePointList()) {
-						roi2.insertPoint(dp.getX(), dp.getY());
-					}
-
-					plottingSystem.addRegion(region2);
-					region2.setROI(roi2);
-					region2.setMobile(false);
 					if (tiltPoints.getTiltPointsTitle() != null) {
 						plottingSystem.setTitle(tiltPoints.getTiltPointsTitle());
 					}

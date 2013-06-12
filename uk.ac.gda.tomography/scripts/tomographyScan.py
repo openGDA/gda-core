@@ -3,25 +3,26 @@ Performs software triggered tomography
 """
 
 #from pcoDetectorWrapper import PCODetectorWrapper
-from gda.jython.commands.ScannableCommands import createConcurrentScan
-from gda.jython import InterfaceProvider
-
-import sys
-from gdascripts.parameters import beamline_parameters
-from gdascripts.messages import handle_messages
-from gda.scan import ScanPositionProvider
-from gda.device.scannable import ScannableBase, ScannableUtils
-from gda.device.scannable.scannablegroup import ScannableGroup
-from java.lang import InterruptedException
-from gdascripts.metadata.metadata_commands import setTitle
-
 from gda.configuration.properties import LocalProperties
-
-from gda.data.scan.datawriter.DataWriter import *
-from gda.data.scan.datawriter.DefaultDataWriterFactory import createDataWriterFromFactory
-from gda.data.scan.datawriter.IDataWriterExtender import *
-
 from gda.data.scan.datawriter import *
+from gda.data.scan.datawriter.DataWriter import *
+from gda.data.scan.datawriter.DefaultDataWriterFactory import \
+    createDataWriterFromFactory
+from gda.data.scan.datawriter.IDataWriterExtender import *
+from gda.device.scannable import ScannableBase, ScannableUtils, SimpleScannable
+from gda.device.scannable.scannablegroup import ScannableGroup
+from gda.jython import InterfaceProvider
+from gda.jython.commands.ScannableCommands import createConcurrentScan
+from gda.scan import ScanPositionProvider
+from gdascripts.messages import handle_messages
+from gdascripts.metadata.metadata_commands import setTitle
+from gdascripts.parameters import beamline_parameters
+from java.lang import InterruptedException
+import sys
+
+
+
+
 
 
 class EnumPositionerDelegateScannable(ScannableBase):
@@ -277,7 +278,6 @@ class   tomoScan_positions(ScanPositionProvider):
     def toString(self):
         return self.__str__()
 
-from gda.device.scannable import SimpleScannable
 image_key_dark = 2
 image_key_flat = 1 # also known as bright
 image_key_project = 0 # also known as sample
