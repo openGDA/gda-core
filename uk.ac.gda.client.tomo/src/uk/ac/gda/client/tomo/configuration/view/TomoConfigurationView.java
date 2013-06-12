@@ -53,7 +53,6 @@ import org.eclipse.emf.edit.command.MoveCommand;
 import org.eclipse.emf.edit.command.RemoveCommand;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
-import org.eclipse.emf.workspace.IWorkspaceCommandStack;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.FontRegistry;
@@ -102,6 +101,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.CommandExecutor;
 import uk.ac.gda.client.CommandQueueContributionFactory;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
+import uk.ac.gda.client.tomo.TomoClientCommandStack;
 import uk.ac.gda.client.tomo.alignment.view.ImageLocationRelTheta;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.composites.StitchedImageCanvas;
@@ -778,7 +778,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 				// if (affectedResources.contains(getModel().eResource())) {
 				final IUndoableOperation operation = event.getOperation();
 				try {
-					operation.removeContext(((IWorkspaceCommandStack) getEditingDomain().getCommandStack())
+					operation.removeContext(((TomoClientCommandStack) getEditingDomain().getCommandStack())
 							.getDefaultUndoContext());
 				} catch (Exception e) {
 					logger.error("Problem getting editing domain", e);
@@ -790,7 +790,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 				try {
 					getModel().eResource().save(null);
 				} catch (IOException e) {
-					logger.error("TODO put description of error here", e);
+					logger.error("Unable to save", e);
 				}
 			}
 		}

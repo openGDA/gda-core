@@ -18,8 +18,15 @@
 
 package uk.ac.gda.client.tomo;
 
+import java.util.HashMap;
+
+import org.eclipse.emf.common.command.BasicCommandStack;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.emf.edit.domain.EditingDomain;
-import org.eclipse.emf.transaction.TransactionalEditingDomain;
+import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
+import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
+import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -81,12 +88,25 @@ public class TomoClientActivator extends AbstractUIPlugin {
 
 	public static final String EDITING_DOMAIN_ID = "uk.ac.gda.tomography.config.editingDomain";
 
+	private EditingDomain editingDomain;
+
 	public EditingDomain getTomoConfigEditingDomain() throws Exception {
-		try {
-			return TransactionalEditingDomain.Registry.INSTANCE.getEditingDomain(EDITING_DOMAIN_ID);
-		} catch (Exception ex) {
-			throw new Exception("Unable to get editing domain:" + ex.getMessage());
+		if (editingDomain == null) {
+			ComposedAdapterFactory adapterFactory = new ComposedAdapterFactory(
+					ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
+
+			adapterFactory.addAdapterFactory(new ResourceItemProviderAdapterFactory());
+			adapterFactory.addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
+
+			BasicCommandStack commandStack = new TomoClientCommandStack() {
+
+			};
+
+			editingDomain = new AdapterFactoryEditingDomain(adapterFactory, commandStack,
+					new HashMap<Resource, Boolean>());
+
 		}
+		return editingDomain;
 	}
 
 }

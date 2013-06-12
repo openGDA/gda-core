@@ -104,9 +104,11 @@ public class ScanParameterDialog extends Dialog {
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		super.createButtonsForButtonBar(parent);
-		getButton(IDialogConstants.OK_ID).setText("Run");
-		GridDataFactory.fillDefaults().applyTo(getButton(IDialogConstants.OK_ID));
+		// create OK and Cancel buttons by default
+		createButton(parent, IDialogConstants.OK_ID, "Run",
+				false);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
 	}
 
 	@Override

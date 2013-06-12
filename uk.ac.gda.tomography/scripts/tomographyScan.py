@@ -235,7 +235,7 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
     scanObject.setDataWriter(dataWriter)
 
 def reportJythonNamespaceMapping():
-    jns=beamline_parameters.JythonNameSpaceMapping()
+    jns = beamline_parameters.JythonNameSpaceMapping()
     objectOfInterest = {}
     objectOfInterest['tomography_theta'] = jns.tomography_theta
     objectOfInterest['tomography_shutter'] = jns.tomography_shutter
@@ -287,7 +287,7 @@ image_key_project = 0 # also known as sample
 perform a simple tomography scan
 """
 def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=180., step=0.1, darkFieldInterval=0, flatFieldInterval=0,
-              imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, pattern="default", additionalScannables=[]):
+              imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, pattern="default", tomoRotationAxis=0, additionalScannables=[]):
     """
     Function to collect a tomogram
     Arguments:
@@ -446,6 +446,7 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         positionProvider = tomoScan_positions(start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat, \
                                                inBeamPosition, outOfBeamPosition, optimizeBeamInterval, scan_points) 
         scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime, tomography_camera_stage, tomography_sample_stage]
+        scan_args.append(RotationAxisScannable("approxCOR", tomoRotationAxis))
         for scannable in additionalScannables:
             scan_args.append(scannable)
         ''' setting the description provided as the title'''
@@ -543,3 +544,22 @@ def standardtomoScan():
     if positions[0] != 180. or positions[4] != 40.:
         print "Error - points are not correct :" + `positions`
     return sc
+
+class RotationAxisScannable(ScannableBase):
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+#        self.count = 0
+        pass
+    
+    def isBusy(self):
+        return False
+    
+    def rawAsynchronousMoveTo(self, new_position):
+        return
+    
+    def rawGetPosition(self):
+#        if self.count > 0:
+#            return None
+#        self.count = 1
+        return self.value
