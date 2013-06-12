@@ -99,7 +99,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 
 		// if now defined
 		if (daServer != null ) {
-			// FIXME we night end up with more than one runner
+			// FIXME we might end up with more than one runner
 			runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
 			runner.start();
 			configured = true;
