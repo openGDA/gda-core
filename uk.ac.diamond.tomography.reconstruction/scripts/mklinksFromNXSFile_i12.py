@@ -358,23 +358,6 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, 
 							, outFilenameFmt=filenameFmt)
 
 	filenameFmt="p_%05d.tif"
-	#outFnameFmt="d_%03d_%05d.tif"
-	outPrefixFnameFmt="d_%03d_"
-	outPostixFnameFmt="%05d.tif"
-	outFnameFmt=""
-	subseq=0
-	for listOfImgIdx in unpicked_idx_dct['dark']:
-		outFnameFmt=outPrefixFnameFmt %(subseq)
-		outFnameFmt += outPostixFnameFmt
-		makeLinksToOriginalFiles(\
-								listOfProjIdx=listOfImgIdx\
-								, indir=genAncestorPath(refFilename, 1)\
-								, inFilenameFmt=filenameFmt\
-								, outdir=(head+os.sep+darks_dir)\
-								, outFilenameFmt=outFnameFmt)
-		subseq += 1
-		
-	filenameFmt="p_%05d.tif"
 	#outFnameFmt="f_%03d_%05d.tif"
 	outPrefixFnameFmt="f_%03d_"
 	outPostixFnameFmt="%05d.tif"
@@ -390,6 +373,24 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, 
 								, outdir=(head+os.sep+flats_dir)\
 								, outFilenameFmt=outFnameFmt)
 		subseq += 1
+		
+	filenameFmt="p_%05d.tif"
+	#outFnameFmt="d_%03d_%05d.tif"
+	outPrefixFnameFmt="d_%03d_"
+	outPostixFnameFmt="%05d.tif"
+	outFnameFmt=""
+	subseq=0
+	for listOfImgIdx in unpicked_idx_dct['dark']:
+		outFnameFmt=outPrefixFnameFmt %(subseq)
+		outFnameFmt += outPostixFnameFmt
+		makeLinksToOriginalFiles(\
+								listOfProjIdx=listOfImgIdx\
+								, indir=genAncestorPath(refFilename, 1)\
+								, inFilenameFmt=filenameFmt\
+								, outdir=(head+os.sep+darks_dir)\
+								, outFilenameFmt=outFnameFmt)
+		subseq += 1
+	
 	print "INFO: Finished populating directories." 
 	return len(proj_idx_decimated), detectorName
 
