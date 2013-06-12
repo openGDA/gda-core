@@ -377,7 +377,6 @@ public class DataSet extends DoubleDataset {
 	 * 
 	 * @return real index
 	 */
-	@Override
 	protected int to1DIndex(final int n) {
 		if (shape.length > 1 && dataShape != null) {
 			return get1DIndex(getNDPosition(n));
