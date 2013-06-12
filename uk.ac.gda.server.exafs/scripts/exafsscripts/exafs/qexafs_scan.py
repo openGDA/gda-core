@@ -89,8 +89,8 @@ class QexafsScan(Scan):
                 scan_time = scanBean.getTime()
 
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
-
-                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
+                timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
+                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
                
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
@@ -194,6 +194,7 @@ class QexafsScan(Scan):
                     break
        
         finally:    
+            self.energy_scannable.stop()
             # repetition loop completed, so reset things
             if (self.beamlineReverter != None):
                 self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
