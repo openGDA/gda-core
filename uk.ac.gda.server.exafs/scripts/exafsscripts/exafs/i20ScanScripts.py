@@ -162,6 +162,8 @@ class I20XasScan(XasScan):
                     break
                 numRepetitions = numRepsFromProperty
         finally:    
+            energy_scannable.stop()
+            
             # repetition loop completed, so reset things
             if (self.beamlineReverter != None):
                 self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
