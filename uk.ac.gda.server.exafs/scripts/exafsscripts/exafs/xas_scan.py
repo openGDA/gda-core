@@ -93,6 +93,7 @@ class XasScan(Scan):
         repetitionNumber = 0
         timeRepetitionsStarted = System.currentTimeMillis();
         
+        
         try:
             while True:
                 repetitionNumber+= 1
@@ -100,6 +101,8 @@ class XasScan(Scan):
                 XasAsciiDataWriter.setBeanGroup(beanGroup)
                 self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller,repetitionNumber)
         
+                outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
+                
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
 
                 # Insert sample environment looping logic here by subclassing
@@ -130,7 +133,7 @@ class XasScan(Scan):
                         raise # any other exception we are not expecting so raise whatever this is to abort the script
                         
                 #update observers
-                controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
+                #controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
                     
                 # run the after scan script
                 self._runScript(beanGroup.getOutput().getAfterScriptName())
