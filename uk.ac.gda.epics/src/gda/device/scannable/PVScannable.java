@@ -61,7 +61,7 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	private double lastKnownValue = 0.0;
 	private boolean isBusy = false;
 	private boolean canMove = true;
-	private String pvName = "";
+	protected String pvName = "";
 	private String unitsPvName = "";
 	private String units = "";
 	private String deviceName;
@@ -74,13 +74,20 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		this.deviceName = deviceName;
 	}
 
-	private Channel theChannel;
-	private EpicsController controller = EpicsController.getInstance();
+	protected Channel theChannel;
+	protected EpicsController controller = EpicsController.getInstance();
 	private EpicsChannelManager channelManager;
 	
 	public PVScannable() {
 		channelManager = new EpicsChannelManager(this);
 	}
+	
+	public PVScannable(String name, String pv) {
+		setName(name);
+		this.pvName=pv;
+		channelManager = new EpicsChannelManager(this);
+	}
+
 
 	/**
 	 * @see gda.device.DeviceBase#configure()
