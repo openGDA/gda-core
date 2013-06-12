@@ -1246,7 +1246,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		if (leftPanelComposite.isProfileSelected()) {
 			leftPanelComposite.deselectProfileButton();
 			leftWindowImageViewer.hideLineProfiler();
-			pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
+			setRightPage(RIGHT_PAGE.NONE);
 			setRightInfoPage(RIGHT_INFO.NONE);
 			tomoPlotComposite.setImagesToPlot(null, null);
 			ZOOM_LEVEL selectedZoomLevel = leftPanelComposite.getSelectedZoomLevel();
@@ -1402,15 +1402,15 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 						pageBook_rightWindow.showPage(page_rightWindow_plot);
 						break;
 					case ZOOM_DEMAND_RAW:
-						pageBook_rightWindow.showPage(page_rightInfo_nonProfile);
+						pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
 						pageBook_zoomImg.showPage(page_nonProfile_demandRaw);
 						break;
 					case NO_ZOOM:
-						pageBook_rightWindow.showPage(page_rightInfo_nonProfile);
+						pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
 						pageBook_zoomImg.showPage(page_nonProfile_noZoom);
 						break;
 					case ZOOM_STREAM:
-						pageBook_rightWindow.showPage(page_rightInfo_nonProfile);
+						pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
 						pageBook_zoomImg.showPage(page_nonProfile_streamZoom);
 					}
 				}
