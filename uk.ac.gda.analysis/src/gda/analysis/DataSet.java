@@ -2341,7 +2341,6 @@ public class DataSet extends DoubleDataset {
 		return convertToDataSet(super.getView());
 	}
 
-	@Override
 	@Deprecated
 	public DataSet append(AbstractDataset other, int axis) {
 		return convertToDataSet(DatasetUtils.append(this, other, axis));
