@@ -135,7 +135,7 @@ class Map(Scan):
                     detectorList.append(self.finder.find("counterTimer02"))
                 else:
                     detectorList.append(self.finder.find("counterTimer03"))
-                detectorList.append(self.finder.find("counterTimer01"))
+                detectorList.append(self.counterTimer01)
                 detectorList.append(detector) 
                
                 print " the detector second time is " 

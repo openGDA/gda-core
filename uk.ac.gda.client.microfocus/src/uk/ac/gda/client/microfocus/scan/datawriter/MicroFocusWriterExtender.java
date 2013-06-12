@@ -87,8 +87,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	private double zValue;
 	private double energyValue;
 	private int plottedSoFar = -1;
-	@SuppressWarnings("unused")
-	private int xIndex = -1;
 	private int yIndex = -1;
 	private IScanDataPoint lastDataPoint = null;
 	private int plotUpdateFrequency = 5;
@@ -120,12 +118,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		this.numberOfYPoints = yPoints;
 		this.xStepSize = xStepSize;
 		this.yStepSize = yStepSize;
-		this.xIndex = 0;
 		this.yIndex = 0;
 		minValue = Double.MAX_VALUE;
 		createDataSet();
 		logger.info("The number of X and Y points are " + this.numberOfXPoints + " " + this.numberOfYPoints);
-
 	}
 
 	public void getWindowsfromBean() {
@@ -161,7 +157,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					logger.error("Error getting windows from the bean file ", e);
 				}
 		}
-
 	}
 
 	private void fillRoiNames() {
@@ -174,7 +169,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			roiNameMap.put(roi, roiIndex);
 			roiIndex++;
 		}
-
 	}
 
 	public void setWindows(int low, int high) {
@@ -257,7 +251,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			xValues[dataPoint.getCurrentPointNumber()] = xy[1];
 			yValues[dataPoint.getCurrentPointNumber()] = xy[0];
 			double value = 0;
-			// roiNames = new String[] { "fe", "Pb", "Mg" };// get roiNamesList from the XspressParameters
 			double windowTotal = 0.0;
 
 			StringBuffer rgbLine = new StringBuffer();
@@ -299,19 +292,15 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 							if (dataPoint.getCurrentPointNumber() == 0)
 								roiHeader.append("  " + s);
 						}
-
 					}
 					if (isXspressScan()
 							&& ((detFromDP.get(detDataIndex) instanceof XspressDetector) || (detFromDP
 									.get(detDataIndex) instanceof BufferedDetector))) {
 						d = ((NXDetectorData) obj);
-						// double[][] dataArray = new double[numberOfSubDetectors][];
 						double[][] dataArray = (double[][]) d.getData(detectorName, "MCAs", "SDS").getBuffer();
 						// assuming all detector elements have the same number of roi
 						spectrumLength = dataArray[0].length;
 						for (int i = 0; i < numberOfSubDetectors; i++) {
-							// data = d.getData(detectorName, detectorName + "_element_" + i, "SDS");
-							// dataArray[i] = ((double[]) ((NexusGroupData) data).getBuffer());
 							List<XspressROI> roiList = elementRois[i];
 							for (XspressROI roi : roiList) {
 								String key = roi.getRoiName();
@@ -330,7 +319,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 								}
 							}
 						}
-
 						logger.debug("the value for the selected emenet " + selectedElement + " is " + value);
 
 					} else if (isXmapScan()
@@ -391,11 +379,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 										value += windowTotal;
 									}
 								}
-
 							}
-
 						}
-
 					}
 					if (roiNames != null){
 						for (String s : roiNames) {
@@ -438,7 +423,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					(dataPoint.getCurrentPointNumber() + 1) % numberOfXPoints);
 			if (((dataPoint.getCurrentPointNumber() + 1) / (yIndex + 1)) == numberOfXPoints) {
 				yIndex++;
-				xIndex = 0;
 			}
 			plottedSoFar = dataPoint.getCurrentPointNumber();
 			if (plottedSoFar % plotUpdateFrequency == 0 || (plottedSoFar + 1) == (numberOfXPoints * numberOfYPoints))
@@ -454,7 +438,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 			j = 0;
 		}
-
 	}
 
 	@SuppressWarnings("static-access")
@@ -485,17 +468,13 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				}
 			}
 
-			// IDataset slice = lazyDataset.getSlice(new int[]{y, x, detNo,0}, new int[]{y+1, x+1, detNo+1,
-			// spectrumLength}, new int[]{1,1,1,1});
 			if (slice != null) {
 				ILazyDataset sqSlice = slice.squeeze();
 				try {
 					RCPPlotter.plot("McaPlot", (IDataset) sqSlice);
 				} catch (DeviceException e) {
 					logger.error("Unable to plot the spectrum for " + x + " " + y, e);
-					// TODO create a DisplayException class
 					throw new Exception("Unable to plot the spectrum for " + x + " " + y, e);
-
 				}
 			} else
 				throw new Exception("Unable to plot the spectrum for " + x + " " + y);
@@ -563,7 +542,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			RCPPlotter.imagePlot(plotName, dataSet);
 
 			return;
-
 		}
 
 		else if (isXmapScan()){
@@ -616,7 +594,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private int findPointNumber(int y, int x) {
-		// TODO Auto-generated method stub
 		return (y * numberOfXPoints + x);
 	}
 
@@ -631,7 +608,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	private void createRgbFile(String string) {
 		if (!string.contains("."))
 			string = string + ".rgb";
-
 		try {
 			File file = new File(string.substring(0, string.lastIndexOf("/")));
 			boolean exists = file.exists();
@@ -642,7 +618,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		} catch (IOException e) {
 			logger.error("unable to create the rgb file " + string);
 		}
-
 	}
 
 	private double getWindowedData(double[] data) {
@@ -671,15 +646,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 	@Override
 	public void finalize() throws Throwable {
-		// logger.info("finalize called on MFwriter");
-		// try {
-		// writer.close();
-		// } finally {
-		// super.finalize();
-		// }
-		// writer = null;
-		// scalerValues = null;
-		// detectorValues = null;
 		active = false;
 	}
 

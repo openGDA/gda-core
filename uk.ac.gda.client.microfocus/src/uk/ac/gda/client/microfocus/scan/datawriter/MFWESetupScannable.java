@@ -75,9 +75,8 @@ public class MFWESetupScannable extends ScanDataListenerScannable {
 			mfd = createMFD(sdp);
 			// InterfaceProvider.getJythonNamespace().placeInJythonNamespace("microfocusScanWriter", mfd);
 		}
-		if (mfd != null) {
+		if (mfd != null)
 			mfd.addData(null, sdp);
-		}
 	}
 
 	private MicroFocusWriterExtender createMFD(IScanDataPoint sdp) {
