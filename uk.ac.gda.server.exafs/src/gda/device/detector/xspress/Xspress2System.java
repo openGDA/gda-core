@@ -1514,6 +1514,9 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 			double[] correctedResGrades = new double[16];
 			for (int i = 0; i < 16; i++) {
+				if (sumsInWindow[i] + sumsOutWindow[i] <= 0) {
+					continue;
+				}
 				correctedResGrades[i] = sumsInWindow[i] * (totalCounts / (sumsInWindow[i] + sumsOutWindow[i]))
 						* dctFactor;
 			}
