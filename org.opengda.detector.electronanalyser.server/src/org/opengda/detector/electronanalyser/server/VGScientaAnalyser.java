@@ -172,7 +172,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		double[] externalIO=null;
 		externalIO = getExternalIOData();
 		if (externalIO!=null) {
-			data.addData(getName(), "externalIO", new int[] {spectrum.length}, NexusFile.NX_FLOAT64, spectrum, null, null);
+			data.addData(getName(), "externalIO", new int[] {externalIO.length}, NexusFile.NX_FLOAT64, externalIO, null, null);
 		}
 	
 	}
