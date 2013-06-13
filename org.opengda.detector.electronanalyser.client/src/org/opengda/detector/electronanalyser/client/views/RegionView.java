@@ -1062,14 +1062,24 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	};
 
 	private void updateTotalTime() {
-		double calculateTotalTime = RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()),
-				Integer.parseInt(txtTotalSteps.getText()));
-		txtTotalTime.setText(String.format("%.3f", calculateTotalTime));
+		calculateTotalTime();
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(), Double.parseDouble(txtTotalTime.getText()));
 		fireSelectionChanged(new TotalTimeSelection());
 	}
 
+	private void calculateTotalTime() {
+		double calculateTotalTime = RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()),
+				Integer.parseInt(txtTotalSteps.getText()));
+		txtTotalTime.setText(String.format("%.3f", calculateTotalTime));
+	}
+
 	private void updateTotalSteps() {
+		calculateTotalSteps();
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()));
+		updateTotalTime();
+	}
+
+	private void calculateTotalSteps() {
 		if (btnSwept.getSelection()) {
 			txtTotalSteps.setText(String.format("%d", RegionStepsTimeEstimation.calculateTotalSteps(
 					Double.parseDouble(txtWidth.getText()),
@@ -1080,8 +1090,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		if (btnFixed.getSelection()) {
 			txtTotalSteps.setText("1");
 		}
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()));
-		updateTotalTime();
 	}
 
 	private SelectionAdapter timeSelectionListener = new SelectionAdapter() {
@@ -1170,6 +1178,18 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	};
 
 	private void setToFixedMode() {
+		calculateFixedParameters();
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), fixedCentreEnergy);
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), fixedEnergyRange());
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerSlices.getSelection());
+		if (btnFixed.getSelection()) {
+			updateTotalSteps();
+		}
+	}
+
+	private void calculateFixedParameters() {
 		txtLow.setEditable(false);
 		txtHigh.setEditable(false);
 		txtSize.setEditable(false);
@@ -1180,14 +1200,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtLow.setText(String.format("%.4f",Double.parseDouble(txtCenter.getText()) - Double.parseDouble(txtWidth.getText())/2));
 		txtHigh.setText(String.format("%.4f",Double.parseDouble(txtCenter.getText()) + Double.parseDouble(txtWidth.getText())/2));
 		spinnerSlices.setSelection(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), fixedCentreEnergy);
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), fixedEnergyRange());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerSlices.getSelection());
-		if (btnFixed.getSelection()) {
-			updateTotalSteps();
-		}
 	}
 
 	private double fixedEnergyRange() {
@@ -1224,25 +1236,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	}
 
 	private void setToSweptMode() {
-		txtLow.setEditable(true);
-		txtHigh.setEditable(true);
-		txtSize.setEditable(true);
-		// restore the original energy step size for the SWEPT
-		txtLow.setText(String.format("%.4f", sweptLowEnergy));
-		txtHigh.setText(String.format("%.4f", sweptHighEnergy));
-		txtCenter.setText(String.format("%.4f", (sweptLowEnergy + sweptHighEnergy) / 2));
-		txtWidth.setText(String.format("%.4f", (sweptHighEnergy - sweptLowEnergy)));
-		txtSize.setText(String.format("%.3f", sweptStepSize));
-		spinnerSlices.setSelection(sweptSlices);
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), sweptLowEnergy);
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), sweptHighEnergy);
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtCenter.getText()));
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), sweptStepSize);
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerSlices.getSelection());
-		if (txtSize.getText().isEmpty() || (Double.parseDouble(txtSize.getText()) < Double.parseDouble(txtMinimumSize.getText()))) {
-			sweptStepSize = Double.parseDouble(txtMinimumSize.getText());
-			txtSize.setText(String.format("%.3f", sweptStepSize));
-		}
+		calculateSweptParameters();
 		if (btnSwept.getSelection()) {
 			updateTotalSteps();
 			// txtTotalSteps
@@ -1262,6 +1256,28 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			// .calculateTotalTime(Double.parseDouble(txtTime.getText()),
 			// Integer.parseInt(txtTotalSteps.getText()));
 			// txtTotalTime.setText(String.format("%.3f", calculateTotalTime));
+		}
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), sweptLowEnergy);
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), sweptHighEnergy);
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtCenter.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), sweptStepSize);
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerSlices.getSelection());
+	}
+
+	private void calculateSweptParameters() {
+		txtLow.setEditable(true);
+		txtHigh.setEditable(true);
+		txtSize.setEditable(true);
+		// restore the original energy step size for the SWEPT
+		txtLow.setText(String.format("%.4f", sweptLowEnergy));
+		txtHigh.setText(String.format("%.4f", sweptHighEnergy));
+		txtCenter.setText(String.format("%.4f", (sweptLowEnergy + sweptHighEnergy) / 2));
+		txtWidth.setText(String.format("%.4f", (sweptHighEnergy - sweptLowEnergy)));
+		txtSize.setText(String.format("%.3f", sweptStepSize));
+		spinnerSlices.setSelection(sweptSlices);
+		if (txtSize.getText().isEmpty() || (Double.parseDouble(txtSize.getText()) < Double.parseDouble(txtMinimumSize.getText()))) {
+			sweptStepSize = Double.parseDouble(txtMinimumSize.getText());
+			txtSize.setText(String.format("%.3f", sweptStepSize));
 		}
 	}
 
@@ -1421,10 +1437,12 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		btnADCMode.setSelection(region.getDetectorMode().getLiteral().equalsIgnoreCase("ADC"));
 		btnPulseMode.setSelection(region.getDetectorMode().getLiteral().equalsIgnoreCase("Pulse Counting"));
 		if (btnSwept.getSelection()) {
-			setToSweptMode();
+			calculateSweptParameters();
 		} else {
-			setToFixedMode();
+			calculateFixedParameters();
 		}
+		calculateTotalSteps();
+		calculateTotalTime();
 		fireSelectionChanged(new TotalTimeSelection());
 	}
 
