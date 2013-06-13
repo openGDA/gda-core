@@ -12,6 +12,9 @@ public class FilenameUtil {
 	public FilenameUtil(String filepath) {
 		// TODO Auto-generated constructor stub
 	}
+	public String getName(String filename) {
+		return FilenameUtils.getName(filename);
+	}
 
 	public static String convertSeparator(String filepath) {
 		if (OsUtil.isUnix()) {
