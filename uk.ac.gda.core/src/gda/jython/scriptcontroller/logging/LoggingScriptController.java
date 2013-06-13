@@ -166,7 +166,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 	}
 
 	@Override
-	public ScriptControllerLogResultDetails getDetails(String uniqueID) {
+	public synchronized ScriptControllerLogResultDetails getDetails(String uniqueID) {
 		ResultSet rs = null;
 		try {
 			// psFetchEntry
@@ -186,7 +186,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		} catch (SQLException e) {
 			//This exception occurs per scan point and causes the jython console, logging and plot to gring to a halt
 			//Removed until we can understand why
-			//logger.error("Exception adding to log by " + getName(), e);
+			logger.error("Exception adding to log by " + getName(), e);
 			return new ScriptControllerLogResultDetails(uniqueID, new HashMap<String, String>());
 		} finally {
 			if (rs != null) {
@@ -385,7 +385,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 				+ DATE_UPDATED_COL_NAME + " DESC FETCH FIRST ROW ONLY");
 	}
 
-	private ScriptControllerLogResults logMessage(ScriptControllerLoggingMessage arg) {
+	private synchronized ScriptControllerLogResults logMessage(ScriptControllerLoggingMessage arg) {
 		ResultSet rs = null;
 		try {
 			// get its primary key value
@@ -427,7 +427,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		} catch (SQLException e) {
 			//This exception occurs per scan point and causes the jython console, logging and plot to gring to a halt
 			//Removed until we can understand why
-			//logger.error("Exception adding to log by " + getName(), e);
+			logger.error("Exception adding to log by " + getName(), e);
 			return null;
 		} finally {
 			if (rs != null) {
