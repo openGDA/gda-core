@@ -1066,7 +1066,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				try {
 //					processor.start(500);
 					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
-					jsf.runCommand(String.format("analyserscan ds 0 1 1 regions '%s' ew4000", regionDefinitionResourceUtil.getFileName()));
+					jsf.runCommand(String.format("analyserscan regions '%s' ew4000", regionDefinitionResourceUtil.getFileName()));
 				} catch (Exception e) {
 					logger.error("exception throws on start queue processor.", e);
 					runningonserver = false;
