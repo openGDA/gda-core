@@ -64,12 +64,13 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
         return num_repeats
     
     def resetIterator(self):
-        self.increment = 1
+        self.increment = 0
     
     def moveToNext(self):
         
             i = self._determineSample()
-        
+            print "********"
+            self.log("Running sample",str(i+1)) # +1 as the user will think the first sample is 1 not 0
             x = self.samples.get(i).getSample_x()
             y = self.samples.get(i).getSample_y()
             z = self.samples.get(i).getSample_z()
@@ -103,7 +104,7 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
             samrot.waitWhileBusy()
             samroll.waitWhileBusy()
             sampitch.waitWhileBusy()
-            self.log( "Sample stage move complete.\n")
+            self.log( "Sample stage move complete.")
             ScriptBase.checkForPauses()
             
             # change the strings in the filewriter so that the ascii filename changes
@@ -116,7 +117,7 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
         
     def _determineSample(self):
         
-        if self.increment == 1:
+        if self.increment == 0:
             return 0
         
         repeatsSoFar = 0
@@ -190,18 +191,41 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
         self.temperatures_array = [self.params.getTemperature()]
         if DOEUtils.isRange(self.params.getTemperature(),None):
             self.temperatures_array = DOEUtils.expand(self.params.getTemperature(),None)
+        elif DOEUtils.isList(self.params.getTemperature(),None):
+            self.temperatures_array = self.params.getTemperature().split(",")
         self.temperatures_num = len(self.temperatures_array)
         
-        self.samples_array = self.params.getSamples()
+        self._determineSamplesArray()
+        print self.samples_array
         self.samples_num = len(self.samples_array)
         
         self.cryostat_scannable = self.finder.find("cryostat")
+        
+    def _determineSamplesArray(self):
+        self.samples_array = []
+        for i in range(0,len(self.params.getSamples())):
+            for j in range(0,self.params.getSamples().get(i).getNumberOfRepetitions()):
+                self.samples_array += [self.params.getSamples().get(i)]
 
     def getNumberOfRepeats(self):
         if self.params == None:
             raise UnboundLocalError("Sample bean has not been defined!")
         
         return self.temperatures_num * self.samples_num
+    
+#     def getNumberOfRepeats(self):
+#         if self.group == None:
+#             raise UnboundLocalError("Sample bean has not been defined!")
+#         
+#         num_repeats = 0
+#         for i in range(0,len(self.params.getSamples())):
+#             num_repeats += self.params.getSamples().get(i).getNumberOfRepetitions()
+#         print "number of sample repeats",str(num_repeats)
+#         print "number of temp repeats",str(self.temperatures_num)
+#         num_repeats *= self.temperatures_num
+#         print "total repeats",str(num_repeats)
+#         return len(self.samples_array) * len(self.temperatures_array)
+
     
     def resetIterator(self):
         self.sample_increment = 0
@@ -215,17 +239,17 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
         
         self._configureCryostat(self.params)
         
-        y = self.samples_array.get(self.sample_increment).getPosition()
-        finepos = self.samples_array.get(self.sample_increment).getFinePosition()
-        name = self.samples_array.get(self.sample_increment).getSample_name()
-        desc = self.samples_array.get(self.sample_increment).getSampleDescription()
-        sample_repeats = self.samples_array.get(self.sample_increment).getNumberOfRepetitions()
+        y = self.samples_array[self.sample_increment].getPosition()
+        finepos = self.samples_array[self.sample_increment].getFinePosition()
+        name = self.samples_array[self.sample_increment].getSample_name()
+        desc = self.samples_array[self.sample_increment].getSampleDescription()
+        sample_repeats = self.samples_array[self.sample_increment].getNumberOfRepetitions()
         
         samy = self.finder.find("sample_y")
         sam_fine_pos = self.finder.find("sample_fine_rot")
         
         print "**********"
-        self.log( "Setting sample",name,"to next iteration.")
+        self.log( "Using sample",name,"in next iteration.")
         
         self.log( "Moving sample stage to",y,finepos,"...")
         samy.asynchronousMoveTo(y)
@@ -234,8 +258,9 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
         self.group.getSample().setDescriptions([desc])
 
         temp = self.temperatures_array[self.temp_increment]
-        self.log( "Setting cryostat to",str(temp),"K...")
-        self.cryostat_scannable.asynchronousMoveTo(temp)
+#        self.log( "Setting cryostat to",str(temp),"K...")
+#        self.cryostat_scannable.asynchronousMoveTo(temp)
+        self.log( "Would set cryostat to",str(temp),"K but I wont until the Scannable has been tested.")
         
         samy.waitWhileBusy()
         sam_fine_pos.waitWhileBusy()
@@ -248,16 +273,6 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
             
         # loop over samples then temperature
         if self.loopSampleFirst:
-            ## increment the iterators
-            if self.temp_increment < self.temperatures_num -1:
-                self.temp_increment += 1
-                return
-            else:
-                self.temp_increment = 0
-                self.sample_increment += 1
-                return
-        
-        else:
             if self.sample_increment < self.samples_num -1:
                 self.sample_increment+=1
                 return
@@ -265,6 +280,11 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
                 self.sample_increment = 0
                 self.temp_increment +=1
                 return
-
-        
-
+        else:
+            if self.temp_increment < self.temperatures_num -1:
+                self.temp_increment += 1
+                return
+            else:
+                self.temp_increment = 0
+                self.sample_increment += 1
+                return
