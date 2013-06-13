@@ -108,6 +108,16 @@ public class RegionDefinitionResourceUtil {
 		}
 		return null;
 	}
+	
+	private ResourceSet getResourceSet() throws Exception {
+		EditingDomain sequenceEditingDomain = SequenceEditingDomain.INSTANCE.getEditingDomain();
+		//the following line only works in RCP/OSGi, not on server
+		//Activator.getDefault().getSequenceEditingDomain();
+		// Create a resource set to hold the resources.
+		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
+		
+		return resourceSet;
+	}
 
 	/**
 	 * return the list of regions contained in a sequence or an empty list.
@@ -183,24 +193,7 @@ public class RegionDefinitionResourceUtil {
 		return getSequence().getSpectrum();
 	}
 
-	private ResourceSet getResourceSet() throws Exception {
-		EditingDomain sequenceEditingDomain = SequenceEditingDomain.INSTANCE.getEditingDomain();
-		//the following line only works in RCP/OSGi, not on server
-		//Activator.getDefault().getSequenceEditingDomain();
-		// Create a resource set to hold the resources.
-		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
-		// Register the appropriate resource factory to handle all file
-		// extensions.
-		resourceSet
-				.getResourceFactoryRegistry()
-				.getExtensionToFactoryMap()
-				.put(Resource.Factory.Registry.DEFAULT_EXTENSION,
-						new RegiondefinitionResourceFactoryImpl());
-		// Register the package to ensure it is available during loading.
-		resourceSet.getPackageRegistry().put(RegiondefinitionPackage.eNS_URI,
-				RegiondefinitionPackage.eINSTANCE);
-		return resourceSet;
-	}
+	
 
 	public void save(Resource res) throws IOException {
 		res.save(null);
