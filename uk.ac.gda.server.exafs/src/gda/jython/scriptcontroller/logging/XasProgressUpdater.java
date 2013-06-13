@@ -26,6 +26,7 @@ import gda.exafs.scan.RepetitionsProperties;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
+import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPoint;
 
 import java.util.concurrent.TimeUnit;
@@ -91,7 +92,8 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 		
 		String status = "Repetition complete";
-		String percentComplete = lastPercentComplete;
+		IScanDataPoint lastSDP = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
+		String percentComplete = determinePercentComplete(lastSDP)+ "%";
 		if (!sampleEnvironmentRepetition.equals(sampleEnvironmentRepetitions)) {
 			status = "Sample Env repetition complete";
 		} else if (thisScanrepetition.equals(totalScanRepetitions)) {
@@ -135,20 +137,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 			ScanDataPoint sdp = (ScanDataPoint) arg;
 			if (uniqueName == null || uniqueName == sdp.getUniqueName()) {
 				uniqueName = sdp.getUniqueName();
-				
-				int pointsPerScan = sdp.getNumberOfPoints();
-				int pointsPerScanRepetition = sdp.getNumberOfPoints() * Integer.parseInt(sampleEnvironmentRepetitions);
-				int pointsInWholeExperiment = pointsPerScanRepetition * Integer.parseInt(getTotalRepetitions());
-				
-				int currentPointInThisScan = sdp.getCurrentPointNumber() + 1;
-				int currentPointInThisScanRepetition = currentPointInThisScan + (pointsPerScan * (Integer.parseInt(sampleEnvironmentRepetition) - 1));
-				int currentPointInWholeExperiment = currentPointInThisScanRepetition + (pointsPerScanRepetition * (Integer.parseInt(thisScanrepetition) - 1));
-				int percentComplete = (int) Math.round((currentPointInWholeExperiment * 100.0) / pointsInWholeExperiment);
-				
-//				int currentPoint = sdp.getCurrentPointNumber() + 1
-//						+ (sdp.getNumberOfPoints() * (Integer.parseInt(this.thisScanrepetition) - 1)) + (sdp.getNumberOfPoints() * Integer.parseInt(sampleEnvironmentRepetition));
-//				int totalPoints = sdp.getNumberOfPoints() * Integer.parseInt(getTotalRepetitions()) * Integer.parseInt(sampleEnvironmentRepetitions);
-//				int percentComplete = (int) Math.round((currentPoint * 100.0) / totalPoints);
+				int percentComplete = determinePercentComplete(sdp);
 				lastPercentComplete = percentComplete + "%";
 				System.out.println(percentComplete + "%");
 
@@ -160,6 +149,18 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 				InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 			}
 		}
+	}
+
+	private int determinePercentComplete(IScanDataPoint sdp) {
+		int pointsPerScan = sdp.getNumberOfPoints();
+		int pointsPerScanRepetition = sdp.getNumberOfPoints() * Integer.parseInt(sampleEnvironmentRepetitions);
+		int pointsInWholeExperiment = pointsPerScanRepetition * Integer.parseInt(getTotalRepetitions());
+		
+		int currentPointInThisScan = sdp.getCurrentPointNumber() + 1;
+		int currentPointInThisScanRepetition = currentPointInThisScan + (pointsPerScan * (Integer.parseInt(sampleEnvironmentRepetition) - 1));
+		int currentPointInWholeExperiment = currentPointInThisScanRepetition + (pointsPerScanRepetition * (Integer.parseInt(thisScanrepetition) - 1));
+		int percentComplete = (int) Math.round((currentPointInWholeExperiment * 100.0) / pointsInWholeExperiment);
+		return percentComplete;
 	}
 	
 	private String getTotalRepetitions() {

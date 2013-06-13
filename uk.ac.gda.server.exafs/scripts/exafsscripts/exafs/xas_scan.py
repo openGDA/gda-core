@@ -231,7 +231,7 @@ class XasScan(Scan):
             self.log( "Setting the filter for columns to plot...")
             thisscan.setScanPlotSettings(scanPlotSettings)
         thisscan.runScan()
-        
+        print""
         #update observers
         controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
 

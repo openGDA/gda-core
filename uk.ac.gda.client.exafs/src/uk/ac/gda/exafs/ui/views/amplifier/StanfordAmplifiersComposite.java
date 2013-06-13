@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.views.amplifier;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 public class StanfordAmplifiersComposite extends Composite {
@@ -30,8 +28,8 @@ public class StanfordAmplifiersComposite extends Composite {
 		//Composite comp = new Composite(parent, SWT.NONE);
 		//comp.setLayout(new GridLayout(1, false));
 		
-		new StanfordAmplifierComposite(parent, style, "I0");
-		new StanfordAmplifierComposite(parent, style, "It");
-		new StanfordAmplifierComposite(parent, style, "Iref");
+		new StanfordAmplifierComposite(parent, style, "I0", "ionc1_stanford");
+		new StanfordAmplifierComposite(parent, style, "It", "ionc2_stanford");
+		new StanfordAmplifierComposite(parent, style, "Iref", "ionc3_stanford");
 	}
 }

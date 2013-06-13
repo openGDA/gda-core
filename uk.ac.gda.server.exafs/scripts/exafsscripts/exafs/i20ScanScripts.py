@@ -99,7 +99,7 @@ class I20XasScan(XasScan):
                 XasAsciiDataWriter.setBeanGroup(beanGroup)
                 self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller,repetitionNumber)
         
-                try:                    
+                try:
                     # inner sample environment loop here
                     if self.iterator == None:
                         outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
@@ -119,6 +119,8 @@ class I20XasScan(XasScan):
                         total_repeats = num_sample_repeats * numRepetitions
                         for i in range(num_sample_repeats):
                             self.iterator.moveToNext()
+                            # as this is wiped at the end of each scan. It is harmless to call this multiple times
+                            XasAsciiDataWriter.setBeanGroup(beanGroup)
                             this_repeat = repetitionNumber + i
                             initialPercent = str(int((float(this_repeat - 1) / float(total_repeats)) * 100)) + "%" 
                             timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
@@ -162,6 +164,8 @@ class I20XasScan(XasScan):
                     break
                 numRepetitions = numRepsFromProperty
         finally:    
+            energy_scannable.stop()
+            
             # repetition loop completed, so reset things
             if (self.beamlineReverter != None):
                 self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
