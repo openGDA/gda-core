@@ -58,5 +58,14 @@ public class MicroFocusNexusPlotter {
 		}
 		
 	}
+	
+	public void plotDataset(AbstractDataset dataset) {
+		try {
+			RCPPlotter.imagePlot(plottingWindowName, dataset);
+		} catch (Exception e) {
+			logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
+		}
+		
+	}
 
 }

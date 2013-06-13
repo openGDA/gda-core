@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,9 +59,8 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		String eleNames[] = getElementNames();
 		vortexData = new double[eleNames.length][];
 		roiNameMap = new HashMap<String, Integer>();
-		for (int i = 0; i < eleNames.length; i++) {
+		for (int i = 0; i < eleNames.length; i++)
 			roiNameMap.put(eleNames[i], i);
-		}
 	}
 
 	@Override
@@ -85,16 +82,8 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 							for (RegionOfInterest roi : roiList) {
 								if (roi.getRoiName().equals(selectedElement)) {
 									int windowEnd = roi.getRoiEnd();
-									for (int k = roi.getRoiStart(); k <= windowEnd; k++) {
-										try {
+									for (int k = roi.getRoiStart(); k <= windowEnd; k++)
 											mapData[i][j] += dataSliceFromFile[j][detectorNo][k];
-										} catch (Exception e) {
-											logger.error("******************map**********************  k=" + k + " i="
-													+ i + " j=" + j);
-										}
-									}
-									// break;
-
 								} else {
 									Integer otherElementIndex = roiNameMap.get(roi.getRoiName());
 									if (otherElementIndex != null) {
@@ -102,9 +91,8 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 											vortexData[otherElementIndex] = new double[yAxisLengthFromFile
 													* xAxisLengthFromFile];
 										int windowEnd = roi.getRoiEnd();
-										for (int k = roi.getRoiStart(); k <= windowEnd; k++) {
+										for (int k = roi.getRoiStart(); k <= windowEnd; k++)
 											vortexData[otherElementIndex][(i * xAxisLengthFromFile) + j] += dataSliceFromFile[j][detectorNo][k];
-										}
 									}
 								}
 							}
@@ -174,12 +162,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		ILazyDataset sqSlice = slice.squeeze();
 		Object data = ((AbstractDataset) sqSlice).getBuffer();
 		int dim[] = sqSlice.getShape();
-		if (data instanceof int[])
-			return packto3D((int[]) data, dim[0], dim[1], dim[2]);
-		else if (data instanceof short[])
-			return packto3D((short[]) data, dim[0], dim[1], dim[2]);
-		return packto3D((double[]) data, dim[0], dim[1], dim[2]);
-
+		return packto3D(data, dim[0], dim[1], dim[2]);
 	}
 
 	@SuppressWarnings("unused")
@@ -228,14 +211,14 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 	@Override
 	public double[] getSpectrum(int detectorNo, int x, int y) {
 		// assuming the data set is 4D array [y,x,detectors, mca]
-		Object returnObject = null;
 		lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/fullSpectrum");
+		Object spectrum = null;
 		if (lazyDataset != null) {
 			int shape[] = lazyDataset.getShape();
 			IDataset slice = lazyDataset.getSlice(new int[] { y, x, detectorNo, 0 }, new int[] { y + 1, x + 1,
 					detectorNo + 1, shape[3] }, new int[] { 1, 1, 1, 1 });
 			ILazyDataset sqSlice = slice.squeeze();
-			returnObject = ((AbstractDataset) sqSlice).getBuffer();
+			spectrum = ((AbstractDataset) sqSlice).getBuffer();
 		} else {
 			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/" + "Element" + detectorNo
 					+ "_fullSpectrum");
@@ -243,103 +226,88 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 			IDataset slice = lazyDataset.getSlice(new int[] { y, x, 0 }, new int[] { y + 1, x + 1, shape[2] },
 					new int[] { 1, 1, 1 });
 			ILazyDataset sqSlice = slice.squeeze();
-			returnObject = ((AbstractDataset) sqSlice).getBuffer();
+			spectrum = ((AbstractDataset) sqSlice).getBuffer();
 		}
-		if (returnObject instanceof int[]) {
-			int[] retInt = (int[]) returnObject;
+		if (spectrum instanceof int[]) {
+			int[] retInt = (int[]) spectrum;
+			double[] doubleSpectrum = new double[retInt.length];
+			for (int i = 0; i < doubleSpectrum.length; i++) {
+				doubleSpectrum[i] = retInt[i];
+			}
+			return doubleSpectrum;
+		}
+		logger.info("the return object is " + spectrum);
+		if (spectrum instanceof short[]) {
+			short[] retInt = (short[]) spectrum;
 			double[] retDouble = new double[retInt.length];
 			for (int i = 0; i < retDouble.length; i++) {
 				retDouble[i] = retInt[i];
 			}
 			return retDouble;
-
 		}
-		logger.info("the return object is " + returnObject);
-		if (returnObject instanceof short[]) {
-			short[] retInt = (short[]) returnObject;
-			double[] retDouble = new double[retInt.length];
-			for (int i = 0; i < retDouble.length; i++) {
-				retDouble[i] = retInt[i];
-			}
-			return retDouble;
-		}
-		return (double[]) returnObject;
+		return (double[]) spectrum;
 	}
 
 	public double[][][][] packto4D(int[] d1, int ny, int nx, int detIndex, int mcasize) {
-		double ret[][][][] = new double[detIndex][ny][nx][mcasize];
+		double data4d[][][][] = new double[detIndex][ny][nx][mcasize];
 		int index = 0;
 
 		for (int i = 0; i < ny; i++) {
 			for (int j = 0; j < nx; j++) {
 				for (int dIndex = 0; dIndex < detIndex; dIndex++) {
 					for (int k = 0; k < mcasize; k++) {
-						ret[dIndex][i][j][k] = d1[index];
+						data4d[dIndex][i][j][k] = d1[index];
 						index++;
 					}
 				}
 			}
 		}
-		return ret;
+		return data4d;
 	}
 
 	public double[][][][] packto4D(double[] d1, int ny, int nx, int detIndex, int mcasize) {
-		double ret[][][][] = new double[detIndex][ny][nx][mcasize];
+		double data4d[][][][] = new double[detIndex][ny][nx][mcasize];
 		int index = 0;
 
 		for (int i = 0; i < ny; i++) {
 			for (int j = 0; j < nx; j++) {
 				for (int dIndex = 0; dIndex < detIndex; dIndex++) {
 					for (int k = 0; k < mcasize; k++) {
-						ret[dIndex][i][j][k] = d1[index];
+						data4d[dIndex][i][j][k] = d1[index];
 						index++;
 					}
 				}
 			}
 		}
-		return ret;
+		return data4d;
 	}
 
-	public double[][][] packto3D(double[] d1, int ny, int nx, int mcasize) {
-		double ret[][][] = new double[ny][nx][mcasize];
+	private double[][][] packto3D(Object data, int ny, int nx, int mcasize) {
+		int[] intData = null;
+		short[] shortData = null;
+		double[] doubleData = null;
+		if(data instanceof int[])
+			intData = (int[]) data;
+		else if(data instanceof short[])
+			shortData = (short[]) data;
+		else if(data instanceof double[])
+			doubleData = (double[]) data;
+		double data3d[][][] = new double[ny][nx][mcasize];
 		int index = 0;
 		for (int i = 0; i < ny; i++) {
 			for (int j = 0; j < nx; j++) {
 				for (int k = 0; k < mcasize; k++) {
-					ret[i][j][k] = d1[index];
+					if(intData!=null)
+						data3d[i][j][k] = intData[index];
+					else if(shortData!=null)
+						data3d[i][j][k] = shortData[index];
+					else if(doubleData!=null)
+						data3d[i][j][k] = doubleData[index];
 					index++;
 				}
 			}
 		}
-		return ret;
-	}
-
-	public double[][][] packto3D(short[] d1, int ny, int nx, int mcasize) {
-		double ret[][][] = new double[ny][nx][mcasize];
-		int index = 0;
-		for (int i = 0; i < ny; i++) {
-			for (int j = 0; j < nx; j++) {
-				for (int k = 0; k < mcasize; k++) {
-					ret[i][j][k] = d1[index];
-					index++;
-				}
-			}
-		}
-		return ret;
-	}
-
-	public double[][][] packto3D(int[] d1, int ny, int nx, int mcasize) {
-		double ret[][][] = new double[ny][nx][mcasize];
-		int index = 0;
-		for (int i = 0; i < ny; i++) {
-			for (int j = 0; j < nx; j++) {
-				for (int k = 0; k < mcasize; k++) {
-					ret[i][j][k] = d1[index];
-					index++;
-				}
-			}
-		}
-		return ret;
+		return data3d;
 	}
 
 	public String[] getElementNames() {
@@ -372,9 +340,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		for (String element : elementNames) {
 			if (elementName.equals(element))
 				return true;
-
 		}
 		return false;
 	}
-
 }

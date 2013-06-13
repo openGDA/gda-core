@@ -127,7 +127,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 
 	@Override
 	public int prepareForContinuousMove() throws DeviceException {
-		
+		long timeAtMethodStart = System.currentTimeMillis();
 		if (!channelsConfigured) {
 			throw new DeviceException("Cannot set continuous mode on for " + getName()
 					+ " as Epics channels not configured");
@@ -159,8 +159,15 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			else
 				super.moveTo(angleToEV(startAngle));
 			
-			controller.caputWait(startChnl, startDeg);
-			controller.caputWait(stopChnl, stopDeg);
+			if(startDeg>stopDeg){
+				controller.caputWait(startChnl, startDeg);
+				controller.caputWait(stopChnl, stopDeg);
+			}
+			else{
+				controller.caputWait(startChnl, stopDeg);
+				controller.caputWait(stopChnl, startDeg);
+			}
+				
 			controller.caputWait(stepChnl, stepDeg);
 			if (checkStepGTPulse()){
 				throw new DeviceException("Too many data points, so pulses would overlap - no pulses would be sent from Bragg motor");
@@ -172,8 +179,10 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 				e.printStackTrace();
 			}
 			
-			return controller.cagetInt(this.numPulsesChnl);
-			
+			int cagetInt = controller.cagetInt(this.numPulsesChnl);
+			long timeAtMethodEnd = System.currentTimeMillis();
+			logger.debug("Time spent in prepareForContinuousMove = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
+			return cagetInt;
 
 		} catch (Exception e) {
 			if( e instanceof DeviceException)
@@ -181,16 +190,21 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			throw new DeviceException(getName() +" exception in prepareForContinuousMove", e);
 		}
 	}
-
+	
+	//TODO What does this mean? Problematic when scanning backwards
 	private boolean checkStepGTPulse() throws TimeoutException, CAException, InterruptedException {
+		long timeAtMethodStart = System.currentTimeMillis();
 		Double stepInc = controller.cagetDouble(this.stepIncDegChnl);
 		Double pulseWidth = controller.cagetDouble(this.pulseWidthDegChnl);
 			
-		Double ratio = stepInc/pulseWidth;	
+		Double ratio = Math.abs(stepInc/pulseWidth);
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in checkStepGTPulse = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 		return ratio < 2.5;
 	}
 
 	private Double getMaxSpeed() {
+		long timeAtMethodStart = System.currentTimeMillis();
 		if (maxSpeed == null) {
 			try {
 				maxSpeed = controller.cagetDouble(maxSpeedChnl);
@@ -199,18 +213,18 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 				maxSpeed = 0.0674934; // default value in use in Sept 2010
 			}
 		}
-
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in getMaxSpeed = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 		return maxSpeed;
 	}
 	
 	@Override
 	public void performContinuousMove() throws DeviceException {
+		long timeAtMethodStart = System.currentTimeMillis();
 		if (channelsConfigured && continuousParameters != null) {
 			try {
 				//set the sped (do this now, after the motor has been moved to the run-up position)
 				if (desiredSpeed <= getMaxSpeed()) {
-					logger.info("*****speed test*****     before     controller.caputWait(currentSpeedChnl, desiredSpeed))");
-					//wait until run down period has finished. 5th oct 2012 trying to fix problem where sometimes a qexafs scan finishes early
 					while (isBusy()){
 						logger.info("-----waiting for qscanAxis to finish moving inside perform before starting scanning. after goto runup");
 						Thread.sleep(100);
@@ -230,10 +244,13 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 				throw new DeviceException(e.getMessage(), e);
 			}
 		}
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in performContinuousMove = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 	}
 
 	@Override
 	public void continuousMoveComplete() throws DeviceException {
+		long timeAtMethodStart = System.currentTimeMillis();
 		try {
 			// return to regular running values
 			controller.caputWait(outputModeChnl, 0);
@@ -241,6 +258,8 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		} catch (Exception e) {
 			throw new DeviceException("Exception while switching output mode to \'off\'", e);
 		}
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in continuousMoveComplete = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 	}
 
 	@Override
@@ -250,6 +269,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	
 	@Override
 	public void stop() throws DeviceException {
+		long timeAtMethodStart = System.currentTimeMillis();
 		try {
 			// return to regular running values
 			controller.caputWait(outputModeChnl, 0);
@@ -259,15 +279,25 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		} catch (Exception e) {
 			throw new DeviceException("Exception while changing energy switch off/on to stop the motion", e);
 		}
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in stop = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 	}
 
 	private double radToDeg(Angle angle) {
-		return QuantityFactory.createFromObject(angle, NonSI.DEGREE_ANGLE).getAmount();
+		long timeAtMethodStart = System.currentTimeMillis();
+		double amount = QuantityFactory.createFromObject(angle, NonSI.DEGREE_ANGLE).getAmount();
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in radToDeg = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
+		return amount;
 	}
 
 	private double angleToEV(Angle angle) throws TimeoutException, CAException, InterruptedException {
-		return QuantityFactory.createFromObject(PhotonEnergy.photonEnergyOf(angle, getTwoD()), NonSI.ELECTRON_VOLT)
-				.getAmount();
+		long timeAtMethodStart = System.currentTimeMillis();
+		double amount = QuantityFactory.createFromObject(PhotonEnergy.photonEnergyOf(angle, getTwoD()), NonSI.ELECTRON_VOLT)
+		.getAmount();
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in angleToEV = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
+		return amount;
 	}
 
 	/**
@@ -277,6 +307,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	 * @throws InterruptedException 
 	 */
 	private Length getTwoD() throws TimeoutException, CAException, InterruptedException {
+		long timeAtMethodStart = System.currentTimeMillis();
 		String xtalSwitch = controller.cagetString(xtalSwitchChnl);
 		if (xtalSwitch.contains("111")) {
 			return Quantity.valueOf(0.62711, SI.NANO(SI.METER));
@@ -284,8 +315,10 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		else if (xtalSwitch.contains("311")) {
 			return Quantity.valueOf(0.327, SI.NANO(SI.METER));
 		}
-		// TODO need 311 value else its 311
-		return Quantity.valueOf(0.62711, SI.NANO(SI.METER));
+		Length valueOf = Quantity.valueOf(0.62711, SI.NANO(SI.METER));
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in getTwoD = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
+		return valueOf;
 	}
 
 	
@@ -295,7 +328,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	
 	@Override
 	public double calculateEnergy(int frameIndex) throws DeviceException{
-		
+		long timeAtMethodStart = System.currentTimeMillis();
 		try {
 			stepSize = (Angle) (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
 			double continuousCountSteps = (Math.round(radToDeg(stepSize)*111121.98)/111121.98);
@@ -308,17 +341,16 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			double bottom = twoD.doubleValue() * Math.sin(braggAngle);
 			
 			double result = top/bottom;
-			
+			long timeAtMethodEnd = System.currentTimeMillis();
+			logger.debug("Time spent in calculateEnergy = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 			return result;
 		} catch (Exception e) {
 			throw new DeviceException(e.getMessage());
 		}
 	}
 	
-	
-
 	private void calculateMotionInDegrees() throws TimeoutException, CAException, InterruptedException {
-
+		long timeAtMethodStart = System.currentTimeMillis();
 		Length twoD = getTwoD();
 
 		Energy startEng = Quantity.valueOf(continuousParameters.getStartPosition(), NonSI.ELECTRON_VOLT);
@@ -353,10 +385,10 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			runupPosition = (Angle) startAngle.plus(runUpAngle);
 			runDownPosition = (Angle) endAngle.minus(runUpAngle);
 		}
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in calculateMotionInDegrees = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 	}
 
-	
-	
 	@Override
 	public void setContinuousParameters(ContinuousParameters parameters) {
 		continuousParameters = parameters;
