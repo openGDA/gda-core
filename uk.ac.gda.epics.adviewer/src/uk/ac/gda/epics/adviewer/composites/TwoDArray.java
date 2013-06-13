@@ -453,23 +453,37 @@ public class TwoDArray extends Composite {
 										if (max == null || setMinMax) {
 											max = ads.max().intValue();
 										}
+										if( max == min){
+											max = min+1; //to ensure a range does exist
+										}
 										if (setMinMax) {
+											//set min to .05 percentile value
+											//set max to .95 percentile value
+											//if these work out the same then resort to min and max of dataset
 											int num_bins = 100;
 											Histogram hist = new Histogram(num_bins, min, max, true);
 											List<AbstractDataset> histogram_values = hist.value(ads);
-											DoubleDataset histogramX = (DoubleDataset) histogram_values.get(1)
-													.getSlice(new int[] { 0 }, new int[] { num_bins }, new int[] { 1 });
-											histogramX.setName("Intensity");
-											AbstractDataset histogramY = histogram_values.get(0);
-											int j = getPosToIncludeFractionOfPopulation(histogramY, .95);
-											j = Math.min(j + 1, histogramY.getSize() - 1);
-											if (j >= 0) {
-												max = (int) histogramX.getDouble(j);
-											}
-											j = getPosToIncludeFractionOfPopulation(histogramY, .05);
-											j = Math.min(j - 1, histogramY.getSize() - 1);
-											if (j >= 0) {
-												min = (int) histogramX.getDouble(j);
+											if(histogram_values.size()>1){
+												DoubleDataset histogramX = (DoubleDataset) histogram_values.get(1)
+														.getSlice(new int[] { 0 }, new int[] { num_bins }, new int[] { 1 });
+												histogramX.setName("Intensity");
+												AbstractDataset histogramY = histogram_values.get(0);
+												int jMax = getPosToIncludeFractionOfPopulation(histogramY, .95);
+												jMax = Math.min(jMax + 1, histogramY.getSize() - 1);
+												int jMin = getPosToIncludeFractionOfPopulation(histogramY, .05);
+												jMin = Math.min(jMin - 1, histogramY.getSize() - 1);
+												int lmin=min;
+												int lmax=max;
+												if (jMax >= 0) {
+													lmax = (int) histogramX.getDouble(jMax);
+												}
+												if (jMin >= 0) {
+													lmin = (int) histogramX.getDouble(jMin);
+												}
+												if( lmax != lmin){
+													max=lmax;
+													min=lmin;
+												}
 											}
 										}
 
@@ -528,7 +542,7 @@ public class TwoDArray extends Composite {
 						updateArrayJob.setUser(false);
 						updateArrayJob.setPriority(Job.SHORT);
 					}
-					updateArrayJob.schedule(1000); // limit to 1Hz
+					updateArrayJob.schedule(); // rate is limited by min update time already
 
 				}
 			};
