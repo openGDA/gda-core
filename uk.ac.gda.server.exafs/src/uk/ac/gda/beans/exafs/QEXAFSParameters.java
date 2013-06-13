@@ -236,6 +236,10 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 		return bothWays;
 	}
 
+	public boolean isBothWays() {
+		return bothWays;
+	}
+	
 	public void setBothWays(boolean bothWays) {
 		this.bothWays = bothWays;
 	}
