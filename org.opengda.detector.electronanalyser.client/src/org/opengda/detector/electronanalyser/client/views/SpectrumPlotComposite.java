@@ -19,6 +19,7 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.device.DeviceException;
+import gda.device.detector.areadetector.v17.ADBase;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -27,6 +28,7 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -58,6 +60,8 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cosylab.epics.caj.CAJChannel;
+
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
@@ -65,7 +69,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 /**
  *
  */
-public class SpectrumPlotComposite extends Composite implements InitializationListener {
+public class SpectrumPlotComposite extends Composite implements InitializationListener, MonitorListener {
 
 	private FontRegistry fontRegistry;
 	private static final Logger logger = LoggerFactory.getLogger(SpectrumPlotComposite.class);
@@ -95,6 +99,7 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	private Channel spectrumChannel;
 	private EpicsChannelManager controller;
 	private boolean first = false;
+	private Channel startChannel;
 
 	/**
 	 * @param parent
@@ -196,6 +201,8 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	public void createChannels() throws CAException, TimeoutException {
 		first = true;
 		spectrumChannel = controller.createChannel(arrayPV, spectrumDataListener, MonitorType.NATIVE, false);
+		String[] split = getArrayPV().split(":");
+		startChannel = controller.createChannel(split[0]+":"+split[1]+":"+ADBase.Acquire, this, MonitorType.NATIVE, false);
 		controller.creationPhaseCompleted();
 		logger.debug("Spectrum channel is created");
 	}
@@ -206,6 +213,7 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 			plottingSystem.clear();
 		}
 		spectrumChannel.dispose();
+		startChannel.dispose();
 		super.dispose();
 	}
 
@@ -326,8 +334,8 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		dataset = new DoubleDataset(data, new int[] { data.length });
 		dataset.setName("Intensity (counts)");
 		plotDataSets.add(dataset);
-		logger.debug("xais {}", xAxis.getData());
-		logger.debug("yAxis {}", dataset.getData());
+//		logger.debug("xais {}", xAxis.getData());
+//		logger.debug("yAxis {}", dataset.getData());
 		final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, plotDataSets, monitor);
 		if (!getDisplay().isDisposed()) {
 			getDisplay().asyncExec(new Runnable() {
@@ -336,7 +344,8 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 					
 					if (isNewRegion() && !profileLineTraces.isEmpty()) {
 						plottingSystem.setShowLegend(false);
-						plottingSystem.getSelectedYAxis().setTitle(dataset.getName());
+						//plottingSystem.getSelectedYAxis().setTitle(dataset.getName());
+						plottingSystem.setTitle("");
 						profileLineTrace = (ILineTrace) profileLineTraces.get(0);
 						profileLineTrace.setTraceColor(ColorConstants.blue);
 						setNewRegion(false);
@@ -396,5 +405,21 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	public boolean isNewRegion() {
 		return newRegion;
 	}
+
+	@Override
+	public void monitorChanged(MonitorEvent arg0) {
+		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
+			logger.debug("been informed of some sort of change to acquire status");
+			DBR_Enum en = (DBR_Enum) arg0.getDBR();
+			short[] no = (short[]) en.getValue();
+			if (no[0] == 0) {
+				logger.info("been informed of a stop");
+			} else {
+				logger.info("been informed of a start");
+			}
+			setNewRegion(true);
+		}
+	}
+
 }
 

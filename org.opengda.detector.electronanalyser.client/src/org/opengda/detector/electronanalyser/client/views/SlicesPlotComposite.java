@@ -19,15 +19,16 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.device.DeviceException;
+import gda.device.detector.areadetector.v17.ADBase;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
-import gov.aps.jca.Monitor;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -64,7 +65,9 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
-public class SlicesPlotComposite extends Composite implements InitializationListener {
+import com.cosylab.epics.caj.CAJChannel;
+
+public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(SlicesPlotComposite.class);
@@ -83,9 +86,10 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 
 	private Channel dataChannel;
 
-	private Monitor dataMonitor;
-
 	private boolean first;
+	final Spinner sliceControl;
+
+	private Channel startChannel;
 
 	/**
 	 * @param parent
@@ -123,7 +127,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 		lblSlice.setText("Slice:");
 		lblSlice.setBackground(ColorConstants.yellow);
 
-		final Spinner sliceControl = new Spinner(composite, SWT.BORDER
+		sliceControl = new Spinner(composite, SWT.BORDER
 				| SWT.RIGHT);
 		sliceControl.setBounds(20, 17, 44, 22);
 		sliceControl.setBackground(ColorConstants.white);
@@ -181,6 +185,8 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 	public void createChannels() throws CAException, TimeoutException {
 		first=true;
 		dataChannel = controller.createChannel(arrayPV, dataListener, MonitorType.NATIVE,false);
+		String[] split = getArrayPV().split(":");
+		startChannel = controller.createChannel(split[0]+":"+split[1]+":"+ADBase.Acquire, this, MonitorType.NATIVE, false);
 		controller.creationPhaseCompleted();
 		logger.debug("Slices channel is created");
 	}
@@ -191,6 +197,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			plottingSystem.clear();
 		}
 		dataChannel.dispose();
+		startChannel.dispose();
 		super.dispose();
 	}
 
@@ -254,15 +261,19 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			try {
 				xdata = getAnalyser().getEnergyAxis();
 			} catch (Exception e) {
-				logger.error("cannot get enegery axis fron the analyser", e);
+				logger.error("cannot get enegery axis from the analyser", e);
+			}
+			try {
+				sliceControl.setMaximum(getAnalyser().getNdarrayYsize());
+			} catch (Exception e) {
+				logger.error("cannot get Y diamonsion from the analyser", e);
 			}
 		}
 		DoubleDataset xAxis = new DoubleDataset(xdata,new int[] { xdata.length });
 		xAxis.setName("energies (eV)");
 		
 		try {
-			int[] dims = new int[] { getAnalyser().getNdarrayYsize(),
-					getAnalyser().getNdarrayXsize() };
+			int[] dims = new int[] { getAnalyser().getNdarrayYsize(),getAnalyser().getNdarrayXsize() };
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;
@@ -273,8 +284,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			final ArrayList<AbstractDataset> yaxes = new ArrayList<AbstractDataset>();
 
 			for (int i = 0; i < dims[0]; i++) {
-				AbstractDataset slice2 = ds.getSlice(new int[] { 0, i },
-						new int[] { dims[1], i }, new int[] { 1, 1 });
+				AbstractDataset slice2 = ds.getSlice(new int[] { 0, i },new int[] { dims[1], i+1 }, null);
 				slice2.setName("Intensity (counts");
 				yaxes.add(slice2);
 			}
@@ -286,20 +296,19 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 					@Override
 					public void run() {
 
-						if (isNewRegion()&&!profileLineTraces.isEmpty()
-								&& profileLineTraces.size() > slice) {
-							// Highlight selected slice in blue color
-							profileLineTrace = (ILineTrace) profileLineTraces.get(slice);
-							profileLineTrace.setTraceColor(ColorConstants.blue);
+						if (isNewRegion()&&!profileLineTraces.isEmpty()) {
+							plottingSystem.setTitle("");
 							setNewRegion(false);
 						}
+						// Highlight selected slice in blue color
+						profileLineTrace = (ILineTrace) profileLineTraces.get(slice);
+						profileLineTrace.setTraceColor(ColorConstants.blue);
 						plottingSystem.autoscaleAxes();
 					}
 				});
 			}
 		} catch (Exception e) {
-			logger.error("exception caught preparing analyser live image plot",
-					e);
+			logger.error("exception caught preparing analyser live slices plot",	e);
 		}
 	}
 
@@ -329,5 +338,19 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 	}
 	public boolean isNewRegion() {
 		return newRegion;
+	}
+	@Override
+	public void monitorChanged(MonitorEvent arg0) {
+		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
+			logger.debug("been informed of some sort of change to acquire status");
+			DBR_Enum en = (DBR_Enum) arg0.getDBR();
+			short[] no = (short[]) en.getValue();
+			if (no[0] == 0) {
+				logger.info("been informed of a stop");
+			} else {
+				logger.info("been informed of a start");
+			}
+			setNewRegion(true);
+		}
 	}
 }

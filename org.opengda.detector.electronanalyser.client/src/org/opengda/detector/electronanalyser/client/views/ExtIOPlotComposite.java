@@ -19,6 +19,7 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.device.DeviceException;
+import gda.device.detector.areadetector.v17.ADBase;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -28,6 +29,7 @@ import gov.aps.jca.Monitor;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -53,13 +55,15 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cosylab.epics.caj.CAJChannel;
+
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 /**
  * monitor and display external IO data update in the plot.
  */
-public class ExtIOPlotComposite extends Composite implements InitializationListener {
+public class ExtIOPlotComposite extends Composite implements InitializationListener, MonitorListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExtIOPlotComposite.class);
 
@@ -79,6 +83,8 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 	private boolean first=false;
 
 	private boolean newRegion=true;
+
+	private Channel startChannel;
 
 	/**
 	 * @param parent
@@ -123,6 +129,8 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 	public void createChannels() throws CAException, TimeoutException {
 		first=true;
 		dataChannel = controller.createChannel(arrayPV, dataListener, MonitorType.NATIVE,false);
+		String[] split = getArrayPV().split(":");
+		startChannel = controller.createChannel(split[0]+":"+split[1]+":"+ADBase.Acquire, this, MonitorType.NATIVE, false);
 		controller.creationPhaseCompleted();
 		logger.debug("Image channel is created");
 	}
@@ -133,6 +141,7 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 			plottingSystem.clear();
 		}
 		dataChannel.dispose();
+		startChannel.dispose();
 		super.dispose();
 	}
 
@@ -185,7 +194,7 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 			try {
 				xdata = getAnalyser().getEnergyAxis();
 			} catch (Exception e) {
-				logger.error("cannot get enegery axis fron the analyser", e);
+				logger.error("cannot get enegery axis from the analyser", e);
 			}
 		}
 		final DoubleDataset xAxis = new DoubleDataset(xdata,new int[] { xdata.length });
@@ -194,14 +203,15 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 		final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
 		DoubleDataset extiodata = new DoubleDataset(value, new int[] { value.length });
 		extiodata.setName("External IO Data");
-		final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, plotDataSets, monitor);
 		plotDataSets.add(extiodata);
+		final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, plotDataSets, monitor);
 			if (!getDisplay().isDisposed()) {
 				getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 
 						if (isNewRegion()&&!profileLineTraces.isEmpty()) {
+							plottingSystem.setTitle("");
 							profileLineTrace = (ILineTrace) profileLineTraces.get(0);
 							profileLineTrace.setTraceColor(ColorConstants.blue);
 							setNewRegion(false);
@@ -241,4 +251,20 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 	public boolean isNewRegion() {
 		return newRegion;
 	}
+
+	@Override
+	public void monitorChanged(MonitorEvent arg0) {
+		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
+			logger.debug("been informed of some sort of change to acquire status");
+			DBR_Enum en = (DBR_Enum) arg0.getDBR();
+			short[] no = (short[]) en.getValue();
+			if (no[0] == 0) {
+				logger.info("been informed of a stop");
+			} else {
+				logger.info("been informed of a start");
+			}
+			setNewRegion(true);
+		}
+	}
+
 }
