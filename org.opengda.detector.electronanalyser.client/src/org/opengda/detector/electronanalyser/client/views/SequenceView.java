@@ -1,12 +1,5 @@
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.commandqueue.CommandProgress;
-import gda.commandqueue.CommandQueue;
-import gda.commandqueue.IFindableQueueProcessor;
-import gda.commandqueue.Processor;
-import gda.commandqueue.ProcessorCurrentItem;
-import gda.commandqueue.Queue;
-import gda.commandqueue.QueueChangeEvent;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -14,6 +7,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
+import gda.jython.JythonServerFacade;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
@@ -114,8 +108,6 @@ import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewC
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
 import org.opengda.detector.electronanalyser.client.viewextensionfactories.RegionViewExtensionFactory;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
-import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
-import org.opengda.detector.electronanalyser.event.RegionStatusEvent.Status;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
@@ -124,7 +116,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
-import org.opengda.detector.electronanalyser.scan.RegionScannable;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
@@ -133,15 +124,13 @@ import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.CommandQueueViewFactory;
-
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 	private static final Logger logger = LoggerFactory.getLogger(SequenceView.class);
 
 	private List<ISelectionChangedListener> selectionChangedListeners;
 	private Camera camera;
-	private IObserver processorObserver;
-	private Processor processor;
+	//private IObserver processorObserver;
+	//private Processor processor;
 
 	public SequenceView() {
 		setTitleToolTip("Create a new or editing an existing sequence");
@@ -857,13 +846,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private EditingDomain editingDomain;
 
-	private Queue queue;
+	//private Queue queue;
 
-	private IObserver queueObserver;
+	//private IObserver queueObserver;
 
 	private Action startRunOnServerAction;
 
-	private Scriptcontroller controller;
+	private Scriptcontroller scriptcontroller;
 
 	private AnalyserStateListener analyserStateListener;
 
@@ -968,46 +957,45 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		// sequenceTableViewer.getElementAt(0)), true);
 		updateCalculatedData();
 		/* using command queue to process data collection specified in this table */
-		processor = CommandQueueViewFactory.getProcessor();
-		queue = CommandQueueViewFactory.getQueue();
-		if (processor != null) {
-			processorObserver = new IObserver() {
-
-				@Override
-				public void update(Object source, final Object arg) {
-					updateState(source, arg);
-				}
-			};
-			processor.addIObserver(processorObserver);
-		}
-		if (queue != null) {
-			queueObserver = new IObserver() {
-
-				@Override
-				public void update(Object source, Object arg) {
-					if (source instanceof CommandQueue && arg instanceof QueueChangeEvent) {
-						try {
-							if (queue.getSummaryList().isEmpty()) {
-								// when queue processing completed, reset controls and all regions' status to READY.
-								runningonserver = false;
-								updateActionIconsState();
-								resetRegionStatus();
-							}
-						} catch (Exception e) {
-							logger.error("Cannot get summary list from queue.", e);
-						}
-					}
-				}
-			};
-			queue.addIObserver(queueObserver);
-		}
+//		processor = CommandQueueViewFactory.getProcessor();
+//		queue = CommandQueueViewFactory.getQueue();
+//		if (processor != null) {
+//			processorObserver = new IObserver() {
+//
+//				@Override
+//				public void update(Object source, final Object arg) {
+//					updateState(source, arg);
+//				}
+//			};
+//			processor.addIObserver(processorObserver);
+//		}
+//		if (queue != null) {
+//			queueObserver = new IObserver() {
+//
+//				@Override
+//				public void update(Object source, Object arg) {
+//					if (source instanceof CommandQueue && arg instanceof QueueChangeEvent) {
+//						try {
+//							if (queue.getSummaryList().isEmpty()) {
+//								// when queue processing completed, reset controls and all regions' status to READY.
+//								runningonserver = false;
+//								updateActionIconsState();
+//								resetRegionStatus();
+//							}
+//						} catch (Exception e) {
+//							logger.error("Cannot get summary list from queue.", e);
+//						}
+//					}
+//				}
+//			};
+//			queue.addIObserver(queueObserver);
+//		}
 		prepareRunOnServerActions();
 		channelmanager = new EpicsChannelManager(this);
-		controller = Finder.getInstance().find("SequenceFileObserver");
-		controller.addIObserver(this);
-		// TODO why scannable can not be find on client side???
-		 regionScannable = Finder.getInstance().find("regions");
-		 regionScannable.addIObserver(this);
+		scriptcontroller = Finder.getInstance().find("SequenceFileObserver");
+		scriptcontroller.addIObserver(this);
+		regionScannable = Finder.getInstance().find("regions");
+		regionScannable.addIObserver(this);
 		analyserStateListener = new AnalyserStateListener();
 		try {
 			createChannels();
@@ -1023,36 +1011,36 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		logger.debug("analyser state channel and monitor are created");
 	}
 
-	private IObserver commandObserver = new IObserver() {
-
-		@Override
-		public void update(Object source, Object arg) {
-			if (source instanceof RegionCommand) {
-				RegionCommand command = (RegionCommand) source;
-				Region region = command.getRegion();
-				if (arg instanceof gda.commandqueue.Command.STATE) {
-					gda.commandqueue.Command.STATE cmdState = (gda.commandqueue.Command.STATE) arg;
-					if (cmdState.equals(gda.commandqueue.Command.STATE.PAUSED)) {
-						// not supported
-					} else if (cmdState.equals(gda.commandqueue.Command.STATE.RUNNING)) {
-						region.setStatus(STATUS.RUNNING);
-					} else if (cmdState.equals(gda.commandqueue.Command.STATE.COMPLETED)) {
-						region.setStatus(STATUS.COMPLETED);
-						command.deleteIObserver(commandObserver);
-					} else if (cmdState.equals(gda.commandqueue.Command.STATE.ABORTED)) {
-						region.setStatus(STATUS.ABORTED);
-						command.deleteIObserver(commandObserver);
-					} else if (cmdState.equals(gda.commandqueue.Command.STATE.ERROR)) {
-						region.setStatus(STATUS.ABORTED);
-						command.deleteIObserver(commandObserver);
-					} else if (cmdState.equals(gda.commandqueue.Command.STATE.NOT_STARTED)) {
-						region.setStatus(STATUS.READY);
-					}
-				}
-				sequenceTableViewer.refresh();
-			}
-		}
-	};
+//	private IObserver commandObserver = new IObserver() {
+//
+//		@Override
+//		public void update(Object source, Object arg) {
+//			if (source instanceof RegionCommand) {
+//				RegionCommand command = (RegionCommand) source;
+//				Region region = command.getRegion();
+//				if (arg instanceof gda.commandqueue.Command.STATE) {
+//					gda.commandqueue.Command.STATE cmdState = (gda.commandqueue.Command.STATE) arg;
+//					if (cmdState.equals(gda.commandqueue.Command.STATE.PAUSED)) {
+//						// not supported
+//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.RUNNING)) {
+//						region.setStatus(STATUS.RUNNING);
+//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.COMPLETED)) {
+//						region.setStatus(STATUS.COMPLETED);
+//						command.deleteIObserver(commandObserver);
+//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.ABORTED)) {
+//						region.setStatus(STATUS.ABORTED);
+//						command.deleteIObserver(commandObserver);
+//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.ERROR)) {
+//						region.setStatus(STATUS.ABORTED);
+//						command.deleteIObserver(commandObserver);
+//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.NOT_STARTED)) {
+//						region.setStatus(STATUS.READY);
+//					}
+//				}
+//				sequenceTableViewer.refresh();
+//			}
+//		}
+//	};
 
 	private Action stopRunOnServerAction;
 
@@ -1064,22 +1052,23 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				logger.info("Calling start on server.");
 				runningonserver = true;
 				updateActionIconsState();
-				for (Region region : regions) {
-					if (region.isEnabled()) {
-						final RegionCommand command = new RegionCommand(region);
-						command.addIObserver(commandObserver);
-						try {
-							queue.addToTail(command);
-						} catch (Exception e) {
-							logger.error("Cannot add region " + command.getRegion().getName() + " to the processing queue.", e);
-						}
-					}
-				}
+//				for (Region region : regions) {
+//					if (region.isEnabled()) {
+//						final RegionCommand command = new RegionCommand(region);
+//						command.addIObserver(commandObserver);
+//						try {
+//							queue.addToTail(command);
+//						} catch (Exception e) {
+//							logger.error("Cannot add region " + command.getRegion().getName() + " to the processing queue.", e);
+//						}
+//					}
+//				}
 				try {
-					processor.start(500);
+//					processor.start(500);
+					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
+					jsf.runCommand(String.format("analyserscan ds 0 1 1 regions '%s' ew4000", regionDefinitionResourceUtil.getFileName()));
 				} catch (Exception e) {
 					logger.error("exception throws on start queue processor.", e);
-					// TODO empty the queue??
 					runningonserver = false;
 					updateActionIconsState();
 				}
@@ -1095,10 +1084,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				super.run();
 				logger.info("Calling stop on server");
 				try {
-					processor.stop(1000);
-					if (!queue.getSummaryList().isEmpty()) {
-						queue.removeAll();
-					}
+					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
+					jsf.haltCurrentScan();
+//					processor.stop(1000);
+//					if (!queue.getSummaryList().isEmpty()) {
+//						queue.removeAll();
+//					}
 					runningonserver = false;
 				} catch (Exception e) {
 					logger.error("exception throws on stop queue processor.", e);
@@ -1117,54 +1108,54 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	}
 
-	private void updateState(Object source, final Object arg) {
-		if (source instanceof IFindableQueueProcessor) {
-			IFindableQueueProcessor processor = (IFindableQueueProcessor) source;
-			try {
-				ProcessorCurrentItem currentItem = processor.getCurrentItem();
-
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					if (arg instanceof CommandProgress) {
-						// nothing to do, we use EPICS Monitor to update Region Command Progress independently
-					} else if (arg instanceof gda.commandqueue.Command.STATE) {
-						gda.commandqueue.Command.STATE cmdState = (gda.commandqueue.Command.STATE) arg;
-						if (cmdState.equals(gda.commandqueue.Command.STATE.PAUSED)) {
-							// not supported
-						} else if (cmdState.equals(gda.commandqueue.Command.STATE.RUNNING)) {
-
-						} else if (cmdState.equals(gda.commandqueue.Command.STATE.COMPLETED)) {
-							// TODO set COMPLETED image
-						} else if (cmdState.equals(gda.commandqueue.Command.STATE.ABORTED)) {
-							// TODO set ERROR image
-						}
-					} else if (arg instanceof Processor.STATE) {
-						Processor.STATE prcState = (Processor.STATE) arg;
-						switch (prcState) {
-						case PROCESSING_ITEMS:
-
-							break;
-						case UNKNOWN:
-							break;
-						case WAITING_QUEUE:
-							break;
-						case WAITING_START:
-							// reset all region state to their deafult: selected
-							// -
-							// ready, unselected to null/empty/no image.
-							break;
-						}
-					}
-				}
-			});
-		}
-	}
+//	private void updateState(Object source, final Object arg) {
+//		if (source instanceof IFindableQueueProcessor) {
+//			IFindableQueueProcessor processor = (IFindableQueueProcessor) source;
+//			try {
+//				ProcessorCurrentItem currentItem = processor.getCurrentItem();
+//
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					if (arg instanceof CommandProgress) {
+//						// nothing to do, we use EPICS Monitor to update Region Command Progress independently
+//					} else if (arg instanceof gda.commandqueue.Command.STATE) {
+//						gda.commandqueue.Command.STATE cmdState = (gda.commandqueue.Command.STATE) arg;
+//						if (cmdState.equals(gda.commandqueue.Command.STATE.PAUSED)) {
+//							// not supported
+//						} else if (cmdState.equals(gda.commandqueue.Command.STATE.RUNNING)) {
+//
+//						} else if (cmdState.equals(gda.commandqueue.Command.STATE.COMPLETED)) {
+//							// TODO set COMPLETED image
+//						} else if (cmdState.equals(gda.commandqueue.Command.STATE.ABORTED)) {
+//							// TODO set ERROR image
+//						}
+//					} else if (arg instanceof Processor.STATE) {
+//						Processor.STATE prcState = (Processor.STATE) arg;
+//						switch (prcState) {
+//						case PROCESSING_ITEMS:
+//
+//							break;
+//						case UNKNOWN:
+//							break;
+//						case WAITING_QUEUE:
+//							break;
+//						case WAITING_START:
+//							// reset all region state to their deafult: selected
+//							// -
+//							// ready, unselected to null/empty/no image.
+//							break;
+//						}
+//					}
+//				}
+//			});
+//		}
+//	}
 
 	private void updateCalculatedData() {
 		int numActives = 0;
@@ -1308,8 +1299,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	 */
 	@Override
 	public void refreshTable(String seqFileName, boolean newFile) {
-//		FilenameUtil.setPrefix("D:");
-//		seqFileName=FilenameUtil.convertSeparator(seqFileName);
 		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
 		if (isDirty()) {
 			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
@@ -1439,7 +1428,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				firePropertyChange(PROP_DIRTY);
 			}
 		}
-
 	};
 	private Text txtfilenameformat;
 
@@ -1461,13 +1449,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if (processor != null && processorObserver != null) {
-			processor.deleteIObserver(processorObserver);
-			processor = null;
-		}
-		if (queue != null) {
-			queue = null;
-		}
+//		if (processor != null && processorObserver != null) {
+//			processor.deleteIObserver(processorObserver);
+//			processor = null;
+//		}
+//		if (queue != null) {
+//			queue = null;
+//		}
 		super.dispose();
 	}
 
@@ -1514,7 +1502,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	@Override
 	public void update(Object source, final Object arg) {
-		if (source == controller && arg instanceof SequenceFileChangeEvent) {
+		if (source == scriptcontroller && arg instanceof SequenceFileChangeEvent) {
 			Display.getDefault().asyncExec(new Runnable() {
 				
 				@Override
