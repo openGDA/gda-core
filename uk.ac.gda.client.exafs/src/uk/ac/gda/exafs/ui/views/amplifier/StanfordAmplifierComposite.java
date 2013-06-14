@@ -21,16 +21,15 @@ package uk.ac.gda.exafs.ui.views.amplifier;
 import gda.jython.JythonServerFacade;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 
 public class StanfordAmplifierComposite{
 
@@ -42,7 +41,7 @@ public class StanfordAmplifierComposite{
 	private Button off;
 	private String scannableName;
 
-	public StanfordAmplifierComposite(Composite parent, int style, String name, String scannable) {
+	public StanfordAmplifierComposite(Composite parent, @SuppressWarnings("unused") int style, String name, String scannable) {
 		scannableName=scannable;
 		
 		Group group = new Group(parent, SWT.NONE);
