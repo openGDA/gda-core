@@ -21,11 +21,19 @@
          </property>
          <property
                name="aboutText"
-               value="GDA Synoptic&#x0A;&#x0A;The GDA project is an open-source framework for creating customised data acquisition software for science facilities such as neutron and x-ray sources. The software is Java/Eclipse-based, free and released under the GPLv3.">
+               value="Synoptic for GDA">
          </property>
          <property
                name="aboutImage"
                value="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
+         <property
+               name="appName"
+               value="GDA Synoptic">
          </property>
       </product>
    </extension>

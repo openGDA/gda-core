@@ -44,12 +44,14 @@ public class ScanDataPointPopulatorAndPublisher implements Runnable {
 		this.broadcaster = broadcaster;
 		this.pipeline = pipeline;
 		this.point = point;
-		logger.debug("'{}': created", point.toString());
+		if( logger.isDebugEnabled())
+			logger.debug("'{}': created", point.toString());
 	}
 
 	@Override
 	public void run() {
-		logger.debug("'{}': running", point.toString());
+		if( logger.isDebugEnabled())
+			logger.debug("'{}': running", point.toString());
 	
 		try {
 			convertPositionFuturesToPositions(point);
@@ -59,7 +61,8 @@ public class ScanDataPointPopulatorAndPublisher implements Runnable {
 			return ; // don't move on to publish
 		}
 		
-		logger.debug("'{}': futures converted", point.toString());
+		if( logger.isDebugEnabled())
+			logger.debug("'{}': futures converted", point.toString());
 
 		try {
 			logger.debug("'{}' publishing", point.getUniqueName());
@@ -68,7 +71,8 @@ public class ScanDataPointPopulatorAndPublisher implements Runnable {
 			logger.error("Exception broadcasting data point", e);
 			pipeline.setExceptionAndShutdownNow(e);
 		}
-		logger.debug("'{}' published", point.toString());
+		if( logger.isDebugEnabled())
+			logger.debug("'{}' published", point.toString());
 	}
 
 	private void convertPositionFuturesToPositions(IScanDataPoint point) throws Exception {
@@ -81,9 +85,11 @@ public class ScanDataPointPopulatorAndPublisher implements Runnable {
 			Object possiblyFuture = positions.get(i);
 			String name = names.get(i);
 			
-			logger.info("'{}' converting '{}'", point.toString(), name);
+			if( logger.isDebugEnabled())
+				logger.debug("'{}' converting '{}'", point.toString(), name);
 			Object pos = convertPositionFutureToPosition(name, possiblyFuture);
-			logger.info("'{}' converted '{}'", point.toString(), name);
+			if( logger.isDebugEnabled())
+				logger.debug("'{}' converted '{}'", point.toString(), name);
 			positions.set(i, pos);
 		}
 	}

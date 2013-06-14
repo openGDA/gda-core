@@ -178,6 +178,10 @@ public abstract class ScanBase implements Scan {
 	public Long getScanNumber() {
 		return _scanNumber;
 	}
+	
+	public void setScanNumber(long scanNumber){
+		_scanNumber = scanNumber;
+	}
 
 	/**
 	 *
@@ -420,7 +424,7 @@ public abstract class ScanBase implements Scan {
 		point.setScanPlotSettings(getScanPlotSettings());
 		point.setScanDimensions(getDimensions());
 		point.setCurrentPointNumber(currentPointCount);
-		point.setNumberOfPoints(TotalNumberOfPoints);
+		point.setNumberOfPoints(getTotalNumberOfPoints());
 		point.setInstrument(instrument);
 		point.setCommand(command);
 		setScanIdentifierInScanDataPoint(point);
@@ -581,13 +585,7 @@ public abstract class ScanBase implements Scan {
 				}
 				// call the atEnd method of all the scannables
 
-				for (Scannable scannable : this.allScannables) {
-					scannable.atScanLineEnd();
-				}
-
-				for (Scannable scannable : this.allDetectors) {
-					scannable.atScanLineEnd();
-				}
+				callScannablesAtScanLineEnd();
 			}
 
 			// if a standalone scan, or the top-level scan in a nest of scans
@@ -652,6 +650,16 @@ public abstract class ScanBase implements Scan {
 		}
 	}
 
+	protected void callScannablesAtScanLineEnd() throws DeviceException {
+		for (Scannable scannable : this.allScannables) {
+			scannable.atScanLineEnd();
+		}
+
+		for (Scannable scannable : this.allDetectors) {
+			scannable.atScanLineEnd();
+		}
+	}
+
 	protected String generateRandomName() {
 		return UUID.randomUUID().toString();
 	}
@@ -705,6 +713,10 @@ public abstract class ScanBase implements Scan {
 	// if one of the child scans does not support the reporting of scan dimensions then simply return
 	// as if a 1d scan
 	int[] getDimensions() {
+		
+		Scan outerMostScan = getOuterMostScan();
+		if( outerMostScan != null && outerMostScan instanceof ContiguousScan)
+			return new int[]{ ((ContiguousScan)outerMostScan).getNumberOfContiguousPoints()};
 		Vector<Integer> dim = new Vector<Integer>();
 		Scan scan = this;
 		while (scan != null) {
@@ -813,6 +825,10 @@ public abstract class ScanBase implements Scan {
 	 */
 	@Override
 	public int getTotalNumberOfPoints() {
+		Scan outerMostScan = getOuterMostScan();
+		if( outerMostScan != null && outerMostScan instanceof ContiguousScan)
+			return ((ContiguousScan)outerMostScan).getNumberOfContiguousPoints();
+		
 		return TotalNumberOfPoints;
 	}
 	
@@ -887,13 +903,17 @@ public abstract class ScanBase implements Scan {
 		}
 		if (getChild() == null) {
 			
-			for (Scannable scannable : this.allScannables) {
-				scannable.atScanLineStart();
-			}
-			
-			for (Scannable scannable : this.allDetectors) {
-				scannable.atScanLineStart();
-			}
+			callScannablesAtScanLineStart();
+		}
+	}
+
+	protected void callScannablesAtScanLineStart() throws DeviceException {
+		for (Scannable scannable : this.allScannables) {
+			scannable.atScanLineStart();
+		}
+		
+		for (Scannable scannable : this.allDetectors) {
+			scannable.atScanLineStart();
 		}
 	}
 
@@ -1053,8 +1073,9 @@ public abstract class ScanBase implements Scan {
 				report("Ending scan and rethrowing exception");
 				
 				report("====================================================================================================");
-				
-				throw e;
+
+				interrupted = true; // causes endscan to behave differently
+				throw e; 
 			} finally {
 				try {
 					// TODO: endScan now duplicates some of the exception handling performed above. 

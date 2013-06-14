@@ -34,7 +34,7 @@ import java.util.NoSuchElementException;
 
 public class NXDetectorMetadataPlugin implements NXPlugin {
 
-	private boolean firstReadoutInScan;
+	protected boolean firstReadoutInScan;
 	
 	private NexusTreeProvider metaDataProvider;
 

@@ -32,12 +32,16 @@ import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeAppender;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NexusDetector;
 import gda.device.scannable.ScannableUtils;
+import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 
 import java.io.File;
@@ -55,6 +59,7 @@ import org.nexusformat.NexusFile;
 import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
@@ -71,6 +76,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * Property to control the file format. Defaults to {@link NexusGlobals#GDA_NX_DEFAULT}
 	 */
 	public static final String GDA_DATA_NEXUS_BACKEND = "gda.data.nexus.backend";
+	
+	public static final String GDA_NEXUS_METADATAPROVIDER_NAME = "gda.nexus.metadata.provider.name";
 
 	/**
 	 * Property specifying whether SRS data files should be written in addition to NeXus files. Default is {@code true}.
@@ -190,8 +197,32 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// Check to see if we want to create a text/SRS file as well.
 		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, true);
 
+		if( beforeScanMetaData== null ){
+			String metaDataProviderName = LocalProperties.get(GDA_NEXUS_METADATAPROVIDER_NAME);
+			if( StringUtils.hasLength(metaDataProviderName)){
+				NexusTreeAppender metaDataProvider = Finder.getInstance().find(metaDataProviderName);
+				InterfaceProvider.getTerminalPrinter().print("Getting meta data before scan");
+				beforeScanMetaData = new NexusTreeNode("before_scan", NexusExtractor.NXCollectionClassName, null);
+				metaDataProvider.appendToTopNode(beforeScanMetaData);
+			}
+		}
+		if( beforeScanMetaData == null){
+			InterfaceProvider.getTerminalPrinter().print("Meta data before_scan is not being added");
+			beforeScanMetaData = new NexusTreeNode("before_scan", NexusExtractor.NXCollectionClassName, null);
+			beforeScanMetaData.addChildNode(new NexusTreeNode("disabled", NexusExtractor.AttrClassName, beforeScanMetaData,
+					new NexusGroupData("True")));
+
+		}
 		setupPropertiesDone = true;
 
+	}
+
+	public INexusTree getBeforeScanMetaData() {
+		return beforeScanMetaData;
+	}
+
+	public void setBeforeScanMetaData(INexusTree beforeScanMetaData) {
+		this.beforeScanMetaData = beforeScanMetaData;
 	}
 
 	@Override
@@ -303,6 +334,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * for the first which is NexusFile.NX_UNLIMITED;
 	 */
 	int[] dataDimPrefix;
+
+	private INexusTree beforeScanMetaData;
 
 	@Override
 	public void addData(IScanDataPoint dataPoint) throws Exception {
@@ -532,6 +565,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 				}
 			}
+		} else {
+			logger.warn("Name or class is empty:");
 		}
 		try {
 			if (loopNodes) {
@@ -744,9 +779,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * 
 	 * @throws NexusException
 	 */
-	@SuppressWarnings("unused")
 	// allow inheriting classes to throw this exception
 	protected void createCustomMetaData() throws NexusException {
+		
+		if( beforeScanMetaData != null ){
+			writeHere(file, beforeScanMetaData, true, false, null);
+		}
 	}
 
 	protected String getGroupClassFor(@SuppressWarnings("unused") Scannable s) {
