@@ -161,7 +161,7 @@ public class NexusDataWriterMetadataTree extends NexusDataWriter {
 			} catch (NexusException e) {
 				throw e;
 			} catch (Exception e) {
-				logger.error("error getting "+scannableName+"from namespace or reading position from it.", e);
+				logger.error("error getting "+scannableName+" from namespace or reading position from it.", e);
 			} 
 		}
 	}
