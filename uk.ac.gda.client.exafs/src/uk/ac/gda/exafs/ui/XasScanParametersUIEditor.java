@@ -1012,7 +1012,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					try {
 						setPointsUpdate(true);
 						suspendGraphUpdate = false;
-						dirtyContainer.setDirty(false);
+						if (!isPageChange)
+							dirtyContainer.setDirty(false);
 					} catch (Exception e1) {
 						logger.error("Cannot update XAS points", e1);
 					}
