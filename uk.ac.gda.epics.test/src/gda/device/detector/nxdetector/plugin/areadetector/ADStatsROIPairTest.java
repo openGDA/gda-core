@@ -50,7 +50,7 @@ public class ADStatsROIPairTest {
 	
 	private ADRoiStatsPair pair;
 	
-	private RectangularROIProvider<Integer> roiProvider = new SimpleRectangularROIProvider();
+	private SimpleRectangularROIProvider roiProvider = new SimpleRectangularROIProvider();
 
 	@Before
 	public void setUp() {
@@ -65,17 +65,18 @@ public class ADStatsROIPairTest {
 		pair.prepareForCollection(1, null);
 	}
 	
-	@Test(expected=IllegalStateException.class)
+	@Test
 	public void testPrepareForCollectionAndWillRequireCallbacksOn() throws Exception {
 		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularIntegerROI(0, 0, 0, 0, "name"));
 		List<Stat> stats = new ArrayList<NDStatsPVs.Stat>();
 		stats.add(BasicStat.MaxValue);
 		when(statsPlugin.getEnabledStats()).thenReturn(stats);
+		roiProvider.setRoi(new ImutableRectangularIntegerROI(0, 0, 1, 1, "roi1"));
 		assertTrue(pair.willRequireCallbacks());
 		pair.prepareForCollection(1, null);
 	}
-
-	@Test(expected=IllegalStateException.class)
+	
+	@Test
 	public void testPrepareForCollectionAndWillRequireCallbacksInconsitant1() throws Exception {
 		when(roiPlugin.getRoi()).thenReturn(null);
 		List<Stat> stats = new ArrayList<NDStatsPVs.Stat>();
@@ -96,8 +97,8 @@ public class ADStatsROIPairTest {
 
 	@Test
 	public void testGetInputStreamNamesOff() throws IllegalArgumentException, IndexOutOfBoundsException, Exception {
-		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularIntegerROI(0, 0, 0, 0, "middle"));
-		when(statsPlugin.getInputStreamNames()).thenReturn(Arrays.asList("maxvalue", "total"));
+		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularIntegerROI(0, 0, 0, 0, "ignored_for_better_or_worse"));
+		when(statsPlugin.getInputStreamNames()).thenReturn(Arrays.asList("middle_maxvalue", "middle_total"));
 		assertEquals(Arrays.asList("middle_maxvalue", "middle_total"), pair.getInputStreamNames());
 	}
 

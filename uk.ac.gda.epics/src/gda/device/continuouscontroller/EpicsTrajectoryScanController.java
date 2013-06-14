@@ -511,7 +511,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 					getExecuteState(), getExecuteStatus(), getExecuteMessage() });
 		} else {
 			String msg = MessageFormat.format(
-					"Trajectory execute move *failed*: state=''{0}'', status=''{1}'', message=''{2}''",
+					"EPICS reports execution *failed*: state=''{0}'', status=''{1}'', message=''{2}''",
 					getExecuteState(), getExecuteStatus(), getExecuteMessage());
 			logger.error(msg);
 			throw new DeviceException(msg);
