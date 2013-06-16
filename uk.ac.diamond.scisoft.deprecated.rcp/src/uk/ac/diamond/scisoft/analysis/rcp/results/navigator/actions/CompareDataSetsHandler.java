@@ -39,7 +39,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ComparisonPlotUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
@@ -81,7 +81,7 @@ public class CompareDataSetsHandler extends AbstractHandler implements IHandler,
 					                                                        sel.toArray());
 			if (d.open() == IDialogConstants.CANCEL_ID) return Boolean.FALSE;
 			
-			final PlotWindow window  = getPlotWindow();
+			final AbstractPlotWindow window  = getPlotWindow();
 			IProgressService service = (IProgressService)PlatformUI.getWorkbench().getService(IProgressService.class);
 
 			final PlotMode plotMode  = d.getDataSetPlotView().getPlotMode();
@@ -111,7 +111,7 @@ public class CompareDataSetsHandler extends AbstractHandler implements IHandler,
 	}
 
 	
-	protected PlotWindow getPlotWindow() {
+	protected AbstractPlotWindow getPlotWindow() {
 		PlotView plotView;
 		try {
 			final IWorkbenchPage page = EclipseUtils.getActivePage();

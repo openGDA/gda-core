@@ -97,7 +97,7 @@ import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
@@ -758,7 +758,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 	
 	private List<PlotModeListener> plotModeListeners;
 
-	private PlotWindow plotWindow;
+	private AbstractPlotWindow plotWindow;
 	protected void addPlotModeListener(PlotModeListener l) {
 		if (plotModeListeners==null) plotModeListeners = new ArrayList<PlotModeListener>(7);
 		plotModeListeners.add(l);
@@ -1023,11 +1023,11 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 	 * 
 	 * @param plotWindow
 	 */
-	public void setPlotWindow(PlotWindow plotWindow) {
+	public void setPlotWindow(AbstractPlotWindow plotWindow) {
 		this.plotWindow = plotWindow;
 	}
 
-	protected PlotWindow getPlotWindow() {
+	protected AbstractPlotWindow getPlotWindow() {
 		
 		if (plotWindow!=null) return plotWindow;
 		

@@ -31,7 +31,7 @@ import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.ExpressionObject;
 
 public class ComparisonPlotUtils {
@@ -41,7 +41,7 @@ public class ComparisonPlotUtils {
 	 * @param files -  java.io.File[] or org.eclipse.core.resources.IFile[]
 	 * @param selections - list of either String data set name or ExpressionObject
 	 */
-	public static void createComparisionPlot(final Object[] files, final List<Object> selections, final PlotMode plotMode, final PlotWindow window, final IProgressMonitor monitor) throws Exception{
+	public static void createComparisionPlot(final Object[] files, final List<Object> selections, final PlotMode plotMode, final AbstractPlotWindow window, final IProgressMonitor monitor) throws Exception{
 
 		Object xSel = selections.get(0);
 
