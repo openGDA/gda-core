@@ -64,8 +64,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.CSVUtils;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
@@ -85,7 +85,7 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 	private TableViewer tableViewer;
 	private CLabel      errorLabel;
 	private Composite   main;
-	private PlotWindow  plotWindow;
+	private AbstractPlotWindow  plotWindow;
 	
 	public DataEditor() {
 	    
@@ -96,7 +96,7 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 	 * interrogate and show the window of.
 	 * @param plotWindow
 	 */
-	public void setPlotter(PlotWindow plotWindow) {
+	public void setPlotter(AbstractPlotWindow plotWindow) {
 		this.plotWindow = plotWindow;
 	}
 

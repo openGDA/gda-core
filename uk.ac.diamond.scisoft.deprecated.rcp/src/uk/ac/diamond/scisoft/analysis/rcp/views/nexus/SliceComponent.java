@@ -59,7 +59,7 @@ import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.io.SliceObject;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.SDAUtils;
 import uk.ac.gda.common.rcp.util.GridUtils;
@@ -89,7 +89,7 @@ public class SliceComponent {
 	private Object      plotType;
 	private SliceObject sliceObject;
 	private int[]       dataShape;
-	private PlotWindow  plotWindow;
+	private AbstractPlotWindow  plotWindow;
 	private boolean     autoUpdate=true;
 
 	private TableViewer                        viewer;
@@ -448,7 +448,7 @@ public class SliceComponent {
 	public void setData(final String     name,
 				        final String     filePath,
 				        final int[]      dataShape,
-				        final PlotWindow plotWindow) {
+				        final AbstractPlotWindow plotWindow) {
 		
 		interrupt();
 		saveSettings();
@@ -595,7 +595,7 @@ public class SliceComponent {
 		this.dataShape = shape;
 	}
 
-	public void setPlotWindow(PlotWindow plotWindow) {
+	public void setPlotWindow(AbstractPlotWindow plotWindow) {
 		this.plotWindow = plotWindow;
 	}
 

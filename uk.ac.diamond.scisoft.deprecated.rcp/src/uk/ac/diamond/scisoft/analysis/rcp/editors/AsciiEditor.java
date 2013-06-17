@@ -27,7 +27,7 @@ import org.eclipse.ui.part.MultiPageEditorPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlot;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
@@ -116,7 +116,7 @@ public class AsciiEditor extends MultiPageEditorPart implements IDataSetPlotView
 		return super.getActiveEditor();
 	}
 
-	public PlotWindow getPlotWindow() {
+	public AbstractPlotWindow getPlotWindow() {
 		return ((DataSetPlotEditor)getEditor(0)).getPlotWindow();
 	}
 

@@ -70,6 +70,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PydevConsoleAction;
@@ -98,7 +99,7 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 	// This view is a composite of two other views.
 	private DataSetPlotView   dataSetPlotView;
 	private SliceComponent    sliceComponent;
-	private PlotWindow        plotWindow;
+	private AbstractPlotWindow        plotWindow;
 	private DataHolder        cachedDataHolder;
 	private PlotServerConnection plotServerConnection;
 	private Text              point;
@@ -492,7 +493,7 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 		return dataSetPlotView.setDatasetSelected(name, clearOthers);
 	}
 
-	public PlotWindow getPlotWindow() {
+	public AbstractPlotWindow getPlotWindow() {
 		return plotWindow;
 	}
 

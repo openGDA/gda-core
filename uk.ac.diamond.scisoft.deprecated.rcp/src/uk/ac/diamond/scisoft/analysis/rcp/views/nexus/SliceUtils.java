@@ -23,15 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.SliceObject;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
 import uk.ac.gda.doe.DOEUtils;
 
@@ -156,7 +154,7 @@ public class SliceUtils {
 	public static void plotSlice(final SliceObject       currentSlice,
 			                     final int[]             dataShape,
 			                     final GuiPlotMode       mode,
-			                     final PlotWindow        plotWindow,
+			                     final AbstractPlotWindow        plotWindow,
 			                     final IProgressMonitor  monitor) throws Exception {
 
 		final DataHolder   dh = LoaderFactory.getData(currentSlice.getPath());

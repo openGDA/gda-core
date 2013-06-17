@@ -21,7 +21,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.ui.event.PartAdapter2;
@@ -29,7 +29,7 @@ import uk.ac.gda.ui.event.PartAdapter2;
 public class EditorUtils {
 
 	public static void addSidePlotActivator(final IWorkbenchPart part,
-			                                final PlotWindow     window,
+			                                final AbstractPlotWindow     window,
 			                                final String         partName) {
 
 
