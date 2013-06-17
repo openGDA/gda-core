@@ -460,7 +460,7 @@ public class PilatusADController implements InitializingBean {
 	public void waitForReady() throws DeviceException {
 
 		try {
-			int totalmillis = 100 * areaDetector.getNumImages();
+			int totalmillis = 150 * areaDetector.getNumImages_RBV()+5000;
 			int grain = 25;
 			for (int i = 0; i < totalmillis/grain; i++) {
 				if (getAcquireState() == 0)
