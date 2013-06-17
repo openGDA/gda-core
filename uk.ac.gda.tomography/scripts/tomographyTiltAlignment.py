@@ -8,35 +8,6 @@ from uk.ac.diamond.scisoft.analysis.dataset import Image as javaImage
 
 plotData = True
 
-def getFullDataSet(dataHolder):
-    return dataHolder['/entry1/instrument/pco/data_file/file_name']
-
-
-def testGoodDataSet():
-    ff = dnp.io.load('/dls/i12/data/2013/cm5936-2/processing/testDataForTilt/20561.nxs')
-    data = getFullDataSet(ff)
-    '''
-    for i in range(18):
-        dnp.plot.image(data[i, :, :])
-        print i
-        Sleep.sleep(1000)
-    '''
-    dd = data[...]
-    results = analyseData(dd)
-    del(dd)
-    print "X tilt deviation:" + `results[0]`
-    print "Z tilt deviation:" + `results[1]`
-    
-def testBadDataSet():
-    ff = dnp.io.load('/dls/i12/data/2013/ee8336-1/rawdata/16098.nxs')
-    data = getFullDataSet(ff)
-    if plotData: dnp.plot.image(data[0, 1100:1500, :])
-    dd = data[:, 1100:1500, :]
-    results = analyseData(dd)
-    del(dd)
-    print "X tilt deviation:" + `results[0]`
-    print "Z tilt deviation:" + `results[1]`
-   
 def analyseData(dd):
     #ss = dd.sum(0)
     #dnp.plot.image(ss)

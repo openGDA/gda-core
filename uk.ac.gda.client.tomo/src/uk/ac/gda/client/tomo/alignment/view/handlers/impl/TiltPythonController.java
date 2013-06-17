@@ -28,6 +28,8 @@ import gda.observable.IObserver;
 import gda.util.Sleep;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.ui.progress.IProgressConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,8 @@ public class TiltPythonController implements ITiltController {
 	private List<Double> preTiltPoints;
 	private List<Double> postTiltPoints;
 
+	private String errorMessage;
+
 	private IObserver tiltAlignmentObserver = new IObserver() {
 
 		@Override
@@ -60,16 +64,23 @@ public class TiltPythonController implements ITiltController {
 			if (arg instanceof TiltParameters) {
 
 				TiltParameters tiltParameters = (TiltParameters) arg;
+				if (tiltParameters.getErrorMessage() != null) {
+					errorMessage = tiltParameters.getErrorMessage();
+				} else {
 
-				preTiltPoints = tiltParameters.getPreTiltPoints();
+					preTiltPoints = tiltParameters.getPreTiltPoints();
 
-				postTiltPoints = tiltParameters.getPostTiltPoints();
-
+					postTiltPoints = tiltParameters.getPostTiltPoints();
+				}
 				setComplete(true);
+			} else {
+				progress.subTask(String.valueOf(arg));
+				progress.worked(2);
 			}
 		}
 	};
 	private boolean isComplete;
+	private SubMonitor progress;
 
 	private synchronized void setComplete(boolean flag) {
 		this.isComplete = flag;
@@ -82,7 +93,11 @@ public class TiltPythonController implements ITiltController {
 	@Override
 	public TiltPlotPointsHolder doTilt(IProgressMonitor monitor, CAMERA_MODULE selectedCameraModule, double exposureTime)
 			throws Exception {
-		logger.debug("Calling tilt");
+		progress = SubMonitor.convert(monitor);
+		progress.beginTask("Tilt", 30);
+		progress.worked(1);
+		progress.subTask("Tilt Alignment");
+		errorMessage = null;
 		setComplete(false);
 
 		clearAllPoints();
@@ -115,6 +130,10 @@ public class TiltPythonController implements ITiltController {
 
 		}
 
+		if (errorMessage != null) {
+			throw new Exception(errorMessage);
+		}
+		progress.done();
 		return tiltPlotPointsHolder;
 	}
 
