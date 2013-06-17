@@ -392,6 +392,19 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 	@SuppressWarnings("unchecked")
 	@Override
 	public void atScanLineStart() throws DeviceException {
+		lastImageNumberStreamIndexer = new PositionStreamIndexer[11];
+		timeSeriesCollection = null;
+		moveFuture=null;
+		numPosCallableReturned=0;
+	}
+
+	@Override
+	public void atScanLineEnd() throws DeviceException {
+		timeSeriesCollection = null;
+	}
+
+	@Override
+	public void stop() throws DeviceException {
 		//ensure the callables have all been called
 		boolean done=true;
 		if( timeSeriesCollection != null){
@@ -400,11 +413,8 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 			}
 		}
 		if(!done)
-			throw new DeviceException("stopAndReset called before all callables have been processed");
-		lastImageNumberStreamIndexer = new PositionStreamIndexer[11];
+			throw new DeviceException("stop called before all callables have been processed");
 		timeSeriesCollection = null;
-		moveFuture=null;
-		numPosCallableReturned=0;
 	}
 
 	@Override
