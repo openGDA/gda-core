@@ -413,6 +413,7 @@ public class NXMetaDataProviderTest {
 		String valueMappedToAddedKey = valueWithUnitsMappedToAddedKey.getFirst().toString();
 		Assert.assertEquals(addedValue, valueMappedToAddedKey);
 	}
+	
 
 	@Test
 	public void testRemove() throws InterruptedException, Exception {
