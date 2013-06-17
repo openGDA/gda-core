@@ -65,6 +65,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
+import uk.ac.diamond.scisoft.analysis.roi.EllipticalFitROI;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.PolygonalROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
@@ -484,11 +485,14 @@ public class TomoPlotComposite extends Composite {
 			@Override
 			public void run() {
 				pgBook_plotinfo.showPage(pg_plotinfo_tilt);
-				plottingSystem.clear();
+
+				plottingSystem.clearRegions();
+
 				final DoublePointList centers1 = tiltPoints.getCenters1();
 				final DoublePointList centers2 = tiltPoints.getCenters2();
 
 				final DoublePointList line2 = tiltPoints.getLine2();
+
 				if (line2 != null) {
 					DoubleDataset y3 = new DoubleDataset(line2.getYDoubleArray());
 					y3.setName("Line1");
@@ -501,43 +505,48 @@ public class TomoPlotComposite extends Composite {
 
 				try {
 					if (centers1 != null) {
-						ITrace centers1Trace = plottingSystem.getTrace("Centers1");
+						ITrace centers1Trace = plottingSystem.getTrace("Before Alignment");
 						if (centers1Trace != null) {
 							plottingSystem.removeTrace(centers1Trace);
 						}
 						DoubleDataset centers1Yds = new DoubleDataset(centers1.getYDoubleArray());
-						centers1Yds.setName("Centers1");
+						centers1Yds.setName("Before Alignment");
 						DoubleDataset centers1Xds = new DoubleDataset(centers1.getXDoubleArray());
 						ArrayList<AbstractDataset> dsList = new ArrayList<AbstractDataset>();
 						dsList.add(centers1Yds);
+						centers1Yds.setName("Before Alignment");
 						List<ITrace> traces1 = plottingSystem.updatePlot1D(centers1Xds, dsList, progress);
-						((ILineTrace) traces1.get(0)).setUserTrace(true);
+						ILineTrace beforeTilt = (ILineTrace) traces1.get(0);
+						beforeTilt.setTraceColor(ColorConstants.lightBlue);
+						beforeTilt.setUserTrace(true);
 						((ILineTrace) traces1.get(0)).setPointStyle(PointStyle.CROSS);
 					}
 					if (centers2 != null) {
-						ITrace centers2Trace = plottingSystem.getTrace("Centers2");
+						ITrace centers2Trace = plottingSystem.getTrace("After Alignment");
 						if (centers2Trace != null) {
 							plottingSystem.removeTrace(centers2Trace);
 						}
-						centers2Trace = plottingSystem.createLineTrace("Centers2");
+						centers2Trace = plottingSystem.createLineTrace("After Alignment");
 						centers2Trace.setUserTrace(true);
 						centers2Trace.setVisible(true);
 						DoubleDataset centers2Yds = new DoubleDataset(centers2.getYDoubleArray());
-						centers2Yds.setName("Centers2");
+						centers2Yds.setName("After Alignment");
 						DoubleDataset centers2Xds = new DoubleDataset(centers2.getXDoubleArray());
 						ArrayList<AbstractDataset> dsList = new ArrayList<AbstractDataset>();
 						dsList.add(centers2Yds);
-						plottingSystem.updatePlot1D(centers2Xds, dsList, progress);
+						List<ITrace> traces2 = plottingSystem.updatePlot1D(centers2Xds, dsList, progress);
+						ILineTrace afterTilt = (ILineTrace) traces2.get(0);
+						afterTilt.setTraceColor(ColorConstants.red);
+						afterTilt.setUserTrace(true);
+						((ILineTrace) traces2.get(0)).setPointStyle(PointStyle.CROSS);
 					}
 
+					plottingSystem.clearRegions();
 					if (tiltPoints.getEllipse1() != null) {
-						IRegion region1 = plottingSystem.getRegion("RegionFit1");
-						if (region1 != null) {
-							plottingSystem.removeRegion(region1);
-						}
-
-						region1 = plottingSystem.createRegion("RegionFit1", RegionType.ELLIPSEFIT);
+						IRegion region1 = plottingSystem.createRegion(
+								RegionUtils.getUniqueName("RegionFit1", plottingSystem), RegionType.ELLIPSEFIT);
 						region1.setLineWidth(1);
+						region1.setRegionColor(ColorConstants.black);
 
 						PolygonalROI roi1 = new PolygonalROI();
 						for (DoublePoint dp : tiltPoints.getEllipse1().getDoublePointList()) {
@@ -545,27 +554,25 @@ public class TomoPlotComposite extends Composite {
 						}
 
 						plottingSystem.addRegion(region1);
-						region1.setROI(roi1);
+						region1.setROI(new EllipticalFitROI(roi1));
 						region1.setMobile(false);
+						region1.setName("Pre Tilt");
 					}
 					if (tiltPoints.getEllipse2() != null) {
 						//
-						IRegion region2 = plottingSystem.getRegion(REGION_FIT2);
-						if (region2 != null) {
-							plottingSystem.removeRegion(region2);
-						}
-
-						region2 = plottingSystem.createRegion(REGION_FIT2, RegionType.ELLIPSEFIT);
+						IRegion region2 = plottingSystem.createRegion(
+								RegionUtils.getUniqueName(REGION_FIT2, plottingSystem), RegionType.ELLIPSEFIT);
 						region2.setLineWidth(1);
-						region2.setRegionColor(ColorConstants.blue);
+						region2.setRegionColor(ColorConstants.orange);
 						PolygonalROI roi2 = new PolygonalROI();
 						for (DoublePoint dp : tiltPoints.getEllipse2().getDoublePointList()) {
 							roi2.insertPoint(dp.getX(), dp.getY());
 						}
 
 						plottingSystem.addRegion(region2);
-						region2.setROI(roi2);
+						region2.setROI(new EllipticalFitROI(roi2));
 						region2.setMobile(false);
+						region2.setName("Post Tilt");
 					}
 					if (tiltPoints.getTiltPointsTitle() != null) {
 						plottingSystem.setTitle(tiltPoints.getTiltPointsTitle());

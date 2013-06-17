@@ -25,6 +25,8 @@ import java.util.List;
 
 public class TiltParameters implements Serializable {
 
+	private String errorMessage;
+	
 	private List<Double> preTiltPoints;
 
 	private List<Double> postTiltPoints;
@@ -48,6 +50,14 @@ public class TiltParameters implements Serializable {
 
 	public List<Double> getPreTiltPoints() {
 		return preTiltPoints;
+	}
+
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 
 }
