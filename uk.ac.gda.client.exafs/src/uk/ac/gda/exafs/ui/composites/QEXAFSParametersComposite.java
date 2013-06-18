@@ -250,11 +250,11 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 	}
 	
 	private void calculate(QEXAFSParameters provider) {
-		try {
-			BeanUI.uiToBean(this, provider);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+//		try {
+//			BeanUI.uiToBean(this, provider);
+//		} catch (Exception e1) {
+//			e1.printStackTrace();
+//		}
 		double initialEnergyVal = provider.getInitialEnergy();
 		double finalEnergyVal = provider.getFinalEnergy();
 		double speedVal = provider.getSpeed();

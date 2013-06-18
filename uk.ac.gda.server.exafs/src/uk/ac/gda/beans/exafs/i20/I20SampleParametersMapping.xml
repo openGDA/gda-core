@@ -22,8 +22,9 @@
 		<field name="sampleEnvironment" type="string">
 			<bind-xml name="sampleEnvironment" node="element" />
 		</field>
-		<field name="roomTemperatureParameters" type="uk.ac.gda.beans.exafs.i20.SampleStageParameters">
-			<bind-xml name="roomTemperature" node="element" />
+		<field name="roomTemperatureParameters" type="uk.ac.gda.beans.exafs.i20.SampleStagePosition"
+			collection="collection" set-method="addRoomTemperatureParameter" get-method="getRoomTemperatureParameters">
+			<bind-xml name="sampleposition" node="element" />
 		</field>
 		<field name="cryostatParameters" type="uk.ac.gda.beans.exafs.i20.CryostatParameters">
 			<bind-xml name="cryostat" node="element" />
@@ -77,52 +78,32 @@
 		<field name="manualOutput" type="double">
 			<bind-xml name="manualOutput" node="element" />
 		</field>
-		<field name="useSample1" type="boolean">
-			<bind-xml name="useSample1" node="element" />
+		<field name="samples" type="uk.ac.gda.beans.exafs.i20.CryostatSampleDetails"
+			collection="collection" set-method="addSample" get-method="getSamples">
+			<bind-xml name="sample" node="element" />
 		</field>
-		<field name="position1" type="double">
-			<bind-xml name="position1" node="element" />
+		
+	</class>
+	
+	<class name="uk.ac.gda.beans.exafs.i20.CryostatSampleDetails">
+		<map-to xml="sample" />
+		<field name="position" type="double">
+			<bind-xml name="position" node="element" />
 		</field>
-		<field name="finePosition1" type="double">
-			<bind-xml name="finePosition1" node="element" />
+		<field name="finePosition" type="double">
+			<bind-xml name="finePosition" node="element" />
 		</field>
-		<field name="sample1_name" type="string">
-			<bind-xml name="sample1_name" node="element" />
+		<field name="sample_name" type="string">
+			<bind-xml name="sample_name" node="element" />
 		</field>
-		<field name="sampleDescription1" type="string">
-			<bind-xml name="sampleDescription1" node="element" />
+		<field name="sampleDescription" type="string">
+			<bind-xml name="sampleDescription" node="element" />
 		</field>
-		<field name="useSample2" type="boolean">
-			<bind-xml name="useSample2" node="element" />
-		</field>
-		<field name="position2" type="double">
-			<bind-xml name="position2" node="element" />
-		</field>
-		<field name="finePosition2" type="double">
-			<bind-xml name="finePosition2" node="element" />
-		</field>
-		<field name="sample2_name" type="string">
-			<bind-xml name="sample2_name" node="element" />
-		</field>
-		<field name="sampleDescription2" type="string">
-			<bind-xml name="sampleDescription2" node="element" />
-		</field>
-		<field name="useSample3" type="boolean">
-			<bind-xml name="useSample3" node="element" />
-		</field>
-		<field name="position3" type="double">
-			<bind-xml name="position3" node="element" />
-		</field>
-		<field name="finePosition3" type="double">
-			<bind-xml name="finePosition3" node="element" />
-		</field>
-		<field name="sample3_name" type="string">
-			<bind-xml name="sample3_name" node="element" />
-		</field>
-		<field name="sampleDescription3" type="string">
-			<bind-xml name="sampleDescription3" node="element" />
+		<field name="numberOfRepetitions" type="integer">
+			<bind-xml name="numberOfRepetitions" node="element" />
 		</field>
 	</class>
+	
 
 	<class name="uk.ac.gda.beans.exafs.i20.FurnaceParameters">
 		<map-to xml="furnace" />
@@ -146,131 +127,37 @@
 		</field>
 	</class>
 
-	<class name="uk.ac.gda.beans.exafs.i20.SampleStageParameters">
-		<map-to xml="roomTemperature" />
-		
-		<field name="useSample1" type="boolean">
-			<bind-xml name="useSample1" node="element" />
+	<class name="uk.ac.gda.beans.exafs.i20.SampleStagePosition">
+		<map-to xml="sampleposition" />
+		<field name="sample_x" type="double">
+			<bind-xml name="sample_x" node="element" />
 		</field>
-		<field name="sample1_x" type="double">
-			<bind-xml name="sample1_x" node="element" />
+		<field name="sample_y" type="double">
+			<bind-xml name="sample_y" node="element" />
 		</field>
-		<field name="sample1_y" type="double">
-			<bind-xml name="sample1_y" node="element" />
+		<field name="sample_z" type="double">
+			<bind-xml name="sample_z" node="element" />
 		</field>
-		<field name="sample1_z" type="double">
-			<bind-xml name="sample1_z" node="element" />
+		<field name="sample_rotation" type="double">
+			<bind-xml name="sample_rotation" node="element" />
 		</field>
-		<field name="sample1_rotation" type="double">
-			<bind-xml name="sample1_rotation" node="element" />
+		<field name="sample_finerotation" type="double">
+			<bind-xml name="sample_finerotation" node="element" />
 		</field>
-		<field name="sample1_finerotation" type="double">
-			<bind-xml name="sample1_finerotation" node="element" />
+		<field name="sample_roll" type="double">
+			<bind-xml name="sample_roll" node="element" />
 		</field>
-		<field name="sample1_roll" type="double">
-			<bind-xml name="sample1_roll" node="element" />
+		<field name="sample_pitch" type="double">
+			<bind-xml name="sample_pitch" node="element" />
 		</field>
-		<field name="sample1_pitch" type="double">
-			<bind-xml name="sample1_pitch" node="element" />
+		<field name="sample_name" type="string">
+			<bind-xml name="sample_name" node="element" />
 		</field>
-		<field name="sample1_name" type="string">
-			<bind-xml name="sample1_name" node="element" />
+		<field name="sample_description" type="string">
+			<bind-xml name="sample_description" node="element" />
 		</field>
-		<field name="sample1_description" type="string">
-			<bind-xml name="sample1_description" node="element" />
-		</field>
-
-		<field name="useSample2" type="boolean">
-			<bind-xml name="useSample2" node="element" />
-		</field>
-		<field name="sample2_x" type="double">
-			<bind-xml name="sample2_x" node="element" />
-		</field>
-		<field name="sample2_y" type="double">
-			<bind-xml name="sample2_y" node="element" />
-		</field>
-		<field name="sample2_z" type="double">
-			<bind-xml name="sample2_z" node="element" />
-		</field>
-		<field name="sample2_rotation" type="double">
-			<bind-xml name="sample2_rotation" node="element" />
-		</field>
-		<field name="sample2_finerotation" type="double">
-			<bind-xml name="sample2_finerotation" node="element" />
-		</field>
-		<field name="sample2_roll" type="double">
-			<bind-xml name="sample2_roll" node="element" />
-		</field>
-		<field name="sample2_pitch" type="double">
-			<bind-xml name="sample2_pitch" node="element" />
-		</field>
-		<field name="sample2_name" type="string">
-			<bind-xml name="sample2_name" node="element" />
-		</field>
-		<field name="sample2_description" type="string">
-			<bind-xml name="sample2_description" node="element" />
-		</field>
-
-		<field name="useSample3" type="boolean">
-			<bind-xml name="useSample3" node="element" />
-		</field>
-		<field name="sample3_x" type="double">
-			<bind-xml name="sample3_x" node="element" />
-		</field>
-		<field name="sample3_y" type="double">
-			<bind-xml name="sample3_y" node="element" />
-		</field>
-		<field name="sample3_z" type="double">
-			<bind-xml name="sample3_z" node="element" />
-		</field>
-		<field name="sample3_rotation" type="double">
-			<bind-xml name="sample3_rotation" node="element" />
-		</field>
-		<field name="sample3_finerotation" type="double">
-			<bind-xml name="sample3_finerotation" node="element" />
-		</field>
-		<field name="sample3_roll" type="double">
-			<bind-xml name="sample3_roll" node="element" />
-		</field>
-		<field name="sample3_pitch" type="double">
-			<bind-xml name="sample3_pitch" node="element" />
-		</field>
-		<field name="sample3_name" type="string">
-			<bind-xml name="sample3_name" node="element" />
-		</field>
-		<field name="sample3_description" type="string">
-			<bind-xml name="sample3_description" node="element" />
-		</field>
-
-		<field name="useSample4" type="boolean">
-			<bind-xml name="useSample4" node="element" />
-		</field>
-		<field name="sample4_x" type="double">
-			<bind-xml name="sample4_x" node="element" />
-		</field>
-		<field name="sample4_y" type="double">
-			<bind-xml name="sample4_y" node="element" />
-		</field>
-		<field name="sample4_z" type="double">
-			<bind-xml name="sample4_z" node="element" />
-		</field>
-		<field name="sample4_rotation" type="double">
-			<bind-xml name="sample4_rotation" node="element" />
-		</field>
-		<field name="sample4_finerotation" type="double">
-			<bind-xml name="sample4_finerotation" node="element" />
-		</field>
-		<field name="sample4_roll" type="double">
-			<bind-xml name="sample4_roll" node="element" />
-		</field>
-		<field name="sample4_pitch" type="double">
-			<bind-xml name="sample4_pitch" node="element" />
-		</field>
-		<field name="sample4_name" type="string">
-			<bind-xml name="sample4_name" node="element" />
-		</field>
-		<field name="sample4_description" type="string">
-			<bind-xml name="sample4_description" node="element" />
+		<field name="numberOfRepetitions" type="integer">
+			<bind-xml name="numberOfRepetitions" node="element" />
 		</field>
 	</class>
 

@@ -5,6 +5,7 @@ from java.lang import System
 from xas_scan import XasScan
 from exafs_environment import ExafsEnvironment
 from BeamlineParameters import JythonNameSpaceMapping, FinderNameMapping
+from exafsscripts.exafs.i20.I20SampleIterators import XASXANES_Roomtemp_Iterator, XES_Roomtemp_Iterator, XASXANES_Cryostat_Iterator
 
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import  XasAsciiDataWriter
@@ -48,11 +49,11 @@ class I20XasScan(XasScan):
         # reference (filter) wheel
         if beanGroup.getSample().getUseSampleWheel():
             filter = beanGroup.getSample().getSampleWheelPosition()
-            self.log( "Moving filter wheel to",filter,"...")
+            self.log( "Setting filter wheel to",filter,"...")
             self.jython_mapper.filterwheel(filter)
             ScriptBase.checkForPauses()
             
-        # I20 always moves things back to initial positions after ecah scan. To save time, move mono to intial position here
+        # I20 always moves things back to initial positions after each scan. To save time, move mono to initial position here
         scan =  beanGroup.getScan()
         energy_scannable_name = scan.getScannableName()
         energy_scannable = self.finder.find(energy_scannable_name)
@@ -67,122 +68,124 @@ class I20XasScan(XasScan):
             energy_scannable.asynchronousMoveTo(intialPosition)
             self.log( "Moving",energy_scannable_name, "to initial position...")
 
-        # sample environments
+        # identify sample environment and create the iterator object
 
-        # room temperature (sample stage)
+#       # XAS / XANES room temperature sample stage 
+        if beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+            self.iterator = XASXANES_Roomtemp_Iterator()
+            self.iterator.setBeanGroup(beanGroup)
+        # XES room temp sample stage
+        elif beanGroup.getDetector().getExperimentType() == 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+            self.iterator = XES_Roomtemp_Iterator()
+            self.iterator.setBeanGroup(beanGroup)
+        #XAS/XANES cryostat
+        elif beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
+            self.iterator = XASXANES_Cryostat_Iterator()
+            self.iterator.setBeanGroup(beanGroup)
+        else :
+            self.iterator = None
+        
+        energy_scannable.waitWhileBusy()
+        LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
+        LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
+        LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
+        repetitionNumber = 0
+        timeRepetitionsStarted = System.currentTimeMillis();
+            
         try:
-            # XAS / XANES room temperature sample stage 
-            if beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
-                sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
-                # there are 4 samples in the bean
-                for i in range(0,4):
-                    doUse = sampleStageParameters.getUses()[i]
+            while True:
+                repetitionNumber+= 1
+                beanGroup.setScanNumber(repetitionNumber)
+                XasAsciiDataWriter.setBeanGroup(beanGroup)
+                self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller,repetitionNumber)
+        
+                try:
+                    # inner sample environment loop here
+                    if self.iterator == None:
+                        outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
+                        initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
+                        timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
+                        logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions),str(1),str(1), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
+                        if numRepetitions > 1:
+                            print ""
+                            self.log( "Starting repetition", str(repetitionNumber),"of",numRepetitions)
+                        else:
+                            print ""
+                            self.log( "Starting "+scriptType+" scan...")
+                        self._doScan(beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,logmsg,timeRepetitionsStarted)
+                    else :
+                        self.iterator.resetIterator()
+                        num_sample_repeats = int(self.iterator.getNumberOfRepeats())
+                        total_repeats = num_sample_repeats * numRepetitions
+                        for i in range(num_sample_repeats):
+                            self.iterator.moveToNext()
+                            # as this is wiped at the end of each scan. It is harmless to call this multiple times
+                            XasAsciiDataWriter.setBeanGroup(beanGroup)
+                            this_repeat = repetitionNumber + i
+                            initialPercent = str(int((float(this_repeat - 1) / float(total_repeats)) * 100)) + "%" 
+                            timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
+                            outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
+                            logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(i+1), str(num_sample_repeats), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
+                            self._doScan(beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,logmsg,timeRepetitionsStarted)
+        
+                except InterruptedException, e:
+                    ScanBase.interrupted = False
+                    if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
+                        LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
+                        # check if a panic stop has been issued, so the whole script should stop
+                        if ScriptBase.isInterrupted():
+                            ScriptBase.interrupted = False
+                            raise e
+                        # only wanted to skip this repetition, so absorb the exception and continue the loop
+                        if numRepetitions > 1:
+                            self.log( "Repetition", str(repetitionNumber),"skipped.")
+                    else:
+                        print e
+                        raise # any other exception we are not expecting so raise whatever this is to abort the script
+                        
                     
-                    if not doUse:
-                        continue
-                    
-                    x = sampleStageParameters.getXs()[i]
-                    y = sampleStageParameters.getYs()[i]
-                    z = sampleStageParameters.getZs()[i]
-                    rotation = sampleStageParameters.getRotations()[i]
-                    roll = sampleStageParameters.getRolls()[i]
-                    pitch = sampleStageParameters.getPitches()[i]
-                    samplename = sampleStageParameters.getSampleNames()[i]
-                    sampledescription = sampleStageParameters.getSampleDescriptions()[i]
-                    
-                    samx = self.finder.find("sample_x")
-                    samy = self.finder.find("sample_y")
-                    samz = self.finder.find("sample_z")
-                    samrot = self.finder.find("sample_rot")
-                    samroll = self.finder.find("sample_roll")
-                    sampitch = self.finder.find("sample_pitch")
-                    
-                    if samx == None or samy ==None or samz == None or samrot == None or samroll == None or sampitch == None:
-                        raise DeviceException("I20 scan script - could not find all sample stage motors!")
-                    
-                    
-                    self.log( "Moving sample stage to",x,y,z,rotation,roll,pitch,"...")
-                    samx.asynchronousMoveTo(x)
-                    samy.asynchronousMoveTo(y)
-                    samz.asynchronousMoveTo(z)
-                    samrot.asynchronousMoveTo(rotation)
-                    samroll.asynchronousMoveTo(roll)
-                    sampitch.asynchronousMoveTo(pitch)
-                    samx.waitWhileBusy()
-                    samy.waitWhileBusy()
-                    samz.waitWhileBusy()
-                    samrot.waitWhileBusy()
-                    samroll.waitWhileBusy()
-                    sampitch.waitWhileBusy()
-                    self.log( "Sample stage move complete.\n")
+                # run the after scan script
+                self._runScript(beanGroup.getOutput().getAfterScriptName())
+                
+                #check if halt after current repetition set to true
+                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
+                    self.log( "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.")
+                    Finder.getInstance().find("commandQueueProcessor").pause(500);
+                    LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
                     ScriptBase.checkForPauses()
-                    
-                    # change the strings in the filewriter so that the ascii filename changes
-                    beanGroup.getSample().setName(samplename)
-                    beanGroup.getSample().setDescriptions([sampledescription])
-                    
-                    #TODO add to metadata?
-                    
-                    energy_scannable.waitWhileBusy()
-                    self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-            # XES room temp sample stage
-            elif beanGroup.getDetector().getExperimentType() == 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
-                sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
-                # there are 4 samples in the bean
-                for i in range(0,4):
-                    doUse = sampleStageParameters.getUses()[i]
-                    
-                    if not doUse:
-                        continue
-                    
-                    x = sampleStageParameters.getXs()[i]
-                    y = sampleStageParameters.getYs()[i]
-                    z = sampleStageParameters.getZs()[i]
-                    rotation = sampleStageParameters.getRotations()[i]
-                    finerotation = sampleStageParameters.getFineRotations()[i]
-                    samplename = sampleStageParameters.getSampleNames()[i]
-                    sampledescription = sampleStageParameters.getSampleDescriptions()[i]
-                    
-                    samx = self.finder.find("sample_x")
-                    samy = self.finder.find("sample_y")
-                    samz = self.finder.find("sample_z")
-                    samrot = self.finder.find("sample_rot")
-                    samfinerot = self.finder.find("sample_fine_rot")
-                    
-                    if samx == None or samy ==None or samz == None or samrot == None or samfinerot == None:
-                        raise DeviceException("I20 scan script - could not find all sample stage motors!")
-                    
-                    print "Moving sample stage to",x,y,z,rotation,finerotation,"..."
-                    samx.asynchronousMoveTo(x)
-                    samy.asynchronousMoveTo(y)
-                    samz.asynchronousMoveTo(z)
-                    samrot.asynchronousMoveTo(rotation)
-                    samfinerot.asynchronousMoveTo(finerotation)
-                    samx.waitWhileBusy()
-                    samy.waitWhileBusy()
-                    samz.waitWhileBusy()
-                    samrot.waitWhileBusy()
-                    samfinerot.waitWhileBusy()
-                    print "Sample stage move complete.\n"
-                    ScriptBase.checkForPauses()
-                    
-                    # change the strings in the filewriter so that the ascii filename changes
-                    beanGroup.getSample().setName(samplename)
-                    beanGroup.getSample().setDescriptions([sampledescription])
-                    
-                    energy_scannable.waitWhileBusy()
-                    self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-            #XAS/XANES cryostat
-            elif beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
-                self._runCryoStatLoop(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-            else :
-                energy_scannable.waitWhileBusy()
-                self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-        finally:
+                
+                #check if the number of repetitions has been altered and we should now end the loop
+                numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
+                if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
+                    self.log( "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end.")
+                    break
+                elif numRepsFromProperty <= (repetitionNumber):
+                    # normal end to loop
+                    break
+                numRepetitions = numRepsFromProperty
+        finally:    
+            energy_scannable.stop()
+            
+            # repetition loop completed, so reset things
+            if (self.beamlineReverter != None):
+                self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
+            LocalProperties.set("gda.scan.useScanPlotSettings", "false")
+            LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
+            XasAsciiDataWriter.setBeanGroup(None)
+            
+            #remove added metadata from default metadata list to avoid multiple instances of the same metadata
+            jython_mapper = JythonNameSpaceMapping()
+            if (jython_mapper.original_header != None):
+                original_header=jython_mapper.original_header[:]
+                Finder.getInstance().find("datawriterconfig").setHeader(original_header)
+                
+            print "**********************************"
+            
             # remove extra columns from ionchambers output
             self.jython_mapper.topupChecker.collectionTime = 0.0
             self.jython_mapper.ionchambers.setOutputLogValues(False) 
             ScriptBase.checkForPauses()
+         
         
     def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
         times = []
@@ -244,6 +247,27 @@ class I20XasScan(XasScan):
         else:
             return elementObj.getEmissionEnergy("Ka1")
  
+    def _getEmissionEnergy(self,elementObj,edge):
+        if str(edge) == "K":
+            return elementObj.getEmissionEnergy("Ka1")
+        elif str(edge) == "L1":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "L2":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "L3":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "M1":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M2":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M3":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M4":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M5":
+            return elementObj.getEmissionEnergy("Ma1")
+        else:
+            return elementObj.getEmissionEnergy("Ka1")
     
     def setUpIonChambers(self,beanGroup):    
         # determine max collection time
@@ -276,90 +300,6 @@ class I20XasScan(XasScan):
             print "Setting the topup checker to pause scans for",topupPauseTime,"s before topup"
             self.jython_mapper.topupChecker.collectionTime = maxTime
             
-    def _runCryoStatLoop(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
-        cryoStatParameters = beanGroup.getSample().getCryostatParameters()
-        loopSampleFirst = cryoStatParameters.getLoopChoice() == CryostatParameters.LOOP_OPTION[0]
-        
-        temperatures = [cryoStatParameters.getTemperature()]
-        if DOEUtils.isRange(cryoStatParameters.getTemperature(),None):
-            temperatures = DOEUtils.getRange(cryoStatParameters.getTemperature(),None)
-
-        energy_scannable_name = beanGroup.getScan().getScannableName()
-        energy_scannable = self.finder.find(energy_scannable_name)
-        cryostat_scannable = self.finder.find("cryostat")
-
-        self._configureCryostat(cryoStatParameters)
-        
-        if loopSampleFirst:
-                # there are 3 samples in the bean
-                for i in range(0,3):
-                    doUse = cryoStatParameters.getUses()[i]
-                    if not doUse:
-                        continue
-                    
-                    y = cryoStatParameters.getYs()[i]
-                    finepos = cryoStatParameters.getFinePositions()[i]
-                    name = cryoStatParameters.getSampleNames()[i]
-                    desc = cryoStatParameters.getSampleDescriptions()[i]
-                    
-                    samy = self.finder.find("sample_y")
-                    sam_fine_pos = self.finder.find("sample_fine_rot")
-                    
-                    print "Moving sample stage to",y,finepos,"..."
-                    
-                    samy.asynchronousMoveTo(y)
-                    sam_fine_pos.asynchronousMoveTo(finepos)
-                    samy.waitWhileBusy()
-                    sam_fine_pos.waitWhileBusy()
-                    print "Sample stage move complete.\n"
-                    ScriptBase.checkForPauses()
-                    
-                    beanGroup.getSample().setName(name)
-                    beanGroup.getSample().setDescriptions([desc])
-
-                    for temp in temperatures:
-                        print "Setting cryostat to",str(temp),"K..."
-                        cryostat_scannable.moveTo(temp)
-                        print "Cryostat temperature change complete."
-                        # wait for async move of mono to the initial scan energy
-                        energy_scannable.waitWhileBusy()
-                        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-                        
-        else:
-                for temp in temperatures:
-                    print "Setting cryostat to",str(temp),"K..."
-                    cryostat_scannable.moveTo(temp)
-                    print "Cryostat temperature change complete."
-                    
-                    for i in range(0,3):
-                        doUse = cryoStatParameters.getUses()[i]
-                        if not doUse:
-                            continue
-                        
-                        y = cryoStatParameters.getYs()[i]
-                        finepos = cryoStatParameters.getFinePositions()[i]
-                        name = cryoStatParameters.getSampleNames()[i]
-                        desc = cryoStatParameters.getSampleDescriptions()[i]
-                        
-                        samy = self.finder.find("sample_y")
-                        sam_fine_pos = self.finder.find("sample_fine_rot")
-                        
-                        print "Moving sample stage to",y,finepos,"..."
-                        
-                        samy.asynchronousMoveTo(y)
-                        sam_fine_pos.asynchronousMoveTo(finepos)
-                        samy.waitWhileBusy()
-                        sam_fine_pos.waitWhileBusy()
-                        print "Sample stage move complete.\n"
-                        ScriptBase.checkForPauses()
-                        
-                        beanGroup.getSample().setName(name)
-                        beanGroup.getSample().setDescriptions([desc])
-                        
-                        # wait for async move of mono to the initial scan energy
-                        energy_scannable.waitWhileBusy()
-                        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-
                     
     def _createTemperaturesArrayFromString(self,tempString):
         
@@ -371,8 +311,8 @@ class I20XasScan(XasScan):
         
     def _configureCryostat(self, cryoStatParameters):
         cryostat_scannable = self.finder.find("cryostat")
-        #hold the logic in Java
-        cryostat_scannable.setupFromBean(cryoStatParameters)
+        if LocalProperties.get("gda.mode") != 'dummy':
+            cryostat_scannable.setupFromBean(cryoStatParameters)
         
 class I20XesScan(XasScan):
     

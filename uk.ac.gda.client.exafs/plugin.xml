@@ -95,6 +95,13 @@
             id="uk.ac.gda.client.exafs.cirrus"
             name="cirrus"
             restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.exafs.category"
+            class="uk.ac.gda.exafs.ui.views.amplifier.StanfordAmplifierView"
+            id="uk.ac.gda.client.exafs.stanford.amplifiers"
+            name="Stanford Amplifiers"
+            restorable="true">
       </view> 
    </extension>
    <extension
@@ -110,6 +117,11 @@
             icon="icons/ruby.png"
             id="org.diamond.exafs.ui.AlignmentPerspective"
             name="Alignment">
+      </perspective>
+      <perspective
+            class="uk.ac.gda.client.exafs.DetectorPerspective"
+            id="uk.ac.gda.client.exafs.detector.perspective"
+            name="Detector Perspective">
       </perspective>
    </extension>
    

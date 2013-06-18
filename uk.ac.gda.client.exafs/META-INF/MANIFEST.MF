@@ -75,7 +75,6 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  org.dawb.common.ui;bundle-version="1.3.0",
  org.dawnsci.plotting.api;bundle-version="1.0.0"
 Export-Package: gda.exafs.scan,
- uk.ac.gda.client.exafs,
  uk.ac.gda.exafs,
  uk.ac.gda.exafs.ui,
  uk.ac.gda.exafs.ui.actions,

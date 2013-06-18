@@ -122,14 +122,12 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		this.setyStepSize(yStepSize);
 		minValue = Double.MAX_VALUE;
 		createDataSet();
-
 	}
 
 	public void getWindowsfromBean() {
 		try {
 			detectorBean = BeansFactory.getBean(new File(detectorBeanFileName));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -158,7 +156,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 				logger.error("Error getting windows from the bean file ", e);
 			}
 		}
-
 	}
 
 	private void fillRoiNames() {
@@ -171,7 +168,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			roiNameMap.put(roi,roiIndex);
 			roiIndex++;
 		}
-		
 	}
 
 	public void setWindows(int low, int high) {
@@ -226,7 +222,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			detectorValues = new double[roiNameMap.size()][];
 			xValues = new double[totalPoints];
 			yValues = new double[totalPoints];
-						//get the list of names from Scaler
+			//get the list of names from Scaler
 			for(Detector det : detFromDP){
 				if(det instanceof TfgScaler)
 				{
@@ -263,8 +259,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			createRgbFile((new StringTokenizer(dataPoint.getCurrentFilename(), ".")).nextToken());
 			//load the dataset for reading the spectrum
 			hdf5Loader = new HDF5Loader(dataPoint.getCurrentFilename());
-			
-			
 		}
 
 		if(lastDataPoint == null || (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(dataPoint.getCurrentFilename()))){
@@ -313,7 +307,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 						if(dataPoint.getCurrentPointNumber() == 0)
 							roiHeader.append("  " + s);
 					}
-					
 				}
 				if (isXspressScan() && ((detFromDP.get(detDataIndex) instanceof XspressDetector) ||(detFromDP.get(detDataIndex) instanceof BufferedDetector) )) {
 					d = ((NXDetectorData) obj);
@@ -342,10 +335,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 							}
 						}
 					}
-
-					
 					logger.debug("the value for the selected emenet " + selectedElement + " is " + value);
-					
 				} 
 				else if (isXmapScan()&& ((detFromDP.get(detDataIndex) instanceof XmapDetector)||(detFromDP.get(detDataIndex) instanceof BufferedDetector)) ) {
 					d = ((NXDetectorData) obj);
@@ -359,9 +349,8 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 					}
 					for (int j = 0; j < numberOfSubDetectors; j++) {
 						Object singleElementSpectrum = null;
-						if(wholeDataArrayObject == null){
+						if(wholeDataArrayObject == null)
 							singleElementSpectrum = ( d.getData(detectorName,"Element"+j+"_fullSpectrum", "SDS").getBuffer());
-						}
 						else
 						{
 							if(wholeDataArrayObject instanceof int[][])
@@ -386,9 +375,8 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 								wholeDataArray[j][arIndex] = ((short[])singleElementSpectrum)[arIndex];
 						}
 
-						else if(singleElementSpectrum instanceof double[]){
+						else if(singleElementSpectrum instanceof double[])
 							wholeDataArray[j] = (double[]) singleElementSpectrum;
-						}
 						spectrumLength = wholeDataArray[j].length;
 						@SuppressWarnings("unchecked")
 						List<RegionOfInterest> roiList = elementRois[j];
@@ -403,17 +391,12 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 								double db = roiTable.get(roi.getRoiName());
 								detectorValues[roiNameMap.get(key)][correctedDataPointNumber] = db + windowTotal;
 								roiTable.put(key, db + windowTotal);
-								if (roi.getRoiName().equals(selectedElement)) {
+								if (roi.getRoiName().equals(selectedElement))
 									value += windowTotal;
-								}
 							}
 
 						}
-							
-						
-						
 					}
-					
 				}
 				for (String s : roiNames) {
 					rgbLine.append(Math.round(roiTable.get(s)));
@@ -430,9 +413,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		if(roiTable != null)
 			roiTable.clear();
 		if(value < minValue)
-		{
 			minValue = value ;			
-		}
 		fillDecrement =(int) minValue /100;
 		if(isNormalise())
 		{//if normalise is requested plot the normalised value in map and save normalised value internally
@@ -451,15 +432,12 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	
 
 	private void fillDataSet(double minValue2) {
-		for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
-		{
+		for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++){
 			if(dataSet.getDouble(new int[]{rowsPlottedSoFar -1,xindex}) == lastFilledValue)
 					dataSet.set(minValue2,rowsPlottedSoFar -1, xindex);
 		}
-		for(int yindex =rowsPlottedSoFar ; yindex < numberOfYPoints ; yindex++)
-		{
-			for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
-			{
+		for(int yindex =rowsPlottedSoFar ; yindex < numberOfYPoints ; yindex++){
+			for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++){
 				dataSet.set(minValue2,yindex, xindex);
 			}			
 		}
@@ -492,26 +470,24 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		IDataset slice = null;
 		try {
 			dataHolder = hdf5Loader.loadFile();
-		
-		if(isXspressScan())
-		{
-			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ detectorName+"/MCAs");
-			slice = lazyDataset.getSlice(new int[]{y, x, detNo,0}, new int[]{y+1, x+1, detNo+1, spectrumLength}, new int[]{1,1,1,1});
-		}
-		else if(isXmapScan()) {
-			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ detectorName+"/fullSpectrum");
-			if(lazyDataset == null)
+			if(isXspressScan())
 			{
-				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ detectorName+"/Element"+ detNo+"_fullSpectrum");
-				 slice = lazyDataset.getSlice(new int[]{y, x,0}, new int[]{y+1, x+1,  spectrumLength}, new int[]{1,1,1});
+				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ detectorName+"/MCAs");
+				slice = lazyDataset.getSlice(new int[]{y, x, detNo,0}, new int[]{y+1, x+1, detNo+1, spectrumLength}, new int[]{1,1,1,1});
 			}
-			else {
-				 slice = lazyDataset.getSlice(new int[]{y, x, detNo,0}, new int[]{y+1, x+1, detNo+1, spectrumLength}, new int[]{1,1,1,1});
+			else if(isXmapScan()) {
+				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ detectorName+"/fullSpectrum");
+				if(lazyDataset == null)
+				{
+					lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ detectorName+"/Element"+ detNo+"_fullSpectrum");
+					 slice = lazyDataset.getSlice(new int[]{y, x,0}, new int[]{y+1, x+1,  spectrumLength}, new int[]{1,1,1});
+				}
+				else 
+					 slice = lazyDataset.getSlice(new int[]{y, x, detNo,0}, new int[]{y+1, x+1, detNo+1, spectrumLength}, new int[]{1,1,1,1});
 			}
-		}} catch (ScanFileHolderException e) {
+		} catch (ScanFileHolderException e) {
 			logger.error("Error slicing xmap data", e);
 		}
-		
 		if(slice != null)
 		{
 			ILazyDataset sqSlice = slice.squeeze();
@@ -525,7 +501,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	{
 		int fillDecrement =0;
 		this.setSelectedElement(selectedElement);
-		
 		//is selected element in the Scaler list
 		for(Detector det : detectors){
 			if(det instanceof TfgScaler){
@@ -551,9 +526,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 				if(scalerValues[i][selectedElementIndex] != 0.0)
 				{
 					if(scalerValues[i][selectedElementIndex] < minValue )
-					{
 						minValue = scalerValues[i][selectedElementIndex] ;
-					}
 					dataSet.set(scalerValues[i][selectedElementIndex], i/numberOfXPoints , i%numberOfXPoints);
 				}
 			}
@@ -578,9 +551,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 					{
 						dataSet.set(detectorValues[elementIndex][point ], point/numberOfXPoints, point %numberOfXPoints);
 						if(detectorValues[elementIndex][point ] < minValue)
-						{
 							minValue = detectorValues[elementIndex][point ];
-						}
 					}
 				}
 			}
@@ -601,9 +572,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 					{
 						dataSet.set(detectorValues[elementIndex][point ], point/numberOfXPoints, point %numberOfXPoints);
 						if(detectorValues[elementIndex][point ] < minValue)
-						{
 							minValue = detectorValues[elementIndex][point ];
-						}
 					}
 				}
 			}
@@ -645,7 +614,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
  		return xy;
 	}
 	private int findPointNumber(int y, int x) {
-		// TODO Auto-generated method stub
 		return (y*numberOfXPoints + x );
 	}
 	
@@ -654,9 +622,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		int xIndex = dataPointNumber % numberOfXPoints;
 		int yIndex = dataPointNumber / numberOfXPoints;
 		if(yIndex > 0)// first row is complete
-		{
 			xIndex = findXIndexByValue(xValue);
-		}
 		return new int[]{xIndex, yIndex};
 	}
 
@@ -679,9 +645,8 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 
 	private double getWindowedData(double[] data) {
 		double total = 0.0;
-		for (int i = windowStart; i <= windowEnd; i++) {
+		for (int i = windowStart; i <= windowEnd; i++)
 			total = total + data[i];
-		}
 		return total;
 	}
 

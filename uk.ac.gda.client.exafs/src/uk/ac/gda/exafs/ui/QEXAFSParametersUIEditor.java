@@ -212,6 +212,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		super.linkUI(isPageChange);
 	}
 	
+	@Override
 	public ComboWrapper getEdge() {
 		return edge;
 	}
@@ -228,6 +229,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 			beanComposite.getTime().on();
 			beanComposite.getInitialEnergy().on();
 			beanComposite.getFinalEnergy().on();
+			beanComposite.getBothWays().on();
 			getCoreHole_unused().on();
 			getEdgeEnergy().on();
 		} else {
@@ -238,6 +240,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 //			beanComposite.getTime().off();
 			beanComposite.getInitialEnergy().off();
 			beanComposite.getFinalEnergy().off();
+			beanComposite.getBothWays().off();
 			getCoreHole_unused().off();
 			getEdgeEnergy().off();
 

@@ -51,7 +51,8 @@ public abstract class MicroFocusMappableDataProvider {
 	protected String yScannableName;
 	protected double zValue;
 	protected String zScannableName = "sc_sample_z";
-
+	private AbstractDataset i0data;
+	private AbstractDataset itdata;
 	public abstract boolean hasPlotData(String elementName);
 
 	public abstract double[][] constructMappableData();
@@ -179,6 +180,17 @@ public abstract class MicroFocusMappableDataProvider {
 				names = names + name+", ";
 			}
 			
+			
+			if(names.contains("/entry1/counterTimer01/I0")){
+				ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/counterTimer01/I0");
+				i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+			}
+			
+			if(names.contains("/entry1/counterTimer01/It")){
+				ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/counterTimer01/It");
+				itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+			}
+			
 			if (xscannableDS == null) {
 				
 				if(names.contains("/entry1/instrument/trajectoryX/value"))
@@ -266,6 +278,14 @@ public abstract class MicroFocusMappableDataProvider {
 
 	public void setBeanFilePath(String file) {
 		beanFile = file;
+	}
+
+	public AbstractDataset getI0data() {
+		return i0data;
+	}
+
+	public AbstractDataset getItdata() {
+		return itdata;
 	}
 
 	public abstract void loadBean(Object bean);
