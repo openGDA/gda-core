@@ -26,10 +26,10 @@ import gda.factory.Finder;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 
-import org.dawb.common.ui.plot.PlotType;
-import org.dawb.common.ui.plot.axis.IAxis;
-import org.dawb.common.ui.plot.trace.ILineTrace;
-import org.dawb.common.ui.plot.trace.ILineTrace.TraceType;
+import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.axis.IAxis;
+import org.dawnsci.plotting.api.trace.ILineTrace;
+import org.dawnsci.plotting.api.trace.ILineTrace.TraceType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
