@@ -43,6 +43,7 @@ public class EpicsEnumPositionerFactoryBean extends EpicsConfigurationFactoryBea
 		epicsPneumaticCallback = new EpicsEnumPositioner();
 		epicsPneumaticCallback.setName(name);
 		epicsPneumaticCallback.setPvBase(pvBase);
+		epicsPneumaticCallback.setLocal(isLocal());
 	}
 
 	@Override

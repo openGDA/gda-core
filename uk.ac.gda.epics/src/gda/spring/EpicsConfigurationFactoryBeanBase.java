@@ -97,4 +97,13 @@ public abstract class EpicsConfigurationFactoryBeanBase<T> implements Applicatio
 		return true;
 	}
 	
+	public boolean isLocal() {
+		return local;
+	}
+
+	public void setLocal(boolean local) {
+		this.local = local;
+	}
+
+	private boolean local = false;
 }
