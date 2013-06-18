@@ -256,6 +256,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 		if (selected) {
 			tomoAlignmentView.getLeftPanelComposite().setZoom(ZOOM_LEVEL.NO_ZOOM);
 			tomoAlignmentView.getLeftPanelComposite().deselectProfileButton();
+			tomoAlignmentView.stopProfiling();
 			logger.debug("Switching off the zoom");
 
 			// start the stream button if not already streaming
@@ -939,7 +940,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	public void profile(boolean selected) throws Exception {
 		if (selected) {
 			logger.debug("'Profile' is selected");
-			tomoAlignmentView.setRightPage(RIGHT_PAGE.PLOT);
 			ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
 
 				@Override
@@ -988,6 +988,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 				}
 
 			});
+			tomoAlignmentView.setRightPage(RIGHT_PAGE.PLOT);
 			tomoAlignmentView.getLeftWindowImageViewer().showLineProfiler();
 		} else {
 			logger.debug("'Profile' is de-selected");
