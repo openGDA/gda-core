@@ -14,6 +14,7 @@ from gda.device.scannable.scannablegroup import ScannableGroup
 from gda.jython import InterfaceProvider
 from gda.jython.commands.ScannableCommands import createConcurrentScan
 from gda.scan import ScanPositionProvider
+from gda.util import OSCommandRunner
 from gdascripts.messages import handle_messages
 from gdascripts.metadata.metadata_commands import setTitle
 from gdascripts.parameters import beamline_parameters
@@ -225,9 +226,6 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
         instrument_detector_data_target = default_placeholder_target
         nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
     
-    print "\t tomo sub-entry: sample_rotation_angle_target = " + sample_rotation_angle_target
-    print "\t tomo sub-entry: instrument_detector_data_target = " + instrument_detector_data_target
-    
     nxLinkCreator.afterPropertiesSet()
     
     dataWriter = createDataWriterFromFactory()
@@ -287,7 +285,7 @@ image_key_project = 0 # also known as sample
 perform a simple tomography scan
 """
 def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=180., step=0.1, darkFieldInterval=0, flatFieldInterval=0,
-              imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, pattern="default", tomoRotationAxis=0, additionalScannables=[]):
+              imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, pattern="default", tomoRotationAxis=0, addNXEntry=True, autoAnalyse=True, additionalScannables=[]):
     """
     Function to collect a tomogram
     Arguments:
@@ -460,8 +458,12 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
             handle_messages.simpleLog("Data format inconsistent. Setting 'gda.data.scan.datawriter.dataFormat' to 'NexusDataWriter'")
             LocalProperties.set("gda.data.scan.datawriter.dataFormat", "NexusDataWriter")
         scanObject = createConcurrentScan(scan_args)
-        addNXTomoSubentry(scanObject, tomography_detector.name, tomography_theta.name)
+        if addNXEntry:
+            addNXTomoSubentry(scanObject, tomography_detector.name, tomography_theta.name)
         scanObject.runScan()
+        if autoAnalyse:
+            lsdp=jns.lastScanDataPoint()
+            OSCommandRunner.runNoWait(["/dls_sw/apps/tomopy/tomopy/bin/gda/tomo_at_scan_end", lsdp.currentFilename], OSCommandRunner.LOGOPTION.ALWAYS, None)
         return scanObject;
     except InterruptedException:
         exceptionType, exception, traceback = sys.exc_info()
