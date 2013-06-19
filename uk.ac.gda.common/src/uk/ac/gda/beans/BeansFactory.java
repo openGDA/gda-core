@@ -295,7 +295,7 @@ public class BeansFactory {
 			try {
 				classes[i] = (Class<? extends IRichBean>) Class.forName(clazz);
 			} catch (ClassNotFoundException e) {
-				logger.error("Cannot load class " + clazz, e);
+				logger.info("ClassNotFoundException, cannot load class " + clazz);
 			}
 			++i;
 		}
