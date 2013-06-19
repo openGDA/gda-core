@@ -242,7 +242,7 @@ class SlitScanner():
         self.slitToScanSize(self.slitSize)
         for position in targetPositions:
             print "moving mirror to " + `position`
-            self.mirror(position)
+            self.mirror.moveTo(position)
             print "mirror is now at " + `self.mirror()`
             print "Sleeping for " + `self.settleTime` + "s"
             sleep(self.settleTime)
