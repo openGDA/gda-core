@@ -228,9 +228,9 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 				logger.debug("Slices Data Listener connected.");
 				return;
 			}
-			logger.debug("receiving slices data from " + arg0.toString()
-					+ " to plot on " + plottingSystem.getPlotName()
-					+ " with axes from " + getAnalyser().getName());
+//			logger.debug("receiving slices data from " + arg0.toString()
+//					+ " to plot on " + plottingSystem.getPlotName()
+//					+ " with axes from " + getAnalyser().getName());
 			if (!getDisplay().isDisposed()) {
 				getDisplay().syncExec(new Runnable() {
 					
@@ -288,8 +288,8 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 				slice2.setName("Intensity (counts");
 				yaxes.add(slice2);
 			}
-
-			final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, yaxes, monitor);
+			plottingSystem.clear();
+			final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, yaxes, monitor);
 			if (!getDisplay().isDisposed()) {
 				getDisplay().asyncExec(new Runnable() {
 
@@ -303,7 +303,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 						// Highlight selected slice in blue color
 						profileLineTrace = (ILineTrace) profileLineTraces.get(slice);
 						profileLineTrace.setTraceColor(ColorConstants.blue);
-						plottingSystem.autoscaleAxes();
+						//plottingSystem.autoscaleAxes();
 					}
 				});
 			}
@@ -342,14 +342,14 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
 		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
-			logger.debug("been informed of some sort of change to acquire status");
-			DBR_Enum en = (DBR_Enum) arg0.getDBR();
-			short[] no = (short[]) en.getValue();
-			if (no[0] == 0) {
-				logger.info("been informed of a stop");
-			} else {
-				logger.info("been informed of a start");
-			}
+//			logger.debug("been informed of some sort of change to acquire status");
+//			DBR_Enum en = (DBR_Enum) arg0.getDBR();
+//			short[] no = (short[]) en.getValue();
+//			if (no[0] == 0) {
+//				logger.info("been informed of a stop");
+//			} else {
+//				logger.info("been informed of a start");
+//			}
 			setNewRegion(true);
 		}
 	}

@@ -18,6 +18,8 @@ import org.opengda.detector.electronanalyser.NotSupportedException;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.nxdetector.plugins.ADArrayPlugin;
+import org.opengda.detector.electronanalyser.nxdetector.plugins.PVArrayPlugin;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,9 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	private Region region;
 	private String name;
 	private VGScientaAnalyser analyser;
+	private ADArrayPlugin adArray;
+	private PVArrayPlugin pvArray;
+
 	// private Scriptcontroller scriptController;
 	private boolean busy;
 	private AtomicInteger count=new AtomicInteger(); // enabled region position count
@@ -119,6 +124,8 @@ public class RegionScannable extends ScannableBase implements Scannable {
 			try {
 				region = (Region) position;
 				setNewRegion(region);
+				adArray.setRegionName(region.getName());
+				pvArray.setRegionName(region.getName());
 			} catch (Exception e) {
 				throw new DeviceException("Set new region to analyser failed.",
 						e);
@@ -263,6 +270,26 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	@Override
 	public void deleteIObservers() {
 		oc.deleteIObservers();
+	}
+
+	public String getRegionName() {
+		return region.getName();
+	}
+
+	public PVArrayPlugin getPvArray() {
+		return pvArray;
+	}
+
+	public void setPvArray(PVArrayPlugin pvArray) {
+		this.pvArray = pvArray;
+	}
+
+	public ADArrayPlugin getAdArray() {
+		return adArray;
+	}
+
+	public void setAdArray(ADArrayPlugin adArray) {
+		this.adArray = adArray;
 	}
 
 }

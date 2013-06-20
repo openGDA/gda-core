@@ -167,8 +167,8 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 				logger.debug("ExtIO listener is connected.");
 				return;
 			}
-			logger.debug("receiving external IO data from " + ((Channel) (arg0.getSource())).getName() + " to plot on "
-					+ plottingSystem.getPlotName() + " with axes from " + getAnalyser().getName());
+//			logger.debug("receiving external IO data from " + ((Channel) (arg0.getSource())).getName() + " to plot on "
+//					+ plottingSystem.getPlotName() + " with axes from " + getAnalyser().getName());
 			if (!getDisplay().isDisposed()) {
 				getDisplay().syncExec(new Runnable() {
 
@@ -204,7 +204,8 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 		DoubleDataset extiodata = new DoubleDataset(value, new int[] { value.length });
 		extiodata.setName("External IO Data");
 		plotDataSets.add(extiodata);
-		final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, plotDataSets, monitor);
+		plottingSystem.clear();
+		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
 			if (!getDisplay().isDisposed()) {
 				getDisplay().asyncExec(new Runnable() {
 					@Override
@@ -255,14 +256,14 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
 		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
-			logger.debug("been informed of some sort of change to acquire status");
-			DBR_Enum en = (DBR_Enum) arg0.getDBR();
-			short[] no = (short[]) en.getValue();
-			if (no[0] == 0) {
-				logger.info("been informed of a stop");
-			} else {
-				logger.info("been informed of a start");
-			}
+//			logger.debug("been informed of some sort of change to acquire status");
+//			DBR_Enum en = (DBR_Enum) arg0.getDBR();
+//			short[] no = (short[]) en.getValue();
+//			if (no[0] == 0) {
+//				logger.info("been informed of a stop");
+//			} else {
+//				logger.info("been informed of a start");
+//			}
 			setNewRegion(true);
 		}
 	}

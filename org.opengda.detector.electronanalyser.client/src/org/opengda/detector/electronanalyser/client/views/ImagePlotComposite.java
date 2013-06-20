@@ -161,8 +161,8 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 				logger.debug("Image lietener connected.");
 				return;
 			}
-			logger.debug("receiving image data from " + arg0.toString() + " to plot on " + plottingSystem.getPlotName() + " with axes from "
-					+ getAnalyser().getName());
+//			logger.debug("receiving image data from " + arg0.toString() + " to plot on " + plottingSystem.getPlotName() + " with axes from "
+//					+ getAnalyser().getName());
 			if (!getDisplay().isDisposed()) {
 				getDisplay().syncExec(new Runnable() {
 
@@ -224,15 +224,16 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		try {
 			int[] dims = new int[] { getAnalyser().getSlices(), xdata.clone().length };
 			int arraysize = dims[0] * dims[1];
-			logger.warn("arraysize = {}", arraysize);
+//			logger.warn("arraysize = {}", arraysize);
 			if (arraysize < 1) {
 				return;
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
-			logger.warn("image size = {}", values.length);
+//			logger.warn("image size = {}", values.length);
 			final AbstractDataset ds = new DoubleDataset(values, dims).getSlice(null, null, new int[] { -1, 1 });
 			ds.setName("");
-			plottingSystem.updatePlot2D(ds, axes, monitor);
+			plottingSystem.clear();
+			plottingSystem.createPlot2D(ds, axes, monitor);
 //			if (!getDisplay().isDisposed()) {
 //				getDisplay().asyncExec(new Runnable() {
 //
@@ -281,14 +282,14 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
 		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
-			logger.debug("been informed of some sort of change to acquire status");
-			DBR_Enum en = (DBR_Enum) arg0.getDBR();
-			short[] no = (short[]) en.getValue();
-			if (no[0] == 0) {
-				logger.info("been informed of a stop");
-			} else {
-				logger.info("been informed of a start");
-			}
+//			logger.debug("been informed of some sort of change to acquire status");
+//			DBR_Enum en = (DBR_Enum) arg0.getDBR();
+//			short[] no = (short[]) en.getValue();
+//			if (no[0] == 0) {
+//				logger.info("been informed of a stop");
+//			} else {
+//				logger.info("been informed of a start");
+//			}
 			setNewRegion(true);
 		}
 	}

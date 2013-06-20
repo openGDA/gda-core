@@ -290,8 +290,8 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 				logger.debug("Spectrum listener connected.");
 				return;
 			}
-			logger.debug("receiving spectrum data from " + ((Channel) (arg0.getSource())).getName() + " to plot on " + plottingSystem.getPlotName()
-					+ " with axes from " + getAnalyser().getName());
+//			logger.debug("receiving spectrum data from " + ((Channel) (arg0.getSource())).getName() + " to plot on " + plottingSystem.getPlotName()
+//					+ " with axes from " + getAnalyser().getName());
 
 			if (!getDisplay().isDisposed()) {
 				getDisplay().asyncExec(new Runnable() {
@@ -336,7 +336,8 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		plotDataSets.add(dataset);
 //		logger.debug("xais {}", xAxis.getData());
 //		logger.debug("yAxis {}", dataset.getData());
-		final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, plotDataSets, monitor);
+		plottingSystem.clear();
+		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
 		if (!getDisplay().isDisposed()) {
 			getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -350,10 +351,11 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 						profileLineTrace.setTraceColor(ColorConstants.blue);
 						setNewRegion(false);
 					}
-					plottingSystem.autoscaleAxes();
+//					plottingSystem.autoscaleAxes();
 				}
 			});
 		}
+		
 	}
 
 	public void updateStat() {
@@ -409,14 +411,14 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
 		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
-			logger.debug("been informed of some sort of change to acquire status");
-			DBR_Enum en = (DBR_Enum) arg0.getDBR();
-			short[] no = (short[]) en.getValue();
-			if (no[0] == 0) {
-				logger.info("been informed of a stop");
-			} else {
-				logger.info("been informed of a start");
-			}
+//			logger.debug("been informed of some sort of change to acquire status");
+//			DBR_Enum en = (DBR_Enum) arg0.getDBR();
+//			short[] no = (short[]) en.getValue();
+//			if (no[0] == 0) {
+//				logger.info("been informed of a stop");
+//			} else {
+//				logger.info("been informed of a start");
+//			}
 			setNewRegion(true);
 		}
 	}
