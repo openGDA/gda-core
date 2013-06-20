@@ -439,7 +439,7 @@ public class FixedImageViewerComposite extends Composite {
 		if (lineprofileSliderComposite != null) {
 			lineprofileSliderComposite.setEnabled(true);
 			Rectangle imageBounds = getImageBounds();
-			lineprofileSliderComposite.setDraggerInitialLocation(imageBounds.y - 5);
+			lineprofileSliderComposite.setDraggerInitialLocation(imageBounds.y + (imageBounds.height / 2) - 4);
 			lineprofileSliderComposite.setDraggerLimits(imageBounds.y - 5, imageBounds.y + imageBounds.height + 8);
 			int midPointYLoc = lineprofileSliderComposite.getSliderMidpointYLocation();
 			int feedbackFigWidth = feedbackFigure.getBounds().width;

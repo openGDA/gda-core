@@ -909,7 +909,10 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 			ViewerDisplayMode staticSingleEnum = tomoAlignmentView.getLeftWindowViewerDisplayMode();
 
 			if (staticSingleEnum != ViewerDisplayMode.SAMPLE_SINGLE) {
-				tomoAlignmentView.loadErrorInDisplay("Error saturation", "Error saturation");
+				tomoAlignmentView
+						.loadErrorInDisplay(
+								"Saturation can only be calculated on 'Single' images",
+								"\nSaturation of pixels on the image can only be calculated on single images. Please click on the 'Single' button and then click on 'Saturation'");
 				tomoAlignmentView.getLeftPanelComposite().saturationOff();
 				return;
 			}
