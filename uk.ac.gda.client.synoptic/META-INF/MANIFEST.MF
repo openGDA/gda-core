@@ -16,3 +16,4 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.dal;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.slf4j
