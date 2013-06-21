@@ -187,7 +187,8 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				dataBeanA = currentBean;
-				labelA.setText(getLabel(dataBeanA));
+				labelA.setText(getLabel(dataBeanA)+" (latest)");
+				labelB.setText(getLabel(dataBeanB));
 				enableDisableMaths();
 			}
 		});
@@ -230,7 +231,8 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				dataBeanB = currentBean;
-				labelB.setText(getLabel(dataBeanB));
+				labelA.setText(getLabel(dataBeanA));
+				labelB.setText(getLabel(dataBeanB)+" (latest)");
 				enableDisableMaths();
 			}
 		});
@@ -343,8 +345,12 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 	}
 
 	private static String getLabel(DataBean db) {
-		AbstractDataset ds = db.getData().get(0).getData();
-		return ds.getName() + " ("+ formatIntArray(ds.getShape()) + ")";
+		try {
+			AbstractDataset ds = db.getData().get(0).getData();
+			return ds.getName() + " ("+ formatIntArray(ds.getShape()) + ")";
+		} catch (Throwable t) {
+			return "";
+		}
 	}
 	
 	public static DataBean dataBeanSubtract(DataBean dataBean1, DataBean dataBean2) {
