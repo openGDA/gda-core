@@ -339,5 +339,6 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		// not pretty, but best solution I can come up with now.
 		// there should be some getstatus or are you ready call
 		controller.waitForReady();
+		logger.info("we think we are ready for the next acquisition now.");
 	}
 }

@@ -184,8 +184,13 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 							}
 						}
 						if (ds != null) {
-							DiffractionMetadata dm = new DiffractionMetadata(null, sub.getDetectorProperties(), energyScannable == null ? null : energyScannable.getDiffractionCrystalEnvironment());
-							ds.setMetadata(dm);
+							try {
+								DiffractionMetadata dm = new DiffractionMetadata(null, sub.getDetectorProperties(), energyScannable == null ? null : energyScannable.getDiffractionCrystalEnvironment());
+								// FIXME this kills deserialisation on the client and prevents updates
+								//ds.setMetadata(dm);
+							} catch (Throwable t) {
+								logger.warn("had trouble getting diffraction metadata for "+type,t);
+							}
 							for (String panel : wishList.keySet()) {
 								RequestObject request = wishList.get(panel);
 								if (request.type.equalsIgnoreCase("LIVE") && request.entity.equalsIgnoreCase(type)) {
@@ -326,10 +331,12 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 
 	public void setNcdDetector(NcdDetectorSystem det) {
 		if (this.det != null) {
-			det.deleteIObserver(this);
+			this.det.deleteIObserver(this);
 		}
 		this.det = det;
-		this.det.addIObserver(this);
+		if (this.det != null) {
+			this.det.addIObserver(this);
+		}
 	}
 
 	public NcdDetectorSystem getNcdDetector() {

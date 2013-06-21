@@ -86,23 +86,35 @@ public class ShutterGroup implements IObserver, Runnable {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				try {
-					// do what is says on the tin
-					String action = button.getText();
+				// do what is says on the tin
+				final String action = button.getText();
 
-					if (action.equals("Wait")) {
-						return;
-					}
-					shutter.asynchronousMoveTo(action);
-				} catch (DeviceException de) {
-					// Create the required Status object
-					Status status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Error Operating "
-							+ shutter.getName(), de);
-
-					// Display the dialog
-					ErrorDialog.openError(Display.getCurrent().getActiveShell(), "DeviceException", "Error Operating "
-							+ shutter.getName(), status);
+				if (action.equals("Wait")) {
+					return;
 				}
+
+				Runnable runnable = new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							shutter.asynchronousMoveTo(action);
+						} catch (DeviceException de) {
+							// Create the required Status object
+							final Status status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Error Operating "
+									+ shutter.getName(), de);
+							
+							Display.getDefault().asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									ErrorDialog.openError(Display.getCurrent().getActiveShell(), "DeviceException", "Error Operating "
+											+ shutter.getName(), status);
+								}
+							});
+						}
+					}
+				};
+				new Thread(runnable).start();
 			}
 
 			@Override
@@ -119,38 +131,44 @@ public class ShutterGroup implements IObserver, Runnable {
 
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		try {
-			// TODO I agree it is not too good requesting more information in the update
-			// we should improve the changeCode
-			final String status = shutter.getPosition().toString();
-			final String nextaction = status2action.get(status);
-
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if ("Close".equals(status)) {
-						label.setText("Closed");
-						label.setBackground(red);
-					} else if ("FAULT".equals(status)) {
-						label.setText("FAULT");
-						label.setBackground(red);
-					} else {
-						label.setBackground(green);
-						label.setText(status);
-//						label.setBackground(defaultColor);
-					}
-
-					if (nextaction != null) {
-						button.setText(nextaction);
-					} else {
-						// something fishy
-						button.setText("Reset");
-					}
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					// TODO I agree it is not too good requesting more information in the update
+					// we should improve the changeCode
+					final String status = shutter.getPosition().toString();
+					final String nextaction = status2action.get(status);
+					
+					Display dis = Display.getDefault();
+					dis.asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							if ("Close".equals(status)) {
+								label.setText("Closed");
+								label.setBackground(red);
+							} else if ("FAULT".equals(status)) {
+								label.setText("FAULT");
+								label.setBackground(red);
+							} else {
+								//label.setBackground(green);
+								label.setText(status);
+								label.setBackground(defaultColor);
+							}
+							
+							if (nextaction != null) {
+								button.setText(nextaction);
+							} else {
+								// something fishy
+								button.setText("Reset");
+							}
+						}
+					});
+				} catch (DeviceException e) {
+					logger.warn("could not get status for " + shutter.getName() + ": ", e);
 				}
-			});
-		} catch (DeviceException e) {
-			logger.warn("could not get status for " + shutter.getName() + ": ", e);
-		}
+			}
+		}).start();
 	}
 
 	@Override
