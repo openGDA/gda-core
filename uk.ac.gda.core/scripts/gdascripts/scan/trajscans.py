@@ -1,9 +1,9 @@
+from gda.factory import Finder
+from gda.scan import TrajectoryScanLine, ConcurrentScan, \
+    ConstantVelocityScanLine
+
 from gdascripts.scan.gdascans import Scan, Rscan, Cscan, Scancn
 from gdascripts.scan.specscans import Ascan, Dscan
-
-from gda.scan import TrajectoryScanLine, ConcurrentScan
-from gda.factory import Finder
-from misc_functions import caput
 
 
 DEFAULT_SCANNABLES_FOR_TRAJSCANS = []
@@ -20,7 +20,7 @@ def setDefaultScannables(new):
     return original
 
 
-class TrajMixin(object):
+class ContinuousMixin(object):
     
     def createTrajAndPossiblyConcurrentScan(self, args):
         argstruct = self.parseArgsIntoArgStruct(args)
@@ -36,7 +36,7 @@ class TrajMixin(object):
         original_default_scannables = setDefaultScannables(DEFAULT_SCANNABLES_FOR_TRAJSCANS)
         
         try:
-            trajscan = TrajectoryScanLine(self.flattenArgStructToArgs(trajArgstruct))
+            trajscan = self.create_scan(self.flattenArgStructToArgs(trajArgstruct))
             # TODO: Whan available in core, replace with a request for an unbounded queue
             trajscan.setScanDataPointQueueLength(trajscan.getNumberPoints() + 1) # (+1 for luck)
             trajscan.setPositionCallableThreadPoolSize(POSITION_CALLABLE_THREADPOOL_SIZE)
@@ -50,6 +50,31 @@ class TrajMixin(object):
             setDefaultScannables(original_default_scannables)
 
         return scan
+
+    def create_scan(self, args):
+        raise Exception("ContinuousMixin:create_scan() must be overidden")
+
+
+class TrajMixin(ContinuousMixin):
+    def create_scan(self, args):
+        return TrajectoryScanLine(args)
+
+
+class CvMixin(ContinuousMixin):
+    def create_scan(self, args):
+        return ConstantVelocityScanLine(args)    
+
+
+class CvScan(Scan, CvMixin):
+
+    def __init__(self, scanListeners = None):
+        Scan.__init__(self, scanListeners)
+        self.__doc__ = Scan.__doc__.replace('scan', 'cvscan') #@UndefinedVariable
+
+    def _createScan(self, args):
+        return self.createTrajAndPossiblyConcurrentScan(args)
+
+## move out!!
 
     
 class TrajScan(Scan, TrajMixin):
