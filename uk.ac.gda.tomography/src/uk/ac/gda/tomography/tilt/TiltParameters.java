@@ -26,14 +26,20 @@ import java.util.List;
 public class TiltParameters implements Serializable {
 
 	private String errorMessage;
-	
+
 	private List<Double> preTiltPoints;
 
 	private List<Double> postTiltPoints;
 
+	private List<Double> preTiltEllipsePoints;
+
+	private List<Double> postTiltEllipsePoints;
+
 	public TiltParameters() {
 		preTiltPoints = new ArrayList<Double>();
 		postTiltPoints = new ArrayList<Double>();
+		preTiltEllipsePoints = new ArrayList<Double>();
+		postTiltEllipsePoints = new ArrayList<Double>();
 	}
 
 	public void addPreTiltPoint(float x, float y) {
@@ -58,6 +64,22 @@ public class TiltParameters implements Serializable {
 
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
+	}
+
+	public List<Double> getPreTiltEllipsePoints() {
+		return preTiltEllipsePoints;
+	}
+
+	public void addPreTiltEllipsePoints(float x, float y) {
+		this.preTiltEllipsePoints.add(new Double(x, y));
+	}
+
+	public List<Double> getPostTiltEllipsePoints() {
+		return postTiltEllipsePoints;
+	}
+
+	public void addPostTiltEllipsePoints(float x, float y) {
+		this.postTiltEllipsePoints.add(new Double(x, y));
 	}
 
 }

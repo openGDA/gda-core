@@ -55,7 +55,7 @@ def analyseData(dd):
     print "centroids:" + `centroids`
     xOffset = getXOffset(ellipseFitValues[1], ellipseFitValues[0])
     zOffset = getZOffset(ellipseFitValues[2])
-    return xOffset, zOffset, centroids
+    return xOffset, zOffset, centroids, ellipseFitValues
 
 '''
 Returns the values in degrees

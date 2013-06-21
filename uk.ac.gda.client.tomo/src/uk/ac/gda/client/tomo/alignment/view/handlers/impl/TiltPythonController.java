@@ -53,6 +53,8 @@ public class TiltPythonController implements ITiltController {
 
 	private List<Double> preTiltPoints;
 	private List<Double> postTiltPoints;
+	private List<Double> preTiltEllipsePoints;
+	private List<Double> postTiltEllipsePoints;
 
 	private String errorMessage;
 
@@ -71,6 +73,9 @@ public class TiltPythonController implements ITiltController {
 					preTiltPoints = tiltParameters.getPreTiltPoints();
 
 					postTiltPoints = tiltParameters.getPostTiltPoints();
+					preTiltEllipsePoints = tiltParameters.getPreTiltEllipsePoints();
+					postTiltEllipsePoints = tiltParameters.getPostTiltEllipsePoints();
+
 				}
 				setComplete(true);
 			} else {
@@ -113,20 +118,28 @@ public class TiltPythonController implements ITiltController {
 		tomoScriptController.deleteIObserver(tiltAlignmentObserver);
 		TiltPlotPointsHolder tiltPlotPointsHolder = new TiltPlotPointsHolder();
 		if (preTiltPoints != null) {
-			DoublePointList doublePointList = new DoublePointList();
+			DoublePointList preTiltCentres = new DoublePointList();
 			for (Double point : preTiltPoints) {
-				doublePointList.addPoint(point.x, point.y);
+				preTiltCentres.addPoint(point.x, point.y);
 			}
-			tiltPlotPointsHolder.setCenters1(doublePointList);
-			tiltPlotPointsHolder.setEllipse1(doublePointList);
+			DoublePointList preTiltEllipsePoints = new DoublePointList();
+			for (Double point : this.preTiltEllipsePoints) {
+				preTiltEllipsePoints.addPoint(point.x, point.y);
+			}
+			tiltPlotPointsHolder.setCenters1(preTiltCentres);
+			tiltPlotPointsHolder.setEllipse1(preTiltEllipsePoints);
 		}
 		if (postTiltPoints != null) {
-			DoublePointList doublePointList = new DoublePointList();
+			DoublePointList postTiltCenters = new DoublePointList();
 			for (Double point : postTiltPoints) {
-				doublePointList.addPoint(point.x, point.y);
+				postTiltCenters.addPoint(point.x, point.y);
 			}
-			tiltPlotPointsHolder.setCenters2(doublePointList);
-			tiltPlotPointsHolder.setEllipse2(doublePointList);
+			DoublePointList postTiltEllipsePoints = new DoublePointList();
+			for (Double point : this.postTiltEllipsePoints) {
+				postTiltEllipsePoints.addPoint(point.x, point.y);
+			}
+			tiltPlotPointsHolder.setCenters2(postTiltCenters);
+			tiltPlotPointsHolder.setEllipse2(postTiltEllipsePoints);
 
 		}
 
@@ -140,6 +153,8 @@ public class TiltPythonController implements ITiltController {
 	private void clearAllPoints() {
 		preTiltPoints = Collections.emptyList();
 		postTiltPoints = Collections.emptyList();
+		preTiltEllipsePoints = Collections.emptyList();
+		postTiltEllipsePoints = Collections.emptyList();
 	}
 
 	public IObservable getTomoScriptController() {
