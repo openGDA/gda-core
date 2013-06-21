@@ -183,6 +183,18 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		setAllPVsSet(true);
 	}
 
+	private String basePV;
+
+	public String getPvBase() {
+		return basePV;
+	}
+
+	public void setPvBase(String basePV) {
+		this.basePV = basePV;
+		setPvNames(basePV);
+	}
+
+	
 	/**
 	 * Sets the control PV used by this object.
 	 * 
