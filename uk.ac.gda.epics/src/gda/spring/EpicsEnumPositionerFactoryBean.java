@@ -36,19 +36,19 @@ public class EpicsEnumPositionerFactoryBean extends EpicsConfigurationFactoryBea
 		return EpicsEnumPositioner.class;
 	}
 
-	private EpicsEnumPositioner epicsPneumaticCallback;
+	private EpicsEnumPositioner epicsEnumPositioner;
 	
 	@Override
 	protected void createObject() throws ConfigurationNotFoundException {
-		epicsPneumaticCallback = new EpicsEnumPositioner();
-		epicsPneumaticCallback.setName(name);
-		epicsPneumaticCallback.setPvBase(pvBase);
-		epicsPneumaticCallback.setLocal(isLocal());
+		epicsEnumPositioner = new EpicsEnumPositioner();
+		epicsEnumPositioner.setName(name);
+		epicsEnumPositioner.setPvBase(pvBase);
+		epicsEnumPositioner.setLocal(isLocal());
 	}
 
 	@Override
 	public EpicsEnumPositioner getObject() throws Exception {
-		return epicsPneumaticCallback;
+		return epicsEnumPositioner;
 	}
 
 	public String getPvBase() {
