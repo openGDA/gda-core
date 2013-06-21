@@ -1,6 +1,7 @@
 package uk.ac.gda.client.synoptic.perspectives;
 
 import gda.configuration.properties.LocalProperties;
+import gda.dal.DALStartup;
 
 import org.csstudio.sds.ui.runmode.RunModeService;
 import org.eclipse.core.runtime.Path;
@@ -14,7 +15,7 @@ public class SynopticPerspective implements IPerspectiveFactory {
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setEditorAreaVisible(false);
-
+		new DALStartup().earlyStartup();
 		String path = LocalProperties.get("gda.client.synopticpath");
 		Path sdsDisplay = new Path(path);
 		RunModeService.getInstance().openDisplayViewInRunMode(sdsDisplay);
