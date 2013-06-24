@@ -23,10 +23,12 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gov.aps.jca.Channel;
+import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -94,22 +96,25 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		try {
 			logger.debug("sending some thing from "+arg0.toString()+" to plot "+plotName+" with axes from "+analyser.getName());
 			
-			int newvalue = (Integer) arg0.getDBR().getValue();
+			int newvalue =((gov.aps.jca.dbr.INT) arg0.getDBR().convert(DBRType.INT)).getIntValue()[0];
 			
-			if (newvalue > oldNumber)
-				executor.submit(new Runnable() {
-
-
-					@Override
-					public void run() {
-						try {
-							plotNewArray();
-							Thread.sleep(sleeptime);
-						} catch (Exception e) {
-							logger.error("exception caught preparing analyser live plot", e);
+			if (newvalue > oldNumber) {
+				try {
+					executor.submit(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								plotNewArray();
+								Thread.sleep(sleeptime);
+							} catch (Exception e) {
+								logger.error("exception caught preparing analyser live plot", e);
+							}
 						}
-					}
-				});
+					});
+				} catch (RejectedExecutionException ree) {
+					logger.debug("plot jobs for "+plotName+"are queueing up, as expected in certain circumstances", ree);
+				}
+			}
 			oldNumber = newvalue;
 			
 			
@@ -147,6 +152,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		AbstractDataset xAxis = getXAxis();
 		AbstractDataset yAxis = getYAxis();
 		AbstractDataset ds = getArrayAsDataset(xAxis.getShape()[0], yAxis.getShape()[0]);
+		logger.debug("dispatching plot to "+plotName);
 		SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
 	}
 	
