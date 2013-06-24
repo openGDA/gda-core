@@ -22,10 +22,13 @@ import gda.epics.connection.EpicsController;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
+import gov.aps.jca.Channel;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,19 +41,26 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);
 
 	private String plotName;
-	private VGScientaAnalyser analyser;
+	protected VGScientaAnalyser analyser;
 	private String name;
 	private EpicsController epicsController;
-	private String arrayPV;
+	private String arrayPV, frameNumberPV;
+	private long oldNumber;
+	private Channel arrayChannel;
+	private long sleeptime = 1000;
+
+	private ThreadPoolExecutor executor;
 	
 	@Override
 	public void configure() throws FactoryException {
 		epicsController = EpicsController.getInstance();
 		try {
-			epicsController.setMonitor(epicsController.createChannel(arrayPV), this);
+			epicsController.setMonitor(epicsController.createChannel(frameNumberPV), this);
+			arrayChannel = epicsController.createChannel(arrayPV);
 		} catch (Exception e) {
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
-		}		
+		}
+		executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(1));
 	}
 
 	public String getPlotName() {
@@ -83,35 +93,84 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	public void monitorChanged(MonitorEvent arg0) {
 		try {
 			logger.debug("sending some thing from "+arg0.toString()+" to plot "+plotName+" with axes from "+analyser.getName());
-			double[] value = (double[]) arg0.getDBR().getValue();
 			
-			int[] dims = new int[] {analyser.getNdArray().getPluginBase().getArraySize1_RBV(), analyser.getNdArray().getPluginBase().getArraySize0_RBV()};
-			int arraysize = dims[0]*dims[1];
-			if (arraysize < 1) return;
-			value = Arrays.copyOf(value, arraysize);
-			AbstractDataset ds = new DoubleDataset(value, dims);
+			int newvalue = (Integer) arg0.getDBR().getValue();
 			
-			double[] xdata = analyser.getEnergyAxis();
-			double[] ydata = analyser.getAngleAxis();
-			DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-			DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
-			xAxis.setName("energies (eV)");
-			if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
-				yAxis.setName("location (mm)");				
-			} else 
-			yAxis.setName("angles (deg)");
+			if (newvalue > oldNumber)
+				executor.submit(new Runnable() {
+
+
+					@Override
+					public void run() {
+						try {
+							plotNewArray();
+							Thread.sleep(sleeptime);
+						} catch (Exception e) {
+							logger.error("exception caught preparing analyser live plot", e);
+						}
+					}
+				});
+			oldNumber = newvalue;
 			
-			SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
+			
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live plot", e);
 		}
 	}
 
+	protected AbstractDataset getArrayAsDataset(int x, int y) throws Exception {
+		int[] dims = new int[] {x, y};
+		int arraysize = dims[0]*dims[1];
+		if (arraysize < 1) return null;
+		double[] value = (double[]) arrayChannel.get(arraysize).getValue();
+		return new DoubleDataset(value, dims);
+	}
+	
+	protected AbstractDataset getXAxis() throws Exception {
+		double[] xdata = analyser.getEnergyAxis();
+		DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
+		xAxis.setName("energies (eV)");
+		return xAxis;
+	}	
+	
+	protected AbstractDataset getYAxis() throws Exception {
+		double[] ydata = analyser.getAngleAxis();
+		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
+		if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
+			yAxis.setName("location (mm)");				
+		} else 
+			yAxis.setName("angles (deg)");
+		return yAxis;
+	}
+	
+	protected void plotNewArray() throws Exception {
+		AbstractDataset xAxis = getXAxis();
+		AbstractDataset yAxis = getYAxis();
+		AbstractDataset ds = getArrayAsDataset(xAxis.getShape()[0], yAxis.getShape()[0]);
+		SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
+	}
+	
 	public String getArrayPV() {
 		return arrayPV;
 	}
 
 	public void setArrayPV(String arrayPV) {
 		this.arrayPV = arrayPV;
+	}
+
+	public String getFrameNumberPV() {
+		return frameNumberPV;
+	}
+
+	public void setFrameNumberPV(String frameNumberPV) {
+		this.frameNumberPV = frameNumberPV;
+	}
+
+	public long getSleeptime() {
+		return sleeptime;
+	}
+
+	public void setSleeptime(long sleeptime) {
+		this.sleeptime = sleeptime;
 	}
 }
