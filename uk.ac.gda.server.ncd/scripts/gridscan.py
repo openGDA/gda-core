@@ -87,7 +87,7 @@ class Grid(DataWriterExtenderBase):
 				index=dataPoint.getDetectorNames().indexOf(self.ncddetectors.getName())
 				tree=dataPoint.getDetectorData().get(index).getNexusTree()
 				try:
-					data=tree.findNode(self.getSaxsDetectorName()).findNode("data").getData()
+					data=tree.findNode("detector").findNode("data").getData()
 					ds = dnp.array(data.getBuffer().tolist())
 					ds.shape = data.dimensions.tolist()[1],data.dimensions.tolist()[2]
 				except:
