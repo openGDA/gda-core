@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.epics,
  uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.2.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
- uk.ac.diamond.scisoft.analysis;bundle-version="1.2.0"
+ uk.ac.diamond.scisoft.analysis;bundle-version="1.2.0",
+ uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Diamond Light Source
