@@ -34,7 +34,8 @@ Require-Bundle: org.eclipse.help.ui,
  org.csstudio.swt.xygraph,
  com.springsource.slf4j.api;bundle-version="1.5.6",
  com.springsource.slf4j.org.apache.commons.logging;bundle-version="1.5.6",
- com.springsource.slf4j.org.apache.log4j;bundle-version="1.5.6"
+ com.springsource.slf4j.org.apache.log4j;bundle-version="1.5.6",
+ uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Version: 8.32.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core
