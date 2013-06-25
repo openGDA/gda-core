@@ -32,8 +32,7 @@ Export-Package: gda.configuration.properties,
  uk.ac.gda.util.schema
 Require-Bundle: org.junit4,
  com.springsource.ch.qos.logback.classic;bundle-version="0.9.15",
- com.springsource.ch.qos.logback.core;bundle-version="0.9.15",
- uk.ac.gda.libs;bundle-version="1.0.0"
+ com.springsource.ch.qos.logback.core;bundle-version="0.9.15"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.commons.beanutils,
