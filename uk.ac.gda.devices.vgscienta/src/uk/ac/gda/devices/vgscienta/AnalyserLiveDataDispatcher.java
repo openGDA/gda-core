@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 
 class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Findable {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);
@@ -47,7 +48,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	private String name;
 	private EpicsController epicsController;
 	private String arrayPV, frameNumberPV;
-	private long oldNumber;
+	private long oldNumber = -1;
 	private Channel arrayChannel;
 	private long sleeptime = 1000;
 
@@ -56,13 +57,13 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	@Override
 	public void configure() throws FactoryException {
 		epicsController = EpicsController.getInstance();
+		executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(1));
 		try {
-			epicsController.setMonitor(epicsController.createChannel(frameNumberPV), this);
 			arrayChannel = epicsController.createChannel(arrayPV);
+			epicsController.setMonitor(epicsController.createChannel(frameNumberPV), this);
 		} catch (Exception e) {
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
-		executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(1));
 	}
 
 	public String getPlotName() {
@@ -104,6 +105,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 						@Override
 						public void run() {
 							try {
+								Thread.sleep(50);
 								plotNewArray();
 								Thread.sleep(sleeptime);
 							} catch (Exception e) {
@@ -111,8 +113,10 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 							}
 						}
 					});
+					logger.debug("plot jobs for "+plotName+" queued successfully");
+
 				} catch (RejectedExecutionException ree) {
-					logger.debug("plot jobs for "+plotName+"are queueing up, as expected in certain circumstances", ree);
+					logger.debug("plot jobs for "+plotName+" are queueing up, as expected in certain circumstances, so this one got skipped");
 				}
 			}
 			oldNumber = newvalue;
@@ -127,8 +131,11 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		int[] dims = new int[] {x, y};
 		int arraysize = dims[0]*dims[1];
 		if (arraysize < 1) return null;
-		double[] value = (double[]) arrayChannel.get(arraysize).getValue();
-		return new DoubleDataset(value, dims);
+		logger.info("about to get array for "+plotName);
+//		double[] value = (double[]) arrayChannel.get(arraysize).getValue();
+//		return new DoubleDataset(value, dims);
+		float[] array = epicsController.cagetFloatArray(arrayChannel, arraysize);
+		return new FloatDataset(array, dims);
 	}
 	
 	protected AbstractDataset getXAxis() throws Exception {
@@ -151,7 +158,11 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	protected void plotNewArray() throws Exception {
 		AbstractDataset xAxis = getXAxis();
 		AbstractDataset yAxis = getYAxis();
-		AbstractDataset ds = getArrayAsDataset(xAxis.getShape()[0], yAxis.getShape()[0]);
+		AbstractDataset ds = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]);
+		if (ds == null)
+			return;
+		if (ds.max().intValue() <= 0)
+			logger.warn("something fishy - no positive values in sight");
 		logger.debug("dispatching plot to "+plotName);
 		SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
 	}
