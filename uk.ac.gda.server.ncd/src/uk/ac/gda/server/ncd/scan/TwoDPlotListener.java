@@ -32,6 +32,11 @@ public class TwoDPlotListener extends DataWriterExtenderBase {
 	private static final Logger logger = LoggerFactory.getLogger(TwoDPlotListener.class);
 
 	private String plotPanel;
+	private ScanInformation scanInformation;
+	private int[] dimensions;
+	private DoubleDataset xaxis, yaxis, ds;
+	private int x, y, pointNumber;
+
 	public String getPlotPanel() {
 		return plotPanel;
 	}
@@ -40,53 +45,46 @@ public class TwoDPlotListener extends DataWriterExtenderBase {
 		this.plotPanel = plotPanel;
 	}
 
-	private ScanInformation scanInformation;
-	private int[] dimensions;
-	private DoubleDataset xaxis, yaxis, ds;
-	private int x,y,pointNumber;
-	
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) {
 		try {
 			super.addData(parent, dataPoint);
-		if (scanInformation == null) {
-			scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
-			dimensions = scanInformation.getDimensions();
+			if (scanInformation == null) {
+				scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+				dimensions = scanInformation.getDimensions();
+				if (dimensions.length != 2)
+					return;
+				xaxis = new DoubleDataset(dimensions[0]);
+				yaxis = new DoubleDataset(dimensions[1]);
+				ds = new DoubleDataset(dimensions[1], dimensions[0]);
+			}
+
 			if (dimensions.length != 2)
 				return;
-			xaxis = new DoubleDataset(dimensions[0]);
-			yaxis = new DoubleDataset(dimensions[1]);
-			ds = new DoubleDataset(dimensions[1], dimensions[0]);
-		}
-		
-		if (dimensions.length != 2)
-			return;
 
-		pointNumber = dataPoint.getCurrentPointNumber();
-		x = pointNumber / dimensions[1];
-		y = pointNumber % dimensions[1];
-		
-		Double[] doubles = dataPoint.getAllValuesAsDoubles();
-		
-		xaxis.set(doubles[0], x);
-		yaxis.set(doubles[1], y);
-		ds.set(doubles[doubles.length-1], y, x);
-		InterfaceProvider.getTerminalPrinter().print(String.format("x %d y %d",x,y));
-		if (plotPanel != null) {
-			try {
-				SDAPlotter.imagePlot(plotPanel, yaxis, xaxis, ds);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+			pointNumber = dataPoint.getCurrentPointNumber();
+			x = pointNumber / dimensions[1];
+			y = pointNumber % dimensions[1];
+
+			Double[] doubles = dataPoint.getAllValuesAsDoubles();
+
+			xaxis.set(doubles[0], x);
+			yaxis.set(doubles[1], y);
+			ds.set(doubles[doubles.length - 1], y, x);
+			InterfaceProvider.getTerminalPrinter().print(String.format("x %d y %d", x, y));
+			if (plotPanel != null) {
+				try {
+					SDAPlotter.imagePlot(plotPanel, yaxis, xaxis, ds);
+				} catch (Exception e) {
+					logger.error("plotting to " + plotPanel + " failed", e);
+				}
+
 			}
-			
-		}
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e1);
+			logger.error("error processing 2d scan point", e1);
 		}
 	}
-	
+
 	@Override
 	public void completeCollection(IDataWriterExtender parent) {
 		super.completeCollection(parent);
