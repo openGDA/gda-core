@@ -22,7 +22,9 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.epics.connection.EpicsController;
 import gda.factory.Configurable;
+import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -331,7 +333,7 @@ public class VGScientaController implements Configurable {
 		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(EXTIODATA));
 	}
 
-	public void setExcitationEnergy(Integer value) throws Exception {
+	public void setExcitationEnergy(double value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(EXCITATIONENERGY), value);
 	}
 
@@ -345,5 +347,9 @@ public class VGScientaController implements Configurable {
 
 	public String getYUnits() throws Exception {
 		return EPICS_CONTROLLER.cagetString(getChannel(YUNITS_RBV));
+	}
+
+	public double getStepTime() throws TimeoutException, CAException, InterruptedException, Exception {
+		return EPICS_CONTROLLER.cagetDouble(getChannel(STEPTIME));
 	}
 }

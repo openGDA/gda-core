@@ -152,6 +152,12 @@ public interface IVGScientaAnalyser extends Findable {
 	public abstract String[] getPassENergies() throws DeviceException;
 
 	public abstract String[] getLensModes() throws DeviceException;
+
+	public double getExcitationEnergy() throws Exception;
+
+	public void setExcitationEnergy(double energy) throws Exception;
+
+	double getStepTime() throws Exception;
 	
 
 }

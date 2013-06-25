@@ -147,7 +147,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 			data.addData(getName(), "acquisition_mode", new NexusGroupData(getAcquisitionMode()), null, null);
 			
-			data.addData(getName(), "energy_mode", new NexusGroupData( getPassEnergy() ), null, null);
+			data.addData(getName(), "energy_mode", new NexusGroupData( getEnergysMode() ), null, null);
 
 			data.addData(getName(), "detector_mode", new NexusGroupData( getDetectorMode() ), null, null);
 
@@ -196,6 +196,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		getAdBase().setImageMode(0);
 		getAdBase().setTriggerMode(0);
 	}
+	
 	
 	public int[] getSweptModeRegion() {
 		return sweptModeRegion;
@@ -255,7 +256,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public void setCameraMinX(int value, double timeout) throws Exception {
 		getAdBase().setMinXWait(value, timeout);
 	}
-	
+
 	@Override
 	public int getCameraMinX() throws Exception {
 		return getAdBase().getMinX_RBV();
@@ -392,7 +393,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	}
 	@Override
 	public Double getStartEnergy() throws Exception {
-		return getStartEnergy();
+		return controller.getStartEnergy();
 	}
 
 	@Override
@@ -452,6 +453,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	@Override
 	public void setStepTime(double value, double timeout) throws Exception {
 		controller.setStepTime(value, timeout);
+	}
+	@Override
+	public double getStepTime() throws Exception {
+		return controller.getStepTime();
 	}
 	@Override
 	public void setSlices(int value) throws Exception {
@@ -516,6 +521,16 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	@Override
 	public String[] getLensModes() throws DeviceException {
 		return controller.getLensModes();
+	}
+
+	@Override
+	public double getExcitationEnergy() throws Exception {
+		return controller.getExcitationEnergy();
+	}
+	
+	@Override
+	public void setExcitationEnergy(double energy) throws Exception {
+		controller.setExcitationEnergy(energy);
 	}
 
 

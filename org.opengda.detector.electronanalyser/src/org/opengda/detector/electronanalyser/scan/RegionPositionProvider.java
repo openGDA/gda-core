@@ -47,6 +47,10 @@ public class RegionPositionProvider implements ScanPositionProvider {
 			logger.error("Cannot get region list from file.", e);
 		}
 	}
+	public RegionPositionProvider(Region region) {
+		this.points.clear();
+		this.points.add(region);
+	}
 
 	@Override
 	public Object get(int index) {
