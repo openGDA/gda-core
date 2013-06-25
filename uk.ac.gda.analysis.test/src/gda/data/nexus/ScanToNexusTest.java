@@ -192,6 +192,7 @@ public class ScanToNexusTest {
 		String testScratchDirectoryName = TestHelpers
 				.setUpTest(ScanToNexusTest.class, "testCreateScanToSRSFile", true);
 
+		LocalProperties.set("gda.data.scan.datawriter.dataFormat.SrsDataFile.aligncolumns", "False");
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "SrsDataFile");
 		runScanToCreateFile(null,null);
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanToSRSFile_expected.dat"),
