@@ -41,7 +41,7 @@ public class Xspress2SystemOutputTest {
 
 	
 	private static Xspress2System xspress = new Xspress2System();
-	final static String TestFileFolder = "testfiles/gda/device/detector/xspress";
+	final static String TestFileFolder = "testfiles/gda/device/detector/xspress/";
 	
 	private static final int NUM_ENABLED_ELEMENTS = 8;
 	private static final int SIZE_SCALER_DATA = NUM_ENABLED_ELEMENTS + 1; // for FF
@@ -60,8 +60,8 @@ public class Xspress2SystemOutputTest {
 		try {
 			xspress.setDaServer(daserver);
 			xspress.setTfg(tfg);
-			String configFile = Xspress2SystemOutputTest.class.getResource("xspressConfig.xml").getPath();
-			String DTFile = Xspress2SystemOutputTest.class.getResource("Xspress_DeadTime_Parameters.xml").getPath();
+			String configFile = TestFileFolder + "xspressConfig.xml";
+			String DTFile = TestFileFolder + "Xspress_DeadTime_Parameters.xml";
 			xspress.setConfigFileName(configFile);
 			xspress.setDtcConfigFileName(DTFile);
 			xspress.setName("xspressTest");
