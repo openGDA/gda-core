@@ -70,7 +70,8 @@ public class RepeatScanTest {
 		}
 
 	}
-	
+
+	private static final String ScanBaseFirstScanNumber = "1";
 	Scannable s1;
 	Detector d1;
 	DetectorFrameControllerImpl d2;
@@ -78,6 +79,8 @@ public class RepeatScanTest {
 	@SuppressWarnings("rawtypes")
 	@Before
 	public void setUp() throws Exception {
+		LocalProperties.setScanSetsScanNumber(true);
+		LocalProperties.set("gda.scanbase.firstScanNumber", ScanBaseFirstScanNumber);
 		s1 = mock(Scannable.class);
 		when(s1.getName()).thenReturn("s1");
 		when(s1.getInputNames()).thenReturn(new String[] { "s1" });
@@ -228,7 +231,7 @@ public class RepeatScanTest {
 		assertEquals( 10, outer.getScanDataPointQueueLength());
 		
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testOuterScan/Data/expected.dat"),
-		new File(testScratchDirectoryName + "/Data/1.dat"));
+			new File(testScratchDirectoryName + "/Data/" + ScanBaseFirstScanNumber + ".dat"));
 		
 	}
 	final static String TestFileFolder = "testfiles/gda/scan/RepeatScanTest/";
