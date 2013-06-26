@@ -277,7 +277,8 @@ public class Xspress2SystemTest {
 			assertEquals("Element0", labels.get(0));
 			xspress.setReadoutMode(XspressDetector.READOUT_ROIS);
 			labels = xspress.getChannelLabels();
-			assertEquals("Element6_1st_peak", labels.get(6));
+			// channel 4 is now ignored to test the excluded channles functionality
+			assertEquals("Element6_1st_peak", labels.get(5));
 			xspress.setReadoutMode(XspressDetector.READOUT_MCA);
 		} catch (DeviceException e) {
 			fail(e.getMessage());
