@@ -43,10 +43,10 @@ public class RenameCommandHandler extends AbstractExperimentCommandHandler {
 	}
 
 	private Object doRename() {
-		if (getController().getActiveRunEditor() != null) {
-			getController().getActiveRunEditor().editSelectedElementName();
+		if (getEditorManager().getActiveRunEditor() != null) {
+			getEditorManager().getActiveRunEditor().editSelectedElementName();
 		} else {
-			getController().editSelectedElement();
+			getEditorManager().editSelectedElement();
 		}
 		return null;
 	}

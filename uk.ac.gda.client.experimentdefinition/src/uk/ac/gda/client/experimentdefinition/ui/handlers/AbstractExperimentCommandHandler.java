@@ -59,7 +59,7 @@ public abstract class AbstractExperimentCommandHandler extends AbstractHandler i
 		super();
 	}
 
-	protected IExperimentEditorManager getController() {
+	protected IExperimentEditorManager getEditorManager() {
 		if (controller == null) {
 			this.controller = ExperimentFactory.getExperimentEditorManager();
 		}
@@ -122,7 +122,7 @@ public abstract class AbstractExperimentCommandHandler extends AbstractHandler i
 			return true;
 
 		if (ed == null) {
-			return getController().getSelected() instanceof File;
+			return getEditorManager().getSelected() instanceof File;
 		}
 
 		return false;
@@ -141,7 +141,7 @@ public abstract class AbstractExperimentCommandHandler extends AbstractHandler i
 			return false;
 
 		if (ed == null) {
-			return getController().getSelected() instanceof IExperimentObjectManager;
+			return getEditorManager().getSelected() instanceof IExperimentObjectManager;
 		}
 
 		return false;
@@ -159,7 +159,7 @@ public abstract class AbstractExperimentCommandHandler extends AbstractHandler i
 		if (ed instanceof ExperimentRunEditor)
 			return true;
 
-		return getController().getSelected() instanceof IExperimentObject;
+		return getEditorManager().getSelected() instanceof IExperimentObject;
 	}
 
 }
