@@ -85,22 +85,22 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 			try {
 				getAdBase().setImageMode(0);
 			} catch (Exception e) {
-	//			// FIXME raise error
-	//			logger.error("TODO put description of error here", e);
+				// FIXME raise error
+				logger.error("TODO put description of error here", e);
 			}
 		} else if (currentFrame >= maxNumberOfFrames) {
 			try {
 				completeCollection();
 			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				logger.error("TODO put description of error here", e);
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", e);
 			}
 		} else {
 			try {
 				getAdBase().setImageMode(2);
 			} catch (Exception e) {
-	//			// FIXME raise error
-	//			logger.error("TODO put description of error here", e);
+				// FIXME raise error
+				logger.error("TODO put description of error here", e);
 			}
 		}
 		
