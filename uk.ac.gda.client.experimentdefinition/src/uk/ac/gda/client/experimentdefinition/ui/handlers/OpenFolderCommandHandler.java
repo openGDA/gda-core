@@ -30,10 +30,10 @@ public class OpenFolderCommandHandler extends AbstractExperimentCommandHandler i
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		final IFolder dir = getController().getSelectedFolder();
+		final IFolder dir = getEditorManager().getSelectedFolder();
 		if (dir == null)
 			return false;
-		getController().openEditor(dir, ExperimentFolderEditor.ID, false);
+		getEditorManager().openEditor(dir, ExperimentFolderEditor.ID, false);
 		return true;
 	}
 
