@@ -28,12 +28,12 @@ public class CloseEditorsCommandHandler extends AbstractExperimentCommandHandler
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		final IExperimentObject ob = getController().getSelectedScan();
+		final IExperimentObject ob = getEditorManager().getSelectedScan();
 		if (ob == null)
 			return false;
 
 		for (IFile file : ob.getFiles()) {
-			getController().closeEditor(file);
+			getEditorManager().closeEditor(file);
 		}
 		return true;
 	}

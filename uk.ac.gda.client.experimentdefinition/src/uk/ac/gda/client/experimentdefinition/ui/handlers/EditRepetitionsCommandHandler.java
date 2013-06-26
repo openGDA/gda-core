@@ -49,12 +49,12 @@ public class EditRepetitionsCommandHandler extends AbstractExperimentCommandHand
 
 	private Object doRename() {
 
-		final IExperimentObject ob = getController().getSelectedScan();
-		ExperimentRunEditor ed = getController().getActiveRunEditor();
+		final IExperimentObject ob = getEditorManager().getSelectedScan();
+		ExperimentRunEditor ed = getEditorManager().getActiveRunEditor();
 		if (ed == null) {
 			// Open one
 			IExperimentObjectManager man = ExperimentFactory.getManager(ob);
-			ed = (ExperimentRunEditor) getController().openEditor(man.getFile(), ExperimentRunEditor.ID, false);
+			ed = (ExperimentRunEditor) getEditorManager().openEditor(man.getFile(), ExperimentRunEditor.ID, false);
 			ed.editSelectedElementRepetitions(ob);
 
 		}

@@ -56,17 +56,17 @@ public class CopyFilesToScriptsCommandHandler extends AbstractExperimentCommandH
 
 	private Object doCopy() {
 
-		final ExperimentFolderEditor editor = getController().getActiveFolderEditor();
+		final ExperimentFolderEditor editor = getEditorManager().getActiveFolderEditor();
 
 		final Collection<IFile> sel;
 
 		if (editor != null) {
 			sel = editor.getSelected();
-		} else if (getController().getSelected() instanceof IExperimentObjectManager) {
-			final IExperimentObjectManager man = (IExperimentObjectManager) getController().getSelected();
+		} else if (getEditorManager().getSelected() instanceof IExperimentObjectManager) {
+			final IExperimentObjectManager man = (IExperimentObjectManager) getEditorManager().getSelected();
 			sel = man.getReferencedFiles();
-		} else if (getController().getSelected() instanceof IExperimentObject) {
-			final IExperimentObject ob = (IExperimentObject) getController().getSelected();
+		} else if (getEditorManager().getSelected() instanceof IExperimentObject) {
+			final IExperimentObject ob = (IExperimentObject) getEditorManager().getSelected();
 			sel = ob.getFiles();
 		} else {
 			return false;

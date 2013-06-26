@@ -59,47 +59,49 @@ public class AddCommandHandler extends AbstractExperimentCommandHandler {
 		try {
 			final ACTION_TYPE type = getActionType(id);
 			if (type == ACTION_TYPE.FOLDER) {
-				final File root = getController().getProjectFolder();
+				final File root = getEditorManager().getProjectFolder();
 				File dir = FileUtils.getUnique(root, "Experiment_", null, 1);
 				dir.mkdir();
 				try {
-					ExperimentProjectNature.createNewScan(getController().getIFolder(dir.getName()));
+					ExperimentProjectNature.createNewScan(getEditorManager().getIFolder(dir.getName()));
 				} catch (IOException e) {
 					logger.error(e.getMessage(), e);
 				}
-				getController().refreshViewers();
-				getController().select(getController().getIFolder(dir.getName()));
-				getController().editSelectedElement();
+				getEditorManager().refreshViewers();
+				getEditorManager().select(getEditorManager().getIFolder(dir.getName()));
+				getEditorManager().editSelectedElement();
 
 			} else if (type == ACTION_TYPE.SCAN) {
-				final IFolder dir = getController().getSelectedFolder();
+				final IFolder dir = getEditorManager().getSelectedFolder();
 				if (dir == null)
 					return false;
 				try {
 					final IExperimentObjectManager man = ExperimentProjectNature.createNewScan(dir);
-					getController().refreshViewers();
-					getController().select(man);
+					getEditorManager().refreshViewers();
+					getEditorManager().select(man);
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 				}
 
 			} else if (type == ACTION_TYPE.RUN) {
-				final IExperimentObjectManager man = getController().getSelectedMultiScan();
+				final IExperimentObjectManager man = getEditorManager().getSelectedMultiScan();
 				if (man == null)
 					return false;
 
-				final IExperimentObject ob = getController().getSelectedScan();
+				final IExperimentObject ob = getEditorManager().getSelectedScan();
 
 				final IExperimentObject created = man.insertNewExperimentAfter(ob);
-				if (getController().getActiveRunEditor() != null) {
-					getController().getActiveRunEditor().editRunName(created);
-				} else if (getController().getViewer() != null) {
-					getController().refreshViewers();
-					getController().setSelected(created);
+				if (getEditorManager().getActiveRunEditor() != null) {
+					getEditorManager().getActiveRunEditor().editRunName(created);
+				} else if (getEditorManager().getViewer() != null) {
+					getEditorManager().setSelected(created);
+					getEditorManager().openDefaultEditors(created, true);
+					getEditorManager().refreshViewers();
+					getEditorManager().getViewer().editElement(created);
 				}
 			}
 		} catch (Exception ne) {
-			getController().refreshViewers();
+			getEditorManager().refreshViewers();
 			logger.error("Cannot complete add action.", ne);
 		}
 		return true;
