@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.vgscienta;
 
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.MotorStatus;
@@ -205,7 +206,24 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	@Override
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
 			double acquireTime_RBV = getCollectionStrategy().getAcquireTime(); // TODO: PERFORMANCE, cache or listen
-			addDoubleItemToNXData(data, "time_per_channel", acquireTime_RBV);
+			
+			NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
+			switch (groupData.type) {
+			case NexusFile.NX_FLOAT32: 
+				float[] floats = (float[]) groupData.getBuffer();
+				long sum = 0;
+				for (int i = 0; i < floats.length; i++) {
+					sum += floats[i];
+				}
+				data.addData(getName(), "time_per_channel", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { acquireTime_RBV }, null, null);
+				addDoubleItemToNXData(data, "cps", sum / acquireTime_RBV);
+				break;
+
+			default:
+				logger.error("unexpected data type");
+				addDoubleItemToNXData(data, "time_per_channel", acquireTime_RBV);
+				break;
+			}
 	}
 	
 	public void setFixedMode(boolean fixed) throws Exception {
