@@ -40,7 +40,7 @@ class Grid(DataWriterExtenderBase):
 			image =  self.camera.readLastImage()
 			if not self.gridpreferences == None:
 				image.setMetadata(Metadata({"GDA_GRID_METADATA" : self.gridpreferences}))
-			RCPPlotter.imagePlot("Camera View", image)
+			RCPPlotter.imagePlot(self.cameraPanel, image)
 		except:
 			print "  gridscan: error getting camera image"
 		

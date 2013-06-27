@@ -135,7 +135,7 @@
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/sample.gif"
             id="uk.ac.gda.client.ncd.gridcameraview"
-            name="Camera View"
+            name="Microscope View"
             restorable="true">
       </view>
       <view
