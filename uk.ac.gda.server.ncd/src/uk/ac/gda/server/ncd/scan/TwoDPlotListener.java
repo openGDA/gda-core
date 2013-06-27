@@ -18,15 +18,17 @@
 
 package uk.ac.gda.server.ncd.scan;
 
-import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanInformation;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class TwoDPlotListener extends DataWriterExtenderBase {
 	private static final Logger logger = LoggerFactory.getLogger(TwoDPlotListener.class);
@@ -55,7 +57,9 @@ public class TwoDPlotListener extends DataWriterExtenderBase {
 				if (dimensions.length != 2)
 					return;
 				xaxis = new DoubleDataset(dimensions[0]);
+				xaxis.setName(dataPoint.getScannableHeader()[0]);
 				yaxis = new DoubleDataset(dimensions[1]);
+				xaxis.setName(dataPoint.getScannableHeader()[1]);
 				ds = new DoubleDataset(dimensions[1], dimensions[0]);
 			}
 
