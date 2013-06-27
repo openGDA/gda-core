@@ -54,6 +54,7 @@ class Grid(DataWriterExtenderBase):
 			print "Already Running"
 			return
 		self.gridpreferences = roi.getGridPreferences()
+		print "Beam centre: %d, %d  Resolution px/mm: %5.5f %5.5f" % (self.getBeamCentreX(), self.getBeamCentreY(), self.getResolutionX(), self.getResolutionY())
 		self.scanrunning=True
 		try:
 			points=roi.getPhysicalGridPoints()
