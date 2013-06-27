@@ -141,6 +141,7 @@ public class ContinuousScanTest {
 	@Test
 	public void concurrentScan() throws Exception {
 		String dir = TestHelpers.setUpTest(ContinuousScanTest.class, "concurrentScan", true);
+		LocalProperties.setScanSetsScanNumber(false);
 		beforeEachTest();
 
 		DummyScannable temp01 = new DummyScannable();
