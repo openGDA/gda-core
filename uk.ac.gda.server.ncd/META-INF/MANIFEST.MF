@@ -17,7 +17,8 @@ Require-Bundle: org.junit4,
  uk.ac.diamond.scisoft.deprecated;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.ncd;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
- org.apache.commons.math3;bundle-version="[3.2.0,3.3.0)"
+ org.apache.commons.math3;bundle-version="[3.2.0,3.3.0)",
+ uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0"
 Bundle-ClassPath: .,
  jars/gda-ncd-corba.jar
 Export-Package: uk.ac.gda.server.ncd,
