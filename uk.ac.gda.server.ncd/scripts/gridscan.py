@@ -12,6 +12,8 @@ from gdascripts.messages import handle_messages
 from gdascripts.scan import gdascans
 from uk.ac.gda.server.ncd.subdetector import LastImageProvider
 import scisoftpy as dnp
+from uk.ac.diamond.scisoft.analysis.io import Metadata
+from uk.ac.diamond.scisoft.analysis.roi import GridPreferences
 
 class Grid(DataWriterExtenderBase):
 	
@@ -31,16 +33,22 @@ class Grid(DataWriterExtenderBase):
 		extenders=[ex for ex in extenders if not "iAmAGridThingy" in dir(ex)]
 		extenders.append(self)
 		dwf.setDataWriterExtenders(extenders)
+		self.gridpreferences=GridPreferences()
 	
 	def snap(self):
 		try:
 			image =  self.camera.readLastImage()
+			if not self.gridpreferences == None:
+				image.setMetadata(Metadata({"GDA_GRID_METADATA" : self.gridpreferences}))
 			RCPPlotter.imagePlot("Camera View", image)
 		except:
 			print "  gridscan: error getting camera image"
 		
 	def scan(self):
 		beanbag=RCPPlotter.getGuiBean(self.cameraPanel)
+		if beanbag == None:
+			print "No Bean found on "+self.camerPanel+" (that is strange)"
+			return
 		roi=beanbag[GuiParameters.ROIDATA]
 		if not isinstance(roi, GridROI):
 			print "no Grid ROI selected"
@@ -48,6 +56,8 @@ class Grid(DataWriterExtenderBase):
 		if self.scanrunning:
 			print "Already Running"
 			return
+		self.gridpreferences = roi.getGridPreferences()
+		print "Beam centre: %d, %d  Resolution px/mm: %5.5f %5.5f" % (self.getBeamCentreX(), self.getBeamCentreY(), self.getResolutionX(), self.getResolutionY())
 		self.scanrunning=True
 		try:
 			points=roi.getPhysicalGridPoints()
@@ -87,7 +97,7 @@ class Grid(DataWriterExtenderBase):
 				index=dataPoint.getDetectorNames().indexOf(self.ncddetectors.getName())
 				tree=dataPoint.getDetectorData().get(index).getNexusTree()
 				try:
-					data=tree.findNode(self.getSaxsDetectorName()).findNode("data").getData()
+					data=tree.findNode("detector").findNode("data").getData()
 					ds = dnp.array(data.getBuffer().tolist())
 					ds.shape = data.dimensions.tolist()[1],data.dimensions.tolist()[2]
 				except:
@@ -104,3 +114,21 @@ class Grid(DataWriterExtenderBase):
 		if self.scanrunning:
 			self.scanrunning=False
 			print "Grid scan complete"
+			
+	def getBeamCentreX(self):
+		return self.gridpreferences.getBeamlinePosX()
+	def getBeamCentreY(self):
+		return self.gridpreferences.getBeamlinePosY()
+	def setBeamCentreX(self, x):
+		self.gridpreferences.setBeamlinePosX(x)
+	def setBeamCentreY(self, y):
+		self.gridpreferences.setBeamlinePosY(y)
+		
+	def getResolutionX(self):
+		return self.gridpreferences.getResolutionX()
+	def getResolutionY(self):
+		return self.gridpreferences.getResolutionY()
+	def setResolutionX(self, x):
+		self.gridpreferences.setResolutionX(x)
+	def setResolutionY(self, y):
+		self.gridpreferences.setResolutionY(y)
