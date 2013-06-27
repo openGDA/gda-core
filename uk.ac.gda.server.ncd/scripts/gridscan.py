@@ -46,6 +46,9 @@ class Grid(DataWriterExtenderBase):
 		
 	def scan(self):
 		beanbag=RCPPlotter.getGuiBean(self.cameraPanel)
+		if beanbag == None:
+			print "No Bean found on "+self.camerPanel+" (that is strange)"
+			return
 		roi=beanbag[GuiParameters.ROIDATA]
 		if not isinstance(roi, GridROI):
 			print "no Grid ROI selected"
