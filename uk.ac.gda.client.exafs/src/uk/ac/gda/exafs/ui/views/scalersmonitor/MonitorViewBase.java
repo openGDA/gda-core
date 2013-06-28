@@ -21,8 +21,8 @@ package uk.ac.gda.exafs.ui.views.scalersmonitor;
 import gda.device.DeviceException;
 import gda.rcp.GDAClientActivator;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -55,7 +55,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 
 	protected int numElements;
 
-	protected AbstractPlottingSystem myPlotter;
+	protected IPlottingSystem myPlotter;
 
 	protected boolean amVisible = true;
 
