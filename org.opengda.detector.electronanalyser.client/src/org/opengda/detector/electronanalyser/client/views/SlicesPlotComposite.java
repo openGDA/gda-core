@@ -28,7 +28,6 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -36,8 +35,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
@@ -80,7 +79,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 
 	private static final String SLICE_PLOT = "Slice plot";
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 
 	private ILineTrace profileLineTrace;
 

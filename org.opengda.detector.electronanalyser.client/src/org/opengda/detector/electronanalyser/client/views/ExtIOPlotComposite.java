@@ -29,15 +29,14 @@ import gov.aps.jca.Monitor;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
@@ -57,10 +56,10 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cosylab.epics.caj.CAJChannel;
-
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+
+import com.cosylab.epics.caj.CAJChannel;
 
 /**
  * monitor and display external IO data update in the plot.
@@ -75,7 +74,7 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 
 	private static final String EXTIO_PLOT = "External IO plot";
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 
 	private ILineTrace profileLineTrace;
 	private ExtIODataListener dataListener;

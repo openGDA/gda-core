@@ -28,15 +28,14 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -54,10 +53,10 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cosylab.epics.caj.CAJChannel;
-
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+
+import com.cosylab.epics.caj.CAJChannel;
 
 /**
  * Monitor and plotting live image data from the electron analyser.
@@ -72,7 +71,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 	private String arrayPV;
 	private EpicsChannelManager controller;
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 
 	private ImageDataListener dataListener;
 	private Channel dataChannel;
