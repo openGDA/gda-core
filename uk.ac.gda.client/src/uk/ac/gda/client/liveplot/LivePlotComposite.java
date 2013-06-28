@@ -46,8 +46,8 @@ import java.util.Vector;
 
 import javax.swing.tree.TreePath;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.axis.IPositionListener;
@@ -462,7 +462,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	private static final String UNKNOWN = "unknown";
 	private static final Logger logger = LoggerFactory.getLogger(SubLivePlotView.class);
 	static public final String ID = "uk.ac.gda.client.xyplotview";
-	protected AbstractPlottingSystem plottingSystem;
+	protected IPlottingSystem plottingSystem;
 	LiveData dummy; // used when all other lines are invisible
 
 	private final String archiveFolder;
@@ -515,7 +515,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				            : null;
 		plottingSystem.createPlotPart(plotArea, parentPart.getTitle(), bars, PlotType.XY, parentPart);
 		plottingSystem.setShowLegend(false);
-		plottingSystem.setXfirst(true);
+		plottingSystem.setXFirst(true);
 		plottingSystemPositionListener = new IPositionListener() {
 			
 			@Override
