@@ -50,6 +50,12 @@ public class ADArrayPlugin implements NXPlugin {
 	private VGScientaAnalyser analyser;
 	private String regionName;
 
+	private String energyMode;
+
+	public String getEnergyMode() {
+		return energyMode;
+	}
+
 	public ADArrayPlugin(NDArray ndArray) {
 		this.ndArray = ndArray;
 	}
@@ -68,6 +74,7 @@ public class ADArrayPlugin implements NXPlugin {
 	public void prepareForCollection(int numberImagesPerCollection,
 			ScanInformation scanInfo) throws Exception {
 		if (isEnabled()) {
+			ndArray.getPluginBase().setNDArrayPort(getAnalyser().getAdBase().getPortName_RBV());
 			ndArray.getPluginBase().enableCallbacks();
 			ndArray.getPluginBase().setBlockingCallbacks((short) 1);
 		} else {
@@ -107,15 +114,13 @@ public class ADArrayPlugin implements NXPlugin {
 		return Arrays.asList();
 	}
 
-	double[] energies;
-	double[] angles;
 	@Override
 	public Vector<NXDetectorDataAppender> read(int maxToRead)
 			throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
 		if (isEnabled()) {
-			appenders.add(new NXDetectorDataArrayAppender(ndArray,firstReadoutInScan, getRegionName(), getAnalyser()));
+			appenders.add(new NXDetectorDataArrayAppender(ndArray,firstReadoutInScan, getRegionName(), getAnalyser(), getEnergyMode()));
 		} else {
 			appenders.add(new NXDetectorDataNullAppender());
 		}
@@ -151,6 +156,10 @@ public class ADArrayPlugin implements NXPlugin {
 	public void setRegionName(String regionName) {
 		this.regionName = regionName;
 	}
+
+	public void setEnergyMode(String literal) {
+		this.energyMode=literal;		
+	}
 }
 
 class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
@@ -161,12 +170,14 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 	private NDArray ndArray;
 	private String regionName;
 	private VGScientaAnalyser analyser;
+	private String energyMode = "Kinetic";
 
-	NXDetectorDataArrayAppender(NDArray ndArray, boolean firstReadoutInScan,String regionName, VGScientaAnalyser analyser) {
+	NXDetectorDataArrayAppender(NDArray ndArray, boolean firstReadoutInScan,String regionName, VGScientaAnalyser analyser, String energyMode) {
 		this.ndArray = ndArray;
 		this.firstReadoutInScan = firstReadoutInScan;
 		this.regionName = regionName;
 		this.analyser = analyser;
+		this.energyMode =energyMode;
 	}
 
 	@Override
@@ -200,13 +211,19 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 			String aname = "energies";
 			String aunit = "eV";
 			double[] axis = analyser.getEnergyAxis();
+			if (energyMode.equalsIgnoreCase("Binding")) {
+				double excitationEnergy = analyser.getExcitationEnergy();
+				for (int j=0; j<axis.length; j++) {
+					axis[j]=excitationEnergy-axis[j];
+				}
+			}
 
 			data.addAxis(detectorName, aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
 
 			i = 0;
 			if ("Transmission".equals(analyser.getLensMode())) {
 				aname = "location";
-				aunit = "mm";
+				aunit = "pixel";
 			} else {
 				aname = "angles";
 				aunit = "degree";
@@ -237,11 +254,11 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 			data.addData(detectorName, "total_time", new int[] {1}, NexusFile.NX_FLOAT64, new double[] {totalSteps*stepTime }, null, null);
 
 			int cameraMinX = analyser.getCameraMinX();
-			data.addData(detectorName, "detector_x_from", new int[] {}, NexusFile.NX_INT32, new int[] { cameraMinX}, null, null);
+			data.addData(detectorName, "detector_x_from", new int[] {1}, NexusFile.NX_INT32, new int[] { cameraMinX}, null, null);
 			int cameraMinY = analyser.getCameraMinY();
-			data.addData(detectorName, "detector_y_from", new int[] {}, NexusFile.NX_INT32, new int[] { cameraMinY}, null, null);
-			data.addData(detectorName, "detector_x_to", new int[] {}, NexusFile.NX_INT32, new int[] { analyser.getCameraSizeX()-cameraMinX}, null, null);
-			data.addData(detectorName, "detector_y_to", new int[] {}, NexusFile.NX_INT32, new int[] { analyser.getCameraSizeY()-cameraMinY}, null, null);
+			data.addData(detectorName, "detector_y_from", new int[] {1}, NexusFile.NX_INT32, new int[] { cameraMinY}, null, null);
+			data.addData(detectorName, "detector_x_to", new int[] {1}, NexusFile.NX_INT32, new int[] { analyser.getCameraSizeX()-cameraMinX}, null, null);
+			data.addData(detectorName, "detector_y_to", new int[] {1}, NexusFile.NX_INT32, new int[] { analyser.getCameraSizeY()-cameraMinY}, null, null);
 //
 //			data.addData(detectorName, "region_size", new int[] {2}, NexusFile.NX_INT32, new int[] { analyser.getAdBase().getSizeX_RBV(), analyser.getAdBase().getSizeY_RBV() }, null, null);
 		}

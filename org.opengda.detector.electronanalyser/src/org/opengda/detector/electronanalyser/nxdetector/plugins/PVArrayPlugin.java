@@ -18,13 +18,9 @@
 
 package org.opengda.detector.electronanalyser.nxdetector.plugins;
 
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdata.NXDetectorDataChildNodeAppender;
 import gda.device.detector.nxdetector.plugin.NullNXPlugin;
 import gda.epics.LazyPVFactory;
 import gda.epics.ReadOnlyPV;

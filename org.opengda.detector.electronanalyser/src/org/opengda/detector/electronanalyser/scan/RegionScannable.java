@@ -33,6 +33,8 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	private VGScientaAnalyser analyser;
 	private ADArrayPlugin adArray;
 	private PVArrayPlugin pvArray;
+	private Scannable dcmenergy;
+	private Scannable pgmenergy;
 
 	// private Scriptcontroller scriptController;
 	private boolean busy;
@@ -136,26 +138,42 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	private void setNewRegion(Region region) throws Exception {
 		try {
 			busy = true;
-			getAnalyser().setCameraMinX(region.getFirstXChannel(), 1.0);
-			getAnalyser().setCameraMinY(region.getFirstYChannel(), 1.0);
+			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 1.0);
+			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 1.0);
 			getAnalyser().setCameraSizeX(
-					region.getLastXChannel() - region.getFirstXChannel(), 1.0);
+					region.getLastXChannel() - region.getFirstXChannel()+1, 1.0);
 			getAnalyser().setCameraSizeY(
-					region.getLastYChannel() - region.getFirstYChannel(), 1.0);
+					region.getLastYChannel() - region.getFirstYChannel()+1, 1.0);
 			getAnalyser().setSlices(region.getSlices(), 1.0);
 			getAnalyser().setDetectorMode(
 					region.getDetectorMode().getLiteral(), 1.0);
 
 			getAnalyser().setLensMode(region.getLensMode(), 1.0);
-			getAnalyser().setEnergysMode(region.getEnergyMode().getLiteral(),
-					1.0);
+			String literal = region.getEnergyMode().getLiteral();
+			getAnalyser().setEnergysMode(literal,1.0);
 			getAnalyser().setPassEnergy(region.getPassEnergy(), 1.0);
-			if (region.getAcquisitionMode() == ACQUISITION_MODE.SWEPT) {
+			if (literal.equalsIgnoreCase("Binding")) {
+				double excitationEnergy = getAnalyser().getExcitationEnergy();
+				getAnalyser().setStartEnergy(excitationEnergy-region.getHighEnergy(), 1.0);
+				getAnalyser().setEndEnergy(excitationEnergy-region.getLowEnergy(), 1.0);
+				getAnalyser().setCentreEnergy(excitationEnergy-region.getFixEnergy(), 1.0);
+//				if (region.getExcitationEnergy()<2100.0) {
+//					getAnalyser().setStartEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getHighEnergy(), 1.0);
+//					getAnalyser().setEndEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getLowEnergy(), 1.0);
+//					getAnalyser().setCentreEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getFixEnergy(), 1.0);
+//				} else {
+//					getAnalyser().setStartEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getHighEnergy(), 1.0);
+//					getAnalyser().setEndEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getLowEnergy(), 1.0);
+//					getAnalyser().setCentreEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getFixEnergy(), 1.0);
+//				}
+				getAnalyser().setEnergysMode("Kinetic",1.0);
+			} else {
 				getAnalyser().setStartEnergy(region.getLowEnergy(), 1.0);
 				getAnalyser().setEndEnergy(region.getHighEnergy(), 1.0);
-			} else {
 				getAnalyser().setCentreEnergy(region.getFixEnergy(), 1.0);
 			}
+			getAdArray().setEnergyMode(literal);
+			
 			getAnalyser().setStepTime(region.getStepTime(), 1.0);
 			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 1.0);
 			if (!region.getRunMode().isConfirmAfterEachIteration()) {
@@ -290,6 +308,22 @@ public class RegionScannable extends ScannableBase implements Scannable {
 
 	public void setAdArray(ADArrayPlugin adArray) {
 		this.adArray = adArray;
+	}
+
+	public Scannable getDcmenergy() {
+		return dcmenergy;
+	}
+
+	public void setDcmenergy(Scannable dcmenergy) {
+		this.dcmenergy = dcmenergy;
+	}
+
+	public Scannable getPgmenergy() {
+		return pgmenergy;
+	}
+
+	public void setPgmenergy(Scannable pgmenergy) {
+		this.pgmenergy = pgmenergy;
 	}
 
 }

@@ -44,6 +44,8 @@ import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -67,7 +69,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 import com.cosylab.epics.caj.CAJChannel;
 
-public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener {
+public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener, IPropertyChangeListener {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(SlicesPlotComposite.class);
@@ -353,4 +355,18 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			setNewRegion(true);
 		}
 	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		try {
+			double excitationEnergy = getAnalyser().getExcitationEnergy();
+			xdata = getAnalyser().getEnergyAxis();
+			for (int i = 0; i < xdata.length; i++) {
+				xdata[i] = excitationEnergy - xdata[i];
+			}
+		} catch (Exception e) {
+			logger.error("cannot get enegery axis fron the analyser", e);
+		}
+	}
+
 }

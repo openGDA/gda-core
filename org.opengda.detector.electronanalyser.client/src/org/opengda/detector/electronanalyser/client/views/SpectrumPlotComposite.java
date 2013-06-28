@@ -43,8 +43,14 @@ import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FillLayout;
@@ -56,6 +62,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
+import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
+import org.opengda.detector.electronanalyser.client.ImageConstants;
+import org.opengda.detector.electronanalyser.client.jobs.RegionJob;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +78,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 /**
  *
  */
-public class SpectrumPlotComposite extends Composite implements InitializationListener, MonitorListener {
+public class SpectrumPlotComposite extends Composite implements IPropertyChangeListener, InitializationListener, MonitorListener {
 
 	private FontRegistry fontRegistry;
 	private static final Logger logger = LoggerFactory.getLogger(SpectrumPlotComposite.class);
@@ -129,12 +138,12 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		plotComposite.setLayout(new FillLayout());
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart ? ((IViewPart)part).getViewSite().getActionBars() : null,
+		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars() : null,
 				PlotType.XY_STACKED, part);
 		plottingSystem.setTitle(SPECTRUM_PLOT);
 		plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
 		plottingSystem.getSelectedXAxis().setFormatPattern("#####.#");
-		
+
 		statsComposite = new Composite(this, SWT.None);
 		statsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		statsComposite.setBackground(ColorConstants.lightBlue);
@@ -184,6 +193,7 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		txtArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtArea.setBackground(ColorConstants.lightBlue);
 		txtArea.setText("0000");
+
 	}
 
 	public void initialise() {
@@ -202,7 +212,7 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		first = true;
 		spectrumChannel = controller.createChannel(arrayPV, spectrumDataListener, MonitorType.NATIVE, false);
 		String[] split = getArrayPV().split(":");
-		startChannel = controller.createChannel(split[0]+":"+split[1]+":"+ADBase.Acquire, this, MonitorType.NATIVE, false);
+		startChannel = controller.createChannel(split[0] + ":" + split[1] + ":" + ADBase.Acquire, this, MonitorType.NATIVE, false);
 		controller.creationPhaseCompleted();
 		logger.debug("Spectrum channel is created");
 	}
@@ -290,8 +300,8 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 				logger.debug("Spectrum listener connected.");
 				return;
 			}
-//			logger.debug("receiving spectrum data from " + ((Channel) (arg0.getSource())).getName() + " to plot on " + plottingSystem.getPlotName()
-//					+ " with axes from " + getAnalyser().getName());
+			// logger.debug("receiving spectrum data from " + ((Channel) (arg0.getSource())).getName() + " to plot on " + plottingSystem.getPlotName()
+			// + " with axes from " + getAnalyser().getName());
 
 			if (!getDisplay().isDisposed()) {
 				getDisplay().asyncExec(new Runnable() {
@@ -315,8 +325,9 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	}
 
 	DoubleDataset dataset;
-	double[] xdata=null;
-	private boolean newRegion=true; 
+	double[] xdata = null;
+	private boolean newRegion = true;
+
 	private void updateSpectrumPlot(final IProgressMonitor monitor, double[] value) {
 		if (isNewRegion()) {
 			try {
@@ -325,37 +336,37 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 				logger.error("cannot get enegery axis fron the analyser", e);
 			}
 		}
-		
-		final DoubleDataset xAxis= new DoubleDataset(xdata, new int[] { xdata.length });
+
+		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 		xAxis.setName("energies (eV)");
-		
+
 		ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
-		double[] data=ArrayUtils.subarray(value, 0, xdata.length);
+		double[] data = ArrayUtils.subarray(value, 0, xdata.length);
 		dataset = new DoubleDataset(data, new int[] { data.length });
 		dataset.setName("Intensity (counts)");
 		plotDataSets.add(dataset);
-//		logger.debug("xais {}", xAxis.getData());
-//		logger.debug("yAxis {}", dataset.getData());
+		// logger.debug("xais {}", xAxis.getData());
+		// logger.debug("yAxis {}", dataset.getData());
 		plottingSystem.clear();
 		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
 		if (!getDisplay().isDisposed()) {
 			getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					
+
 					if (isNewRegion() && !profileLineTraces.isEmpty()) {
 						plottingSystem.setShowLegend(false);
-						//plottingSystem.getSelectedYAxis().setTitle(dataset.getName());
+						// plottingSystem.getSelectedYAxis().setTitle(dataset.getName());
 						plottingSystem.setTitle("");
 						profileLineTrace = (ILineTrace) profileLineTraces.get(0);
 						profileLineTrace.setTraceColor(ColorConstants.blue);
 						setNewRegion(false);
 					}
-//					plottingSystem.autoscaleAxes();
+					// plottingSystem.autoscaleAxes();
 				}
 			});
 		}
-		
+
 	}
 
 	public void updateStat() {
@@ -401,9 +412,10 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	}
 
 	public void setNewRegion(boolean b) {
-		this.newRegion=b;
-		
+		this.newRegion = b;
+
 	}
+
 	public boolean isNewRegion() {
 		return newRegion;
 	}
@@ -411,17 +423,30 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
 		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
-//			logger.debug("been informed of some sort of change to acquire status");
-//			DBR_Enum en = (DBR_Enum) arg0.getDBR();
-//			short[] no = (short[]) en.getValue();
-//			if (no[0] == 0) {
-//				logger.info("been informed of a stop");
-//			} else {
-//				logger.info("been informed of a start");
-//			}
+			// logger.debug("been informed of some sort of change to acquire status");
+			// DBR_Enum en = (DBR_Enum) arg0.getDBR();
+			// short[] no = (short[]) en.getValue();
+			// if (no[0] == 0) {
+			// logger.info("been informed of a stop");
+			// } else {
+			// logger.info("been informed of a start");
+			// }
 			setNewRegion(true);
 		}
 	}
 
-}
 
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		try {
+			double excitationEnergy = getAnalyser().getExcitationEnergy();
+			xdata = getAnalyser().getEnergyAxis();
+			for (int i = 0; i < xdata.length; i++) {
+				xdata[i] = excitationEnergy - xdata[i];
+			}
+		} catch (Exception e) {
+			logger.error("cannot get enegery axis fron the analyser", e);
+		}
+	}
+
+}

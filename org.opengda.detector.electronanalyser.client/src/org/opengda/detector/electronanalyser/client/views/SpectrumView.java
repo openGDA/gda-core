@@ -1,5 +1,8 @@
 package org.opengda.detector.electronanalyser.client.views;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -7,7 +10,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.actions.RetargetAction;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
+import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
 import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
@@ -26,6 +32,7 @@ public class SpectrumView extends ViewPart {
 		setPartName("Spectrum");
 	}
 
+	Action energyMode;
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
@@ -36,6 +43,15 @@ public class SpectrumView extends ViewPart {
 			spectrumPlotComposite.setAnalyser(getAnalyser());
 			spectrumPlotComposite.setArrayPV(getArrayPV());
 			spectrumPlotComposite.initialise();
+			
+			energyMode = new RetargetAction("Toggle", "Energy Mode",IAction.AS_RADIO_BUTTON) {
+			};
+			energyMode.addPropertyChangeListener(spectrumPlotComposite);
+//			energyMode.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
+			energyMode.setToolTipText("Change energy mode to display the data");
+			IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+			toolBarManager.add(energyMode);
+			
 		} catch (Exception e) {
 			logger.error("Cannot create spectrum plot composite.", e);
 		}

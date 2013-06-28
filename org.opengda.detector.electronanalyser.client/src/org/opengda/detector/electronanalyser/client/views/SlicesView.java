@@ -1,5 +1,7 @@
 package org.opengda.detector.electronanalyser.client.views;
 
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -7,6 +9,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.actions.RetargetAction;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
 import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
@@ -26,6 +29,7 @@ public class SlicesView extends ViewPart {
 		setPartName("Slices");
 	}
 	SlicesPlotComposite slicesPlotComposite;
+	private RetargetAction energyMode;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -37,6 +41,15 @@ public class SlicesView extends ViewPart {
 			slicesPlotComposite.setAnalyser(getAnalyser());
 			slicesPlotComposite.setArrayPV(arrayPV);
 			slicesPlotComposite.initialise();
+			
+			energyMode = new RetargetAction("Toggle", "Energy Mode",IAction.AS_RADIO_BUTTON) {
+			};
+			energyMode.addPropertyChangeListener(slicesPlotComposite);
+//			energyMode.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
+			energyMode.setToolTipText("Change energy mode to display the data");
+			IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+			toolBarManager.add(energyMode);
+			
 		} catch (Exception e) {
 			logger.error("Cannot create slices plot composite.", e);
 		}

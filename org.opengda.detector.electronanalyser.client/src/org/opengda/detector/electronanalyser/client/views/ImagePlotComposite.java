@@ -41,6 +41,8 @@ import org.dawnsci.plotting.api.PlotType;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -60,7 +62,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 /**
  * Monitor and plotting live image data from the electron analyser.
  */
-public class ImagePlotComposite extends Composite implements InitializationListener, MonitorListener {
+public class ImagePlotComposite extends Composite implements InitializationListener, MonitorListener, IPropertyChangeListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImagePlotComposite.class);
 
@@ -230,7 +232,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
 //			logger.warn("image size = {}", values.length);
-			final AbstractDataset ds = new DoubleDataset(values, dims).getSlice(null, null, new int[] { -1, 1 });
+			final AbstractDataset ds = new DoubleDataset(values, dims);//.getSlice(null, null, new int[] { -1, 1 });
 			ds.setName("");
 			plottingSystem.clear();
 			plottingSystem.createPlot2D(ds, axes, monitor);
@@ -291,6 +293,19 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 //				logger.info("been informed of a start");
 //			}
 			setNewRegion(true);
+		}
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		try {
+			double excitationEnergy = getAnalyser().getExcitationEnergy();
+			xdata = getAnalyser().getEnergyAxis();
+			for (int i = 0; i < xdata.length; i++) {
+				xdata[i] = excitationEnergy - xdata[i];
+			}
+		} catch (Exception e) {
+			logger.error("cannot get enegery axis fron the analyser", e);
 		}
 	}
 
