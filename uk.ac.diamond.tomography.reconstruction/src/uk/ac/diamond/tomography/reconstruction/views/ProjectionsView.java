@@ -22,6 +22,7 @@ import gda.analysis.io.ScanFileHolderException;
 import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
@@ -94,7 +95,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 	 */
 	transient private static final Logger logger = LoggerFactory.getLogger(ProjectionsView.class);
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 
 	private Text fileName;
 
@@ -249,7 +250,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		getRefreshJob();
 	}
 
-	protected void disablePlottingSystemActions(AbstractPlottingSystem plottingSystem) {
+	protected void disablePlottingSystemActions(IPlottingSystem plottingSystem) {
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
 		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureConfigure Settings...");
 		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureShow Legend");

@@ -20,8 +20,8 @@ package uk.ac.diamond.tomography.reconstruction.dialogs;
 
 import java.util.Collections;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
@@ -40,7 +40,7 @@ public abstract class BaseRoiDialog extends Dialog {
 
 	private static final String DEFINE_ROI_PLOT = SHELL_TITLE;
 
-	protected AbstractPlottingSystem plottingSystem;
+	protected IPlottingSystem plottingSystem;
 
 	protected final AbstractDataset image;
 
