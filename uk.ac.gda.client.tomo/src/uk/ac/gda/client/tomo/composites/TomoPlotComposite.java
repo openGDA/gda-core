@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
@@ -36,8 +36,8 @@ import org.dawnsci.plotting.api.region.MouseListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.region.RegionUtils;
 import org.dawnsci.plotting.api.trace.ILineTrace;
-import org.dawnsci.plotting.api.trace.ITrace;
 import org.dawnsci.plotting.api.trace.ILineTrace.PointStyle;
+import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -68,7 +68,6 @@ import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.scisoft.analysis.roi.EllipticalFitROI;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.PolygonalROI;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.gda.client.tomo.DoublePointList;
 import uk.ac.gda.client.tomo.DoublePointList.DoublePoint;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
@@ -124,7 +123,7 @@ public class TomoPlotComposite extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(TomoPlotComposite.class);
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 
 	private AbstractDataset rawDataSlice;
 
