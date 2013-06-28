@@ -508,8 +508,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		});
 		spinnerEnergyChannelFrom.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerEnergyChannelFrom.setToolTipText("Low bound");
-		spinnerEnergyChannelFrom.setMinimum(0);
-		spinnerEnergyChannelFrom.setMaximum(camera.getCameraXSize() - 1);
+		spinnerEnergyChannelFrom.setMinimum(1);
+		spinnerEnergyChannelFrom.setMaximum(camera.getCameraXSize());
 
 		Label lblEnergyChannelTo = new Label(grpDetector, SWT.NONE);
 		lblEnergyChannelTo.setText("To");
@@ -543,14 +543,14 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerYChannelFrom)) {
 					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FirstYChannel(), spinnerYChannelFrom.getSelection());
-					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection());
+					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection()+1);
 				}
 			}
 		});
 		spinnerYChannelFrom.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerYChannelFrom.setToolTipText("Low bound");
-		spinnerYChannelFrom.setMinimum(0);
-		spinnerYChannelFrom.setMaximum(camera.getCameraYSize() - 1);
+		spinnerYChannelFrom.setMinimum(1);
+		spinnerYChannelFrom.setMaximum(camera.getCameraYSize());
 
 		Label lblYChannelTo = new Label(grpDetector, SWT.NONE);
 		lblYChannelTo.setText("To");
@@ -561,7 +561,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerYChannelTo)) {
 					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LastYChannel(), spinnerYChannelTo.getSelection());
-					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection());
+					spinnerSlices.setMaximum(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection()+1);
 				}
 			}
 		});
@@ -1199,7 +1199,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtWidth.setText(String.format("%.4f",Double.parseDouble(txtSize.getText())/1000));
 		txtLow.setText(String.format("%.4f",Double.parseDouble(txtCenter.getText()) - Double.parseDouble(txtWidth.getText())/2));
 		txtHigh.setText(String.format("%.4f",Double.parseDouble(txtCenter.getText()) + Double.parseDouble(txtWidth.getText())/2));
-		spinnerSlices.setSelection(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection());
+		spinnerSlices.setSelection(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection()+1);
 	}
 
 	private double fixedEnergyRange() {
