@@ -250,7 +250,7 @@
       </sideplot>
       </extension>
       <extension
-            point="org.dawb.common.ui.toolPageAction">
+            point="org.dawnsci.plotting.api.toolPageAction">
          <tool_page_action
                action_type="TOOLBAR"
                command_id="uk.ac.gda.client.ncd.gridrefreshimage"
