@@ -34,9 +34,9 @@ import gov.aps.jca.event.MonitorListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
-import org.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
