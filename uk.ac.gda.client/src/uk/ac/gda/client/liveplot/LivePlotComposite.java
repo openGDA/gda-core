@@ -46,9 +46,9 @@ import java.util.Vector;
 
 import javax.swing.tree.TreePath;
 
-import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.axis.IPositionListener;
 import org.dawnsci.plotting.api.axis.PositionEvent;
