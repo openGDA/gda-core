@@ -47,6 +47,7 @@ public class ExternalIOView extends ViewPart {
 			energyMode.addPropertyChangeListener(externalIOPlotComposite);
 //			energyMode.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
 			energyMode.setToolTipText("Change energy mode to display the data");
+			energyMode.setEnabled(true);
 			IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 			toolBarManager.add(energyMode);
 

@@ -29,6 +29,7 @@ import gda.device.detector.areadetector.v17.NDProcess;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 
+import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,16 +40,16 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	private static final long serialVersionUID = -2907729482321978030L;
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(VGScientaAnalyser.class);
+	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyser.class);
 
 	private VGScientaController controller;
 	private AnalyserCapabilities capabilites;
 	private int[] fixedModeRegion;
-
 	private int[] sweptModeRegion;
 
 	private NDProcess ndProc;
+
+	private NeXusFileInterface nexusFile;
 
 	@Override
 	public AnalyserCapabilities getCapabilities() {
@@ -82,7 +83,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
 			int pass = controller.getPassEnergy().intValue();
 			start = controller.getCentreEnergy() - (getCapabilities().getEnergyWidthForPass(pass) / 2);
-			// TODO the following does not suitable for I09?
 			step = getCapabilities().getEnergyStepForPass(pass);
 			length = getAdBase().getSizeX();
 			startChannel = getAdBase().getMinX();
@@ -132,7 +132,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			i = 0;
 			if ("Transmission".equals(getLensMode())) {
 				aname = "location";
-				aunit = "mm";
+				aunit = "pixel";
 			} else {
 				aname = "angles";
 				aunit = "degree";
@@ -160,6 +160,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			data.addData(getName(), "number_of_iterations", new int[] {1}, NexusFile.NX_INT32, new int[] { getNumberIterations() }, null, null);
 		}
 	}
+	
 	@Override
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
 		super.appendNXDetectorDataFromCollectionStrategy(data);
@@ -176,7 +177,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 	
 	}
-	
+	public String writeOut() {
+		String datafilepath=null;
+		//TODO
+		return datafilepath;
+
+	}
 	@Override
 	public void setFixedMode(boolean fixed) throws Exception {
 		int[] region = fixedModeRegion;
@@ -531,6 +537,14 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	@Override
 	public void setExcitationEnergy(double energy) throws Exception {
 		controller.setExcitationEnergy(energy);
+	}
+
+	public NeXusFileInterface getNexusFile() {
+		return nexusFile;
+	}
+
+	public void setNexusFile(NeXusFileInterface nexusFile) {
+		this.nexusFile = nexusFile;
 	}
 
 

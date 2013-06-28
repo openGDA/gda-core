@@ -49,6 +49,7 @@ public class SpectrumView extends ViewPart {
 			energyMode.addPropertyChangeListener(spectrumPlotComposite);
 //			energyMode.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
 			energyMode.setToolTipText("Change energy mode to display the data");
+			energyMode.setEnabled(true);
 			IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 			toolBarManager.add(energyMode);
 			
