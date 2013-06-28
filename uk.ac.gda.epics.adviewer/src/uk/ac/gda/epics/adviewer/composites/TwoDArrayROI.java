@@ -24,7 +24,7 @@ import gda.observable.Observer;
 
 import java.util.List;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -70,7 +70,7 @@ public class TwoDArrayROI extends Composite {
 	private Observer<String> enableXObserver;
 	private Observable<String> enableYObservable;
 	private Observer<String> enableYObserver;
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 	private Button btnSetToView;
 	private Composite minmaxcmp;
 	private Composite minmaxAndBtnCmp;
@@ -307,7 +307,7 @@ public class TwoDArrayROI extends Composite {
 		monitoringLbl.setText(b ? "Running" : "Inactive");
 	}
 
-	public void setNDRoi(NDROI ndroi, AbstractPlottingSystem abstractPlottingSystem) throws Exception {
+	public void setNDRoi(NDROI ndroi, IPlottingSystem abstractPlottingSystem) throws Exception {
 		this.ndRoi = ndroi;
 		minX.setObservable(ndroi.createMinXObservable());
 		minY.setObservable(ndroi.createMinYObservable());
