@@ -25,9 +25,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
