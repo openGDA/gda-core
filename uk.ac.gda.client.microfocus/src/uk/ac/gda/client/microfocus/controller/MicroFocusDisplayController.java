@@ -84,7 +84,13 @@ public class MicroFocusDisplayController {
 
 	public boolean displayPlot(int x, int y) throws Exception {
 		if (currentDetectorProvider != null && ObjectStateManager.isActive(detectorProvider)) {
-			double[] spectrum = currentDetectorProvider.getSpectrum(this.currentDetectorElementNo, x, y);
+			double[] spectrum = null;
+			try{
+				spectrum = currentDetectorProvider.getSpectrum(this.currentDetectorElementNo, x, y);
+			}
+			catch(Exception e){
+				spectrum = currentDetectorProvider.getSpectrum(this.currentDetectorElementNo, y, x);
+			}
 			if (spectrum != null) {
 				AbstractDataset yaxis = AbstractDataset.array(spectrum);
 
@@ -116,7 +122,10 @@ public class MicroFocusDisplayController {
 
 	public void displayMap(String selectedElement) {
 		// check whether map scan is running
-		String active = JythonServerFacade.getInstance().evaluateCommand("map.getMFD().isActive()");
+		String mfd = JythonServerFacade.getInstance().evaluateCommand("map.getMFD()");
+		String active = null;
+		if(mfd!=null && !mfd.equals("None"))
+			active = JythonServerFacade.getInstance().evaluateCommand("map.getMFD().isActive()");
 
 		// if a map scan is running then disable the provider but what does provider provide? Names are important!
 		if (active != null) {
