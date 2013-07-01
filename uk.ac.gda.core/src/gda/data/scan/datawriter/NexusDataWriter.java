@@ -99,7 +99,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	private boolean createSrsFile = false;
 
 	// beamline name
-	private String beamline = null;
+	protected String beamline = null;
 
 	// Directory to write data to
 	protected String dataDir = null;
