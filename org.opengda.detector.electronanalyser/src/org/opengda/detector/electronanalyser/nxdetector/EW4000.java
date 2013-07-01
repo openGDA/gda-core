@@ -35,7 +35,6 @@ import org.springframework.beans.factory.InitializingBean;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.nexus.tree.NexusTreeProvider;
-import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetector;
@@ -63,7 +62,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	private String sequenceFilename;
 	private VGScientaAnalyser analyser;
 	AtomicBoolean busy = new AtomicBoolean(false);
-	NexusDataWriter nexusDataWriter;
+	NexusDataWriterExtender nexusDataWriter;
 	private Thread collectionThread;
 	private List<String> extraValues=new ArrayList<String>();
 
@@ -76,7 +75,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 			
 			@Override
 			public void run() {
-				nexusDataWriter = new NexusDataWriter(scannumber);
+				nexusDataWriter = new NexusDataWriterExtender(scannumber);
 				busy.getAndSet(true);
 				for (Region region : regionlist) {
 					if(Thread.currentThread().isInterrupted()) break;
