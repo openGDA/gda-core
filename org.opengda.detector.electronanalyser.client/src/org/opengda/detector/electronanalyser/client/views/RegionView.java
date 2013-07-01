@@ -1310,6 +1310,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 	private int sweptSlices;
 
+	private boolean kineticSelected;
+
 	protected void onSelectEnergySource(Object source) {
 		if (source.equals(btnHard)) {
 			this.xrayenergy = getDcmEnergy();
@@ -1363,12 +1365,14 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	}
 
 	private void onModifyEnergyMode(Object source) {
-		if (source.equals(btnKinetic) && btnKinetic.getSelection()) {
+		if (!kineticSelected && source.equals(btnKinetic) && btnKinetic.getSelection()) {
 			updateEnergyFields();
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.KINETIC);
-		} else if (source.equals(btnBinding) && btnBinding.getSelection()) {
+			kineticSelected=true;
+		} else if (kineticSelected && source.equals(btnBinding) && btnBinding.getSelection()) {
 			updateEnergyFields();
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.BINDING);
+			kineticSelected=false;
 		}
 	}
 
@@ -1381,6 +1385,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtCenter.setText(String.format("%.4f", (excitationEnergy - center)));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtCenter.getText()));
 	}
 
 	@Override
@@ -1416,6 +1421,11 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		btnFixed.setSelection(region.getAcquisitionMode().getLiteral().equalsIgnoreCase("Fixed"));
 		btnKinetic.setSelection(region.getEnergyMode().getLiteral().equalsIgnoreCase("Kinetic"));
 		btnBinding.setSelection(region.getEnergyMode().getLiteral().equalsIgnoreCase("Binding"));
+		if (btnKinetic.getSelection()) {
+			kineticSelected=true;
+		} else {
+			kineticSelected=false;
+		}
 //		txtLow.setText(String.format("%.4f", region.getLowEnergy()));
 //		txtHigh.setText(String.format("%.4f", region.getHighEnergy()));
 		sweptLowEnergy=region.getLowEnergy();
