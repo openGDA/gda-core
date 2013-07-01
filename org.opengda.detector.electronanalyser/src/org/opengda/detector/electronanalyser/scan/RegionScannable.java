@@ -1,7 +1,5 @@
 package org.opengda.detector.electronanalyser.scan;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
@@ -14,9 +12,10 @@ import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.opengda.detector.electronanalyser.NotSupportedException;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.nxdetector.plugins.ADArrayPlugin;
 import org.opengda.detector.electronanalyser.nxdetector.plugins.PVArrayPlugin;
@@ -35,6 +34,8 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	private PVArrayPlugin pvArray;
 	private Scannable dcmenergy;
 	private Scannable pgmenergy;
+	private boolean sourceSelectable=false;
+	private double XRaySourceEnergyLimit=2100;
 
 	// private Scriptcontroller scriptController;
 	private boolean busy;
@@ -140,32 +141,34 @@ public class RegionScannable extends ScannableBase implements Scannable {
 			busy = true;
 			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 1.0);
 			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 1.0);
-			getAnalyser().setCameraSizeX(
-					region.getLastXChannel() - region.getFirstXChannel()+1, 1.0);
-			getAnalyser().setCameraSizeY(
-					region.getLastYChannel() - region.getFirstYChannel()+1, 1.0);
+			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 1.0);
+			getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel()+1, 1.0);
 			getAnalyser().setSlices(region.getSlices(), 1.0);
-			getAnalyser().setDetectorMode(
-					region.getDetectorMode().getLiteral(), 1.0);
-
+			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 1.0);
 			getAnalyser().setLensMode(region.getLensMode(), 1.0);
 			String literal = region.getEnergyMode().getLiteral();
 			getAnalyser().setEnergysMode(literal,1.0);
+			if (isSourceSelectable()) {
+				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
+					getAnalyser().setExcitationEnergy(Double.valueOf(pgmenergy.getPosition().toString()));
+				} else {
+					getAnalyser().setExcitationEnergy(Double.valueOf(dcmenergy.getPosition().toString()));
+				}
+			} else {
+				getAnalyser().setExcitationEnergy(Double.valueOf(dcmenergy.getPosition().toString()));
+			}
 			getAnalyser().setPassEnergy(region.getPassEnergy(), 1.0);
 			if (literal.equalsIgnoreCase("Binding")) {
-				double excitationEnergy = getAnalyser().getExcitationEnergy();
-				getAnalyser().setStartEnergy(excitationEnergy-region.getHighEnergy(), 1.0);
-				getAnalyser().setEndEnergy(excitationEnergy-region.getLowEnergy(), 1.0);
-				getAnalyser().setCentreEnergy(excitationEnergy-region.getFixEnergy(), 1.0);
-//				if (region.getExcitationEnergy()<2100.0) {
-//					getAnalyser().setStartEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getHighEnergy(), 1.0);
-//					getAnalyser().setEndEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getLowEnergy(), 1.0);
-//					getAnalyser().setCentreEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getFixEnergy(), 1.0);
-//				} else {
-//					getAnalyser().setStartEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getHighEnergy(), 1.0);
-//					getAnalyser().setEndEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getLowEnergy(), 1.0);
-//					getAnalyser().setCentreEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getFixEnergy(), 1.0);
-//				}
+				//TODO a hack to solve EPICS cannot do binding energy issue, should be removed once EPICS issue solved.
+				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
+					getAnalyser().setStartEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getHighEnergy(), 1.0);
+					getAnalyser().setEndEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getLowEnergy(), 1.0);
+					getAnalyser().setCentreEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getFixEnergy(), 1.0);
+				} else {
+					getAnalyser().setStartEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getHighEnergy(), 1.0);
+					getAnalyser().setEndEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getLowEnergy(), 1.0);
+					getAnalyser().setCentreEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getFixEnergy(), 1.0);
+				}
 				getAnalyser().setEnergysMode("Kinetic",1.0);
 			} else {
 				getAnalyser().setStartEnergy(region.getLowEnergy(), 1.0);
@@ -191,8 +194,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 				throw new NotSupportedException(
 						"Confirm after each iteraction is not yet supported");
 			}
-			getAnalyser().setAcquisitionMode(
-					region.getAcquisitionMode().getLiteral(), 1.0);
+			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
 		} catch (Exception e) {
 			throw e;
 		} finally {
@@ -324,6 +326,22 @@ public class RegionScannable extends ScannableBase implements Scannable {
 
 	public void setPgmenergy(Scannable pgmenergy) {
 		this.pgmenergy = pgmenergy;
+	}
+
+	public boolean isSourceSelectable() {
+		return sourceSelectable;
+	}
+
+	public void setSourceSelectable(boolean sourceSelectable) {
+		this.sourceSelectable = sourceSelectable;
+	}
+
+	public double getXRaySourceEnergyLimit() {
+		return XRaySourceEnergyLimit;
+	}
+
+	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
+		XRaySourceEnergyLimit = xRaySourceEnergyLimit;
 	}
 
 }
