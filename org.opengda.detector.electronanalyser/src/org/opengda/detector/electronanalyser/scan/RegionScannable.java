@@ -152,10 +152,10 @@ public class RegionScannable extends ScannableBase implements Scannable {
 				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
 					getAnalyser().setExcitationEnergy(Double.valueOf(pgmenergy.getPosition().toString()));
 				} else {
-					getAnalyser().setExcitationEnergy(Double.valueOf(dcmenergy.getPosition().toString()));
+					getAnalyser().setExcitationEnergy(Double.valueOf(dcmenergy.getPosition().toString())*1000);
 				}
 			} else {
-				getAnalyser().setExcitationEnergy(Double.valueOf(dcmenergy.getPosition().toString()));
+				getAnalyser().setExcitationEnergy(Double.valueOf(pgmenergy.getPosition().toString()));
 			}
 			getAnalyser().setPassEnergy(region.getPassEnergy(), 1.0);
 			if (literal.equalsIgnoreCase("Binding")) {

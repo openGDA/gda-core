@@ -1,10 +1,26 @@
 package org.opengda.detector.electronanalyser.nxdetector;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.NXDetector;
+import gda.device.detector.NexusDetector;
+import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+import gda.device.scannable.PositionCallableProvider;
+import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import gda.jython.accesscontrol.MethodAccessProtected;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+import gda.scan.ScanInformation;
+import gda.util.Sleep;
+
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -22,7 +38,6 @@ import org.eclipse.emf.edit.domain.EditingDomain;
 import org.nexusformat.NeXusFileInterface;
 import org.opengda.detector.electronanalyser.NotSupportedException;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
@@ -31,24 +46,6 @@ import org.opengda.detector.electronanalyser.utils.SequenceEditingDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.detector.NXDetector;
-import gda.device.detector.NexusDetector;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
-import gda.device.scannable.PositionCallableProvider;
-import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
-import gda.jython.accesscontrol.MethodAccessProtected;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-import gda.scan.ScanInformation;
-import gda.util.Sleep;
 
 public class EW4000 extends NXDetector implements InitializingBean, NexusDetector,PositionCallableProvider<NexusTreeProvider> {
 	/**
@@ -62,9 +59,14 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	private String sequenceFilename;
 	private VGScientaAnalyser analyser;
 	AtomicBoolean busy = new AtomicBoolean(false);
-	NexusDataWriterExtender nexusDataWriter;
+	NexusDataWriterExtension nexusDataWriter;
 	private Thread collectionThread;
 	private List<String> extraValues=new ArrayList<String>();
+	private boolean sourceSelectable=false;
+	private double XRaySourceEnergyLimit=2100;
+	private Scannable dcmenergy;
+	private Scannable pgmenergy;
+
 
 	private Long scannumber;
 	public EW4000() {
@@ -75,7 +77,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 			
 			@Override
 			public void run() {
-				nexusDataWriter = new NexusDataWriterExtender(scannumber);
+				nexusDataWriter = new NexusDataWriterExtension(scannumber);
 				busy.getAndSet(true);
 				for (Region region : regionlist) {
 					if(Thread.currentThread().isInterrupted()) break;
@@ -393,31 +395,43 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		try {
 			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 1.0);
 			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 1.0);
-			getAnalyser().setCameraSizeX(
-					region.getLastXChannel() - region.getFirstXChannel()+1, 1.0);
-			getAnalyser().setCameraSizeY(
-					region.getLastYChannel() - region.getFirstYChannel()+1, 1.0);
+			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 1.0);
+			getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel()+1, 1.0);
 			getAnalyser().setSlices(region.getSlices(), 1.0);
 			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 1.0);
 			getAnalyser().setLensMode(region.getLensMode(), 1.0);
 			String literal = region.getEnergyMode().getLiteral();
 			getAnalyser().setEnergysMode(literal,1.0);
+			Double beamenergy;
+			if (isSourceSelectable()) {
+				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
+					beamenergy=Double.valueOf(getPgmenergy().getPosition().toString());
+				} else {
+					beamenergy=Double.valueOf(getDcmenergy().getPosition().toString())*1000;
+				}
+			} else {
+				beamenergy=Double.valueOf(getPgmenergy().getPosition().toString());
+			}
+			getAnalyser().setExcitationEnergy(beamenergy);
 			getAnalyser().setPassEnergy(region.getPassEnergy(), 1.0);
-			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
 			if (literal.equalsIgnoreCase("Binding")) {
-				double excitationEnergy = getAnalyser().getExcitationEnergy();
-				getAnalyser().setStartEnergy(excitationEnergy-region.getHighEnergy(), 1.0);
-				getAnalyser().setEndEnergy(excitationEnergy-region.getLowEnergy(), 1.0);
-				getAnalyser().setCentreEnergy(excitationEnergy-region.getFixEnergy(), 1.0);
+				//TODO a hack to solve EPICS cannot do binding energy issue, should be removed once EPICS issue solved.
+				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
+					getAnalyser().setStartEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getHighEnergy(), 1.0);
+					getAnalyser().setEndEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getLowEnergy(), 1.0);
+					getAnalyser().setCentreEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getFixEnergy(), 1.0);
+				} else {
+					getAnalyser().setStartEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getHighEnergy(), 1.0);
+					getAnalyser().setEndEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getLowEnergy(), 1.0);
+					getAnalyser().setCentreEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getFixEnergy(), 1.0);
+				}
 				getAnalyser().setEnergysMode("Kinetic",1.0);
 			} else {
 				getAnalyser().setStartEnergy(region.getLowEnergy(), 1.0);
 				getAnalyser().setEndEnergy(region.getHighEnergy(), 1.0);
 				getAnalyser().setCentreEnergy(region.getFixEnergy(), 1.0);
 			}
-			getAnalyser().setStartEnergy(region.getLowEnergy(), 1.0);
-			getAnalyser().setEndEnergy(region.getHighEnergy(), 1.0);
-			getAnalyser().setCentreEnergy(region.getFixEnergy(), 1.0);
+			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
 			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 1.0);
 			collectionTime = region.getStepTime();
 			getAnalyser().setStepTime(collectionTime, 1.0);
@@ -444,6 +458,30 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		// RegionChangeEvent(region.getRegionId()));
 		// }
 		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId()));
+	}
+	public boolean isSourceSelectable() {
+		return sourceSelectable;
+	}
+	public void setSourceSelectable(boolean sourceSelectable) {
+		this.sourceSelectable = sourceSelectable;
+	}
+	public double getXRaySourceEnergyLimit() {
+		return XRaySourceEnergyLimit;
+	}
+	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
+		XRaySourceEnergyLimit = xRaySourceEnergyLimit;
+	}
+	public Scannable getDcmenergy() {
+		return dcmenergy;
+	}
+	public void setDcmenergy(Scannable dcmenergy) {
+		this.dcmenergy = dcmenergy;
+	}
+	public Scannable getPgmenergy() {
+		return pgmenergy;
+	}
+	public void setPgmenergy(Scannable pgmenergy) {
+		this.pgmenergy = pgmenergy;
 	}
 
 }
