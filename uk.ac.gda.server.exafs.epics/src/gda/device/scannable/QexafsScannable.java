@@ -405,7 +405,14 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		Energy startEng = Quantity.valueOf(continuousParameters.getStartPosition(), NonSI.ELECTRON_VOLT);
 		startAngle = BraggAngle.braggAngleOf(startEng, twoD);
 
+		//End energy from gui
 		Energy endEng = Quantity.valueOf(continuousParameters.getEndPosition(), NonSI.ELECTRON_VOLT);
+				
+		//calculate end energy from start, step increment, and number of pulses.
+//		int numberOfPulses = controller.cagetInt(this.numPulsesChnl);
+//		double stepIncrement = controller.cagetDouble(this.stepIncDegChnl);//degrees
+//		double endAngleDouble = startAngle.doubleValue() + (numberOfPulses*stepIncrement);
+//		endAngle = (Angle) QuantityFactory.createFromObject(endAngleDouble, NonSI.DEGREE_ANGLE);
 		endAngle = BraggAngle.braggAngleOf(endEng, twoD);
 
 		stepSize = (Angle) (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
