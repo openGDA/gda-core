@@ -145,41 +145,46 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			Double stepDeg = radToDeg(stepSize);
 			
 			//wait until run down period has finished. 5th oct 2012 trying to fix problem where sometimes a qexafs scan finishes early
+			logger.debug("Time spent before busy loop");
 			while (isBusy()){
 				logger.info("-----waiting for qscanAxis to finish moving inside prepare");
 				Thread.sleep(100);
 			}
+			logger.debug("Time spent after busy loop");
 			
-			controller.caputWait(outputModeChnl, 0); // ensure at 0 for the run-up movement. No longer in EDM screen.
+			//controller.caputWait(outputModeChnl, 0); // ensure at 0 for the run-up movement. No longer in EDM screen.
 			controller.caputWait(currentSpeedChnl, getMaxSpeed()); // ensure at max speed for the run-up movement
+			logger.debug("Time spent after max speed set");
+			
 			// move to run-up position so ready to collect
 			//super.asynchronousMoveTo(angleToEV(runupPosition));
 			if(runUpOn)
-				super.moveTo(angleToEV(runupPosition));
+				move(angleToEV(runupPosition));
 			else
-				super.moveTo(angleToEV(startAngle));
+				move(angleToEV(startAngle));
+			logger.debug("Time spent after moved to angle");
 			
-			if(startDeg>stopDeg){
-				controller.caputWait(startChnl, startDeg);
-				controller.caputWait(stopChnl, stopDeg);
-			}
-			else{
-				controller.caputWait(startChnl, stopDeg);
-				controller.caputWait(stopChnl, startDeg);
-			}
-				
-			controller.caputWait(stepChnl, stepDeg);
-			if (checkStepGTPulse()){
-				throw new DeviceException("Too many data points, so pulses would overlap - no pulses would be sent from Bragg motor");
-			}
+			controller.caputWait(startChnl, startDeg);
+			logger.debug("Time spent after pos comp start");
+			controller.caputWait(stopChnl, stopDeg);
+			logger.debug("Time spent after pos comp stop");
+			controller.caputWait(stepChnl, Math.abs(stepDeg));
+			logger.debug("Time spent after pos comp step");
 			
+			// dont think this is needed on b18 as using lee's pos compare board
+//			if (checkStepGTPulse()){
+//				throw new DeviceException("Too many data points, so pulses would overlap - no pulses would be sent from Bragg motor");
+//			}
+			
+			//why sleep half a second? for epics to calculate the number of pulses
 			try {
-				Thread.sleep(500);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
+			logger.debug("Time spent after 100ms sleep");
 			int cagetInt = controller.cagetInt(this.numPulsesChnl);
+			logger.debug("Time spent after get no. pulses");
 			long timeAtMethodEnd = System.currentTimeMillis();
 			logger.debug("Time spent in prepareForContinuousMove = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 			return cagetInt;
@@ -190,6 +195,50 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			throw new DeviceException(getName() +" exception in prepareForContinuousMove", e);
 		}
 	}
+	
+	private double energyToDegrees(double energy){
+		Energy valueOf = Quantity.valueOf(energy, NonSI.ELECTRON_VOLT);
+		Angle braggAngleOf = null;
+		try {
+			braggAngleOf = BraggAngle.braggAngleOf(valueOf, getTwoD());
+		
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		} catch (CAException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
+		return radToDeg(braggAngleOf);
+	}
+	
+	private void move(double position){
+		double currentPosition = 0;
+		try {
+			currentPosition = (Double) this.rawGetPosition();
+		} catch (DeviceException e1) {
+			logger.error("TCould not read scannable position", e1);
+		}
+		
+		
+		//BL18B-OP-DCM-01:XTAL1:BRAGG.RDBD
+		double demandDegrees = energyToDegrees(position);
+		double currentDegrees = energyToDegrees(currentPosition);
+		
+		if(Math.abs(currentDegrees-demandDegrees)>0.00011){
+		try {
+			super.moveTo(position);
+		} catch (DeviceException e) {
+			logger.error("Could not move scannable", e);
+		}
+		}
+	}
+	
+	
+	
 	
 	//TODO What does this mean? Problematic when scanning backwards
 	private boolean checkStepGTPulse() throws TimeoutException, CAException, InterruptedException {
@@ -272,7 +321,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		long timeAtMethodStart = System.currentTimeMillis();
 		try {
 			// return to regular running values
-			controller.caputWait(outputModeChnl, 0);
+			//controller.caputWait(outputModeChnl, 0);
 			controller.caputWait(currentSpeedChnl, getMaxSpeed());
 			controller.caputWait(energySwitchChnl, 0); //off
 			controller.caputWait(energySwitchChnl, 1); //on
@@ -287,7 +336,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		long timeAtMethodStart = System.currentTimeMillis();
 		double amount = QuantityFactory.createFromObject(angle, NonSI.DEGREE_ANGLE).getAmount();
 		long timeAtMethodEnd = System.currentTimeMillis();
-		logger.debug("Time spent in radToDeg = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
+		//logger.debug("Time spent in radToDeg = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 		return amount;
 	}
 
@@ -342,7 +391,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			
 			double result = top/bottom;
 			long timeAtMethodEnd = System.currentTimeMillis();
-			logger.debug("Time spent in calculateEnergy = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
+			//logger.debug("Time spent in calculateEnergy = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 			return result;
 		} catch (Exception e) {
 			throw new DeviceException(e.getMessage());
@@ -368,7 +417,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		runUp *= 3.0; // to be safe add 10%
 		Angle runUpAngle = (Angle) QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE);
 		// 1.165E-4 deg is a practical minimum to avoid the motor's deadband
-		double step = controller.cagetDouble(this.stepIncDegChnl);
+		double step = radToDeg(stepSize);//controller.cagetDouble(this.stepIncDegChnl);
 		
 		if (runUpAngle.doubleValue() < 10*step) {//0.0001165
 			runUpAngle = (Angle) QuantityFactory.createFromObject(10*step, NonSI.DEGREE_ANGLE);
@@ -378,10 +427,14 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		
 		runUpAngle = (Angle) runUpAngle.plus(add);
 		
+		//backwards
 		if (endAngle.getAmount() > startAngle.getAmount()) {
 			runupPosition = (Angle) startAngle.minus(runUpAngle);
 			runDownPosition = (Angle) endAngle.plus(runUpAngle);
-		} else {
+		} 
+		
+		//forwards
+		else {
 			runupPosition = (Angle) startAngle.plus(runUpAngle);
 			runDownPosition = (Angle) endAngle.minus(runUpAngle);
 		}
