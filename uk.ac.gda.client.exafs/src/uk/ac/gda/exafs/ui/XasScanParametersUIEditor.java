@@ -622,6 +622,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		initialEnergy.setDoNotUseExpressions(true);
 		initialEnergy.setUnit("eV");
 		initialEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		int beamlineMinEnergy = ExafsActivator.getDefault().getPreferenceStore()
+				.getInt(ExafsPreferenceConstants.XAS_MIN_ENERGY);
+		initialEnergy.setMinimum(beamlineMinEnergy);
 
 		this.e1Label = new Link(topCentre, SWT.NONE);
 		e1Label.setText("<a>Final Energy</a>");
@@ -633,6 +636,12 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			}
 		};
 		e1Label.addSelectionListener(e1Listener);
+		
+		int beamlineMaxEnergy = ExafsActivator.getDefault().getPreferenceStore()
+				.getInt(ExafsPreferenceConstants.XAS_MAX_ENERGY);
+		if (beamlineMaxEnergy == 0) {
+			beamlineMaxEnergy = 40000;
+		}
 
 		if (energyInK) {
 			finalEnergy = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE, getKInEv());
@@ -644,7 +653,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			finalEnergy.setUnit("Å\u207B\u00b9");
 			finalEnergy.setMaximum(100.0);
 			finalEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			initialEnergy.setMaximum(40000.0);
+			initialEnergy.setMaximum(beamlineMaxEnergy);
 			finalEnergy.setMinimum(0);
 		} else {
 			finalEnergy = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE, getKProvider());
@@ -654,7 +663,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			finalEnergy.setLabelDecimalPlaces(3);
 			finalEnergy.setPrefix(" ");
 			finalEnergy.setUnit("eV");
-			finalEnergy.setMaximum(40000.0);
+			finalEnergy.setMaximum(beamlineMaxEnergy);
 			finalEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			initialEnergy.setMaximum(finalEnergy);
 			finalEnergy.setMinimum(initialEnergy);
@@ -1003,7 +1012,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					try {
 						setPointsUpdate(true);
 						suspendGraphUpdate = false;
-						dirtyContainer.setDirty(false);
+						if (!isPageChange)
+							dirtyContainer.setDirty(false);
 					} catch (Exception e1) {
 						logger.error("Cannot update XAS points", e1);
 					}

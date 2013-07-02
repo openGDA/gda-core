@@ -19,11 +19,10 @@
 package uk.ac.gda.exafs.ui.views.amplifier;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.GridData;
 
 public class StanfordAmplifierView extends ViewPart {
 	public StanfordAmplifierView() {

@@ -212,6 +212,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		super.linkUI(isPageChange);
 	}
 	
+	@Override
 	public ComboWrapper getEdge() {
 		return edge;
 	}
