@@ -48,7 +48,7 @@ public class DeleteFileCommandHandler extends AbstractExperimentCommandHandler {
 
 	private Object doDelete() {
 
-		final ExperimentFolderEditor editor = getController().getActiveFolderEditor();
+		final ExperimentFolderEditor editor = getEditorManager().getActiveFolderEditor();
 
 		final List<IFile> sel = editor.getSelected();
 		if (sel == null)
@@ -78,7 +78,7 @@ public class DeleteFileCommandHandler extends AbstractExperimentCommandHandler {
 		} catch (Exception e) {
 			logger.error("Cannot delete", e);// Not expected.
 		} finally {
-			getController().refreshViewers();
+			getEditorManager().refreshViewers();
 		}
 
 		return true;
