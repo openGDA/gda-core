@@ -20,9 +20,6 @@ package uk.ac.gda.client.microfocus.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import gda.util.TestUtils;
-
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -37,12 +34,10 @@ public class MicroFocusNexusReaderTest {
 	private static MicroFocusNexusReader rdr;
 	private static MicroFocusNexusReader rdr2;
 	private static MicroFocusNexusReader rdr3;
-	static String TestFileFolder;
 
 	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void beforeClass() throws Exception{
-		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
 		Class<? extends IRichBean> c = (Class<? extends IRichBean>) Class.forName("uk.ac.gda.beans.xspress.XspressParameters");
 		Class<? extends IRichBean> c1 = (Class<? extends IRichBean>) Class.forName("uk.ac.gda.beans.vortex.VortexParameters");
 		BeansFactory.setClasses((Class<? extends IRichBean>[]) new Class<?>[]{c, c1});

@@ -19,18 +19,31 @@
 package gda.device.detector.xmap.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import gda.util.TestUtils;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class XmapBufferedHdf5FileLoaderTest {
 	
+	static String TestFileFolder;
 	XmapBufferedHdf5FileLoader xMapLoader;
+
+	@BeforeClass
+	public static void beforeClass() {
+		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
+		if( TestFileFolder == null){
+			fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
+		}
+	}
+
 	@Before
 	public void setUp()throws Exception
 	{
-		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-2309-0-HTXmapMca.h5";//"testfiles/gda/device/detector/xmap/util/vortex-fast-raster-exp2.h5";
-		 xMapLoader = new XmapBufferedHdf5FileLoader(testfile1);
+		String testfile1 = TestFileFolder + "/uk.ac.gda.server.exafs.epics.test/i18-2309-0-HTXmapMca.h5";
+		xMapLoader = new XmapBufferedHdf5FileLoader(testfile1);
 		xMapLoader.loadFile();
 	
 	}
