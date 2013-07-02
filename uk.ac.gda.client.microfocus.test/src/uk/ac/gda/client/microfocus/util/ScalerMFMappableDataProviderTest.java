@@ -22,6 +22,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import gda.util.TestUtils;
 
 import org.junit.After;
@@ -35,18 +36,17 @@ import uk.ac.gda.beans.IRichBean;
 public class ScalerMFMappableDataProviderTest {
 	
 	
-	final static String testScratchDirectoryName =
-		TestUtils.generateDirectorynameFromClassname(ScalerMFMappableDataProviderTest.class.getCanonicalName());
 	private static ScalerMFMappableDataProvider scalerDataProvider;
+	static String TestFileFolder;
+	
 	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void beforeClass() throws Exception{
-		TestUtils.makeScratchDirectory(testScratchDirectoryName);
+		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
 		Class<?> c = Class.forName("uk.ac.gda.beans.xspress.XspressParameters");
 		Class<?> c1 = Class.forName("uk.ac.gda.beans.vortex.VortexParameters");
 		Class<?> c2 = Class.forName("uk.ac.gda.beans.exafs.DetectorParameters");
 		BeansFactory.setClasses((Class<? extends IRichBean>[]) new Class<?>[]{c, c1, c2});
-		
 	}
 	
 	@SuppressWarnings("unused")
@@ -78,7 +78,10 @@ public class ScalerMFMappableDataProviderTest {
 	@Test
 	public void testLoadData() throws Exception
 	{
-		scalerDataProvider.loadData("testfiles/uk/ac/gda/client/microfocus/util/vortex_map_1_8472.nxs");
+		if( TestFileFolder == null){
+			fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
+		}
+		scalerDataProvider.loadData(TestFileFolder + "uk.ac.gda.client.microfocus.util/vortex_map_1_8472.nxs");
 		Double[] x = scalerDataProvider.getXarray();
 		assertEquals(11, x.length);
 		Double[] y = scalerDataProvider.getYarray();
@@ -93,7 +96,10 @@ public class ScalerMFMappableDataProviderTest {
 	@Test
 	public void testConstructMappableDatafromCounter() throws Exception
 	{
-		scalerDataProvider.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-284.nxs");
+		if( TestFileFolder == null){
+			fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
+		}
+		scalerDataProvider.loadData(TestFileFolder + "uk.ac.gda.client.microfocus.util/i18-284.nxs");
 		double d[][] = scalerDataProvider.constructMappableData();
 		assertEquals(99379.0, d[0][0], 0.0);
 		assertEquals(3, d.length);

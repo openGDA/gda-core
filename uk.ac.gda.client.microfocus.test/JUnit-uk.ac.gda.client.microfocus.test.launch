@@ -7,7 +7,7 @@
 <listEntry value="2"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="LD_LIBRARY_PATH" value="${project_loc:uk.ac.gda.nexus}/lib/${target.os}-${target.arch}:${project_loc:ncsa.hdf}/lib/${target.os}-${target.arch}"/>
+<mapEntry key="LD_LIBRARY_PATH" value="${project_loc:uk.ac.gda.nexus}/lib/${target.os}-${target.arch}:${project_loc:ncsa.hdf}/lib/${target.os}-${target.arch}:${project_loc:uk.ac.gda.common}/lib/${target.os}-${target.arch}"/>
 <mapEntry key="Path" value="${project_loc:uk.ac.gda.nexus}\lib\${target.os}-${target.arch};${project_loc:ncsa.hdf}\lib\${target.os}-${target.arch}"/>
 </mapAttribute>
 <stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=uk.ac.gda.client.microfocus.test/src"/>
@@ -22,4 +22,5 @@
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="uk.ac.gda.client.microfocus.test"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DGDALargeTestFilesLocation=/dls_sw/dasc/GDALargeTestFiles/"/>
 </launchConfiguration>

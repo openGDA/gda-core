@@ -20,6 +20,7 @@ package uk.ac.gda.client.microfocus.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import gda.util.TestUtils;
 
 import java.util.List;
@@ -36,13 +37,12 @@ public class MicroFocusNexusReaderTest {
 	private static MicroFocusNexusReader rdr;
 	private static MicroFocusNexusReader rdr2;
 	private static MicroFocusNexusReader rdr3;
-	final static String testScratchDirectoryName =
-		TestUtils.generateDirectorynameFromClassname(MicroFocusNexusReaderTest.class.getCanonicalName());
+	static String TestFileFolder;
 
 	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void beforeClass() throws Exception{
-		TestUtils.makeScratchDirectory(testScratchDirectoryName);
+		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
 		Class<? extends IRichBean> c = (Class<? extends IRichBean>) Class.forName("uk.ac.gda.beans.xspress.XspressParameters");
 		Class<? extends IRichBean> c1 = (Class<? extends IRichBean>) Class.forName("uk.ac.gda.beans.vortex.VortexParameters");
 		BeansFactory.setClasses((Class<? extends IRichBean>[]) new Class<?>[]{c, c1});
@@ -70,18 +70,6 @@ public class MicroFocusNexusReaderTest {
 		
 	}
 	
-	@SuppressWarnings("unused")
-	public void testLoadData() throws Exception
-	{
-		rdr.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-284.nxs");
-		Double[] x = rdr.getXValues();
-		assertEquals(5, x.length);
-		Double[] y = rdr.getYValues();
-		assertEquals(3, y.length);
-		assertArrayEquals(new Double[]{0.0, 2.0, 4.0, 6.0, 8.0}, x);
-		assertArrayEquals(new Double[]{ 0.0, 2.0, 4.0}, y);
-	}
-	
 
 	@SuppressWarnings("unused")
 	public void testGetElementData() throws Exception
@@ -98,16 +86,6 @@ public class MicroFocusNexusReaderTest {
 	}
 	
 
-	@SuppressWarnings("unused")
-	public void testConstructMappableDatafromXspress() throws Exception
-	{
-		double d[][] = rdr.constructMappableDatafromXspress("fe");
-		assertEquals(1692460.6884326618, d[0][0], 0.0);
-		assertEquals(3, d.length);
-		assertEquals(5, d[0].length);
-		assertEquals(1771317.7769125807, d[1][4], 0.0);
-	}
-	
 	@SuppressWarnings("unused")
 	@Test
 	public void testLoadData2() throws Exception
