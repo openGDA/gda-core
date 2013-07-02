@@ -408,7 +408,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		buf.append("\" \"");
 		buf.append(getFileKey(getOutputFileName()));
 		buf.append("\" ");
-		buf.append("\"" + getFolder().getName() + "\"");
+		buf.append("\"" + getFolder().getLocation()+ "\"");
 		buf.append(" " + getNumberRepetitions() + " ");
 		buf.append("False");
 		return buf.toString();

@@ -51,7 +51,8 @@ class XasScan(Scan):
         controller = Finder.getInstance().find("ExafsScriptObserver")
         
         # Create the beans from the file names
-        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+#        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+        xmlFolderName = folderName + "/"
 
         print "**********************************"
         self.log( "xmlFolderName=" + str(xmlFolderName))

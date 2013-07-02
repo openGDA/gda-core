@@ -29,7 +29,8 @@ class QexafsScan(Scan):
         self.beamCheck = True
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
-        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+#        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+        xmlFolderName = folderName + "/"
 
         if self.cirrusEnabled:
             self.t = None
