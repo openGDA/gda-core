@@ -402,7 +402,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				// move to initial movements
 				currentPointCount++;
 				acquirePoint(true, true);  // start point, collect detectors
-				checkForInterrupts();
+				checkForInterruptsIgnoreIdle();
 				readDevicesAndPublishScanDataPoint();
 				
 				callAtPointEndHooks();
@@ -427,7 +427,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					// make all these increments
 					currentPointCount++;
 					acquirePoint(false, true);  // step point, collect detectors
-					checkForInterrupts();
+					checkForInterruptsIgnoreIdle();
 					readDevicesAndPublishScanDataPoint();
 					callAtPointEndHooks();
 				} else {

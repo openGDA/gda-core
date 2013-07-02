@@ -221,8 +221,17 @@ public abstract class ScanBase implements Scan {
 	 * @throws InterruptedException
 	 */
 	public static void checkForInterrupts() throws InterruptedException {
+		_checkForInterrupts(true);
+	}
+
+	protected static void checkForInterruptsIgnoreIdle() throws InterruptedException{
+		_checkForInterrupts(false);
+	}
+
+	private static void _checkForInterrupts(boolean checkForIdle) throws InterruptedException {
 		
-		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+		
+		if (checkForIdle && InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
 			//do not reset as if the scan thread detects this and so goes idle other threads related to the scan will not get the interruption
 			//we should clear the interruption at the start of the scan instead
 //			paused = false;
@@ -248,7 +257,9 @@ public abstract class ScanBase implements Scan {
 			throw new InterruptedException();
 		}
 	}
-
+	
+	
+	
 	/**
 	 * Returns true if the scan baton has been claimed by a scan that has already started.
 	 * 
