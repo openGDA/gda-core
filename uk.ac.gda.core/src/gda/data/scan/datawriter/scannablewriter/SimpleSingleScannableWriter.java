@@ -31,12 +31,15 @@ import java.util.Vector;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple example of a scannable with one input or extra name that needs 
  * to record in a specific place
  */
 public class SimpleSingleScannableWriter implements ScannableWriter {
+	private static final Logger logger = LoggerFactory.getLogger(SimpleSingleScannableWriter.class);
 
 	private String path;
 	private String units;
@@ -128,8 +131,7 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 		try {
 			file.putslab(ScannableUtils.positionToArray(position, s), nulldimfordim(dim), onedimfordim(dim));
 		} catch (DeviceException e) {
-			// TODO Auto-generated catch block
-//			logger.error("TODO put description of error here", e);
+			logger.error("error converting scannable data", e);
 		}
 		
 		if (units != null && !units.isEmpty())
@@ -150,8 +152,7 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 		try {
 			file.putslab(ScannableUtils.positionToArray(position, s), start, onedimfordim(start));
 		} catch (DeviceException e) {
-			// TODO Auto-generated catch block
-//			logger.error("TODO put description of error here", e);
+			logger.error("error converting scannable data", e);
 		}
 		file.closedata();
 
