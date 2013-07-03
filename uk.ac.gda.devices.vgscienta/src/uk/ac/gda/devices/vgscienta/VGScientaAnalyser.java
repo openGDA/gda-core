@@ -63,6 +63,8 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 	private FlexibleFrameStrategy flex;
 
+	private EntranceSlitInformationProvider entranceSlitInformationProvider;
+	
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
@@ -74,6 +76,8 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			getNdProc().setFilterType(2);
 			getNdProc().setNumFilter(1000000);
 			getNdProc().getPluginBase().enableCallbacks();
+			
+			setExtraNames(new String[] {"cps"});
 			
 			flex = new FlexibleFrameStrategy(getAdBase(), 0., getNdProc()); 
 			setCollectionStrategy(flex);
@@ -189,23 +193,32 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
 			
-			data.addData(getName(), "pass_energy", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { getPassEnergy() }), null, null);
+			data.addData(getName(), "pass_energy", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { getPassEnergy() }), "eV", null);
+		
+			data.addData(getName(), "number_of_frames", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { controller.getFrames() }), null, null);
 
 			data.addData(getName(), "sensor_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }), null, null);
 
 			data.addData(getName(), "region_origin", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }), null, null);
 
 			data.addData(getName(), "region_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }), null, null);
+
+			if (entranceSlitInformationProvider != null) {
+				data.addData(getName(), "entrance_slit_size", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { entranceSlitInformationProvider.getSizeInMM() }), "mm", null);
+				data.addData(getName(), "entrance_slit_setting", new NexusGroupData(String.format("%03d", entranceSlitInformationProvider.getRawValue().intValue())), null, null);
+				data.addData(getName(), "entrance_slit_shape", new NexusGroupData(entranceSlitInformationProvider.getShape()), null, null);
+			}
 		}
 		
 		int acquired = flex.getLastAcquired(); 
-		// TODO provide this without it making its way into the NXdata
-		data.addData(getName(), "number_of_cycles", new int[] {1}, NexusFile.NX_INT32, new int[] { acquired }, null, null);
+
+		data.addData(getName(), "number_of_cycles", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { acquired }), null, null, null, true);
 	}
 	
 	@Override
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
-			double acquireTime_RBV = getCollectionStrategy().getAcquireTime(); // TODO: PERFORMANCE, cache or listen
+			double acquireTime_RBV = getCollectionStrategy().getAcquireTime();
+			data.addData(getName(), "time_per_channel", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { acquireTime_RBV }), null, null, null, true);
 			
 			NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
 			switch (groupData.type) {
@@ -215,15 +228,18 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 				for (int i = 0; i < floats.length; i++) {
 					sum += floats[i];
 				}
-				data.addData(getName(), "time_per_channel", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { acquireTime_RBV }, null, null);
-				addDoubleItemToNXData(data, "cps", sum / acquireTime_RBV);
+				addDoubleItem(data, "cps", sum / acquireTime_RBV);
 				break;
 
 			default:
 				logger.error("unexpected data type");
-				addDoubleItemToNXData(data, "time_per_channel", acquireTime_RBV);
+				addDoubleItem(data, "cps", 0.0);
 				break;
 			}
+	}
+	protected void addDoubleItem(NXDetectorData data, String name, Double d){
+		data.addData(getName(), name, new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { d }), null, null, null, true);
+		data.setPlottableValue(name, d);
 	}
 	
 	public void setFixedMode(boolean fixed) throws Exception {
@@ -375,5 +391,13 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void update(Object source, Object arg) {
 		if (flex == source) 
 			notifyIObservers(source, arg);
+	}
+
+	public EntranceSlitInformationProvider getEntranceSlitInformationProvider() {
+		return entranceSlitInformationProvider;
+	}
+
+	public void setEntranceSlitInformationProvider(EntranceSlitInformationProvider entranceSlitInformationProvider) {
+		this.entranceSlitInformationProvider = entranceSlitInformationProvider;
 	}
 }
