@@ -63,6 +63,8 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 	private FlexibleFrameStrategy flex;
 
+	private EntranceSlitInformationProvider entranceSlitInformationProvider;
+	
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
@@ -200,6 +202,12 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			data.addData(getName(), "region_origin", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }), null, null);
 
 			data.addData(getName(), "region_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }), null, null);
+
+			if (entranceSlitInformationProvider != null) {
+				data.addData(getName(), "entrance_slit_size", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { entranceSlitInformationProvider.getSizeInMM() }), "mm", null);
+				data.addData(getName(), "entrance_slit_setting", new NexusGroupData(String.format("%03d", entranceSlitInformationProvider.getRawValue().intValue())), null, null);
+				data.addData(getName(), "entrance_slit_shape", new NexusGroupData(entranceSlitInformationProvider.getShape()), null, null);
+			}
 		}
 		
 		int acquired = flex.getLastAcquired(); 
@@ -383,5 +391,13 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void update(Object source, Object arg) {
 		if (flex == source) 
 			notifyIObservers(source, arg);
+	}
+
+	public EntranceSlitInformationProvider getEntranceSlitInformationProvider() {
+		return entranceSlitInformationProvider;
+	}
+
+	public void setEntranceSlitInformationProvider(EntranceSlitInformationProvider entranceSlitInformationProvider) {
+		this.entranceSlitInformationProvider = entranceSlitInformationProvider;
 	}
 }

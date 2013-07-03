@@ -22,5 +22,5 @@ public interface EntranceSlitInformationProvider {
 	public Number getRawValue();
 	public String getLabel();
 	public Double getSizeInMM();
-	public boolean isCurved();
+	public String getShape();
 }

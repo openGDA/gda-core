@@ -23,7 +23,7 @@ public class ManualEntranceSlit implements EntranceSlitInformationProvider {
 	private Number rawValue;
 	private String label;
 	private Double sizeInMM;
-	private boolean curved;
+	private String Shape;
 
 	@Override
 	public Number getRawValue() {
@@ -40,11 +40,6 @@ public class ManualEntranceSlit implements EntranceSlitInformationProvider {
 		return sizeInMM;
 	}
 
-	@Override
-	public boolean isCurved() {
-		return curved;
-	}
-
 	public void setRawValue(Number rawValue) {
 		this.rawValue = rawValue;
 	}
@@ -57,7 +52,12 @@ public class ManualEntranceSlit implements EntranceSlitInformationProvider {
 		this.sizeInMM = sizeInMM;
 	}
 
-	public void setCurved(boolean curved) {
-		this.curved = curved;
+	@Override
+	public String getShape() {
+		return Shape;
+	}
+
+	public void setShape(String shape) {
+		Shape = shape;
 	}
 }
