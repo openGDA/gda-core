@@ -193,9 +193,13 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param signalVal - if not null a signal attribute is added
 	 */
 	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
+		addData(detName, dataName, data_sds, units, signalVal, interpretation, data_sds.isDetectorEntryData);
+	}
+	
+	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation, boolean isPointDependent) {
 		INexusTree detTree = getDetTree(detName);
 		NexusTreeNode data = new NexusTreeNode(dataName, NexusExtractor.SDSClassName, null, data_sds);
-		data.setIsPointDependent(data_sds.isDetectorEntryData);
+		data.setIsPointDependent(data_sds.isDetectorEntryData || isPointDependent);
 		if (units != null) {
 			data.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, data, new NexusGroupData(units)));
 		}
@@ -210,6 +214,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		}
 		detTree.addChildNode(data);			
 	}
+	
 	
 	/**
 	 * Adds the specified data to the named detector
@@ -299,10 +304,8 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 	public void addScanFileLink(String detName, String hdfFileName) {
 		INexusTree detTree = getDetTree(detName);
-//		NexusGroupData dummy_sds = new NexusGroupData("dummy");
 		NexusTreeNode link = new NexusTreeNode("data", NexusExtractor.ExternalSDSLink, null, new NexusGroupData(hdfFileName));
 		link.setIsPointDependent(false);
-//		link.addChildNode(new NexusTreeNode("napimount", NexusExtractor.AttrClassName, link, new NexusGroupData(hdfFileName)));
 		detTree.addChildNode(link);
 	}
 	
@@ -343,7 +346,8 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param axis_sds The implementation of NexusGroupData to be reported as the axis data
 	 * @param axisValue The dimension which this axis relates to <b>from the detector point of view</b>, 
 	 * 						i.e. 1 is the first detector axis, scan dimensions will be added as required 
-	 * 						by the DataWriter	 * @param primaryValue The importance of this axis, 1 is the most relevant, then 2 etc.
+	 * 						by the DataWriter	 
+	 * @param primaryValue The importance of this axis, 1 is the most relevant, then 2 etc.
 	 * @param units The units the axis is specified in
 	 * @param isPointDependent If this data should be added to the nexus at every point set this to true, if its a one off, make this false
 	 */
