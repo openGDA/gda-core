@@ -25,6 +25,7 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -48,6 +49,7 @@ import uk.ac.gda.client.CommandQueueViewFactory;
 public abstract class MonitorViewBase extends ViewPart implements Runnable, IPartListener2 {
 
 	protected static final Logger logger = LoggerFactory.getLogger(MonitorViewBase.class);
+	protected final String ALREADY_RUNNING_MSG = "Scan and/or detectors already running.";
 
 	protected volatile boolean runMonitoring = false;
 
@@ -154,18 +156,43 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 				final Double[] xspressStats;
 				try {
 					values = getIonChamberValues();
-					xspressStats = getFluoDetectorCountRatesAndDeadTimes();
-				} catch (Exception e1) {
-					logger.debug(e1.getMessage(), e1);
+				} catch (final Exception e1) {
+					logger.debug("getIonChamberValues exception" + e1.getMessage(), e1);
 					setRunMonitoring(false);
 					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							btnRunPause.setImageDescriptor(runImage);
+							if (e1.getMessage().compareTo(ALREADY_RUNNING_MSG) != 0) {
+								MessageDialog.openError(
+										PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+										"Detector Rates Error",
+										getPartName() + " view will have to stop collecting.\nError occurred while getting ion chamber values: "
+												+ e1.getMessage());
+							}
 						}
 					});
 					continue;
-
+				}
+				try {
+					xspressStats = getFluoDetectorCountRatesAndDeadTimes();
+				} catch (final Exception e1) {
+					logger.debug("getFluoDetectorCountRatesAndDeadTimes exception" + e1.getMessage(), e1);
+					setRunMonitoring(false);
+					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							btnRunPause.setImageDescriptor(runImage);
+							if (e1.getMessage().compareTo(ALREADY_RUNNING_MSG) != 0) {
+								MessageDialog.openError(
+										PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+										"Detector Rates Error",
+										getPartName() + " view will have to stop collecting.\nError occurred while getting Fluo detector values: "
+												+ e1.getMessage());
+							}
+						}
+					});
+					continue;
 				}
 
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
@@ -233,6 +260,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 		amVisible = false;
 		myPlotter.dispose();
 		super.dispose();
+		logger.info("dispose");
 	}
 
 	@Override
