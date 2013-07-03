@@ -13,8 +13,7 @@ class MapSelect():
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
         
         datadir = PathConstructor.createFromDefaultProperty() + "/xml/"
-        xmlFolderName = datadir + folderName + "/"
-     
+        xmlFolderName = folderName + "/"
         self.scanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
         if(self.scanBean.isRaster()):
             self.raster_mode(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)

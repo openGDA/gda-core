@@ -48,9 +48,8 @@ class Map(Scan):
     
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
-        datadir = PathConstructor.createFromDefaultProperty() + "/xml/"
-        
-        xmlFolderName = datadir + folderName + "/"
+        xmlFolderName = folderName + "/"
+        folderName = folderName[folderName.find("xml")+4:]
     
         if(sampleFileName == None or sampleFileName == 'None'):
             sampleBean = None
@@ -79,9 +78,9 @@ class Map(Scan):
         XasAsciiDataWriter.setBeanGroup(beanGroup)
         handle_messages.simpleLog("XasAsciiDataWriter.setBeanGroup(beanGroup)")
           
-        detectorList = self.getDetectors(detectorBean, scanBean) 
-        handle_messages.simpleLog("detectorList")
-        print detectorList
+        detectorList = self.getDetectors(detectorBean, scanBean)
+        
+        print "detectorList", detectorList
     
         self.setupForMap(beanGroup)
         handle_messages.simpleLog("setupForMap")
@@ -100,8 +99,8 @@ class Map(Scan):
         nx = ScannableUtils.getNumberSteps(scannablex,scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
         ny = ScannableUtils.getNumberSteps(scannabley,scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
     
-        print "number of x points is ", str(nx)
-        print "number of y points is ", str(ny)
+        print "number of x points=", str(nx)
+        print "number of y points=", str(ny)
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
         self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
@@ -110,8 +109,6 @@ class Map(Scan):
         for energy in energyList:
             
             zScannable = self.finder.find(scanBean.getZScannableName())
-            print " the detector is " 
-            print detectorList
             if(detectorBean.getExperimentType() == "Transmission"):
                 elements =getElementNamesfromIonChamber(detectorBean)
                 self.mfd.setRoiNames(array(elements, String))
@@ -120,9 +117,9 @@ class Map(Scan):
             else:   
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 if(folderName != None):
-                    self.detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
-                    self.detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
                 elements = showElementsList(self.detectorBeanFileName)
                 selectedElement = elements[0]
                 self.mfd.setRoiNames(array(elements, String))
@@ -130,16 +127,15 @@ class Map(Scan):
                 bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
                 detector = self.finder.find(bean.getDetectorName())   
                 firstDetector = detectorList[0]
-                detectorList=[]
+                #detectorList=[]
+                
                 if (detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" ):
                     detectorList.append(self.finder.find("counterTimer02"))
-                else:
-                    detectorList.append(self.finder.find("counterTimer03"))
-                detectorList.append(self.counterTimer01)
-                detectorList.append(detector) 
+                #else:
+                #    detectorList.append(self.finder.find("counterTimer03"))
+                #detectorList.append(self.counterTimer01)
+                #detectorList.append(detector) 
                
-                print " the detector second time is " 
-                print detectorList 
                 self.mfd.setDetectors(array(detectorList, Detector))     
                 self.mfd.setSelectedElement(selectedElement)
                 self.mfd.getWindowsfromBean()
@@ -180,7 +176,7 @@ class Map(Scan):
                 for detector in detectorList:
                     args.append(detector)              
                     args.append(scanBean.getCollectionTime())
-            print args
+            
             scanStart = time.asctime()
             
             self.redefineNexusMetadataForMaps(beanGroup)
@@ -218,7 +214,6 @@ class Map(Scan):
                 BeansFactory.saveBean(File(fullFileName), bean)
             configFluoDetector(beanGroup)
         scan = beanGroup.getScan()
-    
     
         if (LocalProperties.get("gda.mode") == 'live'):
             collectionTime = scan.getCollectionTime()
