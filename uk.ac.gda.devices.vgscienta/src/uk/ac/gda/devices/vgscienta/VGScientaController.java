@@ -53,7 +53,7 @@ public class VGScientaController implements Configurable {
 	public static final String ENERGYSTEP = "STEP_SIZE";
 	public static final String ENERGYSTEP_RBV = "STEP_SIZE_RBV";
 	public static final String FRAMES = "FRAMES";
-	public static final String FRAMES_RBV = "FRAMES_RBV";
+	public static final String FRAMES_RBV = "FRAMES";
 	public static final String SLICE = "SLICES";
 	public static final String SLICE_RBV = "SLICES_RBV";
 	public static final String ZERO_SUPPLIES = "ZERO_SUPPLIES";
