@@ -167,9 +167,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			String aname = "energies";
 			String aunit = "eV";
 			double[] axis = getEnergyAxis();
-
-			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit,
-					false);
+			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
 
 			i = 0;
 			if ("Transmission".equals(getLensMode())) {
@@ -180,27 +178,14 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 				aunit = "degree";
 			}
 			axis = getAngleAxis();
-
-			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit,
-					false);
-
-//			<field name="entrance_slit_setting" type="NX_ANY">
-//			            <doc>dial setting of the entrance slit</doc>
-//			</field>
-//			<field name="entrance_slit_size" units="NX_LENGTH">
-//			            <doc>size of the entrance slit</doc>
-//			</field>
+			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
 
 			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
-			
+			data.addData(getName(), "acquisition_mode", new NexusGroupData(controller.getAcquisitionMode()), null, null);
 			data.addData(getName(), "pass_energy", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { getPassEnergy() }), "eV", null);
-		
 			data.addData(getName(), "number_of_frames", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { controller.getFrames() }), null, null);
-
 			data.addData(getName(), "sensor_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }), null, null);
-
 			data.addData(getName(), "region_origin", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }), null, null);
-
 			data.addData(getName(), "region_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }), null, null);
 
 			if (entranceSlitInformationProvider != null) {
