@@ -19,6 +19,7 @@
 package uk.ac.gda.devices.vgscienta;
 
 
+import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDProcess;
@@ -137,7 +138,6 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 
 	public int getLastAcquired() throws Exception {
 		return proc.getNumFiltered_RBV();
-
 	}
 	
 	public int getCurrentFrame() {
@@ -161,5 +161,27 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	
 	private void notifyObservers() {
 		oc.notifyIObservers(this, new FrameUpdate(currentFrame, maxNumberOfFrames));
+	}
+	
+	@Override
+	public void waitWhileBusy() throws InterruptedException, DeviceException {
+		super.waitWhileBusy();
+		// at this point we should be stopped, but might not have processed the last frame/sweep
+		try {
+			int number = 0;
+			while(proc.getNumFilter_RBV() < currentFrame) {
+				Thread.sleep(25);
+				logger.debug(String.format("waiting (%d)",number));
+				if (number++ > 40*30) {
+					throw new DeviceException("timout waiting for IOC processing");
+				}
+			}
+		} catch (InterruptedException e) {
+			throw e;
+		}  catch (DeviceException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DeviceException("error waiting for IOC processing", e);
+		}
 	}
 }
