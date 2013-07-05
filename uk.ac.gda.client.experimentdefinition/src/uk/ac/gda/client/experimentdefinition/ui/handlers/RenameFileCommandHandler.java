@@ -37,7 +37,7 @@ public class RenameFileCommandHandler extends AbstractExperimentCommandHandler {
 	}
 
 	private Object doFile() {
-		final ExperimentFolderEditor editor = getController().getActiveFolderEditor();
+		final ExperimentFolderEditor editor = getEditorManager().getActiveFolderEditor();
 		editor.editSelectedElement();
 		return true;
 	}
