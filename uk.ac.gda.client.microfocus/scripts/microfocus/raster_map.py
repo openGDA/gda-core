@@ -70,10 +70,8 @@ class RasterMap(Map):
 
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
      
-        datadir = PathConstructor.createFromDefaultProperty() + "/xml/"
-     
-        xmlFolderName = datadir + folderName + "/"
-        
+        xmlFolderName = folderName + "/"
+        folderName = folderName[folderName.find("xml")+4:]
         if(sampleFileName == None or sampleFileName == 'None'):
             sampleBean = None
         else:
@@ -119,9 +117,9 @@ class RasterMap(Map):
             else:   
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 if(folderName != None):
-                    self.detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
-                    self.detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
                 print self.detectorBeanFileName
                 elements = showElementsList(self.detectorBeanFileName)
                 selectedElement = elements[0]

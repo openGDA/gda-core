@@ -76,10 +76,8 @@ class RasterMapReturnWrite(Map):
         print detectorFileName
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
-        datadir = PathConstructor.createFromDefaultProperty() + "/xml/"
-        
-        xmlFolderName = datadir + folderName + "/"
-    
+        xmlFolderName = folderName + "/"
+        folderName = folderName[folderName.find("xml")+4:]
         if(sampleFileName == None or sampleFileName == 'None'):
             sampleBean = None
         else:
@@ -130,9 +128,9 @@ class RasterMapReturnWrite(Map):
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 #should get the bean file name from detector parametrs
                 if(folderName != None):
-                    self.detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
-                    self.detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
                 print self.detectorBeanFileName
                 elements = showElementsList(self.detectorBeanFileName)
                 ##this should be the element selected in the gui

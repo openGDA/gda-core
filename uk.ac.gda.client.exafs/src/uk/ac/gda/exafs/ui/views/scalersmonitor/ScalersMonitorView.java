@@ -186,7 +186,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 			xspress.waitWhileBusy();
 			ionchambers.waitWhileBusy();
 		} else {
-			throw new Exception("Scan and/or detectors already running, so stop the loop");
+			throw new Exception(ALREADY_RUNNING_MSG);
 		}
 
 

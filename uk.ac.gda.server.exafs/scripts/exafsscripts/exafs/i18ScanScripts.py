@@ -1,4 +1,5 @@
 from gda.exafs.scan import ExafsScanPointCreator,XanesScanPointCreator
+from gda.factory import Finder
 from gda.jython import ScriptBase
 from gda.jython.commands import ScannableCommands
 
@@ -64,3 +65,6 @@ class I18XasScan(XasScan):
             jython_mapper.counterTimer01.setTimes(times)
             ScriptBase.checkForPauses()
         return
+       
+       
+

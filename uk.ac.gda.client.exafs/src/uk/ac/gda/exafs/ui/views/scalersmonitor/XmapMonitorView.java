@@ -207,7 +207,7 @@ public class XmapMonitorView extends MonitorViewBase {
 			xmap.stop();
 			xmap.waitWhileBusy();
 		} else {
-			throw new Exception("Scan and/or detectors already running, so stop the loop");
+			throw new Exception(ALREADY_RUNNING_MSG);
 		}
 
 		// read the latest frame

@@ -299,6 +299,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		@Override
 		public void valueChangePerformed(ValueEvent e) {
 			update(e);
+			updatePointsLabels();
 		}
 
 		@Override
@@ -1002,7 +1003,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			}
 
 			rebuildGraph();
-			setupEstimationWidgets();
+//			setupEstimationWidgets();
 		} catch (Exception e) {
 			logger.error("Error trying to linkUI in the xas scan editor", e);
 		} finally {
