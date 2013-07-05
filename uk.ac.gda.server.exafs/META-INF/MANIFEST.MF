@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.org.jscience;bundle-version="[2.0.2,3.0.0)",
  uk.ac.gda.api,
  uk.ac.diamond.org.nfunk.jep;bundle-version="2.4.1",
- uk.ac.gda.client.experimentdefinition;bundle-version="1.0.0",
+ uk.ac.gda.client.experimentdefinition;bundle-version="8.32.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
