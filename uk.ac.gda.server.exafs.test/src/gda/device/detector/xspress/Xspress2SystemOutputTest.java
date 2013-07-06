@@ -89,7 +89,8 @@ public class Xspress2SystemOutputTest {
 	}
 	
 	@Test 
-	public void testExtraNames(){
+	public void testExtraNames() throws DeviceException{
+		xspress.setReadoutMode(XspressDetector.READOUT_SCALERONLY);
 		xspress.setAddDTScalerValuesToAscii(false);
 		xspress.setOnlyDisplayFF(true);
 		assertEquals(1,xspress.getExtraNames().length);
