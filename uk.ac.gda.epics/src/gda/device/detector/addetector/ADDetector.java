@@ -654,6 +654,10 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	 */
 	private ADDetectorPositionCallable latestPositionCallable=null;
 
+	protected void clearCachedCallable() {
+		latestPositionCallable = null;
+	}
+
 	protected void addDoubleItemToNXData(NXDetectorData data, String name, Double val) {
 		data.addData(getName(), name, dims, NexusFile.NX_FLOAT64, new double[] { val }, null, null);
 		data.setDoubleVals((Double[]) ArrayUtils.add(data.getDoubleVals(), val));
