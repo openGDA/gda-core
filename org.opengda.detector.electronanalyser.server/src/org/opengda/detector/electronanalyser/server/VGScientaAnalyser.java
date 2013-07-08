@@ -18,6 +18,7 @@
 
 package org.opengda.detector.electronanalyser.server;
 
+import gda.data.nexus.NeXusUtils;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.corba.impl.DeviceAdapter;
@@ -30,6 +31,7 @@ import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 
 import org.nexusformat.NeXusFileInterface;
+import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private NDProcess ndProc;
 
 	private NeXusFileInterface nexusFile;
+
+	private String regionName;
 
 	@Override
 	public AnalyserCapabilities getCapabilities() {
@@ -177,8 +181,54 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 	
 	}
-	public String writeOut(int scanDataPoint, boolean firstInScan) {
+	public String writeOut(int scanDataPoint)  {
 		String datafilepath=null;
+		try {
+			nexusFile.opengroup("entry1","NXentry");
+			nexusFile.opengroup("instrument", "NXinstrument");
+			if (nexusFile.groupdir().get(getName()) == null) {
+				nexusFile.makegroup(getName(),"NXdetector");
+			}
+			nexusFile.opengroup(getName(), "NXdetector");
+			if (scanDataPoint == 0) {
+				try {
+				//write analyser parameters here
+				NeXusUtils.writeNexusString(nexusFile, "reagion_name", getRegionName());
+				NeXusUtils.writeNexusString(nexusFile, "lens_mode", getLensMode());
+				NeXusUtils.writeNexusString(nexusFile, "acquisition_mode", getAcquisitionMode());
+				NeXusUtils.writeNexusString(nexusFile, "energy_mode", getEnergysMode());
+				NeXusUtils.writeNexusString(nexusFile, "detector_mode", getDetectorMode());
+				NeXusUtils.writeNexusInteger(nexusFile, "pass_energy", getPassEnergy());
+				NeXusUtils.writeNexusDouble(nexusFile, "low_energy", getStartEnergy(), "eV");
+				NeXusUtils.writeNexusDouble(nexusFile, "high_energy", getEndEnergy(), "eV");
+				NeXusUtils.writeNexusDouble(nexusFile, "fixed_energy", getCentreEnergy(), "eV");
+				NeXusUtils.writeNexusDouble(nexusFile, "excitation_energy", getExcitationEnergy(), "eV");
+				NeXusUtils.writeNexusDouble(nexusFile, "energy_step", getEnergyStep(), "eV");
+				double stepTime = getStepTime();
+				NeXusUtils.writeNexusDouble(nexusFile, "step_time", stepTime, "s");
+				NeXusUtils.writeNexusInteger(nexusFile, "number_of_slices", getSlices());
+				NeXusUtils.writeNexusInteger(nexusFile, "number_of_iterations", getNumberIterations());
+				int totalSteps = getTotalSteps().intValue();
+				NeXusUtils.writeNexusInteger(nexusFile, "total_steps", totalSteps);
+				NeXusUtils.writeNexusDouble(nexusFile, "total_time", totalSteps*stepTime, "s");
+				int cameraMinX = getCameraMinX();
+				NeXusUtils.writeNexusInteger(nexusFile, "detector_x_from", cameraMinX);
+				int cameraMinY = getCameraMinY();
+				NeXusUtils.writeNexusInteger(nexusFile, "detector_y_from", cameraMinY);
+				NeXusUtils.writeNexusInteger(nexusFile, "detector_x_to", getCameraSizeX()-cameraMinX);
+				NeXusUtils.writeNexusInteger(nexusFile, "detector_y_to", getCameraSizeY()-cameraMinY);
+				} catch (Exception e) {
+					logger.error("failed to get analyser parameters on write data out",e);
+				}
+				// write axis
+				
+
+			}
+			// write data that changes with scan data point here
+			
+		} catch (NexusException e) {
+			logger.error("NexusException on write data out",e);
+		} 
 		//TODO
 		return datafilepath;
 
@@ -545,6 +595,15 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	public void setNexusFile(NeXusFileInterface nexusFile) {
 		this.nexusFile = nexusFile;
+	}
+
+
+	public String getRegionName() {
+		return regionName;
+	}
+
+	public void setRegionName(String regionname) {
+		this.regionName = regionname;
 	}
 
 

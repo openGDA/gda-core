@@ -72,11 +72,11 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 							getAnalyser().setNexusFile(file);
 							getAnalyser().collectData();
 							getAnalyser().waitWhileBusy();
-							extraValues.add(getAnalyser().writeOut(scanDatapoint.get(), firstInScan));
+							extraValues.add(getAnalyser().writeOut(scanDatapoint.get()));
 						} catch (InterruptedException e) {
 							try {
 								getAnalyser().stop();
-								extraValues.add(getAnalyser().writeOut(scanDatapoint.get(), firstInScan));
+								extraValues.add(getAnalyser().writeOut(scanDatapoint.get()));
 								while (extraValues.size()<getNumberOfActiveRegions()) {
 									extraValues.add("");
 								}
@@ -107,6 +107,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 	}
 	private void configureAnalyser(Region region) throws Exception {
 		try {
+			getAnalyser().setRegionName(region.getName());
 			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 1.0);
 			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 1.0);
 			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 1.0);
