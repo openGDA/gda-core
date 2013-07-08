@@ -302,14 +302,35 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		return file_name;
 	}
 
+	/**
+	 * create exactly one file link under a node named "data".
+	 * @param detName
+	 * @param hdfFileName
+	 */
 	public void addScanFileLink(String detName, String hdfFileName) {
 		INexusTree detTree = getDetTree(detName);
+//		NexusGroupData dummy_sds = new NexusGroupData("dummy");
 		NexusTreeNode link = new NexusTreeNode("data", NexusExtractor.ExternalSDSLink, null, new NexusGroupData(hdfFileName));
 		link.setIsPointDependent(false);
+//		link.addChildNode(new NexusTreeNode("napimount", NexusExtractor.AttrClassName, link, new NexusGroupData(hdfFileName)));
 		detTree.addChildNode(link);
 	}
-	
 	/**
+	 * create one node called 'linkname' for each external file link.
+	 * @param detName
+	 * @param linknodename
+	 * @param fileName - must be plain full path file name.
+	 */
+	public void addScanFileLink(String detName, String linknodename, String fileName, boolean isPointDependent, boolean isDetectorEntryData) {
+		INexusTree detTree = getDetTree(detName);
+//		NexusGroupData dummy_sds = new NexusGroupData("dummy");
+		NexusGroupData groupData = new NexusGroupData("nxfile://" + fileName + "#entry/instrument/detector/data");
+		NexusTreeNode link = new NexusTreeNode(linknodename, NexusExtractor.ExternalSDSLink, null, groupData);
+		link.setIsPointDependent(isPointDependent);
+		groupData.isDetectorEntryData=isDetectorEntryData;
+//		link.addChildNode(new NexusTreeNode("napimount", NexusExtractor.AttrClassName, link, new NexusGroupData(hdfFileName)));
+		detTree.addChildNode(link);
+	}	/**
 	 * Adds the specified Axis to the named detector
 	 * @param detName The name of the detector to add data to
 	 * @param name The name of the Axis
