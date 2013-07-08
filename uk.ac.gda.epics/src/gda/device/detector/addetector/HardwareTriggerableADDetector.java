@@ -227,6 +227,7 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 				}
 				MultipleExposurePositionCallable callable = new MultipleExposurePositionCallable(super.getPositionCallable().call(),
 						nextPositionCallableExposureNumberToReturn, this);
+				clearCachedCallable();
 				return callable;
 			}
 			return new CompletedExposurePositionCallable(super.getPositionCallable().call());
