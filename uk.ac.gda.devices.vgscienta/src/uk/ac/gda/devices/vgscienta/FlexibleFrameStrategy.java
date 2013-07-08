@@ -45,6 +45,7 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	private int maxNumberOfFrames = 1;
 
 	private int currentFrame = -1;
+	private int highestFrame = 0;
 	private boolean wethinkweareincharge = false;
 	
 	private NDProcess proc;
@@ -60,8 +61,10 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	@Override
 	public void collectData() throws Exception {
 		getAdBase().setArrayCounter(0);
+		proc.getPluginBase().setArrayCounter(0);
 		proc.setResetFilter(1);
 		currentFrame = 0;
+		highestFrame = 0;
 		wethinkweareincharge = true;
 		interactWithDeviceIfRequired();
 		getAdBase().startAcquiring();
@@ -82,27 +85,16 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 		if (!wethinkweareincharge)
 			return;
 		
-		if (currentFrame == (maxNumberOfFrames - 1)) {
-			try {
-				getAdBase().setImageMode(0);
-			} catch (Exception e) {
-				// FIXME raise error
-				logger.error("TODO put description of error here", e);
+		try {
+			if (currentFrame == (maxNumberOfFrames - 1)) {
+					getAdBase().setImageMode(0);
+			} else if (currentFrame >= maxNumberOfFrames) {
+					completeCollection();
+			} else {
+					getAdBase().setImageMode(2);
 			}
-		} else if (currentFrame >= maxNumberOfFrames) {
-			try {
-				completeCollection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
-			}
-		} else {
-			try {
-				getAdBase().setImageMode(2);
-			} catch (Exception e) {
-				// FIXME raise error
-				logger.error("TODO put description of error here", e);
-			}
+		} catch (Exception e) {
+			logger.error("Exception received controlling analyser exposure, sweeps out of control!", e);
 		}
 		
 		notifyObservers();
@@ -113,6 +105,7 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 		if (!wethinkweareincharge) 
 			return;
 		wethinkweareincharge = false;
+		highestFrame = currentFrame;
 		currentFrame = -1;
 		super.completeCollection();
 		notifyObservers();
@@ -167,18 +160,21 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
 		super.waitWhileBusy();
 		// at this point we should be stopped, but might not have processed the last frame/sweep
+		if (currentFrame > highestFrame)
+			highestFrame = currentFrame;
 		try {
 			int number = 0;
-			while(proc.getNumFilter_RBV() < currentFrame) {
+			while(proc.getNumFiltered_RBV() < highestFrame || proc.getPluginBase().getArrayCounter_RBV() < highestFrame) {
 				Thread.sleep(25);
 				logger.debug(String.format("waiting (%d)",number));
 				if (number++ > 40*30) {
 					throw new DeviceException("timout waiting for IOC processing");
 				}
 			}
+			logger.info(String.format("At the end of waiting we have: highestFrame: %d,  numFilter %d, arrayCounterRBV %d", highestFrame, proc.getNumFiltered_RBV(), proc.getPluginBase().getArrayCounter_RBV()));
 		} catch (InterruptedException e) {
 			throw e;
-		}  catch (DeviceException e) {
+		} catch (DeviceException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new DeviceException("error waiting for IOC processing", e);
