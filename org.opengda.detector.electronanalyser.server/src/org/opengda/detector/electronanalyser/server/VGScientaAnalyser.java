@@ -177,7 +177,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 	
 	}
-	public String writeOut() {
+	public String writeOut(int scanDataPoint, boolean firstInScan) {
 		String datafilepath=null;
 		//TODO
 		return datafilepath;

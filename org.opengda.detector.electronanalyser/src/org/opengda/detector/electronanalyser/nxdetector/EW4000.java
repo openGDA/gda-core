@@ -55,57 +55,17 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 
 	private static final Logger logger = LoggerFactory.getLogger(EW4000.class);
 	private ObservableComponent oc = new ObservableComponent();
-	List<Region> regionlist=new ArrayList<Region>();
 	private String sequenceFilename;
-	private VGScientaAnalyser analyser;
-	AtomicBoolean busy = new AtomicBoolean(false);
-	NexusDataWriterExtension nexusDataWriter;
-	private Thread collectionThread;
-	private List<String> extraValues=new ArrayList<String>();
-	private boolean sourceSelectable=false;
-	private double XRaySourceEnergyLimit=2100;
-	private Scannable dcmenergy;
-	private Scannable pgmenergy;
 
 
 	private Long scannumber;
+
+	private Sequence sequence;
 	public EW4000() {
 	}
 	@Override
 	public void collectData() throws DeviceException {
-		Runnable target = new Runnable() {
-			
-			@Override
-			public void run() {
-				nexusDataWriter = new NexusDataWriterExtension(scannumber);
-				busy.getAndSet(true);
-				for (Region region : regionlist) {
-					if(Thread.currentThread().isInterrupted()) break;
-					if (region.isEnabled()) {
-						try {
-							configureAnalyser(region);
-							NeXusFileInterface file = nexusDataWriter.createFile(region.getName(), "%d_%s");
-							getAnalyser().setNexusFile(file);
-							getAnalyser().collectData();
-							getAnalyser().waitWhileBusy();
-							extraValues.add(getAnalyser().writeOut());
-						} catch (InterruptedException e) {
-							try {
-								getAnalyser().stop();
-								extraValues.add(getAnalyser().writeOut());
-							} catch (DeviceException e1) {
-								logger.error("failed to stop the analyser acquisition on interrupt.", e1);
-							}
-						} catch (Exception e) {
-							logger.error("Set new region to detector failed", e);
-						}
-					}
-				}
-				busy.getAndSet(false);
-			}
-		};
-		collectionThread=new Thread(target, "ew4000");
-		collectionThread.start();
+		super.collectData();
 	}
 
 	@Override
@@ -127,19 +87,11 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		while (isBusy()) {
-			Sleep.sleep(500);
-		}
+		super.waitWhileBusy();
 	}
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
-		int count=0;
-		for (Region region : regionlist) {
-			if (region.isEnabled()) {
-				count += 1;
-			}
-		}
-		return new int[] { count };
+		return super.getDataDimensions();
 	}
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
@@ -161,11 +113,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	public Object getPosition() throws DeviceException {
 		return getSequenceFilename();
 	}
-	@Override
-	@MethodAccessProtected(isProtected = true)
-	public void moveTo(Object position) throws DeviceException {
-		super.moveTo(position);		
-	}
+
 	@Override
 	@MethodAccessProtected(isProtected = true)
 	public void asynchronousMoveTo(Object position) throws DeviceException {
@@ -186,20 +134,17 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public void stop() throws DeviceException {
-		//TODO re-investigate this.
-		Thread mythread=collectionThread;
-		collectionThread=null;
-		mythread.interrupt();
-		try {
-			nexusDataWriter.completeCollection();
-		} catch (Exception e) {
-			throw new DeviceException("Exception on "+getName()+"'s own NexusDataWriter.completeCollection() at stop()", e);
-		}
 		super.stop();		
 	}
 	@Override
 	public boolean isBusy() {
-		return busy.get();
+		try {
+			return getCollectionStrategy().getStatus()==Detector.BUSY;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 	@Override
 	public boolean isAt(Object positionToTest) throws DeviceException {
@@ -215,17 +160,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public String[] getExtraNames() {
-		List<String> extraNames = new ArrayList<String>();
-		for (Region region : regionlist) {
-			if (region.isEnabled()) {
-				extraNames.add(region.getName());
-			}
-		}
-		if (new HashSet<String>(extraNames).size() < extraNames.size()) {
-			String namesString = StringUtils.join(extraNames.toArray(), ", ");
-			throw new IllegalStateException("The configured sequence contains duplicate region names: '" + namesString + "'.");
-		}
-		return (String[]) ArrayUtils.addAll(extraNames.toArray(new String[] {}), super.getExtraNames());
+		return super.getExtraNames();
 	}
 	@Override
 	public void setExtraNames(String[] names) {
@@ -237,47 +172,43 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public String[] getOutputFormat() {
-		List<String> formats = new ArrayList<String>();
-		// specify inputName format
-		formats.add("%s");
-		// specify extraName format
-		for (Region region : regionlist) {
-			if (region.isEnabled()) {
-				formats.add("%s");
-			}
-		}
-		return (String[]) ArrayUtils.addAll(formats.toArray(new String[] {}), super.getOutputFormat());
+		return new String[]{"%s"};
 	}
 	@Override
 	public void atScanStart() throws DeviceException {
 		ScanInformation scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		this.scannumber=scanInfo.getScanNumber();
+		loadSequenceData();
+		if (getCollectionStrategy() instanceof EW4000CollectionStrategy){
+			EW4000CollectionStrategy ew4000CollectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
+			ew4000CollectionStrategy.setFirstInScan(true);
+			ew4000CollectionStrategy.setSequence(sequence);
+			ew4000CollectionStrategy.setScanDataPoint(0);
+		}
+		
 		super.atScanStart();		
 	}
 	@Override
 	public void atScanEnd() throws DeviceException {
-		try {
-			nexusDataWriter.completeCollection();
-		} catch (Exception e) {
-			throw new DeviceException("Exception on "+getName()+"'s own NexusDataWriter.completeCollection() at atScanEnd()", e);
-		}
 		super.atScanEnd();		
+	}
+	private void loadSequenceData() throws DeviceException{
+		logger.debug("Sequence file changed to {}{}", FilenameUtils.getFullPath(sequenceFilename), FilenameUtils.getName(sequenceFilename));
+		// List<Region> regions = regionResourceutil.getRegions(filename);
+	try {
+		Resource resource = getResource(sequenceFilename);
+		resource.unload();
+		resource.load(Collections.emptyMap());
+
+		sequence = getSequence(resource);
+	} catch (Exception e) {
+		logger.error("Cannot load sequence file {}", sequenceFilename);
+		throw new DeviceException("Cannot load sequence file.", e);
+	}
+
 	}
 	@Override
 	public void atScanLineStart() throws DeviceException {
-		logger.debug("Sequence file changed to {}{}", FilenameUtils.getFullPath(sequenceFilename), FilenameUtils.getName(sequenceFilename));
-			// List<Region> regions = regionResourceutil.getRegions(filename);
-		try {
-			Resource resource = getResource(sequenceFilename);
-			resource.unload();
-			resource.load(Collections.emptyMap());
-
-			Sequence sequence = getSequence(resource);
-			regionlist = getRegions(sequence);
-		} catch (Exception e) {
-			logger.error("Cannot load sequence file {}", sequenceFilename);
-			throw new DeviceException("Cannot load sequence file.", e);
-		}
 		super.atScanLineStart();
 		
 	}
@@ -371,12 +302,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	public void setSequenceFilename(String sequenceFilename) {
 		this.sequenceFilename = sequenceFilename;
 	}
-	public VGScientaAnalyser getAnalyser() {
-		return analyser;
-	}
-	public void setAnalyser(VGScientaAnalyser analyser) {
-		this.analyser = analyser;
-	}
+
 	@Override
 	public void addIObserver(IObserver observer) {
 		oc.addIObserver(observer);
@@ -391,97 +317,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	public void deleteIObservers() {
 		oc.deleteIObservers();
 	}
-	private void configureAnalyser(Region region) throws Exception {
-		try {
-			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 1.0);
-			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 1.0);
-			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 1.0);
-			getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel()+1, 1.0);
-			getAnalyser().setSlices(region.getSlices(), 1.0);
-			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 1.0);
-			getAnalyser().setLensMode(region.getLensMode(), 1.0);
-			String literal = region.getEnergyMode().getLiteral();
-			getAnalyser().setEnergysMode(literal,1.0);
-			Double beamenergy;
-			if (isSourceSelectable()) {
-				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
-					beamenergy=Double.valueOf(getPgmenergy().getPosition().toString());
-				} else {
-					beamenergy=Double.valueOf(getDcmenergy().getPosition().toString())*1000;
-				}
-			} else {
-				beamenergy=Double.valueOf(getPgmenergy().getPosition().toString());
-			}
-			getAnalyser().setExcitationEnergy(beamenergy);
-			getAnalyser().setPassEnergy(region.getPassEnergy(), 1.0);
-			if (literal.equalsIgnoreCase("Binding")) {
-				//TODO a hack to solve EPICS cannot do binding energy issue, should be removed once EPICS issue solved.
-				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
-					getAnalyser().setStartEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getHighEnergy(), 1.0);
-					getAnalyser().setEndEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getLowEnergy(), 1.0);
-					getAnalyser().setCentreEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getFixEnergy(), 1.0);
-				} else {
-					getAnalyser().setStartEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getHighEnergy(), 1.0);
-					getAnalyser().setEndEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getLowEnergy(), 1.0);
-					getAnalyser().setCentreEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getFixEnergy(), 1.0);
-				}
-				getAnalyser().setEnergysMode("Kinetic",1.0);
-			} else {
-				getAnalyser().setStartEnergy(region.getLowEnergy(), 1.0);
-				getAnalyser().setEndEnergy(region.getHighEnergy(), 1.0);
-				getAnalyser().setCentreEnergy(region.getFixEnergy(), 1.0);
-			}
-			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
-			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 1.0);
-			collectionTime = region.getStepTime();
-			getAnalyser().setStepTime(collectionTime, 1.0);
-			if (!region.getRunMode().isConfirmAfterEachIteration()) {
-				if (!region.getRunMode().isRepeatUntilStopped()) {
-					getAnalyser().setNumberInterations(region.getRunMode().getNumIterations(), 1.0);
-					getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
-				} else {
-					getAnalyser().setNumberInterations(1000000, 1.0);
-					getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
-				}
-			} else {
-				getAnalyser().setNumberInterations(1, 1.0);
-				getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
-				throw new NotSupportedException(
-						"Confirm after each iteraction is not yet supported");
-			}
-			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
-		} catch (Exception e) {
-			throw e;
-		} 
-		// if (scriptController!=null) {
-		// ((ScriptControllerBase)scriptController).update(this, new
-		// RegionChangeEvent(region.getRegionId()));
-		// }
-		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId()));
-	}
-	public boolean isSourceSelectable() {
-		return sourceSelectable;
-	}
-	public void setSourceSelectable(boolean sourceSelectable) {
-		this.sourceSelectable = sourceSelectable;
-	}
-	public double getXRaySourceEnergyLimit() {
-		return XRaySourceEnergyLimit;
-	}
-	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
-		XRaySourceEnergyLimit = xRaySourceEnergyLimit;
-	}
-	public Scannable getDcmenergy() {
-		return dcmenergy;
-	}
-	public void setDcmenergy(Scannable dcmenergy) {
-		this.dcmenergy = dcmenergy;
-	}
-	public Scannable getPgmenergy() {
-		return pgmenergy;
-	}
-	public void setPgmenergy(Scannable pgmenergy) {
-		this.pgmenergy = pgmenergy;
-	}
+
+
 
 }

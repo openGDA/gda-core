@@ -19,6 +19,8 @@
 package org.opengda.detector.electronanalyser.nxdetector;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.PathChanged;
+import gda.data.PathConstructor;
 import gda.data.nexus.NexusFileFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
 
@@ -28,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.nexusformat.NeXusFileInterface;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,37 +92,44 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	 * @throws Exception
 	 */
 	public NeXusFileInterface createFile(String regionName,
-			String nexusFileNameTemplate) throws Exception {
+			Sequence sequence) throws Exception {
 		if (!files.isEmpty() && files.containsKey(regionName)) {
 			return files.get(regionName);
-			// try {
-			// files.get(regionName).flush();
-			// files.get(regionName).finalize();
-			// } catch (Throwable et) {
-			// String error = "Error closing NeXus file for " + regionName;
-			// logger.error(error + et.getMessage());
-			// terminalPrinter.print(error);
-			// terminalPrinter.print(et.getMessage());
-			// }
 		}
 		// set the entry name
 		// this.entryName = "scan_" + run;
 		this.entryName = "entry1";
 
 		// construct filename
-		if (nexusFileNameTemplate == null) {
+		if (sequence == null) {
 			throw new IllegalArgumentException(
-					"Nexus File Template must not null.");
+					"Sequence data model must not be null.");
 		}
-		String regionNexusFileName = String.format(nexusFileNameTemplate,
-				scanNumber, regionName) + ".nxs";
+		String regionNexusFileName;
+		String filenameFormat = sequence.getSpectrum().getFilenameFormat();
+		String filenamePrefix = sequence.getSpectrum().getFilenamePrefix();
+		if (filenamePrefix!=null) {
+			regionNexusFileName = String.format(filenameFormat, filenamePrefix,scanNumber, regionName) + ".nxs";
+		} else {
+			regionNexusFileName = String.format("%05d_%s", scanNumber, regionName) + ".nxs";
+		}
 		if (LocalProperties.check(GDA_NEXUS_BEAMLINE_PREFIX)) {
 			regionNexusFileName = beamline + "_" + regionNexusFileName;
+		}
+		if (dataDir==null) {
+			dataDir=PathConstructor.createFromDefaultProperty();
 		}
 		if (!dataDir.endsWith(File.separator)) {
 			dataDir += File.separator;
 		}
-
+		String sampleName = sequence.getSpectrum().getSampleName();
+		if(sampleName !=null) {
+			dataDir=dataDir+sampleName+File.separator;
+		}
+		File dir=new File(dataDir);
+		if (!dir.exists()) {
+			dir.mkdir();
+		}
 		String regionNexusFileUrl = dataDir + regionNexusFileName;
 		NeXusFileInterface regionNexusfile = NexusFileFactory.createFile(
 				regionNexusFileUrl, defaultNeXusBackend,
