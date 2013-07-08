@@ -20,13 +20,14 @@ package uk.ac.gda.epics.adviewer;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+import gda.jython.InterfaceProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
@@ -239,9 +240,23 @@ public class ADControllerImpl implements ADController, InitializingBean {
 
 	@Override
 	public void setExposure(double d) throws Exception{
-		adBase.setAcquireTime(d);
-		adBase.setImageMode(ImageMode.CONTINUOUS.ordinal());
-		adBase.startAcquiring();
+		
+		String formatCmd = getSetExposureTimeCmd();
+		if(formatCmd != null){
+			final String cmd = String.format(formatCmd, d);
+			try {
+				String result = InterfaceProvider.getCommandRunner().evaluateCommand(cmd);
+				if( result == null)
+					throw new Exception("Error executing command '" + cmd + "'");
+			} catch (Exception e) {
+				logger.error("Error setting exposure time", e);
+			}		
+			
+		} else {
+			adBase.setAcquireTime(d);
+			adBase.setImageMode(ImageMode.CONTINUOUS.ordinal());
+			adBase.startAcquiring();
+		}
 	}
 
 	@Override
@@ -559,5 +574,16 @@ public class ADControllerImpl implements ADController, InitializingBean {
 	public void setConnectToPlotServer(boolean connectToPlotServer) {
 		this.connectToPlotServer = connectToPlotServer;
 	}
+	
+	private String setExposureTimeCmd;
+
+	private String getSetExposureTimeCmd() {
+		return setExposureTimeCmd;
+	}
+
+	public void setSetExposureTimeCmd(String setExposureTimeCmd) {
+		this.setExposureTimeCmd = setExposureTimeCmd;
+	}
+	
 	
 }

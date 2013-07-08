@@ -309,6 +309,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 
 	@Override
 	public void stop() throws Exception {
+		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
 		getNdFileHDF5().stopCapture();
@@ -317,6 +318,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 
 	@Override
 	public void atCommandFailure() throws Exception {
+		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
 		stop();
