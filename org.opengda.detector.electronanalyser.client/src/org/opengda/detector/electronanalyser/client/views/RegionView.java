@@ -231,6 +231,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 		numberOfIterationSpinner = new Spinner(grpRunMode, SWT.BORDER);
 		numberOfIterationSpinner.setMinimum(1);
+		numberOfIterationSpinner.setMaximum(Integer.MAX_VALUE);
 		numberOfIterationSpinner.setToolTipText("Set number of iterations required here");
 
 		btnRepeatuntilStopped = new Button(grpRunMode, SWT.RADIO);
@@ -1193,10 +1194,13 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtLow.setEditable(false);
 		txtHigh.setEditable(false);
 		txtSize.setEditable(false);
+		txtLow.setEnabled(false);
+		txtHigh.setEnabled(false);
+		txtSize.setEnabled(false);
 		// restore the original energy step size for the FIXED
 		txtCenter.setText(String.format("%.4f", fixedCentreEnergy));
 		txtSize.setText(String.format("%.3f", fixedEnergyRange()));
-		txtWidth.setText(String.format("%.4f",Double.parseDouble(txtSize.getText())/1000));
+		txtWidth.setText(String.format("%.4f",fixedEnergyRange()/1000.0));
 		txtLow.setText(String.format("%.4f",Double.parseDouble(txtCenter.getText()) - Double.parseDouble(txtWidth.getText())/2));
 		txtHigh.setText(String.format("%.4f",Double.parseDouble(txtCenter.getText()) + Double.parseDouble(txtWidth.getText())/2));
 		spinnerSlices.setSelection(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection()+1);
@@ -1265,6 +1269,9 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	}
 
 	private void calculateSweptParameters() {
+		txtLow.setEnabled(true);
+		txtHigh.setEnabled(true);
+		txtSize.setEnabled(true);
 		txtLow.setEditable(true);
 		txtHigh.setEditable(true);
 		txtSize.setEditable(true);
@@ -1313,17 +1320,16 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private boolean kineticSelected;
 
 	protected void onSelectEnergySource(Object source) {
-		if (source.equals(btnHard)) {
-			this.xrayenergy = getDcmEnergy();
-		} else if (source.equals(btnSoft)) {
-			this.xrayenergy = getPgmEnergy();
-		}
-		if (xrayenergy != null) {
-			try {
-				excitationEnergy = (double) xrayenergy.getPosition();
-			} catch (DeviceException e) {
-				logger.error("Cannot set excitation energy", e);
+		try {
+			if (source.equals(btnHard)) {
+				excitationEnergy = (double) getDcmEnergy().getPosition() * 1000;
+				txtHardEnergy.setText(String.format("%.4f", excitationEnergy));
+			} else if (source.equals(btnSoft)) {
+				excitationEnergy = (double) getPgmEnergy().getPosition();
+				txtSoftEnergy.setText(String.format("%.4f", excitationEnergy));
 			}
+		} catch (DeviceException e) {
+			logger.error("Cannot set excitation energy", e);
 		}
 	}
 
@@ -1380,12 +1386,28 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		double low = Double.parseDouble(txtLow.getText());
 		double high = Double.parseDouble(txtHigh.getText());
 		double center = Double.parseDouble(txtCenter.getText());
+		excitationEnergy=getExcitationEnery(); //update this value from beamline
 		txtLow.setText(String.format("%.4f", excitationEnergy - high));
 		txtHigh.setText(String.format("%.4f", (excitationEnergy - low)));
 		txtCenter.setText(String.format("%.4f", (excitationEnergy - center)));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtCenter.getText()));
+	}
+
+	private double getExcitationEnery() {
+		try {
+			if (btnHard.getSelection()) {
+				excitationEnergy = (double) getDcmEnergy().getPosition() * 1000;
+				txtHardEnergy.setText(String.format("%.4f", excitationEnergy));
+			} else if (btnSoft.getSelection()) {
+				excitationEnergy = (double) getPgmEnergy().getPosition();
+				txtSoftEnergy.setText(String.format("%.4f", excitationEnergy));
+			}
+		} catch (DeviceException e) {
+			logger.error("Cannot set excitation energy", e);
+		}
+		return excitationEnergy;
 	}
 
 	@Override
