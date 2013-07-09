@@ -19,7 +19,6 @@
 package org.opengda.detector.electronanalyser.nxdetector;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathChanged;
 import gda.data.PathConstructor;
 import gda.data.nexus.NexusFileFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
@@ -70,7 +69,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	}
 	public void completeCollection() throws Exception {
 		releaseFile();
-		super.completeCollection();
+//		super.completeCollection();
 	};
 
 	Map<String, NeXusFileInterface> files = new HashMap<String, NeXusFileInterface>();
@@ -91,8 +90,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	 * @return NeXusFileInterface
 	 * @throws Exception
 	 */
-	public NeXusFileInterface createFile(String regionName,
-			Sequence sequence) throws Exception {
+	public NeXusFileInterface createFile(String regionName,	Sequence sequence) throws Exception {
 		if (!files.isEmpty() && files.containsKey(regionName)) {
 			return files.get(regionName);
 		}
