@@ -191,6 +191,36 @@ public class RegionDefinitionResourceUtil {
 		return getSequence().getSpectrum();
 	}
 
+	public Resource getResource(String fileName) throws Exception {
+		ResourceSet resourceSet = getResourceSet();
+		File seqFile = new File(fileName);
+		if (seqFile.exists()) {
+			URI fileURI = URI.createFileURI(fileName);
+			return resourceSet.getResource(fileURI, true);
+		}
+		return null;
+	}
+
+
+
+	public Sequence getSequence(Resource res) throws Exception {
+		if (res != null) {
+			List<EObject> contents = res.getContents();
+			EObject eobj = contents.get(0);
+			if (eobj instanceof DocumentRoot) {
+				DocumentRoot root = (DocumentRoot) eobj;
+				return root.getSequence();
+			}
+		}
+		return null;
+	}
+
+	public List<Region> getRegions(Sequence sequence) throws Exception {
+		if (sequence != null) {
+			return sequence.getRegion();
+		}
+		return Collections.emptyList();
+	}
 	
 
 	public void save(Resource res) throws IOException {
@@ -210,8 +240,7 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	public EditingDomain getEditingDomain() throws Exception {
-		return Activator.getDefault()
-				.getSequenceEditingDomain();
+		return Activator.getDefault().getSequenceEditingDomain();
 	}
 
 	public boolean isSourceSelectable() {
