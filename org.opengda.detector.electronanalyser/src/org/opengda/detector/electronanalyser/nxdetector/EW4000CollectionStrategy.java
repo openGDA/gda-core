@@ -102,105 +102,6 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, IOb
 		collectionThread.start();
 		
 	}
-	protected int getNumberOfActiveRegions() {
-		int size=0;
-		for (Region region : sequence.getRegion()) {
-			if (region.isEnabled()) {
-				size +=1;
-			}
-		}
-		return size;
-	}
-	private void configureAnalyser(Region region) throws Exception {
-		try {
-			getAnalyser().setRegionName(region.getName());
-			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 1.0);
-			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 1.0);
-			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 1.0);
-			getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel()+1, 1.0);
-			getAnalyser().setSlices(region.getSlices(), 1.0);
-			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 1.0);
-			getAnalyser().setLensMode(region.getLensMode(), 1.0);
-			String literal = region.getEnergyMode().getLiteral();
-			getAnalyser().setEnergysMode(literal,1.0);
-			Double beamenergy;
-			if (isSourceSelectable()) {
-				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
-					beamenergy=Double.valueOf(getPgmenergy().getPosition().toString());
-				} else {
-					beamenergy=Double.valueOf(getDcmenergy().getPosition().toString())*1000;
-				}
-			} else {
-				beamenergy=Double.valueOf(getPgmenergy().getPosition().toString());
-			}
-			getAnalyser().setExcitationEnergy(beamenergy);
-			getAnalyser().setPassEnergy(region.getPassEnergy(), 1.0);
-//			if (literal.equalsIgnoreCase("Binding")) {
-//				// a hack to solve EPICS cannot do binding energy issue, should be removed once EPICS issue solved.
-//				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
-//					getAnalyser().setStartEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getHighEnergy(), 1.0);
-//					getAnalyser().setEndEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getLowEnergy(), 1.0);
-//					getAnalyser().setCentreEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getFixEnergy(), 1.0);
-//				} else {
-//					getAnalyser().setStartEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getHighEnergy(), 1.0);
-//					getAnalyser().setEndEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getLowEnergy(), 1.0);
-//					getAnalyser().setCentreEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getFixEnergy(), 1.0);
-//				}
-//				getAnalyser().setEnergysMode("Kinetic",1.0);
-//			} else {
-				getAnalyser().setStartEnergy(region.getLowEnergy(), 1.0);
-				getAnalyser().setEndEnergy(region.getHighEnergy(), 1.0);
-				getAnalyser().setCentreEnergy(region.getFixEnergy(), 1.0);
-//			}
-			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
-			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 1.0);
-			double collectionTime = region.getStepTime();
-			getAnalyser().setStepTime(collectionTime, 1.0);
-			if (!region.getRunMode().isConfirmAfterEachIteration()) {
-				if (!region.getRunMode().isRepeatUntilStopped()) {
-					getAnalyser().setNumberInterations(region.getRunMode().getNumIterations(), 1.0);
-					getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
-				} else {
-					getAnalyser().setNumberInterations(1000000, 1.0);
-					getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
-				}
-			} else {
-				getAnalyser().setNumberInterations(1, 1.0);
-				getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
-				throw new NotSupportedException(
-						"Confirm after each iteraction is not yet supported");
-			}
-			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
-		} catch (Exception e) {
-			throw e;
-		} 
-		// if (scriptController!=null) {
-		// ((ScriptControllerBase)scriptController).update(this, new
-		// RegionChangeEvent(region.getRegionId()));
-		// }
-		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId()));
-	}
-	@Override
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name =name;
-	}
-	@Override
-	public boolean willRequireCallbacks() {
-		return false;
-	}
-
-	@Override
-	public void prepareForLine() throws Exception {
-		// No-op
-	}
-
-	@Override
-	public void completeLine() throws Exception {
-		// No-op
-	}
 
 	@Override
 	public void completeCollection() throws Exception {
@@ -372,6 +273,105 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, IOb
 	@Override
 	public void deleteIObservers() {
 		oc.deleteIObservers();
+	}
+	protected int getNumberOfActiveRegions() {
+		int size=0;
+		for (Region region : sequence.getRegion()) {
+			if (region.isEnabled()) {
+				size +=1;
+			}
+		}
+		return size;
+	}
+	private void configureAnalyser(Region region) throws Exception {
+		try {
+			getAnalyser().setRegionName(region.getName());
+			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 1.0);
+			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 1.0);
+			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 1.0);
+			getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel()+1, 1.0);
+			getAnalyser().setSlices(region.getSlices(), 1.0);
+			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 1.0);
+			getAnalyser().setLensMode(region.getLensMode(), 1.0);
+			String literal = region.getEnergyMode().getLiteral();
+			getAnalyser().setEnergysMode(literal,1.0);
+			Double beamenergy;
+			if (isSourceSelectable()) {
+				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
+					beamenergy=Double.valueOf(getPgmenergy().getPosition().toString());
+				} else {
+					beamenergy=Double.valueOf(getDcmenergy().getPosition().toString())*1000;
+				}
+			} else {
+				beamenergy=Double.valueOf(getPgmenergy().getPosition().toString());
+			}
+			getAnalyser().setExcitationEnergy(beamenergy);
+			getAnalyser().setPassEnergy(region.getPassEnergy(), 1.0);
+//			if (literal.equalsIgnoreCase("Binding")) {
+//				// a hack to solve EPICS cannot do binding energy issue, should be removed once EPICS issue solved.
+//				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
+//					getAnalyser().setStartEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getHighEnergy(), 1.0);
+//					getAnalyser().setEndEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getLowEnergy(), 1.0);
+//					getAnalyser().setCentreEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getFixEnergy(), 1.0);
+//				} else {
+//					getAnalyser().setStartEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getHighEnergy(), 1.0);
+//					getAnalyser().setEndEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getLowEnergy(), 1.0);
+//					getAnalyser().setCentreEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getFixEnergy(), 1.0);
+//				}
+//				getAnalyser().setEnergysMode("Kinetic",1.0);
+//			} else {
+				getAnalyser().setStartEnergy(region.getLowEnergy(), 1.0);
+				getAnalyser().setEndEnergy(region.getHighEnergy(), 1.0);
+				getAnalyser().setCentreEnergy(region.getFixEnergy(), 1.0);
+//			}
+			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
+			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 1.0);
+			double collectionTime = region.getStepTime();
+			getAnalyser().setStepTime(collectionTime, 1.0);
+			if (!region.getRunMode().isConfirmAfterEachIteration()) {
+				if (!region.getRunMode().isRepeatUntilStopped()) {
+					getAnalyser().setNumberInterations(region.getRunMode().getNumIterations(), 1.0);
+					getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
+				} else {
+					getAnalyser().setNumberInterations(1000000, 1.0);
+					getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
+				}
+			} else {
+				getAnalyser().setNumberInterations(1, 1.0);
+				getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
+				throw new NotSupportedException(
+						"Confirm after each iteraction is not yet supported");
+			}
+			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
+		} catch (Exception e) {
+			throw e;
+		} 
+		// if (scriptController!=null) {
+		// ((ScriptControllerBase)scriptController).update(this, new
+		// RegionChangeEvent(region.getRegionId()));
+		// }
+		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId()));
+	}
+	@Override
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name =name;
+	}
+	@Override
+	public boolean willRequireCallbacks() {
+		return false;
+	}
+
+	@Override
+	public void prepareForLine() throws Exception {
+		// No-op
+	}
+
+	@Override
+	public void completeLine() throws Exception {
+		// No-op
 	}
 
 }
