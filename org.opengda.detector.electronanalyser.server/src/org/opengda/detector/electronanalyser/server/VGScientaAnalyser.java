@@ -30,6 +30,7 @@ import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
+import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
@@ -109,7 +110,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	@Override
 	public double[] getAngleAxis() throws Exception {
 		return getCapabilities().getAngleAxis(controller.getLensMode(),
-				getAdBase().getMinY_RBV(), getAdBase().getArraySizeY_RBV());
+				getAdBase().getMinY_RBV(), controller.getSlice(), getAdBase().getArraySizeY_RBV());
 	}
 
 	@Override
@@ -187,6 +188,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public String writeOut(int scanDataPoint)  {
 		String datafilepath=null;
 		try {
+			datafilepath=nexusFile.getpath();
+	//		InterfaceProvider.getTerminalPrinter().print("Writing region " + getRegionName() + " data to file : "+ datafilepath+". Please wait ......" );
 			nexusFile.opengroup("entry1","NXentry");
 			nexusFile.opengroup("instrument", "NXinstrument");
 			if (nexusFile.groupdir().get(getName()) == null) {
@@ -267,7 +270,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			writeSpectrumData(scanDataPoint);
 			writeExternalIOData(scanDataPoint);
 			writeExciationEnergy(scanDataPoint);
-			datafilepath=nexusFile.getpath();
 			//close opened group in this method
 			nexusFile.closegroup();
 			nexusFile.closegroup();

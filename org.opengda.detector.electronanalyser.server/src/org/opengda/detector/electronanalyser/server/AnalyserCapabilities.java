@@ -26,6 +26,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+
 public class AnalyserCapabilities implements Findable {
 
 	private String name = "AnalyserCapabilties";
@@ -87,6 +90,18 @@ public class AnalyserCapabilities implements Findable {
 		return copyOfRange;
 	}
 	
+	public double[] getAngleAxis(String lensTable, int startChannel, int slices, int size) {
+		if (!lens2angles.containsKey(lensTable)) {
+			throw new ArrayIndexOutOfBoundsException("unknown lens table "+lensTable);
+		}
+		int chunksize=size/slices;
+		int handledsize=slices*chunksize;
+		double[] doubles = lens2angles.get(lensTable);
+		double[] values = Arrays.copyOf(doubles, handledsize);
+		AbstractDataset angledatasets=new DoubleDataset(values, slices, chunksize);
+		AbstractDataset mean = angledatasets.mean(0);
+		return ((DoubleDataset)mean).getData();
+	}
 	public String[] getLensModes() {
 		return lens2angles.keySet().toArray(new String[0]);
 	}
