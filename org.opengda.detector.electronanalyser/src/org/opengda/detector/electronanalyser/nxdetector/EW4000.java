@@ -5,10 +5,14 @@ import gda.data.NumTracker;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.corba.impl.DeviceAdapter;
+import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.NXDetector;
 import gda.device.detector.NexusDetector;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -23,7 +27,16 @@ import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-
+/**
+ * a container class for VGScienta Electron Analyser, which takes a sequence file 
+ * defining a list of regions as input and collect analyser data - image, spectrum and external IO data -
+ * for each active regions in the listed order, and create a nexus file for each region.
+ *   
+ * @author fy65
+ *
+ */
+@CorbaAdapterClass(DeviceAdapter.class)
+@CorbaImplClass(DeviceImpl.class)
 public class EW4000 extends NXDetector implements InitializingBean, NexusDetector,PositionCallableProvider<NexusTreeProvider>, IObserver {
 	/**
 	 * 
@@ -42,10 +55,10 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
 			if (getCollectionStrategy() instanceof EW4000CollectionStrategy) {
-				EW4000CollectionStrategy ew4000CollectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
-				ew4000CollectionStrategy.setSourceSelectable(regionDefinitionResourceUtil.isSourceSelectable());
-				ew4000CollectionStrategy.setXRaySourceEnergyLimit(regionDefinitionResourceUtil.getXRaySourceEnergyLimit());
-				ew4000CollectionStrategy.addIObserver(this);
+				EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
+				collectionStrategy.setSourceSelectable(regionDefinitionResourceUtil.isSourceSelectable());
+				collectionStrategy.setXRaySourceEnergyLimit(regionDefinitionResourceUtil.getXRaySourceEnergyLimit());
+				collectionStrategy.addIObserver(this);
 			}
 			setConfigured(true);
 		}
@@ -59,25 +72,17 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 
 	@Override
 	public void setCollectionTime(double time) throws DeviceException {
-		// No-op time is set in setNewRegion(region)		
+		// No-op defined by the list of active regions		
 	}
 	@Override
 	public double getCollectionTime() throws DeviceException {
-		return super.getCollectionTime();
-	}
-	@Override
-	public int getStatus() throws DeviceException {
-		//this wrapper detector may not have other status
-		if (isBusy()) {
-			return Detector.BUSY;
-		} else {
-			return Detector.IDLE;
+		try {
+			return getCollectionStrategy().getAcquireTime();
+		} catch (Exception e) {
+			throw new DeviceException("Cannot get contained regions time.", e);
 		}
 	}
-	@Override
-	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		super.waitWhileBusy();
-	}
+
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		return super.getDataDimensions();
@@ -100,8 +105,19 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public Object getPosition() throws DeviceException {
-		stop(); //to clear file handles
 		return getSequenceFilename();
+	}
+	
+	@Override
+	public void moveTo(Object position) throws DeviceException {
+		// TODO Auto-generated method stub
+		super.moveTo(position);
+		try {
+			getCollectionStrategy().completeCollection();
+		} catch (Exception e) {
+			logger.error("Error on calling completeCollection", e);
+			throw new DeviceException("Error on calling completeCollection", e);
+		}
 	}
 
 	@Override
@@ -218,6 +234,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	@Override
 	public void update(Object source, Object arg) {
 		if (getCollectionStrategy()==source) {
+			logger.debug("new region is set to : {}", arg.toString());
 			oc.notifyIObservers(this, arg);
 		}		
 	}
