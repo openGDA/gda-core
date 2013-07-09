@@ -100,8 +100,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 
 		// construct filename
 		if (sequence == null) {
-			throw new IllegalArgumentException(
-					"Sequence data model must not be null.");
+			throw new IllegalArgumentException("Sequence data model must not be null.");
 		}
 		String regionNexusFileName;
 		String filenameFormat = sequence.getSpectrum().getFilenameFormat();
