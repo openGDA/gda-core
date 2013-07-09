@@ -1,6 +1,7 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
@@ -862,6 +863,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private EpicsChannelManager channelmanager;
 
+	private Device ew4000;
+
 	private Region getSelectedRegion() {
 		ISelection selection = getSelection();
 		if (selection instanceof IStructuredSelection) {
@@ -996,6 +999,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		scriptcontroller.addIObserver(this);
 		regionScannable = Finder.getInstance().find("regions");
 		regionScannable.addIObserver(this);
+		ew4000 = Finder.getInstance().find("ew4000");
+		ew4000.addIObserver(this);
 		analyserStateListener = new AnalyserStateListener();
 		try {
 			createChannels();
@@ -1331,7 +1336,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (regions.isEmpty()) {
 				fireSelectionChanged(StructuredSelection.EMPTY);
 			} else {
-				fireSelectionChanged(regions.get(0));
+				for (Region region : regions) {
+					if (region.isEnabled()) {
+						currentRegion = region;
+						break;
+					}
+				}
+				if (currentRegion==null) {
+					fireSelectionChanged(regions.get(0));
+				} else {
+					fireSelectionChanged(currentRegion);
+				}
 			}
 			// update spectrum parameters
 			spectrum = regionDefinitionResourceUtil.getSpectrum();
@@ -1521,8 +1536,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						currentRegion = region;
 					}
 				}
+				fireSelectionChanged(currentRegion);
 				// TODO auto select this region in the viewer????
-				sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+				//sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
 			} 
 //			else if (arg instanceof RegionStatusEvent) {
 //				Status status = ((RegionStatusEvent) arg).getStatus();
@@ -1555,6 +1571,20 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 //				}
 //			}
 		}
+		if (source == ew4000) {
+			if (arg instanceof RegionChangeEvent) {
+				String regionId = ((RegionChangeEvent) arg).getRegionId();
+				for (Region region : regions) {
+					if (region.getRegionId().equalsIgnoreCase(regionId)) {
+						currentRegion = region;
+					}
+				}
+				fireSelectionChanged(currentRegion);
+				// TODO auto select this region in the viewer????
+//				sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+			} 
+		}
+	
 		// TODO update current region status from detector or EPICS IOC
 
 	}
@@ -1571,7 +1601,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private class AnalyserStateListener implements MonitorListener {
 
-		private boolean running;
+		private boolean running=false;
 
 		@Override
 		public void monitorChanged(final MonitorEvent arg0) {
@@ -1604,10 +1634,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					break;
 				case 6:
 					updateRegionStatus(currentRegion, STATUS.ABORTED);
+					running=false;
 					logger.error("analyser in error state for region; {}", currentRegion.toString());
 					break;
 				case 10:
 					updateRegionStatus(currentRegion, STATUS.ABORTED);
+					running=false;
 					logger.warn("analyser is in aborted state for currentregion: {}", currentRegion.toString());
 					break;
 				default:
