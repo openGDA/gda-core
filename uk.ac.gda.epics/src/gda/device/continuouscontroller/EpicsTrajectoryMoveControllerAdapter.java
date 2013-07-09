@@ -227,6 +227,15 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 		return true;
 	}
 
+	private boolean zeroLength(Double[] offset) {
+		for (int i = 0; i < offset.length; i++) {
+			if (offset[i] != 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	void verifyEpicsSettingsForNumberOfElementsAndPulses() throws DeviceException, InterruptedException {
 		logger.info("Epics NumberOfElements:" + controller.getNumberOfElements());
 		if (controller.getNumberOfElements() != points.size()) {
