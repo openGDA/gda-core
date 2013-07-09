@@ -40,7 +40,19 @@ class Grid(DataWriterExtenderBase):
 			image =  self.camera.readLastImage()
 			if not self.gridpreferences == None:
 				image.setMetadata(Metadata({"GDA_GRID_METADATA" : self.gridpreferences}))
-			RCPPlotter.imagePlot(self.cameraPanel, image)
+				xs = image.getShape()[0]
+				ys = image.getShape()[1]
+				xbs = self.getBeamCentreX()
+				ybs = self.getBeamCentreY()
+				xres = self.getResolutionX()
+				yres = self.getResolutionY()
+				xa = dnp.array([(x-xbs)/xres for x in range(xs)])
+				ya = dnp.array([(y-ybs)/yres for y in range(ys)])
+				xa.setName("mm")
+				ya.setName("mm")
+				RCPPlotter.imagePlot(self.cameraPanel, xa, ya, image)
+			else:
+				RCPPlotter.imagePlot(self.cameraPanel, image)
 		except:
 			print "  gridscan: error getting camera image"
 		
