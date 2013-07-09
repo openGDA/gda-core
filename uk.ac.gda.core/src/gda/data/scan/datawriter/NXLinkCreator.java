@@ -110,8 +110,12 @@ public class NXLinkCreator {
 					}
 					makelink(file, key, null, linkInfo);
 				} else {
-					NXlink nxlink = getLink(file,value);
-					makelink(file, key, nxlink, null);
+					try{
+						NXlink nxlink = getLink(file,value);
+						makelink(file, key, nxlink, null);
+					} catch(Exception e){
+						throw new Exception("Error making link for " + value + " in file " + file, e);
+					}
 				}
 				
 			}
