@@ -5,7 +5,10 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataFilenamesAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.ScanInformation;
 import gda.util.Sleep;
@@ -13,6 +16,7 @@ import gda.util.Sleep;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,35 +29,33 @@ import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
+public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, IObservable{
 	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
 	private ObservableComponent oc = new ObservableComponent();
-	AtomicBoolean busy = new AtomicBoolean(false);
-
-	NexusDataWriterExtension nexusDataWriter;
+	private AtomicBoolean busy = new AtomicBoolean(false);
+	private NexusDataWriterExtension nexusDataWriter;
 	private Thread collectionThread;
-	List<Region> regionlist=new ArrayList<Region>();
 	private List<String> extraValues=new ArrayList<String>();
 	private boolean sourceSelectable=false;
 	private double XRaySourceEnergyLimit=2100;
+	private Long scannumber;
+	private Sequence sequence;
+	private AtomicInteger scanDatapoint=new AtomicInteger(0);
+
 	private VGScientaAnalyser analyser;
 	private Scannable dcmenergy;
 	private Scannable pgmenergy;
-	private Long scannumber;
-	private boolean firstInScan;
-	private Sequence sequence;
-	private AtomicInteger scanDatapoint=new AtomicInteger(0);
+	private String name = "ew4000_collection_strategy";
 	
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection,	ScanInformation scanInfo) throws Exception {
 		this.scannumber=scanInfo.getScanNumber();
 		createDataWriter(scannumber);
-		
 	}
+	
 	public void createDataWriter(Long scannumber) {
-		// TODO Auto-generated method stub
 		nexusDataWriter = new NexusDataWriterExtension(scannumber);
-		
+		extraValues.clear();
 	}
 	
 	@Override
@@ -62,8 +64,11 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 			
 			@Override
 			public void run() {
+				if (!extraValues.isEmpty()) {
+					extraValues.clear();
+				}
 				busy.getAndSet(true);
-				for (Region region : regionlist) {
+				for (Region region : sequence.getRegion()) {
 					if(Thread.currentThread().isInterrupted()) break;
 					if (region.isEnabled()) {
 						try {
@@ -77,6 +82,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 							try {
 								getAnalyser().stop();
 								extraValues.add(getAnalyser().writeOut(scanDatapoint.get()));
+								//ensure size matches with number of active regions
 								while (extraValues.size()<getNumberOfActiveRegions()) {
 									extraValues.add("");
 								}
@@ -92,13 +98,13 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 				scanDatapoint.incrementAndGet();
 			}
 		};
-		collectionThread=new Thread(target, "ew4000");
+		collectionThread=new Thread(target, "ew4000collectionstrategy");
 		collectionThread.start();
 		
 	}
 	protected int getNumberOfActiveRegions() {
 		int size=0;
-		for (Region region : regionlist) {
+		for (Region region : sequence.getRegion()) {
 			if (region.isEnabled()) {
 				size +=1;
 			}
@@ -129,23 +135,23 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 			}
 			getAnalyser().setExcitationEnergy(beamenergy);
 			getAnalyser().setPassEnergy(region.getPassEnergy(), 1.0);
-			if (literal.equalsIgnoreCase("Binding")) {
-				//TODO a hack to solve EPICS cannot do binding energy issue, should be removed once EPICS issue solved.
-				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
-					getAnalyser().setStartEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getHighEnergy(), 1.0);
-					getAnalyser().setEndEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getLowEnergy(), 1.0);
-					getAnalyser().setCentreEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getFixEnergy(), 1.0);
-				} else {
-					getAnalyser().setStartEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getHighEnergy(), 1.0);
-					getAnalyser().setEndEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getLowEnergy(), 1.0);
-					getAnalyser().setCentreEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getFixEnergy(), 1.0);
-				}
-				getAnalyser().setEnergysMode("Kinetic",1.0);
-			} else {
+//			if (literal.equalsIgnoreCase("Binding")) {
+//				// a hack to solve EPICS cannot do binding energy issue, should be removed once EPICS issue solved.
+//				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
+//					getAnalyser().setStartEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getHighEnergy(), 1.0);
+//					getAnalyser().setEndEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getLowEnergy(), 1.0);
+//					getAnalyser().setCentreEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getFixEnergy(), 1.0);
+//				} else {
+//					getAnalyser().setStartEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getHighEnergy(), 1.0);
+//					getAnalyser().setEndEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getLowEnergy(), 1.0);
+//					getAnalyser().setCentreEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getFixEnergy(), 1.0);
+//				}
+//				getAnalyser().setEnergysMode("Kinetic",1.0);
+//			} else {
 				getAnalyser().setStartEnergy(region.getLowEnergy(), 1.0);
 				getAnalyser().setEndEnergy(region.getHighEnergy(), 1.0);
 				getAnalyser().setCentreEnergy(region.getFixEnergy(), 1.0);
-			}
+//			}
 			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
 			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 1.0);
 			double collectionTime = region.getStepTime();
@@ -176,40 +182,35 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 	}
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return name;
 	}
-
+	public void setName(String name) {
+		this.name =name;
+	}
 	@Override
 	public boolean willRequireCallbacks() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
-
 	@Override
 	public void prepareForLine() throws Exception {
-		// TODO Auto-generated method stub
-		
+		// No-op
 	}
 
 	@Override
 	public void completeLine() throws Exception {
-		// TODO Auto-generated method stub
-		
+		// No-op
 	}
 
 	@Override
 	public void completeCollection() throws Exception {
-		// TODO Auto-generated method stub
 		nexusDataWriter.completeCollection();
 		nexusDataWriter=null;
 	}
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		// TODO Auto-generated method stub
-		
+		completeCollection();		
 	}
 
 	@Override
@@ -218,14 +219,13 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 		collectionThread=null;
 		mythread.interrupt();
 		waitWhileBusy();
-		completeCollection();
-		
+		completeCollection();		
 	}
 
 	@Override
 	public List<String> getInputStreamNames() {
 		List<String> extraNames = new ArrayList<String>();
-		for (Region region : regionlist) {
+		for (Region region : sequence.getRegion()) {
 			if (region.isEnabled()) {
 				extraNames.add(region.getName());
 			}
@@ -237,7 +237,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 	public List<String> getInputStreamFormats() {
 		List<String> formats = new ArrayList<String>();
 		// specify extraName format
-		for (Region region : regionlist) {
+		for (Region region : sequence.getRegion()) {
 			if (region.isEnabled()) {
 				formats.add("%s");
 			}
@@ -246,22 +246,29 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 	}
 
 	@Override
-	public List<NXDetectorDataAppender> read(int maxToRead)
-			throws NoSuchElementException, InterruptedException,
+	public List<NXDetectorDataAppender> read(int maxToRead)	throws NoSuchElementException, InterruptedException,
 			DeviceException {
-		// TODO Auto-generated method stub
-		return null;
+		if (getInputStreamNames().size() != extraValues.size()) {
+			throw new DeviceException(getName()+" : Names and values size are different.");
+		}
+		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
+		appenders.add(new NXDetectorDataFilenamesAppender(getInputStreamNames(), extraValues));
+		return appenders;
 	}
 
 	@Override
 	public double getAcquireTime() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		double times = 0;
+		for (Region region : sequence.getRegion()) {
+			if (region.isEnabled()) {
+				times += region.getTotalTime();
+			}
+		}
+		return times;
 	}
 
 	@Override
 	public double getAcquirePeriod() throws Exception {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -269,16 +276,12 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 	@Deprecated
 	public void configureAcquireAndPeriodTimes(double collectionTime)
 			throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void prepareForCollection(double collectionTime,
 			int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 
@@ -300,21 +303,18 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 
 	@Override
 	public void setGenerateCallbacks(boolean b) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public boolean isGenerateCallbacks() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public int getNumberImagesPerCollection(double collectionTime)
 			throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return 1;
 	}
 
 	public Scannable getDcmenergy() {
@@ -352,14 +352,26 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin {
 	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
 		XRaySourceEnergyLimit = xRaySourceEnergyLimit;
 	}
-	public void setFirstInScan(boolean b) {
-		this.firstInScan=b;		
-	}
 	public void setSequence(Sequence sequence) {
 		this.sequence=sequence;		
 	}
 	public void setScanDataPoint(int i) {
 		this.scanDatapoint.set(i);		
+	}
+
+	@Override
+	public void addIObserver(IObserver observer) {
+		oc.addIObserver(observer);		
+	}
+
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		oc.deleteIObserver(observer);		
+	}
+
+	@Override
+	public void deleteIObservers() {
+		oc.deleteIObservers();
 	}
 
 }
