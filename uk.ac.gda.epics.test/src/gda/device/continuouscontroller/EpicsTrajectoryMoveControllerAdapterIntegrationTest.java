@@ -74,15 +74,11 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 
 	private DeferredAndTrajectoryScannableGroup trajgroup;
 
-
 	private ScannableMotor scnaNoOffset;
-
 
 	private ScannableMotor scnbNoOffset;
 
-
 	private ScannableMotor scncNoOffset;
-
 
 	private DeferredAndTrajectoryScannableGroup trajgroupNoOffset;
 	
@@ -196,11 +192,9 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 	
 	@Test(expected=IllegalStateException.class)
 	public void testPrepareForCollectionMovesGroupToStartPositionTrajectoryScanOperationWithOffsetFails() throws Exception {
-		
 		controller.setScannableForMovingGroupToStart(trajgroup);
 		testPrepareForCollectionMovesGroupToStartPositionTrajectoryScanOperationWithOffset();
 	}
-
 	
 	@Test
 	public void testPrepareForCollectionMovesGroupToStartPositionTrajectoryScanOperationWithOffsetViaElement() throws Exception {
