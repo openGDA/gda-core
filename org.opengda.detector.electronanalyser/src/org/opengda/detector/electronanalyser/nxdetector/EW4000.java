@@ -5,49 +5,26 @@ import gda.data.NumTracker;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.detector.NXDetector;
 import gda.device.detector.NexusDetector;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import gda.scan.ScanInformation;
-import gda.util.Sleep;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.edit.domain.EditingDomain;
-import org.nexusformat.NeXusFileInterface;
-import org.opengda.detector.electronanalyser.NotSupportedException;
-import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
-import org.opengda.detector.electronanalyser.utils.SequenceEditingDomain;
+import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class EW4000 extends NXDetector implements InitializingBean, NexusDetector,PositionCallableProvider<NexusTreeProvider> {
+public class EW4000 extends NXDetector implements InitializingBean, NexusDetector,PositionCallableProvider<NexusTreeProvider>, IObserver {
 	/**
 	 * 
 	 */
@@ -56,13 +33,25 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	private static final Logger logger = LoggerFactory.getLogger(EW4000.class);
 	private ObservableComponent oc = new ObservableComponent();
 	private String sequenceFilename;
+	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 
 
-	private Long scannumber;
-
-	private Sequence sequence;
 	public EW4000() {
 	}
+	@Override
+	public void configure() throws FactoryException {
+		if (!isConfigured()) {
+			if (getCollectionStrategy() instanceof EW4000CollectionStrategy) {
+				EW4000CollectionStrategy ew4000CollectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
+				ew4000CollectionStrategy.setSourceSelectable(regionDefinitionResourceUtil.isSourceSelectable());
+				ew4000CollectionStrategy.setXRaySourceEnergyLimit(regionDefinitionResourceUtil.getXRaySourceEnergyLimit());
+				ew4000CollectionStrategy.addIObserver(this);
+			}
+			setConfigured(true);
+		}
+		super.configure();
+	}	
+	
 	@Override
 	public void collectData() throws DeviceException {
 		super.collectData();
@@ -111,14 +100,14 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public Object getPosition() throws DeviceException {
+		stop(); //to clear file handles
 		return getSequenceFilename();
 	}
 
 	@Override
 	@MethodAccessProtected(isProtected = true)
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		setSequenceFilename(position.toString());
-		atScanLineStart();
+		Sequence sequence = loadSequenceData(position.toString());
 		NumTracker numTracker;
 		try {
 			numTracker = new NumTracker(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME));
@@ -126,10 +115,14 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 			logger.error("Cannot create Number tracker instance", e);
 			throw new DeviceException("Cannot create Number tracker instance", e);
 		}
-		long scannumber=numTracker.getCurrentFileNumber();
-		if (scannumber==this.scannumber) {
-			this.scannumber=numTracker.incrementNumber();
+		long scannumber=numTracker.incrementNumber();
+		if (getCollectionStrategy() instanceof EW4000CollectionStrategy) {
+			EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
+			collectionStrategy.createDataWriter(scannumber);
+			collectionStrategy.setSequence(sequence);
+			collectionStrategy.setScanDataPoint(0);
 		}
+		
 		collectData();
 	}
 	@Override
@@ -147,155 +140,53 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		return false;
 	}
 	@Override
-	public boolean isAt(Object positionToTest) throws DeviceException {
-		return super.isAt(positionToTest);
-	}
-	@Override
 	public String[] getInputNames() {
 		return new String[] {"SequenceFilename"};
 	}
-	@Override
-	public void setInputNames(String[] names) {
-		super.setInputNames(names);
-	}
-	@Override
-	public String[] getExtraNames() {
-		return super.getExtraNames();
-	}
-	@Override
-	public void setExtraNames(String[] names) {
-		super.setExtraNames(names);
-	}
-	@Override
-	public void setOutputFormat(String[] names) {
-		super.setOutputFormat(names);
-	}
+
 	@Override
 	public String[] getOutputFormat() {
 		return new String[]{"%s"};
 	}
 	@Override
 	public void atScanStart() throws DeviceException {
-		ScanInformation scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
-		this.scannumber=scanInfo.getScanNumber();
-		loadSequenceData();
+		Sequence sequence=loadSequenceData(getSequenceFilename());
 		if (getCollectionStrategy() instanceof EW4000CollectionStrategy){
-			EW4000CollectionStrategy ew4000CollectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
-			ew4000CollectionStrategy.setFirstInScan(true);
-			ew4000CollectionStrategy.setSequence(sequence);
-			ew4000CollectionStrategy.setScanDataPoint(0);
+			EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
+			collectionStrategy.setSequence(sequence);
+			collectionStrategy.setScanDataPoint(0);
 		}
 		
 		super.atScanStart();		
 	}
-	@Override
-	public void atScanEnd() throws DeviceException {
-		super.atScanEnd();		
-	}
-	private void loadSequenceData() throws DeviceException{
-		logger.debug("Sequence file changed to {}{}", FilenameUtils.getFullPath(sequenceFilename), FilenameUtils.getName(sequenceFilename));
-		// List<Region> regions = regionResourceutil.getRegions(filename);
-	try {
-		Resource resource = getResource(sequenceFilename);
-		resource.unload();
-		resource.load(Collections.emptyMap());
 
-		sequence = getSequence(resource);
-	} catch (Exception e) {
-		logger.error("Cannot load sequence file {}", sequenceFilename);
-		throw new DeviceException("Cannot load sequence file.", e);
+	private Sequence loadSequenceData(String sequenceFilename) throws DeviceException {
+		Sequence sequence;
+		logger.debug("Sequence file changed to {}{}",
+				FilenameUtils.getFullPath(sequenceFilename),
+				FilenameUtils.getName(sequenceFilename));
+		try {
+			Resource resource = regionDefinitionResourceUtil.getResource(sequenceFilename);
+			resource.unload();
+			resource.load(Collections.emptyMap());
+			sequence = regionDefinitionResourceUtil.getSequence(resource);
+		} catch (Exception e) {
+			logger.error("Cannot load sequence file {}", sequenceFilename);
+			throw new DeviceException("Cannot load sequence file: "
+					+ sequenceFilename, e);
+		}
+		return sequence;
 	}
 
-	}
-	@Override
-	public void atScanLineStart() throws DeviceException {
-		super.atScanLineStart();
-		
-	}
-	@Override
-	public void atScanLineEnd() throws DeviceException {
-		super.atScanLineEnd();		
-	}
-	@Override
-	public void atPointStart() throws DeviceException {
-		super.atPointStart();		
-	}
-	@Override
-	public void atPointEnd() throws DeviceException {
-		super.atPointEnd();		
-	}
-	@Override
-	public void atLevelMoveStart() throws DeviceException {
-		super.atLevelMoveStart();		
-	}
-	@Override
-	public void atCommandFailure() throws DeviceException {
-		super.atCommandFailure();
-	}
-	@Override
-	public String toFormattedString() {
-		return super.toFormattedString();
-	}
-	@Override
-	public void configure() throws FactoryException {
-		super.configure();
-	}
-	@Override
-	public void reconfigure() throws FactoryException {
-		super.reconfigure();
-	}
-	@Override
-	public Callable<NexusTreeProvider> getPositionCallable()
-			throws DeviceException {
-		return super.getPositionCallable();
-	}
-	@Override
-	public NexusTreeProvider readout() throws DeviceException {
-		return super.readout();
-	}
 	@Override
 	public void afterPropertiesSet() {
-		if (getSequenceFilename()== null) {
-			throw new IllegalStateException("No sequenec file been configured");
+		if (getRegionDefinitionResourceUtil()== null) {
+			throw new IllegalStateException("No region definition resource util been configured");
 		}
 		super.afterPropertiesSet();
 	}
 	
-	public Resource getResource(String fileName) throws Exception {
-		ResourceSet resourceSet = getResourceSet();
-		File seqFile = new File(fileName);
-		if (seqFile.exists()) {
-			URI fileURI = URI.createFileURI(fileName);
-			return resourceSet.getResource(fileURI, true);
-		}
-		return null;
-	}
 
-	private ResourceSet getResourceSet() throws Exception {
-		EditingDomain sequenceEditingDomain = SequenceEditingDomain.INSTANCE.getEditingDomain();
-		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
-
-		return resourceSet;
-	}
-
-	public Sequence getSequence(Resource res) throws Exception {
-		if (res != null) {
-			List<EObject> contents = res.getContents();
-			EObject eobj = contents.get(0);
-			if (eobj instanceof DocumentRoot) {
-				DocumentRoot root = (DocumentRoot) eobj;
-				return root.getSequence();
-			}
-		}
-		return null;
-	}
-
-	public List<Region> getRegions(Sequence sequence) throws Exception {
-		if (sequence != null) {
-			return sequence.getRegion();
-		}
-		return Collections.emptyList();
-	}
 	public String getSequenceFilename() {
 		return sequenceFilename;
 	}
@@ -317,7 +208,17 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	public void deleteIObservers() {
 		oc.deleteIObservers();
 	}
-
-
-
+	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
+		return regionDefinitionResourceUtil;
+	}
+	public void setRegionDefinitionResourceUtil(
+			RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
+		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
+	}
+	@Override
+	public void update(Object source, Object arg) {
+		if (getCollectionStrategy()==source) {
+			oc.notifyIObservers(this, arg);
+		}		
+	}
 }
