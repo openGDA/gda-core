@@ -22,9 +22,9 @@ import gda.device.detector.areadetector.v17.NDStats;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.axis.IPositionListener;
 import org.dawnsci.plotting.api.axis.PositionEvent;
@@ -79,7 +79,7 @@ public class Histogram extends Composite {
 
 	private ADController config;
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 
 	private ILineTrace histogramTrace = null;
 	private DoubleDataset histogramXAxisRange = null;
@@ -136,6 +136,9 @@ public class Histogram extends Composite {
 		gl_histogramStatus.marginWidth = 2;
 		gl_histogramStatus.marginHeight = 2;
 		histogramStatus.setLayout(gl_histogramStatus);
+		
+		@SuppressWarnings("unused")
+		Label label = new Label(histogramStatus, SWT.SEPARATOR | SWT.HORIZONTAL);
 
 		statisticsStatus = new StatisticsStatus(left, SWT.NONE);
 
@@ -154,7 +157,7 @@ public class Histogram extends Composite {
 		this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
 		plottingSystem.createPlotPart(plotArea, "", parentViewPart.getViewSite().getActionBars(), PlotType.XY,
 				parentViewPart);
-		plottingSystem.setXfirst(true);
+		plottingSystem.setXFirst(true);
 		plottingSystem.setShowLegend(false);
 		plottingSystemPositionListener = new IPositionListener() {
 			
@@ -626,7 +629,7 @@ public class Histogram extends Composite {
 	/**
 	 * Needed for the adapter of the parent view to return IToolPageSystem.class
 	 */
-	public AbstractPlottingSystem getPlottingSystem() {
+	public IPlottingSystem getPlottingSystem() {
 		return plottingSystem;
 	}
 

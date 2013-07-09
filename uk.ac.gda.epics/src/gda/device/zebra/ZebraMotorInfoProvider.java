@@ -16,19 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.epics.adviewer;
+package gda.device.zebra;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public interface ZebraMotorInfoProvider {
 
-public class NoExposureSettingADController extends ADControllerImpl {
-	
-	private static final Logger logger = LoggerFactory.getLogger(NoExposureSettingADController.class);
+	double distanceToAccToVelocity(double requiredSpeed);
 
+	double getConstantVelocitySpeedFactor();
 
-	@Override
-	public void setExposure(double d) {
-		logger.warn("Slilently ignoring attempt to set exposure to " + d);
-	}
+	int getPcEnc();
 
 }

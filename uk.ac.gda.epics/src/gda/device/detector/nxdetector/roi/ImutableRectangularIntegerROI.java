@@ -31,10 +31,10 @@ public class ImutableRectangularIntegerROI implements RectangularROI<Integer> {
 
 	public static ImutableRectangularIntegerROI valueOf(uk.ac.diamond.scisoft.analysis.roi.RectangularROI scisoftRoi) {
 		String name = scisoftRoi.getName();
-		int xstart = (int) scisoftRoi.getPointX();
-		int ystart = (int) scisoftRoi.getPointY();
-		int xsize = (int) scisoftRoi.getLength(0);
-		int ysize = (int) scisoftRoi.getLength(1);
+		int xstart = (int) Math.round(scisoftRoi.getPointX());
+		int ystart = (int) Math.round(scisoftRoi.getPointY());
+		int xsize = (int) Math.round(scisoftRoi.getLength(0));
+		int ysize = (int) Math.round(scisoftRoi.getLength(1));
 		return new ImutableRectangularIntegerROI(xstart, ystart, xsize, ysize, name);
 	}
 	

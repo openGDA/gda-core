@@ -135,7 +135,7 @@ public class ADRoiStatsPair implements NXPlugin, PositionInputStream<NXDetectorD
 		try {
 			return roiProvider.getRoi();
 		} catch (Exception e) {
-			throw new RuntimeException("Problem querying the configured roiProvider.", e);
+			throw new RuntimeException("Problem querying the configured roiProvider: " + e.getMessage(), e);
 		}
 	}
 	

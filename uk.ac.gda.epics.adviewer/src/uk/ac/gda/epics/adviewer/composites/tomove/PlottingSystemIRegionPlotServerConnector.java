@@ -18,18 +18,14 @@
 
 package uk.ac.gda.epics.adviewer.composites.tomove;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
-
-import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.gda.epics.adviewer.composites.tomove.PlotServerGuiBeanUpdater;
-import uk.ac.gda.epics.adviewer.composites.tomove.RegionGuiParameterAdapter;
+import org.dawnsci.plotting.api.IPlottingSystem;
 
 public class PlottingSystemIRegionPlotServerConnector {
 
 	private RegionGuiParameterAdapter regionParameterObservable;
 	private PlotServerGuiBeanUpdater plotServerGuiBeanUpdater;
 
-	public PlottingSystemIRegionPlotServerConnector(AbstractPlottingSystem plottingSystem, String guiName) {
+	public PlottingSystemIRegionPlotServerConnector(IPlottingSystem plottingSystem, String guiName) {
 
 		regionParameterObservable = new RegionGuiParameterAdapter(plottingSystem);
 

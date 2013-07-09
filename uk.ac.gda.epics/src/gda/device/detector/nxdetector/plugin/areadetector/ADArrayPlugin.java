@@ -36,7 +36,7 @@ public class ADArrayPlugin implements NXPlugin {
 	
 	final private NDArray ndArray;
 
-	private boolean enabled = false;
+	private boolean enabled = true;
 
 	private boolean firstReadoutInScan = true;
 
@@ -51,7 +51,7 @@ public class ADArrayPlugin implements NXPlugin {
 
 	@Override
 	public boolean willRequireCallbacks() {
-		return false;
+		return isEnabled();
 	}
 
 	@Override

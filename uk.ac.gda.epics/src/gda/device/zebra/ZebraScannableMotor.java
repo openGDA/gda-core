@@ -31,9 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, PositionCallableProvider<Double>, InitializingBean{
+public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, ZebraMotorInfoProvider, PositionCallableProvider<Double>, InitializingBean{
 	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMotor.class);
-	private boolean operatingContinously;
 	private ZebraConstantVelocityMoveController continuousMoveController;
 	private double constantVelocitySpeedFactor=0.8;
 	private double scurveTimeToVelocity=.03;//default set to rotation stage on I13
@@ -41,13 +40,12 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
-		operatingContinously = b;
-		
+		//do nothing - always operating Continuously
 	}
 
 	@Override
 	public boolean isOperatingContinously() {
-		return operatingContinously;
+		return true;
 	}
 
 	@Override
@@ -64,31 +62,23 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 		if( continuousMoveController == null){
 			throw new Exception("continuousMoveController == null");
 		}
-		continuousMoveController.setzSM(this);
-		
 	}
+	
 	
 
 	// Scannable //
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		if (isOperatingContinously()) {
-			continuousMoveController.addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
-		} else {
-			super.asynchronousMoveTo(position);
-		}
+		continuousMoveController.addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
 	}
 	@Override
 	public Object getPosition() throws DeviceException {
-		if (isOperatingContinously()) {
-			Object[] pos = (Object[]) internalToExternal(new Double[]{continuousMoveController.getLastPointAdded()});
-			if (pos == null) {
-				// First point is in process of being added
-				return super.getPosition();
-			}
-			return pos[0];
+		Object[] pos = (Object[]) internalToExternal(new Double[]{continuousMoveController.getLastPointAdded()});
+		if (pos == null) {
+			// First point is in process of being added
+			return super.getPosition();
 		}
-		return super.getPosition();
+		return pos[0];
 	}
 
 	@Override
@@ -98,13 +88,10 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		if (isOperatingContinously()) {
-			continuousMoveController.waitWhileMoving();
-		} else {
-			super.waitWhileBusy();
-		}
+		return; //this is never busy as it does not talk to hardware
 	}
 
+	@Override
 	public double getConstantVelocitySpeedFactor() {
 		return constantVelocitySpeedFactor;
 	}
@@ -118,6 +105,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	 * @param velocity  in units of motor units/second e.g. mm/s
 	 * @return distance in motor units e.g. mm
 	 */
+	@Override
 	public double distanceToAccToVelocity(double velocity) {
 		//for an S curve with time to velocity of 30ms
 		return scurveTimeToVelocity * velocity/2;
@@ -137,6 +125,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	}
 
 	
+	@Override
 	public int getPcEnc() {
 		return pcEnc;
 	}

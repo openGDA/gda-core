@@ -113,6 +113,5 @@ public interface ADController {
 
 	// return true is the regions of interest are linked to the plotserver
 	public abstract boolean isConnectToPlotServer();
-
 	
 }
