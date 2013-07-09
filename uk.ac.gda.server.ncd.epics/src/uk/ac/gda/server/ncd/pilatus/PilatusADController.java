@@ -397,6 +397,15 @@ public class PilatusADController implements InitializingBean {
 		int grain = 80;
 		for (int i = 0; i < totalmillis/grain; i++) {
 			totalFramesCollected = areaDetector.getArrayCounter_RBV();
+			
+			if (totalFramesCollected == 0) {
+				// this is a common error
+				// we may be here in an aborted measurement, so there is no reasonable expectation how many 
+				// frames we need to have collected. But for sure if there are no frames there we may as well 
+				// throw an error, even if that would have been expected.
+				throw new DeviceException("detector was bluffing: no frames collected at end of acquisiton");
+			}
+			
 			totalmillis = 30 * 1000 + totalFramesCollected * 100;
 
 			

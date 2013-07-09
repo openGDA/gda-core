@@ -59,7 +59,7 @@ public class TwoDPlotListener extends DataWriterExtenderBase {
 				xaxis = new DoubleDataset(dimensions[0]);
 				xaxis.setName(dataPoint.getScannableHeader()[0]);
 				yaxis = new DoubleDataset(dimensions[1]);
-				xaxis.setName(dataPoint.getScannableHeader()[1]);
+				yaxis.setName(dataPoint.getScannableHeader()[1]);
 				ds = new DoubleDataset(dimensions[1], dimensions[0]);
 			}
 
@@ -75,19 +75,19 @@ public class TwoDPlotListener extends DataWriterExtenderBase {
 			xaxis.set(doubles[0], x);
 			yaxis.set(doubles[1], y);
 			ds.set(doubles[doubles.length - 1], y, x);
-			InterfaceProvider.getTerminalPrinter().print(String.format("x %d y %d", x, y));
+			//InterfaceProvider.getTerminalPrinter().print(String.format("x %d y %d xval %5.5f yval %5.5f", x, y, doubles[0], doubles[1]));
 			if (plotPanel != null) {
 				try {
-					SDAPlotter.imagePlot(plotPanel, yaxis, xaxis, ds);
+					SDAPlotter.imagePlot(plotPanel, xaxis, yaxis, ds);
 				} catch (Exception e) {
 					logger.error("plotting to " + plotPanel + " failed", e);
 				}
-
 			}
 		} catch (Exception e1) {
 			logger.error("error processing 2d scan point", e1);
 		}
 	}
+
 
 	@Override
 	public void completeCollection(IDataWriterExtender parent) {
