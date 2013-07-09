@@ -22,6 +22,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.data.nexus.NexusFileFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
+import gda.jython.InterfaceProvider;
 
 import java.io.File;
 import java.util.HashMap;
@@ -92,7 +93,9 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	 */
 	public NeXusFileInterface createFile(String regionName,	Sequence sequence) throws Exception {
 		if (!files.isEmpty() && files.containsKey(regionName)) {
-			return files.get(regionName);
+			NeXusFileInterface file = files.get(regionName);
+			InterfaceProvider.getTerminalPrinter().print("Region " + regionName + " data will be written to file : "+ file.getpath()+"." );
+			return file;
 		}
 		// set the entry name
 		// this.entryName = "scan_" + run;
@@ -127,7 +130,10 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 		if (!dir.exists()) {
 			dir.mkdir();
 		}
+		String scanFilename=dataDir+String.format("%s-%05d", beamline,scanNumber);
+		InterfaceProvider.getTerminalPrinter().print("Scan data will be written to file : "+ scanFilename+"." );
 		String regionNexusFileUrl = dataDir + regionNexusFileName;
+		InterfaceProvider.getTerminalPrinter().print("Region " + regionName + " data will be written to file : "+ regionNexusFileUrl+"." );
 		NeXusFileInterface regionNexusfile = NexusFileFactory.createFile(
 				regionNexusFileUrl, defaultNeXusBackend,
 				LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
