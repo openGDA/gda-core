@@ -2,6 +2,8 @@ package org.opengda.detector.electronanalyser.scan;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.corba.impl.DeviceAdapter;
+import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.corba.impl.ScannableAdapter;
@@ -23,8 +25,8 @@ import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@CorbaImplClass(ScannableImpl.class)
-@CorbaAdapterClass(ScannableAdapter.class)
+@CorbaImplClass(DeviceImpl.class)
+@CorbaAdapterClass(DeviceAdapter.class)
 public class RegionScannable extends ScannableBase implements Scannable {
 	private ObservableComponent oc = new ObservableComponent();
 	private Region region;
