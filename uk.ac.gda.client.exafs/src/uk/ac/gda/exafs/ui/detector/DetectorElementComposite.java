@@ -23,7 +23,6 @@ import java.text.NumberFormat;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -34,8 +33,6 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.exafs.ExafsActivator;
-import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
@@ -66,7 +63,6 @@ public class DetectorElementComposite extends Composite {
 	private Composite mainComposite;
 	private boolean isIndividualElements = false;
 	private DetectorROIComposite detectorROIComposite;
-	private Button enableDragRegions;
 
 	public DetectorElementComposite(final Composite parent, final int style, final boolean isMultipleElements,
 			final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory,
@@ -152,13 +148,6 @@ public class DetectorElementComposite extends Composite {
 			windowCounts = new LabelWrapper(windowComposite, SWT.NONE);
 			windowCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			windowCounts.setDecimalPlaces(0);
-
-			if (!ExafsActivator.getDefault().getPreferenceStore()
-					.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED)) {
-				enableDragRegions = new Button(windowComposite, SWT.CHECK);
-				enableDragRegions.setText("Enable region dragging");
-			}
-
 		}
 
 		this.regionList = new VerticalListEditor(mainComposite, isMultipleElements ? SWT.BORDER : SWT.NONE);
@@ -234,6 +223,8 @@ public class DetectorElementComposite extends Composite {
 			};
 			advancedExpandableComposite.addExpansionListener(expansionListener);
 		}
+		
+		GridUtils.layoutFull(mainComposite);
 	}
 
 	@Override
@@ -404,7 +395,7 @@ public class DetectorElementComposite extends Composite {
 			totalCounts.setValue("");
 		}
 
-		GridUtils.layoutFull(totalCounts);
+		GridUtils.layoutFull(mainComposite);
 	}
 
 	public void setTotalElementCounts(final Double total) {
@@ -439,9 +430,4 @@ public class DetectorElementComposite extends Composite {
 	public boolean isIndividualElements() {
 		return isIndividualElements;
 	}
-
-	public Button getEnableDragRegions() {
-		return enableDragRegions;
-	}
-
 }
