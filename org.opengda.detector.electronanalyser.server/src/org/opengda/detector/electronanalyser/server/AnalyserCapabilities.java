@@ -86,18 +86,17 @@ public class AnalyserCapabilities implements Findable {
 		}
 		double[] doubles = lens2angles.get(lensTable);
 		double[] copyOfRange = Arrays.copyOfRange(doubles, startChannel, startChannel + length);
-		ArrayUtils.reverse(copyOfRange);
 		return copyOfRange;
 	}
 	
 	public double[] getAngleAxis(String lensTable, int startChannel, int slices, int size) {
 		if (!lens2angles.containsKey(lensTable)) {
-			throw new ArrayIndexOutOfBoundsException("unknown lens table "+lensTable);
+			throw new IllegalArgumentException("unknown lens table "+lensTable);
 		}
 		int chunksize=size/slices;
 		int handledsize=slices*chunksize;
 		double[] doubles = lens2angles.get(lensTable);
-		double[] values = Arrays.copyOf(doubles, handledsize);
+		double[] values = Arrays.copyOfRange(doubles, startChannel, startChannel+handledsize);
 		AbstractDataset angledatasets=new DoubleDataset(values, slices, chunksize);
 		AbstractDataset mean = angledatasets.mean(0);
 		return ((DoubleDataset)mean).getData();
