@@ -23,4 +23,5 @@ public interface EntranceSlitInformationProvider {
 	public String getLabel();
 	public Double getSizeInMM();
 	public String getShape();
+	public String getDirection();
 }

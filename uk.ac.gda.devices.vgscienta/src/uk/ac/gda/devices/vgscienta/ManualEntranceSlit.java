@@ -23,7 +23,8 @@ public class ManualEntranceSlit implements EntranceSlitInformationProvider {
 	private Number rawValue;
 	private String label;
 	private Double sizeInMM;
-	private String Shape;
+	private String shape;
+	private String direction;
 
 	@Override
 	public Number getRawValue() {
@@ -54,10 +55,19 @@ public class ManualEntranceSlit implements EntranceSlitInformationProvider {
 
 	@Override
 	public String getShape() {
-		return Shape;
+		return shape;
 	}
 
 	public void setShape(String shape) {
-		Shape = shape;
+		this.shape = shape;
+	}
+
+	@Override
+	public String getDirection() {
+		return direction;
+	}
+
+	public void setDirection(String direction) {
+		this.direction = direction;
 	}
 }
