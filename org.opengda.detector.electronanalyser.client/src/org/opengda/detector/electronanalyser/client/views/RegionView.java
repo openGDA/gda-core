@@ -1433,7 +1433,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		}
 		lensMode.setText(region.getLensMode());
 		passEnergy.setText(String.valueOf(region.getPassEnergy()));
-		txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * Integer.parseInt(passEnergy.getText())));
+		txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * region.getPassEnergy()));
 		runMode.setText(runMode.getItem(region.getRunMode().getMode().getValue()));
 		btnNumberOfIterations.setSelection(!region.getRunMode().isRepeatUntilStopped());
 		btnRepeatuntilStopped.setSelection(region.getRunMode().isRepeatUntilStopped());
