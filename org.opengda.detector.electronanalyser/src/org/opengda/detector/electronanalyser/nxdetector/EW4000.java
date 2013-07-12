@@ -2,6 +2,7 @@ package org.opengda.detector.electronanalyser.nxdetector;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
+import gda.data.PathConstructor;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -13,10 +14,13 @@ import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
+import gda.jython.InterfaceProvider;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import gda.util.Sleep;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -114,6 +118,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		super.moveTo(position);
 		try {
 			getCollectionStrategy().completeCollection();
+			InterfaceProvider.getTerminalPrinter().print("region collections completed.");
 		} catch (Exception e) {
 			logger.error("Error on calling completeCollection", e);
 			throw new DeviceException("Error on calling completeCollection", e);
@@ -131,15 +136,17 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 			logger.error("Cannot create Number tracker instance", e);
 			throw new DeviceException("Cannot create Number tracker instance", e);
 		}
+		InterfaceProvider.getTerminalPrinter().print("This is not a scan, so no scan file will be written");
 		long scannumber=numTracker.incrementNumber();
 		if (getCollectionStrategy() instanceof EW4000CollectionStrategy) {
 			EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
-			collectionStrategy.createDataWriter(scannumber);
 			collectionStrategy.setSequence(sequence);
-			collectionStrategy.setScanDataPoint(0);
+			collectionStrategy.createDataWriter(scannumber);
+			collectionStrategy.setScanDataPoint(1);
+			collectionStrategy.setTotalPoints(1);
 		}
-		
 		collectData();
+		Sleep.sleep(1000);
 	}
 	@Override
 	public void stop() throws DeviceException {
@@ -155,28 +162,39 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		}
 		return false;
 	}
-	@Override
-	public String[] getInputNames() {
-		return new String[] {"SequenceFilename"};
-	}
+//	@Override
+//	public String[] getInputNames() {
+//		return new String[] {"SequenceFilename"};
+//	}
 
 	@Override
-	public String[] getOutputFormat() {
-		return new String[]{"%s"};
-	}
-	@Override
 	public void atScanStart() throws DeviceException {
+		Long scannumber =InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
+		String dataDir=PathConstructor.createFromDefaultProperty();
+		if (!dataDir.endsWith(File.separator)) {
+			dataDir += File.separator;
+		}
+		String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
+		String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
+		InterfaceProvider.getTerminalPrinter().print("Scan file will be written to : "+ scanFilename);
+		int[] dims = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDimensions();
 		Sequence sequence=loadSequenceData(getSequenceFilename());
 		if (getCollectionStrategy() instanceof EW4000CollectionStrategy){
 			EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
 			collectionStrategy.setSequence(sequence);
-			collectionStrategy.setScanDataPoint(0);
+			collectionStrategy.createDataWriter(scannumber);
+			collectionStrategy.setScanDataPoint(1); //fisrt data point
+			int expectedNumPixels = dims[0];
+			for (int i = 1; i < dims.length; i++) {
+				expectedNumPixels = expectedNumPixels * dims[i];
+			}
+			collectionStrategy.setTotalPoints(expectedNumPixels);
 		}
 		
 		super.atScanStart();		
 	}
 
-	private Sequence loadSequenceData(String sequenceFilename) throws DeviceException {
+	public Sequence loadSequenceData(String sequenceFilename) throws DeviceException {
 		Sequence sequence;
 		logger.debug("Sequence file changed to {}{}",
 				FilenameUtils.getFullPath(sequenceFilename),
