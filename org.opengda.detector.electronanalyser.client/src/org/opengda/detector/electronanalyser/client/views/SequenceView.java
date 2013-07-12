@@ -3,7 +3,6 @@ package org.opengda.detector.electronanalyser.client.views;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Device;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -15,7 +14,7 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Short;
+import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -436,7 +435,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		Label lblUser = new Label(grpInfo, SWT.NONE);
 		lblUser.setText("User");
 
-		txtUser = new Text(grpInfo, SWT.BORDER | SWT.READ_ONLY);
+		txtUser = new Text(grpInfo, SWT.BORDER );
 		// this field is set dynamically to user proposal number in GDA
 		txtUser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		txtUser.setText("User");
@@ -1452,7 +1451,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private IVGScientaAnalyser analyser;
 
-	private Scannable regionScannable;
+	private Device regionScannable;
 
 	private Region currentRegion;
 
@@ -1612,8 +1611,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 			DBR dbr = arg0.getDBR();
 			short state = 0;
-			if (dbr.isSHORT()) {
-				state = ((DBR_Short) dbr).getShortValue()[0];
+			if (dbr.isENUM()) {
+				state = ((DBR_Enum) dbr).getEnumValue()[0];
 			}
 			if (currentRegion != null) {
 				switch (state) {
