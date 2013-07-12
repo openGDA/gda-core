@@ -8,9 +8,6 @@ class TestCorrectResults(unittest.TestCase):
     def setUp(self):
         self.calc = EllipseCalculator(pixel_size=4.65, p_1=33.115, q_1=6.885, theta_1=.0027, p_2=25., q_2=10., theta_2=.0025, i_sign= -1., detector_distance=6.885, slit_start=-3.89,slit_end=-5.21, slit_step=-.04)
     
-    def test_print_results(self):
-        self.calc.calcSlopes()
-    
 class EllipseCalculator():
     def __init__(self, pixel_size=None, p_1=None, q_1=None, theta_1=None, p_2=None, q_2=None, theta_2=None, i_sign=None, detector_distance=None, slit_start=None, slit_end=None, slit_step=None, column=None, inv=1, method=0):
         '''
@@ -41,8 +38,44 @@ class EllipseCalculator():
         self.inv = inv
         self.method = method
 
-    def calcCamPosNoFile(self):
-        self.s_pos = [ i for i in self.frange(self.slit_start, self.slit_end, self.slit_step) ]
+    def calc(self, method):
+        if method==0:
+            self.calcSlopes()
+        elif method==1:
+            self.calcCamPos()
+        elif method==2:
+            self.calcCamPos2()
+
+    # Method 0
+    def calcSlopes(self):
+        self.s_pos = self.frange(self.slit_start, self.slit_end, self.slit_step)
+        s_med = self.median(self.s_pos)
+        pos = 0
+        self.error_list = []
+        for i in self.s_pos:
+            x_val = self.i_sign * 0.001 * ((self.s_pos[pos] - s_med) / sin(self.theta_1))
+            s_old_val = self.calcSlope(self.p_1, self.q_1, self.theta_1, x_val)
+            s_new_val = self.calcSlope(self.p_2, self.q_2, self.theta_2, x_val)
+            self.sold.append(s_old_val)
+            self.snew.append(s_new_val)
+            error = self.inv * 2 * self.detector_distance * (s_old_val - s_new_val) * 1000000. / self.pixel_size
+            self.error_list.append(error)
+            pos += 1
+        self.create_error_file(self.s_pos, self.error_list, self.column)
+        return self.error_list
+            
+    def calcSlope(self, p, q, theta, x):
+        A = (p + q) * sin(theta)
+        B = pow((p + q), 2) - pow((p - q), 2) * pow(sin(theta), 2)
+        C = (p - q) * cos(theta)
+        D = sqrt(p * q)
+        E = (C) - (2 * x)
+        F = sqrt((p * q) + ((p - q) * cos(theta)) * x - pow(x, 2))
+        return (A / B) * (C - D * E / F)
+
+    # Method 1
+    def calcCamPos(self):
+        self.s_pos = self.frange(self.slit_start, self.slit_end, self.slit_step)
         s_med = self.median(self.s_pos)
         pos = 0
         self.error_list = []
@@ -64,12 +97,8 @@ class EllipseCalculator():
             error = self.inv * (t_old_val - t_new_val) * (1000000/self.pixel_size)
             self.error_list.append(error)
             pos += 1
-        return error
-    
-    def calcCamPos(self):
-        error = self.calcCamPosNoFile()
         self.create_error_file_cam(self.s_pos, self.error_list, self.column)
-        return error
+        return self.error_list
 
     def calcHeight(self, p, q, theta, x):
         A = (p + q) * sin(theta)
@@ -79,38 +108,6 @@ class EllipseCalculator():
         E = 2 * p * q
         F = sqrt((p * q) + ((p - q) * cos(theta)) * x - pow(x, 2))
         return (A / B) * (E + C - D * F)
-
-    def calcSlopesNoFile(self):
-        if self.method==1:
-            return self.calcCamPosNoFile();
-        self.s_pos = [ i for i in self.frange(self.slit_start, self.slit_end, self.slit_step) ]
-        s_med = self.median(self.s_pos)
-        pos = 0
-        self.error_list = []
-        for i in self.s_pos:
-            x_val = self.i_sign * 0.001 * ((self.s_pos[pos] - s_med) / sin(self.theta_1))
-            s_old_val = self.calcSlope(self.p_1, self.q_1, self.theta_1, x_val)
-            s_new_val = self.calcSlope(self.p_2, self.q_2, self.theta_2, x_val)
-            self.sold.append(s_old_val)
-            self.snew.append(s_new_val)
-            error = self.inv * 2 * self.detector_distance * (s_old_val - s_new_val) * 1000000. / self.pixel_size
-            self.error_list.append(error)
-            pos += 1
-        return error
-    
-    def calcSlopes(self):
-        error=self.calcSlopesNoFile()
-        self.create_error_file(self.s_pos, self.error_list, self.column)
-        return error
-            
-    def calcSlope(self, p, q, theta, x):
-        A = (p + q) * sin(theta)
-        B = pow((p + q), 2) - pow((p - q), 2) * pow(sin(theta), 2)
-        C = (p - q) * cos(theta)
-        D = sqrt(p * q)
-        E = (C) - (2 * x)
-        F = sqrt((p * q) + ((p - q) * cos(theta)) * x - pow(x, 2))
-        return (A / B) * (C - D * E / F)
         
     def median(self, s):
         i = len(s)
@@ -138,7 +135,10 @@ class EllipseCalculator():
         for i in range(len(beam_positions)):
             pa.append([beam_positions[i], errors[i], self.sold[i], self.snew[i]])
         # scan requires a command server to be present so the file should be created the simple way!
-        scan([pa, 0, pa.getLength()-1, 1])   
+        try:
+            scan([pa, 0, pa.getLength()-1, 1])
+        except:
+            pass
         
     def create_error_file_cam(self, beam_positions, errors, output_column_name): #peak2d_peakx or peak2d_peaky
         #should really output the slit positions
@@ -147,9 +147,13 @@ class EllipseCalculator():
             pa.append([beam_positions[i], errors[i], self.told[i], self.tnew[i]])
         print "scanning"
         # scan requires a command server to be present so the file should be created the simple way!
-        scan([pa, 0, pa.getLength()-1, 1])
+        try:
+            scan([pa, 0, pa.getLength()-1, 1])
+        except:
+            pass
         
-    def calcCamPos2NoFile(self):
+    # Method 2
+    def calcCamPos2(self):
         snthold = sin(self.theta_1)
         #self.s_pos = self.frange(-0.18, 0.15, 0.01)
         self.s_pos = [ i for i in self.frange(self.slit_start, self.slit_end, self.slit_step) ]
@@ -168,17 +172,12 @@ class EllipseCalculator():
         utonm = self.new_ellipse_method(xbar1m,ybar1m,dyb1rd,self.p_1,self.q_1,self.theta_1,ybar2m,dyb2rd,self.p_2,self.q_2,self.theta_2,self.detector_distance);
         self.told = utonm[0][1];
         self.tnew = utonm[1][1];
-        error=[]
         pos=0
         for i in self.told:
-            error.append(self.inv*(self.told[pos]-self.tnew[pos])*1.0E+06/self.pixel_size)
+            self.error_list.append(self.inv*(self.told[pos]-self.tnew[pos])*1.0E+06/self.pixel_size)
             pos+=1
-        return error
-    
-    def calcCamPos2(self):
-        error = self.calcCamPos2NoFile()
-        self.create_error_file_cam(self.s_pos, error, self.column)
-        return error
+        self.create_error_file_cam(self.s_pos, self.error_list, self.column)
+        return self.error_list
     
     def EllipseCalc3(self,pm,qm,thrad,xm):
         ppq=pm+qm
