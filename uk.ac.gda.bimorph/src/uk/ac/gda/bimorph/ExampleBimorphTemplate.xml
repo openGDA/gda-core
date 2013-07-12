@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BimorphParameters>
+    <mirrorScannableName>bm</mirrorScannableName>
+    <mirrorType>vfm</mirrorType>
+    <numberOfElectrodes>8</numberOfElectrodes>
+    <mirrorLength>1.2</mirrorLength>
+    <voltageIncrement>50.0</voltageIncrement>
+    <slitSizeScannable>slits1_size</slitSizeScannable>
+    <slitPosScannable>slits1_pos</slitPosScannable>
+    <slitSize>1.0</slitSize>
+    <slitStart>-3.89</slitStart>
+    <slitEnd>-5.21</slitEnd>
+    <slitStep>-0.04</slitStep>
+    <otherSlitSizeScannable>slits2_size</otherSlitSizeScannable>
+    <otherSlitPosScannable>slits2_pos</otherSlitPosScannable>
+    <otherSlitPosValue>5.0</otherSlitPosValue>
+    <otherSlitSize>1.0</otherSlitSize>
+    <detectorName>det</detectorName>
+    <exposureTime>35.0</exposureTime>
+    <settleTime>5.0</settleTime>
+    <scanDirectory>/dls/ixx/users/</scanDirectory>
+    <scanNumberInputs>7321,7322,7323,7324,7325,7326,7327,7328,7329</scanNumberInputs>
+    <errorFile>34539</errorFile>
+    <beamOffset>0.0</beamOffset>
+    <bimorphScannableName>bm</bimorphScannableName>
+    <bimorphVoltages>4,8,3,5,7,1,9,4,2,6,8,3,5,4</bimorphVoltages>
+    <pixelSize>4.65</pixelSize>
+    <detectorDistance>6.88</detectorDistance>
+    <iSign>upstream</iSign>
+    
+    <inv>1</inv>
+    <method>0</method>
+    
+    <presentSourceMirrorDistance>33.115</presentSourceMirrorDistance>
+    <presentMirrorFocusDistance>6.885</presentMirrorFocusDistance>
+    <presentAngleOfIncidence>2.7</presentAngleOfIncidence>
+    <newSourceMirrorDistance>25.0</newSourceMirrorDistance>
+    <newMirrorFocusDistance>10.0</newMirrorFocusDistance>
+    <newAngleOfIncidence>2.5</newAngleOfIncidence>
+    <focusSize>0.0</focusSize>
+    <calculateErrorFile>true</calculateErrorFile>
+    <returnVoltagesToOriginalValues>true</returnVoltagesToOriginalValues>
+    <autoOffset>true</autoOffset>
+    <autoDist>false</autoDist>
+    <slitScanDetDist>2.0</slitScanDetDist>
+    <presentDetDist>1.0</presentDetDist>
+    <btnGroupElectrodesTogether>false</btnGroupElectrodesTogether>
+</BimorphParameters>

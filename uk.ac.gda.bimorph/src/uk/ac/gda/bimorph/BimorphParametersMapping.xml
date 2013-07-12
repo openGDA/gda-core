@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="uk.ac.gda.beans.bimorph.BimorphParameters">
+		<map-to xml="BimorphParameters" />
+		
+		<field name="mirrorScannableName" type="string">
+			<bind-xml name="mirrorScannableName" node="element" />
+		</field>		
+		<field name="mirrorType" type="string">
+			<bind-xml name="mirrorType" node="element" />
+		</field>
+		<field name="numberOfElectrodes" type="integer">
+			<bind-xml name="numberOfElectrodes" node="element" />
+		</field>	
+		<field name="mirrorLength" type="double">
+			<bind-xml name="mirrorLength" node="element" />
+		</field>	
+		
+		<field name="voltageIncrement" type="double">
+			<bind-xml name="voltageIncrement" node="element" />
+		</field>
+		
+		<field name="slitSizeScannable" type="string">
+			<bind-xml name="slitSizeScannable" node="element" />
+		</field>		
+		<field name="slitPosScannable" type="string">
+			<bind-xml name="slitPosScannable" node="element" />
+		</field>
+		<field name="slitSize" type="double">
+			<bind-xml name="slitSize" node="element" />
+		</field>
+		<field name="slitStart" type="double">
+			<bind-xml name="slitStart" node="element" />
+		</field>
+		<field name="slitEnd" type="double">
+			<bind-xml name="slitEnd" node="element" />
+		</field>
+		<field name="slitStep" type="double">
+			<bind-xml name="slitStep" node="element" />
+		</field>
+		
+		<field name="otherSlitSizeScannable" type="string">
+			<bind-xml name="otherSlitSizeScannable" node="element" />
+		</field>
+		<field name="otherSlitPosScannable" type="string">
+			<bind-xml name="otherSlitPosScannable" node="element" />
+		</field>
+		<field name="otherSlitPosValue" type="double">
+			<bind-xml name="otherSlitPosValue" node="element" />
+		</field>
+		<field name="otherSlitSize" type="double">
+			<bind-xml name="otherSlitSize" node="element" />
+		</field>
+		
+		<field name="detectorName" type="string">
+			<bind-xml name="detectorName" node="element" />
+		</field>
+		<field name="exposureTime" type="double">
+			<bind-xml name="exposureTime" node="element" />
+		</field>
+		<field name="settleTime" type="double">
+			<bind-xml name="settleTime" node="element" />
+		</field>
+		
+		<field name="scanDirectory" type="string">
+			<bind-xml name="scanDirectory" node="element" />
+		</field>		
+		<field name="scanNumberInputs" type="string">
+			<bind-xml name="scanNumberInputs" node="element" />
+		</field>
+		<field name="errorFile" type="string">
+			<bind-xml name="errorFile" node="element" />
+		</field>
+		
+		<field name="beamOffset" type="double">
+			<bind-xml name="beamOffset" node="element" />
+		</field>
+		
+		<field name="bimorphScannableName" type="string">
+			<bind-xml name="bimorphScannableName" node="element" />
+		</field>
+		<field name="bimorphVoltages" type="string">
+			<bind-xml name="bimorphVoltages" node="element" />
+		</field>
+		<field name="pixelSize" type="double">
+			<bind-xml name="pixelSize" node="element" />
+		</field>
+		
+		<field name="detectorDistance" type="double">
+			<bind-xml name="detectorDistance" node="element" />
+		</field>
+				
+		<field name="iSign" type="string">
+			<bind-xml name="iSign" node="element" />
+		</field>
+		
+<!--  -->
+		<field name="inv" type="string">
+			<bind-xml name="inv" node="element" />
+		</field>
+		<field name="method" type="string">
+			<bind-xml name="method" node="element" />
+		</field>
+<!--  -->
+		
+		<field name="presentSourceMirrorDistance" type="double">
+			<bind-xml name="presentSourceMirrorDistance" node="element" />
+		</field>
+		<field name="presentMirrorFocusDistance" type="double">
+			<bind-xml name="presentMirrorFocusDistance" node="element" />
+		</field>
+		<field name="presentAngleOfIncidence" type="double">
+			<bind-xml name="presentAngleOfIncidence" node="element" />
+		</field>
+		
+		<field name="newSourceMirrorDistance" type="double">
+			<bind-xml name="newSourceMirrorDistance" node="element" />
+		</field>
+		<field name="newMirrorFocusDistance" type="double">
+			<bind-xml name="newMirrorFocusDistance" node="element" />
+		</field>
+		<field name="newAngleOfIncidence" type="double">
+			<bind-xml name="newAngleOfIncidence" node="element" />
+		</field>
+		<field name="focusSize" type="double">
+			<bind-xml name="focusSize" node="element" />
+		</field>
+		
+		
+		<field name="calculateErrorFile" type="boolean">
+			<bind-xml name="calculateErrorFile" node="element" />
+		</field>
+		<field name="returnVoltagesToOriginalValues" type="boolean">
+			<bind-xml name="returnVoltagesToOriginalValues" node="element" />
+		</field>
+		<field name="autoOffset" type="boolean">
+			<bind-xml name="autoOffset" node="element" />
+		</field>
+		
+		<field name="autoDist" type="boolean">
+			<bind-xml name="autoDist" node="element" />
+		</field>
+		
+		<field name="slitScanDetDist" type="double">
+			<bind-xml name="slitScanDetDist" node="element" />
+		</field>
+		
+		<field name="presentDetDist" type="double">
+			<bind-xml name="presentDetDist" node="element" />
+		</field>
+		
+		<field name="bimorphGroups" type="string">
+			<bind-xml name="bimorphGroups" node="element" />
+		</field>
+		<field name="btnGroupElectrodesTogether" type="boolean">
+			<bind-xml name="btnGroupElectrodesTogether" node="element" />
+		</field>
+		
+		<field name="minSlitPos" type="double">
+			<bind-xml name="minSlitPos" node="element" />
+		</field>
+		<field name="maxSlitPos" type="double">
+			<bind-xml name="maxSlitPos" node="element" />
+		</field>
+		
+	</class>
+</mapping>

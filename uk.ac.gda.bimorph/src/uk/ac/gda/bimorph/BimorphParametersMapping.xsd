@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	 <xsd:element name="BimorphParameters">
+	 	<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="mirrorScannableName" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="mirrorType" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="numberOfElectrodes" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="mirrorLength" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="voltageIncrement" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="slitSizeScannable" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="slitPosScannable" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="slitSize" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="slitStart" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="slitEnd" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="slitStep" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="otherSlitSizeScannable" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="otherSlitPosScannable" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="otherSlitPosValue" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="otherSlitSize" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="detectorName" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="exposureTime" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="settleTime" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="scanDirectory" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="scanNumberInputs" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="errorFile" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="beamOffset" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="bimorphScannableName" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="bimorphVoltages" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="pixelSize" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				
+				<xsd:element name="detectorDistance" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="iSign" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+				
+<!--  -->
+				<xsd:element name="inv" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="method" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+<!--  -->
+				
+				
+				<xsd:element name="presentSourceMirrorDistance" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="presentMirrorFocusDistance" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="presentAngleOfIncidence" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				
+				<xsd:element name="newSourceMirrorDistance" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="newMirrorFocusDistance" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="newAngleOfIncidence" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				
+				<xsd:element name="focusSize" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="calculateErrorFile" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="returnVoltagesToOriginalValues" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="autoOffset" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
+			
+				<xsd:element name="autoDist" type="xsd:boolean" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="slitScanDetDist" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="presentDetDist" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+
+				<xsd:element name="bimorphGroups" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="btnGroupElectrodesTogether" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="minSlitPos" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="maxSlitPos" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+			</xsd:sequence>	
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
