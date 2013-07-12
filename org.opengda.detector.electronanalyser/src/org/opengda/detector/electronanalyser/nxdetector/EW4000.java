@@ -251,7 +251,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public void update(Object source, Object arg) {
-		if (getCollectionStrategy()==source) {
+		if (source instanceof EW4000CollectionStrategy) {
 			logger.debug("new region is set to : {}", arg.toString());
 			oc.notifyIObservers(this, arg);
 		}		
