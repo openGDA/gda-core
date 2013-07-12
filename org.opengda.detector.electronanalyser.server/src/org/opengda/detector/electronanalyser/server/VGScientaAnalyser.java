@@ -30,7 +30,6 @@ import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
@@ -58,6 +57,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private NeXusFileInterface nexusFile;
 
 	private String regionName;
+
+	private String energyMode;
 
 	@Override
 	public AnalyserCapabilities getCapabilities() {
@@ -185,17 +186,15 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 	
 	}
-	public String writeOut(int scanDataPoint)  {
-		String datafilepath=null;
+	public void writeOut(int scanDataPoint)  {
 		try {
-			datafilepath=nexusFile.getpath();
 	//		InterfaceProvider.getTerminalPrinter().print("Writing region " + getRegionName() + " data to file : "+ datafilepath+". Please wait ......" );
 			nexusFile.opengroup("entry1","NXentry");
 			nexusFile.opengroup("instrument", "NXinstrument");
-			if (nexusFile.groupdir().get(getName()) == null) {
-				nexusFile.makegroup(getName(),"NXdetector");
+			if (nexusFile.groupdir().get("detector") == null) {
+				nexusFile.makegroup("detector","NXdetector");
 			}
-			nexusFile.opengroup(getName(), "NXdetector");
+			nexusFile.opengroup("detector", "NXdetector");
 			if (scanDataPoint == 0) {
 				try {
 					String lensMode= getLensMode();
@@ -206,10 +205,17 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					NeXusUtils.writeNexusString(nexusFile, "energy_mode", getEnergysMode());
 					NeXusUtils.writeNexusString(nexusFile, "detector_mode", getDetectorMode());
 					NeXusUtils.writeNexusInteger(nexusFile, "pass_energy", getPassEnergy());
-					NeXusUtils.writeNexusDouble(nexusFile, "low_energy", getStartEnergy(), "eV");
-					NeXusUtils.writeNexusDouble(nexusFile, "high_energy", getEndEnergy(), "eV");
-					NeXusUtils.writeNexusDouble(nexusFile, "fixed_energy", getCentreEnergy(), "eV");
-					NeXusUtils.writeNexusDouble(nexusFile, "excitation_energy", getExcitationEnergy(), "eV");
+					double excitationEnergy = getExcitationEnergy();
+					if (getEnergyMode().equalsIgnoreCase("Binding")) {
+						NeXusUtils.writeNexusDouble(nexusFile, "low_energy", excitationEnergy-getStartEnergy(), "eV");
+						NeXusUtils.writeNexusDouble(nexusFile, "high_energy", excitationEnergy-getEndEnergy(), "eV");
+						NeXusUtils.writeNexusDouble(nexusFile, "fixed_energy", excitationEnergy-getCentreEnergy(), "eV");
+						
+					} else {
+						NeXusUtils.writeNexusDouble(nexusFile, "low_energy", getStartEnergy(), "eV");
+						NeXusUtils.writeNexusDouble(nexusFile, "high_energy", getEndEnergy(), "eV");
+						NeXusUtils.writeNexusDouble(nexusFile, "fixed_energy", getCentreEnergy(), "eV");
+					}
 					NeXusUtils.writeNexusDouble(nexusFile, "energy_step", getEnergyStep(), "eV");
 					double stepTime = getStepTime();
 					NeXusUtils.writeNexusDouble(nexusFile, "step_time", stepTime, "s");
@@ -231,6 +237,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					double[] axis;
 					try {
 						axis = getEnergyAxis();
+						if (getEnergyMode().equalsIgnoreCase("Binding")) {
+							for (int j=0; j<axis.length; j++) {
+								axis[j]=excitationEnergy-axis[j];
+							}
+						}
+
 						NeXusUtils.writeNexusDoubleArray(nexusFile, aname, axis);
 						nexusFile.opendata(aname);
 						nexusFile.putattr("axis", new int[] {i+1}, NexusFile.NX_INT32);
@@ -274,11 +286,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			nexusFile.closegroup();
 			nexusFile.closegroup();
 			nexusFile.closegroup();
+//			nexusFile.flush();
 		} catch (NexusException e) {
 			logger.error("NexusException on write data out",e);
 		} 
-		return datafilepath;
-
 	}
 
 	private void writeImageData(int scanDataPoint) {
@@ -293,6 +304,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			// Open data array.
 			int rank = datadims.length;
 			if (scanDataPoint == 0) {
+//				//TODO hacks
+//				if (nexusFile.groupdir().get("image_data") != null) {
+//					nexusFile.groupdir().remove("image_data");
+//				}
 				nexusFile.makedata("image_data", NexusFile.NX_INT32, rank, datadims);
 			}
 			nexusFile.opendata("image_data");
@@ -325,7 +340,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			// Open data array.
 			int rank = datadims.length;
 			if (scanDataPoint == 0) {
-				nexusFile.makedata("spectrum_data", NexusFile.NX_INT32, rank, datadims);
+//				//TODO hacks
+//				if (nexusFile.groupdir().get("spectrum_data") != null) {
+//					nexusFile.groupdir().remove("spectrum_data");
+//				}
+				nexusFile.makedata("spectrum_data", NexusFile.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("spectrum_data");
 			int[] startPos = new int[rank];
@@ -354,7 +373,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			// Open data array.
 			int rank = datadims.length;
 			if (scanDataPoint == 0) {
-				nexusFile.makedata("external_io_data", NexusFile.NX_INT32, rank, datadims);
+//				//TODO hacks
+//				if (nexusFile.groupdir().get("external_io_data") != null) {
+//					nexusFile.groupdir().remove("external_io_data");
+//				}
+				nexusFile.makedata("external_io_data", NexusFile.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("external_io_data");
 			int[] startPos = new int[rank];
@@ -377,15 +400,16 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			// Open data array.
 			int rank = datadims.length;
 			if (scanDataPoint == 0) {
-				nexusFile.makedata("excitation_energy", NexusFile.NX_INT32, rank, datadims);
+				nexusFile.makedata("excitation_energy", NexusFile.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("excitation_energy");
 			int[] startPos = new int[rank];
 			int[] slabdatadims = new int[] { 1, dims[0] };
 	
 			double s = getExcitationEnergy();
+			double[] ee= new double[]{s};
 			startPos[0] = scanDataPoint;
-			nexusFile.putslab(s, startPos, slabdatadims);
+			nexusFile.putslab(ee, startPos, slabdatadims);
 			nexusFile.closedata();
 		} catch (NexusException e) {
 			logger.error("Error writing excitation energy to nexus file. ", e);
@@ -774,6 +798,14 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	public void setRegionName(String regionname) {
 		this.regionName = regionname;
+	}
+
+	public String getEnergyMode() {
+		return energyMode;
+	}
+
+	public void setEnergyMode(String energyMode) {
+		this.energyMode = energyMode;
 	}
 
 
