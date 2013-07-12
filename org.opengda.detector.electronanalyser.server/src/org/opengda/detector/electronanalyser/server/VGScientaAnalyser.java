@@ -186,6 +186,17 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 	
 	}
+	@Override
+	public void collectData() throws DeviceException {
+		//TODO test this
+//		try {
+//			getAdBase().startAcquiringSynchronously();
+//		} catch (Exception e) {
+//			throw new DeviceException(e);
+//		}
+		super.collectData();
+	}
+
 	public void writeOut(int scanDataPoint)  {
 		try {
 	//		InterfaceProvider.getTerminalPrinter().print("Writing region " + getRegionName() + " data to file : "+ datafilepath+". Please wait ......" );
@@ -282,10 +293,13 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			writeSpectrumData(scanDataPoint);
 			writeExternalIOData(scanDataPoint);
 			writeExciationEnergy(scanDataPoint);
-			//close opened group in this method
+			//close detector
 			nexusFile.closegroup();
+			//close instrument
 			nexusFile.closegroup();
+			//close entry1
 			nexusFile.closegroup();
+			//TODO Test this
 //			nexusFile.flush();
 		} catch (NexusException e) {
 			logger.error("NexusException on write data out",e);
@@ -301,13 +315,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				return;
 			}
 			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0], dims[1] };
-			// Open data array.
 			int rank = datadims.length;
 			if (scanDataPoint == 0) {
-//				//TODO hacks
-//				if (nexusFile.groupdir().get("image_data") != null) {
-//					nexusFile.groupdir().remove("image_data");
-//				}
 				nexusFile.makedata("image_data", NexusFile.NX_INT32, rank, datadims);
 			}
 			nexusFile.opendata("image_data");
@@ -337,13 +346,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				return;
 			}
 			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
-			// Open data array.
 			int rank = datadims.length;
 			if (scanDataPoint == 0) {
-//				//TODO hacks
-//				if (nexusFile.groupdir().get("spectrum_data") != null) {
-//					nexusFile.groupdir().remove("spectrum_data");
-//				}
 				nexusFile.makedata("spectrum_data", NexusFile.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("spectrum_data");
@@ -370,13 +374,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				return;
 			}
 			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
-			// Open data array.
 			int rank = datadims.length;
 			if (scanDataPoint == 0) {
-//				//TODO hacks
-//				if (nexusFile.groupdir().get("external_io_data") != null) {
-//					nexusFile.groupdir().remove("external_io_data");
-//				}
 				nexusFile.makedata("external_io_data", NexusFile.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("external_io_data");
@@ -397,7 +396,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		try {
 			int[] dims=new int[] {1};
 			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
-			// Open data array.
 			int rank = datadims.length;
 			if (scanDataPoint == 0) {
 				nexusFile.makedata("excitation_energy", NexusFile.NX_FLOAT64, rank, datadims);
