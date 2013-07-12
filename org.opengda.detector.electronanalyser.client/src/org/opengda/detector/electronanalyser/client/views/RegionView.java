@@ -1181,7 +1181,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private void setToFixedMode() {
 		calculateFixedParameters();
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), fixedCentreEnergy);
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), fixedEnergyRange());
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtMinimumSize.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerSlices.getSelection());
@@ -1197,9 +1197,12 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtLow.setEnabled(false);
 		txtHigh.setEnabled(false);
 		txtSize.setEnabled(false);
+		txtWidth.setEnabled(false);
+		spinnerSlices.setEnabled(false);
+
 		// restore the original energy step size for the FIXED
 		txtCenter.setText(String.format("%.4f", fixedCentreEnergy));
-		txtSize.setText(String.format("%.3f", fixedEnergyRange()));
+		txtSize.setText(txtMinimumSize.getText().trim());
 		txtWidth.setText(String.format("%.4f",fixedEnergyRange()/1000.0));
 		txtLow.setText(String.format("%.4f",Double.parseDouble(txtCenter.getText()) - Double.parseDouble(txtWidth.getText())/2));
 		txtHigh.setText(String.format("%.4f",Double.parseDouble(txtCenter.getText()) + Double.parseDouble(txtWidth.getText())/2));

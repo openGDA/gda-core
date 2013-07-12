@@ -90,9 +90,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		double start, step;
 		int length, startChannel = 0;
 		if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
-			int pass = controller.getPassEnergy().intValue();
-			start = controller.getCentreEnergy() - (getCapabilities().getEnergyWidthForPass(pass) / 2);
-			step = getCapabilities().getEnergyStepForPass(pass);
+//			int pass = controller.getPassEnergy().intValue();
+//			start = controller.getCentreEnergy() - (getCapabilities().getEnergyWidthForPass(pass) / 2);
+//			step = getCapabilities().getEnergyStepForPass(pass);
+			start = controller.getStartEnergy();
+			step = controller.getEnergyStep();
 			length = getAdBase().getSizeX();
 			startChannel = getAdBase().getMinX();
 		} else {
@@ -290,8 +292,17 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			}
 			// write data that changes with scan data point here
 			writeImageData(scanDataPoint);
-			writeSpectrumData(scanDataPoint);
-			writeExternalIOData(scanDataPoint);
+			
+			String acquisitionMode = "Swept";
+			try {
+				acquisitionMode = getAcquisitionMode();
+			} catch (Exception e1) {
+				logger.error("Failed to get acquisition mode from analyser", e1);
+			}
+			if (!acquisitionMode.equalsIgnoreCase("Fixed")) {
+				writeSpectrumData(scanDataPoint);
+				writeExternalIOData(scanDataPoint);
+			}
 			writeExciationEnergy(scanDataPoint);
 			//close detector
 			nexusFile.closegroup();
