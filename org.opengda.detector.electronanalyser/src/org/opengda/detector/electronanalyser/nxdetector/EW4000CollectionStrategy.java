@@ -114,7 +114,10 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, IOb
 							} catch (DeviceException e1) {
 								logger.error("failed to stop the analyser acquisition on interrupt.", e1);
 							}
-						} catch (Exception e) {
+						}catch (DeviceException e) {
+							logger.error("failed to collectdata or waitWhileBusy from the analyser.", e);
+						}
+						catch (Exception e) {
 							logger.error("Set new region to detector failed", e);
 						}
 					}
