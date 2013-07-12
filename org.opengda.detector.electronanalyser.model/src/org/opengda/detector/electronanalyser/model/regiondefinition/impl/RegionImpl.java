@@ -745,10 +745,11 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getName() {
-		return name;
+		String newname=name.trim().replaceAll(" ", "_");
+		return newname;
 	}
 
 	/**
