@@ -98,7 +98,6 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	public NeXusFileInterface createFile(String regionName,	Sequence sequence) throws Exception {
 		this.entryName = "entry1";
 
-		// construct filename
 		if (sequence == null) {
 			throw new IllegalArgumentException("Sequence data model must not be null.");
 		}
@@ -133,9 +132,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 
 		String regionNexusFileUrl = dir.getAbsolutePath()+File.separator + regionNexusFileName;
 		InterfaceProvider.getTerminalPrinter().print("Region '" + regionName + "' data will be written to file : "+ regionNexusFileUrl);
-		NeXusFileInterface regionNexusfile = NexusFileFactory.createFile(
-				regionNexusFileUrl, defaultNeXusBackend,
-				LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
+		NeXusFileInterface regionNexusfile = NexusFileFactory.createFile(regionNexusFileUrl, defaultNeXusBackend,LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
 		
 		RegionFileMapper regionFileMapper = new RegionFileMapper(regionName,regionNexusFileUrl,regionNexusfile );
 		files.put(regionName, regionFileMapper);
