@@ -112,6 +112,14 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 		return mdim;
 	}
 	
+	protected int[] minusonedimfordim(int[] dim) {
+		int[] mdim = new int[dim.length];
+		for (int i = 0; i < mdim.length; i++) {
+			mdim[i] = -1;
+		}
+		return mdim;
+	}
+	
 	@Override
 	public Collection<? extends SelfCreatingLink> makeScannable(NeXusFileInterface file, Scannable s, Object position,
 			int[] dim) throws NexusException {
@@ -119,7 +127,7 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 
 		String name = enterLocation(file);
 		
-		file.makedata(name, NexusFile.NX_FLOAT64, dim.length, dim);
+		file.makedata(name, NexusFile.NX_FLOAT64, dim.length, minusonedimfordim(dim));
 		file.opendata(name);
 		
 		String axislist = "1";

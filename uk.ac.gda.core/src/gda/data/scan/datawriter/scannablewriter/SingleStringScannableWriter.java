@@ -56,6 +56,8 @@ public class SingleStringScannableWriter extends SimpleSingleScannableWriter {
 				stringlength = slab.length+10;
 			}
 			
+			dim = minusonedimfordim(dim);
+			
 			if (dim[dim.length-1] == 1) {
 				dim[dim.length-1] = stringlength;
 			} else {
