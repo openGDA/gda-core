@@ -13,6 +13,7 @@ import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import gda.util.Sleep;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,6 +43,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	// private Scriptcontroller scriptController;
 	private boolean busy;
 	private AtomicInteger count=new AtomicInteger(); // enabled region position count
+	private boolean firstInScan;
 	private static final Logger logger = LoggerFactory
 			.getLogger(RegionScannable.class);
 
@@ -139,6 +141,9 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	}
 
 	private void setNewRegion(Region region) throws Exception {
+//		if (!firstInScan) {
+//			return;
+//		}
 		try {
 			busy = true;
 			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 1.0);
@@ -197,6 +202,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 						"Confirm after each iteraction is not yet supported");
 			}
 			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
+			firstInScan=false;
 		} catch (Exception e) {
 			throw e;
 		} finally {
@@ -208,7 +214,11 @@ public class RegionScannable extends ScannableBase implements Scannable {
 		// }
 		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId()));
 	}
-
+@Override
+public void atScanStart() throws DeviceException {
+	firstInScan=true;
+	super.atScanStart();
+}
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		count.set(0);
