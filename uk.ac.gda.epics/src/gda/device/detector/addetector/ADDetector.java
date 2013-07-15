@@ -789,7 +789,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 		
 		appendDataAxes(data);
-		data.setDoubleVals(new Double[0]);
+//		data.setDoubleVals(new Double[0]);
 		appendNXDetectorDataFromCollectionStrategy(data);
 		appendNXDetectorDataFromFileWriter(data);
 		appendNXDetectorDataFromPlugins(data);
