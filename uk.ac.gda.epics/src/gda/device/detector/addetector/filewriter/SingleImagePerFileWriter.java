@@ -178,7 +178,13 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		if (pluginBase != null) {
 			pluginBase.enableCallbacks();
 			logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
-			pluginBase.setBlockingCallbacks((short) (returnExpectedFileName ? 1 : 1)); // always block
+			pluginBase.setBlockingCallbacks((short) 1);
+			// It should be possible to avoid blocking the acquisition thread
+			// and use the pipeline by setting BlockingCallbacks according to
+			// returnExpectedFileName, but when this was tried, at r48170, it
+			// caused the files to be corrupted.
+		} else {
+			logger.warn("Cannot ensure callbacks and blocking callbacks are enebled as pluginBase is not set");
 		}
 
 		getNdFile().setFileWriteMode(fileWriteMode);
