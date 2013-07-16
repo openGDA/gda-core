@@ -262,7 +262,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			resource.eAdapters().add(notifyListener);
 			sequenceTableViewer.setInput(resource);
 		} catch (Exception e2) {
-			logger.error("Cannot load resouce from file.", e2);
+			logger.error("Cannot load resouce from file: "+regionDefinitionResourceUtil.getFileName(), e2);
 		}
 
 		Composite controlArea = new Composite(rootComposite, SWT.None);
