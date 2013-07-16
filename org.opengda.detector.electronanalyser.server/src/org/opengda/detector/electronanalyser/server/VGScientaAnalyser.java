@@ -220,8 +220,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					NeXusUtils.writeNexusInteger(nexusFile, "pass_energy", getPassEnergy());
 					double excitationEnergy = getExcitationEnergy();
 					if (getEnergyMode().equalsIgnoreCase("Binding")) {
-						NeXusUtils.writeNexusDouble(nexusFile, "low_energy", excitationEnergy-getStartEnergy(), "eV");
-						NeXusUtils.writeNexusDouble(nexusFile, "high_energy", excitationEnergy-getEndEnergy(), "eV");
+						NeXusUtils.writeNexusDouble(nexusFile, "low_energy", excitationEnergy-getEndEnergy(), "eV");
+						NeXusUtils.writeNexusDouble(nexusFile, "high_energy", excitationEnergy-getStartEnergy(), "eV");
 						NeXusUtils.writeNexusDouble(nexusFile, "fixed_energy", excitationEnergy-getCentreEnergy(), "eV");
 						
 					} else {
@@ -250,6 +250,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					double[] axis;
 					try {
 						axis = getEnergyAxis();
+						//convert EPICS Kinetic energy to GDA Binding energies
 						if (getEnergyMode().equalsIgnoreCase("Binding")) {
 							for (int j=0; j<axis.length; j++) {
 								axis[j]=excitationEnergy-axis[j];
@@ -292,17 +293,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			}
 			// write data that changes with scan data point here
 			writeImageData(scanDataPoint);
-			
-			String acquisitionMode = "Swept";
-			try {
-				acquisitionMode = getAcquisitionMode();
-			} catch (Exception e1) {
-				logger.error("Failed to get acquisition mode from analyser", e1);
-			}
-			if (!acquisitionMode.equalsIgnoreCase("Fixed")) {
-				writeSpectrumData(scanDataPoint);
-				writeExternalIOData(scanDataPoint);
-			}
+			writeSpectrumData(scanDataPoint);
+			writeExternalIOData(scanDataPoint);
 			writeExciationEnergy(scanDataPoint);
 			//close detector
 			nexusFile.closegroup();
@@ -378,7 +370,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	private void writeExternalIOData(int scanDataPoint) {
 		try {
-			int size = getEnergyAxis().length;
+			int size;
+			if (getAcquisitionMode().equalsIgnoreCase("Fixed")) {
+				size =1;
+			} else {
+				size = getEnergyAxis().length;
+			}
 			int[] dims=new int[] {size};
 			if (dims.length == 0) {
 				logger.warn("Dimensions of external IO data from " + getName() + " are zero length");
