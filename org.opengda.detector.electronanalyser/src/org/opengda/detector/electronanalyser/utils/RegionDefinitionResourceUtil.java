@@ -141,6 +141,7 @@ public class RegionDefinitionResourceUtil {
 		File seqFile = new File(fileName);
 		if (!seqFile.exists()) {
 			seqFile.createNewFile();
+			createSequence();
 		}
 		URI fileURI = URI.createFileURI(fileName);
 		return resourceSet.getResource(fileURI, true);
@@ -188,7 +189,9 @@ public class RegionDefinitionResourceUtil {
 
 		Spectrum spectrum = RegiondefinitionFactory.eINSTANCE.createSpectrum();
 		Sequence seq = RegiondefinitionFactory.eINSTANCE.createSequence();
+		Region region=RegiondefinitionFactory.eINSTANCE.createRegion();
 		seq.setSpectrum(spectrum);
+		seq.getRegion().add(region);
 		root.setSequence(seq);
 		newResource.getContents().add(root);
 
