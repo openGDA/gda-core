@@ -1,6 +1,10 @@
 package org.opengda.detector.electronanalyser.utils;
 
 import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.Metadata;
+import gda.device.DeviceException;
+import gda.jython.InterfaceProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,18 +43,50 @@ public class RegionDefinitionResourceUtil {
 	 * @return
 	 */
 	public String getDefaultSequenceFilename() {
-		String filename;
-		String defaultFolder = PathConstructor.createFromDefaultProperty();
-		if (defaultFolder != null && defaultFolder.isEmpty()) {
-			filename = System.getProperty("user.home") + File.pathSeparator
-					+ defaultSequenceFilename;
-		} else {
-			filename = defaultFolder + File.pathSeparator
-					+ defaultSequenceFilename;
-		}
-		return filename;
+		return defaultSequenceFilename;
 	}
-
+	/**
+	 * return the default sequence file directory. 
+	 * 
+	 * This directory must have permission for GDA client to write to.
+	 * At DLS it is always the 'xml' directory under the directory defined by
+	 * the java property {@code gda.data.scan.datawriter.datadir}. 
+	 * If this property is set, it will use the path specified by this property 
+	 * to store the sequence file. If this property is not set, it will use 
+	 * {@code use.home} property to store the sequence file.
+	 * 
+	 * 
+	 * @return
+	 */
+	public String getDefaultSequenceDirectory() {
+		String dir = null;
+		String metadataValue = null;
+		Metadata metadata = GDAMetadataProvider.getInstance();
+		try {
+			//must test if 'subdirectory' is set as client can only write to the 
+			//'xml' directory under the visit root folder
+			metadataValue = metadata.getMetadataValue("subdirectory");
+			if (metadataValue != null && !metadataValue.isEmpty()) {
+				metadata.setMetadataValue("subdirectory", "");
+			}
+			String defaultFolder = PathConstructor.createFromDefaultProperty();
+			if (defaultFolder != null && defaultFolder.isEmpty()) {
+				dir = System.getProperty("user.home") + File.separator;
+			} else {
+				if (!defaultFolder.endsWith(File.separator)) {
+					defaultFolder+=File.separator;
+				}
+				dir = defaultFolder + "xml";
+			}
+			// set the original value back for other processing
+			metadata.setMetadataValue("subdirectory", metadataValue);
+		} catch (DeviceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return dir;
+	}
+	
 	private String fileName;
 
 	public String getFileName() {
@@ -72,6 +108,9 @@ public class RegionDefinitionResourceUtil {
 	 * @param fileName
 	 */
 	public void setFileName(String fileName) {
+		if (!fileName.startsWith(File.separator)) {
+			fileName=getDefaultSequenceDirectory()+File.separator+fileName;
+		}
 		try {
 			if(getResource()!=null) {
 				getResource().unload();
@@ -97,7 +136,7 @@ public class RegionDefinitionResourceUtil {
 	public Resource getResource() throws Exception {
 		ResourceSet resourceSet = getResourceSet();
 		if (fileName == null) {
-			fileName = getDefaultSequenceFilename();
+			fileName = getFileName();
 		}
 		File seqFile = new File(fileName);
 		if (seqFile.exists()) {
