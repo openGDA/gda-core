@@ -139,11 +139,11 @@ public class RegionDefinitionResourceUtil {
 			fileName = getFileName();
 		}
 		File seqFile = new File(fileName);
-		if (seqFile.exists()) {
-			URI fileURI = URI.createFileURI(fileName);
-			return resourceSet.getResource(fileURI, true);
+		if (!seqFile.exists()) {
+			seqFile.createNewFile();
 		}
-		return null;
+		URI fileURI = URI.createFileURI(fileName);
+		return resourceSet.getResource(fileURI, true);
 	}
 	
 	private ResourceSet getResourceSet() throws Exception {
