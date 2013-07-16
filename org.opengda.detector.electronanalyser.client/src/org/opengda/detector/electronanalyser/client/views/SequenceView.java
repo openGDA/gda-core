@@ -130,8 +130,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private List<ISelectionChangedListener> selectionChangedListeners;
 	private Camera camera;
-	//private IObserver processorObserver;
-	//private Processor processor;
 
 	public SequenceView() {
 		setTitleToolTip("Create a new or editing an existing sequence");
@@ -212,7 +210,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		gl_root.horizontalSpacing = 2;
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(gl_root);
-		// new Label(rootComposite, SWT.NONE);
 
 		Composite tableViewerContainer = new Composite(rootComposite, SWT.None);
 
@@ -874,10 +871,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private EditingDomain editingDomain;
 
-	//private Queue queue;
-
-	//private IObserver queueObserver;
-
 	private Action startRunOnServerAction;
 
 	private Scriptcontroller scriptcontroller;
@@ -916,17 +909,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 
 		if (regionDefinitionResourceUtil != null) {
-			String fileName = regionDefinitionResourceUtil.getFileName();
-			File seqFile=new File(fileName);
-			// new user visit need to create an empty sequence file using default name and dir
-			if (!seqFile.exists()) {
-				try {
-					seqFile.createNewFile();
-				} catch (IOException e) {
-					logger.error("Exception on create a new sequence file: "+fileName, e);
-					throw new IllegalStateException("Exception on create a new sequence file: "+fileName, e);
-				}
-			}
 			try {
 				sequence = regionDefinitionResourceUtil.getSequence();
 			} catch (Exception e) {
@@ -996,43 +978,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		sequenceTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },
 				new EditingDomainViewerDropAdapter(editingDomain, sequenceTableViewer));
 
-		// sequenceTableViewer.setSelection(new StructuredSelection(
-		// sequenceTableViewer.getElementAt(0)), true);
 		updateCalculatedData();
-		/* using command queue to process data collection specified in this table */
-//		processor = CommandQueueViewFactory.getProcessor();
-//		queue = CommandQueueViewFactory.getQueue();
-//		if (processor != null) {
-//			processorObserver = new IObserver() {
-//
-//				@Override
-//				public void update(Object source, final Object arg) {
-//					updateState(source, arg);
-//				}
-//			};
-//			processor.addIObserver(processorObserver);
-//		}
-//		if (queue != null) {
-//			queueObserver = new IObserver() {
-//
-//				@Override
-//				public void update(Object source, Object arg) {
-//					if (source instanceof CommandQueue && arg instanceof QueueChangeEvent) {
-//						try {
-//							if (queue.getSummaryList().isEmpty()) {
-//								// when queue processing completed, reset controls and all regions' status to READY.
-//								runningonserver = false;
-//								updateActionIconsState();
-//								resetRegionStatus();
-//							}
-//						} catch (Exception e) {
-//							logger.error("Cannot get summary list from queue.", e);
-//						}
-//					}
-//				}
-//			};
-//			queue.addIObserver(queueObserver);
-//		}
 		prepareRunOnServerActions();
 		channelmanager = new EpicsChannelManager(this);
 		scriptcontroller = Finder.getInstance().find("SequenceFileObserver");
@@ -1056,37 +1002,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		logger.debug("analyser state channel and monitor are created");
 	}
 
-//	private IObserver commandObserver = new IObserver() {
-//
-//		@Override
-//		public void update(Object source, Object arg) {
-//			if (source instanceof RegionCommand) {
-//				RegionCommand command = (RegionCommand) source;
-//				Region region = command.getRegion();
-//				if (arg instanceof gda.commandqueue.Command.STATE) {
-//					gda.commandqueue.Command.STATE cmdState = (gda.commandqueue.Command.STATE) arg;
-//					if (cmdState.equals(gda.commandqueue.Command.STATE.PAUSED)) {
-//						// not supported
-//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.RUNNING)) {
-//						region.setStatus(STATUS.RUNNING);
-//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.COMPLETED)) {
-//						region.setStatus(STATUS.COMPLETED);
-//						command.deleteIObserver(commandObserver);
-//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.ABORTED)) {
-//						region.setStatus(STATUS.ABORTED);
-//						command.deleteIObserver(commandObserver);
-//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.ERROR)) {
-//						region.setStatus(STATUS.ABORTED);
-//						command.deleteIObserver(commandObserver);
-//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.NOT_STARTED)) {
-//						region.setStatus(STATUS.READY);
-//					}
-//				}
-//				sequenceTableViewer.refresh();
-//			}
-//		}
-//	};
-
 	private Action stopRunOnServerAction;
 
 	private void prepareRunOnServerActions() {
@@ -1097,19 +1012,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				logger.info("Calling start on server.");
 				runningonserver = true;
 				updateActionIconsState();
-//				for (Region region : regions) {
-//					if (region.isEnabled()) {
-//						final RegionCommand command = new RegionCommand(region);
-//						command.addIObserver(commandObserver);
-//						try {
-//							queue.addToTail(command);
-//						} catch (Exception e) {
-//							logger.error("Cannot add region " + command.getRegion().getName() + " to the processing queue.", e);
-//						}
-//					}
-//				}
 				try {
-//					processor.start(500);
 					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
 					jsf.runCommand(String.format("analyserscan regions '%s' ew4000", regionDefinitionResourceUtil.getFileName()));
 				} catch (Exception e) {
@@ -1131,10 +1034,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				try {
 					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
 					jsf.haltCurrentScan();
-//					processor.stop(1000);
-//					if (!queue.getSummaryList().isEmpty()) {
-//						queue.removeAll();
-//					}
 					runningonserver = false;
 				} catch (Exception e) {
 					logger.error("exception throws on stop queue processor.", e);
@@ -1153,54 +1052,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	}
 
-//	private void updateState(Object source, final Object arg) {
-//		if (source instanceof IFindableQueueProcessor) {
-//			IFindableQueueProcessor processor = (IFindableQueueProcessor) source;
-//			try {
-//				ProcessorCurrentItem currentItem = processor.getCurrentItem();
-//
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-//
-//				@Override
-//				public void run() {
-//					if (arg instanceof CommandProgress) {
-//						// nothing to do, we use EPICS Monitor to update Region Command Progress independently
-//					} else if (arg instanceof gda.commandqueue.Command.STATE) {
-//						gda.commandqueue.Command.STATE cmdState = (gda.commandqueue.Command.STATE) arg;
-//						if (cmdState.equals(gda.commandqueue.Command.STATE.PAUSED)) {
-//							// not supported
-//						} else if (cmdState.equals(gda.commandqueue.Command.STATE.RUNNING)) {
-//
-//						} else if (cmdState.equals(gda.commandqueue.Command.STATE.COMPLETED)) {
-//							// TODO set COMPLETED image
-//						} else if (cmdState.equals(gda.commandqueue.Command.STATE.ABORTED)) {
-//							// TODO set ERROR image
-//						}
-//					} else if (arg instanceof Processor.STATE) {
-//						Processor.STATE prcState = (Processor.STATE) arg;
-//						switch (prcState) {
-//						case PROCESSING_ITEMS:
-//
-//							break;
-//						case UNKNOWN:
-//							break;
-//						case WAITING_QUEUE:
-//							break;
-//						case WAITING_START:
-//							// reset all region state to their deafult: selected
-//							// -
-//							// ready, unselected to null/empty/no image.
-//							break;
-//						}
-//					}
-//				}
-//			});
-//		}
-//	}
 
 	private void updateCalculatedData() {
 		int numActives = 0;
@@ -1358,12 +1209,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		try {
 			resource.eAdapters().remove(notifyListener);
-			//
 			regionDefinitionResourceUtil.setFileName(seqFileName);
 			if (newFile) {
 				regionDefinitionResourceUtil.createSequence();
 			}
-			// regionDefinitionResourceUtil.setFileChanged(true);
 			fireSelectionChanged(new FileSelection());
 			Resource sequenceRes = regionDefinitionResourceUtil.getResource();
 			sequenceTableViewer.setInput(sequenceRes);
@@ -1505,13 +1354,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//		if (processor != null && processorObserver != null) {
-//			processor.deleteIObserver(processorObserver);
-//			processor = null;
-//		}
-//		if (queue != null) {
-//			queue = null;
-//		}
 		super.dispose();
 	}
 
@@ -1568,7 +1410,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			});
 		}
-		// if (source.equals(regionScannable)) {
 		if (source == regionScannable) {
 			if (arg instanceof RegionChangeEvent) {
 				String regionId = ((RegionChangeEvent) arg).getRegionId();
