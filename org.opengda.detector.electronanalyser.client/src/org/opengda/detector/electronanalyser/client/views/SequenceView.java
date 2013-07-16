@@ -18,6 +18,7 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -144,7 +145,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Text txtLocation;
 	private Text txtUser;
 	private Text txtSample;
-	private Text txtFilename;
+	private Text txtPrefix;
 	private Text txtComments;
 	private int nameCount;
 	private String location;
@@ -422,23 +423,49 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		grpInfo.setLayout(new GridLayout(3, false));
 
 		Label lblLocation = new Label(grpInfo, SWT.NONE);
-		lblLocation.setText("Location");
+		lblLocation.setText("Beamline:");
 
-		txtLocation = new Text(grpInfo, SWT.BORDER | SWT.READ_ONLY);
+		txtLocation = new Text(grpInfo, SWT.BORDER);
 		// this field is set in Spring configuration per beamline
+		txtLocation.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				if (e.getSource().equals(txtLocation)) {
+					try {
+						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_Location(),
+								txtLocation.getText().trim());
+					} catch (Exception e1) {
+						logger.error("Cannot get the spectrum from this sequence.", e1);
+					}
+				}
+			}
+		});
 		txtLocation.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtLocation.setText("Location");
+		txtLocation.setText("Beamline Name");
 
 		Label lblComments = new Label(grpInfo, SWT.NONE);
 		lblComments.setText("Add comments below:");
 
 		Label lblUser = new Label(grpInfo, SWT.NONE);
-		lblUser.setText("User");
+		lblUser.setText("Visit ID:");
 
 		txtUser = new Text(grpInfo, SWT.BORDER );
 		// this field is set dynamically to user proposal number in GDA
+		txtUser.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				if (e.getSource().equals(txtUser)) {
+					try {
+						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_User(),
+								txtUser.getText().trim());
+					} catch (Exception e1) {
+						logger.error("Cannot get the spectrum from this sequence.", e1);
+					}
+				}
+			}
+		});
 		txtUser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtUser.setText("User");
+		txtUser.setText("visit-ID");
 
 		txtComments = new Text(grpInfo, SWT.BORDER | SWT.MULTI | SWT.WRAP);
 		txtComments.addFocusListener(new FocusAdapter() {
@@ -471,13 +498,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			}
 		});
-		txtComments.setText("comments");
+		txtComments.setText("Comments");
 		GridData gd_txtComments = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
 		gd_txtComments.verticalSpan = 4;
 		txtComments.setLayoutData(gd_txtComments);
 
 		Label lblSample = new Label(grpInfo, SWT.NONE);
-		lblSample.setText("Sample");
+		lblSample.setText("Sample:");
 
 		txtSample = new Text(grpInfo, SWT.BORDER);
 		txtSample.addSelectionListener(new SelectionAdapter() {
@@ -486,7 +513,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				if (e.getSource().equals(txtSample)) {
 					try {
 						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_SampleName(),
-								txtSample.getText());
+								txtSample.getText().trim());
 					} catch (Exception e1) {
 						logger.error("Cannot get the spectrum from this sequence.", e1);
 					}
@@ -494,22 +521,22 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		});
 		txtSample.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtSample.setText("Sample");
+		txtSample.setText("Sample name");
 
-		Label lblFileName = new Label(grpInfo, SWT.NONE);
-		GridData gd_lblFileName = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lblFileName.widthHint = 59;
-		lblFileName.setLayoutData(gd_lblFileName);
-		lblFileName.setText("File Prefix");
+		Label lblPrefix = new Label(grpInfo, SWT.NONE);
+//		GridData gd_lblFileName = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+//		gd_lblFileName.widthHint = 59;
+//		lblFileName.setLayoutData(gd_lblFileName);
+		lblPrefix.setText("File Prefix:");
 
-		txtFilename = new Text(grpInfo, SWT.BORDER);
-		txtFilename.addSelectionListener(new SelectionAdapter() {
+		txtPrefix = new Text(grpInfo, SWT.BORDER);
+		txtPrefix.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtFilename)) {
+				if (e.getSource().equals(txtPrefix)) {
 					try {
 						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_FilenamePrefix(),
-								txtFilename.getText());
+								txtPrefix.getText().trim());
 					} catch (Exception e1) {
 						logger.error("Cannot get the spectrum from this sequence.", e1);
 					}
@@ -517,13 +544,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		});
 		GridData gd_txtFilename = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_txtFilename.widthHint = 104;
-		txtFilename.setLayoutData(gd_txtFilename);
-		txtFilename.setText("Filename Prefix");
+//		gd_txtFilename.widthHint = 104;
+//		txtPrefix.setLayoutData(gd_txtFilename);
+		txtPrefix.setText("Filename Prefix");
 
-		Label lblNewLabel = new Label(grpInfo, SWT.NONE);
-		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("Name Format");
+		Label lblFormat = new Label(grpInfo, SWT.NONE);
+//		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblFormat.setText("Filename format:");
 
 		txtfilenameformat = new Text(grpInfo, SWT.BORDER);
 		txtfilenameformat.addSelectionListener(new SelectionAdapter() {
@@ -532,14 +559,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				if (e.getSource().equals(txtfilenameformat)) {
 					try {
 						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_FilenameFormat(),
-								txtfilenameformat.getText());
+								txtfilenameformat.getText().trim());
 					} catch (Exception e1) {
 						logger.error("Cannot get the spectrum from this sequence.", e1);
 					}
 				}
 			}
 		});
-		txtfilenameformat.setText("%s_%5d_%3d_%s");
+		txtfilenameformat.setText("%s_%5d_%s");
 		txtfilenameformat.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
 		Group grpSequnceRunMode = new Group(rightArea, SWT.NONE);
@@ -618,6 +645,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		});
 		spinner.setMinimum(1);
+		spinner.setMaximum(Integer.MAX_VALUE);
 		spinner.setToolTipText("Set number of iterations required");
 
 		btnRepeatuntilStopped = new Button(grpSequnceRunMode, SWT.RADIO);
@@ -888,6 +916,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 
 		if (regionDefinitionResourceUtil != null) {
+			String fileName = regionDefinitionResourceUtil.getFileName();
+			File seqFile=new File(fileName);
+			// new user visit need to create an empty sequence file using default name and dir
+			if (!seqFile.exists()) {
+				try {
+					seqFile.createNewFile();
+				} catch (IOException e) {
+					logger.error("Exception on create a new sequence file: "+fileName, e);
+					throw new IllegalStateException("Exception on create a new sequence file: "+fileName, e);
+				}
+			}
 			try {
 				sequence = regionDefinitionResourceUtil.getSequence();
 			} catch (Exception e) {
@@ -906,13 +945,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				if (getLocation() != null) {
 					txtLocation.setText(getLocation());
 				} else {
-					txtLocation.setText("Diamond Beamline");
+					txtLocation.setText("Beamline name");
 				}
-				if (!spectrum.getLocation().equals(txtLocation.getText())) {
+				// send the change to sequence file
+				if (!spectrum.getLocation().equalsIgnoreCase(txtLocation.getText().trim())) {
 					updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_Location(), txtLocation.getText());
 				}
 				if (getVisit() != null) {
-					// Obtain visit proposal from GDA property RCP_APP_VISIT
+					// Obtain visit ID from GDA property RCP_APP_VISIT
 					txtUser.setText(getVisit());
 				} else if (getUser() != null) {
 					// set by Spring configuration
@@ -921,11 +961,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					// default to user home folder
 					txtUser.setText(System.getProperty("user.name"));
 				}
-				if (!spectrum.getUser().equals(txtUser.getText())) {
+				if (!spectrum.getUser().equalsIgnoreCase(txtUser.getText().trim())) {
 					updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_User(), txtUser.getText());
 				}
 				txtSample.setText(spectrum.getSampleName());
-				txtFilename.setText(spectrum.getFilenamePrefix());
+				txtPrefix.setText(spectrum.getFilenamePrefix());
 				txtfilenameformat.setText(spectrum.getFilenameFormat());
 				txtSequenceFilePath.setText(regionDefinitionResourceUtil.getFileName());
 
@@ -936,7 +976,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				txtComments.setText(comments);
 				// System.out.println(txtComments.getText());
 			}
-			regions = sequence.getRegion();
 		} else {
 			// start a new sequence
 			if (regionDefinitionResourceUtil != null) {
@@ -947,6 +986,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			}
 		}
+		// initialise region list
+		regions= sequence.getRegion();
 		// add drag and drop support,must ensure editing domain not null at this
 		// point.
 		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },
@@ -1351,11 +1392,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			spectrum = regionDefinitionResourceUtil.getSpectrum();
 			if (spectrum != null) {
 				txtSample.setText(spectrum.getSampleName());
-				txtFilename.setText(spectrum.getFilenamePrefix());
+				txtPrefix.setText(spectrum.getFilenamePrefix());
 				txtfilenameformat.setText(spectrum.getFilenameFormat());
 			} else {
 				txtSample.setText("");
-				txtFilename.setText("");
+				txtPrefix.setText("");
 				txtfilenameformat.setText("");
 			}
 			txtSequenceFilePath.setText(regionDefinitionResourceUtil.getFileName());
@@ -1460,6 +1501,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		try {
 			regionDefinitionResourceUtil.getResource().eAdapters().remove(notifyListener);
 			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
+			stateChannel.dispose();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1500,7 +1542,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	public String getVisit() {
-		if (visit != null) {
+		if (visit == null) {
 			visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
 		}
 		return visit;
