@@ -97,9 +97,21 @@ public class AnalyserCapabilities implements Findable {
 		int handledsize=slices*chunksize;
 		double[] doubles = lens2angles.get(lensTable);
 		double[] values = Arrays.copyOfRange(doubles, startChannel, startChannel+handledsize);
-		AbstractDataset angledatasets=new DoubleDataset(values, slices, chunksize);
-		AbstractDataset mean = angledatasets.mean(0);
-		return ((DoubleDataset)mean).getData();
+		double[] mean= new double[slices];
+		for (int i=0; i<slices; i++) {
+			double mychunksum=0;
+			for (int j=0; j<chunksize; j++) {
+				mychunksum+=values[j+i*chunksize];
+			}
+			mean[i]=mychunksum/chunksize;
+		}
+//		AbstractDataset angledatasets=new DoubleDataset(values, slices, chunksize);
+//		double[] mean = new double[slices]; 
+//		for (int i=0; i<slices; i++) {
+//			AbstractDataset slice = angledatasets.getSlice(new int[] {0, i}, new int[] {chunksize-1, i+1}, null);
+//			mean[i] = Double.parseDouble(slice.mean().toString());
+//		}
+		return mean;
 	}
 	public String[] getLensModes() {
 		return lens2angles.keySet().toArray(new String[0]);

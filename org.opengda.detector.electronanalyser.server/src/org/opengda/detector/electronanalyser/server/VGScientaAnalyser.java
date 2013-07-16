@@ -30,6 +30,7 @@ import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
+import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
