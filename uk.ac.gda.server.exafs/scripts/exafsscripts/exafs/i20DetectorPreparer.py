@@ -34,7 +34,6 @@ class I20DetectorPreparer:
             from gda.device.detector import VortexDetectorConfiguration
             VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputParameters).configure()
             
-        
         ionChamberParamsArray = None
         if detectorParameters.getExperimentType() == "Fluorescence" :
             ionChamberParamsArray = detectorParameters.getFluorescenceParameters().getIonChamberParameters()
@@ -44,48 +43,50 @@ class I20DetectorPreparer:
             ionChamberParamsArray = detectorParameters.getXesParameters().getIonChamberParameters()
         
         for ionChamberParams in ionChamberParamsArray:
-            if ionChamberParams.getChangeSensitivity():
-                ionChamberName = ionChamberParams.getName()
-                if ionChamberParams.getGain() == None or ionChamberParams.getGain() == "":
-                    continue
-                sensitivity, units = ionChamberParams.getGain().split()
-                
-                index = 0
-                if ionChamberName == "It":
-                    index = 1;
-                elif ionChamberName == "Iref":
-                    index = 2;
-                elif ionChamberName == "I1":
-                    index = 3;
-                
-                try:
-                    print "Changing sensitivity of",ionChamberName,"to",ionChamberParams.getGain()
-                    self.sensitivities[index](sensitivity)
-                    self.sensitivity_units[index](units)
-                except Exception, e:
-                    print "Exception while trying to change the sensitivity of ion chamber",ionChamberName
-                    print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan"
-                    print "Please report this problem to Data Acquisition"
-                    raise e
-                
-                if ionChamberParams.getOffset() == None or ionChamberParams.getOffset() == "":
-                    continue
-                offset, units = ionChamberParams.getOffset().split()
-                
-                index = 0
-                if ionChamberName == "It":
-                    index = 1;
-                elif ionChamberName == "Iref":
-                    index = 2;
-                elif ionChamberName == "I1":
-                    index = 3;
-                
-                try:
-                    print "Changing amp offset of",ionChamberName,"to",ionChamberParams.getOffset()
-                    self.offsets[index](offset)
-                    self.offset_units[index](units)
-                except Exception, e:
-                    print "Exception while trying to change the sensitivity of ion chamber",ionChamberName
-                    print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan"
-                    print "Please report this problem to Data Acquisition"
-                    raise e
+            self.setup_amp_sensitivity(ionChamberParams, self.sensitivities, self.sensitivity_units)
+            self.setup_amp_offset(ionChamberParams, self.offsets, self.offset_units)
+            
+    def setup_amp_sensitivity(self, ionChamberParams, sensitivities, sensitivity_units):
+        if ionChamberParams.getChangeSensitivity():
+            ionChamberName = ionChamberParams.getName()
+            if ionChamberParams.getGain() == None or ionChamberParams.getGain() == "":
+                continue
+            sensitivity, units = ionChamberParams.getGain().split()
+            index = 0
+            if ionChamberName == "It":
+                index = 1;
+            elif ionChamberName == "Iref":
+                index = 2;
+            elif ionChamberName == "I1":
+                index = 3;
+            try:
+                print "Changing sensitivity of",ionChamberName,"to",ionChamberParams.getGain()
+                sensitivities[index](sensitivity)
+                sensitivity_units[index](units)
+            except Exception, e:
+                print "Exception while trying to change the sensitivity of ion chamber",ionChamberName
+                print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan"
+                print "Please report this problem to Data Acquisition"
+                raise e
+            
+    def setup_amp_offset(self, ionChamberParams, offsets, offset_units):
+        if ionChamberParams.getChangeSensitivity():
+            if ionChamberParams.getOffset() == None or ionChamberParams.getOffset() == "":
+                continue
+            offset, units = ionChamberParams.getOffset().split()
+            index = 0
+            if ionChamberName == "It":
+                index = 1;
+            elif ionChamberName == "Iref":
+                index = 2;
+            elif ionChamberName == "I1":
+                index = 3;
+            try:
+                print "Changing amp offset of",ionChamberName,"to",ionChamberParams.getOffset()
+                offsets[index](offset)
+                offset_units[index](units)
+            except Exception, e:
+                print "Exception while trying to change the sensitivity of ion chamber",ionChamberName
+                print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan"
+                print "Please report this problem to Data Acquisition"
+                raise e
