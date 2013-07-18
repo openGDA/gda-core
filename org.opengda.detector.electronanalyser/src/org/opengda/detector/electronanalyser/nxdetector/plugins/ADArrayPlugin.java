@@ -236,7 +236,7 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 
 			data.addData(detectorName, "lens_mode", new NexusGroupData(analyser.getLensMode()), null, null);
 			data.addData(detectorName, "acquisition_mode", new NexusGroupData(analyser.getAcquisitionMode()), null, null);
-			data.addData(detectorName, "energy_mode", new NexusGroupData( analyser.getEnergysMode() ), null, null);
+			data.addData(detectorName, "energy_mode", new NexusGroupData( analyser.getEnergyMode() ), null, null);
 			data.addData(detectorName, "detector_mode", new NexusGroupData( analyser.getDetectorMode() ), null, null);
 			
 			data.addData(detectorName, "pass_energy", new int[] {1}, NexusFile.NX_INT32, new int[] { analyser.getPassEnergy()}, null, null);

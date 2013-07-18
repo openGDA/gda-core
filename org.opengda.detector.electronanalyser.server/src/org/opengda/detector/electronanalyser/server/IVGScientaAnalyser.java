@@ -64,9 +64,9 @@ public interface IVGScientaAnalyser extends Findable {
 
 	public abstract String getAcquisitionMode() throws Exception;
 
-	public abstract void setEnergysMode(String value) throws Exception;
+	public abstract void setEnergyMode(String value) throws Exception;
 
-	public abstract String getEnergysMode() throws Exception;
+	public abstract String getEnergyMode() throws Exception;
 
 	public abstract void setDetectorMode(String value) throws Exception;
 
@@ -129,7 +129,7 @@ public interface IVGScientaAnalyser extends Findable {
 
 	void setDetectorMode(String value, double timeout) throws Exception;
 
-	void setEnergysMode(String value, double timeout) throws Exception;
+	void setEnergyMode(String value, double timeout) throws Exception;
 
 	void setPassEnergy(Integer value, double timeout) throws Exception;
 

@@ -27,10 +27,11 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.NDArray;
+import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
+import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
@@ -59,7 +60,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	private String regionName;
 
-	private String energyMode;
+	private String cachedEnergyMode;
+
 
 	@Override
 	public AnalyserCapabilities getCapabilities() {
@@ -159,7 +161,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 			data.addData(getName(), "acquisition_mode", new NexusGroupData(getAcquisitionMode()), null, null);
 			
-			data.addData(getName(), "energy_mode", new NexusGroupData( getEnergysMode() ), null, null);
+			data.addData(getName(), "energy_mode", new NexusGroupData( getEnergyMode() ), null, null);
 
 			data.addData(getName(), "detector_mode", new NexusGroupData( getDetectorMode() ), null, null);
 
@@ -216,11 +218,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					NeXusUtils.writeNexusString(nexusFile, "reagion_name", getRegionName());
 					NeXusUtils.writeNexusString(nexusFile, "lens_mode", lensMode);
 					NeXusUtils.writeNexusString(nexusFile, "acquisition_mode", getAcquisitionMode());
-					NeXusUtils.writeNexusString(nexusFile, "energy_mode", getEnergysMode());
+					NeXusUtils.writeNexusString(nexusFile, "energy_mode", getEnergyMode());
 					NeXusUtils.writeNexusString(nexusFile, "detector_mode", getDetectorMode());
 					NeXusUtils.writeNexusInteger(nexusFile, "pass_energy", getPassEnergy());
 					double excitationEnergy = getExcitationEnergy();
-					if (getEnergyMode().equalsIgnoreCase("Binding")) {
+					if (getCachedEnergyMode().equalsIgnoreCase("Binding")) {
 						NeXusUtils.writeNexusDouble(nexusFile, "low_energy", excitationEnergy-getEndEnergy(), "eV");
 						NeXusUtils.writeNexusDouble(nexusFile, "high_energy", excitationEnergy-getStartEnergy(), "eV");
 						NeXusUtils.writeNexusDouble(nexusFile, "fixed_energy", excitationEnergy-getCentreEnergy(), "eV");
@@ -252,7 +254,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					try {
 						axis = getEnergyAxis();
 						//convert EPICS Kinetic energy to GDA Binding energies
-						if (getEnergyMode().equalsIgnoreCase("Binding")) {
+						if (getCachedEnergyMode().equalsIgnoreCase("Binding")) {
 							for (int j=0; j<axis.length; j++) {
 								axis[j]=excitationEnergy-axis[j];
 							}
@@ -590,16 +592,16 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		return controller.getAcquisitionMode();
 	}
 	@Override
-	public void setEnergysMode(String value) throws Exception {
+	public void setEnergyMode(String value) throws Exception {
 		controller.setEnergyMode(value);
 	}
 	@Override
-	public void setEnergysMode(String value, double timeout) throws Exception {
+	public void setEnergyMode(String value, double timeout) throws Exception {
 		controller.setEnergyMode(value, timeout);
 	}
 
 	@Override
-	public String getEnergysMode() throws Exception {
+	public String getEnergyMode() throws Exception {
 		return controller.getEnergyMode();
 	}
 
@@ -807,12 +809,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		this.regionName = regionname;
 	}
 
-	public String getEnergyMode() {
-		return energyMode;
+	public String getCachedEnergyMode() {
+		return cachedEnergyMode;
 	}
 
-	public void setEnergyMode(String energyMode) {
-		this.energyMode = energyMode;
+	public void setCachedEnergyMode(String energyMode) {
+		this.cachedEnergyMode = energyMode;
 	}
 
 

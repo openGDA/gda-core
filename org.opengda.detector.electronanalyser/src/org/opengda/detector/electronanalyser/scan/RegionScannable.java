@@ -86,7 +86,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 		result.append(", acquisitionMode: "); //$NON-NLS-1$
 		result.append(getAnalyser().getAcquisitionMode());
 		result.append(", energyMode: "); //$NON-NLS-1$
-		String energysMode = getAnalyser().getEnergysMode();
+		String energysMode = getAnalyser().getEnergyMode();
 		result.append(energysMode);
 		if (energysMode.equalsIgnoreCase("Fixed")) {
 			result.append(", fixEnergy: "); //$NON-NLS-1$
@@ -146,15 +146,15 @@ public class RegionScannable extends ScannableBase implements Scannable {
 //		}
 		try {
 			busy = true;
-			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 1.0);
-			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 1.0);
-			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 1.0);
-			getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel()+1, 1.0);
-			getAnalyser().setSlices(region.getSlices(), 1.0);
-			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 1.0);
-			getAnalyser().setLensMode(region.getLensMode(), 1.0);
+			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 5.0);
+			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 5.0);
+			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 5.0);
+			getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel()+1, 5.0);
+			getAnalyser().setSlices(region.getSlices(), 5.0);
+			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 5.0);
+			getAnalyser().setLensMode(region.getLensMode(), 5.0);
 			String literal = region.getEnergyMode().getLiteral();
-			getAnalyser().setEnergysMode(literal,1.0);
+			getAnalyser().setEnergyMode(literal,5.0);
 			if (isSourceSelectable()) {
 				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
 					getAnalyser().setExcitationEnergy(Double.valueOf(pgmenergy.getPosition().toString()));
@@ -164,44 +164,44 @@ public class RegionScannable extends ScannableBase implements Scannable {
 			} else {
 				getAnalyser().setExcitationEnergy(Double.valueOf(pgmenergy.getPosition().toString()));
 			}
-			getAnalyser().setPassEnergy(region.getPassEnergy(), 1.0);
+			getAnalyser().setPassEnergy(region.getPassEnergy(), 5.0);
 			if (literal.equalsIgnoreCase("Binding")) {
 				//TODO a hack to solve EPICS cannot do binding energy issue, should be removed once EPICS issue solved.
 				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
-					getAnalyser().setStartEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getHighEnergy(), 1.0);
-					getAnalyser().setEndEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getLowEnergy(), 1.0);
-					getAnalyser().setCentreEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getFixEnergy(), 1.0);
+					getAnalyser().setStartEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getHighEnergy(), 5.0);
+					getAnalyser().setEndEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getLowEnergy(), 5.0);
+					getAnalyser().setCentreEnergy(Double.parseDouble(pgmenergy.getPosition().toString())-region.getFixEnergy(), 5.0);
 				} else {
-					getAnalyser().setStartEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getHighEnergy(), 1.0);
-					getAnalyser().setEndEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getLowEnergy(), 1.0);
-					getAnalyser().setCentreEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getFixEnergy(), 1.0);
+					getAnalyser().setStartEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getHighEnergy(), 5.0);
+					getAnalyser().setEndEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getLowEnergy(), 5.0);
+					getAnalyser().setCentreEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getFixEnergy(), 5.0);
 				}
-				getAnalyser().setEnergysMode("Kinetic",1.0);
+				getAnalyser().setEnergyMode("Kinetic",5.0);
 			} else {
-				getAnalyser().setStartEnergy(region.getLowEnergy(), 1.0);
-				getAnalyser().setEndEnergy(region.getHighEnergy(), 1.0);
-				getAnalyser().setCentreEnergy(region.getFixEnergy(), 1.0);
+				getAnalyser().setStartEnergy(region.getLowEnergy(), 5.0);
+				getAnalyser().setEndEnergy(region.getHighEnergy(), 5.0);
+				getAnalyser().setCentreEnergy(region.getFixEnergy(), 5.0);
 			}
 			getAdArray().setEnergyMode(literal);
 			
-			getAnalyser().setStepTime(region.getStepTime(), 1.0);
-			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 1.0);
+			getAnalyser().setStepTime(region.getStepTime(), 5.0);
+			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 5.0);
 			if (!region.getRunMode().isConfirmAfterEachIteration()) {
 				if (!region.getRunMode().isRepeatUntilStopped()) {
 					getAnalyser().setNumberInterations(
-							region.getRunMode().getNumIterations(), 1.0);
-					getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
+							region.getRunMode().getNumIterations(), 5.0);
+					getAnalyser().setImageMode(ImageMode.SINGLE, 5.0);
 				} else {
-					getAnalyser().setNumberInterations(1, 1.0);
-					getAnalyser().setImageMode(ImageMode.CONTINUOUS, 1.0);
+					getAnalyser().setNumberInterations(1, 5.0);
+					getAnalyser().setImageMode(ImageMode.CONTINUOUS, 5.0);
 				}
 			} else {
-				getAnalyser().setNumberInterations(1, 1.0);
-				getAnalyser().setImageMode(ImageMode.SINGLE, 1.0);
+				getAnalyser().setNumberInterations(1, 5.0);
+				getAnalyser().setImageMode(ImageMode.SINGLE, 5.0);
 				throw new NotSupportedException(
 						"Confirm after each iteraction is not yet supported");
 			}
-			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 1.0);
+			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 5.0);
 			firstInScan=false;
 		} catch (Exception e) {
 			throw e;
