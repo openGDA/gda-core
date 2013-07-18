@@ -194,11 +194,13 @@ public class NexusFileWrapper implements org.nexusformat.NeXusFileInterface {
 
 	@Override
 	public void makedata(String arg0, int arg1, int arg2, int[] arg3) throws NexusException {
+		logger.debug("makedata - " + arg0);
 		file.makedata(arg0, arg1, arg2, arg3);
 	}
 
 	@Override
 	public void makegroup(String arg0, String arg1) throws NexusException {
+		logger.debug("makegroup - " + arg0 +" - "+arg1);
 		file.makegroup(arg0, arg1);
 	}
 
@@ -288,6 +290,7 @@ public class NexusFileWrapper implements org.nexusformat.NeXusFileInterface {
 
 	@Override
 	public void makedata(String arg0, int arg1, int arg2, long[] arg3) throws NexusException {
+		logger.debug("makedata - " + arg0);
 		file.makedata(arg0, arg1, arg2, arg3);
 	}
 
