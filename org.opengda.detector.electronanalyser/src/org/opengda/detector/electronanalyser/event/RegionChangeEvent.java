@@ -16,9 +16,16 @@ public class RegionChangeEvent implements Serializable {
 	 */
 	private static final long serialVersionUID = 8033679475460737514L;
 	private String regionId;
+	private String regionName;
+	private String message;
 
-	public RegionChangeEvent(String regionID) {
+	public String getMessage() {
+		return message;
+	}
+
+	public RegionChangeEvent(String regionID, String reginName) {
 		this.regionId = regionID;
+		this.regionName=reginName;
 	}
 
 	/**
@@ -32,8 +39,12 @@ public class RegionChangeEvent implements Serializable {
 	 * @param regionId
 	 *            The regionId to set.
 	 */
-	public void setMessage(String regionId) {
-		this.regionId = regionId;
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public Object getRegionName() {
+		return this.regionName;
 	}
 
 }

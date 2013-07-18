@@ -388,7 +388,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, IOb
 		// ((ScriptControllerBase)scriptController).update(this, new
 		// RegionChangeEvent(region.getRegionId()));
 		// }
-		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId()));
+		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
 	}
 	@Override
 	public String getName() {

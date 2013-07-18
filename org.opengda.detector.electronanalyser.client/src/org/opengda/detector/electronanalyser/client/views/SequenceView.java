@@ -117,6 +117,8 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
+import org.opengda.detector.electronanalyser.nxdetector.EW4000;
+import org.opengda.detector.electronanalyser.scan.RegionScannable;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
@@ -1410,8 +1412,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			});
 		}
-		if (source == regionScannable) {
+		if (source instanceof RegionScannable) {
 			if (arg instanceof RegionChangeEvent) {
+				logger.debug("region update to {}", ((RegionChangeEvent)arg).getRegionName());
 				String regionId = ((RegionChangeEvent) arg).getRegionId();
 				for (Region region : regions) {
 					if (region.getRegionId().equalsIgnoreCase(regionId)) {
@@ -1422,39 +1425,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				// TODO auto select this region in the viewer????
 				//sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
 			} 
-//			else if (arg instanceof RegionStatusEvent) {
-//				Status status = ((RegionStatusEvent) arg).getStatus();
-//				if (currentRegion == null) {
-//					String regionId = ((RegionStatusEvent) arg).getRegionId();
-//					for (Region region : regions) {
-//						if (region.getRegionId().equalsIgnoreCase(regionId)) {
-//							currentRegion = region;
-//						}
-//					}
-//				}
-//				switch (status) {
-//				case READY:
-//					updateRegionStatus(currentRegion, STATUS.READY);
-//					break;
-//				case RUNNING:
-//					updateRegionStatus(currentRegion, STATUS.RUNNING);
-//					break;
-//				case ABORTED:
-//					updateRegionStatus(currentRegion, STATUS.ABORTED);
-//					break;
-//				case COMPLETED:
-//					updateRegionStatus(currentRegion, STATUS.COMPLETED);
-//					break;
-//				case ERROR:
-//					updateRegionStatus(currentRegion, STATUS.ABORTED);
-//					break;
-//				default:
-//					break;
-//				}
-//			}
 		}
-		if (source == ew4000) {
+		if (source instanceof EW4000) {
 			if (arg instanceof RegionChangeEvent) {
+				logger.debug("region update to {}", ((RegionChangeEvent)arg).getRegionName());
 				String regionId = ((RegionChangeEvent) arg).getRegionId();
 				for (Region region : regions) {
 					if (region.getRegionId().equalsIgnoreCase(regionId)) {

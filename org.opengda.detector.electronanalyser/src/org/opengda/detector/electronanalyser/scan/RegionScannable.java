@@ -212,7 +212,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 		// ((ScriptControllerBase)scriptController).update(this, new
 		// RegionChangeEvent(region.getRegionId()));
 		// }
-		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId()));
+		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
 	}
 @Override
 public void atScanStart() throws DeviceException {

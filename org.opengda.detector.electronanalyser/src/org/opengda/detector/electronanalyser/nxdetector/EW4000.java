@@ -26,6 +26,7 @@ import java.util.Collections;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
@@ -251,8 +252,8 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public void update(Object source, Object arg) {
-		if (source instanceof EW4000CollectionStrategy) {
-			logger.debug("new region is set to : {}", arg.toString());
+		if (source instanceof EW4000CollectionStrategy && arg instanceof RegionChangeEvent) {
+			logger.debug("new region is set to : {}", ((RegionChangeEvent)arg).getRegionName());
 			oc.notifyIObservers(this, arg);
 		}		
 	}
