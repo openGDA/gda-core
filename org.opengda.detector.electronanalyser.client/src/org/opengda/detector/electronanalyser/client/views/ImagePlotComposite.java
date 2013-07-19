@@ -224,15 +224,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		axes.add(yAxis);
 		try {
 			int length = xdata.clone().length;
-			int ndarrayXsize = getAnalyser().getNdarrayXsize();
-			if (ndarrayXsize!=length) {
-				logger.error("energy axis length is different from image X-dimension");
-			}
 			int slices = getAnalyser().getSlices();
-			int ndarrayYsize = getAnalyser().getNdarrayYsize();
-			if (ndarrayYsize!= slices) {
-				logger.error("number of slices is different from image Y-dimension");
-			}
 			int[] dims = new int[] { slices, length };
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
