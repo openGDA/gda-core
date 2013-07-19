@@ -52,6 +52,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	private ObservableComponent oc = new ObservableComponent();
 	private String sequenceFilename;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
+	EW4000CollectionStrategy collectionStrategy;
 
 
 	public EW4000() {
@@ -60,7 +61,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
 			if (getCollectionStrategy() instanceof EW4000CollectionStrategy) {
-				EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
+				collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
 				collectionStrategy.setSourceSelectable(regionDefinitionResourceUtil.isSourceSelectable());
 				collectionStrategy.setXRaySourceEnergyLimit(regionDefinitionResourceUtil.getXRaySourceEnergyLimit());
 				collectionStrategy.addIObserver(this);
@@ -110,9 +111,19 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public Object getPosition() throws DeviceException {
-		return getSequenceFilename();
+		try {
+			return getCollectionStrategy().getAcquireTime();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
 	}
-	
+	@Override
+	public NexusTreeProvider readout() throws DeviceException {
+		// TODO Auto-generated method stub
+		return super.readout();
+	}
 	@Override
 	public void moveTo(Object position) throws DeviceException {
 		// TODO Auto-generated method stub
@@ -139,13 +150,13 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		}
 		InterfaceProvider.getTerminalPrinter().print("This is not a scan, so no scan file will be written");
 		long scannumber=numTracker.incrementNumber();
-		if (getCollectionStrategy() instanceof EW4000CollectionStrategy) {
-			EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
+//		if (getCollectionStrategy() instanceof EW4000CollectionStrategy) {
+//			EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
 			collectionStrategy.setSequence(sequence);
 			collectionStrategy.createDataWriter(scannumber);
 			collectionStrategy.setScanDataPoint(1);
 			collectionStrategy.setTotalPoints(1);
-		}
+//		}
 		collectData();
 		Sleep.sleep(1000);
 	}
@@ -177,11 +188,11 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		}
 		String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 		String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
-		InterfaceProvider.getTerminalPrinter().print("Scan file will be written to : "+ scanFilename);
+		InterfaceProvider.getTerminalPrinter().print("Scan file with data link to individual region data files below will be written to : "+ scanFilename);
 		int[] dims = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDimensions();
 		Sequence sequence=loadSequenceData(getSequenceFilename());
-		if (getCollectionStrategy() instanceof EW4000CollectionStrategy){
-			EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
+//		if (getCollectionStrategy() instanceof EW4000CollectionStrategy){
+//			EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
 			collectionStrategy.setSequence(sequence);
 			collectionStrategy.createDataWriter(scannumber);
 			collectionStrategy.setScanDataPoint(1); //fisrt data point
@@ -190,7 +201,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 				expectedNumPixels = expectedNumPixels * dims[i];
 			}
 			collectionStrategy.setTotalPoints(expectedNumPixels);
-		}
+//		}
 		
 		super.atScanStart();		
 	}
