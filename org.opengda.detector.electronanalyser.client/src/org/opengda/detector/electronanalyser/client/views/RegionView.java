@@ -1181,7 +1181,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private void setToFixedMode() {
 		calculateFixedParameters();
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), fixedCentreEnergy);
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtSize.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtMinimumSize.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerSlices.getSelection());
@@ -1232,7 +1232,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 					RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()), Integer.parseInt(txtTotalSteps.getText())));
 		} else if (source.equals(btnFixed)) {
 			setToFixedMode();
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), fixedEnergyRange());
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtMinimumSize.getText().trim()));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
 					RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()), Integer.parseInt(txtTotalSteps.getText())));
