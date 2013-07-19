@@ -228,6 +228,10 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		data.setPlottableValue(name, d);
 	}
 	
+	public boolean isFixedMode() throws Exception {
+		return "Fixed".equalsIgnoreCase(controller.getAcquisitionMode());
+	}
+	
 	public void setFixedMode(boolean fixed) throws Exception {
 		int[] region = fixedModeRegion;
 		if (fixed) {
@@ -247,7 +251,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		getAdBase().setTriggerMode(0);
 	}
 
-	public int[] getSWeptModeRegion() {
+	public int[] getSweptModeRegion() {
 		return sweptModeRegion;
 	}
 
