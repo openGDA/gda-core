@@ -194,6 +194,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	@Override
 	public void collectData() throws DeviceException {
 		//TODO test this
+		
 //		try {
 //			getAdBase().startAcquiringSynchronously();
 //		} catch (Exception e) {
@@ -306,7 +307,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			//close entry1
 			nexusFile.closegroup();
 			//TODO Test this
-//			nexusFile.flush();
+			nexusFile.flush();
 		} catch (NexusException e) {
 			logger.error("NexusException on write data out",e);
 		} 
@@ -322,7 +323,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			}
 			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0], dims[1] };
 			int rank = datadims.length;
-			if (scanDataPoint == 0) {
+			if (scanDataPoint == 1) {
 				nexusFile.makedata("image_data", NexusFile.NX_INT32, rank, datadims);
 			}
 			nexusFile.opendata("image_data");
@@ -353,7 +354,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			}
 			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
 			int rank = datadims.length;
-			if (scanDataPoint == 0) {
+			if (scanDataPoint == 1) {
 				nexusFile.makedata("spectrum_data", NexusFile.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("spectrum_data");
@@ -386,7 +387,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			}
 			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
 			int rank = datadims.length;
-			if (scanDataPoint == 0) {
+			if (scanDataPoint == 1) {
 				nexusFile.makedata("external_io_data", NexusFile.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("external_io_data");
@@ -408,7 +409,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			int[] dims=new int[] {1};
 			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
 			int rank = datadims.length;
-			if (scanDataPoint == 0) {
+			if (scanDataPoint == 1) {
 				nexusFile.makedata("excitation_energy", NexusFile.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("excitation_energy");
