@@ -22,18 +22,15 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.nexus.NexusFileFactory;
-import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.jython.InterfaceProvider;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusFile;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,7 +139,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	public NeXusFileInterface getNXFile(String regionName, int scanDataPoint) {
 		if (!files.isEmpty() && files.containsKey(regionName)) {
 			RegionFileMapper mapper = files.get(regionName);
-			InterfaceProvider.getTerminalPrinter().print("scan data point: "+scanDataPoint+"\tCollecting region " + regionName + " data to file : "+ mapper.getURL()+"." );
+			InterfaceProvider.getTerminalPrinter().print("scan point: "+scanDataPoint+"\t-\tCollecting region '" + regionName + "' data to file : "+ mapper.getURL());
 			return mapper.getNxFile();
 		}
 		return null;
