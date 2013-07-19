@@ -11,6 +11,8 @@ import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.accesscontrol.MethodAccessProtected;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.util.Sleep;
@@ -44,6 +46,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	private boolean busy;
 	private AtomicInteger count=new AtomicInteger(); // enabled region position count
 	private boolean firstInScan;
+	private Scriptcontroller scriptController;
 	private static final Logger logger = LoggerFactory
 			.getLogger(RegionScannable.class);
 
@@ -141,9 +144,9 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	}
 
 	private void setNewRegion(Region region) throws Exception {
-//		if (!firstInScan) {
-//			return;
-//		}
+		if (!firstInScan) {
+			return;
+		}
 		try {
 			busy = true;
 			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 5.0);
@@ -185,7 +188,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 			getAdArray().setEnergyMode(literal);
 			
 			getAnalyser().setStepTime(region.getStepTime(), 5.0);
-			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 5.0);
+			getAnalyser().setEnergyStep(region.getEnergyStep()/1000.0, 5.0);
 			if (!region.getRunMode().isConfirmAfterEachIteration()) {
 				if (!region.getRunMode().isRepeatUntilStopped()) {
 					getAnalyser().setNumberInterations(
@@ -208,11 +211,10 @@ public class RegionScannable extends ScannableBase implements Scannable {
 		} finally {
 			busy = false;
 		}
-		// if (scriptController!=null) {
-		// ((ScriptControllerBase)scriptController).update(this, new
-		// RegionChangeEvent(region.getRegionId()));
-		// }
-		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
+		 if (getScriptController()!=null && getScriptController() instanceof ScriptControllerBase) {
+		 ((ScriptControllerBase)getScriptController()).update(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
+		 }
+//		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
 	}
 @Override
 public void atScanStart() throws DeviceException {
@@ -354,6 +356,14 @@ public void atScanStart() throws DeviceException {
 
 	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
 		XRaySourceEnergyLimit = xRaySourceEnergyLimit;
+	}
+
+	public Scriptcontroller getScriptController() {
+		return scriptController;
+	}
+
+	public void setScriptController(Scriptcontroller scriptController) {
+		this.scriptController = scriptController;
 	}
 
 }

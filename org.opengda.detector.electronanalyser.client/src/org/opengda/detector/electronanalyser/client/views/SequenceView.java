@@ -549,7 +549,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 		Label lblFormat = new Label(grpInfo, SWT.NONE);
 //		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblFormat.setText("Filename format:");
+		lblFormat.setText("File format:");
 
 		txtfilenameformat = new Text(grpInfo, SWT.BORDER);
 		txtfilenameformat.addSelectionListener(new SelectionAdapter() {
@@ -570,7 +570,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 		Group grpSequnceRunMode = new Group(rightArea, SWT.NONE);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.widthHint = 220;
+		layoutData.widthHint = 250;
 		layoutData.verticalSpan = 2;
 		grpSequnceRunMode.setLayoutData(layoutData);
 		grpSequnceRunMode.setLayout(new GridLayout(2, false));
@@ -615,7 +615,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			}
 		});
-		btnNumberOfIterations.setText("Number of iterations");
+		btnNumberOfIterations.setText("Number of iterations:");
 
 		spinner = new Spinner(grpSequnceRunMode, SWT.BORDER);
 		spinner.addSelectionListener(new SelectionAdapter() {
@@ -644,7 +644,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		});
 		spinner.setMinimum(1);
-		spinner.setMaximum(Integer.MAX_VALUE);
+		spinner.setMaximum(10000);
 		spinner.setToolTipText("Set number of iterations required");
 
 		btnRepeatuntilStopped = new Button(grpSequnceRunMode, SWT.RADIO);
@@ -885,7 +885,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private EpicsChannelManager channelmanager;
 
-	private Device ew4000;
+//	private Device ew4000;
 
 	private Region getSelectedRegion() {
 		ISelection selection = getSelection();
@@ -985,10 +985,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		channelmanager = new EpicsChannelManager(this);
 		scriptcontroller = Finder.getInstance().find("SequenceFileObserver");
 		scriptcontroller.addIObserver(this);
-		regionScannable = Finder.getInstance().find("regions");
-		regionScannable.addIObserver(this);
-		ew4000 = Finder.getInstance().find("ew4000");
-		ew4000.addIObserver(this);
+//		regionScannable = Finder.getInstance().find("regions");
+//		regionScannable.addIObserver(this);
+//		ew4000 = Finder.getInstance().find("ew4000");
+//		ew4000.addIObserver(this);
 		analyserStateListener = new AnalyserStateListener();
 		try {
 			createChannels();
@@ -1343,7 +1343,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private IVGScientaAnalyser analyser;
 
-	private Device regionScannable;
+//	private Device regionScannable;
 
 	private Region currentRegion;
 
@@ -1402,45 +1402,71 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	@Override
 	public void update(Object source, final Object arg) {
-		if (source == scriptcontroller && arg instanceof SequenceFileChangeEvent) {
-			Display.getDefault().asyncExec(new Runnable() {
-				
-				@Override
-				public void run() {
-					logger.debug("Sequence file changed to {}", ((SequenceFileChangeEvent)arg).getFilename());
-					refreshTable(((SequenceFileChangeEvent) arg).getFilename(), false);
-				}
-			});
-		}
-		if (source instanceof RegionScannable) {
-			if (arg instanceof RegionChangeEvent) {
-				logger.debug("region update to {}", ((RegionChangeEvent)arg).getRegionName());
-				String regionId = ((RegionChangeEvent) arg).getRegionId();
-				for (Region region : regions) {
-					if (region.getRegionId().equalsIgnoreCase(regionId)) {
-						currentRegion = region;
+		if (source == scriptcontroller) {
+			if (arg instanceof SequenceFileChangeEvent) {
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						logger.debug("Sequence file changed to {}",
+								((SequenceFileChangeEvent) arg).getFilename());
+						refreshTable(
+								((SequenceFileChangeEvent) arg).getFilename(),
+								false);
 					}
-				}
-				fireSelectionChanged(currentRegion);
-				// TODO auto select this region in the viewer????
-				//sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
-			} 
-		}
-		if (source instanceof EW4000) {
+				});
+			}
 			if (arg instanceof RegionChangeEvent) {
-				logger.debug("region update to {}", ((RegionChangeEvent)arg).getRegionName());
-				String regionId = ((RegionChangeEvent) arg).getRegionId();
-				for (Region region : regions) {
-					if (region.getRegionId().equalsIgnoreCase(regionId)) {
-						currentRegion = region;
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						logger.debug("region update to {}",
+								((RegionChangeEvent) arg).getRegionName());
+						String regionId = ((RegionChangeEvent) arg)
+								.getRegionId();
+						for (Region region : regions) {
+							if (region.getRegionId().equalsIgnoreCase(regionId)) {
+								if (currentRegion != region) {
+									updateRegionStatus(currentRegion, STATUS.COMPLETED);
+								}
+								currentRegion = region;
+							}
+						}
+						fireSelectionChanged(currentRegion);
+						sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
 					}
-				}
-				fireSelectionChanged(currentRegion);
-				// TODO auto select this region in the viewer????
-//				sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
-			} 
+				});
+			}
 		}
-	
+		//TODO why the next 2 cases does not work?
+//		if (source instanceof RegionScannable) {
+//			if (arg instanceof RegionChangeEvent) {
+//				logger.debug("region update to {}", ((RegionChangeEvent)arg).getRegionName());
+//				String regionId = ((RegionChangeEvent) arg).getRegionId();
+//				for (Region region : regions) {
+//					if (region.getRegionId().equalsIgnoreCase(regionId)) {
+//						currentRegion = region;
+//					}
+//				}
+//				fireSelectionChanged(currentRegion);
+//				// TODO auto select this region in the viewer????
+//				//sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+//			} 
+//		}
+//		if (source instanceof EW4000) {
+//			if (arg instanceof RegionChangeEvent) {
+//				logger.debug("region update to {}", ((RegionChangeEvent)arg).getRegionName());
+//				String regionId = ((RegionChangeEvent) arg).getRegionId();
+//				for (Region region : regions) {
+//					if (region.getRegionId().equalsIgnoreCase(regionId)) {
+//						currentRegion = region;
+//					}
+//				}
+//				fireSelectionChanged(currentRegion);
+//				// TODO auto select this region in the viewer????
+////				sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+//			} 
+//		}
+//	
 		// TODO update current region status from detector or EPICS IOC
 
 	}
