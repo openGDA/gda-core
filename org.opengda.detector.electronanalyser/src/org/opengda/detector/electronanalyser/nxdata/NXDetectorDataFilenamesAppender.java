@@ -48,7 +48,7 @@ public class NXDetectorDataFilenamesAppender implements NXDetectorDataAppender {
 	 */
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) {
-		data.addFileNames(detectorName, "analyser_data", elementValues.toArray(new String[] {}),true, true);
+		data.addFileNames(detectorName, "data", elementValues.toArray(new String[] {}),true, true);
 		for (int i = 0; i < elementNames.size(); i++) {
 			String name = elementNames.get(i);
 			String value = elementValues.get(i);
