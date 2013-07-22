@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import gda.data.nexus.tree.INexusTree;
@@ -446,6 +447,18 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		assertArrayEquals(new double[] { 0.55 }, (double[]) rootNode.getChildNode("period", "SDS").getData()
 				.getBuffer(), .001);
 
+	}
+	
+
+	@Override
+	@Test
+	public void testCollectDataPutsTimesOnlyOncePerScan() throws Exception {
+		det().setCollectionTime(1);
+		det().atScanStart();
+		det().collectData();
+		det().collectData();
+		det().collectData();
+		verify(collectionStrategy, times(1)).prepareForCollection(1., 1, scanInfo);
 	}
 
 	@Override

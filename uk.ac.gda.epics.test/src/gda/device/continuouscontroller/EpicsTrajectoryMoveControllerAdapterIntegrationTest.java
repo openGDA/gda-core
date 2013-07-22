@@ -54,8 +54,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 
-	DeferredAndTrajectoryScannableGroup trajgroup;
-
 
 	@Mock
 	ControlPoint mockedControlPoint;
@@ -72,6 +70,16 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 
 	private EpicsTrajectoryMoveControllerAdapter controller;
 	private EpicsTrajectoryScanController mockedController;
+
+	private DeferredAndTrajectoryScannableGroup trajgroup;
+
+	private ScannableMotor scnaNoOffset;
+
+	private ScannableMotor scnbNoOffset;
+
+	private ScannableMotor scncNoOffset;
+
+	private DeferredAndTrajectoryScannableGroup trajgroupNoOffset;
 	
 	@Before
 	public void setUp() throws DeviceException, FactoryException {
@@ -79,6 +87,9 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 		scna = mockScannableMotor(motora, "a");
 		scnb = mockScannableMotor(motorb, "b");
 		scnc = mockScannableMotor(motorc, "c");
+		scnaNoOffset = mockScannableMotor(motora, "a");
+		scnbNoOffset = mockScannableMotor(motorb, "b");
+		scncNoOffset = mockScannableMotor(motorc, "c");
 		mockedControlPoint = mock(ControlPoint.class);
 		when(mockedControlPoint.getPosition()).thenReturn(0);
 
@@ -89,13 +100,19 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 		controller.setAxisMotorOrder(new int[] {4, 3, 2});
 		controller.setAxisNames(new String[] {"a", "b", "c" });
 
+		trajgroupNoOffset = new DeferredAndTrajectoryScannableGroup();
+		trajgroupNoOffset.setGroupMembers(new ScannableMotor[] { scnaNoOffset, scnbNoOffset, scncNoOffset });
+		trajgroupNoOffset.setDeferredControlPoint(mockedControlPoint);
+		trajgroupNoOffset.setContinuousMoveController(controller);
+		trajgroupNoOffset.configure();
+
 		trajgroup = new DeferredAndTrajectoryScannableGroup();
 		trajgroup.setGroupMembers(new ScannableMotor[] { scna, scnb, scnc });
 		trajgroup.setDeferredControlPoint(mockedControlPoint);
 		trajgroup.setContinuousMoveController(controller);
 		trajgroup.configure();
 		
-		controller.setScannableForMovingGroupToStart(trajgroup);
+		controller.setScannableForMovingGroupToStart(trajgroupNoOffset);
 	}
 
 	private ScannableMotor mockScannableMotor(BlockingMotor motor, String name) throws FactoryException, MotorException {
@@ -171,6 +188,14 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 		inOrder.verify(motorc).moveTo(1.3);
 		inOrder.verify(mockedControlPoint).setValue(0);
 	}
+	
+	@Test(expected=IllegalStateException.class)
+	public void testPrepareForCollectionMovesGroupToStartPositionTrajectoryScanOperationWithOffsetFails() throws Exception {
+		
+		controller.setScannableForMovingGroupToStart(trajgroup);
+		testPrepareForCollectionMovesGroupToStartPositionTrajectoryScanOperationWithOffset();
+	}
+
 	
 	@Test
 	public void testPrepareForCollectionMovesGroupToStartPositionTrajectoryScanOperationWithOffsetViaElement() throws Exception {
