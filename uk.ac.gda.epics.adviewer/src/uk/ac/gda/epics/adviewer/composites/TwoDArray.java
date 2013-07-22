@@ -20,19 +20,16 @@ package uk.ac.gda.epics.adviewer.composites;
 
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDROI;
-import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -66,11 +63,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.ImageData;
-import uk.ac.gda.epics.adviewer.composites.tomove.PlotServerGuiBeanUpdater;
-import uk.ac.gda.epics.adviewer.composites.tomove.RegionGuiParameterAdapter;
 
 public class TwoDArray extends Composite {
 
@@ -78,7 +72,7 @@ public class TwoDArray extends Composite {
 
 	private ADController config;
 
-	private AbstractPlottingSystem plottingSystem;
+	private IPlottingSystem plottingSystem;
 
 	private Observable<Integer> arrayArrayCounterObservable;
 	private Observer<Integer> arrayArrayCounterObserver;
@@ -560,7 +554,7 @@ public class TwoDArray extends Composite {
 	/**
 	 * Needed for the adapter of the parent view to return IToolPageSystem.class
 	 */
-	public AbstractPlottingSystem getPlottingSystem() {
+	public IPlottingSystem getPlottingSystem() {
 		return plottingSystem;
 	}
 

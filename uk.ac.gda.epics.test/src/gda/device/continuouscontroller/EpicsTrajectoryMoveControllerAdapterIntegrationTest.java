@@ -69,6 +69,7 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 	ScannableMotor scnc;
 
 	private EpicsTrajectoryMoveControllerAdapter controller;
+
 	private EpicsTrajectoryScanController mockedController;
 
 	private DeferredAndTrajectoryScannableGroup trajgroup;
@@ -191,11 +192,9 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 	
 	@Test(expected=IllegalStateException.class)
 	public void testPrepareForCollectionMovesGroupToStartPositionTrajectoryScanOperationWithOffsetFails() throws Exception {
-		
 		controller.setScannableForMovingGroupToStart(trajgroup);
 		testPrepareForCollectionMovesGroupToStartPositionTrajectoryScanOperationWithOffset();
 	}
-
 	
 	@Test
 	public void testPrepareForCollectionMovesGroupToStartPositionTrajectoryScanOperationWithOffsetViaElement() throws Exception {
