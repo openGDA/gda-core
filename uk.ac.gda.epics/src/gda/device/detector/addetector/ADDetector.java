@@ -660,7 +660,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	protected void addDoubleItemToNXData(NXDetectorData data, String name, Double val) {
 		data.addData(getName(), name, dims, NexusFile.NX_FLOAT64, new double[] { val }, null, null);
-		data.setDoubleVals((Double[]) ArrayUtils.add(data.getDoubleVals(), val));
+		data.setPlottableValue(name, val);
 	}
 
 	protected final void addMultipleDoubleItemsToNXData(NXDetectorData data, String[] nameArray, Double[] valArray) {
@@ -923,7 +923,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	private void appendNXDetectorDataFromFileWriter(NXDetectorData data) throws Exception {
-		List<Double> doubleVals = new ArrayList<Double>(Arrays.asList(data.getDoubleVals()));
 		if (isReadFilepath()) {
 			String filename = createFileName();
 			if (!StringUtils.hasLength(filename))
@@ -941,15 +940,12 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 				dataForSrs.addFileName(getName(), filename);
 				int indexOf = Arrays.asList(getExtraNames()).indexOf(FILEPATH_EXTRANAME);
 				dataForSrs.setFilepathOutputFieldIndex(indexOf);
-
-				doubleVals.add(0.); // this is needed as we have added an entry in extraNames
-
+				data.setPlottableValue(FILEPATH_EXTRANAME, 0.0); // we have a test that checks for this pointless zero, so it must be important
 			} else {
 				if (firstReadoutInScan) {
 					data.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
 				}
 			}
-			data.setDoubleVals(doubleVals.toArray(new Double[] {}));
 		}
 	}
 	
