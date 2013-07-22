@@ -1,7 +1,6 @@
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
 from gda.jython import InterfaceProvider
 from gdascripts.parameters import beamline_parameters
-from gda.factory import Finder
 from gda.configuration.properties import LocalProperties
 #from edu.sdsc.grid.io import local
 import sys
@@ -10,7 +9,7 @@ from gdascripts.configuration.properties.scriptContext import defaultScriptFolde
 
 
 # Top level function to be called by user with exceptions reported and not re-thrown
-def xspress (xspressFile,outputFile, path=None):
+def xspress (xspressFile,outputFile, path=None, ExafsScriptObserver):
 	"""
 	main xspress configuration command. 
 	usage
@@ -19,8 +18,7 @@ def xspress (xspressFile,outputFile, path=None):
 	The filepaths are relative to the gda user folder
 	"""
 	try:
-		controller = Finder.getInstance().find("ExafsScriptObserver")
-		return xspressEx(controller, xspressFile,outputFile,path)
+		return xspressEx(ExafsScriptObserver, xspressFile,outputFile,path)
 	except:
 		type, exception, traceback = sys.exc_info()
 		log(None,"Error in xspress", type, exception, traceback, False)

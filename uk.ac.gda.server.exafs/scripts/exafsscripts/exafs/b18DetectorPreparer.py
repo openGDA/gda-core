@@ -1,6 +1,5 @@
 from gdascripts.messages.handle_messages import simpleLog
 from gda.scan import StaticScan
-from gda.factory import Finder
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
 from gda.device.detector import VortexDetectorConfiguration
             
@@ -49,17 +48,7 @@ class B18DetectorPreparer:
         if autoGas == True:
             self.ionc_gas_injector_scannables[ion_chamber_num]([purge_pressure, purge_period, gas_fill1_pressure, gas_fill1_period, gas_fill2_pressure, gas_fill2_period, gas_select_val, flushString])
 
-    def add_to_metadata(self, name):
-            from gda.data.scan.datawriter import AsciiMetadataConfig
-            asciiConfig = AsciiMetadataConfig()
-            asciiConfig.setLabel(name + ": %4.1f")
-            scannable=Finder.getInstance().find(name)
-            if scannable==None:
-                jythonNameMap = beamline_parameters.JythonNameSpaceMapping()
-                scannable=jythonNameMap.__getitem__(name)
-            asciiConfig.setLabelValues([scannable])
-            header = Finder.getInstance().find("datawriterconfig").getHeader()
-            header.add(asciiConfig)
+
 
     def _control_mythen(self, bean):
         self.add_to_metadata("energy")
@@ -76,15 +65,4 @@ class B18DetectorPreparer:
         JythonServerFacade.getInstance().setScanStatus(0)
         print "Diffraction scan complete."
         
-    """
-    Validates the bean which defines the detectors and then configures the vortex or xspress
-    based on the xml file whose name is in the bean.
-    """
-    def configFluoDetector(self, detectorParameters, outputParameters, scriptFolder):
-        detType = detectorParameters.getFluorescenceParameters().getDetectorType()
-        fullFileName = scriptFolder + detectorParameters.getFluorescenceParameters().getConfigFileName()
-        print "configuring", detType, "detector using", fullFileName
-        if detType == "Germanium":
-            Xspress2DetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()
-        else:
-            VortexDetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()
+ 

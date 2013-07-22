@@ -1,4 +1,3 @@
-from gda.factory import Finder
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
 from gda.device.detector import VortexDetectorConfiguration
 from gda.exafs.scan import BeanGroup, BeanGroups
@@ -65,16 +64,3 @@ class I18DetectorPreparer:
             return 6
         elif gain == "10^10 V/A":
             return 7
-       
-    """
-    Validates the bean which defines the detectors and then configures the vortex or xspress
-    based on the xml file whose name is in the bean.
-    """
-    def configFluoDetector(self, detectorParameters, outputParameters, scriptFolder):
-        detType = detectorParameters.getFluorescenceParameters().getDetectorType()
-        fullFileName = scriptFolder + detectorParameters.getFluorescenceParameters().getConfigFileName()
-        print "configuring", detType, "detector using", fullFileName
-        if detType == "Germanium":
-            Xspress2DetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()
-        else:
-            VortexDetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()

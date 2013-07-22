@@ -19,7 +19,6 @@ from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from scan import Scan
-from exafs_environment import ExafsEnvironment
 
 class XasScan(Scan):
 	
@@ -50,10 +49,7 @@ class XasScan(Scan):
 		ScriptBase.paused = False
 		controller = Finder.getInstance().find("ExafsScriptObserver")
 		
-		# Create the beans from the file names
-#		xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
 		xmlFolderName = folderName + "/"
-		#/dls/i18/data/2013/sp8734-1/xml/Experiment_1/ 
 		
 		folderName = folderName[folderName.find("xml")+4:]
 
@@ -158,7 +154,7 @@ class XasScan(Scan):
 				#check if halt after current repetition set to true
 				if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
 					self.log( "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.")
-					Finder.getInstance().find("commandQueueProcessor").pause(500);
+					self.commandQueueProcessor.pause(500);
 					LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
 					ScriptBase.checkForPauses()
 				
@@ -186,7 +182,7 @@ class XasScan(Scan):
 			jython_mapper = JythonNameSpaceMapping()
 			if (jython_mapper.original_header != None):
 				original_header=jython_mapper.original_header[:]
-				Finder.getInstance().find("datawriterconfig").setHeader(original_header)
+				self.datawriterconfig.setHeader(original_header)
 				
 			print "**********************************"
 

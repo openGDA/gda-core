@@ -1,7 +1,6 @@
 from gda.device.detector import VortexDetectorConfiguration
 from gda.jython import InterfaceProvider
 from gdascripts.parameters import beamline_parameters
-from gda.factory import Finder
 from gda.configuration.properties import LocalProperties
 import sys
 from gdascripts.messages import handle_messages
@@ -9,7 +8,7 @@ from gdascripts.configuration.properties.scriptContext import defaultScriptFolde
 
 
 # Top level function to be called by user with exceptions reported and not re-thrown
-def vortex (vortexFileName, outputfile, path=None):
+def vortex (vortexFileName, outputfile, path=None, ExafsScriptObserver):
 	"""
 	main vortex configuration command. 
 	usage
@@ -18,8 +17,7 @@ def vortex (vortexFileName, outputfile, path=None):
 	The filepaths are relative to the gda user folder
 	"""
 	try:
-		controller = Finder.getInstance().find("ExafsScriptObserver")
-		return vortexEx(controller, vortexFileName, outputfile, path)
+		return vortexEx(ExafsScriptObserver, vortexFileName, outputfile, path)
 	except:
 		# do nothing here as exceptions would have already been logged
 		pass

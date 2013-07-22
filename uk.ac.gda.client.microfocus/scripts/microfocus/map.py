@@ -25,7 +25,7 @@ from gda.configuration.properties import LocalProperties
 
 class Map(Scan):
     
-    def __init__(self, d7a, d7b, counterTimer01, rcpController):
+    def __init__(self, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -34,6 +34,7 @@ class Map(Scan):
         self.detectorBeanFileName = ""
         self.rcpController = rcpController
         self.beamEnabled = True
+        self.ExafsScriptObserver = ExafsScriptObserver
     
     def enableBeam(self):
         self.beamEnabled = True
@@ -64,7 +65,7 @@ class Map(Scan):
         outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
     
         beanGroup = BeanGroup()
-        beanGroup.setController(self.finder.find("ExafsScriptObserver"))
+        beanGroup.setController(self.ExafsScriptObserver)
         beanGroup.setScriptFolder(xmlFolderName)
         beanGroup.setScannable(self.finder.find(scanBean.getXScannableName())) #TODO
         beanGroup.setExperimentFolderName(folderName)
