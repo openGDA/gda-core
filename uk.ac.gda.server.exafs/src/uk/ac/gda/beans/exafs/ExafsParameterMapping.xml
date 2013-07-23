@@ -147,9 +147,6 @@
 		<field name="scanType" type="int">
 			<bind-xml name="scanType" node="element" />
 		</field>
-		<field name="radiusOfCurvature" type="double">
-			<bind-xml name="radiusOfCurvature" node="element" />
-		</field>
 		<field name="element" type="string">
 			<bind-xml name="element" node="element" />
 		</field>

@@ -72,12 +72,9 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 		beanComposite.setEditingInput(getEditorInput());
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void setFocus() {
-		// TODO
+		beanComposite.setFocus();
 	}
 
 	@Override
@@ -102,10 +99,6 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 
 	public FieldComposite getScanType() {
 		return beanComposite.getScanType();
-	}
-
-	public FieldComposite getRadiusOfCurvature() {
-		return beanComposite.getRadiusOfCurvature();
 	}
 
 	public FieldComposite getXesIntegrationTime() {

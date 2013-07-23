@@ -44,13 +44,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	// Type of scan
 	private int scanType;
 
-	// Always needed
-//	private String analyserType;
-//	private int analyserCut0;
-//	private int analyserCut1;
-//	private int analyserCut2;
-	private Double radiusOfCurvature;
-
 	// SCAN_XES_FIXED_MONO
 	private String element;
 	private String edge;
@@ -105,14 +98,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 
 	public void setScanType(int scanType) {
 		this.scanType = scanType;
-	}
-
-	public Double getRadiusOfCurvature() {
-		return radiusOfCurvature;
-	}
-
-	public void setRadiusOfCurvature(Double radiusOfCurvature) {
-		this.radiusOfCurvature = radiusOfCurvature;
 	}
 
 	public boolean isShouldValidate() {
@@ -292,7 +277,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		result = prime * result + ((monoFinalEnergy == null) ? 0 : monoFinalEnergy.hashCode());
 		result = prime * result + ((monoInitialEnergy == null) ? 0 : monoInitialEnergy.hashCode());
 		result = prime * result + ((monoStepSize == null) ? 0 : monoStepSize.hashCode());
-		result = prime * result + ((radiusOfCurvature == null) ? 0 : radiusOfCurvature.hashCode());
 		result = prime * result + ((scanFileName == null) ? 0 : scanFileName.hashCode());
 		result = prime * result + scanType;
 		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
@@ -356,11 +340,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 			if (other.monoStepSize != null)
 				return false;
 		} else if (!monoStepSize.equals(other.monoStepSize))
-			return false;
-		if (radiusOfCurvature == null) {
-			if (other.radiusOfCurvature != null)
-				return false;
-		} else if (!radiusOfCurvature.equals(other.radiusOfCurvature))
 			return false;
 		if (scanFileName == null) {
 			if (other.scanFileName != null)

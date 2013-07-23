@@ -177,8 +177,6 @@
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="scanType" type="xsd:int" maxOccurs="1"
 					minOccurs="0" />
-				<xsd:element name="radiusOfCurvature" type="xsd:double"
-					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="element" type="xsd:string" maxOccurs="1"
 					minOccurs="0" />
 				<xsd:element name="edge" type="xsd:string" maxOccurs="1"

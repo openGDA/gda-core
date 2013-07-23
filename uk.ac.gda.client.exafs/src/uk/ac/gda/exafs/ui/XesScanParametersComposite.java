@@ -58,7 +58,6 @@ import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.exafs.util.ScannableValueListener;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.file.FileBox;
 import uk.ac.gda.richbeans.components.file.FileBox.ChoiceType;
@@ -79,7 +78,7 @@ public final class XesScanParametersComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(XesScanParametersComposite.class);
 
 	private ComboWrapper scanType;
-	private ScaleBox radiusOfCurvature;
+	private Label radiusOfCurvature;
 	private ScaleBox xesIntegrationTime;
 	private FileBox scanFileName;
 	private ScaleBoxAndFixedExpression xesInitialEnergy;
@@ -108,19 +107,15 @@ public final class XesScanParametersComposite extends Composite {
 	private RadioWrapper loopChoice;
 
 	private Label lblLiveAnalyzerType;
-
 	private Label lblAnalyserCut0;
-
 	private Label lblAnalyserCut1;
-
 	private Label lblAnalyserCut2;
 
 	private int[] analyserCutValues;
-
 	private String analyserTypeValue;
+	private String radiusOfCurvatureValue;
 
 	private Composite scanTypeComposite;
-
 	private Group xesDataComp;
 
 	public XesScanParametersComposite(Composite parent, int style) {
@@ -170,15 +165,14 @@ public final class XesScanParametersComposite extends Composite {
 			logger.error("Error trying to get latest XES spectrometer crysal values./n XES Editor will not run its calculations correctly.", e2);
 		}
 
-		Link lblRadiusOfCurvature = new Link(crystallGroup, SWT.NONE);
-		lblRadiusOfCurvature.setText("<a>Radius</a>");
-		this.radiusOfCurvature = new ScaleBox(crystallGroup, SWT.NONE);
-		radiusOfCurvature.setMinimum(800.0);
-		radiusOfCurvature.setMaximum(1015.0);
-		radiusOfCurvature.setUnit("mm");
-		radiusOfCurvature.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		radiusOfCurvature.addValueListener(updateListener);
-		ScannableValueListener.createLinkedLabel(lblRadiusOfCurvature, "radius", radiusOfCurvature);
+		Label lblRadiusOfCurvature = new Label(crystallGroup, SWT.NONE);
+		lblRadiusOfCurvature.setText("Radius");
+		radiusOfCurvature = new Label(crystallGroup, SWT.BORDER);
+		try {
+			radiusOfCurvature.setText("      " + getRadiusOfCurvatureValue()+ "      ");
+		} catch (DeviceException e2) {
+			logger.error("Error trying to get latest XES spectrometer crysal values./n XES Editor will not run its calculations correctly.", e2);
+		}
 
 		Group grpCrystals = new Group(left, SWT.NONE);
 		grpCrystals.setText("Analyser Crystals");
@@ -595,6 +589,7 @@ public final class XesScanParametersComposite extends Composite {
 		createBounds();
 	}
 
+
 	protected void updateScanType() {
 
 		final int val = (Integer) scanType.getValue();
@@ -641,9 +636,10 @@ public final class XesScanParametersComposite extends Composite {
 
 		final double theta = ((Integer) scanType.getValue() == XesScanParameters.FIXED_XES_SCAN_XAS || (Integer) scanType
 				.getValue() == XesScanParameters.FIXED_XES_SCAN_XANES) ? thetaE : thetaS;
-		L.setValue(XesUtils.getL((Double) getRadiusOfCurvature().getValue(), theta));
-		dx.setValue(XesUtils.getDx((Double) getRadiusOfCurvature().getValue(), theta));
-		dy.setValue(XesUtils.getDy((Double) getRadiusOfCurvature().getValue(), theta));
+		double radius = Double.parseDouble(getRadiusOfCurvatureValue());
+		L.setValue(XesUtils.getL(radius, theta));
+		dx.setValue(XesUtils.getDx(radius, theta));
+		dy.setValue(XesUtils.getDy(radius, theta));
 		
 		xesDataComp.getParent().layout();
 	}
@@ -671,6 +667,13 @@ public final class XesScanParametersComposite extends Composite {
 			analyserCutValues = new int[] { int0, int1, int2 };
 		}
 		return analyserCutValues;
+	}
+
+	private String getRadiusOfCurvatureValue() throws DeviceException {
+		if (radiusOfCurvatureValue == null){
+			radiusOfCurvatureValue = getScannableSinglePosition("radius");
+		}
+		return radiusOfCurvatureValue;
 	}
 	
 	private int getIntegerValue(String scannableName) throws DeviceException {
@@ -791,10 +794,6 @@ public final class XesScanParametersComposite extends Composite {
 
 	public FieldComposite getScanType() {
 		return scanType;
-	}
-
-	public FieldComposite getRadiusOfCurvature() {
-		return radiusOfCurvature;
 	}
 
 	public FieldComposite getXesIntegrationTime() {
