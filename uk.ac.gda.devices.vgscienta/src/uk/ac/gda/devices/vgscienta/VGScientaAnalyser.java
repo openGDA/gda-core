@@ -180,8 +180,8 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			axis = getAngleAxis();
 			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
 
-			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
-			data.addData(getName(), "acquisition_mode", new NexusGroupData(controller.getAcquisitionMode()), null, null);
+			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode().toLowerCase()), null, null);
+			data.addData(getName(), "acquisition_mode", new NexusGroupData(controller.getAcquisitionMode().toLowerCase()), null, null);
 			data.addData(getName(), "pass_energy", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { getPassEnergy() }), "eV", null);
 			data.addData(getName(), "number_of_frames", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { controller.getFrames() }), null, null);
 			data.addData(getName(), "sensor_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }), null, null);
@@ -191,8 +191,8 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			if (entranceSlitInformationProvider != null) {
 				data.addData(getName(), "entrance_slit_size", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { entranceSlitInformationProvider.getSizeInMM() }), "mm", null);
 				data.addData(getName(), "entrance_slit_setting", new NexusGroupData(String.format("%03d", entranceSlitInformationProvider.getRawValue().intValue())), null, null);
-				data.addData(getName(), "entrance_slit_shape", new NexusGroupData(entranceSlitInformationProvider.getShape()), null, null);
-				data.addData(getName(), "entrance_slit_direction", new NexusGroupData(entranceSlitInformationProvider.getDirection()), null, null);
+				data.addData(getName(), "entrance_slit_shape", new NexusGroupData(entranceSlitInformationProvider.getShape().toLowerCase()), null, null);
+				data.addData(getName(), "entrance_slit_direction", new NexusGroupData(entranceSlitInformationProvider.getDirection().toLowerCase()), null, null);
 			}
 		}
 		
@@ -228,6 +228,10 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		data.setPlottableValue(name, d);
 	}
 	
+	public boolean isFixedMode() throws Exception {
+		return "Fixed".equalsIgnoreCase(controller.getAcquisitionMode());
+	}
+	
 	public void setFixedMode(boolean fixed) throws Exception {
 		int[] region = fixedModeRegion;
 		if (fixed) {
@@ -247,7 +251,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		getAdBase().setTriggerMode(0);
 	}
 
-	public int[] getSWeptModeRegion() {
+	public int[] getSweptModeRegion() {
 		return sweptModeRegion;
 	}
 
