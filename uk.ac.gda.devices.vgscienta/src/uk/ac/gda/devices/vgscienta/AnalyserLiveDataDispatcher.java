@@ -99,7 +99,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 			
 			int newvalue =((gov.aps.jca.dbr.INT) arg0.getDBR().convert(DBRType.INT)).getIntValue()[0];
 			
-			if (newvalue > oldNumber) {
+			if (newvalue > oldNumber && newvalue > 0) {
 				try {
 					executor.submit(new Runnable() {
 						@Override
