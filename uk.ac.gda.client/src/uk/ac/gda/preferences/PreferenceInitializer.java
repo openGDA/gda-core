@@ -77,6 +77,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		
 		
 		store.setDefault(PreferenceConstants.GDA_COMMAND_QUEUE_SHOW_TEXT, false);
+		store.setDefault(PreferenceConstants.GDA_COMMAND_QUEUE_DISABLE_JYTHON_CONTROLS, false);
 		store.setDefault(PreferenceConstants.GDA_DEFAULT_NXS_HDF5_EDITOR_ID, HDF5TreeEditor.ID);
 
 		readExtensionPoints(store);
