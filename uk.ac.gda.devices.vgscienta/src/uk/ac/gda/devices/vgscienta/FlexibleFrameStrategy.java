@@ -43,7 +43,6 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	private ObservableComponent oc = new ObservableComponent();
 	
 	private int maxNumberOfFrames = 1;
-
 	private int currentFrame = -1;
 	private int highestFrame = 0;
 	private boolean wethinkweareincharge = false;
