@@ -455,10 +455,14 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	/** 
 	 * Use this to set the plotable Double values, if you prefer that over the 
 	 * convenience methods that use the scannable constructor of this class.
-	 * Consider checking you extraNames and providing an outputFormat as well then.
+	 * Consider checking your extraNames and providing an outputFormat as well then.
+	 * 
+	 * Using this method makes it difficult in inheriting classes to provide additional 
+	 * information, hence the use is not recommended. Use setPlottableValue instead.
 	 * 
 	 * @param vals
 	 */
+	@Deprecated
 	public void setDoubleVals(Double[] vals) {
 		this.doubleData = vals;
 	}
@@ -486,7 +490,6 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		}
 		return output.toString();
 	}
-
 
 	void setOutputFormat(String[] outputFormat) {
 		this.outputFormat = outputFormat;

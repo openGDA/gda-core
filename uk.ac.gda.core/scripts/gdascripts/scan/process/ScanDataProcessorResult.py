@@ -58,11 +58,12 @@ class ScanDataProcessorResult(object):
 		
 		
 		# Give up here if there was a problem with the processor
-		if None in self.labelValuePairs.values():
-			self.scannableValues = None
-			self.report = self.datasetProcessorReport
-			self.str = self.datasetProcessorReport
-			return
+		for val in self.labelValuePairs.values():
+			if val is None:
+				self.scannableValues = None
+				self.report = self.datasetProcessorReport
+				self.str = self.datasetProcessorReport
+				return
 		
 		# generate short report and determine scannable values at feature
 		self.scannableValues = self.determineScannableValuesAtFeature(allscannables, scanFileHolder, xfieldname, xvalue)
