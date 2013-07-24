@@ -89,6 +89,9 @@ class ScanDataProcessor(ScanListener):
 			except:
 				return "<cannot analyse axis %s in scan file - unable to retrieve>" % yfieldname
 			
+			if len(xDataSet.dimensions) > 1:
+				return "<Cannot process multidimensional scans>"
+			
 			if xDataSet.dimensions[0] in (0,1):
 				return "<Scan too short to process sensibly>"
 
