@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test fragment for uk.ac.gda.tomography
+Bundle-SymbolicName: uk.ac.gda.tomography.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source Ltd
+Fragment-Host: uk.ac.gda.tomography;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.junit
