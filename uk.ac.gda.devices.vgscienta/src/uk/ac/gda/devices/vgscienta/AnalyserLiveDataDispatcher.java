@@ -95,7 +95,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
 		try {
-			logger.debug("sending some thing from "+arg0.toString()+" to plot "+plotName+" with axes from "+analyser.getName());
+			logger.debug("might soon be sending some thing to plot "+plotName+" with axes from "+analyser.getName()+" because of "+arg0.toString());
 			
 			int newvalue =((gov.aps.jca.dbr.INT) arg0.getDBR().convert(DBRType.INT)).getIntValue()[0];
 			
@@ -114,13 +114,11 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 						}
 					});
 					logger.debug("plot jobs for "+plotName+" queued successfully");
-
 				} catch (RejectedExecutionException ree) {
 					logger.debug("plot jobs for "+plotName+" are queueing up, as expected in certain circumstances, so this one got skipped");
 				}
 			}
 			oldNumber = newvalue;
-			
 			
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live plot", e);
