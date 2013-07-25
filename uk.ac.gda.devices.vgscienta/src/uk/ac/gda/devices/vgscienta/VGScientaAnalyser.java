@@ -181,13 +181,8 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			throw new DeviceException("processing plugin has not seen any data");
 
 		if (firstReadoutInScan) {
-			int i = 1;
-			String aname = "energies";
-			String aunit = "eV";
-			double[] axis = getEnergyAxis();
-			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
 
-			i = 0;
+			String aunit, aname;
 			if ("Transmission".equals(getLensMode())) {
 				aname = "location";
 				aunit = "mm";
@@ -195,8 +190,11 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 				aname = "angles";
 				aunit = "degree";
 			}
-			axis = getAngleAxis();
-			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			double[] axis = getAngleAxis();
+			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, 1, 1, aunit, false);
+			
+			axis = getEnergyAxis();
+			data.addAxis(getName(), "energies", new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, 2, 1, "eV", false);
 
 			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode().toLowerCase()), null, null);
 			data.addData(getName(), "acquisition_mode", new NexusGroupData(controller.getAcquisitionMode().toLowerCase()), null, null);
@@ -215,7 +213,6 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		}
 		
 		int acquired = flex.getLastAcquired(); 
-
 		data.addData(getName(), "number_of_cycles", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { acquired }), null, null, null, true);
 	}
 	
