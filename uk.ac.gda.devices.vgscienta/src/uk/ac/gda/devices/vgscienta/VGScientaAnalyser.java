@@ -109,6 +109,24 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		this.controller = controller;
 	}
 
+	@Override
+	public void atScanStart() throws DeviceException {
+		try {
+			getAdBase().stopAcquiring();
+		} catch (Exception e) {
+			// if the thing wasn't acquiring in the first place nothing is lost
+			// if this is an important problem we'll hit that later, so no need to rethrow
+			logger.error("error stopping acquisition before running scan", e);
+		}
+		super.atScanStart();
+	}
+	
+	@Override
+	public void atScanEnd() throws DeviceException {
+		super.atScanEnd();
+		// could reset analyser to alignment mode if it was in there before
+	}
+	
 	public int getNumberOfSweeptSteps() throws Exception {
 		return controller.getSweepSteps(); 
 	}
