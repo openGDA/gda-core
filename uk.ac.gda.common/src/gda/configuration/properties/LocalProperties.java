@@ -159,8 +159,7 @@ public class LocalProperties {
 
 
 	/**
-	 * Property that specifies the server-side XML file used by the XmlObjectCreator to create an
-	 * gda.factory.ObjectFactory.
+	 * Property that specifies the server-side XML file.
 	 */
 	public static final String GDA_OBJECTSERVER_XML = "gda.objectserver.xml";
 
@@ -170,8 +169,7 @@ public class LocalProperties {
 	public static final String GDA_SCANNABLEBASE_POLLTIME = "gda.scannablebase.polltime.millis";
 
 	/**
-	 * Property that specifies the client-side XML file used by the XmlObjectCreator to create an
-	 * gda.factory.ObjectFactory.
+	 * Property that specifies the client-side XML file.
 	 */
 	public static final String GDA_GUI_XML = "gda.gui.xml";
 
