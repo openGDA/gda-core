@@ -112,6 +112,14 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 		return mdim;
 	}
 	
+	protected int[] minusonedimfordim(int[] dim) {
+		int[] mdim = new int[dim.length];
+		for (int i = 0; i < mdim.length; i++) {
+			mdim[i] = -1;
+		}
+		return mdim;
+	}
+	
 	@Override
 	public Collection<? extends SelfCreatingLink> makeScannable(NeXusFileInterface file, Scannable s, Object position,
 			int[] dim) throws NexusException {
@@ -119,7 +127,7 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 
 		String name = enterLocation(file);
 		
-		file.makedata(name, NexusFile.NX_FLOAT64, dim.length, dim);
+		file.makedata(name, NexusFile.NX_FLOAT64, dim.length, minusonedimfordim(dim));
 		file.opendata(name);
 		
 		String axislist = "1";
@@ -129,13 +137,13 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 		file.putattr("axis", axislist.getBytes(), NexusFile.NX_CHAR);
 		
 		try {
-			file.putslab(ScannableUtils.positionToArray(position, s), nulldimfordim(dim), onedimfordim(dim));
+			file.putslab(positionToWriteableSlab(position, s), nulldimfordim(dim), onedimfordim(dim));
 		} catch (DeviceException e) {
 			logger.error("error converting scannable data", e);
 		}
 		
-		if (units != null && !units.isEmpty())
-			file.putattr("units", units.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
+		if (getUnits() != null && !getUnits().isEmpty())
+			file.putattr("units", getUnits().getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
 
 		sclc.add(new SelfCreatingLink(file.getdataID()));
 		file.closedata();
@@ -150,7 +158,7 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 		
 		file.opendata(name);
 		try {
-			file.putslab(ScannableUtils.positionToArray(position, s), start, onedimfordim(start));
+			file.putslab(positionToWriteableSlab(position, s), start, onedimfordim(start));
 		} catch (DeviceException e) {
 			logger.error("error converting scannable data", e);
 		}
@@ -159,6 +167,10 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 		leaveLocation(file);
 	}
 
+	protected Object positionToWriteableSlab(Object position, Scannable s) throws DeviceException {
+		return ScannableUtils.positionToArray(position, s);
+	}
+	
 	public String getPath() {
 		return path;
 	}
