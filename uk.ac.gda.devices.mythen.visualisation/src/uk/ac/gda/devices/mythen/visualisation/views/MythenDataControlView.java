@@ -300,7 +300,7 @@ public class MythenDataControlView extends ViewPart {
 			e.printStackTrace();
 		}
 
-		AxisMapBean amb = new AxisMapBean(AxisMapBean.DIRECT);
+		AxisMapBean amb = new AxisMapBean();
 
 		DataBean dataBean = new DataBean();
 
@@ -356,7 +356,7 @@ public class MythenDataControlView extends ViewPart {
 			e.printStackTrace();
 		}
 
-		AxisMapBean amb = new AxisMapBean(AxisMapBean.DIRECT);
+		AxisMapBean amb = new AxisMapBean();
 
 		DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
 		axisData.setAxisMap(amb);
