@@ -124,7 +124,12 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	@Override
 	public void atScanEnd() throws DeviceException {
 		super.atScanEnd();
-		// could reset analyser to alignment mode if it was in there before
+		try {
+			zeroSupplies();
+		} catch (Exception e) {
+			// if the scan went well until this we don't want to spoil it, so logging is enough
+			logger.error("zero supplies generated an error at end of scan", e);
+		}
 	}
 	
 	public int getNumberOfSweeptSteps() throws Exception {
