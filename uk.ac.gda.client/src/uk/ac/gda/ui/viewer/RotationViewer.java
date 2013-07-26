@@ -562,6 +562,10 @@ public class RotationViewer {
 		}
 	}
 	
+	public void setRestoreValueWhenFocusLost(boolean restoreValueWhenFocusLost) {
+		this.motorPositionViewer.setRestoreValueWhenFocusLost(restoreValueWhenFocusLost);
+	}
+	
 	/**
 	 * Set the number of decimal places displayed by the motorpositionviewer
 	 * @param decimalPlaces
