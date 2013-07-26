@@ -27,7 +27,6 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	gda.factory.XmlObjectCreatorTest.class
 })
 
 public class AllJUnitTests {
