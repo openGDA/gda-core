@@ -298,10 +298,14 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		int[] dataDim = null;
 		if (dataDimPrefix != null) {
 			// do not attempt to add dataDimensions if not set or indicates single point
-			int dataDimensionToAdd = dataDimensions != null && (dataDimensions.length > 1 || dataDimensions[0] > 1) ? dataDimensions.length
-					: 0;
+			int dataDimensionToAdd = dataDimensions != null && (dataDimensions.length > 1 || dataDimensions[0] > 1) ? dataDimensions.length : 0;
 
-			dataDim = Arrays.copyOf(dataDimPrefix, dataDimPrefix.length + dataDimensionToAdd);
+			if (make) {
+				dataDim = new int[dataDimPrefix.length + dataDimensionToAdd];
+				Arrays.fill(dataDim, NexusFile.NX_UNLIMITED);
+			} else {
+				dataDim = Arrays.copyOf(dataDimPrefix, dataDimPrefix.length + dataDimensionToAdd);
+			}
 			if (dataDimensionToAdd > 0 && dataDimensions != null) {
 				for (int i = dataDimPrefix.length; i < dataDimPrefix.length + dataDimensionToAdd; i++) {
 					dataDim[i] = dataDimensions[i - dataDimPrefix.length];
@@ -534,10 +538,18 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				if (makeData) {
 					int[] dataDimMake = generateDataDim(tree.isPointDependent(),
 							tree.isPointDependent() ? scanDimensions : null, sds.dimensions);
-					// make the data array to store the data...
-					file.makedata(name, sds.type, dataDimMake.length, dataDimMake);
-					// FIXME put a break point here and not make it crash
 
+					// TODO allow NGD to specify compression and chunks
+					if (sds.dimensions.length > 1) {
+						int[] chunks = Arrays.copyOf(dataDimMake, dataDimMake.length);
+						for (int i = 0; i < chunks.length; i++) {
+							if (chunks[i] == -1) chunks[i] = 1;
+						}
+						file.compmakedata(name, sds.type, dataDimMake.length, dataDimMake, NexusFile.NX_COMP_LZW_LVL1, chunks);
+					} else {
+						file.makedata(name, sds.type, dataDimMake.length, dataDimMake);
+					}
+					
 					file.opendata(name);
 					if (!tree.isPointDependent()) {
 						int[] dataDim = generateDataDim(false, null, sds.dimensions);
@@ -934,10 +946,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 			// create an NXdetector for each detector...
 			for (Detector detector : detectors) {
-				try{
+				try {
 					makeDetectorEntry(detector);
-				}
-				catch(Exception e){
+				} catch(Exception e){
 					throw new DeviceException("Error making detector entry for detector " + detector.getName(),e);
 				}
 			}
