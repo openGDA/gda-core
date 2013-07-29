@@ -263,6 +263,11 @@ public class LazyPVFactory {
 		return new ReadOnly<Integer>(newIntegerPV(pvName));
 	}
 
+	public static ReadOnlyPV<Integer> newReadOnlyIntegerFromEnumPV(String pvName) {
+		final PV<Integer> pv = newIntegerFromEnumPV(pvName);
+		return new ReadOnly<Integer>(pv);
+	}
+
 	public static ReadOnlyPV<Short> newReadOnlyShortPV(String pvName) {
 		return new ReadOnly<Short>(newShortPV(pvName));
 	}
