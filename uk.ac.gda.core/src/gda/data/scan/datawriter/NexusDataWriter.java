@@ -314,9 +314,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		} else if (dataDimensions != null) {
 			dataDim = Arrays.copyOf(dataDimensions, dataDimensions.length);
 		}
-		if (make && dataDim != null) {
-			dataDim[0] = NexusFile.NX_UNLIMITED;
-		}
+
 		return dataDim;
 	}
 
@@ -540,7 +538,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 							tree.isPointDependent() ? scanDimensions : null, sds.dimensions);
 
 					// TODO allow NGD to specify compression and chunks
-					if (sds.dimensions.length > 1) {
+					if (sds.dimensions != null && sds.dimensions.length > 1) {
 						int[] chunks = Arrays.copyOf(dataDimMake, dataDimMake.length);
 						for (int i = 0; i < chunks.length; i++) {
 							if (chunks[i] == -1) chunks[i] = 1;
