@@ -589,43 +589,14 @@ public abstract class ScanBase implements Scan {
 			}
 
 			// if a standalone scan, or the top-level scan in a nest of scans
-			if (!isChild()) { // FIXME: Move all !isChild() logic up into runScan
+			if (!isChild() ) { // FIXME: Move all !isChild() logic up into runScan
 
-				// call the atScanGroupEnd method of all the scannables
-				for (Scannable scannable : this.allScannables) {
-					scannable.atScanEnd();
-				}
-				for (Scannable scannable : this.allDetectors) {
-					scannable.atScanEnd();
-				}
+				callScannablesAtScanEnd();
 
-				// tell detectors that collection is over
-				for (Detector detector : allDetectors) {
-					try {
-						detector.endCollection();
-					} catch (DeviceException ex) {
-						logger.error("endScan(): Device Exception: {} ", ex.getMessage());
-						throw ex;
-					}
-				}
+				callDetectorsEndCollection();
 
-				// shutdown the ScanDataPointPipeline (will close DataWriter)
-				try {
-					if (this.scanDataPointPipeline != null) {
-						this.scanDataPointPipeline.shutdown(Long.MAX_VALUE); // no timeout
-					}
-				} catch (InterruptedException e) {
-					throw new DeviceException("Interupted while shutting down ScanDataPointPipeline from scan thread", e);
-
-				}
-				try {
-					logger.info("Scan '{}' complete: {}", getName(), getDataWriter().getCurrentFileName());
-				} catch (IllegalStateException e) {
-					logger.info("Scan '{}' complete", getName());
-					
-				}
-
-				getTerminalPrinter().print("Scan complete.");
+				shutdownScandataPipieline();
+				signalScanComplete();
 			}
 		}
 		if (!isChild()) {  // FIXME: Move all !isChild() logic up into runScan
@@ -647,6 +618,51 @@ public abstract class ScanBase implements Scan {
 				}, command);
 				commandThread.start();
 			}
+		}
+	}
+
+	protected void signalScanComplete() {
+		try {
+			logger.info("Scan '{}' complete: {}", getName(), getDataWriter().getCurrentFileName());
+		} catch (IllegalStateException e) {
+			logger.info("Scan '{}' complete", getName());
+			
+		}
+
+		getTerminalPrinter().print("Scan complete.");
+	}
+
+	protected void shutdownScandataPipieline() throws DeviceException {
+		// shutdown the ScanDataPointPipeline (will close DataWriter)
+		try {
+			if (this.scanDataPointPipeline != null) {
+				this.scanDataPointPipeline.shutdown(Long.MAX_VALUE); // no timeout
+			}
+		} catch (InterruptedException e) {
+			throw new DeviceException("Interupted while shutting down ScanDataPointPipeline from scan thread", e);
+
+		}
+	}
+
+	protected void callDetectorsEndCollection() throws DeviceException {
+		// tell detectors that collection is over
+		for (Detector detector : allDetectors) {
+			try {
+				detector.endCollection();
+			} catch (DeviceException ex) {
+				logger.error("endScan(): Device Exception: {} ", ex.getMessage());
+				throw ex;
+			}
+		}
+	}
+
+	protected void callScannablesAtScanEnd() throws DeviceException {
+		// call the atScanGroupEnd method of all the scannables
+		for (Scannable scannable : this.allScannables) {
+			scannable.atScanEnd();
+		}
+		for (Scannable scannable : this.allDetectors) {
+			scannable.atScanEnd();
 		}
 	}
 
@@ -894,16 +910,20 @@ public abstract class ScanBase implements Scan {
 
 		// then loop through all the Scannables and call their atStart method
 		if (!isChild()) {
-			for (Scannable scannable : this.allScannables) {
-				scannable.atScanStart();
-			}
-			for (Scannable scannable : this.allDetectors) {
-				scannable.atScanStart();
-			}
+			callScannablesAtScanStart();
 		}
 		if (getChild() == null) {
 			
 			callScannablesAtScanLineStart();
+		}
+	}
+
+	protected void callScannablesAtScanStart() throws DeviceException {
+		for (Scannable scannable : this.allScannables) {
+			scannable.atScanStart();
+		}
+		for (Scannable scannable : this.allDetectors) {
+			scannable.atScanStart();
 		}
 	}
 

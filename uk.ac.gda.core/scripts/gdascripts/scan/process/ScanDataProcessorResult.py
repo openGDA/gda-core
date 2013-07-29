@@ -8,7 +8,11 @@ def determineScannableContainingField(targetFieldname, scannables):
 		fieldnames = list(scn.getInputNames()) + list(scn.getExtraNames())
 		if abbrevtarget in fieldnames:
 			return scn
-	raise KeyError("targetFieldname %s not found in scannables: %s" % (targetFieldname, [scn.getName() for scn in scannables]))
+	for scn in scannables:
+		if list(scn.getInputNames()) == [u'value'] and targetFieldname in scn.getName():
+			return scn
+	raise KeyError('Neither targetFieldname "%s" nor abbrevtarget "%s" found in scannables: %s' % (targetFieldname, abbrevtarget,
+					['%r:%r+%r' % (scn.getName(), list(scn.getInputNames()), list(scn.getExtraNames())) for scn in scannables]))
 
 
 class ScanDataProcessorResult(object):

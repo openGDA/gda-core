@@ -33,8 +33,6 @@ public class MultiScan extends ScanBase implements ContiguousScan{
 	private int pointCount = -1;
 	List<ScanBase> scans;
 
-	// private DataWriter dataWriter;
-
 	/*
 	 * public void runScan() throws InterruptedException, Exception { if( scans != null){ DataWriter writer =
 	 * DefaultDataWriterFactory.createDataWriterFromFactory(); MyDataWriter mydw = new MyDataWriter(writer); for( Scan
@@ -63,7 +61,8 @@ public class MultiScan extends ScanBase implements ContiguousScan{
 				}
 			}
 		}
-
+		
+		setChild(scans.get(0)); //prevent calling of callScannablesAtScanLineStart in ScanBase.prepareDevicesForCollection
 	}
 
 	@Override
@@ -81,8 +80,6 @@ public class MultiScan extends ScanBase implements ContiguousScan{
 		logger.info("prepareForCollection");
 		super.prepareForCollection();
 	}
-
-
 
 	@Override
 	protected void endScan() throws DeviceException {
