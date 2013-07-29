@@ -543,7 +543,7 @@ public class TomoPlotComposite extends Composite {
 					plottingSystem.clearRegions();
 					if (tiltPoints.getEllipse1() != null) {
 						IRegion region1 = plottingSystem.createRegion(
-								RegionUtils.getUniqueName("RegionFit1", plottingSystem), RegionType.ELLIPSEFIT);
+								RegionUtils.getUniqueName("RegionFit1", plottingSystem), RegionType.POLYGON);
 						region1.setLineWidth(1);
 						region1.setRegionColor(ColorConstants.black);
 
@@ -553,7 +553,8 @@ public class TomoPlotComposite extends Composite {
 						}
 
 						plottingSystem.addRegion(region1);
-						region1.setROI(new EllipticalFitROI(roi1));
+//						region1.setROI(new EllipticalFitROI(roi1));
+						region1.setROI(roi1);
 						region1.setMobile(false);
 						region1.setName("Pre Tilt");
 					}
