@@ -71,6 +71,15 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	private String controlPv;
 	private String statusPv;
+	
+	public String getControlPv() {
+		return controlPv;
+	}
+
+	public String getStatusPv() {
+		return statusPv;
+	}
+
 	private boolean allPVsSet = false;
 	
 	private PutCallbackListener pcl;
