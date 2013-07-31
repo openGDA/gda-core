@@ -1,4 +1,4 @@
-<project name="plugin-uk.ac.gda.eipcs.test" basedir=".">
+<project name="plugin-uk.ac.gda.epics.test" basedir=".">
 
     <dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
     <pathconvert property="workspace.loc" setonempty="false">
