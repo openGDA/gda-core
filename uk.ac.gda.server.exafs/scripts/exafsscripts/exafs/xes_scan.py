@@ -3,7 +3,7 @@ import array
 from java.lang import InterruptedException
 from java.lang import System
 from xas_scan import XasScan
-from BeamlineParameters import JythonNameSpaceMapping, FinderNameMapping
+from BeamlineParameters import JythonNameSpaceMapping
 from exafsscripts.exafs.i20.I20SampleIterators import XASXANES_Roomtemp_Iterator, XES_Roomtemp_Iterator, XASXANES_Cryostat_Iterator
 
 from gda.configuration.properties import LocalProperties
@@ -28,12 +28,11 @@ from uk.ac.gda.doe import DOEUtils
 
 class I20XesScan(XasScan):
     
-    def __init__(self, loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, beamlineReverter, commandQueueProcessor, XASLoggingScriptController, ExafsScriptObserver, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot):
+    def __init__(self, loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController, ExafsScriptObserver, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot):
         self.detectorPreparer = detectorPreparer
         self.samplePreparer = samplePreparer
         self.outputPreparer = outputPreparer
         self.loggingcontroller = loggingcontroller
-        self.beamlineReverter = beamlineReverter
         self.jython_mapper = JythonNameSpaceMapping()
         self.commandQueueProcessor=commandQueueProcessor
         self.XASLoggingScriptController=XASLoggingScriptController

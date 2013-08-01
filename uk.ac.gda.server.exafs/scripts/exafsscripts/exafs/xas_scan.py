@@ -17,6 +17,7 @@ from gda.jython.scriptcontroller.logging import XasProgressUpdater
 from gda.jython.scriptcontroller.logging import LoggingScriptController
 from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan
+from uk.ac.gda.beans.exafs import XasScanParameters
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from scan import Scan
 
@@ -42,15 +43,15 @@ class XasScan(Scan):
 		xas_scannable.setName("xas_scannable")
 		xas_scannable.setEnergyScannable(Finder.getInstance().find(beanGroup.getScan().getScannableName()))
 		return xas_scannable
+		
 
 	def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
 		ScanBase.interrupted = False
 		ScriptBase.interrupted = False
 		ScriptBase.paused = False
-		controller = Finder.getInstance().find("ExafsScriptObserver")
+		controller = self.ExafsScriptObserver
 		
 		xmlFolderName = folderName + "/"
-		
 		folderName = folderName[folderName.find("xml")+4:]
 
 		self.log( "folderName=" + str(folderName))
@@ -95,9 +96,6 @@ class XasScan(Scan):
 		repetitionNumber = 0
 		timeRepetitionsStarted = System.currentTimeMillis();
 		
-		# DO NOT COMMIT!!! For I18 only!!
-		gap_converter = Finder.getInstance().find("auto_mDeg_idGap_mm_converter")
-		
 		try:
 			while True:
 				repetitionNumber+= 1
@@ -119,15 +117,11 @@ class XasScan(Scan):
 						self.log( "Starting "+scriptType+" scan...")
 					timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
 					logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
-					# DO NOT COMMIT!!! For I18 only!!!
-					# Move to start energy so that harmonic can be set by gap_converter
-					initialEnergy = beanGroup.getScan().getInitialEnergy()
-					print "moving ", beanGroup.getScan().getScannableName(), " to start energy ", initialEnergy
-					energyScannable = Finder.getInstance().find(beanGroup.getScan().getScannableName())
-					energyScannable(initialEnergy)
-					print "move complete, diasabling harmonic change"
-					if gap_converter != None:
-						gap_converter.disableAutoConversion()
+					
+					# Harmonic change code here
+					# This is for I18 and should be configurable for that.
+					# setupHarmonic()
+					
 					self._doScan(beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,logmsg,timeRepetitionsStarted)
 		
 				except InterruptedException, e:
@@ -152,28 +146,20 @@ class XasScan(Scan):
 				self._runScript(beanGroup.getOutput().getAfterScriptName())
 				
 				#check if halt after current repetition set to true
-				if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
-					self.log( "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.")
-					self.commandQueueProcessor.pause(500);
-					LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
-					ScriptBase.checkForPauses()
+				self.checkForPause(numRepetitions)
 				
-				#check if the number of repetitions has been altered and we should now end the loop
-				numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
-				if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
-					self.log( "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end.")
+				#check repetition
+				finished=self.checkIfRepetitionsFinished(numRepetitions, repetitionNumber)
+				if finished is True:
 					break
-				elif numRepsFromProperty <= (repetitionNumber):
-					# normal end to loop
-					break
-				numRepetitions = numRepsFromProperty
 		finally:	
-			# DO NOT COMMIT!!!!!!!! For I18 only, should be implemented in i18ScanScripts and then make a call to super._dcScan
-			if gap_converter != None:
-				gap_converter.enableAutoConversion()
+
+			# For i18 only, re enable gap converter
+			#gap_converter.enableAutoConversion()
+			
 			# repetition loop completed, so reset things
-			if (self.beamlineReverter != None):
-				self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
+			# TODO remove metadata enteries
+			
 			LocalProperties.set("gda.scan.useScanPlotSettings", "false")
 			LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
 			XasAsciiDataWriter.setBeanGroup(None)
@@ -193,7 +179,6 @@ class XasScan(Scan):
 		scanBean = beanGroup.getScan()
 		outputBean = beanGroup.getOutput()
 		
-		
 		# create the list of scan points
 		points = ()
 		if isinstance(beanGroup.getScan(), XanesScanParameters):
@@ -208,8 +193,8 @@ class XasScan(Scan):
 		outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
 		print "*****outputFolder",outputFolder
 		#self.loggingcontroller.update(None,logmsg)
-		self.loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
-		loggingbean = XasProgressUpdater(self.loggingcontroller,logmsg,timeRepetitionsStarted)
+		self.XASLoggingScriptController.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
+		loggingbean = XasProgressUpdater(self.XASLoggingScriptController,logmsg,timeRepetitionsStarted)
 		
 		# work out which detectors to use (they will need to have been configured already by the GUI)
 		detectorList = self._getDetectors(beanGroup.getDetector(), beanGroup.getScan()) 
@@ -252,8 +237,16 @@ class XasScan(Scan):
 		#update observers
 		controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
 
-	
 	def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
+		times = []
+		if isinstance(beanGroup.getScan(),XasScanParameters):
+			times = ExafsScanPointCreator.getScanTimeArray(beanGroup.getScan())
+		elif isinstance(beanGroup.getScan(),XanesScanParameters):
+			times = XanesScanPointCreator.getScanTimeArray(beanGroup.getScan())
+		if len(times) > 0:
+			self.ionchambers.setTimes(times)
+			self.log( "Setting detector frame times, using array of length",str(len(times)) + "...")
+			ScriptBase.checkForPauses()
 		return
 
 	def _getSignalList(self, outputParameters):
@@ -295,3 +288,33 @@ class XasScan(Scan):
 				dataWriter.setConfiguration(asciidatawriterconfig)
 			thisscan.setDataWriter(dataWriter)
 		return thisscan
+	
+	# Move to start energy so that harmonic can be set by gap_converter
+	def setupHarmonic(self):
+		# DO NOT COMMIT!!! For I18 only!!
+		gap_converter = Finder.getInstance().find("auto_mDeg_idGap_mm_converter")
+		initialEnergy = beanGroup.getScan().getInitialEnergy()
+		print "moving ", beanGroup.getScan().getScannableName(), " to start energy ", initialEnergy
+		energyScannable = Finder.getInstance().find(beanGroup.getScan().getScannableName())
+		energyScannable(initialEnergy)
+		print "move complete, diasabling harmonic change"
+		if gap_converter != None:
+			gap_converter.disableAutoConversion()
+
+	def checkForPause(self, numRepetitions):
+		if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
+			self.log( "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.")
+			self.commandQueueProcessor.pause(500);
+			LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
+			ScriptBase.checkForPauses()
+		
+	def checkIfRepetitionsFinished(self, numRepetitions, repetitionNumber):
+		#check if the number of repetitions has been altered and we should now end the loop
+		numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
+		if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
+			self.log( "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end.")
+			return True
+		elif numRepsFromProperty <= (repetitionNumber):
+			# normal end to loop
+			return True
+		numRepetitions = numRepsFromProperty

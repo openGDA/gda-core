@@ -10,8 +10,8 @@ class I20DetectorPreparer:
     def __init__(self, xspress2system, ExafsScriptObserver,sensitivities, sensitivity_units ,offsets, offset_units, cryostat_scannable):
         self.xspress2system = xspress2system
         self.ExafsScriptObserver = ExafsScriptObserver
-        self.sensitivities = sensitivities 
-        self.sensitivity_units = sensitivity_units 
+        self.sensitivities = sensitivities
+        self.sensitivity_units = sensitivity_units
         self.offsets = offsets
         self.offset_units = offset_units
         self.cryostat_scannable=cryostat_scannable

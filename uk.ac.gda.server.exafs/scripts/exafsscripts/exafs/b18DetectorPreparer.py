@@ -48,8 +48,6 @@ class B18DetectorPreparer:
         if autoGas == True:
             self.ionc_gas_injector_scannables[ion_chamber_num]([purge_pressure, purge_period, gas_fill1_pressure, gas_fill1_period, gas_fill2_pressure, gas_fill2_period, gas_select_val, flushString])
 
-
-
     def _control_mythen(self, bean):
         self.add_to_metadata("energy")
         print "Moving DCM..."

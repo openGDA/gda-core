@@ -1,3 +1,8 @@
+class Detectors():
+    
+    def __init__(self, ExafsScriptObserver):
+        self.ExafsScriptObserver=ExafsScriptObserver
+    
     """
     Validates the bean which defines the detectors and then configures the vortex or xspress
     based on the xml file whose name is in the bean.
@@ -7,6 +12,6 @@
         fullFileName = scriptFolder + detectorParameters.getFluorescenceParameters().getConfigFileName()
         print "configuring", detType, "detector using", fullFileName
         if detType == "Germanium":
-            Xspress2DetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()
+            Xspress2DetectorConfiguration(self.ExafsScriptObserver, fullFileName, None, outputParameters).configure()
         else:
-            VortexDetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()
+            VortexDetectorConfiguration(self.ExafsScriptObserver, fullFileName, None, outputParameters).configure()

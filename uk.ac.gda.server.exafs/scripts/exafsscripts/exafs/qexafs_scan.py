@@ -19,15 +19,15 @@ import math
 
 class QexafsScan(Scan):
     
-    def __init__(self, loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, beamlineReverter, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ion_chambers_scannable, cirrus=None):
-        Scan.__init__(self, loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, beamlineReverter, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable)
-        self.ion_chambers_scannable = ion_chambers_scannable
+    def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, cirrus=None):
+        Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers)
         self.cirrus = cirrus
         self.cirrusEnabled = False
         self.beamCheck = True
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
         xmlFolderName = folderName + "/"
+        folderName = folderName[folderName.find("xml")+4:]
 
         if self.cirrusEnabled:
             self.t = None
@@ -187,8 +187,7 @@ class QexafsScan(Scan):
         finally:    
             self.energy_scannable.stop()
             # repetition loop completed, so reset things
-            if (self.beamlineReverter != None):
-                self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
+            # TODO remove metadata enteries
             LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
             XasAsciiDataWriter.setBeanGroup(None)
@@ -199,29 +198,6 @@ class QexafsScan(Scan):
                 self.datawriterconfig.setHeader(original_header)
             if self.cirrusEnabled:
                 self.t.stop
-
-    def _getNumberOfFrames(self, detectorBean, scanBean):
-         # work out the number of frames to collect
-        numberPoints = 0
-        if detectorBean.getExperimentType() == "Fluorescence" and detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium":
-            maxPoints = self.ion_chambers_scannable.maximumReadFrames()
-            if scanBean.isChooseNumberPoints():
-                return maxPoints
-            else:
-                numberPoints = scanBean.getNumberPoints()
-                if numberPoints > maxPoints:
-                    raise "Too many frames for the given detector configuration."
-                return numberPoints
-        # for ion chambers only use a default value
-        elif scanBean.isChooseNumberPoints():
-            print "using default number of frames: 1000"
-            return 1000 # a default value as user has selected max possible but is only using the ion chambers (so max will be very high)
-        # have a limit anyway of 4096
-        else:
-            numberPoints = scanBean.getNumberPoints()
-            if numberPoints > 4096:
-                    raise "Too many frames for the given detector configuration."
-            return numberPoints
  
     def _getQEXAFSDetectors(self, detectorBean, outputBean, scanBean):
         expt_type = detectorBean.getExperimentType()

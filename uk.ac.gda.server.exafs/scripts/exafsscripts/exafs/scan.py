@@ -5,17 +5,16 @@ from org.slf4j import LoggerFactory
 
 class Scan:
     
-    def __init__(self, loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, beamlineReverter, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable):
+    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers):
         self.detectorPreparer = detectorPreparer
         self.samplePreparer = samplePreparer
         self.outputPreparer = outputPreparer
-        self.loggingcontroller = loggingcontroller
-        self.beamlineReverter = beamlineReverter
         self.commandQueueProcessor = commandQueueProcessor
         self.ExafsScriptObserver=ExafsScriptObserver
         self.XASLoggingScriptController=XASLoggingScriptController
         self.datawriterconfig=datawriterconfig
         self.energy_scannable = energy_scannable
+        self.ionchambers=ionchambers
         
     def log(self,*msg):
         self.logger = LoggerFactory.getLogger("exafsscripts.exafs.scan")

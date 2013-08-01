@@ -165,8 +165,7 @@ class I20XasScan(XasScan):
             energy_scannable.stop()
             
             # repetition loop completed, so reset things
-            if (self.beamlineReverter != None):
-                self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
+            # TODO remove metadata enteries
             LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
             XasAsciiDataWriter.setBeanGroup(None)
@@ -183,15 +182,3 @@ class I20XasScan(XasScan):
             self.jython_mapper.topupChecker.collectionTime = 0.0
             self.jython_mapper.ionchambers.setOutputLogValues(False) 
             ScriptBase.checkForPauses()
-
-    def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
-        times = []
-        if isinstance(beanGroup.getScan(),XasScanParameters):
-            times = ExafsScanPointCreator.getScanTimeArray(beanGroup.getScan())
-        elif isinstance(beanGroup.getScan(),XanesScanParameters):
-            times = XanesScanPointCreator.getScanTimeArray(beanGroup.getScan())
-        if len(times) > 0:
-            self.jython_mapper.ionchambers.setTimes(times)
-            self.log( "Setting detector frame times, using array of length",str(len(times)) + "...")
-            ScriptBase.checkForPauses()
-        return
