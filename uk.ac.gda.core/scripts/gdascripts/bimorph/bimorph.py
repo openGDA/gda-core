@@ -268,12 +268,17 @@ class RunOptimisation():
     
     def printVoltages(self, voltages, auto_offset):
         print "\n"
+        from time import sleep
         print "__________________________________________________________________________________________________________________"
+        sleep(0.1)
         print "                                                   voltages"
+        sleep(0.1)
         print "__________________________________________________________________________________________________________________"
+        sleep(0.1)
         print "        current voltages         |           calculated voltages           |        summed voltages to be set"
+        sleep(0.1)
         print "_________________________________|_________________________________________|______________________________________"
-        
+        sleep(0.1)
         bm_voltage = 0;
         
         if self.auto_offset:
@@ -292,6 +297,7 @@ class RunOptimisation():
                 else:
                     print "    ", current,  " "*gap, "|    ", correction,  " "*gap2, "|    ", sum
                     bm_voltage+=1
+                sleep(0.1)
         
         else: 
             for voltage in voltages:
@@ -305,6 +311,7 @@ class RunOptimisation():
                 gap2 = 34-len(str(correction))
                 print "    ", current,  " "*gap, "|    ", correction,  " "*gap2, "|    ", sum
                 bm_voltage+=1
+                sleep(0.1)
 
 def findSlitRange(data):
     """
