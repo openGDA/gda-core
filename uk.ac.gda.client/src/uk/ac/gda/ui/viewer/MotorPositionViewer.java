@@ -200,6 +200,14 @@ public class MotorPositionViewer {
 					final String msg = "Moving " + motor.getDescriptor().getLabelText() + " to " + demand;
 					Job job = new Job(msg){
 						@Override
+						protected void canceling() {
+							try {
+								MotorPositionViewer.this.scannable.stop();
+							} catch (DeviceException e) {
+								logger.error("Unable to stop the scannable motor", e);
+							}
+						}
+						@Override
 						protected IStatus run(IProgressMonitor monitor) {
 							try {
 								if (commandFormat == null) {
