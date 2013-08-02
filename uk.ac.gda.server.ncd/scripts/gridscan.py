@@ -40,8 +40,8 @@ class Grid(DataWriterExtenderBase):
 			image =  self.camera.readLastImage()
 			if not self.gridpreferences == None:
 				image.setMetadata(Metadata({"GDA_GRID_METADATA" : self.gridpreferences}))
-				xs = image.getShape()[0]
-				ys = image.getShape()[1]
+				xs = image.getShape()[1]
+				ys = image.getShape()[0]
 				xbs = self.getBeamCentreX()
 				ybs = self.getBeamCentreY()
 				xres = self.getResolutionX()
