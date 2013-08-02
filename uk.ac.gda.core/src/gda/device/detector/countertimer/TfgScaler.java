@@ -211,9 +211,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
-		if (frameSets.size() > 0) {
-			clearFrameSets();
-		}
+		atScanEnd();
 	}
 
 	@Override

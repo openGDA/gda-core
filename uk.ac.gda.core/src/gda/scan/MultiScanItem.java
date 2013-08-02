@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,18 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.factory;
+package gda.scan;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-
-/**
- * Run all JUnit tests in gda.analysis and sub-packages
- *
- */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-})
-
-public class AllJUnitTests {
+public class MultiScanItem {
+	public final ScanBase scan;
+	public final Runnable prescan;
+	public MultiScanItem(ScanBase scan, Runnable prescan) {
+		super();
+		this.scan = scan;
+		this.prescan = prescan;
+	}
+	
 }

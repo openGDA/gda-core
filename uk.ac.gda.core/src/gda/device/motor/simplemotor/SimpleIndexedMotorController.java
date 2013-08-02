@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,18 +16,22 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.factory;
+package gda.device.motor.simplemotor;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import gda.device.DeviceException;
 
-/**
- * Run all JUnit tests in gda.analysis and sub-packages
- *
- */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-})
+public interface SimpleIndexedMotorController {
 
-public class AllJUnitTests {
+	void stop()throws DeviceException;
+
+	boolean isBusy()throws DeviceException;
+
+	void moveTo(double position, int index)throws DeviceException;
+
+	double getPosition(int index) throws DeviceException;
+
+	void setSpeed(double speed, int index) throws DeviceException;
+
+	double getSpeed(int index) throws DeviceException;
+
 }

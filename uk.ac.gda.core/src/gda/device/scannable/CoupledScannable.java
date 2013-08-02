@@ -159,6 +159,11 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 		}
 	}
 
+	// Setter that takes the same type as the return type of the getter (for Spring)
+	public void setFunctions(Function[] functions) {
+		setFunctions(Arrays.asList(functions));
+	}
+
 	/**
 	 * @return all the functions this uses.
 	 */

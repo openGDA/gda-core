@@ -139,18 +139,11 @@ public class ConstantVelocityScanLineTest {
 		verify(mockeddet2, times(1)).collectData();
 
 	}
-	
+
 	@Test
-	public void singleLineScanMockScannablesAndTwoMockDetectorsIntegrating() throws InterruptedException, Exception {
+	public void singleLineScanMockScannablesAndTwoMockDetectorsIntegratingWhole() throws InterruptedException, Exception {
 		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectorsIntegrating", true);
-		LocalProperties.set("gda.data.scan.datawriter.dataFormat", "DummyDataWriter");
-		when(mockeddet1.integratesBetweenPoints()).thenReturn(true);
-		when(mockeddet2.integratesBetweenPoints()).thenReturn(true);
-		when(mockscn.getLevel()).thenReturn(5);
-		ConstantVelocityScanLine scan = new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1., mockeddet1, 2., mockeddet2});
-		
-		scan.runScan();
-		InOrder inOrder = inOrder(mockscn, mockedController, mockeddet1, mockeddet2);
+		InOrder inOrder = runSequence();
 		
 		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
 		inOrder.verify(mockscn).setOperatingContinuously(true);
@@ -169,17 +162,46 @@ public class ConstantVelocityScanLineTest {
 		
 		
 		inOrder.verify(mockedController).prepareForMove();
-		
-		inOrder.verify(mockeddet1).collectData(); // order unimportant
-		inOrder.verify(mockeddet2).collectData(); // order unimportant
-		
+//		inOrder.verify(mockeddet1).collectData();
+//		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockedController).startMove();
+		
 		inOrder.verify(mockedController).waitWhileMoving();
 		
 		verify(mockeddet1, times(1)).collectData();
 		verify(mockeddet2, times(1)).collectData();
 	}
 
+	@Test
+	public void singleLineScanMockScannablesAndTwoMockDetectorsIntegratingDet1() throws InterruptedException, Exception {
+		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectorsIntegrating", true);
+		InOrder inOrder = runSequence();
+		inOrder.verify(mockedController).prepareForMove();
+		inOrder.verify(mockeddet1).collectData();
+//		inOrder.verify(mockeddet2).collectData();
+		inOrder.verify(mockedController).startMove();
+	}
+
+	@Test
+	public void singleLineScanMockScannablesAndTwoMockDetectorsIntegratingDet2() throws InterruptedException, Exception {
+		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectorsIntegrating", true);
+		InOrder inOrder = runSequence();
+		inOrder.verify(mockedController).prepareForMove();
+//		inOrder.verify(mockeddet1).collectData();
+		inOrder.verify(mockeddet2).collectData();
+		inOrder.verify(mockedController).startMove();
+	}
 	
-	// TODO: Check for speed put back for failed scans
+	private InOrder runSequence() throws InterruptedException, Exception {
+		LocalProperties.set("gda.data.scan.datawriter.dataFormat", "DummyDataWriter");
+		when(mockeddet1.integratesBetweenPoints()).thenReturn(true);
+		when(mockeddet2.integratesBetweenPoints()).thenReturn(true);
+		when(mockscn.getLevel()).thenReturn(5);
+		ConstantVelocityScanLine scan = new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1., mockeddet1, 2., mockeddet2});
+
+		scan.runScan();
+		InOrder inOrder = inOrder(mockscn, mockedController, mockeddet1, mockeddet2);
+		return inOrder;
+	}
+
 }

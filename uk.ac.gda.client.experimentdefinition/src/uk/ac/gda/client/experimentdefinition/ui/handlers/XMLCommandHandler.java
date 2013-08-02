@@ -67,7 +67,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 	}
 
 	protected Object doCopyAndSelection(final String id) {
-		final IFolder runFolder = getController().getSelectedFolder();
+		final IFolder runFolder = getEditorManager().getSelectedFolder();
 		Collection<IExperimentBeanDescription> exafsBeanDescriptions = ExperimentBeanManager.INSTANCE
 				.getBeanDescriptions();
 		for (IExperimentBeanDescription exafsBeanDescription : exafsBeanDescriptions) {
@@ -84,7 +84,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 
 	public Object doCopyAndSelection() {
 
-		final IFolder runFolder = getController().getSelectedFolder();
+		final IFolder runFolder = getEditorManager().getSelectedFolder();
 		final IFile to = doCopy(runFolder);
 		doSelection(to);
 		return to.getName();
@@ -166,11 +166,11 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 	}
 
 	private void doSelection(IFile to) {
-		final ExperimentFolderEditor ed = getController().getActiveFolderEditor();
+		final ExperimentFolderEditor ed = getEditorManager().getActiveFolderEditor();
 		if (ed != null)
 			ed.setSelected(to);
 
-		getController().openEditor(to, false);
+		getEditorManager().openEditor(to, false);
 
 		if (ed != null) {
 			EclipseUtils.getActivePage().activate(ed);
