@@ -9,7 +9,7 @@ from uk.ac.gda.devices.bssc.ispyb import BioSAXSDBFactory, BioSAXSISPyBUtils
 class BSSCRun:
     
     def __init__(self, beanFile):
-        self.samplevolume = 10
+        self.samplevolume = 20
         self.bean = uk.ac.gda.devices.bssc.beans.BSSCSessionBean.createFromXML(beanFile)
         self.bssc = gda.factory.Finder.getInstance().listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
         self.tfg = gda.factory.Finder.getInstance().listAllLocalObjects("gda.device.Timer")[0]
@@ -22,7 +22,7 @@ class BSSCRun:
         self.stepsperbuffer = 3
         self.ispyb = BioSAXSDBFactory.makeAPI()
         self.visit = self.ispyb.getSessionForVisit(GDAMetadataProvider.getInstance().getMetadataValue("visit"))
-        self.energy = float(GDAMetadataProvider.getInstance().getMetadataValue("instrument.monochromator.energy"))
+        self.energy = float(gda.factory.Finder.getInstance().find("dcm_energy").getPosition())
         self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample + (self.bean.getMeasurements().size() + 1) * self.stepsperbuffer
         lastTitration=None
         for titration in self.bean.getMeasurements():
@@ -152,9 +152,9 @@ class BSSCRun:
             filename = self.expose(duration)
             id = self.ispyb.createSampleMeasurement(self.visit, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/Pilatus2M/data")
             self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
-            if titration.isRecouperate():
-                self.reportSampleProgress(titration, "Recuperating Sample and Cleaning")
-                self.unloadIntoWell(titration.getLocation())
+            if not titration.getRecouperateLocation() is None:
+                self.reportSampleProgress(titration, "Recuperating Sample to "+titration.getRecouperateLocation().toString()+" and Cleaning")
+                self.unloadIntoWell(titration.getRecouperateLocation())
             else:
                 self.reportSampleProgress(titration, "Cleaning after Sample")
             self.clean()
@@ -181,6 +181,7 @@ class BSSCRun:
     def run(self):
         self.reportProgress("Initialising");
         self.checkDevice()
+        self.bssc.setSampleType("green")
         self.reportProgress("Setting Storage Temperature")
         self.setStorageTemperature()
         self.reportProgress("Performing Courtesy Cell Wash")

@@ -82,4 +82,14 @@ public class LocationBean implements IRichBean {
 	public int hashCode() {
 		return plate + 5 * row + 31 * column;
 	}
+	
+	public boolean isValid() {
+		if (plate < 1 || plate > 3) 
+			return false;
+		if (column < 1 || column > 12) 
+			return false;
+		if (row < 'A' || row > 'H') 
+			return false;
+		return true;
+	}
 }
