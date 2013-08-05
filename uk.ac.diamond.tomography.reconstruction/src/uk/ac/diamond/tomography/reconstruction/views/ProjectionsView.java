@@ -252,16 +252,16 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 	}
 
 	protected void disablePlottingSystemActions(IPlottingSystem plottingSystem) {
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.REMOVE_REGION);
 		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.CONFIG.getId() + BasePlottingConstants.CONFIG_SETTINGS);
 		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.CONFIG.getId() + BasePlottingConstants.XY_SHOWLEGEND);
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.histo");
+		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.HISTO.getId());
 		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.CONFIG.getId());
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.addRegions");
+		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.REGION.getId());
 
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.rescale");
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotIndex");
-		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotX");
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.RESCALE);
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.PLOT_INDEX);
+		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.PLOT_X_AXIS);
 	}
 
 	private void setGridLayoutMinimumSetting(GridLayout layout) {
