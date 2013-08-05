@@ -127,20 +127,14 @@ class I20DetectorPreparer:
             if LocalProperties.get("gda.mode") != 'dummy':
                 self.cryostat_scannable.setupFromBean(cryoStatParameters)
 
+        # This is only required for I20
         def setDetectorCorrectionParameters(self,beanGroup):
             scanObj = beanGroup.getScan()
             dtEnergy = 0.0
             # Use the fluo (emission) energy of the nearest transition based on the element and excitation edge
             # to calculate the energy dependent deadtime parameters.
-            if isinstance(scanObj,XasScanParameters):
-                edge = scanObj.getEdge()
-                element = scanObj.getElement()
-                elementObj = Element.getElement(element)
-                dtEnergy = self._getEmissionEnergy(elementObj,edge)
-                dtEnergy /= 1000 # convert from eV to keV
-                print "Setting Ge detector deadtime calculation energy to be",str(dtEnergy),"keV based on element",element,"and edge",edge
-            elif isinstance(scanObj,XanesScanParameters):
-                edge = scanObj.getEdge()
+            edge = scanObj.getEdge()
+            if isinstance(scanObj,XasScanParameters) or isinstance(scanObj,XanesScanParameters):
                 element = scanObj.getElement()
                 elementObj = Element.getElement(element)
                 dtEnergy = self._getEmissionEnergy(elementObj,edge)
@@ -149,7 +143,6 @@ class I20DetectorPreparer:
             else :
                 dtEnergy = scanObj.getFinalEnergy() 
                 dtEnergy /= 1000 # convert from eV to keV
-            
             self.jython_mapper.xspress2system.setDeadtimeCalculationEnergy(dtEnergy)
      
         def _getEmissionEnergy(self,elementObj,edge):

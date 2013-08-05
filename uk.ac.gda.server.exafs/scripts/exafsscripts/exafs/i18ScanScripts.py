@@ -62,6 +62,3 @@ class I18XasScan(XasScan):
             jython_mapper.counterTimer01.setTimes(times)
             ScriptBase.checkForPauses()
         return
-       
-       
-

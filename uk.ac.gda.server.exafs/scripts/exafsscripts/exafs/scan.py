@@ -2,6 +2,7 @@ from BeamlineParameters import JythonNameSpaceMapping
 from gda.jython.commands.GeneralCommands import run
 from uk.ac.gda.beans import BeansFactory
 from org.slf4j import LoggerFactory
+from gda.exafs.scan import BeanGroup, BeanGroups
 
 class Scan:
     
@@ -15,6 +16,11 @@ class Scan:
         self.datawriterconfig=datawriterconfig
         self.energy_scannable = energy_scannable
         self.ionchambers=ionchambers
+        
+    def determineExperimentPath(self, experimentFullPath):
+        experimentFullPath = experimentFullPath + "/"
+        experimentFolderName = experimentFullPath[experimentFullPath.find("xml")+4:]
+        return experimentFullPath, experimentFolderName
         
     def log(self,*msg):
         self.logger = LoggerFactory.getLogger("exafsscripts.exafs.scan")
@@ -44,6 +50,22 @@ class Scan:
         detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
         outputBean = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
         return sampleBean, scanBean, detectorBean, outputBean
+    
+    # from xas
+    def _createBeanGroup(self, folderName, validation, controller, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean):
+        beanGroup = BeanGroup()
+        beanGroup.setController(controller)
+        beanGroup.setScriptFolder(xmlFolderName)
+        beanGroup.setExperimentFolderName(folderName)
+        outputBean.setAsciiFileName(sampleBean.getName())
+        beanGroup.setValidate(validation)
+        if (sampleBean != None):
+            beanGroup.setSample(sampleBean)
+        beanGroup.setDetector(detectorBean)
+        beanGroup.setOutput(outputBean)
+        beanGroup.setScan(scanBean)
+        
+        return beanGroup
     
     def _runScript(self, scriptName):
         if scriptName != None and scriptName != "":

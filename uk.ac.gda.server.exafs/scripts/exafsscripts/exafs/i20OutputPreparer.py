@@ -38,9 +38,9 @@ class I20OutputPreparer:
     #
     # If this returns None, then let the Ascii Data Writer class find the config for itself.
     #
-    def getAsciiDataWriterConfig(self,beanGroup):
-        scan = beanGroup.getScan()
-        if self.mode == "xes" or isinstance(scan,XesScanParameters):
+    def getAsciiDataWriterConfig(self, scanBean):
+        
+        if self.mode == "xes" or isinstance(scanBean,XesScanParameters):
             # will return None if not found
             print "Ascii (.dat) files will have XES header."
             return self.datawriterconfig_xes
