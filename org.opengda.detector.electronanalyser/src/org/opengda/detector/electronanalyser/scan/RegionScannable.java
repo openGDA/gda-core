@@ -144,20 +144,8 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	}
 
 	private void setNewRegion(Region region) throws Exception {
-		if (!firstInScan) {
-			return;
-		}
 		try {
 			busy = true;
-			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 5.0);
-			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 5.0);
-			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 5.0);
-			getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel()+1, 5.0);
-			getAnalyser().setSlices(region.getSlices(), 5.0);
-			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 5.0);
-			getAnalyser().setLensMode(region.getLensMode(), 5.0);
-			String literal = region.getEnergyMode().getLiteral();
-			getAnalyser().setEnergyMode(literal,5.0);
 			if (isSourceSelectable()) {
 				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
 					getAnalyser().setExcitationEnergy(Double.valueOf(pgmenergy.getPosition().toString()));
@@ -167,7 +155,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 			} else {
 				getAnalyser().setExcitationEnergy(Double.valueOf(pgmenergy.getPosition().toString()));
 			}
-			getAnalyser().setPassEnergy(region.getPassEnergy(), 5.0);
+			String literal = region.getEnergyMode().getLiteral();
 			if (literal.equalsIgnoreCase("Binding")) {
 				//TODO a hack to solve EPICS cannot do binding energy issue, should be removed once EPICS issue solved.
 				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
@@ -180,7 +168,21 @@ public class RegionScannable extends ScannableBase implements Scannable {
 					getAnalyser().setCentreEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getFixEnergy(), 5.0);
 				}
 				getAnalyser().setEnergyMode("Kinetic",5.0);
-			} else {
+			} 
+			if (!firstInScan) {
+				busy=false;
+				return;
+			}
+			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 5.0);
+			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 5.0);
+			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 5.0);
+			getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel()+1, 5.0);
+			getAnalyser().setSlices(region.getSlices(), 5.0);
+			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 5.0);
+			getAnalyser().setLensMode(region.getLensMode(), 5.0);
+			getAnalyser().setEnergyMode(literal,5.0);
+			getAnalyser().setPassEnergy(region.getPassEnergy(), 5.0);
+			if (literal.equalsIgnoreCase("Kinetic")) {
 				getAnalyser().setStartEnergy(region.getLowEnergy(), 5.0);
 				getAnalyser().setEndEnergy(region.getHighEnergy(), 5.0);
 				getAnalyser().setCentreEnergy(region.getFixEnergy(), 5.0);
@@ -195,8 +197,8 @@ public class RegionScannable extends ScannableBase implements Scannable {
 							region.getRunMode().getNumIterations(), 5.0);
 					getAnalyser().setImageMode(ImageMode.SINGLE, 5.0);
 				} else {
-					getAnalyser().setNumberInterations(1, 5.0);
-					getAnalyser().setImageMode(ImageMode.CONTINUOUS, 5.0);
+					getAnalyser().setNumberInterations(1000000, 5.0);
+					getAnalyser().setImageMode(ImageMode.SINGLE, 5.0);
 				}
 			} else {
 				getAnalyser().setNumberInterations(1, 5.0);
