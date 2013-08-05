@@ -23,6 +23,8 @@ import org.dawb.common.services.IPaletteService;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.PlottingFactory;
+import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
+import org.dawnsci.plotting.api.preferences.ToolbarConfigurationConstants;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.MouseEvent;
@@ -251,10 +253,10 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 	protected void disablePlottingSystemActions(IPlottingSystem plottingSystem) {
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
-		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureConfigure Settings...");
-		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureShow Legend");
+		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.CONFIG.getId() + BasePlottingConstants.CONFIG_SETTINGS);
+		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.CONFIG.getId() + BasePlottingConstants.XY_SHOWLEGEND);
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.histo");
-		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configure");
+		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.CONFIG.getId());
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.addRegions");
 
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.rescale");
