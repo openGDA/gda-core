@@ -1,13 +1,16 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.configuration.properties.LocalProperties;
-import gda.device.Device;
+import gda.data.metadata.VisitEntry;
+import gda.data.metadata.icat.Icat;
+import gda.data.metadata.icat.IcatProvider;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
+import gda.jython.authenticator.UserAuthentication;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
@@ -18,7 +21,6 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +53,7 @@ import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
@@ -117,8 +120,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
-import org.opengda.detector.electronanalyser.nxdetector.EW4000;
-import org.opengda.detector.electronanalyser.scan.RegionScannable;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
@@ -126,6 +127,8 @@ import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.ui.dialog.VisitIDDialog;
 
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 	private static final Logger logger = LoggerFactory.getLogger(SequenceView.class);
@@ -936,7 +939,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_Location(), txtLocation.getText());
 				}
 				if (getVisit() != null) {
-					// Obtain visit ID from GDA property RCP_APP_VISIT
+					// Obtain visit ID from ICat database
 					txtUser.setText(getVisit());
 				} else if (getUser() != null) {
 					// set by Spring configuration
@@ -1386,10 +1389,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	public String getVisit() {
-		if (visit == null) {
-			visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
-		}
-		return visit;
+		return getVisitID();
 	}
 
 	public void setVisit(String visit) {
@@ -1539,5 +1539,63 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		logger.debug("EPICS channel {} initialisation completed.", getDetectorStatePV());
 	}
+
+	/*
+	 * only sets the private chosenVisit attribute
+	 */
+	private String getVisitID() {
+		Icat instance = null;
+		try {
+			instance = IcatProvider.getInstance();
+		} catch (Exception e1) {
+			logger.info("Icat instance is not available", e1);
+		}
+		if (instance != null && !instance.icatInUse()) {
+			logger.info("Icat database not in use. Using the default visit defined by property " + LocalProperties.GDA_DEF_VISIT);
+			return LocalProperties.get("gda.defVisit", "0-0");
+		}
+
+		// test if the result has multiple entries
+		String user = UserAuthentication.getUsername();
+		VisitEntry[] visits = null;
+		try { 
+			if (instance != null) {
+				visits = instance.getMyValidVisits(user);
+			}
+		} catch (Exception e) {
+			logger.info(e.getMessage() + " - using default visit defined by property " + LocalProperties.GDA_DEF_VISIT, e);
+			return LocalProperties.get("gda.defVisit", "0-0");
+		}
+
+		// if no valid visit ID then do same as the cancel button
+		if (visits == null || visits.length == 0) {
+			logger.info("No visits found for user " + user
+					+ " at this time on this beamline. Will use default visit as ID listed as a member of staff.");
+			return LocalProperties.get("gda.defVisit", "0-0");
+		} else if (visits.length == 1) {
+			return visits[0].getVisitID();
+		} else {
+			String visitid = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
+			if (visitid != null) {
+				return visitid;
+			}
+			// send array of visits to dialog to pick one
+			String[][] visitInfo = new String[visits.length][];
+			int i = 0;
+			for (VisitEntry visit : visits) {
+				visitInfo[i] = new String[] { visit.getVisitID(), visit.getTitle() };
+				i++;
+			}
+
+			Display display=Display.getDefault();
+			final VisitIDDialog visitDialog = new VisitIDDialog(display, visitInfo);
+			if (visitDialog.open() == IDialogConstants.CANCEL_ID || visitDialog.getChoosenID() == null) {
+				logger.info("No visit is selected. Will use default visit as ID listed as a member of staff.");
+				return LocalProperties.get("gda.defVisit", "0-0");		
+			}
+			return visitDialog.getChoosenID();
+		}
+	}
+
 
 }

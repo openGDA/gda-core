@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.eclipse.ui.dialogs,
- org.slf4j
+ org.slf4j,
+ uk.ac.gda.ui.dialog
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: org.opengda.detector.electronanalyser.client,
  org.opengda.detector.electronanalyser.client.actions,
