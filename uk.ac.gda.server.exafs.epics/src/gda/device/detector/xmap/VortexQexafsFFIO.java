@@ -84,12 +84,13 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		
 		double[][] scalerFrames = (double[][])qscaler.readFrames(startFrame, finalFrame);
-		
-		NexusTreeProvider[] xmapFrames =  (NexusTreeProvider[])qxmap.readFrames(startFrame, finalFrame);
+		Object[] xmapData = qxmap.readFrames(startFrame, finalFrame);
+		NexusTreeProvider[] xmapFrames =  (NexusTreeProvider[])xmapData;
 		
 		Double[] ffio = new Double[finalFrame-startFrame+1];
 		
-		for(int i=0;i<finalFrame-startFrame+1;i++){
+		//for(int i=0;i<finalFrame-startFrame+1;i++){
+		for(int i=0;i<xmapData.length;i++){
 			NXDetectorData expressFrameData;
 			if(startFrame==finalFrame)
 				expressFrameData = (NXDetectorData)xmapFrames[finalFrame-1];

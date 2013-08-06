@@ -168,6 +168,10 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				waitForFile();
 				// change to linux format
 				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
+				//added wed 31st jul 2013 as now need to stop before reading h5 file. don't know why this is the case
+				xmap.stop();
+				//sleep required for gda to recognise number of arrays has finalized.
+				Thread.sleep(1000);
 				fileName = fileName.replace("X:/", "/dls/" + beamline);
 				if (controller.isBufferedArrayPort())
 					fileLoader = new XmapBufferedHdf5FileLoader(fileName);
@@ -181,6 +185,12 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			container = new NexusTreeProvider[numOfPoints];
 			if (finalFrame < numOfPoints) {
 				for (int i = startFrame; i <= finalFrame; i++) {
+					logger.info("writing point number " + i);
+					container[i] = writeToNexusFile(i, fileLoader.getData(i));
+				}
+			}
+			if (finalFrame > numOfPoints) {
+				for (int i = startFrame; i < numOfPoints; i++) {
 					logger.info("writing point number " + i);
 					container[i] = writeToNexusFile(i, fileLoader.getData(i));
 				}
