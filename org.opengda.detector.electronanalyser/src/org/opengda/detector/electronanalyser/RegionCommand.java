@@ -118,7 +118,7 @@ public class RegionCommand extends CommandBase implements Command, Serializable 
 				getAnalyser().setNumberInterations(region.getRunMode().getNumIterations());
 				getAnalyser().setImageMode(ImageMode.SINGLE); // TODO do I need to set this?
 			} else {
-				getAnalyser().setNumberInterations(100000000);
+				getAnalyser().setNumberInterations(1000000);
 				getAnalyser().setImageMode(ImageMode.SINGLE);
 			}
 		} else {
