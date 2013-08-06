@@ -57,9 +57,12 @@ class RasterMap(Map):
         if stage==1:
             self.trajContiniousX = self.traj1ContiniousX
             self.trajPositionReader = self.traj1PositionReader
+            self.raster_counterTimer01.setTtlSocket(1)
         elif stage==3:
             self.trajContiniousX = self.traj3ContiniousX
             self.trajPositionReader = self.traj3PositionReader
+            self.raster_counterTimer01.setTtlSocket(2)
+            
         else:
             print "please enter 1 or 3 as a parameter where 1 is the small stage and 3 is the large stage"
     

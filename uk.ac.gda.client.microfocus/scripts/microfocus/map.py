@@ -24,8 +24,8 @@ from gda.configuration.properties import LocalProperties
 
 
 class Map(Scan):
-    
-    def __init__(self, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver):
+
+    def __init__(self, d7a, d7b, counterTimer01, rcpController, xScan, yScan, ExafsScriptObserver):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -34,7 +34,9 @@ class Map(Scan):
         self.detectorBeanFileName = ""
         self.rcpController = rcpController
         self.beamEnabled = True
-        self.ExafsScriptObserver = ExafsScriptObserver
+        self.xScan = xScan
+        self.yScan = yScan
+        self.ExafsScriptObserver=ExafsScriptObserver
     
     def enableBeam(self):
         self.beamEnabled = True
@@ -146,12 +148,25 @@ class Map(Scan):
             else:
                 self.mfd.setZValue(zScannablePos)
             dataWriter.addDataWriterExtender(self.mfd)
-            xScannable = self.finder.find(scanBean.getXScannableName())
+
+            print scanBean.getXScannableName()
+            print scanBean.getYScannableName()
+
+            if scanBean.getXScannableName() == 'micosx':
+                xScannable=self.xScan
+            else:
+                xScannable = self.finder.find(scanBean.getXScannableName())
+                
+            if scanBean.getYScannableName() == 'micosy':
+                yScannable=self.yScan
+            else:
+                yScannable = self.finder.find(scanBean.getYScannableName())
+
             if xScannable is None:
-                xScannable =   globals()[scanBean.getXScannableName()]
-            yScannable = self.finder.find(scanBean.getYScannableName())
+                xScannable = globals()[scanBean.getXScannableName()]
             if yScannable is None:
                 yScannable = globals()[scanBean.getYScannableName()]
+                
             useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
             print "using frames ", str(useFrames)
             energyScannable = self.finder.find(scanBean.getEnergyScannableName())

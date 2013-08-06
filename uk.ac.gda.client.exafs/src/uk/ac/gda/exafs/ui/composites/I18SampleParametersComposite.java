@@ -251,14 +251,15 @@ public final class I18SampleParametersComposite extends Composite {
 			@Override
 			public void handleEvent(Event event) {
 				vfmx.setValue(JythonServerFacade.getInstance().evaluateCommand("kb_vfm_x()"));
+				String vfmXVal = JythonServerFacade.getInstance().evaluateCommand("kb_vfm_x()");
+				bean.setVfmx(Double.parseDouble(vfmXVal));
 			}
 		});
-		vfmx.setValue(JythonServerFacade.getInstance().evaluateCommand("kb_vfm_x()"));
+		//vfmx.setValue(JythonServerFacade.getInstance().evaluateCommand("kb_vfm_x()"));
 		
 		kbExpandableComposite.setClient(kbComp);
 		
-		String vfmXVal = JythonServerFacade.getInstance().evaluateCommand("kb_vfm_x()");
-		bean.setVfmx(Double.parseDouble(vfmXVal));
+		//String vfmXVal = JythonServerFacade.getInstance().evaluateCommand("kb_vfm_x()");
 	}
 	
 	public FieldComposite getName() {

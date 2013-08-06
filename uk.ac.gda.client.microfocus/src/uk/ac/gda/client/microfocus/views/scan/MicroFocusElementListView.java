@@ -241,7 +241,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 					if (getViewSite().getPage().isPartVisible(MicroFocusElementListView.this)) {
 						plotX = event.getImagePosition()[0];
 						plotY = event.getImagePosition()[1];
-						displayController.displayPlot(event.getImagePosition()[0], event.getImagePosition()[1]);
+						displayController.displayPlot(plotX, plotY);
 					}
 				} catch (Exception e) {
 					logger.error("Error displaying the plot", e);
