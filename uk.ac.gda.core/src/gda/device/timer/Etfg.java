@@ -27,7 +27,7 @@ import java.util.ArrayList;
  * A timer class for the VME time frame generator (Version 2) card implemented using DA.Server
  */
 public class Etfg extends Tfg {
-	private static final int MAXFRAMES = 32767;
+	private static int MAXFRAMES = 32767;
 	private static final String version = "Version 2";
 	protected ArrayList<Double> debounceValues;
 	protected ArrayList<Double> thresholdValues;
@@ -40,6 +40,10 @@ public class Etfg extends Tfg {
 		return MAXFRAMES;
 	}
 
+	public void setMaximumFrames(int max) {
+		MAXFRAMES = max;
+	}
+	
 	/**
 	 * Set attribute values for "Ext-Start", "Ext-Inhibit", "VME-Start" and "Auto-Continue"
 	 * 
