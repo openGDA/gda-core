@@ -21,6 +21,7 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -797,7 +798,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			@Override
 			public void run() {
 				super.run();
-				logger.info("Calling start");
+				logger.info("Start region collection test, no data saved.");
 				int order = 0;
 				resetRegionStatus();
 				runningonclient = true;
@@ -815,7 +816,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		};
 		startSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_START));
-		startSequenceAction.setToolTipText("Run on client.");
+		startSequenceAction.setToolTipText("Test region collection without data saving on client.");
 
 		stopSequenceAction = new Action() {
 			@Override
@@ -828,7 +829,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		};
 		stopSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
-		stopSequenceAction.setToolTipText("Stop run on client");
+		stopSequenceAction.setToolTipText("Stop test collection on client");
 
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(startSequenceAction);
@@ -1014,12 +1015,36 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			@Override
 			public void run() {
 				super.run();
-				logger.info("Calling start on server.");
+				logger.info("Start data collection on GDA server.");
 				runningonserver = true;
 				updateActionIconsState();
 				try {
 					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
-					jsf.runCommand(String.format("analyserscan regions '%s' ew4000", regionDefinitionResourceUtil.getFileName()));
+					
+					String filename;
+					String fileName = regionDefinitionResourceUtil.getFileName();
+					if (fileName.startsWith(File.separator)) {
+						filename = FilenameUtils.getName(fileName);
+					} else {
+						filename=fileName;
+					}
+					List<Region> regions2 = regionDefinitionResourceUtil.getRegions();
+					int count = 0;
+					for (Region region : regions2) {
+						if (region.isEnabled()) {
+							count += 1;
+						}
+					}
+					if (count==1) {
+						logger.info("A single region is selected in the sequence file {}, so only a single data file is collected.", fileName);
+						jsf.runCommand(String.format("analyserscan regions '%s' ew4001", filename));
+					} else if (count>1) {
+						logger.info("Multiple regions are selected in the sequence file {}, so multiple data files are collected, each for one region.", fileName);
+						//jsf.runCommand(String.format("multiregionscan ds 1 1 1 ew4000 '%s'", filename));
+						jsf.runCommand("ew4000.asynchronousMoveTo(%s)", fileName);
+					} else {
+						logger.info("No active region is specified in the sequence file, so no collection is required.");
+					}
 				} catch (Exception e) {
 					logger.error("exception throws on start queue processor.", e);
 					runningonserver = false;
@@ -1029,13 +1054,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		};
 		startRunOnServerAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry()
 				.getDescriptor(ImageConstants.ICON_RUN_ON_SERVER));
-		startRunOnServerAction.setToolTipText("Run on server");
+		startRunOnServerAction.setToolTipText("Start data collection on GDA server");
 
 		stopRunOnServerAction = new Action() {
 			@Override
 			public void run() {
 				super.run();
-				logger.info("Calling stop on server");
+				logger.info("Stop collection on GDA server");
 				try {
 					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
 					jsf.haltCurrentScan();
@@ -1048,7 +1073,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		};
 		stopRunOnServerAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry()
 				.getDescriptor(ImageConstants.ICON_STOP_SERVER));
-		stopRunOnServerAction.setToolTipText("Stop run on server");
+		stopRunOnServerAction.setToolTipText("Stop collection on GDA server");
 
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(startRunOnServerAction);
