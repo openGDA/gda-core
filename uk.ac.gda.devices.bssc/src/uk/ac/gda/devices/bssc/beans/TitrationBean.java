@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2011-2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,9 +24,9 @@ public class TitrationBean implements IRichBean {
 	
 	LocationBean location = new LocationBean();
 	LocationBean bufferLocation = new LocationBean();
+	LocationBean recouperateLocation = null;
 	String sampleName = "sample";
 	boolean yellowSample = true;
-	boolean recouperate = false;
 	String viscosity = "high";
 	double concentration = 1;
 	double timePerFrame = 1;
@@ -38,6 +38,12 @@ public class TitrationBean implements IRichBean {
 	}
 	public void setLocation(LocationBean location) {
 		this.location = location;
+	}
+	public LocationBean getRecouperateLocation() {
+		return recouperateLocation;
+	}
+	public void setRecouperateLocation(LocationBean recouperateLocation) {
+		this.recouperateLocation = recouperateLocation;
 	}
 	public String getSampleName() {
 		return sampleName;
@@ -86,13 +92,6 @@ public class TitrationBean implements IRichBean {
 	}
 	public void setBufferLocation(LocationBean bufferLocation) {
 		this.bufferLocation = bufferLocation;
-	}
-
-	public boolean isRecouperate() {
-		return recouperate;
-	}
-	public void setRecouperate(boolean recouperate) {
-		this.recouperate = recouperate;
 	}
 	@Override
 	public void clear() {
