@@ -152,9 +152,9 @@ class BSSCRun:
             filename = self.expose(duration)
             id = self.ispyb.createSampleMeasurement(self.visit, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/Pilatus2M/data")
             self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
-            if titration.isRecouperate():
-                self.reportSampleProgress(titration, "Recuperating Sample and Cleaning")
-                self.unloadIntoWell(titration.getLocation())
+            if not titration.getRecouperateLocation() is None:
+                self.reportSampleProgress(titration, "Recuperating Sample to "+titration.getRecouperateLocation().toString()+" and Cleaning")
+                self.unloadIntoWell(titration.getRecouperateLocation())
             else:
                 self.reportSampleProgress(titration, "Cleaning after Sample")
             self.clean()
@@ -181,6 +181,7 @@ class BSSCRun:
     def run(self):
         self.reportProgress("Initialising");
         self.checkDevice()
+        self.bssc.setSampleType("green")
         self.reportProgress("Setting Storage Temperature")
         self.setStorageTemperature()
         self.reportProgress("Performing Courtesy Cell Wash")

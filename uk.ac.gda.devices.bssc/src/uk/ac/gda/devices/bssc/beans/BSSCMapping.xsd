@@ -34,7 +34,7 @@
 				<xsd:element name="sampleName" type="xsd:string" minOccurs="1"/>
 				<xsd:element name="bufferLocation" type="LocationBean" />
 				<xsd:element name="yellowSample" type="xsd:boolean" />
-				<xsd:element name="recouperate" type="xsd:boolean" />
+				<xsd:element name="recouperateLocation" type="LocationBean" minOccurs="0"/>
 				<xsd:element name="concentration" type="xsd:double" />
 				<xsd:element name="timePerFrame" type="xsd:double" minOccurs="1"/>
 				<xsd:element name="frames" type="xsd:int" minOccurs="1"/>
@@ -53,7 +53,7 @@
 	
 	<xsd:element name="BSSCSessionBean">
 		<xsd:complexType>
-			<xsd:sequence>				
+			<xsd:sequence>
 				<xsd:element name="sampleStorageTemperature" type="xsd:float" minOccurs="0" maxOccurs="1"/>
 				<xsd:element name="measurement" type="TitrationBean" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
