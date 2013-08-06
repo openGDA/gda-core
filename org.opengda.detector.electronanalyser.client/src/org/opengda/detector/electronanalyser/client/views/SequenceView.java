@@ -9,6 +9,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.scriptcontroller.Scriptcontroller;
@@ -1227,6 +1228,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void refreshTable(String seqFileName, boolean newFile) {
 		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
 		if (isDirty()) {
+			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
 			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
 					"Current sequence contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
 			int result = msgDialog.open();
@@ -1236,6 +1238,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				isDirty = false;
 				firePropertyChange(PROP_DIRTY);
 			}
+			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
 		}
 		try {
 			resource.eAdapters().remove(notifyListener);
