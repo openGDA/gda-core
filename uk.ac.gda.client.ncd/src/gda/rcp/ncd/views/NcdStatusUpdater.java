@@ -173,12 +173,12 @@ public class NcdStatusUpdater implements IObserver, IAllScanDataPointsObserver {
 								DetectorRates dr = (DetectorRates) odr;
 								if (NcdDetectorSystem.WAXS_DETECTOR.equalsIgnoreCase(dr.detType)) {
 									client.waxsCountRate.setText(String.format("%,6.5G cps", dr.integratedCounts / dr.countingTime));
-									client.waxsCount.setText(String.format("%,6.6G cps", dr.integratedCounts));
+									client.waxsCount.setText(String.format("%,6.6G counts", dr.integratedCounts));
 									client.waxsPeakRate.setText(String.format("%,6.5G cps", dr.maxCounts / dr.countingTime));
 									client.waxsPeak.setText(String.format("%,6.6G counts", dr.maxCounts));
 								} else if (NcdDetectorSystem.SAXS_DETECTOR.equalsIgnoreCase(dr.detType)) {
 									client.saxsCountRate.setText(String.format("%,6.5G cps", dr.integratedCounts / dr.countingTime));
-									client.saxsCount.setText(String.format("%,6.6G cps", dr.integratedCounts));
+									client.saxsCount.setText(String.format("%,6.6G counts", dr.integratedCounts));
 									client.saxsPeakRate.setText(String.format("%,6.5G cps", dr.maxCounts / dr.countingTime));
 									client.saxsPeak.setText(String.format("%,6.6G counts", dr.maxCounts));
 								}
