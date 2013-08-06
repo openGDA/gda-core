@@ -16,32 +16,35 @@ class I20DetectorPreparer:
         self.offset_units = offset_units
         self.cryostat_scannable=cryostat_scannable
         
-    def prepare(self, detectorParameters, outputParameters, scriptFolder):
+    def prepare(self, scanBean, detectorBean, outputBean, scriptFolder):
         """
         Validates the bean which defines the detectors and then configures the vortex or xspress
         based on the xml file whose name is in the bean.
         """
-        if detectorParameters.getExperimentType() == "Fluorescence" :
-            detType = detectorParameters.getFluorescenceParameters().getDetectorType()
-            fullFileName = str(scriptFolder) + str(detectorParameters.getFluorescenceParameters().getConfigFileName())
+        
+        self.setUpIonChambers(scanBean)
+        
+        if detectorBean.getExperimentType() == "Fluorescence" :
+            detType = detectorBean.getFluorescenceParameters().getDetectorType()
+            fullFileName = str(scriptFolder) + str(detectorBean.getFluorescenceParameters().getConfigFileName())
             print "Configuring",detType,"detector using",fullFileName
             if detType == "Germanium":
-               Xspress2DetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputParameters).configure()
+               Xspress2DetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
             else:
                 from gda.device.detector import VortexDetectorConfiguration
-                VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputParameters).configure()
-        elif detectorParameters.getExperimentType() == "XES" :
-            fullFileName = str(scriptFolder) + str(detectorParameters.getXesParameters().getConfigFileName())
+                VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
+        elif detectorBean.getExperimentType() == "XES" :
+            fullFileName = str(scriptFolder) + str(detectorBean.getXesParameters().getConfigFileName())
             from gda.device.detector import VortexDetectorConfiguration
-            VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputParameters).configure()
+            VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
             
         ionChamberParamsArray = None
-        if detectorParameters.getExperimentType() == "Fluorescence" :
-            ionChamberParamsArray = detectorParameters.getFluorescenceParameters().getIonChamberParameters()
-        elif detectorParameters.getExperimentType() == "Transmission" :
-            ionChamberParamsArray = detectorParameters.getTransmissionParameters().getIonChamberParameters()
-        elif detectorParameters.getExperimentType() == "XES" :
-            ionChamberParamsArray = detectorParameters.getXesParameters().getIonChamberParameters()
+        if detectorBean.getExperimentType() == "Fluorescence" :
+            ionChamberParamsArray = detectorBean.getFluorescenceParameters().getIonChamberParameters()
+        elif detectorBean.getExperimentType() == "Transmission" :
+            ionChamberParamsArray = detectorBean.getTransmissionParameters().getIonChamberParameters()
+        elif detectorBean.getExperimentType() == "XES" :
+            ionChamberParamsArray = detectorBean.getXesParameters().getIonChamberParameters()
         
         for ionChamberParams in ionChamberParamsArray:
             self.setup_amp_sensitivity(ionChamberParams, self.sensitivities, self.sensitivity_units)
@@ -92,99 +95,98 @@ class I20DetectorPreparer:
                 print "Please report this problem to Data Acquisition"
                 raise e
 
-        def setUpIonChambers(self,beanGroup):    
-            # determine max collection time
-            scanBean = beanGroup.getScan()
-            maxTime = 0;
-            if isinstance(scanBean,XanesScanParameters):
-                for region in scanBean.getRegions():
-                    if region.getTime() > maxTime:
-                        maxTime = region.getTime()
-                    
-            elif isinstance(scanBean,XasScanParameters):
-                if scanBean.getEdgeTime() > maxTime:
-                    maxTime = scanBean.getEdgeTime()
-                if scanBean.getExafsToTime() > maxTime:
-                    maxTime = scanBean.getExafsToTime()
-                if scanBean.getExafsFromTime() > maxTime:
-                    maxTime = scanBean.getExafsFromTime()
-                if scanBean.getExafsTime() > maxTime:
-                    maxTime = scanBean.getExafsTime()
-                if scanBean.getPreEdgeTime() > maxTime:
-                    maxTime = scanBean.getPreEdgeTime()
-        
-            # set dark current time and handle any errors here
-            if maxTime > 0:
-                self.log( "Setting ionchambers dark current collectiom time to",str(maxTime),"s.")
-                self.jython_mapper.ionchambers.setDarkCurrentCollectionTime(maxTime)
-                self.jython_mapper.I1.setDarkCurrentCollectionTime(maxTime)
+    def setUpIonChambers(self,scanBean):    
+        # determine max collection time
+        maxTime = 0;
+        if isinstance(scanBean,XanesScanParameters):
+            for region in scanBean.getRegions():
+                if region.getTime() > maxTime:
+                    maxTime = region.getTime()
                 
-                topupPauseTime = maxTime + self.jython_mapper.topupChecker.tolerance
-                print "Setting the topup checker to pause scans for",topupPauseTime,"s before topup"
-                self.jython_mapper.topupChecker.collectionTime = maxTime
-                
-        def _configureCryostat(self, cryoStatParameters):
-            if LocalProperties.get("gda.mode") != 'dummy':
-                self.cryostat_scannable.setupFromBean(cryoStatParameters)
+        elif isinstance(scanBean,XasScanParameters):
+            if scanBean.getEdgeTime() > maxTime:
+                maxTime = scanBean.getEdgeTime()
+            if scanBean.getExafsToTime() > maxTime:
+                maxTime = scanBean.getExafsToTime()
+            if scanBean.getExafsFromTime() > maxTime:
+                maxTime = scanBean.getExafsFromTime()
+            if scanBean.getExafsTime() > maxTime:
+                maxTime = scanBean.getExafsTime()
+            if scanBean.getPreEdgeTime() > maxTime:
+                maxTime = scanBean.getPreEdgeTime()
+    
+        # set dark current time and handle any errors here
+        if maxTime > 0:
+            self.log( "Setting ionchambers dark current collectiom time to",str(maxTime),"s.")
+            self.jython_mapper.ionchambers.setDarkCurrentCollectionTime(maxTime)
+            self.jython_mapper.I1.setDarkCurrentCollectionTime(maxTime)
+            
+            topupPauseTime = maxTime + self.jython_mapper.topupChecker.tolerance
+            print "Setting the topup checker to pause scans for",topupPauseTime,"s before topup"
+            self.jython_mapper.topupChecker.collectionTime = maxTime
+            
+    def _configureCryostat(self, cryoStatParameters):
+        if LocalProperties.get("gda.mode") != 'dummy':
+            self.cryostat_scannable.setupFromBean(cryoStatParameters)
 
-        # This is only required for I20
-        def setDetectorCorrectionParameters(self,beanGroup):
-            scanObj = beanGroup.getScan()
-            dtEnergy = 0.0
-            # Use the fluo (emission) energy of the nearest transition based on the element and excitation edge
-            # to calculate the energy dependent deadtime parameters.
-            edge = scanObj.getEdge()
-            if isinstance(scanObj,XasScanParameters) or isinstance(scanObj,XanesScanParameters):
-                element = scanObj.getElement()
-                elementObj = Element.getElement(element)
-                dtEnergy = self._getEmissionEnergy(elementObj,edge)
-                dtEnergy /= 1000 # convert from eV to keV
-                print "Setting Ge detector deadtime calculation energy to be",str(dtEnergy),"keV based on element",element,"and edge",edge
-            else :
-                dtEnergy = scanObj.getFinalEnergy() 
-                dtEnergy /= 1000 # convert from eV to keV
-            self.jython_mapper.xspress2system.setDeadtimeCalculationEnergy(dtEnergy)
-     
-        def _getEmissionEnergy(self,elementObj,edge):
-            if str(edge) == "K":
-                return elementObj.getEmissionEnergy("Ka1")
-            elif str(edge) == "L1":
-                return elementObj.getEmissionEnergy("La1")
-            elif str(edge) == "L2":
-                return elementObj.getEmissionEnergy("La1")
-            elif str(edge) == "L3":
-                return elementObj.getEmissionEnergy("La1")
-            elif str(edge) == "M1":
-                return elementObj.getEmissionEnergy("Ma1")
-            elif str(edge) == "M2":
-                return elementObj.getEmissionEnergy("Ma1")
-            elif str(edge) == "M3":
-                return elementObj.getEmissionEnergy("Ma1")
-            elif str(edge) == "M4":
-                return elementObj.getEmissionEnergy("Ma1")
-            elif str(edge) == "M5":
-                return elementObj.getEmissionEnergy("Ma1")
-            else:
-                return elementObj.getEmissionEnergy("Ka1")
-     
-        def _getEmissionEnergy(self,elementObj,edge):
-            if str(edge) == "K":
-                return elementObj.getEmissionEnergy("Ka1")
-            elif str(edge) == "L1":
-                return elementObj.getEmissionEnergy("La1")
-            elif str(edge) == "L2":
-                return elementObj.getEmissionEnergy("La1")
-            elif str(edge) == "L3":
-                return elementObj.getEmissionEnergy("La1")
-            elif str(edge) == "M1":
-                return elementObj.getEmissionEnergy("Ma1")
-            elif str(edge) == "M2":
-                return elementObj.getEmissionEnergy("Ma1")
-            elif str(edge) == "M3":
-                return elementObj.getEmissionEnergy("Ma1")
-            elif str(edge) == "M4":
-                return elementObj.getEmissionEnergy("Ma1")
-            elif str(edge) == "M5":
-                return elementObj.getEmissionEnergy("Ma1")
-            else:
-                return elementObj.getEmissionEnergy("Ka1")
+    # This is only required for I20
+    def setDetectorCorrectionParameters(self,beanGroup):
+        scanObj = beanGroup.getScan()
+        dtEnergy = 0.0
+        # Use the fluo (emission) energy of the nearest transition based on the element and excitation edge
+        # to calculate the energy dependent deadtime parameters.
+        edge = scanObj.getEdge()
+        if isinstance(scanObj,XasScanParameters) or isinstance(scanObj,XanesScanParameters):
+            element = scanObj.getElement()
+            elementObj = Element.getElement(element)
+            dtEnergy = self._getEmissionEnergy(elementObj,edge)
+            dtEnergy /= 1000 # convert from eV to keV
+            print "Setting Ge detector deadtime calculation energy to be",str(dtEnergy),"keV based on element",element,"and edge",edge
+        else :
+            dtEnergy = scanObj.getFinalEnergy() 
+            dtEnergy /= 1000 # convert from eV to keV
+        self.jython_mapper.xspress2system.setDeadtimeCalculationEnergy(dtEnergy)
+ 
+    def _getEmissionEnergy(self,elementObj,edge):
+        if str(edge) == "K":
+            return elementObj.getEmissionEnergy("Ka1")
+        elif str(edge) == "L1":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "L2":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "L3":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "M1":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M2":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M3":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M4":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M5":
+            return elementObj.getEmissionEnergy("Ma1")
+        else:
+            return elementObj.getEmissionEnergy("Ka1")
+ 
+    def _getEmissionEnergy(self,elementObj,edge):
+        if str(edge) == "K":
+            return elementObj.getEmissionEnergy("Ka1")
+        elif str(edge) == "L1":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "L2":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "L3":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "M1":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M2":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M3":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M4":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M5":
+            return elementObj.getEmissionEnergy("Ma1")
+        else:
+            return elementObj.getEmissionEnergy("Ka1")

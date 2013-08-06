@@ -11,10 +11,18 @@ from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan
 from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
+from exafsscripts.exafs.i20.I20SampleIterators import XASXANES_Roomtemp_Iterator, XES_Roomtemp_Iterator, XASXANES_Cryostat_Iterator
 
 from scan import Scan
 
 class XasScan(Scan):
+
+	def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=False):
+		Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers)
+		self.configXspressDeadtime=configXspressDeadtime
+		self.moveMonoToStartBeforeScan=moveMonoToStartBeforeScan
+		self.useItterator=useItterator
+		self.handleGapConverter=handleGapConverter
 
 	def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
 		experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
@@ -86,7 +94,21 @@ class XasScan(Scan):
 						
 	def resolveOutputFolder(self, outputBean):
 		return outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
-		
+	
+	def _doItterator(self, iterator):
+		iterator.resetIterator()
+		num_sample_repeats = int(iterator.getNumberOfRepeats())
+		total_repeats = num_sample_repeats * numRepetitions
+		for i in range(num_sample_repeats):
+			self.iterator.moveToNext()
+			# as this is wiped at the end of each scan. It is harmless to call this multiple times
+			XasAsciiDataWriter.setBeanGroup(beanGroup)
+			this_repeat = repetitionNumber + i
+			initialPercent = self.calcInitialPercent(total_repeats, this_repeat)
+			timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
+			logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(i+1), str(num_sample_repeats), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
+			self._doScan(beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,logmsg,timeRepetitionsStarted)
+	
 	def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean):
 		"""
 		This is the basic looping based on the number of repetitions set in the UI.
@@ -94,27 +116,35 @@ class XasScan(Scan):
 		Beamlines should override this method if extra looping logic is required e.g. from sample environment settings
 		"""
 		
+		if self.configXspressDeadtime==True:
+			self.configXspressDeadtime(beanGroup) # configure deadtime only for i20
+		
+		ScriptBase.checkForPauses()
+		
+		if self.moveMonoToStartBeforeScan==True:
+			self.moveMonoToInitialPosition(scanBean) # I20 always moves things back to initial positions after each scan. To save time, move mono to initial position here
+			self.energy_scannable.waitWhileBusy()
+			
 		self.setQueuePropertiesStart(numRepetitions)
 		repetitionNumber = 0
 		timeRepetitionsStarted = System.currentTimeMillis();
-		
+
 		try:
 			while True:
 				repetitionNumber+= 1
-				beanGroup.setScanNumber(repetitionNumber)
-				XasAsciiDataWriter.setBeanGroup(beanGroup)
 				self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFolderName, controller,repetitionNumber)
 				outputFolder = self.resolveOutputFolder(outputBean)
 
-				# Insert sample environment looping logic here by subclassing
+				if self.handleGapConverter==True:
+					self.setupHarmonic()
+				
 				try:
-					logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, outputFolder)
-					self.printRepetition(numRepetitions, repetitionNumber, scriptType)
-					self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,logmsg,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean)
+					if self.useItterator==True:
+						iterator = self.createIterator()
+						self._doItterator(iterator)
+					else:
+						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder)
 					
-					# Harmonic change code here
-					# This is for I18 and should be configurable for that.
-					# setupHarmonic()
 					
 				except InterruptedException, e:
 					self.handleScanInterrupt(numRepetitions, repetitionNumber)
@@ -125,15 +155,23 @@ class XasScan(Scan):
 				if finished is True:
 					break
 				numRepetitions = numRepsFromProperty
-		finally:	
-
-			#For i18 only, re enable gap converter
-			#gap_converter.enableAutoConversion()
+		finally:
+			
+			if self.moveMonoToStartBeforeScan==True:
+				self.energy_scannable.stop()
+				
+			if self.handleGapConverter==True:
+				gap_converter.enableAutoConversion()
 			
 			# repetition loop completed, so reset things
 			self.setQueuePropertiesEnd()
 			XasAsciiDataWriter.setBeanGroup(None)
 			self.restoreHeader()
+			
+			#self.jython_mapper.topupChecker.collectionTime = 0.0 # TODO check with RW
+			#self.jython_mapper.ionchambers.setOutputLogValues(False) # TODO check with RW
+			
+			ScriptBase.checkForPauses()
 
 	#remove added metadata from default metadata list to avoid multiple instances of the same metadata
 	def restoreHeader(self):
@@ -141,8 +179,12 @@ class XasScan(Scan):
 		if (jython_mapper.original_header != None):
 			original_header=jython_mapper.original_header[:]
 			self.datawriterconfig.setHeader(original_header)
+			
 	# Runs a single XAS/XANES scan.
-	def _doScan(self,beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,logmsg,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean):
+	def _doScan(self,beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder):
+
+		logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, outputFolder)
+		self.printRepetition(numRepetitions, repetitionNumber, scriptType)
 
 		# create the list of scan points
 		points = ()
@@ -196,7 +238,7 @@ class XasScan(Scan):
 	
 	# run the beamline specific preparers			
 	def runPreparers(self, beanGroup, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean):
-		self.detectorPreparer.prepare(detectorBean, outputBean, xmlFolderName)
+		self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, xmlFolderName)
 		sampleScannables = self.samplePreparer.prepare(sampleBean)
 		outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
 		scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
@@ -213,7 +255,9 @@ class XasScan(Scan):
 		args += [loggingbean]
 		return args
 
-	def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
+	def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repetitionNumber):
+		beanGroup.setScanNumber(repetitionNumber)
+		XasAsciiDataWriter.setBeanGroup(beanGroup)
 		times = []
 		if isinstance(beanGroup.getScan(),XasScanParameters):
 			times = ExafsScanPointCreator.getScanTimeArray(beanGroup.getScan())
@@ -265,12 +309,10 @@ class XasScan(Scan):
 		return thisscan
 	
 	# Move to start energy so that harmonic can be set by gap_converter for i18 only
-	def setupHarmonic(self):
-		gap_converter = Finder.getInstance().find("auto_mDeg_idGap_mm_converter")
-		initialEnergy = beanGroup.getScan().getInitialEnergy()
-		print "moving ", beanGroup.getScan().getScannableName(), " to start energy ", initialEnergy
-		energyScannable = Finder.getInstance().find(beanGroup.getScan().getScannableName())
-		energyScannable(initialEnergy)
+	def setupHarmonic(self, scanBean, gap_converter):
+		initialEnergy = scanBean.getInitialEnergy()
+		print "moving ", scanBean.getScannableName(), " to start energy ", initialEnergy
+		self.energyScannable(initialEnergy)
 		print "move complete, diasabling harmonic change"
 		if gap_converter != None:
 			gap_converter.disableAutoConversion()
@@ -292,3 +334,40 @@ class XasScan(Scan):
 		elif numRepsFromProperty <= (repetitionNumber):
 			# normal end to loop
 			return True
+	
+	def moveMonoToInitialPosition(self, scanBean):
+		if energy_scannable != None and isinstance(scanBean,XasScanParameters):
+			intialPosition = scanBean.getInitialEnergy()
+		elif self.energy_scannable != None and isinstance(scanBean,XanesScanParameters): 
+			intialPosition = scanBean.getRegions().get(0).getEnergy()
+		self.energy_scannable.waitWhileBusy()
+		self.energy_scannable.asynchronousMoveTo(intialPosition)
+		self.log( "Moving mono to initial position...")
+	
+	def moveSampleWheel(self):
+		filter = beanGroup.getSample().getSampleWheelPosition()
+		self.log( "Setting filter wheel to",filter,"...")
+		self.jython_mapper.filterwheel(filter)
+	
+	 # XAS / XANES room temperature sample stage  
+	def createIterator(self, sampleBean):
+		iterator=None
+		if beanGroup.getDetector().getExperimentType() != 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+			iterator = XASXANES_Roomtemp_Iterator()
+			iterator.setBeanGroup(beanGroup)
+		# XES room temp sample stage
+		elif beanGroup.getDetector().getExperimentType() == 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+			iterator = XES_Roomtemp_Iterator()
+			iterator.setBeanGroup(beanGroup)
+		#XAS/XANES cryostat
+		elif beanGroup.getDetector().getExperimentType() != 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
+			iterator = XASXANES_Cryostat_Iterator()
+			iterator.setBeanGroup(beanGroup)
+		return iterator
+	
+	def configXspressDeadtime(self,beanGroup):
+		if beanGroup.getDetector().getExperimentType() == 'Fluorescence':
+			detType = beanGroup.getDetector().getFluorescenceParameters().getDetectorType()
+			if detType == "Germanium":
+				self.setDetectorCorrectionParameters(beanGroup)
+				ScriptBase.checkForPauses()

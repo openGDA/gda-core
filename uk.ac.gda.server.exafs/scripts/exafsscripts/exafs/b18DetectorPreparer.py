@@ -10,7 +10,7 @@ class B18DetectorPreparer:
         self.ionc_stanford_scannables = ionc_stanford_scannables
         self.ionc_gas_injector_scannables = ionc_gas_injector_scannables
 
-    def prepare(self, detectorParameters, outputParameters, scriptFolder):
+    def prepare(self, scanBean, detectorParameters, outputParameters, scriptFolder):
         if detectorParameters.getExperimentType() == "Fluorescence":
             fluoresenceParameters = detectorParameters.getFluorescenceParameters()
             if fluoresenceParameters.isCollectDiffractionImages():
