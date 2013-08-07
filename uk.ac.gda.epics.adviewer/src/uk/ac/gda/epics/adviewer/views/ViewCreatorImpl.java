@@ -18,6 +18,7 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.epics.adviewer.ADController;
@@ -39,22 +40,22 @@ public class ViewCreatorImpl implements ViewCreator, InitializingBean {
 	}
 
 	@Override
-	public Object createLiveView() throws Exception {
-		MJPegView mjPegView = new MJPegView(adController);
+	public Object createLiveView(IConfigurationElement configurationElement) throws Exception {
+		MJPegView mjPegView = new MJPegView(adController, configurationElement);
 		mjPegView.afterPropertiesSet();
 		return mjPegView;
 	}
 
 	@Override
-	public Object createArrayView() throws Exception {
-		TwoDArrayView twoDArrayView = new TwoDArrayView(adController);
+	public Object createArrayView(IConfigurationElement configurationElement) throws Exception {
+		TwoDArrayView twoDArrayView = new TwoDArrayView(adController, configurationElement);
 		twoDArrayView.afterPropertiesSet();
 		return twoDArrayView;
 	}
 
 	@Override
-	public Object createProfileView() throws Exception {
-		HistogramView histogramView = new HistogramView(adController);
+	public Object createProfileView(IConfigurationElement configurationElement) throws Exception {
+		HistogramView histogramView = new HistogramView(adController, configurationElement);
 		histogramView.afterPropertiesSet();
 		return histogramView;
 	}
