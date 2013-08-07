@@ -20,15 +20,12 @@ package uk.ac.gda.epics.adviewer.composites;
 
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDROI;
-import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
@@ -66,11 +63,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.ImageData;
-import uk.ac.gda.epics.adviewer.composites.tomove.PlotServerGuiBeanUpdater;
-import uk.ac.gda.epics.adviewer.composites.tomove.RegionGuiParameterAdapter;
 
 public class TwoDArray extends Composite {
 
@@ -215,22 +209,22 @@ public class TwoDArray extends Composite {
 
 		
 		// Configure AreaDetector
-		NDPluginBase pluginBase = config.getImageNDArray().getPluginBase();
-		minCallbackTimeComposite.setPluginBase(pluginBase);
+		NDPluginBase imageNDArrayBase = config.getImageNDArray().getPluginBase();
+		minCallbackTimeComposite.setPluginBase(imageNDArrayBase);
 		try {
-			minCallbackTimeObservable = pluginBase.createMinCallbackTimeObservable();
+			minCallbackTimeObservable = imageNDArrayBase.createMinCallbackTimeObservable();
 			minCallbackTimeComposite.setMinTimeObservable(minCallbackTimeObservable);
 			minCallbackTimeComposite.setMinCallbackTime(config.getArrayMinCallbackTime());
 		} catch (Exception e2) {
 			logger.error("Error setting min callback time", e2);
 		}
 
-		String procNdArrayPort_RBV = config.getLiveViewNDProc().getPluginBase().getNDArrayPort_RBV();
-		String ndArrayPort_RBV2 = pluginBase.getNDArrayPort_RBV();
-		if (ndArrayPort_RBV2 == null || !ndArrayPort_RBV2.equals(procNdArrayPort_RBV))
-			pluginBase.setNDArrayPort(procNdArrayPort_RBV);
-		if (!pluginBase.isCallbacksEnabled_RBV())
-			pluginBase.enableCallbacks();
+		String sourcePortName = config.getImageNDArrayPortInput();
+		String imageNDArrayPort = imageNDArrayBase.getNDArrayPort_RBV();
+		if (imageNDArrayPort == null || !imageNDArrayPort.equals(sourcePortName))
+			imageNDArrayBase.setNDArrayPort(sourcePortName);
+		if (!imageNDArrayBase.isCallbacksEnabled_RBV())
+			imageNDArrayBase.enableCallbacks();
 
 		arrayMonitoringBtn.addSelectionListener(new SelectionListener() {
 
@@ -258,7 +252,7 @@ public class TwoDArray extends Composite {
 			logger.error("Error starting  areaDetectorViewComposite", e);
 		}
 		try {
-			statusComposite.setObservable(pluginBase.createConnectionStateObservable());
+			statusComposite.setObservable(imageNDArrayBase.createConnectionStateObservable());
 		} catch (Exception e1) {
 			logger.error("Error monitoring connection state", e1);
 		}
@@ -276,11 +270,10 @@ public class TwoDArray extends Composite {
 				twoDArrayROI.setNDRoi(imageNDROI, getPlottingSystem());
 
 				// setup Port for NDROI to match that of the Proc plugin - this should be the camera.
-				String procNdArrayPort1_RBV = config.getLiveViewNDProc().getPluginBase().getNDArrayPort_RBV();
 				imageNDROIPluginBase = imageNDROI.getPluginBase();
-				String ndArrayPort1_RBV2 = imageNDROIPluginBase.getNDArrayPort_RBV();
-				if (ndArrayPort1_RBV2 == null || !ndArrayPort1_RBV2.equals(procNdArrayPort1_RBV))
-					imageNDROIPluginBase.setNDArrayPort(procNdArrayPort_RBV);
+				String roiNDArrayPort = imageNDROIPluginBase.getNDArrayPort_RBV();
+				if (roiNDArrayPort == null || !roiNDArrayPort.equals(sourcePortName))
+					imageNDROIPluginBase.setNDArrayPort(sourcePortName);
 				config.getImageNDArray().getPluginBase().setNDArrayPort(imageNDROIPluginBase.getPortName_RBV());
 
 				imageNDROIPluginBase.enableCallbacks();
@@ -355,12 +348,6 @@ public class TwoDArray extends Composite {
 
 	public void start() throws Exception {
 		config.getImageNDArray().getPluginBase().enableCallbacks();
-		String portName = config.getImageNDArrayPortInput();
-		if (portName == null) {
-			logger.warn("No imageNDArrayPortInput has been configured. The view will fail to update if it is not set properly dircetly in epics.");
-		} else {
-			config.getImageNDArray().getPluginBase().setNDArrayPort(portName);
-		}
 		if (arrayArrayCounterObservable == null) {
 			arrayArrayCounterObservable = config.getImageNDArray().getPluginBase().createArrayCounterObservable();
 		}
