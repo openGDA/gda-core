@@ -556,8 +556,8 @@ public class ADControllerImpl implements ADController, InitializingBean {
 
 
 	@Override
-	public String getImageNDArrayPortInput() {
-		return imageNDArrayPortInput;
+	public String getImageNDArrayPortInput() throws Exception {
+		return imageNDArrayPortInput != null ? imageNDArrayPortInput : getAdBase().getPortName_RBV();
 	}
 
 	public void setImageNDArrayPortInput(String imageNDArrayPortInput) {
