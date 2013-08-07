@@ -25,7 +25,13 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.common.rcp.util.BundleUtils;
+
 public class LibsLocationFinder {
+	private static final Logger logger = LoggerFactory.getLogger(LibsLocationFinder.class);
 
 	/**
 	 * Method returns libs that should be used in the jython path so that the
@@ -36,22 +42,24 @@ public class LibsLocationFinder {
 	public static final List<String> findGdaLibs() {
 		
 		final List<String> libs = new ArrayList<String>(31);
-		final File   libsFolder = new File(LocalProperties.getInstallationWorkspaceDir() + "plugins/uk.ac.gda.libs/");
-		if (libsFolder.exists()&&libsFolder.isDirectory()) {
-			final File[] fa = libsFolder.listFiles(new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					return name.toLowerCase().endsWith(".jar");
+		try{
+			String gdalibsPath = BundleUtils.getBundleLocation("uk.ac.gda.libs").getAbsolutePath();
+			final File   libsFolder = new File(gdalibsPath);
+			if (libsFolder.exists()&&libsFolder.isDirectory()) {
+				final File[] fa = libsFolder.listFiles(new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.toLowerCase().endsWith(".jar");
+					}
+				});
+				for (int i = 0; i < fa.length; i++) {
+					libs.add(fa[i].getAbsolutePath());
 				}
-			});
-			for (int i = 0; i < fa.length; i++) {
-				libs.add(fa[i].getAbsolutePath());
 			}
 		}
-		
-		// TODO Add more libs so that jython console works.
-		
-		
+		catch(Exception e){
+			logger.error("Error building list of jars in uk.ac.gda.libs",e);
+		}
 		return libs;
 	}
 

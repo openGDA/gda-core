@@ -57,7 +57,10 @@ public class ScanDataPointServer extends DeviceBase implements IScanDataPointSer
 	public ScanDataPointVar ___getToken(ScanDataPoint sdp) {
 		String uniqueName = sdp.getUniqueName();
 		if (!store.containsKey(uniqueName)) {
-			while (storeOrder.size() > 5) {
+			//If plotting is held up on client and scans are gnerated in quick succession
+			//the server may not have the token in its store when needed by the client
+			//unless we increase the store size to 100
+			while (storeOrder.size() > 100) { 
 				store.remove(storeOrder.get(0));
 				storeOrder.remove(0);
 			}

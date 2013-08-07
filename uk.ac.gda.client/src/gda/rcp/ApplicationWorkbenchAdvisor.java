@@ -99,6 +99,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.GDADataNature;
 import uk.ac.gda.client.XYPlotView;
+import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.pydev.ScriptProjectCreator;
 import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
@@ -264,7 +265,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 			if (preferenceStore.getBoolean(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START)) {
 				String viewid = preferenceStore.getString(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID);
-				final String viewIdFinal = viewid != "" ? viewid : XYPlotView.ID;
+				final String viewIdFinal = viewid != "" ? viewid : LivePlotView.ID;
 				final IScanDataPointObserver openXYPlotOnScanStart = new IScanDataPointObserver() {
 
 					@Override

@@ -2,31 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            class="uk.ac.gda.pydev.extension.editor.ExtendedSyntaxEditor"
-            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
-            default="true"
-            extensions="py,pyw"
-            icon="icons/script_edit.png"
-            id="uk.ac.gda.pydev.extension.editor.PythonEditor"
-            name="GDA Jython Editor">
-         <contentTypeBinding
-               contentTypeId="uk.ac.gda.pydev.extension.pyOverride">
-         </contentTypeBinding>
-      </editor>
-   </extension>
-   <extension
-         point="org.eclipse.core.contenttype.contentTypes">
-      <content-type
-            base-type="org.eclipse.core.runtime.text"
-            file-extensions="py,pyw"
-            id="uk.ac.gda.pydev.extension.pyOverride"
-            name="pyOverride"
-            priority="high">
-      </content-type>
-   </extension>
-   <extension
          point="org.eclipse.ui.perspectives">
       <perspective
             class="uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective"
@@ -121,7 +96,7 @@
          point="org.eclipse.ui.editorActions">
       <editorContribution
             id="uk.ac.gda.pydev.editorContributions"
-            targetID="uk.ac.gda.pydev.extension.editor.PythonEditor">
+            targetID="org.python.pydev.editor.PythonEditor">
          <action
                class="uk.ac.gda.pydev.actions.ReloadScriptActionDelegate"
                icon="icons/script_lightning.png"
@@ -144,17 +119,6 @@
       </editorContribution>
    </extension>
    <extension
-         id="ExtendedJythonSyntaxBuilder"
-         name="Jython Validation"
-         point="org.eclipse.core.resources.builders">
-      <builder
-            hasNature="false">
-         <run
-               class="uk.ac.gda.pydev.extension.builder.ExtendedSyntaxBuilder">
-         </run>
-      </builder>
-   </extension>
-   <extension
          id="ExtendedJythonNature"
          name="Jython Validation"
          point="org.eclipse.core.resources.natures">
@@ -163,28 +127,6 @@
                class="uk.ac.gda.pydev.extension.builder.ExtendedSyntaxNature">
          </run>
       </runtime>
-      <builder
-            id="uk.ac.gda.pydev.extension.ExtendedJythonSyntaxBuilder">
-      </builder>
-   </extension>
-   <extension
-         point="org.eclipse.ui.ide.projectNatureImages">
-      <image
-            icon="icons/script.png"
-            id="uk.ac.gda.client.jythonProjectImage"
-            natureId="uk.ac.gda.pydev.extension.ExtendedJythonNature">
-      </image>
-      <image
-            icon="icons/script_code.png"
-            id="uk.ac.gda.client.xmlProjectImage"
-            natureId="uk.ac.gda.pydev.extension.ConfigurationXMLNature">
-      </image>
-   </extension>
-   <extension
-         point="org.python.pydev.pydev_builder">
-      <builder_participant
-            class="uk.ac.gda.pydev.extension.builder.ExtendedBuilderVisitor">
-      </builder_participant>
    </extension>
    <extension
          id="ConfigurationXMLNature"
@@ -195,13 +137,6 @@
                class="uk.ac.gda.pydev.extension.builder.ConfigurationXMLNature">
          </run>
       </runtime>
-   </extension>
-   <extension
-         point="org.eclipse.ui.ide.markerResolution">
-      <markerResolutionGenerator
-            class="uk.ac.gda.pydev.extension.quickfix.ExtendedSyntaxMarkerResolution"
-            markerType="org.eclipse.core.resources.problemmarker">
-      </markerResolutionGenerator>
    </extension>
 
 </plugin>

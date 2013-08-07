@@ -131,10 +131,12 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	}
 
 	private Double getE0(ScanDataPoint sdp) {
+		//TODO should also support integers and multi field scannables
 		return (Double) sdp.getScannablePositions().get(getPositionOfScannable(x_colName, sdp));
 	}
 
 	private Double getEf(ScanDataPoint sdp) {
+		//TODO should also support integers and multi field scannables
 		return (Double) sdp.getScannablePositions().get(getPositionOfScannable(y_colName, sdp));
 	}
 

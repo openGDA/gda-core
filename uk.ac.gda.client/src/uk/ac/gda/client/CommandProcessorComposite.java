@@ -89,6 +89,7 @@ public class CommandProcessorComposite extends Composite {
 	protected String lastAddedCommand = "";
 	private ImageDescriptor pauseImage;
 	private ImageDescriptor runImage;
+	private boolean disableJythonControls = false;
 
 	public CommandProcessorComposite(Composite parent, int style, final IViewSite iWorkbenchPartSite,
 			final Processor processor) {
@@ -281,7 +282,10 @@ public class CommandProcessorComposite extends Composite {
 				}
 			}
 		});
-		
+
+		disableJythonControls = GDAClientActivator.getDefault().getPreferenceStore()
+				.getBoolean(PreferenceConstants.GDA_COMMAND_QUEUE_DISABLE_JYTHON_CONTROLS);
+
 		updateStateAndDescription(null);
 	}
 	
@@ -375,7 +379,9 @@ public class CommandProcessorComposite extends Composite {
 
 				switch (state) {
 				case PROCESSING_ITEMS:
-					JythonControlsFactory.disableUIControls();
+					if (disableJythonControls) {
+						JythonControlsFactory.disableUIControls();
+					}
 					if (showText){
 						btnRunPause.setText(strPause);
 					} else {
@@ -391,11 +397,15 @@ public class CommandProcessorComposite extends Composite {
 
 					break;
 				case UNKNOWN:
-					JythonControlsFactory.enableUIControls();
+					if (disableJythonControls) {
+						JythonControlsFactory.enableUIControls();
+					}
 					txtState.setText("Unknown");
 					break;
 				case WAITING_QUEUE:
-					JythonControlsFactory.enableUIControls();
+					if (disableJythonControls) {
+						JythonControlsFactory.enableUIControls();
+					}
 					if (showText){
 						btnRunPause.setText(strPause);
 					} else {
@@ -410,7 +420,9 @@ public class CommandProcessorComposite extends Composite {
 					txtState.setText("Queue is empty");
 					break;
 				case WAITING_START:
-					JythonControlsFactory.enableUIControls();
+					if (disableJythonControls) {
+						JythonControlsFactory.enableUIControls();
+					}
 					if (showText){
 						btnRunPause.setText(strRun);
 					} else {
