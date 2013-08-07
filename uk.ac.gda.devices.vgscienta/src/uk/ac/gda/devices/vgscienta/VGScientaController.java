@@ -202,7 +202,8 @@ public class VGScientaController implements Configurable {
 	}
 	
 	public void zeroSupplies() throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(ZERO_SUPPLIES), 1);
+		EPICS_CONTROLLER.caputWait(getChannel(ZERO_SUPPLIES), 1);
+		EPICS_CONTROLLER.caput(getChannel(ZERO_SUPPLIES), 0);
 	}
 
 	public int getSweepSteps() throws Exception {

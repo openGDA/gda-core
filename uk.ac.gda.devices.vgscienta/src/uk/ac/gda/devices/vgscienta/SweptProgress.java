@@ -24,8 +24,12 @@ public class SweptProgress implements Serializable {
 	public int current, max;
 
 	public SweptProgress(int current, int max) {
-		super();
 		this.current = current;
-		this.max = max;
+		this.max = (max >= current) ? max : current;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("sweep #%d of %d", current, max);
 	}
 }

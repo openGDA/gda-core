@@ -55,7 +55,6 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 				public void monitorChanged(MonitorEvent ev) {
 					try {
 						maxSweep =((gov.aps.jca.dbr.INT) ev.getDBR().convert(DBRType.INT)).getIntValue()[0];
-						notifyIObservers(getName(), new SweptProgress(oldNumber, maxSweep));
 					} catch (CAStatusException e) {
 						logger.error("error reading maxsweeps", e);
 					}
@@ -67,7 +66,7 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 				public void monitorChanged(MonitorEvent ev) {
 					try {
 						oldNumber =((gov.aps.jca.dbr.INT) ev.getDBR().convert(DBRType.INT)).getIntValue()[0];
-						notifyIObservers(getName(), new SweptProgress(oldNumber, maxSweep));
+						dispatch();
 					} catch (Exception e) {
 						logger.error("exception caught preparing swept updates", e);
 					}
@@ -77,6 +76,12 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 		} catch (Exception e) {
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
+	}
+
+	public void dispatch() {
+		SweptProgress progress = new SweptProgress(oldNumber, maxSweep);
+		logger.debug("publishing ",progress);
+		notifyIObservers(getName(), progress);
 	}
 
 	public String getCurrentSweepPV() {
