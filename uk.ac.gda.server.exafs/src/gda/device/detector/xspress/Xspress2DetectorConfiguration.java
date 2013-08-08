@@ -21,90 +21,57 @@ package gda.device.detector.xspress;
 
 import gda.device.detector.DetectorConfiguration;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.observable.ObservableComponent;
-
 import java.io.File;
 import java.net.URL;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.beans.exafs.OutputParameters;
-import uk.ac.gda.beans.exafs.i20.I20OutputParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 
-/**
- * Called by Jython script xspressConfig
- */
 public class Xspress2DetectorConfiguration extends DetectorConfiguration {
 
-	private static final Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
-
+	private Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
+	private Xspress2System xspress2System;
 	private XspressParameters xspressParameters;
-	private ObservableComponent controller;
-
-	private OutputParameters outputParams;
-
-	public Xspress2DetectorConfiguration(final ObservableComponent controller, final String path, final Object beanName,
-			final OutputParameters outputParams) throws Exception {
-
-		this.controller = controller;
-		this.outputParams = outputParams;
+	private ObservableComponent observer;
+	private boolean onlyShowFF;
+	private boolean showDTRawValues;
+	private boolean saveRawSpectrum;
+	
+	public Xspress2DetectorConfiguration(Xspress2System xspress2System, final ObservableComponent observer, final String path, final Object beanName,
+			boolean onlyShowFF, boolean showDTRawValues, boolean saveRawSpectrum) throws Exception {
+		this.observer = observer;
 		this.xspressParameters = (XspressParameters) getBean(path, beanName);
+		this.onlyShowFF = onlyShowFF;
+		this.showDTRawValues = showDTRawValues;
+		this.saveRawSpectrum = saveRawSpectrum;
+		this.xspress2System = xspress2System;
 	}
-	public Xspress2DetectorConfiguration(final ObservableComponent controller, final String path, final Object beanName,
-			final OutputParameters outputParams, @SuppressWarnings("unused") final String addtionalSavePath) throws Exception {
-
-		this.controller = controller;
-		this.outputParams = outputParams;
-		this.xspressParameters = (XspressParameters) getBean(path, beanName);
-	}
-
+	
 	@Override
 	public void configure() throws FactoryException {
-		doSetup();
-	}
-
-	/**
-	 * @return status
-	 * @throws FactoryException
-	 */
-	private String doSetup() throws FactoryException {
-
 		String message = null;
 		try {
-			// Warning concrete class used here. This code must be called on the server.
-			final Xspress2System xspress2 = (Xspress2System) Finder.getInstance().find(
-					xspressParameters.getDetectorName());
-
-			// 1. Save bean
-			File templateFile = new File(xspress2.getConfigFileName());
+			// save bean
+			File templateFile = new File(xspress2System.getConfigFileName());
 			saveBeanToTemplate(xspressParameters,templateFile);
-			logger.info("Wrote new Xspress Parameters to: " + xspress2.getConfigFileName());
+			logger.info("Wrote new Xspress Parameters to: " + xspress2System.getConfigFileName());
 
-			// 2. Tell detector to configure
-			xspress2.configure();
-			// 3. set the ascii output options
-			if (outputParams != null && outputParams instanceof I20OutputParameters) {
-				I20OutputParameters op = (I20OutputParameters) outputParams;
-				xspress2.setOnlyDisplayFF(op.isXspressOnlyShowFF());
-				xspress2.setAddDTScalerValuesToAscii(op.isXspressShowDTRawValues());
-				xspress2.setSaveRawSpectrum(op.isXspressSaveRawSpectrum());
-			} else if (xspressParameters != null) {
-				xspress2.setOnlyDisplayFF(xspressParameters.isXspressOnlyShowFF());
-				xspress2.setAddDTScalerValuesToAscii(xspressParameters.isXspressShowDTRawValues());
-				xspress2.setSaveRawSpectrum(xspressParameters.isSaveRawSpectrum());
-			}
+			// tell detector to configure
+			xspress2System.configure();
+			
+			// set the ascii output options
+			xspress2System.setOnlyDisplayFF(onlyShowFF);
+			xspress2System.setAddDTScalerValuesToAscii(showDTRawValues);
+			xspress2System.setSaveRawSpectrum(saveRawSpectrum);
 
 			message = " The Xspress detector configuration updated.";
-			controller.notifyIObservers("Message", new ScriptProgressEvent(message));
+			observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {
 			logger.error("Cannot configure Xspress", ne);
 			throw new FactoryException("Error during configuration:" + ne.getMessage());
 		}
-		return message;
 	}
 
 	@Override
@@ -121,5 +88,4 @@ public class Xspress2DetectorConfiguration extends DetectorConfiguration {
 	protected URL getSchemaURL() {
 		return XspressParameters.schemaURL;
 	}
-
 }
