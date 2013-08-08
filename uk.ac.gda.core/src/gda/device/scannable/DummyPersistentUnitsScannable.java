@@ -30,6 +30,12 @@ import org.slf4j.LoggerFactory;
 public class DummyPersistentUnitsScannable extends DummyPersistentScannable implements ScannableMotionUnits {
 	private static final Logger mylogger = LoggerFactory.getLogger(DummyPersistentUnitsScannable.class);
 	
+	private String initialUnit = "mm";
+	
+	public void setInitialUnit(String initialUnit) {
+		this.initialUnit = initialUnit;
+	}
+	
 	@Override
 	public void configure() {
 		this.inputNames = new String[] { getName() };
@@ -55,9 +61,8 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 	public String getUserUnits() {
 		String propertyName = getName() + "PersistentUnit";
 		if (configuration.getProperty(propertyName)== null) {
-			String defaultUnit = "mm";
-			mylogger.warn("Value "+propertyName + " does not exist, initializing to " + defaultUnit);
-			configuration.setProperty(propertyName, defaultUnit);
+			mylogger.warn("Value "+propertyName + " does not exist, initializing to " + initialUnit);
+			configuration.setProperty(propertyName, initialUnit);
 			try {
 				configuration.save();
 			} catch (ConfigurationException e) {
