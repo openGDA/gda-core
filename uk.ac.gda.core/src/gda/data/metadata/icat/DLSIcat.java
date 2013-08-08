@@ -34,6 +34,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.StringUtils;
 
@@ -56,7 +58,8 @@ import org.springframework.util.StringUtils;
  * </pre>
  */
 public class DLSIcat extends IcatBase {
-	
+	private static final Logger logger = LoggerFactory.getLogger(DLSIcat.class);
+
 	protected static class Shift {
 		
 		private String investigationId;
