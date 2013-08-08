@@ -56,9 +56,11 @@ public abstract class AreaDetectorViewCreatorBase implements IExecutableExtensio
 	}
 
 	String serviceName="";
+	protected IConfigurationElement configurationElement;
 	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
 			throws CoreException {
+		configurationElement = config;
 		if( propertyName.equals("class") && data instanceof String){
 			serviceName = (String)data;
 		}

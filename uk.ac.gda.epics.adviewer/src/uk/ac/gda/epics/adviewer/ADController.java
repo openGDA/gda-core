@@ -31,6 +31,11 @@ import uk.ac.gda.epics.adviewer.views.ADViewerCompositeFactory;
 
 public interface ADController {
 
+	//unique name used to identify this object - also used to name the service 
+	public abstract String getServiceName();
+	
+	public abstract String getDetectorName();
+
 	public abstract NDStats getImageNDStats();
 
 	public abstract NDProcess getLiveViewNDProc();
@@ -41,11 +46,9 @@ public interface ADController {
 
 	public abstract int getImageMax();
 
-	public abstract String getDetectorName();
-
 	public abstract NDArray getImageNDArray();
 	
-	public String getImageNDArrayPortInput();
+	public abstract String getImageNDArrayPortInput() throws Exception;
 
 	public abstract ImageData getImageData() throws Exception;
 
@@ -113,5 +116,5 @@ public interface ADController {
 
 	// return true is the regions of interest are linked to the plotserver
 	public abstract boolean isConnectToPlotServer();
-	
+
 }

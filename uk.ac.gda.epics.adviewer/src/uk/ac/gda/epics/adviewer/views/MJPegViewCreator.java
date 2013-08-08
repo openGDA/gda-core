@@ -23,6 +23,6 @@ public class MJPegViewCreator extends AreaDetectorViewCreatorBase {
 	
 	@Override
 	protected Object getView(ViewCreator viewCreator) throws Exception {
-		return viewCreator.createLiveView();
+		return viewCreator.createLiveView(configurationElement);
 	}	
 }

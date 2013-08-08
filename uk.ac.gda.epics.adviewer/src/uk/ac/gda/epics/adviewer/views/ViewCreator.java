@@ -18,11 +18,13 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
+import org.eclipse.core.runtime.IConfigurationElement;
+
 public interface ViewCreator {
 
-	public abstract Object createLiveView() throws Exception;
+	public abstract Object createLiveView(IConfigurationElement configurationElement) throws Exception;
 
-	public abstract Object createArrayView() throws Exception;
+	public abstract Object createArrayView(IConfigurationElement configurationElement) throws Exception;
 
-	public abstract Object createProfileView() throws Exception;
+	public abstract Object createProfileView(IConfigurationElement configurationElement) throws Exception;
 }

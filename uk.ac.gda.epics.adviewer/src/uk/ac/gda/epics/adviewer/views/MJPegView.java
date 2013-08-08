@@ -18,9 +18,15 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
+import java.net.URL;
+
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowLayout;
@@ -40,8 +46,26 @@ public class MJPegView extends ViewPart implements InitializingBean {
 	protected MJPeg mJPeg;
 	ADController config;
 
-	public MJPegView(ADController config) {
+	private String name="";
+
+	private Image image=null;
+
+
+	public MJPegView(ADController config, IConfigurationElement configurationElement) {
 		this.config = config;
+		name = configurationElement.getAttribute("name");
+		try{
+			String icon = configurationElement.getAttribute("icon");
+			if( icon.isEmpty()){
+				image = config.getTwoDarrayViewImageDescriptor().createImage();
+			} else {
+				URL iconURL = Platform.getBundle(configurationElement.getContributor().getName()).getResource(icon);
+				ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(iconURL);
+				image = imageDescriptor.createImage();
+			}
+		}catch (Exception e){
+			logger.warn("Unable to get image for view",e);
+		}
 	}
 
 	@Override
@@ -77,8 +101,10 @@ public class MJPegView extends ViewPart implements InitializingBean {
 		}
 		
 		
-		setTitleImage(config.getLiveViewImageDescriptor().createImage());
-		setPartName(config.getDetectorName() + " Live View");
+		if( image != null) {
+			setTitleImage(image);
+		}
+		setPartName(name);
 
 		createActions();
 		createMenu();
@@ -121,6 +147,15 @@ public class MJPegView extends ViewPart implements InitializingBean {
 
 	public void zoomToFit() {
 		mJPeg.zoomFit();
+	}
+
+	@Override
+	public void dispose() {
+		if( image != null){
+			image.dispose();
+			image=null;
+		}
+		super.dispose();
 	}
 
 }
