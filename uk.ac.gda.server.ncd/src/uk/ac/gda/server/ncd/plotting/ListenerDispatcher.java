@@ -128,7 +128,6 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 			}
 		} else {
 			// ignore
-			// logger.debug(source.toString()+" "+arg.toString());
 		}
 	}
 
@@ -186,8 +185,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 						if (ds != null) {
 							try {
 								DiffractionMetadata dm = new DiffractionMetadata(null, sub.getDetectorProperties(), energyScannable == null ? null : energyScannable.getDiffractionCrystalEnvironment());
-								// FIXME this kills deserialisation on the client and prevents updates
-								//ds.setMetadata(dm);
+								ds.setMetadata(dm);
 							} catch (Throwable t) {
 								logger.warn("had trouble getting diffraction metadata for "+type,t);
 							}

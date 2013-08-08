@@ -398,22 +398,18 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 	 * Configure time frame data in the hardware
 	 * 
 	 * @param tfg
+	 * @throws DeviceException 
 	 */
-	public void configureHardware(Timer tfg) {
-		try {
+	public void configureHardware(Timer tfg) throws DeviceException {
 			if (getTotalFrames() > tfg.getMaximumFrames()) {
-				logger.error("Too many time frames requested for the time frame generator");
-			} else {
-				tfg.clearFrameSets();
-				for (TimeFrameGroup2 group : vector) {
-					tfg.addFrameSet(group.getFrames(), group.getActualWaitTime(), group.getActualRunTime(), group
-							.getWaitPort(), group.getRunPort(), group.getWaitPauseValue(), group.getRunPauseValue());
-				}
-				tfg.loadFrameSets();
+				throw new DeviceException(String.format("%d frames requested but only %d allowed",getTotalFrames(),tfg.getMaximumFrames()));
 			}
-		} catch (DeviceException e) {
-			logger.error("TimeFrameTableModel: configureHardware: " + e);
-		}
+			tfg.clearFrameSets();
+			for (TimeFrameGroup2 group : vector) {
+				tfg.addFrameSet(group.getFrames(), group.getActualWaitTime(), group.getActualRunTime(), group
+						.getWaitPort(), group.getRunPort(), group.getWaitPauseValue(), group.getRunPauseValue());
+			}
+			tfg.loadFrameSets();
 	}
 
 	/*
