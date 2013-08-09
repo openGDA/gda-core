@@ -152,7 +152,7 @@ class TestBimorph(unittest.TestCase):
 		
 		LocalProperties.set("gda.data.scan.datawriter.dataFormat", None);
 		el = ellipse.EllipseCalculator(6.5,46.5,0.4,3,46.5,0.27,2,-1.0,0.4,-0.15,0.12,0.01,"peak2d_peaky")	
-		el.calcSlopesNoFile()
+		el.calcSlopes()
 		
 		beamPositions = []
 		for pos in el.getBeamPositions():
@@ -204,7 +204,7 @@ class TestBimorph(unittest.TestCase):
 		el = ellipse.EllipseCalculator(pixel_size, p_1, q_1, theta_1, p_2, q_2, theta_2, i_sign, detector_distance, slit_start, slit_end, slit_step, column, inv, method)	
 		
 		#el = ellipse.EllipseCalculator(4.65,45.1,0.4,3,45.1,0.25,2,1.0,0.4,3.0,3.9,0.01,"peak2d_peaky",1,1)	
-		el.calcSlopesNoFile()
+		el.calcSlopes()
 		
 		beamPositions = []
 		for pos in el.getBeamPositions():
@@ -239,7 +239,7 @@ class TestBimorph(unittest.TestCase):
 		method = 1
 		
 		el = ellipse.EllipseCalculator(pixel_size, p_1, q_1, theta_1, p_2, q_2, theta_2, i_sign, detector_distance, slit_start, slit_end, slit_step, column, inv, method)	
-		error = el.calcCamPos2NoFile()
+		error = el.calcCamPos2()
 		vals=[-152.95537584088277, -146.0067144566203, -138.79892000444625, -131.321053601543, -123.57008690659926, -115.53703219966715, -107.21323801069101, -98.58946668603264, -89.65963325954903, -80.41555979624799, -70.84411798829083, -60.93899238131607, -50.68674169402116, -40.07888499076346, -29.1094410205496, -17.764287806377116, -6.008645856356755, 6.131089050918185, 18.678721615770744, 31.665749537210882, 45.089467512247644, 58.97606647492202, 73.33186095629578, 88.1814554391088, 103.53571610603831, 119.41707143257197, 135.84112959299773, 152.82755061183082, 170.3979097901861, 188.57536950936245, 207.382618204007, 226.84377404531574, 246.9849629193695, 267.8331781177888]
 		self.assertEquals(error, vals)
 	
