@@ -1,7 +1,6 @@
 import threading
 from time import sleep
 from gda.data import PathConstructor
-from gda.factory import Finder
 import datetime
 
 class ThreadClass(threading.Thread):
@@ -56,11 +55,3 @@ class ThreadClass(threading.Thread):
                 sleep(1)
         f.close()
         print "finished cirrus thread"
-
-#cirrus.setMasses([2, 28, 32])
-#finder = Finder.getInstance()
-#if energyScannable==None:
-#    energyScannable = finder.find("qexafs_energy")
-#t = ThreadClass(qexafs_energy, 10000, 15000, "cirrus_scan.dat")
-#t.setName("cirrus")
-#t.start()

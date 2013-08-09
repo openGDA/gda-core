@@ -24,7 +24,7 @@ import java.lang.Exception
 
 class RasterMapReturnWrite(Map):
     
-    def __init__(self, d7a, d7b, counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress, rcpController):
+    def __init__(self, d7a, d7b, counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress, rcpController, ExafsScriptObserver):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -47,6 +47,7 @@ class RasterMapReturnWrite(Map):
         self.raster_xspress = raster_xspress
         self.rcpController = rcpController
         self.beamEnabled = True
+        self.ExafsScriptObserver = ExafsScriptObserver
         
     def enableBeam(self):
         self.beamEnabled = True
@@ -88,7 +89,7 @@ class RasterMapReturnWrite(Map):
         outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
     
         beanGroup = BeanGroup()
-        beanGroup.setController(self.finder.find("ExafsScriptObserver"))
+        beanGroup.setController(self.ExafsScriptObserver)
         beanGroup.setScriptFolder(xmlFolderName)
         beanGroup.setScannable(self.finder.find(scanBean.getXScannableName())) #TODO
         beanGroup.setExperimentFolderName(folderName)

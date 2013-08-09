@@ -1,5 +1,4 @@
 from gda.configuration.properties import LocalProperties
-from gda.factory import Finder
 from gda.scan import ScanPlotSettings
 
 from uk.ac.gda.beans import BeansFactory
@@ -11,11 +10,12 @@ from BeamlineParameters import JythonNameSpaceMapping
 
 class I20OutputPreparer:
     
-    def __init__(self):
+    def __init__(self, datawriterconfig_xes, datawriterconfig):
         self.mode = "xas"
         self.jython_mapper = JythonNameSpaceMapping()
-        pass
-    
+        self.datawriterconfig_xes = datawriterconfig_xes
+        self.datawriterconfig = datawriterconfig
+        
     def prepare(self, outputParameters, scanBean):
 
         from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
@@ -43,11 +43,11 @@ class I20OutputPreparer:
         if self.mode == "xes" or isinstance(scan,XesScanParameters):
             # will return None if not found
             print "Ascii (.dat) files will have XES header."
-            return Finder.getInstance().find("datawriterconfig_xes")
+            return self.datawriterconfig_xes
         else:
             # will return None if not found
             print "Ascii (.dat) files will have XAS format header."
-            return Finder.getInstance().find("datawriterconfig")
+            return self.datawriterconfig
 
     #
     # For any specific plotting requirements based on all the options in this experiment

@@ -2,7 +2,6 @@
 # Series of iterator classes for I20's different sample environment options 
 #
 from gda.configuration.properties import LocalProperties
-from gda.factory import Finder
 from gda.jython import ScriptBase
 from uk.ac.gda.beans.exafs.i20 import CryostatParameters
 from uk.ac.gda.doe import DOEUtils
@@ -42,13 +41,17 @@ class SampleIterator(object):
         print message
         self.logger.info(message)
 
-    
-    
+
 class XASXANES_Roomtemp_Iterator(SampleIterator):
     
-    def __init__(self):
+    def __init__(self, sample_x,sample_y,sample_z,sample_rot,sample_roll,sample_pitch):
         self.increment = 1
-        self.finder = Finder.getInstance()
+        self.sample_x = sample_x
+        self.sample_y = sample_y
+        self.sample_z = sample_z
+        self.sample_rot = sample_rot
+        self.sample_roll = sample_roll
+        self.sample_pitch = sample_pitch
     
     def setBeanGroup(self, beanGroup):
         self.group = beanGroup
@@ -67,53 +70,45 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
         self.increment = 0
     
     def moveToNext(self):
+        i = self._determineSample()
+        print "********"
+        self.log("Running sample",str(i+1)) # +1 as the user will think the first sample is 1 not 0
+        x = self.samples.get(i).getSample_x()
+        y = self.samples.get(i).getSample_y()
+        z = self.samples.get(i).getSample_z()
+        rotation = self.samples.get(i).getSample_rotation()
+        roll = self.samples.get(i).getSample_roll()
+        pitch = self.samples.get(i).getSample_pitch()
+        samplename = self.samples.get(i).getSample_name()
+        sampledescription = self.samples.get(i).getSample_description()
+        sample_repeats = self.samples.get(i).getNumberOfRepetitions()
         
-            i = self._determineSample()
-            print "********"
-            self.log("Running sample",str(i+1)) # +1 as the user will think the first sample is 1 not 0
-            x = self.samples.get(i).getSample_x()
-            y = self.samples.get(i).getSample_y()
-            z = self.samples.get(i).getSample_z()
-            rotation = self.samples.get(i).getSample_rotation()
-            roll = self.samples.get(i).getSample_roll()
-            pitch = self.samples.get(i).getSample_pitch()
-            samplename = self.samples.get(i).getSample_name()
-            sampledescription = self.samples.get(i).getSample_description()
-            sample_repeats = self.samples.get(i).getNumberOfRepetitions()
-            
-            samx = self.finder.find("sample_x")
-            samy = self.finder.find("sample_y")
-            samz = self.finder.find("sample_z")
-            samrot = self.finder.find("sample_rot")
-            samroll = self.finder.find("sample_roll")
-            sampitch = self.finder.find("sample_pitch")
-            
-            if samx == None or samy ==None or samz == None or samrot == None or samroll == None or sampitch == None:
-                raise DeviceException("I20 scan script - could not find all sample stage motors!")
-            
-            self.log( "Moving sample stage to",x,y,z,rotation,roll,pitch,"...")
-            samx.asynchronousMoveTo(x)
-            samy.asynchronousMoveTo(y)
-            samz.asynchronousMoveTo(z)
-            samrot.asynchronousMoveTo(rotation)
-            samroll.asynchronousMoveTo(roll)
-            sampitch.asynchronousMoveTo(pitch)
-            samx.waitWhileBusy()
-            samy.waitWhileBusy()
-            samz.waitWhileBusy()
-            samrot.waitWhileBusy()
-            samroll.waitWhileBusy()
-            sampitch.waitWhileBusy()
-            self.log( "Sample stage move complete.")
-            ScriptBase.checkForPauses()
-            
-            # change the strings in the filewriter so that the ascii filename changes
-            self.group.getSample().setName(samplename)
-            self.group.getSample().setDescriptions([sampledescription])
-            
-            # only increment if all successful
-            self.increment += 1
-            return
+        if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or self.sample_roll == None or self.sample_pitch == None:
+            raise DeviceException("I20 scan script - could not find all sample stage motors!")
+        
+        self.log( "Moving sample stage to",x,y,z,rotation,roll,pitch,"...")
+        self.sample_x.asynchronousMoveTo(x)
+        self.sample_y.asynchronousMoveTo(y)
+        self.sample_z.asynchronousMoveTo(z)
+        self.sample_rot.asynchronousMoveTo(rotation)
+        self.sample_roll.asynchronousMoveTo(roll)
+        self.sample_pitch.asynchronousMoveTo(pitch)
+        self.sample_x.waitWhileBusy()
+        self.sample_y.waitWhileBusy()
+        self.sample_z.waitWhileBusy()
+        self.sample_rot.waitWhileBusy()
+        self.sample_roll.waitWhileBusy()
+        self.sample_pitch.waitWhileBusy()
+        self.log( "Sample stage move complete.")
+        ScriptBase.checkForPauses()
+        
+        # change the strings in the filewriter so that the ascii filename changes
+        self.group.getSample().setName(samplename)
+        self.group.getSample().setDescriptions([sampledescription])
+        
+        # only increment if all successful
+        self.increment += 1
+        return
         
     def _determineSample(self):
         
@@ -130,6 +125,16 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
         
 class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
 
+    def __init__(self, sample_x,sample_y,sample_z,sample_rot,sample_fine_rot,sample_roll,sample_pitch):
+        self.increment = 1
+        self.sample_x = sample_x
+        self.sample_y = sample_y
+        self.sample_z = sample_z
+        self.sample_rot = sample_rot
+        self.sample_roll = sample_roll
+        self.sample_pitch = sample_pitch
+        self.sample_fine_rot = sample_fine_rot
+        
     def moveToNext(self):
 
             i = self.increment
@@ -143,26 +148,20 @@ class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
             sampledescription = self.samples.get(i).getSample_description()
             sample_repeats = self.samples.get(i).getNumberOfRepetitions()
             
-            samx = self.finder.find("sample_x")
-            samy = self.finder.find("sample_y")
-            samz = self.finder.find("sample_z")
-            samrot = self.finder.find("sample_rot")
-            samfinerot = self.finder.find("sample_fine_rot")
-            
-            if samx == None or samy ==None or samz == None or samrot == None or samfinerot == None:
+            if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or samfinerot == None:
                 raise DeviceException("I20 scan script - could not find all sample stage motors!")
             
             print "********"
             self.log( "Moving sample stage to",x,y,z,rotation,roll,pitch,"...")
-            samx.asynchronousMoveTo(x)
-            samy.asynchronousMoveTo(y)
-            samz.asynchronousMoveTo(z)
-            samrot.asynchronousMoveTo(rotation)
+            self.sample_x.asynchronousMoveTo(x)
+            self.sample_y.asynchronousMoveTo(y)
+            self.sample_z.asynchronousMoveTo(z)
+            self.sample_rot.asynchronousMoveTo(rotation)
             samfinerot.asynchronousMoveTo(finerotation)
-            samx.waitWhileBusy()
-            samy.waitWhileBusy()
-            samz.waitWhileBusy()
-            samrot.waitWhileBusy()
+            self.sample_x.waitWhileBusy()
+            self.sample_y.waitWhileBusy()
+            self.sample_z.waitWhileBusy()
+            self.sample_rot.waitWhileBusy()
             samfinerot.waitWhileBusy()
             self.log( "Sample stage move complete.\n")
             ScriptBase.checkForPauses()
@@ -175,12 +174,15 @@ class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
             self.increment += 1
             return
 
+
 class XASXANES_Cryostat_Iterator(SampleIterator):
     
-    def __init__(self):
+    def __init__(self, cryostat_scannable, sample_y, sample_fine_rot):
         self.sample_increment = 0
         self.temp_increment = 0
-        self.finder = Finder.getInstance()
+        self.cryostat_scannable = cryostat_scannable
+        self.sample_y=sample_y
+        self.sample_fine_rot=sample_fine_rot
     
     def setBeanGroup(self, beanGroup):
         self.group = beanGroup
@@ -198,8 +200,6 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
         self._determineSamplesArray()
         print self.samples_array
         self.samples_num = len(self.samples_array)
-        
-        self.cryostat_scannable = self.finder.find("cryostat")
         
     def _determineSamplesArray(self):
         self.samples_array = []
@@ -245,15 +245,12 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
         desc = self.samples_array[self.sample_increment].getSampleDescription()
         sample_repeats = self.samples_array[self.sample_increment].getNumberOfRepetitions()
         
-        samy = self.finder.find("sample_y")
-        sam_fine_pos = self.finder.find("sample_fine_rot")
-        
         print "**********"
         self.log( "Using sample",name,"in next iteration.")
         
         self.log( "Moving sample stage to",y,finepos,"...")
-        samy.asynchronousMoveTo(y)
-        sam_fine_pos.asynchronousMoveTo(finepos)        
+        self.sample_y.asynchronousMoveTo(y)
+        self.sam_fine_pos.asynchronousMoveTo(finepos)        
         self.group.getSample().setName(name)
         self.group.getSample().setDescriptions([desc])
 
@@ -262,8 +259,8 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
 #        self.cryostat_scannable.asynchronousMoveTo(temp)
         self.log( "Would set cryostat to",str(temp),"K but I wont until the Scannable has been tested.")
         
-        samy.waitWhileBusy()
-        sam_fine_pos.waitWhileBusy()
+        self.sample_y.waitWhileBusy()
+        self.sam_fine_pos.waitWhileBusy()
         self.log("Sample stage move complete.")
         ScriptBase.checkForPauses()
         

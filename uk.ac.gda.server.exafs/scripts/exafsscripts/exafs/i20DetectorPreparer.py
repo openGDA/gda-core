@@ -7,13 +7,14 @@ class I20DetectorPreparer:
     """
      Assume the sensitivities and offsets are arrays of scannables in order: [I0,It,Iref,I1]
     """
-    def __init__(self, xspress2system, ExafsScriptObserver,sensitivities, sensitivity_units ,offsets, offset_units):
+    def __init__(self, xspress2system, ExafsScriptObserver,sensitivities, sensitivity_units ,offsets, offset_units, cryostat_scannable):
         self.xspress2system = xspress2system
         self.ExafsScriptObserver = ExafsScriptObserver
-        self.sensitivities = sensitivities 
-        self.sensitivity_units = sensitivity_units 
+        self.sensitivities = sensitivities
+        self.sensitivity_units = sensitivity_units
         self.offsets = offsets
         self.offset_units = offset_units
+        self.cryostat_scannable=cryostat_scannable
         
     def prepare(self, detectorParameters, outputParameters, scriptFolder):
         """
@@ -34,7 +35,6 @@ class I20DetectorPreparer:
             from gda.device.detector import VortexDetectorConfiguration
             VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputParameters).configure()
             
-        
         ionChamberParamsArray = None
         if detectorParameters.getExperimentType() == "Fluorescence" :
             ionChamberParamsArray = detectorParameters.getFluorescenceParameters().getIonChamberParameters()
@@ -44,48 +44,154 @@ class I20DetectorPreparer:
             ionChamberParamsArray = detectorParameters.getXesParameters().getIonChamberParameters()
         
         for ionChamberParams in ionChamberParamsArray:
-            if ionChamberParams.getChangeSensitivity():
-                ionChamberName = ionChamberParams.getName()
-                if ionChamberParams.getGain() == None or ionChamberParams.getGain() == "":
-                    continue
-                sensitivity, units = ionChamberParams.getGain().split()
+            self.setup_amp_sensitivity(ionChamberParams, self.sensitivities, self.sensitivity_units)
+            self.setup_amp_offset(ionChamberParams, self.offsets, self.offset_units)
+            
+    def setup_amp_sensitivity(self, ionChamberParams, sensitivities, sensitivity_units):
+        if ionChamberParams.getChangeSensitivity():
+            ionChamberName = ionChamberParams.getName()
+            if ionChamberParams.getGain() == None or ionChamberParams.getGain() == "":
+                continue
+            sensitivity, units = ionChamberParams.getGain().split()
+            index = 0
+            if ionChamberName == "It":
+                index = 1;
+            elif ionChamberName == "Iref":
+                index = 2;
+            elif ionChamberName == "I1":
+                index = 3;
+            try:
+                print "Changing sensitivity of",ionChamberName,"to",ionChamberParams.getGain()
+                sensitivities[index](sensitivity)
+                sensitivity_units[index](units)
+            except Exception, e:
+                print "Exception while trying to change the sensitivity of ion chamber",ionChamberName
+                print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan"
+                print "Please report this problem to Data Acquisition"
+                raise e
+            
+    def setup_amp_offset(self, ionChamberParams, offsets, offset_units):
+        if ionChamberParams.getChangeSensitivity():
+            if ionChamberParams.getOffset() == None or ionChamberParams.getOffset() == "":
+                continue
+            offset, units = ionChamberParams.getOffset().split()
+            index = 0
+            if ionChamberName == "It":
+                index = 1;
+            elif ionChamberName == "Iref":
+                index = 2;
+            elif ionChamberName == "I1":
+                index = 3;
+            try:
+                print "Changing amp offset of",ionChamberName,"to",ionChamberParams.getOffset()
+                offsets[index](offset)
+                offset_units[index](units)
+            except Exception, e:
+                print "Exception while trying to change the sensitivity of ion chamber",ionChamberName
+                print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan"
+                print "Please report this problem to Data Acquisition"
+                raise e
+
+        def setUpIonChambers(self,beanGroup):    
+            # determine max collection time
+            scanBean = beanGroup.getScan()
+            maxTime = 0;
+            if isinstance(scanBean,XanesScanParameters):
+                for region in scanBean.getRegions():
+                    if region.getTime() > maxTime:
+                        maxTime = region.getTime()
+                    
+            elif isinstance(scanBean,XasScanParameters):
+                if scanBean.getEdgeTime() > maxTime:
+                    maxTime = scanBean.getEdgeTime()
+                if scanBean.getExafsToTime() > maxTime:
+                    maxTime = scanBean.getExafsToTime()
+                if scanBean.getExafsFromTime() > maxTime:
+                    maxTime = scanBean.getExafsFromTime()
+                if scanBean.getExafsTime() > maxTime:
+                    maxTime = scanBean.getExafsTime()
+                if scanBean.getPreEdgeTime() > maxTime:
+                    maxTime = scanBean.getPreEdgeTime()
+        
+            # set dark current time and handle any errors here
+            if maxTime > 0:
+                self.log( "Setting ionchambers dark current collectiom time to",str(maxTime),"s.")
+                self.jython_mapper.ionchambers.setDarkCurrentCollectionTime(maxTime)
+                self.jython_mapper.I1.setDarkCurrentCollectionTime(maxTime)
                 
-                index = 0
-                if ionChamberName == "It":
-                    index = 1;
-                elif ionChamberName == "Iref":
-                    index = 2;
-                elif ionChamberName == "I1":
-                    index = 3;
+                topupPauseTime = maxTime + self.jython_mapper.topupChecker.tolerance
+                print "Setting the topup checker to pause scans for",topupPauseTime,"s before topup"
+                self.jython_mapper.topupChecker.collectionTime = maxTime
                 
-                try:
-                    print "Changing sensitivity of",ionChamberName,"to",ionChamberParams.getGain()
-                    self.sensitivities[index](sensitivity)
-                    self.sensitivity_units[index](units)
-                except Exception, e:
-                    print "Exception while trying to change the sensitivity of ion chamber",ionChamberName
-                    print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan"
-                    print "Please report this problem to Data Acquisition"
-                    raise e
-                
-                if ionChamberParams.getOffset() == None or ionChamberParams.getOffset() == "":
-                    continue
-                offset, units = ionChamberParams.getOffset().split()
-                
-                index = 0
-                if ionChamberName == "It":
-                    index = 1;
-                elif ionChamberName == "Iref":
-                    index = 2;
-                elif ionChamberName == "I1":
-                    index = 3;
-                
-                try:
-                    print "Changing amp offset of",ionChamberName,"to",ionChamberParams.getOffset()
-                    self.offsets[index](offset)
-                    self.offset_units[index](units)
-                except Exception, e:
-                    print "Exception while trying to change the sensitivity of ion chamber",ionChamberName
-                    print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan"
-                    print "Please report this problem to Data Acquisition"
-                    raise e
+        def _configureCryostat(self, cryoStatParameters):
+            if LocalProperties.get("gda.mode") != 'dummy':
+                self.cryostat_scannable.setupFromBean(cryoStatParameters)
+
+        def setDetectorCorrectionParameters(self,beanGroup):
+            scanObj = beanGroup.getScan()
+            dtEnergy = 0.0
+            # Use the fluo (emission) energy of the nearest transition based on the element and excitation edge
+            # to calculate the energy dependent deadtime parameters.
+            if isinstance(scanObj,XasScanParameters):
+                edge = scanObj.getEdge()
+                element = scanObj.getElement()
+                elementObj = Element.getElement(element)
+                dtEnergy = self._getEmissionEnergy(elementObj,edge)
+                dtEnergy /= 1000 # convert from eV to keV
+                print "Setting Ge detector deadtime calculation energy to be",str(dtEnergy),"keV based on element",element,"and edge",edge
+            elif isinstance(scanObj,XanesScanParameters):
+                edge = scanObj.getEdge()
+                element = scanObj.getElement()
+                elementObj = Element.getElement(element)
+                dtEnergy = self._getEmissionEnergy(elementObj,edge)
+                dtEnergy /= 1000 # convert from eV to keV
+                print "Setting Ge detector deadtime calculation energy to be",str(dtEnergy),"keV based on element",element,"and edge",edge
+            else :
+                dtEnergy = scanObj.getFinalEnergy() 
+                dtEnergy /= 1000 # convert from eV to keV
+            
+            self.jython_mapper.xspress2system.setDeadtimeCalculationEnergy(dtEnergy)
+     
+        def _getEmissionEnergy(self,elementObj,edge):
+            if str(edge) == "K":
+                return elementObj.getEmissionEnergy("Ka1")
+            elif str(edge) == "L1":
+                return elementObj.getEmissionEnergy("La1")
+            elif str(edge) == "L2":
+                return elementObj.getEmissionEnergy("La1")
+            elif str(edge) == "L3":
+                return elementObj.getEmissionEnergy("La1")
+            elif str(edge) == "M1":
+                return elementObj.getEmissionEnergy("Ma1")
+            elif str(edge) == "M2":
+                return elementObj.getEmissionEnergy("Ma1")
+            elif str(edge) == "M3":
+                return elementObj.getEmissionEnergy("Ma1")
+            elif str(edge) == "M4":
+                return elementObj.getEmissionEnergy("Ma1")
+            elif str(edge) == "M5":
+                return elementObj.getEmissionEnergy("Ma1")
+            else:
+                return elementObj.getEmissionEnergy("Ka1")
+     
+        def _getEmissionEnergy(self,elementObj,edge):
+            if str(edge) == "K":
+                return elementObj.getEmissionEnergy("Ka1")
+            elif str(edge) == "L1":
+                return elementObj.getEmissionEnergy("La1")
+            elif str(edge) == "L2":
+                return elementObj.getEmissionEnergy("La1")
+            elif str(edge) == "L3":
+                return elementObj.getEmissionEnergy("La1")
+            elif str(edge) == "M1":
+                return elementObj.getEmissionEnergy("Ma1")
+            elif str(edge) == "M2":
+                return elementObj.getEmissionEnergy("Ma1")
+            elif str(edge) == "M3":
+                return elementObj.getEmissionEnergy("Ma1")
+            elif str(edge) == "M4":
+                return elementObj.getEmissionEnergy("Ma1")
+            elif str(edge) == "M5":
+                return elementObj.getEmissionEnergy("Ma1")
+            else:
+                return elementObj.getEmissionEnergy("Ka1")

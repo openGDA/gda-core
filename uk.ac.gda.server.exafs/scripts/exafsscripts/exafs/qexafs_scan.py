@@ -4,7 +4,6 @@ from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataW
 from gda.exafs.scan import BeanGroup, BeanGroups
 from gda.exafs.scan import ScanStartedMessage
 from gda.exafs.scan import RepetitionsProperties
-from gda.factory import Finder
 from java.lang import InterruptedException
 from java.lang import System
 from gda.jython import ScriptBase
@@ -14,23 +13,21 @@ from gda.jython.scriptcontroller.logging import LoggingScriptController
 from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.scan import ScanBase, ContinuousScan
 from scan import Scan
-from exafs_environment import ExafsEnvironment
 from gda.epics import CAClient
 from time import sleep
 import math
 
 class QexafsScan(Scan):
     
-    def __init__(self,loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, energy_scannable, ion_chambers_scannable):
-        Scan.__init__(self, loggingcontroller,detectorPreparer, samplePreparer, outputPreparer,None)
-        self.energy_scannable = energy_scannable
-        self.ion_chambers_scannable = ion_chambers_scannable
+    def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, cirrus=None):
+        Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers)
+        self.cirrus = cirrus
         self.cirrusEnabled = False
         self.beamCheck = True
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
-#        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
         xmlFolderName = folderName + "/"
+        folderName = folderName[folderName.find("xml")+4:]
 
         if self.cirrusEnabled:
             self.t = None
@@ -42,7 +39,7 @@ class QexafsScan(Scan):
         print "outputFileName=" + str(outputFileName)
 
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName) 
-        controller = Finder.getInstance().find("ExafsScriptObserver")
+        controller = self.ExafsScriptObserver
         outputBean.setAsciiFileName(sampleBean.getName())
         beanGroup = self._createBeanGroup(controller, xmlFolderName, folderName, sampleBean, detectorBean, outputBean, scanBean)
         # work out which detectors to use (they will need to have been configured already by the GUI)
@@ -52,7 +49,7 @@ class QexafsScan(Scan):
         # send initial message to the log
         from gda.jython.scriptcontroller.logging import LoggingScriptController
         from gda.jython.scriptcontroller.logging import XasLoggingMessage
-        loggingcontroller   = Finder.getInstance().find("XASLoggingScriptController")
+        loggingcontroller   = self.XASLoggingScriptController
         scriptType = "Qexafs"
         unique_id  = LoggingScriptController.createUniqueID(scriptType);
         outputFolder = outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
@@ -97,18 +94,11 @@ class QexafsScan(Scan):
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
 
                 if self.cirrusEnabled:
-                    ### cirrus test
-                    import threading
-                    import datetime
-                    from gda.data import PathConstructor
                     from cirrus import ThreadClass
-                    finder = Finder.getInstance()
-                    cirrus=finder.find("cirrus")
-                    cirrus.setMasses([2, 28, 32])
-                    self.t = ThreadClass(cirrus, self.energy_scannable, initial_energy, final_energy, "cirrus_scan.dat")
+                    self.cirrus.setMasses([2, 28, 32])
+                    self.t = ThreadClass(self.cirrus, self.energy_scannable, initial_energy, final_energy, "cirrus_scan.dat")
                     self.t.setName("cirrus")
                     self.t.start()
-                    ###
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
             
@@ -183,7 +173,7 @@ class QexafsScan(Scan):
                 if LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
                     print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
-                    Finder.getInstance().find("commandQueueProcessor").pause(500)
+                    self.commandQueueProcessor.pause(500)
                     ScriptBase.checkForPauses()
                 
                 #check if the number of repetitions has been altered and we should now end the loop
@@ -197,8 +187,7 @@ class QexafsScan(Scan):
         finally:    
             self.energy_scannable.stop()
             # repetition loop completed, so reset things
-            if (self.beamlineReverter != None):
-                self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
+            # TODO remove metadata enteries
             LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
             XasAsciiDataWriter.setBeanGroup(None)
@@ -206,33 +195,9 @@ class QexafsScan(Scan):
             jython_mapper = JythonNameSpaceMapping()
             if (jython_mapper.original_header != None):
                 original_header=jython_mapper.original_header[:]
-                Finder.getInstance().find("datawriterconfig").setHeader(original_header)
+                self.datawriterconfig.setHeader(original_header)
             if self.cirrusEnabled:
                 self.t.stop
-
- 
-    def _getNumberOfFrames(self, detectorBean, scanBean):
-         # work out the number of frames to collect
-        numberPoints = 0
-        if detectorBean.getExperimentType() == "Fluorescence" and detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium":
-            maxPoints = self.ion_chambers_scannable.maximumReadFrames()
-            if scanBean.isChooseNumberPoints():
-                return maxPoints
-            else:
-                numberPoints = scanBean.getNumberPoints()
-                if numberPoints > maxPoints:
-                    raise "Too many frames for the given detector configuration."
-                return numberPoints
-        # for ion chambers only use a default value
-        elif scanBean.isChooseNumberPoints():
-            print "using default number of frames: 1000"
-            return 1000 # a default value as user has selected max possible but is only using the ion chambers (so max will be very high)
-        # have a limit anyway of 4096
-        else:
-            numberPoints = scanBean.getNumberPoints()
-            if numberPoints > 4096:
-                    raise "Too many frames for the given detector configuration."
-            return numberPoints
  
     def _getQEXAFSDetectors(self, detectorBean, outputBean, scanBean):
         expt_type = detectorBean.getExperimentType()
@@ -248,8 +213,6 @@ class QexafsScan(Scan):
                 print "This scan will use the Xspress detector"
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "QexafsFFI0"], scanBean)
         
-        
-
     def _createBeanGroup(self, controller, xmlFolderName, folderName, sampleBean, detectorBean, outputBean, scanBean):
         # give the beans to the xasdatawriter class to help define the folders/filenames 
         beanGroup = BeanGroup()
