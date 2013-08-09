@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor;
-import uk.ac.gda.client.XYPlotView;
+import uk.ac.gda.client.liveplot.LivePlotView;
 
 /**
  *
@@ -71,7 +71,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.GDA_USE_SCANDATAPOINT_SERVICE, true);
 		store.setDefault(PreferenceConstants.GDA_DISABLE_LAUNCH_CONFIGS, true);
 		store.setDefault(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START, true);
-		store.setDefault(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID, XYPlotView.ID);
+		store.setDefault(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID, LivePlotView.ID);
 		store.setDefault(PreferenceConstants.GDA_CLIENT_PLOT_AUTOHIDE_LAST_SCAN, true);
 		store.setDefault(PreferenceConstants.GDA_CLIENT_PLOT_PERIOD_MS, 500);
 		
