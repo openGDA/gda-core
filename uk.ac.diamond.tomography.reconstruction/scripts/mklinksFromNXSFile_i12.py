@@ -8,6 +8,7 @@ import subprocess
 import sys
 import unittest
 import numpy as np
+import re
 
 import h5py
 import string
@@ -21,6 +22,119 @@ from contextlib import contextmanager
 
 import Image
 
+def getFilenameZidxOffset(inDir, inFilenameFmt="p_%05d.tif"):
+	print getFilenameZidxOffset.__name__
+	print "inDir =", inDir
+	print "inFilenameFmt =", inFilenameFmt
+	# need to find the smallest index which is used to label files in input dir with names of input format
+	# (output None, or -1, if no matches found)  
+	# early out by looking for p_00000.tif and p_00001.tif? 
+	# use regex groups?
+	
+	# early out(s)
+	offset = -1
+	for idx in [0, 1]:
+		pattern_test = inFilenameFmt %idx
+		files_test = [f for f in os.listdir(inDir) if re.match(pattern_test,f)]
+		if len(files_test)>0:
+			offset = idx
+			break
+	
+	if offset>=0:
+		msg = "Filename offset from index 0 was automatically detected to be: %i" %offset
+		print msg
+	else:
+		pass
+		#pattern_dct = {}
+		#pattern_dct['p_%05d.tif'] = r'^p_(\d{5})\.tif$'
+		#pattern_dct['%05d.tif'] = r'^(\d{5})\.tif$'
+		#pattern = pattern_dct[inFilenameFmt]
+		#files = [f for f in os.listdir(inDir) if re.match(pattern,f)]
+	offset = 0
+	return offset
+	
+def copySingleFile(src, dst):
+	success = False
+	if not os.path.exists(src):
+		msg = "INFO: File cannot be copied because it does not exist: "+`src`
+		raise Exception(msg)
+	if os.path.exists(dst):
+		msg = "INFO: File already exist (you may wish to delete the existing file and then re-run the command): "+`dst`
+		print msg
+	else:
+		try:
+			success = True
+			shutil.copy(src, dst)
+			msg = "INFO: Copied "+`src`+" to " + `dst`
+			print msg
+		except:
+			msg = "INFO: Failed to copy "+`src`+" to " + `dst`
+			print msg
+			success = False
+	return success
+
+def launchImageAveragingProcess(inDir, inFilenameFmt, outDir, outFilename="flat-avg.tif", imgWidth=4008, imLength=2672, outlierCheckParam=0.01):
+	print launchImageAveragingProcess.__name__
+	print "inDir =", inDir
+	print "inFilenameFmt =", inFilenameFmt
+	print "outDir =", outDir 
+	print "outFilename =", outFilename
+	print "imgWith =", str(imgWidth)
+	print "imgLength =", str(imLength)
+	print "outlierCheckParam =", str(outlierCheckParam)
+	
+	#launchX("/dls_sw/i12/software/tomography_scripts/flat_capav")
+	#success = launchX
+	exePath = "/dls_sw/i12/software/tomography_scripts/flat_capav"
+	
+	sanity_count = inFilenameFmt.count("%")
+	if sanity_count != 1:
+		msg = "Unsupported filename format: " + inFilenameFmt + " (only a single template parameter (%) is currently allowed)"
+		raise Exception(msg)
+	
+	args = [exePath]
+	args += ["-i", str(inDir)]
+	args += ["-f", str(outFilename)]
+	args += ["-o", str(outDir)]
+	args += ["-I", str(inFilenameFmt)]
+	args += ["-w", str(imgWidth)]
+	args += ["-l", str(imLength)]
+	args += ["-u", str(outlierCheckParam)]
+	
+	pattern_dct = {}
+	pattern_dct['f_000_%05d.tif'] = r'^f_000_(\d{5})\.tif$'
+	pattern_dct['d_000_%05d.tif'] = r'^d_000_(\d{5})\.tif$'
+	
+	#pattern = '^f_000_(\d{5})\.tif$'
+	pattern = pattern_dct[inFilenameFmt]
+	#print "Filename pattern used in regex =", pattern
+	
+	#files = [f for f in os.listdir(inDir) if re.match(r'^f_000_(\d{5})\.tif$',f)]
+	files = [f for f in os.listdir(inDir) if re.match(pattern,f)]
+	
+	msg = "Files for averaging (found "+`len(files)`+" matches):"
+	print msg
+	for f in files:
+		print f
+	
+	len_files = len(files)
+	if len_files < 1:
+		msg = "No files matching template " + inFilenameFmt + " were found in " + inDir
+		raise Exception(msg)
+	
+	args += ["-a", str(len_files)]
+	
+	for a in args:
+		print a
+	
+	pid = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	pid.wait()
+	(out, err) = pid.communicate()
+	print out
+	print err
+	print "Return value was %s\n" % pid.returncode
+	return True if (pid.returncode==0) else False
+	
 
 def preModifyAbsolutePaths(inList, prePath):
 	inList_len = len(inList)
@@ -285,7 +399,7 @@ def decimate(inList, decimationRate=1):
 	return outList
 
 
-def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir, tif_lst, dark_idx, flat_idx, proj_idx, unpicked_idx_dct, decimationRate=1, verbose=False):
+def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir, tif_lst, dark_idx, flat_idx, proj_idx, unpicked_idx_dct, filenameOffset=0, decimationRate=1, verbose=False):
 
 	"""
 	Create:
@@ -293,18 +407,45 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, 
 	dark.tif in the sino/[scanNumber]/dark folder
 	flat.tif in the sino/[scanNumber]/flat folder
 	"""
+	if len(dark_idx)>0:
+		#src_dark=tif_lst[dark_idx[0]][0]
+		
+		src_dark_list_0 = unpicked_idx_dct['dark'][0]
+		#print 'src_dark_list_0=', src_dark_list_0
+		len_src_dark_list_0 = len(src_dark_list_0)
+		zidx_src_dark = int(len_src_dark_list_0/2)
+		src_dark = tif_lst[src_dark_list_0[zidx_src_dark]][0]
+		#print "len_src_dark_list_0 = %s" %len_src_dark_list_0
+		#print "zidx_src_dark = %s" %zidx_src_dark
+		#print "src_dark_x = %s" %src_dark_x
+		#print "src_dark=%s"%src_dark
 
-	src_dark=tif_lst[dark_idx[0]][0]
-	#print "src_dark=%s"%src_dark
+		dst_dark="dark-sgl.tif"
+		dst_dark=head+os.sep+dark_dir+os.sep+dst_dark
+		createSoftLink(src_dark, dst_dark)
+	else:
+		msg = "WARNING: As reported earlier, no dark-field images are available to populate the dark sub-dir with the required dark.tif."
+		print msg
 
-	dst_dark="dark.tif"
-	dst_dark=head+os.sep+dark_dir+os.sep+dst_dark
-	createSoftLink(src_dark, dst_dark)
-
-	src_flat=tif_lst[flat_idx[0]][0]
-	dst_flat="flat.tif"
-	dst_flat=head+os.sep+flat_dir+os.sep+dst_flat
-	createSoftLink(src_flat, dst_flat)
+	if len(flat_idx)>0:
+		#src_flat=tif_lst[flat_idx[0]][0]
+		
+		src_flat_list_0 = unpicked_idx_dct['flat'][0]
+		#print 'src_flat_list_0=', src_flat_list_0
+		len_src_flat_list_0 = len(src_flat_list_0)
+		zidx_src_flat = int(len_src_flat_list_0/2)
+		src_flat = tif_lst[src_flat_list_0[zidx_src_flat]][0]
+		#print "len_src_flat_list_0 = %s" %len_src_flat_list_0
+		#print "zidx_src_flat = %s" %zidx_src_flat
+		#print "src_flat_x = %s" %src_flat_x
+		#print "src_flat=%s"%src_flat
+		
+		dst_flat="flat-sgl.tif"
+		dst_flat=head+os.sep+flat_dir+os.sep+dst_flat
+		createSoftLink(src_flat, dst_flat)
+	else:
+		msg = "WARNING: As reported earlier, no flat-field images are available to populate the flat sub-dir with the required flat.tif."
+		print msg
 
 	#identify arguments to be used when calling makeLinks using the path of the first projection file
 	src_proj=tif_lst[proj_idx[0]][0]
@@ -355,25 +496,10 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, 
 							, indir=genAncestorPath(refFilename, 1)\
 							, inFilenameFmt=filenameFmt\
 							, outdir=(head+os.sep+proj_dir)\
-							, outFilenameFmt=filenameFmt)
-
-	filenameFmt="p_%05d.tif"
-	#outFnameFmt="d_%03d_%05d.tif"
-	outPrefixFnameFmt="d_%03d_"
-	outPostixFnameFmt="%05d.tif"
-	outFnameFmt=""
-	subseq=0
-	for listOfImgIdx in unpicked_idx_dct['dark']:
-		outFnameFmt=outPrefixFnameFmt %(subseq)
-		outFnameFmt += outPostixFnameFmt
-		makeLinksToOriginalFiles(\
-								listOfProjIdx=listOfImgIdx\
-								, indir=genAncestorPath(refFilename, 1)\
-								, inFilenameFmt=filenameFmt\
-								, outdir=(head+os.sep+darks_dir)\
-								, outFilenameFmt=outFnameFmt)
-		subseq += 1
-		
+							, outFilenameFmt=filenameFmt\
+							, inFilenameOffset=filenameOffset)
+	
+	# create links to all flats
 	filenameFmt="p_%05d.tif"
 	#outFnameFmt="f_%03d_%05d.tif"
 	outPrefixFnameFmt="f_%03d_"
@@ -388,8 +514,29 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, 
 								, indir=genAncestorPath(refFilename, 1)\
 								, inFilenameFmt=filenameFmt\
 								, outdir=(head+os.sep+flats_dir)\
-								, outFilenameFmt=outFnameFmt)
+								, outFilenameFmt=outFnameFmt\
+								, inFilenameOffset=filenameOffset)
 		subseq += 1
+	
+	# create links to all darks
+	filenameFmt="p_%05d.tif"
+	#outFnameFmt="d_%03d_%05d.tif"
+	outPrefixFnameFmt="d_%03d_"
+	outPostixFnameFmt="%05d.tif"
+	outFnameFmt=""
+	subseq=0
+	for listOfImgIdx in unpicked_idx_dct['dark']:
+		outFnameFmt=outPrefixFnameFmt %(subseq)
+		outFnameFmt += outPostixFnameFmt
+		makeLinksToOriginalFiles(\
+								listOfProjIdx=listOfImgIdx\
+								, indir=genAncestorPath(refFilename, 1)\
+								, inFilenameFmt=filenameFmt\
+								, outdir=(head+os.sep+darks_dir)\
+								, outFilenameFmt=outFnameFmt\
+								, inFilenameOffset=filenameOffset)
+		subseq += 1
+	
 	print "INFO: Finished populating directories." 
 	return len(proj_idx_decimated), detectorName
 
@@ -398,8 +545,13 @@ def createSoftLink(src, dst):
 	if not os.path.exists(src):
 		raise Exception("File cannot be linked to as it does not exist:"+`src`)
 	if os.path.exists(dst):
+		src_old = os.path.realpath(dst)
+		src_new = os.path.realpath(src)
+		#print "src_old = " + src_old
+		#print "src_new = " + src_new
 		if os.path.realpath(src)!=os.path.realpath(dst):
-				msg="Soft link already exists:"+`src`+" but not to the required destination "+`dst`
+				msg="Soft link named "+`dst`+" already exists but currently points to "+`src_old`
+				msg+="\n which is not the required source: "+`src`+" (you may wish to delete the existing link and then re-run the command)."
 				raise Exception(msg)		
 	else:
 		cmd="ln -s "+src+" "+dst
@@ -441,8 +593,13 @@ def makeLinksForNXSFile(\
 					, outdir=None\
 					, minProjs=129\
 					, maxUnclassed=0\
+					, inFilenameFmt="p_%05d.tif"\
 					, decimationRate=1\
 					, sino=False\
+					, avgf=False\
+					, avgfu=0.01\
+					, avgd=False\
+					, avgdu=0.01\
 					, verbose=False\
 					, dbg=False):
 	"""
@@ -470,8 +627,13 @@ def makeLinksForNXSFile(\
 		print "outdir=%s"%outdir
 		print "minProjs=%s"%minProjs
 		print "maxUnclassed=%s"%maxUnclassed
+		print "inFilenameFmt=%s"%str(inFilenameFmt)
 		print "decimationRate=%s"%decimationRate
 		print "sino=%s"%str(sino)
+		print "avgf=%s"%str(avgf)
+		print "avgfu=%s"%avgfu
+		print "avgd=%s"%str(avgd)
+		print "avgdu=%s"%avgdu
 		print "verbose=%s"%str(verbose)
 		print "dbg=%s"%str(dbg)
 		print "\n"
@@ -638,6 +800,11 @@ def makeLinksForNXSFile(\
 		print "len_tomography_shutter=%s"%len_tomography_shutter
 		print "len_tif=%s"%len_tif
 
+	inHead, inTail = os.path.split(test_filename)
+	#print "inHead =", inHead
+	#print "inTail =", inTail
+	filenameZidxOffset = getFilenameZidxOffset(inHead, inFilenameFmt)
+	filenameZidxOffset = 0
 	
 	# lists to store the indices of DARK, FLAT and PROJ images, respectively
 	dark_idx=[]
@@ -793,17 +960,24 @@ def makeLinksForNXSFile(\
 	# check if we've identified a sufficient number of images as DARK, FLAT and PROJ images to perform a reconstruction 
 	len_proj_idx=len(proj_idx)
 	if len_proj_idx<loProjs_exc:
-		raise Exception("Number of the identified PROJECTION images is TOO SMALL to proceed: "+`len_proj_idx`+" < "+`loProjs_exc`+" (the latter is the exclusive min)")
+		msg = "Warning: Number of the identified PROJECTION images is TOO SMALL for running reconstruction: "+`len_proj_idx`+" < "+`loProjs_exc`+" (the latter is the exclusive min)"
+		#raise Exception(msg)
+		print msg
 	
 	#unclassified_idx.append(1300)
 	if len(dark_idx)==0:
-		raise Exception("Failed to identify ANY DARK field images!")
+		msg = "WARNING: Failed to identify ANY DARK-field images!"
+		print msg
+		#raise Exception(msg)
 	
 	if len(flat_idx)==0:
-		raise Exception("Failed to identify ANY FLAT field images!")
+		msg = "WARNING: Failed to identify ANY FLAT-field images!"
+		print msg
+		#raise Exception(msg)
 	
 	if len(proj_idx)==0:
-		raise Exception("Failed to identify ANY PROJECTION images!")
+		msg = "WARNING: Failed to identify ANY PROJECTION images!"
+		raise Exception(msg)
 	
 	hiUnclassifieds_exc=maxUnclassed
 	len_unclassified_idx=len(unclassified_idx)
@@ -852,15 +1026,74 @@ def makeLinksForNXSFile(\
 	
 	scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir=createDirs(refFilename=srcfile_proj, outdir=outdir, mandatorydir=mandatory_parent_foldername, verbose=verbose)
 	
-	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir, tif, dark_idx, flat_idx, proj_idx, unpicked_idx_dct, decimationRate, verbose=verbose)
+	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir, tif, dark_idx, flat_idx, proj_idx, unpicked_idx_dct, filenameZidxOffset, decimationRate, verbose=verbose)
+	
+	# average flats
+	avgf_success = False
+	if avgf:
+		with cd(head+os.sep+sino_dir):
+			try:
+				avgf_success = launchImageAveragingProcess(\
+										inDir=(head+os.sep+flats_dir)\
+										, inFilenameFmt="f_000_%05d.tif"\
+										, outDir=(head+os.sep+flat_dir)\
+										, outFilename="flat-avg.tif"\
+										, imgWidth=inWidth\
+										, imLength=inHeight\
+										, outlierCheckParam=avgfu)
+				print "INFO: Finished averaging flat-field images"
+			except Exception, ex:
+				avgf_success = False
+				raise Exception ("ERROR Spawning flat_capav for flat-field images: "+str(ex))
+	else:
+		msg = "\nINFO: Launching of flat_capav for averaging flat-field images was not requested."
+		print msg
+	
+	#create required link named flat.tif
+	dst_flat="flat.tif"
+	dst_flat=head+os.sep+flat_dir+os.sep+dst_flat
+	if avgf_success:
+		src_flat = head+os.sep+flat_dir+os.sep+"flat-avg.tif"
+	else:
+		src_flat = head+os.sep+flat_dir+os.sep+"flat-sgl.tif"
+	createSoftLink(src_flat, dst_flat)
+				
+	# average darks
+	avgd_success = False
+	if avgd:
+		with cd(head+os.sep+sino_dir):
+			try:
+				avgd_success = launchImageAveragingProcess(\
+										inDir=(head+os.sep+darks_dir)\
+										, inFilenameFmt="d_000_%05d.tif"\
+										, outDir=(head+os.sep+dark_dir)\
+										, outFilename="dark-avg.tif"\
+										, imgWidth=inWidth\
+										, imLength=inHeight\
+										, outlierCheckParam=avgdu)
+				print "INFO: Finished averaging dark-field images"
+			except Exception, ex:
+				avgd_success = False
+				raise Exception ("ERROR Spawning flat_capav for dark-field images: "+str(ex))
+	else:
+		msg = "\nINFO: Launching of flat_capav for averaging dark-field images was not requested."
+		print msg
+	
+	#create required link named dark.tif
+	dst_dark="dark.tif"
+	dst_dark=head+os.sep+dark_dir+os.sep+dst_dark
+	if avgd_success:
+		src_dark = head+os.sep+dark_dir+os.sep+"dark-avg.tif"
+	else:
+		src_dark = head+os.sep+dark_dir+os.sep+"dark-sgl.tif"
+	createSoftLink(src_dark, dst_dark)
+	
+	#copy default settings.xml
+	settings_src = "/dls_sw/i12/software/tomography_scripts/settings.xml"
+	settings_dst = head+os.sep+sino_dir+os.sep+"settings.xml"
+	copySingleFile(settings_src, settings_dst)
 	
 	if sino:
-		#print "\n\tAbout to launch the sino_listener script from CWD = %s"%os.getcwd()
-		#sino=SinoListener(argv, out=sys.stdout, err=sys.stderr)
-		#sino_listener.py -i projections -I pco1564-%05d.tif -P 1201
-		#sino=SinoListener(["prog", "-h"], out=sys.stdout, err=sys.stderr, testing=True)
-		#sino=SinoListener(["prog", "-h"], out=sys.stdout, err=sys.stderr, testing=True)
-		#/dls/i13/data/2012/mt5811-1/processing/rawdata/564/projections
 		with cd(head+os.sep+sino_dir):
 			#print "\n\tInside context manager CWD = %s"%os.getcwd()
 			try:
@@ -878,10 +1111,10 @@ def makeLinksForNXSFile(\
 			except Exception, ex:
 				raise Exception ("ERROR Spawning the sino_listener script  "+str(ex))
 		
-		print "\nAfter launching the sino_listener script CWD = %s"%os.getcwd()
+		#print "\nAfter launching the sino_listener script CWD = %s"%os.getcwd()
 		
 	else:
-		print "\nINFO: Launching of the sino_listener script was not requested at the end of makeLinksForNXSFile." 
+		print "\nINFO: Launching of the sino_listener script was not requested." 
 	
 	#print "\nJust before closing NeXus file CWD = %s"%os.getcwd()
 	#don't forget to close the input NeXus file
@@ -914,9 +1147,14 @@ creates directories and links to projection, dark and flat images required for s
 	parser.add_option("--tifNXSPath", action="store", type="string", dest="tifNXSPath", default="/entry1/instrument/pco4000_dio_tif/image_data", help="The path to the location of TIFF filenames inside the input NeXus file.")
 	parser.add_option("--imgkeyNXSPath", action="store", type="string", dest="imgkeyNXSPath", default="/entry1/instrument/tomoScanDevice/image_key", help="The path to the location of image-key data inside the input NeXus file.")
 	parser.add_option("-o", "--outdir", action="store", type="string", dest="outdir", help="Path to folder in which directories and files are to be made. Default is current working folder")
+	parser.add_option("--inFilenameFmt", action="store", type="string", dest="inFilenameFmt", default="p_%05d.tif", help="Input filename C-printf format; default: p_%05d.tif")
 	parser.add_option("--verbose", action="store_true", dest="verbose", default=False, help="Verbose - useful for diagnosing the script")
-	parser.add_option("-s", "--sino", action="store_true", dest="sino", default=False, help="If set to TRUE, the sino_listener script will be launched as well.")
-	parser.add_option("--dbg", action="store_true", dest="dbg", default=False, help="Debug option set to TRUE limits the number of processed images to the first 10 (useful for testing, etc.")
+	parser.add_option("-s", "--sino", action="store_true", dest="sino", default=False, help="If set to True, the sino_listener script will be launched as well.")
+	parser.add_option("--avgf", action="store_true", dest="avgf", default=False, help="If set to True, flat_capav will be launched to average flat-field images.")
+	parser.add_option("--avgfu", action="store", type="float", dest="avgfu", default=0.01, help="Outlier check parameter for use with flat_capav on flat-field images.")
+	parser.add_option("--avgd", action="store_true", dest="avgd", default=False, help="If set to True, flat_capav will be launched to average dark-field images.")
+	parser.add_option("--avgdu", action="store", type="float", dest="avgdu", default=0.01, help="Outlier check parameter for use with flat_capav on dark-field images.")
+	parser.add_option("--dbg", action="store_true", dest="dbg", default=False, help="Debug option set to True limits the number of processed images to the first 10 (useful for testing, etc.")
 
 	(opts, args)=parser.parse_args(args=argv[1:])
 	opts_dict=vars(opts)
@@ -960,9 +1198,14 @@ creates directories and links to projection, dark and flat images required for s
 					, stageRotNXSPath=opts.stageRotNXSPath\
 					, tifNXSPath=opts.tifNXSPath\
 					, imgkeyNXSPath=opts.imgkeyNXSPath\
+					, inFilenameFmt=opts.inFilenameFmt\
 					, decimationRate=opts.decimationRate\
 					, verbose=opts.verbose\
 					, sino=opts.sino\
+					, avgf=opts.avgf\
+					, avgfu=opts.avgfu\
+					, avgd=opts.avgd\
+					, avgdu=opts.avgdu\
 					, dbg=opts.dbg)
 
 if __name__=="__main__":
