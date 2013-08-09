@@ -146,4 +146,14 @@ public interface NDFileHDF5 {
 	
 	void setLazyOpen(boolean open) throws Exception;
 	boolean isLazyOpen() throws Exception;
+	
+
+	/**
+	 * 
+	 * @param boundaryAlign - added in AreaDetector 1-9 . Should be set to 1024*1024
+	 * @throws Exception
+	 */
+	void setBoundaryAlign(int boundaryAlign) throws Exception;
+	int getBoundaryAlign() throws Exception;
+	
 }

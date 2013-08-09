@@ -170,6 +170,10 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	private static final String StorePerform = "StorePerform";
 
+	private static final String BoundaryAlign = "BoundaryAlign";
+
+	private static final String BoundaryAlign_RBV = "BoundaryAlign_RBV";
+	
 	@Override
 	public int getNumRowChunks() throws Exception {
 		try {
@@ -992,6 +996,23 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			throw new IllegalArgumentException("LazyOpen not yet in the interface file");
 		}
 		return EPICS_CONTROLLER.cagetInt(getChannel(LazyOpen_RBV))==1;
+	}
+
+	@Override
+	public void setBoundaryAlign(int boundaryAlign) throws Exception {
+		if (config != null) {
+			throw new IllegalArgumentException("BoundaryAlign not yet in the interface file");
+		}
+		EPICS_CONTROLLER.caputWait(getChannel(BoundaryAlign), boundaryAlign);
+		
+	}
+
+	@Override
+	public int getBoundaryAlign() throws Exception {
+		if (config != null) {
+			throw new IllegalArgumentException("BoundaryAlign not yet in the interface file");
+		}
+		return EPICS_CONTROLLER.cagetInt(getChannel(BoundaryAlign_RBV));
 	}
 
 

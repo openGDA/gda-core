@@ -131,7 +131,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	private boolean alreadyPrepared=false;
 	
 	private boolean lazyOpen=false;
-	
+
 	public boolean isLazyOpen() {
 		return lazyOpen;
 	}
@@ -142,6 +142,21 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	 */
 	public void setLazyOpen(boolean lazyOpen) {
 		this.lazyOpen = lazyOpen;
+	}
+
+	private Integer boundaryAlign=null;
+	
+	public Integer getBoundaryAlign() {
+		return boundaryAlign;
+	}
+
+	/**
+	 * 
+	 * @param boundaryAlign value for BounaryAlign PV. Default is null in which case it is not set.
+	 * This was added in version 1-9 of areaDetector
+	 */
+	public void setBoundaryAlign(Integer boundaryAlign) {
+		this.boundaryAlign = boundaryAlign;
 	}
 
 	public boolean isSetChunking() {
@@ -189,6 +204,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		getNdFileHDF5().setStorePerform(storePerform?1:0);
 		if( lazyOpen)
 			getNdFileHDF5().setLazyOpen(true);
+		if( boundaryAlign != null)
+			getNdFileHDF5().setBoundaryAlign(boundaryAlign);
 		getNdFile().setFileWriteMode(FileWriteMode.STREAM); 
 		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		//if not scan setup then act as if this is a 1 point scan
