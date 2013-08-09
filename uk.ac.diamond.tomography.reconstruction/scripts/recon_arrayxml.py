@@ -364,16 +364,16 @@ sed -i "s|^.*GPUDeviceNumber.*$|<GPUDeviceNumber>$mycuda</GPUDeviceNumber>|" $my
 		else:
 			qenviron=os.environ
 			
-		qenviron["SGE_CELL"]="DLS"
-		qenviron["SGE_EXECD_PORT"]="60001"
-		qenviron["SGE_QMASTER_PORT"]="60000"
-		qenviron["SGE_ROOT"]="/dls_sw/apps/sge/SGE6.2"
+		qenviron["SGE_CELL"]="DLS_SCIENCE"
+		qenviron["SGE_EXECD_PORT"]="60021"
+		qenviron["SGE_QMASTER_PORT"]="60020"
+		qenviron["SGE_ROOT"]="/dls_sw/apps/sge/SGE8.1.3"
 		oldpath=""
 		try :
 			oldpath=qenviron["PATH"]
 		except :
 			oldpath=""
-		qenviron["PATH"]="/dls_sw/apps/sge/SGE6.2/bin/lx24-"+self.getArch()+":/bin:/usr/bin:"+oldpath
+		qenviron["PATH"]="/dls_sw/apps/sge/SGE8.1.3/bin/lx-"+self.getArch()+":/bin:/usr/bin:"+oldpath
 
 		self.out.write ("\nSpawning the reconstruction job ...\n")
 		
