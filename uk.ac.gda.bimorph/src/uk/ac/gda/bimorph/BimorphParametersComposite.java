@@ -245,6 +245,9 @@ public final class BimorphParametersComposite extends Composite {
 		if (method.getValue().equals("1")) {
 			methodVal = 1;
 		}
+		else if (method.getValue().equals("2")) {
+			methodVal = 2;
+		}
 		
 		String command = "el = ellipse.EllipseCalculator(" + pixel_size + "," + p_1 + "," + q_1 + "," + theta_1 + ","
 				+ p_2 + "," + q_2 + "," + theta_2 + "," + i_sign + "," + detector_distance + "," + slit_start + ","
@@ -262,7 +265,7 @@ public final class BimorphParametersComposite extends Composite {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		JythonServerFacade.getInstance().runCommand("el.calcSlopes()");
+		JythonServerFacade.getInstance().runCommand("el.calc()");
 	}
 
 	public void runOptimiseScript() {
@@ -626,7 +629,7 @@ public final class BimorphParametersComposite extends Composite {
 		lblMethod = new Label(comp2, SWT.NONE);
 		lblMethod.setText("Method");
 		method = new ComboWrapper(comp2, SWT.NONE);
-		method.setItems(new String[] { "0", "1" });
+		method.setItems(new String[] { "0", "1", "2" });
 	}
 
 	public void createPresentMirrorSettingsGroup() {
