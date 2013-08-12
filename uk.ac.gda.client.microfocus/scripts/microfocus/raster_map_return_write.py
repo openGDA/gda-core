@@ -59,11 +59,13 @@ class RasterMapReturnWrite(Map):
             self.trajSampleX = self.traj1SampleX
             self.trajPositionReader = self.traj1PositionReader
             self.trajtfg=self.traj1tfg
+            self.trajtfg.setTtlSocket(1)
             self.trajxmap=self.traj1xmap
         elif stage==3:
             self.trajSampleX = self.traj3SampleX
             self.trajPositionReader = self.traj3PositionReader
             self.trajtfg=self.traj3tfg
+            self.trajtfg.setTtlSocket(2)
             self.trajxmap=self.traj3xmap
         else:
             print "please enter 1 or 3 as a parameter where 1 is the small stage and 3 is the large stage"

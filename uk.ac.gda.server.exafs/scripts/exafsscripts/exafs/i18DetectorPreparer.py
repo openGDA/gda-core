@@ -78,3 +78,7 @@ class I18DetectorPreparer:
             Xspress2DetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()
         else:
             VortexDetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()
+            # HACK! DO NOT COMMIT! Make sure the Vortex is in MCA spectra mode. This should probably be done in Java somewhere...
+#           pv = CAClient("BL18I-EA-DET-04:CollectMode")
+#           pv.configure()
+#           pv.caput(0)

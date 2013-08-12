@@ -39,4 +39,5 @@ class I18SamplePreparer:
 		self.D7B(att2.getSelectedPosition())
 		
 		if sampleParameters.isVfmxActive():
-			self.kb_vfm_x(sampleParameters.getVfmx)
+			print "******", sampleParameters.getVfmx()
+			self.kb_vfm_x(sampleParameters.getVfmx())

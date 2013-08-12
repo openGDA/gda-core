@@ -31,7 +31,8 @@ class QexafsScan(Scan):
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
 #        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
         xmlFolderName = folderName + "/"
-
+        folderName = folderName[folderName.find("xml")+4:]
+        
         if self.cirrusEnabled:
             self.t = None
 

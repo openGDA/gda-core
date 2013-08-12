@@ -370,10 +370,11 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			if(numberOfTriggers == 0)
 				numberOfPointsPerScan = this.scanNumberOfPoints;
 			//??TODO should get the number of points per scan 
-			controller.setPixelsPerRun(numberOfPointsPerScan);
-			int buffPerRow = (numberOfPointsPerScan + 1)/124 + 1;
+			//controller.setPixelsPerRun(numberOfPointsPerScan);
+			controller.setPixelsPerRun(scanNumberOfPoints);
+			int buffPerRow = (scanNumberOfPoints + 1)/124 + 1;
 			if(controller.isBufferedArrayPort())
-				controller.setHdfNumCapture(numberOfPointsPerScan);
+				controller.setHdfNumCapture(scanNumberOfPoints);
 			else
 				controller.setHdfNumCapture(buffPerRow);
 			
