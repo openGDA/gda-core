@@ -36,12 +36,8 @@ public class FluorescenceParameters  implements Serializable{
 	private boolean collectDiffractionImages; 
 	private double mythenEnergy;
 	private double mythenTime;
-	
 	private Double workingEnergy;
 
-	/**
-	 * 
-	 */
 	public FluorescenceParameters() {
 		ionChamberParameters = new ArrayList<IonChamberParameters>();
 	}
@@ -120,8 +116,6 @@ public class FluorescenceParameters  implements Serializable{
 	public void setCollectDiffractionImages(boolean collectDiffractionImages) {
 		this.collectDiffractionImages = collectDiffractionImages;
 	}
-
-	
 	
 	public double getMythenEnergy() {
 		return mythenEnergy;
@@ -185,9 +179,6 @@ public class FluorescenceParameters  implements Serializable{
 		return true;
 	}
 
-	/**
-	 *
-	 */
 	@Override
 	public String toString() {
 		try {
