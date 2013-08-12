@@ -32,14 +32,17 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 	
 	@Override
 	public Object readout() throws DeviceException {
-		return ((Xspress2System) xspress).readoutScalerDataNoCorrection();
+		Xspress2System xspress2system = (Xspress2System) xspress;
+		double[] scalerDataNoCorrection = xspress2system.readoutScalerDataNoCorrection();
+		if (xspress2system.isOnlyDisplayFF())
+			return scalerDataNoCorrection[scalerDataNoCorrection.length-1];
+		return scalerDataNoCorrection;
 	}
 
 	@Override
 	public String[] getExtraNames() {
 		String readoutMode="";
 		String resGrade="";
-		int size = 0;
 		try {
 			readoutMode = ((Xspress2System) xspress).getReadoutMode();
 			resGrade = ((Xspress2System) xspress).getResGrade();
@@ -52,9 +55,8 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 		
 		if(readoutMode.equals("Scalers only")||readoutMode.equals("Scalers and MCA")){
 			//Element0 - Element8, FF
-			size=10;
 			int counter = 0;
-			newNames = new String[size];
+			newNames = new String[names.length];
 			for (int i = 0; i < names.length; i++) {
 				if((names[i].contains("Element")||names[i].contains("FF"))&&!names[i].contains("_")){
 					newNames[counter] = names[i] + "_nocorr";
@@ -66,9 +68,8 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 		else if(readoutMode.equals("Regions Of Interest")){
 			if(resGrade.contains("res-thres")){
 				//Element0 - Element8, FF, FF_bad
-				size=11;
 				int counter = 0;
-				newNames = new String[size];
+				newNames = new String[names.length];
 				for (int i = 0; i < names.length; i++) {
 					if((names[i].contains("Element")||names[i].contains("FF"))&&(!names[i].contains("_")||names[i].contains("FF")||names[i].contains("peak"))){
 						newNames[counter] = names[i] + "_nocorr";
@@ -78,9 +79,8 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 			}
 			else if(resGrade.contains("res-min-div")){
 				//Element0_best8 - Element8_best8, FF
-				size=26;
 				int counter = 0;
-				newNames = new String[size];
+				newNames = new String[names.length];
 				for (int i = 0; i < names.length; i++) {
 					if((names[i].contains("Element")||names[i].contains("FF")||names[i].contains("res"))&&(!names[i].contains("_")||names[i].contains("best8")||names[i].contains("norm"))){
 						newNames[counter] = names[i] + "_nocorr";
@@ -90,9 +90,8 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 			}
 			else if(resGrade.equals("res-none")){
 				//Element0_peak - Element8_peak, FF
-				size=10;
 				int counter = 0;
-				newNames = new String[size];
+				newNames = new String[names.length];
 				for (int i = 0; i < names.length; i++) {
 					if((names[i].contains("Element")||names[i].contains("FF"))&&(!names[i].contains("_")||names[i].contains("peak"))){
 						newNames[counter] = names[i] + "_nocorr";
@@ -102,8 +101,8 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 
 			}
 		}
-		format = new String[size];
-		for (int i = 0; i < size; i++)
+		format = new String[newNames.length];
+		for (int i = 0; i < newNames.length; i++)
 			format[i]="%.6g";
 
 		return newNames;
