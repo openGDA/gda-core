@@ -46,7 +46,7 @@ class XasScan(Scan):
 		# give the beans to the xasdatawriter class to help define the folders/filenames 
 		beanGroup = self._createBeanGroup(experimentFolderName, validation, controller, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean)
 		
-		self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean)
+		self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, controller, sampleBean, scanBean, detectorBean, outputBean)
 	
 	# reset the properties used to control repetition behaviour
 	def setQueuePropertiesStart(self, numRepetitions):
@@ -145,7 +145,6 @@ class XasScan(Scan):
 					else:
 						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder)
 					
-					
 				except InterruptedException, e:
 					self.handleScanInterrupt(numRepetitions, repetitionNumber)
 
@@ -238,7 +237,7 @@ class XasScan(Scan):
 	
 	# run the beamline specific preparers			
 	def runPreparers(self, beanGroup, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean):
-		self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, xmlFolderName)
+		self.detectorPreparer.prepare(scanBean, detectorBean, xmlFolderName)
 		sampleScannables = self.samplePreparer.prepare(sampleBean)
 		outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
 		scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)

@@ -69,5 +69,5 @@ class Scan:
     
     def _runScript(self, scriptName):
         if scriptName != None and scriptName != "":
-            scriptName = scriptName[scriptName.rfind("/") + 1:]
+            scriptName = scriptName[scriptName.rfind("scripts/") + 8:]
             run(scriptName)

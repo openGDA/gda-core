@@ -54,7 +54,7 @@ class QexafsScan(Scan):
         try:
             while True:
                 repetitionNumber+= 1
-                self.detectorPreparer.prepare(detectorBean, outputBean, experimentFullPath)
+                self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
                 self.samplePreparer.prepare(sampleBean)
                 initial_energy = scanBean.getInitialEnergy()
                 final_energy = scanBean.getFinalEnergy()

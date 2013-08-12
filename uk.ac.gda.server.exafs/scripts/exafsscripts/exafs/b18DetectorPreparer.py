@@ -1,21 +1,33 @@
 from gdascripts.messages.handle_messages import simpleLog
 from gda.scan import StaticScan
-from gda.device.detector.xspress import Xspress2DetectorConfiguration
-from gda.device.detector import VortexDetectorConfiguration
             
 class B18DetectorPreparer:
-    def __init__(self, energy_scannable, mythen_scannable, ionc_stanford_scannables, ionc_gas_injector_scannables):
+    def __init__(self, energy_scannable, mythen_scannable, ionc_stanford_scannables, ionc_gas_injector_scannables, fluoresence_detectors_config):
         self.energy_scannable = energy_scannable
         self.mythen_scannable = mythen_scannable
         self.ionc_stanford_scannables = ionc_stanford_scannables
         self.ionc_gas_injector_scannables = ionc_gas_injector_scannables
-
-    def prepare(self, scanBean, detectorParameters, outputParameters, scriptFolder):
+        self.fluoresence_detectors_config=fluoresence_detectors_config
+        
+    def prepare(self, scanBean, detectorParameters, scriptFolder):
         if detectorParameters.getExperimentType() == "Fluorescence":
             fluoresenceParameters = detectorParameters.getFluorescenceParameters()
+            detType = fluoresenceParameters.getDetectorType()
             if fluoresenceParameters.isCollectDiffractionImages():
-                self._control_mythen(fluoresenceParameters) 
-            self.configFluoDetector(detectorParameters, outputParameters, scriptFolder)
+                self._control_mythen(fluoresenceParameters)
+            fluo_xml_file = fluoresenceParameters.getConfigFileName()
+            
+            if detType == "Germanium":
+                self.fluoresence_detectors_config.initialize(detectorParameters, scriptFolder)
+                xmlFileName = scriptFolder + fluoresenceParameters.getConfigFileName()
+                xspressBean = self.fluoresence_detectors_config.createBeanFromXML(xmlFileName)
+                onlyShowFF = xspressBean.isOnlyShowFF()
+                showDTRawValues = xspressBean.isShowDTRawValues()
+                saveRawSpectrum = xspressBean.isSaveRawSpectrum()
+                self.fluoresence_detectors_config.configXspress(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+            elif detType == "Silicon":
+                pass
+           
             self._control_all_ionc(fluoresenceParameters.getIonChamberParameters())
         elif detectorParameters.getExperimentType() == "Transmission":
             transmissionParameters = detectorParameters.getTransmissionParameters()
@@ -62,5 +74,3 @@ class B18DetectorPreparer:
         from gda.jython import JythonServerFacade
         JythonServerFacade.getInstance().setScanStatus(0)
         print "Diffraction scan complete."
-        
- 

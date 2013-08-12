@@ -25,7 +25,7 @@ class I18DetectorPreparer:
                     rois = element.getRegionList()
                     element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd())
                 BeansFactory.saveBean(File(fullFileName), bean)
-            self.configFluoDetector(detectorParameters, outputParameters, scriptFolder)   
+            self.configFluoDetector(detectorParameters, outputParameters, scriptFolder)
             self._control_all_ionc(detectorParameters.getFluorescenceParameters().getIonChamberParameters())
         elif detectorParameters.getExperimentType() == "Transmission":
             self._control_all_ionc(detectorParameters.getTransmissionParameters().getIonChamberParameters())
@@ -64,16 +64,3 @@ class I18DetectorPreparer:
             return 6
         elif gain == "10^10 V/A":
             return 7
-       
-    """
-    Validates the bean which defines the detectors and then configures the vortex or xspress
-    based on the xml file whose name is in the bean.
-    """
-    def configFluoDetector(self, detectorParameters, outputParameters, scriptFolder):
-        detType = detectorParameters.getFluorescenceParameters().getDetectorType()
-        fullFileName = scriptFolder + detectorParameters.getFluorescenceParameters().getConfigFileName()
-        print "configuring", detType, "detector using", fullFileName
-        if detType == "Germanium":
-            Xspress2DetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()
-        else:
-            VortexDetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()

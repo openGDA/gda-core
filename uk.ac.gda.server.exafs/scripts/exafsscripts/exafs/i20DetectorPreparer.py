@@ -1,7 +1,6 @@
 from java.lang import Exception
-
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
-
+from gda.device.detector import VortexDetectorConfiguration
 
 class I20DetectorPreparer:
     """
@@ -29,13 +28,11 @@ class I20DetectorPreparer:
             fullFileName = str(scriptFolder) + str(detectorBean.getFluorescenceParameters().getConfigFileName())
             print "Configuring",detType,"detector using",fullFileName
             if detType == "Germanium":
-               Xspress2DetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
+               Xspress2DetectorConfiguration(self.xspress2system, self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
             else:
-                from gda.device.detector import VortexDetectorConfiguration
                 VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
         elif detectorBean.getExperimentType() == "XES" :
             fullFileName = str(scriptFolder) + str(detectorBean.getXesParameters().getConfigFileName())
-            from gda.device.detector import VortexDetectorConfiguration
             VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
             
         ionChamberParamsArray = None
