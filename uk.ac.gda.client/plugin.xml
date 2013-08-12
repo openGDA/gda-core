@@ -921,7 +921,7 @@
          point="org.eclipse.ui.editorActions">
       <editorContribution
             id="uk.ac.gda.client.actions.QueuePyDevEditorActionDelegate.contributions"
-            targetID="uk.ac.gda.pydev.extension.editor.PythonEditor">
+            targetID="org.python.pydev.editor.PythonEditor">
          <action
                class="uk.ac.gda.client.actions.QueuePyDevEditorActionDelegate"
                icon="icons/table_multiple.png"
