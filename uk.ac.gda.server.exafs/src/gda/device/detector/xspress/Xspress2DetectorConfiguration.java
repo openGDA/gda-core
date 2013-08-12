@@ -19,73 +19,62 @@
 
 package gda.device.detector.xspress;
 
-import gda.device.detector.DetectorConfiguration;
 import gda.factory.FactoryException;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.observable.ObservableComponent;
+
 import java.io.File;
-import java.net.URL;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.gda.beans.xspress.XspressParameters;
 
-public class Xspress2DetectorConfiguration extends DetectorConfiguration {
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
+
+public class Xspress2DetectorConfiguration{
 
 	private Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
 	private Xspress2System xspress2System;
-	private XspressParameters xspressParameters;
 	private ObservableComponent observer;
-	private boolean onlyShowFF;
-	private boolean showDTRawValues;
-	private boolean saveRawSpectrum;
 	
-	public Xspress2DetectorConfiguration(Xspress2System xspress2System, final ObservableComponent observer, final String path, final Object beanName,
-			boolean onlyShowFF, boolean showDTRawValues, boolean saveRawSpectrum) throws Exception {
+	public Xspress2DetectorConfiguration(Xspress2System xspress2System, final ObservableComponent observer) {
 		this.observer = observer;
-		this.xspressParameters = (XspressParameters) getBean(path, beanName);
-		this.onlyShowFF = onlyShowFF;
-		this.showDTRawValues = showDTRawValues;
-		this.saveRawSpectrum = saveRawSpectrum;
 		this.xspress2System = xspress2System;
 	}
 	
-	@Override
-	public void configure() throws FactoryException {
+	public XspressParameters createBeanFromXML(String xmlPath){
+		try {
+			return (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, new File(xmlPath));
+		} catch (Exception e) {
+			logger.error("Could not create XspressParameters bean from file "+xmlPath, e);
+		}
+		return null;
+	}
+	
+	public void createXMLfromBean(XspressParameters xspressBean){
+		
+		File file = new File(xspress2System.getConfigFileName());
+		try {
+			XMLHelpers.writeToXML(XspressParameters.mappingURL, xspressBean, file);
+			logger.info("Wrote new Xspress Parameters to: " + xspress2System.getConfigFileName());
+		} catch (Exception e) {
+			logger.error("Could not save XspressParameters bean to "+file, e);
+		}
+	}
+	
+	public void configure(String xmlFileName, boolean onlyShowFF, boolean showDTRawValues, boolean saveRawSpectrum) throws FactoryException {
 		String message = null;
 		try {
-			// save bean
-			File templateFile = new File(xspress2System.getConfigFileName());
-			saveBeanToTemplate(xspressParameters,templateFile);
-			logger.info("Wrote new Xspress Parameters to: " + xspress2System.getConfigFileName());
-
-			// tell detector to configure
+			xspress2System.setConfigFileName(xmlFileName);
 			xspress2System.configure();
-			
-			// set the ascii output options
 			xspress2System.setOnlyDisplayFF(onlyShowFF);
 			xspress2System.setAddDTScalerValuesToAscii(showDTRawValues);
 			xspress2System.setSaveRawSpectrum(saveRawSpectrum);
-
 			message = " The Xspress detector configuration updated.";
 			observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {
 			logger.error("Cannot configure Xspress", ne);
 			throw new FactoryException("Error during configuration:" + ne.getMessage());
 		}
-	}
-
-	@Override
-	protected Class<? extends Object> getBeanClass() {
-		return XspressParameters.class;
-	}
-
-	@Override
-	protected URL getMappingURL() {
-		return XspressParameters.mappingURL;
-	}
-
-	@Override
-	protected URL getSchemaURL() {
-		return XspressParameters.schemaURL;
 	}
 }
