@@ -21,11 +21,11 @@
 			collection="collection" set-method="addDetectorElement" get-method="getDetectorList">
 			<bind-xml name="DetectorElement" node="element"/>
 		</field>
-		<field name="xspressOnlyShowFF" type="boolean">
-			<bind-xml name="xspressOnlyShowFF" node="element" />
+		<field name="onlyShowFF" type="boolean">
+			<bind-xml name="onlyShowFF" node="element" />
 		</field>
-		<field name="xspressShowDTRawValues" type="boolean">
-			<bind-xml name="xspressShowDTRawValues" node="element" />
+		<field name="showDTRawValues" type="boolean">
+			<bind-xml name="showDTRawValues" node="element" />
 		</field>
 		<field name="saveRawSpectrum" type="boolean">
 			<bind-xml name="saveRawSpectrum" node="element" />

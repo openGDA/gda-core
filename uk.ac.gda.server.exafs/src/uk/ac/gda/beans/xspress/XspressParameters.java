@@ -49,8 +49,8 @@ public class XspressParameters implements Serializable,IRichBean {
 
 	static public final URL schemaURL  = XspressParameters.class.getResource("XspressMapping.xsd");
 	
-	private boolean xspressOnlyShowFF = false;
-	private boolean xspressShowDTRawValues = false;
+	private boolean onlyShowFF = false;
+	private boolean showDTRawValues = false;
 	private boolean saveRawSpectrum = false;
 
 	private int selectedRegionNumber =0;
@@ -92,8 +92,8 @@ public class XspressParameters implements Serializable,IRichBean {
 		result = prime * result + ((resGrade == null) ? 0 : resGrade.hashCode());
 		result = prime * result + ((regionType == null) ? 0 : regionType.hashCode());
 		result = prime * result + (editIndividualElements ? 1231 : 1237);
-		result = prime * result + (xspressOnlyShowFF ? 1231 : 1237);
-		result = prime * result + (xspressShowDTRawValues ? 1231 : 1237);
+		result = prime * result + (onlyShowFF ? 1231 : 1237);
+		result = prime * result + (showDTRawValues ? 1231 : 1237);
 		return result;
 	}
 
@@ -133,9 +133,9 @@ public class XspressParameters implements Serializable,IRichBean {
 				return false;
 		} else if (!regionType.equals(other.regionType))
 			return false;
-		if (xspressOnlyShowFF != other.xspressOnlyShowFF)
+		if (onlyShowFF != other.onlyShowFF)
 			return false;
-		if (xspressShowDTRawValues != other.xspressShowDTRawValues)
+		if (showDTRawValues != other.showDTRawValues)
 			return false;
 		return true;
 	}
@@ -189,20 +189,20 @@ public class XspressParameters implements Serializable,IRichBean {
 		return editIndividualElements;
 	}
 
-	public void setXspressOnlyShowFF(boolean xspressOnlyShowFF) {
-		this.xspressOnlyShowFF = xspressOnlyShowFF;
+	public void setOnlyShowFF(boolean onlyShowFF) {
+		this.onlyShowFF = onlyShowFF;
 	}
 
-	public boolean isXspressOnlyShowFF() {
-		return xspressOnlyShowFF;
+	public boolean isOnlyShowFF() {
+		return onlyShowFF;
 	}
 	
-	public void setXspressShowDTRawValues(boolean xspressShowDTRawValues) {
-		this.xspressShowDTRawValues = xspressShowDTRawValues;
+	public void setShowDTRawValues(boolean xspressShowDTRawValues) {
+		this.showDTRawValues = xspressShowDTRawValues;
 	}
 
-	public boolean isXspressShowDTRawValues() {
-		return xspressShowDTRawValues;
+	public boolean isShowDTRawValues() {
+		return showDTRawValues;
 	}
 
 	public void setSaveRawSpectrum(boolean saveRawSpectrum) {
@@ -234,5 +234,5 @@ public class XspressParameters implements Serializable,IRichBean {
 
 	public void setSelectedRegionNumber(int selectedRegionNumber) {
 		this.selectedRegionNumber = selectedRegionNumber;
-	}	
+	}
 }

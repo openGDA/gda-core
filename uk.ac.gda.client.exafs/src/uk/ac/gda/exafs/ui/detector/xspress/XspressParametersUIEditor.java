@@ -154,8 +154,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	Label acquireFileLabel;
 
-	private BooleanWrapper xspressOnlyShowFF;
-	private BooleanWrapper xspressShowDTRawValues;
+	private BooleanWrapper onlyShowFF;
+	private BooleanWrapper showDTRawValues;
 	private BooleanWrapper saveRawSpectrum;
 
 	private SelectionAdapter xspressOptionsListener;
@@ -468,18 +468,18 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			GridLayout gridLayout = new GridLayout();
 			gridLayout.numColumns = 1;
 			xspressParametersGroup.setLayout(gridLayout);
-			this.xspressOnlyShowFF = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
-			xspressOnlyShowFF.setText("Hide individual elements");
-			xspressOnlyShowFF
+			this.onlyShowFF = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
+			onlyShowFF.setText("Hide individual elements");
+			onlyShowFF
 					.setToolTipText("In ascii output, only display the total in-window counts (FF) from the Xspress detector");
-			xspressOnlyShowFF.setValue(Boolean.FALSE);
-			addXspressOptionsListener(xspressOnlyShowFF);
-			this.xspressShowDTRawValues = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
-			xspressShowDTRawValues.setText("Show DT values");
-			xspressShowDTRawValues
+			onlyShowFF.setValue(Boolean.FALSE);
+			addXspressOptionsListener(onlyShowFF);
+			this.showDTRawValues = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
+			showDTRawValues.setText("Show DT values");
+			showDTRawValues
 					.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
-			xspressShowDTRawValues.setValue(Boolean.FALSE);
-			addXspressOptionsListener(xspressShowDTRawValues);
+			showDTRawValues.setValue(Boolean.FALSE);
+			addXspressOptionsListener(showDTRawValues);
 
 			this.saveRawSpectrum = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
 			saveRawSpectrum.setText("Save raw spectrum to file");
@@ -1012,12 +1012,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	public void acquireFinished() {
 	}
 
-	public BooleanWrapper getXspressOnlyShowFF() {
-		return xspressOnlyShowFF;
+	public BooleanWrapper getOnlyShowFF() {
+		return onlyShowFF;
 	}
 
-	public BooleanWrapper getXspressShowDTRawValues() {
-		return xspressShowDTRawValues;
+	public BooleanWrapper getShowDTRawValues() {
+		return showDTRawValues;
 	}
 
 	public BooleanWrapper getSaveRawSpectrum() {

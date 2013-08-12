@@ -29,9 +29,9 @@
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="DetectorElement" maxOccurs="unbounded"
 					minOccurs="1" />
-				<xsd:element name="xspressOnlyShowFF" type="xsd:boolean"
+				<xsd:element name="onlyShowFF" type="xsd:boolean"
 					maxOccurs="1" minOccurs="0" />
-				<xsd:element name="xspressShowDTRawValues" type="xsd:boolean"
+				<xsd:element name="showDTRawValues" type="xsd:boolean"
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="saveRawSpectrum" type="xsd:boolean"
 					maxOccurs="1" minOccurs="0" />
