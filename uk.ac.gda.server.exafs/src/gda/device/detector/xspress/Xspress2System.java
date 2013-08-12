@@ -111,12 +111,12 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	// does not change with the value in the parameters file, no rois are set
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 
-	private Boolean onlyDisplayFF = false;
+	private boolean onlyDisplayFF = false;
 
 	public static final String ONLY_DISPLAY_FF_ATTR = "ff_only";
 
-	private Boolean addDTScalerValuesToAscii = false;
-	private Boolean saveRawSpectrum = false;
+	private boolean addDTScalerValuesToAscii = false;
+	private boolean saveRawSpectrum = false;
 
 	public static final String ADD_DT_VALUES_ATTR = "add_dt_values";
 
@@ -433,7 +433,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 				|| !(xspressParameters.getReadoutMode().equals(XspressDetector.READOUT_ROIS) && mcaGrades == ALL_RES)) {
 			return super.getOutputFormat();
 		}
-
 		return getAllResGradesInAsciiOutputFormat();
 	}
 
@@ -1585,7 +1584,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 						ArrayUtils.subarray(scalerData[frame], 0, numberOfDetectors - 1), "counts", 1);
 				thisFrame = addExtraInformationToNexusTree(unpackedScalerData, scalerData, frame, thisFrame, detTree);
 				results[frame] = thisFrame;
-
 			}
 			return results;
 		}
@@ -1932,7 +1930,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		int ffColumn = allElementNames.indexOf("FF");
 		if (onlyDisplayFF) {
 			// only add FF, so filter out rest of scalerdata
-			dataToPlot = new double[] { scalerData[ffColumn] };
+			dataToPlot = new double[] {scalerData[ffColumn]};
 		} else if (mcaGrades == ALL_RES){
 			dataToPlot = scalerData;
 		} else {
