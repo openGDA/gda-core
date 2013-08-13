@@ -76,6 +76,7 @@ public class ExafsEditorPreferencePage extends FieldEditorPreferencePage impleme
 		createBoolean(ExafsPreferenceConstants.C_ELEMENT_LINK, "&C value (via Gaf3).", xas);
 		createBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK, "&C value mirrors B about the edge value.", xas);
 		createBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE, "&Edit edges by dragging lines on graph", xas);
+		createBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED, "&Edit detector ROIs by dragging lines on graph", xas);
 		createDisabledBoolean(ExafsPreferenceConstants.EXAFS_FINAL_ANGSTROM, "&Final Energy in Angstrom", xas);
 	}
 
