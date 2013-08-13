@@ -1040,6 +1040,7 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 	private void updateStatus() {
 		JythonServerStatus newStatus = new JythonServerStatus(scriptStatus, scanStatus);
 		updateIObservers(newStatus);
+		logger.info(newStatus.toString());
 		jythonServerStatusObservers.notifyIObservers(null, newStatus);
 	}
 
