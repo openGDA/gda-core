@@ -329,7 +329,8 @@ class I20XesScan(XasScan):
     def __call__ (self,sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
 
         # Create the beans from the file names
-        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+#        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+        xmlFolderName = folderName + "/"
         sampleBean = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
         xesScanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
         detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
@@ -420,7 +421,8 @@ class I20XesScan(XasScan):
     def _doScan(self,beanGroup,folderName,numRepetitions, validation,scan_unique_id):
 
         loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
-        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+        #xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+        xmlFolderName = folderName + "/"
 
         # now that the scan has been defined, run it in a loop
         
@@ -470,15 +472,19 @@ class I20XesScan(XasScan):
 #            self.jython_mapper.twodplotter.setZ_colName(self.finder_mapper.xmapMca.getExtraNames()[0])
             self.jython_mapper.twodplotter.setX_colName("XESEnergy")
             self.jython_mapper.twodplotter.setY_colName("bragg1")
-            self.jython_mapper.twodplotter.setZ_colName("FFI0")
+            self.jython_mapper.twodplotter.setZ_colName("FFI1")
             # note that users will have to open a 'plot 1' view or use the XESPlot perspective for this to work
 
             ef_args = [xes_energy, beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize()]
             e0_args = [mono_energy, beanGroup.getScan().getMonoInitialEnergy(), beanGroup.getScan().getMonoFinalEnergy(), beanGroup.getScan().getMonoStepSize()]
             
             if beanGroup.getScan().getLoopChoice() == XesScanParameters.LOOPOPTIONS[0]:
+                self.jython_mapper.twodplotter.setYArgs(beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize())
+                self.jython_mapper.twodplotter.setXArgs(beanGroup.getScan().getMonoInitialEnergy(), beanGroup.getScan().getMonoFinalEnergy(), beanGroup.getScan().getMonoStepSize())
                 args += ef_args + e0_args
             else:
+                self.jython_mapper.twodplotter.setXArgs(beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize())
+                self.jython_mapper.twodplotter.setYArgs(beanGroup.getScan().getMonoInitialEnergy(), beanGroup.getScan().getMonoFinalEnergy(), beanGroup.getScan().getMonoStepSize())
                 args += e0_args + ef_args
             args += [self.jython_mapper.twodplotter]
             
@@ -581,7 +587,9 @@ class I20XesScan(XasScan):
                 outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
                 #print "Starting "+scriptType+" scan...", str(repetitionNumber)
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
-                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
+                timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
+                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
+#                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
