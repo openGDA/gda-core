@@ -51,6 +51,9 @@ import org.python.core.PyString;
  */
 public abstract class ScannableUtils {
 
+	// add a small amount to values to ensure that the final point in the scan is included
+	private static final Double fudgeFactor = 1e-10;
+
 	/**
 	 * Exception thrown when a call to ScannableBase.validate() fails.
 	 */
@@ -492,9 +495,6 @@ public abstract class ScannableUtils {
 	 */
 	public static int getNumberSteps(Scannable theScannable, Object start, Object stop, Object step) throws Exception {
 
-		// add a small amount to values to ensure that the final point in the scan is included
-		double fudgeFactor = 1e-10;
-
 		// the expected size of the start, stop and step objects
 		int numArgs = theScannable.getInputNames().length;
 
@@ -506,18 +506,13 @@ public abstract class ScannableUtils {
 
 		// if position objects are a single value, or if no inputNames
 		if (numArgs <= 1) {
-
-			int maxSteps = 0;
-			double startValue = Double.valueOf(start.toString()).doubleValue();
-			double stopValue = Double.valueOf(stop.toString()).doubleValue();
-			double stepValue = Math.abs(Double.valueOf(step.toString()).doubleValue());
-			if (stepValue == 0) {
+			Double startValue = Double.valueOf(start.toString());
+			Double stopValue = Double.valueOf(stop.toString());
+			Double stepValue = Math.abs(Double.valueOf(step.toString()));
+			int numSteps = getNumberSteps(startValue, stopValue, stepValue);
+			if (numSteps == 0)
 				throw new Exception("step size is zero so number of points cannot be calculated");
-			}
-			double fudgeValue = stepValue * fudgeFactor;
-			double difference = Math.abs(stopValue - startValue);
-			maxSteps = (int) Math.abs((difference + Math.abs(fudgeValue)) / stepValue);
-			return maxSteps;
+			return numSteps;
 		}
 
 		// ELSE position objects are an array
@@ -568,6 +563,18 @@ public abstract class ScannableUtils {
 
 		return minSteps;
 
+	}
+
+	public static int getNumberSteps(Double startValue, Double stopValue, Double stepValue) {
+		int maxSteps = 0;
+
+		if (stepValue == 0) {
+			return 0;
+		}
+		double fudgeValue = stepValue * fudgeFactor;
+		double difference = Math.abs(stopValue - startValue);
+		maxSteps = (int) Math.abs((difference + Math.abs(fudgeValue)) / stepValue);
+		return maxSteps;
 	}
 
 	/**
@@ -760,7 +767,7 @@ public abstract class ScannableUtils {
 
 		return output;
 	}
-	
+
 	/**
 	 * @param scannables
 	 * @return list of Names from the provided list of scannables/detectors
@@ -771,9 +778,8 @@ public abstract class ScannableUtils {
 			names.add(s.getName());
 		}
 		return names;
-		
-	}
 
+	}
 
 	/**
 	 * @param scannables
@@ -916,23 +922,26 @@ public abstract class ScannableUtils {
 	 * @return String[]
 	 */
 	public static String[] getExtraNamesFormats(Scannable scannable) {
-		
+
 		final int numInputNames = (scannable.getInputNames() != null) ? scannable.getInputNames().length : 0;
 		final int numExtraNames = (scannable.getExtraNames() != null) ? scannable.getExtraNames().length : 0;
 		final int numInputAndExtraNames = numInputNames + numExtraNames;
-		
-		String[] outputFormat = new String[]{};
-		if( numInputAndExtraNames > 0){
+
+		String[] outputFormat = new String[] {};
+		if (numInputAndExtraNames > 0) {
 			// outputFormat should contain one format for each input name and each extra name
 			outputFormat = scannable.getOutputFormat();
-			if( numInputNames > 0 ){
-				if (outputFormat.length < numInputAndExtraNames) 
-					throw new IllegalStateException(String.format("Scannable %s has %d input name(s) and %d extra name(s); it should have %d (%d+%d) output format(s), but has %d",
-						scannable.getName(), numInputNames, numExtraNames, numInputAndExtraNames, numInputNames, numExtraNames, outputFormat.length));
+			if (numInputNames > 0) {
+				if (outputFormat.length < numInputAndExtraNames)
+					throw new IllegalStateException(
+							String.format(
+									"Scannable %s has %d input name(s) and %d extra name(s); it should have %d (%d+%d) output format(s), but has %d",
+									scannable.getName(), numInputNames, numExtraNames, numInputAndExtraNames,
+									numInputNames, numExtraNames, outputFormat.length));
 				// Remove the leading output formats that correspond to the input names,
 				// leaving just those corresponding to the extra names
 				outputFormat = Arrays.copyOfRange(outputFormat, numInputNames, outputFormat.length);
-					
+
 			}
 		}
 		return outputFormat;
