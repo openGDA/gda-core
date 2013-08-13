@@ -81,6 +81,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		timeOfLastReport=0;
 		atEndCalled = false;
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 		timeStarted = System.currentTimeMillis();
@@ -131,20 +132,25 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		return false;
 	}
 
+	long timeOfLastReport=0;
 	@Override
 	public void update(Object source, Object arg) {
 		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint && !atEndCalled) {
 			ScanDataPoint sdp = (ScanDataPoint) arg;
 			if (uniqueName == null || uniqueName == sdp.getUniqueName()) {
 				uniqueName = sdp.getUniqueName();
-				int percentComplete = determinePercentComplete(sdp);
-				lastPercentComplete = percentComplete + "%";
-				System.out.println(percentComplete + "%");
+				long now = System.currentTimeMillis();
+				if( now - timeOfLastReport > 5000){
+					timeOfLastReport = now;
+					int percentComplete = determinePercentComplete(sdp);
+					lastPercentComplete = percentComplete + "%";
 
-				XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "In Progress", thisScanrepetition,
-						getTotalRepetitions(), sampleEnvironmentRepetition, sampleEnvironmentRepetitions, percentComplete + "%", getElapsedTime(),
-						getElapsedTotalTime(), predictedTotalTime, outputFolder);
-				controller.update(this, msg);
+					String elapsedTime = getElapsedTime();
+					XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "In Progress", thisScanrepetition,
+							getTotalRepetitions(), sampleEnvironmentRepetition, sampleEnvironmentRepetitions, percentComplete + "%", elapsedTime,
+							getElapsedTotalTime(), predictedTotalTime, outputFolder);
+					controller.update(this, msg);
+				}
 			} else {
 				InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 			}
