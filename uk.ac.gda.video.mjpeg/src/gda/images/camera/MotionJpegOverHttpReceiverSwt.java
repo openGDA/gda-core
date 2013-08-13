@@ -51,7 +51,7 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 
 	public MotionJpegOverHttpReceiverSwt() {
 		super();
-		//we are ony interested in decoding and processing the lastest image 
+		//we are only interested in decoding and processing the lastest image 
 		setImageQueue(new LatestImageDataBlockingQueue());
 		setExecutiveServiceFactory( new LatestDecoderserviceFactory());
 	}

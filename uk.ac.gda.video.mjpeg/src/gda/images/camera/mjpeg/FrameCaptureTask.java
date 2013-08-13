@@ -165,69 +165,73 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 				frameCaptureStatistics.startProcessingFrame();
 			}
 			
-			bufferedImage = readJPG(dis);
+			BufferedImage readJPG = readJPG(dis);
 			readLine(1, dis);
-			
-			if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
-				frameCaptureStatistics.finishProcessingFrame();
-			}
-
-			Callable<E> imageDecoderTask = new Callable<E>() {
-				@Override
-				public E call() throws Exception {
-					
-					if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
-						frameDecodeStatistics.startProcessingFrame();
-					}
-					
-					final E decodedImage = convertImage(bufferedImage);
-					
-					if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
-						frameDecodeStatistics.finishProcessingFrame();
-					}
-
-					//once the frame has been decoded add it to the receivedImages queue
-					//Do it here rather than adding the result of imageDecodingService.submit(imageDecoderTask);
-					//to allow the decode task to be cancelled without the need to clear the associated future on the 
-					//receivedImages queue.
-					receivedImages.offer(new Future<E>(){
-
-						@Override
-						public boolean cancel(boolean mayInterruptIfRunning) {
-							return false;
-						}
-
-						@Override
-						public boolean isCancelled() {
-							return false;
-						}
-
-						@Override
-						public boolean isDone() {
-							return true;
-						}
-
-						@Override
-						public E get() throws InterruptedException, ExecutionException {
-							return decodedImage;
-						}
-
-						@Override
-						public E get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
-								TimeoutException {
-							return decodedImage;
-						}});
-					
-					return decodedImage;
+			if( readJPG != null){
+				//only update the member variable if not null
+				bufferedImage = readJPG;
+				if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
+					frameCaptureStatistics.finishProcessingFrame();
 				}
-			};
 
-			// We might be in the middle of capturing a frame from the stream when the image decoding service
-			// is shut down
-			if (!imageDecodingService.isShutdown()) {
-				imageDecodingService.submit(imageDecoderTask);
+				Callable<E> imageDecoderTask = new Callable<E>() {
+					@Override
+					public E call() throws Exception {
+						
+						if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
+							frameDecodeStatistics.startProcessingFrame();
+						}
+						
+						final E decodedImage = convertImage(bufferedImage);
+						
+						if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
+							frameDecodeStatistics.finishProcessingFrame();
+						}
 
+						//once the frame has been decoded add it to the receivedImages queue
+						//Do it here rather than adding the result of imageDecodingService.submit(imageDecoderTask);
+						//to allow the decode task to be cancelled without the need to clear the associated future on the 
+						//receivedImages queue.
+						receivedImages.offer(new Future<E>(){
+
+							@Override
+							public boolean cancel(boolean mayInterruptIfRunning) {
+								return false;
+							}
+
+							@Override
+							public boolean isCancelled() {
+								return false;
+							}
+
+							@Override
+							public boolean isDone() {
+								return true;
+							}
+
+							@Override
+							public E get() throws InterruptedException, ExecutionException {
+								return decodedImage;
+							}
+
+							@Override
+							public E get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
+									TimeoutException {
+								return decodedImage;
+							}});
+						
+						return decodedImage;
+					}
+				};
+
+				// We might be in the middle of capturing a frame from the stream when the image decoding service
+				// is shut down
+				if (!imageDecodingService.isShutdown()) {
+					imageDecodingService.submit(imageDecoderTask);
+
+				}
 			}
+			
 		}
 
 		logger.debug("Frame capture stopping");
