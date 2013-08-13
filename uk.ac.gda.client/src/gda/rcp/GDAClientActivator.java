@@ -76,8 +76,8 @@ public class GDAClientActivator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
-		// this has already been done!
-//		UIScanDataPointEventService.getInstance().dispose();
+
+		UIScanDataPointEventService.getInstance().dispose();
 	}
 
 	/**

@@ -18,8 +18,6 @@
 
 package gda.scan;
 
-import java.util.Vector;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
 
@@ -91,14 +89,4 @@ public class ExplicitScanObject extends ScanObject {
 	boolean hasStop() {
 		return getNumberPoints() > 1;
 	}
-	
-	
-	public Vector<Object> getPoints() {
-		Vector<Object> pointsAsVector = new Vector<Object>();
-		for (int point = 0; point < points.size(); point++){
-			pointsAsVector.add(points.get(point));
-		}
-		return pointsAsVector;
-	}
-
 }

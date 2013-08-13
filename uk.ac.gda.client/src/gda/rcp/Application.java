@@ -119,12 +119,12 @@ public class Application implements IApplication {
 			// To break the dependency of uk.ac.gda.common.BeansFactory of RCP/Eclipse, we 
 			// manually force initialisation here. In the object server this is handled
 			// by Spring, in Eclipse we use the registry
-//			try {
-//				BeansFactoryInit.initBeansFactory();
-//			} catch (Exception e) {
-//				logger.error("Failed to initalize Beans Factory", e);
-//				throw new RuntimeException("Failed to initalize Beans Factory", e);
-//			}
+			try {
+				BeansFactoryInit.initBeansFactory();
+			} catch (Exception e) {
+				logger.error("Failed to initalize Beans Factory", e);
+				throw new RuntimeException("Failed to initalize Beans Factory", e);
+			}
 			
 			IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 			if (preferenceStore.getBoolean(PreferenceConstants.GDA_USE_SCANDATAPOINT_SERVICE)) {
