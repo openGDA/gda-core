@@ -420,7 +420,7 @@ public class ExperimentFactory {
 				if (element.getName().equals("templatesLocation")) {
 					String valueInRegistry = element.getAttribute("folderName");
 					// use the LocalProperties variable parsing to pick up variables such as ${gda.var} etc.
-					String passedValue = LocalProperties.get("lsdjfhlasdkfhsdlakjfhlasdkfhlsdafhl", valueInRegistry);
+					String passedValue = LocalProperties.get("gda.client.experimentdefinition.project.name", valueInRegistry);
 					templatesFolder = passedValue;
 					if (!templatesFolder.endsWith(File.separator)) {
 						templatesFolder += File.separator;
