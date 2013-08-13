@@ -20,115 +20,62 @@
 package gda.device.detector;
 
 import gda.device.detector.xmap.Xmap;
+import gda.device.detector.xspress.Xspress2DetectorConfiguration;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.observable.ObservableComponent;
 
 import java.io.File;
-import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.exafs.OutputParameters;
-import uk.ac.gda.beans.exafs.i20.I20OutputParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-
-/**
- * Called by Jython script vortexConfig
- */
-public class VortexDetectorConfiguration extends DetectorConfiguration {
+public class VortexDetectorConfiguration{
 	
-	private static final Logger logger = LoggerFactory.getLogger(VortexDetectorConfiguration.class);
-	
-	private VortexParameters    vortexParameters;
-	private ObservableComponent controller;
+	private Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
+	private Xmap xmap;
+	private ObservableComponent observer;
 
-	private String additionalSavePath;
-
-	private OutputParameters output;
-
-	public VortexDetectorConfiguration(final Object controller, 
-			                           final String path,
-			                           final Object vortexName) throws Exception{
-		this.controller       = (ObservableComponent)controller;
-		this.vortexParameters = (VortexParameters)getBean(path,vortexName);
-	}
-
-	public VortexDetectorConfiguration(final Object controller, 
-			                           final String path,
-			                           final Object vortexName, final OutputParameters output) throws Exception{
-		this.output = output;
-		this.controller       = (ObservableComponent)controller;
-		this.vortexParameters = (VortexParameters)getBean(path,vortexName);
+	public VortexDetectorConfiguration(Xmap xmap, final ObservableComponent observer){
+		this.xmap = xmap;
+		this.observer = observer;
 	}
 	
-	public VortexDetectorConfiguration(final Object controller, 
-			                           final String path,
- final Object vortexName,
-			final OutputParameters output, final String additionalSavePath) throws Exception{
-		this.output = output;
-		this.controller       = (ObservableComponent)controller;
-		this.vortexParameters = (VortexParameters)getBean(path,vortexName);
-		this.additionalSavePath = additionalSavePath;
-	}
-	
-	@Override
-	public void configure() throws FactoryException {
-		doSetup();
-	}
-	
-
-	private String doSetup() throws FactoryException {
-		
+	public VortexParameters createBeanFromXML(String xmlPath){
 		try {
-			// Warning concrete class used here. This code must be called on the server.
-			final Xmap xmapDetector = (Xmap)Finder.getInstance().find(vortexParameters.getDetectorName());
-			
-			// occasionally the xmap may not have been stopped, which prevents it being reconfigured.
-			// If we are here in the code then we need it stopped to be reconfigured.
-			xmapDetector.stop();
-
-			// 1. Save parameters file.
-			File templateFile = new File(xmapDetector.getConfigFileName());
-			saveBeanToTemplate(vortexParameters, templateFile);
-			logger.info("Wrote new Vortex Parameters to: "+xmapDetector.getConfigFileName());
-			
-			// 2. Set windows.
-			xmapDetector.loadConfigurationFromFile();
-			if (output != null && output instanceof I20OutputParameters) {
-				I20OutputParameters op = (I20OutputParameters) output;
-				xmapDetector.setSaveRawSpectrum(op.isVortexSaveRawSpectrum());
-			} else if (vortexParameters != null){
-				xmapDetector.setSaveRawSpectrum(vortexParameters.isSaveRawSpectrum());
-			}
-			if(additionalSavePath != null)
-				saveBeanToTemplate(vortexParameters, new File(templateFile.getParent() + File.separator +additionalSavePath));
+			return (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, new File(xmlPath));
+		} catch (Exception e) {
+			logger.error("Could not create XspressParameters bean from file "+xmlPath, e);
+		}
+		return null;
+	}
+	
+	public void createXMLfromBean(VortexParameters vortexBean){
+		
+		File file = new File(xmap.getConfigFileName());
+		try {
+			XMLHelpers.writeToXML(XspressParameters.mappingURL, vortexBean, file);
+			logger.info("Wrote new Xspress Parameters to: " + xmap.getConfigFileName());
+		} catch (Exception e) {
+			logger.error("Could not save XspressParameters bean to "+file, e);
+		}
+	}
+	
+	public void configure(boolean isVortexSaveRawSpectrum) throws FactoryException {
+		try {	
+			xmap.stop();
+			logger.info("Wrote new Vortex Parameters to: "+xmap.getConfigFileName());
+			xmap.loadConfigurationFromFile();
+			xmap.setSaveRawSpectrum(isVortexSaveRawSpectrum);
 		} catch (Exception ne) {
 			logger.error("Cannot configure Vortex", ne);
 			throw new FactoryException("Error during configuration:" + ne.getMessage());
 		}
 		String message = " The vortex detector configuration updated.";
-		controller.notifyIObservers("Message", new ScriptProgressEvent(message));
-		return message;
+		observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 	}
-	
-	@Override
-	protected Class<? extends Object> getBeanClass() {
-		return VortexParameters.class;
-	}
-
-	@Override
-	protected URL getMappingURL() {
-		return VortexParameters.mappingURL;
-	}
-
-	@Override
-	protected URL getSchemaURL() {
-		return VortexParameters.schemaURL;
-	}
-
-
 }

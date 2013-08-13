@@ -9,24 +9,32 @@ from gdascripts.configuration.properties.scriptContext import defaultScriptFolde
 
 class FluoresenceDetectorsConfig():
     
-    def __init__(self, xspress2system, vortex, ExafsScriptObserver):
+    def __init__(self, xspress2system, xmap, ExafsScriptObserver):
         self.xspress2system=xspress2system
-        self.vortex=vortex
+        self.xmap=xmap
         self.ExafsScriptObserver=ExafsScriptObserver
         self.xspress2DetectorConfiguration=None
+        self.vortexDetectorConfiguration=None
     
     def initialize(self, detectorParameters, scriptFolder):
         self.xspress2DetectorConfiguration = Xspress2DetectorConfiguration(self.xspress2system, self.ExafsScriptObserver)
-    
-    def createBeanFromXML(self, xmlPath):
+        self.vortexDetectorConfiguration = VortexDetectorConfiguration(self.xmap, self.ExafsScriptObserver)
+        
+    def createXspressBeanFromXML(self, xmlPath):
         return self.xspress2DetectorConfiguration.createBeanFromXML(xmlPath)
         
-    def createXMLfromBean(self, xspressBean):
+    def createXspressXMLfromBean(self, xspressBean):
         self.xspress2DetectorConfiguration.createXMLfromBean(xspressBean)
     
     def configXspress(self, xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum):
         self.xspress2DetectorConfiguration.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+
+    def createVortexBeanFromXML(self, xmlPath):
+        return self.vortexDetectorConfiguration.createBeanFromXML(xmlPath)
         
+    def createVortexXMLfromBean(self, vortexBean):
+        self.vortexDetectorConfiguration.createXMLfromBean(vortexBean)
+
     def configVortex(self, detectorParameters, scriptFolder):
         fullFileName = scriptFolder + detectorParameters.getFluorescenceParameters().getConfigFileName()
-        VortexDetectorConfiguration(self.vortex, self.ExafsScriptObserver, fullFileName).configure()
+        self.vortexDetectorConfiguration.configure()
