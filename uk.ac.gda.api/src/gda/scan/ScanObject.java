@@ -79,4 +79,7 @@ public abstract class ScanObject {
 	 * @throws DeviceException
 	 */
 	abstract String arePointsValid() throws DeviceException;
+	
+//	public abstract Vector<Object> getPoints();
+
 }

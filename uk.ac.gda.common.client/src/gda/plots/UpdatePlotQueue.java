@@ -74,7 +74,7 @@ public class UpdatePlotQueue implements Runnable {
 					}
 				}
 				if (itemsToBeHandled != null && !killed) {
-					Thread.sleep(50);
+					Thread.sleep(250); //15/7/13 EPG changed to 250 - on master and 8.32 this is a member variable
 					int numItems = itemsToBeHandled.length;
 					for (int index = 0; index < numItems; index++) {
 						try {

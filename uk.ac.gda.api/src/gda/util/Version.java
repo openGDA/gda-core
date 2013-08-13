@@ -30,7 +30,8 @@ import org.slf4j.LoggerFactory;
 public class Version {
 	private static final Logger logger = LoggerFactory.getLogger(Version.class);
 	// change these to release names used in SVN for DL tree
-	public static final String RELEASE_VER = "8.30.0";
+	// DO NOT COMMIT: for I20 only to distinguish from the previous 8.30 install 
+	public static final String RELEASE_VER = "8.30.1";
 	private static final String RELEASE = RELEASE_VER;
 
 	/**

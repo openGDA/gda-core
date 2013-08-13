@@ -24,6 +24,8 @@ import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanDataPoint;
 
+import java.util.Vector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,16 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	private String plotViewname = "Plot 1";
 
 	private int pointCounter = 0;
+
+	private Double xStart;
+	private Double xStop;
+	private Double xStep;
+	private Double yStart;
+	private Double yStop;
+	private Double yStep;
+
+	private Vector<Double> xPoints;
+	private Vector<Double> yPoints;
 
 	public TwoDScanPlotter() {
 		this.inputNames = new String[] {};
@@ -99,9 +111,45 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	private void unpackSDP(ScanDataPoint sdp) {
 		if (intensity == null) {
 			intensity = new DoubleDataset(sdp.getScanDimensions()[0], sdp.getScanDimensions()[1]);
+			intensity.setName(getZ_colName());
 			int scanSize = sdp.getScanDimensions()[0] * sdp.getScanDimensions()[1];
 			x = new DoubleDataset(scanSize);
+			x.setName(getX_colName());
 			y = new DoubleDataset(scanSize);
+			y.setName(getY_colName());
+
+			// pre-populate x and y if we can to improve how the plotting works.
+			if (haveAllScanLimits()) {
+//				xPoints = new Vector<Double>();
+				int xIndex = 0;
+				for (int i = 0; i < sdp.getScanDimensions()[0]; i++) {
+					Double currentPoint = xStart;
+					do {
+//						xPoints.add(currentPoint);
+						x.set(currentPoint, xIndex);
+						xIndex++;
+						currentPoint += xStep;
+					} while (currentPoint < xStop);
+//					xPoints.add(xStop);
+					x.set(xStop, xIndex);
+
+				}
+
+//				yPoints = new Vector<Double>();
+				int yIndex = 0;
+				for (int i = 0; i < sdp.getScanDimensions()[1]; i++) {
+					Double currentPoint = yStart;
+					do  {
+//						yPoints.add(currentPoint);
+						y.set(currentPoint, yIndex);
+						yIndex++;
+						currentPoint += yStep;
+					} while (currentPoint < yStop);
+//					yPoints.add(yStop);
+					y.set(currentPoint, yIndex);
+					yIndex++;
+				}
+			}
 		}
 
 		int[] locationInDataSets = getSDPLocation(sdp);
@@ -111,11 +159,15 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		Double inten = getIntensity(sdp);
 		int xLoc = locationInDataSets[0];
 		int yLoc = locationInDataSets[1];
-		
-		x.set(thisX, pointCounter);
-		y.set(thisY, pointCounter);
-		
+
+//		x.set(thisX, pointCounter);
+//		y.set(thisY, pointCounter);
+
 		intensity.set(inten, xLoc, yLoc);
+	}
+
+	private boolean haveAllScanLimits() {
+		return xStart != null & xStop != null && xStep != null && yStart != null && yStop != null && yStep != null;
 	}
 
 	private int[] getSDPLocation(ScanDataPoint sdp) {
@@ -152,7 +204,7 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	}
 
 	public void plot() throws Exception {
-//		SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
+		// SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
 		SDAPlotter.imagePlot(plotViewname, x, y, intensity);
 	}
 
@@ -193,4 +245,27 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		return plotViewname;
 	}
 
+	public void setxStart(Double xStart) {
+		this.xStart = xStart;
+	}
+
+	public void setxStop(Double xStop) {
+		this.xStop = xStop;
+	}
+
+	public void setxStep(Double xStep) {
+		this.xStep = xStep;
+	}
+
+	public void setyStart(Double yStart) {
+		this.yStart = yStart;
+	}
+
+	public void setyStop(Double yStop) {
+		this.yStop = yStop;
+	}
+
+	public void setyStep(Double yStep) {
+		this.yStep = yStep;
+	}
 }

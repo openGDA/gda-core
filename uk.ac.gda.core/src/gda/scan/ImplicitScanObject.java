@@ -149,6 +149,11 @@ public class ImplicitScanObject extends ScanObject {
 			}
 		}
 	}
+	
+	
+	public Vector<Object> getPoints() {
+		return points;
+	}
 
 	@Override
 	boolean hasStart() {
