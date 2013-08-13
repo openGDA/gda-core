@@ -1,17 +1,21 @@
+from java.lang import InterruptedException, System
+
 from BeamlineParameters import JythonNameSpaceMapping
+from exafsscripts.exafs.i20.I20SampleIterators import XASXANES_Roomtemp_Iterator, XES_Roomtemp_Iterator, XASXANES_Cryostat_Iterator
+
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat
-from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator, ScanStartedMessage
 from gda.device.scannable import XasScannable, XasScannableWithDetectorFramesSetup, JEPScannable
+from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator, ScanStartedMessage
 from gda.exafs.scan import RepetitionsProperties
 from gda.factory import Finder
-from java.lang import InterruptedException, System
 from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan
 from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
-from exafsscripts.exafs.i20.I20SampleIterators import XASXANES_Roomtemp_Iterator, XES_Roomtemp_Iterator, XASXANES_Cryostat_Iterator
+from uk.ac.gda.beans.exafs.i20 import I20SampleParameters
+
 
 from scan import Scan
 
@@ -19,7 +23,7 @@ class XasScan(Scan):
 
 	def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=False):
 		Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers)
-		self.configXspressDeadtime=configXspressDeadtime
+		self.shouldConfigXspressDeadtime=configXspressDeadtime
 		self.moveMonoToStartBeforeScan=moveMonoToStartBeforeScan
 		self.useItterator=useItterator
 		self.handleGapConverter=handleGapConverter
@@ -116,8 +120,8 @@ class XasScan(Scan):
 		Beamlines should override this method if extra looping logic is required e.g. from sample environment settings
 		"""
 		
-		if self.configXspressDeadtime==True:
-			self.configXspressDeadtime(beanGroup) # configure deadtime only for i20
+		if self.shouldConfigXspressDeadtime==True:
+			self._configXspressDeadtime(beanGroup) # configure deadtime only for i20
 		
 		ScriptBase.checkForPauses()
 		
@@ -140,8 +144,11 @@ class XasScan(Scan):
 				
 				try:
 					if self.useItterator==True:
-						iterator = self.createIterator()
-						self._doItterator(iterator)
+						iterator = self.createIterator(beanGroup)
+						if (iterator != None):
+							self._doItterator(iterator)
+						else:
+							self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder)
 					else:
 						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder)
 					
@@ -335,7 +342,7 @@ class XasScan(Scan):
 			return True
 	
 	def moveMonoToInitialPosition(self, scanBean):
-		if energy_scannable != None and isinstance(scanBean,XasScanParameters):
+		if self.energy_scannable != None and isinstance(scanBean,XasScanParameters):
 			intialPosition = scanBean.getInitialEnergy()
 		elif self.energy_scannable != None and isinstance(scanBean,XanesScanParameters): 
 			intialPosition = scanBean.getRegions().get(0).getEnergy()
@@ -349,22 +356,22 @@ class XasScan(Scan):
 		self.jython_mapper.filterwheel(filter)
 	
 	 # XAS / XANES room temperature sample stage  
-	def createIterator(self, sampleBean):
+	def createIterator(self, beanGroup):
 		iterator=None
-		if beanGroup.getDetector().getExperimentType() != 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+		if beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
 			iterator = XASXANES_Roomtemp_Iterator()
 			iterator.setBeanGroup(beanGroup)
 		# XES room temp sample stage
-		elif beanGroup.getDetector().getExperimentType() == 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+		elif beanGroup.getDetector().getExperimentType() == 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
 			iterator = XES_Roomtemp_Iterator()
 			iterator.setBeanGroup(beanGroup)
 		#XAS/XANES cryostat
-		elif beanGroup.getDetector().getExperimentType() != 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
+		elif beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
 			iterator = XASXANES_Cryostat_Iterator()
 			iterator.setBeanGroup(beanGroup)
 		return iterator
 	
-	def configXspressDeadtime(self,beanGroup):
+	def _configXspressDeadtime(self,beanGroup):
 		if beanGroup.getDetector().getExperimentType() == 'Fluorescence':
 			detType = beanGroup.getDetector().getFluorescenceParameters().getDetectorType()
 			if detType == "Germanium":

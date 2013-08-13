@@ -33,6 +33,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -66,6 +67,7 @@ import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
+import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
 import uk.ac.gda.richbeans.components.wrappers.RadioWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
@@ -101,7 +103,7 @@ public final class XesScanParametersComposite extends Composite {
 	private BooleanWrapper additionalCrystal1;
 	private BooleanWrapper additionalCrystal2;
 	private BooleanWrapper additionalCrystal3;
-
+	private TextWrapper offsetsStoreName;
 	private ValueAdapter updateListener;
 
 	private RadioWrapper loopChoice;
@@ -193,6 +195,18 @@ public final class XesScanParametersComposite extends Composite {
 		additionalCrystal3 = new BooleanWrapper(grpCrystals, SWT.NONE);
 		additionalCrystal3.addValueListener(updateListener);
 		additionalCrystal3.setText("crystal 2");
+		
+		Group offsetsGroup = new Group(left, SWT.NONE);
+		offsetsGroup.setText("Spectrometer calibration");
+		offsetsGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		offsetsGroup.setLayout(new GridLayout(2, false));
+		
+		Label lblOffsetsStoreName = new Label(offsetsGroup, SWT.NONE);
+		lblOffsetsStoreName.setText("Offsets store");
+		lblOffsetsStoreName.setToolTipText("The name of the set of spectrometer motor offsets to use.\nIf not set then the current offsets will be used.");
+		offsetsStoreName = new TextWrapper(offsetsGroup, SWT.BORDER);
+		offsetsStoreName.setToolTipText("The name of the set of spectrometer motor offsets to use.\nIf not set then the current offsets will be used.");
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(offsetsStoreName);
 		
 		Group grpScan = new Group(left, SWT.NONE);
 		grpScan.setText("Scan");
@@ -846,6 +860,10 @@ public final class XesScanParametersComposite extends Composite {
 
 	public RadioWrapper getLoopChoice() {
 		return loopChoice;
+	}
+	
+	public TextWrapper getOffsetsStoreName() {
+		return offsetsStoreName;
 	}
 
 	public void setEditingInput(final IEditorInput editing) {

@@ -58,12 +58,16 @@
                 <pathelement location="${GDA-plugin.basedir}/bin" />
                 <pathelement location="${GDA-plugin.basedir}/testfiles/logging" />  <!-- to pick up logback-test.xml -->
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.test.helpers/bin" />
+            	<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/test" />
                 <pathelement location="${GDA-plugin.host.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common-rcp.git/uk.ac.gda.common.rcp/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.client.experimentdefinition/bin" />
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
+                <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
+                <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
                 <pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!--ensure that 2.0.2 appears first in classpath -->
                 <pathelement path="${workspace.loc}/tp/plugins/com.springsource.slf4j.api_1.5.6.jar" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
                 <pathelement location="${workspace.loc}/tp/plugins/*" />

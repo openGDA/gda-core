@@ -168,5 +168,9 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 	public RadioWrapper getLoopChoice() {
 		return beanComposite.getLoopChoice();
 	}
+	
+	public FieldComposite getOffsetsStoreName() {
+		return beanComposite.getOffsetsStoreName();
+	}
 
 }

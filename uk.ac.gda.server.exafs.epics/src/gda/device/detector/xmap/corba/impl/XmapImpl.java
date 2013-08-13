@@ -416,6 +416,10 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		scannableImpl.atLevelMoveStart();
 	}
 
+	public void atLevelStart() throws CorbaDeviceException {
+		scannableImpl.atLevelStart();
+	}
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();

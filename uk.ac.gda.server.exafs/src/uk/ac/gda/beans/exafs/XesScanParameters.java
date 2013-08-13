@@ -30,8 +30,8 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	static public final URL mappingURL = XesScanParameters.class.getResource("ExafsParameterMapping.xml");
 
 	static public final URL schemaURL = XesScanParameters.class.getResource("ExafsParameterMapping.xsd");
-	
-	public static String[] LOOPOPTIONS = new String []{"Ef outer, E0 inner","E0 outer, Ef inner"};
+
+	public static String[] LOOPOPTIONS = new String[] { "Ef outer, E0 inner", "E0 outer, Ef inner" };
 
 	// The types of scan performed under XES
 	public static final int SCAN_XES_FIXED_MONO = 1;
@@ -72,9 +72,12 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	private boolean additionalCrystal1;
 	private boolean additionalCrystal2;
 	private boolean additionalCrystal3;
-	
+
 	// order of the 2D scan
 	private String loopChoice;
+
+	// the name of the set of offsets (the 'store') which to apply to the XES spectrometer for this scan
+	private String offsetsStoreName;
 
 	/**
 	 * Must implement clear() method on beans being used with BeanUI.
@@ -262,6 +265,14 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		this.additionalCrystal3 = additionalCrystal3;
 	}
 
+	public String getOffsetsStoreName() {
+		return offsetsStoreName;
+	}
+
+	public void setOffsetsStoreName(String offsetsStoreName) {
+		this.offsetsStoreName = offsetsStoreName;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -277,6 +288,7 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		result = prime * result + ((monoFinalEnergy == null) ? 0 : monoFinalEnergy.hashCode());
 		result = prime * result + ((monoInitialEnergy == null) ? 0 : monoInitialEnergy.hashCode());
 		result = prime * result + ((monoStepSize == null) ? 0 : monoStepSize.hashCode());
+		result = prime * result + ((offsetsStoreName == null) ? 0 : offsetsStoreName.hashCode());
 		result = prime * result + ((scanFileName == null) ? 0 : scanFileName.hashCode());
 		result = prime * result + scanType;
 		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
@@ -340,6 +352,11 @@ public class XesScanParameters implements Serializable, IScanParameters {
 			if (other.monoStepSize != null)
 				return false;
 		} else if (!monoStepSize.equals(other.monoStepSize))
+			return false;
+		if (offsetsStoreName == null) {
+			if (other.offsetsStoreName != null)
+				return false;
+		} else if (!offsetsStoreName.equals(other.offsetsStoreName))
 			return false;
 		if (scanFileName == null) {
 			if (other.scanFileName != null)

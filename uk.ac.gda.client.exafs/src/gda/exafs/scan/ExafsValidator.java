@@ -276,10 +276,6 @@ public abstract class ExafsValidator extends AbstractValidator {
 		if (obj != null){
 			return obj instanceof Scannable;
 		}
-//		Object objInJython = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-//		if (objInJython != null){
-//			return InterfaceProvider.getCommandRunner().evaluateCommand("isinstance("+scannableName+",gda.device.Scannable)").equals("True");
-//		}
 		return false;
 	}
 
