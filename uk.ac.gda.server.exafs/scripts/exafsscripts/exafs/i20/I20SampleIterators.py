@@ -152,19 +152,11 @@ class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
                 raise DeviceException("I20 scan script - could not find all sample stage motors!")
             
             print "********"
-<<<<<<< HEAD
-            self.log( "Moving sample stage to",x,y,z,rotation,roll,pitch,"...")
+            self.log( "Moving sample stage to",x,y,z,rotation,finerotation,"...")
             self.sample_x.asynchronousMoveTo(x)
             self.sample_y.asynchronousMoveTo(y)
             self.sample_z.asynchronousMoveTo(z)
             self.sample_rot.asynchronousMoveTo(rotation)
-=======
-            self.log( "Moving sample stage to",x,y,z,rotation,finerotation,"...")
-            samx.asynchronousMoveTo(x)
-            samy.asynchronousMoveTo(y)
-            samz.asynchronousMoveTo(z)
-            samrot.asynchronousMoveTo(rotation)
->>>>>>> refs/remotes/origin/8.30
             samfinerot.asynchronousMoveTo(finerotation)
             self.sample_x.waitWhileBusy()
             self.sample_y.waitWhileBusy()
