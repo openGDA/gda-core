@@ -45,28 +45,18 @@ public class VortexDetectorConfiguration{
 		this.observer = observer;
 	}
 	
-	public VortexParameters createBeanFromXML(String xmlPath){
-		try {
-			return (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, new File(xmlPath));
-		} catch (Exception e) {
-			logger.error("Could not create XspressParameters bean from file "+xmlPath, e);
-		}
-		return null;
+	public VortexParameters createBeanFromXML(String xmlPath) throws Exception{
+		return (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, new File(xmlPath));
 	}
 	
-	public void createXMLfromBean(VortexParameters vortexBean){
-		
+	public void createXMLfromBean(VortexParameters vortexBean) throws Exception{
 		File file = new File(xmap.getConfigFileName());
-		try {
-			XMLHelpers.writeToXML(XspressParameters.mappingURL, vortexBean, file);
-			logger.info("Wrote new Xspress Parameters to: " + xmap.getConfigFileName());
-		} catch (Exception e) {
-			logger.error("Could not save XspressParameters bean to "+file, e);
-		}
+		XMLHelpers.writeToXML(XspressParameters.mappingURL, vortexBean, file);
 	}
 	
-	public void configure(boolean isVortexSaveRawSpectrum) throws FactoryException {
+	public void configure(String xmlFileName, boolean isVortexSaveRawSpectrum) throws FactoryException {
 		try {	
+			xmap.setConfigFileName(xmlFileName);
 			xmap.stop();
 			logger.info("Wrote new Vortex Parameters to: "+xmap.getConfigFileName());
 			xmap.loadConfigurationFromFile();

@@ -42,24 +42,13 @@ public class Xspress2DetectorConfiguration{
 		this.xspress2System = xspress2System;
 	}
 	
-	public XspressParameters createBeanFromXML(String xmlPath){
-		try {
-			return (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, new File(xmlPath));
-		} catch (Exception e) {
-			logger.error("Could not create XspressParameters bean from file "+xmlPath, e);
-		}
-		return null;
+	public XspressParameters createBeanFromXML(String xmlPath) throws Exception{
+		return (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, new File(xmlPath));
 	}
 	
-	public void createXMLfromBean(XspressParameters xspressBean){
-		
+	public void createXMLfromBean(XspressParameters xspressBean) throws Exception{
 		File file = new File(xspress2System.getConfigFileName());
-		try {
-			XMLHelpers.writeToXML(XspressParameters.mappingURL, xspressBean, file);
-			logger.info("Wrote new Xspress Parameters to: " + xspress2System.getConfigFileName());
-		} catch (Exception e) {
-			logger.error("Could not save XspressParameters bean to "+file, e);
-		}
+		XMLHelpers.writeToXML(XspressParameters.mappingURL, xspressBean, file);
 	}
 	
 	public void configure(String xmlFileName, boolean onlyShowFF, boolean showDTRawValues, boolean saveRawSpectrum) throws FactoryException {

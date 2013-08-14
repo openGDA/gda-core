@@ -7,7 +7,7 @@ class I20DetectorPreparer:
     """
      Assume the sensitivities and offsets are arrays of scannables in order: [I0,It,Iref,I1]
     """
-    def __init__(self, xspress2system, ExafsScriptObserver,sensitivities, sensitivity_units ,offsets, offset_units, cryostat_scannable,ionchambers,I1,vortex,topupChecker):
+    def __init__(self, xspress2system, ExafsScriptObserver,sensitivities, sensitivity_units ,offsets, offset_units, cryostat_scannable,ionchambers,I1,vortex,topupChecker, xspressConfig, vortexConfig):
         self.xspress2system = xspress2system
         self.ExafsScriptObserver = ExafsScriptObserver
         self.sensitivities = sensitivities
@@ -19,6 +19,8 @@ class I20DetectorPreparer:
         self.I1 = I1
         self.vortex = vortex
         self.topupChecker = topupChecker
+        self.xspressConfig = xspressConfig
+        self.vortexConfig = vortexConfig
         
     def prepare(self, scanBean, detectorBean, outputBean, scriptFolder):
         """
@@ -32,10 +34,21 @@ class I20DetectorPreparer:
             detType = detectorBean.getFluorescenceParameters().getDetectorType()
             fullFileName = str(scriptFolder) + str(detectorBean.getFluorescenceParameters().getConfigFileName())
             print "Configuring",detType,"detector using",fullFileName
+            detType = fluoresenceParameters.getDetectorType()
+            xmlFileName = scriptFolder + fluoresenceParameters.getConfigFileName()
+            detType = fluoresenceParameters.getDetectorType()
+            xmlFileName = scriptFolder + fluoresenceParameters.getConfigFileName()
             if detType == "Germanium":
-                Xspress2DetectorConfiguration(self.xspress2system, self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
-            else:
-                VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
+                self.xspressConfig.initialize()
+                onlyShowFF = outputBean.isOnlyShowFF()
+                showDTRawValues = outputBean.isShowDTRawValues()
+                saveRawSpectrum = outputBean.isSaveRawSpectrum()
+                self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+            elif detType == "Silicon":
+                self.vortexConfig.initialize()
+                vortexBean = self.vortexConfig.createBeanFromXML(xmlFileName)
+                saveRawSpectrum = vortexBean.isSaveRawSpectrum()
+                self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
         elif detectorBean.getExperimentType() == "XES" :
             fullFileName = str(scriptFolder) + str(detectorBean.getXesParameters().getConfigFileName())
             VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()

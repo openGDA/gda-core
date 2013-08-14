@@ -244,7 +244,7 @@ class XasScan(Scan):
 	
 	# run the beamline specific preparers			
 	def runPreparers(self, beanGroup, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean):
-		self.detectorPreparer.prepare(scanBean, detectorBean, xmlFolderName)
+		self.detectorPreparer.prepare(detectorBean, xmlFolderName)
 		sampleScannables = self.samplePreparer.prepare(sampleBean)
 		outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
 		scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)

@@ -6,35 +6,58 @@ from gdascripts.parameters import beamline_parameters
 from gda.configuration.properties import LocalProperties
 from gdascripts.messages import handle_messages
 from gdascripts.configuration.properties.scriptContext import defaultScriptFolder
+import java
 
-class FluoresenceDetectorsConfig():
+class XspressConfig():
     
-    def __init__(self, xspress2system, xmap, ExafsScriptObserver):
+    def __init__(self, xspress2system, ExafsScriptObserver):
         self.xspress2system=xspress2system
-        self.xmap=xmap
         self.ExafsScriptObserver=ExafsScriptObserver
-        self.xspress2DetectorConfiguration=None
-        self.vortexDetectorConfiguration=None
+        self.configuration=None
     
-    def initialize(self, detectorParameters, scriptFolder):
-        self.xspress2DetectorConfiguration = Xspress2DetectorConfiguration(self.xspress2system, self.ExafsScriptObserver)
-        self.vortexDetectorConfiguration = VortexDetectorConfiguration(self.xmap, self.ExafsScriptObserver)
+    def initialize(self):
+        self.configuration = Xspress2DetectorConfiguration(self.xspress2system, self.ExafsScriptObserver)
         
-    def createXspressBeanFromXML(self, xmlPath):
-        return self.xspress2DetectorConfiguration.createBeanFromXML(xmlPath)
+    def createBeanFromXML(self, xmlPath):
+        try:
+            return self.configuration.createBeanFromXML(xmlPath)
+        except java.lang.Exception, e:
+            print "Could not create XspressParameters bean ", e
         
     def createXspressXMLfromBean(self, xspressBean):
-        self.xspress2DetectorConfiguration.createXMLfromBean(xspressBean)
+        try:
+            self.configuration.createXMLfromBean(xspressBean)
+            print "Wrote new Xspress Parameters to: ", xmap.getConfigFileName()
+        except java.lang.Exception, e:
+            print "Could not save XspressParameters bean ", e
+        self.configuration.createXMLfromBean(xspressBean)
     
-    def configXspress(self, xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum):
-        self.xspress2DetectorConfiguration.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+    def configure(self, xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum):
+        self.configuration.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
 
-    def createVortexBeanFromXML(self, xmlPath):
-        return self.vortexDetectorConfiguration.createBeanFromXML(xmlPath)
         
-    def createVortexXMLfromBean(self, vortexBean):
-        self.vortexDetectorConfiguration.createXMLfromBean(vortexBean)
+class VortexConfig():
+    
+    def __init__(self, xmap, ExafsScriptObserver):
+        self.xmap=xmap
+        self.ExafsScriptObserver=ExafsScriptObserver
+        self.configuration=None
+    
+    def initialize(self):
+        self.configuration = VortexDetectorConfiguration(self.xmap, self.ExafsScriptObserver)
 
-    def configVortex(self, detectorParameters, scriptFolder):
-        fullFileName = scriptFolder + detectorParameters.getFluorescenceParameters().getConfigFileName()
-        self.vortexDetectorConfiguration.configure()
+    def createBeanFromXML(self, xmlPath):
+        try:
+            return self.configuration.createBeanFromXML(xmlPath)
+        except java.lang.Exception, e:
+            print "Could not create VortexParameters bean ", e
+        
+    def createXMLfromBean(self, vortexBean):
+        try:
+            self.configuration.createXMLfromBean(vortexBean)
+            print "Wrote new Vortex Parameters to: ", xmap.getConfigFileName()
+        except java.lang.Exception, e:
+            print "Could not save VortexParameters bean ", e
+
+    def configure(self, xmlFileName, isSaveRawSpectrum):
+        self.configuration.configure(xmlFileName, isSaveRawSpectrum)
