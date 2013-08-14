@@ -1,13 +1,14 @@
 from java.lang import Exception
 
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
-
+from gda.device.detector import VortexDetectorConfiguration
+from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
 
 class I20DetectorPreparer:
     """
      Assume the sensitivities and offsets are arrays of scannables in order: [I0,It,Iref,I1]
     """
-    def __init__(self, xspress2system, ExafsScriptObserver,sensitivities, sensitivity_units ,offsets, offset_units, cryostat_scannable):
+    def __init__(self, xspress2system, ExafsScriptObserver,sensitivities, sensitivity_units ,offsets, offset_units, cryostat_scannable,ionchambers,I1,vortex,topupChecker):
         self.xspress2system = xspress2system
         self.ExafsScriptObserver = ExafsScriptObserver
         self.sensitivities = sensitivities
@@ -15,6 +16,10 @@ class I20DetectorPreparer:
         self.offsets = offsets
         self.offset_units = offset_units
         self.cryostat_scannable=cryostat_scannable
+        self.ionchambers = ionchambers
+        self.I1 = I1
+        self.vortex = vortex
+        self.topupChecker = topupChecker
         
     def prepare(self, scanBean, detectorBean, outputBean, scriptFolder):
         """
@@ -31,11 +36,9 @@ class I20DetectorPreparer:
             if detType == "Germanium":
                Xspress2DetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
             else:
-                from gda.device.detector import VortexDetectorConfiguration
                 VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
         elif detectorBean.getExperimentType() == "XES" :
             fullFileName = str(scriptFolder) + str(detectorBean.getXesParameters().getConfigFileName())
-            from gda.device.detector import VortexDetectorConfiguration
             VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
             
         ionChamberParamsArray = None
@@ -54,7 +57,7 @@ class I20DetectorPreparer:
         if ionChamberParams.getChangeSensitivity():
             ionChamberName = ionChamberParams.getName()
             if ionChamberParams.getGain() == None or ionChamberParams.getGain() == "":
-                continue
+                return
             sensitivity, units = ionChamberParams.getGain().split()
             index = 0
             if ionChamberName == "It":
@@ -76,7 +79,7 @@ class I20DetectorPreparer:
     def setup_amp_offset(self, ionChamberParams, offsets, offset_units):
         if ionChamberParams.getChangeSensitivity():
             if ionChamberParams.getOffset() == None or ionChamberParams.getOffset() == "":
-                continue
+                return
             offset, units = ionChamberParams.getOffset().split()
             index = 0
             if ionChamberName == "It":
@@ -117,13 +120,13 @@ class I20DetectorPreparer:
     
         # set dark current time and handle any errors here
         if maxTime > 0:
-            self.log( "Setting ionchambers dark current collectiom time to",str(maxTime),"s.")
-            self.jython_mapper.ionchambers.setDarkCurrentCollectionTime(maxTime)
-            self.jython_mapper.I1.setDarkCurrentCollectionTime(maxTime)
+            print "Setting ionchambers dark current collectiom time to",str(maxTime),"s."
+            self.ionchambers.setDarkCurrentCollectionTime(maxTime)
+            self.I1.setDarkCurrentCollectionTime(maxTime)
             
-            topupPauseTime = maxTime + self.jython_mapper.topupChecker.tolerance
+            topupPauseTime = maxTime + self.topupChecker.tolerance
             print "Setting the topup checker to pause scans for",topupPauseTime,"s before topup"
-            self.jython_mapper.topupChecker.collectionTime = maxTime
+            self.topupChecker.collectionTime = maxTime
             
     def _configureCryostat(self, cryoStatParameters):
         if LocalProperties.get("gda.mode") != 'dummy':
@@ -145,7 +148,7 @@ class I20DetectorPreparer:
         else :
             dtEnergy = scanObj.getFinalEnergy() 
             dtEnergy /= 1000 # convert from eV to keV
-        self.jython_mapper.xspress2system.setDeadtimeCalculationEnergy(dtEnergy)
+        self.xspress2system.setDeadtimeCalculationEnergy(dtEnergy)
  
     def _getEmissionEnergy(self,elementObj,edge):
         if str(edge) == "K":
