@@ -45,13 +45,15 @@ class I20XesScan(XasScan):
         
     def __call__ (self,sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
 
-        # Create the beans from the file names
-        sampleBean = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
-        xesScanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
-        detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
-        outputBean = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
+        if folderName != None:
+            folderName = folderName + "/"
 
-        self.jython_mapper = JythonNameSpaceMapping()
+        # Create the beans from the file names
+        sampleBean = BeansFactory.getBeanObject(folderName, sampleFileName)
+        xesScanBean = BeansFactory.getBeanObject(folderName, scanFileName)
+        detectorBean = BeansFactory.getBeanObject(folderName, detectorFileName)
+        outputBean = BeansFactory.getBeanObject(folderName, outputFileName)
+
         loggingcontroller = self.XASLoggingScriptController
 
         # create unique ID for this scan (all repetitions will share the same ID)
@@ -61,7 +63,7 @@ class I20XesScan(XasScan):
         # give the beans to the xasdatawriter class to help define the folders/filenames 
         beanGroup = BeanGroup()
         beanGroup.setController(self.ExafsScriptObserver)
-        beanGroup.setScriptFolder(xmlFolderName)
+        beanGroup.setScriptFolder(folderName)
         beanGroup.setExperimentFolderName(folderName)
         beanGroup.setSample(sampleBean)
         beanGroup.setDetector(detectorBean)
@@ -246,7 +248,7 @@ class I20XesScan(XasScan):
             raise "scan type in XES Scan Parameters bean/xml not acceptable"
 
         self.log( "Setting up the detectors...")
-        self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
+        self.detectorPreparer.prepare(beanGroup.getScan(),beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
         self.log( "Vortex and ionchambers configured.")
         sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
         outputScannables = self.outputPreparer.prepare(beanGroup.getOutput(), beanGroup.getScan())
@@ -285,7 +287,8 @@ class I20XesScan(XasScan):
                 outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
                 #print "Starting "+scriptType+" scan...", str(repetitionNumber)
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
-                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
+                timeSinceRepetitionsStarted = self.calcTimeSinceRepetitionsStarted(timeRepetitionsStarted)
+                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
