@@ -489,16 +489,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 				report += String.format(getOutputFormat()[0], upperMotorLimit);
 			report += ")";
 		}
-		boolean busy;
 
 		try {
-			busy = isBusy();
-		} catch (DeviceException e) {
-			throw new RuntimeException(getName() + ".toFormattedString() caught exception from isBusy():", e);
-		}
-		if (isReturningDemandPosition() && (lastDemandedInternalPosition != null) && (!busy)) {
-
-			try {
+			if (isReturningDemandPosition() && (lastDemandedInternalPosition != null) && (!isBusy())) {
 				if (Math.abs(((Double) rawGetPosition()) - lastDemandedInternalPosition) <= demandPositionTolerance) {
 					report += " demand";
 				} else {
@@ -517,9 +510,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 							+ ScannableUtils.getFormattedCurrentPositionArray(
 									internalToExternal(lastDemandedInternalPosition), 1, getOutputFormat())[0] + "*";
 				}
-			} catch (DeviceException e) {
-				throw new RuntimeException(getName() + ".toFormattedString() exception:", e);
 			}
+		} catch (DeviceException e) {
+			throw new RuntimeException(getName() + ".toFormattedString() exception:", e);
 		}
 		return report;
 	}
