@@ -78,7 +78,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	private MotorLimitsComponent motorLimitsComponent;
 
-	private boolean isBusyThrowsExceptionWhenMotorGoesIntoFault = false;
+	private boolean isBusyThrowsExceptionWhenMotorGoesIntoFault = true;
 
 	private boolean returnDemandPosition = false;
 
