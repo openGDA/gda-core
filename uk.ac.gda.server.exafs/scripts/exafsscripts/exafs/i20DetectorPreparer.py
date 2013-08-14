@@ -107,17 +107,19 @@ class I20DetectorPreparer:
                     maxTime = region.getTime()
                 
         elif isinstance(scanBean,XasScanParameters):
-            if scanBean.getEdgeTime() > maxTime:
-                maxTime = scanBean.getEdgeTime()
-            if scanBean.getExafsToTime() > maxTime:
-                maxTime = scanBean.getExafsToTime()
-            if scanBean.getExafsFromTime() > maxTime:
-                maxTime = scanBean.getExafsFromTime()
-            if scanBean.getExafsTime() > maxTime:
-                maxTime = scanBean.getExafsTime()
             if scanBean.getPreEdgeTime() > maxTime:
                 maxTime = scanBean.getPreEdgeTime()
-    
+            if scanBean.getEdgeTime() > maxTime:
+                maxTime = scanBean.getEdgeTime()
+            if scanBean.getExafsTimeType() == "Constant Time":
+                if scanBean.getExafsTime() > maxTime:
+                    maxTime = scanBean.getExafsTime()
+            else:
+                if scanBean.getExafsToTime() > maxTime:
+                    maxTime = scanBean.getExafsToTime()
+                if scanBean.getExafsFromTime() > maxTime:
+                    maxTime = scanBean.getExafsFromTime()
+   
         # set dark current time and handle any errors here
         if maxTime > 0:
             print "Setting ionchambers dark current collectiom time to",str(maxTime),"s."
