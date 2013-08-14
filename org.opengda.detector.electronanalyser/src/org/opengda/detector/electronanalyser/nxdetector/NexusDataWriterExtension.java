@@ -19,15 +19,19 @@
 package org.opengda.detector.electronanalyser.nxdetector;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
 import gda.data.nexus.NexusFileFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
+import gda.jython.InterfaceProvider;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.nexusformat.NeXusFileInterface;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,12 +52,12 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	@Override
 	public void releaseFile() {
 		if (!files.isEmpty()) {
-			for (Entry<String, NeXusFileInterface> entry : files.entrySet()) {
+			for (Entry<String, RegionFileMapper> entry : files.entrySet()) {
 				try {
-					entry.getValue().flush();
-					entry.getValue().finalize();
+					entry.getValue().getNxFile().flush();
+					entry.getValue().getNxFile().finalize();
 				} catch (Throwable et) {
-					String error = "Error closing NeXus file" + entry.getKey();
+					String error = "Error closing NeXus file " + entry.getValue().getURL();
 					logger.error(error + et.getMessage());
 					terminalPrinter.print(error);
 					terminalPrinter.print(et.getMessage());
@@ -67,16 +71,16 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	}
 	public void completeCollection() throws Exception {
 		releaseFile();
-		super.completeCollection();
+//		super.completeCollection();
 	};
 
-	Map<String, NeXusFileInterface> files = new HashMap<String, NeXusFileInterface>();
+	Map<String, RegionFileMapper> files = new ConcurrentHashMap<String, RegionFileMapper>();
 
-	public Map<String, NeXusFileInterface> getFiles() {
+	public Map<String, RegionFileMapper> getFiles() {
 		return files;
 	}
 
-	public void setFiles(Map<String, NeXusFileInterface> files) {
+	public void setFiles(Map<String, RegionFileMapper> files) {
 		this.files = files;
 	}
 
@@ -88,44 +92,87 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	 * @return NeXusFileInterface
 	 * @throws Exception
 	 */
-	public NeXusFileInterface createFile(String regionName,
-			String nexusFileNameTemplate) throws Exception {
-		if (!files.isEmpty() && files.containsKey(regionName)) {
-			return files.get(regionName);
-			// try {
-			// files.get(regionName).flush();
-			// files.get(regionName).finalize();
-			// } catch (Throwable et) {
-			// String error = "Error closing NeXus file for " + regionName;
-			// logger.error(error + et.getMessage());
-			// terminalPrinter.print(error);
-			// terminalPrinter.print(et.getMessage());
-			// }
-		}
-		// set the entry name
-		// this.entryName = "scan_" + run;
+	public NeXusFileInterface createFile(String regionName,	Sequence sequence) throws Exception {
 		this.entryName = "entry1";
 
-		// construct filename
-		if (nexusFileNameTemplate == null) {
-			throw new IllegalArgumentException(
-					"Nexus File Template must not null.");
+		if (sequence == null) {
+			throw new IllegalArgumentException("Sequence data model must not be null.");
 		}
-		String regionNexusFileName = String.format(nexusFileNameTemplate,
-				scanNumber, regionName) + ".nxs";
+		String regionNexusFileName;
+		String filenameFormat = sequence.getSpectrum().getFilenameFormat();
+		String filenamePrefix = sequence.getSpectrum().getFilenamePrefix();
+		if (scanNumber == null) {
+			scanNumber=new NumTracker(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)).getCurrentFileNumber();
+		}
+		if (filenamePrefix!=null) {
+			regionNexusFileName = String.format(filenameFormat, filenamePrefix,scanNumber, regionName) + ".nxs";
+		} else {
+			regionNexusFileName = String.format("%05d_%s", scanNumber, regionName) + ".nxs";
+		}
 		if (LocalProperties.check(GDA_NEXUS_BEAMLINE_PREFIX)) {
+			if (beamline==null) {
+				beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
+			}
 			regionNexusFileName = beamline + "_" + regionNexusFileName;
+		}
+		if (dataDir==null) {
+			dataDir=PathConstructor.createFromDefaultProperty();
 		}
 		if (!dataDir.endsWith(File.separator)) {
 			dataDir += File.separator;
 		}
+		String sampleName = sequence.getSpectrum().getSampleName();
+		File dir = new File(dataDir + sampleName.trim());
+		if (!dir.exists()) {
+			dir.mkdir();
+		}
 
-		String regionNexusFileUrl = dataDir + regionNexusFileName;
-		NeXusFileInterface regionNexusfile = NexusFileFactory.createFile(
-				regionNexusFileUrl, defaultNeXusBackend,
-				LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
-		files.put(regionName, regionNexusfile);
+		String regionNexusFileUrl = dir.getAbsolutePath()+File.separator + regionNexusFileName;
+		InterfaceProvider.getTerminalPrinter().print("Region '" + regionName + "' data will be written to file : "+ regionNexusFileUrl);
+		NeXusFileInterface regionNexusfile = NexusFileFactory.createFile(regionNexusFileUrl, defaultNeXusBackend,LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
+		
+		RegionFileMapper regionFileMapper = new RegionFileMapper(regionName,regionNexusFileUrl,regionNexusfile );
+		files.put(regionName, regionFileMapper);
 		return regionNexusfile;
+	}
+
+	public NeXusFileInterface getNXFile(String regionName, int scanDataPoint) {
+		if (!files.isEmpty() && files.containsKey(regionName)) {
+			RegionFileMapper mapper = files.get(regionName);
+			InterfaceProvider.getTerminalPrinter().print("scan point: "+scanDataPoint+"\t-\tCollecting region '" + regionName + "' data to file : "+ mapper.getURL());
+			return mapper.getNxFile();
+		}
+		return null;
+	}
+
+	class RegionFileMapper {
+		private String regionName;
+		private String URL;
+		private NeXusFileInterface nxFile;
+		public RegionFileMapper(String regionName, String regionNexusFileUrl,
+				NeXusFileInterface regionNexusfile) {
+			this.regionName=regionName;
+			this.URL=regionNexusFileUrl;
+			this.nxFile=regionNexusfile;
+		}
+		public String getRegionName() {
+			return regionName;
+		}
+		public void setRegionName(String regionName) {
+			this.regionName = regionName;
+		}
+		public String getURL() {
+			return URL;
+		}
+		public void setURL(String uRL) {
+			URL = uRL;
+		}
+		public NeXusFileInterface getNxFile() {
+			return nxFile;
+		}
+		public void setNxFile(NeXusFileInterface nxFile) {
+			this.nxFile = nxFile;
+		}
 	}
 
 }

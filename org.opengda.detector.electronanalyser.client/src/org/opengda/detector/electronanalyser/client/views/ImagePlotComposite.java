@@ -192,7 +192,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 	double[] ydata = null;
 
 	private void updateImagePlot(final IProgressMonitor monitor, final double[] value) {
-		if (isNewRegion()) {
+//		if (isNewRegion()) {
 			// analyser region
 			try {
 				xdata = getAnalyser().getEnergyAxis();
@@ -205,7 +205,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 				logger.error("cannot get angle axis from the analyser", e);
 			}
 			setNewRegion(false);
-		}
+//		}
 		DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 		xAxis.setName("energies (eV)");
 		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
@@ -223,9 +223,10 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		axes.add(xAxis);
 		axes.add(yAxis);
 		try {
-			int[] dims = new int[] { getAnalyser().getSlices(), xdata.clone().length };
+			int length = xdata.clone().length;
+			int slices = getAnalyser().getSlices();
+			int[] dims = new int[] { slices, length };
 			int arraysize = dims[0] * dims[1];
-//			logger.warn("arraysize = {}", arraysize);
 			if (arraysize < 1) {
 				return;
 			}

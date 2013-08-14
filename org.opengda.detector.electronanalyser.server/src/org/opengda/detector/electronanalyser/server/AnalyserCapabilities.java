@@ -26,6 +26,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+
 public class AnalyserCapabilities implements Findable {
 
 	private String name = "AnalyserCapabilties";
@@ -83,10 +86,33 @@ public class AnalyserCapabilities implements Findable {
 		}
 		double[] doubles = lens2angles.get(lensTable);
 		double[] copyOfRange = Arrays.copyOfRange(doubles, startChannel, startChannel + length);
-		ArrayUtils.reverse(copyOfRange);
 		return copyOfRange;
 	}
 	
+	public double[] getAngleAxis(String lensTable, int startChannel, int slices, int size) {
+		if (!lens2angles.containsKey(lensTable)) {
+			throw new IllegalArgumentException("unknown lens table "+lensTable);
+		}
+		int chunksize=size/slices;
+		int handledsize=slices*chunksize;
+		double[] doubles = lens2angles.get(lensTable);
+		double[] values = Arrays.copyOfRange(doubles, startChannel, startChannel+handledsize);
+		double[] mean= new double[slices];
+		for (int i=0; i<slices; i++) {
+			double mychunksum=0;
+			for (int j=0; j<chunksize; j++) {
+				mychunksum+=values[j+i*chunksize];
+			}
+			mean[i]=mychunksum/chunksize;
+		}
+//		AbstractDataset angledatasets=new DoubleDataset(values, slices, chunksize);
+//		double[] mean = new double[slices]; 
+//		for (int i=0; i<slices; i++) {
+//			AbstractDataset slice = angledatasets.getSlice(new int[] {0, i}, new int[] {chunksize-1, i+1}, null);
+//			mean[i] = Double.parseDouble(slice.mean().toString());
+//		}
+		return mean;
+	}
 	public String[] getLensModes() {
 		return lens2angles.keySet().toArray(new String[0]);
 	}

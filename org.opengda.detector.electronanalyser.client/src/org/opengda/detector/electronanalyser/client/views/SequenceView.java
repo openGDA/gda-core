@@ -1,8 +1,8 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.Device;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -14,10 +14,11 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Short;
+import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,6 +117,8 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
+import org.opengda.detector.electronanalyser.nxdetector.EW4000;
+import org.opengda.detector.electronanalyser.scan.RegionScannable;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
@@ -129,8 +132,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private List<ISelectionChangedListener> selectionChangedListeners;
 	private Camera camera;
-	//private IObserver processorObserver;
-	//private Processor processor;
 
 	public SequenceView() {
 		setTitleToolTip("Create a new or editing an existing sequence");
@@ -144,7 +145,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Text txtLocation;
 	private Text txtUser;
 	private Text txtSample;
-	private Text txtFilename;
+	private Text txtPrefix;
 	private Text txtComments;
 	private int nameCount;
 	private String location;
@@ -211,7 +212,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		gl_root.horizontalSpacing = 2;
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(gl_root);
-		// new Label(rootComposite, SWT.NONE);
 
 		Composite tableViewerContainer = new Composite(rootComposite, SWT.None);
 
@@ -264,7 +264,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			resource.eAdapters().add(notifyListener);
 			sequenceTableViewer.setInput(resource);
 		} catch (Exception e2) {
-			logger.error("Cannot load resouce from file.", e2);
+			logger.error("Cannot load resouce from file: "+regionDefinitionResourceUtil.getFileName(), e2);
 		}
 
 		Composite controlArea = new Composite(rootComposite, SWT.None);
@@ -422,23 +422,49 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		grpInfo.setLayout(new GridLayout(3, false));
 
 		Label lblLocation = new Label(grpInfo, SWT.NONE);
-		lblLocation.setText("Location");
+		lblLocation.setText("Beamline:");
 
-		txtLocation = new Text(grpInfo, SWT.BORDER | SWT.READ_ONLY);
+		txtLocation = new Text(grpInfo, SWT.BORDER);
 		// this field is set in Spring configuration per beamline
+		txtLocation.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				if (e.getSource().equals(txtLocation)) {
+					try {
+						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_Location(),
+								txtLocation.getText().trim());
+					} catch (Exception e1) {
+						logger.error("Cannot get the spectrum from this sequence.", e1);
+					}
+				}
+			}
+		});
 		txtLocation.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtLocation.setText("Location");
+		txtLocation.setText("Beamline Name");
 
 		Label lblComments = new Label(grpInfo, SWT.NONE);
 		lblComments.setText("Add comments below:");
 
 		Label lblUser = new Label(grpInfo, SWT.NONE);
-		lblUser.setText("User");
+		lblUser.setText("Visit ID:");
 
-		txtUser = new Text(grpInfo, SWT.BORDER | SWT.READ_ONLY);
+		txtUser = new Text(grpInfo, SWT.BORDER );
 		// this field is set dynamically to user proposal number in GDA
+		txtUser.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				if (e.getSource().equals(txtUser)) {
+					try {
+						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_User(),
+								txtUser.getText().trim());
+					} catch (Exception e1) {
+						logger.error("Cannot get the spectrum from this sequence.", e1);
+					}
+				}
+			}
+		});
 		txtUser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtUser.setText("User");
+		txtUser.setText("visit-ID");
 
 		txtComments = new Text(grpInfo, SWT.BORDER | SWT.MULTI | SWT.WRAP);
 		txtComments.addFocusListener(new FocusAdapter() {
@@ -471,13 +497,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			}
 		});
-		txtComments.setText("comments");
+		txtComments.setText("Comments");
 		GridData gd_txtComments = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
 		gd_txtComments.verticalSpan = 4;
 		txtComments.setLayoutData(gd_txtComments);
 
 		Label lblSample = new Label(grpInfo, SWT.NONE);
-		lblSample.setText("Sample");
+		lblSample.setText("Sample:");
 
 		txtSample = new Text(grpInfo, SWT.BORDER);
 		txtSample.addSelectionListener(new SelectionAdapter() {
@@ -486,7 +512,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				if (e.getSource().equals(txtSample)) {
 					try {
 						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_SampleName(),
-								txtSample.getText());
+								txtSample.getText().trim());
 					} catch (Exception e1) {
 						logger.error("Cannot get the spectrum from this sequence.", e1);
 					}
@@ -494,22 +520,22 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		});
 		txtSample.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtSample.setText("Sample");
+		txtSample.setText("Sample name");
 
-		Label lblFileName = new Label(grpInfo, SWT.NONE);
-		GridData gd_lblFileName = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lblFileName.widthHint = 59;
-		lblFileName.setLayoutData(gd_lblFileName);
-		lblFileName.setText("File Prefix");
+		Label lblPrefix = new Label(grpInfo, SWT.NONE);
+//		GridData gd_lblFileName = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+//		gd_lblFileName.widthHint = 59;
+//		lblFileName.setLayoutData(gd_lblFileName);
+		lblPrefix.setText("File Prefix:");
 
-		txtFilename = new Text(grpInfo, SWT.BORDER);
-		txtFilename.addSelectionListener(new SelectionAdapter() {
+		txtPrefix = new Text(grpInfo, SWT.BORDER);
+		txtPrefix.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtFilename)) {
+				if (e.getSource().equals(txtPrefix)) {
 					try {
 						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_FilenamePrefix(),
-								txtFilename.getText());
+								txtPrefix.getText().trim());
 					} catch (Exception e1) {
 						logger.error("Cannot get the spectrum from this sequence.", e1);
 					}
@@ -517,13 +543,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		});
 		GridData gd_txtFilename = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_txtFilename.widthHint = 104;
-		txtFilename.setLayoutData(gd_txtFilename);
-		txtFilename.setText("Filename Prefix");
+//		gd_txtFilename.widthHint = 104;
+//		txtPrefix.setLayoutData(gd_txtFilename);
+		txtPrefix.setText("Filename Prefix");
 
-		Label lblNewLabel = new Label(grpInfo, SWT.NONE);
-		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("Name Format");
+		Label lblFormat = new Label(grpInfo, SWT.NONE);
+//		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblFormat.setText("File format:");
 
 		txtfilenameformat = new Text(grpInfo, SWT.BORDER);
 		txtfilenameformat.addSelectionListener(new SelectionAdapter() {
@@ -532,19 +558,19 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				if (e.getSource().equals(txtfilenameformat)) {
 					try {
 						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_FilenameFormat(),
-								txtfilenameformat.getText());
+								txtfilenameformat.getText().trim());
 					} catch (Exception e1) {
 						logger.error("Cannot get the spectrum from this sequence.", e1);
 					}
 				}
 			}
 		});
-		txtfilenameformat.setText("%s_%5d_%3d_%s");
+		txtfilenameformat.setText("%s_%5d_%s");
 		txtfilenameformat.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
 		Group grpSequnceRunMode = new Group(rightArea, SWT.NONE);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.widthHint = 220;
+		layoutData.widthHint = 250;
 		layoutData.verticalSpan = 2;
 		grpSequnceRunMode.setLayoutData(layoutData);
 		grpSequnceRunMode.setLayout(new GridLayout(2, false));
@@ -589,7 +615,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			}
 		});
-		btnNumberOfIterations.setText("Number of iterations");
+		btnNumberOfIterations.setText("Number of iterations:");
 
 		spinner = new Spinner(grpSequnceRunMode, SWT.BORDER);
 		spinner.addSelectionListener(new SelectionAdapter() {
@@ -618,6 +644,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		});
 		spinner.setMinimum(1);
+		spinner.setMaximum(10000);
 		spinner.setToolTipText("Set number of iterations required");
 
 		btnRepeatuntilStopped = new Button(grpSequnceRunMode, SWT.RADIO);
@@ -846,10 +873,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private EditingDomain editingDomain;
 
-	//private Queue queue;
-
-	//private IObserver queueObserver;
-
 	private Action startRunOnServerAction;
 
 	private Scriptcontroller scriptcontroller;
@@ -861,6 +884,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Channel stateChannel;
 
 	private EpicsChannelManager channelmanager;
+
+//	private Device ew4000;
 
 	private Region getSelectedRegion() {
 		ISelection selection = getSelection();
@@ -904,13 +929,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				if (getLocation() != null) {
 					txtLocation.setText(getLocation());
 				} else {
-					txtLocation.setText("Diamond Beamline");
+					txtLocation.setText("Beamline name");
 				}
-				if (!spectrum.getLocation().equals(txtLocation.getText())) {
+				// send the change to sequence file
+				if (!spectrum.getLocation().equalsIgnoreCase(txtLocation.getText().trim())) {
 					updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_Location(), txtLocation.getText());
 				}
 				if (getVisit() != null) {
-					// Obtain visit proposal from GDA property RCP_APP_VISIT
+					// Obtain visit ID from GDA property RCP_APP_VISIT
 					txtUser.setText(getVisit());
 				} else if (getUser() != null) {
 					// set by Spring configuration
@@ -919,11 +945,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					// default to user home folder
 					txtUser.setText(System.getProperty("user.name"));
 				}
-				if (!spectrum.getUser().equals(txtUser.getText())) {
+				if (!spectrum.getUser().equalsIgnoreCase(txtUser.getText().trim())) {
 					updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_User(), txtUser.getText());
 				}
 				txtSample.setText(spectrum.getSampleName());
-				txtFilename.setText(spectrum.getFilenamePrefix());
+				txtPrefix.setText(spectrum.getFilenamePrefix());
 				txtfilenameformat.setText(spectrum.getFilenameFormat());
 				txtSequenceFilePath.setText(regionDefinitionResourceUtil.getFileName());
 
@@ -934,7 +960,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				txtComments.setText(comments);
 				// System.out.println(txtComments.getText());
 			}
-			regions = sequence.getRegion();
 		} else {
 			// start a new sequence
 			if (regionDefinitionResourceUtil != null) {
@@ -945,6 +970,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			}
 		}
+		// initialise region list
+		regions= sequence.getRegion();
 		// add drag and drop support,must ensure editing domain not null at this
 		// point.
 		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },
@@ -953,49 +980,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		sequenceTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },
 				new EditingDomainViewerDropAdapter(editingDomain, sequenceTableViewer));
 
-		// sequenceTableViewer.setSelection(new StructuredSelection(
-		// sequenceTableViewer.getElementAt(0)), true);
 		updateCalculatedData();
-		/* using command queue to process data collection specified in this table */
-//		processor = CommandQueueViewFactory.getProcessor();
-//		queue = CommandQueueViewFactory.getQueue();
-//		if (processor != null) {
-//			processorObserver = new IObserver() {
-//
-//				@Override
-//				public void update(Object source, final Object arg) {
-//					updateState(source, arg);
-//				}
-//			};
-//			processor.addIObserver(processorObserver);
-//		}
-//		if (queue != null) {
-//			queueObserver = new IObserver() {
-//
-//				@Override
-//				public void update(Object source, Object arg) {
-//					if (source instanceof CommandQueue && arg instanceof QueueChangeEvent) {
-//						try {
-//							if (queue.getSummaryList().isEmpty()) {
-//								// when queue processing completed, reset controls and all regions' status to READY.
-//								runningonserver = false;
-//								updateActionIconsState();
-//								resetRegionStatus();
-//							}
-//						} catch (Exception e) {
-//							logger.error("Cannot get summary list from queue.", e);
-//						}
-//					}
-//				}
-//			};
-//			queue.addIObserver(queueObserver);
-//		}
 		prepareRunOnServerActions();
 		channelmanager = new EpicsChannelManager(this);
 		scriptcontroller = Finder.getInstance().find("SequenceFileObserver");
 		scriptcontroller.addIObserver(this);
-		regionScannable = Finder.getInstance().find("regions");
-		regionScannable.addIObserver(this);
+//		regionScannable = Finder.getInstance().find("regions");
+//		regionScannable.addIObserver(this);
+//		ew4000 = Finder.getInstance().find("ew4000");
+//		ew4000.addIObserver(this);
 		analyserStateListener = new AnalyserStateListener();
 		try {
 			createChannels();
@@ -1011,37 +1004,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		logger.debug("analyser state channel and monitor are created");
 	}
 
-//	private IObserver commandObserver = new IObserver() {
-//
-//		@Override
-//		public void update(Object source, Object arg) {
-//			if (source instanceof RegionCommand) {
-//				RegionCommand command = (RegionCommand) source;
-//				Region region = command.getRegion();
-//				if (arg instanceof gda.commandqueue.Command.STATE) {
-//					gda.commandqueue.Command.STATE cmdState = (gda.commandqueue.Command.STATE) arg;
-//					if (cmdState.equals(gda.commandqueue.Command.STATE.PAUSED)) {
-//						// not supported
-//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.RUNNING)) {
-//						region.setStatus(STATUS.RUNNING);
-//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.COMPLETED)) {
-//						region.setStatus(STATUS.COMPLETED);
-//						command.deleteIObserver(commandObserver);
-//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.ABORTED)) {
-//						region.setStatus(STATUS.ABORTED);
-//						command.deleteIObserver(commandObserver);
-//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.ERROR)) {
-//						region.setStatus(STATUS.ABORTED);
-//						command.deleteIObserver(commandObserver);
-//					} else if (cmdState.equals(gda.commandqueue.Command.STATE.NOT_STARTED)) {
-//						region.setStatus(STATUS.READY);
-//					}
-//				}
-//				sequenceTableViewer.refresh();
-//			}
-//		}
-//	};
-
 	private Action stopRunOnServerAction;
 
 	private void prepareRunOnServerActions() {
@@ -1052,19 +1014,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				logger.info("Calling start on server.");
 				runningonserver = true;
 				updateActionIconsState();
-//				for (Region region : regions) {
-//					if (region.isEnabled()) {
-//						final RegionCommand command = new RegionCommand(region);
-//						command.addIObserver(commandObserver);
-//						try {
-//							queue.addToTail(command);
-//						} catch (Exception e) {
-//							logger.error("Cannot add region " + command.getRegion().getName() + " to the processing queue.", e);
-//						}
-//					}
-//				}
 				try {
-//					processor.start(500);
 					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
 					jsf.runCommand(String.format("analyserscan regions '%s' ew4000", regionDefinitionResourceUtil.getFileName()));
 				} catch (Exception e) {
@@ -1086,10 +1036,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				try {
 					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
 					jsf.haltCurrentScan();
-//					processor.stop(1000);
-//					if (!queue.getSummaryList().isEmpty()) {
-//						queue.removeAll();
-//					}
 					runningonserver = false;
 				} catch (Exception e) {
 					logger.error("exception throws on stop queue processor.", e);
@@ -1108,54 +1054,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	}
 
-//	private void updateState(Object source, final Object arg) {
-//		if (source instanceof IFindableQueueProcessor) {
-//			IFindableQueueProcessor processor = (IFindableQueueProcessor) source;
-//			try {
-//				ProcessorCurrentItem currentItem = processor.getCurrentItem();
-//
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-//
-//				@Override
-//				public void run() {
-//					if (arg instanceof CommandProgress) {
-//						// nothing to do, we use EPICS Monitor to update Region Command Progress independently
-//					} else if (arg instanceof gda.commandqueue.Command.STATE) {
-//						gda.commandqueue.Command.STATE cmdState = (gda.commandqueue.Command.STATE) arg;
-//						if (cmdState.equals(gda.commandqueue.Command.STATE.PAUSED)) {
-//							// not supported
-//						} else if (cmdState.equals(gda.commandqueue.Command.STATE.RUNNING)) {
-//
-//						} else if (cmdState.equals(gda.commandqueue.Command.STATE.COMPLETED)) {
-//							// TODO set COMPLETED image
-//						} else if (cmdState.equals(gda.commandqueue.Command.STATE.ABORTED)) {
-//							// TODO set ERROR image
-//						}
-//					} else if (arg instanceof Processor.STATE) {
-//						Processor.STATE prcState = (Processor.STATE) arg;
-//						switch (prcState) {
-//						case PROCESSING_ITEMS:
-//
-//							break;
-//						case UNKNOWN:
-//							break;
-//						case WAITING_QUEUE:
-//							break;
-//						case WAITING_START:
-//							// reset all region state to their deafult: selected
-//							// -
-//							// ready, unselected to null/empty/no image.
-//							break;
-//						}
-//					}
-//				}
-//			});
-//		}
-//	}
 
 	private void updateCalculatedData() {
 		int numActives = 0;
@@ -1313,12 +1211,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		try {
 			resource.eAdapters().remove(notifyListener);
-			//
 			regionDefinitionResourceUtil.setFileName(seqFileName);
 			if (newFile) {
 				regionDefinitionResourceUtil.createSequence();
 			}
-			// regionDefinitionResourceUtil.setFileChanged(true);
 			fireSelectionChanged(new FileSelection());
 			Resource sequenceRes = regionDefinitionResourceUtil.getResource();
 			sequenceTableViewer.setInput(sequenceRes);
@@ -1331,17 +1227,27 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (regions.isEmpty()) {
 				fireSelectionChanged(StructuredSelection.EMPTY);
 			} else {
-				fireSelectionChanged(regions.get(0));
+				for (Region region : regions) {
+					if (region.isEnabled()) {
+						currentRegion = region;
+						break;
+					}
+				}
+				if (currentRegion==null) {
+					fireSelectionChanged(regions.get(0));
+				} else {
+					fireSelectionChanged(currentRegion);
+				}
 			}
 			// update spectrum parameters
 			spectrum = regionDefinitionResourceUtil.getSpectrum();
 			if (spectrum != null) {
 				txtSample.setText(spectrum.getSampleName());
-				txtFilename.setText(spectrum.getFilenamePrefix());
+				txtPrefix.setText(spectrum.getFilenamePrefix());
 				txtfilenameformat.setText(spectrum.getFilenameFormat());
 			} else {
 				txtSample.setText("");
-				txtFilename.setText("");
+				txtPrefix.setText("");
 				txtfilenameformat.setText("");
 			}
 			txtSequenceFilePath.setText(regionDefinitionResourceUtil.getFileName());
@@ -1437,7 +1343,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private IVGScientaAnalyser analyser;
 
-	private Scannable regionScannable;
+//	private Device regionScannable;
 
 	private Region currentRegion;
 
@@ -1446,16 +1352,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		try {
 			regionDefinitionResourceUtil.getResource().eAdapters().remove(notifyListener);
 			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
+			stateChannel.dispose();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//		if (processor != null && processorObserver != null) {
-//			processor.deleteIObserver(processorObserver);
-//			processor = null;
-//		}
-//		if (queue != null) {
-//			queue = null;
-//		}
 		super.dispose();
 	}
 
@@ -1486,7 +1386,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	public String getVisit() {
-		if (visit != null) {
+		if (visit == null) {
 			visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
 		}
 		return visit;
@@ -1502,59 +1402,71 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	@Override
 	public void update(Object source, final Object arg) {
-		if (source == scriptcontroller && arg instanceof SequenceFileChangeEvent) {
-			Display.getDefault().asyncExec(new Runnable() {
-				
-				@Override
-				public void run() {
-					logger.debug("Sequence file changed to {}", ((SequenceFileChangeEvent)arg).getFilename());
-					refreshTable(((SequenceFileChangeEvent) arg).getFilename(), false);
-				}
-			});
-		}
-		// if (source.equals(regionScannable)) {
-		if (source == regionScannable) {
-			if (arg instanceof RegionChangeEvent) {
-				String regionId = ((RegionChangeEvent) arg).getRegionId();
-				for (Region region : regions) {
-					if (region.getRegionId().equalsIgnoreCase(regionId)) {
-						currentRegion = region;
+		if (source == scriptcontroller) {
+			if (arg instanceof SequenceFileChangeEvent) {
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						logger.debug("Sequence file changed to {}",
+								((SequenceFileChangeEvent) arg).getFilename());
+						refreshTable(
+								((SequenceFileChangeEvent) arg).getFilename(),
+								false);
 					}
-				}
-				// TODO auto select this region in the viewer????
-				sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
-			} 
-//			else if (arg instanceof RegionStatusEvent) {
-//				Status status = ((RegionStatusEvent) arg).getStatus();
-//				if (currentRegion == null) {
-//					String regionId = ((RegionStatusEvent) arg).getRegionId();
-//					for (Region region : regions) {
-//						if (region.getRegionId().equalsIgnoreCase(regionId)) {
-//							currentRegion = region;
-//						}
+				});
+			}
+			if (arg instanceof RegionChangeEvent) {
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						logger.debug("region update to {}",
+								((RegionChangeEvent) arg).getRegionName());
+						String regionId = ((RegionChangeEvent) arg)
+								.getRegionId();
+						for (Region region : regions) {
+							if (region.getRegionId().equalsIgnoreCase(regionId)) {
+								if (currentRegion != region) {
+									updateRegionStatus(currentRegion, STATUS.COMPLETED);
+								}
+								currentRegion = region;
+							}
+						}
+						fireSelectionChanged(currentRegion);
+						sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+					}
+				});
+			}
+		}
+		//TODO why the next 2 cases does not work?
+//		if (source instanceof RegionScannable) {
+//			if (arg instanceof RegionChangeEvent) {
+//				logger.debug("region update to {}", ((RegionChangeEvent)arg).getRegionName());
+//				String regionId = ((RegionChangeEvent) arg).getRegionId();
+//				for (Region region : regions) {
+//					if (region.getRegionId().equalsIgnoreCase(regionId)) {
+//						currentRegion = region;
 //					}
 //				}
-//				switch (status) {
-//				case READY:
-//					updateRegionStatus(currentRegion, STATUS.READY);
-//					break;
-//				case RUNNING:
-//					updateRegionStatus(currentRegion, STATUS.RUNNING);
-//					break;
-//				case ABORTED:
-//					updateRegionStatus(currentRegion, STATUS.ABORTED);
-//					break;
-//				case COMPLETED:
-//					updateRegionStatus(currentRegion, STATUS.COMPLETED);
-//					break;
-//				case ERROR:
-//					updateRegionStatus(currentRegion, STATUS.ABORTED);
-//					break;
-//				default:
-//					break;
+//				fireSelectionChanged(currentRegion);
+//				// TODO auto select this region in the viewer????
+//				//sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+//			} 
+//		}
+//		if (source instanceof EW4000) {
+//			if (arg instanceof RegionChangeEvent) {
+//				logger.debug("region update to {}", ((RegionChangeEvent)arg).getRegionName());
+//				String regionId = ((RegionChangeEvent) arg).getRegionId();
+//				for (Region region : regions) {
+//					if (region.getRegionId().equalsIgnoreCase(regionId)) {
+//						currentRegion = region;
+//					}
 //				}
-//			}
-		}
+//				fireSelectionChanged(currentRegion);
+//				// TODO auto select this region in the viewer????
+////				sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+//			} 
+//		}
+//	
 		// TODO update current region status from detector or EPICS IOC
 
 	}
@@ -1571,7 +1483,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private class AnalyserStateListener implements MonitorListener {
 
-		private boolean running;
+		private boolean running=false;
 
 		@Override
 		public void monitorChanged(final MonitorEvent arg0) {
@@ -1582,8 +1494,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 			DBR dbr = arg0.getDBR();
 			short state = 0;
-			if (dbr.isSHORT()) {
-				state = ((DBR_Short) dbr).getShortValue()[0];
+			if (dbr.isENUM()) {
+				state = ((DBR_Enum) dbr).getEnumValue()[0];
 			}
 			if (currentRegion != null) {
 				switch (state) {
@@ -1604,10 +1516,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					break;
 				case 6:
 					updateRegionStatus(currentRegion, STATUS.ABORTED);
+					running=false;
 					logger.error("analyser in error state for region; {}", currentRegion.toString());
 					break;
 				case 10:
 					updateRegionStatus(currentRegion, STATUS.ABORTED);
+					running=false;
 					logger.warn("analyser is in aborted state for currentregion: {}", currentRegion.toString());
 					break;
 				default:

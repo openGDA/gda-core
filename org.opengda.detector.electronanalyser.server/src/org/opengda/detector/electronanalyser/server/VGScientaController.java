@@ -72,8 +72,10 @@ public class VGScientaController implements Configurable {
 	public static final String TOTALDATAPOINTS="TOTAL_DATA_POINTS_RBV";
 	public static final String CURRENTPOINT = "CURRENT_CHANNEL_RBV";
 	public static final String SPECTRUMDATA = "INT_SPECTRUM";
+	public static final String SPECTRUMDATACOPY = "INT_SPECTRUM_COPY";
 	public static final String IMAGEDATA = "IMAGE";
 	public static final String EXTIODATA = "EXTIO";
+	public static final String EXTIODATACOPY = "EXTIO_COPY";
 	public static final String EXCITATIONENERGY = "EXCITATION_ENERGY";
 	public static final String EXCITATIONENERGY_RBV = "EXCITATION_ENERGY_RBV";
 	public static final String XUNITS_RBV = "X_UNITS_RBV";
@@ -351,5 +353,13 @@ public class VGScientaController implements Configurable {
 
 	public double getStepTime() throws TimeoutException, CAException, InterruptedException, Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(STEPTIME));
+	}
+
+	public double[] getSpectrum(int i) throws TimeoutException, CAException, InterruptedException, Exception {
+		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(SPECTRUMDATA),i);
+	}
+
+	public double[] getExtIO(int i) throws TimeoutException, CAException, InterruptedException, Exception {
+		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(EXTIODATACOPY),i);
 	}
 }

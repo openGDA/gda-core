@@ -236,13 +236,20 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 
 			data.addData(detectorName, "lens_mode", new NexusGroupData(analyser.getLensMode()), null, null);
 			data.addData(detectorName, "acquisition_mode", new NexusGroupData(analyser.getAcquisitionMode()), null, null);
-			data.addData(detectorName, "energy_mode", new NexusGroupData( analyser.getEnergysMode() ), null, null);
+			data.addData(detectorName, "energy_mode", new NexusGroupData( analyser.getEnergyMode() ), null, null);
 			data.addData(detectorName, "detector_mode", new NexusGroupData( analyser.getDetectorMode() ), null, null);
 			
 			data.addData(detectorName, "pass_energy", new int[] {1}, NexusFile.NX_INT32, new int[] { analyser.getPassEnergy()}, null, null);
-			data.addData(detectorName, "low_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getStartEnergy()}, "eV", null);
-			data.addData(detectorName, "high_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getEndEnergy()}, "eV", null);
-			data.addData(detectorName, "fixed_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getCentreEnergy()}, "eV", null);
+			if (energyMode.equalsIgnoreCase("Binding")) {
+				data.addData(detectorName, "low_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getEndEnergy() }, "eV", null);
+				data.addData(detectorName, "high_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getStartEnergy()}, "eV", null);
+				data.addData(detectorName, "fixed_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getCentreEnergy()}, "eV", null);
+			}
+			else {
+				data.addData(detectorName, "low_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getStartEnergy()}, "eV", null);
+				data.addData(detectorName, "high_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getEndEnergy()}, "eV", null);
+				data.addData(detectorName, "fixed_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getCentreEnergy()}, "eV", null);
+			}
 			data.addData(detectorName, "excitation_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getExcitationEnergy()}, "eV", null);
 			data.addData(detectorName, "energy_step", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getEnergyStep()}, "eV", null);
 			double stepTime = analyser.getStepTime();

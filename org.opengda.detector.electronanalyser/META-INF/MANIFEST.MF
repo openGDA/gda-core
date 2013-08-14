@@ -23,5 +23,8 @@ Require-Bundle: uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0"
 Export-Package: org.opengda.detector.electronanalyser,
  org.opengda.detector.electronanalyser.event,
+ org.opengda.detector.electronanalyser.nxdata,
+ org.opengda.detector.electronanalyser.nxdetector,
+ org.opengda.detector.electronanalyser.nxdetector.plugins,
  org.opengda.detector.electronanalyser.scan,
  org.opengda.detector.electronanalyser.utils

@@ -103,7 +103,7 @@ public class RegionCommand extends CommandBase implements Command, Serializable 
 
 	private void configureCollection(Region region) throws Exception {
 		getAnalyser().setLensMode(region.getLensMode());
-		getAnalyser().setEnergysMode(region.getEnergyMode().getLiteral());
+		getAnalyser().setEnergyMode(region.getEnergyMode().getLiteral());
 		getAnalyser().setPassEnergy(region.getPassEnergy());
 		if (region.getAcquisitionMode() == ACQUISITION_MODE.SWEPT) {
 			getAnalyser().setStartEnergy(region.getLowEnergy());
