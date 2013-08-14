@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2009-2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -36,12 +36,31 @@ public class NexusGroupData implements Serializable {
 	 * dimensions - @see org.nexusformat.NexusFile.getInfo
 	 */
 	public int[] dimensions;
-	
+
+	/**
+	 * This array may be used to indicate a preferred choice of chunking to the datawriter.
+	 * The datawriter might well ignore that though (for now all will). 
+	 */
+	public int[] chunkDimensions = null;
+
 	/**
 	 * type of data e.g. NexusFile.NX_CHAR
 	 */
 	public final int type;
 
+	/**
+	 * Setting this can advise a datawriter to use the specified compression algorithm
+	 * for a choice see:
+	 * 
+	 * NexusFile.NX_COMP_*
+	 */
+	public final int compressionType = NexusFile.NX_COMP_NONE;
+
+	/**
+	 * Flag to indicate that when writing this value to a file the entry is to linked to the NXEntry/NXDetector section as a variable of the scan
+	 */
+	public boolean isDetectorEntryData = false;
+	
 	/**
 	 * @param dimensions
 	 * @param type
@@ -245,11 +264,6 @@ public class NexusGroupData implements Serializable {
 		return msg.toString();
 	}
 
-
-
-	/**
-	 * @return first value in data
-	 */
 	public Serializable getFirstValue() {
 		if (dimensions == null || data == null)
 			return null;
@@ -301,12 +315,7 @@ public class NexusGroupData implements Serializable {
 		return equals(obj, false);
 	}
 
-	/**
-	 * @param obj
-	 * @param reportFalse
-	 * @return true if equal
-	 */
-	public boolean equals(Object obj, boolean reportFalse) {
+	public boolean equals(Object obj, boolean logWhenFalseInOneCase) {
 		if (this == obj) {
 			return true;
 		}
@@ -322,15 +331,10 @@ public class NexusGroupData implements Serializable {
 				return false;
 			}
 		} else if (!dataToTxt(false, false, false).equals(other.dataToTxt(false, false, false))) {
-			if( reportFalse )
+			if (logWhenFalseInOneCase)
 				logger.info("expected = "+dataToTxt(false,true,false) + ", actual= " +other.dataToTxt(false,true,false));
 			return false;
 		}
 		return true;
 	}
-	
-	/**
-	 * Flag to indicate that when writing this value to a file the entry is to linked to the NXEntry/NXDetector section as a variable of the scan
-	 */
-	public boolean isDetectorEntryData = false;
 }
