@@ -21,6 +21,7 @@ package gda.data.nexus.tree;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.util.TestUtils;
 
+import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
 
@@ -75,7 +76,7 @@ public class NexusTreeBuilderTest {
 	}	
 	@Test
 	public void testNexusTreeBuilderToGetStructureButNotData() throws NexusException, NexusExtractorException, Exception {
-		INexusTree tree = NexusTreeBuilder.getNexusTree(TestFileFolder + "327.nxs", getSelForAllButData());
+		INexusTree tree = NexusTreeBuilder.getNexusTree(TestFileFolder + File.separator + "327.nxs", getSelForAllButData());
 		Assert.assertEquals("test",tree.getChildNode(0).getChildNode(26).getChildNode(22).getChildNode(5).getData().dimensions[0],11);
 		Assert.assertEquals("test",tree.getChildNode(0).getChildNode(26).getChildNode(22).getChildNode(5).getData().getBuffer(),null);
 		

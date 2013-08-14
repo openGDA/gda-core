@@ -95,6 +95,10 @@ public class NexusGroupData implements Serializable {
 		data = idata;
 		type = NexusFile.NX_INT32;
 	}
+
+	public NexusGroupData(Boolean b) {
+		this(b?1:0);
+	}
 	
 	/**
 	 * @return The data buffer compatible with type, null if data not extracted
