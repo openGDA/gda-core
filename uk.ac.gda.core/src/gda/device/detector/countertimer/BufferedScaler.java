@@ -175,7 +175,6 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	}
 
 	private void setTimeFrames() throws DeviceException {
-
 		if (parameters == null) {
 			throw new DeviceException(getName()
 					+ " could not set time frames for continuous scans as parameters not supplied!");
@@ -186,7 +185,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		//Send as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("tfg setup-groups ext-start cycles 1"+"\n");
-		buffer.append(parameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 " + ttlSocket + 8+"\n");
+		buffer.append(parameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 " + (ttlSocket + 8)+"\n");
 		buffer.append("-1 0 0 0 0 0 0");
 		daserver.sendCommand(buffer.toString());
 		/*daserver.sendCommand("tfg setup-groups ext-start cycles 1");

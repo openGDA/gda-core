@@ -252,8 +252,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 	}
 
-	@Override
-	public void shutdownNow() throws DeviceException, InterruptedException {
+	void shutdownNow() throws DeviceException, InterruptedException {
 		logger.info("Shutting down MultithreadedScanDataPointPipeline NOW.");
 		int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
 		if (numberOfDumpedPoints > 0) {
@@ -308,7 +307,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 				if (!shutdownOkay) {
 					int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
 					throw new DeviceException("positionCallableExecutor did not shutdown politely before " + timeoutMillis
-							+ "ms timeout. The Pipeline has been stopped and " + numberOfDumpedPoints + " points dumped.");
+							+ "ms timeout. The Pipeline has been stopped and " + numberOfDumpedPoints + " points lost.");
 				}
 			}
 
@@ -319,8 +318,8 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			if (!shutdownOkay) {
 				int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
 				throw new DeviceException(
-						"scannablePopulatorAndBroadcasterExecutor did not shutdown politely before 2 min timeout.  The Pipeline has been stopped and "
-								+ numberOfDumpedPoints + " points dumped.");
+						"scannablePopulatorAndBroadcasterExecutor did not shutdown politely before 20 min timeout.  The Pipeline has been stopped and "
+								+ numberOfDumpedPoints + " points lost.");
 			}
 
 			// 3. Shutdown the Broadcaster (DataWriter)

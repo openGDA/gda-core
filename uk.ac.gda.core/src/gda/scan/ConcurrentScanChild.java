@@ -343,7 +343,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 */
 	protected void checkAllMovesComplete() throws Exception {
 		for (ScanObject scanObject : allScanObjects) {
-			checkForInterrupts();
+			checkForInterruptsIgnoreIdle();
 			// only check those objects which we have moved are no longer busy
 			if (scanObject.hasStart()) {
 				scanObject.scannable.waitWhileBusy();
@@ -476,7 +476,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 							if (Thread.interrupted()) {
 								throw new InterruptedException(); // can't trust devices to look for these
 							}
-							checkForInterrupts(); // checks only ScanBase.interupted and may pause
+							checkForInterruptsIgnoreIdle(); // checks only ScanBase.interupted and may pause
 							Object data = readoutTasks.get(i).get();
 							point.addDetectorData(data, ScannableUtils.getExtraNamesFormats(detectors.get(i)));
 						}
@@ -484,9 +484,9 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					}
 
 					// Put point onto pipeline
-					checkForInterrupts();
+					checkForInterruptsIgnoreIdle();
 					scanDataPointPipeline.put(point); // may block
-					checkForInterrupts();
+					checkForInterruptsIgnoreIdle();
 					
 					// The main scan thread cannot call atPointEnd (and subsequently atPointStart) in the correct order
 					// with respect to readout so call these here instead.
@@ -547,7 +547,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 * Cancels readout and publish completion task.
 	 */
 	@Override
-	public void cancelReadoutAndPublishCompletion () {
+	protected void cancelReadoutAndPublishCompletion () {
 		if (detectorReadoutTask != null) {
 			detectorReadoutTask.cancel(true);
 		}

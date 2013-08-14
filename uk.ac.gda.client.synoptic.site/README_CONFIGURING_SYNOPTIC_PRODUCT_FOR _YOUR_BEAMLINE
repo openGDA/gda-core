@@ -14,7 +14,8 @@ the java.properties file. It should contain the same properties as the main clie
 following properties:
 
 gda.rcp.workspace
-gda.client.synopticpath
+gda.client.synopticpath.user
+gda.client.synopticpath.staff
 gda.gui.beans.xml
 
 It is important that the synoptic product uses a different workspace to the main client.

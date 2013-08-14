@@ -243,6 +243,16 @@ public abstract class ScanBase implements Scan {
 			interrupted = true;
 		}
 
+		checkForInterruptsIgnoreIdle();
+	}
+	
+	/*
+	 * Should only be called by Scan objects, as they should be aborted if the flag is set irrespective of the Command
+	 * Server status.
+	 * 
+	 * @throws InterruptedException
+	 */
+	protected static void checkForInterruptsIgnoreIdle() throws InterruptedException {
 		if (interrupted) {
 			InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
 			throw new InterruptedException();
@@ -474,7 +484,7 @@ public abstract class ScanBase implements Scan {
 		// Do nothing as readoutDetectorsAndPublish blocks until complete.
 	}
 	
-	public void cancelReadoutAndPublishCompletion () {
+	protected void cancelReadoutAndPublishCompletion () {
 		// Do nothing as readoutDetectorsAndPublish blocks until complete.
 	}
 	
@@ -567,9 +577,16 @@ public abstract class ScanBase implements Scan {
 				// disengage with the data handler, in case this scan is
 				// restarted
 				try {
-					scanDataPointPipeline.shutdownNow();
+					final int SECONDS_TO_WAIT = 10;
+					report("Allowing up to " + SECONDS_TO_WAIT + "s for collected points to be written");
+
+					if (scanDataPointPipeline != null) {
+						scanDataPointPipeline.shutdown(SECONDS_TO_WAIT * 1000);
+					}
+				} catch (DeviceException e) {
+					report(e.getMessage());  // The pipeline did not shutdown in the time provided and was harshly shutdown. No need to raise this.
 				} catch (InterruptedException e) {
-					// TODO endScan should throw InteruptedExceptions
+					// TODO endScan should throw InteruptedException
 					throw new DeviceException("Problem shutting down scan pipeline while completing and interurupted scan.", e);
 				}
 			}
@@ -1047,7 +1064,7 @@ public abstract class ScanBase implements Scan {
 				try {
 					prepareForCollection();
 				} catch (Exception e) {
-					throw new Exception("Exception preparing for scan collection: " + createMessage(e), e);
+					throw new Exception("while preparing for scan collection: " + createMessage(e), e);
 				}
 				if (getScannables().size() == 0 && getDetectors().size() == 0) {
 					throw new IllegalStateException("ScanBase: No scannables, detectors or monitors to be scanned!");
@@ -1063,16 +1080,16 @@ public abstract class ScanBase implements Scan {
 					}
 					throw new ScanInterruptedException(message,e.getStackTrace());
 				} catch (Exception e) {
-					throw new Exception("Exception during scan collection: " + createMessage(e), e);
+					throw new Exception("during scan collection: " + createMessage(e), e);
 				}
 			} catch (ScanInterruptedException e) {
 				throw e;
 			} catch (Exception e) {
-				logger.error(createMessage(e) + " during scan: calling atCommandFailure hooks and then interrupting scan.",e);
-				report("====================================================================================================");
-				report(createMessage(e) + " during scan");
+				InterfaceProvider.getTerminalPrinter().print("====================================================================================================");
+				logger.error(createMessage(e) + ": calling atCommandFailure hooks and then interrupting scan.",e);
+				report(createMessage(e));
 				
-				report("Calling stop() on Scannables and Detectors used in scan, followed by atCommandFailure().");
+				logger.info("Calling stop() on Scannables and Detectors used in scan, followed by atCommandFailure().");
 				cancelReadoutAndPublishCompletion();
 				callAtCommandFailureHooks();
 				for (Scannable scn : allScannables) {
@@ -1083,17 +1100,11 @@ public abstract class ScanBase implements Scan {
 					logger.info("Stopping " + det.getName());
 					det.stop();
 				}
-				
-				report("Interupting all scan pipeline tasks and shutting pipeline down now. Waiting indefinitely for task interuption.");
-				if (scanDataPointPipeline != null) {
-					scanDataPointPipeline.shutdownNow();  // This depends on the tasks being cancelable.
-				}
-				cancelReadoutAndPublishCompletion();  //TODO: This does nothing, why is this method available?
 
-				report("Ending scan and rethrowing exception");
-				
-				report("====================================================================================================");
+				cancelReadoutAndPublishCompletion();
 
+				logger.info("Ending scan and rethrowing exception");
+				
 				interrupted = true; // causes endscan to behave differently
 				throw e; 
 			} finally {
@@ -1118,7 +1129,7 @@ public abstract class ScanBase implements Scan {
 	}
 
 	private void report(String msg) {
-		InterfaceProvider.getTerminalPrinter().print("!- " + msg);
+		InterfaceProvider.getTerminalPrinter().print(msg);
 		logger.info(msg);
 	}
 	
