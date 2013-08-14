@@ -40,8 +40,7 @@ import org.springframework.util.StringUtils;
  * Provides base functionality for classes implementing the Icat interface.
  */
 public abstract class IcatBase implements Icat {
-
-	protected static final Logger logger = LoggerFactory.getLogger(IcatBase.class);
+	private static final Logger logger = LoggerFactory.getLogger(IcatBase.class);
 
 	protected String visitID = null;
 	protected Date operatingDate = null;
@@ -82,7 +81,7 @@ public abstract class IcatBase implements Icat {
 		// Use a set here to prevent duplicate visits appearing
 		Set<String> visits = new LinkedHashSet<String>();
 
-		if (results != null) {
+		if (results != null && !results.isEmpty()) {
 			final String[] bits = results.split(",");
 			for (String bit : bits) {
 				visits.add(bit.trim());

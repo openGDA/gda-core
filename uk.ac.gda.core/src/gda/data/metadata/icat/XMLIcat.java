@@ -27,6 +27,8 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
@@ -35,6 +37,7 @@ import org.springframework.core.io.Resource;
  * Reads an xml file which provides a user to experiment mapping
  */
 public class XMLIcat extends IcatBase {
+	private static final Logger logger = LoggerFactory.getLogger(XMLIcat.class);
 
 	private DateFormat formatter = new SimpleDateFormat("HH:mm dd-MM-yy");
 

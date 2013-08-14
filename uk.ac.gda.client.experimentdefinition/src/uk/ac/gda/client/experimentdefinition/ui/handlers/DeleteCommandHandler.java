@@ -56,7 +56,7 @@ public class DeleteCommandHandler extends AbstractExperimentCommandHandler {
 
 		final ACTION_TYPE type = getActionType(id);
 		if (type == ACTION_TYPE.FOLDER) {
-			final IFolder dir = getController().getSelectedFolder();
+			final IFolder dir = getEditorManager().getSelectedFolder();
 			if (dir == null)
 				return false;
 			final boolean ok = MessageDialog.openConfirm(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
@@ -74,35 +74,39 @@ public class DeleteCommandHandler extends AbstractExperimentCommandHandler {
 					logger.error(e.getMessage(), e);
 				} finally {
 					ExperimentFactory.getExperimentEditorManager().closeAllEditors(true);
-					getController().refreshViewers();
+					getEditorManager().refreshViewers();
 				}
 			}
 
 		} else if (type == ACTION_TYPE.SCAN) {
-			final IFile file = getController().getSelectedFile();
+			final IFile file = getEditorManager().getSelectedFile();
 			if (file == null)
 				return false;
 			DeleteCommandHandler.deleteScan(file);
 
 		} else if (type == ACTION_TYPE.RUN) {
-			final IFile file = getController().getSelectedFile();
+			final IFile file = getEditorManager().getSelectedFile();
 			if (file == null)
 				return false;
 
-			final IExperimentObject ob = getController().getSelectedScan();
+			final IExperimentObject ob = getEditorManager().getSelectedScan();
 			if (ob == null)
 				return false;
 
 			try {
 				IExperimentObjectManager man = ExperimentFactory.getManager(ob);
+				Object selectedInView = getEditorManager().getSelected();
+				if (ob.equals(selectedInView)){
+					getEditorManager().closeAllEditors(false);
+				}
 				man.removeExperiment(ob);
 				man.fireExperimentObjectListeners();
-				getController().select(man);
+				getEditorManager().select(man);
 			} catch (Exception e) {
 				logger.error("Cannot delete " + ob, e);
 			}
 
-			getController().refreshViewers();
+			getEditorManager().refreshViewers();
 		}
 		return true;
 	}

@@ -56,7 +56,7 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 	}
 
 	protected void queueSingleScanSingleRepetition() throws ExecutionException {
-		final IExperimentObject ob = getController().getSelectedScan();
+		final IExperimentObject ob = getEditorManager().getSelectedScan();
 		if (ob == null)
 			return;
 
@@ -66,12 +66,12 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 	}
 
 	protected void queueSingleScan() throws ExecutionException {
-		final IExperimentObject ob = getController().getSelectedScan();
+		final IExperimentObject ob = getEditorManager().getSelectedScan();
 		addExperimentToQueue(ob);
 	}
 
 	protected void queueMultiScan() throws ExecutionException {
-		final IExperimentObjectManager man = getController().getSelectedMultiScan();
+		final IExperimentObjectManager man = getEditorManager().getSelectedMultiScan();
 		if (man == null)
 			return;
 

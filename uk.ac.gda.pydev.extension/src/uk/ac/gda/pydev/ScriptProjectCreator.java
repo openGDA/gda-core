@@ -90,7 +90,7 @@ public class ScriptProjectCreator implements IStartup {
 		final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		if (store.getBoolean(PreferenceConstants.SHOW_XML_CONFIG)) {
 			ProjectUtils.createImportProjectAndFolder(getProjectNameXMLConfig(), "src",
-					LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml", ConfigurationXMLNature.ID, null, monitor);
+					LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml", null, null, monitor);
 		} else {
 			final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			final IProject project = root.getProject(getProjectNameXMLConfig());
@@ -252,7 +252,6 @@ public class ScriptProjectCreator implements IStartup {
 
 		IProject project2 = ProjectUtils.createImportProjectAndFolder(projectName, "src", importFolder, null, null,
 				monitor);
-		ProjectUtils.addRemoveNature(project2, monitor, chkGDASyntax, ExtendedSyntaxNature.ID);
 		boolean hasPythonNature = PythonNature.getPythonNature(project2) != null;
 
 		if (chkGDASyntax) {

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: uk.ac.gda.core plugin
 Bundle-SymbolicName: uk.ac.gda.core;singleton:=true
-Bundle-Version: 8.32.0.qualifier
+Bundle-Version: 8.34.0.qualifier
 Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  org.junit4,
  com.springsource.org.aopalliance,
@@ -112,6 +112,7 @@ Export-Package: gda,
  gda.device.monitor.corba.impl,
  gda.device.motor,
  gda.device.motor.corba.impl,
+ gda.device.motor.simplemotor,
  gda.device.robot.corba.impl,
  gda.device.scannable,
  gda.device.scannable.component,
@@ -134,6 +135,7 @@ Export-Package: gda,
  gda.function.lookup,
  gda.function.lookup.corba.impl,
  gda.icons,
+ gda.io,
  gda.io.socket,
  gda.jscience,
  gda.jscience.physics.quantities,

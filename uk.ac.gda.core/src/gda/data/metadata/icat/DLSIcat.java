@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2009-2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -34,6 +34,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.StringUtils;
 
@@ -56,7 +58,8 @@ import org.springframework.util.StringUtils;
  * </pre>
  */
 public class DLSIcat extends IcatBase {
-	
+	private static final Logger logger = LoggerFactory.getLogger(DLSIcat.class);
+
 	protected static class Shift {
 		
 		private String investigationId;
@@ -109,6 +112,11 @@ public class DLSIcat extends IcatBase {
 	 * The access string to retrieve the experiment ID from the database.
 	 */
 	private static final String TITLE_QUERY = "TITLE:investigation:id";
+	
+	public DLSIcat() {
+		if (System.getProperty("user.timezone") == null) 
+			System.setProperty("user.timezone", "GMT");
+	}
 	
 	@Override
 	protected String getVisitIDAccessName() {
@@ -223,7 +231,7 @@ public class DLSIcat extends IcatBase {
 	 * in the case are seconds and milli-seconds. Neither of these are relevant for our purposes here, which
 	 * are based on coarser time scales. Therefore our date format class instance ignores these.
 	 */
-	private static final String ORACLE_DATE_FORMAT = "yyyy-M-d.H.m.";
+	private static final String ORACLE_DATE_FORMAT = "yyyy-M-d H:m:";
 	
 	/**
 	 * From a set of allocated shifts determine which are current on the instrument in use. Instrument equates to an end
