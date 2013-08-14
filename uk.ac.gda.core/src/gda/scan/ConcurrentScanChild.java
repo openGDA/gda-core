@@ -547,7 +547,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 * Cancels readout and publish completion task.
 	 */
 	@Override
-	public void cancelReadoutAndPublishCompletion () {
+	protected void cancelReadoutAndPublishCompletion () {
 		if (detectorReadoutTask != null) {
 			detectorReadoutTask.cancel(true);
 		}
