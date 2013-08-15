@@ -22,6 +22,8 @@ import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.HDF5Constants;
 import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
 import ncsa.hdf.object.h5.H5Datatype;
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class Hdf5HelperData {
 
@@ -40,6 +42,13 @@ public class Hdf5HelperData {
 		this.dims = dims;
 		this.data = data;
 		this.h5Datatype = h5Datatype;
+		this.native_type = native_type;
+	}
+	public Hdf5HelperData(long[] dims, Object data, int native_type) {
+		super();
+		this.dims = dims;
+		this.data = data;
+		this.h5Datatype = new H5Datatype(native_type);
 		this.native_type = native_type;
 	}
 	
@@ -77,6 +86,56 @@ public class Hdf5HelperData {
 		this(new long[]{data.length}, data, new H5Datatype(HDF5Constants.H5T_NATIVE_DOUBLE),HDF5Constants.H5T_NATIVE_DOUBLE);
 	}
 
+	public Hdf5HelperData( DoubleDataset dds) {
+		this( getShapeAsLongs(dds.getShape()), dds.getData(), new H5Datatype(HDF5Constants.H5T_NATIVE_DOUBLE),HDF5Constants.H5T_NATIVE_DOUBLE);
+	}
+	
+	public Hdf5HelperData( AbstractDataset ads) {
+		this( getShapeAsLongs(ads.getShape()), ads.getBuffer(),  getH5DataType(ads));
+	}
+	
+	private static int getH5DataType(AbstractDataset ads) {
+		int dtype = ads.getDtype();
+		switch (dtype) {
+		case AbstractDataset.BOOL:
+			throw new IllegalArgumentException("BOOL not yet supported");
+		case AbstractDataset.INT8:
+		case AbstractDataset.ARRAYINT8:
+			return HDF5Constants.H5T_NATIVE_INT8;
+		case AbstractDataset.INT16:
+		case AbstractDataset.ARRAYINT16:
+			return HDF5Constants.H5T_NATIVE_INT16;
+		case AbstractDataset.RGB:
+			throw new IllegalArgumentException("RGB not yet supported");
+		case AbstractDataset.INT32:
+		case AbstractDataset.ARRAYINT32:
+			return HDF5Constants.H5T_NATIVE_INT32;
+		case AbstractDataset.INT64:
+		case AbstractDataset.ARRAYINT64:
+			return HDF5Constants.H5T_NATIVE_INT64;
+		case AbstractDataset.FLOAT32:
+		case AbstractDataset.ARRAYFLOAT32:
+			return HDF5Constants.H5T_NATIVE_FLOAT;
+		case AbstractDataset.FLOAT64:
+		case AbstractDataset.ARRAYFLOAT64:
+			return HDF5Constants.H5T_NATIVE_DOUBLE;
+		case AbstractDataset.COMPLEX64:
+			throw new IllegalArgumentException("COMPLEX64 not yet supported");
+		case AbstractDataset.COMPLEX128:
+			throw new IllegalArgumentException("COMPLEX128 not yet supported");
+		default:
+			throw new IllegalArgumentException(dtype + " not yet supported");
+		}
+	}
+
+	static public long [] getShapeAsLongs(int [] shape){
+		long [] lshape = new long[shape.length];
+		for( int i=0; i < shape.length;i++){
+			lshape[i] = shape[i];
+		}
+		return lshape;
+	}
+	
 	static public Hdf5HelperData getInstance(String s) throws HDF5LibraryException {
 		byte[] bytes = s.getBytes();
 		int typeId = H5.H5Tcopy(HDF5Constants.H5T_C_S1);

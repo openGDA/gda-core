@@ -21,9 +21,12 @@ package uk.ac.gda.analysis.hdf5;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.HDF5Constants;
+import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
+import ncsa.hdf.hdf5lib.structs.H5G_info_t;
 import ncsa.hdf.object.h5.H5Datatype;
 
 import org.apache.commons.lang.StringUtils;
@@ -372,6 +375,54 @@ public class Hdf5Helper {
 		}
 	}
 
+	/**
+	 * 
+	 * @param fileName 
+	 * @param location
+	 * @return  list of names of H5 DATASETS within the group specified by the location 
+	 * @throws Exception
+	 */
+	public String [] getListOfDatasets(String fileName, String location) throws Exception {
+		Vector<String> names = new Vector<String>();
+		int fileId = -1;
+		try {
+			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
+			if (fileId < 0) {
+				throw new Exception("Unable to open file `" + fileName + "`");
+			}
+			int groupId = H5.H5Gopen(fileId, location, HDF5Constants.H5P_DEFAULT);
+			if (groupId <= 0) {
+				throw new Exception("Unable to open location " + location);
+			}
+			try{
+				H5G_info_t h5Gget_info = H5.H5Gget_info(groupId);
+				int nelems = (int) h5Gget_info.nlinks;
+				if (nelems > 0) {
+					try {
+						int[] oTypes = new int[nelems];
+						int[] lTypes = new int[nelems];
+						long[] oids = new long[nelems];
+						String[] oNames = new String[nelems];
+						H5.H5Gget_obj_info_all(fileId, location, oNames, oTypes, lTypes, oids, HDF5Constants.H5_INDEX_NAME);
+						// Iterate through the file to see members of the group
+						for (int i = 0; i < nelems; i++) {
+							if (oNames[i] != null && oTypes[i] == HDF5Constants.H5O_TYPE_DATASET ) {
+								names.add(oNames[i]);
+							}
+						}
+					} catch (HDF5Exception ex) {
+						throw new Exception("Could not get objects info from group", ex);
+					}
+				}
+			} finally {
+				H5.H5Gclose(groupId);
+			}
+		} finally {
+			if (fileId >= 0)
+				H5.H5Fclose(fileId);
+		}
+		return names.toArray(new String[0]);
+	}
 	public long lenFromDims(long[] dims) {
 		long length = 1;
 		for (int i = 0; i < dims.length; i++) {
