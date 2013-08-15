@@ -30,8 +30,6 @@ public class P2RMotorController implements SimpleIndexedMotorController, Initial
 	
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -42,6 +40,8 @@ public class P2RMotorController implements SimpleIndexedMotorController, Initial
 
 	@Override
 	public void moveTo(double position, int index) throws DeviceException {
+		if( index != 0 && index != 1)
+			throw new DeviceException("Index must be 0 or 1");
 		updateStatus(); //to get current position for other motor
 		String msg = String.format("M%f, %f,",index==0? position: m[0], index==1? position: m[1] );
 		String reply = bidiAsciiCommunicator.send(msg);
@@ -49,10 +49,19 @@ public class P2RMotorController implements SimpleIndexedMotorController, Initial
 			throw new DeviceException("Error sending moveTo command '" + msg + "' reply = '" + reply + "'");
 		}
 		busy = true;
+		 
+/*		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			throw new DeviceException("Sleep interrupted",e);
+		}
+*/		
 	}
 
 	@Override
 	public double getPosition(int index) throws DeviceException {
+		if( index < 0 || index > 2)
+			throw new DeviceException("Index must be between 0 and  2 inclusive");
 		updateStatus();
 		return m[index];
 	}
@@ -60,7 +69,7 @@ public class P2RMotorController implements SimpleIndexedMotorController, Initial
 	void updateStatus() throws DeviceException {
 		String reply = bidiAsciiCommunicator.send("S");
 		boolean busy;
-		Double m1, m2;
+		Double m1, m2, m3;
 		if(reply.startsWith("T")){
 			busy = true;
 		} else if (reply.startsWith("F")){
@@ -70,23 +79,24 @@ public class P2RMotorController implements SimpleIndexedMotorController, Initial
 		}
 		String substring = reply.substring(1, reply.length());
 		String[] split = substring.split(",");
-		if( split.length==2){
+		if( split.length==3){
 			m1 = Double.valueOf(split[0]);
 			m2 = Double.valueOf(split[1]);
+			m3 = Double.valueOf(split[2]);
 		} else {
 			throw new DeviceException("Error returned from reading status. Reply = '" + reply+"'");
 		}
-		setStatus(busy, m1, m2);
+		setStatus(busy, m1, m2, m3);
 	}
 
 	boolean busy=false;
-	double m[]=new double[]{0., 0.};
+	double m[]=new double[]{0., 0., 0.};
 	
-	private void setStatus(boolean busy, Double m1, Double m2) {
+	private void setStatus(boolean busy, Double m1, Double m2, Double m3) {
 		this.busy = busy;
 		this.m[0] = m1;
 		this.m[1] = m2;
-		
+		this.m[2] = m3;
 	}
 
 	@Override
