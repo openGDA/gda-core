@@ -18,9 +18,11 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
-import org.dawnsci.plotting.api.tool.IToolPageSystem;
-import java.net.URL;
 import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
+
+import java.net.URL;
+
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -135,7 +137,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 		if( config.isConnectToPlotServer()){
 			plotServerConnector = new PlottingSystemIRegionPlotServerConnector(this.twoDArray.getPlottingSystem(), PlotServerROISelectionProvider.getGuiName(config.getDetectorName()));
 		}
-		
+		twoDArray.restore(name);
 		
 	}
 
@@ -146,6 +148,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 
 	@Override
 	public void dispose() {
+		twoDArray.save(name);
 		if( image != null){
 			image.dispose();
 			image=null;
@@ -168,5 +171,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 		}
 		return super.getAdapter(clazz);
 	}
+	
+	
 	
 }

@@ -23,20 +23,40 @@ import gda.device.detector.areadetector.v17.NDROI;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import ncsa.hdf.object.Dataset;
+import ncsa.hdf.object.Datatype;
+
+import org.dawb.hdf5.HierarchicalDataFactory;
+import org.dawb.hdf5.HierarchicalDataFileUtils;
+import org.dawb.hdf5.IHierarchicalDataFile;
+import org.dawb.hdf5.Nexus;
+import org.dawnsci.io.h5.H5LazyDataset;
+import org.dawnsci.io.h5.H5Utils;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.trace.IImageTrace;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.beans.PojoObservables;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -57,16 +77,24 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ByteDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
 import uk.ac.gda.epics.adviewer.ADController;
+import uk.ac.gda.epics.adviewer.Activator;
 import uk.ac.gda.epics.adviewer.ImageData;
 
 public class TwoDArray extends Composite {
+	public enum OptionIndex {
+		I, I_MINUS_A, I_MUNIS_B, I_NORMALISED, I_OVER_A, I_OVER_B, A, B
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArray.class);
 
@@ -81,12 +109,9 @@ public class TwoDArray extends Composite {
 	private Button arrayMonitoringBtn;
 	private Label arrayMonitoringLbl;
 
-	protected boolean autoScale, subtractStore;
+	protected boolean autoScale;
 
-	protected AbstractDataset store;
-
-	private Button btnMinusStore;
-
+	Map<String, AbstractDataset> stores = new HashMap<String, AbstractDataset>();
 
 	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) {
 		super(parent, style);
@@ -120,6 +145,69 @@ public class TwoDArray extends Composite {
 		gd_arrayMonitoringBtn.widthHint = 48;
 		arrayMonitoringBtn.setLayoutData(gd_arrayMonitoringBtn);
 
+		grpStores = new Group(left, SWT.NONE);
+		grpStores.setLayout(new RowLayout(SWT.HORIZONTAL));
+		GridData gd_grpStores = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_grpStores.widthHint = 47;
+		grpStores.setLayoutData(gd_grpStores);
+		grpStores.setText("Store As");
+
+		btnA = new Button(grpStores, SWT.NONE);
+		btnA.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				AbstractDataset clone = ads.clone();
+				clone.setName("A");
+				TwoDArray.this.setupStores("A", clone);
+			}
+		});
+		btnA.setText("A");
+
+		btnB = new Button(grpStores, SWT.NONE);
+		btnB.setText("B");
+		btnB.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				AbstractDataset clone = ads.clone();
+				clone.setName("B");
+				TwoDArray.this.setupStores("B", clone);
+			}
+		});
+
+		grpShow = new Group(left, SWT.NONE);
+		GridData gd_grpShow = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_grpShow.widthHint = 151;
+		grpShow.setLayoutData(gd_grpShow);
+		grpShow.setText("Show");
+		grpShow.setLayout(new FillLayout(SWT.HORIZONTAL));
+
+		comboShow = new ComboViewer(grpShow, SWT.READ_ONLY);
+		comboShow.setContentProvider(ArrayContentProvider.getInstance());
+		comboShow.setLabelProvider(new LabelProvider() {
+
+			@Override
+			public String getText(Object element) {
+				if (element instanceof ShowOption) {
+					ShowOption opt = (ShowOption) element;
+					return opt.getLabel();
+				}
+				return super.getText(element);
+			}
+
+		});
+
+		ShowOption[] showOption = new ShowOption[] { showOptionDefault, new ShowOption("I-A", OptionIndex.I_MINUS_A),
+				new ShowOption("I/A", OptionIndex.I_OVER_A), new ShowOption("I-B", OptionIndex.I_MUNIS_B),
+				new ShowOption("I/B", OptionIndex.I_OVER_B), new ShowOption("I-B/A-B", OptionIndex.I_NORMALISED),
+				new ShowOption("A", OptionIndex.A), new ShowOption("B", OptionIndex.B) };
+		comboShow.setInput(showOption);
+
+		IObservableValue comboShowObservableValue = ViewersObservables.observeSingleSelection(comboShow);
+		IObservableValue showOptionObserveValue = PojoObservables.observeValue(this, showOptionName);
+
+		DataBindingContext bindingContext = new DataBindingContext();
+		bindingContext.bindValue(comboShowObservableValue, showOptionObserveValue);
+		showOptionObserveValue.setValue(showOptionDefault);
 
 		btnAutoscale = new Button(left, SWT.CHECK);
 		btnAutoscale.setText("Auto Colour Range");
@@ -135,36 +223,6 @@ public class TwoDArray extends Composite {
 		autoScale = true;
 		btnAutoscale.setSelection(autoScale);
 
-		Button btnStore = new Button(left, SWT.PUSH);
-		btnStore.setText("Store");
-		btnStore.addSelectionListener(new SelectionAdapter() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if( ads != null){
-					store = ads;
-				}
-				btnMinusStore.setEnabled(store!=null);
-			}
-
-		});
-		
-		btnMinusStore = new Button(left, SWT.CHECK);
-		btnMinusStore.setText("Subtract Store");
-		btnMinusStore.addSelectionListener(new SelectionAdapter() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				super.widgetSelected(e);
-				subtractStore = btnMinusStore.getSelection();
-			}
-
-		});
-		subtractStore = false;
-		btnMinusStore.setSelection(subtractStore);
-		btnMinusStore.setEnabled(store!=null);
-		
-		
 		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		right.setLayout(new FillLayout());
@@ -180,8 +238,7 @@ public class TwoDArray extends Composite {
 		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setTitle("");
 		}
-		
-		
+
 		addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -191,9 +248,9 @@ public class TwoDArray extends Composite {
 				} catch (Exception ee) {
 					logger.error("Error stopping histogram computation", ee);
 				}
-				if(minCallbackTimeObservable != null && minCallbackTimeObserver!=null ){
+				if (minCallbackTimeObservable != null && minCallbackTimeObserver != null) {
 					minCallbackTimeObservable.removeObserver(minCallbackTimeObserver);
-					minCallbackTimeObserver=null;
+					minCallbackTimeObserver = null;
 				}
 				if (plottingSystem != null) {
 					plottingSystem.dispose();
@@ -203,11 +260,19 @@ public class TwoDArray extends Composite {
 		});
 	}
 
+	protected void setupStores(String storeName, AbstractDataset ads) {
+		stores.put(storeName, ads);
+		AbstractDataset storeA = stores.get("A");
+		AbstractDataset storeB = stores.get("B");
+		stores.remove("A-B");
+		if (storeA != null && storeB != null && Arrays.equals(storeA.getShape(), storeB.getShape())) {
+			stores.put("A-B", new DoubleDataset(storeA.isubtract(storeB)));
+		}
+	}
+
 	public void setADController(ADController config) throws Exception {
 		this.config = config;
 
-
-		
 		// Configure AreaDetector
 		NDPluginBase imageNDArrayBase = config.getImageNDArray().getPluginBase();
 		minCallbackTimeComposite.setPluginBase(imageNDArrayBase);
@@ -265,7 +330,7 @@ public class TwoDArray extends Composite {
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(twoDArrayROI);
 			twoDArrayROI.setVisible(true);
 			layout(true);
-			
+
 			try {
 				twoDArrayROI.setNDRoi(imageNDROI, getPlottingSystem());
 
@@ -293,7 +358,7 @@ public class TwoDArray extends Composite {
 					}
 
 				});
-				if( minCallbackTimeObservable != null){
+				if (minCallbackTimeObservable != null) {
 					minCallbackTimeObserver = new Observer<Double>() {
 
 						@Override
@@ -303,11 +368,12 @@ public class TwoDArray extends Composite {
 							} catch (Exception e) {
 								logger.error("Error setting minCallbackTime", e);
 							}
-							
+
 						}
 					};
 					minCallbackTimeObservable.addObserver(minCallbackTimeObserver);
-					minCallbackTimeObserver.update(null, config.getImageNDArray().getPluginBase().getMinCallbackTime_RBV());
+					minCallbackTimeObserver.update(null, config.getImageNDArray().getPluginBase()
+							.getMinCallbackTime_RBV());
 				}
 			} catch (Exception e1) {
 				logger.error("Error configuring the ROI", e1);
@@ -345,6 +411,24 @@ public class TwoDArray extends Composite {
 
 	private Observer<Double> minCallbackTimeObserver;
 	AbstractDataset ads = null;
+	private Group grpStores;
+	private Button btnA;
+	private Button btnB;
+	private ComboViewer comboShow;
+	private Group grpShow;
+
+	ShowOption showOptionDefault = new ShowOption("I", OptionIndex.I);
+	ShowOption showOption = showOptionDefault;
+
+	//id used in DataBinding
+	static final String showOptionName = "showOption";
+	public ShowOption getShowOption() {
+		return showOption;
+	}
+
+	public void setShowOption(ShowOption showOption) {
+		this.showOption = showOption;
+	}
 
 	public void start() throws Exception {
 		config.getImageNDArray().getPluginBase().enableCallbacks();
@@ -376,6 +460,7 @@ public class TwoDArray extends Composite {
 
 							private Runnable updateUIRunnable;
 							volatile boolean runnableScheduled = false;
+							private AbstractDataset nonNullDSToPlot;
 
 							@Override
 							public boolean belongsTo(Object family) {
@@ -422,54 +507,118 @@ public class TwoDArray extends Composite {
 													+ object.getClass().getName());
 										}
 										ads.setName(getArrayName());
-										
-										if( subtractStore && store!= null){
-											if( Arrays.equals(store.getShape(), ads.getShape() )){
-												try{
-													ads = ads.isubtract(store);
-												} catch (Exception e){
-													logger.error("Unable to substract store", e);
+										AbstractDataset dsToShow = null;
+										String explanation = "";
+
+										OptionIndex showIndex = showOption.getIndex();
+										switch (showIndex) {
+										case I:
+										{
+											dsToShow = ads;
+											break;
+										}
+										case B: 
+										case I_OVER_B: 
+										case I_MUNIS_B: {
+											AbstractDataset store = stores.get("B");
+											if (store != null ){
+												if( showIndex == OptionIndex.B){
+													dsToShow = store;
+												} else {
+													if(Arrays.equals(store.getShape(), ads.getShape())) {
+														boolean isOver = showIndex == OptionIndex.I_OVER_B;
+														dsToShow = isOver ? Maths.divide(ads,store) : ads.isubtract(store);
+														dsToShow.setName( ads.getName() + (isOver ? " / " : " - ") + store.getName());
+													} else {
+														explanation = new String("B does not match current image");
+													}
 												}
 											}
+											else {
+												explanation = new String("B is empty");
+											}
+											break;
 										}
-
+										case A: 
+										case I_OVER_A: 
+										case I_MINUS_A: {
+											AbstractDataset store = stores.get("A");
+											if (store != null ){
+												if( showIndex == OptionIndex.A){
+													dsToShow = store;
+												} else {
+													if(Arrays.equals(store.getShape(), ads.getShape())) {
+														boolean isOver = showIndex == OptionIndex.I_OVER_A;
+														dsToShow = isOver ? Maths.divide(ads,store) : ads.isubtract(store);
+														dsToShow.setName( ads.getName() + (isOver ? " / " : " - ") + store.getName());
+													} else {
+														explanation = new String("A does not match current image");
+													}
+												}
+											}
+											else {
+												explanation = new String("A is empty");
+											}
+											break;
+										}
+										case I_NORMALISED: {
+											// I-B/A-B
+											AbstractDataset storeB = stores.get("B");
+											DoubleDataset storeA_B = (DoubleDataset) stores.get("A-B");
+											if (storeB != null && storeA_B != null
+													&& Arrays.equals(storeB.getShape(), ads.getShape())) {
+												DoubleDataset ds = new DoubleDataset(ads.isubtract(storeB));
+												dsToShow = Maths.dividez(ds, storeA_B);
+												dsToShow.setName( "(" + ads.getName() + "-B)/(A-B)");
+											} else {
+												explanation = new String("A or B does not match current image");
+											}
+											break;
+										}
+										}
+										if (dsToShow == null) {
+											dsToShow = new IntegerDataset(new int[] { 0, 0, 0, 0 }, 2, 2);
+											dsToShow.setName("Invalid selection:" + explanation);
+										}
+										nonNullDSToPlot = dsToShow;
 										setMinMax = autoScale;
 										if (min == null || setMinMax) {
-											min = ads.min().intValue();
+											min = dsToShow.min().intValue();
 										}
 										if (max == null || setMinMax) {
-											max = ads.max().intValue();
+											max = dsToShow.max().intValue();
 										}
-										if( max == min){
-											max = min+1; //to ensure a range does exist
+										if (max == min) {
+											max = min + 1; // to ensure a range does exist
 										}
 										if (setMinMax) {
-											//set min to .05 percentile value
-											//set max to .95 percentile value
-											//if these work out the same then resort to min and max of dataset
+											// set min to .05 percentile value
+											// set max to .95 percentile value
+											// if these work out the same then resort to min and max of dataset
 											int num_bins = 100;
 											Histogram hist = new Histogram(num_bins, min, max, true);
-											List<AbstractDataset> histogram_values = hist.value(ads);
-											if(histogram_values.size()>1){
+											List<AbstractDataset> histogram_values = hist.value(dsToShow);
+											if (histogram_values.size() > 1) {
 												DoubleDataset histogramX = (DoubleDataset) histogram_values.get(1)
-														.getSlice(new int[] { 0 }, new int[] { num_bins }, new int[] { 1 });
+														.getSlice(new int[] { 0 }, new int[] { num_bins },
+																new int[] { 1 });
 												histogramX.setName("Intensity");
 												AbstractDataset histogramY = histogram_values.get(0);
 												int jMax = getPosToIncludeFractionOfPopulation(histogramY, .95);
 												jMax = Math.min(jMax + 1, histogramY.getSize() - 1);
 												int jMin = getPosToIncludeFractionOfPopulation(histogramY, .05);
 												jMin = Math.min(jMin - 1, histogramY.getSize() - 1);
-												int lmin=min;
-												int lmax=max;
+												int lmin = min;
+												int lmax = max;
 												if (jMax >= 0) {
 													lmax = (int) histogramX.getDouble(jMax);
 												}
 												if (jMin >= 0) {
 													lmin = (int) histogramX.getDouble(jMin);
 												}
-												if( lmax != lmin){
-													max=lmax;
-													min=lmin;
+												if (lmax != lmin) {
+													max = lmax;
+													min = lmin;
 												}
 											}
 										}
@@ -506,7 +655,6 @@ public class TwoDArray extends Composite {
 											}
 										}
 									}
-
 								} catch (Exception e) {
 									logger.error("Error reading image data", e);
 								}
@@ -514,7 +662,7 @@ public class TwoDArray extends Composite {
 							}
 
 							private AbstractDataset getDataToPlot() {
-								return ads;
+								return nonNullDSToPlot;
 							}
 
 							private Integer getMin() {
@@ -567,6 +715,92 @@ public class TwoDArray extends Composite {
 		this.viewIsVisible = b;
 		if (viewIsVisible)
 			arrayArrayCounterObserver.update(null, arrayCounter);
+	}
+
+	private ncsa.hdf.object.Group createParentEntry(IHierarchicalDataFile file, String fullEntry) throws Exception {
+		return HierarchicalDataFileUtils.createParentEntry(file, fullEntry, Nexus.DATA);
+	}
+
+	protected void saveStores(String name) {
+		try {
+			String fileName = Activator.getDefault().getStateLocation().append(name + ".hdf").toOSString();
+			IHierarchicalDataFile writer = HierarchicalDataFactory.getWriter(fileName);
+			try {
+				ncsa.hdf.object.Group parent = createParentEntry(writer, "/entry/stores");
+				for (Entry<String, AbstractDataset> store : stores.entrySet()) {
+					AbstractDataset data = store.getValue();
+					String dataName = store.getKey();
+					final Datatype datatype = H5Utils.getDatatype(data);
+					final long[] shape = H5Utils.getLong(data.getShape());
+					final Dataset dataset = writer.replaceDataset(dataName, datatype, shape, data.getBuffer(), parent);
+					writer.setNexusAttribute(dataset, Nexus.SDS);
+				}
+			} finally {
+				if (writer != null)
+					writer.close();
+			}
+		} catch (Exception e) {
+			logger.error("Error saving state", e);
+		}
+
+	}
+
+	void restoreStores(String name) {
+		stores.clear();
+		String fileName = Activator.getDefault().getStateLocation().append(name + ".hdf").toOSString();
+		File file = new File(fileName);
+		if (file.exists()) {
+			try {
+				IHierarchicalDataFile reader = HierarchicalDataFactory.getReader(fileName);
+				try {
+					final List<String> fullPaths = reader.getDatasetNames(IHierarchicalDataFile.NUMBER_ARRAY);
+					for (String fullPath : fullPaths) {
+						String[] entries = fullPath.split("/");
+						String dsName = entries[entries.length - 1];
+						if (dsName.equals("A-B"))
+							continue;
+						Dataset set = (Dataset) reader.getData(fullPath);
+						LazyDataset lazy = new H5LazyDataset(set);
+						AbstractDataset store = DatasetUtils.convertToAbstractDataset(lazy.getSlice((Slice) null));
+						store.setName(dsName);
+						setupStores(dsName, store);
+					}
+				} finally {
+					if (reader != null)
+						reader.close();
+				}
+			} catch (Exception e) {
+				logger.error("Error reading cache from " + fileName);
+			}
+		}
+	}
+
+	public void save(String name) {
+		saveStores(name);
+	}
+
+	public void restore(String name) {
+		restoreStores(name);
+	}
+
+}
+
+class ShowOption {
+	final String label;
+	final TwoDArray.OptionIndex index;
+
+	public ShowOption(String label, TwoDArray.OptionIndex index) {
+		super();
+		this.label = label;
+		this.index = index;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public TwoDArray.OptionIndex getIndex() {
+		return index;
 	}
 
 }
