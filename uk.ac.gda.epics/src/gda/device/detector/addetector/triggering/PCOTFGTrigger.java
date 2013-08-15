@@ -30,6 +30,7 @@ import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
+import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -212,8 +213,9 @@ public class PCOTFGTrigger extends SimpleAcquire {
 
 				@Override
 				public void monitorChanged(MonitorEvent arg0) {
-					cameraUsage = adDriverPco.getCameraUsagePV().extractValueFromDbr(arg0.getDBR());
-
+					DBR dbr = arg0.getDBR();
+					if( dbr != null)
+						cameraUsage = adDriverPco.getCameraUsagePV().extractValueFromDbr(dbr);
 				}
 			};
 		}

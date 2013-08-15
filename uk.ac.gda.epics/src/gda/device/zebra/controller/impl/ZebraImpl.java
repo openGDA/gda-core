@@ -207,8 +207,14 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void pcArm() throws IOException {
-		dev.getPVInteger(PCArm).putWait(1,5); 
-	}
+		dev.getPVInteger(PCArm).putWait(1);
+/*		dev.getPVInteger(PCArm).putNoWait(1);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+		}
+*/	}
 
 	@Override
 	public void pcDisarm() throws IOException {
