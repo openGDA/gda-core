@@ -201,6 +201,9 @@
 		<field name="additionalCrystal3" type="boolean">
 			<bind-xml name="additionalCrystal3" node="element" />
 		</field>
+		<field name="offsetsStoreName" type="string">
+			<bind-xml name="offsetsStoreName" node="element" />
+		</field>
 	</class>
 
 	<class name="uk.ac.gda.beans.exafs.DetectorParameters">

@@ -3,6 +3,8 @@ import array
 from java.lang import InterruptedException
 from java.lang import System
 from xas_scan import XasScan
+
+from xes import calcExpectedPositions, offsetsStore, setOffsets
 from BeamlineParameters import JythonNameSpaceMapping
 from exafsscripts.exafs.i20.I20SampleIterators import XASXANES_Roomtemp_Iterator, XES_Roomtemp_Iterator, XASXANES_Cryostat_Iterator
 
@@ -69,6 +71,15 @@ class I20XesScan(XasScan):
         beanGroup.setDetector(detectorBean)
         beanGroup.setOutput(outputBean)
         beanGroup.setScan(xesScanBean)
+        
+        
+        # Calilbrate the spectrometer (set the offsets) before we do anything
+        offsetStoreName = xesScanBean.getOffsetsStoreName()
+        if offsetStoreName != None and offsetStoreName != "" :
+            print "Applying offsets from store named",str(offsetStoreName)
+            offsetsStore.applyfrom(offsetStoreName)
+        else:
+            print "Not changing the XES spectrometer calibration settings"
         
         # if get here then its an XES step scan
         self._doLooping(beanGroup,folderName,numRepetitions, validation,scan_unique_id)
