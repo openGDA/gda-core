@@ -13,5 +13,19 @@
 
 
 <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
+<path>${tp}/plugins/com.springsource.slf4j.org.apache.log4j_1.5.6.jar</path>
+<path>${tp}/plugins/com.springsource.slf4j.org.apache.commons.logging_1.5.6.jar</path>
+<path>${tp}/plugins/com.springsource.slf4j.api_1.5.6.jar</path>
+<path>${tp}/plugins/com.springsource.ch.qos.logback.classic_0.9.15.jar</path>
+<path>${tp}/plugins/com.springsource.ch.qos.logback.core_0.9.15.jar</path>
+<path>${git}/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin</path>
+<path>${tp}/plugins/org.apache.commons.math3_3.2.0.jar</path>
+<path>/gda_workspaces/master_git/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/org.springframework.beans-3.2.2.RELEASE.jar</path>
 </pydev_pathproperty>
+<pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION">
+<key>tp</key>
+<value>/gda_workspaces/master/tp</value>
+<key>git</key>
+<value>/gda_workspaces/master_git</value>
+</pydev_variables_property>
 </pydev_project>

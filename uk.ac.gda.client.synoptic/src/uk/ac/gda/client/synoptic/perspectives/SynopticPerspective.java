@@ -18,8 +18,8 @@ import org.eclipse.ui.IPerspectiveFactory;
 public class SynopticPerspective implements IPerspectiveFactory {
 	
 	public static final String ID = "uk.ac.gda.beamline.client.synoptic.synopticperspective";
-	public static final String STAFF_PATH = "gda.client.i20.synopticpath.staff";
-	public static final String USER_PATH = "gda.client.i20.synopticpath.user";
+	public static final String STAFF_PATH = "gda.client.synopticpath.staff";
+	public static final String USER_PATH = "gda.client.synopticpath.user";
 	
 	private static final Logger logger = LoggerFactory.getLogger(SynopticPerspective.class);
 	

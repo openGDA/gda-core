@@ -46,14 +46,12 @@ public interface ScanDataPointPipeline {
 
 	/**
 	 * Blocks while waiting for pipeline to empty, stops all threads and closes data writer.
+	 * If the pipeline does not empty in the specified time then the callable tasks are cancelled.
+	 * 
 	 * @throws InterruptedException 
+	 * @throws DeviceException if the pipeline did not shutdown gracefully and required forceful interruption
 	 */
 	void shutdown(long timeoutMillis) throws DeviceException, InterruptedException;
 	
-	/**
-	 * Aborts the processing of scan data points. Waits indefinitely while Callable tasks are interupted.
-	 * @throws InterruptedException 
-	 */
-	void shutdownNow() throws DeviceException, InterruptedException;
 
 }

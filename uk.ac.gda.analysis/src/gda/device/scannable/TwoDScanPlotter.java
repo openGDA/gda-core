@@ -24,6 +24,7 @@ import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanDataPoint;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,17 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	private String z_colName;
 	private String plotViewname = "Plot 1";
 
-	private int pointCounter = 0;
+	private Double xStart;
+
+	private Double xStop;
+
+	private Double xStep;
+
+	private Double yStart;
+
+	private Double yStop;
+
+	private Double yStep;
 
 	public TwoDScanPlotter() {
 		this.inputNames = new String[] {};
@@ -57,14 +68,40 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		this.outputFormat = new String[] {};
 	}
 
+	public void setXArgs(Double xStart, Double xStop, Double xStep) {
+		this.xStart = xStart;
+		this.xStop = xStop;
+		this.xStep = xStep;
+	}
+
+	public void setYArgs(Double yStart, Double yStop, Double yStep) {
+		this.yStart = yStart;
+		this.yStop = yStop;
+		this.yStep = yStep;
+	}
+
 	@Override
 	public void atScanStart() throws DeviceException {
 		// clear datasets and re-register with datapoint provider
-		x = null;
-		y = null;
+		x = createTwoDset(xStart, xStop, xStep,false);
+		y = createTwoDset(yStart, yStop, yStep,true);
 		intensity = null;
-		pointCounter = 0;
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
+	}
+
+	private DoubleDataset createTwoDset(Double start, Double stop, Double step, Boolean reverse) {
+		int numPoints = ScannableUtils.getNumberSteps(start, stop, step) + 1;
+		double[] values = new double[numPoints];
+		Double value = start;
+		for (int index = 0; index < numPoints; index++){
+			values[index] = value;
+			value += step;
+		}
+		if (reverse){
+			ArrayUtils.reverse(values);
+		}
+		
+		return new DoubleDataset(values);
 	}
 
 	@Override
@@ -80,11 +117,8 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 				plot();
 			} catch (Exception e) {
 				logger.warn("exception while plotting 2D data: " + e.getMessage(), e);
-			} finally {
-				pointCounter++;
 			}
 		}
-
 	}
 
 	@Override
@@ -97,55 +131,37 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	}
 
 	private void unpackSDP(ScanDataPoint sdp) {
+		// NB: ScanDataPoint scan dimensions work are an array working from outside to inside in the nested scans
+		// NB: here we are plotting the inner as the x, and the outer as the y.
 		if (intensity == null) {
 			intensity = new DoubleDataset(sdp.getScanDimensions()[0], sdp.getScanDimensions()[1]);
-			int scanSize = sdp.getScanDimensions()[0] * sdp.getScanDimensions()[1];
-			x = new DoubleDataset(scanSize);
-			y = new DoubleDataset(scanSize);
+//			int scanSize = sdp.getScanDimensions()[0] * sdp.getScanDimensions()[1];
+//			x = new DoubleDataset(scanSize);
+//			y = new DoubleDataset(scanSize);
 		}
 
-		int[] locationInDataSets = getSDPLocation(sdp);
-
-		Double thisX = getE0(sdp);
-		Double thisY = getEf(sdp);
 		Double inten = getIntensity(sdp);
+		int[] locationInDataSets = getSDPLocation(sdp);
 		int xLoc = locationInDataSets[0];
-		int yLoc = locationInDataSets[1];
-		
-		x.set(thisX, pointCounter);
-		y.set(thisY, pointCounter);
-		
-		intensity.set(inten, xLoc, yLoc);
+		// y has to be reversed as otherwise things are plotted from the top left, not bottom right as the plotting system 2d plotting was originally for images which work this way.
+		int yLoc = sdp.getScanDimensions()[0] - locationInDataSets[1] -1;
+		intensity.set(inten, yLoc, xLoc);
 	}
 
 	private int[] getSDPLocation(ScanDataPoint sdp) {
-		int xLoc = 0;
-		int yLoc = sdp.getCurrentPointNumber();
+		int yLoc = 0;
+		int xLoc = sdp.getCurrentPointNumber();
 
 		if (sdp.getCurrentPointNumber() >= sdp.getScanDimensions()[1]) {
-			xLoc = sdp.getCurrentPointNumber() / sdp.getScanDimensions()[1];
-			yLoc = sdp.getCurrentPointNumber() - (xLoc * sdp.getScanDimensions()[1]);
+			yLoc = sdp.getCurrentPointNumber() / sdp.getScanDimensions()[1];
+			xLoc = sdp.getCurrentPointNumber() - (yLoc * sdp.getScanDimensions()[1]);
 		}
 
 		return new int[] { xLoc, yLoc };
 	}
 
-	private Double getE0(ScanDataPoint sdp) {
-		//TODO should also support integers and multi field scannables
-		return (Double) sdp.getScannablePositions().get(getPositionOfScannable(x_colName, sdp));
-	}
-
-	private Double getEf(ScanDataPoint sdp) {
-		//TODO should also support integers and multi field scannables
-		return (Double) sdp.getScannablePositions().get(getPositionOfScannable(y_colName, sdp));
-	}
-
 	private Double getIntensity(ScanDataPoint sdp) {
 		return sdp.getDetectorDataAsDoubles()[getPositionOfDetector(z_colName, sdp)];
-	}
-
-	private int getPositionOfScannable(String columnName, ScanDataPoint sdp) {
-		return org.apache.commons.lang.ArrayUtils.indexOf(sdp.getScannableHeader(), columnName);
 	}
 
 	private int getPositionOfDetector(String columnName, ScanDataPoint sdp) {
@@ -154,7 +170,7 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	}
 
 	public void plot() throws Exception {
-//		SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
+		// SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
 		SDAPlotter.imagePlot(plotViewname, x, y, intensity);
 	}
 

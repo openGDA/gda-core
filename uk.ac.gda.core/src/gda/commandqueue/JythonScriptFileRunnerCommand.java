@@ -30,6 +30,8 @@ import java.io.Serializable;
 
 import javax.mail.MethodNotSupportedException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 /**
@@ -38,6 +40,8 @@ import org.springframework.util.StringUtils;
  */
 public class JythonScriptFileRunnerCommand extends CommandBase implements Serializable {
 
+	private static Logger logger = LoggerFactory.getLogger(JythonScriptFileRunnerCommand.class);
+	
 	protected String scriptFile;
 	protected String settingsFile; //file to be returned in get details if null return scriptFile
 	protected  boolean hasAlreadyBeenRun=false;
@@ -143,6 +147,7 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 	boolean abortedRequested=false;
 	@Override
 	public void abort() {
+		logger.info("Abort called in Command Queue job, so calling InterfaceProvider.getCurrentScanController().haltCurrentScan() and InterfaceProvider.getScriptController().haltCurrentScript()");
 		InterfaceProvider.getCurrentScanController().haltCurrentScan();
 		InterfaceProvider.getScriptController().haltCurrentScript();
 		abortedRequested = true;

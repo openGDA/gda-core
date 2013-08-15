@@ -812,8 +812,8 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 			}
 		}
 
-		closeUnwantedEditors(editors);
 		if (editors.length > 0) {
+			closeUnwantedEditors(editors);
 			getActivePage().activate(editors[0]);
 		}
 		return editors;
