@@ -279,6 +279,10 @@ public class PassthroughDetectorWrapper implements Detector {
 	public void atLevelMoveStart() throws DeviceException {
 		getDelegate().atLevelMoveStart();
 	}
+	@Override
+	public void atLevelStart() throws DeviceException {
+		getDelegate().atLevelStart();
+	}
 
 	@Override
 	public void atCommandFailure() throws DeviceException {

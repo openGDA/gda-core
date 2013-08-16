@@ -286,6 +286,10 @@ class SimpleScannable implements Scannable, INeXusInfoWriteable {
 	@Override
 	public void atLevelMoveStart() {
 	}
+	
+	@Override
+	public void atLevelStart() {
+	}
 
 	@Override
 	public String[] getExtraNames() {
@@ -766,6 +770,10 @@ class SimpleDetector implements Detector {
 	@Override
 	public void atLevelMoveStart() {
 
+	}
+	
+	@Override
+	public void atLevelStart() {
 	}
 
 	@Override

@@ -417,6 +417,11 @@ public class QueuedScriptDrivenScannableMotionUnits implements ScannableMotionUn
 	}
 
 	@Override
+	public void atLevelStart() throws DeviceException {
+		scannable.atLevelStart();
+	}
+
+	@Override
 	public Double[] getScalingFactor() {
 		return scannable.getScalingFactor();
 	}

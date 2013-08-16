@@ -179,10 +179,19 @@ interface CorbaScannable : device::corba::CorbaDevice
      /**
      * 
      * @throws DeviceException
-     * @deprecated
      */
 	void atLevelMoveStart() raises (device::corba::CorbaDeviceException);
-   
+
+     /**
+     * 
+     * @throws DeviceException
+     */
+	void atLevelStart() raises (device::corba::CorbaDeviceException);
+ 
+     /**
+     * 
+     * @throws DeviceException
+     */  
 	void atCommandFailure() raises (device::corba::CorbaDeviceException);
  
     /**

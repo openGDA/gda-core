@@ -272,6 +272,11 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		public void atLevelMoveStart() throws DeviceException {
 			delegate.atLevelMoveStart();
 		}
+		
+		@Override
+		public void atLevelStart() throws DeviceException {
+			delegate.atLevelStart();
+		}
 
 		@Override
 		public void atCommandFailure() throws DeviceException {

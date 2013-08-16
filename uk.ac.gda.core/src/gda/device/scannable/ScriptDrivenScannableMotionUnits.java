@@ -424,6 +424,11 @@ public class ScriptDrivenScannableMotionUnits implements ScannableMotionUnits, I
 	public void atLevelMoveStart() throws DeviceException {
 		scannable.atLevelMoveStart();
 	}
+	
+	@Override
+	public void atLevelStart() throws DeviceException {
+		scannable.atLevelMoveStart();
+	}
 
 	@Override
 	public Double[] getScalingFactor() {

@@ -255,6 +255,17 @@ public interface Scannable extends Device {
 	public void atLevelMoveStart() throws DeviceException;
 
 	/**
+	 * Called by both the pos and scan commands at the start of each subsequent level move on all Scannables that are
+	 * part that level's movement.
+	 * <p>
+	 * This provides a useful mechanism for e.g. creating a Scannable that opens a shutter after motors have moved but
+	 * before a detector is exposed.
+	 * 
+	 * @throws DeviceException
+	 */
+	public void atLevelStart() throws DeviceException;
+
+	/**
 	 * Hook to be used by commands moving the scannable if the command fails. Used by pos and scan. Useful for telling
 	 * scannables which hold state during a scan for example, to reset themselves. Used for example by
 	 * CoordinatedMotionScannables. This hook should be used not in the same way as the stop hook.

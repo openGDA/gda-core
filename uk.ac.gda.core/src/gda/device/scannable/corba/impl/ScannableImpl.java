@@ -124,6 +124,16 @@ public class ScannableImpl extends CorbaScannablePOA {
 	}
 	
 	@Override
+	public void atLevelStart() throws CorbaDeviceException {
+		try {
+			this.scannable.atLevelStart();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(),e);
+			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+		}
+	}
+	
+	@Override
 	public void atPointStart() throws CorbaDeviceException {
 		try {
 			this.scannable.atPointStart();
