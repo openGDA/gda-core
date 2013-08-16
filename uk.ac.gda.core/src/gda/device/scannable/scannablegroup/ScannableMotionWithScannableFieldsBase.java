@@ -128,6 +128,11 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 		public boolean isBusy() throws DeviceException {
 			return parent.isBusy();
 		}
+		
+		@Override
+		public void waitWhileBusy() throws DeviceException, InterruptedException {
+			parent.waitWhileBusy();
+		}
 
 		@Override
 		public void atCommandFailure() throws DeviceException {

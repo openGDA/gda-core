@@ -115,12 +115,12 @@ public class ScannableOffsetAndScalingComponent implements PositionConvertor {
 
 		for (int i = 0; i < externalObjectArray.length; i++) {
 			if (offsetArray != null) {
-				if (offsetArray[i] != null) {
+				if ((offsetArray[i] != null) && (externalObjectArray[i] != null)) {
 					internalObjectArray[i] = PositionConvertorFunctions.toDouble(externalObjectArray[i])
 							- offsetArray[i];
 				}
 			}
-			if (scaleArray != null) {
+			if ((scaleArray != null)  && (internalObjectArray[i] != null)) {
 				if (scaleArray[i] != null) {
 					internalObjectArray[i] = PositionConvertorFunctions.toDouble(internalObjectArray[i])
 							/ scaleArray[i];
