@@ -318,4 +318,9 @@ public class SpinImpl extends CorbaSpinPOA {
 		return scannableImpl.toFormattedString();
 	}
 
+	@Override
+	public void atLevelStart() throws CorbaDeviceException {
+		scannableImpl.atLevelStart();
+	}
+
 }

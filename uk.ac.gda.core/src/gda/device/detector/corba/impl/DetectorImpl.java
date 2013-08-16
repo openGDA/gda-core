@@ -379,5 +379,10 @@ public class DetectorImpl extends CorbaDetectorPOA {
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();
 	}
+	
+	@Override
+	public void atLevelStart() throws CorbaDeviceException {
+		scannableImpl.atLevelStart();
+	}
 
 }

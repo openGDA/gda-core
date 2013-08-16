@@ -258,4 +258,8 @@ public class MonitorImpl extends CorbaMonitorPOA {
 		return scannableImpl.toFormattedString();
 	}
 
+	@Override
+	public void atLevelStart() throws CorbaDeviceException {
+		scannableImpl.atLevelStart();
+	}
 }

@@ -366,4 +366,9 @@ public class RobotImpl extends CorbaRobotPOA {
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();
 	}
+	
+	@Override
+	public void atLevelStart() throws CorbaDeviceException {
+		scannableImpl.atLevelStart();
+	}
 }

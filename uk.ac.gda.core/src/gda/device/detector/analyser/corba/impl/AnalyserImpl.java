@@ -598,4 +598,9 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		return scannableImpl.toFormattedString();
 	}
 
+	@Override
+	public void atLevelStart() throws CorbaDeviceException {
+		scannableImpl.atLevelStart();
+	}
+
 }
