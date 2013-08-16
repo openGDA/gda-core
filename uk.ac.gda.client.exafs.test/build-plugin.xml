@@ -58,6 +58,7 @@
                 <pathelement location="${GDA-plugin.basedir}/bin" />
                 <pathelement location="${GDA-plugin.basedir}/testfiles/logging" />  <!-- to pick up logback-test.xml -->
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.test.helpers/bin" />
+            	<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/test" />
                 <pathelement location="${GDA-plugin.host.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
