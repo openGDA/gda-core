@@ -541,21 +541,26 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, 
 	return len(proj_idx_decimated), detectorName
 
 
-def createSoftLink(src, dst):
-	if not os.path.exists(src):
-		raise Exception("File cannot be linked to as it does not exist:"+`src`)
-	if os.path.exists(dst):
-		src_old = os.path.realpath(dst)
-		src_new = os.path.realpath(src)
-		#print "src_old = " + src_old
-		#print "src_new = " + src_new
-		if os.path.realpath(src)!=os.path.realpath(dst):
+def createSoftLink(src, dst, throwExceptionIfSourceDoesNotExist=True):
+	if os.path.exists(src):
+		if os.path.exists(dst):
+			src_old = os.path.realpath(dst)
+			src_new = os.path.realpath(src)
+			#print "src_old = " + src_old
+			#print "src_new = " + src_new
+			if os.path.realpath(src)!=os.path.realpath(dst):
 				msg="Soft link named "+`dst`+" already exists but currently points to "+`src_old`
 				msg+="\n which is not the required source: "+`src`+" (you may wish to delete the existing link and then re-run the command)."
 				raise Exception(msg)		
+		else:
+			cmd="ln -s "+src+" "+dst
+			subprocess.call(cmd, shell=True)
 	else:
-		cmd="ln -s "+src+" "+dst
-		subprocess.call(cmd, shell=True)
+		msg = "File cannot be linked to as it does not exist:"+`src`
+		if throwExceptionIfSourceDoesNotExist:
+			raise Exception(msg)
+		else:
+			print msg
 
 
 def launchSinoListener(inDir, inFilenameFmt, nProjs, outDir, inImgWidth=4008, inImgHeight=2672, qsub_proj='i13', verbose=False, testing=True):
@@ -601,6 +606,7 @@ def makeLinksForNXSFile(\
 					, avgd=False\
 					, avgdu=0.01\
 					, verbose=False\
+					, tiffDirOverride=""\
 					, dbg=False):
 	"""
 	Create directories and links to projection, dark and flat images required for sino_listener to create sinograms.
@@ -635,6 +641,7 @@ def makeLinksForNXSFile(\
 		print "avgd=%s"%str(avgd)
 		print "avgdu=%s"%avgdu
 		print "verbose=%s"%str(verbose)
+		print "tiffDirOverride=%s"%tiffDirOverride
 		print "dbg=%s"%str(dbg)
 		print "\n"
 		
@@ -778,7 +785,21 @@ def makeLinksForNXSFile(\
 		else:
 			msg4 = "INFO: Unable to locate the file - proceeding by using the defunct filepath(s) recorded in input NeXus file:"+`test_filename`
 			print msg4
-		
+	
+	if tiffDirOverride != "":
+		print "tiffDirOverride = ", tiffDirOverride
+		for i in range(0,len(tif)):
+			s = tif[i][0]
+			print "pre s = ", tif[i][0]
+			h, t = os.path.split(s)
+			print "h = ", h
+			print "t = ", t
+			tif[i][0] = os.path.join(tiffDirOverride, t)
+			print "post s = ", tif[i][0]
+		#print "pre s = ", tif[0][0]
+		#preModifyAbsolutePathsss(tif, tiffDirOverride, tif)
+		#print "post s = ", tif[0][0]		
+
 	if verbose:
 		print 'tif[0][0]=',tif[0][0]
 	#return
@@ -1056,7 +1077,7 @@ def makeLinksForNXSFile(\
 		src_flat = head+os.sep+flat_dir+os.sep+"flat-avg.tif"
 	else:
 		src_flat = head+os.sep+flat_dir+os.sep+"flat-sgl.tif"
-	createSoftLink(src_flat, dst_flat)
+	createSoftLink(src_flat, dst_flat, throwExceptionIfSourceDoesNotExist=False)
 				
 	# average darks
 	avgd_success = False
@@ -1086,7 +1107,7 @@ def makeLinksForNXSFile(\
 		src_dark = head+os.sep+dark_dir+os.sep+"dark-avg.tif"
 	else:
 		src_dark = head+os.sep+dark_dir+os.sep+"dark-sgl.tif"
-	createSoftLink(src_dark, dst_dark)
+	createSoftLink(src_dark, dst_dark, throwExceptionIfSourceDoesNotExist=False)
 	
 	#copy default settings.xml
 	settings_src = "/dls_sw/i12/software/tomography_scripts/settings.xml"
@@ -1154,6 +1175,7 @@ creates directories and links to projection, dark and flat images required for s
 	parser.add_option("--avgfu", action="store", type="float", dest="avgfu", default=0.01, help="Outlier check parameter for use with flat_capav on flat-field images.")
 	parser.add_option("--avgd", action="store_true", dest="avgd", default=False, help="If set to True, flat_capav will be launched to average dark-field images.")
 	parser.add_option("--avgdu", action="store", type="float", dest="avgdu", default=0.01, help="Outlier check parameter for use with flat_capav on dark-field images.")
+	parser.add_option("--tiffDirOverride", action="store", type="string", dest="tiffDirOverride", default="", help="The path to a directory containing TIFF images, which overrides that found in input Nexus file.")	
 	parser.add_option("--dbg", action="store_true", dest="dbg", default=False, help="Debug option set to True limits the number of processed images to the first 10 (useful for testing, etc.")
 
 	(opts, args)=parser.parse_args(args=argv[1:])
@@ -1206,6 +1228,7 @@ creates directories and links to projection, dark and flat images required for s
 					, avgfu=opts.avgfu\
 					, avgd=opts.avgd\
 					, avgdu=opts.avgdu\
+					, tiffDirOverride=opts.tiffDirOverride\
 					, dbg=opts.dbg)
 
 if __name__=="__main__":
