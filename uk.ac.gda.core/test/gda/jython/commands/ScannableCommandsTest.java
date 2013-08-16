@@ -68,8 +68,8 @@ public class ScannableCommandsTest extends TestCase {
 	public void testPosWithSingleMove() throws Exception {
 		ScannableCommands.pos(lev4, 1.2);
 		InOrder inOrder = inOrder(lev4);
-		// inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).checkPositionValid(1.2);
+		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(1.2);
 		inOrder.verify(lev4).waitWhileBusy();
 		inOrder.verify(lev4).getPosition();
@@ -138,11 +138,14 @@ public class ScannableCommandsTest extends TestCase {
 		//inOrder.verify(lev5b).checkPositionValid(1.35); Not ScannableMotion so not checked
 		inOrder.verify(lev4).checkPositionValid(1.2);
 
+		inOrder.verify(lev4).atLevelStart();
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(1.2);
 		inOrder.verify(lev4).waitWhileBusy();
 
 		// NOTE: Order of any pair here is unimportant
+		inOrder.verify(lev5a).atLevelStart();
+		inOrder.verify(lev5b).atLevelStart();
 		inOrder.verify(lev5a).atLevelMoveStart();
 		inOrder.verify(lev5b).atLevelMoveStart();
 		inOrder.verify(lev5a).asynchronousMoveTo(1.3);

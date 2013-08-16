@@ -132,7 +132,9 @@ public class ScannableCommands {
 				String output = "Move completed: "; // KLUDGE
 				
 				for (Entry<Integer, List<Scannable>> currentLevelScannables:scannablesByLevel.entrySet() ){
-					// atLevelMoveStart()
+					for (Scannable scn1: currentLevelScannables.getValue()){
+						scn1.atLevelStart();
+					}
 					for (Scannable scn1: currentLevelScannables.getValue()){
 						scn1.atLevelMoveStart();
 					}
