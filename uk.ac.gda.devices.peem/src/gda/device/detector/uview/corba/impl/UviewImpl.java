@@ -475,6 +475,11 @@ public class UviewImpl extends CorbaUViewPOA {
 	}
 	
 	@Override
+	public void atLevelStart() throws CorbaDeviceException {
+		scannableImpl.atLevelStart();
+	}
+	
+	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
