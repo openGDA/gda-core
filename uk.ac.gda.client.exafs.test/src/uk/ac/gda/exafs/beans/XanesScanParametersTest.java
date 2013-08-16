@@ -20,7 +20,11 @@ package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import gda.TestHelpers;
+import gda.device.scannable.DummyScannable;
 import gda.exafs.scan.ExafsValidator;
+import gda.factory.Factory;
+import gda.factory.Finder;
 import gda.util.TestUtils;
 
 import java.io.File;
@@ -51,6 +55,11 @@ public class XanesScanParametersTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
+		Factory testFactory = TestHelpers.createTestFactory("XanesScanParametersTest");
+		DummyScannable qcm_energy = new DummyScannable();
+		qcm_energy.setName("qcm_energy");
+		testFactory.addFindable(qcm_energy);
+		Finder.getInstance().addFactory(testFactory);
 	}
 
 	@Test
