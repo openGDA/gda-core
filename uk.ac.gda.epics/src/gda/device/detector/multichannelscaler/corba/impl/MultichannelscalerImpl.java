@@ -376,4 +376,8 @@ public class MultichannelscalerImpl extends CorbaMultiChannelScalerPOA {
 		return scannableImpl.toFormattedString();
 	}
 
+	@Override
+	public void atLevelStart() throws CorbaDeviceException {
+		scannableImpl.atLevelStart();
+	}
 }

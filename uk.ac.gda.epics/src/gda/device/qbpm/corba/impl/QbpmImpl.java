@@ -339,5 +339,8 @@ public class QbpmImpl extends CorbaQbpmPOA {
 		return enumpositionerImpl.toFormattedString();
 	}
 
-
+	@Override
+	public void atLevelStart() throws CorbaDeviceException {
+		enumpositionerImpl.atLevelStart();
+	}
 }

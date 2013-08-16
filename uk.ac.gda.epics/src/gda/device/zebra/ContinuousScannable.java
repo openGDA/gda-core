@@ -183,6 +183,10 @@ public class ContinuousScannable implements ContinuouslyScannableViaController {
 	public void atLevelMoveStart() throws DeviceException {
 		delegate.atLevelMoveStart();
 	}
+	
+	public void atLevelStart() throws DeviceException {
+		delegate.atLevelStart();
+	}
 
 	public void atCommandFailure() throws DeviceException {
 		delegate.atCommandFailure();
