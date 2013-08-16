@@ -50,6 +50,12 @@ def caput(pvstring,value):
 	cli.caput(value)
 	cli.clearup()
 	
+def caput_wait(pvstring, value, timeout=10):
+	cli=CAClient(pvstring)
+	cli.configure()
+	cli.caput(timeout, value)
+	cli.clearup()
+	
 def caput_string2waveform(pvstring, value):
 	arr=[]
 	for each in value:
