@@ -361,6 +361,11 @@ public class DetectorsystemImpl extends CorbaNcdDetectorsystemPOA {
 	}
 	
 	@Override
+	public void atLevelStart() throws CorbaDeviceException {
+		scannableImpl.atLevelStart();
+	}
+	
+	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
