@@ -34,6 +34,7 @@ import gda.scan.ScanInformation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -41,6 +42,7 @@ import java.util.concurrent.Callable;
 import org.apache.commons.lang.StringUtils;
 import org.python.core.Py;
 import org.python.core.PyException;
+import org.python.core.PyString;
 import org.springframework.beans.factory.InitializingBean;
 
 public class NXDetector extends DetectorBase implements InitializingBean, NexusDetector,
@@ -158,6 +160,19 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			throw new IllegalArgumentException();
 		}
 		return plugin;
+	}
+
+	/**
+	 * When printed from Jython show the standard detector state followed by a representation
+	 * of all the plugins.
+	 */
+	@Override
+	public PyString __str__() {
+		String string = toFormattedString();
+		for (NXPlugin plugin : getPluginList()) {
+			string += "  " + plugin.getName() + ": " + plugin.toString() + "\n";
+		}
+		return new PyString(string);
 	}
 	
 	/**
