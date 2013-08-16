@@ -20,6 +20,7 @@ package gda.device.detector.addetector.triggering;
 
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPilatus.PilatusTriggerMode;
+import gda.scan.ScanInformation;
 
 public class SingleExposurePilatus extends SingleExposureStandard {
 
@@ -27,6 +28,16 @@ public class SingleExposurePilatus extends SingleExposureStandard {
 		super(adBase, readoutTime);
 	}
 
+	/**
+	 * Override in order stop acquisition before setting up. This is to work around strange
+	 * epics Area Detector behaviours!
+	 */
+	@Override
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
+		getAdBase().stopAcquiring();
+		super.prepareForCollection(collectionTime, numImages, scanInfo);
+	}
+	
 	@Override
 	protected void configureTriggerMode() throws Exception {
 		getAdBase().setTriggerMode(PilatusTriggerMode.INTERNAL.ordinal());
