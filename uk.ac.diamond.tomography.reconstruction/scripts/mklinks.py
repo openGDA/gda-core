@@ -47,13 +47,16 @@ def makeLinks(scanNumber, lastImage, firstImage=2, visit="mt5811-1", year="2012"
 		subprocess.call(cmd, shell=True)
 
 
-def makeLinksToOriginalFiles(listOfProjIdx, indir="/dls/i13/data/2012/mt5811-1/564/pco1/", inFilenameFmt="p_%05d.tif", outdir=None, outFilenameFmt="p_%05d.tif"):
+def makeLinksToOriginalFiles(listOfProjIdx, indir="/dls/i13/data/2012/mt5811-1/564/pco1/", inFilenameFmt="p_%05d.tif", outdir=None, outFilenameFmt="p_%05d.tif", inFilenameOffset=0, outFilenameOffset=0):
 	"""
 	Command to make soft links for of projections into current folder
-	scanNumber - the scan number e.g. 510
-	lastImage   - last image number 
-	firstImage - first image number. default(2)
-	visit-your visit to I13 default(mt5811-1)
+	listOfProjIdx: input indices (a constant offset is allowed between these input indices and the indices used in input filenames)
+	indir: input directory containing source files
+	inFilenameFmt: input filename format
+	outdir: output directory for links to the above source files
+	outFilenameFmt: output filename format 
+	inFilenameOffset: input filename offset from input index (if inOffset=0, then input indices are used to identify input filenames; otherwise each input index is increased by inOffset) 
+	outFilenameOffset: output filename offset from index 0 (if outOffset=0, then values of indices used in output filenames start from index 0; otherwise they start from outOffset, inclusive)
 	"""
 	
 	#print "Fn: %s"%makeLinksToOriginalFiles.__name__
@@ -72,11 +75,11 @@ def makeLinksToOriginalFiles(listOfProjIdx, indir="/dls/i13/data/2012/mt5811-1/5
 		if not os.path.exists(outdir):
 			print "Fn makeLinksToOriginalFiles is attempting to create dir: %s"%outdir
 			os.makedirs(outdir)
-	j=0		
+	j=outFilenameOffset
 	for i in listOfProjIdx:
 		#print "projection index: i=%s"%i
 		#print "loop index: j=%s"%j
-		filename_src=inFilenameFmt%i
+		filename_src=inFilenameFmt%(i+inFilenameOffset)
 		#filename_dst=inFilenameFmt%(i-firstImage)
 		filename_dst=outFilenameFmt%j
 		fileToLinkTo=indir_loc+os.sep+filename_src

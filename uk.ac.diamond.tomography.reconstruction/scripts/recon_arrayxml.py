@@ -373,7 +373,7 @@ sed -i "s|^.*GPUDeviceNumber.*$|<GPUDeviceNumber>$mycuda</GPUDeviceNumber>|" $my
 			oldpath=qenviron["PATH"]
 		except :
 			oldpath=""
-		qenviron["PATH"]="/dls_sw/apps/sge/SGE8.1.3/bin/lx-"+self.getArch()+":/bin:/usr/bin:" + oldpath
+		qenviron["PATH"]="/dls_sw/apps/sge/SGE8.1.3/bin/lx-"+self.getArch()+":/bin:/usr/bin:"+oldpath
 
 		self.out.write ("\nSpawning the reconstruction job ...\n")
 		
