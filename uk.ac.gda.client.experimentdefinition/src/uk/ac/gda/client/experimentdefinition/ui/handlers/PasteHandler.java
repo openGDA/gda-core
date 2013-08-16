@@ -50,7 +50,7 @@ public class PasteHandler extends AbstractExperimentCommandHandler {
 
 	private void pasteSelectedFile() {
 
-		final IFolder folder = getController().getSelectedFolder();
+		final IFolder folder = getEditorManager().getSelectedFolder();
 
 		final List<IFile> sel = CopyHandler.getCopied();
 		for (IFile file : sel) {
@@ -68,7 +68,7 @@ public class PasteHandler extends AbstractExperimentCommandHandler {
 
 		}
 
-		final ExperimentFolderEditor ed = getController().getActiveFolderEditor();
+		final ExperimentFolderEditor ed = getEditorManager().getActiveFolderEditor();
 		if (ed != null)
 			ed.refresh();
 	}

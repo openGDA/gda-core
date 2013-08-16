@@ -225,7 +225,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// Check to see if we want to create a text/SRS file as well.
 		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, true);
 
-		if( beforeScanMetaData!= null ){
+		if( beforeScanMetaData== null ){
 			String metaDataProviderName = LocalProperties.get(GDA_NEXUS_METADATAPROVIDER_NAME);
 			if( StringUtils.hasLength(metaDataProviderName)){
 				NexusTreeAppender metaDataProvider = Finder.getInstance().find(metaDataProviderName);

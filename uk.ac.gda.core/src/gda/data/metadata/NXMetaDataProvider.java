@@ -539,6 +539,9 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 
 	public void add(Scannable scannable) {
 		logger.debug("add called on scannable = " + scannable.getName());
+		while( metaScannables.contains(scannable)){
+			metaScannables.remove(scannable);
+		}
 		metaScannables.add(scannable);
 	}
 

@@ -58,54 +58,56 @@ public class DuplicateCommandHandler extends AbstractExperimentCommandHandler {
 		final ACTION_TYPE type = getActionType(id);
 		if (type == ACTION_TYPE.FOLDER) {
 
-			final IFolder sel = getController().getSelectedFolder();
+			final IFolder sel = getEditorManager().getSelectedFolder();
 			if (sel == null)
 				return false;
 
 			final String name = EclipseUtils.getUnique(sel);
-			final IFolder dir = getController().getIFolder(name);
+			final IFolder dir = getEditorManager().getIFolder(name);
 			try {
 				sel.copy(dir.getFullPath(), true, null);
 				ExperimentFactory.getExperimentEditorManager().closeAllEditors(true);
-				getController().refreshViewers();
-				getController().select(dir);
+				getEditorManager().refreshViewers();
+				getEditorManager().select(dir);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 
 		} else if (type == ACTION_TYPE.SCAN) {
-			final IExperimentObjectManager man = getController().getSelectedMultiScan();
+			final IExperimentObjectManager man = getEditorManager().getSelectedMultiScan();
 			if (man == null)
 				return false;
 			try {
 				final IFile file = EclipseUtils.getUniqueFile(man.getFile(), "scan");
 				man.getFile().copy(file.getFullPath(), true, null);
-				getController().refreshViewers();
-				getController().select(ExperimentFactory.getManager(file));
+				getEditorManager().refreshViewers();
+				getEditorManager().select(ExperimentFactory.getManager(file));
 
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 
 		} else if (type == ACTION_TYPE.RUN) {
-			final IExperimentObjectManager man = getController().getSelectedMultiScan();
+			final IExperimentObjectManager man = getEditorManager().getSelectedMultiScan();
 			if (man == null)
 				return false;
 
-			final IExperimentObject ob = getController().getSelectedScan();
+			final IExperimentObject ob = getEditorManager().getSelectedScan();
 			if (ob == null)
 				return false;
 
 			try {
 				final IExperimentObject copy = man.createCopyOfExperiment(ob);
 				man.insertExperimentAfter(ob, copy);
-				if (getController().getActiveRunEditor() != null) {
-					getController().getActiveRunEditor().editRunName(copy);
-				} else if (getController().getViewer() != null) {
-					getController().refreshViewers();
-					getController().getViewer().editElement(copy);
+				if (getEditorManager().getActiveRunEditor() != null) {
+					getEditorManager().refreshViewers();
+					getEditorManager().getActiveRunEditor().editRunName(copy);
+				} else if (getEditorManager().getViewer() != null) {
+					getEditorManager().setSelected(copy);
+					getEditorManager().openDefaultEditors(copy, true);
+					getEditorManager().refreshViewers();
+					getEditorManager().getViewer().editElement(copy);
 				}
-				getController().refreshViewers();
 			} catch (Exception ne) {
 				logger.error("Cannot create copy", ne);
 			}

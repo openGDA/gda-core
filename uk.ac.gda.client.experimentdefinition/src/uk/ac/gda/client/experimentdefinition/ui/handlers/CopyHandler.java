@@ -45,7 +45,7 @@ public class CopyHandler extends AbstractExperimentCommandHandler {
 	}
 
 	private void copySelectedFile() {
-		final ExperimentFolderEditor ed = getController().getActiveFolderEditor();
+		final ExperimentFolderEditor ed = getEditorManager().getActiveFolderEditor();
 		if (ed == null)
 			return;
 

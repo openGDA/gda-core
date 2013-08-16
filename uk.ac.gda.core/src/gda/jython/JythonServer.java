@@ -20,6 +20,7 @@
 package gda.jython;
 
 import static java.text.MessageFormat.format;
+import gda.commandqueue.IFindableQueueProcessor;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Motor;
@@ -678,8 +679,21 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 			@Override
 			public void run() {
 				try {
+					// first stop any command queue that might be running
+					List<IFindableQueueProcessor> commandQueue = Finder.getInstance().listFindablesOfType(IFindableQueueProcessor.class);
+					// unlikely to ever have more than one processor, but have this loop just in case
+					for (IFindableQueueProcessor queue : commandQueue){
+						try {
+							queue.stop(1000);
+						} catch (Exception e) {
+							// log and continue with the panic stop process
+							logger.error("Exception while stopping queue after panic stop called", e);
+						}
+					}
+					
 					ScriptBase.setInterrupted(true);
 					ScanBase.setInterrupted(true);
+					
 					interruptThreads();
 					interp.getInterp().interrupt(Py.getThreadState());
 				} finally {
@@ -1026,6 +1040,7 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 	private void updateStatus() {
 		JythonServerStatus newStatus = new JythonServerStatus(scriptStatus, scanStatus);
 		updateIObservers(newStatus);
+		logger.info(newStatus.toString());
 		jythonServerStatusObservers.notifyIObservers(null, newStatus);
 	}
 
