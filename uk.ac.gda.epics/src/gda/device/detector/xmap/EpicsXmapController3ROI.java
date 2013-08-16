@@ -18,64 +18,29 @@
 
 package gda.device.detector.xmap;
 
-import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.detector.xmap.edxd.EDXDElement;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.observable.IObserver;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
-public class EpicsXmapController3ROI extends DeviceBase implements XmapController ,IObserver{
+public class EpicsXmapController3ROI extends EpicsXmapController3{
 	
 	private EDXDMappingController edxdController;
 	private int numberOfMca;
 	private String edxdControllerName;
 	private double[][][] controlRois;
-	public String getEdxdControllerName() {
-		return edxdControllerName;
-	}
-
-
-	public void setEdxdControllerName(String edxdControllerName) {
-		this.edxdControllerName = edxdControllerName;
-	}
-
-
-
-	private int actualNumberOfROIs;
 	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapController3ROI.class);
 	
-
-
 	@Override
 	public void configure() throws FactoryException {
-		if((edxdController = (EDXDMappingController)Finder.getInstance().find(edxdControllerName) )!= null)
-		{
-		numberOfMca = edxdController.getNUMBER_OF_ELEMENTS();
-		edxdController.addIObserver(this);
-		controlRois = new double[numberOfMca][][];
-		/*try {
-			edxdController.activateROI();
-		} catch (DeviceException e) {
-			logger.error("Unable to set the ROI mode for the Xmap controller", e);
-		}*/
+		if((edxdController = (EDXDMappingController)Finder.getInstance().find(edxdControllerName) )!= null){
+			numberOfMca = edxdController.getNUMBER_OF_ELEMENTS();
+			edxdController.addIObserver(this);
+			controlRois = new double[numberOfMca][][];
 		}
-	}
-	
-   
-	@Override
-	public void clearAndStart() throws DeviceException {
-		//logger.info("Setting the mode for the xmap");
-		edxdController.setResume(false);
-		//logger.info("staarting the xmap");
-		edxdController.start();
 	}
 
 	@Override
@@ -84,89 +49,17 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 		
 	}
 
-	@Override
-	public double getAcquisitionTime() throws DeviceException {
-		return edxdController.getAcquisitionTime();
-	}
-
-	@Override
-	public int[] getData(int mcaNumber) throws DeviceException {
-		int numberOfBins =  getNumberOfBins();
-		int[] returnArray = new int[numberOfBins];
-		int[] replyArray = edxdController.getSubDetector(mcaNumber).readoutInts();
-		System.arraycopy(replyArray, 0, returnArray, 0, numberOfBins);
-		return returnArray;
-	}
-
-	@Override
-	public int[][] getData() throws DeviceException {
-		//should write data to a file
-		//bespoke scan scripts write data at the moment
-		int numberOfBins =  getNumberOfBins();
-		int[][] data = new int[numberOfMca][numberOfBins];
-		for (int i = 0; i < numberOfMca; i++) {
-			data[i] = getData(i);
-		}
-		return data;
-	}
-
-	@Override
-	public int getNumberOfBins() throws DeviceException {
-		return edxdController.getBins();
-	}
-
-	@Override
-	public void setNumberOfBins(int numberOfBins) throws DeviceException {
-		edxdController.setBins(numberOfBins);
-		
-	}
-
-
-	@Override
-	public int getNumberOfMca() throws DeviceException {
-		return numberOfMca;
-	}
-
-	/**
-	 * Returns the roi count if they have been set, otherwise reads the total possible count
-	 * from EPICS
-	 */
-	@Override
-	public int getNumberOfROIs() {
-		if (actualNumberOfROIs>0) return actualNumberOfROIs;
-		try {
-			return edxdController.getMaxAllowedROIs();
-		} catch (DeviceException e) {
-			logger.error("Unable to read the max allowed ROIs from the detector", e);
-		}
-		return 0;
-	}
-
-	/**
-	 * Returns a count for each mca for a given roi number
-	 * For instance if roi=0 the first roi 
-	 */
-	@Override
-	public double[] getROICounts(int roiIndex) throws DeviceException {
-		double[] roiCounts = new double[numberOfMca];
-		for (int j = 0; j < numberOfMca; j++) {
-			double individualMCARois[] = this.getROIs(j);
-			roiCounts[j] = individualMCARois[roiIndex];
-		}
-		return roiCounts;
-	}
 	/**
 	 * @param mcaNumber
 	 * @return double array of regions of interest
 	 * @throws DeviceException
 	 */
+	@Override
 	public double[] getROIs(int mcaNumber) throws DeviceException {
 		int[] mcaData = getData(mcaNumber);
 		double[] roiSums = new double[controlRois[mcaNumber].length];
-
-		for (int i = 0; i < controlRois[mcaNumber].length; i++) {
+		for (int i = 0; i < controlRois[mcaNumber].length; i++)
 			roiSums[i] = calcROICounts((int)controlRois[mcaNumber][i][0], (int)controlRois[mcaNumber][i][1], mcaData);
-		}
 		return roiSums;
 	}
 	
@@ -174,9 +67,6 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	public double[] getROIs(int mcaNumber, int[][] data) throws DeviceException {
 		int[] mcaData = data[mcaNumber];
 		double[] roiSums = new double[controlRois[mcaNumber].length];
-
-		
-		
 		for (int i = 0; i < controlRois[mcaNumber].length; i++) {
 			int min = (int)controlRois[mcaNumber][i][0];
 			int max = (int)controlRois[mcaNumber][i][1];
@@ -185,82 +75,13 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 		return roiSums;
 	}
 	
-	
 	private double calcROICounts(int min, int max, int[] data) {
 		double sum = 0;
-		for (int i = min; i <= max; i++) {
+		for (int i = min; i <= max; i++)
 			sum += data[i];
-		}
 		return sum;
 	}
 
-	/**
-	 * Returns a sum of all rois for each mca channel
-	 */
-	@Override
-	public double[] getROIsSum() throws DeviceException {
-		double[] roiSum = new double[actualNumberOfROIs];
-		for (int j = 0; j < numberOfMca; j++) {
-			double individualMCARois[] = this.getROIs(j);
-			for (int i = 0; i < actualNumberOfROIs; i++) {
-				roiSum[i] = roiSum[i] + individualMCARois[i];
-			}
-		}
-		return roiSum;
-	}
-
-	@Override
-	public double getReadRate() throws DeviceException {
-		// Not implemented in the new Interface
-		return 0;
-	}
-	
-	
-
-
-	@Override
-	public double getRealTime() throws DeviceException {
-		return getRealTime(0);
-	}
-	
-	/**
-	 * Get the real time for the mca element
-	 * @param mcaNumber
-	 * @return real time
-	 * @throws DeviceException
-	 */
-	public double getRealTime(int mcaNumber) throws DeviceException {
-		return edxdController.getSubDetector(mcaNumber).getRealTime();
-	}
-
-	@Override
-	public int getStatus() throws DeviceException {
-		return edxdController.getStatus();
-	}
-
-	@Override
-	public double getStatusRate() throws DeviceException {
-		// Not implemented in the new Interface
-		return 0;
-	}
-
-	@Override
-	public void setAcquisitionTime(double collectionTime) throws DeviceException {
-		edxdController.setAquisitionTime(collectionTime);
-	}
-
-	@Override
-	public void setNthROI(double[][] rois, int roiIndex) throws DeviceException {
-		if (rois.length != numberOfMca) {
-			logger.error("ROIs length does not match the Number of MCA");
-			return;
-		}
-		for (int mcaIndex = 0; mcaIndex < numberOfMca; mcaIndex++) {
-			this.setNthROI(rois[mcaIndex], roiIndex, mcaIndex);
-		}
-		actualNumberOfROIs = roiIndex + 1;
-	}
-	
 	/**
 	 * @param roi
 	 * @param roiIndex
@@ -268,19 +89,17 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	 * @throws DeviceException
 	 */
 	private void setNthROI(double[] roi, int roiIndex, int mcaIndex) throws DeviceException {
-		if(roiIndex >= edxdController.getMaxAllowedROIs())
-		{
+		if(roiIndex >= edxdController.getMaxAllowedROIs()){
 			logger.error("Not a valid roi index");
-		return;
+			return;
 		}
 		EDXDElement element = edxdController.getSubDetector(mcaIndex);
 		double roiLow[] = element.getLowROIs();
 		double roiHigh[] = element.getHighROIs();
-		if(roi[0] <= roi[1])
-			{
-				roiLow[roiIndex] = roi[0];
-				roiHigh[roiIndex] = roi[1];
-			}
+		if(roi[0] <= roi[1]){
+			roiLow[roiIndex] = roi[0];
+			roiHigh[roiIndex] = roi[1];
+		}
 		else{
 			roiLow[roiIndex] = roi[1];
 			roiHigh[roiIndex] = roi[0];
@@ -292,20 +111,6 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 			controlRois[mcaIndex] = new double[edxdController.getMaxAllowedROIs()][];
 		controlRois[mcaIndex][roiIndex] = new double []{roiLow[roiIndex], roiHigh[roiIndex]};
 		edxdController.activateROI();
-		
-		
-	}
-
-	@Override
-	public void setNumberOfMca(int numberOfMca) throws DeviceException {
-		//Not implemented in the new version
-		
-	}
-
-	@Override
-	public void setNumberOfROIs(int numberOfROIs) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	/**
@@ -317,7 +122,6 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	 */
 	@Override
 	public void setROI(final double[][] actualRois, int mcaIndex) throws DeviceException {
-		
 		// The ROIS might not be scaled to the max ROI size, so we ensure that this has been done
 		final double[][] rois = new double[edxdController.getMaxAllowedROIs()][2];
 		for (int i = 0; i < actualRois.length; i++) {
@@ -329,76 +133,4 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 		edxdController.activateROI();
 		actualNumberOfROIs = actualRois.length;
 	}
-
-	@Override
-	public void setROIs(double[][] rois) throws DeviceException {
-		for(int i =0; i< numberOfMca; i++)
-			setROI(rois, i);
-	}
-
-	@Override
-	public void setReadRate(double readRate) throws DeviceException {
-		// Not implemented in new xmap epics interface
-		
-	}
-
-	@Override
-	public void setReadRate(String readRate) throws DeviceException {
-		// Not implemented in new xmap epics interface
-	}
-
-	@Override
-	public void setStatusRate(double statusRate) throws DeviceException {
-		// Not implemented in new xmap epics interface
-	}
-
-	@Override
-	public void setStatusRate(String statusRate) throws DeviceException {
-		// Not implemented in new xmap epics interface
-		
-	}
-
-	@Override
-	public void start() throws DeviceException {
-		//edxdController.setResume(true);
-	    edxdController.start();
-	}
-
-	@Override
-	public void stop() throws DeviceException {
-		edxdController.stop();
-		
-	}
-
-	/**
-	 * Returns the total events recorded
-	 * @param mcaNumber
-	 * @throws DeviceException
-	 */
-	@Override
-	public int getEvents(final int mcaNumber) throws DeviceException {
-		return edxdController.getEvents(mcaNumber);
-	}
-
-
-	@Override
-	public void update(Object theObserved, Object changeCode) {
-		//TODO status update needs to be made
-	}
-
-
-	@Override
-	public double getICR(int mcaNumber) throws DeviceException {
-		return edxdController.getICR(mcaNumber);
-	}
-
-
-	@Override
-	public double getOCR(int mcaNumber) throws DeviceException {
-		return edxdController.getOCR(mcaNumber);
-	}
-
-
-	
-
 }

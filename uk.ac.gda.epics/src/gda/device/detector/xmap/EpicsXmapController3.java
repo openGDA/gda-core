@@ -29,56 +29,31 @@ import gda.observable.IObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class EpicsXmapController3 extends DeviceBase implements XmapController ,IObserver{
 	
 	private EDXDMappingController edxdController;
 	private int numberOfMca;
 	private String edxdControllerName;
-	public String getEdxdControllerName() {
-		return edxdControllerName;
-	}
-
-
-	public void setEdxdControllerName(String edxdControllerName) {
-		this.edxdControllerName = edxdControllerName;
-	}
-
-
-
-	private int actualNumberOfROIs;
+	protected int actualNumberOfROIs;
 	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapController3.class);
 	
-
-
 	@Override
 	public void configure() throws FactoryException {
 		if((edxdController = (EDXDMappingController)Finder.getInstance().find(edxdControllerName) )!= null)
 		{
 		numberOfMca = edxdController.getNUMBER_OF_ELEMENTS();
 		edxdController.addIObserver(this);
-		/*try {
-			edxdController.activateROI();
-		} catch (DeviceException e) {
-			logger.error("Unable to set the ROI mode for the Xmap controller", e);
-		}*/
 		}
 	}
 	
-   
 	@Override
 	public void clearAndStart() throws DeviceException {
-		//logger.info("Setting the mode for the xmap");
 		edxdController.setResume(false);
-		//logger.info("staarting the xmap");
 		edxdController.start();
 	}
 
 	@Override
 	public void deleteROIs(int mcaIndex) throws DeviceException {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -184,9 +159,6 @@ public class EpicsXmapController3 extends DeviceBase implements XmapController ,
 		return 0;
 	}
 	
-	
-
-
 	@Override
 	public double getRealTime() throws DeviceException {
 		return getRealTime(0);
@@ -258,8 +230,6 @@ public class EpicsXmapController3 extends DeviceBase implements XmapController ,
 		element.setLowROIs(roiLow);
 		element.setHighROIs(roiHigh);
 		edxdController.activateROI();
-		
-		
 	}
 
 	@Override
@@ -347,29 +317,31 @@ public class EpicsXmapController3 extends DeviceBase implements XmapController ,
 		return edxdController.getEvents(mcaNumber);
 	}
 
-
 	@Override
 	public void update(Object theObserved, Object changeCode) {
 		//TODO status update needs to be made
 	}
-
 
 	@Override
 	public double getICR(int mcaNumber) throws DeviceException {
 		return edxdController.getICR(mcaNumber);
 	}
 
-
 	@Override
 	public double getOCR(int mcaNumber) throws DeviceException {
 		return edxdController.getOCR(mcaNumber);
 	}
-
 
 	@Override
 	public double[] getROIs(int mcaNumber, int[][] data) throws DeviceException {
 		return getROIs(mcaNumber);
 	}
 	
-
+	public String getEdxdControllerName() {
+		return edxdControllerName;
+	}
+	
+	public void setEdxdControllerName(String edxdControllerName) {
+		this.edxdControllerName = edxdControllerName;
+	}
 }
