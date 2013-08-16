@@ -104,7 +104,7 @@
     <target name="jyunit-script-tests" depends="toolCheck, set-test-base-GDA">
         <jython-call description="${ant.project.name} JyUnit tests (scripts)"
             jython.file="${GDA-plugin.basedir}/scripts/all_tests.py"
-            python.path="${GDA-plugin.basedir}/scripts:${workspace.git.loc}/gda-bimorph.git/uk.ac.gda.bimorph/scripts">
+            python.path="${GDA-plugin.basedir}/scripts">
             <classpath>
                 <pathelement location="${jythonjar.loc}" />  <!-- put ahead of the version of Jython bundled with pydev -->
                 <pathelement location="${GDA-plugin.basedir}/classes/test" />
