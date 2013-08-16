@@ -409,6 +409,9 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 			} else {
 				// move the Scannable operated by this scan and then run the child scan
 				ScanObject principleScanObject = this.allScanObjects.get(0);
+				// There will only be one scannable moved in this parent scan, so no
+				// need to sort by level!
+				principleScanObject.scannable.atLevelStart();
 				principleScanObject.scannable.atLevelMoveStart();
 				stepId = principleScanObject.moveToStart();
 				checkAllMovesComplete();
@@ -432,6 +435,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					callAtPointEndHooks();
 				} else {
 					ScanObject principleScanObject = this.allScanObjects.get(0);
+					principleScanObject.scannable.atLevelStart();
 					principleScanObject.scannable.atLevelMoveStart();
 					stepId = principleScanObject.moveStep();
 					checkAllMovesComplete();

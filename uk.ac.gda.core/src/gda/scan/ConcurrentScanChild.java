@@ -244,6 +244,14 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 				}
 			}
 			
+			// trigger at level start on all Scannables
+			for (Scannable scannable : scannablesAtThisLevel) {
+				// TODO: Write isScannablePartOfThisScanLine()
+//				if (isScannablePartOfThisScanLine(scannable)){
+				scannable.atLevelStart();
+//				}
+			}
+			
 			// trigger at level move start on all Scannables
 			for (Scannable scannable : scannablesAtThisLevel) {
 				if (isScannableToBeMoved(scannable) != null) {
@@ -332,6 +340,29 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 		}
 		return null;
 	}
+	
+//	private boolean isScannablePartOfThisScanLine(Scannable scannable) {
+//		// If it will be moved as part of any parents scan, then it is not.
+//		List<ConcurrentScanChild> ancestors = findAncestors();
+//		for (ConcurrentScanChild ancestor : ancestors) {
+//			if (ancestor.isScannableActuallyToBeMoved(scannable)) {
+//				return false;
+//			}
+//		}
+//		return true;
+//	}
+//	
+//	private List<ConcurrentScanChild> findAncestors() {
+	// TODO: Only gets one ancestor for some reason! RobW
+//		List<ConcurrentScanChild> ancestors = new ArrayList<ConcurrentScanChild>();
+//		ConcurrentScanChild nextParent = (ConcurrentScanChild) getParent();
+//		while (nextParent != null) {
+//			ancestors.add(nextParent);
+//			nextParent = (ConcurrentScanChild) nextParent.getParent();
+//		}
+//		
+//		return ancestors;
+//	}
 	
 	final protected boolean isScannableActuallyToBeMoved(Scannable scannable) {
 		ScanObject scannableToBeMoved = isScannableToBeMoved(scannable);
