@@ -21,6 +21,7 @@ package uk.ac.gda.analysis.hdf5;
 import gda.TestHelpers;
 import gda.util.TestUtils;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -29,7 +30,6 @@ import ncsa.hdf.object.Datatype;
 import ncsa.hdf.object.h5.H5Datatype;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -45,7 +45,7 @@ public class Hdf5HelperTest {
 	static String TestFileFolder;
 	@BeforeClass
 	static public void setUpClass() {
-		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
+		TestFileFolder = TestUtils.getGDALargeTestFilesLocation()+File.separator;
 		if( TestFileFolder == null){
 			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
 		}	
@@ -54,7 +54,6 @@ public class Hdf5HelperTest {
 	 * @throws Exception 
 	 * 
 	 */
-	@Ignore
 	@Test
 	public void testReadDataSetForMemoryLeak() throws Exception {
 		long before = System.currentTimeMillis();
@@ -68,7 +67,14 @@ public class Hdf5HelperTest {
 		System.out.println();
 	}
 
-	@Ignore
+	@Test
+	public void testReadAllDatasetsNames() throws Exception {
+		String[] actual = Hdf5Helper.getInstance().getListOfDatasets(TestFileFolder + EXCALIBUR_EQUALIZATION_HELPER_TEST_12998_NXS,
+				ENTRY1_GROUP);
+		Assert.assertTrue(Arrays.deepEquals(new String[]{"count_time", "data", "excalibur_summary_ad_axis1", "excalibur_summary_ad_axis2", "threshold0"},actual));
+	}
+	
+	
 	@Test
 	public void testReadDataSetHyperSlab() throws Exception {
 		Hdf5HelperData data2 = Hdf5Helper.getInstance().readDataSetAll(TestFileFolder + EXCALIBUR_EQUALIZATION_HELPER_TEST_12998_NXS,ENTRY1_GROUP, "data",false);

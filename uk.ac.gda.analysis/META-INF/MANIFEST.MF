@@ -69,6 +69,7 @@ Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
 Eclipse-BuddyPolicy: registered
 Import-Package: ncsa.hdf.hdf5lib,
  ncsa.hdf.hdf5lib.exceptions,
+ ncsa.hdf.hdf5lib.structs,
  ncsa.hdf.object,
  ncsa.hdf.object.h5,
  org.apache.commons.lang,

@@ -87,9 +87,7 @@ public class SimpleMotorViaIndexedController implements SimpleMotorController, I
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( simc == null)
-			throw new Exception("p2r is null");
-		if( index !=0 && index !=1)
-			throw new Exception("index must be 0 or 1");
+			throw new Exception("simc is null");
 	}
 
 
