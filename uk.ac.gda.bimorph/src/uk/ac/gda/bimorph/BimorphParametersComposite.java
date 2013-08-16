@@ -245,6 +245,9 @@ public final class BimorphParametersComposite extends Composite {
 		if (method.getValue().equals("1")) {
 			methodVal = 1;
 		}
+		else if (method.getValue().equals("2")) {
+			methodVal = 2;
+		}
 		
 		if (method.getValue().equals("2")) {
 			methodVal = 2;
@@ -268,7 +271,7 @@ public final class BimorphParametersComposite extends Composite {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		JythonServerFacade.getInstance().runCommand("el.calcSlopes()");
+		JythonServerFacade.getInstance().runCommand("el.calc()");
 	}
 
 	public void runOptimiseScript() {
