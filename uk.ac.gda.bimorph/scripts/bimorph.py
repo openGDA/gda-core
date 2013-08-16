@@ -162,6 +162,8 @@ class RunOptimisation():
         maxSafeVoltDiff = 450        
         bm = BimorphMirror(self.numberOfElectrodes, maxSafeVoltage, minSafeVoltage, maxSafeVoltDiff)
     
+    
+        print "*****************Error file", self.error_file
         errorData = ScanFileLoader(self.error_file, self.scanDir).getSFH()
 
         #print LocalProperties.get("gda.data.scan.datawriter.dataFormat")

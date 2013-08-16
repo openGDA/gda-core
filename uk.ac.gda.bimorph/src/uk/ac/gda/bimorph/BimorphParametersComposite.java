@@ -246,11 +246,17 @@ public final class BimorphParametersComposite extends Composite {
 			methodVal = 1;
 		}
 		
+		if (method.getValue().equals("2")) {
+			methodVal = 2;
+		}
+		
 		String command = "el = ellipse.EllipseCalculator(" + pixel_size + "," + p_1 + "," + q_1 + "," + theta_1 + ","
 				+ p_2 + "," + q_2 + "," + theta_2 + "," + i_sign + "," + detector_distance + "," + slit_start + ","
-				+ slit_end + "," + slit_step + ",\"" + column + ",\"" + invVal + ",\"" + methodVal + "\")";
+				+ slit_end + "," + slit_step + ",\"" + column + "\"," + invVal + "," + methodVal + ")";
 
-		JythonServerFacade.getInstance().runCommand("from gdascripts.bimorph import ellipse");
+		
+		JythonServerFacade.getInstance().print(command);
+		JythonServerFacade.getInstance().runCommand("import ellipse");
 		try {
 			Thread.sleep(300);
 		} catch (InterruptedException e) {
@@ -353,17 +359,17 @@ public final class BimorphParametersComposite extends Composite {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+//
+//			int currentScanNumber = 0;
+//			try {
+//				NumTracker numTracker = new NumTracker();
+//				currentScanNumber = (int) numTracker.getCurrentFileNumber();
+//			} catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
 
-			int currentScanNumber = 0;
-			try {
-				NumTracker numTracker = new NumTracker();
-				currentScanNumber = (int) numTracker.getCurrentFileNumber();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
-			error_file = String.valueOf(currentScanNumber);
-			errorFile.setValue(currentScanNumber);
+			error_file = String.valueOf(errorFile.getValue());
+			//errorFile.setValue(currentScanNumber);
 		}
 
 		if(selectedDir==null)
@@ -626,7 +632,7 @@ public final class BimorphParametersComposite extends Composite {
 		lblMethod = new Label(comp2, SWT.NONE);
 		lblMethod.setText("Method");
 		method = new ComboWrapper(comp2, SWT.NONE);
-		method.setItems(new String[] { "0", "1" });
+		method.setItems(new String[] { "0", "1", "2" });
 	}
 
 	public void createPresentMirrorSettingsGroup() {

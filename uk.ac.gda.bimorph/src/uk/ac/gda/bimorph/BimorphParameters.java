@@ -23,6 +23,10 @@ import java.net.URL;
 
 public class BimorphParameters implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	static public final URL mappingURL = BimorphParameters.class.getResource("BimorphParametersMapping.xml");
 	static public final URL schemaURL  = BimorphParameters.class.getResource("BimorphParametersMapping.xsd");
 	
