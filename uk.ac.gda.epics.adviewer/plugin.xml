@@ -61,5 +61,20 @@
             commandId="uk.ac.gda.epics.adviewer.command.zoomToFit">
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="uk.ac.gda.epics.adviewer.view.category"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/picture.png"
+            id="uk.ac.gda.epics.adviewer.snapshotView"
+            name="Snapshot"
+            restorable="true">
+      </view>
+      <category
+            id="uk.ac.gda.epics.adviewer.view.category"
+            name="EPICS AreaDetector">
+      </category>
+   </extension>
 
 </plugin>

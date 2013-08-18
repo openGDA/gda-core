@@ -66,12 +66,16 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,11 +91,20 @@ import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
+import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.Activator;
 import uk.ac.gda.epics.adviewer.ImageData;
 
 public class TwoDArray extends Composite {
+
 	public enum OptionIndex {
 		I, I_MINUS_A, I_MUNIS_B, I_NORMALISED, I_OVER_A, I_OVER_B, A, B
 	}
@@ -145,11 +158,19 @@ public class TwoDArray extends Composite {
 		gd_arrayMonitoringBtn.widthHint = 48;
 		arrayMonitoringBtn.setLayoutData(gd_arrayMonitoringBtn);
 
-		grpStores = new Group(left, SWT.NONE);
+		composite = new Composite(left, SWT.NONE);
+		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_composite.widthHint = 155;
+		composite.setLayoutData(gd_composite);
+		RowLayout rl_composite = new RowLayout(SWT.HORIZONTAL);
+		rl_composite.justify = true;
+		rl_composite.center = true;
+		rl_composite.wrap = false;
+		composite.setLayout(rl_composite);
+
+		grpStores = new Group(composite, SWT.NONE);
+		grpStores.setLayoutData(new RowData(64, SWT.DEFAULT));
 		grpStores.setLayout(new RowLayout(SWT.HORIZONTAL));
-		GridData gd_grpStores = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_grpStores.widthHint = 47;
-		grpStores.setLayoutData(gd_grpStores);
 		grpStores.setText("Store As");
 
 		btnA = new Button(grpStores, SWT.NONE);
@@ -165,6 +186,7 @@ public class TwoDArray extends Composite {
 
 		btnB = new Button(grpStores, SWT.NONE);
 		btnB.setText("B");
+
 		btnB.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -173,6 +195,18 @@ public class TwoDArray extends Composite {
 				TwoDArray.this.setupStores("B", clone);
 			}
 		});
+		btnSnapshot = new Button(composite, SWT.NONE);
+		btnSnapshot.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					updateArrayJob.snapShot();
+				} catch (Exception e1) {
+					logger.error("Error taking snapshot", e1);
+				}
+			}
+		});
+		btnSnapshot.setText("Snapshot");
 
 		grpShow = new Group(left, SWT.NONE);
 		GridData gd_grpShow = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -393,7 +427,7 @@ public class TwoDArray extends Composite {
 
 	}
 
-	Job updateArrayJob;
+	UpdateArrayJob updateArrayJob;
 
 	private IOCStatus statusComposite;
 
@@ -420,8 +454,11 @@ public class TwoDArray extends Composite {
 	ShowOption showOptionDefault = new ShowOption("I", OptionIndex.I);
 	ShowOption showOption = showOptionDefault;
 
-	//id used in DataBinding
+	// id used in DataBinding
 	static final String showOptionName = "showOption";
+	private Composite composite;
+	private Button btnSnapshot;
+
 	public ShowOption getShowOption() {
 		return showOption;
 	}
@@ -435,14 +472,13 @@ public class TwoDArray extends Composite {
 		if (arrayArrayCounterObservable == null) {
 			arrayArrayCounterObservable = config.getImageNDArray().getPluginBase().createArrayCounterObservable();
 		}
+		if (updateArrayJob == null) {
+			updateArrayJob = new UpdateArrayJob("Update array");
+			updateArrayJob.setUser(false);
+			updateArrayJob.setPriority(Job.SHORT);
+		}
 		if (arrayArrayCounterObserver == null) {
 			arrayArrayCounterObserver = new Observer<Integer>() {
-
-				private IImageTrace trace;
-
-				private String getArrayName() {
-					return arrayCounter.toString();
-				}
 
 				@Override
 				public void update(Observable<Integer> source, Integer arg) {
@@ -451,232 +487,6 @@ public class TwoDArray extends Composite {
 					if (arg == null)
 						return;
 					TwoDArray.this.arrayCounter = arg;
-					if (updateArrayJob == null) {
-						updateArrayJob = new Job("Update array") {
-
-							Boolean setMinMax;
-							Integer min = null;
-							Integer max = null;
-
-							private Runnable updateUIRunnable;
-							volatile boolean runnableScheduled = false;
-							private AbstractDataset nonNullDSToPlot;
-
-							@Override
-							public boolean belongsTo(Object family) {
-								return super.belongsTo(family);
-							}
-
-							private int getPosToIncludeFractionOfPopulation(AbstractDataset yData,
-									Double fractionOfPopulationToInclude) {
-								Double sum = (Double) yData.sum();
-								double popIncluded = 0;
-								int j = 0;
-								double popRequired = sum * fractionOfPopulationToInclude;
-								int size = yData.getSize();
-								while (popIncluded < popRequired && j < size) {
-									popIncluded += yData.getDouble(j);
-									if (popIncluded < popRequired)
-										j++;
-								}
-								return Math.min(j, size - 1);
-							}
-
-							@Override
-							protected IStatus run(IProgressMonitor monitor) {
-								try {
-									ImageData imageData;
-									imageData = config.getImageData();
-									imageData.toString();
-									if (imageData.data.getClass().isArray()) {
-										Object object = Array.get(imageData.data, 0);
-										if (object instanceof Short) {
-											ads = new ShortDataset((short[]) (imageData.data), imageData.dimensions);
-										} else if (object instanceof Double) {
-											ads = new DoubleDataset((double[]) (imageData.data), imageData.dimensions);
-										} else if (object instanceof Long) {
-											ads = new LongDataset((long[]) (imageData.data), imageData.dimensions);
-										} else if (object instanceof Byte) {
-											ads = new ByteDataset((byte[]) (imageData.data), imageData.dimensions);
-										} else if (object instanceof Float) {
-											ads = new FloatDataset((float[]) (imageData.data), imageData.dimensions);
-										} else if (object instanceof Integer) {
-											ads = new IntegerDataset((int[]) (imageData.data), imageData.dimensions);
-										} else {
-											throw new IllegalArgumentException("Type of data not recognised: "
-													+ object.getClass().getName());
-										}
-										ads.setName(getArrayName());
-										AbstractDataset dsToShow = null;
-										String explanation = "";
-
-										OptionIndex showIndex = showOption.getIndex();
-										switch (showIndex) {
-										case I:
-										{
-											dsToShow = ads;
-											break;
-										}
-										case B: 
-										case I_OVER_B: 
-										case I_MUNIS_B: {
-											AbstractDataset store = stores.get("B");
-											if (store != null ){
-												if( showIndex == OptionIndex.B){
-													dsToShow = store;
-												} else {
-													if(Arrays.equals(store.getShape(), ads.getShape())) {
-														boolean isOver = showIndex == OptionIndex.I_OVER_B;
-														dsToShow = isOver ? Maths.divide(ads,store) : ads.isubtract(store);
-														dsToShow.setName( ads.getName() + (isOver ? " / " : " - ") + store.getName());
-													} else {
-														explanation = new String("B does not match current image");
-													}
-												}
-											}
-											else {
-												explanation = new String("B is empty");
-											}
-											break;
-										}
-										case A: 
-										case I_OVER_A: 
-										case I_MINUS_A: {
-											AbstractDataset store = stores.get("A");
-											if (store != null ){
-												if( showIndex == OptionIndex.A){
-													dsToShow = store;
-												} else {
-													if(Arrays.equals(store.getShape(), ads.getShape())) {
-														boolean isOver = showIndex == OptionIndex.I_OVER_A;
-														dsToShow = isOver ? Maths.divide(ads,store) : ads.isubtract(store);
-														dsToShow.setName( ads.getName() + (isOver ? " / " : " - ") + store.getName());
-													} else {
-														explanation = new String("A does not match current image");
-													}
-												}
-											}
-											else {
-												explanation = new String("A is empty");
-											}
-											break;
-										}
-										case I_NORMALISED: {
-											// I-B/A-B
-											AbstractDataset storeB = stores.get("B");
-											DoubleDataset storeA_B = (DoubleDataset) stores.get("A-B");
-											if (storeB != null && storeA_B != null
-													&& Arrays.equals(storeB.getShape(), ads.getShape())) {
-												DoubleDataset ds = new DoubleDataset(ads.isubtract(storeB));
-												dsToShow = Maths.dividez(ds, storeA_B);
-												dsToShow.setName( "(" + ads.getName() + "-B)/(A-B)");
-											} else {
-												explanation = new String("A or B does not match current image");
-											}
-											break;
-										}
-										}
-										if (dsToShow == null) {
-											dsToShow = new IntegerDataset(new int[] { 0, 0, 0, 0 }, 2, 2);
-											dsToShow.setName("Invalid selection:" + explanation);
-										}
-										nonNullDSToPlot = dsToShow;
-										setMinMax = autoScale;
-										if (min == null || setMinMax) {
-											min = dsToShow.min().intValue();
-										}
-										if (max == null || setMinMax) {
-											max = dsToShow.max().intValue();
-										}
-										if (max == min) {
-											max = min + 1; // to ensure a range does exist
-										}
-										if (setMinMax) {
-											// set min to .05 percentile value
-											// set max to .95 percentile value
-											// if these work out the same then resort to min and max of dataset
-											int num_bins = 100;
-											Histogram hist = new Histogram(num_bins, min, max, true);
-											List<AbstractDataset> histogram_values = hist.value(dsToShow);
-											if (histogram_values.size() > 1) {
-												DoubleDataset histogramX = (DoubleDataset) histogram_values.get(1)
-														.getSlice(new int[] { 0 }, new int[] { num_bins },
-																new int[] { 1 });
-												histogramX.setName("Intensity");
-												AbstractDataset histogramY = histogram_values.get(0);
-												int jMax = getPosToIncludeFractionOfPopulation(histogramY, .95);
-												jMax = Math.min(jMax + 1, histogramY.getSize() - 1);
-												int jMin = getPosToIncludeFractionOfPopulation(histogramY, .05);
-												jMin = Math.min(jMin - 1, histogramY.getSize() - 1);
-												int lmin = min;
-												int lmax = max;
-												if (jMax >= 0) {
-													lmax = (int) histogramX.getDouble(jMax);
-												}
-												if (jMin >= 0) {
-													lmin = (int) histogramX.getDouble(jMin);
-												}
-												if (lmax != lmin) {
-													max = lmax;
-													min = lmin;
-												}
-											}
-										}
-
-										if (updateUIRunnable == null) {
-											updateUIRunnable = new Runnable() {
-
-												@Override
-												public void run() {
-													runnableScheduled = false;
-													AbstractDataset dataToPlot = getDataToPlot();
-													if (trace == null
-															|| !Arrays.equals(trace.getData().getShape(),
-																	dataToPlot.getShape())) {
-														trace = (IImageTrace) plottingSystem.updatePlot2D(dataToPlot,
-																null, null);
-													}
-													String title = dataToPlot.getName();
-													trace.setName(title);
-
-													trace.setMin(getMin());
-													trace.setMax(getMax());
-													trace.setRescaleHistogram(false);
-													plottingSystem.setTitle(title);
-													plottingSystem.updatePlot2D(dataToPlot, null, null);
-												}
-
-											};
-										}
-										if (!runnableScheduled) {
-											if (!isDisposed()) {
-												runnableScheduled = true;
-												getDisplay().asyncExec(updateUIRunnable);
-											}
-										}
-									}
-								} catch (Exception e) {
-									logger.error("Error reading image data", e);
-								}
-								return Status.OK_STATUS;
-							}
-
-							private AbstractDataset getDataToPlot() {
-								return nonNullDSToPlot;
-							}
-
-							private Integer getMin() {
-								return min;
-							}
-
-							private Integer getMax() {
-								return max;
-							}
-
-						};
-						updateArrayJob.setUser(false);
-						updateArrayJob.setPriority(Job.SHORT);
-					}
 					updateArrayJob.schedule(); // rate is limited by min update time already
 
 				}
@@ -783,6 +593,267 @@ public class TwoDArray extends Composite {
 		restoreStores(name);
 	}
 
+	private class UpdateArrayJob extends Job {
+
+		public UpdateArrayJob(String name) {
+			super(name);
+		}
+
+		private IImageTrace trace;
+
+		Boolean setMinMax;
+		Integer min = null;
+		Integer max = null;
+
+		private Runnable updateUIRunnable;
+
+		volatile boolean runnableScheduled = false;
+		private AbstractDataset nonNullDSToPlot;
+		PlotView plotView;
+
+		void snapShot() throws Exception {
+			;
+			if (nonNullDSToPlot != null) {
+				final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				IViewPart showView = window.getActivePage().showView("uk.ac.gda.epics.adviewer.snapshotView");
+				if (showView instanceof PlotView) {
+					plotView = (PlotView) showView;
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							try {
+								GuiBean guiBean = new GuiBean();
+								guiBean.put(GuiParameters.PLOTMODE, GuiPlotMode.TWOD);
+								guiBean.put(GuiParameters.TITLE, nonNullDSToPlot.getName());
+								plotView.processGUIUpdate(guiBean);
+								plotView.updatePlotMode(GuiPlotMode.TWOD);
+								DataBean dataBean = new DataBean(GuiPlotMode.TWOD);
+
+								DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
+								AxisMapBean amb = new AxisMapBean();
+								axisData.setAxisMap(amb);
+								axisData.setData(nonNullDSToPlot);
+								dataBean.addData(axisData);
+								plotView.processPlotUpdate(dataBean);
+							} catch (DataBeanException e) {
+								logger.error("Error updating snapshot view", e);
+							}
+
+						}
+
+					});
+
+					/*
+					 * if (xValues != null) { dataBean.addAxis(AxisMapBean.XAXIS, xValues); } if (yValues != null) {
+					 * dataBean.addAxis(AxisMapBean.YAXIS, yValues); }
+					 */
+				}
+			}
+		}
+
+		@Override
+		public boolean belongsTo(Object family) {
+			return super.belongsTo(family);
+		}
+
+		private int getPosToIncludeFractionOfPopulation(AbstractDataset yData, Double fractionOfPopulationToInclude) {
+			Double sum = (Double) yData.sum();
+			double popIncluded = 0;
+			int j = 0;
+			double popRequired = sum * fractionOfPopulationToInclude;
+			int size = yData.getSize();
+			while (popIncluded < popRequired && j < size) {
+				popIncluded += yData.getDouble(j);
+				if (popIncluded < popRequired)
+					j++;
+			}
+			return Math.min(j, size - 1);
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			try {
+				ImageData imageData;
+				imageData = config.getImageData();
+				imageData.toString();
+				if (imageData.data.getClass().isArray()) {
+					Object object = Array.get(imageData.data, 0);
+					if (object instanceof Short) {
+						ads = new ShortDataset((short[]) (imageData.data), imageData.dimensions);
+					} else if (object instanceof Double) {
+						ads = new DoubleDataset((double[]) (imageData.data), imageData.dimensions);
+					} else if (object instanceof Long) {
+						ads = new LongDataset((long[]) (imageData.data), imageData.dimensions);
+					} else if (object instanceof Byte) {
+						ads = new ByteDataset((byte[]) (imageData.data), imageData.dimensions);
+					} else if (object instanceof Float) {
+						ads = new FloatDataset((float[]) (imageData.data), imageData.dimensions);
+					} else if (object instanceof Integer) {
+						ads = new IntegerDataset((int[]) (imageData.data), imageData.dimensions);
+					} else {
+						throw new IllegalArgumentException("Type of data not recognised: "
+								+ object.getClass().getName());
+					}
+					ads.setName(arrayCounter.toString());
+					AbstractDataset dsToShow = null;
+					String explanation = "";
+
+					OptionIndex showIndex = showOption.getIndex();
+					switch (showIndex) {
+					case I: {
+						dsToShow = ads;
+						break;
+					}
+					case B:
+					case I_OVER_B:
+					case I_MUNIS_B: {
+						AbstractDataset store = stores.get("B");
+						if (store != null) {
+							if (showIndex == OptionIndex.B) {
+								dsToShow = store;
+							} else {
+								if (Arrays.equals(store.getShape(), ads.getShape())) {
+									boolean isOver = showIndex == OptionIndex.I_OVER_B;
+									dsToShow = isOver ? Maths.divide(ads, store) : ads.isubtract(store);
+									dsToShow.setName(ads.getName() + (isOver ? " / " : " - ") + store.getName());
+								} else {
+									explanation = new String("B does not match current image");
+								}
+							}
+						} else {
+							explanation = new String("B is empty");
+						}
+						break;
+					}
+					case A:
+					case I_OVER_A:
+					case I_MINUS_A: {
+						AbstractDataset store = stores.get("A");
+						if (store != null) {
+							if (showIndex == OptionIndex.A) {
+								dsToShow = store;
+							} else {
+								if (Arrays.equals(store.getShape(), ads.getShape())) {
+									boolean isOver = showIndex == OptionIndex.I_OVER_A;
+									dsToShow = isOver ? Maths.divide(ads, store) : ads.isubtract(store);
+									dsToShow.setName(ads.getName() + (isOver ? " / " : " - ") + store.getName());
+								} else {
+									explanation = new String("A does not match current image");
+								}
+							}
+						} else {
+							explanation = new String("A is empty");
+						}
+						break;
+					}
+					case I_NORMALISED: {
+						// I-B/A-B
+						AbstractDataset storeB = stores.get("B");
+						DoubleDataset storeA_B = (DoubleDataset) stores.get("A-B");
+						if (storeB != null && storeA_B != null && Arrays.equals(storeB.getShape(), ads.getShape())) {
+							DoubleDataset ds = new DoubleDataset(ads.isubtract(storeB));
+							dsToShow = Maths.dividez(ds, storeA_B);
+							dsToShow.setName("(" + ads.getName() + "-B)/(A-B)");
+						} else {
+							explanation = new String("A or B does not match current image");
+						}
+						break;
+					}
+					}
+					if (dsToShow == null) {
+						dsToShow = new IntegerDataset(new int[] { 0, 0, 0, 0 }, 2, 2);
+						dsToShow.setName("Invalid selection:" + explanation);
+					}
+					nonNullDSToPlot = dsToShow;
+					setMinMax = autoScale;
+					if (min == null || setMinMax) {
+						min = dsToShow.min().intValue();
+					}
+					if (max == null || setMinMax) {
+						max = dsToShow.max().intValue();
+					}
+					if (max == min) {
+						max = min + 1; // to ensure a range does exist
+					}
+					if (setMinMax) {
+						// set min to .05 percentile value
+						// set max to .95 percentile value
+						// if these work out the same then resort to min and max of dataset
+						int num_bins = 100;
+						Histogram hist = new Histogram(num_bins, min, max, true);
+						List<AbstractDataset> histogram_values = hist.value(dsToShow);
+						if (histogram_values.size() > 1) {
+							DoubleDataset histogramX = (DoubleDataset) histogram_values.get(1).getSlice(
+									new int[] { 0 }, new int[] { num_bins }, new int[] { 1 });
+							histogramX.setName("Intensity");
+							AbstractDataset histogramY = histogram_values.get(0);
+							int jMax = getPosToIncludeFractionOfPopulation(histogramY, .95);
+							jMax = Math.min(jMax + 1, histogramY.getSize() - 1);
+							int jMin = getPosToIncludeFractionOfPopulation(histogramY, .05);
+							jMin = Math.min(jMin - 1, histogramY.getSize() - 1);
+							int lmin = min;
+							int lmax = max;
+							if (jMax >= 0) {
+								lmax = (int) histogramX.getDouble(jMax);
+							}
+							if (jMin >= 0) {
+								lmin = (int) histogramX.getDouble(jMin);
+							}
+							if (lmax != lmin) {
+								max = lmax;
+								min = lmin;
+							}
+						}
+					}
+
+					if (updateUIRunnable == null) {
+						updateUIRunnable = new Runnable() {
+
+							@Override
+							public void run() {
+								runnableScheduled = false;
+								AbstractDataset dataToPlot = getDataToPlot();
+								if (trace == null || !Arrays.equals(trace.getData().getShape(), dataToPlot.getShape())) {
+									trace = (IImageTrace) plottingSystem.updatePlot2D(dataToPlot, null, null);
+								}
+								String title = dataToPlot.getName();
+								trace.setName(title);
+
+								trace.setMin(getMin());
+								trace.setMax(getMax());
+								trace.setRescaleHistogram(false);
+								plottingSystem.setTitle(title);
+								plottingSystem.updatePlot2D(dataToPlot, null, null);
+							}
+
+						};
+					}
+					if (!runnableScheduled) {
+						if (!isDisposed()) {
+							runnableScheduled = true;
+							getDisplay().asyncExec(updateUIRunnable);
+						}
+					}
+				}
+			} catch (Exception e) {
+				logger.error("Error reading image data", e);
+			}
+			return Status.OK_STATUS;
+		}
+
+		private AbstractDataset getDataToPlot() {
+			return nonNullDSToPlot;
+		}
+
+		private Integer getMin() {
+			return min;
+		}
+
+		private Integer getMax() {
+			return max;
+		}
+	}
 }
 
 class ShowOption {
