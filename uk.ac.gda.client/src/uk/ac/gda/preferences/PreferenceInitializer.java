@@ -34,6 +34,7 @@ import uk.ac.gda.client.liveplot.LivePlotView;
  */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
+	public static final String DATA_PROJECT_NAME_AS_VISIT = "$visit$";
 	private Collection<String> integerPrefs;
 	private Collection<String> booleanPrefs;
 	
@@ -64,7 +65,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.DASHBOARD_FORMAT, "#0.00");
 		
 		store.setDefault(PreferenceConstants.GDA_DATA_PROJECT_CREATE_ON_STARTUP, true);
-		store.setDefault(PreferenceConstants.GDA_DATA_PROJECT_NAME, "Data");
+		store.setDefault(PreferenceConstants.GDA_DATA_PROJECT_NAME, DATA_PROJECT_NAME_AS_VISIT);
 		store.setDefault(PreferenceConstants.GDA_DATA_PROJECT_FILTER, ".*xml");
 		store.setDefault(PreferenceConstants.GDA_DATA_PROJECT_FILTER_IS_EXCLUDE, true);
 

@@ -101,6 +101,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.GDADataNature;
 import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.preferences.PreferenceConstants;
+import uk.ac.gda.preferences.PreferenceInitializer;
 import uk.ac.gda.pydev.ScriptProjectCreator;
 import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 import uk.ac.gda.ui.partlistener.MenuDisplayPartListener;
@@ -397,8 +398,12 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 					// we have to find the jars before we restore the compiled libs
 					if (preferenceStore.getBoolean(PreferenceConstants.GDA_DATA_PROJECT_CREATE_ON_STARTUP)) {
 						try {
+							String projName = preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_NAME);
+							if( projName.equals(PreferenceInitializer.DATA_PROJECT_NAME_AS_VISIT)){
+								projName = LocalProperties.get(LocalProperties.RCP_APP_VISIT,"Data");
+							}
 							createDataProject(monitor,
-									preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_NAME),
+									projName,PathConstructor.createFromRCPProperties(),
 									preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_FILTER),
 									preferenceStore.getBoolean(PreferenceConstants.GDA_DATA_PROJECT_FILTER_IS_EXCLUDE));
 						} catch (CoreException e) {
@@ -536,7 +541,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		}
 	}
 
-	private void createDataProject(IProgressMonitor monitor, String projName, String filter, boolean excludes)
+	private void createDataProject(IProgressMonitor monitor, String projName, String dataPath, String filter, boolean excludes)
 			throws CoreException {
 		IProject dataProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projName);
 		if (!dataProject.exists()) {
@@ -547,7 +552,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				resourceFilterWrapper.add(ResourceFilterWrapper.createRegexFolderFilter(filter, true, excludes));
 				resourceFilterWrapper.add(ResourceFilterWrapper.createRegexFolderFilter(filter, false, excludes));
 			}
-			ProjectUtils.createImportProjectAndFolder(projName, "data", PathConstructor.createFromDefaultProperty(),
+			ProjectUtils.createImportProjectAndFolder(projName, "data", dataPath,
 					GDADataNature.ID, resourceFilterWrapper, monitor);
 
 		}

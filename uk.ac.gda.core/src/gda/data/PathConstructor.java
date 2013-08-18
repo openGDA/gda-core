@@ -19,8 +19,8 @@
 
 package gda.data;
 
-import gda.configuration.properties.LocalProperties;
 import static gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR;
+import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
 import gda.util.HostId;
