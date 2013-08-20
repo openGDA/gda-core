@@ -794,10 +794,13 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			boolean additionalYAxes = false;
 			for (LiveData sd : scans) {
 				if (sd != null  && sd.number > 1 ) {//do not show lines with only 1 point as the datasetplotter throws exceptions
+					LiveDataArchive archive = sd.archive;
+					if( archive == null)
+						continue;
 					if (sd.isVisible()) {
 						
-						xys.add( new LineData(sd.archive.getAppearance(), sd.archive.getxAxis().toDataset(),sd.archive.getyVals(), sd.yAxisSpec ));
-						AbstractDataset y = sd.archive.getyVals();
+						xys.add( new LineData(archive.getAppearance(), archive.getxAxis().toDataset(),archive.getyVals(), sd.yAxisSpec ));
+						AbstractDataset y = archive.getyVals();
 						if (y.getName()==null || "".equals(y.getName())) {
 							y.setName(sd.name);
 						}
@@ -823,7 +826,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 						}
 					} else {
 						try {
-						    invis.add(sd.archive.getyVals().getName());
+							invis.add(archive.getyVals().getName());
 						} catch (NullPointerException npe) {
 							continue;
 						}
