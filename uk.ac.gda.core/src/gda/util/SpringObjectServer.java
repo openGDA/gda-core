@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.util.StringUtils;
 
 /**
  * A subclass of {@link ObjectServer} that uses a Spring application context.
@@ -101,7 +102,7 @@ public class SpringObjectServer extends ObjectServer {
 		for (Map.Entry<String, AdapterFactory> entry : adapterFactories.entrySet()) {
 			String name = entry.getKey();
 			AdapterFactory adapterFactory = entry.getValue();
-			logger.info("Adding AdapterFactory " + name + " to finder");
+			logger.info(String.format("Adding AdapterFactory %s (namespace %s) to finder", StringUtils.quote(name), StringUtils.quote(adapterFactory.getName())));
 			Finder.getInstance().addFactory(adapterFactory);
 		}
 	}
