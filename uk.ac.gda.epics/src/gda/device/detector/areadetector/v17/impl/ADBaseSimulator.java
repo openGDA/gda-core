@@ -753,7 +753,7 @@ public class ADBaseSimulator implements ADBase {
 	}
 
 	@Override
-	public Observable<String> createAcquireStateObservable() throws Exception {
+	public Observable<Short> createAcquireStateObservable() throws Exception {
 		return null;
 	}
 
