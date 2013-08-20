@@ -53,5 +53,7 @@ public interface ScanDataPointPipeline {
 	 */
 	void shutdown(long timeoutMillis) throws DeviceException, InterruptedException;
 	
+	
+	public void waitUntilEmpty() throws InterruptedException;
 
 }

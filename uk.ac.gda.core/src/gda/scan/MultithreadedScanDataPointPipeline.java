@@ -227,7 +227,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		} else {
 			message = (e instanceof PyException) ? e.toString() : e.getMessage();
 		}
-		return new DeviceException("Unable to publish scan data point because: " + e.getClass().getSimpleName() + " : ", e);
+		return new DeviceException("Unable to publish scan data point because: " + e.getClass().getSimpleName() + " : " + message, e);
 	}
 
 	synchronized Throwable getException() {
@@ -252,7 +252,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 	}
 
-	void shutdownNow() throws DeviceException, InterruptedException {
+	void shutdownNow() throws InterruptedException {
 		logger.info("Shutting down MultithreadedScanDataPointPipeline NOW.");
 		int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
 		if (numberOfDumpedPoints > 0) {
@@ -370,5 +370,14 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			return newThread;
 		}
 
+	}
+
+	@Override
+	public void waitUntilEmpty() throws InterruptedException {
+		while(	!broadcasterQueue.getQueue().isEmpty() ){
+			Thread.sleep(1000);
+			ScanBase.checkForInterruptsIgnoreIdle();
+		}
+		
 	}
 }
