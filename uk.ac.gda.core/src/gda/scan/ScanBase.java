@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import org.python.core.PyException;
 import org.slf4j.Logger;
@@ -478,9 +479,11 @@ public abstract class ScanBase implements Scan {
 	
 	/**
 	 * Blocks while detectors are readout and point is added to pipeline (for the previous point).
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
 	 */
-	@SuppressWarnings("unused") // subclasses may throw Exceptions
-	public void waitForDetectorReadoutAndPublishCompletion() throws Exception {
+	@SuppressWarnings("unused")
+	public void waitForDetectorReadoutAndPublishCompletion() throws InterruptedException, ExecutionException {
 		// Do nothing as readoutDetectorsAndPublish blocks until complete.
 	}
 	
@@ -600,14 +603,17 @@ public abstract class ScanBase implements Scan {
 				} catch (Exception e) {
 					throw new DeviceException(e);
 				}
+				try {
+					scanDataPointPipeline.waitUntilEmpty();
+				} catch (InterruptedException e) {
+					throw new DeviceException("Interrupted waiting for scanDataPointPileLine to empty",e);
+				}
 				// call the atEnd method of all the scannables
-
 				callScannablesAtScanLineEnd();
 			}
 
 			// if a standalone scan, or the top-level scan in a nest of scans
 			if (!isChild() ) { // FIXME: Move all !isChild() logic up into runScan
-
 				callScannablesAtScanEnd();
 
 				callDetectorsEndCollection();
