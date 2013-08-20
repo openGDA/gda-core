@@ -285,6 +285,8 @@ public void endRecording() throws Exception {
 
 	public void setDirectory(String dataDir) throws Exception {
 		hdf5.setFilePath(dataDir);		
+		if( !hdf5.getFile().filePathExists())
+			throw new Exception("Path does not exist on IOC '" + dataDir + "'");		
 	}
 
 	public void setFileNumber(Number scanNumber) throws Exception {

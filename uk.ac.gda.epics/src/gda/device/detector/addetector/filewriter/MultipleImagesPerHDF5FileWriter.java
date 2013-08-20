@@ -256,8 +256,10 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	private void setupFilename() throws Exception {
 		getNdFile().setFileName(getFileName());
 		getNdFile().setFileTemplate(getFileTemplate());
-		getNdFile().setFilePath(getFilePath());
-		
+		String filePath = getFilePath();
+		getNdFile().setFilePath(filePath);
+		if( !getNdFile().filePathExists())
+			throw new Exception("Path does not exist on IOC '" + filePath + "'");		
 		long scanNumber = getScanNumber();
 
 		
