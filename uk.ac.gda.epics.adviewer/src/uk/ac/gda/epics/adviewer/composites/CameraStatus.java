@@ -47,8 +47,8 @@ public class CameraStatus extends Composite {
 	static final Logger logger = LoggerFactory.getLogger(CameraStatus.class);
 	private Label lblAcquireState;
 	private StandardBox acquireTimeBox;
-	private Observable<String> stateObservable;
-	private Observer<String> stateObserver;
+	private Observable<Short> stateObservable;
+	private Observer<Short> stateObserver;
 	private Observable<Double> timeObservable;
 	private Observer<Double> timeObserver;
 	private Button btnStart;
@@ -98,15 +98,15 @@ public class CameraStatus extends Composite {
 
 	public void setADController(final ADController adController) throws Exception {
 		stateObservable = adController.getAdBase().createAcquireStateObservable();
-		stateObserver = new Observer<String>() {
+		stateObserver = new Observer<Short>() {
 			
 			@Override
-			public void update(Observable<String> source, final String arg) {
+			public void update(Observable<Short> source, final Short arg) {
 				Display.getDefault().asyncExec(new Runnable() {
 					
 					@Override
 					public void run() {
-						boolean acquisitionStopped = arg.equals("Done");
+						boolean acquisitionStopped = arg == 0;
 						lblAcquireState.setText(acquisitionStopped ? "Stopped   ": "Acq.");
 						btnStart.setEnabled(true);
 					}
