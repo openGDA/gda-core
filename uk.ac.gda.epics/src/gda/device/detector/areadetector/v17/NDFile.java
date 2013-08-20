@@ -18,23 +18,25 @@
 
 package gda.device.detector.areadetector.v17;
 
+import gda.observable.Observable;
+
 /**
  *
  */
 public interface NDFile {
 
 	public enum FileWriteMode {
-		SINGLE,
-		CAPTURE,
-		STREAM
+		SINGLE, CAPTURE, STREAM
 	}
-	
+
 	/**
 	 * List all the PVs // TODO: Remove from interface
 	 */
 	public final String FilePath = "FilePath";
 
 	public final String FilePath_RBV = "FilePath_RBV";
+
+	public final String FilePathExists_RBV = "FilePathExists_RBV";
 
 	public final String FileName = "FileName";
 
@@ -61,6 +63,10 @@ public interface NDFile {
 	public final String WriteFile = "WriteFile";
 
 	public final String WriteFile_RBV = "WriteFile_RBV";
+
+	public final String WriteMessage = "WriteMessage";
+
+	public final String WriteStatus = "WriteStatus";
 
 	public final String ReadFile = "ReadFile";
 
@@ -91,6 +97,8 @@ public interface NDFile {
 	void setFilePath(String filepath) throws Exception;
 
 	String getFilePath_RBV() throws Exception;
+
+	Boolean filePathExists() throws Exception;
 
 	String getFileName() throws Exception;
 
@@ -181,6 +189,7 @@ public interface NDFile {
 
 	/**
 	 * blocking call to start capturing
+	 * 
 	 * @throws Exception
 	 */
 	void startCaptureSynchronously() throws Exception;
@@ -190,4 +199,14 @@ public interface NDFile {
 	void setFileWriteMode(FileWriteMode mode) throws Exception;
 
 	void waitWhileStatusBusy() throws InterruptedException;
+
+	String getWriteMessage() throws Exception;
+
+	// Observer of the WriteMessage PV
+	Observable<String> createWriteMessageObservable() throws Exception;
+
+	Boolean isWriteStatusErr() throws Exception;
+
+	// Observer of the WriteStatus PV
+	Observable<Short> createWriteStatusObservable() throws Exception;
 }

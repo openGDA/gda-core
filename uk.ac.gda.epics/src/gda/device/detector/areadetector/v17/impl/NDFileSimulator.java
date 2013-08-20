@@ -20,6 +20,7 @@ package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.observable.Observable;
 
 /**
  * Simulation of NDFile for testing.
@@ -310,6 +311,28 @@ public class NDFileSimulator implements NDFile{
 
 	@Override
 	public void waitWhileStatusBusy() throws InterruptedException {
+	}
+
+	@Override
+	public Boolean filePathExists() throws Exception {
+		return true;
+	}
+	
+	@Override
+	public Observable<String> createWriteMessageObservable() throws Exception {
+		return null;
+	}
+	@Override
+	public Observable<Short> createWriteStatusObservable() throws Exception {
+		return null;
+	}
+	@Override
+	public String getWriteMessage() throws Exception {
+		return "";
+	}
+	@Override
+	public Boolean isWriteStatusErr() throws Exception {
+		return false;
 	}
 
 

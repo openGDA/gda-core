@@ -1177,27 +1177,13 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	 * @throws Exception
 	 */
 	private Channel getChannel(String pvElementName, String... args) throws Exception {
-		try {
-			return createChannel(getChannelName(pvElementName, args));
-		} catch (Exception exception) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl -> Problem getting channel", exception);
-			throw exception;
-		}
+		return createChannel(getChannelName(pvElementName, args));
 	}
 
 	public Channel createChannel(String fullPvName) throws CAException, TimeoutException {
 		Channel channel = channelMap.get(fullPvName);
 		if (channel == null) {
-			try {
-				channel = EPICS_CONTROLLER.createChannel(fullPvName);
-			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.NDStatsImpl-> Problem creating channel", cae);
-				throw cae;
-			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.NDStatsImpl-> Problem creating channel", te);
-				throw te;
-
-			}
+			channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			channelMap.put(fullPvName, channel);
 		}
 		return channel;
