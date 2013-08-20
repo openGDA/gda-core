@@ -18,12 +18,15 @@
 
 package gda.device.detector.addetector.filewriter;
 
+import java.io.File;
 import java.text.MessageFormat;
 
 import gda.data.PathConstructor;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.jython.InterfaceProvider;
+import gda.observable.Observable;
+import gda.observable.Observer;
 import gda.scan.ScanInformation;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,6 +47,10 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	private boolean enableDuringScan = true;
 
 	private boolean setFileNameAndNumber = true;
+
+	protected Observable<Short> writeStatusObservable;
+
+	protected Boolean writeStatusErr=false; 
 	
 	abstract protected void disableFileWriting() throws Exception;
 	
@@ -59,6 +66,18 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 			throw new IllegalStateException("fileNameTemplate is null");
 		if (fileNumberAtScanStart == null)
 			throw new IllegalStateException("fileNumberAtScanStart is null");
+		writeStatusObservable = getNdFile().createWriteStatusObservable();
+		/* writeStatusObservable may be null if the NdFile is a simulation */
+		if( writeStatusObservable != null){
+			writeStatusObservable.addObserver(new Observer<Short>() {
+				
+				@Override
+				public void update(Observable<Short> source, Short arg) {
+					writeStatusErr = arg==1;
+				}
+			});
+		}
+		
 	}
 	
 	public void setNdFile(NDFile ndFile) {
@@ -166,6 +185,10 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		}
 
 		return template;
+	}
+
+	protected String getAbsoluteFilePath(String filePathRelativeToDataDir) {
+		return PathConstructor.createFromDefaultProperty() + File.separator + filePathRelativeToDataDir;
 	}
 	
 	private String substituteScan(String template) {
