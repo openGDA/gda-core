@@ -36,8 +36,6 @@ class I20DetectorPreparer:
             print "Configuring",detType,"detector using",fullFileName
             detType = fluoresenceParameters.getDetectorType()
             xmlFileName = scriptFolder + fluoresenceParameters.getConfigFileName()
-            detType = fluoresenceParameters.getDetectorType()
-            xmlFileName = scriptFolder + fluoresenceParameters.getConfigFileName()
             if detType == "Germanium":
                 self.xspressConfig.initialize()
                 onlyShowFF = outputBean.isOnlyShowFF()
@@ -50,8 +48,8 @@ class I20DetectorPreparer:
                 saveRawSpectrum = vortexBean.isSaveRawSpectrum()
                 self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
         elif detectorBean.getExperimentType() == "XES" :
-            fullFileName = str(scriptFolder) + str(detectorBean.getXesParameters().getConfigFileName())
-            VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputBean).configure()
+            xmlFileName = scriptFolder + detectorBean.getXesParameters().getConfigFileName()
+            VortexDetectorConfiguration(self.ExafsScriptObserver,xmlFileName,None,outputBean).configure()
             
         ionChamberParamsArray = None
         if detectorBean.getExperimentType() == "Fluorescence" :
