@@ -263,7 +263,7 @@ class I20XesScan(XasScan):
         self.log( "Vortex and ionchambers configured.")
         sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
         outputScannables = self.outputPreparer.prepare(beanGroup.getOutput(), beanGroup.getScan())
-        scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
+        scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup.getDetector(), beanGroup.getOutput())
 
         # run the before scan script
         self._runScript(beanGroup.getOutput().getBeforeScriptName())

@@ -6,6 +6,9 @@ from gdascripts.parameters import beamline_parameters
 from gda.configuration.properties import LocalProperties
 from gdascripts.messages import handle_messages
 from gdascripts.configuration.properties.scriptContext import defaultScriptFolder
+from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
+from gda.util import Element
+
 import java
 
 class XspressConfig():
@@ -32,8 +35,60 @@ class XspressConfig():
             print "Could not save XspressParameters bean ", e
         self.configuration.createXMLfromBean(xspressBean)
     
+    def setDetectorCorrectionParameters(self,scanBean):
+        # Use the fluo (emission) energy of the nearest transition based on the element and excitation edge
+        # to calculate the energy dependent deadtime parameters.
+        dtEnergy=None
+        if isinstance(scanBean,XasScanParameters) or isinstance(scanBean,XanesScanParameters):
+            dtEnergy=self.resolveXASDeadtimeCalculationEnergy(scanBean)
+        else :
+            dtEnergy=self.resolveXESDeadtimeCalculationEnergy(scanBean)
+        self.xspress2system.setDeadtimeCalculationEnergy(dtEnergy)
+    
+    def resolveXASDeadtimeCalculationEnergy(self, scanBean):
+        dtEnergy = 0.0
+        edge = scanBean.getEdge()
+        element = scanBean.getElement()
+        elementObj = Element.getElement(element)
+        energy = self.getEmissionEnergy(elementObj,edge)
+        energy /= 1000 # convert from eV to keV
+        print "Setting Ge detector deadtime calculation energy to be",str(dtEnergy),"keV based on element",element,"and edge",edge
+        return energy
+    
+    def resolveXESDeadtimeCalculationEnergy(self, scanBean):
+        finalEnergy = scanBean.getFinalEnergy() 
+        return self.convertEVtoKEV(finalEnergy)
+    
+    def convertEVtoKEV(self, energy):
+        return energy/1000
+    
+    def setDeadtimeCalculationEnergy(self, energy):
+        self.xspress2system.setDeadtimeCalculationEnergy(energy)
+    
     def configure(self, xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum):
         self.configuration.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+    
+    def getEmissionEnergy(self,elementObj,edge):
+        if str(edge) == "K":
+            return elementObj.getEmissionEnergy("Ka1")
+        elif str(edge) == "L1":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "L2":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "L3":
+            return elementObj.getEmissionEnergy("La1")
+        elif str(edge) == "M1":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M2":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M3":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M4":
+            return elementObj.getEmissionEnergy("Ma1")
+        elif str(edge) == "M5":
+            return elementObj.getEmissionEnergy("Ma1")
+        else:
+            return elementObj.getEmissionEnergy("Ka1")
 
         
 class VortexConfig():

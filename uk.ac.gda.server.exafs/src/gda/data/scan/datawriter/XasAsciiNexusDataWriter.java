@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,20 +18,19 @@
 
 package gda.data.scan.datawriter;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.scan.IScanDataPoint;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.exafs.IDetectorParameters;
+import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.beans.exafs.OutputParameters;
-import uk.ac.gda.util.io.FileUtils;
+import uk.ac.gda.beans.exafs.IScanParameters;
 
 /**
  * Write to an Xas and a Nexus file simultaneously
@@ -40,34 +39,30 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	private static Logger logger = LoggerFactory.getLogger(XasAsciiNexusDataWriter.class);
 
-	protected XasAsciiDataWriter xasAscii;
-	private NexusDataWriter nexus;
-	
-	private String xasDir;
-	private String nexusFileTemplate;
-	
+	private XasAsciiDataWriter ascii;
+	private XasNexusDataWriter nexus;
+
+	private String nexusFileNameTemplate;
+	private String asciiFileNameTemplate;
+	private Boolean firstData = true;
+
 	public XasAsciiNexusDataWriter() throws Exception {
 		super();
-		xasAscii = new XasAsciiDataWriter();
-		nexus = new XasNexusDataWriter(xasAscii.getFileNumber());
-		determineFilenames();
-		nexus.setNexusFileNameTemplate(nexusFileTemplate);
-		xasAscii.setNexusFilePath(getCurrentFileName());
+		ascii = new XasAsciiDataWriter();
+		nexus = new XasNexusDataWriter(ascii.getFileNumber());
 	}
 
 	private void storeFilenamesWithRegistar() {
-		FileRegistrarHelper.registerFiles(new String[] {
-				xasAscii.fileUrl
-			});
+		FileRegistrarHelper.registerFiles(new String[] { ascii.fileUrl });
 	}
 
 	@Override
 	public String getCurrentFileName() {
 		return nexus.getCurrentFileName();
 	}
-	
+
 	public String getAsciiFileName() {
-		return xasAscii.getCurrentFileName();
+		return ascii.getCurrentFileName();
 	}
 
 	@Override
@@ -82,23 +77,39 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	@Override
 	public void addData(IScanDataPoint newData) throws Exception {
+		if (firstData) {
+			setFileNameTemplates();
+			firstData = false;
+		}
+
 		try {
 			nexus.addData(newData);
 		} catch (Exception e) {
 			// ignore so we don't prevent the xas file from being written
+			// we should at least log this!
 		}
 		try {
-			xasAscii.addData(newData);
+			ascii.addData(newData);
 		} catch (Exception e) {
 			// ignore so we don't prevent the drop file from being written
-		}
-		finally {
+			// we should at least log this!
+		} finally {
 			try {
 				super.addData(this, newData);
 			} catch (Exception e) {
 				logger.error("exception received from DataWriterBase.addData(...)", e);
 			}
 		}
+	}
+
+	private synchronized void setFileNameTemplates() throws Exception {
+		if (nexusFileNameTemplate != null){
+			nexus.setNexusFileNameTemplate(nexusFileNameTemplate);
+		}
+		if (asciiFileNameTemplate != null) {
+			ascii.setAsciiFileNameTemplate(asciiFileNameTemplate);
+		}
+		ascii.setNexusFilePath(nexus.getCurrentFileName()); // to cross reference in its header
 	}
 
 	@Override
@@ -108,9 +119,9 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			nexus.completeCollection();
 		} catch (Exception e) {
 			// ignore so we don't prevent the xas file from being written
-			logger.error("ignored nexus error: ",e);
+			logger.error("ignored nexus error: ", e);
 		}
-		xasAscii.completeCollection();
+		ascii.completeCollection();
 	}
 
 	@Override
@@ -118,57 +129,10 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		return nexus.getHeader();
 	}
 
-	private void determineFilenames() {
-		String nameFrag = LocalProperties.get("gda.instrument"); 
-
-		//get data directory
-		if (XasAsciiDataWriter.group != null && XasAsciiDataWriter.group.getExperimentFolderName() != null) {
-			xasDir = PathConstructor.createFromDefaultProperty()+XasAsciiDataWriter.group.getExperimentFolderName();
-		} else {
-			xasDir = PathConstructor.createFromDefaultProperty();
-		}
-
-		// create dir
-		final File file = new File(xasDir);
-		if (!file.canWrite()) {
-			final File newFile = FileUtils.createNewUniqueDir(file.getParentFile(), file.getName());
-			logger.info("'" + xasDir + "' is not writable. Using '" + newFile.getName() + "' instead.");
-			xasDir = newFile.getName() + "/";
-		}
-		
-		// work out sub-folders and filenames
-		try {
-			if (XasAsciiDataWriter.group != null && XasAsciiDataWriter.group.getScanNumber() >= 0) {
-				final OutputParameters params = (OutputParameters)XasAsciiDataWriter.group.getOutput();
-				xasDir += "/"+params.getAsciiDirectory();
-				nexusFileTemplate = XasAsciiDataWriter.group.getExperimentFolderName() + "/" + params.getNexusDirectory() + "/%d";
-				if (nameFrag != null && !nameFrag.equals("i20")){
-					final ISampleParameters sampleParams = XasAsciiDataWriter.group.getSample();
-					String sampleName = sampleParams.getName().trim().replaceAll(" ", "_");
-					nexusFileTemplate += "_"+ sampleName;
-				}
-				nexusFileTemplate += "_" + XasAsciiDataWriter.group.getScanNumber() + ".nxs";
-			} else {
-				xasDir += "/ascii" ;
-				nexusFileTemplate = "nexus/%d";
-				if (nameFrag != null && !nameFrag.equals("i20") && !nameFrag.equals("i20-1")){
-					nexusFileTemplate += "_" + nameFrag;
-				}
-				nexusFileTemplate += ".nxs";
-			}			
-		} catch (RuntimeException ne) {
-			if (XasAsciiDataWriter.group != null && XasAsciiDataWriter.group.isIncompleteDataAllowed()) {
-				return;
-			}
-			throw ne;
-		}
-	}
-	
 	@Override
 	public void addDataWriterExtender(IDataWriterExtender dataWriterExtender) {
 		super.addDataWriterExtender(dataWriterExtender);
 	}
-	
 
 	@Override
 	public void removeDataWriterExtender(IDataWriterExtender dataWriterExtender) {
@@ -177,11 +141,106 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	@Override
 	public AsciiDataWriterConfiguration getConfiguration() {
-		return xasAscii.getConfiguration();
+		return ascii.getConfiguration();
 	}
 
 	@Override
 	public void setConfiguration(AsciiDataWriterConfiguration configuration) {
-		xasAscii.setConfiguration(configuration);
+		ascii.setConfiguration(configuration);
+	}
+
+	public String getNexusFileNameTemplate() {
+		return nexusFileNameTemplate;
+	}
+
+	public void setNexusFileNameTemplate(String nexusFileNameTemplate) {
+		this.nexusFileNameTemplate = nexusFileNameTemplate;
+	}
+
+	public String getAsciiFileNameTemplate() {
+		return asciiFileNameTemplate;
+	}
+
+	public void setAsciiFileNameTemplate(String asciiFileNameTemplate) {
+		this.asciiFileNameTemplate = asciiFileNameTemplate;
+	}
+
+	// from both datawriter components
+
+	public Boolean getRunFromExperimentDefinition() {
+		return nexus.getRunFromExperimentDefinition() && ascii.getRunFromExperimentDefinition();
+	}
+
+	public void setRunFromExperimentDefinition(Boolean runFromExperimentDefinition) {
+		nexus.setRunFromExperimentDefinition(runFromExperimentDefinition);
+		ascii.setRunFromExperimentDefinition(runFromExperimentDefinition);
+	}
+
+	// from the XasNexusDataWriter component
+
+	public IScanParameters getScanBean() {
+		return nexus.getScanBean();
+	}
+
+	public void setScanBean(IScanParameters scanBean) {
+		this.nexus.setScanBean(scanBean);
+	}
+
+	public IDetectorParameters getDetectorBean() {
+		return nexus.getDetectorBean();
+	}
+
+	public void setDetectorBean(IDetectorParameters detectorBean) {
+		this.nexus.setDetectorBean(detectorBean);
+	}
+
+	public ISampleParameters getSampleBean() {
+		return nexus.getSampleBean();
+	}
+
+	public void setSampleBean(ISampleParameters sampleBean) {
+		nexus.setSampleBean(sampleBean);
+	}
+
+	public IOutputParameters getOutputBean() {
+		return nexus.getOutputBean();
+	}
+
+	public void setOutputBean(IOutputParameters outputBean) {
+		this.nexus.setOutputBean(outputBean);
+	}
+
+	public String getXmlFolderName() {
+		return nexus.getXmlFolderName();
+	}
+
+	public void setXmlFolderName(String xmlFolderName) {
+		this.nexus.setXmlFolderName(xmlFolderName);
+	}
+
+	public String getXmlFileName() {
+		return nexus.getXmlFileName();
+	}
+
+	public void setXmlFileName(String xmlFileName) {
+		nexus.setXmlFileName(xmlFileName);
+	}
+
+	// from the XasAsciiDataWriter component
+
+	public List<String> getDescriptions() {
+		return ascii.getDescriptions();
+	}
+
+	public void setDescriptions(List<String> descriptions) {
+		ascii.setDescriptions(descriptions);
+	}
+
+	public String getSampleName() {
+		return ascii.getSampleName();
+	}
+
+	public void setSampleName(String sampleName) {
+		ascii.setSampleName(sampleName);
 	}
 }

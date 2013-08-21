@@ -31,16 +31,15 @@ class I20DetectorPreparer:
         self.setUpIonChambers(scanBean)
         
         if detectorBean.getExperimentType() == "Fluorescence" :
-            detType = detectorBean.getFluorescenceParameters().getDetectorType()
-            fullFileName = str(scriptFolder) + str(detectorBean.getFluorescenceParameters().getConfigFileName())
-            print "Configuring",detType,"detector using",fullFileName
+            fluoresenceParameters = detectorBean.getFluorescenceParameters()
             detType = fluoresenceParameters.getDetectorType()
             xmlFileName = scriptFolder + fluoresenceParameters.getConfigFileName()
             if detType == "Germanium":
                 self.xspressConfig.initialize()
-                onlyShowFF = outputBean.isOnlyShowFF()
-                showDTRawValues = outputBean.isShowDTRawValues()
-                saveRawSpectrum = outputBean.isSaveRawSpectrum()
+                self.xspressConfig.setDetectorCorrectionParameters(scanBean)
+                onlyShowFF = outputBean.isXspressOnlyShowFF()
+                showDTRawValues = outputBean.isXspressShowDTRawValues()
+                saveRawSpectrum = outputBean.isXspressSaveRawSpectrum()
                 self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
             elif detType == "Silicon":
                 self.vortexConfig.initialize()
@@ -88,6 +87,7 @@ class I20DetectorPreparer:
             
     def setup_amp_offset(self, ionChamberParams, offsets, offset_units):
         if ionChamberParams.getChangeSensitivity():
+            ionChamberName = ionChamberParams.getName()
             if ionChamberParams.getOffset() == None or ionChamberParams.getOffset() == "":
                 return
             offset, units = ionChamberParams.getOffset().split()

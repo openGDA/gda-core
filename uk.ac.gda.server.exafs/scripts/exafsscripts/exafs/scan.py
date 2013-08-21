@@ -55,7 +55,7 @@ class Scan:
     def _createBeanGroup(self, folderName, validation, controller, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean):
         beanGroup = BeanGroup()
         beanGroup.setController(controller)
-        beanGroup.setScriptFolder(xmlFolderName)
+        beanGroup.setXmlFolder(xmlFolderName)
         beanGroup.setExperimentFolderName(folderName)
         outputBean.setAsciiFileName(sampleBean.getName())
         beanGroup.setValidate(validation)
