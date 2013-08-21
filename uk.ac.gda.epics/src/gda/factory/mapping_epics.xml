@@ -806,12 +806,6 @@
 			<bind-xml name="numberOfROIs" node="element"/>
 		</field>
 	</class>
-	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.detector.xmap.EpicsXmapController2">
-		<map-to xml="EpicsXmapController2"/>
-		<field name="edxdControllerName" type="string">
-			<bind-xml name="edxdControllerName" node="element"/>
-		</field>
-	</class>
 	
 	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.detector.xmap.edxd.EDXDController">
 		<map-to xml="EDXDController"/>

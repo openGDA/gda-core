@@ -26,13 +26,13 @@ import gda.factory.Finder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EpicsXmapController3ROI extends EpicsXmapController3{
+public class EpicsXmapControllerROI extends EpicsXmapController{
 	
 	private EDXDMappingController edxdController;
 	private int numberOfMca;
 	private String edxdControllerName;
 	private double[][][] controlRois;
-	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapController3ROI.class);
+	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapControllerROI.class);
 	
 	@Override
 	public void configure() throws FactoryException {

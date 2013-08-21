@@ -2,10 +2,10 @@
 <launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
 <stringAttribute key="bad_container_name" value="/uk.ac.gda.ep.test"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/uk.ac.gda.epics.test/src/gda/device/zebra/ZebraCollectionStrategyTest.java"/>
+<listEntry value="/uk.ac.gda.epics.test"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="1"/>
+<listEntry value="4"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="LD_LIBRARY_PATH" value="${project_loc:uk.ac.gda.nexus}/lib/${target.os}-${target.arch}:${project_loc:org.dawb.hdf5}/lib/${target.os}-${target.arch}"/>

@@ -29,13 +29,13 @@ import gda.observable.IObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EpicsXmapController3 extends DeviceBase implements XmapController ,IObserver{
+public class EpicsXmapController extends DeviceBase implements XmapController ,IObserver{
 	
 	private EDXDMappingController edxdController;
 	private int numberOfMca;
 	private String edxdControllerName;
 	protected int actualNumberOfROIs;
-	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapController3.class);
+	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapController.class);
 	
 	@Override
 	public void configure() throws FactoryException {
