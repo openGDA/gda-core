@@ -19,7 +19,6 @@
 package gda.device.detector.addetector.filewriter;
 
 import gda.device.DeviceException;
-import gda.device.detector.NXDetectorData;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
@@ -326,50 +325,16 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 			throw new DeviceException(e);
 		}
 
-		NXDetectorDataAppender dataAppender;
-		dataAppender = new NXDetectorDataAppenderChecked(new NXDetectorDataFileAppenderForSrs(filepath,
-				FILEPATH_EXTRANAME), this, returnRelativePath ? getAbsoluteFilePath(filepath) : filepath);
-
-		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
-		appenders.add(dataAppender);
-		return appenders;
-	}
-
-	public boolean isReturnPathRelativeToDatadir() {
-		return returnPathRelativeToDatadir;
-	}
-
-	public void setReturnPathRelativeToDatadir(boolean returnPathRelativeToDatadir) {
-		this.returnPathRelativeToDatadir = returnPathRelativeToDatadir;
-	}
-
-}
-
-class NXDetectorDataAppenderChecked implements NXDetectorDataAppender {
-
-	NXDetectorDataAppender delegate;
-	FileWriterBase fwb;
-	private String fullFilePath;
-
-	public NXDetectorDataAppenderChecked(NXDetectorDataAppender delegate, FileWriterBase fwb, String fullFilePath) {
-		super();
-		this.delegate = delegate;
-		this.fwb = fwb;
-		this.fullFilePath = fullFilePath;
-	}
-
-	
-	@Override
-	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
-
-		checkErrorStatus(detectorName);
+		//Now check that the file exists
+		String fullFilePath = returnRelativePath ? getAbsoluteFilePath(filepath) : filepath;
+		checkErrorStatus();
 		try {
 			File f = new File(fullFilePath);
 			long numChecks = 0;
 			while (!f.exists()) {
 				numChecks++;
 				Thread.sleep(1000);
-				checkErrorStatus(detectorName);
+				checkErrorStatus();
 				// checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
 				if (ScanBase.isInterrupted())
 					throw new Exception("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
@@ -383,19 +348,32 @@ class NXDetectorDataAppenderChecked implements NXDetectorDataAppender {
 		} catch (Exception e) {
 			throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'");
 		}
-		this.delegate.appendTo(data, detectorName);
+
+		NXDetectorDataAppender dataAppender;
+		dataAppender = new NXDetectorDataFileAppenderForSrs(filepath,FILEPATH_EXTRANAME);
+
+		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
+		appenders.add(dataAppender);
+		return appenders;
 	}
 
+	public boolean isReturnPathRelativeToDatadir() {
+		return returnPathRelativeToDatadir;
+	}
 
-	private void checkErrorStatus(String detectorName) throws DeviceException {
-		if (fwb.writeStatusErr) {
+	public void setReturnPathRelativeToDatadir(boolean returnPathRelativeToDatadir) {
+		this.returnPathRelativeToDatadir = returnPathRelativeToDatadir;
+	}
+	
+	private void checkErrorStatus() throws DeviceException {
+		if (writeStatusErr) {
 			String writeMessage;
 			try {
-				writeMessage = fwb.getNdFile().getWriteMessage();
+				writeMessage = getNdFile().getWriteMessage();
 			} catch (Exception e) {
 				writeMessage = "Unknown";
 			}
-			throw new DeviceException(detectorName + " file writer plugin reports '" + writeMessage + "'");
+			throw new DeviceException(getName()+ " file writer plugin reports '" + writeMessage + "'");
 		}
 	}
 
