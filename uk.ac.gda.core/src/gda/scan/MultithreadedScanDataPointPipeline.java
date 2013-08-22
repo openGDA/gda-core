@@ -372,12 +372,4 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 	}
 
-	@Override
-	public void waitUntilEmpty() throws InterruptedException {
-		while(	!broadcasterQueue.getQueue().isEmpty() ){
-			Thread.sleep(1000);
-			ScanBase.checkForInterruptsIgnoreIdle();
-		}
-		
-	}
 }

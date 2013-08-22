@@ -253,7 +253,7 @@ public abstract class ScanBase implements Scan {
 	 * 
 	 * @throws InterruptedException
 	 */
-	protected static void checkForInterruptsIgnoreIdle() throws InterruptedException {
+	public static void checkForInterruptsIgnoreIdle() throws InterruptedException {
 		if (interrupted) {
 			InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
 			throw new InterruptedException();
@@ -603,12 +603,6 @@ public abstract class ScanBase implements Scan {
 				} catch (Exception e) {
 					throw new DeviceException(e);
 				}
-				try {
-					scanDataPointPipeline.waitUntilEmpty();
-				} catch (InterruptedException e) {
-					throw new DeviceException("Interrupted waiting for scanDataPointPileLine to empty",e);
-				}
-				// call the atEnd method of all the scannables
 				callScannablesAtScanLineEnd();
 			}
 

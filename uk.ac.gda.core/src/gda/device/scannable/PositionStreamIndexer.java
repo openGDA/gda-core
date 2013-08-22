@@ -20,6 +20,7 @@ package gda.device.scannable;
 
 import gda.device.DeviceException;
 import gda.scan.NamedQueueTask;
+import gda.scan.ScanBase;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +31,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Used as a component in {@link PositionCallableProvider}s that implement {@link PositionInputStream}s an
- * indexer can be deferred to to very easily implement {@link PositionCallableProvider#getPositionCallable()}. 
+ * Used as a component in {@link PositionCallableProvider}s that implement {@link PositionInputStream}s an indexer can
+ * be deferred to to very easily implement {@link PositionCallableProvider#getPositionCallable()}.
  * 
  * @param <T>
  */
@@ -44,10 +45,12 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 	Map<Integer, T> readValuesNotGot = new HashMap<Integer, T>();
 
 	private int lastIndexGivenOut = -1;
-	
+
 	private int lastIndexRead = -1;
-	
+
 	private Lock fairGetLock = new ReentrantLock(true);
+
+	private PositionStreamIndexPuller<T> lastPositionStreamIndexPuller;
 
 	public PositionStreamIndexer(PositionInputStream<T> stream) {
 		this(stream, Integer.MAX_VALUE);
@@ -57,6 +60,7 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 		this.stream = stream;
 		this.maxElementsToReadInOneGo = maxElementsToReadInOneGo;
 	}
+
 	/**
 	 * Can only be called once for each index
 	 */
@@ -67,38 +71,47 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 			throw new InterruptedException("PositionStreamIndexer interrupted while waiting for element " + index);
 		}
 
-		try{
+		try {
 			// Keep reading until the indexed element is read from the stream.
 			while (index > lastIndexRead) {
 				List<T> values = stream.read(maxElementsToReadInOneGo);
 				if (values.isEmpty()) {
-					throw new IllegalStateException("stream returned an empty list (lastIndexRead=" + lastIndexRead +")");
+					throw new IllegalStateException("stream returned an empty list (lastIndexRead=" + lastIndexRead
+							+ ")");
 				}
 				for (T value : values) {
 					readValuesNotGot.put(++lastIndexRead, value);
 				}
 			}
 			if (!readValuesNotGot.containsKey(index)) {
-				throw new IllegalStateException("Element " + index + " is not available. Values can only be got once (to avoid excessive memory use).");
+				throw new IllegalStateException("Element " + index
+						+ " is not available. Values can only be got once (to avoid excessive memory use).");
 			}
 			return readValuesNotGot.remove(index);
-		} finally{
+		} finally {
 			fairGetLock.unlock();
 		}
 	}
 
 	@Override
 	public Callable<T> getPositionCallable() throws DeviceException {
-		return getNamedPositionCallable(null,0);
+		return getNamedPositionCallable(null, 0);
 	}
 
 	public Callable<T> getNamedPositionCallable(String name, int threadPoolSize) {
 		lastIndexGivenOut += 1;
-		return name != null ? new NamedPositionStreamIndexPuller<T>(lastIndexGivenOut, this, name, threadPoolSize) : new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
+		lastPositionStreamIndexPuller = name != null ? new NamedPositionStreamIndexPuller<T>(lastIndexGivenOut, this, name,
+				threadPoolSize) : new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
+		return lastPositionStreamIndexPuller;
 	}
 
-
-
+	/*
+	 * Wait for call method of the last PositionIndexStreamPuller given out to have completed.
+	 * This means the data has been obtained from the hardware.
+	 */
+	public void waitForCompletion() throws Exception {
+		lastPositionStreamIndexPuller.waitForCompletion();
+	}
 }
 
 class PositionStreamIndexPuller<T> implements Callable<T> {
@@ -108,7 +121,7 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 	private final PositionStreamIndexer<T> indexer;
 
 	private T value;
-	
+
 	private boolean called = false;
 
 	public PositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer) {
@@ -116,11 +129,21 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 		this.indexer = indexer;
 	}
 
+	public void waitForCompletion() throws InterruptedException{
+		while(	!called){
+			Thread.sleep(1000);
+			ScanBase.checkForInterruptsIgnoreIdle();
+		}		
+	}
+
 	@Override
 	public T call() throws Exception {
 		if (!called) {
-			value = indexer.get(index);
-			called = true;
+			try{
+				value = indexer.get(index); 
+			}finally{
+				called = true;
+			}
 		}
 		return value;
 	}
@@ -148,5 +171,4 @@ class NamedPositionStreamIndexPuller<T> extends PositionStreamIndexPuller<T> imp
 		return threadPoolSize;
 	}
 
-	
 }

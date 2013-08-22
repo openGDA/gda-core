@@ -34,7 +34,6 @@ import gda.scan.ScanInformation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -384,9 +383,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			}
 		}
 
-		Callable<NexusTreeProvider> callable = new NXDetectorDataCompletingCallable(nxdata, appendersCallable,
-				getName());
-		return callable;
+		return new NXDetectorDataCompletingCallable(nxdata, appendersCallable, getName());
 	}
 
 	private boolean isFilepathRequiredInNxDetectorData() {
@@ -414,14 +411,16 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		for (NXPlugin plugin : getPluginList()) {
-			try {
+		try {
+			pluginStreamsIndexer.waitForCompletion();
+			for (NXPlugin plugin : getPluginList()) {
 				plugin.completeCollection();
-			} catch (Exception e) {
-				throw new DeviceException(e);
 			}
+		} catch (Exception e) {
+			throw new  DeviceException(getName() + " error at atScanEnd",e);
+		} finally{
+			pluginStreamsIndexer = null; // to avoid later confusion
 		}
-		pluginStreamsIndexer = null; // to avoid later confusion
 	}
 
 	@Override
