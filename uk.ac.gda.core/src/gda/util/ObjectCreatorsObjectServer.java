@@ -27,7 +27,6 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.factory.IObjectCreator;
 import gda.factory.ServerXmlObjectCreator;
-import gda.factory.SpringObjectCreator;
 import gda.factory.corba.util.AdapterFactory;
 import gda.factory.corba.util.FactoryImplFactory;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
@@ -108,19 +107,6 @@ public class ObjectCreatorsObjectServer extends ObjectServer {
 	}
 	
 	/**
-	 * Creates a Spring object creator from the specified Spring beans file.
-	 * 
-	 * @param file the Spring beans file
-	 * 
-	 * @return the Spring object creator
-	 */
-	private SpringObjectCreator createSpringObjectCreator(File file) {
-		SpringObjectCreator objectCreator = new SpringObjectCreator();
-		objectCreator.setXmlFile(file);
-		return objectCreator;
-	}
-	
-	/**
 	 * Creates an {@link AdapterObjectCreator}.
 	 * 
 	 * @return the AdapterObjectCreator
@@ -153,11 +139,6 @@ public class ObjectCreatorsObjectServer extends ObjectServer {
 		creator.setDoPropertySubstitution(LocalProperties.check("gda.factory.doStringInterpolation", false));
 		objectCreators.add(creator);
 		
-		File springFile = getDefaultSpringFactoryFile("_beans_server.xml");
-		if (springFile.exists()) {
-			objectCreators.add(createSpringObjectCreator(springFile));
-		}
-		
 		objectCreators.add(createAdapterObjectCreator());
 		
 		return objectCreators;
@@ -181,11 +162,6 @@ public class ObjectCreatorsObjectServer extends ObjectServer {
 		creator.setUseDefaultSchema(true);
 		creator.setDoPropertySubstitution(LocalProperties.check("gda.factory.doStringInterpolation", false));
 		objectCreators.add(creator);
-		
-		File springFile = getDefaultSpringFactoryFile("_beans_client.xml");
-		if (springFile.exists()) {
-			objectCreators.add(createSpringObjectCreator(springFile));
-		}
 		
 		objectCreators.add(createAdapterObjectCreator());
 		
