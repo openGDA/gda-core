@@ -2444,8 +2444,12 @@ public class DataSet extends DoubleDataset {
 	}
 
 	@Override
+	public DataSet swapAxes(int axis1, int axis2) {
+		return convertToDataSet(super.swapAxes(axis1, axis2));
+	}
+
 	public DataSet swapaxes(int axis1, int axis2) {
-		return convertToDataSet(super.swapaxes(axis1, axis2));
+		return swapAxes(axis1, axis2);
 	}
 
 	@Override
