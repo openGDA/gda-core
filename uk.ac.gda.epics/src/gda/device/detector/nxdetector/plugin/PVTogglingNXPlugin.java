@@ -132,5 +132,9 @@ public class PVTogglingNXPlugin implements NXPlugin {
 	public void o() throws Exception { // for out!
 		completeCollection();
 	}
+	@Override
+	public boolean callReadBeforeNextExposure() {
+		return false;
+	}
 
 }

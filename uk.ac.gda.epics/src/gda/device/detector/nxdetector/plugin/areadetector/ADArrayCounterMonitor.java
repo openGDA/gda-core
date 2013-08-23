@@ -118,6 +118,11 @@ public class ADArrayCounterMonitor implements NXPlugin {
 			appenders.add(appender);
 		return appenders;
 	}
+
+	@Override
+	public boolean callReadBeforeNextExposure() {
+		return false;
+	}
 	
 
 

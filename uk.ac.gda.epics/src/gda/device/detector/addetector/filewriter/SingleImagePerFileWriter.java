@@ -325,7 +325,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 			throw new DeviceException(e);
 		}
 
-		//Now check that the file exists
+		// Now check that the file exists
 		String fullFilePath = returnRelativePath ? getAbsoluteFilePath(filepath) : filepath;
 		checkErrorStatus();
 		try {
@@ -333,13 +333,12 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 			long numChecks = 0;
 			while (!f.exists()) {
 				numChecks++;
-				Thread.sleep(1000);
+				Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
 				checkErrorStatus();
 				// checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
 				if (ScanBase.isInterrupted())
 					throw new Exception("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
-				if (numChecks > 10) {
-					// Inform user every 10 seconds
+				if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
 					InterfaceProvider.getTerminalPrinter().print(
 							"Waiting for file '" + fullFilePath + "' to be created");
 					numChecks = 0;
@@ -350,7 +349,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		}
 
 		NXDetectorDataAppender dataAppender;
-		dataAppender = new NXDetectorDataFileAppenderForSrs(filepath,FILEPATH_EXTRANAME);
+		dataAppender = new NXDetectorDataFileAppenderForSrs(filepath, FILEPATH_EXTRANAME);
 
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
 		appenders.add(dataAppender);
@@ -364,17 +363,27 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	public void setReturnPathRelativeToDatadir(boolean returnPathRelativeToDatadir) {
 		this.returnPathRelativeToDatadir = returnPathRelativeToDatadir;
 	}
-	
+
 	private void checkErrorStatus() throws DeviceException {
-		if (writeStatusErr) {
-			String writeMessage;
-			try {
-				writeMessage = getNdFile().getWriteMessage();
-			} catch (Exception e) {
-				writeMessage = "Unknown";
-			}
-			throw new DeviceException(getName()+ " file writer plugin reports '" + writeMessage + "'");
+		boolean writeStatusErr;
+		try {
+			writeStatusErr = isWriteStatusErr();
+		} catch (Exception e) {
+			throw new DeviceException(getName() + " error checking writeStatusErr",e);
 		}
+		if (writeStatusErr) {
+			try {
+				String writeMessage = getNdFile().getWriteMessage();
+				throw new DeviceException(getName() + " file writer plugin reports '" + writeMessage + "'");
+			} catch (Exception e) {
+				throw new DeviceException(getName() + " writeStatusErr but error gettng writeMessage",e);
+			}
+		}
+	}
+
+	@Override
+	public boolean callReadBeforeNextExposure() {
+		return !isReturnExpectedFullFileName();
 	}
 
 }

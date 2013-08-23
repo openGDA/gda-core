@@ -235,6 +235,10 @@ public class ADRoiStatsPair implements NXPlugin, PositionInputStream<NXDetectorD
 		}
 		return appenders;
 	}
+	@Override
+	public boolean callReadBeforeNextExposure() {
+		return false;
+	}
 
 }
 

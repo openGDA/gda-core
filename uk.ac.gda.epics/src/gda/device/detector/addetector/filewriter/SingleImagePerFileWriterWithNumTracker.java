@@ -18,10 +18,9 @@
 
 package gda.device.detector.addetector.filewriter;
 
-import java.io.IOException;
-
 import gda.data.NumTracker;
-import gda.device.detector.areadetector.v17.NDFile;
+
+import java.io.IOException;
 
 public class SingleImagePerFileWriterWithNumTracker extends SingleImagePerFileWriter {
 

@@ -195,5 +195,14 @@ abstract public class AbstractADTriggeringStrategy implements NXCollectionStrate
 		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
 		return vector;
 	}
+	@Override
+	public boolean callReadBeforeNextExposure() { 
+		return false; //We should cache the acquireTime and acquirePeriod in prepareForCollection and then we can set this to false
+	}
+
+	@Override
+	public boolean requiresCacheBackedPlugins() {
+		return false; //This is fine for software triggered cameras
+	}
 
 }

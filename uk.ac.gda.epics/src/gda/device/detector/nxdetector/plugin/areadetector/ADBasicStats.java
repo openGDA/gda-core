@@ -168,5 +168,9 @@ public class ADBasicStats implements NXPlugin {
 		appenders.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), values));
 		return appenders;
 	}
+	@Override
+	public boolean callReadBeforeNextExposure() {
+		return true;
+	}
 
 }

@@ -48,9 +48,9 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	private boolean setFileNameAndNumber = true;
 
-	protected Observable<Short> writeStatusObservable;
+	private Observable<Short> writeStatusObservable;
 
-	protected Boolean writeStatusErr=false; 
+	private boolean writeStatusErr=false; 
 	
 	abstract protected void disableFileWriting() throws Exception;
 	
@@ -67,6 +67,10 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		if (fileNumberAtScanStart == null)
 			throw new IllegalStateException("fileNumberAtScanStart is null");
 		writeStatusObservable = getNdFile().createWriteStatusObservable();
+		
+	}
+	
+	public Boolean isWriteStatusErr() throws Exception {
 		/* writeStatusObservable may be null if the NdFile is a simulation */
 		if( writeStatusObservable != null){
 			writeStatusObservable.addObserver(new Observer<Short>() {
@@ -77,9 +81,10 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 				}
 			});
 		}
-		
+		writeStatusErr = getNdFile().isWriteStatusErr();
+		return writeStatusErr;
 	}
-	
+
 	public void setNdFile(NDFile ndFile) {
 		this.ndFile = ndFile;
 	}
@@ -299,6 +304,14 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	@Override
 	public void completeCollection() throws Exception {
+	}
+
+	@Override
+	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+	}
+	@Override
+	public boolean callReadBeforeNextExposure() {
+		return false;
 	}
 
 }

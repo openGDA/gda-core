@@ -20,6 +20,7 @@ package gda.device.detector.nxdetector.plugin.areadetector;
 
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.addetector.ArrayData;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
@@ -30,7 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
-import static gda.device.detector.addetector.ADDetector.readoutArrayIntoNXDetectorData;
 
 public class ADArrayPlugin implements NXPlugin {
 	
@@ -102,12 +102,15 @@ public class ADArrayPlugin implements NXPlugin {
 		
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
 		if (isEnabled()) {
-			appenders.add(new NXDetectorDataArrayAppender(ndArray, firstReadoutInScan));
+			try {
+				appenders.add(new NXDetectorDataArrayAppender(ndArray, firstReadoutInScan));
+			} catch (Exception e) {
+				throw new DeviceException("Error reading data from ndArray plugin");
+			}
 		} else {
 			appenders.add(new NXDetectorDataNullAppender());
 		}
 		firstReadoutInScan = false;
-		// disabled
 		return appenders;
 	}
 
@@ -122,23 +125,30 @@ public class ADArrayPlugin implements NXPlugin {
 	public NDArray getNdArray() {
 		return ndArray;
 	}
+	
+	@Override
+	public boolean callReadBeforeNextExposure() {
+		return true;
+	}
+	
 }
 class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
+	private static String ARRAY_DATA_NAME = "arrayData";
+	private boolean firstReadoutInScan=true;
+	private ArrayData arrayData;
 
-	private boolean firstReadoutInScan;
-	private NDArray ndArray;
-
-	NXDetectorDataArrayAppender(NDArray ndArray, boolean firstReadoutInScan) {
-		this.ndArray = ndArray;
+	NXDetectorDataArrayAppender(NDArray ndArray, boolean firstReadoutInScan) throws Exception {
+		arrayData = ArrayData.readArrayData(ndArray);
 		this.firstReadoutInScan = firstReadoutInScan;
 	}
 	
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException{
 		try {
-			readoutArrayIntoNXDetectorData(data, ndArray, detectorName);
+			data.addData(detectorName, "data", arrayData.getDims(), arrayData.getNexusType(), arrayData.getDataVals(), ARRAY_DATA_NAME, 1);
 			if (firstReadoutInScan) {
 				// TODO add sensible axes
+				firstReadoutInScan=false;
 			}
 		} catch (Exception e) {
 			throw new DeviceException(e);

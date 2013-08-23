@@ -170,5 +170,14 @@ public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin {
 	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
 	}
+	@Override
+	public boolean callReadBeforeNextExposure() {
+		return false;
+	}
+
+	@Override
+	public boolean requiresCacheBackedPlugins() {
+		return true;
+	}
 
 }

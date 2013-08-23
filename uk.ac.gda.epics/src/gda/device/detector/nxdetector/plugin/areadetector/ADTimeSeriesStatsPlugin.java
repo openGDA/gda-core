@@ -269,6 +269,10 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 		}
 		return (roi == null) ? "" : roi.getName().replace(" ", "") + "_";
 	}
+	@Override
+	public boolean callReadBeforeNextExposure() {
+		return false;
+	}
 
 }
 
