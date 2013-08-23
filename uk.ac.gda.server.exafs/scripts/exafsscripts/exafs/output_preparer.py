@@ -11,9 +11,9 @@ class OutputPreparer:
 
     # Determines the AsciiDataWriterConfiguration to use to format the header/footer of the ascii data files
     # If this returns None, then let the Ascii Data Writer class find the config for itself.
-    def getAsciiDataWriterConfig(self,beanGroup):
+    def getAsciiDataWriterConfig(self,scanBean):
         return None
 
     # For any specific plotting requirements based on all the options in this experiment
-    def getPlotSettings(self,beanGroup):
+    def getPlotSettings(self,detectorBean,outputBean):
         return None

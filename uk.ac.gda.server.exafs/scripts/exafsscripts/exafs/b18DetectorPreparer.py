@@ -10,9 +10,9 @@ class B18DetectorPreparer:
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         
-    def prepare(self, detectorParameters, scriptFolder):
-        if detectorParameters.getExperimentType() == "Fluorescence":
-            fluoresenceParameters = detectorParameters.getFluorescenceParameters()
+    def prepare(self, scanBean, detectorBean, outputBean, scriptFolder):
+        if detectorBean.getExperimentType() == "Fluorescence":
+            fluoresenceParameters = detectorBean.getFluorescenceParameters()
             if fluoresenceParameters.isCollectDiffractionImages():
                 self._control_mythen(fluoresenceParameters)
             detType = fluoresenceParameters.getDetectorType()

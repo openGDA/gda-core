@@ -1,10 +1,7 @@
 from java.lang import InterruptedException, System
-
 from BeamlineParameters import JythonNameSpaceMapping
-from exafsscripts.exafs.i20.I20SampleIterators import XASXANES_Roomtemp_Iterator, XES_Roomtemp_Iterator, XASXANES_Cryostat_Iterator
-
 from gda.configuration.properties import LocalProperties
-from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat
+from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter, XasAsciiNexusDataWriter
 from gda.device.scannable import XasScannable, XasScannableWithDetectorFramesSetup, JEPScannable
 from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator, ScanStartedMessage
 from gda.exafs.scan import RepetitionsProperties
@@ -14,16 +11,12 @@ from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan
 from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
-from uk.ac.gda.beans.exafs.i20 import I20SampleParameters
-
-
 from scan import Scan
 
 class XasScan(Scan):
 
 	def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=False):
 		Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers)
-		self.shouldConfigXspressDeadtime=configXspressDeadtime
 		self.moveMonoToStartBeforeScan=moveMonoToStartBeforeScan
 		self.useItterator=useItterator
 		self.handleGapConverter=handleGapConverter
@@ -99,19 +92,24 @@ class XasScan(Scan):
 	def resolveOutputFolder(self, outputBean):
 		return outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
 	
-	def _doItterator(self, iterator):
+	def _doItterator(self, iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, outputFolder):
 		iterator.resetIterator()
 		num_sample_repeats = int(iterator.getNumberOfRepeats())
 		total_repeats = num_sample_repeats * numRepetitions
 		for i in range(num_sample_repeats):
-			self.iterator.moveToNext()
-			# as this is wiped at the end of each scan. It is harmless to call this multiple times
-			XasAsciiDataWriter.setBeanGroup(beanGroup)
+			iterator.moveToNext()
+			sampleName = iterator.getNextSampleName()
+			descriptions = iterator.getNextSampleDescriptions()
 			this_repeat = repetitionNumber + i
 			initialPercent = self.calcInitialPercent(total_repeats, this_repeat)
 			timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
 			logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(i+1), str(num_sample_repeats), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
-			self._doScan(beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,logmsg,timeRepetitionsStarted)
+			
+			if num_sample_repeats == 1:
+				self.printRepetition(numRepetitions, repetitionNumber, scriptType)
+			# the iterator has already printed a message if num_sample_repeats > 1
+
+			self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions)
 	
 	def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean):
 		"""
@@ -119,9 +117,6 @@ class XasScan(Scan):
 		
 		Beamlines should override this method if extra looping logic is required e.g. from sample environment settings
 		"""
-		
-		if self.shouldConfigXspressDeadtime==True:
-			self._configXspressDeadtime(beanGroup) # configure deadtime only for i20
 		
 		ScriptBase.checkForPauses()
 		
@@ -144,23 +139,25 @@ class XasScan(Scan):
 				
 				try:
 					if self.useItterator==True:
-						iterator = self.createIterator(beanGroup)
-						if (iterator != None):
-							self._doItterator(iterator)
-						else:
-							self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder)
+						# TODO make sure iterator will always retrun something
+						iterator = self.samplePreparer.createIterator(sampleBean,beanGroup.getDetector().getExperimentType())
+						self._doItterator(iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, outputFolder)
 					else:
-						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder)
+						# resolve these two values here as they will vary when using iterators
+						sampleName = sampleBean.getName()
+						descriptions = sampleBean.getDescriptions()
+						self.printRepetition(numRepetitions, repetitionNumber, scriptType)
+						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions)
 					
 				except InterruptedException, e:
 					self.handleScanInterrupt(numRepetitions, repetitionNumber)
 
 				self._runScript(beanGroup.getOutput().getAfterScriptName())# run the after scan script
-				self.checkForPause(numRepetitions)
+				self.checkForPause(numRepetitions, repetitionNumber)
 				finished=self.checkIfRepetitionsFinished(numRepetitions, repetitionNumber)
 				if finished is True:
 					break
-				numRepetitions = numRepsFromProperty
+				numRepetitions = self.numRepsFromProperty
 		finally:
 			
 			if self.moveMonoToStartBeforeScan==True:
@@ -171,7 +168,7 @@ class XasScan(Scan):
 			
 			# repetition loop completed, so reset things
 			self.setQueuePropertiesEnd()
-			XasAsciiDataWriter.setBeanGroup(None)
+			#XasAsciiDataWriter.setBeanGroup(None)
 			self.restoreHeader()
 			
 			#self.jython_mapper.topupChecker.collectionTime = 0.0 # TODO check with RW
@@ -187,10 +184,9 @@ class XasScan(Scan):
 			self.datawriterconfig.setHeader(original_header)
 			
 	# Runs a single XAS/XANES scan.
-	def _doScan(self,beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder):
+	def _doScan(self,beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions):
 
 		logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, outputFolder)
-		self.printRepetition(numRepetitions, repetitionNumber, scriptType)
 
 		# create the list of scan points
 		points = ()
@@ -221,7 +217,7 @@ class XasScan(Scan):
 		# run the scan
 		controller.update(None, ScriptProgressEvent("Running scan"))
 		ScanBase.interrupted = False
-		thisscan = self.createScan(args, scanBean)
+		thisscan = self.createScan(args, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetitionNumber)
 		controller.update(None, ScanCreationEvent(thisscan.getName()))
 		if (scanPlotSettings != None):
 			self.log("Setting the filter for columns to plot...")
@@ -236,18 +232,18 @@ class XasScan(Scan):
 		xas_scannable.setEnergyScannable(Finder.getInstance().find(scanBean.getScannableName()))
 		return xas_scannable
 
-	def createScan(self, args, scanBean):
+	def createScan(self, args, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition):
 		thisscan = ConcurrentScan(args)
-		thisscan = self._setUpDataWriter(thisscan, scanBean)
+		thisscan = self._setUpDataWriter(thisscan, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition)
 		thisscan.setReturnScannablesToOrginalPositions(False)
 		return thisscan
 	
 	# run the beamline specific preparers			
 	def runPreparers(self, beanGroup, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean):
-		self.detectorPreparer.prepare(detectorBean, xmlFolderName)
+		self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, xmlFolderName)
 		sampleScannables = self.samplePreparer.prepare(sampleBean)
 		outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
-		scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
+		scanPlotSettings = self.outputPreparer.getPlotSettings(detectorBean,outputBean)
 		return sampleScannables, outputScannables, scanPlotSettings
 
 	def buildScanArguments(self, xas_scannable, points, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean):
@@ -263,7 +259,7 @@ class XasScan(Scan):
 
 	def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repetitionNumber):
 		beanGroup.setScanNumber(repetitionNumber)
-		XasAsciiDataWriter.setBeanGroup(beanGroup)
+		#XasAsciiDataWriter.setBeanGroup(beanGroup)
 		times = []
 		if isinstance(beanGroup.getScan(),XasScanParameters):
 			times = ExafsScanPointCreator.getScanTimeArray(beanGroup.getScan())
@@ -305,13 +301,29 @@ class XasScan(Scan):
 	Get the relevant datawriter config, create a datawriter and if it of the correct type then give it the config.
 	Give the datawriter to the scan.
 	"""
-	def _setUpDataWriter(self,thisscan,scanBean):
-		asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
-		if asciidatawriterconfig != None:
-			dataWriter = DefaultDataWriterFactory.createDataWriterFromFactory()
-			if isinstance(dataWriter,ConfigurableAsciiFormat):
-				dataWriter.setConfiguration(asciidatawriterconfig)
-			thisscan.setDataWriter(dataWriter)
+	def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition):
+		
+		nexusSubFolder = outputBean.getNexusDirectory()
+		asciiSubFolder = outputBean.getAsciiDirectory()
+		
+		nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
+		asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
+		if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
+			nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
+			asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
+
+		# create XasAsciiNexusDataWriter object and give it the parameters
+		dataWriter = XasAsciiNexusDataWriter()
+		dataWriter.setRunFromExperimentDefinition(True);
+		dataWriter.setScanBean(scanBean);
+		dataWriter.setDetectorBean(detectorBean);
+		dataWriter.setSampleBean(sampleBean);
+		dataWriter.setOutputBean(outputBean);
+		dataWriter.setSampleName(sampleName);
+		dataWriter.setDescriptions(descriptions);
+		dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
+		dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
+		thisscan.setDataWriter(dataWriter)
 		return thisscan
 	
 	# Move to start energy so that harmonic can be set by gap_converter for i18 only
@@ -324,7 +336,7 @@ class XasScan(Scan):
 			gap_converter.disableAutoConversion()
 
 	#check if halt after current repetition set to true
-	def checkForPause(self, numRepetitions):
+	def checkForPause(self, numRepetitions,repetitionNumber):
 		if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
 			self.log( "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.")
 			self.commandQueueProcessor.pause(500);
@@ -333,11 +345,11 @@ class XasScan(Scan):
 		
 	#check if the number of repetitions has been altered and we should now end the loop
 	def checkIfRepetitionsFinished(self, numRepetitions, repetitionNumber):
-		numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
-		if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
-			self.log( "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end.")
+		self.numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
+		if self.numRepsFromProperty != numRepetitions and self.numRepsFromProperty <= (repetitionNumber):
+			self.log( "The number of repetitions has been reset to",str(self.numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end.")
 			return True
-		elif numRepsFromProperty <= (repetitionNumber):
+		elif self.numRepsFromProperty <= (repetitionNumber):
 			# normal end to loop
 			return True
 	
@@ -349,31 +361,3 @@ class XasScan(Scan):
 		self.energy_scannable.waitWhileBusy()
 		self.energy_scannable.asynchronousMoveTo(intialPosition)
 		self.log( "Moving mono to initial position...")
-	
-	def moveSampleWheel(self):
-		filter = beanGroup.getSample().getSampleWheelPosition()
-		self.log( "Setting filter wheel to",filter,"...")
-		self.jython_mapper.filterwheel(filter)
-	
-	 # XAS / XANES room temperature sample stage  
-	def createIterator(self, beanGroup):
-		iterator=None
-		if beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
-			iterator = XASXANES_Roomtemp_Iterator()
-			iterator.setBeanGroup(beanGroup)
-		# XES room temp sample stage
-		elif beanGroup.getDetector().getExperimentType() == 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
-			iterator = XES_Roomtemp_Iterator()
-			iterator.setBeanGroup(beanGroup)
-		#XAS/XANES cryostat
-		elif beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
-			iterator = XASXANES_Cryostat_Iterator()
-			iterator.setBeanGroup(beanGroup)
-		return iterator
-	
-	def _configXspressDeadtime(self,beanGroup):
-		if beanGroup.getDetector().getExperimentType() == 'Fluorescence':
-			detType = beanGroup.getDetector().getFluorescenceParameters().getDetectorType()
-			if detType == "Germanium":
-				self.setDetectorCorrectionParameters(beanGroup)
-				ScriptBase.checkForPauses()

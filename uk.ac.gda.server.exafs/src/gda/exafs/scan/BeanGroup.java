@@ -32,7 +32,7 @@ public class BeanGroup {
 	private boolean   incompleteDataAllowed=false;
 	private boolean   timeEstimation=false;
 	private Object    controller;
-	private String    scriptFolder;
+	private String    xmlFolder;
 	private Scannable scannable;
 	private IScanParameters    scan;
 	private ISampleParameters    sample;
@@ -56,14 +56,14 @@ public class BeanGroup {
 	/**
 	 * @return Returns the scriptFolder.
 	 */
-	public String getScriptFolder() {
-		return scriptFolder;
+	public String getXmlFolder() {
+		return xmlFolder;
 	}
 	/**
 	 * @param scriptFolder The scriptFolder to set.
 	 */
-	public void setScriptFolder(String scriptFolder) {
-		this.scriptFolder = scriptFolder;
+	public void setXmlFolder(String scriptFolder) {
+		this.xmlFolder = scriptFolder;
 	}
 	/**
 	 * @return Returns the scannable.
@@ -195,7 +195,7 @@ public class BeanGroup {
 		clone.incompleteDataAllowed  = this.incompleteDataAllowed;
 		clone.timeEstimation         = this.timeEstimation;
 		clone.controller             = this.controller;
-		clone.scriptFolder           = this.scriptFolder;
+		clone.xmlFolder           	 = this.xmlFolder;
 		clone.scannable              = this.scannable;
 		clone.scan                   = this.scan;
 		clone.sample                 = this.sample;

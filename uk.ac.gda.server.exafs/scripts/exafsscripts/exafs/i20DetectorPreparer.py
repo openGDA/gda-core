@@ -31,18 +31,15 @@ class I20DetectorPreparer:
         self.setUpIonChambers(scanBean)
         
         if detectorBean.getExperimentType() == "Fluorescence" :
-            detType = detectorBean.getFluorescenceParameters().getDetectorType()
-            fullFileName = str(scriptFolder) + str(detectorBean.getFluorescenceParameters().getConfigFileName())
-            print "Configuring",detType,"detector using",fullFileName
-            detType = fluoresenceParameters.getDetectorType()
-            xmlFileName = scriptFolder + fluoresenceParameters.getConfigFileName()
+            fluoresenceParameters = detectorBean.getFluorescenceParameters()
             detType = fluoresenceParameters.getDetectorType()
             xmlFileName = scriptFolder + fluoresenceParameters.getConfigFileName()
             if detType == "Germanium":
                 self.xspressConfig.initialize()
-                onlyShowFF = outputBean.isOnlyShowFF()
-                showDTRawValues = outputBean.isShowDTRawValues()
-                saveRawSpectrum = outputBean.isSaveRawSpectrum()
+                self.xspressConfig.setDetectorCorrectionParameters(scanBean)
+                onlyShowFF = outputBean.isXspressOnlyShowFF()
+                showDTRawValues = outputBean.isXspressShowDTRawValues()
+                saveRawSpectrum = outputBean.isXspressSaveRawSpectrum()
                 self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
             elif detType == "Silicon":
                 self.vortexConfig.initialize()
@@ -90,6 +87,7 @@ class I20DetectorPreparer:
             
     def setup_amp_offset(self, ionChamberParams, offsets, offset_units):
         if ionChamberParams.getChangeSensitivity():
+            ionChamberName = ionChamberParams.getName()
             if ionChamberParams.getOffset() == None or ionChamberParams.getOffset() == "":
                 return
             offset, units = ionChamberParams.getOffset().split()
@@ -145,65 +143,3 @@ class I20DetectorPreparer:
     def _configureCryostat(self, cryoStatParameters):
         if LocalProperties.get("gda.mode") != 'dummy':
             self.cryostat_scannable.setupFromBean(cryoStatParameters)
-
-    # This is only required for I20
-    def setDetectorCorrectionParameters(self,beanGroup):
-        scanObj = beanGroup.getScan()
-        dtEnergy = 0.0
-        # Use the fluo (emission) energy of the nearest transition based on the element and excitation edge
-        # to calculate the energy dependent deadtime parameters.
-        edge = scanObj.getEdge()
-        if isinstance(scanObj,XasScanParameters) or isinstance(scanObj,XanesScanParameters):
-            element = scanObj.getElement()
-            elementObj = Element.getElement(element)
-            dtEnergy = self._getEmissionEnergy(elementObj,edge)
-            dtEnergy /= 1000 # convert from eV to keV
-            print "Setting Ge detector deadtime calculation energy to be",str(dtEnergy),"keV based on element",element,"and edge",edge
-        else :
-            dtEnergy = scanObj.getFinalEnergy() 
-            dtEnergy /= 1000 # convert from eV to keV
-        self.xspress2system.setDeadtimeCalculationEnergy(dtEnergy)
- 
-    def _getEmissionEnergy(self,elementObj,edge):
-        if str(edge) == "K":
-            return elementObj.getEmissionEnergy("Ka1")
-        elif str(edge) == "L1":
-            return elementObj.getEmissionEnergy("La1")
-        elif str(edge) == "L2":
-            return elementObj.getEmissionEnergy("La1")
-        elif str(edge) == "L3":
-            return elementObj.getEmissionEnergy("La1")
-        elif str(edge) == "M1":
-            return elementObj.getEmissionEnergy("Ma1")
-        elif str(edge) == "M2":
-            return elementObj.getEmissionEnergy("Ma1")
-        elif str(edge) == "M3":
-            return elementObj.getEmissionEnergy("Ma1")
-        elif str(edge) == "M4":
-            return elementObj.getEmissionEnergy("Ma1")
-        elif str(edge) == "M5":
-            return elementObj.getEmissionEnergy("Ma1")
-        else:
-            return elementObj.getEmissionEnergy("Ka1")
- 
-    def _getEmissionEnergy(self,elementObj,edge):
-        if str(edge) == "K":
-            return elementObj.getEmissionEnergy("Ka1")
-        elif str(edge) == "L1":
-            return elementObj.getEmissionEnergy("La1")
-        elif str(edge) == "L2":
-            return elementObj.getEmissionEnergy("La1")
-        elif str(edge) == "L3":
-            return elementObj.getEmissionEnergy("La1")
-        elif str(edge) == "M1":
-            return elementObj.getEmissionEnergy("Ma1")
-        elif str(edge) == "M2":
-            return elementObj.getEmissionEnergy("Ma1")
-        elif str(edge) == "M3":
-            return elementObj.getEmissionEnergy("Ma1")
-        elif str(edge) == "M4":
-            return elementObj.getEmissionEnergy("Ma1")
-        elif str(edge) == "M5":
-            return elementObj.getEmissionEnergy("Ma1")
-        else:
-            return elementObj.getEmissionEnergy("Ka1")

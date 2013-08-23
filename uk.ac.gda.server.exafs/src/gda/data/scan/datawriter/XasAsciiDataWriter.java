@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,71 +19,67 @@
 package gda.data.scan.datawriter;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.device.Detector;
 import gda.device.detector.DarkCurrentDetector;
 import gda.device.detector.DarkCurrentResults;
 import gda.device.detector.xspress.Xspress2System;
-import gda.exafs.scan.BeanGroup;
 import gda.factory.Finder;
 import gda.scan.IScanDataPoint;
 
-import java.io.File;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
-import uk.ac.gda.util.io.FileUtils;
 
 /**
  * Extension to the asciidatawriter which uses xml files if defined which have more options specific to the exafs RCP
  * GUI as used on spectroscopy beamlines
  */
-public class XasAsciiDataWriter extends AsciiDataWriter{
+public class XasAsciiDataWriter extends AsciiDataWriter {
 
 	private static Logger logger = LoggerFactory.getLogger(XasAsciiDataWriter.class);
 
-	protected static BeanGroup group;
-
-	public static void setBeanGroup(BeanGroup group) {
-		XasAsciiDataWriter.group = group;
-	}
-
-	public static BeanGroup getBeanGroup() {
-		return group;
-	}
-
-	public static String getDataDirectory() {
-		if (group != null && group.getExperimentFolderName() != null) {
-			return PathConstructor.createFromDefaultProperty() + group.getExperimentFolderName() + "/";
-		}
-		return PathConstructor.createFromDefaultProperty();
-	}
-
+	private String sampleName;
+	private List<String> descriptions;
+	private Boolean runFromExperimentDefinition;
 	private String nexusFilePath;
+	private String asciiFileNameTemplate;
 
 	public XasAsciiDataWriter() throws InstantiationException {
 		super();
-		determineFilename();
 		setScanDataPointFormatter(new XasScanDataPointFormatter());
 	}
 
 	@Override
+	public void createNextFile() throws Exception {
+
+		// if template has not been supplied e.g. we are in a command-line scan
+		if (asciiFileNameTemplate == null) {
+			if (LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX)) {
+				asciiFileNameTemplate = "%d_" + LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME) + "."
+						+ this.fileExtension;
+			} else {
+				asciiFileNameTemplate = "%d." + this.fileExtension;
+			}
+			dataDir += "ascii/";
+		}
+
+		this.currentFileName = String.format(asciiFileNameTemplate, getFileNumber());
+		super.createNextFile();
+	}
+
+	@Override
 	public void writeHeader() {
-		
+
 		// use configured header first
 		super.writeHeader();
 
 		try {
-			// only do this when running from the GUI
-			if (group == null) {
+			// only do this when running from the Experiment Definition GUI
+			if (!runFromExperimentDefinition)
 				return;
-			}
 
 			file.write("#\n");
 			file.write("# Ascii output file name: '" + fileName + "'\n");
@@ -94,30 +90,23 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 			}
 
 			file.write("#\n");
-			final ISampleParameters p = (ISampleParameters) getBean(group.getSample());
 			// write out sample parameters
-			if (p != null) {
-				String sampleName = p.getName();
-				if (!sampleName.isEmpty()) {
+			if (!descriptions.isEmpty()) {
+				if (!sampleName.isEmpty())
 					file.write("# Sample name: " + sampleName + "\n");
-				}
-
-				for (int i = 0; i < p.getDescriptions().size(); i++) {
+				for (int i = 0; i < descriptions.size(); i++) {
 					String startMsg = "# ";
-					if (i == 0) {
+					if (i == 0)
 						startMsg += "Sample description: ";
-					} else {
+					else
 						startMsg += "Additional comments: ";
-					}
-					file.write(startMsg + p.getDescriptions().get(i) + "\n");
+					file.write(startMsg + descriptions.get(i) + "\n");
 				}
 			}
 			file.flush();
-
 		} catch (Exception e) {
 			logger.error("Exception while writing out header of ascii file: " + fileUrl);
 		}
-
 	}
 
 	/**
@@ -130,9 +119,9 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 		try {
 			if (firstData) {
 				this.setupFile();
-				
+
 				// write out the command if its not too long
-				if (!dataPoint.getCommand().contains("org.python.core")){
+				if (!dataPoint.getCommand().contains("org.python.core")) {
 					file.write("# command: " + dataPoint.getCommand() + "\n");
 				} else {
 					file.write("#");
@@ -140,17 +129,21 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 
 				file.write("#\n");
 				// Set the detector type
-				String xspressName = LocalProperties.get("gda.exafs.xspressName","xspress2system");
-				String xmapName = LocalProperties.get("gda.exafs.xmapName","xmapMca");
+				String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");// Why is this a
+																									// local property?
+																									// The name is
+																									// defined in spring
+				String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");// Why is this a local property?
+																						// The name is defined in spring
 				if (dataPoint.isDetector(xspressName)) {
 					file.write("# Detector: Ge (XSPRESS)\n");
 					StringBuffer buf = new StringBuffer();
 					buf.append("Disabled elements: ");
 					boolean found = false;
-					Xspress2System xspress = Finder.getInstance().find(xspressName);
-					if (xspress != null){
-						for (DetectorElement element : xspress.getDetectorList()){
-							if (element.isExcluded()){
+					Xspress2System xspress = Finder.getInstance().find(xspressName);// Finder Arghhhhhhhhh
+					if (xspress != null) {
+						for (DetectorElement element : xspress.getDetectorList()) {
+							if (element.isExcluded()) {
 								if (found) {
 									buf.append(",");
 								}
@@ -160,7 +153,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 						}
 					}
 					if (found) {
-						file.write("# "+buf);
+						file.write("# " + buf);
 					}
 				} else if (dataPoint.isDetector(xmapName)) {
 					file.write("# Detector: Si (XIA)\n");
@@ -172,10 +165,10 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 				final DarkCurrentResults da = getDarkCurrent(dataPoint);
 				if (da != null && da.getCounts().length >= 3) {
 					file.write("#\n");
-					file.write(String.format(
-							"# Dark current intensity was collected over %.2fs. Average counts per second: I0 %.2f   It %.2f   Iref %.2f\n",
-							da.getTimeInS(), da.getCounts()[0] / da.getTimeInS(), da.getCounts()[1] / da.getTimeInS(),
-							da.getCounts()[2] / da.getTimeInS()));
+					file.write(String
+							.format("# Dark current intensity was collected over %.2fs. Average counts per second: I0 %.2f   It %.2f   Iref %.2f\n",
+									da.getTimeInS(), da.getCounts()[0] / da.getTimeInS(),
+									da.getCounts()[1] / da.getTimeInS(), da.getCounts()[2] / da.getTimeInS()));
 					file.write("# Dark current has been automatically removed from counts in main scan (I0,It,Iref)\n");
 					file.write("#\n");
 				}
@@ -208,76 +201,48 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 		return null;
 	}
 
-	@Override
-	public void writeFooter() {
-		super.writeFooter();
-		group = null;
+	public List<String> getDescriptions() {
+		return descriptions;
 	}
 
-	protected void determineFilename() {
-
-		String nameFrag = LocalProperties.get("gda.instrument");
-
-		dataDir = getDataDirectory();
-
-		final File file = new File(dataDir);
-		if (!file.exists())
-			file.mkdirs();
-		// NOTE: The dir was not tested for existing before being tested for being writable.
-		// This means that when it was not existing at the start of a new visit for instance,
-		// it was failing the canWrite test here and consequently writing to the wrong folder.
-		if (!file.canWrite()) {
-			final File newFile = FileUtils.createNewUniqueDir(file.getParentFile(), file.getName());
-			logger.info("'" + dataDir + "' is not writable. Using '" + newFile.getName() + "' instead.");
-			dataDir = newFile.getName() + "/";
-		}
-		try {
-			if (group != null && group.getScanNumber() >= 0) {
-				final OutputParameters params = (OutputParameters) XasAsciiDataWriter.group.getOutput();
-				dataDir += params.getAsciiDirectory() + "/";
-				final ISampleParameters sampleParams = XasAsciiDataWriter.group.getSample();
-				String sampleName = sampleParams.getName().trim().replaceAll(" ", "_");
-				filePrefix = sampleName + "_";
-				
-				//Is this called? It isn't for b18
-				if (nameFrag != null && nameFrag.equals("i20"))
-					currentFileName = filePrefix + getFileNumber()+ "_" + group.getScanNumber() + "." + this.fileExtension;
-				else 
-					currentFileName = getFileNumber() + "_" + sampleName + "_" + group.getScanNumber() + "." + this.fileExtension;
-			} else {
-				dataDir += "ascii/";
-				if (nameFrag != null && (nameFrag.equals("i20") || nameFrag.equals("i20-1"))){
-					filePrefix = Long.toString(getFileNumber());
-					currentFileName = filePrefix +"." + this.fileExtension;
-				} else {
-					filePrefix = nameFrag;
-					currentFileName = getFileNumber() + "_" + filePrefix+ "." + this.fileExtension;
-				}
-			}
-		} catch (RuntimeException ne) {
-			if (group != null && group.isIncompleteDataAllowed()) {
-				return;
-			}
-			throw ne;
-		} catch (Exception e) {
-			logger.error("Exception getting next file number", e);
-			currentFileName = filePrefix + "." + this.fileExtension;
-		}
+	public void setDescriptions(List<String> descriptions) {
+		this.descriptions = descriptions;
 	}
 
-
-	protected Object getBean(final Object var) {
-		try {
-			return BeansFactory.getBeanObject(group.getScriptFolder(), var);
-		} catch (Exception ne) {
-			if (group.isIncompleteDataAllowed()) {
-				return null;
-			}
-			throw new RuntimeException(ne);
-		}
+	public Boolean getRunFromExperimentDefinition() {
+		return runFromExperimentDefinition;
 	}
 
-	public void setNexusFilePath(String nexusFileTemplate) {
-		this.nexusFilePath = nexusFileTemplate;
+	public void setRunFromExperimentDefinition(Boolean runFromExperimentDefinition) {
+		this.runFromExperimentDefinition = runFromExperimentDefinition;
+	}
+
+	public String getSampleName() {
+		return sampleName;
+	}
+
+	public void setSampleName(String sampleName) {
+		this.sampleName = sampleName;
+	}
+
+	public String getAsciiFileNameTemplate() {
+		return asciiFileNameTemplate;
+	}
+
+	/**
+	 * This must also include the subdirectory
+	 * 
+	 * @param asciiFileNameTemplate
+	 */
+	public void setAsciiFileNameTemplate(String asciiFileNameTemplate) {
+		this.asciiFileNameTemplate = asciiFileNameTemplate;
+	}
+
+	public String getNexusFilePath() {
+		return nexusFilePath;
+	}
+
+	public void setNexusFilePath(String nexusFilePath) {
+		this.nexusFilePath = nexusFilePath;
 	}
 }
