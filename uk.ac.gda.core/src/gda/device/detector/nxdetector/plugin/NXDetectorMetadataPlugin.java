@@ -110,5 +110,9 @@ public class NXDetectorMetadataPlugin implements NXPlugin {
 		firstReadoutInScan = false;
 		return appenders;
 	}
+	@Override
+	public boolean callReadBeforeNextExposure() {
+		return true;
+	}
 
 }
