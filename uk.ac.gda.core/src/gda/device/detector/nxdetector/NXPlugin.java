@@ -18,33 +18,40 @@
 
 package gda.device.detector.nxdetector;
 
-import java.util.List;
-
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.scannable.PositionInputStream;
 import gda.scan.ScanInformation;
 
+import java.util.List;
 
 public interface NXPlugin extends PositionInputStream<NXDetectorDataAppender> {
-	
-	String getName(); // For naming within the context of the ADDetecoctor instance. e.g. from Jython: pilatus.roi1
-	
+
+	String getName(); // For naming within the context of the ADDetector instance. e.g. from Jython: pilatus.roi1
+
 	boolean willRequireCallbacks();
 
 	void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception;
-	
+
 	void prepareForLine() throws Exception;
 
 	void completeLine() throws Exception;
 
 	void completeCollection() throws Exception;
-	
+
 	void atCommandFailure() throws Exception;
 
 	void stop() throws Exception;
-	
+
 	List<String> getInputStreamNames();
 
 	List<String> getInputStreamFormats();
+
+	/**
+	 * 
+	 * @return True if the read method must be called before the next detector exposure in a scan
+	 * 
+	 * Return True if the data must be read from source , e.g. hardware, before starting the next exposure.
+	 */
+	boolean callReadBeforeNextExposure();
 
 }

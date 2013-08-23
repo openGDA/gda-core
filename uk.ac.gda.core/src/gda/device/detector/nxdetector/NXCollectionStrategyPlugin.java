@@ -49,4 +49,11 @@ public interface NXCollectionStrategyPlugin extends NXPlugin{
 	 * This is number of images per ScanDataPoint
 	 */
 	public int getNumberImagesPerCollection(double collectionTime) throws Exception;
+	
+	/**
+	 * 
+	 * @return Return True if the manner the camera is exposed requires other NXPlugins in the detector to have their read
+	 * method called at any time as the data they supply is not invalidated by the following exposure
+	 */
+	public boolean requiresCacheBackedPlugins() ;
 }
