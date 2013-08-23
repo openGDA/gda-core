@@ -122,7 +122,8 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 
 	private T value;
 
-	private boolean called = false;
+	private volatile boolean called = false;
+	private Object lock = new Object();
 
 	public PositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer) {
 		this.index = index;
@@ -130,19 +131,24 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 	}
 
 	public void waitForCompletion() throws InterruptedException{
-		while(	!called){
-			Thread.sleep(1000);
-			ScanBase.checkForInterruptsIgnoreIdle();
-		}		
+		synchronized(lock){
+			while(	!called){
+				lock.wait(1000);
+				ScanBase.checkForInterruptsIgnoreIdle();
+			}		
+		}
 	}
 
 	@Override
 	public T call() throws Exception {
-		if (!called) {
-			try{
-				value = indexer.get(index); 
-			}finally{
-				called = true;
+		synchronized(lock){
+			if (!called) {
+				try{
+					value = indexer.get(index); 
+				}finally{
+					called = true;
+				}
+				lock.notifyAll();
 			}
 		}
 		return value;
