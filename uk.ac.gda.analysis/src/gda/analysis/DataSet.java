@@ -46,6 +46,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.dataset.SliceIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.Stats;
+import uk.ac.diamond.scisoft.analysis.dataset.StrideIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Downsample;
 import uk.ac.diamond.scisoft.analysis.dataset.function.DownsampleMode;
 import uk.ac.diamond.scisoft.python.PythonUtils;
@@ -221,6 +222,8 @@ public class DataSet extends DoubleDataset {
 	@Override
 	public IndexIterator getIterator(final boolean withPosition) {
 		if (shape.length <= 1 || dataShape == null || isAllZeros(dataShape)) {
+			if (stride != null)
+				return new StrideIterator(shape, stride, offset);
 			return (withPosition) ? new ContiguousIteratorWithPosition(shape, size) : new ContiguousIterator(size);
 		}
 		return new DiscontiguousIterator(shape, dataShape, dataSize);
@@ -229,6 +232,9 @@ public class DataSet extends DoubleDataset {
 
 	@Override
 	public IndexIterator getSliceIterator(final int[] start, final int[] stop, final int[] step) {
+		if (stride != null)
+			return new StrideIterator(getElementsPerItem(), shape, stride, offset, start, stop, step);
+
 		int rank = shape.length;
 
 		int[] lstart, lstop, lstep;
@@ -293,6 +299,9 @@ public class DataSet extends DoubleDataset {
 
 	@Override
 	protected int get1DIndex(final int... n) {
+		if (stride != null)
+			return super.get1DIndex(n);
+
 		final int imax = n.length;
 		final int rank = shape.length;
 		if (imax == 0) {
@@ -353,6 +362,9 @@ public class DataSet extends DoubleDataset {
 	 */
 	@Override
 	public int[] getNDPosition(final int n) {
+		if (stride != null)
+			return super.getNDPosition(n);
+
 		if (n >= size && dataShape != null && n >= dataSize) {
 			throw new IllegalArgumentException("Index provided " + n
 					+ "is larger then the size of the containing array " + dataSize);
@@ -748,7 +760,7 @@ public class DataSet extends DoubleDataset {
 			shape = inputDataSet.getShape();
 
 			// copy across the data
-			if (inputDataSet.dataShape == null) {
+			if (inputDataSet.dataShape == null && inputDataSet.stride == null) {
 				odata = data = inputDataSet.data.clone();
 			} else {
 				odata = data = new double[inputDataSet.size];
