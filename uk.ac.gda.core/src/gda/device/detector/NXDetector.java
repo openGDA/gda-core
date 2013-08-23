@@ -24,6 +24,7 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.plugin.NonStreamingNXPluginAdapter;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.StringUtils;
@@ -287,13 +289,20 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
-		@SuppressWarnings("unchecked")
-		List<PositionInputStream<NXDetectorDataAppender>> plugins = (List<PositionInputStream<NXDetectorDataAppender>>) (List<?>) getPluginList();
+		boolean requiresStreamingPlugins = getCollectionStrategy().requiresCacheBackedPlugins();
+		streamingPlugins = new Vector<PositionInputStream<NXDetectorDataAppender>>();
+		for( NXPlugin plug : getPluginList()){
+			if( requiresStreamingPlugins && plug.callReadBeforeNextExposure() )
+				throw new DeviceException("The collectionStrategy demands they all support streaming but " + plug.getName() + " does not");
+			streamingPlugins.add(plug.callReadBeforeNextExposure() ? new NonStreamingNXPluginAdapter(plug): plug);
+		}
 		
-		PositionInputStreamCombiner<NXDetectorDataAppender> combinedStream = new PositionInputStreamCombiner<NXDetectorDataAppender>(plugins);
+		PositionInputStreamCombiner<NXDetectorDataAppender> combinedStream = new PositionInputStreamCombiner<NXDetectorDataAppender>(streamingPlugins);
 		pluginStreamsIndexer = new PositionStreamIndexer<List<NXDetectorDataAppender>>(combinedStream);
 	}
-
+	
+	List<PositionInputStream<NXDetectorDataAppender>> streamingPlugins;
+	
 	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception, DeviceException {
 		getCollectionStrategy().setGenerateCallbacks(areCallbacksRequired());
 		getCollectionStrategy().prepareForCollection(getCollectionTime(), numberImagesPerCollection, scanInfo);
@@ -365,6 +374,16 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		if (pluginStreamsIndexer == null) {
 			throw new IllegalStateException(
 					"No pluginStreamsIndexer set --- atScanStart() must be called before getPositionCallable()");
+		}
+
+		for(PositionInputStream<NXDetectorDataAppender> plugin: streamingPlugins){
+			if( plugin instanceof NonStreamingNXPluginAdapter){
+				try {
+					((NonStreamingNXPluginAdapter)plugin).addToCache();
+				} catch (Exception e) {
+					throw new DeviceException(e);
+				}
+			}
 		}
 		Callable<List<NXDetectorDataAppender>> appendersCallable = pluginStreamsIndexer.getPositionCallable();
 
