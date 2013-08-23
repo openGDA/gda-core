@@ -53,6 +53,7 @@
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
                 <pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/bin" />
                 <pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/jars/*" />
+                <pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.hdf5/bin" />
             </classpath>
             <batchtest todir="@{report.dir}">
                 <fileset dir="${GDA-plugin.basedir}/src">
