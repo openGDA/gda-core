@@ -666,6 +666,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		do {
 			try {
 				results = tryToGetBinaryData(message, ndata);
+				retry = false;
 			} catch (Exception e) {
 				if (numRetries >= 5) {
 					throw e;
