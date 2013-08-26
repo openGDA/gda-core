@@ -77,7 +77,9 @@ public class NexusDataWriterMetadataTree extends NexusDataWriter {
 				Set<String> aux = new HashSet<String>();
 				for (String s: metadatascannablestowrite) {
 					if (weKnowTheLocationFor(s)) {
-						aux.addAll(locationmap.get(s).getPrerequisiteScannableNames());
+						Collection<String> prerequisites = locationmap.get(s).getPrerequisiteScannableNames();
+						if (prerequisites != null)
+							aux.addAll(prerequisites);
 					}
 				}
 				metadatascannablestowrite.addAll(aux);

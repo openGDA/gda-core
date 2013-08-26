@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import org.python.core.PyException;
 import org.slf4j.Logger;
@@ -61,6 +62,25 @@ import uk.ac.gda.util.ThreadManager;
  * Base class for objects using the Scan interface.
  */
 public abstract class ScanBase implements Scan {
+
+	/**
+	 * Name of property to control the clearing of interrupted flag in ScanBase at end of a scan.
+	 * If not set or is False then 
+	 *  - checkForInterrupts does nothing if the ScanStatus is IDLE
+	 *  - checkForInterrupts sets ScanStatus to IDLE if interrupted flag is true 
+	 *  
+	 *  If set to True then:
+	 *   - in runScan interrupted is set to false
+	 *   
+	 *  The intention is to test the behaviour and then switch to it if OK
+	 */
+	@Deprecated
+	private static final String GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END = "gda.scan.clearInterruptAtScanEnd";
+	
+	private static boolean clearInterruptedAtScanEnd() {
+		return LocalProperties.check(GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END,false);
+	}
+	
 
 	public static final String GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST = "gda.scanbase.firstScanNumber";
 
@@ -221,16 +241,24 @@ public abstract class ScanBase implements Scan {
 	 * @throws InterruptedException
 	 */
 	public static void checkForInterrupts() throws InterruptedException {
-		
-		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
-			//do not reset as if the scan thread detects this and so goes idle other threads related to the scan will not get the interruption
-			//we should clear the interruption at the start of the scan instead
-//			paused = false;
-//			interrupted = false; 
+
+		if (!clearInterruptedAtScanEnd() && InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
 			return;
 		}
 
-		
+		checkForInterruptsIgnoreIdle();
+	}
+	
+	/*
+	 * Should only be called by Scan objects, as they should be aborted if the flag is set irrespective of the Command
+	 * Server status.
+	 * 
+	 * The use of this function is not recommended as it has the side effect of changing scan status to idle. If all you want to
+	 * is to check if the scan has been interrupted then simply call isInterrupted
+	 * 
+	 * @throws InterruptedException
+	 */
+	final protected static void checkForInterruptsIgnoreIdle() throws InterruptedException {
 		try {
 			if (paused & !interrupted) {
 				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.PAUSED);
@@ -242,19 +270,9 @@ public abstract class ScanBase implements Scan {
 		} catch (InterruptedException ex) {
 			interrupted = true;
 		}
-
-		checkForInterruptsIgnoreIdle();
-	}
-	
-	/*
-	 * Should only be called by Scan objects, as they should be aborted if the flag is set irrespective of the Command
-	 * Server status.
-	 * 
-	 * @throws InterruptedException
-	 */
-	protected static void checkForInterruptsIgnoreIdle() throws InterruptedException {
 		if (interrupted) {
-			InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
+			if (!clearInterruptedAtScanEnd())
+				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
 			throw new InterruptedException();
 		}
 	}
@@ -478,9 +496,11 @@ public abstract class ScanBase implements Scan {
 	
 	/**
 	 * Blocks while detectors are readout and point is added to pipeline (for the previous point).
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
 	 */
-	@SuppressWarnings("unused") // subclasses may throw Exceptions
-	public void waitForDetectorReadoutAndPublishCompletion() throws Exception {
+	@SuppressWarnings("unused")
+	public void waitForDetectorReadoutAndPublishCompletion() throws InterruptedException, ExecutionException {
 		// Do nothing as readoutDetectorsAndPublish blocks until complete.
 	}
 	
@@ -600,14 +620,11 @@ public abstract class ScanBase implements Scan {
 				} catch (Exception e) {
 					throw new DeviceException(e);
 				}
-				// call the atEnd method of all the scannables
-
 				callScannablesAtScanLineEnd();
 			}
 
 			// if a standalone scan, or the top-level scan in a nest of scans
 			if (!isChild() ) { // FIXME: Move all !isChild() logic up into runScan
-
 				callScannablesAtScanEnd();
 
 				callDetectorsEndCollection();
@@ -1136,6 +1153,7 @@ public abstract class ScanBase implements Scan {
 	
 	@Override
 	public void runScan() throws InterruptedException, Exception {
+		boolean scanWasInterrupted=false;
 		if (getScanStatusHolder().getScanStatus() != Jython.IDLE) {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
 		}
@@ -1149,6 +1167,7 @@ public abstract class ScanBase implements Scan {
 			run();
 		} finally {
 			
+			scanWasInterrupted = isInterrupted();
 			// Leaving interrupted true (if it is) allows jython scripts running
 			// Scans to checkForInterrupts and so end 'for' loops sensibly.
 			// (It is set to false at the start of a scan anyway).
@@ -1159,13 +1178,18 @@ public abstract class ScanBase implements Scan {
 			// nb moved this until after batonTaken is false as we use the flag
 			// to check for scan end.
 			getScanStatusHolder().setScanStatus(Jython.IDLE);
+
+			if( clearInterruptedAtScanEnd())
+				setInterrupted(false);
+		
 		}
 
-		if (interrupted) {
+		if (scanWasInterrupted) {
 			logger.info("Scan interupted ScanBase.interupted flag");
 			throw new InterruptedException("Scan interrupted");
 		}
 	}
+
 
 	@Override
 	public void setChild(Scan child) {
@@ -1336,7 +1360,7 @@ public abstract class ScanBase implements Scan {
 		if (interrupted == ScanBase.interrupted) 
 			return;
 		
-		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+		if (!clearInterruptedAtScanEnd() && (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE)) {
 			String msg = MessageFormat.format("interrupted flag set from {0} to {1} by thread :''{2}'' while idle -- ignored",
 					ScanBase.interrupted, interrupted, Thread.currentThread().getName());
 			logger.info(msg);
