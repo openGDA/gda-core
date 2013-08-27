@@ -23,7 +23,7 @@ import gda.scan.ScanInformation;
 /**
  * Called by ADDetector;s Detector hooks (in the order triggered by ConcurrentScan)
  */
-public interface NXCollectionStrategyPlugin extends NXPlugin {
+public interface NXCollectionStrategyPlugin extends NXPluginBase {
 
 	public double getAcquireTime() throws Exception;
 

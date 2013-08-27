@@ -110,9 +110,4 @@ public class NXDetectorMetadataPlugin implements NXPlugin {
 		firstReadoutInScan = false;
 		return appenders;
 	}
-	@Override
-	public boolean supportsAsynchronousRead() {
-		return true;
-	}
-
 }

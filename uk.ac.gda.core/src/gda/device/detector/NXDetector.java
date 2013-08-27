@@ -24,6 +24,8 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.NXPluginBase;
+import gda.device.detector.nxdetector.NonAsynchronousNXPlugin;
 import gda.device.detector.nxdetector.plugin.PositionQueue;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
@@ -38,7 +40,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
@@ -46,10 +47,13 @@ import org.apache.commons.lang.StringUtils;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 public class NXDetector extends DetectorBase implements InitializingBean, NexusDetector,
 		PositionCallableProvider<NexusTreeProvider> {
+	private static final Logger logger = LoggerFactory.getLogger(NXDetector.class);
 
 	protected static final String UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE = "ADDetector does not support operation through its Scannable interface. Do not use pos until pos supports detectors as Detectors rather than Scannables";
 
@@ -57,16 +61,16 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private NXCollectionStrategyPlugin collectionStrategy;
 
-	private List<NXPlugin> additionalPluginList = new ArrayList<NXPlugin>();
+	private List<NXPluginBase> additionalPluginList = new ArrayList<NXPluginBase>();
 
-	private HashMap<String, NXPlugin> additionalPluginMap;
+	private HashMap<String, NXPluginBase> additionalPluginMap;
 
 	private PositionStreamIndexer<List<NXDetectorDataAppender>> pluginStreamsIndexer;
 
 	//Containing of plugins and associated PositionQueue. Used for plugins whose supportsAsynchronousRead returns false
-	private Map <PositionInputStream<NXDetectorDataAppender>, PositionQueue<NXDetectorDataAppender>> pluginPositionQueueMap;
+	private Map<NonAsynchronousNXPlugin, PositionQueue<NXDetectorDataAppender>> pluginPositionQueueMap;
 
-	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPlugin> additionalPluginList) {
+	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPluginBase> additionalPluginList) {
 		setName(name);
 		setCollectionStrategy(collectionStrategy);
 		setAdditionalPluginList(additionalPluginList);
@@ -105,7 +109,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	 * 
 	 * @param additionalPluginList
 	 */
-	public void setAdditionalPluginList(List<NXPlugin> additionalPluginList) {
+	public void setAdditionalPluginList(List<NXPluginBase> additionalPluginList) {
 		if ((getCollectionStrategy() != null)
 				&& (namesOf(additionalPluginList).contains(getCollectionStrategy().getName()))) {
 			throw new IllegalArgumentException("The configured plugin '" + getCollectionStrategy().getName()
@@ -118,8 +122,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 		this.additionalPluginList = additionalPluginList;
 
-		additionalPluginMap = new HashMap<String, NXPlugin>();
-		for (NXPlugin plugin : additionalPluginList) {
+		additionalPluginMap = new HashMap<String, NXPluginBase>();
+		for (NXPluginBase plugin : additionalPluginList) {
 			additionalPluginMap.put(plugin.getName(), plugin);
 		}
 	}
@@ -128,15 +132,15 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		return collectionStrategy;
 	}
 
-	public List<NXPlugin> getAdditionalPluginList() {
+	public List<NXPluginBase> getAdditionalPluginList() {
 		return additionalPluginList;
 	}
 
 	/**
 	 * Return all plugins: collection-strategy and then additional plugins
 	 */
-	public List<NXPlugin> getPluginList() {
-		List<NXPlugin> allPlugins = new ArrayList<NXPlugin>();
+	public List<NXPluginBase> getPluginList() {
+		List<NXPluginBase> allPlugins = new ArrayList<NXPluginBase>();
 		allPlugins.add(getCollectionStrategy());
 		allPlugins.addAll(getAdditionalPluginList());
 		return allPlugins;
@@ -145,8 +149,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	/**
 	 * Return map of all plugins: collection-strategy and then additional plugins
 	 */
-	public Map<String, NXPlugin> getPluginMap() {
-		Map<String, NXPlugin> pluginMap = new HashMap<String, NXPlugin>(additionalPluginMap);
+	public Map<String, NXPluginBase> getPluginMap() {
+		Map<String, NXPluginBase> pluginMap = new HashMap<String, NXPluginBase>(additionalPluginMap);
 		if (getCollectionStrategy() != null) {
 			pluginMap.put(getCollectionStrategy().getName(), getCollectionStrategy());
 		}
@@ -160,8 +164,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	 * @return plugin
 	 * @raises IllegalArgumentException if no plugin with specified name exists
 	 */
-	public NXPlugin getPlugin(String name) {
-		NXPlugin plugin = getPluginMap().get(name);
+	public NXPluginBase getPlugin(String name) {
+		NXPluginBase plugin = getPluginMap().get(name);
 		if (plugin == null) {
 			throw new IllegalArgumentException();
 		}
@@ -175,7 +179,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	@Override
 	public PyString __str__() {
 		String string = toFormattedString();
-		for (NXPlugin plugin : getPluginList()) {
+		for (NXPluginBase plugin : getPluginList()) {
 			string += "  " + plugin.getName() + ": " + plugin.toString() + "\n";
 		}
 		return new PyString(string);
@@ -187,13 +191,13 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	 * 
 	 * @param name
 	 */
-	public NXPlugin __getattr__(String name) {
+	public NXPluginBase __getattr__(String name) {
 		
 		// As DetectorBase does not extend PyObject, it is an 'old style' class and the more
 		// appropriate __getattribute__ method won't get called. The problem with __getattr__
 		// is that defined methods (such as Scannable.a()) will block it. Then again, maybe
 		// this is not a problem!
-		NXPlugin plugin = getPluginMap().get(name);
+		NXPluginBase plugin = getPluginMap().get(name);
 		if (plugin == null) {
 			throw new PyException(Py.AttributeError, "");
 		}
@@ -261,7 +265,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	public String[] getExtraNames() {
 		// These are likely to change dynamically, although this value should probably be cached in atScanStart
 		List<String> extraNames = new ArrayList<String>();
-		for (NXPlugin plugin : getPluginList()) {
+		for (NXPluginBase plugin : getPluginList()) {
 			extraNames.addAll(plugin.getInputStreamNames());
 		}
 		if (new HashSet<String>(extraNames).size() < extraNames.size()) {
@@ -274,7 +278,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	@Override
 	public String[] getOutputFormat() {
 		List<String> formats = new ArrayList<String>();
-		for (NXPlugin plugin : getPluginList()) {
+		for (NXPluginBase plugin : getPluginList()) {
 			formats.addAll(plugin.getInputStreamFormats());
 		}
 		return formats.toArray(new String[] {});
@@ -288,7 +292,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
 			lastReadoutValue = null;
 			prepareCollectionStrategyAtScanStart(numberImagesPerCollection, scanInfo);
-			for (NXPlugin plugin : getAdditionalPluginList()) {
+			for (NXPluginBase plugin : getAdditionalPluginList()) {
 				plugin.prepareForCollection(numberImagesPerCollection, scanInfo);
 			}
 		} catch (Exception e) {
@@ -296,24 +300,27 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 		
 		
-		boolean requiresStreamingPlugins = getCollectionStrategy().requiresAsynchronousPlugins();
 
 		List<PositionInputStream<NXDetectorDataAppender>> asynchronousPositionInputStreams = new Vector<PositionInputStream<NXDetectorDataAppender>>();
 
-		pluginPositionQueueMap = new HashMap<PositionInputStream<NXDetectorDataAppender>, PositionQueue<NXDetectorDataAppender>>();
+		pluginPositionQueueMap = new HashMap<NonAsynchronousNXPlugin, PositionQueue<NXDetectorDataAppender>>();
 		
-		for( NXPlugin plug : getPluginList()){
-			if( requiresStreamingPlugins && plug.supportsAsynchronousRead() )
-				throw new DeviceException("The collectionStrategy demands they all support streaming but " + plug.getName() + " does not");
-			if( plug.supportsAsynchronousRead()){
-				asynchronousPositionInputStreams.add( plug);
-			} else{
+		boolean requiresStreamingPlugins = getCollectionStrategy().requiresAsynchronousPlugins();
+		for (NXPluginBase plug : getPluginList()) {
+			if (plug instanceof NonAsynchronousNXPlugin) {
+				if (requiresStreamingPlugins)
+					throw new DeviceException("The collectionStrategy demands all plugins are asynchronous but "
+							+ plug.getName() + " is not");
 				PositionQueue<NXDetectorDataAppender> positionQueue = new PositionQueue<NXDetectorDataAppender>();
-				pluginPositionQueueMap.put(plug, positionQueue); //hold for later
-				asynchronousPositionInputStreams.add( positionQueue);
+				pluginPositionQueueMap.put((NonAsynchronousNXPlugin) plug, positionQueue); // hold for later
+				asynchronousPositionInputStreams.add(positionQueue);
+			} else if (plug instanceof NXPlugin) {
+				asynchronousPositionInputStreams.add((NXPlugin) plug);
+			} else {
+				logger.error("Unknown type of plugin");
 			}
 		}
-		
+
 		PositionInputStreamCombiner<NXDetectorDataAppender> combinedStream = new PositionInputStreamCombiner<NXDetectorDataAppender>(asynchronousPositionInputStreams);
 		pluginStreamsIndexer = new PositionStreamIndexer<List<NXDetectorDataAppender>>(combinedStream);
 	}
@@ -325,7 +332,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	boolean areCallbacksRequired() {
-		for (NXPlugin chain : getAdditionalPluginList()) {
+		for (NXPluginBase chain : getAdditionalPluginList()) {
 			if (chain.willRequireCallbacks()) {
 				return true;
 			}
@@ -335,7 +342,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-		for (NXPlugin plugin : getPluginList()) {
+		for (NXPluginBase plugin : getPluginList()) {
 			try {
 				plugin.prepareForLine();
 			} catch (Exception e) {
@@ -394,12 +401,10 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 		//Read from those plugins that must be read before next step in scan
 		//put values into PositionInputStream
-		for( Entry<PositionInputStream<NXDetectorDataAppender>, PositionQueue<NXDetectorDataAppender>> entry : pluginPositionQueueMap.entrySet()){
+		for( Entry<NonAsynchronousNXPlugin, PositionQueue<NXDetectorDataAppender>> entry : pluginPositionQueueMap.entrySet()){
 			try {
-				entry.getValue().addToCache(entry.getKey().read(1).get(0));
-			} catch (NoSuchElementException e) {
-				throw new DeviceException(getName() + " error in getPositionCallable",e);
-			} catch (InterruptedException e) {
+				entry.getValue().addToCache(entry.getKey().read());
+			} catch (Exception e) {
 				throw new DeviceException(getName() + " error in getPositionCallable",e);
 			}
 		}
@@ -424,7 +429,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	private boolean isFilepathRequiredInNxDetectorData() {
-		for (NXPlugin plugin : getPluginList()) {
+		for (NXPluginBase plugin : getPluginList()) {
 			if (plugin instanceof NXFileWriterPlugin) {
 				NXFileWriterPlugin writer = (NXFileWriterPlugin) plugin;
 				if (writer.appendsFilepathStrings()) {
@@ -437,7 +442,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void atScanLineEnd() throws DeviceException {
-		for (NXPlugin plugin : getPluginList()) {
+		for (NXPluginBase plugin : getPluginList()) {
 			try {
 				plugin.completeLine();
 			} catch (Exception e) {
@@ -449,8 +454,9 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	@Override
 	public void atScanEnd() throws DeviceException {
 		try {
-			pluginStreamsIndexer.waitForCompletion();
-			for (NXPlugin plugin : getPluginList()) {
+			if( pluginStreamsIndexer != null)
+				pluginStreamsIndexer.waitForCompletion();
+			for (NXPluginBase plugin : getPluginList()) {
 				plugin.completeCollection();
 			}
 		} catch (Exception e) {
@@ -467,7 +473,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void stop() throws DeviceException {
-		for (NXPlugin plugin : getPluginList()) {
+		for (NXPluginBase plugin : getPluginList()) {
 			try {
 				plugin.stop();
 			} catch (Exception e) {
@@ -480,7 +486,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
-		for (NXPlugin plugin : getPluginList()) {
+		for (NXPluginBase plugin : getPluginList()) {
 			try {
 				plugin.atCommandFailure();
 			} catch (Exception e) {
@@ -491,9 +497,9 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 	}
 
-	static private List<String> namesOf(List<NXPlugin> pluginList) {
+	static private List<String> namesOf(List<NXPluginBase> pluginList) {
 		List<String> pluginNames = new ArrayList<String>();
-		for (NXPlugin plugin : pluginList) {
+		for (NXPluginBase plugin : pluginList) {
 			pluginNames.add(plugin.getName());
 		}
 		return pluginNames;

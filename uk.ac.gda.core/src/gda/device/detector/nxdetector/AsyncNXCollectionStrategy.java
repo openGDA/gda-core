@@ -18,9 +18,6 @@
 
 package gda.device.detector.nxdetector;
 
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.scannable.PositionInputStream;
-
-public interface NXPlugin extends NXPluginBase, PositionInputStream<NXDetectorDataAppender>  {
+public interface AsyncNXCollectionStrategy extends NXCollectionStrategyPlugin, NXPlugin {
 
 }

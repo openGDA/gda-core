@@ -86,9 +86,4 @@ public class NullNXPlugin implements NXPlugin {
 		appenders.add(new NXDetectorDataNullAppender());
 		return appenders;
 	}
-	@Override
-	public boolean supportsAsynchronousRead() {
-		return true;
-	}
-
 }

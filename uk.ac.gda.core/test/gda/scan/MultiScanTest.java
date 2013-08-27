@@ -32,6 +32,7 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.NXPluginBase;
 import gda.device.motor.TotalDummyMotor;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
@@ -105,7 +106,7 @@ public class MultiScanTest {
 		htd.setName("htd");
 		htd.setHardwareTriggerProvider(cmc);
 		htd.setCollectionStrategy(new MyCSP());
-		htd.setAdditionalPluginList(Arrays.asList(new NXPlugin[]{new MyNXPlugin()}));
+		htd.setAdditionalPluginList(Arrays.asList(new NXPluginBase[]{new MyNXPlugin()}));
 		htd.afterPropertiesSet();
 		htd.configure();
 		
@@ -292,7 +293,7 @@ class MyCMC extends ScannableBase implements ConstantVelocityMoveController{
 }
 
 
-class MyCSP implements NXCollectionStrategyPlugin{
+class MyCSP implements NXCollectionStrategyPlugin, NXPlugin {
 
 	@Override
 	public String getName() {
@@ -397,10 +398,6 @@ class MyCSP implements NXCollectionStrategyPlugin{
 	}
 	
 	@Override
-	public boolean supportsAsynchronousRead() {
-		return true;
-	}
-	@Override
 	public boolean requiresAsynchronousPlugins() {
 		return true;
 	}	
@@ -465,9 +462,4 @@ class MyNXPlugin implements NXPlugin{
 	public List<String> getInputStreamFormats() {
 		return Collections.emptyList();
 	}
-	@Override
-	public boolean supportsAsynchronousRead() {
-		return true;
-	}
-
 }
