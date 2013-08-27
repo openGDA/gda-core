@@ -164,7 +164,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 
 		@Override
-		public boolean callReadBeforeNextExposure() {
+		public boolean supportsAsynchronousRead() {
 			return true;
 		}
 

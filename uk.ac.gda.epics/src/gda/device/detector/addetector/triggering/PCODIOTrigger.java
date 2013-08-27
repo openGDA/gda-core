@@ -227,7 +227,7 @@ public class PCODIOTrigger extends SimpleAcquire {
 		this.cameraUsageLowerLimit = cameraUsageLowerLimit;
 	}
 	@Override
-	public boolean requiresCacheBackedPlugins() {
+	public boolean requiresAsynchronousPlugins() {
 		return true;
 	}
 }

@@ -127,8 +127,8 @@ public class ADArrayPlugin implements NXPlugin {
 	}
 	
 	@Override
-	public boolean callReadBeforeNextExposure() {
-		return true;
+	public boolean supportsAsynchronousRead() {
+		return false;
 	}
 	
 }

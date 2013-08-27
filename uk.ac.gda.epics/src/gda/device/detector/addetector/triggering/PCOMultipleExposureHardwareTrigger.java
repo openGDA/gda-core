@@ -215,7 +215,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		}
 	}
 	@Override
-	public boolean requiresCacheBackedPlugins() {
+	public boolean requiresAsynchronousPlugins() {
 		return true;
 	}
 }

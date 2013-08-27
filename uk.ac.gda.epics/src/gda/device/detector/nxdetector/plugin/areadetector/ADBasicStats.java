@@ -169,8 +169,8 @@ public class ADBasicStats implements NXPlugin {
 		return appenders;
 	}
 	@Override
-	public boolean callReadBeforeNextExposure() {
-		return true;
+	public boolean supportsAsynchronousRead() {
+		return false;
 	}
 
 }

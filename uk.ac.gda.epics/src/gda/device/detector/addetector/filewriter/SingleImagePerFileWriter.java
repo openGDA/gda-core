@@ -382,8 +382,8 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	}
 
 	@Override
-	public boolean callReadBeforeNextExposure() {
-		return !isReturnExpectedFullFileName();
+	public boolean supportsAsynchronousRead() {
+		return isReturnExpectedFullFileName();
 	}
 
 }

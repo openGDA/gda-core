@@ -171,12 +171,12 @@ public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin {
 			throws Exception {
 	}
 	@Override
-	public boolean callReadBeforeNextExposure() {
-		return false;
+	public boolean supportsAsynchronousRead() {
+		return true;
 	}
 
 	@Override
-	public boolean requiresCacheBackedPlugins() {
+	public boolean requiresAsynchronousPlugins() {
 		return true;
 	}
 

@@ -310,8 +310,8 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 	}
 	@Override
-	public boolean callReadBeforeNextExposure() {
-		return false;
+	public boolean supportsAsynchronousRead() {
+		return true;
 	}
 
 }

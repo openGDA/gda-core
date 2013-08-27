@@ -120,8 +120,8 @@ public class ADArrayCounterMonitor implements NXPlugin {
 	}
 
 	@Override
-	public boolean callReadBeforeNextExposure() {
-		return false;
+	public boolean supportsAsynchronousRead() {
+		return true;
 	}
 	
 

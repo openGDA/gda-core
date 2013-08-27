@@ -133,8 +133,8 @@ public class PVTogglingNXPlugin implements NXPlugin {
 		completeCollection();
 	}
 	@Override
-	public boolean callReadBeforeNextExposure() {
-		return false;
+	public boolean supportsAsynchronousRead() {
+		return true;
 	}
 
 }

@@ -54,7 +54,7 @@ public class HardwareTriggeredStandard extends SimpleAcquire {
 		}
 	}
 	@Override
-	public boolean requiresCacheBackedPlugins() {
+	public boolean requiresAsynchronousPlugins() {
 		return true;
 	}
 }
