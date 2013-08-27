@@ -50,7 +50,9 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	private Observable<Short> writeStatusObservable;
 
-	private boolean writeStatusErr=false; 
+	private boolean writeStatusErr=false;
+
+	private Observer<Short>  statusObserver; 
 	
 	abstract protected void disableFileWriting() throws Exception;
 	
@@ -71,17 +73,17 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	}
 	
 	public Boolean isWriteStatusErr() throws Exception {
-		/* writeStatusObservable may be null if the NdFile is a simulation */
-		if( writeStatusObservable != null){
-			writeStatusObservable.addObserver(new Observer<Short>() {
+		if( statusObserver != null){
+			statusObserver = new Observer<Short>() {
 				
 				@Override
 				public void update(Observable<Short> source, Short arg) {
 					writeStatusErr = arg==1;
 				}
-			});
+			};
+			writeStatusObservable.addObserver(statusObserver);
+			writeStatusErr = getNdFile().isWriteStatusErr();
 		}
-		writeStatusErr = getNdFile().isWriteStatusErr();
 		return writeStatusErr;
 	}
 
