@@ -48,10 +48,10 @@ public interface NXPlugin extends PositionInputStream<NXDetectorDataAppender> {
 
 	/**
 	 * 
-	 * @return True if the read method must be called before the next detector exposure in a scan
+	 * @return True if the read method at any time. Return False if the read method must be called before the next detector exposure in a scan
 	 * 
-	 * Return True if the data must be read from source , e.g. hardware, before starting the next exposure.
+	 * Return False if the data must be read from source , e.g. hardware, before starting the next exposure.
 	 */
-	boolean callReadBeforeNextExposure();
+	boolean supportsAsynchronousRead();
 
 }

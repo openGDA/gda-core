@@ -397,12 +397,12 @@ class MyCSP implements NXCollectionStrategyPlugin{
 	}
 	
 	@Override
-	public boolean callReadBeforeNextExposure() {
-		return false;
+	public boolean supportsAsynchronousRead() {
+		return true;
 	}
 	@Override
-	public boolean requiresCacheBackedPlugins() {
-		return false;
+	public boolean requiresAsynchronousPlugins() {
+		return true;
 	}	
 }
 
@@ -466,7 +466,7 @@ class MyNXPlugin implements NXPlugin{
 		return Collections.emptyList();
 	}
 	@Override
-	public boolean callReadBeforeNextExposure() {
+	public boolean supportsAsynchronousRead() {
 		return false;
 	}
 

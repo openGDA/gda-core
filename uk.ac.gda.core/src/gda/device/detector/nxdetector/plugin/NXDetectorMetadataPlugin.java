@@ -111,7 +111,7 @@ public class NXDetectorMetadataPlugin implements NXPlugin {
 		return appenders;
 	}
 	@Override
-	public boolean callReadBeforeNextExposure() {
+	public boolean supportsAsynchronousRead() {
 		return true;
 	}
 

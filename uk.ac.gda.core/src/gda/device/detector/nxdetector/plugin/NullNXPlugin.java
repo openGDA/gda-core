@@ -87,8 +87,8 @@ public class NullNXPlugin implements NXPlugin {
 		return appenders;
 	}
 	@Override
-	public boolean callReadBeforeNextExposure() {
-		return false;
+	public boolean supportsAsynchronousRead() {
+		return true;
 	}
 
 }

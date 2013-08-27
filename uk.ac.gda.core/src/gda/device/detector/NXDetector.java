@@ -289,12 +289,12 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
-		boolean requiresStreamingPlugins = getCollectionStrategy().requiresCacheBackedPlugins();
+		boolean requiresStreamingPlugins = getCollectionStrategy().requiresAsynchronousPlugins();
 		streamingPlugins = new Vector<PositionInputStream<NXDetectorDataAppender>>();
 		for( NXPlugin plug : getPluginList()){
-			if( requiresStreamingPlugins && plug.callReadBeforeNextExposure() )
+			if( requiresStreamingPlugins && plug.supportsAsynchronousRead() )
 				throw new DeviceException("The collectionStrategy demands they all support streaming but " + plug.getName() + " does not");
-			streamingPlugins.add(plug.callReadBeforeNextExposure() ? new NonStreamingNXPluginAdapter(plug): plug);
+			streamingPlugins.add(plug.supportsAsynchronousRead() ? new NonStreamingNXPluginAdapter(plug): plug);
 		}
 		
 		PositionInputStreamCombiner<NXDetectorDataAppender> combinedStream = new PositionInputStreamCombiner<NXDetectorDataAppender>(streamingPlugins);

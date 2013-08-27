@@ -103,8 +103,8 @@ public class NonStreamingNXPluginAdapter implements NXPlugin{
 	}
 
 	@Override
-	public boolean callReadBeforeNextExposure() {
-		return false;
+	public boolean supportsAsynchronousRead() {
+		return true;
 	}
 
 	public void addToCache() throws NoSuchElementException, InterruptedException, DeviceException {

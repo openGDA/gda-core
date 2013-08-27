@@ -52,8 +52,11 @@ public interface NXCollectionStrategyPlugin extends NXPlugin{
 	
 	/**
 	 * 
-	 * @return Return True if the manner the camera is exposed requires other NXPlugins in the detector to have their read
-	 * method called at any time as the data they supply is not invalidated by the following exposure
+	 * @return Return true all other NXPlugins in the NXDetector must support asynchronous read , i.e. their supportsAsynchronousRead
+	 * method returns true.
+	 * 
+	 * For example in a trajectory scan the data for the plugins must be stored in some form of hardware cache that can be read out
+	 * asynchronously to the scan
 	 */
-	public boolean requiresCacheBackedPlugins() ;
+	public boolean requiresAsynchronousPlugins() ;
 }
