@@ -81,6 +81,8 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	private String fileTemplateForReadout = null;
 
+	private boolean waitUntilFileExists=false;
+
 	/**
 	 * Creates a SingleImageFileWriter with ndFile, fileTemplate, filePathTemplate, fileNameTemplate and
 	 * fileNumberAtScanStart yet to be set.
@@ -325,27 +327,29 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 			throw new DeviceException(e);
 		}
 
-		// Now check that the file exists
-		String fullFilePath = returnRelativePath ? getAbsoluteFilePath(filepath) : filepath;
 		checkErrorStatus();
-		try {
-			File f = new File(fullFilePath);
-			long numChecks = 0;
-			while (!f.exists()) {
-				numChecks++;
-				Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
-				checkErrorStatus();
-				// checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
-				if (ScanBase.isInterrupted())
-					throw new Exception("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
-				if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
-					InterfaceProvider.getTerminalPrinter().print(
-							"Waiting for file '" + fullFilePath + "' to be created");
-					numChecks = 0;
+		if( isWaitUntilFileExists()){
+			// Now check that the file exists
+			String fullFilePath = returnRelativePath ? getAbsoluteFilePath(filepath) : filepath;
+			try {
+				File f = new File(fullFilePath);
+				long numChecks = 0;
+				while (!f.exists()) {
+					numChecks++;
+					Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
+					checkErrorStatus();
+					// checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
+					if (ScanBase.isInterrupted())
+						throw new Exception("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
+					if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
+						InterfaceProvider.getTerminalPrinter().print(
+								"Waiting for file '" + fullFilePath + "' to be created");
+						numChecks = 0;
+					}
 				}
+			} catch (Exception e) {
+				throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'");
 			}
-		} catch (Exception e) {
-			throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'");
 		}
 
 		NXDetectorDataAppender dataAppender;
@@ -354,6 +358,14 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
 		appenders.add(dataAppender);
 		return appenders;
+	}
+
+	protected boolean isWaitUntilFileExists() {
+		return waitUntilFileExists;
+	}
+
+	public void setWaitUntilFileExists(boolean waitUntilFileExists) {
+		this.waitUntilFileExists = waitUntilFileExists;
 	}
 
 	public boolean isReturnPathRelativeToDatadir() {
