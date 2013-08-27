@@ -130,11 +130,14 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 		this.indexer = indexer;
 	}
 
+	/**
+	 * Method will wait until the object's call method has been called.
+	 * 
+	 */
 	public void waitForCompletion() throws InterruptedException{
 		synchronized(lock){
 			while(	!called){
-				lock.wait(1000);
-				ScanBase.checkForInterruptsIgnoreIdle();
+				lock.wait();
 			}		
 		}
 	}
