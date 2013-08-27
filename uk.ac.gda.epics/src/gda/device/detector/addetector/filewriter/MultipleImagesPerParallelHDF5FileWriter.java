@@ -27,6 +27,7 @@ import gda.device.detector.areadetector.v17.NDParallelHDF.RoiPosMode;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileLinkAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
+import gda.device.detector.nxdetector.NXPlugin;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
@@ -40,7 +41,7 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase {
+public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase implements NXPlugin{
 	
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(MultipleImagesPerParallelHDF5FileWriter.class);

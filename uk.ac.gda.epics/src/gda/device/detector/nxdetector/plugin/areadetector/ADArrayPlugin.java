@@ -24,15 +24,13 @@ import gda.device.detector.addetector.ArrayData;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
-import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.NonAsynchronousNXPlugin;
 import gda.scan.ScanInformation;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
 
-public class ADArrayPlugin implements NXPlugin {
+public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 	
 	final private NDArray ndArray;
 
@@ -97,21 +95,16 @@ public class ADArrayPlugin implements NXPlugin {
 	}
 	
 	@Override
-	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
-			DeviceException {
-		
-		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
-		if (isEnabled()) {
-			try {
-				appenders.add(new NXDetectorDataArrayAppender(ArrayData.readArrayData(ndArray), firstReadoutInScan));
-			} catch (Exception e) {
-				throw new DeviceException("Error reading data from ndArray plugin");
-			}
-		} else {
-			appenders.add(new NXDetectorDataNullAppender());
-		}
+	public NXDetectorDataAppender read() throws DeviceException {
 		firstReadoutInScan = false;
-		return appenders;
+		if (!isEnabled()) {
+			return new NXDetectorDataNullAppender();
+		}
+		try {
+			return new NXDetectorDataArrayAppender(ArrayData.readArrayData(ndArray), firstReadoutInScan);
+		} catch (Exception e) {
+			throw new DeviceException(getName() + "Error reading array data",e);
+		}
 	}
 
 	public boolean isEnabled() {
@@ -124,11 +117,6 @@ public class ADArrayPlugin implements NXPlugin {
 
 	public NDArray getNdArray() {
 		return ndArray;
-	}
-	
-	@Override
-	public boolean supportsAsynchronousRead() {
-		return false;
 	}
 	
 }

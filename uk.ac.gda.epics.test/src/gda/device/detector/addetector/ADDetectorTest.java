@@ -35,7 +35,7 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
-import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.jython.ICurrentScanInformationHolder;
 import gda.jython.InterfaceProvider;
@@ -44,6 +44,7 @@ import gda.scan.ScanInformation;
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -53,7 +54,7 @@ public class ADDetectorTest {
 	private ADDetector adDet;
 	@Mock
 	protected ADBase adBase;
-	@Mock protected NXCollectionStrategyPlugin collectionStrategy;
+	@Mock protected AsyncNXCollectionStrategy collectionStrategy;
 	@Mock protected NXFileWriterPlugin fileWriter;
 	@Mock protected NDArray ndArray;
 	@Mock protected NDStats ndStats;
@@ -374,10 +375,11 @@ public class ADDetectorTest {
 		enableArrayReadout(true);
 		enableReadAcquisitionTimeAndPeriod(false, false);
 		byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 6 };
+		when(ndArrayBase.getNDimensions_RBV()).thenReturn(2);
 		when(ndArrayBase.getArraySize0_RBV()).thenReturn(2);
 		when(ndArrayBase.getArraySize1_RBV()).thenReturn(3);
 		when(ndArrayBase.getArraySize2_RBV()).thenReturn(0);
-		when(ndArray.getByteArrayData()).thenReturn(byteArray);
+		when(ndArray.getByteArrayData(Matchers.anyInt())).thenReturn(byteArray);
 
 		NXDetectorData data = (NXDetectorData) det().readout();
 		assertEquals("", data.toString());

@@ -179,10 +179,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			return appenders;
 		}
 
-		@Override
-		public boolean supportsAsynchronousRead() {
-			return true;
-		}
 
 	}
 

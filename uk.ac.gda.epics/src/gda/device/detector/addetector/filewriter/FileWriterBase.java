@@ -311,9 +311,4 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 	}
-	@Override
-	public boolean supportsAsynchronousRead() {
-		return true;
-	}
-
 }

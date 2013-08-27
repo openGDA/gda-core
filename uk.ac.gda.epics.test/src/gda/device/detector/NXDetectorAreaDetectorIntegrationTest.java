@@ -23,7 +23,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,11 +35,9 @@ import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.NXPluginBase;
 import gda.device.detector.nxdetector.plugin.areadetector.ADArrayPlugin;
 import gda.device.detector.nxdetector.plugin.areadetector.ADBasicStats;
-import gda.jython.ICurrentScanInformationHolder;
-import gda.jython.InterfaceProvider;
-import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +90,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		MockitoAnnotations.initMocks(this);
 		adBasicStats = new ADBasicStats(ndStats);
 		when(ndStats.getPluginBase()).thenReturn(ndStatsBase);
-		List<NXPlugin> additionalPlugins = new ArrayList<NXPlugin>();
+		List<NXPluginBase> additionalPlugins = new ArrayList<NXPluginBase>();
 		adArrayPlugin = new ADArrayPlugin(ndArray);
 		when(adDetectorPlugin1.getName()).thenReturn("plugin1");
 		when(adDetectorPlugin2.getName()).thenReturn("plugin2");
@@ -328,7 +325,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 	@Test
 	public void testGetPositionCallableTwoPluginsReturningInChunks() throws Exception { // TODO: Two next
 		enableReadAcquisitionTimeAndPeriod(false, false);
-		provAdDet().setAdditionalPluginList(asList(adDetectorPlugin1, adDetectorPlugin2));
+		provAdDet().setAdditionalPluginList(asList((NXPluginBase)adDetectorPlugin1,(NXPluginBase) adDetectorPlugin2));
 		enableAdditionalPlugins(true, true);
 		Vector<NXDetectorDataAppender> dataAppenders1 = new Vector<NXDetectorDataAppender>();
 		dataAppenders1.add(new NXDetectorDataDoubleAppender(Arrays.asList(PLUGIN1_NAMES), Arrays.asList(0., 1., 2.)));
@@ -495,5 +492,4 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		arrayList.add(arg2);
 		return arrayList;
 	}
-
 }

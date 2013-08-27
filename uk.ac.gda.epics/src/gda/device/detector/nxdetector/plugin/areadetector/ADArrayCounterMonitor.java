@@ -119,13 +119,6 @@ public class ADArrayCounterMonitor implements NXPlugin {
 		return appenders;
 	}
 
-	@Override
-	public boolean supportsAsynchronousRead() {
-		return true;
-	}
-	
-
-
 }
 
 class ArrayCounterWaiter implements NXDetectorDataAppender {
