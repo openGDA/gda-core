@@ -103,7 +103,7 @@ public class ADArrayPlugin implements NXPlugin {
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
 		if (isEnabled()) {
 			try {
-				appenders.add(new NXDetectorDataArrayAppender(ndArray, firstReadoutInScan));
+				appenders.add(new NXDetectorDataArrayAppender(ArrayData.readArrayData(ndArray), firstReadoutInScan));
 			} catch (Exception e) {
 				throw new DeviceException("Error reading data from ndArray plugin");
 			}
@@ -137,8 +137,8 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 	private boolean firstReadoutInScan=true;
 	private ArrayData arrayData;
 
-	NXDetectorDataArrayAppender(NDArray ndArray, boolean firstReadoutInScan) throws Exception {
-		arrayData = ArrayData.readArrayData(ndArray);
+	NXDetectorDataArrayAppender(ArrayData arrayData2, boolean firstReadoutInScan)  {
+		arrayData = arrayData2;
 		this.firstReadoutInScan = firstReadoutInScan;
 	}
 	
