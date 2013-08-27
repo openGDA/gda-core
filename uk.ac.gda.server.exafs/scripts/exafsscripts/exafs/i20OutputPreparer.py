@@ -52,20 +52,19 @@ class I20OutputPreparer:
     #
     # For any specific plotting requirements based on all the options in this experiment
     #
-    def getPlotSettings(self,beanGroup):
+    def getPlotSettings(self,detectorBean,outputBean):
         
-        if beanGroup.getDetector().getExperimentType() == "Fluorescence" :
-            detType = beanGroup.getDetector().getFluorescenceParameters().getDetectorType()
+        if detectorBean.getExperimentType() == "Fluorescence" :
+            detType = detectorBean.getFluorescenceParameters().getDetectorType()
             if detType == "Germanium" :
-                i20OutputBean = BeansFactory.getBeanObject(beanGroup.getScriptFolder(),beanGroup.getOutput())
-                if i20OutputBean.isXspressShowDTRawValues() or not i20OutputBean.isXspressOnlyShowFF():
+                if outputBean.isXspressShowDTRawValues() or not outputBean.isXspressOnlyShowFF():
                     # create a filter for the DT columns and return it
                     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
                     sps = ScanPlotSettings()
                     sps.setXAxisName("Energy")  # column will have be converted to this name
                     
                     fluoDetGroup = None
-                    listDetectorGroups = beanGroup.getDetector().getDetectorGroups()
+                    listDetectorGroups = detectorBean.getDetectorGroups()
                     for detGroup in listDetectorGroups:
                         if detGroup.getName() == "Germanium":
                             fluoDetGroup = detGroup
@@ -76,7 +75,7 @@ class I20OutputPreparer:
                         extraNames = thisDet.getExtraNames()
                         axes += extraNames
                         
-                    extraColumns = beanGroup.getOutput().getSignalList()
+                    extraColumns = outputBean.getSignalList()
                     for column in extraColumns:
                         axes += column.getLabel()
 
@@ -95,11 +94,11 @@ class I20OutputPreparer:
                     return sps
         return None
     
-    def _containsUnderbar(self,string):
-        for c in string:
-            if c == "_":
-                return True
-        return False
+#    def _containsUnderbar(self,string):
+#        for c in string:
+#            if c == "_":
+#                return True
+#        return False
          
     def redefineNexusMetadata(self):
 
