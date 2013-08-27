@@ -63,6 +63,25 @@ import uk.ac.gda.util.ThreadManager;
  */
 public abstract class ScanBase implements Scan {
 
+	/**
+	 * Name of property to control the clearing of interrupted flag in ScanBase at end of a scan.
+	 * If not set or is False then 
+	 *  - checkForInterrupts does nothing if the ScanStatus is IDLE
+	 *  - checkForInterrupts sets ScanStatus to IDLE if interrupted flag is true 
+	 *  
+	 *  If set to True then:
+	 *   - in runScan interrupted is set to false
+	 *   
+	 *  The intention is to test the behaviour and then switch to it if OK
+	 */
+	@Deprecated
+	private static final String GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END = "gda.scan.clearInterruptAtScanEnd";
+	
+	private static boolean clearInterruptedAtScanEnd() {
+		return LocalProperties.check(GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END,false);
+	}
+	
+
 	public static final String GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST = "gda.scanbase.firstScanNumber";
 
 	static public volatile boolean explicitlyHalted = false;
@@ -222,12 +241,8 @@ public abstract class ScanBase implements Scan {
 	 * @throws InterruptedException
 	 */
 	public static void checkForInterrupts() throws InterruptedException {
-		
-		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
-			//do not reset as if the scan thread detects this and so goes idle other threads related to the scan will not get the interruption
-			//we should clear the interruption at the start of the scan instead
-//			paused = false;
-//			interrupted = false; 
+
+		if (!clearInterruptedAtScanEnd() && InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
 			return;
 		}
 
@@ -255,9 +270,9 @@ public abstract class ScanBase implements Scan {
 		} catch (InterruptedException ex) {
 			interrupted = true;
 		}
-
 		if (interrupted) {
-			InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
+			if (!clearInterruptedAtScanEnd())
+				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
 			throw new InterruptedException();
 		}
 	}
@@ -1138,6 +1153,7 @@ public abstract class ScanBase implements Scan {
 	
 	@Override
 	public void runScan() throws InterruptedException, Exception {
+		boolean scanWasInterrupted=false;
 		if (getScanStatusHolder().getScanStatus() != Jython.IDLE) {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
 		}
@@ -1151,6 +1167,7 @@ public abstract class ScanBase implements Scan {
 			run();
 		} finally {
 			
+			scanWasInterrupted = isInterrupted();
 			// Leaving interrupted true (if it is) allows jython scripts running
 			// Scans to checkForInterrupts and so end 'for' loops sensibly.
 			// (It is set to false at the start of a scan anyway).
@@ -1161,13 +1178,18 @@ public abstract class ScanBase implements Scan {
 			// nb moved this until after batonTaken is false as we use the flag
 			// to check for scan end.
 			getScanStatusHolder().setScanStatus(Jython.IDLE);
+
+			if( clearInterruptedAtScanEnd())
+				setInterrupted(false);
+		
 		}
 
-		if (interrupted) {
+		if (scanWasInterrupted) {
 			logger.info("Scan interupted ScanBase.interupted flag");
 			throw new InterruptedException("Scan interrupted");
 		}
 	}
+
 
 	@Override
 	public void setChild(Scan child) {
