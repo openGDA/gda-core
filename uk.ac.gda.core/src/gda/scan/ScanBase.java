@@ -231,7 +231,19 @@ public abstract class ScanBase implements Scan {
 			return;
 		}
 
-		
+		checkForInterruptsIgnoreIdle();
+	}
+	
+	/*
+	 * Should only be called by Scan objects, as they should be aborted if the flag is set irrespective of the Command
+	 * Server status.
+	 * 
+	 * The use of this function is not recommended as it has the side effect of changing scan status to idle. If all you want to
+	 * is to check if the scan has been interrupted then simply call isInterrupted
+	 * 
+	 * @throws InterruptedException
+	 */
+	final protected static void checkForInterruptsIgnoreIdle() throws InterruptedException {
 		try {
 			if (paused & !interrupted) {
 				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.PAUSED);
@@ -244,16 +256,6 @@ public abstract class ScanBase implements Scan {
 			interrupted = true;
 		}
 
-		checkForInterruptsIgnoreIdle();
-	}
-	
-	/*
-	 * Should only be called by Scan objects, as they should be aborted if the flag is set irrespective of the Command
-	 * Server status.
-	 * 
-	 * @throws InterruptedException
-	 */
-	public static void checkForInterruptsIgnoreIdle() throws InterruptedException {
 		if (interrupted) {
 			InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
 			throw new InterruptedException();
