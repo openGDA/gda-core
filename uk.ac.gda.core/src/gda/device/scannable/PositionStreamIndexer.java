@@ -19,6 +19,7 @@
 package gda.device.scannable;
 
 import gda.device.DeviceException;
+import gda.device.detector.DetectorBase;
 import gda.scan.NamedQueueTask;
 
 import java.util.HashMap;
@@ -28,6 +29,9 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used as a component in {@link PositionCallableProvider}s that implement {@link PositionInputStream}s an indexer can
@@ -99,14 +103,14 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 
 	public Callable<T> getNamedPositionCallable(String name, int threadPoolSize) {
 		lastIndexGivenOut += 1;
-		lastPositionStreamIndexPuller = name != null ? new NamedPositionStreamIndexPuller<T>(lastIndexGivenOut, this, name,
-				threadPoolSize) : new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
+		lastPositionStreamIndexPuller = name != null ? new NamedPositionStreamIndexPuller<T>(lastIndexGivenOut, this,
+				name, threadPoolSize) : new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
 		return lastPositionStreamIndexPuller;
 	}
 
 	/*
-	 * Wait for call method of the last PositionIndexStreamPuller given out to have completed.
-	 * This means the data has been obtained from the hardware.
+	 * Wait for call method of the last PositionIndexStreamPuller given out to have completed. This means the data has
+	 * been obtained from the hardware.
 	 */
 	public void waitForCompletion() throws Exception {
 		lastPositionStreamIndexPuller.waitForCompletion();
@@ -114,7 +118,7 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 }
 
 class PositionStreamIndexPuller<T> implements Callable<T> {
-
+	private static final Logger logger = LoggerFactory.getLogger(PositionStreamIndexPuller.class);
 	private final int index;
 
 	private final PositionStreamIndexer<T> indexer;
@@ -131,26 +135,27 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 
 	/**
 	 * Method will wait until the object's call method has been called.
-	 * 
 	 */
-	public void waitForCompletion() throws InterruptedException{
-		synchronized(lock){
-			while(	!called){
+	public void waitForCompletion() throws InterruptedException {
+		synchronized (lock) {
+			while (!called) {
 				lock.wait();
-			}		
+			}
 		}
 	}
 
 	@Override
 	public T call() throws Exception {
-		synchronized(lock){
+		synchronized (lock) {
 			if (!called) {
-				try{
-					value = indexer.get(index); 
-				}finally{
+				try {
+					value = indexer.get(index);
+				} finally {
 					called = true;
 				}
 				lock.notifyAll();
+			} else {
+				logger.warn("PositionStreamIndexPuller.call method called twice for index:" + index);
 			}
 		}
 		return value;

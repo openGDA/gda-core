@@ -467,7 +467,7 @@ class MyNXPlugin implements NXPlugin{
 	}
 	@Override
 	public boolean supportsAsynchronousRead() {
-		return false;
+		return true;
 	}
 
 }

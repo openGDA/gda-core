@@ -298,7 +298,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		
 		boolean requiresStreamingPlugins = getCollectionStrategy().requiresAsynchronousPlugins();
 
-		List<PositionInputStream<NXDetectorDataAppender>> streamingPlugins = new Vector<PositionInputStream<NXDetectorDataAppender>>();
+		List<PositionInputStream<NXDetectorDataAppender>> asynchronousPositionInputStreams = new Vector<PositionInputStream<NXDetectorDataAppender>>();
 
 		pluginPositionQueueMap = new HashMap<PositionInputStream<NXDetectorDataAppender>, PositionQueue<NXDetectorDataAppender>>();
 		
@@ -306,15 +306,15 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			if( requiresStreamingPlugins && plug.supportsAsynchronousRead() )
 				throw new DeviceException("The collectionStrategy demands they all support streaming but " + plug.getName() + " does not");
 			if( plug.supportsAsynchronousRead()){
-				streamingPlugins.add( plug);
+				asynchronousPositionInputStreams.add( plug);
 			} else{
-				PositionQueue<NXDetectorDataAppender> adapter = new PositionQueue<NXDetectorDataAppender>();
-				pluginPositionQueueMap.put(plug, adapter); //hold for later
-				streamingPlugins.add( adapter);
+				PositionQueue<NXDetectorDataAppender> positionQueue = new PositionQueue<NXDetectorDataAppender>();
+				pluginPositionQueueMap.put(plug, positionQueue); //hold for later
+				asynchronousPositionInputStreams.add( positionQueue);
 			}
 		}
 		
-		PositionInputStreamCombiner<NXDetectorDataAppender> combinedStream = new PositionInputStreamCombiner<NXDetectorDataAppender>(streamingPlugins);
+		PositionInputStreamCombiner<NXDetectorDataAppender> combinedStream = new PositionInputStreamCombiner<NXDetectorDataAppender>(asynchronousPositionInputStreams);
 		pluginStreamsIndexer = new PositionStreamIndexer<List<NXDetectorDataAppender>>(combinedStream);
 	}
 	
@@ -456,9 +456,13 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		} catch (Exception e) {
 			throw new  DeviceException(getName() + " error at atScanEnd",e);
 		} finally{
-			pluginStreamsIndexer = null; // to avoid later confusion
-			pluginPositionQueueMap = null;
+			clearUpAfterScan();
 		}
+	}
+
+	private void clearUpAfterScan() {
+		pluginStreamsIndexer = null; // to avoid later confusion
+		pluginPositionQueueMap = null;
 	}
 
 	@Override
@@ -468,6 +472,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 				plugin.stop();
 			} catch (Exception e) {
 				throw new DeviceException(e);
+			} finally{
+				clearUpAfterScan();
 			}
 		}
 	}
@@ -479,6 +485,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 				plugin.atCommandFailure();
 			} catch (Exception e) {
 				throw new DeviceException(e);
+			} finally{
+				clearUpAfterScan();
 			}
 		}
 	}
