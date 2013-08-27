@@ -70,24 +70,40 @@ import org.springframework.util.StringUtils;
  * are!</b>. The way it is configured is likely to change.
  * <p>
  * A {@link Scannable} {@link Detector} driver for Epics AreaDetectors suitable for use within {@link Scan}s that
- * support detectors that implement PositionCallableProvider<NexusTreeProvider>. The NexusTreeProvider returned by the
- * call method of the PositionCallableProvider implements {@link GDANexusDetectorData} which provides plottable and
- * printable data as well as binary detector data and detector metadata. If configured to return filepaths the object
- * supports {@link NXDetectorDataWithFilepathForSrs} which will result in the filepath being returned as the first
- * Scannable extra field and printed to the terminal and SRS files. The Epics AreaDetector software is very modular and
- * this is reflected in the structure of this class. As far as ADDetector is concerned an EPICS AreaDetector consists of
- * 2 or 3 parts: 1. A Base plugin that supports the source of the data, e.g. camera, The base is used to setup the
- * acquisition, exposure time trigger mode, and start/stop acquisition. The result of an acquisition is a chunk of
- * binary data. 2. A NDArray plugin that makes the binary data available over channel access 3. A file writer plugin
- * that will write the binary data to a file of some format. Either 1 file per acquisition or 1 file per collection of
- * acquisitions This camera can be used by GDA in 2 different modes: 1. Camera base + PV 2. Camera base + file writer
- * This structure is represented in ADDetector by 3 main components: {@link NXCollectionStrategyPlugin} - used to handle
- * the camera base {@link NDArray} - handles the PV to read the binary data {@link NXFileWriterPlugin} - used to handle
- * the file writer plugin The result of getPositionCallable is the creation of an object that has sufficient information
- * to allow creation of a NexusTreeProvider in its call method. This object can take data from: 1. The NDArray object if
- * present and selected 2. An NDStats, that represents the NDStats plugin, if present and selected 3. The
- * ADTriggeringStrategy object if selected 4. The FileWriter if selected 5. Another NexusTreeProvider that provides meta
- * data if present.
+ * support detectors that implement PositionCallableProvider<NexusTreeProvider>. 
+ * <P>
+ * The NexusTreeProvider returned by the call method of the PositionCallableProvider implements {@link GDANexusDetectorData}
+ * which provides plottable and printable data as well as binary detector data and detector metadata. If configured to return
+ * filepaths the object supports {@link NXDetectorDataWithFilepathForSrs} which will result in the filepath being 
+ * returned as the first Scannable extra field and printed to the terminal and SRS files.
+ * <P>
+ * The Epics AreaDetector software is very modular and this is reflected in the structure of this class. 
+ * As far as ADDetector is concerned an EPICS AreaDetector consists of 2 or 3 parts:
+ * 1. A Base plugin that supports the source of the data, e.g. camera, The base is used to setup the acquisition, 
+ * exposure time trigger mode, and start/stop acquisition. The result of an acquisition is a chunk of binary data.
+ * 2. A NDArray plugin that makes the binary data available over channel access 
+ * 3. A file writer plugin that will write the binary data to a file of some format. Either 1 file 
+ * per acquisition or 1 file per collection of acquisitions
+ * <P>
+ * This camera can be used by GDA in 2 different modes:
+ * <P>
+ * 1. Camera base  + PV
+ * 2. Camera base + file writer
+ * <P>
+ * This structure is represented in ADDetector by 3 main components:
+ * <P>
+ * {@link NXCollectionStrategyPlugin} - used to handle the camera base
+ * {@link NDArray} - handles the PV to read the binary data
+ * {@link NXFileWriterPlugin} - used to handle the file writer plugin
+ * <P>
+ * The result of getPositionCallable is  the creation of an object that has sufficient information to allow creation of 
+ * a NexusTreeProvider in its call method. This object can take data from:
+ * <P>
+ * 1. The NDArray object if present and selected 
+ * 2. An NDStats, that represents the NDStats plugin, if present and selected
+ * 3. The ADTriggeringStrategy object if selected
+ * 4. The FileWriter if selected
+ * 5. Another NexusTreeProvider that provides meta data if present.
  */
 public class ADDetector extends DetectorBase implements InitializingBean, NexusDetector,
 		PositionCallableProvider<NexusTreeProvider> {
