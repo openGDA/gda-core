@@ -20,7 +20,6 @@ package gda.device.scannable;
 
 import gda.device.DeviceException;
 import gda.scan.NamedQueueTask;
-import gda.scan.ScanBase;
 
 import java.util.HashMap;
 import java.util.List;

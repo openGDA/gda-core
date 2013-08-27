@@ -24,7 +24,7 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
-import gda.device.detector.nxdetector.plugin.NonStreamingNXPluginAdapter;
+import gda.device.detector.nxdetector.plugin.PositionQueue;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
@@ -37,6 +37,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
@@ -51,6 +53,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	protected static final String UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE = "ADDetector does not support operation through its Scannable interface. Do not use pos until pos supports detectors as Detectors rather than Scannables";
 
+	protected NexusTreeProvider lastReadoutValue = null;
+
 	private NXCollectionStrategyPlugin collectionStrategy;
 
 	private List<NXPlugin> additionalPluginList = new ArrayList<NXPlugin>();
@@ -59,7 +63,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private PositionStreamIndexer<List<NXDetectorDataAppender>> pluginStreamsIndexer;
 
-	public NexusTreeProvider lastReadoutValue = null;
+	//Containing of plugins and associated PositionQueue. Used for plugins whose supportsAsynchronousRead returns false
+	private Map <PositionInputStream<NXDetectorDataAppender>, PositionQueue<NXDetectorDataAppender>> pluginPositionQueueMap;
 
 	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPlugin> additionalPluginList) {
 		setName(name);
@@ -289,19 +294,30 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
+		
+		
 		boolean requiresStreamingPlugins = getCollectionStrategy().requiresAsynchronousPlugins();
-		streamingPlugins = new Vector<PositionInputStream<NXDetectorDataAppender>>();
+
+		List<PositionInputStream<NXDetectorDataAppender>> streamingPlugins = new Vector<PositionInputStream<NXDetectorDataAppender>>();
+
+		pluginPositionQueueMap = new HashMap<PositionInputStream<NXDetectorDataAppender>, PositionQueue<NXDetectorDataAppender>>();
+		
 		for( NXPlugin plug : getPluginList()){
 			if( requiresStreamingPlugins && plug.supportsAsynchronousRead() )
 				throw new DeviceException("The collectionStrategy demands they all support streaming but " + plug.getName() + " does not");
-			streamingPlugins.add(plug.supportsAsynchronousRead() ? new NonStreamingNXPluginAdapter(plug): plug);
+			if( plug.supportsAsynchronousRead()){
+				streamingPlugins.add( plug);
+			} else{
+				PositionQueue<NXDetectorDataAppender> adapter = new PositionQueue<NXDetectorDataAppender>();
+				pluginPositionQueueMap.put(plug, adapter); //hold for later
+				streamingPlugins.add( adapter);
+			}
 		}
 		
 		PositionInputStreamCombiner<NXDetectorDataAppender> combinedStream = new PositionInputStreamCombiner<NXDetectorDataAppender>(streamingPlugins);
 		pluginStreamsIndexer = new PositionStreamIndexer<List<NXDetectorDataAppender>>(combinedStream);
 	}
 	
-	List<PositionInputStream<NXDetectorDataAppender>> streamingPlugins;
 	
 	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception, DeviceException {
 		getCollectionStrategy().setGenerateCallbacks(areCallbacksRequired());
@@ -367,7 +383,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 		return lastReadoutValue;
 	}
-
+	
 	@Override
 	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
 
@@ -376,13 +392,15 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 					"No pluginStreamsIndexer set --- atScanStart() must be called before getPositionCallable()");
 		}
 
-		for(PositionInputStream<NXDetectorDataAppender> plugin: streamingPlugins){
-			if( plugin instanceof NonStreamingNXPluginAdapter){
-				try {
-					((NonStreamingNXPluginAdapter)plugin).addToCache();
-				} catch (Exception e) {
-					throw new DeviceException(e);
-				}
+		//Read from those plugins that must be read before next step in scan
+		//put values into PositionInputStream
+		for( Entry<PositionInputStream<NXDetectorDataAppender>, PositionQueue<NXDetectorDataAppender>> entry : pluginPositionQueueMap.entrySet()){
+			try {
+				entry.getValue().addToCache(entry.getKey().read(1).get(0));
+			} catch (NoSuchElementException e) {
+				throw new DeviceException(getName() + " error in getPositionCallable",e);
+			} catch (InterruptedException e) {
+				throw new DeviceException(getName() + " error in getPositionCallable",e);
 			}
 		}
 		Callable<List<NXDetectorDataAppender>> appendersCallable = pluginStreamsIndexer.getPositionCallable();
@@ -439,6 +457,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			throw new  DeviceException(getName() + " error at atScanEnd",e);
 		} finally{
 			pluginStreamsIndexer = null; // to avoid later confusion
+			pluginPositionQueueMap = null;
 		}
 	}
 
