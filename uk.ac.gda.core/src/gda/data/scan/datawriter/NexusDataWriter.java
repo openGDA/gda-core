@@ -207,7 +207,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 		}
 		if( beforeScanMetaData == null){
-			InterfaceProvider.getTerminalPrinter().print("Meta data before_scan is not being added");
+//			InterfaceProvider.getTerminalPrinter().print("Meta data before_scan is not being added");
 			beforeScanMetaData = new NexusTreeNode("before_scan", NexusExtractor.NXCollectionClassName, null);
 			beforeScanMetaData.addChildNode(new NexusTreeNode("disabled", NexusExtractor.AttrClassName, beforeScanMetaData,
 					new NexusGroupData("True")));
@@ -1610,6 +1610,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// XasAsciiNexusDataWriter currently.
 		this.nexusFileName = String.format(nexusFileNameTemplate, getScanNumber());
 		this.nexusFileUrl = dataDir + nexusFileName;
+	}
+	
+	public String getNexusFileNameTemplate(){
+		return this.nexusFileNameTemplate;
 	}
 
 	@Override
