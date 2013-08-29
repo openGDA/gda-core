@@ -122,7 +122,7 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
         sampledescription = self.sampleBean.get(i).getSample_description()
         sample_repeats = self.sampleBean.get(i).getNumberOfRepetitions()
         print "********"
-        self.log("Running sample:",samplename) # +1 as the user will think the first sample is 1 not 0
+        self.log("Running sample:",samplename) 
         
         if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or self.sample_roll == None or self.sample_pitch == None:
             raise DeviceException("I20 scan script - could not find all sample stage motors!")
@@ -131,16 +131,15 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
         self.sample_x.asynchronousMoveTo(x)
         self.sample_y.asynchronousMoveTo(y)
         self.sample_z.asynchronousMoveTo(z)
-        # TODO remove comments when motors are fixed: they were all in an error state during the shutdown
-        #self.sample_rot.asynchronousMoveTo(rotation)
-        #self.sample_roll.asynchronousMoveTo(roll)
-        #self.sample_pitch.asynchronousMoveTo(pitch)
+        self.sample_rot.asynchronousMoveTo(rotation)
+        self.sample_roll.asynchronousMoveTo(roll)
+        self.sample_pitch.asynchronousMoveTo(pitch)
         self.sample_x.waitWhileBusy()
         self.sample_y.waitWhileBusy()
         self.sample_z.waitWhileBusy()
-        #self.sample_rot.waitWhileBusy()
-        #self.sample_roll.waitWhileBusy()
-        #self.sample_pitch.waitWhileBusy()
+        self.sample_rot.waitWhileBusy()
+        self.sample_roll.waitWhileBusy()
+        self.sample_pitch.waitWhileBusy()
         self.log( "Sample stage move complete.")
         ScriptBase.checkForPauses()
         
@@ -189,23 +188,23 @@ class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
             samplename = self.sampleBean.get(i).getSample_name()
             sampledescription = self.sampleBean.get(i).getSample_description()
             sample_repeats = self.sampleBean.get(i).getNumberOfRepetitions()
+            print "********"
+            self.log("Running sample:",samplename) # +1 as the user will think the first sample is 1 not 0
             
-            if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or samfinerot == None:
+            if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or self.sample_fine_rot == None:
                 raise DeviceException("I20 scan script - could not find all sample stage motors!")
             
-            print "********"
             self.log( "Moving sample stage to",x,y,z,rotation,finerotation,"...")
             self.sample_x.asynchronousMoveTo(x)
             self.sample_y.asynchronousMoveTo(y)
             self.sample_z.asynchronousMoveTo(z)
-        # TODO remove comments when motors are fixed: they were all in an error state during the shutdown
-            #self.sample_rot.asynchronousMoveTo(rotation)
-            samfinerot.asynchronousMoveTo(finerotation)
+            self.sample_rot.asynchronousMoveTo(rotation)
+            #self.sample_fine_rot.asynchronousMoveTo(finerotation)
             self.sample_x.waitWhileBusy()
             self.sample_y.waitWhileBusy()
             self.sample_z.waitWhileBusy()
-            #self.sample_rot.waitWhileBusy()
-            samfinerot.waitWhileBusy()
+            self.sample_rot.waitWhileBusy()
+            #self.sample_fine_rot.waitWhileBusy()
             self.log( "Sample stage move complete.\n")
             ScriptBase.checkForPauses()
             

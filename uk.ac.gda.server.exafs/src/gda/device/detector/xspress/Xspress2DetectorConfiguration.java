@@ -36,6 +36,7 @@ public class Xspress2DetectorConfiguration{
 	private Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
 	private Xspress2System xspress2System;
 	private ObservableComponent observer;
+	private String message = "Xspress configuration has not been applied yet";
 	
 	public Xspress2DetectorConfiguration(Xspress2System xspress2System, final ObservableComponent observer) {
 		this.observer = observer;
@@ -52,7 +53,6 @@ public class Xspress2DetectorConfiguration{
 	}
 	
 	public void configure(String xmlFileName, boolean onlyShowFF, boolean showDTRawValues, boolean saveRawSpectrum) throws FactoryException {
-		String message = null;
 		try {
 			xspress2System.setConfigFileName(xmlFileName);
 			xspress2System.configure();
@@ -63,7 +63,12 @@ public class Xspress2DetectorConfiguration{
 			observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {
 			logger.error("Cannot configure Xspress", ne);
+			message = "Cannot configure Xspress " + ne.getMessage();
 			throw new FactoryException("Error during configuration:" + ne.getMessage());
 		}
+	}
+
+	public String getMessage() {
+		return message;
 	}
 }

@@ -1,13 +1,17 @@
 import sys
+
+from gda.configuration.properties import LocalProperties
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
 from gda.device.detector import VortexDetectorConfiguration
 from gda.jython import InterfaceProvider
+from gda.util import Element
+from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
+from uk.ac.gda.beans.exafs.i20 import I20OutputParameters
+
 from gdascripts.parameters import beamline_parameters
-from gda.configuration.properties import LocalProperties
 from gdascripts.messages import handle_messages
 from gdascripts.configuration.properties.scriptContext import defaultScriptFolder
-from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
-from gda.util import Element
+
 
 import java
 
@@ -17,9 +21,21 @@ class XspressConfig():
         self.xspress2system=xspress2system
         self.ExafsScriptObserver=ExafsScriptObserver
         self.configuration=None
-    
+        
     def initialize(self):
         self.configuration = Xspress2DetectorConfiguration(self.xspress2system, self.ExafsScriptObserver)
+        
+    def __call__(self,XMLFileNameToLoad,OutputParametersToLoad):
+        onlyShowFF = False
+        showDTRawValues = False
+        saveRawSpectrum = False
+        
+        if (OutputParametersToLoad != None and isinstance(OutputParametersToLoad,I20OutputParameters)):
+            onlyShowFF = OutputParametersToLoad.isXspressOnlyShowFF()
+            showDTRawValues = OutputParametersToLoad.isXspressShowDTRawValues()
+            saveRawSpectrum = OutputParametersToLoad.isXspressSaveRawSpectrum()
+
+        self.configure(XMLFileNameToLoad,onlyShowFF, showDTRawValues, saveRawSpectrum)
         
     def createBeanFromXML(self, xmlPath):
         try:
@@ -68,6 +84,9 @@ class XspressConfig():
     def configure(self, xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum):
         self.configuration.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
     
+    def getConfigureResult(self):
+        return self.configuration.getMessage();
+    
     def getEmissionEnergy(self,elementObj,edge):
         if str(edge) == "K":
             return elementObj.getEmissionEnergy("Ka1")
@@ -100,6 +119,14 @@ class VortexConfig():
     
     def initialize(self):
         self.configuration = VortexDetectorConfiguration(self.xmap, self.ExafsScriptObserver)
+        
+    def __call__(self,XMLFileNameToLoad,OutputParametersToLoad):
+        saveRawSpectrum = False
+        
+        if (OutputParametersToLoad != None and isinstance(OutputParametersToLoad,I20OutputParameters)):
+            saveRawSpectrum = OutputParametersToLoad.isVortexSaveRawSpectrum()
+    
+        self.configure(XMLFileNameToLoad, saveRawSpectrum)
 
     def createBeanFromXML(self, xmlPath):
         try:

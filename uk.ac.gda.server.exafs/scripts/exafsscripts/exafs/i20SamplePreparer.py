@@ -4,11 +4,12 @@ from org.slf4j import LoggerFactory
 
 class I20SamplePreparer:
     
-    def __init__(self, sample_x,sample_y,sample_z,sample_rot,sample_roll,sample_pitch,filterwheel):
+    def __init__(self, sample_x,sample_y,sample_z,sample_rot,sample_fine_rot, sample_roll,sample_pitch,filterwheel):
         self.sample_x = sample_x
         self.sample_y = sample_y
         self.sample_z = sample_z
         self.sample_rot = sample_rot
+        self.sample_fine_rot = sample_fine_rot
         self.sample_roll = sample_roll
         self.sample_pitch = sample_pitch
         self.filterwheel = filterwheel
@@ -34,7 +35,7 @@ class I20SamplePreparer:
             iterator.setSampleBean(sampleBean)
         # XES room temp sample stage
         elif experiment_type == 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
-            iterator = XES_Roomtemp_Iterator()
+            iterator = XES_Roomtemp_Iterator(self.sample_x,self.sample_y,self.sample_z,self.sample_rot,self.sample_fine_rot,self.sample_roll,self.sample_pitch)
             iterator.setSampleBean(sampleBean)
         #XAS/XANES cryostat
         elif experiment_type != 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :

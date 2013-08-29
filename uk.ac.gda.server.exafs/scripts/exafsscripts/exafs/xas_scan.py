@@ -1,5 +1,8 @@
 from java.lang import InterruptedException, System
+
 from BeamlineParameters import JythonNameSpaceMapping
+from scan import Scan
+
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter, XasAsciiNexusDataWriter
 from gda.device.scannable import XasScannable, XasScannableWithDetectorFramesSetup, JEPScannable
@@ -10,8 +13,7 @@ from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan
-from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
-from scan import Scan
+from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters, XesScanParameters
 
 class XasScan(Scan):
 
@@ -38,7 +40,7 @@ class XasScan(Scan):
 		scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
 		
 		# update to terminal
-		self.log( "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'...")
+		self.log( "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+self.energy_scannable.getName()+"'...")
 
 		# give the beans to the xasdatawriter class to help define the folders/filenames 
 		beanGroup = self._createBeanGroup(experimentFolderName, validation, controller, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean)
@@ -111,7 +113,7 @@ class XasScan(Scan):
 
 			self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions)
 	
-	def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean):
+	def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, controller, sampleBean, scanBean, detectorBean, outputBean):
 		"""
 		This is the basic looping based on the number of repetitions set in the UI.
 		
@@ -131,7 +133,8 @@ class XasScan(Scan):
 		try:
 			while True:
 				repetitionNumber+= 1
-				self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFolderName, controller,repetitionNumber)
+				# TODO does this need to be inside the _doIterator loop?
+				self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, controller,repetitionNumber)
 				outputFolder = self.resolveOutputFolder(outputBean)
 
 				if self.handleGapConverter==True:
@@ -139,15 +142,14 @@ class XasScan(Scan):
 				
 				try:
 					if self.useItterator==True:
-						# TODO make sure iterator will always retrun something
 						iterator = self.samplePreparer.createIterator(sampleBean,beanGroup.getDetector().getExperimentType())
-						self._doItterator(iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, outputFolder)
+						self._doItterator(iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, outputFolder)
 					else:
 						# resolve these two values here as they will vary when using iterators
 						sampleName = sampleBean.getName()
 						descriptions = sampleBean.getDescriptions()
 						self.printRepetition(numRepetitions, repetitionNumber, scriptType)
-						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions)
+						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions)
 					
 				except InterruptedException, e:
 					self.handleScanInterrupt(numRepetitions, repetitionNumber)
@@ -188,13 +190,6 @@ class XasScan(Scan):
 
 		logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, outputFolder)
 
-		# create the list of scan points
-		points = ()
-		if isinstance(scanBean, XanesScanParameters):
-			points = XanesScanPointCreator.calculateEnergies(scanBean)
-		else:
-			points = ExafsScanPointCreator.calculateEnergies(scanBean)
-
 		#self.loggingcontroller.update(None,logmsg)
 		self.XASLoggingScriptController.update(None,ScanStartedMessage(scanBean,detectorBean)) # informs parts of the UI about current scan
 		
@@ -203,16 +198,13 @@ class XasScan(Scan):
 
 		# work out which detectors to use (they will need to have been configured already by the GUI)
 		detectorList = self._getDetectors(detectorBean, scanBean) 
-		# create the scannable to control energy and time
-		xas_scannable = self._configureScannable(scanBean)
-		xas_scannable.setDetectors(detectorList)
 		
 		# work out extra scannables to include
 		sampleScannables, outputScannables, scanPlotSettings = self.runPreparers(beanGroup, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean)
 		signalParameters = self._getSignalList(outputBean)
 		loggingbean = XasProgressUpdater(self.XASLoggingScriptController,logmsg,timeRepetitionsStarted)
 		# build the scan command arguments
-		args = self.buildScanArguments(xas_scannable, points, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean)
+		args = self.buildScanArguments(scanBean, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean)
 		
 		# run the scan
 		controller.update(None, ScriptProgressEvent("Running scan"))
@@ -229,7 +221,9 @@ class XasScan(Scan):
 	def _configureScannable(self,scanBean):
 		xas_scannable = XasScannable()
 		xas_scannable.setName("xas_scannable")
-		xas_scannable.setEnergyScannable(Finder.getInstance().find(scanBean.getScannableName()))
+		# to be consistent with the rest of this object, no longer use the scannable defined in the bean but 
+		# use the energy scannable injected in the constructor
+		xas_scannable.setEnergyScannable(self.energy_scannable)
 		return xas_scannable
 
 	def createScan(self, args, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition):
@@ -246,7 +240,18 @@ class XasScan(Scan):
 		scanPlotSettings = self.outputPreparer.getPlotSettings(detectorBean,outputBean)
 		return sampleScannables, outputScannables, scanPlotSettings
 
-	def buildScanArguments(self, xas_scannable, points, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean):
+	def buildScanArguments(self, scanBean, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean):
+		# create the list of scan points
+		points = ()
+		if isinstance(scanBean, XanesScanParameters):
+			points = XanesScanPointCreator.calculateEnergies(scanBean)
+		else:
+			points = ExafsScanPointCreator.calculateEnergies(scanBean)
+			
+		# create the scannable to control energy and time
+		xas_scannable = self._configureScannable(scanBean)
+		xas_scannable.setDetectors(detectorList)
+
 		args = [xas_scannable, points]
 		if sampleScannables != None:
 			args += sampleScannables
@@ -329,7 +334,7 @@ class XasScan(Scan):
 	# Move to start energy so that harmonic can be set by gap_converter for i18 only
 	def setupHarmonic(self, scanBean, gap_converter):
 		initialEnergy = scanBean.getInitialEnergy()
-		print "moving ", scanBean.getScannableName(), " to start energy ", initialEnergy
+		print "moving ", self.energy_scannable.getName(), " to start energy ", initialEnergy
 		self.energyScannable(initialEnergy)
 		print "move complete, diasabling harmonic change"
 		if gap_converter != None:
@@ -355,9 +360,15 @@ class XasScan(Scan):
 	
 	def moveMonoToInitialPosition(self, scanBean):
 		if self.energy_scannable != None and isinstance(scanBean,XasScanParameters):
-			intialPosition = scanBean.getInitialEnergy()
+			initialPosition = scanBean.getInitialEnergy()
 		elif self.energy_scannable != None and isinstance(scanBean,XanesScanParameters): 
-			intialPosition = scanBean.getRegions().get(0).getEnergy()
+			initialPosition = scanBean.getRegions().get(0).getEnergy()
+		elif self.energy_scannable != None and isinstance(scanBean,XesScanParameters): 
+			xes_scanType = scanBean.getScanType()
+			if xes_scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
+				initialPosition = scanBean.getMonoEnergy()
+			else:
+				initialPosition = scanBean.getMonoInitialEnergy()
 		self.energy_scannable.waitWhileBusy()
-		self.energy_scannable.asynchronousMoveTo(intialPosition)
+		self.energy_scannable.asynchronousMoveTo(initialPosition)
 		self.log( "Moving mono to initial position...")
