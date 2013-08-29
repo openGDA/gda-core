@@ -78,7 +78,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	private MotorLimitsComponent motorLimitsComponent;
 
-	private boolean isBusyThrowsExceptionWhenMotorGoesIntoFault = true;
+	private static final String IS_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_GOES_INTO_FAULT = "gda.device.scannable.ScannableMotor.isBusyThrowsExceptionWhenMotorGoesIntoFault";
+	
+	private boolean isBusyThrowsExceptionWhenMotorGoesIntoFault = LocalProperties.check(IS_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_GOES_INTO_FAULT, true);
 
 	private boolean returnDemandPosition = false;
 
