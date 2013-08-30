@@ -1360,7 +1360,7 @@ public abstract class ScanBase implements Scan {
 		if (interrupted == ScanBase.interrupted) 
 			return;
 		
-		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+		if (!clearInterruptedAtScanEnd() && (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE)) {
 			String msg = MessageFormat.format("interrupted flag set from {0} to {1} by thread :''{2}'' while idle -- ignored",
 					ScanBase.interrupted, interrupted, Thread.currentThread().getName());
 			logger.info(msg);
