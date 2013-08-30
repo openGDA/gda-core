@@ -19,7 +19,6 @@
 package gda.device.scannable;
 
 import gda.device.DeviceException;
-import gda.device.detector.DetectorBase;
 import gda.scan.NamedQueueTask;
 
 import java.util.HashMap;
@@ -52,8 +51,6 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 	private int lastIndexRead = -1;
 
 	private Lock fairGetLock = new ReentrantLock(true);
-
-	private PositionStreamIndexPuller<T> lastPositionStreamIndexPuller;
 
 	public PositionStreamIndexer(PositionInputStream<T> stream) {
 		this(stream, Integer.MAX_VALUE);
@@ -103,18 +100,10 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 
 	public Callable<T> getNamedPositionCallable(String name, int threadPoolSize) {
 		lastIndexGivenOut += 1;
-		lastPositionStreamIndexPuller = name != null ? new NamedPositionStreamIndexPuller<T>(lastIndexGivenOut, this,
+		return  name != null ? new NamedPositionStreamIndexPuller<T>(lastIndexGivenOut, this,
 				name, threadPoolSize) : new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
-		return lastPositionStreamIndexPuller;
 	}
 
-	/*
-	 * Wait for call method of the last PositionIndexStreamPuller given out to have completed. This means the data has
-	 * been obtained from the hardware.
-	 */
-	public void waitForCompletion() throws Exception {
-		lastPositionStreamIndexPuller.waitForCompletion();
-	}
 }
 
 class PositionStreamIndexPuller<T> implements Callable<T> {
@@ -126,37 +115,23 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 	private T value;
 
 	private volatile boolean called = false;
-	private Object lock = new Object();
 
 	public PositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer) {
 		this.index = index;
 		this.indexer = indexer;
 	}
 
-	/**
-	 * Method will wait until the object's call method has been called.
-	 */
-	public void waitForCompletion() throws InterruptedException {
-		synchronized (lock) {
-			while (!called) {
-				lock.wait();
-			}
-		}
-	}
 
 	@Override
 	public T call() throws Exception {
-		synchronized (lock) {
-			if (!called) {
-				try {
-					value = indexer.get(index);
-				} finally {
-					called = true;
-				}
-				lock.notifyAll();
-			} else {
-				logger.warn("PositionStreamIndexPuller.call method called twice for index:" + index);
+		if (!called) {
+			try {
+				value = indexer.get(index);
+			} finally {
+				called = true;
 			}
+		} else {
+			logger.warn("PositionStreamIndexPuller.call method called twice for index:" + index);
 		}
 		return value;
 	}
