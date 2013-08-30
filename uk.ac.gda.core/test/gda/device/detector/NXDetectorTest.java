@@ -33,9 +33,10 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.NXPluginBase;
 import gda.jython.ICurrentScanInformationHolder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
@@ -61,7 +62,7 @@ public class NXDetectorTest {
 	private NXDetector det;
 
 	@Mock
-	private NXCollectionStrategyPlugin collectionStrategy;
+	private AsyncNXCollectionStrategy collectionStrategy;
 
 	@Mock
 	private NXFileWriterPlugin fileWriter;
@@ -90,7 +91,7 @@ public class NXDetectorTest {
 		appenderList1 = mockAppenderList(10);
 		appenderList2 = mockAppenderList(10);
 
-		det = new NXDetector("nxdet", collectionStrategy, Arrays.asList(fileWriter, plugin));
+		det = new NXDetector("nxdet", collectionStrategy,Arrays.asList((NXPluginBase)fileWriter, plugin));
 	}
 
 	private void configureStreamsForSinglePoint() throws InterruptedException, DeviceException {
@@ -103,14 +104,14 @@ public class NXDetectorTest {
 	public void testConfiguration() {
 		assertEquals("nxdet", det.getName());
 		assertEquals(collectionStrategy, det.getCollectionStrategy());
-		assertEquals(Arrays.asList(fileWriter, plugin), det.getAdditionalPluginList());
+		assertEquals(Arrays.asList((NXPluginBase)fileWriter, plugin), det.getAdditionalPluginList());
 		assertEquals(Arrays.asList(collectionStrategy, fileWriter, plugin), det.getPluginList());
 	}
 
 	@Test
 	public void testGetPluginMap() {
 
-		Map<String, NXPlugin> expected = new HashMap<String, NXPlugin>();
+		Map<String, NXPluginBase> expected = new HashMap<String, NXPluginBase>();
 		expected.put("a", collectionStrategy);
 		expected.put("b", fileWriter);
 		expected.put("c", plugin);
@@ -122,7 +123,7 @@ public class NXDetectorTest {
 	public void testSetCollectionStrategyWithDuplicatePluginName() {
 		when(collectionStrategy.getName()).thenReturn("c");
 		det = new NXDetector();
-		det.setAdditionalPluginList(Arrays.asList(fileWriter, plugin));
+		det.setAdditionalPluginList(Arrays.asList((NXPluginBase)fileWriter, plugin));
 		det.setCollectionStrategy(collectionStrategy);
 	}
 
@@ -131,14 +132,14 @@ public class NXDetectorTest {
 		when(collectionStrategy.getName()).thenReturn("b");
 		det = new NXDetector();
 		det.setCollectionStrategy(collectionStrategy);
-		det.setAdditionalPluginList(Arrays.asList(fileWriter, plugin));
+		det.setAdditionalPluginList(Arrays.asList((NXPluginBase)fileWriter, plugin));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSetAdditionalPluginListWithDuplicateNames() {
 		when(plugin.getName()).thenReturn("b");
 		det = new NXDetector();
-		det.setAdditionalPluginList(Arrays.asList(fileWriter, plugin));
+		det.setAdditionalPluginList(Arrays.asList((NXPluginBase)fileWriter, plugin));
 	}
 
 	// Scannable
