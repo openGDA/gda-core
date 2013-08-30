@@ -82,8 +82,6 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	private String fileTemplateForReadout = null;
 
-	private boolean waitUntilFileExists=false;
-
 	/**
 	 * Creates a SingleImageFileWriter with ndFile, fileTemplate, filePathTemplate, fileNameTemplate and
 	 * fileNumberAtScanStart yet to be set.
@@ -167,6 +165,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 			if (!getNdFile().filePathExists())
 				throw new Exception("Path does not exist on IOC");
 		}
+		clearWriteStatusErr();
 
 		setNDArrayPortAndAddress();
 		NDPluginBase pluginBase = getNdFile().getPluginBase();
@@ -186,7 +185,6 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if (fileWriteMode == FileWriteMode.CAPTURE || fileWriteMode == FileWriteMode.STREAM) {
 			getNdFile().setNumCapture(1);
 		}
-
 		if (!getkeyNameForMetadataPathTemplate().isEmpty()) {
 			addPathTemplateToMetadata();
 		}
@@ -322,7 +320,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		}
 
 		checkErrorStatus();
-		if( isWaitUntilFileExists()){
+		if( isWaitForFileArrival()){
 			// Now check that the file exists
 			String fullFilePath = returnRelativePath ? getAbsoluteFilePath(filepath) : filepath;
 			try {
@@ -342,19 +340,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 					}
 				}
 			} catch (Exception e) {
-				throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'");
+				throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'",e);
 			}
 		}
 
 		return new NXDetectorDataFileAppenderForSrs(filepath, FILEPATH_EXTRANAME);
-	}
-
-	protected boolean isWaitUntilFileExists() {
-		return waitUntilFileExists;
-	}
-
-	public void setWaitUntilFileExists(boolean waitUntilFileExists) {
-		this.waitUntilFileExists = waitUntilFileExists;
 	}
 
 	public boolean isReturnPathRelativeToDatadir() {
@@ -373,12 +363,13 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 			throw new DeviceException(getName() + " error checking writeStatusErr",e);
 		}
 		if (writeStatusErr) {
+			String writeMessage="";
 			try {
-				String writeMessage = getNdFile().getWriteMessage();
-				throw new DeviceException(getName() + " file writer plugin reports '" + writeMessage + "'");
+				writeMessage = getNdFile().getWriteMessage();
 			} catch (Exception e) {
-				throw new DeviceException(getName() + " writeStatusErr but error gettng writeMessage",e);
+				throw new DeviceException(getName() + " file writer plugin in error. Error getting writeMessage",e);
 			}
+			throw new DeviceException(getName() + " file writer plugin reports '" + writeMessage + "'");
 		}
 	}
 

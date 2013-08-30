@@ -214,6 +214,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		if( isSetFileNameAndNumber()){
 			setupFilename();
 		}
+		clearWriteStatusErr();
 		resetCounters();
 		startRecording();
 		getNdFile().getPluginBase().enableCallbacks();

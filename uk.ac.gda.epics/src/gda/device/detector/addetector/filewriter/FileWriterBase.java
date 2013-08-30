@@ -22,6 +22,7 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import gda.data.PathConstructor;
+import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.jython.InterfaceProvider;
@@ -73,7 +74,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	}
 	
 	public Boolean isWriteStatusErr() throws Exception {
-		if( statusObserver != null){
+		if( statusObserver == null){
 			statusObserver = new Observer<Short>() {
 				
 				@Override
@@ -87,6 +88,27 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		return writeStatusErr;
 	}
 
+	/**
+	 * Use this method to clear writeStatus ready for next scan.
+	 * @throws DeviceException 
+	 */
+	protected void clearWriteStatusErr() throws DeviceException{
+		
+		boolean isErr;
+		try{
+			isErr = isWriteStatusErr();
+			if(isErr){
+				getNdFile().startCapture();
+				getNdFile().stopCapture();
+				Thread.sleep(1000);
+				isErr = isWriteStatusErr();
+			}
+		}catch(Exception e){
+			throw new DeviceException("Error clearing writeStatus in filewriter plugin",e);
+		}
+		if( isErr)
+			throw new DeviceException("Unable to clear writeStatus in filewriter plugin");
+	}
 	public void setNdFile(NDFile ndFile) {
 		this.ndFile = ndFile;
 	}
