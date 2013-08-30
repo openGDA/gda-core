@@ -18,12 +18,16 @@
 
 package gda.device.detector.addetector.filewriter;
 
+import java.io.File;
 import java.text.MessageFormat;
 
 import gda.data.PathConstructor;
+import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.jython.InterfaceProvider;
+import gda.observable.Observable;
+import gda.observable.Observer;
 import gda.scan.ScanInformation;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,6 +48,12 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	private boolean enableDuringScan = true;
 
 	private boolean setFileNameAndNumber = true;
+
+	private Observable<Short> writeStatusObservable;
+
+	private boolean writeStatusErr=false;
+
+	private Observer<Short>  statusObserver; 
 	
 	abstract protected void disableFileWriting() throws Exception;
 	
@@ -59,8 +69,46 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 			throw new IllegalStateException("fileNameTemplate is null");
 		if (fileNumberAtScanStart == null)
 			throw new IllegalStateException("fileNumberAtScanStart is null");
+		writeStatusObservable = getNdFile().createWriteStatusObservable();
+		
 	}
 	
+	public Boolean isWriteStatusErr() throws Exception {
+		if( statusObserver == null){
+			statusObserver = new Observer<Short>() {
+				
+				@Override
+				public void update(Observable<Short> source, Short arg) {
+					writeStatusErr = arg==1;
+				}
+			};
+			writeStatusObservable.addObserver(statusObserver);
+			writeStatusErr = getNdFile().isWriteStatusErr();
+		}
+		return writeStatusErr;
+	}
+
+	/**
+	 * Use this method to clear writeStatus ready for next scan.
+	 * @throws DeviceException 
+	 */
+	protected void clearWriteStatusErr() throws DeviceException{
+		
+		boolean isErr;
+		try{
+			isErr = isWriteStatusErr();
+			if(isErr){
+				getNdFile().startCapture();
+				getNdFile().stopCapture();
+				Thread.sleep(1000);
+				isErr = isWriteStatusErr();
+			}
+		}catch(Exception e){
+			throw new DeviceException("Error clearing writeStatus in filewriter plugin",e);
+		}
+		if( isErr)
+			throw new DeviceException("Unable to clear writeStatus in filewriter plugin");
+	}
 	public void setNdFile(NDFile ndFile) {
 		this.ndFile = ndFile;
 	}
@@ -166,6 +214,10 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		}
 
 		return template;
+	}
+
+	protected String getAbsoluteFilePath(String filePathRelativeToDataDir) {
+		return PathConstructor.createFromDefaultProperty() + File.separator + filePathRelativeToDataDir;
 	}
 	
 	private String substituteScan(String template) {
@@ -278,4 +330,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	public void completeCollection() throws Exception {
 	}
 
+	@Override
+	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+	}
 }

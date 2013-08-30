@@ -22,7 +22,7 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.Vector;
 
 import org.springframework.beans.factory.InitializingBean;
 
-abstract public class AbstractADTriggeringStrategy implements NXCollectionStrategyPlugin, InitializingBean{
+abstract public class AbstractADTriggeringStrategy implements AsyncNXCollectionStrategy, InitializingBean{
 
 	private final ADBase adBase;
 
@@ -194,6 +194,10 @@ abstract public class AbstractADTriggeringStrategy implements NXCollectionStrate
 		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
 		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
 		return vector;
+	}
+	@Override
+	public boolean requiresAsynchronousPlugins() {
+		return false; //This is fine for software triggered cameras
 	}
 
 }

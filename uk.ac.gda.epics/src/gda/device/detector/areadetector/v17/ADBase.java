@@ -842,7 +842,7 @@ public interface ADBase  {
 	void setImageModeWait(ImageMode imagemode) throws Exception;
 	
 	
-	Observable<String> createAcquireStateObservable() throws Exception;
+	Observable<Short> createAcquireStateObservable() throws Exception;
 	Observable<Double> createAcquireTimeObservable() throws Exception;
 
 	void setImageMode(ImageMode imagemode) throws Exception;

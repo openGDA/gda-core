@@ -24,18 +24,17 @@ import gda.device.detector.areadetector.NDStatsGroupFactory;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.NonAsynchronousNXPlugin;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ADBasicStats implements NXPlugin {
+public class ADBasicStats implements NonAsynchronousNXPlugin {
 
 	private static Logger logger = LoggerFactory.getLogger(ADBasicStats.class);
 
@@ -147,8 +146,7 @@ public class ADBasicStats implements NXPlugin {
 	}
 
 	@Override
-	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
-			DeviceException {
+	public NXDetectorDataAppender read() throws DeviceException {
 		List<Double> values = new ArrayList<Double>();
 		if (isComputeStats()) {
 			try {
@@ -164,9 +162,6 @@ public class ADBasicStats implements NXPlugin {
 				throw new DeviceException(e);
 			}
 		}
-		List<NXDetectorDataAppender> appenders = new ArrayList<NXDetectorDataAppender>();
-		appenders.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), values));
-		return appenders;
+		return new NXDetectorDataDoubleAppender(getInputStreamNames(), values);
 	}
-
 }

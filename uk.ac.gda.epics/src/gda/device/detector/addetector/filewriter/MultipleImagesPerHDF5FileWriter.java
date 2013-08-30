@@ -27,6 +27,7 @@ import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileLinkAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
+import gda.device.detector.nxdetector.NXPlugin;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
@@ -41,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
+public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements NXPlugin{
 	
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(MultipleImagesPerHDF5FileWriter.class);
@@ -213,6 +214,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		if( isSetFileNameAndNumber()){
 			setupFilename();
 		}
+		clearWriteStatusErr();
 		resetCounters();
 		startRecording();
 		getNdFile().getPluginBase().enableCallbacks();
@@ -256,8 +258,10 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	private void setupFilename() throws Exception {
 		getNdFile().setFileName(getFileName());
 		getNdFile().setFileTemplate(getFileTemplate());
-		getNdFile().setFilePath(getFilePath());
-		
+		String filePath = getFilePath();
+		getNdFile().setFilePath(filePath);
+		if( !getNdFile().filePathExists())
+			throw new Exception("Path does not exist on IOC '" + filePath + "'");		
 		long scanNumber = getScanNumber();
 
 		

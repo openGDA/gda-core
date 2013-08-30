@@ -25,9 +25,11 @@ import gda.device.Detector;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDFileType;
 import gda.factory.FactoryException;
+import gda.observable.Observable;
 import gda.scan.ScanBase;
 import gda.util.Sleep;
 import gov.aps.jca.CAException;
@@ -1037,6 +1039,23 @@ public class NDFileImpl implements InitializingBean, NDFile {
 		this.initialFileTemplate = initialFileTemplate;
 	}
 
+	private String getChannelName(String pvElementName, String... args)throws Exception{
+		String pvPostFix = null;
+		if (args.length > 0) {
+			// PV element name is different from the pvPostFix
+			pvPostFix = args[0];
+		} else {
+			pvPostFix = pvElementName;
+		}
+
+		String fullPvName;
+		if (pvProvider != null) {
+			fullPvName = pvProvider.getPV(pvElementName);
+		} else {
+			fullPvName = basePVName + pvPostFix;
+		}
+		return fullPvName;
+	}
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
 	 * 
@@ -1046,41 +1065,13 @@ public class NDFileImpl implements InitializingBean, NDFile {
 	 * @throws Exception
 	 */
 	private Channel getChannel(String pvElementName, String... args) throws Exception {
-		try {
-			String pvPostFix = null;
-			if (args.length > 0) {
-				// PV element name is different from the pvPostFix
-				pvPostFix = args[0];
-			} else {
-				pvPostFix = pvElementName;
-			}
-
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = basePVName + pvPostFix;
-			}
-			return createChannel(fullPvName);
-		} catch (Exception exception) {
-			logger.warn("g.d.d.a.v.i.NDFileImpl-> Problem getting channel", exception);
-			throw exception;
-		}
+		return createChannel(getChannelName(pvElementName, args));
 	}
 
 	public Channel createChannel(String fullPvName) throws CAException, TimeoutException {
 		Channel channel = channelMap.get(fullPvName);
 		if (channel == null) {
-			try {
-				channel = EPICS_CONTROLLER.createChannel(fullPvName);
-			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.NDArrayImpl-> Problem creating channel", cae);
-				throw cae;
-			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.NDArrayImpl-> Problem creating channel", te);
-				throw te;
-
-			}
+			channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			channelMap.put(fullPvName, channel);
 		}
 		return channel;
@@ -1143,7 +1134,34 @@ public class NDFileImpl implements InitializingBean, NDFile {
 		this.resetToInitialValues = resetToInitialValues;
 	}
 
+	@Override
+	public Boolean filePathExists() throws Exception {
+		Channel channel = config != null ? createChannel(config.getFilePathExists().getPv()) : getChannel(FilePathExists_RBV);
+		return EPICS_CONTROLLER.cagetInt(channel)!=0;
+	}
 
+	@Override
+	public Observable<String> createWriteMessageObservable() throws Exception {
+		return LazyPVFactory.newNoCallbackStringFromWaveformPV(getChannelName(WriteMessage));
+	}
 
+	@Override
+	public Observable<Short> createWriteStatusObservable() throws Exception {
+		return LazyPVFactory.newNoCallbackShortPV(getChannelName(WriteStatus));
+	}
 
+	@Override
+	public String getWriteMessage() throws Exception {
+		Channel channel = config != null ? createChannel(config.getWriteMessage().getPv()) : getChannel(WriteMessage);
+		return new String(EPICS_CONTROLLER.cagetByteArray(channel)).trim();
+	}
+
+	@Override
+	public Boolean isWriteStatusErr() throws Exception {
+		Channel channel = config != null ? createChannel(config.getWriteStatus().getPv()) : getChannel(WriteStatus);
+		return EPICS_CONTROLLER.cagetShort(channel)!=0;
+	}
+	
+	
+	
 }

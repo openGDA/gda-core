@@ -53,5 +53,8 @@ public class HardwareTriggeredStandard extends SimpleAcquire {
 			getAdBase().setAcquireTime(collectionTime - getReadoutTime());
 		}
 	}
-
+	@Override
+	public boolean requiresAsynchronousPlugins() {
+		return true;
+	}
 }

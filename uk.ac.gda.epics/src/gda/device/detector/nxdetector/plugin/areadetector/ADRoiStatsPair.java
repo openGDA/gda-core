@@ -42,7 +42,7 @@ import java.util.NoSuchElementException;
  * Enabled if any stats are enabled. If stats are enabled an ROI must have been set. The names of the specidfied roi and
  * stats plugins are ignored in favour of this plugins name (could be revisited--RobW Feb2013).
  */
-public class ADRoiStatsPair implements NXPlugin, PositionInputStream<NXDetectorDataAppender>, RectangularROIProvider<Integer> {
+public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer> {
 
 	final private ADRectangularROIPlugin roiPlugin;
 
@@ -235,7 +235,6 @@ public class ADRoiStatsPair implements NXPlugin, PositionInputStream<NXDetectorD
 		}
 		return appenders;
 	}
-
 }
 
 class SerialAppender implements NXDetectorDataAppender {

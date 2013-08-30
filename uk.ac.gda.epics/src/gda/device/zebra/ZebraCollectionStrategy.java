@@ -22,6 +22,7 @@ import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.NXPlugin;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import java.util.Vector;
  * class that configures the zebra to generate a series of pulses when a motor moves. The data returned in read is a set
  * of items , one per pulse generated since last read
  */
-public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin {
+public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin, NXPlugin {
 
 	private int pulsesRead;
 	private long linestarttime;
@@ -169,6 +170,11 @@ public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin {
 	@Override
 	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
+	}
+
+	@Override
+	public boolean requiresAsynchronousPlugins() {
+		return true;
 	}
 
 }

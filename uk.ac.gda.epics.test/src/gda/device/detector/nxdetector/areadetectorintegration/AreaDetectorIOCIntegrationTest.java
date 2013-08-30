@@ -30,7 +30,7 @@ import gda.device.detector.areadetector.v17.impl.NDROIPVsImpl;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.impl.NDStatsPVsImpl;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
-import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.NXPluginBase;
 import gda.device.detector.nxdetector.plugin.areadetector.ADRectangularROIPlugin;
 import gda.device.detector.nxdetector.plugin.areadetector.ADRoiStatsPair;
 import gda.device.detector.nxdetector.plugin.areadetector.ADTimeSeriesStatsPlugin;
@@ -181,7 +181,7 @@ public class AreaDetectorIOCIntegrationTest {
 		stat1basePVs.getNDArrayPortPVPair().putWait("DCAM1.CAM");
 
 		when(scanInfo.getDimensions()).thenReturn(new int[] {0, 2});
-		List<NXPlugin> plugins = new ArrayList<NXPlugin>(Arrays.asList(adTimeSeriesStatsPlugin));
+		List<NXPluginBase> plugins = new ArrayList<NXPluginBase>(Arrays.asList(adTimeSeriesStatsPlugin));
 		det.setAdditionalPluginList(plugins);
 		adTimeSeriesStatsPlugin.setEnabledBasicStats(Arrays.asList(BasicStat.MaxX));
 		det.stop();
@@ -203,7 +203,7 @@ public class AreaDetectorIOCIntegrationTest {
 		roi1basePVs.getNDArrayPortPVPair().putWait("DCAM1.CAM");
 		stat1basePVs.getNDArrayPortPVPair().putWait("DCAM1.ROI1");
 		when(scanInfo.getDimensions()).thenReturn(new int[] {0, 2});
-		List<NXPlugin> plugins = new ArrayList<NXPlugin>(Arrays.asList(adTimeSeriesStatsPlugin, adRoiPlugin));
+		List<NXPluginBase> plugins = Arrays.asList((NXPluginBase)adTimeSeriesStatsPlugin, adRoiPlugin);
 		det.setAdditionalPluginList(plugins);
 		adTimeSeriesStatsPlugin.setEnabledBasicStats(Arrays.asList(BasicStat.MaxX));
 		adStatsROIPair.setRoi(new ImutableRectangularIntegerROI(20, 30, 40, 50, "name"));
@@ -226,7 +226,7 @@ public class AreaDetectorIOCIntegrationTest {
 		roi1basePVs.getNDArrayPortPVPair().putWait("DCAM1.CAM");
 		stat1basePVs.getNDArrayPortPVPair().putWait("DCAM1.ROI1");
 		when(scanInfo.getDimensions()).thenReturn(new int[] {0, 2});
-		List<NXPlugin> plugins = new ArrayList<NXPlugin>(Arrays.asList(adStatsROIPair));
+		List<NXPluginBase> plugins = new ArrayList<NXPluginBase>(Arrays.asList(adStatsROIPair));
 		det.setAdditionalPluginList(plugins);
 		adStatsROIPair.setEnabledBasicStats(Arrays.asList(BasicStat.MaxX));
 		adStatsROIPair.setRoi(new ImutableRectangularIntegerROI(20, 30, 40, 50, "name"));

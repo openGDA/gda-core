@@ -38,7 +38,6 @@ import gda.device.detector.areadetector.NDStatsGroupFactory;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDFile;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
@@ -52,7 +51,6 @@ import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,7 +58,6 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,12 +71,12 @@ import org.springframework.util.StringUtils;
  * <p>
  * A {@link Scannable} {@link Detector} driver for Epics AreaDetectors suitable for use within {@link Scan}s that
  * support detectors that implement PositionCallableProvider<NexusTreeProvider>. 
- * 
+ * <P>
  * The NexusTreeProvider returned by the call method of the PositionCallableProvider implements {@link GDANexusDetectorData}
  * which provides plottable and printable data as well as binary detector data and detector metadata. If configured to return
  * filepaths the object supports {@link NXDetectorDataWithFilepathForSrs} which will result in the filepath being 
  * returned as the first Scannable extra field and printed to the terminal and SRS files.
- * 
+ * <P>
  * The Epics AreaDetector software is very modular and this is reflected in the structure of this class. 
  * As far as ADDetector is concerned an EPICS AreaDetector consists of 2 or 3 parts:
  * 1. A Base plugin that supports the source of the data, e.g. camera, The base is used to setup the acquisition, 
@@ -87,30 +84,29 @@ import org.springframework.util.StringUtils;
  * 2. A NDArray plugin that makes the binary data available over channel access 
  * 3. A file writer plugin that will write the binary data to a file of some format. Either 1 file 
  * per acquisition or 1 file per collection of acquisitions
- * 
+ * <P>
  * This camera can be used by GDA in 2 different modes:
- * 
+ * <P>
  * 1. Camera base  + PV
  * 2. Camera base + file writer
- * 
- * 
+ * <P>
  * This structure is represented in ADDetector by 3 main components:
- * 
+ * <P>
  * {@link NXCollectionStrategyPlugin} - used to handle the camera base
  * {@link NDArray} - handles the PV to read the binary data
  * {@link NXFileWriterPlugin} - used to handle the file writer plugin
- * 
+ * <P>
  * The result of getPositionCallable is  the creation of an object that has sufficient information to allow creation of 
  * a NexusTreeProvider in its call method. This object can take data from:
- * 
+ * <P>
  * 1. The NDArray object if present and selected 
  * 2. An NDStats, that represents the NDStats plugin, if present and selected
  * 3. The ADTriggeringStrategy object if selected
  * 4. The FileWriter if selected
  * 5. Another NexusTreeProvider that provides meta data if present.
- * 
  */
-public class ADDetector extends DetectorBase implements InitializingBean, NexusDetector, PositionCallableProvider<NexusTreeProvider> {
+public class ADDetector extends DetectorBase implements InitializingBean, NexusDetector,
+		PositionCallableProvider<NexusTreeProvider> {
 
 	public class NullFileWriter implements NXFileWriterPlugin {
 
@@ -178,11 +174,11 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		@Override
 		public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 				DeviceException {
-			Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender> ();
+			Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
 			appenders.add(new NXDetectorDataNullAppender());
 			return appenders;
 		}
-		
+
 
 	}
 
@@ -223,8 +219,9 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	private boolean readFilepath = false;
 
 	/**
-	 * Controls whether the driver does callbacks with the array data to registered plugins. 0=No, 1=Yes. 
-	 * Setting this to 0 can reduce overhead in the case that the driver is being used only to control the device, and not to make the data available to plugins or to EPICS clients.
+	 * Controls whether the driver does callbacks with the array data to registered plugins. 0=No, 1=Yes. Setting this
+	 * to 0 can reduce overhead in the case that the driver is being used only to control the device, and not to make
+	 * the data available to plugins or to EPICS clients.
 	 */
 	private boolean disableCallbacks = false;
 
@@ -334,8 +331,8 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	/*
-	 * If true && !filewriter.isLinkedPath report filepath in readout 
-	 * If true && filewriter.isLinkedPath add external link
+	 * If true && !filewriter.isLinkedPath report filepath in readout If true && filewriter.isLinkedPath add external
+	 * link
 	 */
 	public boolean isReadFilepath() {
 		return readFilepath;
@@ -345,8 +342,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	public boolean createsOwnFiles() throws DeviceException {
 		return false; // always return nexus data
 	}
-
-
 
 	protected boolean afterPropertiesSetCalled = false;
 
@@ -392,14 +387,13 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			collectionStrategy = new SimpleAcquire(getAdBase(), 0.);
 		}
 		if (fileWriter == null) {
-			if( ndFile != null){
+			if (ndFile != null) {
 				SingleImagePerFileWriter fileW = new SingleImagePerFileWriter(getName());
 				fileW.setNdFile(ndFile);
 				fileW.setEnabled(true);
 				fileW.afterPropertiesSet();
 				fileWriter = fileW;
-			}
-			else
+			} else
 				fileWriter = new NullFileWriter();
 		}
 		afterPropertiesSetCalled = true;
@@ -410,7 +404,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		super.configure();
 		if (!afterPropertiesSetCalled)
 			throw new RuntimeException("afterPropertiesSet not yet called");
-		if( !StringUtils.hasLength(getName()))
+		if (!StringUtils.hasLength(getName()))
 			throw new RuntimeException("name is not defined");
 		createStatsGroups();
 		setInputNames(A);
@@ -504,11 +498,12 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		ScanInformation scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		firstReadoutInScan = true;
 		try {
-			//disable or enable callbacks if required by class variable first to allow collectionStrategy or fileWriter to turn back on needed
-			getAdBase().setArrayCallbacks( isDisableCallbacks() ? 0 :1);
+			// disable or enable callbacks if required by class variable first to allow collectionStrategy or fileWriter
+			// to turn back on needed
+			getAdBase().setArrayCallbacks(isDisableCallbacks() ? 0 : 1);
 			int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
 			getCollectionStrategy().prepareForCollection(getCollectionTime(), 1, null);
-			if(isReadFilepath()){
+			if (isReadFilepath()) {
 				getFileWriter().prepareForCollection(numberImagesPerCollection, scanInfo);
 			}
 			prepareForArrayAndStatsCollection();
@@ -534,13 +529,12 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	@Override
 	public void atScanEnd() throws DeviceException {
 		try {
-			if( latestPositionCallable != null)
-			{
-				//do not close down plugins as the callable could involve waiting for the last file to arrive
-				//on disk
+			if (latestPositionCallable != null) {
+				// do not close down plugins as the callable could involve waiting for the last file to arrive
+				// on disk
 				latestPositionCallable.call(); // TODO: Should not be needed!
 			}
-			if(isReadFilepath()){
+			if (isReadFilepath()) {
 				getFileWriter().completeCollection();
 			}
 			getCollectionStrategy().completeCollection();
@@ -552,7 +546,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	@Override
 	public void stop() throws DeviceException {
 		try {
-			if(isReadFilepath()){
+			if (isReadFilepath()) {
 				getFileWriter().stop();
 			}
 			getCollectionStrategy().stop();
@@ -564,7 +558,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		try {
-			if(isReadFilepath()){
+			if (isReadFilepath()) {
 				getFileWriter().atCommandFailure();
 			}
 			getCollectionStrategy().atCommandFailure();
@@ -580,7 +574,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 				if (isReadArray()) {
 					getNdArray().getPluginBase().enableCallbacks(); // waits
 					getNdArray().getPluginBase().setBlockingCallbacks((short) 1);
-	
+
 				} else {
 					getNdArray().getPluginBase().disableCallbacks();
 					getNdArray().getPluginBase().setBlockingCallbacks((short) 0);
@@ -652,7 +646,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	 * To allow multiple calls to getPositionCallable for the same point hold onto the result of the first call. Clear
 	 * at atPointStart
 	 */
-	private ADDetectorPositionCallable latestPositionCallable=null;
+	private ADDetectorPositionCallable latestPositionCallable = null;
 
 	protected void clearCachedCallable() {
 		latestPositionCallable = null;
@@ -664,36 +658,23 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	protected final void addMultipleDoubleItemsToNXData(NXDetectorData data, String[] nameArray, Double[] valArray) {
-		
+
 		for (int i = 0; i < valArray.length; i++) {
 			addDoubleItemToNXData(data, nameArray[i], valArray[i]);
 		}
 	}
-	
+
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		try {
 			return getPositionCallable().call();
 		} catch (Exception e) {
-			throw new DeviceException("Error in readout of "+ getName(),e);
+			throw new DeviceException("Error in readout of " + getName(), e);
 		}
 	}
 
 	protected String createFileName() throws Exception {
 		return getFileWriter().getFullFileName();
-	}
-
-	public static int[] determineDataDimensions(NDArray ndArray) throws Exception {
-		// only called if configured to readArrays (and hence ndArray is set)
-		NDPluginBase pluginBase = ndArray.getPluginBase();
-		int nDimensions = pluginBase.getNDimensions_RBV();
-		int[] dimFromEpics = new int[3];
-		dimFromEpics[0] = pluginBase.getArraySize2_RBV();
-		dimFromEpics[1] = pluginBase.getArraySize1_RBV();
-		dimFromEpics[2] = pluginBase.getArraySize0_RBV();
-
-		int[] dims = java.util.Arrays.copyOfRange(dimFromEpics, 3 - nDimensions, 3);
-		return dims;
 	}
 
 	public void setDisableCallbacks(boolean disableCallbacks) {
@@ -705,17 +686,15 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	/*
-	 * If false getPositionCallable will return an object that simply returns the NexusProviderTree inside it with no delay
-	 * waiting for it to be valid ( no file existence checking)
-	 * If true the getPositionCallable will return an object with a call method will only return a NExusTreeProvider once it
-	 * is valid if checkFileExists is true.
-	 * 
+	 * If false getPositionCallable will return an object that simply returns the NexusProviderTree inside it with no
+	 * delay waiting for it to be valid ( no file existence checking) If true the getPositionCallable will return an
+	 * object with a call method will only return a NExusTreeProvider once it is valid if checkFileExists is true.
 	 * Default = false.
 	 */
-	boolean usePipeline=false;
-	
-	boolean checkFileExists=false;
-	
+	boolean usePipeline = false;
+
+	boolean checkFileExists = false;
+
 	public boolean isUsePipeline() {
 		return usePipeline;
 	}
@@ -734,31 +713,31 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
-		Callable<NexusTreeProvider> thisCallable= null;
+		Callable<NexusTreeProvider> thisCallable = null;
 		if (latestPositionCallable == null) {
 			latestPositionCallable = new ADDetectorPositionCallable(getPositionCallableData());
 		}
-		thisCallable =  latestPositionCallable;
+		thisCallable = latestPositionCallable;
 
-		if( usePipeline){
+		if (usePipeline) {
 			return thisCallable;
-		} 
+		}
 		try {
 			final NexusTreeProvider treeProvider = thisCallable.call();
-			return new Callable<NexusTreeProvider>(){
+			return new Callable<NexusTreeProvider>() {
 				@Override
 				public NexusTreeProvider call() throws Exception {
 					return treeProvider;
 				}
-				
+
 			};
 		} catch (Exception e) {
 			throw new DeviceException("Error getting data", e);
 		}
 	}
 
-	private PositionCallableData getPositionCallableData() throws DeviceException{
-		try{
+	private PositionCallableData getPositionCallableData() throws DeviceException {
+		try {
 			NXDetectorData data = createNXDetectorData();
 
 			if (getMetaDataProvider() != null && firstReadoutInScan) {
@@ -787,9 +766,9 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		if (isReadArray()) {
 			readoutArrayIntoNXDetectorData(data, ndArray, getName());
 		}
-		
+
 		appendDataAxes(data);
-//		data.setDoubleVals(new Double[0]);
+		// data.setDoubleVals(new Double[0]);
 		appendNXDetectorDataFromCollectionStrategy(data);
 		appendNXDetectorDataFromFileWriter(data);
 		appendNXDetectorDataFromPlugins(data);
@@ -804,7 +783,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	 */
 	@SuppressWarnings("unused")
 	protected void appendDataAxes(NXDetectorData data) throws Exception {
-		if (firstReadoutInScan)	{
+		if (firstReadoutInScan) {
 			for (int i = 0; i < dims.length; i++) {
 				int[] axis = new int[dims[i]];
 				for (int j = 1; j < dims[i]; j++) {
@@ -815,99 +794,13 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			}
 		}
 	}
-	
-	public static void readoutArrayIntoNXDetectorData(NXDetectorData data, NDArray ndArray, String detectorName)
+
+	protected void readoutArrayIntoNXDetectorData(NXDetectorData data, NDArray ndArray, String detectorName)
 			throws Exception, DeviceException {
-		int[] dims = determineDataDimensions(ndArray);
 
-		if (dims.length == 0) {
-			logger.warn("Dimensions of data from " + detectorName + " are zero length");
-			return;
-		}
-
-		int expectedNumPixels = dims[0];
-		for (int i = 1; i < dims.length; i++) {
-			expectedNumPixels = expectedNumPixels * dims[i];
-		}
-		Serializable dataVals;
-		// TODO do only once per scan
-		short dataType = ndArray.getPluginBase().getDataType_RBV();
-		int nexusType;
-		switch (dataType) {
-		case NDPluginBase.UInt8: {
-			byte[] b = new byte[] {};
-			b = ndArray.getByteArrayData(expectedNumPixels);
-			if (expectedNumPixels > b.length)
-				throw new DeviceException("Data size is not valid");
-			{
-				short cd[] = new short[expectedNumPixels];
-				for (int i = 0; i < expectedNumPixels; i++) {
-					cd[i] = (short) (b[i] & 0xff);
-				}
-				dataVals = cd;
-				nexusType = NexusFile.NX_INT16;
-			}
-		}
-			break;
-		case NDPluginBase.Int8: {
-			byte[] b = ndArray.getByteArrayData(expectedNumPixels);
-			if (expectedNumPixels > b.length)
-				throw new DeviceException("Data size is not valid");
-			dataVals = b;
-			nexusType = NexusFile.NX_INT8;
-			break;
-		}
-		case NDPluginBase.Int16: {
-			short[] s = ndArray.getShortArrayData(expectedNumPixels);
-			if (expectedNumPixels > s.length)
-				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
-						+ expectedNumPixels);
-
-			dataVals = s;
-			nexusType = NexusFile.NX_INT16;
-		}
-			break;
-		case NDPluginBase.UInt16: {
-			short[] s = ndArray.getShortArrayData(expectedNumPixels);
-			if (expectedNumPixels > s.length)
-				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
-						+ expectedNumPixels);
-
-			int cd[] = new int[expectedNumPixels];
-			for (int i = 0; i < expectedNumPixels; i++) {
-				cd[i] = (s[i] & 0xffff);
-			}
-			dataVals = cd;
-			nexusType = NexusFile.NX_INT32;
-		}
-			break;
-		case NDPluginBase.UInt32: // TODO should convert to INT64 if any numbers are negative
-		case NDPluginBase.Int32: {
-			int[] s = ndArray.getIntArrayData(expectedNumPixels);
-			if (expectedNumPixels > s.length)
-				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
-						+ expectedNumPixels);
-
-			dataVals = s;
-			nexusType = NexusFile.NX_INT32;
-		}
-			break;
-		case NDPluginBase.Float32:
-		case NDPluginBase.Float64: {
-			float[] s = ndArray.getFloatArrayData(expectedNumPixels);
-			if (expectedNumPixels > s.length)
-				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
-						+ expectedNumPixels);
-
-			dataVals = s;
-			nexusType = NexusFile.NX_FLOAT32;
-		}
-			break;
-		default:
-			throw new DeviceException("Type of data is not understood :" + dataType);
-		}
-
-		data.addData(detectorName, "data", dims, nexusType, dataVals, ARRAY_DATA_NAME, 1);
+		ArrayData arrayData = ArrayData.readArrayData(ndArray);
+		data.addData(detectorName, "data", arrayData.getDims(), arrayData.getNexusType(), arrayData.getDataVals(),
+				ARRAY_DATA_NAME, 1);
 	}
 
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
@@ -929,18 +822,19 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 				throw new IllegalArgumentException("filename is null or zero length");
 			// add reference to external file
 			if (getFileWriter().appendsFilepathStrings()) {
-				assert(data instanceof NXDetectorDataWithFilepathForSrs); 
+				assert (data instanceof NXDetectorDataWithFilepathForSrs);
 				NXDetectorDataWithFilepathForSrs dataForSrs = (NXDetectorDataWithFilepathForSrs) data;
 
-				NexusTreeNode fileNameNode = dataForSrs.addFileNames(getName(), "image_data", new String[] { filename },
-						true, true);
+				NexusTreeNode fileNameNode = dataForSrs.addFileNames(getName(), "image_data",
+						new String[] { filename }, true, true);
 				fileNameNode.addChildNode(new NexusTreeNode("signal", NexusExtractor.AttrClassName, fileNameNode,
 						new NexusGroupData(1)));
 				// add filename as an NXNote
 				dataForSrs.addFileName(getName(), filename);
 				int indexOf = Arrays.asList(getExtraNames()).indexOf(FILEPATH_EXTRANAME);
 				dataForSrs.setFilepathOutputFieldIndex(indexOf);
-				data.setPlottableValue(FILEPATH_EXTRANAME, 0.0); // we have a test that checks for this pointless zero, so it must be important
+				data.setPlottableValue(FILEPATH_EXTRANAME, 0.0); // we have a test that checks for this pointless zero,
+																	// so it must be important
 			} else {
 				if (firstReadoutInScan) {
 					data.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
@@ -948,7 +842,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			}
 		}
 	}
-	
+
 	private void appendNXDetectorDataFromPlugins(NXDetectorData data) throws Exception {
 		if (isComputeStats()) {
 			Double[] currentDoubleVals = statsGroup.getCurrentDoubleVals();
@@ -965,7 +859,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 class PositionCallableData {
 
 	final NXDetectorData data;
-	boolean checkFileExists=false;
+	boolean checkFileExists = false;
 
 	public PositionCallableData(NXDetectorData data, boolean checkFileExists) {
 		this.data = data;
@@ -976,30 +870,32 @@ class PositionCallableData {
 class ADDetectorPositionCallable implements Callable<NexusTreeProvider> {
 
 	private final PositionCallableData data;
-	
-	ADDetectorPositionCallable(PositionCallableData data){
+
+	ADDetectorPositionCallable(PositionCallableData data) {
 		this.data = data;
 	}
 
 	@Override
 	public NexusTreeProvider call() throws Exception {
-		//if file given then check its existence
+		// if file given then check its existence
 		NXDetectorData detectorData = data.data;
-		if( detectorData instanceof NXDetectorDataWithFilepathForSrs){
-			String filepath = ((NXDetectorDataWithFilepathForSrs)detectorData).getFilepath();
-			if( data.checkFileExists && !filepath.equals(ADDetector.NullFileWriter.DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV)){
+		if (detectorData instanceof NXDetectorDataWithFilepathForSrs) {
+			String filepath = ((NXDetectorDataWithFilepathForSrs) detectorData).getFilepath();
+			if (data.checkFileExists
+					&& !filepath.equals(ADDetector.NullFileWriter.DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV)) {
 				File f = new File(filepath);
-				long numChecks=0;
-				while( !f.exists() ){
+				long numChecks = 0;
+				while (!f.exists()) {
 					numChecks++;
 					Thread.sleep(1000);
-					//checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
-					if(ScanBase.isInterrupted())
-						throw new Exception("ScanBase is interrupted whilst waiting for "+ filepath);
-					if( numChecks> 10){
-						//Inform user every 10 seconds
+					// checkForInterrupts only throws exception if a scan is running. This code will run beyond that
+					// point
+					if (ScanBase.isInterrupted())
+						throw new Exception("ScanBase is interrupted whilst waiting for " + filepath);
+					if (numChecks > 10) {
+						// Inform user every 10 seconds
 						InterfaceProvider.getTerminalPrinter().print("Waiting for file " + filepath + " to be created");
-						numChecks=0;
+						numChecks = 0;
 					}
 				}
 			}

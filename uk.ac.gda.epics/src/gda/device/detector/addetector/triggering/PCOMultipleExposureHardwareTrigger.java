@@ -214,5 +214,8 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 			Thread.sleep(50);
 		}
 	}
-
+	@Override
+	public boolean requiresAsynchronousPlugins() {
+		return true;
+	}
 }

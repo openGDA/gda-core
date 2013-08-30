@@ -18,11 +18,6 @@
 
 package gda.device.detector.nxdetector.plugin;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
@@ -30,6 +25,11 @@ import gda.device.detector.nxdetector.NXPlugin;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.scan.ScanInformation;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class PVTogglingNXPlugin implements NXPlugin {
 
@@ -132,5 +132,4 @@ public class PVTogglingNXPlugin implements NXPlugin {
 	public void o() throws Exception { // for out!
 		completeCollection();
 	}
-
 }

@@ -18,12 +18,12 @@
 
 package gda.device.detector.addetector.filewriter;
 
-import static java.text.MessageFormat.format;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
+import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
 import gda.device.detectorfilemonitor.HighestExitingFileMonitorSettings;
 import gda.jython.IJythonNamespace;
@@ -32,10 +32,10 @@ import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -44,19 +44,19 @@ import org.slf4j.LoggerFactory;
 /*
  * SingleImagePerFileWriter(ndFileSimulator, "detectorName", "%%s%d%%s-%%d-detname.tif",true,true);
  */
-public class SingleImagePerFileWriter extends FileWriterBase {
+public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin{
 
 	protected static final String FILEPATH_EXTRANAME = "filepath";
 
 	private static Logger logger = LoggerFactory.getLogger(SingleImagePerFileWriter.class);
 
-	private boolean returnExpectedFileName = false;
-	private String fileNameUsed="";
-	private String filePathUsed="";
-	private String fileTemplateUsed="";
+
+	private String fileNameUsed = "";
+	private String filePathUsed = "";
+	private String fileTemplateUsed = "";
 	private long nextExpectedFileNumber = 0;
-		
-	private boolean returnPathRelativeToDatadir = false;  // TODO: should really be enabled by default RobW
+
+	private boolean returnPathRelativeToDatadir = false; // TODO: should really be enabled by default RobW
 
 	private int SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES = 10;
 
@@ -71,7 +71,6 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	private String keyNameForMetadataPathTemplate = "";
 
 	private FileWriteMode fileWriteMode = FileWriteMode.SINGLE;
-
 
 	public String getFileWriteMode() {
 		return fileWriteMode.toString();
@@ -107,7 +106,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	 * datadir
 	 *    123.dat
 	 *    123-pilatus100k-files
-	 * 		00001.tif
+	 * 00001.tif
 	 */
 	public SingleImagePerFileWriter(String detectorName) {
 		setFileTemplate("%s%s%05d.tif");
@@ -117,12 +116,9 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	}
 
 	public void setFileTemplateForReadout(String fileTemplateForReadout) {
-		this.fileTemplateForReadout  = fileTemplateForReadout;
+		this.fileTemplateForReadout = fileTemplateForReadout;
 	}
-	
-	public void setReturnExpectedFullFileName(boolean returnExpectedFullFileName) {
-		this.returnExpectedFileName = returnExpectedFullFileName;
-	}
+
 
 	public void setHighestExistingFileMonitor(HighestExistingFileMonitor highestExistingFileMonitor) {
 		this.highestExistingFileMonitor = highestExistingFileMonitor;
@@ -131,17 +127,11 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	public void setKeyNameForMetadataPathTemplate(String string) {
 		this.keyNameForMetadataPathTemplate = string;
 	}
-	
+
 	public String getFileTemplateForReadout() {
 		return this.fileTemplateForReadout;
 	}
-	/**
-	 * If true getFullFileName_RBV returns expected filename rather than value from ndfile plugin. Useful for example
-	 * with continuous scans.
-	 */
-	public boolean isReturnExpectedFullFileName() {
-		return returnExpectedFileName;
-	}
+
 
 	public HighestExistingFileMonitor getHighestExistingFileMonitor() {
 		return highestExistingFileMonitor;
@@ -150,7 +140,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	public String getkeyNameForMetadataPathTemplate() {
 		return keyNameForMetadataPathTemplate;
 	}
-	
+
 	@Override
 	public boolean appendsFilepathStrings() {
 		return isEnabled(); // will always append strings when enabled
@@ -171,7 +161,11 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 		if (isSetFileNameAndNumber()) {
 			configureNdFile();
+		} else {
+			if (!getNdFile().filePathExists())
+				throw new Exception("Path does not exist on IOC");
 		}
+		clearWriteStatusErr();
 
 		setNDArrayPortAndAddress();
 		NDPluginBase pluginBase = getNdFile().getPluginBase();
@@ -188,10 +182,9 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		}
 
 		getNdFile().setFileWriteMode(fileWriteMode);
-		if( fileWriteMode == FileWriteMode.CAPTURE || fileWriteMode == FileWriteMode.STREAM){
+		if (fileWriteMode == FileWriteMode.CAPTURE || fileWriteMode == FileWriteMode.STREAM) {
 			getNdFile().setNumCapture(1);
 		}
-		
 		if (!getkeyNameForMetadataPathTemplate().isEmpty()) {
 			addPathTemplateToMetadata();
 		}
@@ -201,19 +194,20 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
 		String existingMetadataString = (String) jythonNamespace.getFromJythonNamespace("SRSWriteAtFileCreation");
 		String newMetadataString;
-		if (existingMetadataString==null) {
+		if (existingMetadataString == null) {
 			newMetadataString = "";
 		} else {
 			newMetadataString = existingMetadataString;
 		}
-		
+
 		String filePathRelativeToDataDirIfPossible = getFilePathRelativeToDataDirIfPossible();
 		String template = (getFileTemplateForReadout() == null) ? getFileTemplate() : getFileTemplateForReadout();
 		String newValue = StringUtils.replaceOnce(template, "%s", filePathRelativeToDataDirIfPossible + "/");
 		newValue = StringUtils.replaceOnce(newValue, "%s", getFileName());
 		String newKey = getkeyNameForMetadataPathTemplate();
-		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "='" +newValue + "'\n");
-		InterfaceProvider.getTerminalPrinter().print("Image location: " + newKey + "='" +newValue);
+		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "='" + newValue
+				+ "'\n");
+		InterfaceProvider.getTerminalPrinter().print("Image location: " + newKey + "='" + newValue);
 	}
 
 	protected void configureNdFile() throws Exception {
@@ -222,18 +216,20 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		getNdFile().setFileTemplate(fileTemplateUsed);
 
 		filePathUsed = getFilePath();
-		if(!filePathUsed.endsWith(File.separator))
+		if (!filePathUsed.endsWith(File.separator))
 			filePathUsed += File.separator;
 		File f = new File(filePathUsed);
-		if (!f.exists()){
-			if(!f.mkdirs())
+		if (!f.exists()) {
+			if (!f.mkdirs())
 				throw new Exception("Folder does not exist and cannot be made:" + filePathUsed);
-		}		
+		}
 		getNdFile().setFilePath(filePathUsed);
+
+		if (!getNdFile().filePathExists())
+			throw new Exception("Path does not exist on IOC '" + filePathUsed + "'");
 
 		fileNameUsed = getFileName();
 		getNdFile().setFileName(fileNameUsed);
-
 
 		if (getFileNumberAtScanStart() >= 0) {
 			getNdFile().setFileNumber((int) getFileNumberAtScanStart());
@@ -246,15 +242,15 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 		getNdFile().setAutoSave((short) 1);
 
-		if( highestExistingFileMonitor != null){
-			//remove the 2 %s from the fileTemplate to get to part after fileNameUsed
-			String postFileName=fileTemplateUsed.replaceFirst("%s", "").replaceFirst("%s", "");
-			HighestExitingFileMonitorSettings highestExitingFileMonitorSettings = 
-					new HighestExitingFileMonitorSettings(filePathUsed,fileNameUsed+postFileName, (int) nextExpectedFileNumber);
+		if (highestExistingFileMonitor != null) {
+			// remove the 2 %s from the fileTemplate to get to part after fileNameUsed
+			String postFileName = fileTemplateUsed.replaceFirst("%s", "").replaceFirst("%s", "");
+			HighestExitingFileMonitorSettings highestExitingFileMonitorSettings = new HighestExitingFileMonitorSettings(
+					filePathUsed, fileNameUsed + postFileName, (int) nextExpectedFileNumber);
 			highestExistingFileMonitor.setHighestExitingFileMonitorSettings(highestExitingFileMonitorSettings);
 			highestExistingFileMonitor.setRunning(true);
-		}		
-		
+		}
+
 	}
 
 	@Override
@@ -267,7 +263,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	@Override
 	public void disableFileWriting() throws Exception {
 		NDPluginBase filePluginBase = getNdFile().getPluginBase();
-		if (filePluginBase!=null) { // camserver filewriter has no base
+		if (filePluginBase != null) { // camserver filewriter has no base
 			filePluginBase.disableCallbacks();
 			filePluginBase.setBlockingCallbacks((short) 0);
 		}
@@ -276,13 +272,10 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	@Override
 	public String getFullFileName() throws Exception {
-		if (returnExpectedFileName) {
-			String template = (getFileTemplateForReadout() != null) ? getFileTemplateForReadout() : fileTemplateUsed;
-			String fullFileName = String.format(template, filePathUsed,fileNameUsed, nextExpectedFileNumber);
-			nextExpectedFileNumber++;
-			return fullFileName;
-		}
-		return super.getFullFileName();
+		String template = (getFileTemplateForReadout() != null) ? getFileTemplateForReadout() : fileTemplateUsed;
+		String fullFileName = String.format(template, filePathUsed, fileNameUsed, nextExpectedFileNumber);
+		nextExpectedFileNumber++;
+		return fullFileName;
 	}
 
 	@Override
@@ -295,17 +288,24 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		return Arrays.asList("%.2f");
 	}
 
+	@Override
+	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
+			DeviceException {
+		ArrayList<NXDetectorDataAppender> l = new ArrayList<NXDetectorDataAppender>();
+		l.add(readNXDetectorDataAppender());
+		return l;
+	}
+	
 	/**
 	 * Returns a single NXDetectorDataAppender for the current image with each call. If isWaitForFileArrival is true,
 	 * then waits for the file to become visible before returning the appender.
 	 */
-	@Override
-	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
-			DeviceException {
+	protected NXDetectorDataAppender readNXDetectorDataAppender()  throws NoSuchElementException, DeviceException{
 
 		String filepath;
+		boolean returnRelativePath = isReturnPathRelativeToDatadir();
 		try {
-			if (isReturnPathRelativeToDatadir()) {	
+			if (returnRelativePath) {
 				if (!StringUtils.startsWith(getFilePathTemplate(), "$datadir$")) {
 					throw new IllegalStateException(
 							"If configured to return a path relative to the datadir, the configured filePathTemplate must begin wiht $datadir$. It is :'"
@@ -319,12 +319,32 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 			throw new DeviceException(e);
 		}
 
-		NXDetectorDataAppender dataAppender;
-		dataAppender = new NXDetectorDataFileAppenderForSrs(filepath, FILEPATH_EXTRANAME);
+		checkErrorStatus();
+		if( isWaitForFileArrival()){
+			// Now check that the file exists
+			String fullFilePath = returnRelativePath ? getAbsoluteFilePath(filepath) : filepath;
+			try {
+				File f = new File(fullFilePath);
+				long numChecks = 0;
+				while (!f.exists()) {
+					numChecks++;
+					Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
+					checkErrorStatus();
+					// checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
+					if (ScanBase.isInterrupted())
+						throw new Exception("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
+					if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
+						InterfaceProvider.getTerminalPrinter().print(
+								"Waiting for file '" + fullFilePath + "' to be created");
+						numChecks = 0;
+					}
+				}
+			} catch (Exception e) {
+				throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'",e);
+			}
+		}
 
-		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
-		appenders.add(dataAppender);
-		return appenders;
+		return new NXDetectorDataFileAppenderForSrs(filepath, FILEPATH_EXTRANAME);
 	}
 
 	public boolean isReturnPathRelativeToDatadir() {
@@ -333,6 +353,24 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	public void setReturnPathRelativeToDatadir(boolean returnPathRelativeToDatadir) {
 		this.returnPathRelativeToDatadir = returnPathRelativeToDatadir;
+	}
+
+	private void checkErrorStatus() throws DeviceException {
+		boolean writeStatusErr;
+		try {
+			writeStatusErr = isWriteStatusErr();
+		} catch (Exception e) {
+			throw new DeviceException(getName() + " error checking writeStatusErr",e);
+		}
+		if (writeStatusErr) {
+			String writeMessage="";
+			try {
+				writeMessage = getNdFile().getWriteMessage();
+			} catch (Exception e) {
+				throw new DeviceException(getName() + " file writer plugin in error. Error getting writeMessage",e);
+			}
+			throw new DeviceException(getName() + " file writer plugin reports '" + writeMessage + "'");
+		}
 	}
 
 }

@@ -30,11 +30,11 @@ import gda.device.detector.areadetector.impl.AreaDetectorROIImpl;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
-import gda.observable.Predicate;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.ADBaseType;
 import gda.factory.FactoryException;
 import gda.observable.Observable;
+import gda.observable.Predicate;
 import gda.scan.ScanBase;
 import gda.util.Sleep;
 import gov.aps.jca.CAException;
@@ -2423,8 +2423,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	}	
 	
 	@Override
-	public Observable<String> createAcquireStateObservable() throws Exception {
-		return LazyPVFactory.newReadOnlyStringPV(getChannelName(Acquire_RBV));
+	public Observable<Short> createAcquireStateObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyEnumPV(getChannelName(Acquire_RBV), Short.class);
 	}
 
 	@Override

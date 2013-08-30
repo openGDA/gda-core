@@ -381,5 +381,8 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	public void setCameraUsageLowerLimit(Double cameraUsageLowerLimit) {
 		this.cameraUsageLowerLimit = cameraUsageLowerLimit;
 	}
-
+	@Override
+	public boolean requiresAsynchronousPlugins() {
+		return true;
+	}
 }
