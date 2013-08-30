@@ -18,9 +18,12 @@
 
 package gda.device.detector.nxdetector;
 
+import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.scannable.PositionInputStream;
 
-public interface NXPlugin extends NXPluginBase, PositionInputStream<NXDetectorDataAppender>  {
+import java.util.NoSuchElementException;
+
+public interface NonAsynchronousNXPlugin extends NXPluginBase {
+	public NXDetectorDataAppender read() throws NoSuchElementException, InterruptedException, DeviceException;
 
 }
