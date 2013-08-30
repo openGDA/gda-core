@@ -32,6 +32,7 @@ import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
 import gda.device.scannable.PositionStreamIndexer;
 import gda.jython.InterfaceProvider;
+import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
@@ -69,6 +70,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	//Containing of plugins and associated PositionQueue. Used for plugins whose supportsAsynchronousRead returns false
 	private Map<NonAsynchronousNXPlugin, PositionQueue<NXDetectorDataAppender>> pluginPositionQueueMap;
+
+	private NXDetectorDataCompletingCallable lastCallable;
 
 	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPluginBase> additionalPluginList) {
 		setName(name);
@@ -425,7 +428,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			}
 		}
 
-		return new NXDetectorDataCompletingCallable(nxdata, appendersCallable, getName());
+		lastCallable = new NXDetectorDataCompletingCallable(nxdata, appendersCallable, getName());
+		return lastCallable;
 	}
 
 	private boolean isFilepathRequiredInNxDetectorData() {
@@ -442,23 +446,25 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void atScanLineEnd() throws DeviceException {
-		for (NXPluginBase plugin : getPluginList()) {
-			try {
+		try {
+			for (NXPluginBase plugin : getAdditionalPluginList()) {
 				plugin.completeLine();
-			} catch (Exception e) {
-				throw new DeviceException(e);
 			}
+			getCollectionStrategy().completeLine();
+		} catch (Exception e) {
+			throw new  DeviceException(getName() + " error at atScanLineEnd",e);
 		}
 	}
 
 	@Override
 	public void atScanEnd() throws DeviceException {
 		try {
-			if( pluginStreamsIndexer != null)
-				pluginStreamsIndexer.waitForCompletion();
-			for (NXPluginBase plugin : getPluginList()) {
+			if( lastCallable != null)
+				lastCallable.waitForCompletion();
+			for (NXPluginBase plugin : getAdditionalPluginList()) {
 				plugin.completeCollection();
 			}
+			getCollectionStrategy().completeCollection();
 		} catch (Exception e) {
 			throw new  DeviceException(getName() + " error at atScanEnd",e);
 		} finally{
@@ -469,6 +475,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	private void clearUpAfterScan() {
 		pluginStreamsIndexer = null; // to avoid later confusion
 		pluginPositionQueueMap = null;
+		lastCallable=null;
 	}
 
 	@Override
@@ -514,6 +521,18 @@ class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
 	private final Callable<List<NXDetectorDataAppender>> appendersCallable;
 
 	private final String detectorName;
+	
+	private volatile boolean called = false;
+	private Object lock = new Object();	
+	
+	public void waitForCompletion() throws InterruptedException {
+		synchronized (lock) {
+			while (!called) {
+				lock.wait(1000);
+				ScanBase.checkForInterrupts();
+			}
+		}
+	}	
 
 	public NXDetectorDataCompletingCallable(NXDetectorData emptyNXDetectorData,
 			Callable<List<NXDetectorDataAppender>> appendersCallable, String detectorName) {
@@ -524,11 +543,18 @@ class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
 
 	@Override
 	public NXDetectorData call() throws Exception {
-		List<NXDetectorDataAppender> appenderList = appendersCallable.call();
-		for (NXDetectorDataAppender appender : appenderList) {
-			appender.appendTo(data, detectorName);
+		synchronized (lock) {
+			try {
+				List<NXDetectorDataAppender> appenderList = appendersCallable.call();
+				for (NXDetectorDataAppender appender : appenderList) {
+					appender.appendTo(data, detectorName);
+				}
+				return data;
+			} finally {
+				called = true;
+				lock.notifyAll();
+			}
 		}
-		return data;
 	}
 
 }
