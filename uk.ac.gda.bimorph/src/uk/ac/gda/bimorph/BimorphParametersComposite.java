@@ -18,6 +18,7 @@
 
 package uk.ac.gda.bimorph;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.jython.JythonServerFacade;
 
@@ -177,14 +178,6 @@ public final class BimorphParametersComposite extends Composite {
 			grouped = "True";
 		}
 
-		int currentScanNumber = 0;
-		try {
-			NumTracker numTracker = new NumTracker();
-			currentScanNumber = (int) numTracker.getCurrentFileNumber() + 1;
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
 		String command = "slitscanner.run(globals(),\"" + mirror + "\"," + increment + ",\"" + slitToScanSize + "\",\""
 		+ slitToScanPos + "\"," + slitSizeValue + ",\"" + otherSlitSizeScannableName + "\",\""
 		+ otherSlitPosScannableName + "\"," + slitStartValue + "," + slitEndValue + "," + slitStepValue
@@ -194,22 +187,18 @@ public final class BimorphParametersComposite extends Composite {
 		JythonServerFacade.getInstance().runCommand(command);
 
 		String elec = JythonServerFacade.getInstance().evaluateCommand(mirror + ".numOfChans");
-
 		noOfElectrodes = Integer.parseInt(elec);
 
+		int currentScanNumber = determineCurrentScanFileNumber();
 		errorFile.setValue(currentScanNumber);
-
 		String scanNumbers = "";
-
 		for (int i = currentScanNumber; i <= noOfElectrodes + currentScanNumber; i++) {
 			scanNumbers += i;
 			if (i != noOfElectrodes + currentScanNumber) {
 				scanNumbers += ",";
 			}
 		}
-
 		scanNumberInputs.setValue(scanNumbers);
-
 	}
 
 	public void calculateErrorFile() {
@@ -271,7 +260,7 @@ public final class BimorphParametersComposite extends Composite {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		JythonServerFacade.getInstance().runCommand("el.calc()");
+		JythonServerFacade.getInstance().runCommand("el.calcSlopes()");
 	}
 
 	public void runOptimiseScript() {
@@ -332,7 +321,6 @@ public final class BimorphParametersComposite extends Composite {
 			bimorphScannable = "None";
 		}
 
-
 		if (files.contains(":")) {
 			int start = Integer.parseInt(files.substring(0, files.indexOf(":")));
 			int end = Integer.parseInt(files.substring(files.indexOf(":") + 1));
@@ -362,17 +350,8 @@ public final class BimorphParametersComposite extends Composite {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-//
-//			int currentScanNumber = 0;
-//			try {
-//				NumTracker numTracker = new NumTracker();
-//				currentScanNumber = (int) numTracker.getCurrentFileNumber();
-//			} catch (IOException e1) {
-//				e1.printStackTrace();
-//			}
-
-			error_file = String.valueOf(errorFile.getValue());
-			//errorFile.setValue(currentScanNumber);
+			errorFile.setValue(determineCurrentScanFileNumber());
+			error_file = errorFile.getValue().toString();
 		}
 
 		if(selectedDir==null)
@@ -385,6 +364,30 @@ public final class BimorphParametersComposite extends Composite {
 		JythonServerFacade.getInstance().runCommand(command);
 	}
 
+	private int determineCurrentScanFileNumber(){
+		int currentScanNumber = 0;
+		JythonServerFacade.getInstance().runCommand("from gda.data import NumTracker");
+		String scannumberProperty = JythonServerFacade.getInstance().evaluateCommand("LocalProperties.get(\"gda.scan.sets.scannumber\", \"False\")");
+		//String scannumberProperty = LocalProperties.get("gda.scan.sets.scannumber", "False");
+		if(scannumberProperty.equals("True")){
+			try {
+				NumTracker numTracker = new NumTracker("scanbase_numtracker");
+				currentScanNumber = (int) numTracker.getCurrentFileNumber();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		else{
+			try {
+			NumTracker numTracker = new NumTracker();
+			currentScanNumber = (int) numTracker.getCurrentFileNumber();
+			} catch (IOException e) {
+			e.printStackTrace();
+			}
+		}
+		return currentScanNumber;
+	}
+	
 	public void setEllipseEnabled(boolean enabled) {
 
 		lblISign.setEnabled(enabled);
