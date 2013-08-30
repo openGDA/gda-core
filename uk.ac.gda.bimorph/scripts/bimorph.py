@@ -4,6 +4,7 @@ from gdascripts.pd.dummy_pds import DummyPD
 import gda.jython.commands.InputCommands as inputCommand
 from gdascripts.analysis.io.ScanFileLoader import ScanFileLoader
 from gda.configuration.properties import LocalProperties
+from gda.data import PathConstructor
 
 class VoltageControllerSim:
     def __init__(self, verbose, numberOfElectrodes):
@@ -164,7 +165,11 @@ class RunOptimisation():
     
     
         print "*****************Error file", self.error_file
-        errorData = ScanFileLoader(self.error_file, self.scanDir).getSFH()
+        errorData = None
+        try:
+            errorData = ScanFileLoader(self.error_file, self.scanDir).getSFH()
+        except Exception, e:
+            errorData = ScanFileLoader(self.error_file, PathConstructor().getDefaultDataDir()).getSFH()
 
         #print LocalProperties.get("gda.data.scan.datawriter.dataFormat")
         if self.mirror_type == "hfm" or self.mirror_type == "x" or self.mirror_type == "HFM":
@@ -212,7 +217,7 @@ class RunOptimisation():
 #        endIndex=22
             print "startIndex:"+`startIndex` + "endIndex:" + `endIndex`
             
-            
+        print "self.scanDir", self.scanDir
         headings = ScanFileLoader(files[0], self.scanDir).getSFH().getNames()
 
         if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
