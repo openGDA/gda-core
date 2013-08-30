@@ -165,7 +165,7 @@ class EllipseCalculator():
         for i in range(len(beam_positions)):
             pa.append([beam_positions[i], errors[i], self.sold[i], self.snew[i]])
         # scan requires a command server to be present so the file should be created the simple way!
-        scan([pa, 0, pa.getLength()-1, 1])   
+        scan([pa, 0, pa.getLength()-1, 1])
         
     def create_error_file_cam(self, beam_positions, errors, output_column_name): #peak2d_peakx or peak2d_peaky
         #should really output the slit positions
@@ -177,7 +177,6 @@ class EllipseCalculator():
         scan([pa, 0, pa.getLength()-1, 1])
         
     def calcCamPos2NoFile(self):
-        print "******************************method 2"
         snthold = sin(self.theta_1)
         #self.s_pos = self.frange(-0.18, 0.15, 0.01)
         self.s_pos = [ i for i in self.frange(self.slit_start, self.slit_end, self.slit_step) ]
