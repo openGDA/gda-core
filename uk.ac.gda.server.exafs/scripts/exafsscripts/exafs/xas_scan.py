@@ -328,6 +328,10 @@ class XasScan(Scan):
 		dataWriter.setDescriptions(descriptions);
 		dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
 		dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
+		# get the ascii file format configuration (if not set here then will get it from the Finder inside the Java class
+		asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(beanGroup)
+		if asciidatawriterconfig != None :
+			dataWriter.setConfiguration(asciidatawriterconfig)
 		thisscan.setDataWriter(dataWriter)
 		return thisscan
 	
