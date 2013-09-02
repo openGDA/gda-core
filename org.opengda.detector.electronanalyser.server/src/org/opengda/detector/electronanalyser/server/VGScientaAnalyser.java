@@ -25,11 +25,10 @@ import gda.device.corba.impl.DeviceAdapter;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
+import gda.device.detector.addetector.ArrayData;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.NDArray;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
-import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.CAException;
@@ -316,7 +315,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private void writeImageData(int scanDataPoint) {
 		try {
 			NDArray ndArray=getNdArray();
-			int[] dims=determineDataDimensions(ndArray);
+			int[] dims=ArrayData.determineDataDimensions(ndArray);
 			if (dims.length == 0) {
 				logger.warn("Dimensions of NDArray data from " + getName() + " are zero length");
 				return;

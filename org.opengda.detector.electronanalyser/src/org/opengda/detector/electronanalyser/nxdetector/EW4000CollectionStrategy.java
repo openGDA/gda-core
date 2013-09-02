@@ -9,6 +9,7 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.NXPlugin;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObservable;
@@ -36,7 +37,7 @@ import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, IObservable{
+public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXPlugin, IObservable{
 	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
 	private ObservableComponent oc = new ObservableComponent();
 	private AtomicBoolean busy = new AtomicBoolean(false);
@@ -483,6 +484,11 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, IOb
 
 	public void setScriptcontroller(Scriptcontroller scriptcontroller) {
 		this.scriptcontroller = scriptcontroller;
+	}
+
+	@Override
+	public boolean requiresAsynchronousPlugins() {
+		return true;
 	}
 
 }
