@@ -67,6 +67,7 @@ public class ADDetectorIntegrationWithSingleImagePerFileWriterTest {
 			fileWriter.setFileNameTemplate("filename");
 		}
 		fileWriter.setFileNumberAtScanStart(0);
+		fileWriter.afterPropertiesSet();
 		
 		adDetector.setFileWriter(fileWriter);
 		adDetector.setName(name);
