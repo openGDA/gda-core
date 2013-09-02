@@ -37,6 +37,7 @@ public class CorbaNamespaceHandler extends NamespaceHandlerSupport {
 	public void init() {
 		registerBeanDefinitionParser("import", new ImportBeanDefinitionParser());
 		registerBeanDefinitionParser("export", new ExportBeanDefinitionParser());
+		registerBeanDefinitionParser("adapterfactory", new AdapterFactoryBeanDefinitionParser());
 	}
 
 	/**

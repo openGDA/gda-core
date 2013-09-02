@@ -59,7 +59,7 @@ import uk.ac.gda.util.io.StreamMacroSubstitutor;
  * cannot be referenced from the application context.
  */
 @Deprecated
-public class XmlObjectCreator implements IObjectCreator {
+public abstract class XmlObjectCreator implements IObjectCreator {
 
 	private static final String SCHEMA_LANGUAGE = "http://www.w3.org/2001/XMLSchema";
 	

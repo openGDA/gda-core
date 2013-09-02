@@ -459,11 +459,11 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 		return new String[] { "Time" };
 	}
 
-	public void setNumChannelsToRead(Integer numChannelsToRead) {
+	public void setNumChannelsToRead(int numChannelsToRead) {
 		this.numChannelsToRead = numChannelsToRead;
 	}
 
-	public Integer getNumChannelsToRead() {
+	public int getNumChannelsToRead() {
 		return numChannelsToRead;
 	}
 
