@@ -27,6 +27,7 @@ import gda.jython.ICurrentScanInformationHolder;
 import gda.jython.IJythonNamespace;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
+import gda.observable.ObservableUtil;
 import gda.scan.ScanInformation;
 
 import org.junit.Before;
@@ -46,12 +47,16 @@ public class SingleImagePerFileWriterTest {
 
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		mockNDPluginBase = mock(NDPluginBase.class);
 		mockNdFile = mock(NDFile.class);
 		when(mockNdFile.getPluginBase()).thenReturn(mockNDPluginBase);
+		when(mockNdFile.filePathExists()).thenReturn(true);
+		when(mockNdFile.isWriteStatusErr()).thenReturn(false);
+		when(mockNdFile.createWriteStatusObservable()).thenReturn(new ObservableUtil<Short>());
 		writer = new SingleImagePerFileWriter("detname");
 		writer.setNdFile(mockNdFile);
+		writer.afterPropertiesSet();
 		LocalProperties.set(PathConstructor.getDefaultPropertyName(), "path/to/datadir");
 		configureScanInformationHolder();
 		InterfaceProvider.setTerminalPrinterForTesting(mock(ITerminalPrinter.class));

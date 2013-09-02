@@ -21,6 +21,7 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.observable.Observable;
+import gda.observable.ObservableUtil;
 
 /**
  * Simulation of NDFile for testing.
@@ -320,11 +321,11 @@ public class NDFileSimulator implements NDFile{
 	
 	@Override
 	public Observable<String> createWriteMessageObservable() throws Exception {
-		return null;
+		return new ObservableUtil<String>();
 	}
 	@Override
 	public Observable<Short> createWriteStatusObservable() throws Exception {
-		return null;
+		return new ObservableUtil<Short>();
 	}
 	@Override
 	public String getWriteMessage() throws Exception {
