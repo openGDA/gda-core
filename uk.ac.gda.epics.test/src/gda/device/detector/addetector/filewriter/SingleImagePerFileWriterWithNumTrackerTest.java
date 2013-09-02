@@ -18,26 +18,24 @@
 
 package gda.device.detector.addetector.filewriter;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
-import gda.device.detector.addetector.filewriter.SingleImagePerFileWriterWithNumTracker;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.jython.ICurrentScanInformationHolder;
 import gda.jython.InterfaceProvider;
+import gda.observable.ObservableUtil;
 import gda.scan.ScanInformation;
 import gda.util.TestUtils;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-
-import static org.mockito.Mockito.*;
 
 
 // TODO: Tests here are minimal
@@ -55,10 +53,13 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 	}
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		mockNDPluginBase = mock(NDPluginBase.class);
 		mockNdFile = mock(NDFile.class);
 		when(mockNdFile.getPluginBase()).thenReturn(mockNDPluginBase);
+		when(mockNdFile.filePathExists()).thenReturn(true);
+		when(mockNdFile.isWriteStatusErr()).thenReturn(false);
+		when(mockNdFile.createWriteStatusObservable()).thenReturn(new ObservableUtil<Short>());
 		LocalProperties.set(PathConstructor.getDefaultPropertyName(), "path/to/datadir");
 		configureScanInformationHolder();
 	}
@@ -122,9 +123,10 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 		inOrder.verify(mockNdFile).setFileNumber(102);
 	}
 
-	private void createWriter() {
+	private void createWriter() throws Exception {
 		writer = new SingleImagePerFileWriterWithNumTracker("detname");
 		writer.setNdFile(mockNdFile);
 		writer.setNumTrackerExtension("detname_numtracker");
+		writer.afterPropertiesSet();
 	}
 }
