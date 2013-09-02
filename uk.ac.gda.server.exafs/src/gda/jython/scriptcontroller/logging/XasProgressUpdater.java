@@ -81,7 +81,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		timeOfLastReport=0;
+		timeOfLastReport = 0;
 		atEndCalled = false;
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 		timeStarted = System.currentTimeMillis();
@@ -91,29 +91,30 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	public void atScanEnd() throws DeviceException {
 		atEndCalled = true;
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
-		
+
 		String status = "Repetition complete";
 		IScanDataPoint lastSDP = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
-		String percentComplete = determinePercentComplete(lastSDP)+ "%";
+		String percentComplete = determinePercentComplete(lastSDP,true) + "%";
 		if (!sampleEnvironmentRepetition.equals(sampleEnvironmentRepetitions)) {
 			status = "Sample Env repetition complete";
 		} else if (thisScanrepetition.equals(totalScanRepetitions)) {
 			status = "Scan Complete";
 			percentComplete = "100%";
 		}
-		
+
 		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, status, thisScanrepetition,
 				getTotalRepetitions(), sampleEnvironmentRepetitions, sampleEnvironmentRepetitions, percentComplete,
 				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
 		controller.update(this, msg);
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		atEndCalled = true;
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
-		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "Aborted", thisScanrepetition, getTotalRepetitions(), sampleEnvironmentRepetitions, sampleEnvironmentRepetitions,
-				lastPercentComplete, getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
+		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "Aborted", thisScanrepetition,
+				getTotalRepetitions(), sampleEnvironmentRepetitions, sampleEnvironmentRepetitions, lastPercentComplete,
+				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
 		controller.update(this, msg);
 	}
 
@@ -132,7 +133,8 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		return false;
 	}
 
-	long timeOfLastReport=0;
+	long timeOfLastReport = 0;
+
 	@Override
 	public void update(Object source, Object arg) {
 		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint && !atEndCalled) {
@@ -140,15 +142,15 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 			if (uniqueName == null || uniqueName == sdp.getUniqueName()) {
 				uniqueName = sdp.getUniqueName();
 				long now = System.currentTimeMillis();
-				if( now - timeOfLastReport > 5000){
-					timeOfLastReport = now;
-					int percentComplete = determinePercentComplete(sdp);
-					lastPercentComplete = percentComplete + "%";
+				int percentComplete = determinePercentComplete(sdp,false);
+				lastPercentComplete = percentComplete + "%";
 
+				if (now - timeOfLastReport > 500) {
+					timeOfLastReport = now;
 					String elapsedTime = getElapsedTime();
 					XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "In Progress", thisScanrepetition,
-							getTotalRepetitions(), sampleEnvironmentRepetition, sampleEnvironmentRepetitions, percentComplete + "%", elapsedTime,
-							getElapsedTotalTime(), predictedTotalTime, outputFolder);
+							getTotalRepetitions(), sampleEnvironmentRepetition, sampleEnvironmentRepetitions,
+							percentComplete + "%", elapsedTime, getElapsedTotalTime(), predictedTotalTime, outputFolder);
 					controller.update(this, msg);
 				}
 			} else {
@@ -157,22 +159,28 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		}
 	}
 
-	private int determinePercentComplete(IScanDataPoint sdp) {
+	private int determinePercentComplete(IScanDataPoint sdp, Boolean lastPoint) {
 		int pointsPerScan = sdp.getNumberOfPoints();
 		int pointsPerScanRepetition = sdp.getNumberOfPoints() * Integer.parseInt(sampleEnvironmentRepetitions);
 		int pointsInWholeExperiment = pointsPerScanRepetition * Integer.parseInt(getTotalRepetitions());
-		
+
 		int currentPointInThisScan = sdp.getCurrentPointNumber() + 1;
-		int currentPointInThisScanRepetition = currentPointInThisScan + (pointsPerScan * (Integer.parseInt(sampleEnvironmentRepetition) - 1));
-		int currentPointInWholeExperiment = currentPointInThisScanRepetition + (pointsPerScanRepetition * (Integer.parseInt(thisScanrepetition) - 1));
+		// at the last point in the scan we get the call via atScanEnd instead of via update, so fix the current point number
+		if (lastPoint){
+			currentPointInThisScan = sdp.getNumberOfPoints();
+		}
+		int currentPointInThisScanRepetition = currentPointInThisScan
+				+ (pointsPerScan * (Integer.parseInt(sampleEnvironmentRepetition) - 1));
+		int currentPointInWholeExperiment = currentPointInThisScanRepetition
+				+ (pointsPerScanRepetition * (Integer.parseInt(thisScanrepetition) - 1));
 		int percentComplete = (int) Math.round((currentPointInWholeExperiment * 100.0) / pointsInWholeExperiment);
 		return percentComplete;
 	}
-	
+
 	private String getTotalRepetitions() {
 		String property = LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY);
-		if (property == null || property.isEmpty()){
-				return totalScanRepetitions;
+		if (property == null || property.isEmpty()) {
+			return totalScanRepetitions;
 		}
 		return property;
 	}

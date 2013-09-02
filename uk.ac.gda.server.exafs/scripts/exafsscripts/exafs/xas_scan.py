@@ -102,8 +102,9 @@ class XasScan(Scan):
 			iterator.moveToNext()
 			sampleName = iterator.getNextSampleName()
 			descriptions = iterator.getNextSampleDescriptions()
-			this_repeat = repetitionNumber + i
+			this_repeat = ((repetitionNumber -1 ) * num_sample_repeats) + (i + 1)
 			initialPercent = self.calcInitialPercent(total_repeats, this_repeat)
+			print "initialPercent",str(initialPercent),"% of repeat",str(i+1),"of repetition",str(repetitionNumber)
 			timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
 			logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(i+1), str(num_sample_repeats), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
 			
@@ -111,7 +112,7 @@ class XasScan(Scan):
 				self.printRepetition(numRepetitions, repetitionNumber, scriptType)
 			# the iterator has already printed a message if num_sample_repeats > 1
 
-			self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions)
+			self._doScan(beanGroup,scriptType,scan_unique_id, experimentFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions,logmsg)
 	
 	def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, controller, sampleBean, scanBean, detectorBean, outputBean):
 		"""
@@ -149,7 +150,8 @@ class XasScan(Scan):
 						sampleName = sampleBean.getName()
 						descriptions = sampleBean.getDescriptions()
 						self.printRepetition(numRepetitions, repetitionNumber, scriptType)
-						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions)
+						logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, outputFolder)
+						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions,logmsg)
 					
 				except InterruptedException, e:
 					self.handleScanInterrupt(numRepetitions, repetitionNumber)
@@ -186,9 +188,7 @@ class XasScan(Scan):
 			self.datawriterconfig.setHeader(original_header)
 			
 	# Runs a single XAS/XANES scan.
-	def _doScan(self,beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions):
-
-		logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, outputFolder)
+	def _doScan(self,beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, outputFolder,sampleName,descriptions,logmsg):
 
 		#self.loggingcontroller.update(None,logmsg)
 		self.XASLoggingScriptController.update(None,ScanStartedMessage(scanBean,detectorBean)) # informs parts of the UI about current scan
@@ -329,7 +329,7 @@ class XasScan(Scan):
 		dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
 		dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
 		# get the ascii file format configuration (if not set here then will get it from the Finder inside the Java class
-		asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(beanGroup)
+		asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
 		if asciidatawriterconfig != None :
 			dataWriter.setConfiguration(asciidatawriterconfig)
 		thisscan.setDataWriter(dataWriter)
