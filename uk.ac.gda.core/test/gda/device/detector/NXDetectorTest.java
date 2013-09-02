@@ -347,18 +347,18 @@ public class NXDetectorTest {
 	public void testAtScanLineEnd() throws Exception {
 		det.atScanLineEnd();
 		InOrder inOrder = inOrder(collectionStrategy, fileWriter, plugin);
-		inOrder.verify(collectionStrategy).completeLine();
 		inOrder.verify(fileWriter).completeLine();
 		inOrder.verify(plugin).completeLine();
+		inOrder.verify(collectionStrategy).completeLine();
 	}
 
 	@Test
 	public void testAtScanEnd() throws Exception {
 		det.atScanEnd();
 		InOrder inOrder = inOrder(collectionStrategy, fileWriter, plugin);
-		inOrder.verify(collectionStrategy).completeCollection();
 		inOrder.verify(fileWriter).completeCollection();
 		inOrder.verify(plugin).completeCollection();
+		inOrder.verify(collectionStrategy).completeCollection();
 	}
 
 	@Test
