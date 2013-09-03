@@ -48,6 +48,7 @@ import java.util.concurrent.Callable;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -104,6 +105,14 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		
 		adDet = new NXDetector("testdet", collectionStrategy, additionalPlugins);
 		adArrayPlugin.setEnabled(true);
+		
+		byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 6 };
+		when(ndArrayBase.getNDimensions_RBV()).thenReturn(2);
+		when(ndArrayBase.getArraySize0_RBV()).thenReturn(2);
+		when(ndArrayBase.getArraySize1_RBV()).thenReturn(3);
+		when(ndArrayBase.getArraySize2_RBV()).thenReturn(0);
+		when(ndArray.getByteArrayData(Matchers.anyInt())).thenReturn(byteArray);
+		
 
 		enableAdditionalPlugins(false, false);
 		when(statsPlugin.getInputStreamFormats()).thenReturn(Arrays.asList(STATS_FORMATS));
@@ -295,6 +304,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 	public void testReadoutNoPlugins() throws DeviceException {
 		det().atScanStart();
 		enableReadAcquisitionTimeAndPeriod(false, false);
+		enableArrayReadout(false);
 		NXDetectorData data = (NXDetectorData) det().readout();
 		Double[] doubleVals = data.getDoubleVals();
 		assertEquals("", data.toString());
@@ -304,6 +314,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 	@Test
 	public void testReadoutOnePlugin() throws Exception { // TODO: Two next
 		enableReadAcquisitionTimeAndPeriod(false, false);
+		enableArrayReadout(false);
 		enableAdditionalPlugins(true, false);
 
 		det().atScanStart();
