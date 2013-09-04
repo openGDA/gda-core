@@ -16,10 +16,11 @@ import org.embl.bssc.scPrefs.SampleType;
 import org.embl.bssc.scPrefs.ViscosityLevel;
 import org.embl.bssc.scServerInterface;
 import org.embl.ctrl.State;
-import org.embl.data.Logger;
 import org.embl.net.Event;
 import org.embl.net.ExporterClient;
 import org.embl.net.TransportProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A BSSC Java client implementation example for remote controlling the Sample Changer.
@@ -27,7 +28,8 @@ import org.embl.net.TransportProtocol;
  * @author <a href="mailto:alexgobbo@gmail.com">Alexandre Gobbo</a>
  */
 public class BioSAXSSampleChanger extends DeviceBase implements scServerInterface, Configurable {
-	
+	private static final Logger logger = LoggerFactory.getLogger(BioSAXSSampleChanger.class);
+
 	private int port = 9555;
 	private String hostname = "localhost";
 	private scServerInterface proxy = null;
@@ -72,16 +74,8 @@ public class BioSAXSSampleChanger extends DeviceBase implements scServerInterfac
 	public void waitReady(int timeout) throws BaseException {
 		long start = System.currentTimeMillis();
 		while (true) {
-			State state = getState();
-			switch (state.getID()) {
-			case State.ID_RUNNING:
-			case State.ID_MOVING:
-			case State.ID_INIT:
-			case State.ID_BUSY:
-				break;
-			default:
+			if (isReady())
 				return;
-			}
 			if ((System.currentTimeMillis() - start) > timeout) {
 				throw new BaseException("Timeout waiting application ready");
 			}
@@ -89,8 +83,21 @@ public class BioSAXSSampleChanger extends DeviceBase implements scServerInterfac
 		}
 	}
 
+	public boolean isReady() throws BaseException {
+		State state = getState();
+		switch (state.getID()) {
+		case State.ID_RUNNING:
+		case State.ID_MOVING:
+		case State.ID_INIT:
+		case State.ID_BUSY:
+			return false;
+		default:
+			return true;
+		}
+	}
+	
 	public void onEvent(Event event) {
-		Logger.trace(this, "RECEIVED EVENT: " + event.toString());
+		logger.info("RECEIVED EVENT: " + event.toString());
 	}
 
 	@Override
