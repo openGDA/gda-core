@@ -298,4 +298,11 @@
             name="(Pre-release) Tomography Reconstruction">
       </introPageRegister>
    </extension>
+   <extension
+         point="org.eclipse.ui.intro.configExtension">
+      <configExtension
+            configId="org.dawnsci.intro.universalConfig"
+            content="intro/introContribution.xml">
+      </configExtension>
+   </extension>
 </plugin>
