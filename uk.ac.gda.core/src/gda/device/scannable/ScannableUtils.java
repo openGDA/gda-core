@@ -509,9 +509,9 @@ public abstract class ScannableUtils {
 			Double startValue = Double.valueOf(start.toString());
 			Double stopValue = Double.valueOf(stop.toString());
 			Double stepValue = Math.abs(Double.valueOf(step.toString()));
+			if (stepValue == 0)
+				throw new Exception("Step size is zero so number of points cannot be calculated");
 			int numSteps = getNumberSteps(startValue, stopValue, stepValue);
-			if (numSteps == 0)
-				throw new Exception("step size is zero so number of points cannot be calculated");
 			return numSteps;
 		}
 
