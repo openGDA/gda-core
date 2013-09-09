@@ -16,13 +16,16 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views.nexus;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -100,7 +103,7 @@ public class SliceUtils {
     	currentSlice.setSliceStop(stop);
     	currentSlice.setSliceStep(step);
     	currentSlice.setShapeMessage(buf.toString());
-    	currentSlice.setAxes(Arrays.asList(new AbstractDataset[]{x,y}));
+    	currentSlice.setAxes(Arrays.asList(new IDataset[]{x,y}));
 
     	return currentSlice;
 	}
@@ -176,7 +179,13 @@ public class SliceUtils {
 		
 		if (monitor.isCanceled()) return;
 		
-		PlotUtils.createPlot(sum, currentSlice.getAxes(), mode, plotWindow, monitor);
+		final List<IDataset> da = currentSlice.getAxes();
+		List<AbstractDataset> aa = null;
+		if (da!=null) {
+			aa= new ArrayList<AbstractDataset>(2);
+			for (IDataset ia : da) aa.add((AbstractDataset)ia);
+		}
+		PlotUtils.createPlot(sum, aa, mode, plotWindow, monitor);
 
 
 	}

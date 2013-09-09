@@ -40,7 +40,7 @@ public class SliceTest {
 	public void testSlice() throws Exception {
 		
 		final SliceObject currentSlice = new SliceObject();
-		currentSlice.setAxes(Arrays.asList(new AbstractDataset[]{SliceUtils.createAxisDataset(61), SliceUtils.createAxisDataset(171)}));
+		currentSlice.setAxes(Arrays.asList(new IDataset[]{SliceUtils.createAxisDataset(61), SliceUtils.createAxisDataset(171)}));
 		currentSlice.setName("NXdata.data");
         currentSlice.setPath(System.getProperty("GDALargeTestFilesLocation")+"NexusUITest/DCT_201006-good.h5");
 		currentSlice.setSliceStart(new int[]{0, 0, 500});
@@ -71,7 +71,7 @@ public class SliceTest {
 	public void testSlice2() throws Exception {
 		
 		final SliceObject currentSlice = new SliceObject();
-		currentSlice.setAxes(Arrays.asList(new AbstractDataset[]{SliceUtils.createAxisDataset(61), SliceUtils.createAxisDataset(171)}));
+		currentSlice.setAxes(Arrays.asList(new IDataset[]{SliceUtils.createAxisDataset(61), SliceUtils.createAxisDataset(171)}));
 		currentSlice.setName("NXdata.data");
 		currentSlice.setPath(System.getProperty("GDALargeTestFilesLocation")+"NexusUITest/DCT_201006-good.h5");
 		currentSlice.setSliceStart(new int[]{0, 0, 600});
@@ -104,7 +104,7 @@ public class SliceTest {
 	public void testSlice3() throws Exception {
 		
 		final SliceObject currentSlice = new SliceObject();
-		currentSlice.setAxes(Arrays.asList(new AbstractDataset[]{SliceUtils.createAxisDataset(225), SliceUtils.createAxisDataset(1481)}));
+		currentSlice.setAxes(Arrays.asList(new IDataset[]{SliceUtils.createAxisDataset(225), SliceUtils.createAxisDataset(1481)}));
 		currentSlice.setName("NXdata.data");
 		currentSlice.setPath(System.getProperty("GDALargeTestFilesLocation")+"NexusUITest/sino.h5");
 		currentSlice.setSliceStart(new int[]{4, 0, 0});
