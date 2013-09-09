@@ -71,7 +71,7 @@ PositionCallableProvider<double[]> {
 		//Send as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("tfg setup-groups ext-start cycles 1"+"\n");
-		buffer.append(numberScanPointsToCollect + " 0.000001 0.00000001 0 0 0 " + ttlSocket + 8+"\n");
+		buffer.append(numberScanPointsToCollect + " 0.000001 0.00000001 0 0 0 " + (ttlSocket + 8) +"\n");
 		
 		buffer.append("-1 0 0 0 0 0 0");
 		daserver.sendCommand(buffer.toString());
@@ -328,4 +328,14 @@ PositionCallableProvider<double[]> {
 	public void setDaserver(DAServer daserver) {
 		this.daserver = daserver;
 	}
+
+	public int getTtlSocket() {
+		return ttlSocket;
+	}
+
+	public void setTtlSocket(int ttlSocket) {
+		this.ttlSocket = ttlSocket;
+	}
+	
+	
 }
