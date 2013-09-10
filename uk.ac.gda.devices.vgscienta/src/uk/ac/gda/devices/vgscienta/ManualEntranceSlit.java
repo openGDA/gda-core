@@ -20,14 +20,14 @@ package uk.ac.gda.devices.vgscienta;
 
 public class ManualEntranceSlit implements EntranceSlitInformationProvider {
 
-	private Number rawValue;
+	private Integer rawValue;
 	private String label;
 	private Double sizeInMM;
 	private String shape;
 	private String direction;
 
 	@Override
-	public Number getRawValue() {
+	public Integer getRawValue() {
 		return rawValue;
 	}
 
@@ -41,7 +41,7 @@ public class ManualEntranceSlit implements EntranceSlitInformationProvider {
 		return sizeInMM;
 	}
 
-	public void setRawValue(Number rawValue) {
+	public void setRawValue(Integer rawValue) {
 		this.rawValue = rawValue;
 	}
 
