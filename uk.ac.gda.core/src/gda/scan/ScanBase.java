@@ -380,6 +380,7 @@ public abstract class ScanBase implements Scan {
 	public static void waitForScanEnd() throws InterruptedException {
 		try {
 			while (InterfaceProvider.getScanStatusHolder().getScanStatus() != Jython.IDLE) {
+				checkForInterrupts();
 				Thread.sleep(1000);
 			}
 			checkForInterrupts();
