@@ -77,7 +77,7 @@ class ExtractPeakParameters(XYDataSetFunction):
     def findPeaksAndTroughs(self, ydataset, delta, xdataset=None):
         '''returns a list of peaks and troughs in tuple of (peak_position, peak_value). 
         If x data set is not provided, it returns as tuple of (peak_index, peak_value)'''
-        if xdataset:
+        if xdataset is not None:
             peaks,troughs=peakdet(dnp.array(ydataset), delta, dnp.array(xdataset))
             #print "Peaks (position, value)   : ", peaks
             #print "Troughs (position, value) : ", troughs
