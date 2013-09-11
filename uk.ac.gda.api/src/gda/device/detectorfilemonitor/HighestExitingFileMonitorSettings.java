@@ -58,6 +58,10 @@ public class HighestExitingFileMonitorSettings implements Serializable{
 		return templateInUse;
 	}
 
+	public boolean isEmpty() {
+		return fileTemplatePrefix.isEmpty() && fileTemplate.isEmpty();
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
