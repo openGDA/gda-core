@@ -76,7 +76,7 @@ public abstract class BaseRoiDialog extends Dialog {
 		}
 		plottingSystem.createPlotPart(plotComposite, DEFINE_ROI_PLOT, null, PlotType.IMAGE, null);
 
-		plottingSystem.createPlot2D(image, Collections.EMPTY_LIST, new NullProgressMonitor());
+		plottingSystem.createPlot2D(image, null, new NullProgressMonitor());
 
 		doCreateControl(plotComposite);
 
