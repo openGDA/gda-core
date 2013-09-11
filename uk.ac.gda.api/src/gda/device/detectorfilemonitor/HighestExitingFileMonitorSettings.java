@@ -18,6 +18,7 @@
 
 package gda.device.detectorfilemonitor;
 
+import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -26,14 +27,17 @@ import java.io.Serializable;
  * Implementations look for files that match String.format(fileTemplatePrefix + fileTemplate, startNumber)
  */
 public class HighestExitingFileMonitorSettings implements Serializable{
+
 	@Override
 	public String toString() {
 		return "HighestExitingFileMonitorSettings [fileTemplatePrefix=" + fileTemplatePrefix + ", fileTemplate="
 				+ fileTemplate + ", startNumber=" + startNumber + "]";
 	}
+
 	public String fileTemplatePrefix;
 	public String fileTemplate; 
 	public int startNumber;
+
 	public HighestExitingFileMonitorSettings(String fileTemplatePrefix, String fileTemplate, int startNumber) {
 		super();
 		if( fileTemplate == null )
@@ -44,6 +48,16 @@ public class HighestExitingFileMonitorSettings implements Serializable{
 		this.fileTemplate = fileTemplate;
 		this.startNumber = startNumber;
 	}
+
+	public String getFullTemplate() {
+		String templateInUse = fileTemplatePrefix;
+		if (!templateInUse.endsWith(File.separator)) {
+			templateInUse += File.separator;
+		}
+		templateInUse += fileTemplate;
+		return templateInUse;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -53,6 +67,7 @@ public class HighestExitingFileMonitorSettings implements Serializable{
 		result = prime * result + startNumber;
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
