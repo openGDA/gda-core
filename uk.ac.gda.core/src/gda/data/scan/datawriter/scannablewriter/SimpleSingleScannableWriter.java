@@ -129,7 +129,8 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 		
 		file.makedata(name, NexusFile.NX_FLOAT64, dim.length, minusonedimfordim(dim));
 		file.opendata(name);
-		
+		file.putattr("local_name", String.format("%s.%s", s.getName(), getFirstInputOrExtraNameFor(s)).getBytes(), NexusFile.NX_CHAR);
+
 		String axislist = "1";
 		for (int j = 2; j <= dim.length; j++) {
 			axislist = axislist + String.format(",%d", j);
@@ -150,6 +151,14 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 
 		leaveLocation(file);
 		return sclc;
+	}
+
+	protected static String getFirstInputOrExtraNameFor(Scannable s) {
+		for(String[] names: new String[][] { s.getInputNames(), s.getExtraNames() }) {
+			if (names.length > 0)
+				return names[0];
+		}
+		return null; // this will lead to failure but is defective setup
 	}
 
 	@Override

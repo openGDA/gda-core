@@ -67,7 +67,8 @@ public class SingleStringScannableWriter extends SimpleSingleScannableWriter {
 			
 			file.makedata(name, NexusFile.NX_CHAR, rank, dim);
 			file.opendata(name);
-		
+			file.putattr("local_name", String.format("%s.%s", s.getName(), getFirstInputOrExtraNameFor(s)).getBytes(), NexusFile.NX_CHAR);
+
 			file.putslab(slab, nulldimfordim(dim), onedimfordim(dim));
 		} catch (DeviceException e) {
 			logger.error("error converting scannable data", e);

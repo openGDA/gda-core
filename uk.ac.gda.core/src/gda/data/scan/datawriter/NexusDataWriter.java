@@ -197,7 +197,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// Check to see if we want to create a text/SRS file as well.
 		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, true);
 
-		if( beforeScanMetaData== null ){
+		if (beforeScanMetaData== null) {
 			String metaDataProviderName = LocalProperties.get(GDA_NEXUS_METADATAPROVIDER_NAME);
 			if( StringUtils.hasLength(metaDataProviderName)){
 				NexusTreeAppender metaDataProvider = Finder.getInstance().find(metaDataProviderName);
@@ -206,15 +206,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				metaDataProvider.appendToTopNode(beforeScanMetaData);
 			}
 		}
-		if( beforeScanMetaData == null){
-//			InterfaceProvider.getTerminalPrinter().print("Meta data before_scan is not being added");
-			beforeScanMetaData = new NexusTreeNode("before_scan", NexusExtractor.NXCollectionClassName, null);
-			beforeScanMetaData.addChildNode(new NexusTreeNode("disabled", NexusExtractor.AttrClassName, beforeScanMetaData,
-					new NexusGroupData("True")));
-
-		}
 		setupPropertiesDone = true;
-
 	}
 
 	public INexusTree getBeforeScanMetaData() {
@@ -849,6 +841,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 					// Get a link ID to this data set.
 					file.opendata(element);
+					file.putattr("local_name", String.format("%s.%s", scannable.getName(), element).getBytes(), NexusFile.NX_CHAR);
 
 					// assign axes
 					if (thisPoint.getScanDimensions().length > 0) {
@@ -877,6 +870,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 					// Get a link ID to this data set.
 					file.opendata(element);
+					file.putattr("local_name", String.format("%s.%s", scannable.getName(), element).getBytes(), NexusFile.NX_CHAR);
 
 					if (thisPoint.getDetectorNames().isEmpty() && extranameindex == 0) {
 						file.putattr("signal", "1".getBytes(), NexusFile.NX_CHAR);
