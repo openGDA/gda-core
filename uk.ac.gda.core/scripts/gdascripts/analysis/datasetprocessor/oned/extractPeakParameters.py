@@ -45,14 +45,16 @@ class ExtractPeakParameters(XYDataSetFunction):
         return peaks
 
         
-    def singlePeakProcess(self,xDataSet, yDataSet ):
-        ymax=yDataSet.max()
-        ymaxindex=yDataSet.argMax()
+    def singlePeakProcess(self, xDataSet, yDataSet):
+        xarray = dnp.asarray(xDataSet)
+        yarray = dnp.asarray(yDataSet)
+        ymax=yarray.max()
+        ymaxindex=yarray.argmax()
         #print "y max index %d" % ymaxindex
-        maxpos=xDataSet.getElementDoubleAbs(ymaxindex)
-        basey=self.baseline(xDataSet, yDataSet, 1)
+        maxpos=xarray[ymaxindex]
+        basey=self.baseline(xarray, yarray, 1)
         halfmax=ymax/2+basey/2
-        xcrossingvalues=dnp.crossings(yDataSet, halfmax, xDataSet)
+        xcrossingvalues=dnp.crossings(yarray, halfmax, xarray)
         #print xcrossingvalues, maxpos
         if len(xcrossingvalues)>2:
             print "multiple peaks exists in the data set!, only process the highest peak."
@@ -61,7 +63,9 @@ class ExtractPeakParameters(XYDataSetFunction):
     
     def baseline(self,xdataset, ydataset, smoothness):
         '''find the baseline y value for a peak in y dataset'''
-        ymaxindex=ydataset.argMax()
+        xdataset = dnp.asarray(xdataset)
+        ydataset = dnp.asarray(ydataset)
+        ymaxindex=ydataset.argmax()
         #TODO
         result=dnp.gradient(ydataset,xdataset)
         #derivative(xdataset, ydataset, smoothness)
@@ -69,38 +73,35 @@ class ExtractPeakParameters(XYDataSetFunction):
         rightresult=result[ymaxindex+1:]
         leftminderivativeindex=dnp.abs(leftresult).argmin()
         rightminderivativeindex=dnp.abs(rightresult).argmin()
-        leftbasey=ydataset.getElementDoubleAbs(leftminderivativeindex)
-        rightbasey=ydataset.getElementDoubleAbs(rightminderivativeindex+1+leftresult.shape[0])
+        leftbasey=ydataset[leftminderivativeindex]
+        rightbasey=ydataset[rightminderivativeindex+1+leftresult.shape[0]]
         basey=(leftbasey+rightbasey)/2
         return basey
     
     def findPeaksAndTroughs(self, ydataset, delta, xdataset=None):
         '''returns a list of peaks and troughs in tuple of (peak_position, peak_value). 
         If x data set is not provided, it returns as tuple of (peak_index, peak_value)'''
+        
         if xdataset is not None:
-            peaks,troughs=peakdet(dnp.array(ydataset), delta, dnp.array(xdataset))
-            #print "Peaks (position, value)   : ", peaks
-            #print "Troughs (position, value) : ", troughs
-        else:
-            peaks,troughs=peakdet(dnp.array(ydataset), delta)
-            #print "Peaks (index, value)      : ", peaks
-            #print "Troughs (index, value)    : ", troughs
-        return peaks, troughs
+            xdataset = dnp.asarray(xdataset)
+        return peakdet(dnp.asarray(ydataset), delta, xdataset)
     
     def findBasePoints(self, xdataset, ydataset, delta, smoothness):
-        bases=[]
+        xdataset = dnp.asarray(xdataset)
+        ydataset = dnp.asarray(ydataset)
         peaks=self.findPeaksAndTroughs(ydataset, delta)[0]
         #print peaks
         yslices=[]
         xslices=[]
         startindex=0
         for index,value in peaks: #@UnusedVariable
-            yslices.append(dnp.array(ydataset)[startindex:index])
-            xslices.append(dnp.array(xdataset)[startindex:index])
+            yslices.append(ydataset[startindex:index])
+            xslices.append(xdataset[startindex:index])
             startindex=index+1
-        yslices.append(dnp.array(ydataset)[startindex:])
-        xslices.append(dnp.array(xdataset)[startindex:])
+        yslices.append(ydataset[startindex:])
+        xslices.append(xdataset[startindex:])
 
+        bases=[]
         for xset, yset in zip(xslices, yslices):
             result=dnp.gradient(yset, xset)
             minimumderivativeindex=dnp.abs(result).argmin()
@@ -118,7 +119,7 @@ class ExtractPeakParameters(XYDataSetFunction):
                 print "\noverlapping peaks at x position %f\n" % peakx
                 base=None
             else:
-                base=round((leftbasey+rightbasey)/2,3)
+                base=(leftbasey+rightbasey)/2
             peaksxyb.append((peakx,peaky,base))
         return peaksxyb
 
@@ -132,7 +133,7 @@ class ExtractPeakParameters(XYDataSetFunction):
                 xcrossingvalues=dnp.crossings(yDataSet, halfmax, xDataSet)
                 leftcrossing=find_lt(xcrossingvalues, peakx)
                 rightcrossing=find_gt(xcrossingvalues, peakx)
-                fwhm=round(rightcrossing-leftcrossing,4)
+                fwhm=rightcrossing-leftcrossing
             peakdatas.append((peakx,peaky,fwhm))
         print "\nPeak Parameters (position, value, fwhm) : ", peakdatas
         return peakdatas
