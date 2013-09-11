@@ -101,8 +101,8 @@ Export-Package: com.cosylab.epics.caj,
  gov.aps.jca.jni
 Bundle-ClassPath: .,
  jars/epics.jar,
- jars/jca-2.3.5.jar,
- jars/caj-1.1.9.jar,
+ jars/jca-2.3.6.jar,
+ jars/caj-1.1.13.jar,
  jars/epics-5.3.14.jar
 Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.gda.core
