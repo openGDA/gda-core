@@ -1166,6 +1166,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 				// Get a link ID to this data set
 				file.opendata(((Detector) detector).getExtraNames()[j]);
+				file.putattr("local_name", String.format("%s.%s", detectorName, ((Detector) detector).getExtraNames()[j]).getBytes(), NexusFile.NX_CHAR);
+
 				SelfCreatingLink detectorID = new SelfCreatingLink(file.getdataID());
 				file.closedata();
 
@@ -1208,6 +1210,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 			// Get a link ID to this data set.
 			file.opendata("data");
+			file.putattr("local_name", String.format("%s.%s", detectorName, detectorName).getBytes(), NexusFile.NX_CHAR);
+
 			links.add(new SelfCreatingLink(file.getdataID()));
 			file.closedata();
 		}
@@ -1274,6 +1278,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			// Get a link ID to this data set
 			file.opendata(extraNames[j]);
 			detectorID = new SelfCreatingLink(file.getdataID());
+			file.putattr("local_name", String.format("%s.%s", detector.getName(), extraNames[j]).getBytes(), NexusFile.NX_CHAR);
+
 			file.closedata();
 
 			// close NXdetector
