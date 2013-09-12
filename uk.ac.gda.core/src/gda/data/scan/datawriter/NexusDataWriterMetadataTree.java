@@ -66,7 +66,9 @@ public class NexusDataWriterMetadataTree extends NexusDataWriter {
 				String scannableName = scannable.getName();
 				if (weKnowTheLocationFor(scannableName)) {
 					wehavewritten.add(scannable);
-					metadatascannablestowrite.addAll(locationmap.get(scannableName).getPrerequisiteScannableNames());
+					Collection<String> prerequisites = locationmap.get(scannableName).getPrerequisiteScannableNames();
+					if (prerequisites != null)
+						metadatascannablestowrite.addAll(prerequisites);
 					scannableID.addAll(locationmap.get(scannableName).makeScannable(file, scannable, getSDPositionFor(scannableName), generateDataDim(false, scanDimensions, null)));
 				}
 			}
