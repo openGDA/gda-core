@@ -419,7 +419,16 @@ public class GDALogger {
 		excludedClasses.clear();
 	}
 
+	static {
+		// getCallerClass broke in 7u25, but was fixed in 7u40:
+		//   http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=8016814
+		final String javaVersion = System.getProperty("java.version");
+		CALLER_CLASS_FRAMES_TO_SKIP = javaVersion.equals("1.7.0_25") ? 4 : 3;
+	}
+
+	private static final int CALLER_CLASS_FRAMES_TO_SKIP;
+
 	private static Class<?> getCallerClass() {
-		return Reflection.getCallerClass(3);
+		return Reflection.getCallerClass(CALLER_CLASS_FRAMES_TO_SKIP);
 	}
 }
