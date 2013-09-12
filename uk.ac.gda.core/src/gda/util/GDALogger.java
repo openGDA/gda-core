@@ -95,7 +95,7 @@ public class GDALogger {
 	public static synchronized void debug(String string, int level) {
 
 		if (debugLevel >= level) {
-			Class<?> c = Reflection.getCallerClass(2);
+			Class<?> c = getCallerClass();
 			if (!excludedClasses.contains(c)) {
 				LoggerFactory.getLogger(c).debug(string);
 			}
@@ -115,7 +115,7 @@ public class GDALogger {
 	public static synchronized void debug(String format, Object arg, int level) {
 
 		if (debugLevel >= level) {
-			Class<?> c = Reflection.getCallerClass(2);
+			Class<?> c = getCallerClass();
 			if (!excludedClasses.contains(c)) {
 				LoggerFactory.getLogger(c).debug(format, arg);
 			}
@@ -137,7 +137,7 @@ public class GDALogger {
 	public static synchronized void debug(String format, Object arg, Object arg2, int level) {
 
 		if (debugLevel >= level) {
-			Class<?> c = Reflection.getCallerClass(2);
+			Class<?> c = getCallerClass();
 			if (!excludedClasses.contains(c)) {
 				LoggerFactory.getLogger(c).debug(format, arg, arg2);
 			}
@@ -156,7 +156,7 @@ public class GDALogger {
 	public static synchronized void superDebug(String string, int level) {
 
 		if (debugLevel >= level) {
-			Class<?> c = Reflection.getCallerClass(2);
+			Class<?> c = getCallerClass();
 			if (!excludedClasses.contains(c)) {
 				StackTraceElement ste = new Throwable().getStackTrace()[1];
 				LoggerFactory.getLogger(c).debug(ste.getMethodName() + "(line: " + ste.getLineNumber() + ")" + string);
@@ -171,7 +171,7 @@ public class GDALogger {
 	 */
 	public static synchronized void debug(String string) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).debug(string);
 		}
@@ -187,7 +187,7 @@ public class GDALogger {
 	 */
 	public static synchronized void debug(String format, Object arg) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).debug(format, arg);
 		}
@@ -205,7 +205,7 @@ public class GDALogger {
 	 */
 	public static synchronized void debug(String format, Object arg, Object arg2) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).debug(format, arg, arg2);
 		}
@@ -218,7 +218,7 @@ public class GDALogger {
 	 */
 	public static synchronized void warn(String string) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).warn(string);
 		}
@@ -232,7 +232,7 @@ public class GDALogger {
 	 */
 	public static synchronized void warn(String string, Object arg1) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).warn(string, arg1);
 		}
@@ -247,7 +247,7 @@ public class GDALogger {
 	 */
 	public static synchronized void warn(String string, Object arg1, Object arg2) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).warn(string, arg1, arg2);
 		}
@@ -261,7 +261,7 @@ public class GDALogger {
 	 */
 	public static synchronized void error(String string) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).error(string);
 		}
@@ -276,7 +276,7 @@ public class GDALogger {
 	 */
 	public static synchronized void error(String string, Object arg1) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).error(string, arg1);
 		}
@@ -292,7 +292,7 @@ public class GDALogger {
 	 */
 	public static synchronized void error(String string, Object arg1, Object arg2) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).error(string, arg1, arg2);
 		}
@@ -306,7 +306,7 @@ public class GDALogger {
 	 */
 	public static synchronized void info(String string) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).info(string);
 		}
@@ -321,7 +321,7 @@ public class GDALogger {
 	 */
 	public static synchronized void info(String string, Object arg1) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).info(string, arg1);
 		}
@@ -337,7 +337,7 @@ public class GDALogger {
 	 */
 	public static synchronized void info(String string, Object arg1, Object arg2) {
 
-		Class<?> c = Reflection.getCallerClass(2);
+		Class<?> c = getCallerClass();
 		if (!excludedClasses.contains(c)) {
 			LoggerFactory.getLogger(c).info(string, arg1, arg2);
 		}
@@ -417,5 +417,9 @@ public class GDALogger {
 	public static synchronized void includeAll() {
 
 		excludedClasses.clear();
+	}
+
+	private static Class<?> getCallerClass() {
+		return Reflection.getCallerClass(3);
 	}
 }
