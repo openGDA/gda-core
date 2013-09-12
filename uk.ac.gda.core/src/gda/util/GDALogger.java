@@ -429,6 +429,7 @@ public class GDALogger {
 	private static final int CALLER_CLASS_FRAMES_TO_SKIP;
 
 	private static Class<?> getCallerClass() {
+		// getCallerClass was deprecated in 7u25
 		return Reflection.getCallerClass(CALLER_CLASS_FRAMES_TO_SKIP);
 	}
 }
