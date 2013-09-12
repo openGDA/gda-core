@@ -43,7 +43,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 	private String sampleName;
 	private List<String> descriptions;
-	private Boolean runFromExperimentDefinition;
+	private Boolean runFromExperimentDefinition = false;
 	private String nexusFilePath;
 	private String asciiFileNameTemplate;
 
