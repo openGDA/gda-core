@@ -1,12 +1,5 @@
 <top @name=>
 <NXentry @name=entry1>
-<NXcollection @name=before_scan>
-<Attr @name=disabled>
-<dimensions><dimension>4</dimension></dimensions>
-<type>NX_CHAR</type>
-<value>True</value>
-</Attr>
-</NXcollection>
 <SDS @name=collection_description>
 <dimensions><dimension>25</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -30,6 +23,11 @@
 <values>
 <value>0.0</value>
 </values>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleDetector1.SimpleDetector1_0</value>
+</Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -42,6 +40,11 @@
 <values>
 <value>1.0</value>
 </values>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleDetector1.SimpleDetector1_1</value>
+</Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -54,6 +57,11 @@
 <values>
 <value>2.0</value>
 </values>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleDetector1.SimpleDetector1_2</value>
+</Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -66,6 +74,11 @@
 <values>
 <value>3.0</value>
 </values>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleDetector1.SimpleDetector1_3</value>
+</Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -78,6 +91,11 @@
 <values>
 <value>4.0</value>
 </values>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleDetector1.SimpleDetector1_4</value>
+</Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -90,6 +108,11 @@
 <values>
 <value>5.0</value>
 </values>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleDetector1.SimpleDetector1_5</value>
+</Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -102,6 +125,11 @@
 <values>
 <value>6.0</value>
 </values>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleDetector1.SimpleDetector1_6</value>
+</Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -114,6 +142,11 @@
 <values>
 <value>7.0</value>
 </values>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleDetector1.SimpleDetector1_7</value>
+</Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -126,6 +159,11 @@
 <values>
 <value>8.0</value>
 </values>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleDetector1.SimpleDetector1_8</value>
+</Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -138,6 +176,11 @@
 <values>
 <value>9.0</value>
 </values>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleDetector1.SimpleDetector1_9</value>
+</Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -177,6 +220,11 @@
 <type>NX_CHAR</type>
 <value>1</value>
 </Attr>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleScannable1.simpleScannable1</value>
+</Attr>
 <Attr @name=primary>
 <dimensions><dimension>1</dimension></dimensions>
 <type>NX_CHAR</type>
@@ -205,6 +253,11 @@
 <dimensions><dimension>1</dimension></dimensions>
 <type>NX_CHAR</type>
 <value>1</value>
+</Attr>
+<Attr @name=local_name>
+<dimensions><dimension>33</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>SimpleScannable2.simpleScannable2</value>
 </Attr>
 <Attr @name=target>
 <dimensions><dimension>52</dimension></dimensions>
