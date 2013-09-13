@@ -57,14 +57,13 @@ class I20XesScan(XasScan):
     def __call__ (self,sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
 
         self.experimentFullPath, self.experimentFolderName = self.determineExperimentPath(experimentFullPath)
-        self.xmlFolderName = self.experimentFullPath + "/"
-        self.outputfolderName = self.experimentFullPath[experimentFullPath.find("xml")+4:]
+        self.experimentFullPath = self.experimentFullPath + "/"
 
         # Create the beans from the file names
-        self.sampleBean = BeansFactory.getBeanObject(self.xmlFolderName, sampleFileName)
-        self.scanBean = BeansFactory.getBeanObject(self.xmlFolderName, scanFileName)
-        self.detectorBean = BeansFactory.getBeanObject(self.xmlFolderName, detectorFileName)
-        self.outputBean = BeansFactory.getBeanObject(self.xmlFolderName, outputFileName)
+        self.sampleBean = BeansFactory.getBeanObject(self.experimentFullPath, sampleFileName)
+        self.scanBean = BeansFactory.getBeanObject(self.experimentFullPath, scanFileName)
+        self.detectorBean = BeansFactory.getBeanObject(self.experimentFullPath, detectorFileName)
+        self.outputBean = BeansFactory.getBeanObject(self.experimentFullPath, outputFileName)
 
         # create unique ID for this scan (all repetitions will share the same ID)
         scriptType = "Xes"
@@ -116,7 +115,7 @@ class I20XesScan(XasScan):
         elif scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
             self.log( "Starting XES scan with fixed mono...")
             print""
-            self.log( "Output to",self.outputfolderName)
+            self.log( "Output to",self.experimentFolderName)
             self.xes_args = [self.xes_energy, self.scanBean.getXesInitialEnergy(), self.scanBean.getXesFinalEnergy(), self.scanBean.getXesStepSize(), self.mono_energy, self.scanBean.getMonoEnergy()]
             
             # I20 always moves things back to initial positions after each scan. To save time, move mono to intial position here
@@ -127,7 +126,7 @@ class I20XesScan(XasScan):
         elif scanType == XesScanParameters.SCAN_XES_SCAN_MONO:
             self.log( "Starting 2D scan over XES and mono...")
             print""
-            self.log( "Output to",self.outputfolderName)
+            self.log( "Output to",self.experimentFolderName)
 
             ef_args = [self.xes_energy, self.scanBean.getXesInitialEnergy(), self.scanBean.getXesFinalEnergy(), self.scanBean.getXesStepSize()]
             e0_args = [self.mono_energy, self.scanBean.getMonoInitialEnergy(), self.scanBean.getMonoFinalEnergy(), self.scanBean.getMonoStepSize()]
@@ -161,7 +160,7 @@ class I20XesScan(XasScan):
             raise "scan type in XES Scan Parameters bean/xml not acceptable"
 
         try:
-            self._doLooping(self.beanGroup,"Xes",scan_unique_id, numRepetitions, self.experimentFullPath, self.loggingcontroller, self.sampleBean, self.scanBean, self.detectorBean, self.outputBean)
+            self._doLooping(self.beanGroup,"Xes",scan_unique_id, numRepetitions, self.experimentFullPath, self.experimentFolderName, self.loggingcontroller, self.sampleBean, self.scanBean, self.detectorBean, self.outputBean)
         finally:
             # make sure the plotter is switched off
             self.twodplotter.atScanEnd()
@@ -180,7 +179,7 @@ class I20XesScan(XasScan):
             
     def _doXASScan(self,numRepetitions, validation,scan_unique_id):
         print""
-        self.log( "Output to",self.outputfolderName)
+        self.log( "Output to",self.experimentFolderName)
 
         # add xes_energy, analyserAngle to the defaults and then call the xas command
         xas_scanfilename = self.beanGroup.getScan().getScanFileName()
@@ -193,7 +192,7 @@ class I20XesScan(XasScan):
         
         try:
             self.outputPreparer.mode = "xes"
-            self.xas(self.beanGroup.getSample(), xas_scanfilename, self.beanGroup.getDetector(), self.beanGroup.getOutput(), self.xmlFolderName, numRepetitions, validation)
+            self.xas(self.beanGroup.getSample(), xas_scanfilename, self.beanGroup.getDetector(), self.beanGroup.getOutput(), self.experimentFullPath, numRepetitions, validation)
         finally:
             self.log( "cleaning up scan defaults")
             self.outputPreparer.mode = "xas"
