@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
@@ -39,11 +40,11 @@ import org.slf4j.LoggerFactory;
  * A simple example of a scannable with one input or extra name that needs 
  * to record in a specific place
  */
-public class SimpleSingleScannableWriter implements ScannableWriter {
-	private static final Logger logger = LoggerFactory.getLogger(SimpleSingleScannableWriter.class);
+public class SingleScannableWriter implements ScannableWriter {
+	private static final Logger logger = LoggerFactory.getLogger(SingleScannableWriter.class);
 
-	private String path;
-	private String units;
+	private String[] paths;
+	private String[] units;
 	private Collection<String> prerequisiteScannableNames;
 	
 	private int levels = 0;
@@ -60,7 +61,7 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 	 * @return name of trailing component 
 	 * @throws NexusException
 	 */
-	protected String enterLocation(NeXusFileInterface file) throws NexusException {
+	protected String enterLocation(NeXusFileInterface file, String path) throws NexusException {
 		levels = 0;
 		StringTokenizer st = new StringTokenizer(path, "/");
 		while(st.hasMoreTokens()) {
@@ -121,86 +122,102 @@ public class SimpleSingleScannableWriter implements ScannableWriter {
 		return mdim;
 	}
 	
+	protected int componentsFor(Scannable s) {
+		int i = s.getInputNames() != null ? s.getInputNames().length : 0;
+		int e = s.getExtraNames() != null ? s.getExtraNames().length : 0;
+		return i + e;
+	}
+	protected String componentNameFor(Scannable s, int i) {
+		return ArrayUtils.addAll(s.getInputNames() != null ? s.getInputNames() : new String[]{}, 
+				s.getExtraNames() != null ? s.getExtraNames() : new String[]{})[i].toString();
+	}
+	
 	@Override
 	public Collection<? extends SelfCreatingLink> makeScannable(NeXusFileInterface file, Scannable s, Object position,
 			int[] dim) throws NexusException {
 		Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
 
-		String name = enterLocation(file);
+		for (int i = 0; i < componentsFor(s); i++) {
+			try {
+				if (paths[i].isEmpty())
+					continue;
+				String componentName = componentNameFor(s,i);
+				String unit = null; 
+				if (s instanceof ScannableMotionUnits)
+					unit = ((ScannableMotionUnits) s).getUserUnits();
+				if (units != null && units.length > i)
+					unit = units[i];
+				sclc.addAll(makeComponent(file, dim, paths[i], s.getName(), componentName, positionToWriteableSlab(position, s)[i], unit));
+			} catch (DeviceException e) {
+				logger.error("error converting scannable data", e);
+			}
+		}
+		return sclc;
+	}
+
+	protected Collection<SelfCreatingLink> makeComponent(NeXusFileInterface file, int[] dim, String path, String scannableName, String componentName, double pos, String unit) throws NexusException {
+		Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
+
+		String name = enterLocation(file, path);
 		
 		file.makedata(name, NexusFile.NX_FLOAT64, dim.length, minusonedimfordim(dim));
 		file.opendata(name);
-		file.putattr("local_name", String.format("%s.%s", s.getName(), getFirstInputOrExtraNameFor(s)).getBytes(), NexusFile.NX_CHAR);
+		file.putattr("local_name", String.format("%s.%s", scannableName, componentName).getBytes(), NexusFile.NX_CHAR);
 
 		String axislist = "1";
 		for (int j = 2; j <= dim.length; j++) {
 			axislist = axislist + String.format(",%d", j);
 		}
 		file.putattr("axis", axislist.getBytes(), NexusFile.NX_CHAR);
+		if (unit != null && !unit.isEmpty())
+			file.putattr("units", unit.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
 		
-		try {
-			file.putslab(positionToWriteableSlab(position, s), nulldimfordim(dim), onedimfordim(dim));
-		} catch (DeviceException e) {
-			logger.error("error converting scannable data", e);
-		}
-		
-		byte[] bunits = null;
-		if (s instanceof ScannableMotionUnits) {
-			bunits = ((ScannableMotionUnits) s).getUserUnits().getBytes(Charset.forName("UTF-8"));
-		}
-		if (getUnits() != null && !getUnits().isEmpty()) {
-			bunits = getUnits().getBytes(Charset.forName("UTF-8"));
-		}
-		if (bunits != null && bunits.length > 0)
-			file.putattr("units", bunits, NexusFile.NX_CHAR);
+		file.putslab(new double[] {pos}, nulldimfordim(dim), onedimfordim(dim));
 
 		sclc.add(new SelfCreatingLink(file.getdataID()));
 		file.closedata();
 
 		leaveLocation(file);
+		
 		return sclc;
-	}
-
-	protected static String getFirstInputOrExtraNameFor(Scannable s) {
-		for(String[] names: new String[][] { s.getInputNames(), s.getExtraNames() }) {
-			if (names.length > 0)
-				return names[0];
-		}
-		return null; // this will lead to failure but is defective setup
 	}
 
 	@Override
 	public void writeScannable(NeXusFileInterface file, Scannable s, Object position, int[] start) throws NexusException {
-		String name = enterLocation(file);
-		
-		file.opendata(name);
-		try {
-			file.putslab(positionToWriteableSlab(position, s), start, onedimfordim(start));
-		} catch (DeviceException e) {
-			logger.error("error converting scannable data", e);
+		for (int i = 0; i < componentsFor(s); i++) {
+			if (paths[i].isEmpty())
+				continue;
+			String name = enterLocation(file, paths[i]);
+			
+			file.opendata(name);
+			try {
+				file.putslab(new double[] {positionToWriteableSlab(position, s)[i]}, start, onedimfordim(start));
+			} catch (DeviceException e) {
+				logger.error("error converting scannable data", e);
+			}
+			file.closedata();
+	
+			leaveLocation(file);
 		}
-		file.closedata();
-
-		leaveLocation(file);
 	}
 
-	protected Object positionToWriteableSlab(Object position, Scannable s) throws DeviceException {
+	protected double[] positionToWriteableSlab(Object position, Scannable s) throws DeviceException {
 		return ScannableUtils.positionToArray(position, s);
 	}
 	
-	public String getPath() {
-		return path;
+	public String[] getPaths() {
+		return paths;
 	}
 
-	public void setPath(String path) {
-		this.path = path;
+	public void setPaths(String[] paths) {
+		this.paths = paths;
 	}
 
-	public String getUnits() {
+	public String[] getUnits() {
 		return units;
 	}
 
-	public void setUnits(String units) {
+	public void setUnits(String[] units) {
 		this.units = units;
 	}
 
