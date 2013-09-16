@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.Device;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
@@ -38,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.preferences.PreferenceConstants;
+import uk.ac.gda.preferences.PreferenceInitializer;
 
 public class ServerFileListener implements IObserver, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(ServerFileListener.class);
@@ -84,6 +86,9 @@ public class ServerFileListener implements IObserver, Configurable {
 		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 		
 		String projName = preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_NAME);
+		if( projName.equals(PreferenceInitializer.DATA_PROJECT_NAME_AS_VISIT)){
+			projName = LocalProperties.get(LocalProperties.RCP_APP_VISIT,"Data");
+		}
 		
 		dataProject = null; 
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
