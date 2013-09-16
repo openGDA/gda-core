@@ -133,11 +133,12 @@ public class DummyMultiElementScannable extends ScannableMotionBase implements S
 				if (((PyArray) position).__len__() == this.currentPosition.length) {
 					return null;
 				}
-
 			} else if (position instanceof PyList) {
 				if (((PyList) position).__len__() == this.currentPosition.length) {
 					return null;
 				}
+			} else if (position instanceof Number && this.currentPosition.length == 1) {
+				return null;
 			}
 			return "position must be an array of doubles of the correct length";
 		} catch (NumberFormatException e) {

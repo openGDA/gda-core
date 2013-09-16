@@ -498,14 +498,16 @@ public abstract class ScannableUtils {
 		// the expected size of the start, stop and step objects
 		int numArgs = theScannable.getInputNames().length;
 
-		// if there is a mismatch to the position object and the Scannable, throw an error
-		if (numArgs == 1 && (start.getClass().isArray() || start instanceof PySequence)) {
-			throw new Exception("Position arguments do not match size of Pseudo Device: " + theScannable.getName()
-					+ ". Check size of inputNames and outputFormat arrays for this object.");
+		int numArrayParam = 0;
+		
+		if (start.getClass().isArray()) {
+			numArrayParam = ((Object[]) start).length;
+		} else if (start instanceof PySequence) {
+			numArrayParam = ((PySequence) start).__len__();
 		}
 
 		// if position objects are a single value, or if no inputNames
-		if (numArgs <= 1) {
+		if (numArgs <= 1 && numArrayParam == 0) {
 			Double startValue = Double.valueOf(start.toString());
 			Double stopValue = Double.valueOf(stop.toString());
 			Double stepValue = Math.abs(Double.valueOf(step.toString()));
@@ -514,12 +516,19 @@ public abstract class ScannableUtils {
 			int numSteps = getNumberSteps(startValue, stopValue, stepValue);
 			return numSteps;
 		}
+		
+		// if there is a mismatch to the position object and the Scannable, throw an error
+		if (numArgs != numArrayParam) {
+			throw new Exception("Position arguments do not match size of Pseudo Device: " + theScannable.getName()
+					+ ". Check size of inputNames array for this object.");
+		}
+
 
 		// ELSE position objects are an array
 		int maxSteps = 0;
 		int minSteps = java.lang.Integer.MAX_VALUE;
 		// Loop through each field
-		for (int i = 0; i < theScannable.getInputNames().length; i++) {
+		for (int i = 0; i < numArgs; i++) {
 			Double startValue = getDouble(start, i);
 			Double stopValue = getDouble(stop, i);
 			Double stepValue = getDouble(step, i);
