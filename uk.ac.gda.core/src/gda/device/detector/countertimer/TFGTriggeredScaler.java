@@ -125,6 +125,7 @@ PositionCallableProvider<double[]> {
 	}
 
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
+		@SuppressWarnings("unused")
 		double[][] frame = readData(startFrame, finalFrame);
 		return readData(startFrame, finalFrame);
 	}

@@ -778,6 +778,7 @@ class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoo
 	 * @see org.python.core.PyObject#__call__()
 	 * @return the position of this object as a native or array of natives
 	 */
+	@Override
 	public PyObject __call__() {
 
 		Object position;
@@ -855,6 +856,7 @@ class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoo
 	 * @return a message explaining what happened
 	 */
 	@MethodAccessProtected(isProtected = true)
+	@Override
 	public PyObject __call__(PyObject new_position) {
 		try {
 			moveTo(new_position);
@@ -875,6 +877,7 @@ class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoo
 	 * @return the size of input names. This is intentional as slicing should only work over input parameters. (A design
 	 *         request)
 	 */
+	@Override
 	public int __len__() {
 		return getInputNames().length;
 	}
@@ -885,6 +888,7 @@ class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoo
 	 *            a number or a PySlice object
 	 * @return the part of the objects array of position as defined by index
 	 */
+	@Override
 	public PyObject __getitem__(PyObject index) {
 		double[] currentPosition;
 		try {
@@ -948,6 +952,7 @@ class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoo
 	 * 
 	 * @return the result of the toString method
 	 */
+	@Override
 	public PyString __str__() {
 		return new PyString(toFormattedString());
 	}
@@ -957,6 +962,7 @@ class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoo
 	 * 
 	 * @return the result of the toString method
 	 */
+	@Override
 	public PyString __repr__() {
 		return __str__();
 	}
@@ -964,6 +970,7 @@ class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoo
 	/**
 	 * @return PyString -the name of the object
 	 */
+	@Override
 	public PyString __doc__() {
 		return new PyString(getName());
 	}
