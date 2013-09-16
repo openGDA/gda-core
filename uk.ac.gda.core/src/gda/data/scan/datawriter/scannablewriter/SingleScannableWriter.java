@@ -147,7 +147,7 @@ public class SingleScannableWriter implements ScannableWriter {
 					unit = ((ScannableMotionUnits) s).getUserUnits();
 				if (units != null && units.length > i)
 					unit = units[i];
-				sclc.addAll(makeComponent(file, dim, paths[i], s.getName(), componentName, positionToWriteableSlab(position, s)[i], unit));
+				sclc.addAll(makeComponent(file, dim, paths[i], s.getName(), componentName, positionToWriteableSlab(position, s, i), unit));
 			} catch (DeviceException e) {
 				logger.error("error converting scannable data", e);
 			}
@@ -155,7 +155,7 @@ public class SingleScannableWriter implements ScannableWriter {
 		return sclc;
 	}
 
-	protected Collection<SelfCreatingLink> makeComponent(NeXusFileInterface file, int[] dim, String path, String scannableName, String componentName, double pos, String unit) throws NexusException {
+	protected Collection<SelfCreatingLink> makeComponent(NeXusFileInterface file, int[] dim, String path, String scannableName, String componentName, Object pos, String unit) throws NexusException {
 		Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
 
 		String name = enterLocation(file, path);
@@ -172,7 +172,7 @@ public class SingleScannableWriter implements ScannableWriter {
 		if (unit != null && !unit.isEmpty())
 			file.putattr("units", unit.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
 		
-		file.putslab(new double[] {pos}, nulldimfordim(dim), onedimfordim(dim));
+		file.putslab(pos, nulldimfordim(dim), onedimfordim(dim));
 
 		sclc.add(new SelfCreatingLink(file.getdataID()));
 		file.closedata();
@@ -191,7 +191,7 @@ public class SingleScannableWriter implements ScannableWriter {
 			
 			file.opendata(name);
 			try {
-				file.putslab(new double[] {positionToWriteableSlab(position, s)[i]}, start, onedimfordim(start));
+				file.putslab(positionToWriteableSlab(position, s, i), start, onedimfordim(start));
 			} catch (DeviceException e) {
 				logger.error("error converting scannable data", e);
 			}
@@ -201,8 +201,8 @@ public class SingleScannableWriter implements ScannableWriter {
 		}
 	}
 
-	protected double[] positionToWriteableSlab(Object position, Scannable s) throws DeviceException {
-		return ScannableUtils.positionToArray(position, s);
+	protected Object positionToWriteableSlab(Object position, Scannable s, int i) throws DeviceException {
+		return new double[] {ScannableUtils.positionToArray(position, s)[i]};
 	}
 	
 	public String[] getPaths() {

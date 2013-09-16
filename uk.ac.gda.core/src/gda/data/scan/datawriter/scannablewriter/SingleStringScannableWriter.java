@@ -31,48 +31,41 @@ import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SingleStringScannableWriter extends SimpleSingleScannableWriter {
-	private static final Logger logger = LoggerFactory.getLogger(SimpleSingleScannableWriter.class);
+//	private static final Logger logger = LoggerFactory.getLogger(SimpleSingleScannableWriter.class);
 
 	int stringlength;
 	int rank;
 	
 	@Override
-	public Collection<? extends SelfCreatingLink> makeScannable(NeXusFileInterface file, Scannable s, Object position,
-			int[] dim) throws NexusException {
+	protected Collection<SelfCreatingLink> makeComponent(NeXusFileInterface file, int[] dim, String path, String scannableName, String componentName, Object pos, String unit) throws NexusException {
 		
-		String name = enterLocation(file);
+		String name = enterLocation(file, path);
 		
-		try {
-			stringlength = 127;
-			byte[] slab = positionToWriteableSlab(position, s);
-			
-			if (Arrays.equals(dim, new int[] {1})) {
-				stringlength = slab.length;
-			} else if (slab.length > (stringlength - 10)) {
-				stringlength = slab.length+10;
-			}
-			
-			dim = minusonedimfordim(dim);
-			
-			if (dim[dim.length-1] == 1) {
-				dim[dim.length-1] = stringlength;
-			} else {
-				dim = ArrayUtils.add(dim, stringlength);
-			}
-			rank = dim.length;
-			
-			file.makedata(name, NexusFile.NX_CHAR, rank, dim);
-			file.opendata(name);
-			file.putattr("local_name", String.format("%s.%s", s.getName(), getFirstInputOrExtraNameFor(s)).getBytes(), NexusFile.NX_CHAR);
-
-			file.putslab(slab, nulldimfordim(dim), onedimfordim(dim));
-		} catch (DeviceException e) {
-			logger.error("error converting scannable data", e);
+		stringlength = 127;
+		byte[] slab = (byte []) pos;
+		
+		if (Arrays.equals(dim, new int[] {1})) {
+			stringlength = slab.length;
+		} else if (slab.length > (stringlength - 10)) {
+			stringlength = slab.length+10;
 		}
+		
+		dim = minusonedimfordim(dim);
+		
+		if (dim[dim.length-1] == 1) {
+			dim[dim.length-1] = stringlength;
+		} else {
+			dim = ArrayUtils.add(dim, stringlength);
+		}
+		rank = dim.length;
+		
+		file.makedata(name, NexusFile.NX_CHAR, rank, dim);
+		file.opendata(name);
+		file.putattr("local_name", String.format("%s.%s", scannableName, componentName).getBytes(), NexusFile.NX_CHAR);
+
+		file.putslab(slab, nulldimfordim(dim), onedimfordim(dim));
 		
 		file.closedata();
 
@@ -81,7 +74,7 @@ public class SingleStringScannableWriter extends SimpleSingleScannableWriter {
 	}
 
 	@Override
-	protected byte[] positionToWriteableSlab(Object position, Scannable s) throws DeviceException {
+	protected Object positionToWriteableSlab(Object position, Scannable s, int i) throws DeviceException {
 		return ArrayUtils.add(((String) position).getBytes(Charset.forName("UTF-8")),(byte) 0);
 	}
 	
