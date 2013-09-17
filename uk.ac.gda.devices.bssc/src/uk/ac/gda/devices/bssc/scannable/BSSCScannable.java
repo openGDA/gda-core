@@ -40,7 +40,7 @@ public class BSSCScannable extends ScannableBase {
 			setExtraNames(new String [] {"detergentlevel", "waterlevel", "wastelevel"});
 			setOutputFormat(new String [] {"%2.0f", "%2.0f", "%2.0f"});
 			bssc.getTemperatureSampleStorage();
-			setExtraNames(new String [] { "seutemp", "storagetemp", "detergentlevel", "waterlevel", "wastelevel", "state"});
+			setExtraNames(new String [] { "seutemp", "storagetemp", "detergentlevel", "waterlevel", "wastelevel"});
 			setOutputFormat(new String [] {"%3.1f", "%3.1f", "%2.0f", "%2.0f", "%2.0f"});
 		} catch (Exception ignored) {
 			
