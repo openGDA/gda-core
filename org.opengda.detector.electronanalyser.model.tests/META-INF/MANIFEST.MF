@@ -10,6 +10,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.opengda.detector.electronanalyser.model.regiondefinition.tests
 Require-Bundle: org.eclipse.core.runtime,
  org.opengda.detector.electronanalyser.model;visibility:=reexport,
- org.eclipse.emf.ecore.xmi;visibility:=reexport,
+ org.eclipse.emf.ecore.xmi;bundle-version="[2.8.1,2.8.2)";visibility:=reexport,
  org.junit;visibility:=reexport
 Bundle-ActivationPolicy: lazy
