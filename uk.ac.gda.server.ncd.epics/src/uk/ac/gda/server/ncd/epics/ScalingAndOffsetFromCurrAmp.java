@@ -1,6 +1,5 @@
-package uk.ac.gda.server.ncd.epics;
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2011-2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,6 +15,8 @@ package uk.ac.gda.server.ncd.epics;
  * You should have received a copy of the GNU General Public License along
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
+
+package uk.ac.gda.server.ncd.epics;
 
 import java.util.Map;
 
@@ -44,11 +45,9 @@ import uk.ac.gda.server.ncd.subdetector.ScalingAndOffset;
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
 public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scannable, Findable, ScalingAndOffset, MonitorListener {
-	
 	private static final Logger logger = LoggerFactory.getLogger(ScalingAndOffsetFromCurrAmp.class);
 	
 	private String pvName;
-	public static final String[] epicsnamelist = {".ZRST", ".ONST", ".TWST", ".THST", ".FRST", ".FVST", ".SXST", ".SVST", ".EIST", ".NIST", ".TEST", ".ELST", ".TVST", ".TTST", ".FFST"};
 	private String[] labellist;
 	private int gain;
 	private EpicsController ec;
