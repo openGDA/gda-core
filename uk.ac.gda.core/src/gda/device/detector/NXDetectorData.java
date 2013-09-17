@@ -355,7 +355,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		axis.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, axis,new NexusGroupData(new int[] {axisVal.length}, NexusFile.NX_INT32, axisVal)));
 		Integer[] primaryVal = {primaryValue};
 		axis.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, axis,new NexusGroupData(new int[] {primaryVal.length}, NexusFile.NX_INT32, primaryVal)));
-		axis.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
+		axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
 		axis.setIsPointDependent(isPointDependent);
 		detTree.addChildNode(axis);
 	}
@@ -382,7 +382,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		axis.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, axis,new NexusGroupData(new int[] {axisVal.length}, NexusFile.NX_INT32, axisVal)));
 		Integer[] primaryVal = {primaryValue};
 		axis.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, axis,new NexusGroupData(new int[] {primaryVal.length}, NexusFile.NX_INT32, primaryVal)));
-		axis.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
+		axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
 		axis.setIsPointDependent(isPointDependent);
 		detTree.addChildNode(axis);
 	}
@@ -401,7 +401,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		INexusTree detTree = getDetTree(detName);
 
 		NexusTreeNode axis = new NexusTreeNode(name,NexusExtractor.SDSClassName, tree, new NexusGroupData(dimensions, type, axisValues));
-		axis.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
+		axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
 		axis.setIsPointDependent(isPointDependent);
 		detTree.addChildNode(axis);
 	}
