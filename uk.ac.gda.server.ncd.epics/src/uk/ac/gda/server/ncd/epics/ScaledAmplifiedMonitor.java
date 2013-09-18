@@ -30,7 +30,16 @@ public class ScaledAmplifiedMonitor extends EpicsScannable {
 	ScalingAndOffsetFromCurrAmp scalingAndOffset;
 	private double upperThreshold = 0.3;
 	private long settletime = 150;
+	private boolean autoGain = true;
 	
+	public boolean isAutoGain() {
+		return autoGain;
+	}
+
+	public void setAutoGain(boolean autoGain) {
+		this.autoGain = autoGain;
+	}
+
 	public double getUpperThreshold() {
 		return upperThreshold;
 	}
@@ -67,6 +76,8 @@ public class ScaledAmplifiedMonitor extends EpicsScannable {
 			value = (Double) super.rawGetPosition();
 			if (scalingAndOffset == null)
 				return value;
+			if (!autoGain)
+				break;
 			try {
 				if (value > upperThreshold) {
 					scalingAndOffset.decreaseAmplification();
@@ -75,7 +86,7 @@ public class ScaledAmplifiedMonitor extends EpicsScannable {
 					scalingAndOffset.increaseAmplification();
 					scalingAndOffset.waitWhileBusy();
 				} else 
-					return scalingAndOffset.getOffset() + value * scalingAndOffset.getScaling();
+					break;
 				Thread.sleep(settletime);
 			} catch (ScalingAndOffsetFromCurrAmp.OptionsExhausedException e) {
 				// this is normal when no beam for overloaded
