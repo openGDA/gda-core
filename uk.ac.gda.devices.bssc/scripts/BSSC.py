@@ -16,6 +16,7 @@ class BSSCRun:
         self.detector = gda.factory.Finder.getInstance().listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
         self.cam = gda.factory.Finder.getInstance().find("bsaxscam")
         self.shutter = gda.factory.Finder.getInstance().find("shutter")
+        self.bsscscannable = gda.factory.Finder.getInstance().find("bsscscannable")
         self.progresscounter = 0
         self.overheadsteps = 5
         self.stepspersample = 8
@@ -37,9 +38,9 @@ class BSSCRun:
         except: 
             print "Temperature control is not working, will run at ambient conditions."
         if self.isSimulation:
-            self.scannables = [self.detector]
+            self.scannables = [self.detector, self.bsscscannable]
         else:
-            self.scannables = [self.detector, self.cam]
+            self.scannables = [self.detector, self.bsscscannable, self.cam]
         
     def reportProgress(self, message):
         self.progresscounter += 1
