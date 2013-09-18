@@ -18,9 +18,9 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.jython.gui.JythonGuiConstants;
 import gda.jython.scriptcontroller.ScriptExecutor;
 import gda.jython.scriptcontroller.corba.impl.ScriptcontrollerAdapter;
@@ -80,10 +80,12 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.IDetectorElement;
+import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
+import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ExafsActivator;
@@ -116,7 +118,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 */
 	private static final String EXAFS_SCRIPT_OBSERVER = "ExafsScriptObserver";
 	private static final Logger logger = LoggerFactory.getLogger(DetectorEditor.class);
-	protected boolean saveToExtension = LocalProperties.check("gda.xml.save.extension");
 	protected SashFormPlotComposite sashPlotForm;
 
 	// Used for temporary storage of data
@@ -437,19 +438,16 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		return rois.get(index).getRoiName();
 	}
 
-	protected void upload(Object... upLoadbean) throws Exception {
-		final Serializable bean;
-		if (upLoadbean.length == 0) {
-			// We save
-			bean = (Serializable) updateFromUIAndReturnEditingBean();
+	protected void upload() throws Exception {
+		
+		// the bean from the enclosing scan (may be null if no scan selected)
+		IExperimentObject experimentObject = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
+		final IOutputParameters outputBean;
+		if (experimentObject != null && experimentObject instanceof ScanObject){
+			outputBean = ((ScanObject) experimentObject).getOutputParameters();
 		} else {
-			bean = (Serializable) upLoadbean[0];
+			outputBean = null;
 		}
-
-		ScanObject scanObject = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
-		// The user may be editing a file e.g. VortexParameters outside of the ExperimentPerspective with no selected
-		// scan
-		final Serializable outputBean = scanObject != null ? scanObject.getOutputParameters() : null;
 
 		final boolean ok = MessageDialog
 				.openConfirm(
@@ -470,19 +468,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 				try {
 					final Map<String, Serializable> data = new HashMap<String, Serializable>(1);
-					data.put("XspressParametersToLoad", bean);
+					data.put("XMLFileNameToLoad", path);
 					data.put("OutputParametersToLoad", outputBean);
 					monitor.worked(10);
-					if (saveToExtension) {
-						String additionalSaveName = new File(path).getName();
-						ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
-								+ "(XspressParametersToLoad,OutputParametersToLoad,\"" + additionalSaveName + "\")",
-								JythonGuiConstants.TERMINALNAME);
-					} else
-						ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
-								+ "(XspressParametersToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
+					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command 
+							+ "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
 					monitor.worked(50);
-
+					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(command + ".getConfigureResult()");
+					sashPlotForm.appendStatus(configureResult, logger);
 				} catch (Exception e) {
 					logger.error("Internal error cannot get data from detector.", e);
 				} finally {

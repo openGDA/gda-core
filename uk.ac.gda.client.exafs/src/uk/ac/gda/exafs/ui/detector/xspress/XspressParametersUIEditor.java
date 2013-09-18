@@ -172,7 +172,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	 */
 	public XspressParametersUIEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean, "xspress");
+		super(path, mappingURL, dirtyContainer, editingBean, "xspressConfig");
 		this.xspressParameters = (XspressParameters) editingBean;
 	}
 
@@ -915,23 +915,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		}
 		return ret;
 	}
-
-	@Override
-	protected void upload(Object... upLoadbean) throws Exception {
-		if (modeOverride && upLoadbean.length == 0) {
-			XspressParameters bean = (XspressParameters) editingBean;
-			bean.setReadoutMode(XspressDetector.READOUT_MCA);
-			bean.setResGrade(ResGrades.NONE);
-			List<DetectorElement> elements = bean.getDetectorList();
-			for (DetectorElement element : elements) {
-				List<XspressROI> rois = element.getRegionList();
-				element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd());
-			}
-			super.upload(bean);
-		} else
-			super.upload(upLoadbean);
-	}
-
+	
 	@Override
 	protected void LoadAcquireFromFile() {
 		String dataDir = PathConstructor.createFromDefaultProperty();

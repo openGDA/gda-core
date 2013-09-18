@@ -22,33 +22,32 @@ class I20DetectorPreparer:
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         
-    def prepare(self, scanBean, detectorBean, outputBean, scriptFolder):
+    def prepare(self, scanBean, detectorBean, outputBean, experimentFullPath):
         """
         Validates the bean which defines the detectors and then configures the vortex or xspress
         based on the xml file whose name is in the bean.
         """
         
-        self.setUpIonChambers(scanBean)
+        self._setUpIonChambers(scanBean)
         
         if detectorBean.getExperimentType() == "Fluorescence" :
             fluoresenceParameters = detectorBean.getFluorescenceParameters()
+            xmlFileName = experimentFullPath + fluoresenceParameters.getConfigFileName()
             detType = fluoresenceParameters.getDetectorType()
-            xmlFileName = scriptFolder + fluoresenceParameters.getConfigFileName()
             if detType == "Germanium":
-                self.xspressConfig.initialize()
-                self.xspressConfig.setDetectorCorrectionParameters(scanBean)
                 onlyShowFF = outputBean.isXspressOnlyShowFF()
                 showDTRawValues = outputBean.isXspressShowDTRawValues()
                 saveRawSpectrum = outputBean.isXspressSaveRawSpectrum()
-                self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+                self._configureGeDetector(scanBean,xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
             elif detType == "Silicon":
-                self.vortexConfig.initialize()
-                vortexBean = self.vortexConfig.createBeanFromXML(xmlFileName)
-                saveRawSpectrum = vortexBean.isSaveRawSpectrum()
-                self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
+                saveRawSpectrum = outputBean.isVortexSaveRawSpectrum()
+                self._configureSiDetector(xmlFileName, saveRawSpectrum)
         elif detectorBean.getExperimentType() == "XES" :
-            xmlFileName = scriptFolder + detectorBean.getXesParameters().getConfigFileName()
-            VortexDetectorConfiguration(self.ExafsScriptObserver,xmlFileName,None,outputBean).configure()
+            fluoresenceParameters = detectorBean.getXesParameters()
+            xmlFileName = experimentFullPath + fluoresenceParameters.getConfigFileName()
+            saveRawSpectrum = outputBean.isVortexSaveRawSpectrum()
+            self._configureSiDetector(xmlFileName, saveRawSpectrum)
+
             
         ionChamberParamsArray = None
         if detectorBean.getExperimentType() == "Fluorescence" :
@@ -59,10 +58,19 @@ class I20DetectorPreparer:
             ionChamberParamsArray = detectorBean.getXesParameters().getIonChamberParameters()
         
         for ionChamberParams in ionChamberParamsArray:
-            self.setup_amp_sensitivity(ionChamberParams, self.sensitivities, self.sensitivity_units)
-            self.setup_amp_offset(ionChamberParams, self.offsets, self.offset_units)
+            self._setup_amp_sensitivity(ionChamberParams, self.sensitivities, self.sensitivity_units)
+            self._setup_amp_offset(ionChamberParams, self.offsets, self.offset_units)
             
-    def setup_amp_sensitivity(self, ionChamberParams, sensitivities, sensitivity_units):
+    def _configureGeDetector(self,scanBean,xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum):
+        self.xspressConfig.initialize()
+        self.xspressConfig.setDetectorCorrectionParameters(scanBean)
+        self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+       
+    def _configureSiDetector(self,xmlFileName, saveRawSpectrum):
+        self.vortexConfig.initialize()
+        self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
+        
+    def _setup_amp_sensitivity(self, ionChamberParams, sensitivities, sensitivity_units):
         if ionChamberParams.getChangeSensitivity():
             ionChamberName = ionChamberParams.getName()
             if ionChamberParams.getGain() == None or ionChamberParams.getGain() == "":
@@ -85,7 +93,7 @@ class I20DetectorPreparer:
                 print "Please report this problem to Data Acquisition"
                 raise e
             
-    def setup_amp_offset(self, ionChamberParams, offsets, offset_units):
+    def _setup_amp_offset(self, ionChamberParams, offsets, offset_units):
         if ionChamberParams.getChangeSensitivity():
             ionChamberName = ionChamberParams.getName()
             if ionChamberParams.getOffset() == None or ionChamberParams.getOffset() == "":
@@ -108,7 +116,7 @@ class I20DetectorPreparer:
                 print "Please report this problem to Data Acquisition"
                 raise e
 
-    def setUpIonChambers(self,scanBean):    
+    def _setUpIonChambers(self,scanBean):    
         # determine max collection time
         maxTime = 0;
         if isinstance(scanBean,XanesScanParameters):

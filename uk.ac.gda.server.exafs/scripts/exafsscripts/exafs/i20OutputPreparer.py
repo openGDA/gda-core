@@ -42,7 +42,7 @@ class I20OutputPreparer:
         
         if self.mode == "xes" or isinstance(scanBean,XesScanParameters):
             # will return None if not found
-            print "Ascii (.dat) files will have XES header."
+            print "Ascii (.dat) files will have XES format header."
             return self.datawriterconfig_xes
         else:
             # will return None if not found
@@ -133,12 +133,29 @@ class I20OutputPreparer:
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sag",str(self.jython_mapper.m2_sag()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Yaw",str(self.jython_mapper.m2_yaw()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
     
-        # ATNs 1,2&3
+        # attentuators
         if (LocalProperties.get("gda.mode") != 'dummy'):
             NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn1()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN1"))
             NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn2()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN2"))
             NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn3()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN3"))
             NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn4()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN4"))
+
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 1",str(self.jython_mapper.atn5_filter1_name()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 1 position",str(self.jython_mapper.atn5_filter1()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 2",str(self.jython_mapper.atn5_filter2_name()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 2 position",str(self.jython_mapper.atn5_filter2()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 3",str(self.jython_mapper.atn5_filter3_name()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 3 position",str(self.jython_mapper.atn5_filter3()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 4",str(self.jython_mapper.atn5_filter4_name()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 4 position",str(self.jython_mapper.atn5_filter4()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 5",str(self.jython_mapper.atn5_filter5_name()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 5 position",str(self.jython_mapper.atn5_filter5()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 6",str(self.jython_mapper.atn5_filter6_name()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 6 position",str(self.jython_mapper.atn5_filter6()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 7",str(self.jython_mapper.atn5_filter7_name()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 7 position",str(self.jython_mapper.atn5_filter7()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 8",str(self.jython_mapper.atn5_filter8_name()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Filter 8 position",str(self.jython_mapper.atn5_filter8()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN5"))
         
         #Y slits  ????
     #    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("YPlus",str(self.jython_mapper.s1_voffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"Y slits"))
@@ -186,18 +203,22 @@ class I20OutputPreparer:
         
         
         # Gain and HV for Io, it anf iref
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset current",str(self.jython_mapper.i0_stanford_offset_current()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I0 stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset",str(self.jython_mapper.i0_stanford_offset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I0 stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset units",str(self.jython_mapper.i0_stanford_offset_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I0 stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity",str(self.jython_mapper.i0_stanford_sensitivity()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I0 stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity units",str(self.jython_mapper.i0_stanford_sensitivity_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I0 stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset current",str(self.jython_mapper.i1_stanford_offset_current()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I1 stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset",str(self.jython_mapper.i1_stanford_offset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I1 stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset units",str(self.jython_mapper.i1_stanford_offset_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I1 stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity",str(self.jython_mapper.i1_stanford_sensitivity()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I1 stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity units",str(self.jython_mapper.i1_stanford_sensitivity_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I1 stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset current",str(self.jython_mapper.it_stanford_offset_current()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"It stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset",str(self.jython_mapper.it_stanford_offset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"It stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset units",str(self.jython_mapper.it_stanford_offset_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"It stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity",str(self.jython_mapper.it_stanford_sensitivity()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"It stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity units",str(self.jython_mapper.it_stanford_sensitivity_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"It stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset current",str(self.jython_mapper.iref_stanford_offset_current()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset",str(self.jython_mapper.iref_stanford_offset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset units",str(self.jython_mapper.iref_stanford_offset_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity",str(self.jython_mapper.iref_stanford_sensitivity()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
