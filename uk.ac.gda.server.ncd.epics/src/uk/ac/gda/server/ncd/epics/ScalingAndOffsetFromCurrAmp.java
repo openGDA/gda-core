@@ -18,8 +18,6 @@
 
 package uk.ac.gda.server.ncd.epics;
 
-import java.util.Map;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
@@ -36,17 +34,26 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
+import java.util.Map;
+import java.util.StringTokenizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.server.ncd.subdetector.ScalingAndOffsetParameters;
 import uk.ac.gda.server.ncd.subdetector.ScalingAndOffset;
+import uk.ac.gda.server.ncd.subdetector.ScalingAndOffsetParameters;
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
 public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scannable, Findable, ScalingAndOffset, MonitorListener {
 	private static final Logger logger = LoggerFactory.getLogger(ScalingAndOffsetFromCurrAmp.class);
 	
+	public class OptionsExhausedException extends DeviceException {
+		public OptionsExhausedException(String message) {
+			super(message);
+		}
+	}
+
 	private String pvName;
 	private String[] labellist;
 	private int gain;
@@ -68,8 +75,8 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 		} catch (Exception e) {
 			throw new FactoryException("error connecting to "+getName(), e);
 		}
-		
 	}
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return busy;
@@ -157,5 +164,48 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 	}
 	public void setGaintosando(Map<Integer, ScalingAndOffsetParameters> gaintosando) {
 		this.gaintosando = gaintosando;
+	}
+	
+	private boolean looksLikeSimilarSettings(int g1, int g2) {
+		int count=0;
+		String s1 = labellist[g1];
+		String s2 = labellist[g2];
+		StringTokenizer st1 = new StringTokenizer(s1);
+		StringTokenizer st2 = new StringTokenizer(s2);
+		while(st1.hasMoreTokens() && st2.hasMoreTokens()) {
+			if (st1.nextToken().equalsIgnoreCase(st2.nextToken()))
+				count++;
+		}
+		if (count >= 2)
+			return true;
+		return false;
+	}
+	
+	private Integer findNext(int higher) throws DeviceException {
+
+		Integer solution = null;
+		if (gaintosando == null || !gaintosando.containsKey(gain))
+			throw new DeviceException("not configured well enough to change gain myself");
+		Double currentgain = gaintosando.get(gain).scaling;
+		for(int g: new int[] {gain-1,gain+1}) {
+			if (gaintosando.containsKey(g)) {
+				if (currentgain.compareTo(gaintosando.get(g).scaling) * higher > 0) {
+					solution = g;
+					if (looksLikeSimilarSettings(gain, solution))
+						return solution;
+				}
+			}
+		}
+		if (solution != null)
+			return solution;
+		
+		throw new OptionsExhausedException("no better gain found");
+	}
+	
+	public void decreaseAmplification() throws DeviceException {
+		rawAsynchronousMoveTo(findNext(-1));
+	}
+	public void increaseAmplification() throws DeviceException {
+		rawAsynchronousMoveTo(findNext(1));
 	}
 }
