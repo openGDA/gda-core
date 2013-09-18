@@ -23,7 +23,9 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.xmap.EpicsXmapController;
 import gda.device.detector.xmap.EpicsXmapController2;
+import gda.device.detector.xmap.EpicsXmapController3;
 import gda.device.detector.xmap.XmapController;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -111,11 +113,13 @@ public class NcdXmapDetector extends NcdSubDetector  {
 		ngd.isDetectorEntryData = true;
 		dataTree.addData(getTreeName(), ngd, "counts", 1);
 
-		if (xmapcontroller instanceof EpicsXmapController2) {
-			EpicsXmapController2 emc2 = (EpicsXmapController2) xmapcontroller;
-			double[] energyaxis = emc2.getEnergyBins()[0];
-			NexusGroupData angd = new NexusGroupData(new int[]{energyaxis.length}, NexusFile.NX_FLOAT64, energyaxis);
-			dataTree.addAxis(getTreeName(), "energy", angd, 1, 1, "keV", false);
+		if (xmapcontroller instanceof EpicsXmapController) {
+			EpicsXmapController emc = (EpicsXmapController) xmapcontroller;
+			//FIXME, Chris!
+			throw new DeviceException("in the following three lines an energy axis could be provided, but the controller class no longer allows this.");
+//			double[] energyaxis = emc.getEnergyBins()[0];
+//			NexusGroupData angd = new NexusGroupData(new int[]{energyaxis.length}, NexusFile.NX_FLOAT64, energyaxis);
+//			dataTree.addAxis(getTreeName(), "energy", angd, 1, 1, "keV", false);
 		}
 		
 		addMetadata(dataTree);
