@@ -1,6 +1,5 @@
-package uk.ac.gda.server.ncd.epics;
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2011-2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -17,7 +16,7 @@ package uk.ac.gda.server.ncd.epics;
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.Map;
+package uk.ac.gda.server.ncd.epics;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -35,20 +34,27 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
+import java.util.Map;
+import java.util.StringTokenizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.server.ncd.subdetector.ScalingAndOffsetParameters;
 import uk.ac.gda.server.ncd.subdetector.ScalingAndOffset;
+import uk.ac.gda.server.ncd.subdetector.ScalingAndOffsetParameters;
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
 public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scannable, Findable, ScalingAndOffset, MonitorListener {
-	
 	private static final Logger logger = LoggerFactory.getLogger(ScalingAndOffsetFromCurrAmp.class);
 	
+	public class OptionsExhausedException extends DeviceException {
+		public OptionsExhausedException(String message) {
+			super(message);
+		}
+	}
+
 	private String pvName;
-	public static final String[] epicsnamelist = {".ZRST", ".ONST", ".TWST", ".THST", ".FRST", ".FVST", ".SXST", ".SVST", ".EIST", ".NIST", ".TEST", ".ELST", ".TVST", ".TTST", ".FFST"};
 	private String[] labellist;
 	private int gain;
 	private EpicsController ec;
@@ -69,8 +75,8 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 		} catch (Exception e) {
 			throw new FactoryException("error connecting to "+getName(), e);
 		}
-		
 	}
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return busy;
@@ -158,5 +164,48 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 	}
 	public void setGaintosando(Map<Integer, ScalingAndOffsetParameters> gaintosando) {
 		this.gaintosando = gaintosando;
+	}
+	
+	private boolean looksLikeSimilarSettings(int g1, int g2) {
+		int count=0;
+		String s1 = labellist[g1];
+		String s2 = labellist[g2];
+		StringTokenizer st1 = new StringTokenizer(s1);
+		StringTokenizer st2 = new StringTokenizer(s2);
+		while(st1.hasMoreTokens() && st2.hasMoreTokens()) {
+			if (st1.nextToken().equalsIgnoreCase(st2.nextToken()))
+				count++;
+		}
+		if (count >= 2)
+			return true;
+		return false;
+	}
+	
+	private Integer findNext(int higher) throws DeviceException {
+
+		Integer solution = null;
+		if (gaintosando == null || !gaintosando.containsKey(gain))
+			throw new DeviceException("not configured well enough to change gain myself");
+		Double currentgain = gaintosando.get(gain).scaling;
+		for(int g: new int[] {gain-1,gain+1}) {
+			if (gaintosando.containsKey(g)) {
+				if (currentgain.compareTo(gaintosando.get(g).scaling) * higher > 0) {
+					solution = g;
+					if (looksLikeSimilarSettings(gain, solution))
+						return solution;
+				}
+			}
+		}
+		if (solution != null)
+			return solution;
+		
+		throw new OptionsExhausedException("no better gain found");
+	}
+	
+	public void decreaseAmplification() throws DeviceException {
+		rawAsynchronousMoveTo(findNext(-1));
+	}
+	public void increaseAmplification() throws DeviceException {
+		rawAsynchronousMoveTo(findNext(1));
 	}
 }
