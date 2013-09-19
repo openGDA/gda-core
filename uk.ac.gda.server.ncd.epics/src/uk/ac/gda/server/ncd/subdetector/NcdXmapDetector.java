@@ -24,8 +24,6 @@ import gda.device.DeviceException;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.xmap.EpicsXmapController;
-import gda.device.detector.xmap.EpicsXmapController2;
-import gda.device.detector.xmap.EpicsXmapController3;
 import gda.device.detector.xmap.XmapController;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
