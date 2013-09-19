@@ -204,8 +204,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private String detectorType = "ADDetector";
 
-	private static String ARRAY_DATA_NAME = "arrayData";
-
 	private boolean computeStats = false;
 
 	private boolean computeCentroid = false;
@@ -800,7 +798,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 		ArrayData arrayData = ArrayData.readArrayData(ndArray);
 		data.addData(detectorName, "data", arrayData.getDims(), arrayData.getNexusType(), arrayData.getDataVals(),
-				ARRAY_DATA_NAME, 1);
+				null, 1);
 	}
 
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
