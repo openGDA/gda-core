@@ -21,11 +21,17 @@ package gda.device.detector.countertimer;
 import gda.device.DeviceException;
 import gda.device.timer.Tfg;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Another extension to the class which, if given all the data point times in the scan in advance, will code up all the
  * time frames so that timing grousp are used across the scan instead of doing a tfg generate command at each point.
  */
 public class TfgScalerWithFrames extends TfgScalerWithLogValues {
+	
+	private static final Logger logger = LoggerFactory.getLogger(TfgScalerWithFrames.class);
+	
 	private Double[] times; // milliseconds
 
 	/**
@@ -39,6 +45,7 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 	 * @param times - array of times of the upcoming scan in seconds.
 	 */
 	public void setTimes(Double[] times) {
+		logger.debug("array of " + times.length + " frame times given to " + getName());
 		this.times = times;
 	}
 
@@ -65,12 +72,14 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 	@Override
 	public void atScanEnd() throws DeviceException {
 		times = null;
+		logger.debug("array of frame times cleared in " + getName());
 		super.atScanEnd();
 	}
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		times = null;
+		logger.debug("array of frame times cleared in " + getName());
 		super.atCommandFailure();
 		stop();
 	}
