@@ -89,7 +89,7 @@ public class VGScientaController implements Configurable {
 	}
 	
 	public void setLensMode(String value) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(LENSMODE), value);
+		EPICS_CONTROLLER.caputWait(getChannel(LENSMODE), value);
 	}
 	
 	public String getLensMode() throws Exception {
@@ -108,7 +108,7 @@ public class VGScientaController implements Configurable {
 		int i = 0;
 		for(Integer pes: passenergies) {
 			if (value.equals(pes)) {
-				EPICS_CONTROLLER.caput(getChannel(PASSENERGY), i);
+				EPICS_CONTROLLER.caputWait(getChannel(PASSENERGY), i);
 				return;
 			}
 			i = i + 1;

@@ -48,6 +48,8 @@ import com.cosylab.epics.caj.CAJChannel;
 public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector implements MonitorListener, FlexibleFrameDetector, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyser.class);
 
+	protected boolean inScan = false;
+	
 	private VGScientaController controller;
 	private AnalyserCapabilties ac;
 	private int[] fixedModeRegion;
@@ -119,10 +121,12 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			logger.error("error stopping acquisition before running scan", e);
 		}
 		super.atScanStart();
+		inScan = true;
 	}
 	
 	@Override
 	public void atScanEnd() throws DeviceException {
+		inScan = false;
 		super.atScanEnd();
 		try {
 			zeroSupplies();
@@ -306,7 +310,17 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	}
 	
 	public void setLensMode(String value) throws Exception {
+		if (inScan) 
+			throw new DeviceException("change of lens mode prohibited during scan");
+		boolean restart = false;
+		if (getAdBase().getAcquireState() == 1) {
+			getAdBase().stopAcquiring();
+			restart = true;
+		}
 		controller.setLensMode(value);
+		Thread.sleep(250);
+		if (restart)
+			getAdBase().startAcquiring();
 	}
 	
 	public String getLensMode() throws Exception {
@@ -314,7 +328,17 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	}
 	
 	public void setPassEnergy(Integer value) throws Exception {
+		if (inScan) 
+			throw new DeviceException("change of pass energy prohibited during scan");
+		boolean restart = false;
+		if (getAdBase().getAcquireState() == 1) {
+			getAdBase().stopAcquiring();
+			restart = true;
+		}
 		controller.setPassEnergy(value);
+		Thread.sleep(250);
+		if (restart)
+			getAdBase().startAcquiring();
 	}
 	
 	public Integer getPassEnergy() throws Exception {
