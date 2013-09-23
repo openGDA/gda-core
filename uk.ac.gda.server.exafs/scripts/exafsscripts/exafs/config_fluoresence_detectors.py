@@ -62,13 +62,12 @@ class XspressConfig():
         self.xspress2system.setDeadtimeCalculationEnergy(dtEnergy)
     
     def resolveXASDeadtimeCalculationEnergy(self, scanBean):
-        dtEnergy = 0.0
         edge = scanBean.getEdge()
         element = scanBean.getElement()
         elementObj = Element.getElement(element)
         energy = self.getEmissionEnergy(elementObj,edge)
         energy /= 1000 # convert from eV to keV
-        print "Setting Ge detector deadtime calculation energy to be",str(dtEnergy),"keV based on element",element,"and edge",edge
+        print "Setting Ge detector deadtime calculation energy to be",str(energy),"keV based on element",element,"and edge",edge
         return energy
     
     def resolveXESDeadtimeCalculationEnergy(self, scanBean):
