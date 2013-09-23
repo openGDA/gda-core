@@ -87,9 +87,9 @@ class XasScan(Scan):
 			# only wanted to skip this repetition, so absorb the exception and continue the loop
 			if numRepetitions > 1:
 				self.log( "Repetition", str(repetitionNumber),"skipped.")
-			else:
-				print e
-				raise # any other exception we are not expecting so raise whatever this is to abort the script
+		else:
+			print e
+			raise # any other exception we are not expecting so raise whatever this is to abort the script
 						
 	def _doItterator(self, iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, experimentFolderName):
 		iterator.resetIterator()
@@ -168,12 +168,8 @@ class XasScan(Scan):
 			
 			# repetition loop completed, so reset things
 			self.setQueuePropertiesEnd()
-			#XasAsciiDataWriter.setBeanGroup(None)
 			self.restoreHeader()
-			
-			#self.jython_mapper.topupChecker.collectionTime = 0.0 # TODO check with RW
-			#self.jython_mapper.ionchambers.setOutputLogValues(False) # TODO check with RW
-			
+			self.detectorPreparer.completeCollection()
 			ScriptBase.checkForPauses()
 
 	#remove added metadata from default metadata list to avoid multiple instances of the same metadata
