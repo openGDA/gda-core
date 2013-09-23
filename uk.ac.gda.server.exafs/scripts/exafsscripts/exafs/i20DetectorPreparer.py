@@ -60,6 +60,11 @@ class I20DetectorPreparer:
             self._setup_amp_sensitivity(ionChamberParams, self.sensitivities, self.sensitivity_units)
             self._setup_amp_offset(ionChamberParams, self.offsets, self.offset_units)
             
+    def completeCollection(self):
+        self.topupChecker.collectionTime = 0.0
+        self.ionchambers.stop()
+        self.ionchambers.setOutputLogValues(False)
+            
     def _configureGeDetector(self,scanBean,xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum):
         self.xspressConfig.initialize()
         self.xspressConfig.setDetectorCorrectionParameters(scanBean)
