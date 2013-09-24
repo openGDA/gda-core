@@ -44,4 +44,11 @@ public class ConstantScalingAndOffset implements ScalingAndOffset {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	@Override
+	public boolean isFixed() {
+		return true;
+	}
+	@Override
+	public void setFixed(boolean auto) {
+	}
 }
