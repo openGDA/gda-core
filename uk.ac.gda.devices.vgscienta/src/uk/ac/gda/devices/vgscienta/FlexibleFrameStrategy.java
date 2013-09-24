@@ -123,6 +123,10 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 		interactWithDeviceIfRequired();
 	}
 	
+	public double getFrameTime() throws Exception {
+		return super.getAcquireTime();
+	}
+	
 	@Override
 	public double getAcquireTime() throws Exception {
 		return super.getAcquireTime() * proc.getNumFiltered_RBV();
