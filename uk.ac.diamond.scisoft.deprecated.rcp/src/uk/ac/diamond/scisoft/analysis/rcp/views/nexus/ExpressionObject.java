@@ -173,7 +173,7 @@ public class ExpressionObject {
 	    	final Object value = vars.getValue(key);
 	    	if (value==null) {
 	    		if (monitor.isCanceled()) return null;
-	    		final AbstractDataset set = provider!=null ? provider.getDataSet(key.toString(), new ProgressMonitorWrapper(monitor)) : null;
+	    		final AbstractDataset set = provider!=null ? (AbstractDataset)provider.getDataSet(key.toString(), new ProgressMonitorWrapper(monitor)) : null;
 	    		if (set!=null) refs.add(set);
 	    	}
 		}

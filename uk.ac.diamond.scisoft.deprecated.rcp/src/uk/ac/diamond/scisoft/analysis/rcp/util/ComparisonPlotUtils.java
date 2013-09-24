@@ -101,14 +101,14 @@ public class ComparisonPlotUtils {
         
 		AbstractDataset set=null;
 		if (nameOrExpression instanceof String) {
-		    set = LoaderFactory.getDataSet(file.getAbsolutePath(), (String)nameOrExpression, new ProgressMonitorWrapper(monitor));
+		    set = (AbstractDataset)LoaderFactory.getDataSet(file.getAbsolutePath(), (String)nameOrExpression, new ProgressMonitorWrapper(monitor));
        	
         } else if (nameOrExpression instanceof ExpressionObject) {
         	final DataSetProvider prov = new DataSetProvider() {
 				@Override
 				public AbstractDataset getDataSet(String name, IMonitor monitor) {
 					try {
-						return LoaderFactory.getDataSet(file.getAbsolutePath(), name, monitor);
+						return (AbstractDataset)LoaderFactory.getDataSet(file.getAbsolutePath(), name, monitor);
 					} catch (Exception e) {
 						return new DoubleDataset();
 					}

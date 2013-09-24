@@ -788,10 +788,10 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 		
 		try {
 			if (providerDeligate!=null) {
-				return providerDeligate.getDataSet(name, monitor);
+				return (AbstractDataset)providerDeligate.getDataSet(name, monitor);
 			}
 			if (this.filePath==null) return null;
-			return LoaderFactory.getDataSet(this.filePath, name, monitor);
+			return (AbstractDataset)LoaderFactory.getDataSet(this.filePath, name, monitor);
 		} catch (IllegalArgumentException ie) {
 			return null;
 		} catch (Exception e) {
