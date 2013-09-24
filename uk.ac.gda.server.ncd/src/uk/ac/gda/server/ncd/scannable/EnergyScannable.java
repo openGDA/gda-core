@@ -26,7 +26,11 @@ import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
 
 /**
@@ -35,6 +39,8 @@ import gda.observable.IObserver;
  * 
  * It is also used as metadata provider for images plotted 
  */
+@CorbaAdapterClass(ScannableAdapter.class)
+@CorbaImplClass(ScannableImpl.class)
 public class EnergyScannable extends ScannableBase implements IObserver {
 
 	private Scannable bragg;
@@ -131,7 +137,7 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 		
 	}
 
-	private double getBraggWavelength() throws DeviceException {
+	public double getBraggWavelength() throws DeviceException {
 		return 12.3984191/((Double) bragg.getPosition());
 	}
 

@@ -43,6 +43,7 @@ public class NcdController {
 	private static NcdController instance = new NcdController();
 	private NcdDetector ncdDetectorSystem;
 	private Finder finder;
+	public static final String NODETECTOR = "None";
 
 	/**
 	 * Returns the singleton instance of this class.
@@ -182,5 +183,12 @@ public class NcdController {
 			return Boolean.valueOf(result);
 		}
 		return false;
+	}
+	
+	public INcdSubDetector getDetectorByName(String name) {
+		if (name != null && !NODETECTOR.equals(name)) {
+			return finder.find(name);
+		}		
+		return null;
 	}
 }
