@@ -36,6 +36,7 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(SingleScalerWithScalingAndOffset.class);
 
+	private boolean wasFixed = true;
 	private String label;
 	private String units = "counts";
 	private int channel;
@@ -136,5 +137,18 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector {
 
 	public void setScalingAndOffset(ScalingAndOffset scalingAndOffset) {
 		this.scalingAndOffset = scalingAndOffset;
+	}
+	
+	@Override
+	public void atScanStart() throws DeviceException {
+		wasFixed = scalingAndOffset.isFixed();
+		scalingAndOffset.setFixed(true);
+		super.atScanStart();
+	}
+	
+	@Override
+	public void atScanEnd() throws DeviceException {
+		scalingAndOffset.setFixed(wasFixed);
+		super.atScanEnd();
 	}
 }
