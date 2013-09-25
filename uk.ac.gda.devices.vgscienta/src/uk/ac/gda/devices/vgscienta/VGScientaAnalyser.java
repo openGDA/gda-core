@@ -318,7 +318,9 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			getAdBase().stopAcquiring();
 			restart = true;
 		}
+		Thread.sleep(250);
 		controller.setLensMode(value);
+		Thread.sleep(250);
 		Thread.sleep(250);
 		if (restart)
 			getAdBase().startAcquiring();
@@ -336,7 +338,9 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			getAdBase().stopAcquiring();
 			restart = true;
 		}
+		Thread.sleep(250);
 		controller.setPassEnergy(value);
+		Thread.sleep(250);
 		Thread.sleep(250);
 		if (restart)
 			getAdBase().startAcquiring();
