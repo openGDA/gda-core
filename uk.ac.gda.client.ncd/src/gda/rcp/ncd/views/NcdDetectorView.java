@@ -20,7 +20,6 @@ package gda.rcp.ncd.views;
 
 import gda.device.DeviceException;
 import gda.device.detector.DataDimension;
-import gda.factory.Finder;
 import gda.rcp.ncd.NcdController;
 import gda.swing.ncd.MemoryUsage;
 
@@ -50,12 +49,8 @@ public class NcdDetectorView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(NcdDetectorView.class);
 
 	public static final String ID = "gda.rcp.ncd.views.NcdDetectorView"; //$NON-NLS-1$
-	private static final String NODETECTOR = "None";
-
 	private List<DetectorPack> packs = new Vector<DetectorPack>();
-
 	private NcdController ncdController = NcdController.getInstance();
-	private Finder finder = Finder.getInstance();
 
 	private class DetectorPack {
 		String type;
@@ -68,47 +63,33 @@ public class NcdDetectorView extends ViewPart {
 		DetectorPack(String type, List<String> availableDetectors) {
 			this.type = type;
 			this.availableDetectors = availableDetectors;
-
 		}
 
-		INcdSubDetector getDetectorByName(String name) {
-			if (name != null && !NODETECTOR.equals(name)) {
-				return finder.find(name);
-			}		
-			return null;
-		}
-		
 		void addListenersAndInit() {
-
 			initDetectorCombo();
 			initResolutionCombo();
 
 			detectorChoice.addSelectionListener(new SelectionAdapter() {
-
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					String detName = ((Combo) e.getSource()).getText();
 					setDetector(detName);
 				}
-
 			});
 
 			resolutionChoice.addSelectionListener(new SelectionAdapter() {
-
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					String resSpec = ((Combo) e.getSource()).getText();
 					setResolution(resSpec);
 				}
-
 			});
 		}
 
 		void initDetectorCombo() {
 			int index = 0;
-
 			this.detectorName = ncdController.getDetectorName(type);
-			this.detector = getDetectorByName(detectorName);
+			this.detector = ncdController.getDetectorByName(detectorName);
 
 			detectorChoice.removeAll();			
 			for (String name : availableDetectors) {
@@ -131,7 +112,6 @@ public class NcdDetectorView extends ViewPart {
 				setMemoryUsage(selectedDims);
 				String selected = selectedDims[0] + "x" + selectedDims[1];
 				List<DataDimension> supportedDimensions = detector.getSupportedDimensions();
-
 				List<String> items = new Vector<String>();
 
 				if (supportedDimensions != null && supportedDimensions.size() > 0) {
@@ -143,7 +123,6 @@ public class NcdDetectorView extends ViewPart {
 				}
 
 				int index = 0;
-
 				for (String name : items) {
 					resolutionChoice.add(name);
 					if (name.equals(selected)) {
@@ -167,7 +146,7 @@ public class NcdDetectorView extends ViewPart {
 			}
 			logger.debug("selected " + type + " is " + newDetectorName);
 			
-			INcdSubDetector newDetector = getDetectorByName(newDetectorName);
+			INcdSubDetector newDetector = ncdController.getDetectorByName(newDetectorName);
 			logger.debug("detector found is " + newDetector);
 			try {
 				if (newDetector != null) {
@@ -187,9 +166,7 @@ public class NcdDetectorView extends ViewPart {
 			if (detector == null) {
 				return;
 			}
-
 			String[] xy = newRes.split("x");
-
 			int[] dims = new int[] { Integer.parseInt(xy[0]), Integer.parseInt(xy[1]) };
 			setMemoryUsage(dims);
 			try {
@@ -197,14 +174,11 @@ public class NcdDetectorView extends ViewPart {
 			} catch (Exception de) {
 				logger.error("wooah: " + de);
 			}
-
 		}
 
 		void setMemoryUsage(int[] dims) {
 			double memoryRatio = 0;
-
 			if (dims != null && detector != null) {
-
 				long memorySize;
 				try {
 					memorySize = detector.getMemorySize();
@@ -212,30 +186,18 @@ public class NcdDetectorView extends ViewPart {
 						memoryRatio = new Double(dims[0] * dims[1]) / memorySize;
 					}
 				} catch (DeviceException e) {
-
 				}
 			}
-
 			MemoryUsage.getInstance().setMemoryRatio(type, memoryRatio);
 		}
 	}
 
-	/**
-	 * 
-	 */
-	public NcdDetectorView() {
-	}
-
 	private void initPacks() {
 		List<String> available;
-
 		for (String label : new String[] { "SAXS", "WAXS" }) {
-
 			available = new Vector<String>();
-			available.add(NODETECTOR);
-
+			available.add(NcdController.NODETECTOR);
 			available.addAll(ncdController.getDetectorNames(label));
-
 			packs.add(new DetectorPack(label, available));
 		}
 	}
@@ -247,34 +209,31 @@ public class NcdDetectorView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-
 		initPacks();
 
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new FillLayout(SWT.VERTICAL));
-		{
-			for (DetectorPack pack : packs) {
-				Composite composite = new Composite(container, SWT.NONE);
-				composite.setLayout(new FillLayout(SWT.HORIZONTAL));
+		for (DetectorPack pack : packs) {
+			Composite composite = new Composite(container, SWT.NONE);
+			composite.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-				Group grpSaxs = new Group(composite, SWT.NONE);
-				grpSaxs.setLayout(new GridLayout(2, false));
-				grpSaxs.setText(pack.type);
-				{
-					Label lblDetector = new Label(grpSaxs, SWT.NONE);
-					lblDetector.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-					lblDetector.setText("Detector");
-					pack.detectorChoice = new Combo(grpSaxs, SWT.DROP_DOWN | SWT.SINGLE | SWT.READ_ONLY);
-					pack.detectorChoice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+			Group grpSaxs = new Group(composite, SWT.NONE);
+			grpSaxs.setLayout(new GridLayout(2, false));
+			grpSaxs.setText(pack.type);
+			{
+				Label lblDetector = new Label(grpSaxs, SWT.NONE);
+				lblDetector.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+				lblDetector.setText("Detector");
+				pack.detectorChoice = new Combo(grpSaxs, SWT.DROP_DOWN | SWT.SINGLE | SWT.READ_ONLY);
+				pack.detectorChoice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-					Label lblResolution = new Label(grpSaxs, SWT.NONE);
-					lblResolution.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-					lblResolution.setText("Resolution");
-					pack.resolutionChoice = new Combo(grpSaxs, SWT.DROP_DOWN | SWT.SINGLE | SWT.READ_ONLY);
-					pack.resolutionChoice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-				}
-				pack.addListenersAndInit();
+				Label lblResolution = new Label(grpSaxs, SWT.NONE);
+				lblResolution.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+				lblResolution.setText("Resolution");
+				pack.resolutionChoice = new Combo(grpSaxs, SWT.DROP_DOWN | SWT.SINGLE | SWT.READ_ONLY);
+				pack.resolutionChoice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 			}
+			pack.addListenersAndInit();
 		}
 
 		createActions();
@@ -286,7 +245,7 @@ public class NcdDetectorView extends ViewPart {
 	 * Create the actions.
 	 */
 	private void createActions() {
-		// Create the actions
+		// no actions
 	}
 
 	/**

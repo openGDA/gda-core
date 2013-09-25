@@ -53,13 +53,18 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 			super(message);
 		}
 	}
-
+	public class MoveProhibitedException extends DeviceException {
+		public MoveProhibitedException(String message) {
+			super(message);
+		}
+	}
 	private String pvName;
 	private String[] labellist;
 	private int gain;
 	private EpicsController ec;
 	private Channel channel; 
 	private boolean busy = false;
+	boolean fixed = false;
 	private Map<Integer, ScalingAndOffsetParameters> gaintosando;
 	
 	@Override
@@ -84,6 +89,9 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 	
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
+		if (fixed)
+			throw new MoveProhibitedException("gain change prohibited by configuration (scan might be running)");
+		
 		int newgain=0;
 		
 		if (position instanceof Number) {
@@ -207,5 +215,15 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 	}
 	public void increaseAmplification() throws DeviceException {
 		rawAsynchronousMoveTo(findNext(1));
+	}
+
+	@Override
+	public boolean isFixed() {
+		return fixed;
+	}
+
+	@Override
+	public void setFixed(boolean auto) {
+		this.fixed = auto;
 	}
 }

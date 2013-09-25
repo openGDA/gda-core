@@ -18,38 +18,66 @@
 
 package gda.rcp.ncd.views;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.Finder;
+import gda.rcp.ncd.NcdController;
+
+import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
 
 import org.eclipse.swt.widgets.Composite;
 import org.jscience.physics.amount.Amount;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.ncd.rcp.views.NcdQAxisCalibration;
+import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
+import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 
 public class QAxisCalibration extends NcdQAxisCalibration {
-
-	//FIXME
+	private static final Logger logger = LoggerFactory.getLogger(QAxisCalibration.class);
+	private NcdController ncdcontroller = NcdController.getInstance();
+	private Scannable energyscannable;
+	
 	@Override
 	public void createPartControl(Composite parent) {
-		GUI_PLOT_NAME = "Dataset Plot";
-		
+		GUI_PLOT_NAME = "Saxs Plot";
+		energyscannable = (Scannable) Finder.getInstance().find("energy");
 		super.createPartControl(parent);
-		
 	}
 	
 	@Override
 	protected String getDetectorName() {
-		//  Override in subclass to refer to the calibrated detector
-		return null;
+		return ncdcontroller.getDetectorName(NcdDetectorSystem.SAXS_DETECTOR);
 	}
+	
 	@Override
-	protected Amount<Length> getLambda() {
-		// TODO Auto-generated method stub
-		return super.getLambda();
+	protected Amount<Energy> getEnergy() {
+		Amount<Energy> amount = null;
+		try {
+			Object[] position = (Object[]) energyscannable.getPosition();
+			amount = Amount.valueOf(((Double) position[0]), SI.KILO(NonSI.ELECTRON_VOLT));
+		} catch (DeviceException e) {
+			logger.error("exception reading pixel size off detector", e);
+		}
+		return amount;
 	}
 	
 	@Override
 	protected Amount<Length> getPixel(boolean b) {
-		// TODO Auto-generated method stub
-		return super.getPixel(b);
+		if (b)
+			logger.error("b is true and I do not know what that means", new IllegalArgumentException());
+		String detectorName = ncdcontroller.getDetectorName(NcdDetectorSystem.SAXS_DETECTOR);
+		INcdSubDetector detector = ncdcontroller.getDetectorByName(detectorName);
+		Amount<Length> amount = null;
+		try {
+			amount = Amount.valueOf(detector.getPixelSize(), SI.METRE);
+		} catch (DeviceException e) {
+			logger.error("exception reading pixel size off detector", e);
+		}
+		return amount;
 	}
 }
