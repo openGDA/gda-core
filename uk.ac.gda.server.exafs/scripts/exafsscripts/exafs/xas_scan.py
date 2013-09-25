@@ -201,7 +201,7 @@ class XasScan(Scan):
 		# run the scan
 		controller.update(None, ScriptProgressEvent("Running scan"))
 		ScanBase.interrupted = False
-		thisscan = self.createScan(args, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetitionNumber,experimentFolderName)
+		thisscan = self.createScan(args, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetitionNumber,experimentFolderName, experimentFullPath)
 		controller.update(None, ScanCreationEvent(thisscan.getName()))
 		if (scanPlotSettings != None):
 			self.log("Setting the filter for columns to plot...")
@@ -218,9 +218,9 @@ class XasScan(Scan):
 		xas_scannable.setEnergyScannable(self.energy_scannable)
 		return xas_scannable
 
-	def createScan(self, args, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName):
+	def createScan(self, args, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
 		thisscan = ConcurrentScan(args)
-		thisscan = self._setUpDataWriter(thisscan, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName)
+		thisscan = self._setUpDataWriter(thisscan, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath)
 		thisscan.setReturnScannablesToOrginalPositions(False)
 		return thisscan
 	
@@ -298,7 +298,7 @@ class XasScan(Scan):
 	Get the relevant datawriter config, create a datawriter and if it of the correct type then give it the config.
 	Give the datawriter to the scan.
 	"""
-	def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName):
+	def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
 		nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
 		asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
 		
@@ -316,6 +316,8 @@ class XasScan(Scan):
 		dataWriter.setSampleBean(sampleBean);
 		dataWriter.setOutputBean(outputBean);
 		dataWriter.setSampleName(sampleName);
+		dataWriter.setXmlFolderName(experimentFullPath)
+		dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
 		dataWriter.setDescriptions(descriptions);
 		dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
 		dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
@@ -325,6 +327,16 @@ class XasScan(Scan):
 			dataWriter.setConfiguration(asciidatawriterconfig)
 		thisscan.setDataWriter(dataWriter)
 		return thisscan
+	
+	def _determineDetectorFilename(self,detectorBean):
+		xmlFileName = None
+		if detectorBean.getExperimentType() == "Fluorescence" :
+			fluoresenceParameters = detectorBean.getFluorescenceParameters()
+			xmlFileName = fluoresenceParameters.getConfigFileName()
+		elif detectorBean.getExperimentType() == "XES" :
+			fluoresenceParameters = detectorBean.getXesParameters()
+			xmlFileName = fluoresenceParameters.getConfigFileName()
+		return xmlFileName
 	
 	# Move to start energy so that harmonic can be set by gap_converter for i18 only
 	def setupHarmonic(self, scanBean, gap_converter):
