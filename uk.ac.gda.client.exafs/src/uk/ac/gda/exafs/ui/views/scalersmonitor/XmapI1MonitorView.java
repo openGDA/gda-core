@@ -159,6 +159,7 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 				final Double i1;
 				final Double[] xmapStats;
 				try {
+					logger.debug("Collecting data");
 					i1 = updateValues();
 					xmapStats = getXmapCountRatesAndDeadTimes();
 				} catch (Exception e1) {

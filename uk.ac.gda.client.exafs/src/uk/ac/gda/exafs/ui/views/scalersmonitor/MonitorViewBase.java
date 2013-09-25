@@ -155,6 +155,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 				final Double[] values;
 				final Double[] xspressStats;
 				try {
+					logger.debug("reading from ionchambers");
 					values = getIonChamberValues();
 				} catch (final Exception e1) {
 					logger.debug("getIonChamberValues exception" + e1.getMessage(), e1);
@@ -175,6 +176,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 					continue;
 				}
 				try {
+					logger.debug("reading from fluo detector");
 					xspressStats = getFluoDetectorCountRatesAndDeadTimes();
 				} catch (final Exception e1) {
 					logger.debug("getFluoDetectorCountRatesAndDeadTimes exception" + e1.getMessage(), e1);
