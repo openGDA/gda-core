@@ -85,7 +85,9 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 					writeXml("SampleParameters", sampleBean);
 					writeXml("OutputParameters", outputBean);
 					// if fluoresence then get the xml detector config from FluorescenceParameters else if diffraction then from  SoftXRaysParameters
-					writeXml("DetectorConfigurationParameters", xmlFolderName + IPath.SEPARATOR + xmlFileName);
+					if (xmlFolderName != null && !xmlFolderName.isEmpty() && xmlFileName != null && !xmlFileName.isEmpty()) {
+						writeXml("DetectorConfigurationParameters", xmlFolderName + IPath.SEPARATOR + xmlFileName);
+					}
 				} finally {
 					file.closegroup();
 				}
