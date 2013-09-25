@@ -91,6 +91,9 @@ public class ScaledAmplifiedMonitor extends EpicsScannable {
 			} catch (ScalingAndOffsetFromCurrAmp.OptionsExhausedException e) {
 				// this is normal when no beam for overloaded
 				break;
+			} catch (ScalingAndOffsetFromCurrAmp.MoveProhibitedException e) {
+				logger.debug("gain change currently probitited");
+				break;
 			} catch (DeviceException e) {
 				logger.info("exception received trying to adjust gain", e);
 				break;
