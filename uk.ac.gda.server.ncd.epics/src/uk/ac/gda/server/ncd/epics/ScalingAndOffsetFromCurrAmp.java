@@ -53,7 +53,11 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 			super(message);
 		}
 	}
-
+	public class MoveProhibitedException extends DeviceException {
+		public MoveProhibitedException(String message) {
+			super(message);
+		}
+	}
 	private String pvName;
 	private String[] labellist;
 	private int gain;
@@ -86,7 +90,7 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		if (fixed)
-			throw new DeviceException("gain change prohibited by configuration (scan might be running)");
+			throw new MoveProhibitedException("gain change prohibited by configuration (scan might be running)");
 		
 		int newgain=0;
 		
