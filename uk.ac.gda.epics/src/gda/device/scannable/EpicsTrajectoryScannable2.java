@@ -120,10 +120,10 @@ public class EpicsTrajectoryScannable2 extends ScannableMotionUnitsBase implemen
 
 	
 	@Override
-	public int prepareForContinuousMove() throws DeviceException {
+	public void prepareForContinuousMove() throws DeviceException {
 		// build the trajectory
 		if(mode == TWODMODE && trajectoryBuildDone)
-			return continuousParameters.getNumberDataPoints();
+			return;
 		
 		try {
 			for(int i =1 ; i <= TrajectoryScanController.MAX_TRAJECTORY; i++)
@@ -161,7 +161,6 @@ public class EpicsTrajectoryScannable2 extends ScannableMotionUnitsBase implemen
 				throw new DeviceException("Unable to build the trajectory with the given start and stop positions and the time");
 			}
 			trajectoryBuildDone = true;
-			return continuousParameters.getNumberDataPoints();
 		} catch (TimeoutException e) {
 			throw new DeviceException(getName() + " exception in continuousMoveComplete",e);
 		} catch (InterruptedException e) {
@@ -234,5 +233,9 @@ public class EpicsTrajectoryScannable2 extends ScannableMotionUnitsBase implemen
 	}
 	public double[] getScannablePositions() {
 		return scannablePositions;
+	}
+	@Override
+	public int getNumberOfDataPoints() {
+		return continuousParameters.getNumberDataPoints();
 	}
 }

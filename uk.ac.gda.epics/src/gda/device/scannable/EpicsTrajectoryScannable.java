@@ -111,7 +111,7 @@ public class EpicsTrajectoryScannable extends ScannableMotionUnitsBase implement
 	}
 
 	@Override
-	public int prepareForContinuousMove() throws DeviceException {
+	public void prepareForContinuousMove() throws DeviceException {
 		if (parameters != null) {
 			try {
 				controller.caput(numElementsChannel, parameters.getNumberDataPoints());
@@ -119,12 +119,10 @@ public class EpicsTrajectoryScannable extends ScannableMotionUnitsBase implement
 				// scans anyway...
 				controller.caput(trajPositionsAxis1Channel, new double[] { parameters.getStartPosition(),
 						parameters.getEndPosition() });
-				return parameters.getNumberDataPoints();
 			} catch (Exception e) {
 				throw new DeviceException(getName() + " exception in prepareForContinuousMove",e);
 			}
 		}
-		return 0;
 	}
 
 	@Override
@@ -181,5 +179,10 @@ public class EpicsTrajectoryScannable extends ScannableMotionUnitsBase implement
 	public double calculateEnergy(int frameIndex) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public int getNumberOfDataPoints() {
+		return parameters.getNumberDataPoints();
 	}
 }
