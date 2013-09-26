@@ -46,7 +46,7 @@ public class QexafsTestingScannable extends ScannableMotor implements Continuous
 
 
 	@Override
-	public int prepareForContinuousMove() throws DeviceException {
+	public void prepareForContinuousMove() throws DeviceException {
 		state = "preparing";
 		notifyIObservers(this, state);
 		try {
@@ -55,7 +55,6 @@ public class QexafsTestingScannable extends ScannableMotor implements Continuous
 			logger.error("Could not set speed to 1000", e);
 		}
 		super.moveTo(continuousParameters.getStartPosition()-1);
-		return continuousParameters.getNumberDataPoints();
 	}
 	
 	@Override
@@ -104,5 +103,10 @@ public class QexafsTestingScannable extends ScannableMotor implements Continuous
 	@Override
 	public String getState() {
 		return state;
+	}
+
+	@Override
+	public int getNumberOfDataPoints() {
+		return continuousParameters.getNumberDataPoints();
 	}
 }

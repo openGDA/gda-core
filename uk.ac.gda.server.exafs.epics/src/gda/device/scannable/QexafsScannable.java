@@ -139,7 +139,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	}
 
 	@Override
-	public int prepareForContinuousMove() throws DeviceException {
+	public void prepareForContinuousMove() throws DeviceException {
 		long timeAtMethodStart = System.currentTimeMillis();
 		if (!channelsConfigured) {
 			throw new DeviceException("Cannot set continuous mode on for " + getName()
@@ -208,8 +208,6 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			logger.debug("Time spent in prepareForContinuousMove = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 			if(!calcEndFromGui)
 				newStopAngleDeg = newStartAngleDeg - (stepIncDemDeg*cagetInt);
-				
-			return cagetInt;
 
 		} catch (Exception e) {
 			if( e instanceof DeviceException)
@@ -590,5 +588,23 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 
 	public void setStepIncDemandPV(String stepIncDemandPV) {
 		this.stepIncDemandPV = stepIncDemandPV;
+	}
+	
+	@Override
+	public int getNumberOfDataPoints() {
+		String erorMessage = "Error getting number of data points from controller";
+		try {
+			return controller.cagetInt(this.numPulsesChnl);
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			logger.error(erorMessage, e);
+		} catch (CAException e) {
+			// TODO Auto-generated catch block
+			logger.error(erorMessage, e);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			logger.error(erorMessage, e);
+		}
+		return 0;
 	}
 }
