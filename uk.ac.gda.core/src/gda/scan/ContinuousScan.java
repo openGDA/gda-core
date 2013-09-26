@@ -132,7 +132,8 @@ public class ContinuousScan extends ConcurrentScanChild {
 		// the hardware will do.
 		
 		//I18 had a negative number of pulses in epics. Though theres no such thing, It is working and should be handled
-		numberScanpoints = Math.abs(qscanAxis.prepareForContinuousMove());
+		qscanAxis.prepareForContinuousMove();
+		numberScanpoints = Math.abs(qscanAxis.getNumberOfDataPoints());
 		params.setNumberDataPoints(numberScanpoints);
 		super.setTotalNumberOfPoints(numberScanpoints);
 
