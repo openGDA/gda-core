@@ -3,9 +3,7 @@ from uk.ac.gda.beans import BeansFactory
 from gda.factory import Finder
 from gda.exafs.scan import BeanGroup
 from java.io import File
-from java.lang import System
 from jarray import array
-from gda.data import PathConstructor
 from gda.data.scan.datawriter import XasAsciiDataWriter
 from exafsscripts.exafs.configFluoDetector import configFluoDetector
 from gda.device.detector.xspress import XspressDetector, ResGrades

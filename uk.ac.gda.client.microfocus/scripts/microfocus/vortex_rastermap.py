@@ -18,31 +18,10 @@ from gda.device.scannable import ScannableUtils
 from gda.data.scan.datawriter import TwoDScanRowReverser
 from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
 import time
-#from microfocus.map import redefineNexusMetadataForMaps
-#import microfocus.microfocus_elements
 rootnamespace = {}
 def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
-    """
-    main map data collection command. 
-    usage:-
-    
-    map sampleFileName scanFileName detectorFileName outputFileName [experiment name (_script)] [scan index (1)] [validation required (True)]
-    
-    """
-    print "attempt to run raster map"
-    #return
-    print detectorFileName
+
     origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
-    
-    if False:# Turn on debugging here
-        print "Values sent to script:"
-        print "sampleFileName", sampleFileName
-        print "scanFileName", scanFileName
-        print "detectorFileName", detectorFileName
-        print "outputFileName", outputFileName
-        print "folderName", folderName
-        print "scanNumber", scanNumber
-        print "validation", validation
 
     # Create the beans from the file names
     xmlFolderName = MicroFocusEnvironment().getScriptFolder() + folderName + "/"
@@ -50,7 +29,6 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
     if(sampleFileName == None or sampleFileName == 'None'):
         sampleBean = None
     else:
-        #sampleBean   = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
         sampleBean   = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
         
     scanBean     = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
@@ -72,7 +50,6 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
     beanGroup.setScan(scanBean)
     XasAsciiDataWriter.setBeanGroup(beanGroup)
     
-      
     # work out which detectors to use (they will need to have been configured already by the GUI)
     #sendinf None for scanbean , this does not set the dead time calculation energy for Xspress
     detectorList = getDetectors(detectorBean, outputBean, None) 
@@ -114,14 +91,6 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
             ##this should be the element selected in the gui
             selectedElement = elements[0]
             mfd.setRoiNames(array(elements, java.lang.String))
-           # if(detectorType == "Silicon"):
-             #   detectorBeanFileName = System.getProperty("gda.config")+ "/templates/Vortex_Parameters.xml"
-             #   mfd.setRoiNames(array(showElementsList(detectorBeanFileName), java.lang.String))
-           #     selectedElement = "Pb"
-           # else:
-           #     detectorBeanFileName = System.getProperty("gda.config")+ "/templates/Xspress_Parameters.xml"
-          #      mfd.setRoiNames(array(showElementsList(detectorBeanFileName), java.lang.String))
-          #      selectedElement = "Pb"
             mfd.setDetectorBeanFileName(detectorBeanFileName)
             bean = BeansFactory.getBean(File(detectorBeanFileName))   
             detector = finder.find(bean.getDetectorName())   
@@ -134,11 +103,9 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
             mfd.getWindowsfromBean()
         mfd.setEnergyValue(energy)
         mfd.setZValue(zScannablePos)
-        #dataWriter.addDataWriterExtender(mfd)
         
         xScannable = finder.find(scanBean.getXScannableName())
         yScannable = finder.find(scanBean.getYScannableName())
-        ##useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
         useFrames = False
         energyScannable = Finder.getInstance().find(scanBean.getEnergyScannableName())
         zScannable = Finder.getInstance().find(scanBean.getZScannableName())
@@ -148,43 +115,21 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
         print detectorList
         energyScannable.moveTo(energy) 
         zScannable.moveTo(zScannablePos)
-        #=======================================================================
-        # args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize(),energyScannable, zScannable]
-        # args+= detectorList
-        # if(useFrames):
-        #    noOfXPoints = (scanBean.getXEnd() - scanBean.getXStart()) + 1
-        #    counterTimer01.addFrameSet(noOfXPoints,0.0001,scanBean.getCollectionTime(),0,0,-1,0)
-        # else:        
-        #    args.append(scanBean.getCollectionTime())
-        # print args
-        #=======================================================================
-        #command_server = Finder.getInstance().find("command_server")    
-        #topupmonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
-        #original_topuptime = topupmonitor.getCollectionTime()
+
         scanStart = time.asctime()
         try:
             numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize()
-            ##ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_xspress,]).runScan();##rowTIme in the Scan bean is in milliseconds
             if(detectorType == "Silicon"):
-                print "***************************************** vortex_rastermap.py"
                 HTScaler.setIntegrateBetweenPoints(True)
                 HTXmapMca.setIntegrateBetweenPoints(True)
                 HTScaler.setCollectionTime(scanBean.getRowTime() / nx)
                 HTXmapMca.setCollectionTime(scanBean.getRowTime() / nx)
                 HTScaler.setScanNumberOfPoints(nx)
                 HTXmapMca.setScanNumberOfPoints(nx)                
-                #tsl = TrajectoryScanLine([continuousSampleX, scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize(), HTScaler, HTXmapMca ,scanBean.getRowTime()/(nx)] )
-                
-                # make sure we pause if a topup during the next row
-                # topupmonitor.setCollectionTime(scanBean.getRowTime())
+
                 tsl = TrajectoryScanLine([continuousSampleX, ScanPositionsTwoWay(continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()),  HTScaler, HTXmapMca, scanBean.getRowTime()/(nx)] )
                 tsl.setScanDataPointQueueLength(10000);tsl.setPositionCallableThreadPoolSize(10)
-                #scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
-                
-                print "just for debugging: realx.class",realX.__class__
-                print "scanBean.getYStart()",scanBean.getYStart()
-                print "scanBean.getYEnd()",scanBean.getYEnd()
-                print "scanBean.getYStepSize()",scanBean.getYStepSize()
+
                 xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl, realX])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
                 
@@ -198,13 +143,11 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 xmapRasterscan.setDataWriter(xasWriter)
                 xmapRasterscan.runScan()
             else:
-                print "Xspress Raster Scan"
                 xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xspress]),realX])
                 xspressRasterscan.getScanPlotSettings().setIgnore(1)
                 xspressRasterscan.runScan()
 
         finally:
-            #topupmonitor.setCollectionTme(original_topuptime)
             scanEnd = time.asctime()
             if(origScanPlotSettings):
                 LocalProperties.set("gda.scan.useScanPlotSettings", "true")
@@ -212,7 +155,6 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             handle_messages.simpleLog("map start time " + str(scanStart))
             handle_messages.simpleLog("map end time " + str(scanEnd))
-            #dataWriter.removeDataWriterExtender(mfd)
             finish()
 
 def finish():

@@ -1,26 +1,24 @@
-from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
-from uk.ac.gda.beans import BeansFactory
-from gda.factory import Finder
-from gda.exafs.scan import BeanGroup
-from java.io import File
-from gda.configuration.properties import LocalProperties
 from jarray import array
-from gda.data import PathConstructor
-from gda.data.scan.datawriter import XasAsciiDataWriter
-from exafsscripts.exafs.configFluoDetector import configFluoDetector
-from gda.device.detector.xspress import XspressDetector
-from gda.device.detector.xspress import ResGrades
-from gdascripts.messages import handle_messages
-from gda.jython.commands import ScannableCommands
-from BeamlineParameters import JythonNameSpaceMapping
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
-from gda.device.scannable import ScannableUtils
-from exafsscripts.exafs.scan import Scan
-from microfocus_elements import showElementsList, getElementNamesfromIonChamber
+from java.io import File
 from java.lang import String
-from gda.device import Detector
 import time
+
+from BeamlineParameters import JythonNameSpaceMapping
+from exafsscripts.exafs.configFluoDetector import configFluoDetector
+from exafsscripts.exafs.scan import Scan
 from gda.configuration.properties import LocalProperties
+from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, \
+    XasAsciiDataWriter
+from gda.device import Detector
+from gda.device.detector.xspress import ResGrades, XspressDetector
+from gda.device.scannable import ScannableUtils
+from gda.exafs.scan import BeanGroup
+from gda.factory import Finder
+from gda.jython.commands import ScannableCommands
+from gdascripts.messages import handle_messages
+from microfocus_elements import showElementsList, getElementNamesfromIonChamber
+from uk.ac.gda.beans import BeansFactory
+from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 
 
 class Map(Scan):
@@ -61,8 +59,6 @@ class Map(Scan):
             
         scanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
         
-        
-        print "*************************", xmlFolderName, "*********", detectorFileName
         detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
         outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
     
@@ -82,8 +78,6 @@ class Map(Scan):
         handle_messages.simpleLog("XasAsciiDataWriter.setBeanGroup(beanGroup)")
           
         detectorList = self.getDetectors(detectorBean, scanBean)
-        
-        print "detectorList", detectorList
     
         self.setupForMap(beanGroup)
         handle_messages.simpleLog("setupForMap")
@@ -117,27 +111,14 @@ class Map(Scan):
                 self.mfd.setRoiNames(array(elements, String))
                 self.mfd.setSelectedElement("I0")
                 self.mfd.setDetectors(array(detectorList, Detector))
-            else:   
-                detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
-                if(folderName != None):
-                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
-                else:
-                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
+            else:
+                self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
                 elements = showElementsList(self.detectorBeanFileName)
                 selectedElement = elements[0]
                 self.mfd.setRoiNames(array(elements, String))
                 self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
                 bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
                 detector = self.finder.find(bean.getDetectorName())   
-                firstDetector = detectorList[0]
-                #detectorList=[]
-                
-                if (detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" ):
-                    detectorList.append(self.finder.find("counterTimer02"))
-                #else:
-                #    detectorList.append(self.finder.find("counterTimer03"))
-                #detectorList.append(self.counterTimer01)
-                #detectorList.append(detector) 
                
                 self.mfd.setDetectors(array(detectorList, Detector))     
                 self.mfd.setSelectedElement(selectedElement)
@@ -315,7 +296,6 @@ class Map(Scan):
  
     def getDetectors(self, detectorBean, scanBean):
         expt_type = detectorBean.getExperimentType()
-        detectorList = []
         if expt_type == "Transmission":
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getTransmissionParameters().getDetectorType():
@@ -325,7 +305,6 @@ class Map(Scan):
                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
                     return self._createDetArray(group.getDetector(), scanBean)
     
-
     def finish(self):
         command_server = self.finder.find("command_server")
         beam = command_server.getFromJythonNamespace("beam", None)
