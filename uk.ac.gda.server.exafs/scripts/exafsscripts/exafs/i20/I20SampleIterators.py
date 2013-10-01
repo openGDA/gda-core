@@ -53,12 +53,6 @@ class SampleIterator(object):
         print message
         self.logger.info(message)
 
-    def getNextSampleName(self):
-        return self.samplename
-        
-    def getNextSampleDescriptions(self):
-        return self.descriptions
-
 
 class I20_SingleSample_Iterator(SampleIterator):
     
@@ -109,6 +103,12 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
     
     def resetIterator(self):
         self.increment = 0
+    
+    def getNextSampleName(self):
+        return self.samplename
+        
+    def getNextSampleDescriptions(self):
+        return self.descriptions
     
     def moveToNext(self):
         i = self._determineSample()
@@ -176,6 +176,12 @@ class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
         self.sample_pitch = sample_pitch
         self.sample_fine_rot = sample_fine_rot
         
+    def getNextSampleName(self):
+        return self.samplename
+        
+    def getNextSampleDescriptions(self):
+        return self.descriptions
+    
     def moveToNext(self):
 
             i = self._determineSample()
@@ -261,6 +267,12 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
     def _configureCryostat(self, cryoStatParameters):
         if LocalProperties.get("gda.mode") != 'dummy':
             self.cryostat_scannable.setupFromBean(cryoStatParameters)
+
+    def getNextSampleName(self):
+        return self.samplename
+        
+    def getNextSampleDescriptions(self):
+        return self.descriptions
 
     def moveToNext(self):
         
