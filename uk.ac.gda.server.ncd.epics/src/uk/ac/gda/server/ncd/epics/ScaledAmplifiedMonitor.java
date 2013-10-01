@@ -82,7 +82,7 @@ public class ScaledAmplifiedMonitor extends EpicsScannable {
 				if (value > upperThreshold) {
 					scalingAndOffset.decreaseAmplification();
 					scalingAndOffset.waitWhileBusy();
-				} else if (value < 0.1 * upperThreshold) {
+				} else if (value < 0.085 * upperThreshold) {
 					scalingAndOffset.increaseAmplification();
 					scalingAndOffset.waitWhileBusy();
 				} else 
