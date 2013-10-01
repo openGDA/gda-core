@@ -3,7 +3,6 @@ from uk.ac.gda.beans import BeansFactory
 from gda.exafs.scan import BeanGroup
 from java.io import File
 from jarray import array
-from gda.data import PathConstructor
 from gda.data.scan.datawriter import XasAsciiDataWriter
 from gda.factory import Finder
 from gda.scan import TrajectoryScanLine
