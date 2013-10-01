@@ -157,30 +157,13 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 				try {
 					logger.debug("reading from ionchambers");
 					values = getIonChamberValues();
-				} catch (final Exception e1) {
-					logger.debug("getIonChamberValues exception" + e1.getMessage(), e1);
-					setRunMonitoring(false);
-					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							btnRunPause.setImageDescriptor(runImage);
-							if (e1.getMessage().compareTo(ALREADY_RUNNING_MSG) != 0) {
-								MessageDialog.openError(
-										PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-										"Detector Rates Error",
-										getPartName() + " view will have to stop collecting.\nError occurred while getting ion chamber values: "
-												+ e1.getMessage());
-							}
-						}
-					});
-					continue;
-				}
-				try {
 					logger.debug("reading from fluo detector");
 					xspressStats = getFluoDetectorCountRatesAndDeadTimes();
 				} catch (final Exception e1) {
 					logger.debug("getFluoDetectorCountRatesAndDeadTimes exception" + e1.getMessage(), e1);
 					setRunMonitoring(false);
+					final String errorMessage = " view will have to stop collecting.\nError occurred while getting detector values: "
+												+ e1.getMessage();
 					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
@@ -189,12 +172,13 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 								MessageDialog.openError(
 										PlatformUI.getWorkbench().getDisplay().getActiveShell(),
 										"Detector Rates Error",
-										getPartName() + " view will have to stop collecting.\nError occurred while getting Fluo detector values: "
-												+ e1.getMessage());
+										getPartName() + errorMessage);
 							}
 						}
 					});
-					continue;
+					btnRunPause.setImageDescriptor(runImage);
+					runMonitoring = false;
+					continue; // stop the loop until the error can be fixed
 				}
 
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
