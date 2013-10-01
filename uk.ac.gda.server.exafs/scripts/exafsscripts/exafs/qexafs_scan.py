@@ -60,8 +60,6 @@ class QexafsScan(Scan):
                 final_energy = scanBean.getFinalEnergy()
                 step_size = scanBean.getStepSize()
                 self.outputPreparer.prepare(outputBean, scanBean)
-                beanGroup.setScanNumber(repetitionNumber)
-                XasAsciiDataWriter.setBeanGroup(beanGroup)
                 if len(outputBean.getCheckedSignalList()) > 0:
                     print "Signal parameters not available with QEXAFS"
                 if self.energy_scannable == None:
@@ -169,7 +167,6 @@ class QexafsScan(Scan):
             # TODO remove metadata enteries
             LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
-            XasAsciiDataWriter.setBeanGroup(None)
             #remove added metadata from default metadata list to avoid multiple instances of the same metadata
             jython_mapper = JythonNameSpaceMapping()
             if (jython_mapper.original_header != None):
