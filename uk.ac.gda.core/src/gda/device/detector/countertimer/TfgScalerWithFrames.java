@@ -34,9 +34,6 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 	
 	private Double[] times; // milliseconds
 
-	/**
-	 * @return Double[]
-	 */
 	public Double[] getTimes() {
 		return times;
 	}
@@ -71,22 +68,31 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		times = null;
-		logger.debug("array of frame times cleared in " + getName());
+		clearTimesArray();
 		super.atScanEnd();
 	}
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
-		times = null;
-		logger.debug("array of frame times cleared in " + getName());
+		clearTimesArray();
 		super.atCommandFailure();
 		stop();
 	}
 	
 	@Override
+	public void stop() throws DeviceException {
+		clearTimesArray();
+		super.stop();
+	}
+	
+	@Override
 	public void clearFrameSets() throws DeviceException {
-//		times = null;
+		clearTimesArray();
 		super.clearFrameSets();
+	}
+	
+	private void clearTimesArray() {
+		times = null;
+		logger.debug("array of frame times cleared in " + getName());
 	}
 }
