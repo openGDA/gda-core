@@ -36,6 +36,10 @@ class B18DetectorPreparer:
                 self._control_mythen(transmissionParameters)   
             self._control_all_ionc(transmissionParameters.getIonChamberParameters())
 
+    def completeCollection(self):
+        # this will be called at the end of a loop of scans, or after an abort
+        continue
+
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
         self._control_ionc(ion_chambers_bean, 1)

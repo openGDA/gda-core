@@ -43,7 +43,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 	private String sampleName;
 	private List<String> descriptions;
-	private Boolean runFromExperimentDefinition;
+	private Boolean runFromExperimentDefinition = false;
 	private String nexusFilePath;
 	private String asciiFileNameTemplate;
 
@@ -90,10 +90,17 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 			}
 
 			file.write("#\n");
-			// write out sample parameters
-			if (!descriptions.isEmpty()) {
-				if (!sampleName.isEmpty())
-					file.write("# Sample name: " + sampleName + "\n");
+
+			// always make sure the header is the same number of lines, no matter what the parameters are
+			if (sampleName == null || sampleName.isEmpty()) {
+				file.write("# Sample name:");
+			} else {
+				file.write("# Sample name: " + sampleName + "\n");
+			}
+			
+			if (descriptions == null || descriptions.isEmpty()) {
+				file.write("# Sample description:");
+			} else {
 				for (int i = 0; i < descriptions.size(); i++) {
 					String startMsg = "# ";
 					if (i == 0)
@@ -102,7 +109,8 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 						startMsg += "Additional comments: ";
 					file.write(startMsg + descriptions.get(i) + "\n");
 				}
-			}
+			} 
+			
 			file.flush();
 		} catch (Exception e) {
 			logger.error("Exception while writing out header of ascii file: " + fileUrl);

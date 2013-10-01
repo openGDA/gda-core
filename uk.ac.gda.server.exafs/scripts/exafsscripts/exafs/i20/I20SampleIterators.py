@@ -53,12 +53,6 @@ class SampleIterator(object):
         print message
         self.logger.info(message)
 
-    def getNextSampleName(self):
-        return self.samplename
-        
-    def getNextSampleDescriptions(self):
-        return self.descriptions
-
 
 class I20_SingleSample_Iterator(SampleIterator):
     
@@ -110,6 +104,12 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
     def resetIterator(self):
         self.increment = 0
     
+    def getNextSampleName(self):
+        return self.samplename
+        
+    def getNextSampleDescriptions(self):
+        return self.descriptions
+    
     def moveToNext(self):
         i = self._determineSample()
         x = self.sampleBean.get(i).getSample_x()
@@ -132,14 +132,14 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
         self.sample_y.asynchronousMoveTo(y)
         self.sample_z.asynchronousMoveTo(z)
         self.sample_rot.asynchronousMoveTo(rotation)
-        self.sample_roll.asynchronousMoveTo(roll)
-        self.sample_pitch.asynchronousMoveTo(pitch)
+#         self.sample_roll.asynchronousMoveTo(roll)
+#         self.sample_pitch.asynchronousMoveTo(pitch)
         self.sample_x.waitWhileBusy()
         self.sample_y.waitWhileBusy()
         self.sample_z.waitWhileBusy()
         self.sample_rot.waitWhileBusy()
-        self.sample_roll.waitWhileBusy()
-        self.sample_pitch.waitWhileBusy()
+#         self.sample_roll.waitWhileBusy()
+#         self.sample_pitch.waitWhileBusy()
         self.log( "Sample stage move complete.")
         ScriptBase.checkForPauses()
         
@@ -176,6 +176,12 @@ class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
         self.sample_pitch = sample_pitch
         self.sample_fine_rot = sample_fine_rot
         
+    def getNextSampleName(self):
+        return self.samplename
+        
+    def getNextSampleDescriptions(self):
+        return self.descriptions
+    
     def moveToNext(self):
 
             i = self._determineSample()
@@ -261,6 +267,12 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
     def _configureCryostat(self, cryoStatParameters):
         if LocalProperties.get("gda.mode") != 'dummy':
             self.cryostat_scannable.setupFromBean(cryoStatParameters)
+
+    def getNextSampleName(self):
+        return self.samplename
+        
+    def getNextSampleDescriptions(self):
+        return self.descriptions
 
     def moveToNext(self):
         
