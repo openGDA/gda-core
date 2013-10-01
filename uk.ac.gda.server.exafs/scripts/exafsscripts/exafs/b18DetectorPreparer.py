@@ -30,8 +30,8 @@ class B18DetectorPreparer:
                 saveRawSpectrum = vortexBean.isSaveRawSpectrum()
                 self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
             self._control_all_ionc(fluoresenceParameters.getIonChamberParameters())
-        elif detectorParameters.getExperimentType() == "Transmission":
-            transmissionParameters = detectorParameters.getTransmissionParameters()
+        elif detectorBean.getExperimentType() == "Transmission":
+            transmissionParameters = detectorBean.getTransmissionParameters()
             if transmissionParameters.isCollectDiffractionImages():
                 self._control_mythen(transmissionParameters)   
             self._control_all_ionc(transmissionParameters.getIonChamberParameters())
