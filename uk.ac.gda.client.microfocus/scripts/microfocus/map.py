@@ -119,7 +119,6 @@ class Map(Scan):
                 self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
                 bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
                 detector = self.finder.find(bean.getDetectorName())   
-               
                 self.mfd.setDetectors(array(detectorList, Detector))     
                 self.mfd.setSelectedElement(selectedElement)
                 self.mfd.getWindowsfromBean()
