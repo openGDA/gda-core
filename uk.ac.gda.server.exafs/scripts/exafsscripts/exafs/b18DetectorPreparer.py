@@ -52,7 +52,7 @@ class B18DetectorPreparer:
             name = ion_chamber.getName()
             simpleLog("Setting", name, "stanford")
             gain = ion_chamber.getGain()
-            self.ionc_stanford_scannables[ion_chamber_num](gain)  
+            self.ionc_stanford_scannables[ion_chamber_num](gain)
         autoGas = ion_chamber.getAutoFillGas()
         gas_fill1_pressure = str(ion_chamber.getPressure() * 1000.0)
         gas_fill1_period = str(ion_chamber.getGas_fill1_period_box())
