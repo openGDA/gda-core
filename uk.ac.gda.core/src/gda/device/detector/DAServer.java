@@ -323,6 +323,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		return connected;
 	}
 
+	// TODO why myReadLine and not readLine. my??
 	private String myReadLine() throws IOException, InterruptedException {
 		char ch;
 		StringBuffer reply = new StringBuffer("");

@@ -22,6 +22,7 @@ import gda.commandqueue.CommandDetails;
 import gda.commandqueue.CommandDetailsPath;
 import gda.commandqueue.CommandId;
 import gda.commandqueue.Queue;
+import gda.commandqueue.QueueChangeEvent;
 import gda.commandqueue.QueuedCommandSummary;
 import gda.commandqueue.SimpleCommandSummary;
 import gda.observable.IObserver;
@@ -463,7 +464,8 @@ class QueueContentProvider implements IStructuredContentProvider {
 						if (source != currentQueue)
 							throw new RuntimeException(
 									"Shouldn't be possible(?), it shows that we have not kept our listeners up to date");
-
+						if( !(arg instanceof QueueChangeEvent))
+							return;
 						refreshQueued = true;
 						viewer.getControl().getDisplay().asyncExec(new Runnable() {
 
