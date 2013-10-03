@@ -281,7 +281,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 		} catch (PartInitException e) {
 			ErrorDialog.openError(
 				getSite().getShell(),
-				"Error creating "+richBeanEditor.getRichEditorTabText()+" for "+getClass().getName(),
+				"Error creating editor for "+getClass().getName(),
 				null,
 				e.getStatus());
 		}
