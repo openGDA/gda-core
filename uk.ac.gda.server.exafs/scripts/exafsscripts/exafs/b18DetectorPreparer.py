@@ -36,7 +36,7 @@ class B18DetectorPreparer:
             name = ion_chamber.getName()
             simpleLog("Setting", name, "stanford")
             gain = ion_chamber.getGain()
-            self.ionc_stanford_scannables[ion_chamber_num](gain)  
+            self.ionc_stanford_scannables[ion_chamber_num](gain)
         autoGas = ion_chamber.getAutoFillGas()
         gas_fill1_pressure = str(ion_chamber.getPressure() * 1000.0)
         gas_fill1_period = str(ion_chamber.getGas_fill1_period_box())
@@ -50,16 +50,16 @@ class B18DetectorPreparer:
             self.ionc_gas_injector_scannables[ion_chamber_num]([purge_pressure, purge_period, gas_fill1_pressure, gas_fill1_period, gas_fill2_pressure, gas_fill2_period, gas_select_val, flushString])
 
     def add_to_metadata(self, name):
-            from gda.data.scan.datawriter import AsciiMetadataConfig
-            asciiConfig = AsciiMetadataConfig()
-            asciiConfig.setLabel(name + ": %4.1f")
-            scannable=Finder.getInstance().find(name)
-            if scannable==None:
-                jythonNameMap = beamline_parameters.JythonNameSpaceMapping()
-                scannable=jythonNameMap.__getitem__(name)
-            asciiConfig.setLabelValues([scannable])
-            header = Finder.getInstance().find("datawriterconfig").getHeader()
-            header.add(asciiConfig)
+        from gda.data.scan.datawriter import AsciiMetadataConfig
+        asciiConfig = AsciiMetadataConfig()
+        asciiConfig.setLabel(name + ": %4.1f")
+        scannable=Finder.getInstance().find(name)
+        if scannable==None:
+            jythonNameMap = beamline_parameters.JythonNameSpaceMapping()
+            scannable=jythonNameMap.__getitem__(name)
+        asciiConfig.setLabelValues([scannable])
+        header = Finder.getInstance().find("datawriterconfig").getHeader()
+        header.add(asciiConfig)
 
     def _control_mythen(self, bean):
         self.add_to_metadata("energy")
