@@ -32,12 +32,17 @@ import javax.mail.MethodNotSupportedException;
 
 import org.springframework.util.StringUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * JythonScriptFileRunnerCommand is an implementation of Command whose run method runs the script file set by the
  * setScriptFile method in the CommandRunner
  */
 public class JythonScriptFileRunnerCommand extends CommandBase implements Serializable {
 
+	private static Logger logger = LoggerFactory.getLogger(JythonScriptFileRunnerCommand.class);
+	
 	protected String scriptFile;
 	protected String settingsFile; //file to be returned in get details if null return scriptFile
 	protected  boolean hasAlreadyBeenRun=false;
@@ -141,11 +146,19 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 	}
 
 	boolean abortedRequested=false;
+	Object abortRequestedLock = new Object();
 	@Override
 	public void abort() {
-		InterfaceProvider.getCurrentScanController().haltCurrentScan();
-		InterfaceProvider.getScriptController().haltCurrentScript();
-		abortedRequested = true;
+		synchronized (abortRequestedLock) {
+			if(!abortedRequested){
+				logger.info("Aborting command :" + getDescription());
+				InterfaceProvider.getCurrentScanController().haltCurrentScan();
+				InterfaceProvider.getScriptController().haltCurrentScript();
+				abortedRequested = true;
+			} else {
+				logger.info("Abort ignored in command :" + getDescription());
+			}
+		}
 	}
 
 	@Override
