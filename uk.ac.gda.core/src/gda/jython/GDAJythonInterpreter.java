@@ -244,12 +244,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	/**
 	 * Set up the Jython interpreter and run Jython scripts to connect to the ObjectServer. This must be run once by the
 	 * calling program after the interpreter instance has been created.
-	 * 
-	 * @param output
-	 *            OutputStream
-	 * @throws Exception
 	 */
-	protected void initialise(OutputStream output) throws Exception {
+	protected void initialise(JythonServer jythonServer) throws Exception {
 		if (!configured) {
 			try {
 				String translatorClassName = LocalProperties.get("gda.jython.translator.class", "GeneralTranslator");
@@ -277,8 +273,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				fakeSysExecutable(sys);
 
 				// set the console output
-				interp.setOut(output);
-				interp.setErr(output);
+				final OutputStream terminalOutputStream = jythonServer.getTerminalOutputStream();
+				interp.setOut(terminalOutputStream);
+				interp.setErr(terminalOutputStream);
 
 				// dynamic configuration using Castor
 				logger.info("performing standard Jython interpreter imports...");
@@ -290,7 +287,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				// give Jython the reference to this wrapper object
 				this.interp.set("GDAJythonInterpreter", this);
 				
-				this.interp.set("command_server", output);
+				this.interp.set("command_server", jythonServer);
 				this.interp.runsource("import gda.jython");
 
 				// site import
