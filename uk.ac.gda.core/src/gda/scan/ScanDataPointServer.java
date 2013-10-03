@@ -57,7 +57,7 @@ public class ScanDataPointServer extends DeviceBase implements IScanDataPointSer
 	public ScanDataPointVar ___getToken(ScanDataPoint sdp) {
 		String uniqueName = sdp.getUniqueName();
 		if (!store.containsKey(uniqueName)) {
-			while (storeOrder.size() > 5) {
+			while (storeOrder.size() > 300) {
 				store.remove(storeOrder.get(0));
 				storeOrder.remove(0);
 			}
