@@ -48,23 +48,32 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 	 * @see PySystemState#displayhook
 	 * @param o the object to print and store in <code>_</code>
 	 */
-    public static void displayhook(PyObject o) {
-        /* Print value except if None */
-        /* After printing, also assign to '_' */
-        /* Before, set '_' to None to avoid recursion */
-        if (o == Py.None)
-             return;
+	public synchronized static void displayhook(PyObject o) {
+		/* Print value except if None */
+		/* After printing, also assign to '_' */
+		/* Before, set '_' to None to avoid recursion */
+		
+		try {
+			if (o == Py.None)
+				return;
 
-        PyObject currentBuiltins = Py.getSystemState().getBuiltins();
-        currentBuiltins.__setitem__("_", Py.None);
-        if (o instanceof PyUnicode) {
-        	PyUnicode u = (PyUnicode)o;
-			Py.println(u.__str__());
-		} else {
-			Py.println(o.__repr__());
+			PyObject currentBuiltins = Py.getSystemState().getBuiltins();
+			currentBuiltins.__setitem__("_", Py.None);
+			if (o instanceof PyUnicode) {
+				PyUnicode u = (PyUnicode) o;
+				Py.println(u.__str__());
+			} else {
+				Py.println(o.__repr__());
+			}
+			currentBuiltins.__setitem__("_", o);
+		} catch (Exception e) {
+			Py.stderr.flush();
+			Py.stderr.flushLine();
+//			Py.
+//			// TODO Auto-generated catch block
+//			logger.error("TODO put description of error here", e);
 		}
-        currentBuiltins.__setitem__("_", o);
-    }
+	}
 
 	
 	/**
@@ -83,10 +92,12 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 			if (arg0.type instanceof PyJavaType) {
 				// in this case the jython code is just way too verbose for users
 				// we cut it down to the jython stack trace and the exception message (and class)
-				InterfaceProvider.getTerminalPrinter().print(arg0.traceback.dumpStack());
+				//InterfaceProvider.getTerminalPrinter().print(arg0.traceback.dumpStack());
+				logger.error(arg0.traceback.dumpStack());
 				PyObject value = arg0.value;
 				Throwable throwable = (Throwable) value.__tojava__(Throwable.class);
-				InterfaceProvider.getTerminalPrinter().print(throwable.getClass().getName()+": "+throwable.getMessage());
+				//InterfaceProvider.getTerminalPrinter().print(throwable.getClass().getName()+": "+throwable.getMessage());
+				logger.error(throwable.getClass().getName()+": "+throwable.getMessage());
 			} else {
 				super.showexception(arg0);
 			}

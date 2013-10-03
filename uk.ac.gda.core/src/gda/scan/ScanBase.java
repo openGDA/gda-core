@@ -229,13 +229,14 @@ public abstract class ScanBase implements Scan {
 	}
 
 	private static void _checkForInterrupts(boolean checkForIdle) throws InterruptedException {
-		
+		//logger.info("checkForInterrupts start " + String.valueOf(interrupted));
 		
 		if (checkForIdle && InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
 			//do not reset as if the scan thread detects this and so goes idle other threads related to the scan will not get the interruption
 			//we should clear the interruption at the start of the scan instead
 //			paused = false;
 //			interrupted = false; 
+			//logger.info("checkForInterrupts prematurely returning because idle");
 			return;
 		}
 
@@ -244,11 +245,13 @@ public abstract class ScanBase implements Scan {
 			if (paused & !interrupted) {
 				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.PAUSED);
 				while (paused) {
+					//logger.info("checkForInterrupts paused " + String.valueOf(interrupted));
 					Thread.sleep(1000);
 				}
 				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.RUNNING);
 			}
 		} catch (InterruptedException ex) {
+			//logger.info("checkForInterrupts InterruptedException " + String.valueOf(interrupted));
 			interrupted = true;
 		}
 
@@ -582,6 +585,8 @@ public abstract class ScanBase implements Scan {
 				} catch (InterruptedException e) {
 					// TODO endScan should throw InteruptedExceptions
 					throw new DeviceException("Problem shutting down scan pipeline while completing and interurupted scan.", e);
+				} finally {
+					getTerminalPrinter().print("Scan interrupted.");
 				}
 			}
 
