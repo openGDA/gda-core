@@ -111,7 +111,12 @@ public class ServerThread extends Thread implements Terminal {
 
 	@Override
 	public synchronized void write(byte[] data) {
-		out.print(new String(data));
+		write(new String(data));
+	}
+
+	@Override
+	public void write(String output) {
+		out.print(output);
 		out.flush();
 	}
 }
