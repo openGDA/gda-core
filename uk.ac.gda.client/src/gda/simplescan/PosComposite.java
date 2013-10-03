@@ -127,22 +127,22 @@ public class PosComposite extends Composite {
 		textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(textTo, SWT.NONE);
 		new Label(composite_2, SWT.NONE);
-
-		final Button btnStop = new Button(composite_2, SWT.NONE);
-		GridData gd_btnStop = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_btnStop.widthHint = 55;
-		btnStop.setLayoutData(gd_btnStop);
-		btnStop.addSelectionListener(new SelectionAdapter() {
+		
+		Button btnGo = new Button(composite_2, SWT.NONE);
+		btnGo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnGo.setText("Go");
+		
+		btnGo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				performStop();
+				performPos();
 			}
 		});
-		btnStop.setText("Stop");
-		btnStop.setEnabled(false);
+		btnGo.setEnabled(true);
 		
-				Label lblReadback = new Label(composite_2, SWT.NONE);
-				lblReadback.setText("Readback");
+		
+		Label lblReadback = new Label(composite_2, SWT.NONE);
+		lblReadback.setText("Readback");
 		new Label(composite_2, SWT.NONE);
 
 		Composite incrementNuggeComp = new Composite(composite_2, SWT.NONE);
@@ -185,12 +185,19 @@ public class PosComposite extends Composite {
 		btnIncrement.setText("+");
 		btnIncrement.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
 		new Label(composite_2, SWT.NONE);
-
-		final Label lblStatus = new Label(composite_2, SWT.NONE);
-		GridData gd_lblStatus = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
-		gd_lblStatus.widthHint = 55;
-		lblStatus.setLayoutData(gd_lblStatus);
-		lblStatus.setText("     Idle     ");
+		
+		final Button btnStop = new Button(composite_2, SWT.NONE);
+		GridData gd_btnStop = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnStop.widthHint = 55;
+		btnStop.setLayoutData(gd_btnStop);
+		btnStop.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				performStop();
+			}
+		});
+		btnStop.setText("Stop");
+		btnStop.setEnabled(false);
 
 		Label lblIncrement = new Label(composite_2, SWT.NONE);
 		lblIncrement.setText("Increment");
@@ -202,10 +209,15 @@ public class PosComposite extends Composite {
 		new Label(composite_2, SWT.NONE);
 
 		updateScannables();
-
+		
+		final Label lblStatus = new Label(composite_2, SWT.NONE);
+		GridData gd_lblStatus = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		gd_lblStatus.widthHint = 55;
+		lblStatus.setLayoutData(gd_lblStatus);
+		lblStatus.setText("     Idle     ");
+		
 		try {
 			setMotorLimits(bean.getScannableName(), textTo);
-			new Label(composite_2, SWT.NONE);
 		} catch (Exception e2) {
 		}
 		updateReadback();
