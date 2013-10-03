@@ -73,7 +73,22 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		
 	}
 	
+
+	private boolean writeErrorStatusSupported=true;
+
+	
+	public boolean isWriteErrorStatusSupported() {
+		return writeErrorStatusSupported;
+	}
+
+	public void setWriteErrorStatusSupported(boolean writeErrorStatusSupported) {
+		this.writeErrorStatusSupported = writeErrorStatusSupported;
+	}
+	
 	public Boolean isWriteStatusErr() throws Exception {
+		if( !writeErrorStatusSupported)
+			return false;
+		
 		if( statusObserver == null){
 			statusObserver = new Observer<Short>() {
 				

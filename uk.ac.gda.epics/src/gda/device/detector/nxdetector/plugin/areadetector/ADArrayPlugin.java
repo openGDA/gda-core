@@ -121,7 +121,6 @@ public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 	
 }
 class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
-	private static String ARRAY_DATA_NAME = "arrayData";
 	private boolean firstReadoutInScan=true;
 	private ArrayData arrayData;
 
@@ -133,7 +132,7 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException{
 		try {
-			data.addData(detectorName, "data", arrayData.getDims(), arrayData.getNexusType(), arrayData.getDataVals(), ARRAY_DATA_NAME, 1);
+			data.addData(detectorName, "data", arrayData.getDims(), arrayData.getNexusType(), arrayData.getDataVals(), null, 1);
 			if (firstReadoutInScan) {
 				// TODO add sensible axes
 				firstReadoutInScan=false;

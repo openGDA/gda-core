@@ -204,8 +204,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private String detectorType = "ADDetector";
 
-	private static String ARRAY_DATA_NAME = "arrayData";
-
 	private boolean computeStats = false;
 
 	private boolean computeCentroid = false;
@@ -653,12 +651,12 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	protected void addDoubleItemToNXData(NXDetectorData data, String name, Double val) {
-		data.addData(getName(), name, dims, NexusFile.NX_FLOAT64, new double[] { val }, null, null);
+		INexusTree valdata = data.addData(getName(), name, dims, NexusFile.NX_FLOAT64, new double[] { val }, null, null);
+		valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s",  getName(), name))));
 		data.setPlottableValue(name, val);
 	}
 
 	protected final void addMultipleDoubleItemsToNXData(NXDetectorData data, String[] nameArray, Double[] valArray) {
-
 		for (int i = 0; i < valArray.length; i++) {
 			addDoubleItemToNXData(data, nameArray[i], valArray[i]);
 		}
@@ -800,7 +798,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 		ArrayData arrayData = ArrayData.readArrayData(ndArray);
 		data.addData(detectorName, "data", arrayData.getDims(), arrayData.getNexusType(), arrayData.getDataVals(),
-				ARRAY_DATA_NAME, 1);
+				null, 1);
 	}
 
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
