@@ -318,6 +318,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		return connected;
 	}
 
+	// TODO why myReadLine and not readLine. my??
 	private String myReadLine() throws IOException, InterruptedException {
 		char ch;
 		StringBuffer reply = new StringBuffer("");
@@ -661,6 +662,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		do {
 			try {
 				results = tryToGetBinaryData(message, ndata);
+				retry = false;
 			} catch (Exception e) {
 				if (numRetries >= 5) {
 					throw e;
