@@ -40,14 +40,13 @@ public class NexusDataWriterMetadataTree extends NexusDataWriter {
 	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriterMetadataTree.class);
 
 	private static Set<String> metadatascannables = new HashSet<String>();
-	
+
 	private static Map<String, ScannableWriter> locationmap = new HashMap<String, ScannableWriter>();
 
-	
 	private boolean weKnowTheLocationFor(String scannableName) {
 		return locationmap.containsKey(scannableName);
 	}
-	
+
 	/**
 	 * this is run when processing the first ScanDataPoint
 	 * the file is in the root node
@@ -125,7 +124,6 @@ public class NexusDataWriterMetadataTree extends NexusDataWriter {
 				// ignored
 			}
 			file.opengroup("start_metadata", "NXcollection");
-
 			file.makegroup(scannable.getName(), "NXcollection");
 			file.opengroup(scannable.getName(), "NXcollection");
 
@@ -174,24 +172,26 @@ public class NexusDataWriterMetadataTree extends NexusDataWriter {
 			super.writeScannable(scannable);
 		} else {
 			file.opengroup(this.entryName, "NXentry");
-
 			locationmap.get(scannable.getName()).writeScannable(file, scannable, getSDPositionFor(scannable.getName()), generateDataStartPos(dataStartPosPrefix, null));
-
 			file.closegroup();
 		}
 	}
+
 	public static Set<String> getMetadatascannables() {
 		return metadatascannables;
 	}
+
 	public static void setMetadatascannables(Set<String> metadatascannables) {
 		if (metadatascannables == null)
 			NexusDataWriterMetadataTree.metadatascannables = new HashSet<String>();
 		else
 			NexusDataWriterMetadataTree.metadatascannables = metadatascannables;
 	}
+
 	public static Map<String, ScannableWriter> getLocationmap() {
 		return locationmap;
 	}
+
 	public static void setLocationmap(Map<String, ScannableWriter> locationmap) {
 		if (locationmap == null) 
 			NexusDataWriterMetadataTree.locationmap = new HashMap<String, ScannableWriter>();
