@@ -1862,12 +1862,14 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		int[] inWinCounts = new int[numFilteredDetectors];
 		int[] numClockCounts = new int[numFilteredDetectors];
 		
+		int i = 0;
 		for (int element = 0; element < numberOfDetectors; element++){
 			if (!getDetectorList().get(element).isExcluded()) {
-				totalCounts[element] = unpackedScalerData[element*4];
-				numResets[element] = unpackedScalerData[element*4 + 1];
-				inWinCounts[element] = unpackedScalerData[element*4 + 2];
-				numClockCounts[element] = unpackedScalerData[element*4 + 3];
+				totalCounts[i] = unpackedScalerData[element*4];
+				numResets[i] = unpackedScalerData[element*4 + 1];
+				inWinCounts[i] = unpackedScalerData[element*4 + 2];
+				numClockCounts[i] = unpackedScalerData[element*4 + 3];
+				i++;
 			}
 		}
 		
