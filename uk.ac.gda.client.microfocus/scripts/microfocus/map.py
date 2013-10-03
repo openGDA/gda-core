@@ -131,8 +131,8 @@ class Map(Scan):
                 firstDetector = detectorList[0]
                 #detectorList=[]
                 
-                if (detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" ):
-                    detectorList.append(self.finder.find("counterTimer02"))
+                #if (detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" ):
+                #    detectorList.append(self.finder.find("counterTimer02"))
                 #else:
                 #    detectorList.append(self.finder.find("counterTimer03"))
                 #detectorList.append(self.counterTimer01)
