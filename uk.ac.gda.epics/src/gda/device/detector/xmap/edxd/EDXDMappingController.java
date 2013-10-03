@@ -89,6 +89,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	@Override
 	public void configure() throws FactoryException {
 		//FIXME this should be pulled in from the spring configuration
+		//TODO Please be aware that use of the finder prevents others from understanding how the code flows!
 		xmap = new FindableEpicsDevice();
 		xmap.setDeviceName(epicsDeviceName);
 		xmap.setName(epicsDeviceName);
