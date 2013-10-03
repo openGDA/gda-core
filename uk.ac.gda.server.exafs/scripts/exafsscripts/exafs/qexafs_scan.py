@@ -27,19 +27,21 @@ class QexafsScan(Scan):
         self.ion_chambers_scannable = ion_chambers_scannable
         self.cirrusEnabled = False
         self.beamCheck = True
+        self.gmsd_enabled = False
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
 #        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
         xmlFolderName = folderName + "/"
+        folderName = folderName[folderName.find("xml")+4:]
 
         if self.cirrusEnabled:
             self.t = None
 
-        print "xmlFolderName=" + str(xmlFolderName)
-        print "sampleFileName=" + str(sampleFileName)
-        print "scanFileName=" + str(scanFileName)
-        print "detectorFileName=" + str(detectorFileName)
-        print "outputFileName=" + str(outputFileName)
+        #print "xmlFolderName=" + str(xmlFolderName)
+        #print "sampleFileName=" + str(sampleFileName)
+        #print "scanFileName=" + str(scanFileName)
+        #print "detectorFileName=" + str(detectorFileName)
+        #print "outputFileName=" + str(outputFileName)
 
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName) 
         controller = Finder.getInstance().find("ExafsScriptObserver")
@@ -72,6 +74,7 @@ class QexafsScan(Scan):
         try:
             while True:
                 repetitionNumber+= 1
+                self._resetHeader()
                 self.detectorPreparer.prepare(detectorBean, outputBean, xmlFolderName)
                 self.samplePreparer.prepare(sampleBean)
                 initial_energy = scanBean.getInitialEnergy()
@@ -159,6 +162,7 @@ class QexafsScan(Scan):
                     controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
                     loggingbean.atScanEnd()            
                 except InterruptedException, e:
+                    self._resetHeader()
                     loggingbean.atCommandFailure()
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
                         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
@@ -173,6 +177,7 @@ class QexafsScan(Scan):
                         print e
                         raise # any other exception we are not expecting so raise whatever this is to abort the script
                 except:
+                    self._resetHeader()
                     loggingbean.atCommandFailure()
                     raise
                     
@@ -190,12 +195,13 @@ class QexafsScan(Scan):
                 numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
                 if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
                     print "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end."
+                    self._resetHeader()
                     break
                 elif numRepsFromProperty <= (repetitionNumber):
+                    self._resetHeader()
                     break
-       
-        finally:    
-            self.energy_scannable.stop()
+        finally:
+            #self.energy_scannable.stop()
             # repetition loop completed, so reset things
             if (self.beamlineReverter != None):
                 self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
@@ -203,13 +209,15 @@ class QexafsScan(Scan):
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
             XasAsciiDataWriter.setBeanGroup(None)
             #remove added metadata from default metadata list to avoid multiple instances of the same metadata
-            jython_mapper = JythonNameSpaceMapping()
-            if (jython_mapper.original_header != None):
-                original_header=jython_mapper.original_header[:]
-                Finder.getInstance().find("datawriterconfig").setHeader(original_header)
+            self._resetHeader()
             if self.cirrusEnabled:
                 self.t.stop
 
+    def _resetHeader(self):
+        jython_mapper = JythonNameSpaceMapping()
+        if (jython_mapper.original_header != None):
+            original_header=jython_mapper.original_header[:]
+            Finder.getInstance().find("datawriterconfig").setHeader(original_header)
  
     def _getNumberOfFrames(self, detectorBean, scanBean):
          # work out the number of frames to collect
@@ -239,11 +247,15 @@ class QexafsScan(Scan):
         detectorList = []
         if expt_type == "Transmission":
             print "This is a transmission scan"
-            return self._createDetArray(["qexafs_counterTimer01"], scanBean)
+            if self.gmsd_enabled==True:
+                return self._createDetArray(["qexafs_counterTimer01_gmsd"], scanBean)
+            else:
+                return self._createDetArray(["qexafs_counterTimer01"], scanBean)
         else:
             if detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon":
                 print "This scan will use the vortex detector"
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap", "VortexQexafsFFI0"], scanBean)
+                #return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap"], scanBean)
             else:
                 print "This scan will use the Xspress detector"
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "QexafsFFI0"], scanBean)
@@ -274,3 +286,9 @@ class QexafsScan(Scan):
     
     def useCirrus(self, isUsed):
         self.cirrusEnabled = isUsed
+
+    def enableGMSD(self):
+        self.gmsd_enabled=True
+    
+    def disableGMSD(self):
+        self.gmsd_enabled=False
