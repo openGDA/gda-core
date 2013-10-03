@@ -32,6 +32,7 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
@@ -61,6 +62,9 @@ import org.springframework.util.StringUtils;
  */
 public class GDAJythonInterpreter extends ObservableComponent {
 	private static final Logger logger = LoggerFactory.getLogger(GDAJythonInterpreter.class);
+
+	public static final String USE_WRITERS_PROPERTY = String.format("%s.useWriters", GDAJythonInterpreter.class.getName());
+
 	// the Jython interpreter
 	private InteractiveConsole interp;
 
@@ -273,9 +277,15 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				fakeSysExecutable(sys);
 
 				// set the console output
-				final OutputStream terminalOutputStream = jythonServer.getTerminalOutputStream();
-				interp.setOut(terminalOutputStream);
-				interp.setErr(terminalOutputStream);
+				if (LocalProperties.check(USE_WRITERS_PROPERTY)) {
+					final Writer terminalWriter = jythonServer.getTerminalWriter();
+					interp.setOut(terminalWriter);
+					interp.setErr(terminalWriter);
+				} else {
+					final OutputStream terminalOutputStream = jythonServer.getTerminalOutputStream();
+					interp.setOut(terminalOutputStream);
+					interp.setErr(terminalOutputStream);
+				}
 
 				// dynamic configuration using Castor
 				logger.info("performing standard Jython interpreter imports...");
