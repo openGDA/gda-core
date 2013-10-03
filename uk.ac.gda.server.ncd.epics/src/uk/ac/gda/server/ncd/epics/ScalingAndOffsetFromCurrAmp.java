@@ -40,12 +40,9 @@ import java.util.StringTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.server.ncd.subdetector.ScalingAndOffset;
-import uk.ac.gda.server.ncd.subdetector.ScalingAndOffsetParameters;
-
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
-public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scannable, Findable, ScalingAndOffset, MonitorListener {
+public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scannable, Findable, gda.device.currentamplifier.ScalingAndOffset, MonitorListener {
 	private static final Logger logger = LoggerFactory.getLogger(ScalingAndOffsetFromCurrAmp.class);
 	
 	public class OptionsExhausedException extends DeviceException {
@@ -65,7 +62,7 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 	private Channel channel; 
 	private boolean busy = false;
 	boolean fixed = false;
-	private Map<Integer, ScalingAndOffsetParameters> gaintosando;
+	private Map<Integer, gda.device.currentamplifier.ScalingAndOffsetParameters> gaintosando;
 	
 	@Override
 	public void configure() throws FactoryException {
@@ -167,10 +164,10 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 	public String[] getPositions() {
 		return labellist;
 	}
-	public Map<Integer, ScalingAndOffsetParameters> getGaintosando() {
+	public Map<Integer, gda.device.currentamplifier.ScalingAndOffsetParameters> getGaintosando() {
 		return gaintosando;
 	}
-	public void setGaintosando(Map<Integer, ScalingAndOffsetParameters> gaintosando) {
+	public void setGaintosando(Map<Integer, gda.device.currentamplifier.ScalingAndOffsetParameters> gaintosando) {
 		this.gaintosando = gaintosando;
 	}
 	
