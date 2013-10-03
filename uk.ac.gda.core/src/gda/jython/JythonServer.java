@@ -87,7 +87,7 @@ import org.springframework.util.StringUtils;
  * this rule is scan objects, which require information via methods which are not distributed and are shared via the
  * ICurrentScanHolder, IJythonServerNotifer, and IDefaultScannableProvider interfaces.
  */
-public class JythonServer extends OutputStream implements Jython, LocalJython, Configurable, Localizable, Serializable,
+public class JythonServer implements Jython, LocalJython, Configurable, Localizable, Serializable,
 		ICurrentScanInformationHolder, IJythonServerNotifer, IDefaultScannableProvider, IObservable, ITerminalInputProvider {
 
 	private static Logger logger = LoggerFactory.getLogger(JythonServer.class);
@@ -742,36 +742,41 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 		ScriptBase.setPaused(false);
 	}
 
-	// to fulfil the OutputStream
+	private final OutputStream terminalOutputStream = new OutputStream() {
 
-	@Override
-	public void write(byte[] input) {
-		updateIObservers(input);
-		if (this.runningLocalStation) {
-			try {
-				this.bufferedLocalStationOutput += new String(input, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				// This seems highly improbable, but we have to catch the exception
-				logger.error("UTF-8 is unsupported on current platform", e);
+		@Override
+		public void write(byte[] input) {
+			updateIObservers(input);
+			if (runningLocalStation) {
+				try {
+					bufferedLocalStationOutput += new String(input, "UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					// This seems highly improbable, but we have to catch the exception
+					logger.error("UTF-8 is unsupported on current platform", e);
+				}
 			}
 		}
-	}
 
-	@Override
-	public void write(int input) {
-		String str = Integer.toBinaryString(input);
-		byte[] byte_array = str.getBytes();
-		write(byte_array);
-	}
-
-	@Override
-	public void write(byte[] b, int off, int len) {
-		byte[] input = b;
-		if (off != 0 || len != b.length) {
-			// create the truncated byte array
-			input = Arrays.copyOfRange(b, off, off + len);
+		@Override
+		public void write(int input) {
+			String str = Integer.toBinaryString(input);
+			byte[] byte_array = str.getBytes();
+			write(byte_array);
 		}
-		write(input);
+
+		@Override
+		public void write(byte[] b, int off, int len) {
+			byte[] input = b;
+			if (off != 0 || len != b.length) {
+				// create the truncated byte array
+				input = Arrays.copyOfRange(b, off, off + len);
+			}
+			write(input);
+		}
+	};
+
+	public OutputStream getTerminalOutputStream() {
+		return terminalOutputStream;
 	}
 
 	@Override
