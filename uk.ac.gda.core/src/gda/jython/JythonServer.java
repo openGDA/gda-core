@@ -58,6 +58,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -777,6 +778,36 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	public OutputStream getTerminalOutputStream() {
 		return terminalOutputStream;
+	}
+
+	private final Writer terminalWriter = new Writer() {
+
+		@Override
+		public void write(char[] cbuf, int off, int len) throws IOException {
+			
+			final String str = new String(cbuf, off, len);
+			final TerminalOutput output = new TerminalOutput(str);
+			
+			updateIObservers(output);
+			
+			if (runningLocalStation) {
+				bufferedLocalStationOutput += str;
+			}
+		}
+
+		@Override
+		public void flush() throws IOException {
+			// do nothing
+		}
+
+		@Override
+		public void close() throws IOException {
+			// do nothing
+		}
+	};
+
+	public Writer getTerminalWriter() {
+		return terminalWriter;
 	}
 
 	@Override
