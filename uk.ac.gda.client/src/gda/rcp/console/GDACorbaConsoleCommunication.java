@@ -211,10 +211,15 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 	@Override
 	public void write(byte[] output) {
 		try {
-			newData += new String(output, "UTF-8");
+			write(new String(output, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void write(String output) {
+		newData += output;
 	}
 
 	@Override

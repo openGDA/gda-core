@@ -378,6 +378,11 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 			logger.warn("UnsupportedEncodingException while converting to UTF-8 in Jython Console: " + e.getMessage(),
 					e);
 		}
+		write(output);
+	}
+
+	@Override
+	public void write(String output) {
 		appendOutput(output);
 	}
 
