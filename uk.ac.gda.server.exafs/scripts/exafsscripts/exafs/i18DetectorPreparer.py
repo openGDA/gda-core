@@ -30,6 +30,11 @@ class I18DetectorPreparer:
         elif detectorParameters.getExperimentType() == "Transmission":
             self._control_all_ionc(detectorParameters.getTransmissionParameters().getIonChamberParameters())
 
+    def completeCollection(self):
+        # this will be called at the end of a loop of scans, or after an abort
+        continue
+
+
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
         self._control_ionc(ion_chambers_bean, 1)

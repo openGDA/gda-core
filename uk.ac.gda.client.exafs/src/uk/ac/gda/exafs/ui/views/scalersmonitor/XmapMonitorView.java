@@ -203,6 +203,7 @@ public class XmapMonitorView extends MonitorViewBase {
 			xmap.collectData();
 			ionchambers.setCollectionTime(1);
 			ionchambers.collectData();
+			ionchambers.clearFrameSets();
 			ionchambers.waitWhileBusy();
 			xmap.stop();
 			xmap.waitWhileBusy();

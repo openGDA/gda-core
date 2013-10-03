@@ -41,21 +41,21 @@ class Scan:
             dets.append(thisDetector)
         return dets
 
-    def _createBeans(self, xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName):
+    def _createBeans(self, experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName):
         if(sampleFileName == None):
             sampleBean = None
         else:
-            sampleBean = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
-        scanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
-        detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
-        outputBean = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
+            sampleBean = BeansFactory.getBeanObject(experimentFullPath, sampleFileName)
+        scanBean = BeansFactory.getBeanObject(experimentFullPath, scanFileName)
+        detectorBean = BeansFactory.getBeanObject(experimentFullPath, detectorFileName)
+        outputBean = BeansFactory.getBeanObject(experimentFullPath, outputFileName)
         return sampleBean, scanBean, detectorBean, outputBean
     
     # from xas
-    def _createBeanGroup(self, folderName, validation, controller, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean):
+    def _createBeanGroup(self, folderName, validation, controller, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean):
         beanGroup = BeanGroup()
         beanGroup.setController(controller)
-        beanGroup.setXmlFolder(xmlFolderName)
+        beanGroup.setXmlFolder(experimentFullPath)
         beanGroup.setExperimentFolderName(folderName)
         outputBean.setAsciiFileName(sampleBean.getName())
         beanGroup.setValidate(validation)
