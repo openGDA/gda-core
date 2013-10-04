@@ -580,29 +580,20 @@ where task can be:
 
 
 	def determine_gda_data(self):
-		""" Determine the location of the GDA data directory, trying possible locations in sequence.
+		""" Determine the location of the GDA data directory.
 			Specifying the location is optional. If not set, a gda.data property will need to be defined in the java.properties file.
 			See log_gda_configuration_and_data() for reporting this.
 		"""
+
+		if not self.options.gda_data and os.getenv("GDA_DATADIR"):
+			self.options.gda_data = os.getenv("GDA_DATADIR")
 
 		if self.options.gda_data:
 			path = os.path.abspath(self.options.gda_data)
 			if not os.path.isdir(path):
 				self.logger.critical("Invalid location for the GDA data directory %s" % self.options.gda_data)
 				sys.exit(1)
-
-		else:
-			self.logger.trace('attempting to determine location of GDA data directory')
-			assert self.options.gda_config and os.path.isdir(self.options.gda_config)  # this should have been set
-			path = self._determine_first_valid_directory([
-				lambda: os.getenv("GDA_DATADIR"),
-				lambda: os.getenv("BEAMLINE", None) not in [None, "BEAMLINE"] and abspath("/dls", os.getenv("BEAMLINE").lower(), "data"),
-				lambda: abspath(self.options.gda_config, "users","data"),
-				])
-			if not path:
-				return
-
-		self.options.gda_data = path
+			self.options.gda_data = path
 
 
 	def log_gda_configuration_and_data(self):
