@@ -54,7 +54,7 @@ public class NexusGroupData implements Serializable {
 	 * 
 	 * NexusFile.NX_COMP_*
 	 */
-	public final int compressionType = NexusFile.NX_COMP_NONE;
+	public Integer compressionType = null;
 
 	/**
 	 * Flag to indicate that when writing this value to a file the entry is to linked to the NXEntry/NXDetector section as a variable of the scan
