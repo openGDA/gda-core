@@ -439,4 +439,16 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void setEntranceSlitInformationProvider(EntranceSlitInformationProvider entranceSlitInformationProvider) {
 		this.entranceSlitInformationProvider = entranceSlitInformationProvider;
 	}
+	
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		inScan = false;
+		super.atCommandFailure();
+	}
+	
+	@Override
+	public void stop() throws DeviceException {
+		inScan = false;
+		super.stop();
+	}
 }
