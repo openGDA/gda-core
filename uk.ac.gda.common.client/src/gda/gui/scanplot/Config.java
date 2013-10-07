@@ -23,6 +23,8 @@ import gda.scan.AxisSpecProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanPlotSettings;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import org.slf4j.Logger;
@@ -72,15 +74,17 @@ public class Config {
 				return false;
 			}
 		}
-		Vector<String> positionHeader = point.getPositionHeader();
-		Vector<String> detectorHeader = point.getDetectorHeader();
-		for (String s : namesOfVisibleLinesInPreviousScan) {
-			if (!positionHeader.contains(s) && !detectorHeader.contains(s))
-				return false;
+		Set<String> previousScan = new HashSet<String>(namesOfVisibleLinesInPreviousScan);
+		previousScan.addAll(namesOfInVisibleLinesInPreviousScan);
+		Set<String> currentScan = new HashSet<String>(point.getPositionHeader());
+		currentScan.addAll(point.getDetectorHeader());
+		if (previousScan.size() != currentScan.size()) {
+			return false;
 		}
-		for (String s : namesOfInVisibleLinesInPreviousScan) {
-			if (!positionHeader.contains(s) && !detectorHeader.contains(s))
+		for (String scanName : previousScan) {
+			if (!currentScan.contains(scanName)) {
 				return false;
+			}
 		}
 		return true;
 	}
@@ -96,7 +100,6 @@ public class Config {
 		if (scanPlotSettings != null) {
 			xAxisHeader = scanPlotSettings.getXAxisName();
 			yAxesMap = scanPlotSettings.getAxisSpecProvider();
-
 		}
 
 		xAxisIndex = 0;
