@@ -716,13 +716,13 @@ public abstract class ScannableUtils {
 	}
 
 	/**
-	 * Converts a Jython PyObject into its Java equivilent if that is possible. This only works on the sorts of objects
+	 * Converts a Jython PyObject into its Java equivalent if that is possible. This only works on the sorts of objects
 	 * dealt with in the Jython environment i.e. Strings, integers, floats (doubles) and arrays of these.
 	 * <P>
 	 * If this fails or cannot work for any reason then null is returned.
 	 * 
 	 * @param object
-	 * @return Java equivilent object
+	 * @return Java equivalent object
 	 */
 	public static Object convertToJava(PyObject object) {
 

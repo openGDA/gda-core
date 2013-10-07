@@ -531,11 +531,18 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 					// TODO allow NGD to specify compression and chunks
 					if (sds.dimensions != null && sds.dimensions.length > 1) {
-						int[] chunks = Arrays.copyOf(dataDimMake, dataDimMake.length);
+						int[] chunks = Arrays.copyOf(dataDimMake, dataDimMake.length);						
 						for (int i = 0; i < chunks.length; i++) {
 							if (chunks[i] == -1) chunks[i] = 1;
 						}
-						file.compmakedata(name, sds.type, dataDimMake.length, dataDimMake, NexusFile.NX_COMP_LZW_LVL1, chunks);
+						if (sds.chunkDimensions != null && sds.chunkDimensions.length <= chunks.length) {
+							int lendiff = chunks.length - sds.chunkDimensions.length;
+							for (int i = 0; i < sds.chunkDimensions.length; i++) {
+								chunks[i+lendiff] = sds.chunkDimensions[i];
+							}
+						}
+						int compression = sds.compressionType != null ? sds.compressionType : NexusFile.NX_COMP_LZW_LVL1;
+						file.compmakedata(name, sds.type, dataDimMake.length, dataDimMake, compression, chunks);
 					} else {
 						file.makedata(name, sds.type, dataDimMake.length, dataDimMake);
 					}
