@@ -693,6 +693,8 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	boolean checkFileExists = false;
 
+	private int[] dataChunking;
+
 	public boolean isUsePipeline() {
 		return usePipeline;
 	}
@@ -797,8 +799,18 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			throws Exception, DeviceException {
 
 		ArrayData arrayData = ArrayData.readArrayData(ndArray);
-		data.addData(detectorName, "data", arrayData.getDims(), arrayData.getNexusType(), arrayData.getDataVals(),
-				null, 1);
+		NexusGroupData ngd = new NexusGroupData(arrayData.getDims(), arrayData.getNexusType(), arrayData.getDataVals());
+		ngd.isDetectorEntryData = true;
+		ngd.chunkDimensions = dataChunking;
+		data.addData(detectorName, "data", ngd, null, 1);
+	}
+
+	public int[] getDataChunking() {
+		return dataChunking;
+	}
+
+	public void setDataChunking(int[] dataChunking) {
+		this.dataChunking = dataChunking;
 	}
 
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
