@@ -25,8 +25,14 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.devices.bssc.BioSAXSSampleChanger;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
 
+@CorbaAdapterClass(ScannableAdapter.class)
+@CorbaImplClass(ScannableImpl.class)
 public class BSSCScannable extends ScannableBase {
 	private static final Logger logger = LoggerFactory.getLogger(BSSCScannable.class);
 
