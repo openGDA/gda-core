@@ -18,11 +18,6 @@
 
 package uk.ac.gda.devices.bssc.scannable;
 
-import org.embl.BaseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.devices.bssc.BioSAXSSampleChanger;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.corba.impl.ScannableAdapter;
@@ -30,6 +25,12 @@ import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
+
+import org.embl.BaseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.devices.bssc.BioSAXSSampleChanger;
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
@@ -41,7 +42,7 @@ public class BSSCScannable extends ScannableBase {
 	final BSSCScannable us = this;
 	public int waittime = 20000;
 	Object cachedPosition = null;
-	
+
 	class Poller implements Runnable {
 		@Override
 		public void run() {
@@ -66,32 +67,33 @@ public class BSSCScannable extends ScannableBase {
 			}
 		}
 	}
-	
+
 	public void whackPoller() {
 		synchronized (us) {
 			us.notify();
 		}
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
 		try {
 			setInputNames(new String[] {});
-			setExtraNames(new String [] {"detergentlevel", "waterlevel", "wastelevel"});
-			setOutputFormat(new String [] {"%2.0f", "%2.0f", "%2.0f"});
-			bssc.getTemperatureSampleStorage(); // WARNING - this generates an exception, so the logic expects the following code noty be run in all cases
-			setExtraNames(new String [] { "seutemp", "storagetemp", "detergentlevel", "waterlevel", "wastelevel"});
-			setOutputFormat(new String [] {"%3.1f", "%3.1f", "%2.0f", "%2.0f", "%2.0f"});
+			setExtraNames(new String[] { "detergentlevel", "waterlevel", "wastelevel" });
+			setOutputFormat(new String[] { "%2.0f", "%2.0f", "%2.0f" });
+			bssc.getTemperatureSampleStorage(); // WARNING - this generates an exception, so the logic expects the
+												// following code not to be run in all cases
+			setExtraNames(new String[] { "seutemp", "storagetemp", "detergentlevel", "waterlevel", "wastelevel" });
+			setOutputFormat(new String[] { "%3.1f", "%3.1f", "%2.0f", "%2.0f", "%2.0f" });
 		} catch (Exception ignored) {
 			// normal behaviour in simulation
 		}
 		if (poller == null || !poller.isAlive()) {
-			poller = new Thread(new Poller(), getName()+" polling thread");
+			poller = new Thread(new Poller(), getName() + " polling thread");
 			poller.start();
 		}
 	}
-	
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		try {
@@ -100,14 +102,16 @@ public class BSSCScannable extends ScannableBase {
 			throw new DeviceException("error getting state", e);
 		}
 	}
-	
+
 	@Override
 	public Object getPosition() throws DeviceException {
 		try {
-			if (getExtraNames().length == 3)
-				cachedPosition =  new double[] {bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel()};
-			else 
-				cachedPosition =  new double[] {bssc.getTemperatureSEU(), bssc.getTemperatureSampleStorage(), bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel()};
+			if (getExtraNames().length == 3) {
+				cachedPosition = new double[] { bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel() };
+			} else {
+				cachedPosition = new double[] { bssc.getTemperatureSEU(), bssc.getTemperatureSampleStorage(),
+						bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel() };
+			}
 			whackPoller();
 			return cachedPosition;
 		} catch (BaseException e) {
@@ -121,5 +125,21 @@ public class BSSCScannable extends ScannableBase {
 
 	public void setBssc(BioSAXSSampleChanger bssc) {
 		this.bssc = bssc;
+	}
+
+	public void load() throws DeviceException {
+		try {
+			this.bssc.loadPlates();
+		} catch (BaseException e) {
+			throw new DeviceException("error loading plates", e);
+		}
+	}
+
+	public void scanAndPark() throws DeviceException {
+		try {
+			this.bssc.scanAndPark();
+		} catch (BaseException e) {
+			throw new DeviceException("error scanning and parking plates", e);
+		}
 	}
 }
