@@ -62,5 +62,13 @@
            name="BSSC Perspective">
      </perspective>
   </extension>
+  <extension
+        point="org.eclipse.ui.views">
+     <view
+           class="uk.ac.gda.devices.bssc.ui.BSSCStatus"
+           id="uk.ac.gda.devices.bssc.ui.BSSCStatus"
+           name="BioSAXS Robot Status">
+     </view>
+  </extension>
 
 </plugin>
