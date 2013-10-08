@@ -33,11 +33,11 @@ import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.ncd.rcp.views.NcdQAxisCalibration;
+import uk.ac.diamond.scisoft.ncd.rcp.views.SaxsQAxisCalibration;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 
-public class QAxisCalibration extends NcdQAxisCalibration {
+public class QAxisCalibration extends SaxsQAxisCalibration {
 	private static final Logger logger = LoggerFactory.getLogger(QAxisCalibration.class);
 	private NcdController ncdcontroller = NcdController.getInstance();
 	private Scannable energyscannable;
@@ -67,9 +67,7 @@ public class QAxisCalibration extends NcdQAxisCalibration {
 	}
 	
 	@Override
-	protected Amount<Length> getPixel(boolean b) {
-		if (b)
-			logger.error("b is true and I do not know what that means", new IllegalArgumentException());
+	protected Amount<Length> getPixel() {
 		String detectorName = ncdcontroller.getDetectorName(NcdDetectorSystem.SAXS_DETECTOR);
 		INcdSubDetector detector = ncdcontroller.getDetectorByName(detectorName);
 		Amount<Length> amount = null;

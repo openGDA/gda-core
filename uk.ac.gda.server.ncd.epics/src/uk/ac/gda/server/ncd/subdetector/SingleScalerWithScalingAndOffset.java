@@ -23,6 +23,7 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
+import gda.device.currentamplifier.ScalingAndOffset;
 import gda.device.detector.NXDetectorData;
 
 import org.nexusformat.NexusFile;

@@ -18,6 +18,8 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import gda.device.currentamplifier.ScalingAndOffset;
+
 public class ConstantScalingAndOffset implements ScalingAndOffset {
 
 	private Double scaling, offset;
