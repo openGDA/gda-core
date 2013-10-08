@@ -34,6 +34,7 @@ import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonServerStatus;
 import gda.jython.UserMessage;
+import gda.jython.batoncontrol.BatonRequested;
 import gda.observable.IObserver;
 import gda.rcp.preferences.GdaRootPreferencePage;
 import gda.util.ObjectServer;
@@ -71,6 +72,8 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IViewPart;
@@ -108,6 +111,7 @@ import uk.ac.gda.ui.partlistener.MenuDisplayPartListener;
 import uk.ac.gda.ui.utils.ProjectUtils;
 import uk.ac.gda.ui.utils.ResourceFilterWrapper;
 import uk.ac.gda.views.baton.MessageView;
+import uk.ac.gda.views.baton.dialogs.BatonRequestDialog;
 
 /**
  * 
@@ -376,6 +380,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			}
 
 			listenForUserMessages();
+			listenForBatonMessages();
 			
 			String defaultEditorId = preferenceStore.getString(PreferenceConstants.GDA_DEFAULT_NXS_HDF5_EDITOR_ID);
 			if( defaultEditorId !=null && defaultEditorId.length()>0){
@@ -459,6 +464,30 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		InterfaceProvider.getJSFObserver().addIObserver(messageObserver);
 	}
 	
+	private void listenForBatonMessages() {
+
+		final IObserver batonObserver = new IObserver() {
+			@Override
+			public void update(Object source, Object arg) {
+				if (arg instanceof BatonRequested) {
+					final BatonRequested request = (BatonRequested) arg;
+					if (JythonServerFacade.getInstance().amIBatonHolder()) {
+						final Display display = PlatformUI.getWorkbench().getDisplay();
+						display.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								final Shell shell = display.getShells()[0];
+								BatonRequestDialog.doPassBaton(shell, request);
+							}
+						});
+					}
+				}
+			}
+		};
+
+		InterfaceProvider.getJSFObserver().addIObserver(batonObserver);
+	}
+
 	private void refreshFromLocal() {
 		String[] commandLineArgs = Platform.getCommandLineArgs();
 		boolean refresh = true;

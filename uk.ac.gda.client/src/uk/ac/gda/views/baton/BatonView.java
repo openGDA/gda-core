@@ -20,10 +20,7 @@ package uk.ac.gda.views.baton;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
-import gda.jython.UserMessage;
 import gda.jython.batoncontrol.BatonChanged;
-import gda.jython.batoncontrol.BatonRequested;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
@@ -52,7 +49,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.preferences.PreferenceConstants;
-import uk.ac.gda.views.baton.dialogs.BatonRequestDialog;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -304,25 +300,9 @@ public class BatonView extends ViewPart implements IObserver{
 					userTable.refresh();
 				}
 			});
-
-		} else if (changeCode instanceof BatonRequested) {
-			final BatonRequested request = (BatonRequested) changeCode;
-			if (JythonServerFacade.getInstance().amIBatonHolder()) {
-				getSite().getShell().getDisplay().asyncExec(new Runnable()  {
-					@Override
-					public void run() {
-						doPassBaton(request);
-					}
-				});
-			}
 		}
 	}
 	
-	private void doPassBaton(final BatonRequested request) {
-		final boolean keepBaton = GDAClientActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.KEEP_BATON);
-        BatonRequestDialog.openPassBatonForm(getSite().getShell(), request.getRequester(), keepBaton);
-	}
-
 	@Override
 	public void dispose() {
 		try {
