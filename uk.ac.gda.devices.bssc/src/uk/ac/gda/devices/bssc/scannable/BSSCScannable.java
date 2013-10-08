@@ -37,6 +37,41 @@ public class BSSCScannable extends ScannableBase {
 	private static final Logger logger = LoggerFactory.getLogger(BSSCScannable.class);
 
 	BioSAXSSampleChanger bssc;
+	Thread poller;
+	final BSSCScannable us = this;
+	public int waittime = 20000;
+	Object cachedPosition = null;
+	
+	class Poller implements Runnable {
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					synchronized (us) {
+						us.wait(waittime);
+						Thread.sleep(100);
+					}
+				} catch (InterruptedException e) {
+				}
+				if (cachedPosition != null) {
+					notifyIObservers(us, cachedPosition);
+					cachedPosition = null;
+				} else {
+					try {
+						notifyIObservers(us, us.getPosition());
+					} catch (DeviceException e) {
+						logger.error("error reading postion for updates", e);
+					}
+				}
+			}
+		}
+	}
+	
+	public void whackPoller() {
+		synchronized (us) {
+			us.notify();
+		}
+	}
 	
 	@Override
 	public void configure() throws FactoryException {
@@ -45,11 +80,15 @@ public class BSSCScannable extends ScannableBase {
 			setInputNames(new String[] {});
 			setExtraNames(new String [] {"detergentlevel", "waterlevel", "wastelevel"});
 			setOutputFormat(new String [] {"%2.0f", "%2.0f", "%2.0f"});
-			bssc.getTemperatureSampleStorage();
+			bssc.getTemperatureSampleStorage(); // WARNING - this generates an exception, so the logic expects the following code noty be run in all cases
 			setExtraNames(new String [] { "seutemp", "storagetemp", "detergentlevel", "waterlevel", "wastelevel"});
 			setOutputFormat(new String [] {"%3.1f", "%3.1f", "%2.0f", "%2.0f", "%2.0f"});
 		} catch (Exception ignored) {
-			
+			// normal behaviour in simulation
+		}
+		if (poller == null || !poller.isAlive()) {
+			poller = new Thread(new Poller(), getName()+" polling thread");
+			poller.start();
 		}
 	}
 	
@@ -66,8 +105,11 @@ public class BSSCScannable extends ScannableBase {
 	public Object getPosition() throws DeviceException {
 		try {
 			if (getExtraNames().length == 3)
-					return new double[] {bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel()};
-			return new double[] {bssc.getTemperatureSEU(), bssc.getTemperatureSampleStorage(), bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel()};
+				cachedPosition =  new double[] {bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel()};
+			else 
+				cachedPosition =  new double[] {bssc.getTemperatureSEU(), bssc.getTemperatureSampleStorage(), bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel()};
+			whackPoller();
+			return cachedPosition;
 		} catch (BaseException e) {
 			throw new DeviceException("error getting values", e);
 		}
