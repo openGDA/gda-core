@@ -315,8 +315,6 @@ public class BatonView extends ViewPart implements IObserver{
 					}
 				});
 			}
-		} else if (changeCode instanceof UserMessage) {
-			// Open/activate user message view and show message?
 		}
 	}
 	
