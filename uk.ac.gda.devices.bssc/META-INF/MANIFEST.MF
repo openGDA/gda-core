@@ -18,7 +18,9 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.client,
  uk.ac.gda.video;bundle-version="1.0.0",
  uk.ac.gda.video.mjpeg;bundle-version="1.0.0",
- uk.ac.gda.video.views;bundle-version="1.0.0"
+ uk.ac.gda.video.views;bundle-version="1.0.0",
+ org.csstudio.swt.widgets;bundle-version="2.1.0",
+ org.csstudio.swt.xygraph;bundle-version="1.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,
