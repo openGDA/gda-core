@@ -184,8 +184,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private static final String[] A = new String[] {};
 
-	protected static final String UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE = "ADDetector does not support operation through its Scannable interface. Do not use pos until pos supports detectors as Detectors rather than Scannables";
-
 	protected static final String FILEPATH_EXTRANAME = "filepath";
 
 	private static Logger logger = LoggerFactory.getLogger(ADDetector.class);
@@ -474,17 +472,22 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void asynchronousMoveTo(Object collectionTime) throws DeviceException {
-		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+		throw new DeviceException("ADDetector does not support operation through its Scannable interface.");
 	}
 
 	@Override
-	public boolean isBusy() {
-		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+	public boolean isBusy() throws DeviceException {
+		return getStatus() == BUSY;
 	}
 
 	@Override
 	public Object getPosition() throws DeviceException {
-		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+		try {
+			// in some cases this message can be logged twice every millisecond and fill up the disks
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		} 
+		throw new RuntimeException("ADDetector does not support operation through its Scannable interface.");
 	}
 
 	@Override
