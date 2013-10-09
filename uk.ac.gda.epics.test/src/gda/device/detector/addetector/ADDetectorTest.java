@@ -52,8 +52,7 @@ import org.mockito.MockitoAnnotations;
 public class ADDetectorTest {
 
 	private ADDetector adDet;
-	@Mock
-	protected ADBase adBase;
+	@Mock protected ADBase adBase;
 	@Mock protected AsyncNXCollectionStrategy collectionStrategy;
 	@Mock protected NXFileWriterPlugin fileWriter;
 	@Mock protected NDArray ndArray;
@@ -80,14 +79,12 @@ public class ADDetectorTest {
 	}
 
 	@Before
-	
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		setUpNoConfigure();
 		adDet().configure();
 		configureScanInformationHolder();
 	}
-	
 
 	protected void configureScanInformationHolder() {
 		scanInfo = mock(ScanInformation.class);
@@ -129,6 +126,7 @@ public class ADDetectorTest {
 		adDet().setReadAcquisitionTime(enableTime);
 		adDet().setReadAcquisitionPeriod(enablePeriod);
 	}
+	
 	protected void enableFileWriter(boolean enableFileWriter) throws Exception {
 		adDet().setReadFilepath(enableFileWriter);
 	}
@@ -151,21 +149,32 @@ public class ADDetectorTest {
 		assertTrue(adDet().isReadArray());
 	}
 	
-	
-	@Test(expected=RuntimeException.class)
-	public void testAsynchronousMoveTo() throws DeviceException {
-		det().asynchronousMoveTo(1.);
-	}
+	// The behaviour expected in this test is different from what DetectorBase does.
+	// Having this throw exceptions lead to a 7GB logfile in 1 day on I05, because
+	// under certain conditions the exception is logged, then ignored and isBusy() 
+	// called again immediately. Finding and fixing that loop would be a good idea, 
+	// but for consistency (see first sentence) not throwing an exception here is 
+	// also reasonable.
+//	@Test(expected=RuntimeException.class)
+//	public void testAsynchronousMoveTo() throws DeviceException {
+//		det().asynchronousMoveTo(1.);
+//	}
 	
 	@Test(expected=RuntimeException.class)
 	public void testGetPosition() throws DeviceException {
 		det().getPosition();
 	}
 	
-	@Test(expected=RuntimeException.class)
-	public void testIsBusy() throws DeviceException {
-		det().isBusy();
-	}
+	// The behaviour expected in this test is different from what DetectorBase does.
+	// Having this throw exceptions lead to a 7GB logfile in 1 day on I05, because
+	// under certain conditions the exception is logged, then ignored and isBusy() 
+	// called again immediately. Finding and fixing that loop would be a good idea, 
+	// but for consistency (see first sentence) not throwing an exception here is 
+	// also reasonable.
+//	@Test(expected=RuntimeException.class)
+//	public void testIsBusy() throws DeviceException {
+//		det().isBusy();
+//	}
 
 	@Test
 	public void testConfigure() throws Exception {
@@ -364,7 +373,7 @@ public class ADDetectorTest {
 		enableReadAcquisitionTimeAndPeriod(false, false);
 		NXDetectorData data = (NXDetectorData) det().readout();
 		assertEquals("", data.toString());
-		Double[] doubleVals = data.getDoubleVals();
+//		Double[] doubleVals = data.getDoubleVals();
 //		assertArrayEquals(new Double[] { }, doubleVals);
 		// the behaviour tested here is wrong. The detector declares extraNames, so some value needs to be returned to fulfil the contract
 	}
