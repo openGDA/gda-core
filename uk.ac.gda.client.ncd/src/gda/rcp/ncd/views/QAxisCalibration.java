@@ -66,7 +66,6 @@ public class QAxisCalibration extends SaxsQAxisCalibration {
 		return amount;
 	}
 	
-	@Override
 	protected Amount<Length> getPixel() {
 		String detectorName = ncdcontroller.getDetectorName(NcdDetectorSystem.SAXS_DETECTOR);
 		INcdSubDetector detector = ncdcontroller.getDetectorByName(detectorName);
