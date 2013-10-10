@@ -383,15 +383,15 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			double continuousCountSteps;
 			if(!calcEndFromGui){
 				if (endAngle.getAmount() > startAngle.getAmount())
-					continuousCountSteps = -stepIncDemDeg;
+					continuousCountSteps = -stepIncDemDeg;//back
 				else
-					continuousCountSteps = stepIncDemDeg;
+					continuousCountSteps = stepIncDemDeg;//forth
 			}
-			else{
+			else{// step from editor
 				stepSize = (Angle) (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
 				continuousCountSteps = (Math.round(radToDeg(stepSize)*111121.98)/111121.98);
 			}
-			double braggAngle = startAngle.doubleValue() - (frameIndex+0.5) * Math.toRadians(continuousCountSteps);
+			double braggAngle = startAngle.doubleValue() - (frameIndex+1.5) * Math.toRadians(continuousCountSteps);
 			Length twoD = getTwoD();
 			double top = (Constants.h.times(Constants.c).divide(Constants.ePlus)).doubleValue();
 			double bottom = twoD.doubleValue() * Math.sin(braggAngle);
@@ -431,7 +431,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		runUp *= 3.0; // to be safe add 10%
 		Angle runUpAngle = (Angle) QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE);
 		// 1.165E-4 deg is a practical minimum to avoid the motor's deadband
-		double step = radToDeg(stepSize);//controller.cagetDouble(this.stepIncDegChnl);
+		double step = Math.abs(radToDeg(stepSize));//controller.cagetDouble(this.stepIncDegChnl);
 		
 		if (runUpAngle.doubleValue() < 10*step) {//0.0001165
 			runUpAngle = (Angle) QuantityFactory.createFromObject(10*step, NonSI.DEGREE_ANGLE);
