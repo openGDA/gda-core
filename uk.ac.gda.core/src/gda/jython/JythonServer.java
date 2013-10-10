@@ -1447,7 +1447,14 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 		}
 		String[] scannables = ScannableUtils.getScannableNames(scan.getScannables()).toArray(new String[] {});
 		String[] detectors = ScannableUtils.getScannableNames(scan.getDetectors()).toArray(new String[] {});
-		return new ScanInformation(dims, topscan.getScanNumber(), scannables, detectors);
+		Long scanno = topscan.getScanNumber();
+		try { 
+			if (scanno == null)
+				scanno = Long.valueOf(topscan.getDataWriter().getCurrentScanIdentifier());
+		} catch (Exception e) {
+			// we tried so hard, but in the end it didn't even matter...
+		}
+		return new ScanInformation(dims, scanno, scannables, detectors);
 	}
 	
 	@Override
