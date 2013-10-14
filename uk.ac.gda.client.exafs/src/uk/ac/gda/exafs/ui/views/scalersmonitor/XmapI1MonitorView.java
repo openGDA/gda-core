@@ -159,6 +159,7 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 				final Double i1;
 				final Double[] xmapStats;
 				try {
+					logger.debug("Collecting data");
 					i1 = updateValues();
 					xmapStats = getXmapCountRatesAndDeadTimes();
 				} catch (Exception e1) {
@@ -226,6 +227,7 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 				&& !ionchambers.isBusy()) {
 			xmap.collectData();
 			ionchambers.setCollectionTime(1);
+			ionchambers.clearFrameSets();
 			ionchambers.collectData();
 			ionchambers.waitWhileBusy();
 			xmap.stop();

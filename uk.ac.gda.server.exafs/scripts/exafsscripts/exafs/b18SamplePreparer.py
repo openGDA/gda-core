@@ -237,3 +237,4 @@ class B18SamplePreparer:
 			filter = bean.getFilter()
 			print "moving sample wheel to ", filter
 			self.samplewheel_scannable.moveToFilter(filter)
+		print "sample wheel move complete"

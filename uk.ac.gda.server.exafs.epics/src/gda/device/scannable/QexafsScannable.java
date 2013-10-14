@@ -139,7 +139,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	}
 
 	@Override
-	public int prepareForContinuousMove() throws DeviceException {
+	public void prepareForContinuousMove() throws DeviceException {
 		long timeAtMethodStart = System.currentTimeMillis();
 		if (!channelsConfigured) {
 			throw new DeviceException("Cannot set continuous mode on for " + getName()
@@ -191,9 +191,11 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 				controller.caputWait(stepChnl, Math.abs(newStep));
 				
 				double stepIncDemand = Double.parseDouble(controller.caget(stepIncDemChnl));
-				stepIncDemDeg = stepIncDemand*30/3333625;
-				
-				
+				//8999119.8860751423 derived by setting step increment to 90 deg then reading counts. It is 90 divided by the counts.
+				//old value for initial attempt  *30/3333625;
+				//stepIncDemDeg = stepIncDemand*90/10000978;
+				//stepIncDemDeg = stepIncDemand*1000/111121976;
+				stepIncDemDeg = stepIncDemand*360/40000000;
 			}
 			//why sleep half a second? for epics to calculate the number of pulses
 			try {
@@ -208,8 +210,6 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			logger.debug("Time spent in prepareForContinuousMove = "+ (timeAtMethodEnd-timeAtMethodStart)+"ms");
 			if(!calcEndFromGui)
 				newStopAngleDeg = newStartAngleDeg - (stepIncDemDeg*cagetInt);
-				
-			return cagetInt;
 
 		} catch (Exception e) {
 			if( e instanceof DeviceException)
@@ -319,10 +319,13 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	
 	@Override
 	public void stop() throws DeviceException {
+		super.stop();
 		long timeAtMethodStart = System.currentTimeMillis();
 		try {
 			// return to regular running values
+			logger.info("Setting energy to max speed");
 			controller.caputWait(currentSpeedChnl, getMaxSpeed());
+			logger.info("Toggling energy control");
 			controller.caputWait(energySwitchChnl, 0); //off
 			controller.caputWait(energySwitchChnl, 1); //on
 		} catch (Exception e) {
@@ -377,13 +380,16 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		try {
 			double continuousCountSteps;
 			if(!calcEndFromGui){
-				continuousCountSteps = stepIncDemDeg;
+				if (endAngle.getAmount() > startAngle.getAmount())
+					continuousCountSteps = -stepIncDemDeg;
+				else
+					continuousCountSteps = stepIncDemDeg;
 			}
 			else{
 				stepSize = (Angle) (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
 				continuousCountSteps = (Math.round(radToDeg(stepSize)*111121.98)/111121.98);
 			}
-			double braggAngle = startAngle.doubleValue() - frameIndex * Math.toRadians(continuousCountSteps);
+			double braggAngle = startAngle.doubleValue() - (frameIndex+0.5) * Math.toRadians(continuousCountSteps);
 			Length twoD = getTwoD();
 			double top = (Constants.h.times(Constants.c).divide(Constants.ePlus)).doubleValue();
 			double bottom = twoD.doubleValue() * Math.sin(braggAngle);
@@ -414,6 +420,8 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		
 		stepSize = (Angle) (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
 
+		// Calculate run up and run down
+		
 		// v^2 = u^2 + 2as
 		double acceleration = controller.cagetDouble(accelChnl);
 		desiredSpeed = Math.abs(radToDeg(endAngle) - radToDeg(startAngle)) / continuousParameters.getTotalTime();
@@ -590,5 +598,23 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 
 	public void setStepIncDemandPV(String stepIncDemandPV) {
 		this.stepIncDemandPV = stepIncDemandPV;
+	}
+	
+	@Override
+	public int getNumberOfDataPoints() {
+		String erorMessage = "Error getting number of data points from controller";
+		try {
+			return controller.cagetInt(this.numPulsesChnl);
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			logger.error(erorMessage, e);
+		} catch (CAException e) {
+			// TODO Auto-generated catch block
+			logger.error(erorMessage, e);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			logger.error(erorMessage, e);
+		}
+		return 0;
 	}
 }

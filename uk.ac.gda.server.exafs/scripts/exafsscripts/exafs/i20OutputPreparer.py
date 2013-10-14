@@ -10,11 +10,11 @@ from BeamlineParameters import JythonNameSpaceMapping
 
 class I20OutputPreparer:
     
-    def __init__(self, datawriterconfig_xes, datawriterconfig):
+    def __init__(self, datawriterconfig, datawriterconfig_xes):
         self.mode = "xas"
         self.jython_mapper = JythonNameSpaceMapping()
-        self.datawriterconfig_xes = datawriterconfig_xes
         self.datawriterconfig = datawriterconfig
+        self.datawriterconfig_xes = datawriterconfig_xes
         
     def prepare(self, outputParameters, scanBean):
 

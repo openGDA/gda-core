@@ -1091,7 +1091,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		// stop();
 		clear();
 		start();
-		tfg.countAsync(time);//run tfg for time
+		tfg.clearFrameSets(); // we only want to collect a frame at a time
+		tfg.countAsync(time); //run tfg for time
 		do {
 			synchronized (this) {
 				try {
@@ -1868,6 +1869,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 				numResets[i] = unpackedScalerData[element*4 + 1];
 				inWinCounts[i] = unpackedScalerData[element*4 + 2];
 				numClockCounts[i] = unpackedScalerData[element*4 + 3];
+				i++;
 			}
 		}
 		

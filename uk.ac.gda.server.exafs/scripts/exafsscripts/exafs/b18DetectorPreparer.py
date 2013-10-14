@@ -30,11 +30,15 @@ class B18DetectorPreparer:
                 saveRawSpectrum = vortexBean.isSaveRawSpectrum()
                 self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
             self._control_all_ionc(fluoresenceParameters.getIonChamberParameters())
-        elif detectorParameters.getExperimentType() == "Transmission":
-            transmissionParameters = detectorParameters.getTransmissionParameters()
+        elif detectorBean.getExperimentType() == "Transmission":
+            transmissionParameters = detectorBean.getTransmissionParameters()
             if transmissionParameters.isCollectDiffractionImages():
                 self._control_mythen(transmissionParameters)   
             self._control_all_ionc(transmissionParameters.getIonChamberParameters())
+
+    def completeCollection(self):
+        # this will be called at the end of a loop of scans, or after an abort
+        continue
 
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
@@ -48,7 +52,7 @@ class B18DetectorPreparer:
             name = ion_chamber.getName()
             simpleLog("Setting", name, "stanford")
             gain = ion_chamber.getGain()
-            self.ionc_stanford_scannables[ion_chamber_num](gain)  
+            self.ionc_stanford_scannables[ion_chamber_num](gain)
         autoGas = ion_chamber.getAutoFillGas()
         gas_fill1_pressure = str(ion_chamber.getPressure() * 1000.0)
         gas_fill1_period = str(ion_chamber.getGas_fill1_period_box())

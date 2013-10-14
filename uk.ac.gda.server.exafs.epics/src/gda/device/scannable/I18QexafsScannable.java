@@ -136,7 +136,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	}
 
 	@Override
-	public int prepareForContinuousMove() throws DeviceException {
+	public void prepareForContinuousMove() throws DeviceException {
 
 		if (!channelsConfigured) {
 			throw new DeviceException("Cannot set continuous mode on for " + getName()
@@ -182,8 +182,6 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-
-			return controller.cagetInt(this.numPulsesChnl);
 
 		} catch (Exception e) {
 			if (e instanceof DeviceException)
@@ -503,5 +501,23 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 
 	public void setInKev(boolean inKev) {
 		this.inKev = inKev;
+	}
+
+	@Override
+	public int getNumberOfDataPoints() {
+		String erorMessage = "Error getting number of data points from controller";
+		try {
+			return controller.cagetInt(this.numPulsesChnl);
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			logger.error(erorMessage, e);
+		} catch (CAException e) {
+			// TODO Auto-generated catch block
+			logger.error(erorMessage, e);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			logger.error(erorMessage, e);
+		}
+		return 0;
 	}
 }

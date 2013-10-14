@@ -19,6 +19,7 @@
 package gda.device.detector.xspress;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
@@ -153,7 +154,9 @@ public class Xspress2SystemOutputTest {
 			// test ascii
 			assertEquals(SIZE_SCALER_DATA,asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
-			
+			// make sure we are not sending zeroes
+			assertFalse(asciiDataParts[SIZE_SCALER_DATA - 3].compareTo("0") == 0);
+
 			//test when DTC values added
 			xspress.setAddDTScalerValuesToAscii(true);
 			xspress.setCollectionTime(0.05);

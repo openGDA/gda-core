@@ -181,6 +181,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 				&& !ionchambers.isBusy()) {
 			xspress.collectData();
 			ionchambers.setCollectionTime(1);
+			ionchambers.clearFrameSets();
 			ionchambers.collectData();
 
 			xspress.waitWhileBusy();
