@@ -26,8 +26,6 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.util.beans.xml.XMLHelpers;
-
 public class DetectorParameters implements Serializable, IDetectorParameters {
 
 	static public final URL mappingURL = DetectorParameters.class.getResource("ExafsParameterMapping.xml");
@@ -55,14 +53,6 @@ public class DetectorParameters implements Serializable, IDetectorParameters {
 
 	public void setExperimentType(String experimentType) {
 		this.experimentType = experimentType;
-	}
-
-	public static DetectorParameters createFromXML(String filename) throws Exception {
-		return (DetectorParameters) XMLHelpers.createFromXML(mappingURL, DetectorParameters.class, schemaUrl, filename);
-	}
-
-	public static void writeToXML(DetectorParameters sampleParameters, String filename) throws Exception {
-		XMLHelpers.writeToXML(mappingURL, sampleParameters, filename);
 	}
 
 	public DetectorParameters() {

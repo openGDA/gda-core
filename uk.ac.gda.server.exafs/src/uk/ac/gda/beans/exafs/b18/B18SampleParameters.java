@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class B18SampleParameters implements Serializable, ISampleParameters {
 
@@ -60,28 +59,6 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	
 	boolean shouldValidate = true;
 
-	/**
-	 * @param filename
-	 * @return B18SampleParameters
-	 * @throws Exception
-	 */
-	public static B18SampleParameters createFromXML(String filename) throws Exception {
-		return (B18SampleParameters) XMLHelpers.createFromXML(mappingURL, B18SampleParameters.class, schemaURL,
-				filename);
-	}
-
-	/**
-	 * @param sampleParameters
-	 * @param filename
-	 * @throws Exception
-	 */
-	public static void writeToXML(B18SampleParameters sampleParameters, String filename) throws Exception {
-		XMLHelpers.writeToXML(mappingURL, sampleParameters, filename);
-	}
-
-	/**
-	 * Method required to use with BeanUI. Called using reflection.
-	 */
 	@Override
 	public void clear() {
 		name = description1 = description2 = "";

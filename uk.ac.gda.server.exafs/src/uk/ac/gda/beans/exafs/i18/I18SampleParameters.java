@@ -20,13 +20,12 @@ package uk.ac.gda.beans.exafs.i18;
 
 import java.io.Serializable;
 import java.net.URL;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class I18SampleParameters implements Serializable, ISampleParameters {
 	private String name = "";
@@ -44,18 +43,6 @@ public class I18SampleParameters implements Serializable, ISampleParameters {
 	public I18SampleParameters() {
 	}
 
-	public static I18SampleParameters createFromXML(String filename) throws Exception {
-		return (I18SampleParameters) XMLHelpers.createFromXML(mappingURL, I18SampleParameters.class, schemaURL,
-				filename);
-	}
-
-	public static void writeToXML(I18SampleParameters sampleParameters, String filename) throws Exception {
-		XMLHelpers.writeToXML(mappingURL, sampleParameters, filename);
-	}
-
-	/**
-	 *
-	 */
 	@Override
 	public String toString() {
 		try {
