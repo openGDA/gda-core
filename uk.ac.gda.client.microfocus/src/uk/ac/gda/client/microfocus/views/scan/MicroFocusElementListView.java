@@ -180,10 +180,10 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 				elementList.add(regionList.get(i).getRoiName());
 			}
 		}
-		
+
 		elementList.add("I0");
 		elementList.add("It");
-		
+
 		loadedDetectorFileName = xmlfile;
 	}
 
@@ -289,8 +289,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	public void widgetDefaultSelected(SelectionEvent e) {
 	}
 
-	
-	public void loadXspressNexus(HDF5File tree, final String filePath){
+	public void loadXspressNexus(HDF5File tree, final String filePath) {
 		HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
 		String xml = nl.toString();
 		xml = xml.substring(xml.indexOf("<?xml"));
@@ -314,7 +313,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			elements[i] = roiName;
 			elementList.add(roiName);
 		}
-		
+
 		selectedElement = elementList.getItem(0);
 
 		if (selectedElement != null && filePath != null) {
@@ -323,9 +322,8 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					try {
-						displayController.displayMap(
-								xspressBean.getDetector(0).getRegionList().get(0).getRoiName(), filePath,
-								xspressBean);
+						displayController.displayMap(xspressBean.getDetector(0).getRegionList().get(0).getRoiName(),
+								filePath, xspressBean);
 					} catch (Exception e) {
 						logger.error("Error displaying the map ", e);
 						showErrorMessage("Error displaying the map " + e.getMessage());
@@ -339,8 +337,8 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			job.schedule();
 		}
 	}
-	
-	public void loadXmapNexus(HDF5File tree, final String filePath){
+
+	public void loadXmapNexus(HDF5File tree, final String filePath) {
 		HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
 		String xml = nl.toString();
 		xml = xml.substring(xml.indexOf("<?xml"));
@@ -364,7 +362,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			elements[i] = roiName;
 			elementList.add(roiName);
 		}
-		
+
 		selectedElement = elementList.getItem(0);
 
 		if (selectedElement != null && filePath != null) {
@@ -388,7 +386,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			job.schedule();
 		}
 	}
-	
+
 	public void loadFile() {
 
 		final String filePath = openDialog.open();
@@ -406,24 +404,22 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			dataHolder = hdf5Loader.loadFile();
 		} catch (ScanFileHolderException e1) {
 			logger.error("Could not load nexus file " + filePath, e1);
+			return;
 		}
 
 		// get detector type xspress/vortex from nexus
 		IMetaData metadata = dataHolder.getMetadata();
 
-		String metaNames = null;
 		try {
-			metaNames = metadata.getMetaNames().toString();
+			String metaNames = metadata.getMetaNames().toString();
+			if (metaNames.contains("xspress2system"))
+				loadXspressNexus(tree, filePath);
+
+			if (metaNames.contains("xmapMca"))
+				loadXmapNexus(tree, filePath);
 		} catch (Exception e) {
 			logger.error("Cannot retreive metadata from nexus file " + filePath, e);
 		}
-
-		if (metaNames.contains("xspress2system"))
-			loadXspressNexus(tree, filePath);
-
-		if (metaNames.contains("xmapMca"))
-			loadXmapNexus(tree, filePath);
-		
 
 		elementList.add("I0");
 		elementList.add("It");

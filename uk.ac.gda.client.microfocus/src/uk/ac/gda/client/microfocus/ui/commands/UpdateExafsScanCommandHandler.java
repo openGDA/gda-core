@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -31,6 +31,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.beans.exafs.i18.SampleStageParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
@@ -41,12 +42,14 @@ import uk.ac.gda.client.experimentdefinition.components.ExperimentProjectNature;
 import uk.ac.gda.client.microfocus.util.DisplayMessages;
 import uk.ac.gda.client.microfocus.views.ExafsSelectionView;
 import uk.ac.gda.exafs.ui.data.ScanObject;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class UpdateExafsScanCommandHandler extends AbstractHandler implements IHandler {
 
 	private final static Logger logger = LoggerFactory.getLogger(UpdateExafsScanCommandHandler.class);
 	protected final IExperimentEditorManager controller = ExperimentFactory.getExperimentEditorManager();
 
+	@SuppressWarnings("null")
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		if (HandlerUtil.getActivePart(event).getClass().equals(ExafsSelectionView.class)) {
@@ -62,7 +65,11 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 					newScanManager = ExperimentProjectNature.createNewEmptyScan(controller.getIFolder(folder), exafsView
 							.getNewMultiScanName(), null);
 				} catch (Exception e) {
-					logger.error("Unable to create a new MultiScan ");
+					logger.error("Unable to create a new MultiScan: " + e.getMessage());
+					return null;
+				}
+				if (newScanManager == null ){
+					logger.error("Unable to create a new MultiScan");
 					return null;
 				}
 				// create a new mulktiscan
@@ -95,18 +102,17 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 							newSampleFileName = newSampleFileName.replace('.', '-') + ".xml";
 							String newSampleFile = project.getAbsolutePath() + File.separator + folder + File.separator
 									+ newSampleFileName;
-							I18SampleParameters.writeToXML(samPam, newSampleFile);
+							XMLHelpers.writeToXML(I18SampleParameters.mappingURL, samPam, newSampleFile);
 							ScanObject newScan = (ScanObject) scManager.createCopyOfExperiment(scan);
 							newScan.setSampleFileName(newSampleFileName);
 							if (newScanManager != null){
 								newScan.setRunName(scan.getRunName() + "[" + xyz + "]");
 								newScanManager.addExperiment(newScan);
 							}
-						};
+						}
 						newScanManager.write();
 					} catch (Exception e) {
-						logger.error("Unable to create/update the new Multiscan");
-						e.printStackTrace();
+						logger.error("Unable to create/update the new Multiscan:" + e.getMessage());
 						return null;
 					}
 				}

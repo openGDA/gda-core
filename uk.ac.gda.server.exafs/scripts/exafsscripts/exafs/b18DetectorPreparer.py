@@ -38,7 +38,7 @@ class B18DetectorPreparer:
 
     def completeCollection(self):
         # this will be called at the end of a loop of scans, or after an abort
-        continue
+        pass
 
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
