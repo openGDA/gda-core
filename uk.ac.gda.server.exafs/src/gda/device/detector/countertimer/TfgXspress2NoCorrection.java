@@ -101,6 +101,12 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 
 			}
 		}
+		
+		if (newNames == null){
+			format = new String[]{};
+			return new String[]{};
+		}
+		
 		format = new String[newNames.length];
 		for (int i = 0; i < newNames.length; i++)
 			format[i]="%.6g";

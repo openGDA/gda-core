@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
-import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;

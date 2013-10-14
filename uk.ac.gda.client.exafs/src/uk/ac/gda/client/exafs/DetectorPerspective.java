@@ -22,8 +22,6 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-import uk.ac.gda.client.experimentdefinition.components.ExperimentExperimentView;
-
 public class DetectorPerspective implements IPerspectiveFactory {
 
 	@Override

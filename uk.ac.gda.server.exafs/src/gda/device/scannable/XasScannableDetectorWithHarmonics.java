@@ -18,19 +18,14 @@
 
 package gda.device.scannable;
 
-import gda.device.CounterTimer;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.detector.DummyDAServer;
-import gda.exafs.scan.ExafsScanRegionTime;
 import gda.factory.Finder;
 import gda.util.converters.AutoRenameableConverter;
 
-import java.util.ArrayList;
-
 public class XasScannableDetectorWithHarmonics extends XasScannable {
-	private ArrayList<ExafsScanRegionTime> times;
+//	private ArrayList<ExafsScanRegionTime> times;
 	private int scanPointCounter = 0; 
 	private AutoRenameableConverter energyHarmonicConverter = null;
 	private String harmonicConverterName;
@@ -73,10 +68,10 @@ public class XasScannableDetectorWithHarmonics extends XasScannable {
 
 
 	
-	public void setExafsScanRegionTimes(ArrayList<ExafsScanRegionTime> times)
-	{ 
-		this.times = times;
-	}
+//	public void setExafsScanRegionTimes(ArrayList<ExafsScanRegionTime> times)
+//	{ 
+////		this.times = times;
+//	}
 	
 	@Override
 	public void atPointEnd() throws DeviceException

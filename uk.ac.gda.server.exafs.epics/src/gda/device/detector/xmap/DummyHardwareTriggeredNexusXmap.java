@@ -104,6 +104,7 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 
 	}
 
+	@Override
 	public NexusXmap getXmap() {
 		return xmap;
 	}
@@ -244,9 +245,7 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 	public String getHDFFileName() throws DeviceException {
 		if(fileNames != null && fileNames.size() != 0)
 			return fileNames.get(0);
-		else
-			return null;
-			
+		return null;
 	}
 
 	@Override

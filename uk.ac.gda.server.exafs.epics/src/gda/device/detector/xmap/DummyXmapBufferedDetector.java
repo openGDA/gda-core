@@ -305,7 +305,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 		return null;
 	}
 
-	public boolean isStillWriting(String fileName)  {
+	public boolean isStillWriting(@SuppressWarnings("unused") String fileName)  {
 		currentTime = System.currentTimeMillis();
 		if((currentTime - scanStartTime) <= (long)continuousParameters.getTotalTime() )
 			return true;

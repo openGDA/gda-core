@@ -82,7 +82,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	private Channel maxSpeedChnl;
 	private Channel energySwitchChnl;
 	private Channel stepIncDegChnl;
-	private Channel pulseWidthDegChnl;
+//	private Channel pulseWidthDegChnl;
 	private Channel numPulsesChnl;
 
 	private Angle startAngle;
@@ -119,7 +119,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 			if (energySwitchPV != null)
 				energySwitchChnl = channelManager.createChannel(energySwitchPV, false);
 			stepIncDegChnl = channelManager.createChannel(stepIncDegPV, false);
-			pulseWidthDegChnl = channelManager.createChannel(pulseWidthDegPV, false);
+//			pulseWidthDegChnl = channelManager.createChannel(pulseWidthDegPV, false);
 			numPulsesChnl = channelManager.createChannel(numPulsesPV, false);
 
 			if(inKev)
@@ -190,13 +190,13 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 		}
 	}
 
-	private boolean checkStepGTPulse() throws TimeoutException, CAException, InterruptedException {
-		Double stepInc = controller.cagetDouble(this.stepIncDegChnl);
-		Double pulseWidth = controller.cagetDouble(this.pulseWidthDegChnl);
-
-		Double ratio = stepInc / Math.abs(pulseWidth);
-		return ratio < 2.5;
-	}
+//	private boolean checkStepGTPulse() throws TimeoutException, CAException, InterruptedException {
+//		Double stepInc = controller.cagetDouble(this.stepIncDegChnl);
+//		Double pulseWidth = controller.cagetDouble(this.pulseWidthDegChnl);
+//
+//		Double ratio = stepInc / Math.abs(pulseWidth);
+//		return ratio < 2.5;
+//	}
 
 	private Double getMaxSpeed() {
 		if (maxSpeed == null) {

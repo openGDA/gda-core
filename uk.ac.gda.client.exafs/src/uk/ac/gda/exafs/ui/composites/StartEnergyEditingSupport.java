@@ -22,7 +22,6 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.ui.IWorkbenchPartSite;
 
 import uk.ac.gda.beans.exafs.XanesRegionParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;

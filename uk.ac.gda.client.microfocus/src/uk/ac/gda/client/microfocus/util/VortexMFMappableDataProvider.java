@@ -179,7 +179,6 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		return retArray;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void loadBean() {
 		Object vortexBean = null;
@@ -188,15 +187,10 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		} catch (Exception e) {
 			logger.error("unable to load the bean file");
 		}
-		if (vortexBean != null) {
-			setDetectorName(((VortexParameters) vortexBean).getDetectorName());
-			numberOfdetectorElements = ((VortexParameters) vortexBean).getDetectorList().size();
-			elementRois = new List[numberOfdetectorElements];
-			for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++)
-				elementRois[detectorNo] = ((VortexParameters) vortexBean).getDetector(detectorNo).getRegionList();
-		}
+		loadBean(vortexBean);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void loadBean(Object vortexBean) {
 		if (vortexBean != null) {
