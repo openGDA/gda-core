@@ -1,12 +1,8 @@
 import array
-
 from java.lang import InterruptedException
 from java.lang import System
 from xas_scan import XasScan
-
-from xes import calcExpectedPositions, offsetsStore, setOffsets
 from exafsscripts.exafs.i20.I20SampleIterators import XASXANES_Roomtemp_Iterator, XES_Roomtemp_Iterator, XASXANES_Cryostat_Iterator
-
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import  XasAsciiDataWriter
 from gda.device import DeviceException
@@ -29,7 +25,7 @@ from uk.ac.gda.doe import DOEUtils
 
 class I20XesScan(XasScan):
     
-    def __init__(self, xas,loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController, ExafsScriptObserver, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot,twodplotter,I1,monoenergy,XESEnergy,XESBragg):
+    def __init__(self, xas,loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController, ExafsScriptObserver, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot, twodplotter, I1,XESEnergy,XESBragg, xes_offsets):
         self.xas = xas
         self.detectorPreparer = detectorPreparer
         self.samplePreparer = samplePreparer
@@ -53,9 +49,9 @@ class I20XesScan(XasScan):
         self.moveMonoToStartBeforeScan=True
         self.useItterator=True
         self.handleGapConverter=False
+        self.xes_offsets = xes_offsets
         
     def __call__ (self,sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
-
         self.experimentFullPath, self.experimentFolderName = self.determineExperimentPath(experimentFullPath)
         self.xmlFolderName = self.experimentFullPath + "/"
         self.outputfolderName = self.experimentFullPath[experimentFullPath.find("xml")+4:]
@@ -80,26 +76,22 @@ class I20XesScan(XasScan):
         self.beanGroup.setOutput(self.outputBean)
         self.beanGroup.setScan(self.scanBean)
         
-        
         # Calilbrate the spectrometer (set the offsets) before we do anything
         offsetStoreName = self.scanBean.getOffsetsStoreName()
         if offsetStoreName != None and offsetStoreName != "" :
             print "Applying offsets from store named",str(offsetStoreName)
-            offsetsStore.applyfrom(offsetStoreName)
+            self.xes_offsets.apply(offsetStoreName)
         else:
             print "Not changing the XES spectrometer calibration settings"
         
         # if get here then its an XES step scan
         self._runCorrectScanType(numRepetitions, validation,scan_unique_id)
         
-
     def _runCorrectScanType(self, numRepetitions, validation,scan_unique_id):
-
         if self.analyserAngle.isBusy():
             self.log( "XESBragg is moving. Waiting for it to finish...")
             self.analyserAngle.waitWhileBusy()
             self.log( "XESBragg move completed.")
-
 
         scanType = self.beanGroup.getScan().getScanType()
         # work out which type of XES scan to run
@@ -181,16 +173,12 @@ class I20XesScan(XasScan):
     def _doXASScan(self,numRepetitions, validation,scan_unique_id):
         print""
         self.log( "Output to",self.outputfolderName)
-
-        # add xes_energy, analyserAngle to the defaults and then call the xas command
         xas_scanfilename = self.beanGroup.getScan().getScanFileName()
-
         self.log( "moving XES analyser stage to collect at", self.beanGroup.getScan().getXesEnergy())
         initialXESEnergy = self.xes_energy()
         self.xes_energy.waitWhileBusy()
         self.xes_energy(self.beanGroup.getScan().getXesEnergy())
         ScannableCommands.add_default([self.xes_energy,self.analyserAngle])
-        
         try:
             self.outputPreparer.mode = "xes"
             self.xas(self.beanGroup.getSample(), xas_scanfilename, self.beanGroup.getDetector(), self.beanGroup.getOutput(), self.xmlFolderName, numRepetitions, validation)
@@ -199,5 +187,3 @@ class I20XesScan(XasScan):
             self.outputPreparer.mode = "xas"
             ScannableCommands.remove_default([self.xes_energy,self.analyserAngle])
             self.xes_energy(initialXESEnergy)
-
-
