@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+  <extension point="org.eclipse.core.contenttype.contentTypes">
+     <content-type
+       base-type="org.eclipse.core.runtime.xml"
+       describer="uk.ac.gda.arpes.ui.ARPESScanBeanDescriber"
+       file-extensions="xml"
+       id="uk.ac.gda.arpes.beans.ARPESScanBeanContentType"
+       name="ARPESScanBean File Content"
+       priority="high">
+     </content-type>
+  </extension>
+  <extension point="org.eclipse.ui.editors">
+    <editor
+          class="uk.ac.gda.arpes.ui.ARPESScanBeanEditor"
+          default="true"
+          icon="icons/anaico.png"
+          id="uk.ac.gda.arpes.beans.ARPESScanBeanEditor"
+          name="ARPES Scan Editor">
+            <contentTypeBinding
+                contentTypeId="uk.ac.gda.arpes.beans.ARPESScanBeanContentType">
+            </contentTypeBinding>
+     </editor>
+  </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Data Acquisition - ARPES"
+            id="gda.rcp.arpes">
+      </category>
+      <view
+            category="gda.rcp.arpes"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.ROIProfilePlotView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.arpes.cameraview"
+            name="Detector Plot"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.arpes"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.arpes.sweptview"
+            name="Swept Plot"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.arpes"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.arpes.sumview"
+            name="Detector Sum Plot"
+            restorable="true">
+      </view>
+
+            <view
+            category="gda.rcp.arpes"
+            class="uk.ac.gda.arpes.ui.views.AnalyserProgressView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.arpes.ui.analyserprogress"
+            name="Analyser Progress"
+            restorable="true">
+      </view>
+   </extension>
+     <extension
+        point="org.eclipse.ui.newWizards">
+     <category
+           id="uk.ac.gda.beamline.i05"
+           name="Experiment">
+     </category>
+     <wizard
+           category="uk.ac.gda.beamline.i05"
+           class="uk.ac.gda.arpes.wizards.NewExperimentWizard"
+           icon="icons/anaiconew.png"
+           id="uk.ac.gda.beamline.i05.wizards.NewExperimentWizard"
+           name="New Region">
+     </wizard>
+  </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.client.toolbar?after=additions">
+         <command
+               commandId="org.eclipse.ui.newWizard"
+               mode="FORCE_TEXT"
+               style="push"
+               tooltip="Create a blank defintion file for an ARPES experiment">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                  <equals
+                        value="uk.ac.gda.beamline.i05.perspectives.ArpesExperimentPerspective">
+                  </equals>
+               </with>
+            </visibleWhen>
+            <parameter name="newWizardId" value="uk.ac.gda.beamline.i05.wizards.NewExperimentWizard" />
+         </command>
+      </menuContribution>
+   </extension>
+</plugin>

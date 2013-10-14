@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="uk.ac.gda.arpes.beans.ARPESScanBean">
+		<map-to xml="ARPESScanBean"/>
+		<field name="lensMode" type="string">
+			<bind-xml name="lensMode" node="element"/>
+		</field>
+		<field name="sweptMode" type="boolean">
+			<bind-xml name="sweptMode" node="element"/>
+		</field>
+		<field name="passEnergy" type="short">
+			<bind-xml name="passEnergy" node="element"/>
+		</field>
+		<field name="startEnergy" type="double">
+			<bind-xml name="startEnergy" node="element"/>
+		</field>
+		<field name="endEnergy" type="double">
+			<bind-xml name="endEnergy" node="element"/>
+		</field>
+		<field name="stepEnergy" type="double">
+			<bind-xml name="stepEnergy" node="element"/>
+		</field>
+		<field name="timePerStep" type="double">
+			<bind-xml name="timePerStep" node="element"/>
+		</field>		
+		<field name="iterations" type="short">
+			<bind-xml name="iterations" node="element"/>
+		</field>
+		<field name="configureOnly" type="boolean">
+			<bind-xml name="configureOnly" node="element"/>
+		</field>
+		<field name="scanBean" type="uk.ac.gda.arpes.beans.StartStopStepBean">
+			<bind-xml name="scanBean" node="element"/>
+		</field>
+		<field name="settings" type="uk.ac.gda.arpes.beans.SetBean"
+			collection="collection" set-method="setSetBeanList" get-method="getSetBeanList">
+			<bind-xml name="settings" node="element"/>
+		</field>
+	</class>
+	<class name="uk.ac.gda.arpes.beans.StartStopStepBean">
+		<map-to xml="scanBean"/>
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element"/>
+		</field>
+		<field name="start" type="double">
+			<bind-xml name="start" node="element"/>
+		</field>
+		<field name="stop" type="double">
+			<bind-xml name="stop" node="element"/>
+		</field>
+		<field name="step" type="double">
+			<bind-xml name="step" node="element"/>
+		</field>
+	</class>
+	<class name="uk.ac.gda.arpes.beans.SetBean">
+		<map-to xml="scanBean"/>
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element"/>
+		</field>
+		<field name="position" type="double">
+			<bind-xml name="position" node="element"/>
+		</field>
+	</class>
+</mapping>
