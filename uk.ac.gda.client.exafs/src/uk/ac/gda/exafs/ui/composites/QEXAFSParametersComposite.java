@@ -21,7 +21,6 @@ package uk.ac.gda.exafs.ui.composites;
 import gda.configuration.properties.LocalProperties;
 import gda.jscience.physics.quantities.BraggAngle;
 import gda.jython.JythonServerFacade;
-import gda.util.Converter;
 import gda.util.QuantityFactory;
 
 import java.text.DecimalFormat;
@@ -43,8 +42,6 @@ import org.jscience.physics.units.Unit;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
-import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
@@ -54,7 +51,6 @@ import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
-import org.eclipse.swt.widgets.Button;
 
 /**
  *

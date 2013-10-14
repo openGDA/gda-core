@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.scalebox.NumberBox;
-import uk.ac.gda.richbeans.components.scalebox.RangeBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 
 /**

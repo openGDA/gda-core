@@ -20,7 +20,6 @@ package uk.ac.gda.exafs.ui.ionchambers;
 
 import java.io.Serializable;
 import java.net.URL;
-import java.util.List;
 
 public class IonChamberBean implements Serializable {
 	

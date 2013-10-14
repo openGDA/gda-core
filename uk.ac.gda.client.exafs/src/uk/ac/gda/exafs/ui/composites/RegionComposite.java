@@ -89,7 +89,7 @@ public class RegionComposite extends Composite {
 		gridData.heightHint=200;
 		viewer.getControl().setLayoutData(gridData);
 		
-		createColumns(parent, viewer);
+		createColumns(viewer);
 
 		final Table table = viewer.getTable();
 
@@ -173,7 +173,7 @@ public class RegionComposite extends Composite {
 	}
 
 	// This will create the columns for the table
-	private void createColumns(final Composite parent, final TableViewer viewer) {
+	private void createColumns(final TableViewer viewer) {
 		
 		String[] titles = { "Region", "Start", "Step", "Time" };
 		int[] bounds = { 90, 90, 90, 90 };
@@ -211,7 +211,7 @@ public class RegionComposite extends Composite {
 				}
 			}
 		});
-		col.setEditingSupport(new StartEnergyEditingSupport(viewer, bean, site, editor));
+		col.setEditingSupport(new StartEnergyEditingSupport(viewer, bean, editor));
 
 		col = createTableViewerColumn(titles[2], bounds[2]);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -232,7 +232,7 @@ public class RegionComposite extends Composite {
 				}
 			}
 		});
-		col.setEditingSupport(new StepEditingSupport(viewer, bean, site, editor));
+		col.setEditingSupport(new StepEditingSupport(viewer, bean, editor));
 
 		col = createTableViewerColumn(titles[3], bounds[2]);
 		col.setLabelProvider(new ColumnLabelProvider() {

@@ -31,14 +31,13 @@ import uk.ac.gda.exafs.ui.XanesScanParametersUIEditor;
 public class TimeEditingSupport extends EditingSupport {
 	private TableViewer viewer;
 	private XanesScanParameters bean;
-	private IWorkbenchPartSite site;
+//	private IWorkbenchPartSite site;
 	XanesScanParametersUIEditor editor;
 	
-	public TimeEditingSupport(TableViewer viewer, XanesScanParameters bean, IWorkbenchPartSite site, XanesScanParametersUIEditor editor) {
+	public TimeEditingSupport(TableViewer viewer, XanesScanParameters bean, @SuppressWarnings("unused") IWorkbenchPartSite site, XanesScanParametersUIEditor editor) {
 		super(viewer);
 		this.viewer = viewer;
 		this.bean = bean;
-		this.site = site;
 		this.editor = editor;
 	}
 

@@ -21,7 +21,6 @@ package gda.exafs.scan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.util.Converter;
 
 import org.junit.Test;
 import org.python.core.PyFloat;

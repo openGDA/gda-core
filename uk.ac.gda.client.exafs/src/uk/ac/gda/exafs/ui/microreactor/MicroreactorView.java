@@ -1,11 +1,3 @@
-package uk.ac.gda.exafs.ui.microreactor;
-
-import gda.jython.JythonServerFacade;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.ViewPart;
 /*-
  * Copyright © 2012 Diamond Light Source Ltd.
  *
@@ -24,14 +16,20 @@ import org.eclipse.ui.part.ViewPart;
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import uk.ac.gda.beans.exafs.i20.MicroreactorParameters;
-import uk.ac.gda.richbeans.components.wrappers.RegularExpressionTextWrapper;
+package uk.ac.gda.exafs.ui.microreactor;
 
+import gda.jython.JythonServerFacade;
+
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.part.ViewPart;
+
+import uk.ac.gda.beans.exafs.i20.MicroreactorParameters;
 
 public class MicroreactorView extends ViewPart {
 	public MicroreactorView() {
