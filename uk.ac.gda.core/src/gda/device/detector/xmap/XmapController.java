@@ -138,14 +138,14 @@ public interface XmapController  extends Device, Configurable, Findable{
 	 * @return number of MCA
 	 * @throws DeviceException
 	 */
-	public int getNumberOfMca()throws DeviceException;
+	public int getNumberOfElements()throws DeviceException;
 	
 	/**
 	 * Sets the number of MCAs currently connected to the XMap detector
-	 * @param numberOfMca 
+	 * @param numberOfElements 
 	 * @throws DeviceException
 	 */
-	public void setNumberOfMca(int numberOfMca) throws DeviceException;
+	public void setNumberOfElements(int numberOfElements) throws DeviceException;
 	/**
 	 * Sets the rate at which status is read in the Epics interface
 	 * @param statusRate
