@@ -43,9 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
-/**
- *
- */
 public class XMLHelpers {
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(XMLHelpers.class);
@@ -94,10 +91,8 @@ public class XMLHelpers {
 	
 	private static XMLContext createXMLContext(final URL mappingURL, final ClassLoader cl) throws MappingException, IOException {
 		XMLContext context;
-		
 		if (mappingURL == null || cl == null) 
 			throw new NullPointerException();
-		
 		UrlClassLoaderPair urlClassLoaderPair = new UrlClassLoaderPair(mappingURL, cl);
 		if (xmlContextCache.containsKey(urlClassLoaderPair)) {
 			context = xmlContextCache.get(urlClassLoaderPair);
@@ -107,19 +102,14 @@ public class XMLHelpers {
 			// one which loaded the mapping class.
 			Mapping mapping = new Mapping(cl);
 			mapping.loadMapping(mappingURL);
-
 			// initialise and configure XMLContext
 			context = new XMLContext();
 			context.addMapping(mapping);
-	
 			context.setProperty("org.exolab.castor.indent", "true");
-
 			// store in the cache
 			xmlContextCache.put(urlClassLoaderPair, context);	
 		}
-
 		return context;
-
 	}
 
 	/**
@@ -187,7 +177,8 @@ public class XMLHelpers {
 		try {
 			reader = new FileReader(file);
 	        return XMLHelpers.createFromXMLInternal(mappingURL,cl,schemaUrl,new InputSource(reader),true);
-		} finally {
+		} 
+		finally {
 			if (reader!=null) reader.close();
 		}
 	}
@@ -220,15 +211,13 @@ public class XMLHelpers {
 		// GDA-3377 This fails on windows if filename is similar to
 		// c:/data/file because c: is considered the scheme
 		URI uri = new URI(filename);
-		if (uri.getScheme() != null && (uri.getScheme().equals("http") || uri.getScheme().equals("file"))) {
+		if (uri.getScheme() != null && (uri.getScheme().equals("http") || uri.getScheme().equals("file")))
 			source = new InputSource(uri.toURL().openStream());
-		} else {
-			if (encoding == null) {
+		else {
+			if (encoding == null)
 				source = new InputSource(new FileReader(filename));
-			}
-			else {
+			else
 				source = new InputSource(new InputStreamReader(new FileInputStream(filename), encoding));
-			}
 		}
 		return XMLHelpers.createFromXMLInternal(mappingURL, cl, schemaUrl, source, validate);
 	}
@@ -278,39 +267,31 @@ public class XMLHelpers {
 		Unmarshaller unmarshaller = createXMLContext(mappingUrl, existingBean.getClass().getClassLoader()).createUnmarshaller();
 		unmarshaller.setClass(existingBean.getClass());
 		unmarshaller.setObject(existingBean);
-		unmarshaller.unmarshal(source);
-			
+		unmarshaller.unmarshal(source);	
 	}
 
 	private static Object createFromXMLInternal(URL mappingUrl, Class<? extends Object> cl, URL schemaUrl, InputSource source, final boolean validate) throws Exception {
-
 		if (urlResolver!=null) {
 			mappingUrl = urlResolver.resolve(mappingUrl);
 			schemaUrl  = urlResolver.resolve(schemaUrl);
 		}
-
 		if (validate) {
 			if (schemaUrl != null) {
 				XMLObjectConfigFileValidator validator = new XMLObjectConfigFileValidator();
 				source = validator.validateSource(schemaUrl.toString(), source, true);
-	
-				if (source == null) {
+				if (source == null)
 					throw new XMLHelpersXMLValidationError();
-				}
 			}
 		}
-		
 		Object obj = null;
 		if (mappingUrl != null) {
 			Unmarshaller unmarshaller = createXMLContext(mappingUrl, cl.getClassLoader()).createUnmarshaller();
 			unmarshaller.setClass(cl);
 			obj = unmarshaller.unmarshal(source);
-		} else {
+		} else
 			obj = Unmarshaller.unmarshal(cl, source);
-		}
-		if (!obj.getClass().equals(cl)) {
+		if (!obj.getClass().equals(cl))
 			throw new XMLHelpersException("Class created is incorrect = " + obj.getClass().getName());
-		}
 		return obj;
 	}
 
@@ -347,12 +328,10 @@ public class XMLHelpers {
 	public static void writeToXML(URL mappingURL, Object object, String filename, String encoding) throws Exception {
 		if (filename.startsWith("file:")) filename = filename.substring(5);
 		Writer writer = null;
-		if (encoding == null) {
+		if (encoding == null)
 			writer = new FileWriter(filename);
-		}
-		else {
+		else
 			writer = new OutputStreamWriter(new FileOutputStream(filename), encoding);
-		}
 		XMLHelpers.writeToXMLInternal(mappingURL, object, writer);
 	}
 	/**
@@ -369,18 +348,15 @@ public class XMLHelpers {
 	
 	private static void writeToXMLInternal(URL mappingURL, Object object, Writer writer) throws Exception {
 		try {
-
-			if (urlResolver!=null) {
+			if (urlResolver!=null)
 				mappingURL = urlResolver.resolve(mappingURL);
-			}
 			if (mappingURL != null) {
 				XMLContext context    = createXMLContext(mappingURL, object.getClass().getClassLoader());
 				Marshaller marshaller = context.createMarshaller();
 				marshaller.setWriter(writer);
 				marshaller.marshal(object);
-			} else {
+			} else
 				Marshaller.marshal(object, writer);
-			}
 		} finally {
 			if (writer!=null) writer.flush();
 			if (writer!=null) writer.close();
@@ -399,7 +375,6 @@ public class XMLHelpers {
 	 * @throws Exception
 	 */
 	public static Object readBean(File beanFile, Class<?> beanClass) throws Exception {
-		
 		URL mapping = null;
 		URL schema  = null;
 		final Field [] fa = beanClass.getFields();
@@ -411,7 +386,7 @@ public class XMLHelpers {
 			}
 		}
 		return createFromXML(mapping, beanClass, schema, beanFile);
-    }
+	}
 
 	/**
 	 * @return Returns the urlResolver.
@@ -426,6 +401,5 @@ public class XMLHelpers {
 	public static void setUrlResolver(URLResolver urlResolver) {
 		XMLHelpers.urlResolver = urlResolver;
 	}
-	
 	
 }
