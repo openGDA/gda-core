@@ -42,6 +42,7 @@ class XspressConfig():
             return self.configuration.createBeanFromXML(xmlPath)
         except java.lang.Exception, e:
             print "Could not create XspressParameters bean ", e
+            raise e
         
     def createXspressXMLfromBean(self, xspressBean):
         try:
@@ -49,6 +50,7 @@ class XspressConfig():
             print "Wrote new Xspress Parameters to: ", xmap.getConfigFileName()
         except java.lang.Exception, e:
             print "Could not save XspressParameters bean ", e
+            raise e
         self.configuration.createXMLfromBean(xspressBean)
     
     def setDetectorCorrectionParameters(self,scanBean):
@@ -132,6 +134,7 @@ class VortexConfig():
             return self.configuration.createBeanFromXML(xmlPath)
         except java.lang.Exception, e:
             print "Could not create VortexParameters bean ", e
+            raise e
         
     def createXMLfromBean(self, vortexBean):
         try:
@@ -139,6 +142,7 @@ class VortexConfig():
             print "Wrote new Vortex Parameters to: ", xmap.getConfigFileName()
         except java.lang.Exception, e:
             print "Could not save VortexParameters bean ", e
+            raise e
 
     def configure(self, xmlFileName, isSaveRawSpectrum):
         self.configuration.configure(xmlFileName, isSaveRawSpectrum)
