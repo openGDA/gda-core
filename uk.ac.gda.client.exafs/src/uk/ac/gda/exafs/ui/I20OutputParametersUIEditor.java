@@ -68,14 +68,13 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	private BooleanWrapper xspressShowDTRawValues;
 	private BooleanWrapper xspressSaveRawSpectrum;
 
-
-	ExpandableComposite outputFoldersExpandableComposite;
-	ExpandableComposite jythonExpandableComposite;
-	ExpandableComposite signalExpandableComposite;
-	ExpandableComposite metadataExpandableComposite;
-	ExpandableComposite detectorsExpandableComposite;
+	private ExpandableComposite outputFoldersExpandableComposite;
+	private ExpandableComposite jythonExpandableComposite;
+	private ExpandableComposite signalExpandableComposite;
+	private ExpandableComposite metadataExpandableComposite;
+	private ExpandableComposite detectorsExpandableComposite;
 	
-	I20OutputParameters bean;
+	private I20OutputParameters bean;
 
 	public I20OutputParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
@@ -92,17 +91,12 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		parent.setLayout(gridLayout);
-		
 		final Composite left = new Composite(parent, SWT.NONE);
 		left.setLayout(new GridLayout(2, false));
 		left.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
-
 		createExtraColumns(left);
-
-		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_METADATA_EDITOR)) {
+		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_METADATA_EDITOR))
 			createMetadata(left);
-		}
-
 		createScripts(left);
 		createOutput(left);
 		createDetectorOptions(left);
@@ -130,7 +124,6 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	private String findDefaultFilterPath() {
 		List<String> jythonProjectFolders = JythonServerFacade.getInstance().getAllScriptProjectFolders();
 		String filterPath = System.getenv("user.home");
-
 		for (String path : jythonProjectFolders) {
 			if (JythonServerFacade.getInstance().projectIsUserType(path)) {
 				filterPath = path;
@@ -235,7 +228,6 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 			}
 		};
 		metadataExpandableComposite.addExpansionListener(metadataExpansionListener);
-		
 		
 		if(bean.getMetadataList().size()>0)
 			metadataExpandableComposite.setExpanded(true);
@@ -411,20 +403,18 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		};
 		detectorsExpandableComposite.addExpansionListener(detFoldersListener);
 		
-		this.vortexSaveRawSpectrum = new BooleanWrapper(vortexPreferencesGroup, SWT.NONE);
+		vortexSaveRawSpectrum = new BooleanWrapper(vortexPreferencesGroup, SWT.NONE);
 		vortexSaveRawSpectrum.setText("Save raw spectrum to file");
 		vortexSaveRawSpectrum.setValue(false);
 		
-		this.xspressOnlyShowFF = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
+		xspressOnlyShowFF = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
 		xspressOnlyShowFF.setText("Hide individual elements");
-		xspressOnlyShowFF
-				.setToolTipText("In ascii output, only display the total in-window counts (FF) from the Xspress detector");
+		xspressOnlyShowFF.setToolTipText("In ascii output, only display the total in-window counts (FF) from the Xspress detector");
 		xspressOnlyShowFF.setValue(Boolean.FALSE);
 
-		this.xspressShowDTRawValues = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
+		xspressShowDTRawValues = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
 		xspressShowDTRawValues.setText("Show DT values");
-		xspressShowDTRawValues
-				.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
+		xspressShowDTRawValues.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
 		xspressShowDTRawValues.setValue(Boolean.FALSE);
 
 		this.xspressSaveRawSpectrum = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
