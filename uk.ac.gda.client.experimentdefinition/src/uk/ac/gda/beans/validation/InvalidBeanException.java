@@ -21,10 +21,6 @@ package uk.ac.gda.beans.validation;
 import java.util.ArrayList;
 import java.util.List;
 
-
-/**
- *
- */
 public class InvalidBeanException extends Exception {
 
 	private List<InvalidBeanMessage> messages;
