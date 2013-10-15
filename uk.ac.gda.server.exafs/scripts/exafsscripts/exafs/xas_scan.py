@@ -17,8 +17,8 @@ from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters, XesSca
 
 class XasScan(Scan):
 
-	def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=False):
-		Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers)
+	def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=False):
+		Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers)
 		self.moveMonoToStartBeforeScan=moveMonoToStartBeforeScan
 		self.useItterator=useItterator
 		self.handleGapConverter=handleGapConverter
@@ -168,16 +168,9 @@ class XasScan(Scan):
 			
 			# repetition loop completed, so reset things
 			self.setQueuePropertiesEnd()
-			self.restoreHeader()
+			self._resetHeader()
 			self.detectorPreparer.completeCollection()
 			ScriptBase.checkForPauses()
-
-	#remove added metadata from default metadata list to avoid multiple instances of the same metadata
-	def restoreHeader(self):
-		jython_mapper = JythonNameSpaceMapping()
-		if (jython_mapper.original_header != None):
-			original_header=jython_mapper.original_header[:]
-			self.datawriterconfig.setHeader(original_header)
 			
 	# Runs a single XAS/XANES scan.
 	def _doScan(self,beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg):
