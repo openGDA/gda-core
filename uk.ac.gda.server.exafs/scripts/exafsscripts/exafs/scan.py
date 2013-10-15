@@ -6,7 +6,7 @@ from gda.exafs.scan import BeanGroup, BeanGroups
 
 class Scan:
     
-    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers):
+    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers):
         self.detectorPreparer = detectorPreparer
         self.samplePreparer = samplePreparer
         self.outputPreparer = outputPreparer
@@ -14,6 +14,7 @@ class Scan:
         self.ExafsScriptObserver=ExafsScriptObserver
         self.XASLoggingScriptController=XASLoggingScriptController
         self.datawriterconfig=datawriterconfig
+        self.original_header = original_header
         self.energy_scannable = energy_scannable
         self.ionchambers=ionchambers
         
@@ -30,6 +31,9 @@ class Scan:
         print message
         self.logger.info(message)
         
+    def _resetHeader(self):
+        self.datawriterconfig.setHeader(self.original_header)
+
     def _createDetArray(self, names, scanBean=None):
         dets = []
         numDets = len(names)

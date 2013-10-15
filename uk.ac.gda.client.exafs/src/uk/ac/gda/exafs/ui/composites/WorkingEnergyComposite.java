@@ -135,11 +135,7 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 			String location = runOb.getScanFile().getLocation().toString();
 			try {
 				if (runOb.isQexafs() && provider != null) {
-					try {
-						qexafsBean = QEXAFSParameters.createFromXML(location);
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
+					qexafsBean = QEXAFSParameters.createFromXML(location);
 					workingEnergy.setMaximum(qexafsBean.getFinalEnergy());
 					workingEnergy.setMinimum(qexafsBean.getInitialEnergy());
 				} else if (runOb.isXes() && provider != null) {
@@ -154,11 +150,7 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 				}
 
 				else if (runOb.isXanes()) {
-					try {
-						xanesBean = XanesScanParameters.createFromXML(location);
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
+					xanesBean = XanesScanParameters.createFromXML(location);
 					workingEnergy.setMaximum(xanesBean.getFinalEnergy());
 					workingEnergy.setMinimum(xanesBean.getRegions().get(0).getEnergy());
 				}

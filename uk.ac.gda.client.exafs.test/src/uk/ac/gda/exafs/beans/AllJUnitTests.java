@@ -29,7 +29,6 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	DetectorParametersTest.class,
-//	ExafsDOETest.class,  class deleted as DOE not used and the was a clash in parameter types and getting the UI to work properly
 	OutputParametersTest.class,
 	XanesScanParametersTest.class,
 	XasScanParametersTest.class,

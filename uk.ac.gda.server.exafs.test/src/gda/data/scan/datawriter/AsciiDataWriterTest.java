@@ -147,18 +147,19 @@ public class AsciiDataWriterTest {
 			String contents = "";
 			String contents1 = "";
 			String z, y;
-			BufferedReader br = new BufferedReader(file);
-			BufferedReader br1 = new BufferedReader(cfile);
+			
+			try (BufferedReader br = new BufferedReader(file); BufferedReader br1 = new BufferedReader(cfile);) {
 
-			while ((z = br1.readLine()) != null) {
-				contents += z;
+				while ((z = br1.readLine()) != null) {
+					contents += z;
+				}
+
+				while ((y = br.readLine()) != null) {
+					contents1 += y;
+				}
+
+				Assert.assertEquals(contents, contents1);
 			}
-
-			while ((y = br.readLine()) != null) {
-				contents1 += y;
-			}
-
-			Assert.assertEquals(contents,contents1);
 
 		} catch (Exception e) {
 			fail(e.getMessage());

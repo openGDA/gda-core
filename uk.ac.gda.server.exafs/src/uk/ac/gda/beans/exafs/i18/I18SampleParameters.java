@@ -20,42 +20,30 @@ package uk.ac.gda.beans.exafs.i18;
 
 import java.io.Serializable;
 import java.net.URL;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class I18SampleParameters implements Serializable, ISampleParameters {
-	private String name = "";
-	private SampleStageParameters sampleStageParameters;
-	private AttenuatorParameters attenuatorParameter1;
-	private AttenuatorParameters attenuatorParameter2;
-	private String description="";
-	private double vfmx;
-	private boolean vfmxActive;
 
 	static public final URL mappingURL = I18SampleParameters.class.getResource("I18SampleParametersMapping.xml");
 
 	static public final URL schemaURL = I18SampleParameters.class.getResource("I18SampleParametersMapping.xsd");
 
+	private String name = "";
+	private SampleStageParameters sampleStageParameters;
+	private AttenuatorParameters attenuatorParameter1;
+	private AttenuatorParameters attenuatorParameter2;
+	private String description = "";
+	private double vfmx;
+	private boolean vfmxActive;
+
 	public I18SampleParameters() {
 	}
 
-	public static I18SampleParameters createFromXML(String filename) throws Exception {
-		return (I18SampleParameters) XMLHelpers.createFromXML(mappingURL, I18SampleParameters.class, schemaURL,
-				filename);
-	}
-
-	public static void writeToXML(I18SampleParameters sampleParameters, String filename) throws Exception {
-		XMLHelpers.writeToXML(mappingURL, sampleParameters, filename);
-	}
-
-	/**
-	 *
-	 */
 	@Override
 	public String toString() {
 		try {
@@ -143,20 +131,21 @@ public class I18SampleParameters implements Serializable, ISampleParameters {
 	public void clear() {
 		this.attenuatorParameter1 = null;
 		this.attenuatorParameter2 = null;
-		vfmx=0;
-		vfmxActive=false;
+		vfmx = 0;
+		vfmxActive = false;
 	}
-	public String getDescription() { 
-		return description; 
-    } 
 
-	public void setDescription(String description) { 
-		this.description = description; 
-	 } 
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	@Override
 	public List<String> getDescriptions() {
-		return Arrays.asList(new String[] { description }); 
+		return Arrays.asList(new String[] { description });
 	}
 
 	@Override

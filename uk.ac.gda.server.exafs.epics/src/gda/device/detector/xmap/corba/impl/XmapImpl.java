@@ -24,7 +24,6 @@ import gda.device.XmapDetector;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.corba.impl.DetectorImpl;
-import gda.device.detector.xmap.XmapDetectorFromEpicsMca;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
 
@@ -416,6 +415,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		scannableImpl.atLevelMoveStart();
 	}
 
+	@Override
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
 	}

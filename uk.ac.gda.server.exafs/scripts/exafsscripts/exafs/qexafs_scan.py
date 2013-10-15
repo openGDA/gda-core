@@ -16,8 +16,8 @@ import math
 
 class QexafsScan(Scan):
     
-    def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, cirrus=None):
-        Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers)
+    def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, cirrus=None):
+        Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers)
         self.cirrus = cirrus
         self.cirrusEnabled = False
         self.beamCheck = True
@@ -177,12 +177,6 @@ class QexafsScan(Scan):
             self._resetHeader()
             if self.cirrusEnabled:
                 self.t.stop
-
-    def _resetHeader(self):
-        jython_mapper = JythonNameSpaceMapping()
-        if (jython_mapper.original_header != None):
-            original_header=jython_mapper.original_header[:]
-            Finder.getInstance().find("datawriterconfig").setHeader(original_header)
  
     def _getQEXAFSDetectors(self, detectorBean, outputBean, scanBean):
         expt_type = detectorBean.getExperimentType()

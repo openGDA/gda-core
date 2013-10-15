@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -41,6 +41,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.exafs.ui.describers.DetectorDescriber;
 import uk.ac.gda.util.OSUtils;
 import uk.ac.gda.util.PackageUtils;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * test class for detector parameter xml file
@@ -49,9 +50,15 @@ public class DetectorParametersTest {
 	final static String testScratchDirectoryName = TestUtils
 			.generateDirectorynameFromClassname(DetectorParametersTest.class.getCanonicalName());
 
-	/**
-	 * @throws Exception
-	 */
+	public static DetectorParameters createFromXML(String filename) throws Exception {
+		return (DetectorParameters) XMLHelpers.createFromXML(DetectorParameters.mappingURL, DetectorParameters.class,
+				DetectorParameters.schemaUrl, filename);
+	}
+
+	public static void writeToXML(DetectorParameters sampleParameters, String filename) throws Exception {
+		XMLHelpers.writeToXML(DetectorParameters.mappingURL, sampleParameters, filename);
+	}
+
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
@@ -79,7 +86,7 @@ public class DetectorParametersTest {
 	@Test
 	public void testCreateFromXML_FileDoesNotExist() {
 		try {
-			DetectorParameters.createFromXML("DoesNotExists");
+			createFromXML("DoesNotExists");
 			fail("File does not exists");
 		} catch (Exception ex) {
 			if (!(ex instanceof FileNotFoundException)) {
@@ -140,17 +147,17 @@ public class DetectorParametersTest {
 		transmissionParameters.addIonChamberParameter(ionChamberParameters3);
 		expectedValue.setTransmissionParameters(transmissionParameters);
 
-		DetectorParameters d = DetectorParameters.createFromXML(PackageUtils.getTestPath(getClass())
+		DetectorParameters d = createFromXML(PackageUtils.getTestPath(getClass())
 				+ "DetectorParameters_withTransmission.xml");
 		ExafsValidator._setCheckingFinables(false);
 
-		//ExafsValidator.getInstance().validate(d);
+		// ExafsValidator.getInstance().validate(d);
 
-		assertEquals(expectedValue,d);
-		
-//		if (!expectedValue.equals(d)) {
-//			fail("Values read are incorrect - " + d.toString());
-//		}
+		assertEquals(expectedValue, d);
+
+		// if (!expectedValue.equals(d)) {
+		// fail("Values read are incorrect - " + d.toString());
+		// }
 	}
 
 	/**
@@ -207,22 +214,15 @@ public class DetectorParametersTest {
 
 		expectedValue.setFluorescenceParameters(fluorescenceParameters);
 
-		DetectorParameters d = DetectorParameters.createFromXML(PackageUtils.getTestPath(getClass())
+		DetectorParameters d = createFromXML(PackageUtils.getTestPath(getClass())
 				+ "DetectorParameters_withFluorescence.xml");
 		ExafsValidator._setCheckingFinables(false);
-		//ExafsValidator.getInstance().validate(d);
+		// ExafsValidator.getInstance().validate(d);
 		if (!expectedValue.equals(d)) {
 			fail("Values read are incorrect - " + d.toString());
 		}
 	}
 
-	/**
-	 * Test method for
-	 * {@link uk.ac.gda.beans.exafs.DetectorParameters#writeToXML(uk.ac.gda.beans.exafs.DetectorParameters, java.lang.String)}
-	 * .
-	 * 
-	 * @throws Exception
-	 */
 	@Test
 	public void testWriteToXML() throws Exception {
 		DetectorParameters dp = new DetectorParameters();
@@ -230,7 +230,7 @@ public class DetectorParametersTest {
 		dp.addDetectorGroup(new DetectorGroup("Silicon", new String[] { "xmapMca", "counterTimer01" }));
 		dp.addDetectorGroup(new DetectorGroup("Germanium", new String[] { "counterTimer02", "xspress2system",
 				"counterTimer01" }));
-		
+
 		TransmissionParameters transmissionParameters = new TransmissionParameters();
 		transmissionParameters.setDetectorType("transmission");
 		transmissionParameters.setWorkingEnergy(7100.0);
@@ -269,14 +269,13 @@ public class DetectorParametersTest {
 		dp.setTransmissionParameters(transmissionParameters);
 
 		try {
-			DetectorParameters.writeToXML(dp, testScratchDirectoryName + "DetectorParameters_written.xml");
+			writeToXML(dp, testScratchDirectoryName + "DetectorParameters_written.xml");
 		} catch (Exception e) {
 			fail("Failed to write xml file - " + e.getCause().getMessage());
 		}
 
-		DetectorParameters s = DetectorParameters.createFromXML(testScratchDirectoryName
-				+ "DetectorParameters_written.xml");
-		//ExafsValidator.getInstance().validate(s);
+		DetectorParameters s = createFromXML(testScratchDirectoryName + "DetectorParameters_written.xml");
+		// ExafsValidator.getInstance().validate(s);
 		if (!dp.equals(s)) {
 			fail("Values read are incorrect - " + s.toString());
 		}

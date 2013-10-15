@@ -38,7 +38,7 @@ class B18DetectorPreparer:
 
     def completeCollection(self):
         # this will be called at the end of a loop of scans, or after an abort
-        continue
+        pass
 
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
@@ -66,7 +66,7 @@ class B18DetectorPreparer:
             self.ionc_gas_injector_scannables[ion_chamber_num]([purge_pressure, purge_period, gas_fill1_pressure, gas_fill1_period, gas_fill2_pressure, gas_fill2_period, gas_select_val, flushString])
 
     def _control_mythen(self, bean):
-        self.add_to_metadata("energy")
+        #self.add_to_metadata("energy")
         print "Moving DCM..."
         energyForMythen = bean.getMythenEnergy()
         self.energy_scannable(energyForMythen)

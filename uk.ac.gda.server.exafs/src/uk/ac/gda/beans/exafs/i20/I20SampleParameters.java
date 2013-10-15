@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class I20SampleParameters implements Serializable, ISampleParameters {
 
@@ -39,15 +38,6 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	static public final URL schemaURL = I20SampleParameters.class.getResource("I20SampleParametersMapping.xsd");
 
 	public static final String SAMPLE_WHEEL_NAME = "filterwheel";
-
-	public static I20SampleParameters createFromXML(String filename) throws Exception {
-		return (I20SampleParameters) XMLHelpers.createFromXML(mappingURL, I20SampleParameters.class, schemaURL,
-				filename);
-	}
-
-	public static void writeToXML(I20SampleParameters sampleParameters, String filename) throws Exception {
-		XMLHelpers.writeToXML(mappingURL, sampleParameters, filename);
-	}
 
 	private List<String> descriptions;
 	private String name; // use as file prefix

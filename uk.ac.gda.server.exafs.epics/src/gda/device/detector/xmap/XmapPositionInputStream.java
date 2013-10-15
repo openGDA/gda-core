@@ -103,7 +103,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		}
 	}
 
-	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] s) throws DeviceException {
+	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] s) {
 		NXDetectorData output = new NXDetectorData(this.hardwareTriggeredNexusXmap.getXmap());
 		INexusTree detTree = output.getDetTree(this.hardwareTriggeredNexusXmap.getXmap().getName());
 
@@ -215,7 +215,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		return event;
 	}
 
-	private double calculateScalerData(int dataPointNumber, int numberOfROIs, short[][] detectorData) throws DeviceException {
+	private double calculateScalerData(int dataPointNumber, int numberOfROIs, short[][] detectorData) {
 		final double[]k = new double[this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size()];
 		final List<Double> times = this.hardwareTriggeredNexusXmap.getXmap().getEventProcessingTimes();
 		for (int i = 0; i < k.length; i++) {

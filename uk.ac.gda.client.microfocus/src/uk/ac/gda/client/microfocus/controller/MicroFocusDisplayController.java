@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.microfocus.controller;
 
-import gda.analysis.RCPPlotter;
 import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
 
@@ -29,6 +28,7 @@ import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.gda.client.microfocus.util.MicroFocusMappableDataProvider;
 import uk.ac.gda.client.microfocus.util.MicroFocusMappableDataProviderFactory;
@@ -96,7 +96,7 @@ public class MicroFocusDisplayController {
 
 				logger.info("Plotting spectrum for " + this.currentDetectorElementNo + "," + x + "," + y);
 				try {
-					RCPPlotter.plot("McaPlot", yaxis);
+					SDAPlotter.plot("McaPlot", yaxis);
 					return true;
 				} catch (DeviceException e) {
 					logger.error("Unable to plot the spectrum for " + x + " " + y, e);

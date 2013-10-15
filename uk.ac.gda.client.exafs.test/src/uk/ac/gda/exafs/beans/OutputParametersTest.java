@@ -38,6 +38,7 @@ import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
 import uk.ac.gda.exafs.ui.describers.OutputDescriber;
 import uk.ac.gda.util.PackageUtils;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * class to hold sample parameters
@@ -46,9 +47,15 @@ public class OutputParametersTest {
 	final static String testScratchDirectoryName = TestUtils
 			.generateDirectorynameFromClassname(OutputParametersTest.class.getCanonicalName());
 
-	/**
-	 * @throws Exception
-	 */
+
+	public static OutputParameters createFromXML(String filename) throws Exception {
+		return (OutputParameters) XMLHelpers.createFromXML(OutputParameters.mappingURL, OutputParameters.class, OutputParameters.schemaUrl, filename);
+	}
+
+	public static void writeToXML(OutputParameters outputParams, String filename) throws Exception {
+		XMLHelpers.writeToXML(OutputParameters.mappingURL, outputParams, filename);
+	}
+
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
@@ -72,7 +79,7 @@ public class OutputParametersTest {
 	@Test
 	public void testCreateFromXML_FileDoesNotExist() {
 		try {
-			OutputParameters.createFromXML("DoesNotExists");
+			createFromXML("DoesNotExists");
 			fail("File does not exists");
 		} catch (FileNotFoundException ex) {
 			// expected behaviour
@@ -153,7 +160,7 @@ public class OutputParametersTest {
 		expectedValue.addSignal(new SignalParameters("Time(sec)", "time", "%s", "time*1000", "EpicsClock"));
 		expectedValue.addSignal(new SignalParameters("Temp", "temp", "%s", "temp", "Eurotherm"));
 
-		OutputParameters s = OutputParameters.createFromXML(PackageUtils.getTestPath(getClass())
+		OutputParameters s = createFromXML(PackageUtils.getTestPath(getClass())
 				+ "OutputParameters.xml");
 		ExafsValidator._setCheckingFinables(false);
 		validate(s);
@@ -162,13 +169,6 @@ public class OutputParametersTest {
 		}
 	}
 
-	/**
-	 * Test method for
-	 * {@link uk.ac.gda.beans.exafs.OutputParameters#writeToXML(uk.ac.gda.beans.exafs.OutputParameters, java.lang.String)}
-	 * .
-	 * 
-	 * @throws Exception
-	 */
 	@Test
 	public void testWriteToXML() throws Exception {
 		OutputParameters op = new OutputParameters();
@@ -180,12 +180,12 @@ public class OutputParametersTest {
 		op.addSignal(new SignalParameters("Temp", "temp", "%s", "temp", "Eurotherm"));
 
 		try {
-			OutputParameters.writeToXML(op, testScratchDirectoryName + "OutputParameters_written.xml");
+			writeToXML(op, testScratchDirectoryName + "OutputParameters_written.xml");
 		} catch (Exception e) {
 			fail("Failed to write xml file - " + e.getCause().getMessage());
 		}
 
-		OutputParameters s = OutputParameters.createFromXML(testScratchDirectoryName + "OutputParameters_written.xml");
+		OutputParameters s = createFromXML(testScratchDirectoryName + "OutputParameters_written.xml");
 		ExafsValidator._setCheckingFinables(false);
 		validate(s);
 		if (!op.equals(s)) {

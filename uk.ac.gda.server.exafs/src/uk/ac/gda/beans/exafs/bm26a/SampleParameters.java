@@ -27,7 +27,6 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.doe.DOEControl;
-import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class SampleParameters implements Serializable, ISampleParameters {
 
@@ -43,14 +42,6 @@ public class SampleParameters implements Serializable, ISampleParameters {
 
 	static public final URL schemaURL = SampleParameters.class.getResource("SampleParametersMapping.xsd");
 
-	public static SampleParameters createFromXML(String filename) throws Exception {
-		return (SampleParameters) XMLHelpers.createFromXML(mappingURL, SampleParameters.class, schemaURL,
-				filename);
-	}
-
-	public static void writeToXML(SampleParameters sampleParameters, String filename) throws Exception {
-		XMLHelpers.writeToXML(mappingURL, sampleParameters, filename);
-	}
 
 	private List<String> descriptions;
 	private String name;

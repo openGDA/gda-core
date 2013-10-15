@@ -23,6 +23,7 @@ import gda.analysis.RCPPlotter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 
 public class MicroFocusNexusPlotter {
@@ -61,7 +62,7 @@ public class MicroFocusNexusPlotter {
 	
 	public void plotDataset(AbstractDataset dataset) {
 		try {
-			RCPPlotter.imagePlot(plottingWindowName, dataset);
+			SDAPlotter.imagePlot(plottingWindowName, dataset);
 		} catch (Exception e) {
 			logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 		}

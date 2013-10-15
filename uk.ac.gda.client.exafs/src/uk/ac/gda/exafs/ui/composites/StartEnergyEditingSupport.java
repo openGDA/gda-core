@@ -22,7 +22,6 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.ui.IWorkbenchPartSite;
 
 import uk.ac.gda.beans.exafs.XanesRegionParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -32,14 +31,12 @@ public class StartEnergyEditingSupport extends EditingSupport {
 
 	private TableViewer viewer;
 	private XanesScanParameters bean;
-	private IWorkbenchPartSite site;
 	XanesScanParametersUIEditor editor;
-	
-	public StartEnergyEditingSupport(TableViewer viewer, XanesScanParameters bean, IWorkbenchPartSite site, XanesScanParametersUIEditor editor) {
+
+	public StartEnergyEditingSupport(TableViewer viewer, XanesScanParameters bean, XanesScanParametersUIEditor editor) {
 		super(viewer);
 		this.viewer = viewer;
-		this.bean=bean;
-		this.site=site;
+		this.bean = bean;
 		this.editor = editor;
 	}
 
@@ -62,7 +59,7 @@ public class StartEnergyEditingSupport extends EditingSupport {
 	@Override
 	protected void setValue(Object element, Object value) {
 		((XanesRegionParameters) element).setStartEnergy(Double.parseDouble(value.toString()));
-		int region = ((XanesRegionParameters) element).getRegion()-1;
+		int region = ((XanesRegionParameters) element).getRegion() - 1;
 		bean.getRegions().get(region).setEnergy(Double.parseDouble(value.toString()));
 		try {
 			editor.updatePlottedPoints();

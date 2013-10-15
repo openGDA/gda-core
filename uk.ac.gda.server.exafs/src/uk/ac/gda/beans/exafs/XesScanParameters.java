@@ -23,8 +23,6 @@ import java.net.URL;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.util.beans.xml.XMLHelpers;
-
 public class XesScanParameters implements Serializable, IScanParameters {
 
 	static public final URL mappingURL = XesScanParameters.class.getResource("ExafsParameterMapping.xml");
@@ -117,15 +115,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 
 	public void setXesIntegrationTime(Double integrationTime) {
 		this.xesIntegrationTime = integrationTime;
-	}
-
-	public static XesScanParameters createFromXML(String filename) throws Exception {
-		return (XesScanParameters) XMLHelpers.createFromXML(XesScanParameters.mappingURL, XesScanParameters.class,
-				XesScanParameters.schemaURL, filename);
-	}
-
-	public static void writeToXML(XesScanParameters params, String filename) throws Exception {
-		XMLHelpers.writeToXML(XesScanParameters.mappingURL, params, filename);
 	}
 
 	public String getScanFileName() {

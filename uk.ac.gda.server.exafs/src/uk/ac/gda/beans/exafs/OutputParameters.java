@@ -26,13 +26,11 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.util.beans.xml.XMLHelpers;
-
 public class OutputParameters implements Serializable, IOutputParameters {
 
-	static public URL mappingURL = OutputParameters.class.getResource("ExafsParameterMapping.xml");
+	public static final URL mappingURL = OutputParameters.class.getResource("ExafsParameterMapping.xml");
 
-	static public URL schemaUrl = OutputParameters.class.getResource("ExafsParameterMapping.xsd");
+	public static final URL schemaUrl = OutputParameters.class.getResource("ExafsParameterMapping.xsd");
 
 	private String asciiFileName;
 	private String asciiDirectory;
@@ -67,14 +65,6 @@ public class OutputParameters implements Serializable, IOutputParameters {
 	public void clear() {
 		signalList.clear();
 		metadataList.clear();
-	}
-
-	public static OutputParameters createFromXML(String filename) throws Exception {
-		return (OutputParameters) XMLHelpers.createFromXML(mappingURL, OutputParameters.class, schemaUrl, filename);
-	}
-
-	public static void writeToXML(OutputParameters outputParams, String filename) throws Exception {
-		XMLHelpers.writeToXML(mappingURL, outputParams, filename);
 	}
 
 	public OutputParameters() {
