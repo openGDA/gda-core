@@ -25,8 +25,8 @@ from uk.ac.gda.doe import DOEUtils
 
 class I20XesScan(XasScan):
     
-    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot, twodplotter, I1,XESEnergy,XESBragg, xes_offsets):
-        XasScan.__init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=True, useItterator=True, handleGapConverter=False)
+    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot, twodplotter, I1,XESEnergy,XESBragg, xes_offsets):
+        XasScan.__init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=True, useItterator=True, handleGapConverter=False)
         self.sample_x=sample_x
         self.sample_y=sample_y
         self.sample_z=sample_z
@@ -37,21 +37,18 @@ class I20XesScan(XasScan):
         self.XESEnergy = XESEnergy
         self.XESBragg = XESBragg
         self.xes_offsets = xes_offsets
-        
         self.xes_args = []
+        self.isXESScanArgs = True
         
     def __call__ (self,sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
         self.experimentFullPath, self.experimentFolderName = self.determineExperimentPath(experimentFullPath)
         self.experimentFullPath = self.experimentFullPath + "/"
-        # Create the beans from the file names
         self.sampleBean = BeansFactory.getBeanObject(self.experimentFullPath, sampleFileName)
         self.scanBean = BeansFactory.getBeanObject(self.experimentFullPath, scanFileName)
         self.detectorBean = BeansFactory.getBeanObject(self.experimentFullPath, detectorFileName)
         self.outputBean = BeansFactory.getBeanObject(self.experimentFullPath, outputFileName)
-        # create unique ID for this scan (all repetitions will share the same ID)
         scriptType = "Xes"
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
-        # give the beans to the xasdatawriter class to help define the folders/filenames 
         self.beanGroup = BeanGroup()
         self.beanGroup.setController(self.ExafsScriptObserver)
         self.beanGroup.setXmlFolder(self.experimentFolderName)
@@ -60,7 +57,6 @@ class I20XesScan(XasScan):
         self.beanGroup.setDetector(self.detectorBean)
         self.beanGroup.setOutput(self.outputBean)
         self.beanGroup.setScan(self.scanBean)
-        # Calilbrate the spectrometer (set the offsets) before we do anything
         offsetStoreName = self.scanBean.getOffsetsStoreName()
         if offsetStoreName != None and offsetStoreName != "" :
             print "Applying offsets from store named",str(offsetStoreName)
@@ -70,12 +66,12 @@ class I20XesScan(XasScan):
         # if get here then its an XES step scan
         self._runCorrectScanType(numRepetitions, validation,scan_unique_id)
     
-    def _run_fixed_xes_scan_xas(self):
+    def _run_fixed_xes_scan_xas(self, numRepetitions, validation, scan_unique_id):
         self.log("Starting XAS scan with fixed analyser energy...")
         self._doXASScan(numRepetitions, validation,scan_unique_id)
         return
     
-    def _run_fixed_scan_xanes(self):
+    def _run_fixed_scan_xanes(self, numRepetitions, validation, scan_unique_id):
         self.log("Starting XANES scan with fixed analyser energy...")
         self._doXASScan(numRepetitions, validation,scan_unique_id)
         return
@@ -83,7 +79,7 @@ class I20XesScan(XasScan):
     def _run_xes_fixed_mono(self):
         self.log("Starting XES scan with fixed mono...")
         self.log("Output to",self.experimentFolderName)
-        self.xes_args = [self.XESEnergy, self.scanBean.getXesInitialEnergy(), self.scanBean.getXesFinalEnergy(), self.scanBean.getXesStepSize(), self.mono_energy, self.scanBean.getMonoEnergy()]
+        self.xes_args = [self.XESEnergy, self.scanBean.getXesInitialEnergy(), self.scanBean.getXesFinalEnergy(), self.scanBean.getXesStepSize(), self.energy_scannable, self.scanBean.getMonoEnergy()]
         self.log("Moving spectrometer to initial position of " + str(self.scanBean.getXesInitialEnergy()))
         self.XESEnergy.moveTo(self.scanBean.getXesInitialEnergy())
         self.log("Move done.")
@@ -115,16 +111,16 @@ class I20XesScan(XasScan):
         self.mono_energy.waitWhileBusy()
         self.log("Moves done.")
     
-    def _runCorrectScanType(self, numRepetitions, validation,scan_unique_id):
+    def _runCorrectScanType(self, numRepetitions, validation, scan_unique_id):
         if self.XESBragg.isBusy():
             self.log("XESBragg is moving. Waiting for it to finish...")
             self.XESBragg.waitWhileBusy()
             self.log("XESBragg move completed.")
         scanType = self.beanGroup.getScan().getScanType()
         if scanType == XesScanParameters.FIXED_XES_SCAN_XAS:
-            self._run_fixed_xes_scan_xas()
+            self._run_fixed_xes_scan_xas(numRepetitions, validation, scan_unique_id)
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XANES:
-            self._run_fixed_scan_xanes()
+            self._run_fixed_scan_xanes(numRepetitions, validation, scan_unique_id)
         elif scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
             self._run_xes_fixed_mono()
         elif scanType == XesScanParameters.SCAN_XES_SCAN_MONO:
@@ -135,15 +131,16 @@ class I20XesScan(XasScan):
             self._doLooping(self.beanGroup,"Xes",scan_unique_id, numRepetitions, self.experimentFullPath, self.experimentFolderName, self.XASLoggingScriptController, self.sampleBean, self.scanBean, self.detectorBean, self.outputBean)
         finally:
             self.twodplotter.atScanEnd()# make sure the plotter is switched off
-    
-    # overiding method, should not be overidden for internal xas scan
-    # called from_doScan in xas_scan
-    def buildScanArguments(self):
-        xas_scannable = self._createAndconfigureXASScannable()
-        xas_scannable.setDetectors(detectorList)
-        args = list(self.xes_args)
-        args = self.addScanArguments(args, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean)
-        return args
+            
+    def buildScanArguments(self, scanBean, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean):
+        if self.isXESScanArgs==True:
+            xas_scannable = self._createAndconfigureXASScannable()
+            xas_scannable.setDetectors(detectorList)
+            args = list(self.xes_args)
+            args = self.addScannableArgs(args, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean)
+            return args
+        else:
+            return XASScan.buildScanArguments()
     
     def _doXASScan(self,numRepetitions, validation,scan_unique_id):
         self.log("Output to",self.outputfolderName)
@@ -154,9 +151,10 @@ class I20XesScan(XasScan):
         ScannableCommands.add_default([self.XESEnergy,self.XESBragg])
         try:
             self.outputPreparer.mode = "xes"
-            self.xas(self.beanGroup.getSample(), xas_scanfilename, self.beanGroup.getDetector(), self.beanGroup.getOutput(), self.experimentFullPath, numRepetitions, validation)
+            self.isXESScanArgs=False
+            XASScan.__call__(self.beanGroup.getSample(), xas_scanfilename, self.beanGroup.getDetector(), self.beanGroup.getOutput(), self.experimentFullPath, numRepetitions, validation)
         finally:
-            self.log("cleaning up scan defaults")
+            self.isXESScanArgs=True
             self.outputPreparer.mode = "xas"
             ScannableCommands.remove_default([self.XESEnergy,self.XESBragg])
             self.XESEnergy(initialXESEnergy)

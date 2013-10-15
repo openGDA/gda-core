@@ -1,13 +1,14 @@
 from gda.configuration.properties import LocalProperties
 from gda.scan import ScanPlotSettings
-
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XesScanParameters
-
 from gdascripts.parameters import beamline_parameters
-
 from BeamlineParameters import JythonNameSpaceMapping
-
+from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+from gda.data.scan.datawriter import NexusFileMetadata
+from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
+        
 class I20OutputPreparer:
     
     def __init__(self, datawriterconfig, datawriterconfig_xes):
@@ -17,11 +18,8 @@ class I20OutputPreparer:
         self.datawriterconfig_xes = datawriterconfig_xes
         
     def prepare(self, outputParameters, scanBean):
-
-        from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
         NexusExtraMetadataDataWriter.removeAllMetadataEntries();
         self.redefineNexusMetadata()
-
         self.jython_mapper.ionchambers.setOutputLogValues(True) 
         # Custom for I20, which is why it is here instead of the shared DetectorConfiguration.java classes.
         # Set the output options for the fluo detectors. Hope that this output preparer has been called AFTER the
@@ -30,16 +28,13 @@ class I20OutputPreparer:
         self.jython_mapper.xspress2system.setAddDTScalerValuesToAscii(outputParameters.isXspressShowDTRawValues());
         self.jython_mapper.xspress2system.setSaveRawSpectrum(outputParameters.isXspressSaveRawSpectrum());
         self.jython_mapper.xmapMca.setSaveRawSpectrum(outputParameters.isVortexSaveRawSpectrum());
-        
         return []
-
     #
     # Determines the AsciiDataWriterConfiguration to use to format the header/footer of the ascii data files
     #
     # If this returns None, then let the Ascii Data Writer class find the config for itself.
     #
     def getAsciiDataWriterConfig(self, scanBean):
-        
         if self.mode == "xes" or isinstance(scanBean,XesScanParameters):
             # will return None if not found
             print "Ascii (.dat) files will have XES format header."
@@ -53,7 +48,6 @@ class I20OutputPreparer:
     # For any specific plotting requirements based on all the options in this experiment
     #
     def getPlotSettings(self,detectorBean,outputBean):
-        
         if detectorBean.getExperimentType() == "Fluorescence" :
             detType = detectorBean.getFluorescenceParameters().getDetectorType()
             if detType == "Germanium" :
@@ -90,7 +84,6 @@ class I20OutputPreparer:
                     sps.setYAxesNotShown(invisibleAxes)
                     # if anythign extra, such as columns added in the output parameters xml should also be plotted
                     sps.setUnlistedColumnBehaviour(2)
-
                     return sps
         return None
     
@@ -101,10 +94,6 @@ class I20OutputPreparer:
 #        return False
          
     def redefineNexusMetadata(self):
-
-        from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
-        from gda.data.scan.datawriter import NexusFileMetadata
-        from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
         
 #        if (LocalProperties.get("gda.mode") == 'dummy'):
 #            return
@@ -198,9 +187,7 @@ class I20OutputPreparer:
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ysize",str(self.jython_mapper.s3_vgap()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"sample slits"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ycentre",str(self.jython_mapper.s3_voffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"sample slits"))
         
-        
         # Diagnostics: cannot sdo at the moment as I am not sure what NX type or subtype to use! NXmonitor looks wrong to me.
-        
         
         # Gain and HV for Io, it anf iref
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset current",str(self.jython_mapper.i0_stanford_offset_current()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I0 stanford"))
@@ -223,4 +210,3 @@ class I20OutputPreparer:
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset units",str(self.jython_mapper.iref_stanford_offset_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity",str(self.jython_mapper.iref_stanford_sensitivity()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity units",str(self.jython_mapper.iref_stanford_sensitivity_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
-        
