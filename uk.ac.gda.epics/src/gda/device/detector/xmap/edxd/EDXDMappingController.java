@@ -31,17 +31,16 @@ import gov.aps.jca.dbr.DBR_Enum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This class describes the EDXD detector on I12, it is made up of 24 subdetectors
  */
 public class EDXDMappingController extends EDXDController implements Configurable {
 
 	// Setup the logging facilities
-	transient private static final Logger logger = LoggerFactory.getLogger(EDXDMappingController.class);
+	private static final Logger logger = LoggerFactory.getLogger(EDXDMappingController.class);
 
-	
 	private int elementOffset = 0;
+	
 	private static final String STARTALL = "STARTALL";
 	private static final String STOPALL = "STOPALL";
 	private static final String ERASESTART = "ERASESTART";
@@ -53,7 +52,6 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	private static final String AUTOPIXELSPERBUFFER = "AUTOPIXELSPERBUFFER";
 	private static final String PIXELSPERBUFFER ="PIXELSPERBUFFER";
 	private static final String PIXELSPERRUN ="PIXELSPERRUN";
-	//Has to be under NDFileNexus lement 
 	private static final String CAPTURE = "NEXUS:Capture";
 	private static final String NEXUSFILEFORMAT = "NEXUS:FileTemplate";
 	private static final String NEXUSFILEWRITEMODE = "NEXUS:FileWriteMode";
@@ -63,6 +61,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	private static final String FILENUMBER = "NEXUS:FileNumber";
 	private static final String NEXUSTEMPFILENAME = "TemplateFileName";
 	private static final String NEXUSTEMPFILEPATH = "TemplateFilePath";
+	
 	protected NDFileHDF5 hdf5;
 	
 	public NDFileHDF5 getHdf5() {
@@ -105,27 +104,20 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 					EpicsMonitorEvent evt = (EpicsMonitorEvent) arg;					
 					isBusy = ((DBR_Enum)evt.epicsDbr).getEnumValue()[0] == 1;
 				}
-				else {
+				else
 					isBusy = false;
-				}
 				try {
 					notifyIObservers(this, getStatusObject());			
 					logger.debug("acquisition status updated to {}", getStatus());
 				} catch (DeviceException e) {
 					logger.error("ln351 : AcqStatusListener , error ", e);
 				}
-				
 			}
-        	
         });
 		// Add all the EDXD Elements to the detector
-		for(int i = (0+ elementOffset); i < (NUMBER_OF_ELEMENTS + elementOffset); i++ ) {
+		for(int i = (0+ elementOffset); i < (numberOfElements + elementOffset); i++ )
 			subDetectors.add(new EDXDMappingElement(xmap,i)); 
-
-		}
 	}
-
-      
 
 	/**
 	 * Sets the dynamic range of the detector
@@ -139,7 +131,6 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		return (Double) xmap.getValue(ReturnType.DBR_NATIVE,"GETDYNRANGE"+elementOffset,"");
 	}
 
-
 	/**
 	 * get the maximum number of ROI allowed per mca element
 	 * @return number of rois
@@ -147,7 +138,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	 */
 	@Override
 	public int getMaxAllowedROIs() throws DeviceException {
-		//TODO not sure abt the number
+		//TODO not sure about the number
 		return 32;
 	}
 	
@@ -157,14 +148,13 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	 */
 	@Override
 	public void activateROI() throws DeviceException{
-		//xmap.setValue(SCAACTIVATE, "", 1);
 	}
+	
 	/** Disable  the ROI mode in the Controller
 	 * @throws DeviceException
 	 */
 	@Override
 	public void deactivateROI() throws DeviceException{
-		//xmap.setValue(SCAACTIVATE, "", 0);
 	}
 
 	/**
@@ -180,75 +170,72 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	public void stop() throws DeviceException {
 		xmap.setValueNoWait(STOPALL,"",1);
 	}
+	
 	/**
 	 * Controller has two modes of operation.
 	 * clear on start or resume acquiring into the same spectrum
 	 * @param resume
 	 * @throws DeviceException
 	 */
-	 @Override
-	public void setResume(boolean resume)throws DeviceException
-	    {
-	    	if(!resume)
-	    		xmap.setValueNoWait(ERASEALL  ,"",1);
-	    }
+	@Override
+	public void setResume(boolean resume)throws DeviceException{
+	    if(!resume)
+	    	xmap.setValueNoWait(ERASEALL  ,"",1);
+	}
 	
-	 public void clear()throws DeviceException
-	    {
-		 	xmap.setValueNoWait(ERASEALL  ,"",1);
-	    }
-	 public void clearAndStart()throws DeviceException
-	    {
-		 	xmap.setValueNoWait(ERASESTART  ,"",1);
-	    }
+	public void clear()throws DeviceException{
+		 xmap.setValueNoWait(ERASEALL  ,"",1);
+	}
+	 
+	public void clearAndStart()throws DeviceException{
+		 xmap.setValueNoWait(ERASESTART  ,"",1);
+	}
 	 
 	@Override
 	public void setAquisitionTime(double collectionTime)throws DeviceException {
-		//removed as some versions of EPics interface does not have this SETPRESETREAL
+		//removed as some versions of Epics interface does not have this SETPRESETREAL
 		//xmap.setValue(SETPRESETREAL ,"",collectionTime);
 	}
-	 public void setCollectionMode(COLLECTION_MODES mode) throws DeviceException
-	 {
-		 xmap.setValueNoWait(COLLECTIONMODE, "", mode.ordinal());
+	
+	public void setCollectionMode(COLLECTION_MODES mode) throws DeviceException{
+		xmap.setValueNoWait(COLLECTIONMODE, "", mode.ordinal());
+	}
+	 
+	public void setPixelAdvanceMode(PIXEL_ADVANCE_MODE mode) throws DeviceException{
+		xmap.setValueNoWait(PIXELADVANCEMODE, "", mode.ordinal());
 	 }
 	 
-	 public void setPixelAdvanceMode(PIXEL_ADVANCE_MODE mode) throws DeviceException
-	 {
-		 xmap.setValueNoWait(PIXELADVANCEMODE, "", mode.ordinal());
-	 }
-	 
-	  public void setIgnoreGate(boolean yes) throws DeviceException
-	  {
+	public void setIgnoreGate(boolean yes) throws DeviceException{
 		if (yes)
 			xmap.setValueNoWait(IGNOREGATE, "", 1);
 		else
 			xmap.setValueNoWait(IGNOREGATE, "", 0);
-	  }
-	  public void setAutoPixelsPerBuffer(boolean auto) throws DeviceException
-	  {
-		  if(auto)//set as auto
-			  xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", 1);
-		  else //set as manual
-			  xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", 0);
-	  }
-	 public void setPixelsPerBuffer(int number) throws DeviceException
-	 {
+	}
+	
+	public void setAutoPixelsPerBuffer(boolean auto) throws DeviceException{
+		  if(auto)
+			  xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", 1);//set as auto
+		  else
+			  xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", 0);//set as manual
+	}
+	
+	public void setPixelsPerBuffer(int number) throws DeviceException{
 		 xmap.setValueNoWait(PIXELSPERBUFFER, "", number);
-	 }
-	 public void setPixelsPerRun(int number) throws DeviceException
-	 {
+	}
+	
+	public void setPixelsPerRun(int number) throws DeviceException{
 		 xmap.setValue(PIXELSPERRUN, "", number);
-	 }
-	 //hdf5 commands
+	}
+	
+	//hdf5 commands
 	public void resetCounters() throws Exception {
 			hdf5.getPluginBase().setDroppedArrays(0);
 			hdf5.getPluginBase().setArrayCounter(0);
-		}
+	}
 
 	public void startRecording() throws Exception {
 		if (hdf5.getCapture() == 1)
 			throw new DeviceException("detector found already saving data when it should not be");
-
 		// Removed as the file path replacement happens in the higher level class XmapController 
 		//String filePath = PathConstructor.createFromDefaultProperty();
 		//filePath = filePath.replace("/dls/i18", "X:/");
@@ -263,8 +250,8 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		}
 		throw new TimeoutException("Timeout waiting for hdf file creation.");
 	}
-public void endRecording() throws Exception {
-		
+
+	public void endRecording() throws Exception {
 		// writing the buffers can take a long time
 		int totalmillis = 1* 1000;
 		int grain = 25;
@@ -272,9 +259,7 @@ public void endRecording() throws Exception {
 			if (hdf5.getFile().getCapture_RBV() == 0) return;
 			Thread.sleep(grain);
 		}
-		
 		hdf5.stopCapture();
-		
 		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all we be ok in the end.");
 		if (hdf5.getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");
@@ -295,87 +280,81 @@ public void endRecording() throws Exception {
 	}
 
 	public void setFilenamePrefix(String beamline) throws Exception {
-			hdf5.setFileName(beamline);		
+		hdf5.setFileName(beamline);		
 	}
 
 	public void setFilenamePostfix(String name) throws Exception {
 		hdf5.setFileTemplate(String.format("%%s%%s-%%d-%s.h5", name));
 	}
-	 //Nexus related commands
-	 public void setNexusCapture(int number) throws DeviceException
-	 {
-		 xmap.setValueNoWait(CAPTURE, "", number);
-	 }
-	 public void setHdfNumCapture(int number) throws DeviceException
-	 {
-		 try {
+	
+	//Nexus related commands
+	public void setNexusCapture(int number) throws DeviceException{
+		xmap.setValueNoWait(CAPTURE, "", number);
+	}
+	
+	public void setHdfNumCapture(int number) throws DeviceException
+	{
+		try {
 			hdf5.setNumCapture(number);
 		} catch (Exception e) {
 			throw new DeviceException("Error setting hdf5 Numcapture", e);
 		}
-	 }
+	}
 	 
-	 public void setNexusFileFormat(String format) throws DeviceException
-	 {
+	public void setNexusFileFormat(String format) throws DeviceException{
 		 xmap.setValueNoWait(NEXUSFILEFORMAT, "", format);
-	 }
-	 
-	 public void setFileWriteMode(NEXUS_FILE_MODE mode) throws DeviceException
-	 {
+	}
+	
+	public void setFileWriteMode(NEXUS_FILE_MODE mode) throws DeviceException{
 		 xmap.setValueNoWait(NEXUSFILEWRITEMODE, "", mode.ordinal());
-	 }
+	}
 	 
-	 public void setCallback(boolean yes) throws DeviceException
-	 {
+	public void setCallback(boolean yes) throws DeviceException{
 		if(yes)
 			xmap.setValueNoWait(CALLBACK, "",1);
 		else
 			xmap.setValueNoWait(CALLBACK, "",0);
-	 }
-	 public void setNexusFileName(String filename) throws DeviceException
-	 {
-		 xmap.setValueNoWait(NEXUSFILENAME, "",filename);
-	 }
-	 public String getNexusFileName() throws DeviceException
-	 {
+	}
+	
+	public void setNexusFileName(String filename) throws DeviceException{
+		xmap.setValueNoWait(NEXUSFILENAME, "",filename);
+	}
+	
+	public String getNexusFileName() throws DeviceException{
 		 return xmap.getValueAsString(NEXUSFILENAME, "");
-	 }
-	 public String getNexusFilePath() throws DeviceException
-	 {
+	}
+	
+	public String getNexusFilePath() throws DeviceException{
 		return xmap.getValueAsString(NEXUSFILEPATH, "");
-	 }
-	 public void setNexusFilePath(String filepath) throws DeviceException
-	 {
-		 xmap.setValueNoWait(NEXUSFILEPATH, "",filepath);
-	 }
-	 public int getFileNumber() throws DeviceException
-	 {
-		 int fileNumber =  (Integer) xmap.getValue(ReturnType.DBR_NATIVE,FILENUMBER  ,"");
-		 return fileNumber;
-	 }
+	}
+
+	public void setNexusFilePath(String filepath) throws DeviceException{
+		xmap.setValueNoWait(NEXUSFILEPATH, "",filepath);
+	}
+	
+	public int getFileNumber() throws DeviceException{
+		int fileNumber =  (Integer) xmap.getValue(ReturnType.DBR_NATIVE,FILENUMBER  ,"");
+		return fileNumber;
+	}
 	 
-	 public void setTemplateFileName(String templateFileName) throws DeviceException{
-		 xmap.setValueNoWait(NEXUSTEMPFILENAME, "",templateFileName);
-	 }
-	 public void setTemplateFilePath(String tempFilePath) throws DeviceException{
-		 xmap.setValueNoWait(NEXUSTEMPFILEPATH, "",tempFilePath);
-	 }
+	public void setTemplateFileName(String templateFileName) throws DeviceException{
+		xmap.setValueNoWait(NEXUSTEMPFILENAME, "",templateFileName);
+	}
+	
+	public void setTemplateFilePath(String tempFilePath) throws DeviceException{
+		xmap.setValueNoWait(NEXUSTEMPFILEPATH, "",tempFilePath);
+	}
 	 
-	 public boolean getCaptureStatus(){
-		 int status = hdf5.getStatus();
+	public boolean getCaptureStatus(){
+		int status = hdf5.getStatus();
 		if(status == 1)
 			return true;
 		return false;
-	 }
+	}
 
-	 public boolean isBufferedArrayPort() throws Exception
-	 {
+	public boolean isBufferedArrayPort() throws Exception{
 		if( hdf5.getArrayPort().equals("xbuf"))
 			return true;
 		return false;
-		
-	 }
+	}
 }
-
-
-
