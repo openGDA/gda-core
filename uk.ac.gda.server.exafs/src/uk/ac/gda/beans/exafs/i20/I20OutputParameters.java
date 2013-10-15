@@ -27,10 +27,8 @@ import uk.ac.gda.beans.exafs.OutputParameters;
  */
 public class I20OutputParameters extends OutputParameters {
 
-	@SuppressWarnings("hiding")
-	public static final URL mappingURL = I20OutputParameters.class.getResource("I20SampleParametersMapping.xml");
-	@SuppressWarnings("hiding")
-	public static final URL schemaUrl = I20OutputParameters.class.getResource("I20SampleParametersMapping.xsd");
+	public static URL mappingURL = I20OutputParameters.class.getResource("I20SampleParametersMapping.xml");
+	public static URL schemaUrl = I20OutputParameters.class.getResource("I20SampleParametersMapping.xsd");
 	
 	private boolean vortexSaveRawSpectrum = false;
 	private boolean xspressOnlyShowFF = false;
