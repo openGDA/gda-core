@@ -201,7 +201,7 @@ class XasScan(Scan):
 		xas_scannable = self._createAndconfigureXASScannable()
 		xas_scannable.setDetectors(detectorList)
 		args = [xas_scannable, self.resolveEnergiesFromScanBean(scanBean)]
-		args = self.addScanArguments(args, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean)
+		args = self.addScannableArgs(args, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean)
 		return args
 
 	def addScannableArgs(self, args, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean):
