@@ -1,10 +1,12 @@
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
-from gda.data.scan.datawriter import NexusFileMetadata
-from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
 from gda.factory import Finder
 from java.util import ArrayList
 
-from BeamlineParameters import JythonNameSpaceMapping
+from gdascripts.parameters import beamline_parameters
+from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
+
+from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+from gda.data.scan.datawriter import NexusFileMetadata
+from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
 
 class Metadata():
     
@@ -38,6 +40,6 @@ class Metadata():
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata(name,value,EntryTypes.NXcharacterization,subtype,type))
         
     def addScannableMetadataEntry(self, scannableName, type, subtype):
-        jythonNameMap = beamline_parameters.JythonNameSpaceMapping()
+        jythonNameMap = JythonNameSpaceMapping()
         scannable = jythonNameMap.__getitem__(scannableName)
         self.add_to_nexus_metadata(scannableName, str(scannable), "type", subtype)  

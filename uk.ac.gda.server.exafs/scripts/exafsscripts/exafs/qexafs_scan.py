@@ -1,18 +1,20 @@
-from BeamlineParameters import JythonNameSpaceMapping
+from time import sleep
+import math
+
+from java.lang import InterruptedException, System
+
+from scan import Scan
+
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter
+from gda.epics import CAClient
 from gda.exafs.scan import BeanGroup, BeanGroups, ScanStartedMessage, RepetitionsProperties
-from java.lang import InterruptedException, System
 from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater
 from gda.jython.scriptcontroller.logging import LoggingScriptController
 from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.scan import ScanBase, ContinuousScan
-from scan import Scan
-from gda.epics import CAClient
-from time import sleep
-import math
 
 class QexafsScan(Scan):
     

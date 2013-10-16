@@ -1,6 +1,5 @@
 from java.lang import InterruptedException, System
 
-from BeamlineParameters import JythonNameSpaceMapping
 from scan import Scan
 
 from gda.configuration.properties import LocalProperties

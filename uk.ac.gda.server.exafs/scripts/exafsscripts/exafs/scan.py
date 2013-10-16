@@ -1,4 +1,4 @@
-from BeamlineParameters import JythonNameSpaceMapping
+from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 from gda.jython.commands.GeneralCommands import run
 from uk.ac.gda.beans import BeansFactory
 from org.slf4j import LoggerFactory

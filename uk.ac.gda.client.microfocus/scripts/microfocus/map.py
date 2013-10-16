@@ -1,22 +1,24 @@
-from jarray import array
 from java.io import File
 from java.lang import String
+
+from jarray import array
 import time
 
-from BeamlineParameters import JythonNameSpaceMapping
+from microfocus_elements import showElementsList, getElementNamesfromIonChamber
+
+from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
+from gdascripts.messages import handle_messages
 from exafsscripts.exafs.scan import Scan
 from exafsscripts.exafs.config_fluoresence_detectors import XspressConfig, VortexConfig
+
 from gda.configuration.properties import LocalProperties
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, \
-    XasAsciiDataWriter
+from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, XasAsciiDataWriter
 from gda.device import Detector
 from gda.device.detector.xspress import ResGrades, XspressDetector
 from gda.device.scannable import ScannableUtils
 from gda.exafs.scan import BeanGroup
 from gda.factory import Finder
 from gda.jython.commands import ScannableCommands
-from gdascripts.messages import handle_messages
-from microfocus_elements import showElementsList, getElementNamesfromIonChamber
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 

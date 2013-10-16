@@ -1,10 +1,12 @@
+from xas_scan import XasScan
+
+from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
+
 from gda.exafs.scan import ExafsScanPointCreator,XanesScanPointCreator
 from gda.jython import ScriptBase
 from gda.jython.commands import ScannableCommands
 from uk.ac.gda.beans.exafs import XanesScanParameters, QEXAFSParameters
 from uk.ac.gda.beans.exafs import XasScanParameters
-from xas_scan import XasScan
-from BeamlineParameters import JythonNameSpaceMapping
 
 class I18XasScan(XasScan):
     

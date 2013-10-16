@@ -8,11 +8,6 @@ from gda.util import Element
 from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
 from uk.ac.gda.beans.exafs.i20 import I20OutputParameters
 
-from gdascripts.parameters import beamline_parameters
-from gdascripts.messages import handle_messages
-from gdascripts.configuration.properties.scriptContext import defaultScriptFolder
-
-
 import java
 
 class XspressConfig():

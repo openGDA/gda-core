@@ -13,8 +13,8 @@ class I18DetectorPreparer:
     def __init__(self,xspressConfig, vortexConfig):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
-        
-    def prepare(self, detectorBean, outputParameters, scriptFolder):
+
+    def prepare(self, scanBean, detectorBean, outputParameters, scriptFolder):
         if detectorBean.getExperimentType() == "Fluorescence":
             fluoresenceParameters = detectorBean.getFluorescenceParameters()
             detType = fluoresenceParameters.getDetectorType()
@@ -31,9 +31,10 @@ class I18DetectorPreparer:
                 vortexBean = self.vortexConfig.createBeanFromXML(xmlFileName)
                 saveRawSpectrum = vortexBean.isSaveRawSpectrum()
                 self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
+            self._control_all_ionc(fluoresenceParameters.getIonChamberParameters())
         elif detectorBean.getExperimentType() == "Transmission":
             transmissionParameters = detectorBean.getTransmissionParameters()
-        self._control_all_ionc(transmissionParameters.getIonChamberParameters())
+            self._control_all_ionc(transmissionParameters.getIonChamberParameters())
 
     def completeCollection(self):
         # this will be called at the end of a loop of scans, or after an abort
