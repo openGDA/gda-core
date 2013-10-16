@@ -139,7 +139,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 			
 			fileName = fileNames.get(0);			
 			waitForFile(fileName);
-			fileLoader = new XmapNexusFileLoader(fileName);
+			fileLoader = new XmapNexusFileLoader(fileName, xmap.getNumberOfMca());
 			fileLoader.loadFile();
 //			lastFileName = fileName;
 //			lastFileReadStatus = true;

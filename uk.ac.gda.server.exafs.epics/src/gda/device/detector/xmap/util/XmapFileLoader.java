@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -20,12 +20,19 @@ package gda.device.detector.xmap.util;
 
 public interface XmapFileLoader {
 	public short[][] getData(int dataPointNumber);
-	public short[][][] getData(int fromDataPointNumber , int toDataPointNumber)throws Exception;
+
+	public short[][][] getData(int fromDataPointNumber, int toDataPointNumber) throws Exception;
+
 	public int getNumberOfDataPoints();
+
 	public void loadFile() throws Exception;
+
 	public double getTrigger(int dataPointNumber, int element);
+
 	public double getRealTime(int dataPointNumber, int element);
+
 	public double getLiveTime(int dataPointNumber, int element);
+
 	public double getEvents(int dataPointNumber, int element);
 
 }
