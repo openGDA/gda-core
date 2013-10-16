@@ -425,23 +425,21 @@ public abstract class ExperimentObjectManager implements IExperimentObjectManage
 	}
 
 	@Override
-	public void write() throws Exception {
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(file.getLocation().toFile()));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
-		try {
+	public void write() {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file.getLocation().toFile()))){
 			final Iterator<IExperimentObject> it = lines.iterator();
 			while (it.hasNext()) {
 				writer.write(it.next().toPersistenceString());
 				writer.newLine();
 			}
+		} catch (IOException e) {
+			logger.error("Error writing scan object to file - the scan may not be defined properly!", e);
 		} finally {
-			writer.close();
-			file.refreshLocal(IResource.DEPTH_ZERO, null);
+			try {
+				file.refreshLocal(IResource.DEPTH_ZERO, null);
+			} catch (CoreException e) {
+				logger.debug("Error refreshing the experiment explorer", e);
+			}
 		}
 
 	}

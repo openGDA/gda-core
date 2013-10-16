@@ -115,10 +115,10 @@ public class ExperimentProjectNature implements IProjectNature {
 	 * 
 	 * @param dir
 	 * @return the ScanObjectManager
-	 * @throws Exception
+	 * @throws Exception 
 	 */
-	private static IExperimentObjectManager createNewScan(final IFolder dir, final String name)
-			throws Exception {
+	private static IExperimentObjectManager createNewScan(final IFolder dir, final String name) throws Exception
+			 {
 
 		if (!dir.exists()) {
 			dir.create(true, true, null);

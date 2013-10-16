@@ -95,7 +95,7 @@ public interface IExperimentObjectManager extends Serializable{
 
 	public void setName(String text) throws Exception;
 
-	public void write() throws Exception;
+	public void write();
 
 	/**
 	 * Returns an array of the bean types in each experiment, in the order that they should be stored to disk and in the
