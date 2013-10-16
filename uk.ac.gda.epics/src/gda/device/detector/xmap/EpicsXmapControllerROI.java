@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class EpicsXmapControllerROI extends EpicsXmapController{
 	
 	private EDXDMappingController edxdController;
-	private int numberOfMca;
+	private int numberOfElements;
 	private String edxdControllerName;
 	private double[][][] controlRois;
 	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapControllerROI.class);
@@ -37,16 +37,20 @@ public class EpicsXmapControllerROI extends EpicsXmapController{
 	@Override
 	public void configure() throws FactoryException {
 		if((edxdController = (EDXDMappingController)Finder.getInstance().find(edxdControllerName) )!= null){
-			numberOfMca = edxdController.getNUMBER_OF_ELEMENTS();
+			numberOfElements = edxdController.getNumberOfElements();
 			edxdController.addIObserver(this);
-			controlRois = new double[numberOfMca][][];
+			controlRois = new double[numberOfElements][][];
 		}
 	}
 
+	public void setNumberOfElements(int numberOfElements){
+		this.numberOfElements = numberOfElements;
+		edxdController.setNumberOfElements(numberOfElements);
+	}
+	
 	@Override
 	public void deleteROIs(int mcaIndex) throws DeviceException {
 		controlRois[mcaIndex] = null;
-		
 	}
 
 	/**
@@ -104,7 +108,6 @@ public class EpicsXmapControllerROI extends EpicsXmapController{
 			roiLow[roiIndex] = roi[1];
 			roiHigh[roiIndex] = roi[0];
 		}
-
 		element.setLowROIs(roiLow);
 		element.setHighROIs(roiHigh);
 		if(controlRois[mcaIndex] == null)

@@ -32,17 +32,16 @@ import org.slf4j.LoggerFactory;
 public class EpicsXmapController extends DeviceBase implements XmapController ,IObserver{
 	
 	private EDXDMappingController edxdController;
-	private int numberOfMca;
+	private int numberOfElements;
 	private String edxdControllerName;
 	protected int actualNumberOfROIs;
 	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapController.class);
 	
 	@Override
 	public void configure() throws FactoryException {
-		if((edxdController = (EDXDMappingController)Finder.getInstance().find(edxdControllerName) )!= null)
-		{
-		numberOfMca = edxdController.getNUMBER_OF_ELEMENTS();
-		edxdController.addIObserver(this);
+		if((edxdController = (EDXDMappingController)Finder.getInstance().find(edxdControllerName) )!= null){
+			numberOfElements = edxdController.getNumberOfElements();
+			edxdController.addIObserver(this);
 		}
 	}
 	
@@ -76,8 +75,8 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 		//should write data to a file
 		//bespoke scan scripts write data at the moment
 		int numberOfBins =  getNumberOfBins();
-		int[][] data = new int[numberOfMca][numberOfBins];
-		for (int i = 0; i < numberOfMca; i++) {
+		int[][] data = new int[numberOfElements][numberOfBins];
+		for (int i = 0; i < numberOfElements; i++) {
 			data[i] = getData(i);
 		}
 		return data;
@@ -96,8 +95,8 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 
 
 	@Override
-	public int getNumberOfMca() throws DeviceException {
-		return numberOfMca;
+	public int getNumberOfElements() throws DeviceException {
+		return numberOfElements;
 	}
 
 	/**
@@ -121,8 +120,8 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	 */
 	@Override
 	public double[] getROICounts(int roiIndex) throws DeviceException {
-		double[] roiCounts = new double[numberOfMca];
-		for (int j = 0; j < numberOfMca; j++) {
+		double[] roiCounts = new double[numberOfElements];
+		for (int j = 0; j < numberOfElements; j++) {
 			double individualMCARois[] = this.getROIs(j);
 			roiCounts[j] = individualMCARois[roiIndex];
 		}
@@ -144,7 +143,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	@Override
 	public double[] getROIsSum() throws DeviceException {
 		double[] roiSum = new double[actualNumberOfROIs];
-		for (int j = 0; j < numberOfMca; j++) {
+		for (int j = 0; j < numberOfElements; j++) {
 			double individualMCARois[] = this.getROIs(j);
 			for (int i = 0; i < actualNumberOfROIs; i++) {
 				roiSum[i] = roiSum[i] + individualMCARois[i];
@@ -192,11 +191,11 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 
 	@Override
 	public void setNthROI(double[][] rois, int roiIndex) throws DeviceException {
-		if (rois.length != numberOfMca) {
+		if (rois.length != numberOfElements) {
 			logger.error("ROIs length does not match the Number of MCA");
 			return;
 		}
-		for (int mcaIndex = 0; mcaIndex < numberOfMca; mcaIndex++) {
+		for (int mcaIndex = 0; mcaIndex < numberOfElements; mcaIndex++) {
 			this.setNthROI(rois[mcaIndex], roiIndex, mcaIndex);
 		}
 		actualNumberOfROIs = roiIndex + 1;
@@ -233,7 +232,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	}
 
 	@Override
-	public void setNumberOfMca(int numberOfMca) throws DeviceException {
+	public void setNumberOfElements(int numberOfElements) throws DeviceException {
 		//Not implemented in the new version
 		
 	}
@@ -269,7 +268,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 
 	@Override
 	public void setROIs(double[][] rois) throws DeviceException {
-		for(int i =0; i< numberOfMca; i++)
+		for(int i =0; i< numberOfElements; i++)
 			setROI(rois, i);
 	}
 
