@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,11 +16,6 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.server.ncd.camera;
+package uk.ac.gda.server.ncd.subdetector;
 
-import uk.ac.gda.server.ncd.subdetector.LastImageProvider;
-
-/**
- * class moved to core epics
- */
-public class ADCameraDetector extends gda.device.detector.addetector.ADCameraDetector implements LastImageProvider { }
+public class ScalingAndOffsetParameters extends gda.device.currentamplifier.ScalingAndOffsetParameters { }
