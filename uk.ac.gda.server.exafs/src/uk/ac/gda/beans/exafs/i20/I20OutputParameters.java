@@ -18,19 +18,12 @@
 
 package uk.ac.gda.beans.exafs.i20;
 
-import java.net.URL;
-
 import uk.ac.gda.beans.exafs.OutputParameters;
 
 /**
  * So I20 can have the fluo detector output parameters in a different place to everyone else.
  */
 public class I20OutputParameters extends OutputParameters {
-
-	@SuppressWarnings("hiding")
-	public static final URL mappingURL = I20OutputParameters.class.getResource("I20SampleParametersMapping.xml");
-	@SuppressWarnings("hiding")
-	public static final URL schemaUrl = I20OutputParameters.class.getResource("I20SampleParametersMapping.xsd");
 	
 	private boolean vortexSaveRawSpectrum = false;
 	private boolean xspressOnlyShowFF = false;

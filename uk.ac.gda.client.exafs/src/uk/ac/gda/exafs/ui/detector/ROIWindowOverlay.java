@@ -26,9 +26,6 @@ import org.dawnsci.plotting.jreality.overlay.events.OverlayDrawingEvent;
 import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
 import org.eclipse.swt.widgets.Display;
 
-/**
- *
- */
 public class ROIWindowOverlay extends AbstractOverlayConsumer {
 
 	private double xStart, xEnd, yMin, yMax;

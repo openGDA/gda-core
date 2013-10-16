@@ -250,54 +250,5 @@
 		</field>
 	</class>
 	
-	<class name="uk.ac.gda.beans.exafs.i20.I20OutputParameters">
-		<map-to xml="I20OutputParameters" />
-		<field name="shouldValidate" type="boolean">
-			<bind-xml name="shouldValidate" node="element" />
-		</field>
-		<field name="asciiFileName" type="string">
-			<bind-xml name="asciiFileName" node="element" />
-		</field>
-		<field name="asciiDirectory" type="string">
-			<bind-xml name="asciiDirectory" node="element" />
-		</field>
-		<field name="nexusDirectory" type="string">
-			<bind-xml name="nexusDirectory" node="element" />
-		</field>
-		<field name="extraData" type="boolean">
-			<bind-xml name="extraData" node="element" />
-		</field>
-		<field name="signalActive" type="boolean">
-			<bind-xml name="signalActive" node="element" />
-		</field>
-		<field name="metadataActive" type="boolean">
-			<bind-xml name="metadataActive" node="element" />
-		</field>
-		<field name="beforeScriptName" type="string">
-			<bind-xml name="beforeScriptName" node="element" />
-		</field>
-		<field name="afterScriptName" type="string">
-			<bind-xml name="afterScriptName" node="element" />
-		</field>
-		<field name="signal" type="uk.ac.gda.beans.exafs.SignalParameters"
-			collection="collection" set-method="addSignal" get-method="getSignalList">
-			<bind-xml name="signal" node="element" />
-		</field>
-		<field name="metadata" type="uk.ac.gda.beans.exafs.MetadataParameters"
-			collection="collection" set-method="addMetadata" get-method="getMetadataList">
-			<bind-xml name="metadata" node="element" />
-		</field>
-		<field name="vortexSaveRawSpectrum" type="boolean">
-			<bind-xml name="vortexSaveRawSpectrum" node="element" />
-		</field>
-		<field name="xspressOnlyShowFF" type="boolean">
-			<bind-xml name="xspressOnlyShowFF" node="element" />
-		</field>
-		<field name="xspressShowDTRawValues" type="boolean">
-			<bind-xml name="xspressShowDTRawValues" node="element" />
-		</field>
-		<field name="xspressSaveRawSpectrum" type="boolean">
-			<bind-xml name="xspressSaveRawSpectrum" node="element" />
-		</field>
-	</class>
+	
 </mapping>

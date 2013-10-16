@@ -106,7 +106,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	private Label lblDeadTime;
 
 	public VortexParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean, "vortex");
+		super(path, mappingURL, dirtyContainer, editingBean, "vortexConfig");
 		this.vortexParameters = (VortexParameters) editingBean;
 	}
 

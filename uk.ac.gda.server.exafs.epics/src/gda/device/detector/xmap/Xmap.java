@@ -264,7 +264,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	public int getNumberOfMca() {
 		int nMca = 1;
 		try {
-			nMca = controller.getNumberOfMca();
+			nMca = controller.getNumberOfElements();
 		} catch (DeviceException e) {
 			logger.error("Cannot get number of ROIs", e);
 		}
@@ -276,7 +276,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	 */
 	public void setNumberOfMca(int numberOfMca) {
 		try {
-			controller.setNumberOfMca(numberOfMca);
+			controller.setNumberOfElements(numberOfMca);
 		} catch (DeviceException e) {
 			logger.error("Cannot set number of MCAs", e);
 		}
@@ -592,7 +592,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 		}
 
 		// Correct mca counts using K as we go
-		double[][] allElementROIs = new double[controller.getNumberOfMca()][numRois];
+		double[][] allElementROIs = new double[controller.getNumberOfElements()][numRois];
 		for(int elementCt =0; elementCt < allElementROIs.length;elementCt++)
 		{
 			allElementROIs[elementCt] = controller.getROIs(elementCt);
