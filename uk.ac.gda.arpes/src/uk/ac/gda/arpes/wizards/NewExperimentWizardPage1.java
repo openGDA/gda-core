@@ -18,7 +18,10 @@
 
 package uk.ac.gda.arpes.wizards;
 
+import gda.rcp.DataProject;
+
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
@@ -110,7 +113,7 @@ public class NewExperimentWizardPage1 extends WizardPage {
 	}
 
 	private void populateContainer() {
-		if (selection != null && selection.isEmpty() == false && selection instanceof IStructuredSelection) {
+		if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {
 			IStructuredSelection ssel = (IStructuredSelection) selection;
 			if (ssel.size() > 1) {
 				return;
@@ -124,7 +127,13 @@ public class NewExperimentWizardPage1 extends WizardPage {
 					container = ((IResource) obj).getParent();
 				}
 				containerText.setText(container.getFullPath().toString());
+				return;
 			}
+		} 
+
+		IProject dataProject = DataProject.getDataProjectIfExists();
+		if (dataProject != null) {
+			containerText.setText(dataProject.getFolder("data/xml").getFullPath().toString());
 		}
 	}
 
