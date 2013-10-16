@@ -10,30 +10,34 @@ from gda.device.detector.xspress import ResGrades
 from gda.epics import CAClient
 
 class I18DetectorPreparer:
-    def __init__(self):
-        pass
+    def __init__(self,xspressConfig, vortexConfig):
+        self.xspressConfig = xspressConfig
+        self.vortexConfig = vortexConfig
         
-    def prepare(self, detectorParameters, outputParameters, scriptFolder):
-        if detectorParameters.getExperimentType() == "Fluorescence":
-            if (detectorParameters.getFluorescenceParameters().getDetectorType() == "Germanium"):
-                fullFileName = scriptFolder + detectorParameters.getFluorescenceParameters().getConfigFileName()
-                bean = BeansFactory.getBean(File(fullFileName))
-                bean.setReadoutMode(XspressDetector.READOUT_MCA)
-                bean.setResGrade(ResGrades.NONE)
-                elements = bean.getDetectorList()
-                for element in elements: 
-                    rois = element.getRegionList()
-                    element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd())
-                BeansFactory.saveBean(File(fullFileName), bean)
-            self.configFluoDetector(detectorParameters, outputParameters, scriptFolder)
-            self._control_all_ionc(detectorParameters.getFluorescenceParameters().getIonChamberParameters())
-        elif detectorParameters.getExperimentType() == "Transmission":
-            self._control_all_ionc(detectorParameters.getTransmissionParameters().getIonChamberParameters())
+    def prepare(self, detectorBean, outputParameters, scriptFolder):
+        if detectorBean.getExperimentType() == "Fluorescence":
+            fluoresenceParameters = detectorBean.getFluorescenceParameters()
+            detType = fluoresenceParameters.getDetectorType()
+            xmlFileName = scriptFolder + fluoresenceParameters.getConfigFileName()
+            if detType == "Germanium":
+                self.xspressConfig.initialize()
+                xspressBean = self.xspressConfig.createBeanFromXML(xmlFileName)
+                onlyShowFF = xspressBean.isOnlyShowFF()
+                showDTRawValues = xspressBean.isShowDTRawValues()
+                saveRawSpectrum = xspressBean.isSaveRawSpectrum()
+                self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+            elif detType == "Silicon":
+                self.vortexConfig.initialize()
+                vortexBean = self.vortexConfig.createBeanFromXML(xmlFileName)
+                saveRawSpectrum = vortexBean.isSaveRawSpectrum()
+                self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
+        elif detectorBean.getExperimentType() == "Transmission":
+            transmissionParameters = detectorBean.getTransmissionParameters()
+        self._control_all_ionc(transmissionParameters.getIonChamberParameters())
 
     def completeCollection(self):
         # this will be called at the end of a loop of scans, or after an abort
-        continue
-
+        pass
 
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
