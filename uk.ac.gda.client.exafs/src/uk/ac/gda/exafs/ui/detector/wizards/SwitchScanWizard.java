@@ -78,4 +78,9 @@ public class SwitchScanWizard extends Wizard implements INewWizard{
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		initialSelection = selection;
 	}
+	
+	@Override
+	public boolean canFinish() {
+		return getContainer().getCurrentPage().equals(page2);
+	}
 }
