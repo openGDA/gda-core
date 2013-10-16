@@ -19,7 +19,6 @@
 package gda.rcp;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.factory.corba.util.EventService;
@@ -46,10 +45,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
@@ -97,21 +94,14 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.GDADataNature;
 import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.preferences.PreferenceConstants;
-import uk.ac.gda.preferences.PreferenceInitializer;
 import uk.ac.gda.pydev.ScriptProjectCreator;
 import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 import uk.ac.gda.ui.partlistener.MenuDisplayPartListener;
-import uk.ac.gda.ui.utils.ProjectUtils;
-import uk.ac.gda.ui.utils.ResourceFilterWrapper;
 import uk.ac.gda.views.baton.MessageView;
 
-/**
- * 
- */
 @SuppressWarnings("restriction")
 public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
@@ -376,45 +366,26 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			}
 
 			listenForUserMessages();
-			
+
 			String defaultEditorId = preferenceStore.getString(PreferenceConstants.GDA_DEFAULT_NXS_HDF5_EDITOR_ID);
 			if( defaultEditorId !=null && defaultEditorId.length()>0){
-				IEditorRegistry registry = 
-				           PlatformUI.getWorkbench().getEditorRegistry();
-				   registry.setDefaultEditor("*.nxs", defaultEditorId);
+				IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
+				registry.setDefaultEditor("*.nxs", defaultEditorId);
 			}
 			
 			// should these two be done during initialize instead of now when Windows have been created?
 			final WorkspaceModifyOperation wkspaceModifyOperation = new WorkspaceModifyOperation() {
-
 				@Override
 				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
 						InterruptedException {
 					monitor.beginTask("Refreshing Projects", IProgressMonitor.UNKNOWN);
-					//
 					prepareJythonEnv(monitor);
-					//
-					IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
-					// we have to find the jars before we restore the compiled libs
-					if (preferenceStore.getBoolean(PreferenceConstants.GDA_DATA_PROJECT_CREATE_ON_STARTUP)) {
-						try {
-							String projName = preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_NAME);
-							if( projName.equals(PreferenceInitializer.DATA_PROJECT_NAME_AS_VISIT)){
-								projName = LocalProperties.get(LocalProperties.RCP_APP_VISIT,"Data");
-							}
-							createDataProject(monitor,
-									projName,PathConstructor.createFromRCPProperties(),
-									preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_FILTER),
-									preferenceStore.getBoolean(PreferenceConstants.GDA_DATA_PROJECT_FILTER_IS_EXCLUDE));
-						} catch (CoreException e) {
-							logger.error("Error creating data project", e);
-						}
-					}
+					DataProject.createOnStartup(monitor);
 					monitor.done();
 				}
 			};
-			final WorkspaceJob workspaceJob = new WorkspaceJob("Setting up workspace") {
 
+			final WorkspaceJob workspaceJob = new WorkspaceJob("Setting up workspace") {
 				@Override
 				public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
 					try {
@@ -430,7 +401,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				refreshFromLocal();
 			} finally {// Resume background jobs after we startup
 				Job.getJobManager().resume();
-
 			}
 		}
 	}
@@ -541,23 +511,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		}
 	}
 
-	private void createDataProject(IProgressMonitor monitor, String projName, String dataPath, String filter, boolean excludes)
-			throws CoreException {
-		IProject dataProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projName);
-		if (!dataProject.exists()) {
-			monitor.subTask("Creating Data project");
-			List<ResourceFilterWrapper> resourceFilterWrapper = null;
-			if (filter != null && !filter.isEmpty()) {
-				resourceFilterWrapper = new Vector<ResourceFilterWrapper>();
-				resourceFilterWrapper.add(ResourceFilterWrapper.createRegexFolderFilter(filter, true, excludes));
-				resourceFilterWrapper.add(ResourceFilterWrapper.createRegexFolderFilter(filter, false, excludes));
-			}
-			ProjectUtils.createImportProjectAndFolder(projName, "data", dataPath,
-					GDADataNature.ID, resourceFilterWrapper, monitor);
-
-		}
-	}
-
 	private void prepareJythonEnv(IProgressMonitor monitor) {
 		try {
 			monitor.subTask("Initialising script projects");
@@ -568,9 +521,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		}
 	}
 
-	/**
-	 *
-	 */
 	public interface CleanupWork {
 		/**
 		 * Called during shutdown. Throwing exceptions from this method, even runtime ones, not recommended.
