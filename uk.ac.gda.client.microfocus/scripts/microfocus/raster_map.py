@@ -1,27 +1,33 @@
-from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
-from uk.ac.gda.beans import BeansFactory
-from gda.factory import Finder
-from gda.exafs.scan import BeanGroup
-from java.io import File
+import time
 from jarray import array
-from gda.data.scan.datawriter import XasAsciiDataWriter
-from exafsscripts.exafs.configFluoDetector import configFluoDetector
-from gda.device.detector.xspress import XspressDetector, ResGrades
-from gda.jython.commands import ScannableCommands
+
+from exafsscripts.exafs.config_fluoresence_detectors import XspressConfig, VortexConfig
 from gdascripts.messages import handle_messages
-from gda.device.scannable import ScannableUtils
-from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
 from map import Map
 from microfocus_elements import showElementsList
-from gda.scan import ContinuousScan
-import time
-from java.lang import String
-from gda.device import Detector
+
+from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
+from uk.ac.gda.beans import BeansFactory
 from gda.configuration.properties import LocalProperties
+from gda.factory import Finder
+from gda.data.scan.datawriter import XasAsciiDataWriter
+from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
+from gda.device import Detector
+from gda.device.detector.xspress import XspressDetector, ResGrades
+from gda.device.scannable import ScannableUtils
+from gda.exafs.scan import BeanGroup
+from gda.jython.commands import ScannableCommands
+from gda.scan import ContinuousScan
+
+from java.io import File
+from java.lang import String
+
 
 class RasterMap(Map):
     # TODO why are counterTimer01 and raster_counterTimer01 both used
-    def __init__(self, d7a, d7b, counterTimer01, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, rcpController):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, rcpController):
+        self.xspressConfig = xspressConfig
+        self.vortexConfig = vortexConfig
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -237,9 +243,21 @@ class RasterMap(Map):
         att2 = sampleParameters.getAttenuatorParameter2()
         self.d7a(att1.getSelectedPosition())
         self.d7b(att2.getSelectedPosition())
-        if(beanGroup.getDetector().getExperimentType() == "Fluorescence"):
-            configFluoDetector(beanGroup)
-      
+#         if(beanGroup.getDetector().getExperimentType() == "Fluorescence"):
+#             configFluoDetector(beanGroup)
+        # TODO should this not simply use the detector preparer? This code comes from there.
+        if beanGroup.getDetector().getExperimentType() == "Fluorescence":
+            fluoresenceParameters = beanGroup.getDetector().getFluorescenceParameters()
+            detType = fluoresenceParameters.getDetectorType()
+            xmlFileName = beanGroup.getScriptFolder() + fluoresenceParameters.getConfigFileName()
+            if detType == "Germanium":
+                self.xspressConfig.initialize()
+                xspressBean = self.xspressConfig.createBeanFromXML(xmlFileName)
+                onlyShowFF = xspressBean.isOnlyShowFF()
+                showDTRawValues = xspressBean.isShowDTRawValues()
+                saveRawSpectrum = xspressBean.isSaveRawSpectrum()
+                self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
        
         self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")

@@ -4,8 +4,8 @@ from java.lang import String
 import time
 
 from BeamlineParameters import JythonNameSpaceMapping
-from exafsscripts.exafs.configFluoDetector import configFluoDetector
 from exafsscripts.exafs.scan import Scan
+from exafsscripts.exafs.config_fluoresence_detectors import XspressConfig, VortexConfig
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, \
     XasAsciiDataWriter
@@ -23,7 +23,9 @@ from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 
 class Map(Scan):
 
-    def __init__(self, d7a, d7b, counterTimer01, rcpController, xScan, yScan, ExafsScriptObserver):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, xScan, yScan, ExafsScriptObserver):
+        self.xspressConfig = xspressConfig
+        self.vortexConfig = vortexConfig
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -197,18 +199,34 @@ class Map(Scan):
                 self.finish()
     
     def setupForMap(self, beanGroup):
+#         if beanGroup.getDetector().getExperimentType() == "Fluorescence":
+#             if (beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" ):
+#                 fullFileName = beanGroup.getScriptFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
+#                 bean = BeansFactory.getBean(File(fullFileName));
+#                 bean.setReadoutMode(XspressDetector.READOUT_MCA);
+#                 bean.setResGrade(ResGrades.NONE);
+#                 elements = bean.getDetectorList();
+#                 for element in elements: 
+#                     rois = element.getRegionList();
+#                     element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd())
+#                 BeansFactory.saveBean(File(fullFileName), bean)
+#             configFluoDetector(beanGroup)
+            
+        # TODO should this not simply use the detector preparer? This code comes from there.
         if beanGroup.getDetector().getExperimentType() == "Fluorescence":
-            if (beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" ):
-                fullFileName = beanGroup.getScriptFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
-                bean = BeansFactory.getBean(File(fullFileName));
-                bean.setReadoutMode(XspressDetector.READOUT_MCA);
-                bean.setResGrade(ResGrades.NONE);
-                elements = bean.getDetectorList();
-                for element in elements: 
-                    rois = element.getRegionList();
-                    element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd())
-                BeansFactory.saveBean(File(fullFileName), bean)
-            configFluoDetector(beanGroup)
+            fluoresenceParameters = beanGroup.getDetector().getFluorescenceParameters()
+            detType = fluoresenceParameters.getDetectorType()
+            xmlFileName = beanGroup.getScriptFolder() + fluoresenceParameters.getConfigFileName()
+            if detType == "Germanium":
+                self.xspressConfig.initialize()
+                xspressBean = self.xspressConfig.createBeanFromXML(xmlFileName)
+                onlyShowFF = xspressBean.isOnlyShowFF()
+                showDTRawValues = xspressBean.isShowDTRawValues()
+                saveRawSpectrum = xspressBean.isSaveRawSpectrum()
+                self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+            #self._control_all_ionc(transmissionParameters.getIonChamberParameters())
+
+            
         scan = beanGroup.getScan()
     
         if (LocalProperties.get("gda.mode") == 'live'):
