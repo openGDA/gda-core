@@ -18,28 +18,22 @@
 
 package uk.ac.gda.client;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.Device;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
-import gda.rcp.GDAClientActivator;
+import gda.rcp.DataProject;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.preferences.PreferenceConstants;
-import uk.ac.gda.preferences.PreferenceInitializer;
 
 public class ServerFileListener implements IObserver, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(ServerFileListener.class);
@@ -83,21 +77,7 @@ public class ServerFileListener implements IObserver, Configurable {
 	}
 
 	public void findDataProject() {
-		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
-		
-		String projName = preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_NAME);
-		if( projName.equals(PreferenceInitializer.DATA_PROJECT_NAME_AS_VISIT)){
-			projName = LocalProperties.get(LocalProperties.RCP_APP_VISIT,"Data");
-		}
-		
-		dataProject = null; 
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (int i = 0; i < projects.length; i++) {
-			if (projects[i].getName().equals(projName)) {
-				dataProject = projects[i];
-				break;
-			}
-		}
+		dataProject = DataProject.getDataProjectIfExists();
 	}
 	
 	@Override
