@@ -12,7 +12,7 @@ from exafsscripts.exafs.scan import Scan
 from exafsscripts.exafs.config_fluoresence_detectors import XspressConfig, VortexConfig
 
 from gda.configuration.properties import LocalProperties
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, XasAsciiDataWriter
+from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, XasAsciiDataWriter, NexusDataWriter, XasAsciiNexusDataWriter
 from gda.device import Detector
 from gda.device.detector.xspress import ResGrades, XspressDetector
 from gda.device.scannable import ScannableUtils
@@ -25,7 +25,8 @@ from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 
 class Map(Scan):
 
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, xScan, yScan, ExafsScriptObserver):
+    #TODO compare to the Scan initializer
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, xScan, yScan, ExafsScriptObserver,outputPreparer):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -39,7 +40,8 @@ class Map(Scan):
         self.xScan = xScan
         self.yScan = yScan
         self.ExafsScriptObserver=ExafsScriptObserver
-    
+        self.outputPreparer = outputPreparer
+        
     def enableBeam(self):
         self.beamEnabled = True
     
@@ -53,24 +55,23 @@ class Map(Scan):
     
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
-        xmlFolderName = folderName + "/"
-        folderName = folderName[folderName.find("xml")+4:]
+        experimentFullPath, experimentFolderName = self.determineExperimentPath(folderName)
     
         if(sampleFileName == None or sampleFileName == 'None'):
             sampleBean = None
         else:
-            sampleBean  = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
+            sampleBean  = BeansFactory.getBeanObject(experimentFullPath, sampleFileName)
             
-        scanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
+        scanBean = BeansFactory.getBeanObject(experimentFullPath, scanFileName)
         
-        detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
-        outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
+        detectorBean = BeansFactory.getBeanObject(experimentFullPath, detectorFileName)
+        outputBean   = BeansFactory.getBeanObject(experimentFullPath, outputFileName)
     
         beanGroup = BeanGroup()
         beanGroup.setController(self.ExafsScriptObserver)
-        beanGroup.setScriptFolder(xmlFolderName)
+        beanGroup.setXmlFolder(experimentFullPath)
         beanGroup.setScannable(self.finder.find(scanBean.getXScannableName())) #TODO
-        beanGroup.setExperimentFolderName(folderName)
+        beanGroup.setExperimentFolderName(experimentFolderName)
         beanGroup.setScanNumber(scanNumber)
         if(sampleBean != None):
             beanGroup.setSample(sampleBean)
@@ -78,15 +79,17 @@ class Map(Scan):
         beanGroup.setOutput(outputBean)
         beanGroup.setValidate(validation)
         beanGroup.setScan(scanBean)
-        XasAsciiDataWriter.setBeanGroup(beanGroup)
-        handle_messages.simpleLog("XasAsciiDataWriter.setBeanGroup(beanGroup)")
+        # TODO instead we need to setup data writer somewhere and give that to the scan. see xas_scan _setUpDataWriter
+        #XasAsciiDataWriter.setBeanGroup(beanGroup)
+        #handle_messages.simpleLog("XasAsciiDataWriter.setBeanGroup(beanGroup)")
           
         detectorList = self.getDetectors(detectorBean, scanBean)
     
         self.setupForMap(beanGroup)
         handle_messages.simpleLog("setupForMap")
         
-        dataWriter = self.finder.find("DataWriterFactory")
+        #dataWriter = self.finder.find("DataWriterFactory")
+
     
         scannablex = self.finder.find(scanBean.getXScannableName())
         scannabley = self.finder.find(scanBean.getYScannableName())
@@ -116,7 +119,7 @@ class Map(Scan):
                 self.mfd.setSelectedElement("I0")
                 self.mfd.setDetectors(array(detectorList, Detector))
             else:
-                self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
+                self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
                 elements = showElementsList(self.detectorBeanFileName)
                 selectedElement = elements[0]
                 self.mfd.setRoiNames(array(elements, String))
@@ -131,7 +134,6 @@ class Map(Scan):
                 self.mfd.setZValue(zScannable.getPosition())
             else:
                 self.mfd.setZValue(zScannablePos)
-            dataWriter.addDataWriterExtender(self.mfd)
 
             print scanBean.getXScannableName()
             print scanBean.getYScannableName()
@@ -184,6 +186,9 @@ class Map(Scan):
             try:
                 print args
                 mapscan= ScannableCommands.createConcurrentScan(args)
+                sampleName = sampleBean.getName()
+                descriptions = sampleBean.getDescriptions()
+                mapscan = self._setUpDataWriter(mapscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
                 print mapscan.getScanDataPointQueueLength()
                 mapscan.getScanPlotSettings().setIgnore(1)
                 self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
@@ -197,9 +202,43 @@ class Map(Scan):
                     LocalProperties.set("gda.scan.useScanPlotSettings", "false")
                 handle_messages.simpleLog("map start time " + str(scanStart))
                 handle_messages.simpleLog("map end time " + str(scanEnd)) 
-                dataWriter.removeDataWriterExtender(self.mfd)
                 self.finish()
-    
+                
+    # should merge with method in xas_scan but keeping here while developing to see what differences required
+    def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
+        nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
+        asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
+        
+        nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
+        asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
+        if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
+            nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
+            asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
+
+        # create XasAsciiNexusDataWriter object and give it the parameters
+        dataWriter = XasAsciiNexusDataWriter()
+        dataWriter.setRunFromExperimentDefinition(True);
+        dataWriter.setScanBean(scanBean);
+        dataWriter.setDetectorBean(detectorBean);
+        dataWriter.setSampleBean(sampleBean);
+        dataWriter.setOutputBean(outputBean);
+        dataWriter.setSampleName(sampleName);
+        dataWriter.setXmlFolderName(experimentFullPath)
+        #dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+        dataWriter.setDescriptions(descriptions);
+        dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
+        dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
+        # get the ascii file format configuration (if not set here then will get it from the Finder inside the Java class
+        asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
+        if asciidatawriterconfig != None :
+            dataWriter.setConfiguration(asciidatawriterconfig)
+            
+            
+        dataWriter.addDataWriterExtender(self.mfd)
+        
+        thisscan.setDataWriter(dataWriter)
+        return thisscan
+
     def setupForMap(self, beanGroup):
 #         if beanGroup.getDetector().getExperimentType() == "Fluorescence":
 #             if (beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" ):
