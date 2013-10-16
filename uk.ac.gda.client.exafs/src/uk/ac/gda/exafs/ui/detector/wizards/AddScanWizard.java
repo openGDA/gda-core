@@ -73,13 +73,8 @@ public class AddScanWizard extends Wizard implements INewWizard{
 		
 		created.setScanFileName(newScanFile.getName());
 		
-		
-		try {
-			ExperimentFactory.getManager(ob).write();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
+		ExperimentFactory.getManager(ob).write();
+
 		controller.openDefaultEditors(created, true);
 		
 		return true;

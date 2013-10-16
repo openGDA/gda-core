@@ -32,8 +32,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
@@ -46,8 +44,6 @@ import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 public class SwitchScanTypeAction extends AbstractHandler implements IWorkbenchWindowActionDelegate,
 		IEditorActionDelegate {
-
-	private static final Logger logger = LoggerFactory.getLogger(SwitchScanTypeAction.class);
 
 	@Override
 	public void init(final IWorkbenchWindow window) {
@@ -102,12 +98,8 @@ public class SwitchScanTypeAction extends AbstractHandler implements IWorkbenchW
 		final IExperimentEditorManager controller = ExperimentFactory.getExperimentEditorManager();
 		final ScanObject selected = (ScanObject) controller.getSelectedScan();
 		selected.setScanFileName(newFile.getName());
-		try {
-			IExperimentObjectManager man = ExperimentFactory.getManager(selected);
-			man.write();
-		} catch (Exception e) {
-			logger.error("Cannot write: " + selected.getFolder(), e);
-		}
+		IExperimentObjectManager man = ExperimentFactory.getManager(selected);
+		man.write();
 		controller.openDefaultEditors(selected, true);
 	}
 
