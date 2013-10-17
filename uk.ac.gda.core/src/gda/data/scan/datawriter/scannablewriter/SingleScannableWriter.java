@@ -24,6 +24,7 @@ import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableUtils;
 
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.StringTokenizer;
@@ -81,7 +82,7 @@ public class SingleScannableWriter implements ScannableWriter {
 			levels++;
 		}
 		
-		throw new IllegalArgumentException("configured path is not well formed (suspect no trailing component)");
+		throw new IllegalArgumentException("configured path is not well formed (suspect it has no trailing component)");
 	}
 	
 	protected void leaveLocation(NeXusFileInterface file) throws NexusException {
@@ -147,12 +148,45 @@ public class SingleScannableWriter implements ScannableWriter {
 					unit = ((ScannableMotionUnits) s).getUserUnits();
 				if (units != null && units.length > i)
 					unit = units[i];
-				sclc.addAll(makeComponent(file, dim, paths[i], s.getName(), componentName, positionToWriteableSlab(position, s, i), unit));
-			} catch (DeviceException e) {
+				sclc.addAll(makeComponent(file, dim, paths[i], s.getName(), componentName, getComponentObject(s, position, i), unit));
+			} catch (Exception e) {
 				logger.error("error converting scannable data", e);
 			}
 		}
 		return sclc;
+	}
+
+	private Object getComponentObject(Scannable s, Object position, int i) {
+		return getArrayObject(position)[i];
+	}
+	
+	private final Class<?>[] ARRAY_PRIMITIVE_TYPES = { 
+			int[].class, float[].class, double[].class, boolean[].class, 
+			byte[].class, short[].class, long[].class, char[].class };
+
+	private Object[] getArrayObject(Object foo) {
+		if (foo.getClass().isAssignableFrom(Object[].class))
+			return (Object[]) foo;
+		if (foo.getClass().isArray()) {
+			Class<?> valKlass = foo.getClass();
+			Object[] outputArray = null;
+			
+			for(Class<?> arrKlass : ARRAY_PRIMITIVE_TYPES){
+				if(valKlass.isAssignableFrom(arrKlass)){
+					int arrlength = Array.getLength(foo);
+					outputArray = new Object[arrlength];
+					for(int i = 0; i < arrlength; ++i){
+						outputArray[i] = Array.get(foo, i);
+					}
+					break;
+				}
+			}
+			if(outputArray == null) // not primitive type array
+				outputArray = (Object[]) foo;
+			
+			return outputArray;
+		}
+		return new Object[] { foo };
 	}
 
 	protected Collection<SelfCreatingLink> makeComponent(NeXusFileInterface file, int[] dim, String path, String scannableName, String componentName, Object pos, String unit) throws NexusException {
@@ -171,8 +205,8 @@ public class SingleScannableWriter implements ScannableWriter {
 		file.putattr("axis", axislist.getBytes(), NexusFile.NX_CHAR);
 		if (unit != null && !unit.isEmpty())
 			file.putattr("units", unit.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
-		
-		file.putslab(pos, nulldimfordim(dim), onedimfordim(dim));
+		Object poso = pos; //autoboxing
+		file.putslab(new double[] {(Double) poso}, nulldimfordim(dim), onedimfordim(dim));
 
 		sclc.add(new SelfCreatingLink(file.getdataID()));
 		file.closedata();
@@ -191,8 +225,9 @@ public class SingleScannableWriter implements ScannableWriter {
 			
 			file.opendata(name);
 			try {
-				file.putslab(positionToWriteableSlab(position, s, i), start, onedimfordim(start));
-			} catch (DeviceException e) {
+				Object poso = getComponentObject(s, position, i);
+				file.putslab(new double[] {(Double) poso}, start, onedimfordim(start));
+			} catch (Exception e) {
 				logger.error("error converting scannable data", e);
 			}
 			file.closedata();
@@ -201,8 +236,8 @@ public class SingleScannableWriter implements ScannableWriter {
 		}
 	}
 
-	protected Object positionToWriteableSlab(Object position, Scannable s, int i) throws DeviceException {
-		return new double[] {ScannableUtils.positionToArray(position, s)[i]};
+	protected double[] positionToWriteableSlab(Object position, Scannable s) throws DeviceException {
+		return ScannableUtils.positionToArray(position, s);
 	}
 	
 	public String[] getPaths() {
