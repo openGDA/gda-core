@@ -14,7 +14,7 @@ Require-Bundle: uk.ac.gda.client;bundle-version="1.0.0",
  org.eclipse.core.expressions;bundle-version="3.4.300"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.gda.beans.validation,
  uk.ac.gda.client.experimentdefinition,
  uk.ac.gda.client.experimentdefinition.components,
