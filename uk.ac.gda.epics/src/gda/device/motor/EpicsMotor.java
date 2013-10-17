@@ -180,7 +180,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	/**
 	 * Monitor EPICS motor limit violation
 	 */
-	@SuppressWarnings("unused")
 	protected LVIOMonitorListener lvioMonitor;
 
 	protected Channel setPv;
@@ -258,9 +257,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		this.unitStringOverride = unitStringOverride;
 	}
 
-	/**
-	 * default constructor
-	 */
 	public EpicsMotor() {
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
@@ -312,8 +308,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Initialise the motor object.
-	 * 
-	 * @throws FactoryException
 	 */
 	@Override
 	public void configure() throws FactoryException {
@@ -387,8 +381,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Create Channel access for motor. This must must on to EPICS motor record.
-	 * 
-	 * @throws FactoryException
 	 */
 	protected void createChannelAccess() throws FactoryException {
 		try {
@@ -448,7 +440,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * gets the unit string from EPICS motor.
 	 * 
 	 * @return unit string
-	 * @throws MotorException
 	 */
 	@Override
 	public String getUnitString() throws MotorException {
@@ -464,9 +455,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Sets the speed of the motor in IOC in mm/second.
-	 * 
-	 * @param mmPerSec
-	 * @throws MotorException
 	 */
 	@Override
 	public void setSpeed(double mmPerSec) throws MotorException {
@@ -482,7 +470,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * Gets the current speed of the motor in mm/second
 	 * 
 	 * @return double the motor speed in revolution per second
-	 * @throws MotorException
 	 */
 	@Override
 	public double getSpeed() throws MotorException {
@@ -517,7 +504,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * Gets the retry dead band for this motor from EPICS.
 	 * 
 	 * @return double - the retry dead band.
-	 * @throws MotorException
 	 */
 	@Override
 	public double getRetryDeadband() throws MotorException {
@@ -533,7 +519,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * Gets the motor resolution from EPICS motor.
 	 * 
 	 * @return double - the motor resolution
-	 * @throws MotorException
 	 */
 	@Override
 	public double getMotorResolution() throws MotorException {
@@ -561,9 +546,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * checks motor Status
-	 * 
-	 * @return MotorStatus
-	 * @throws MotorException
 	 */
 	protected MotorStatus checkStatus() throws MotorException {
 		MotorStatus status = getStatus();
@@ -577,8 +559,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Returns the motor status from the motor object.
-	 * 
-	 * @see gda.device.Motor#getStatus()
 	 */
 	@Override
 	public MotorStatus getStatus() throws MotorException {
@@ -587,7 +567,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * @deprecated as the name is confusing
-	 * @return MotorStatus
 	 */
 	@Deprecated
 	public MotorStatus getMotorStatus() {
@@ -632,7 +611,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * @note The target position is re-checked before move as many limits in the EPICS motor changes dynamically.
 	 * @param increament
 	 *            - double the distance that motor need to travel in EGU
-	 * @throws MotorException
 	 */
 	@Override
 	public void moveBy(double increament) throws MotorException {
@@ -646,31 +624,22 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	}
 
 	enum STATUSCHANGE_REASON {
-		/**
-		 * 
-		 */
-		START_MOVETO, /**
-		 * 
-		 */
-		MOVETO, /**
-		 * 
-		 */
+		
+		START_MOVETO,
+		
+		MOVETO,
+		
 		INITIALISE,
-		/**
-		 * 
-		 */
+		
 		CAPUT_MOVECOMPLETE,
+		
 		/**
 		 * Like CAPUT_MOVECOMPLETE but the msta has to be queried in a separate thread to prevent EPICS timeouts
 		 */
 		CAPUT_MOVECOMPLETE_IN_ERROR,
-		/**
-		 * 
-		 */
+		
 		DMOV_MOVECOMPLETE,
-		/**
-		 * 
-		 */
+		
 		NEWSTATUS
 
 	}
@@ -788,7 +757,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * @note The target position is re-checked before move as many limits in the EPICS motor changes dynamically.
 	 * @param position
 	 *            - double - the absolute position of the motor in EGU (
-	 * @throws MotorException
 	 */
 	@Override
 	public void moveTo(double position) throws MotorException {
@@ -820,11 +788,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * time, this method time-out.
 	 * 
 	 * @note The target position is re-checked before move as many limits in the EPICS motor changes dynamically.
-	 * @param position
-	 * @param timeout
-	 * @throws MotorException
-	 * @throws TimeoutException
-	 * @throws InterruptedException
 	 */
 	public void moveTo(double position, double timeout) throws MotorException, TimeoutException, InterruptedException {
 		
@@ -850,8 +813,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * @note The target position is re-checked before move as many limits in the EPICS motor changes dynamically.
 	 * @param position
 	 *            the absolute position of the motor in EGU
-	 * @param moveListener
-	 * @throws MotorException
 	 */
 	/*
 	 * This moveTo does not change motorStatus.
@@ -883,7 +844,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * Reads the motor's dial low limit (DLLM).
 	 * 
 	 * @return the dial low limit
-	 * @throws MotorException
 	 */
 	protected double getDialLowLimit() throws MotorException {
 		try {
@@ -897,7 +857,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * Reads the motor's dial high limit (DHLM).
 	 * 
 	 * @return the dial high limit
-	 * @throws MotorException
 	 */
 	protected double getDialHighLimit() throws MotorException {
 		try {
@@ -912,7 +871,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * 
 	 * @param requestedPosition
 	 *            absolute requested target to validate within limits
-	 * @throws MotorException
 	 */
 	private void targetRangeCheck(double requestedPosition) throws MotorException {
 
@@ -939,7 +897,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * there are no limits.
 	 * 
 	 * @return true unless both dial limits are 0
-	 * @throws MotorException
 	 */
 	private boolean hasLimitsToCheck() throws MotorException {
 		final double dialHighLimit = getDialHighLimit();
@@ -953,7 +910,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * 
 	 * @param minimumPosition
 	 *            the minimum position
-	 * @throws MotorException
 	 */
 	public void setMinPosition(double minimumPosition) throws MotorException {
 		try {
@@ -968,8 +924,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * {@inheritDoc} Get the minimum position from EPICS database.
 	 * 
 	 * @return the minimum position, or NaN if limits are not be checked
-	 * @throws MotorException
-	 * @see gda.device.motor.MotorBase#getMinPosition()
 	 */
 	@Override
 	public double getMinPosition() throws MotorException {
@@ -989,7 +943,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * 
 	 * @param maximumPosition
 	 *            the maximum position
-	 * @throws MotorException
 	 */
 	public void setMaxPosition(double maximumPosition) throws MotorException {
 		try {
@@ -1004,8 +957,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * {@inheritDoc} Get the maximum position from EPICS database.
 	 * 
 	 * @return the maximum position, or NaN if limits are not be checked
-	 * @throws MotorException
-	 * @see gda.device.motor.MotorBase#getMaxPosition()
 	 */
 	@Override
 	public double getMaxPosition() throws MotorException {
@@ -1022,8 +973,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Stops the motor
-	 * 
-	 * @throws MotorException
 	 */
 	@Override
 	public void stop() throws MotorException {
@@ -1042,8 +991,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * <p>
 	 * This is for EpicsMotor specific error handling and would probably only need to be used when there are underlying
 	 * hardware issues.
-	 * 
-	 * @throws MotorException
 	 */
 	public void stopGo() throws MotorException {
 		try {
@@ -1057,8 +1004,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	/**
 	 * Some motors offer a control for emergence stop which stop the motor and switch off the power. This is not
 	 * implemented here for EPICS motor, i.e. code block is empty.
-	 * 
-	 * @throws MotorException
 	 */
 	@Override
 	public void panicStop() throws MotorException {
@@ -1067,7 +1012,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	@Override
 	public void moveContinuously(int direction) throws MotorException {
-		/** @todo check if this implementation correct */
+		// TODO check if this implementation correct
 		try {
 			if (direction > 0) {
 				moveTo(controller.cagetFloat(hlm));
@@ -1084,7 +1029,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * 
 	 * @param position
 	 *            - the new position in motor units
-	 * @throws MotorException
 	 */
 	@Override
 	public void setPosition(double position) throws MotorException {
@@ -1100,7 +1044,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * This method returns the current position of the motor in user coordinates.
 	 * 
 	 * @return the current position
-	 * @throws MotorException
 	 */
 	@Override
 	public double getPosition() throws MotorException {
@@ -1112,11 +1055,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		}
 	}
 
-	/**
-	 * {@inheritDoc} homing the motor
-	 * 
-	 * @see gda.device.motor.MotorBase#home()
-	 */
 	@Override
 	public void home() throws MotorException {
 		try {
@@ -1152,9 +1090,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	}
 
 	private class RBVMonitorListener implements MonitorListener {
-		/**
-		 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
-		 */
+		
 		private boolean alarmRaised = false;
 
 		@Override
@@ -1426,9 +1362,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			return mstaStatus;
 		}
 
-		/**
-		 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
-		 */
 		@Override
 		public void monitorChanged(MonitorEvent mev) {
 			try {
@@ -1579,8 +1512,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * sets the short or EPICS-GDA shared name for this device
-	 * 
-	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
@@ -1597,8 +1528,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * sets the EPICS access control name.
-	 * 
-	 * @param accessControlName
 	 */
 	public void setAccessControlName(String accessControlName) {
 		this.accessControlName = accessControlName;
@@ -1641,8 +1570,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Sets the Epics Record Name, used by CASTOR.
-	 * 
-	 * @param epicsRecordName1
 	 */
 	public void setEpicsRecordName(String epicsRecordName1) {
 		this.epicsRecordName = epicsRecordName1;
@@ -1650,8 +1577,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Gets the Epics Record Name.
-	 * 
-	 * @return String
 	 */
 	public String getEpicsRecordName() {
 		return epicsRecordName;
@@ -1659,8 +1584,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * checks if missing target permitted or not.
-	 * 
-	 * @return boolean
 	 */
 	public boolean isCheckMissedTarget() {
 		return checkMissedTarget;
@@ -1668,23 +1591,15 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * sets permission for missing target for motor moving
-	 * 
-	 * @param ignorMissedTarget
 	 */
 	public void setCheckMissedTarget(boolean ignorMissedTarget) {
 		this.checkMissedTarget = ignorMissedTarget;
 	}
 
-	/**
-	 * @return booean call back wait
-	 */
 	public boolean isCallbackWait() {
 		return callbackWait;
 	}
 
-	/**
-	 * @param callbackDelay
-	 */
 	public void setCallbackWait(boolean callbackDelay) {
 		this.callbackWait = callbackDelay;
 	}
@@ -1697,10 +1612,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		return this == other;
 	}
 
-	/**
-	 * @return pv
-	 * @throws InterfaceException
-	 */
 	public String getPV() throws InterfaceException {
 		return GDAEpicsInterfaceReader.getPVFromSimpleMotor(getDeviceName());
 	}
@@ -1742,12 +1653,6 @@ class MoveEventQueue implements Runnable {
 	private boolean killed = false;
 	private Thread thread = null;
 
-	/**
-	 * @param motor
-	 * @param newStatus
-	 * @param reason
-	 * @throws MotorException
-	 */
 	public void addMoveCompleteEvent(EpicsMotor motor, MotorStatus newStatus, EpicsMotor.STATUSCHANGE_REASON reason)
 			throws MotorException {
 		synchronized (items) {
@@ -1792,9 +1697,6 @@ class MoveEventQueue implements Runnable {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	public void dispose() {
 		killed = true;
 	}
