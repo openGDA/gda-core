@@ -44,7 +44,7 @@ public class SingleStringScannableWriter extends SimpleSingleScannableWriter {
 		String name = enterLocation(file, path);
 		
 		stringlength = 127;
-		byte[] slab = (byte []) pos;
+		byte[] slab = ArrayUtils.add(pos.toString().getBytes(Charset.forName("UTF-8")),(byte) 0);
 		
 		if (Arrays.equals(dim, new int[] {1})) {
 			stringlength = slab.length;
@@ -72,10 +72,10 @@ public class SingleStringScannableWriter extends SimpleSingleScannableWriter {
 		leaveLocation(file);
 		return new Vector<SelfCreatingLink>();
 	}
-
+	
 	@Override
-	protected Object positionToWriteableSlab(Object position, Scannable s, int i) throws DeviceException {
-		return ArrayUtils.add(((String) position).getBytes(Charset.forName("UTF-8")),(byte) 0);
+	protected Object getComponentSlab(Scannable s, Object position, int i) throws DeviceException {
+		return ArrayUtils.add(position.toString().getBytes(Charset.forName("UTF-8")),(byte) 0);
 	}
 	
 	@Override
