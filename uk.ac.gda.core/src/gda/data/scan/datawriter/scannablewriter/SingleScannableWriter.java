@@ -22,7 +22,6 @@ import gda.data.scan.datawriter.SelfCreatingLink;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
-import gda.device.scannable.ScannableUtils;
 
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
@@ -156,7 +155,7 @@ public class SingleScannableWriter implements ScannableWriter {
 		return sclc;
 	}
 
-	private Object getComponentObject(Scannable s, Object position, int i) {
+	protected Object getComponentObject(@SuppressWarnings("unused") Scannable s, Object position, int i) {
 		return getArrayObject(position)[i];
 	}
 	
@@ -225,8 +224,8 @@ public class SingleScannableWriter implements ScannableWriter {
 			
 			file.opendata(name);
 			try {
-				Object poso = getComponentObject(s, position, i);
-				file.putslab(new double[] {(Double) poso}, start, onedimfordim(start));
+				Object slab = getComponentSlab(s, position, i);
+				file.putslab(slab, start, onedimfordim(start));
 			} catch (Exception e) {
 				logger.error("error converting scannable data", e);
 			}
@@ -236,8 +235,10 @@ public class SingleScannableWriter implements ScannableWriter {
 		}
 	}
 
-	protected double[] positionToWriteableSlab(Object position, Scannable s) throws DeviceException {
-		return ScannableUtils.positionToArray(position, s);
+	@SuppressWarnings("unused")
+	protected Object getComponentSlab(Scannable s, Object position, int i) throws DeviceException {
+		Object poso = getComponentObject(s, position, i);
+		return new double[] {(Double) poso};
 	}
 	
 	public String[] getPaths() {
