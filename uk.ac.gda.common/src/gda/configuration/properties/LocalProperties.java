@@ -316,9 +316,6 @@ public class LocalProperties {
 	 */
 	public static final String GDA_GUI_USE_TOOL_BAR = "gda.gui.useToolBar";
 
-	/**
-	 * Name of the numtracker used to derive the scan id. If not set then the scan id is not set and relies on filewriters to set it.
-	 */
 	private static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
 
 	
