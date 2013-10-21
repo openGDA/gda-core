@@ -17,7 +17,7 @@ Require-Bundle: uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
  org.eclipse.core.runtime,
  org.eclipse.ui,
- org.python.pydev,
+ org.python.pydev;bundle-version="[3.0.0,3.1.0)",
  uk.ac.gda.hrpd;bundle-version="1.0.0",
  uk.ac.gda.dls.client;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -25,5 +25,4 @@ Bundle-ActivationPolicy: lazy
 Import-Package: com.artenum.jyconsole,
  org.eclipse.debug.ui,
  org.eclipse.search.ui,
- org.eclipse.ui.console,
- org.python.pydev.ui.wizards.files
+ org.eclipse.ui.console
