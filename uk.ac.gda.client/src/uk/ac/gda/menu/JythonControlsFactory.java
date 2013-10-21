@@ -125,7 +125,7 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 			public void run() {
 				try {
 					final Boolean isPaused = (Boolean)((IHandlerService)serviceLocator.getService(IHandlerService.class)).executeCommand(commandId, new Event());
-				    setChecked(isPaused);
+					setChecked(isPaused);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -173,7 +173,11 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 			super(action);
 			InterfaceProvider.getJSFObserver().addIObserver(this);
 			this.isScan = isScan;
-			int scriptStatus = InterfaceProvider.getScriptController().getScriptStatus();
+			int scriptStatus = Jython.IDLE;
+			if (!isScan)
+				scriptStatus = InterfaceProvider.getScriptController().getScriptStatus();
+			else 
+				scriptStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
 			getAction().setEnabled(scriptStatus==Jython.RUNNING||scriptStatus==Jython.PAUSED);
 		}
 		
@@ -225,6 +229,4 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 			return isPaused;
 		}
 	}
-
-
 }
