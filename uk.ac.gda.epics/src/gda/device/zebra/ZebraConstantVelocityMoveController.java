@@ -120,7 +120,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 				requiredSpeed = (Math.abs(pcPulseStepRBV) / triggerPeriod)*zebraMotorInfoProvider.getConstantVelocitySpeedFactor();
 				break;
 			case Zebra.PC_MODE_TIME:
-				zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS); //s
+				zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS); //ms
 				zebra.setPCPulseWidth(.1); //.01ms
 				pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
 				zebra.setPCPulseStep(triggerPeriod*1000); // in  ms
