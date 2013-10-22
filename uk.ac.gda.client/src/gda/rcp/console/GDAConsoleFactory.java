@@ -23,16 +23,18 @@ import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.IProcessFactory;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleCommunication;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
-import org.python.pydev.debug.newconsole.env.IProcessFactory;
-import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
+import org.python.pydev.debug.newconsole.env.PydevIProcessFactory;
+import org.python.pydev.debug.newconsole.env.PydevIProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
-import org.python.pydev.dltk.console.IScriptConsoleCommunication;
-import org.python.pydev.dltk.console.ui.ScriptConsoleManager;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
+import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleManager;
+
 
 /**
  * This is the class responsible for creating the console (and setting up the communication
@@ -96,7 +98,7 @@ public class GDAConsoleFactory implements IConsoleFactory {
 	@SuppressWarnings("unused")
 	private static PydevConsoleCommunication createCommunication()
 			throws UserCanceledException, Exception {
-		IProcessFactory iprocessFactory = new IProcessFactory();
+		PydevIProcessFactory iprocessFactory = new PydevIProcessFactory();
 
         PydevConsoleLaunchInfo interactiveLaunch = iprocessFactory.createInteractiveLaunch();
         if(interactiveLaunch == null){
@@ -107,7 +109,7 @@ public class GDAConsoleFactory implements IConsoleFactory {
             return null;
         }
 
-        int port = Integer.parseInt(launch.getAttribute(IProcessFactory.INTERACTIVE_LAUNCH_PORT));
+        int port = Integer.parseInt(launch.getAttribute(PydevIProcessFactory.INTERACTIVE_LAUNCH_PORT));
 
         PydevConsoleCommunication protocol = new PydevConsoleCommunication(port, interactiveLaunch.process, interactiveLaunch.clientPort);
 		return protocol;

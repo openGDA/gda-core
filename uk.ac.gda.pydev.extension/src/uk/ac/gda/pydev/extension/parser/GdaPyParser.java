@@ -31,11 +31,11 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
+import org.python.pydev.shared_core.model.ErrorDescription;
 
 public class GdaPyParser extends PyParser {
 

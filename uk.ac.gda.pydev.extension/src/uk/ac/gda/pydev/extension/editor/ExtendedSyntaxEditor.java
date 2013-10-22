@@ -18,20 +18,20 @@
 
 package uk.ac.gda.pydev.extension.editor;
 
-import java.util.List;
-
 import gda.jython.JythonServerFacade;
+
+import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.model.IModelListener;
-import org.python.pydev.parser.ErrorDescription;
-import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.shared_core.model.ErrorDescription;
+import org.python.pydev.shared_core.model.IModelListener;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +104,7 @@ public class ExtendedSyntaxEditor extends PyEdit implements IParserObserver, IMo
 	}
 
 	@Override
-	public void modelChanged(SimpleNode arg0) {
+	public void modelChanged(ISimpleNode arg0) {
 		
 	}
 	
