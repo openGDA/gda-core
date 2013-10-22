@@ -74,7 +74,6 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		enableControls();
 	}
 
-	
 	@Override
 	public void createContributionItems(final IServiceLocator serviceLocator, IContributionRoot additions) {
 		
@@ -118,7 +117,6 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		return halt;
 	}
 
-
 	private PauseContributionItem createPauseAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath, final boolean isScan) {
 		final PauseContributionItem pause = new PauseContributionItem(new Action(label, SWT.TOGGLE) {
 			@Override
@@ -135,16 +133,13 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		return pause;
 	}
 
-
 	private class HaltContributionItem extends JythonContributionItem {
-
 		public HaltContributionItem(IAction action, boolean isScan) {
 			super(action, isScan);
 		}
 	}
-		
-	private class PauseContributionItem extends JythonContributionItem {
 
+	private class PauseContributionItem extends JythonContributionItem {
 		public PauseContributionItem(IAction action, boolean isScan) {
 			super(action, isScan);
 		}
@@ -163,7 +158,6 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 				getAction().setChecked(isPaused(status));
 			}
 		}
-		
 	}
 	
 	private abstract class JythonContributionItem extends ActionContributionItem implements IObserver {
@@ -171,14 +165,10 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 
 		public JythonContributionItem(IAction action, boolean isScan) {
 			super(action);
-			InterfaceProvider.getJSFObserver().addIObserver(this);
 			this.isScan = isScan;
-			int scriptStatus = Jython.IDLE;
-			if (!isScan)
-				scriptStatus = InterfaceProvider.getScriptController().getScriptStatus();
-			else 
-				scriptStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
-			getAction().setEnabled(scriptStatus==Jython.RUNNING||scriptStatus==Jython.PAUSED);
+			InterfaceProvider.getJSFObserver().addIObserver(this);
+			JythonServerStatus status = InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus();
+			update(this, status);
 		}
 		
 		@Override
@@ -188,8 +178,6 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 				getAction().setEnabled(isRunning(status));
 			}
 		}
-		
-		
 		
 		@Override
 		public void dispose() {
