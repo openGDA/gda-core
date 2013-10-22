@@ -18,6 +18,10 @@
 
 package gda.device.detector;
 
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
@@ -35,7 +39,9 @@ import gda.jython.InterfaceProvider;
 import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -73,6 +79,20 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private NXDetectorDataCompletingCallable lastCallable;
 
+	private long lastCollectTimeMs;
+
+	//If true start_time is added to the NXdetector entry //TODO move to collectionStrategy after merge to trunk
+	private boolean addCollectTimeMs=false;
+
+	private String start_time_start="";
+	private long start_time_start_ms;
+
+	private boolean firstReadOut=false;
+
+	//start time for each frame relative to start_time_start
+	private double start_time;
+
+
 	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPluginBase> additionalPluginList) {
 		setName(name);
 		setCollectionStrategy(collectionStrategy);
@@ -86,6 +106,14 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	 */
 	public NXDetector() {
 
+	}
+
+	public boolean isAddCollectTimeMs() {
+		return addCollectTimeMs;
+	}
+
+	public void setAddCollectTimeMs(boolean addCollectTimeMs) {
+		this.addCollectTimeMs = addCollectTimeMs;
 	}
 
 	@Override
@@ -247,6 +275,15 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	@Override
 	final public void prepareForCollection() throws DeviceException {
 		// atScanLineStart implemented instead
+		firstReadOut=true;
+		if(addCollectTimeMs){
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+//			TimeZone tz = TimeZone.getTimeZone("UTC");
+//			df.setTimeZone(tz);
+			Date start_time_date = new Date();
+			start_time_start = df.format(start_time_date);
+			start_time_start_ms = start_time_date.getTime();
+		}
 	}
 
 	@Override
@@ -356,6 +393,10 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	
 	@Override
 	public void collectData() throws DeviceException {
+		if(addCollectTimeMs){
+			lastCollectTimeMs = (new Date()).getTime();
+			start_time = (lastCollectTimeMs - start_time_start_ms)/1000.;
+		}
 		lastReadoutValue  = null;
 		try {
 			getCollectionStrategy().collectData();
@@ -425,6 +466,15 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 				nxdata = new NXDetectorData();
 			} else {
 				nxdata = new NXDetectorData(this);
+			}
+		}
+
+		if(addCollectTimeMs){
+			nxdata.addData(getName(), "time_ms", lastCollectTimeMs, "ms");
+			INexusTree startTimeData = nxdata.addData(getName(), "start_time", start_time, "s");
+			if( firstReadOut){
+				startTimeData.addChildNode(new NexusTreeNode("start",NexusExtractor.AttrClassName, startTimeData, new NexusGroupData(start_time_start)));
+				firstReadOut = false;
 			}
 		}
 
