@@ -62,7 +62,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 
 		if (controller.getStatus() == Detector.BUSY) {
 			// We must call stop before reading out.
-			
+
 			controller.stop();
 
 			// We must wait here if the controller is still busy.
@@ -84,42 +84,32 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		NXDetectorData output = new NXDetectorData(this);
 		INexusTree detTree = output.getDetTree(getName());
 
-		
-		int numberOfAllElements = vortexParameters.getDetectorList().size();
-		int numberOfIncludedElements = 0;
-		for (DetectorElement element : vortexParameters.getDetectorList()){
-			if (!element.isExcluded()) {
-				numberOfIncludedElements++;
-			}
-		}
+		int numberOfElements = vortexParameters.getDetectorList().size();
 		int numberOfROIs = vortexParameters.getDetectorList().get(0).getRegionList().size();
 
 		// items to write to nexus
 		double[] summation = null;
-		double[] correctedAllCounts = new double[numberOfIncludedElements];
+		double[] correctedAllCounts = new double[numberOfElements];
 		final List<Double> times = getEventProcessingTimes();
-		double[] ocrs = new double[numberOfIncludedElements];
-		double[] icrs = new double[numberOfIncludedElements];
-		double[][] roiCounts = new double[numberOfROIs][numberOfIncludedElements];
+		double[] ocrs = new double[numberOfElements];
+		double[] icrs = new double[numberOfElements];
+		double[][] roiCounts = new double[numberOfROIs][numberOfElements];
 		String[] roiNames = new String[numberOfROIs];
 		int detectorData[][] = controller.getData();
 		double correctedDetData[][] = new double[detectorData.length][];
 		int numberOfDetectorElements = vortexParameters.getDetectorList().size();
 		
 		// create deadtime corrected values
-		int arrayIndex = -1;
 		for (int element = 0; element < numberOfDetectorElements; element++) {
 
 			DetectorElement thisElement = vortexParameters.getDetectorList().get(element);
 			if (thisElement.isExcluded())
 				continue;
-			
-			arrayIndex ++;
 
 			final double ocr = controller.getOCR(element);
-			ocrs[arrayIndex] = ocr;
+			ocrs[element] = ocr;
 			final double icr = controller.getICR(element);
-			icrs[arrayIndex] = icr;
+			icrs[element] = icr;
 			Double deadTimeCorrectionFactor = CorrectionUtils.getK(times.get(element), icr, ocr);
 
 			if (deadTimeCorrectionFactor.isInfinite() || deadTimeCorrectionFactor.isNaN() || saveRawSpectrum) {
@@ -128,7 +118,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 
 			// Total counts
 			int allCounts = controller.getEvents(element);
-			correctedAllCounts[arrayIndex] = allCounts * deadTimeCorrectionFactor;
+			correctedAllCounts[element] = allCounts * deadTimeCorrectionFactor;
 
 			// REGIONS
 			double[] elementROIs = controller.getROIs(element, detectorData);
@@ -137,37 +127,32 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				final RegionOfInterest roi = thisElement.getRegionList().get(iroi);
 				double count = elementROIs[iroi];//getROICounts(iroi)[element];
 				count *= deadTimeCorrectionFactor;
-				roiCounts[iroi][arrayIndex] = count;
+				roiCounts[iroi][element] = count;
 				roiNames[iroi] = roi.getRoiName();
 			}
 			
 			// full mca
-			correctedDetData[arrayIndex] = new double[detectorData[element].length];
+			correctedDetData[element] = new double[detectorData[element].length];
 			for (int specElement = 0; specElement < detectorData[element].length; specElement++) {
-				correctedDetData[arrayIndex][specElement] = detectorData[element][specElement] * deadTimeCorrectionFactor;
+				correctedDetData[element][specElement] = detectorData[element][specElement] * deadTimeCorrectionFactor;
 			}
 
 			if (sumAllElementData) {
 				if (summation == null)
-					summation = new double[correctedDetData[arrayIndex].length];
-				for (int i = 0; i < correctedDetData[arrayIndex].length; i++) {
-					summation[i] += correctedDetData[arrayIndex][i];
+					summation = new double[correctedDetData[element].length];
+				for (int i = 0; i < correctedDetData[element].length; i++) {
+					summation[i] += correctedDetData[element][i];
 				}
 			}
 
 		}
 
 		// add total counts
-		final INexusTree counts = output.addData(detTree, "totalCounts", new int[] { numberOfIncludedElements },
+		final INexusTree counts = output.addData(detTree, "totalCounts", new int[] { numberOfElements },
 				NexusFile.NX_FLOAT64, correctedAllCounts, "counts", 1);
-
-		arrayIndex = -1;
-		for (int element = 0; element < numberOfAllElements; element++) {
+		for (int element = 0; element < numberOfElements; element++) {
 			DetectorElement thisElement = vortexParameters.getDetectorList().get(element);
-			if (thisElement.isExcluded())
-				continue;
-			arrayIndex ++;
-			output.setPlottableValue(thisElement.getName(), correctedAllCounts[arrayIndex]);
+			output.setPlottableValue(thisElement.getName(), correctedAllCounts[element]);
 		}
 
 		// event processing time.
@@ -180,56 +165,42 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				new NexusGroupData(evtProcessTimeAsString)));
 
 		// ICR
-		output.addData(detTree, "icr", new int[] { numberOfIncludedElements }, NexusFile.NX_FLOAT64, icrs, "Hz", 1);
+		output.addData(detTree, "icr", new int[] { numberOfElements }, NexusFile.NX_FLOAT64, icrs, "Hz", 1);
 
 		// OCR
-		output.addData(detTree, "ocr", new int[] { numberOfIncludedElements }, NexusFile.NX_FLOAT64, ocrs, "Hz", 1);
+		output.addData(detTree, "ocr", new int[] { numberOfElements }, NexusFile.NX_FLOAT64, ocrs, "Hz", 1);
 
 		// roicounts
 		double ffFromRoi = 0.0;
 		for (int iroi = 0; iroi < numberOfROIs; iroi++) {
 			String roiName = roiNames[iroi];
-			output.addData(detTree, roiName, new int[] { numberOfIncludedElements }, NexusFile.NX_FLOAT64, roiCounts[iroi],
+			output.addData(detTree, roiName, new int[] { numberOfElements }, NexusFile.NX_FLOAT64, roiCounts[iroi],
 					"Hz", 1);
-			arrayIndex = -1;
-			for (int element = 0; element < numberOfAllElements; element++) {
-				DetectorElement thisElement = vortexParameters.getDetectorList().get(element);
-				if (thisElement.isExcluded())
-					continue;
-				arrayIndex ++;
-				String elementName = thisElement.getName();
-				output.setPlottableValue(elementName + "_" + roiName, roiCounts[iroi][arrayIndex]);
-				ffFromRoi +=roiCounts[iroi][arrayIndex];
+			for (int element = 0; element < numberOfElements; element++) {
+				DetectorElement detElement = vortexParameters.getDetectorList().get(element);
+				String elementName = detElement.getName();
+				output.setPlottableValue(elementName + "_" + roiName, roiCounts[iroi][element]);
+				if (detElement.isExcluded()) continue;
+				ffFromRoi +=roiCounts[iroi][element];
 			}
 		}
 		
 		// add the full spectrum
 		if (saveRawSpectrum || alwaysRecordRawMCAs){
-			
-			int[][] includedDetectorData = new int[numberOfIncludedElements][];
-			arrayIndex = -1;
-			for (int element = 0; element < numberOfAllElements; element++) {
-				DetectorElement thisElement = vortexParameters.getDetectorList().get(element);
-				if (thisElement.isExcluded())
-					continue;
-				arrayIndex ++;
-				includedDetectorData[arrayIndex] = detectorData[element];
-			}
-			
-			if (numberOfIncludedElements == 1) {
-				output.addData(detTree, "fullSpectrum", new int[] {includedDetectorData[0].length },
+			if (numberOfElements == 1) {
+				output.addData(detTree, "fullSpectrum", new int[] {detectorData[0].length },
 						NexusFile.NX_INT32, detectorData[0], "counts", 1);
 			} else {
-				output.addData(detTree, "fullSpectrum", new int[] { numberOfIncludedElements, includedDetectorData[0].length },
+				output.addData(detTree, "fullSpectrum", new int[] { numberOfElements, detectorData[0].length },
 						NexusFile.NX_INT32, detectorData, "counts", 1);
 			}
 			
 		} else {
-			if (numberOfIncludedElements == 1) {
+			if (numberOfElements == 1) {
 				output.addData(detTree, "fullSpectrum", new int[] { correctedDetData[0].length }, NexusFile.NX_FLOAT64,
 						correctedDetData[0], "counts", 1);
 			} else {
-				output.addData(detTree, "fullSpectrum", new int[] { numberOfIncludedElements, correctedDetData[0].length },
+				output.addData(detTree, "fullSpectrum", new int[] { numberOfElements, correctedDetData[0].length },
 						NexusFile.NX_FLOAT64, correctedDetData, "counts", 1);
 			}
 		}
@@ -239,13 +210,9 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		output.setPlottableValue("FF", ff);
 		
 		if (saveRawSpectrum) {
-			arrayIndex = -1;
-			for (int element = 0; element < numberOfAllElements; element++) {
-				DetectorElement detElement = vortexParameters.getDetectorList().get(element);
-				if (detElement.isExcluded()) continue;
-				arrayIndex++;
-				output.setPlottableValue(getIcrColumnName(element), icrs[arrayIndex]);
-				output.setPlottableValue(getOcrColumnName(element), ocrs[arrayIndex]);
+			for (int element = 0; element < numberOfElements; element++) {
+				output.setPlottableValue(getIcrColumnName(element), icrs[element]);
+				output.setPlottableValue(getOcrColumnName(element), ocrs[element]);
 			}
 		}
 

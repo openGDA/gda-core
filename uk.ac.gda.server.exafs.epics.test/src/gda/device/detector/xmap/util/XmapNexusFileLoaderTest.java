@@ -30,7 +30,7 @@ public class XmapNexusFileLoaderTest {
 	public void setUp()throws Exception
 	{
 		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-6777-HTXmapMca.h5";		
-		xMapLoader = new XmapNexusFileLoader(testfile1,4);
+		xMapLoader = new XmapNexusFileLoader(testfile1);
 		xMapLoader.loadFile();
 	
 	}

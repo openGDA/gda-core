@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2011 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -41,60 +41,65 @@ import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.util.CorrectionUtils;
 
-class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> {
-
+class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
+{
+	/**
+	 * 
+	 */
 	private final HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap;
 
 	private boolean sumAllElementData = false;
-	private int readSoFar = 0;
-	private XmapFileLoader fileLoader;
-
-	XmapPositionInputStream(HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap, boolean sumAllElementdata) {
+	/**
+	 * @param hardwareTriggeredNexusXmap
+	 */
+	XmapPositionInputStream(HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap ,boolean sumAllElementdata) {
 		this.hardwareTriggeredNexusXmap = hardwareTriggeredNexusXmap;
 		this.sumAllElementData = sumAllElementdata;
 	}
 
+	private int readSoFar =0;
+	private XmapFileLoader fileLoader ;
+	
 	@Override
-	public List<NexusTreeProvider> read(int maxToRead) throws NoSuchElementException, InterruptedException,
-			DeviceException {
-		String fileName = null;
+	public List<NexusTreeProvider> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException  {
+		String fileName=null;
 		try {
 			System.out.println("wating for file");
-			// TODO On I18 the detector never stops acquiring for Traj Stage 3
+			//TODO On I18 the detector never stops acquiring for Traj Stage 3
 			hardwareTriggeredNexusXmap.waitForCurrentScanFile();
-			fileName = this.hardwareTriggeredNexusXmap.getHDFFileName();
-			List<NexusTreeProvider> container = new ArrayList<NexusTreeProvider>();
-
-			String beamline = LocalProperties.get("gda.factory.factoryName", "");
+			fileName= this.hardwareTriggeredNexusXmap.getHDFFileName();
+			List <NexusTreeProvider> container = new ArrayList<NexusTreeProvider>();
+			
+			String beamline = LocalProperties.get("gda.factory.factoryName","");
 			beamline = beamline.toLowerCase();
-
-			// change filename to linux format
+			
+			//change filename to linux format
 			fileName = fileName.replace("X:/", "/dls/" + beamline);
-
-			if (hardwareTriggeredNexusXmap.isInBufferMode()) {
+			
+			if(hardwareTriggeredNexusXmap.isInBufferMode())
 				fileLoader = new XmapBufferedHdf5FileLoader(fileName);
-			} else {
-				fileLoader = new XmapNexusFileLoader(fileName, hardwareTriggeredNexusXmap.getNumberOfMca());
-			}
+			else
+				fileLoader = new XmapNexusFileLoader(fileName);			
 			fileLoader.loadFile();
-
-			int totalToRead = readSoFar + maxToRead;
-			int numOfPoints = fileLoader.getNumberOfDataPoints();
-			// if(totalToRead < numOfPoints) may not be the correct
-			totalToRead = numOfPoints;
-			/*
-			 * for(int i =readSoFar ; i < totalToRead; i++) { container.add(writeToNexusFile(i, fileLoader.getData(i)));
-			 * }
-			 */
-			short[][][] readData = fileLoader.getData(readSoFar, totalToRead - 1);
-			for (int i = 0; i < readData.length; i++) {
-				container.add(writeToNexusFile(readSoFar + i, readData[i]));
-			}
-			readSoFar = totalToRead;
-			return container;
+		
+		int totalToRead = readSoFar + maxToRead;
+		int numOfPoints = fileLoader.getNumberOfDataPoints();
+		//if(totalToRead < numOfPoints) may not be the correct 
+		totalToRead = numOfPoints;
+		/*for(int i =readSoFar  ; i <  totalToRead; i++)
+		{
+			container.add(writeToNexusFile(i, fileLoader.getData(i)));
+		}*/
+		short[][][] readData = fileLoader.getData(readSoFar, totalToRead - 1);
+		for(int i =0; i < readData.length; i++)
+		{
+			container.add(writeToNexusFile(readSoFar + i, readData[i]));
+		}
+		readSoFar = totalToRead;
+		return container;
 		} catch (Exception e) {
 			HardwareTriggeredNexusXmapImpl.logger.error("Unable to load file " + fileName, e);
-			throw new DeviceException("Unable to load file " + fileName, e);
+			throw new DeviceException("Unable to load file " + fileName , e);
 		}
 	}
 
@@ -103,8 +108,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 		INexusTree detTree = output.getDetTree(this.hardwareTriggeredNexusXmap.getXmap().getName());
 
 		int numberOfElements = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size();
-		int numberOfROIs = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(0)
-				.getRegionList().size();
+		int numberOfROIs = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(0).getRegionList().size();
 
 		// items to write to nexus
 		double[] summation = null;
@@ -116,17 +120,15 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 		String[] roiNames = new String[numberOfROIs];
 		short detectorData[][] = s;
 
-		for (int element = 0; element < this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList()
-				.size(); element++) {
-			DetectorElement thisElement = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList()
-					.get(element);
+		for (int element = 0; element < this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size(); element++) {
+			DetectorElement thisElement = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(element);
 			if (thisElement.isExcluded())
 				continue;
 
-			// TODO replacae
-			final double ocr = getOCR(dataPointNumber, element);
+			//TODO replacae
+			final double ocr = getOCR(dataPointNumber,element);
 			ocrs[element] = ocr;
-			final double icr = getICR(dataPointNumber, element);
+			final double icr = getICR(dataPointNumber,element);
 			icrs[element] = icr;
 			Double deadTimeCorrectionFactor = CorrectionUtils.getK(times.get(element), icr, ocr);
 
@@ -135,15 +137,15 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 			}
 
 			// Total counts
-			double allCounts = getEvents(dataPointNumber, element);
+			double allCounts = getEvents(dataPointNumber,element);
 			correctedAllCounts[element] = allCounts * deadTimeCorrectionFactor;
 
 			// REGIONS
 			for (int iroi = 0; iroi < thisElement.getRegionList().size(); iroi++) {
 
 				final RegionOfInterest roi = thisElement.getRegionList().get(iroi);
-
-				// TODO calculate roi from the full spectrum data
+				
+				//TODO calculate roi from the full spectrum data
 				double count = calculateROICounts(roi.getRoiStart(), roi.getRoiEnd(), detectorData[element]);
 				count *= deadTimeCorrectionFactor;
 				roiCounts[iroi][element] = count;
@@ -163,8 +165,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 		final INexusTree counts = output.addData(detTree, "totalCounts", new int[] { numberOfElements },
 				NexusFile.NX_FLOAT64, correctedAllCounts, "counts", 1);
 		for (int element = 0; element < numberOfElements; element++) {
-			DetectorElement thisElement = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList()
-					.get(element);
+			DetectorElement thisElement = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(element);
 			output.setPlottableValue(thisElement.getName(), correctedAllCounts[element]);
 		}
 
@@ -189,8 +190,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 			output.addData(detTree, roiName, new int[] { numberOfElements }, NexusFile.NX_FLOAT64, roiCounts[iroi],
 					"Hz", 1);
 			for (int element = 0; element < numberOfElements; element++) {
-				String elementName = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList()
-						.get(element).getName();
+				String elementName = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(element).getName();
 				output.setPlottableValue(elementName + "_" + roiName, roiCounts[iroi][element]);
 			}
 		}
@@ -199,8 +199,8 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 		output.addData(detTree, "fullSpectrum", new int[] { numberOfElements, detectorData[0].length },
 				NexusFile.NX_INT16, detectorData, "counts", 1);
 
-		// ToDo implement the getROI and readout scanler data
-		double ff = calculateScalerData(dataPointNumber, numberOfROIs, detectorData);
+		//ToDo implement the getROI and readout scanler data
+		double ff = calculateScalerData(dataPointNumber, numberOfROIs,detectorData);
 		output.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ff }, "counts", 1);
 		output.setPlottableValue("FF", ff);
 
@@ -209,7 +209,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 					"counts", 1);
 		return output;
 	}
-
+	
 	private double getEvents(int dataPointNumber, int element) {
 		double event = fileLoader.getEvents(dataPointNumber, element);
 		return event;
@@ -217,12 +217,10 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 
 	private double calculateScalerData(int dataPointNumber, int numberOfROIs, short[][] detectorData) throws DeviceException {
 		final double[]k = new double[this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size()];
-
 		final List<Double> times = this.hardwareTriggeredNexusXmap.getXmap().getEventProcessingTimes();
 		for (int i = 0; i < k.length; i++) {
-			Double correctionFactor = CorrectionUtils.getK(times.get(i), getICR(dataPointNumber, i),
-					getOCR(dataPointNumber, i));
-			if (correctionFactor.isInfinite() || correctionFactor.isNaN() || correctionFactor == 0.0) {
+			Double correctionFactor = CorrectionUtils.getK(times.get(i), getICR(dataPointNumber, i),getOCR(dataPointNumber, i));
+			if (correctionFactor.isInfinite() || correctionFactor.isNaN() || correctionFactor == 0.0){
 				correctionFactor = 1.0;
 			}
 			k[i] = correctionFactor;
@@ -233,18 +231,14 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 		for (int i = 0; i < rois.length; i++) {
 			rois[i] = 0.0;
 			for (int j = 0; j < k.length; j++) {
-				if (j >= this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size())
-					continue;
-				DetectorElement element = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList()
-						.get(j);
-				if (element.isExcluded())
-					continue;
+				if (j>=this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size()) continue;
+				DetectorElement element = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(j);
+				if (element.isExcluded()) continue;
 				RegionOfInterest region = element.getRegionList().get(i);
-				double correctedMCA = calculateROICounts(region.getRoiStart(), region.getRoiStart(), detectorData[j])
-						* k[j];
-				rois[i] += correctedMCA;
+				double correctedMCA = calculateROICounts(region.getRoiStart(), region.getRoiStart(),detectorData[j])*k[j];
+				rois[i]+=correctedMCA;
 			}
-		}
+ 		}
 		double ff = 0;
 		for (double roi : rois) {
 			ff += roi;
@@ -252,25 +246,25 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 		return ff;
 	}
 
-	private double getICR(int dataPointNumber, int element) {
-		double trigger = 0.0;
+	private double getICR(int dataPointNumber,int element) {
+		double trigger =0.0;
 		double liveTime = 0.0;
-
-		trigger = fileLoader.getTrigger(dataPointNumber, element);
-		liveTime = fileLoader.getLiveTime(dataPointNumber, element);
-		if (trigger != 0.0 && liveTime != 0.0)
-			return trigger / liveTime;
+		
+			trigger = fileLoader.getTrigger(dataPointNumber, element);
+			liveTime = fileLoader.getLiveTime(dataPointNumber, element);
+			if(trigger != 0.0 && liveTime != 0.0)
+				return trigger / liveTime;
 		return 0.0;
 	}
-
+	
 	private double getOCR(int dataPointNumber, int element) {
 		double event = fileLoader.getEvents(dataPointNumber, element);
 		double realTime = fileLoader.getRealTime(dataPointNumber, element);
-		if (event != 0.0 && realTime != 0.0)
+		if(event != 0.0 && realTime != 0.0)
 			return event / realTime;
 		return 0;
 	}
-
+	
 	private double calculateROICounts(int regionLow, int regionHigh, short[] data) {
 		double count = 0.0;
 		for (int i = regionLow; i <= regionHigh; i++)

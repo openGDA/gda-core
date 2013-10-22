@@ -172,7 +172,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				if (controller.isBufferedArrayPort())
 					fileLoader = new XmapBufferedHdf5FileLoader(fileName);
 				else
-					fileLoader = new XmapNexusFileLoader(fileName,getXmap().getNumberOfMca());
+					fileLoader = new XmapNexusFileLoader(fileName);
 				fileLoader.loadFile();
 				lastFileName = fileName;
 				lastFileReadStatus = true;
