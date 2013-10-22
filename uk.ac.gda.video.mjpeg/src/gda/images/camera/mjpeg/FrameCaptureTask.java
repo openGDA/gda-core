@@ -283,25 +283,19 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 	}
 
 	public void readLine(DataInputStream dis) throws Exception {
-		try {
-			boolean end = false;
-			String lineEnd = "\n"; // assumes that the end of the line is marked
-			// with this
-			byte[] lineEndBytes = lineEnd.getBytes();
-			byte[] byteBuf = new byte[lineEndBytes.length];
+		boolean end = false;
+		String lineEnd = "\n"; // assumes that the end of the line is marked
+		// with this
+		byte[] lineEndBytes = lineEnd.getBytes();
+		byte[] byteBuf = new byte[lineEndBytes.length];
 
-			while (!end) {
-				dis.read(byteBuf, 0, lineEndBytes.length);
-				String t = new String(byteBuf);
-				if (t.equals(lineEnd)) {
-					end = true;
-				}
+		while (!end) {
+			dis.read(byteBuf, 0, lineEndBytes.length);
+			String t = new String(byteBuf);
+			if (t.equals(lineEnd)) {
+				end = true;
 			}
-		} catch (Exception e) {
-			logger.error("Cannot readLine", e);
-			throw e;
 		}
-
 	}
 
 	public String getContentLength(DataInputStream dis) {
