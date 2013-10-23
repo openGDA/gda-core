@@ -154,6 +154,20 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		INexusTree detTree = getDetTree(detName);
 		return addData(detTree,dataName,new int[] { 1 },NexusFile.NX_INT32,new int[]{dataValues},units,null);
 	}
+	public INexusTree addData(String detName, final String dataName, long dataValues, String units) {
+		INexusTree detTree = getDetTree(detName);
+		return addData(detTree,dataName,new int[] { 1 },NexusFile.NX_UINT32,new long[]{dataValues},units,null);
+	}
+
+	public INexusTree addData(String detName, final String dataName, int []dataValues, String units) {
+		INexusTree detTree = getDetTree(detName);
+		return addData(detTree,dataName,new int[] { dataValues.length },NexusFile.NX_INT32,dataValues,units,null);
+	}
+	public INexusTree addData(String detName, final String dataName, double []dataValues, String units) {
+		INexusTree detTree = getDetTree(detName);
+		return addData(detTree,dataName,new int[] { dataValues.length },NexusFile.NX_FLOAT64,dataValues,units,null);
+	}
+	
 	/**
 	 * 
 	 * @param parent
