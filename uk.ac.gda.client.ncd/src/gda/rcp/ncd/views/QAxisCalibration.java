@@ -23,16 +23,23 @@ import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.rcp.ncd.NcdController;
 
+import java.util.Collection;
+
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
+import org.dawnsci.plotting.api.IPlottingSystem;
+import org.dawnsci.plotting.api.PlottingFactory;
+import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.swt.widgets.Composite;
 import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 import uk.ac.diamond.scisoft.ncd.rcp.views.SaxsQAxisCalibration;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
@@ -44,9 +51,9 @@ public class QAxisCalibration extends SaxsQAxisCalibration {
 	
 	@Override
 	public void createPartControl(Composite parent) {
-		GUI_PLOT_NAME = "Saxs Plot";
 		energyscannable = (Scannable) Finder.getInstance().find("energy");
 		super.createPartControl(parent);
+		GUI_PLOT_NAME = "Saxs Plot";
 	}
 	
 	@Override
@@ -77,5 +84,38 @@ public class QAxisCalibration extends SaxsQAxisCalibration {
 			logger.error("exception reading pixel size off detector", e);
 		}
 		return amount;
+	}
+	
+	@Override
+	protected void updateCalibrationResults(String currentDetector) {
+		super.updateCalibrationResults(currentDetector);
+
+		IPlottingSystem plotSystem = PlottingFactory.getPlottingSystem(GUI_PLOT_NAME);
+
+		Amount<Length> mcl = ncdCalibrationSourceProvider.getMeanCameraLength(currentDetector);
+		setDetectorDistance(mcl);
+		
+		Collection<IRegion> sectorRegions = plotSystem.getRegions(RegionType.SECTOR);
+		if (sectorRegions != null && sectorRegions.size() == 1) {
+			final SectorROI sroi = (SectorROI) sectorRegions.iterator().next().getROI();
+			setBeamCentre(sroi.getPoint());
+		}
+	}
+	
+	void setDetectorDistance(Amount<Length> distance) {
+		try {
+			NcdController.getInstance().getDetectorByName(getDetectorName()).setAttribute("distance", distance.doubleValue(SI.METER));
+		} catch (DeviceException e) {
+			logger.error("error setting distance from calibration", e);
+		}
+	}
+	
+	void setBeamCentre(double[] point) {
+		try {
+			NcdController.getInstance().getDetectorByName(getDetectorName()).setAttribute("beam_center_x", point[0]);
+			NcdController.getInstance().getDetectorByName(getDetectorName()).setAttribute("beam_center_y", point[1]);
+		} catch (DeviceException e) {
+			logger.error("error setting beam centre from calibration", e);
+		}
 	}
 }
