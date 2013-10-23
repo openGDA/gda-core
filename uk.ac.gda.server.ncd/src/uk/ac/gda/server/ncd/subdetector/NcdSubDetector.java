@@ -29,12 +29,17 @@ import gda.device.Timer;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
+import gda.util.persistence.LocalParameters;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
@@ -57,7 +62,34 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	protected DoubleDataset mask = null;
 	protected String interpretation = null;
 	private DetectorProperties dp = null;
+	protected FileConfiguration configuration;
 
+	protected void restoreAttributeMap() {
+		if (configuration != null)
+			return;
+		try {
+			configuration = LocalParameters.getXMLConfiguration(this.getClass().getCanonicalName()+":"+getName());
+			configuration.load();
+			for (Iterator iterator = configuration.getKeys(); iterator.hasNext();) {
+				String name = (String) iterator.next();
+				if (attributeMap.containsKey(name))
+					continue; // don't overwrite
+				try {
+					Object property = configuration.getProperty(name);
+					if (property instanceof List) { // I get doubles I put in back in lists...
+						property = ((List) property).get(0);
+					}
+					attributeMap.put(name, property);
+				} catch (Exception e) {
+					logger.info("Error restoring attribute "+name+" for detector "+getName());
+				}
+			}
+			configuration.setAutoSave(true);
+		} catch (Exception e) {
+			logger.error("error restoring attributes from LocalParameters", e);
+		}
+	}
+	
 	public Detector getDetector() {
 		return detector;
 	}
@@ -171,17 +203,23 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
 		dp = null;
+		restoreAttributeMap();
 		if (descriptionLabel.equals(attributeName)) {
 			description = (String) value;
 		} else if (value != null) {
 			attributeMap.put(attributeName, value);
+			if (configuration != null)
+				configuration.setProperty(attributeName, value);
 		} else if (attributeMap.containsKey(attributeName)) {
 			attributeMap.remove(attributeName);
+			if (configuration != null)
+				configuration.clearProperty(attributeName);
 		}
 	}
 
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
+		restoreAttributeMap();
 		if (descriptionLabel.equals(attributeName)) {
 			return description;
 		} else if (attributeMap.containsKey(attributeName)) {
