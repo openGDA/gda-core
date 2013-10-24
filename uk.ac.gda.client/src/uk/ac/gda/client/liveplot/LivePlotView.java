@@ -77,6 +77,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -351,7 +352,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 
 	}
 
-	private void openFile(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap) throws NexusException, NexusExtractorException,
+	public void openFile(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap) throws NexusException, NexusExtractorException,
 			Exception {
 		if (path == null) {
 			if (fileDialog == null) {
@@ -382,8 +383,12 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 					return;
 			}
 			fileLoader = new NexusLoader(path, xyDataSetNames);
-		} else if (line.startsWith(" &SRS") || line.startsWith("&SRS")) {
-			fileLoader = new SRSLoader(path);
+		} else {
+			try {
+				fileLoader = LoaderFactory.getLoader(SRSLoader.class, path);
+			} catch(Exception e) {
+				// Fall through
+			}
 		}
 		if (fileLoader != null) {
 			ScanFileHolder sfh = new ScanFileHolder();
@@ -398,7 +403,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 				String xyDataSetName = xyDataSetNames.get(i);
 				DoubleDataset yData = sfh.getAxis(xyDataSetName);
 				AxisSpec axisSpec = null;
-				if( yAxesMap != null){
+				if( yAxesMap != null) {
 					String yAxisName = yAxesMap.get(xyDataSetName);
 					if( yAxisName != null)
 						axisSpec = new AxisSpec(yAxisName);
