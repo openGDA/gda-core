@@ -445,7 +445,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	}
 
 	// File r/w methods
-	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] s) {
+	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] detectorData) {
 		NXDetectorData output = new NXDetectorData(xmap);
 		INexusTree detTree = output.getDetTree(xmap.getName());
 
@@ -460,7 +460,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		double[] icrs = new double[numberOfElements];
 		double[][] roiCounts = new double[numberOfROIs][numberOfElements];
 		String[] roiNames = new String[numberOfROIs];
-		short detectorData[][] = s;
+//		short detectorData[][] = s;
 
 		for (int element = 0; element < this.xmap.vortexParameters.getDetectorList().size(); element++) {
 
