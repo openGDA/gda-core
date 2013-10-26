@@ -88,6 +88,8 @@ public class Application implements IApplication {
 			
 			authenticateUser(display);
 
+			//Add the Persistence Service from dawn
+			org.dawnsci.persistence.Activator.getContext();
 
 			if(!localObjectsOnly ){
 				//get access to distributed metadata object needed for identifying Visit
