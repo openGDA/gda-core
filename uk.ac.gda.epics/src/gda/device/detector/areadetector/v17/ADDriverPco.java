@@ -18,29 +18,40 @@
 
 package gda.device.detector.areadetector.v17;
 
-
 import gda.epics.PV;
 
 public interface ADDriverPco {
-	
+
 	public enum PcoTriggerMode {
-		AUTO, SOFTWARE, 
+		AUTO, SOFTWARE,
 		/**
-		 * In External and Software the exposure length is governed by the exposure time set in the camera. 
+		 * In External and Software the exposure length is governed by the exposure time set in the camera.
 		 */
-		EXTERNAL_AND_SOFTWARE, 
-		
+		EXTERNAL_AND_SOFTWARE,
+
 		/**
 		 * In External Pulse the exposure length is controlled by the hardware trigger
 		 */
 		EXTERNAL_PULSE
 	}
-	
+
 	PV<Boolean> getArmModePV();
-	
+
 	PV<Double> getCameraUsagePV();
-	
+
 	PV<Integer> getAdcModePV();
-	
+
 	PV<Integer> getTimeStampModePV();
+
+	PV<Integer> getBinXPV();
+
+	PV<Integer> getBinYPV();
+
+	PV<Integer> getMinXPV();
+
+	PV<Integer> getSizeXPV();
+
+	PV<Integer> getMinYPV();
+
+	PV<Integer> getSizeYPV();
 }
