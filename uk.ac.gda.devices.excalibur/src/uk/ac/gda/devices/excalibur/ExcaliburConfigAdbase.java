@@ -59,5 +59,9 @@ public interface ExcaliburConfigAdbase extends ADBase{
 	short[] getPixelThresholdB() throws Exception;
 
 	void setPixelThresholdB(short[] pixelThresholdB) throws Exception;
+	
+	void setChipEnable(short [] enableBits) throws Exception;
+	
+	short[] getChipEnable() throws Exception;
 
 }

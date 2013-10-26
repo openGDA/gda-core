@@ -161,8 +161,9 @@ public class ChipSet {
 			throw new IllegalArgumentException("shape.length != 2");
 		}
 		long fullHeight = shape[0];
-		if(fullHeight < pixelsPerCol ||  fullHeight > pixelsPerCol+2){
-			throw new IllegalArgumentException("fullHeight (" + fullHeight + ") != reqdHeight (" + pixelsPerCol +")");
+		//check data is at least as large as required
+		if(fullHeight < pixelsPerCol ){
+			throw new IllegalArgumentException("fullHeight (" + fullHeight + ") < reqdHeight (" + pixelsPerCol +")");
 		}
 		long fullWidth = shape[1];
 		if(fullWidth != pixelsPerRow){

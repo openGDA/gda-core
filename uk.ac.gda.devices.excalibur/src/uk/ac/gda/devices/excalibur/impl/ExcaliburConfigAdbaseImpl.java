@@ -40,6 +40,7 @@ public class ExcaliburConfigAdbaseImpl extends ADBaseImpl implements ExcaliburCo
 	private static final String PIXEL_GAIN_MODE = "PixelGainMode";
 	private static final String PIXEL_THRESHOLD_A = "PixelThresholdA";
 	private static final String PIXEL_THRESHOLD_B = "PixelThresholdB";
+	private static final String CHIP_ENABLE = "ChipEnable";
 
 	private ArrayCounts arrayCounts;
 
@@ -208,6 +209,16 @@ public class ExcaliburConfigAdbaseImpl extends ADBaseImpl implements ExcaliburCo
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void setChipEnable(short[] enableBits) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(CHIP_ENABLE), enableBits);
+	}
+
+	@Override
+	public short[] getChipEnable() throws Exception {
+		return EPICS_CONTROLLER.cagetShortArray(getChannel(CHIP_ENABLE));
 	}
 
 }
