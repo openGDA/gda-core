@@ -44,7 +44,9 @@ Require-Bundle: org.eclipse.help.ui,
  org.eclipse.core.databinding.observable;bundle-version="1.4.1",
  org.eclipse.core.databinding.property;bundle-version="1.4.100",
  org.eclipse.jface.databinding;bundle-version="1.6.0",
- org.dawnsci.persistence;bundle-version="1.2.0"
+ org.dawnsci.persistence;bundle-version="1.2.0",
+ org.dawnsci.jexl;bundle-version="1.2.0",
+ org.dawnsci.conversion;bundle-version="1.2.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Version: 8.34.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core

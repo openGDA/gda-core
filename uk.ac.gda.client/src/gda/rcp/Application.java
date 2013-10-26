@@ -88,9 +88,11 @@ public class Application implements IApplication {
 			
 			authenticateUser(display);
 
-			//Add the Persistence Service from dawn
+			//Add the common dawn services
 			org.dawnsci.persistence.Activator.getContext();
-
+			org.dawnsci.jexl.Activator.getContext();
+			org.dawnsci.conversion.Activator.getContext();
+			
 			if(!localObjectsOnly ){
 				//get access to distributed metadata object needed for identifying Visit
 				ObjectFactory objectFactory = new ObjectFactory();
