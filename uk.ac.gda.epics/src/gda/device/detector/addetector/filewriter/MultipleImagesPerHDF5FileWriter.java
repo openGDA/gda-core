@@ -146,6 +146,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	}
 
 	private Integer boundaryAlign=null;
+
+	private String expectedFullFileName;
 	
 	public Integer getBoundaryAlign() {
 		return boundaryAlign;
@@ -214,6 +216,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		if( isSetFileNameAndNumber()){
 			setupFilename();
 		}
+		expectedFullFileName = String.format(getNdFile().getFileTemplate_RBV(), getNdFile().getFilePath_RBV(), getNdFile().getFileName_RBV(), getNdFile().getFileNumber_RBV());
 		clearWriteStatusErr();
 		resetCounters();
 		startRecording();
@@ -361,17 +364,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 			DeviceException {
 		NXDetectorDataAppender dataAppender;
 		if (firstReadoutInScan) {
-			if( isLazyOpen()){
-				dataAppender = new NXDetectorDataFileLinkAppenderDelayed();
-			} else {
-				String filepath;
-				try {
-					filepath = getFullFileName();
-				} catch (Exception e) {
-					throw new DeviceException(e);
-				}
-				dataAppender = new NXDetectorDataFileLinkAppender(filepath);
-			}
+			dataAppender = new NXDetectorDataFileLinkAppender(expectedFullFileName);
 		}
 		else {
 			dataAppender = new NXDetectorDataNullAppender();

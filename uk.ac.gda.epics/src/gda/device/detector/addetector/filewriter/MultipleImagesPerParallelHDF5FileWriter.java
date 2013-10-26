@@ -33,6 +33,7 @@ import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 import gov.aps.jca.TimeoutException;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -105,6 +106,8 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	private int roiPos0;
 	private int roiPos1;
 	private int roiPos2;
+
+	private String expectedFullFileName;
 	
 	public boolean isStoreAttr() {
 		return storeAttr;
@@ -270,6 +273,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		if( isSetFileNameAndNumber()){
 			setupFilename();
 		}
+		expectedFullFileName = String.format(getNdFile().getFileTemplate_RBV(), getNdFile().getFilePath_RBV(), getNdFile().getFileName_RBV(), getNdFile().getFileNumber_RBV());
 		resetCounters();
 		startRecording();
 		getNdFile().getPluginBase().enableCallbacks();
@@ -304,7 +308,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		if( chunkSizeMode == NDParallelHDF.ChunkSizeMode.MANUAL){
 			getNdFilePHDF5().setChunkSize0(chunkSize0);
 			getNdFilePHDF5().setChunkSize1(chunkSize1);
-			getNdFilePHDF5().setChunkSize1(chunkSize2);
+			getNdFilePHDF5().setChunkSize2(chunkSize2);
 		}
 		getNdFilePHDF5().setDsetSizeMode(dsetSizeMode.ordinal());
 		if( dsetSizeMode == NDParallelHDF.DsetSizeMode.MANUAL){
@@ -325,6 +329,8 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		getNdFile().setFileName(getFileName());
 		getNdFile().setFileTemplate(getFileTemplate());
 		String filePath = getFilePath();
+		if (!filePath.endsWith(File.separator))
+			filePath += File.separator;
 		getNdFile().setFilePath(filePath);
 		if( !getNdFile().filePathExists())
 			throw new Exception("Path does not exist on IOC '" + filePath + "'");		
@@ -423,13 +429,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 			DeviceException {
 		NXDetectorDataAppender dataAppender;
 		if (firstReadoutInScan) {
-			String filepath;
-			try {
-				filepath = getFullFileName();
-			} catch (Exception e) {
-				throw new DeviceException(e);
-			}
-			dataAppender = new NXDetectorDataFileLinkAppender(filepath);
+			dataAppender = new NXDetectorDataFileLinkAppender(expectedFullFileName);
 		}
 		else {
 			dataAppender = new NXDetectorDataNullAppender();
@@ -439,4 +439,5 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		appenders.add(dataAppender);
 		return appenders;
 	}
+	
 }
