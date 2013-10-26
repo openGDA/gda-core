@@ -18,6 +18,8 @@
 
 package gda.epics;
 
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,10 +86,32 @@ public class CachedLazyPVFactory {
 		}
 		return pv;
 	}
-
-	public CachedLazyPVFactory(String zebraPrefix) {
-		super();
-		this.deviceprefix = zebraPrefix;
+	
+	public void set(String pv, double value) throws IOException{
+		getPVDouble(pv).putWait(value);
 	}
 
+	public void set(String pv, int value) throws IOException{
+		getPVInteger(pv).putWait(value);
+	}
+
+	public double getDouble(String pv) throws IOException{
+		return getPVDouble(pv).get();
+	}
+
+	public int getInteger(String pv) throws IOException{
+		return getPVInteger(pv).get();
+	}
+
+	public CachedLazyPVFactory(String devicePrefix) {
+		super();
+		this.deviceprefix = devicePrefix;
+	}
+
+
+	@Override
+	public String toString() {
+		return "CachedLazyPVFactory [deviceprefix=" + deviceprefix + "]";
+	}
+	
 }
