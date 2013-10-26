@@ -244,7 +244,7 @@ public class TwoDArray extends Composite {
 		showOptionObserveValue.setValue(showOptionDefault);
 
 		btnAutoscale = new Button(left, SWT.CHECK);
-		btnAutoscale.setText("Auto Colour Range");
+		btnAutoscale.setText("Fast Colour Map");
 		btnAutoscale.addSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -500,6 +500,11 @@ public class TwoDArray extends Composite {
 		arrayMonitoring = b;
 		arrayMonitoringBtn.setText(b ? "Stop" : "Start");
 		arrayMonitoringLbl.setText(b ? "Running" : "Stopped");
+		if( !viewIsVisible){
+			arrayMonitoringLbl.setText("INACTIVE");
+		}
+		arrayMonitoringLbl.setForeground(getDisplay().getSystemColor(viewIsVisible ? 
+				(arrayMonitoring ? SWT.COLOR_GREEN: SWT.COLOR_BLACK) : SWT.COLOR_RED));
 	}
 
 	/**
@@ -525,6 +530,7 @@ public class TwoDArray extends Composite {
 		this.viewIsVisible = b;
 		if (viewIsVisible)
 			arrayArrayCounterObserver.update(null, arrayCounter);
+		setStarted(arrayMonitoring);
 	}
 
 	private ncsa.hdf.object.Group createParentEntry(IHierarchicalDataFile file, String fullEntry) throws Exception {
