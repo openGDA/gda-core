@@ -24,7 +24,7 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.ui.event.PartAdapter2;
+import uk.ac.gda.ui.event.PartAdapter;
 
 public class EditorUtils {
 
@@ -38,7 +38,7 @@ public class EditorUtils {
 		part.getSite().getShell().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				part.getSite().getPage().addPartListener((IPartListener2)new PartAdapter2() {
+				part.getSite().getPage().addPartListener((IPartListener2)new PartAdapter() {
 
 					@Override
 					public void partActivated(IWorkbenchPartReference partRef) {
