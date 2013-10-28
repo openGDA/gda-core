@@ -288,7 +288,11 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	@Override
 	public void clearAndStart() throws DeviceException {
 		controller.clearAndStart();
-
+		try {
+			Thread.sleep(15);
+		} catch (InterruptedException e) {
+			throw new DeviceException("interruption during clear and start");
+		}
 	}
 
 	@Override
