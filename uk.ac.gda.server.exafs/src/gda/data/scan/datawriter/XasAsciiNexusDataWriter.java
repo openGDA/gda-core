@@ -46,10 +46,8 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	private String asciiFileNameTemplate;
 	private Boolean firstData = true;
 
-	public XasAsciiNexusDataWriter() throws Exception {
+	public XasAsciiNexusDataWriter() {
 		super();
-		ascii = new XasAsciiDataWriter();
-		nexus = new XasNexusDataWriter(ascii.getFileNumber());
 	}
 
 	private void storeFilenamesWithRegistar() {
@@ -58,6 +56,9 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	@Override
 	public String getCurrentFileName() {
+		if (nexus == null){
+			return "";
+		}
 		return nexus.getCurrentFileName();
 	}
 
@@ -78,6 +79,8 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	@Override
 	public void addData(IScanDataPoint newData) throws Exception {
 		if (firstData) {
+			ascii = new XasAsciiDataWriter();
+			nexus = new XasNexusDataWriter(ascii.getFileNumber());
 			setFileNameTemplates();
 			firstData = false;
 		}
