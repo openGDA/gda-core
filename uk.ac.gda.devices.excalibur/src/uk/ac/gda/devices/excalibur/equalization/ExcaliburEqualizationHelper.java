@@ -462,21 +462,13 @@ public class ExcaliburEqualizationHelper {
 		}
 		
 		HDF5HelperLocations equalisationLocation = getEqualisationLocation();
-		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
-		long[] pixelsDims = chipset.getPixelsDims();
-		long lenFromDims = hdf.lenFromDims(pixelsDims);
-		short [] concatenatedData = new short[(int) lenFromDims];
-		for (Chip chip : chipset.getChips()){
-			if( chip.column == 0){
-				
-				Hdf5HelperData hd = getThresholdFromScanData(edgeThreshold, sizeOfSlice, filename, detectorLocation,
-						threshold0ValsAsInt, "node" + (chip.row+1));
-				hdf.writeToFileSimple(hd, resultfilename, equalisationLocation, THRESHOLD_DATASET+"_node"+(chip.row+1));
-				int src= (int) (chip.getChipTopPixel()*chip.getPixelsPerRow() + chip.getChipLeftPixel());
-				System.arraycopy(hd.data, 0, concatenatedData, src,(int) hdf.lenFromDims(hd.dims));
-			}
-		}
-		hdf.writeToFileSimple(new Hdf5HelperData(pixelsDims, concatenatedData), resultfilename, equalisationLocation, THRESHOLD_DATASET);
+		//ChipSet chipset = new ChipSet(rows, columns, chipPresent);
+		//long[] pixelsDims = chipset.getPixelsDims();
+		//long lenFromDims = hdf.lenFromDims(pixelsDims);
+		Hdf5HelperData hd = getThresholdFromScanData(edgeThreshold, sizeOfSlice, filename, detectorLocation,
+				threshold0ValsAsInt, "data");
+		hdf.writeToFileSimple(hd, resultfilename, equalisationLocation, THRESHOLD_DATASET);
+
 		hdf.writeToFileSimple(threshold0Vals, resultfilename, equalisationLocation, threshold0Name);
 		hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLD_LIMIT_ATTR,
 				edgeThreshold);
@@ -487,6 +479,8 @@ public class ExcaliburEqualizationHelper {
 		}
 		
 		createChipAveragedThresholdFileFromThresholdFile(resultfilename, rows, columns, chipPresent, resultfilename);
+	
+	
 	}
 
 	
@@ -512,7 +506,7 @@ public class ExcaliburEqualizationHelper {
 
 		short[] edgeThresholds = new short[shape[1] * shape[2]];
 		int iEdgeThresholdProcessed = 0;
-		while (start[shape.length - 2] < shape[shape.length - 2]) {
+		while (start[shape.length - 2] < shape[shape.length - 2]) { 
 			IDataset slice = dataset.getSlice(null, start, stop, null);
 			if (!(slice instanceof ShortDataset))
 				throw new Exception("data is not of type ShortDataset");
@@ -628,6 +622,8 @@ public class ExcaliburEqualizationHelper {
 						getPopXvalName(chip));
 				hdf.writeToFileSimple(new Hdf5HelperData(yvals), resultFileName, getEqualisationLocation(),
 						getPopYvalName(chip));
+			} else {
+				throw new Exception("No valid pixels for row " + chip.row + " column=" + chip.column);
 			}
 		}
 		

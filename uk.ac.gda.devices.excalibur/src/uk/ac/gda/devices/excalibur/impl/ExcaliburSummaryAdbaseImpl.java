@@ -22,6 +22,10 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.devices.excalibur.ExcaliburSummaryAdbase;
 import uk.ac.gda.devices.excalibur.ReadoutNodeConnected;
 
@@ -30,6 +34,7 @@ import uk.ac.gda.devices.excalibur.ReadoutNodeConnected;
  */
 public class ExcaliburSummaryAdbaseImpl extends ADBaseImpl implements ExcaliburSummaryAdbase, ADBase,
 		ReadoutNodeConnected {
+	private static final Logger logger = LoggerFactory.getLogger(ExcaliburSummaryAdbaseImpl.class);
 
 	private static final String CONNECTION_STATUS = "ConnectionStatus";
 	private static final String CLEAR = "Clear";
@@ -81,12 +86,14 @@ public class ExcaliburSummaryAdbaseImpl extends ADBaseImpl implements ExcaliburS
 
 	@Override
 	public int getCounterDepth() throws TimeoutException, CAException, InterruptedException, Exception {
-		return EPICS_CONTROLLER.cagetInt(getChannel(COUNTER_DEPTH));
+		logger.error("getCounterDepth commented out");
+		return 0; //TODO EPICS_CONTROLLER.cagetInt(getChannel(COUNTER_DEPTH));
 	}
 
 	@Override
 	public void setCounterDepth(int counterDepth) throws TimeoutException, CAException, InterruptedException, Exception {
-		EPICS_CONTROLLER.caput(getChannel(COUNTER_DEPTH), counterDepth);
+		logger.error("setCounterDepth commented out");
+		//TODO EPICS_CONTROLLER.caput(getChannel(COUNTER_DEPTH), counterDepth);
 	}
 
 	@Override

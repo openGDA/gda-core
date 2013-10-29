@@ -1,15 +1,39 @@
 """
 Help for using excalibur
 
+To restart IOC open IExcalibur Sttaus window via Hardware Status button on I13J synoptic. press restart all. then
+switch LV on excalibur housekeeping window/
 
-To take repeated images:
->repscan 1000 excalibur_summary_cam_normal .5
+To re-configure excalibur IOCs:
 
-e.g. normal acquisition
-repscan 100 excalibur_config_normal .01
+import excalibur_config
+configurator=excalibur_config.ExcaliburConfigurator(fix=False, gap=True, arr=False, master=True, hdf5=False, phdf5=True)
+configurator.setup()
 
-e.g burst acquisition
-repscan 100 excalibur_config_burst .1
+
+To record summary images to hdf:
+First 
+#note the BL13J-EA-EXCBR-01:CONFIG:MASTER:FrameDivisor needs to be set to 1 if we want to get all the images
+>caput("BL13J-EA-EXCBR-01:CONFIG:MASTER:FrameDivisor",1)
+>repscan 10 excalibur_summary_cam_normal .5
+
+
+>repscan 100 excalibur_config_normal .01
+Note that the chunking is done dynamically by excalibur_config_normal at the start of the scan so there is no need to do this manually. 
+
+
+Before running scan you need to take at least 1 image with phdf plugin enabled but not saving data - so that the image dimensions
+match those used to create the file.
+>repscan 100 excalibur_config_normal .01
+
+To save images recorded in burst mode:
+
+>repscan 100 excalibur_config_burst .1  
+
+To record a dacscan:
+>dacscan threshold0 0 149 15 excalibur_config_dacscan .01
+
+****************************************
 
 To do a slow (GDA in the loop) threshold0 scan
 e.g. threshold scan using summary image
@@ -71,12 +95,6 @@ e.g.
 To repeat a scan the above 100 times wraps with a scan of counter ix or iy
 
 scan ix 0 100 1 thresholdN 0 100 10 excalibur_readoutNode1_det .5
-
-
-NOW OBSOLETE? NEW INSTRUCTIONS FURTHER DOWN IN FILE
-To perform an equalisation run the command:
--------------------------------------------
->equalisation.equalisationProcess()
 
 
 To save the current config to file
@@ -154,6 +172,7 @@ Additional notes
 ================
 To run an equalisation:
 -----------------------
+import equalisation_script
 epg=equalisation_script.ExcaliburEqualiser(logFileName="/data/excalibur/data/jl_60v3.dat")    - need to manually create the .dat file before doing this
 epg.run()      - (Note: this will fail on first run if EPICS hdf array sizes have not previously been initialised)
 
@@ -178,14 +197,6 @@ The logfile allows individual steps to be repeated as necessary. To do this, jus
   
 
 
-To check hdf writer chunking
-----------------------------
-excalibur_summary_cam_hdf.fileWriter.rowChunks
-excalibur_summary_cam_hdf.fileWriter.colChunks
-
-To fix hdf writer chunking
---------------------------
-excalibur_summary_cam_hdf.fileWriter.colChunks=2069
 
 Example: to collect a threshold0 scan and analyse
 dacscan threshold0 0 511 1 excalibur_config_dacscan .01

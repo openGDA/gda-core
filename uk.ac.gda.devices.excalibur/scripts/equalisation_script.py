@@ -14,12 +14,42 @@ import recordConfig
 from  dac_scan import dacscan
 import gdascripts.parameters.beamline_parameters
 import scisoftpy as dnp
-
+from epics_scripts.simple_channel_access import caput, caget
 """
 The Jython makes use of the Java classes: ExcaliburEqualizationHelper and Hdf5Helper
 /home/excalibur/gda_versions/gda_8_26/workspace_git/gda-dls-excalibur.git/uk.ac.gda.devices.excalibur/src/uk/ac/gda/devices/excalibur/equalization/ExcaliburEqualizationHelper.java
 /home/excalibur/gda_versions/gda_8_26/workspace_git/gda-core.git/uk.ac.gda.analysis/src/uk/ac/gda/analysis/hdf5/Hdf5Helper.java
+
+
+import equalisation_script
+
+epg=equalisation_script.ExcaliburEqualiser(logFileName="/dls_sw/i13-1/scripts/equalistaion.dat")
+epg.run()
+
 """
+
+def setUpExcaliburConfig():
+    """
+    Function to set chunking of phdf writing detectors based on whether gap is enabled or not
+    """
+    jms = beamline_parameters.JythonNameSpaceMapping()
+    excalibur_config_normal=jms.excalibur_config_normal
+    prefix = LocalProperties.get("gda.epics.excalibur.pvprefix")
+    if caget(prefix +':CONFIG:GAP:EnableCallbacks') == "Enable":
+        print "Gap enabled"
+        excalibur_config_normal.pluginList[1].chunkSize0=1
+        excalibur_config_normal.pluginList[1].chunkSize1 = 259
+        excalibur_config_normal.pluginList[1].chunkSize2 = 2069
+        excalibur_config_normal.pluginList[1].dsetSize1=1796
+        excalibur_config_normal.pluginList[1].dsetSize2=2069
+    else:
+        print "Gap disabled"
+        excalibur_config_normal.pluginList[1].chunkSize1 = 256
+        excalibur_config_normal.pluginList[1].chunkSize2 = 2048
+        excalibur_config_normal.pluginList[1].chunkSize0 = 4
+        excalibur_config_normal.pluginList[1].dsetSize1=1536
+        excalibur_config_normal.pluginList[1].dsetSize2=2048        
+
 class Threshold0ScanData:
     def __init__(self, name, parameters, thresholdAVal=None, thresholdNVal=None, dacPixelVal=None, edgeFilename=None):
         self.name = name

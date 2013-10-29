@@ -106,12 +106,12 @@ class DacScanTrigger(SimpleAcquire):
         self.step = step
         self.dacNumber = dacNumber
         self.prefix = LocalProperties.get("gda.epics.excalibur.pvprefix")
-    def prepareForCollection(self, collectionTime, numImages):
+    def prepareForCollection(self, collectionTime, numImages, scanInfo):
         #need to clear capture here as it stays high
         caput(self.prefix +":CONFIG:HDF:NumCapture", 0)
         caput(self.prefix +":CONFIG:HDF:Capture", 0)
 
-        SimpleAcquire.prepareForCollection(self,collectionTime, numImages)
+        SimpleAcquire.prepareForCollection(self,collectionTime, numImages, scanInfo)
         
         caput(self.prefix +':CONFIG:ACQUIRE:OperationMode',"DAC Scan")
         caput(self.prefix +':CONFIG:ACQUIRE:ScanDac',self.dacNumber)
