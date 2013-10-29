@@ -429,8 +429,8 @@ public class LazyPVFactory {
 		@Override
 		public T getLast() throws IOException {
 			if (!isValueMonitoring()) {
-				throw new IllegalStateException("Cannot get the last value onf" + getPvName()
-						+ " as this LazyPv is not set to monitor values");
+				throw new IllegalStateException("Cannot get the last value of " + getPvName()
+						+ " as this LazyPV is not set to monitor values");
 			}
 
 			initialiseLastMonitoredValue();
