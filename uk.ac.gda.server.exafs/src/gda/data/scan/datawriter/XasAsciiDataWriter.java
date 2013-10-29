@@ -47,8 +47,10 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	private String nexusFilePath;
 	private String asciiFileNameTemplate;
 
-	public XasAsciiDataWriter() throws InstantiationException {
+	public XasAsciiDataWriter(Long fileNumber) throws InstantiationException {
 		super();
+		thisFileNumber = fileNumber;
+		fileNumberConfigured = true;
 		setScanDataPointFormatter(new XasScanDataPointFormatter());
 	}
 
