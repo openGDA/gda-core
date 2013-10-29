@@ -44,9 +44,9 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	
 	// the number of the file being written to
 	// (format is 0001.dat, new files have an incremental increase)
-	private long thisFileNumber = 0;
+	protected long thisFileNumber = 0;
 	
-	private boolean fileNumberConfigured=false;
+	protected boolean fileNumberConfigured=false;
 	
 	// file extension to use
 	protected String fileExtension = null;
