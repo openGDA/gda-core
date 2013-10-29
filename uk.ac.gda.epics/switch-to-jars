@@ -1,0 +1,7 @@
+#! /bin/bash
+
+# Remove source folders
+rm -rf src-caj src-jca
+
+# Restore other files
+git co .classpath .settings/org.eclipse.jdt.core.prefs META-INF/MANIFEST.MF build.properties jars
