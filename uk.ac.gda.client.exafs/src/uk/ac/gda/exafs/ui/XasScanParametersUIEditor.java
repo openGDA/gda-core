@@ -124,13 +124,12 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private boolean energyInK = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_FINAL_ANGSTROM);
 	private boolean showLineAnnotations = false;
 
-	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor,
-		final XasScanParameters xasScanParameters) {
+	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor, final XasScanParameters xasScanParameters) {
 		super(path, containingEditor.getMappingUrl(), containingEditor, xasScanParameters);
 		containingEditor.addPageChangedListener(new IPageChangedListener() {
 			@Override
 			public void pageChanged(PageChangedEvent event) {
-				final int ipage = containingEditor.getActivePage();
+				int ipage = containingEditor.getActivePage();
 				if (ipage == 1)
 					cachedElement = xasScanParameters.getElement();
 			}
@@ -191,8 +190,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			aLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 			plottingsystem.addRegion(aLine);
 			new ARegionSynchronizer(aLine, getA(), getGaf1());
-			aLine.setMobile(ExafsActivator.getDefault().getPreferenceStore()
-					.getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE));
+			aLine.setMobile(ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE));
 		} catch (Exception e) {
 			logger.error("Cannot create region for position of a!", e);
 		}
@@ -229,10 +227,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	public void drawLines() {
-		double aEnergy = getA().getNumericValue();
-		double bEnergy = getB().getNumericValue();
+		double aEnergy = a.getNumericValue();
+		double bEnergy = b.getNumericValue();
 		double edgeEnergy = getEdgeEnergy().getNumericValue();
-		double cEnergy = getC().getNumericValue();
+		double cEnergy = c.getNumericValue();
 		if (energyInK)
 			cEnergy = getKInEv().getValue(cEnergy);
 		double[] pnt = new double[] { aEnergy, 0d };
@@ -621,7 +619,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		initialEnergy.setDoNotUseExpressions(true);
 		initialEnergy.setUnit("eV");
 		initialEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		
 		initialEnergy.setMinimum(beamlineMinEnergy);
 	}
 
@@ -679,9 +676,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				double newA = calcAorB(newValue);
 				double minEnergy = getInitialEnergy().getNumericValue();
 				if (newA > minEnergy) {
-					getA().off();
-					getA().setNumericValue(newA);
-					getA().on();
+					a.off();
+					a.setNumericValue(newA);
+					a.on();
 				}
 			}
 		});
@@ -709,12 +706,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				}
 				else
 					newValue = gaf2.getNumericValue();
-
 				double newB = calcAorB(newValue);
 				b.off();
 				b.setNumericValue(newB);
 				b.on();
-
+				
 				// change C as well if the preference has been set to do so
 				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
 					c.off();
@@ -963,9 +959,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			a.checkBounds();
 			b.checkBounds();
 			c.checkBounds();
-			getInitialEnergy().checkBounds();
+			initialEnergy.checkBounds();
 
-			getFinalEnergy().checkBounds();
+			finalEnergy.checkBounds();
 			// Final energy and C are saved in the xml file in eV if the user preference is for Angstroms, it may be
 			// loaded in wrong units
 			if (c.isOn())
@@ -1026,10 +1022,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			max = Double.valueOf(ds.max().toString());
 		Double stepHeight = (double) (max /6);
 
-		double aEnergy = getA().getNumericValue();
-		double bEnergy = getB().getNumericValue();
+		double aEnergy = a.getNumericValue();
+		double bEnergy = b.getNumericValue();
 		double edgeEnergy = getEdgeEnergy().getNumericValue();
-		double cEnergy = getC().getNumericValue();
+		double cEnergy = c.getNumericValue();
 		if (energyInK)
 			cEnergy = getKInEv().getValue(cEnergy);
 		
@@ -1081,9 +1077,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			exafsFromTime.on();
 			exafsToTime.on();
 			exafsTime.on();
-			getKWeighting().on();
+			kWeighting.on();
 			exafsStepType.on();
-			getCoreHoleLabel().on();
+			getCoreHole().on();
 			getEdgeEnergy().on();
 		} 
 		else {
@@ -1103,9 +1099,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			exafsFromTime.off();
 			exafsToTime.off();
 			exafsTime.off();
-			getKWeighting().off();
+			kWeighting.off();
 			exafsStepType.off();
-			getCoreHoleLabel().off();
+			getCoreHole().off();
 			getEdgeEnergy().off();
 		}
 	}
@@ -1287,12 +1283,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		} 
 		else
 			c.setActive(false);
-		getCoreHoleLabel().setActive(!isAB);
+		getCoreHole().setActive(!isAB);
 		gaf1.setActive(!isAB);
 		gaf2.setActive(!isAB);
 		if (!isAB) {
-			boolean cMirrorsB = ExafsActivator.getDefault().getPreferenceStore()
-					.getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK);
+			boolean cMirrorsB = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK);
 			gaf3.setActive(!cMirrorsB);
 			cLine.setMobile(!cMirrorsB);
 		} 
@@ -1314,8 +1309,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	private double calculateKStart() {
-		double ed = getEdgeValue();
-		return ed - b.getNumericValue() + ed;
+		return 2*getEdgeValue() - b.getNumericValue();
 	}
 
 	protected void updateKStart(boolean show) {
@@ -1445,7 +1439,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	protected Double calcAorB(double gaf) {
-		String value = getCoreHoleLabel().getValue();
+		String value = getCoreHole().getValue();
 		if (value == null || "".equals(value))
 			return null;
 		double ed = getEdgeValue();
@@ -1454,7 +1448,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	protected Double calcC(double gaf) {
-		final String value = getCoreHoleLabel().getValue();
+		final String value = getCoreHole().getValue();
 		if (value == null || "".equals(value))
 			return null;
 		double ed = getEdgeValue();
@@ -1467,14 +1461,14 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	protected double calcGaf1or2(double latestTargetValue) {
 		double ed = getEdgeValue();
-		double coreHole = Double.parseDouble(getCoreHoleLabel().getValue());
+		double coreHole = Double.parseDouble(getCoreHole().getValue());
 		double gaf1 = Math.round((ed - latestTargetValue) / coreHole);
 		return gaf1;
 	}
 
 	protected double calcGaf3(double latestTargetValue) {
 		double ed = getEdgeValue();
-		double coreHole = Double.parseDouble(getCoreHoleLabel().getValue());
+		double coreHole = Double.parseDouble(getCoreHole().getValue());
 		double gaf3 = Math.abs(Math.round((latestTargetValue - ed) / coreHole));
 		return gaf3;
 	}
