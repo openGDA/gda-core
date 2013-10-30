@@ -2,6 +2,7 @@ from time import sleep
 import math
 
 from java.lang import InterruptedException, System
+import java.lang.Exception
 
 from scan import Scan
 
@@ -24,6 +25,7 @@ class QexafsScan(Scan):
         self.cirrusEnabled = False
         self.beamCheck = True
         self.gmsd_enabled = False
+        self.additional_channels_enabled = False
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= -1, validation=True):
         experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
@@ -130,6 +132,11 @@ class QexafsScan(Scan):
                     thisscan.runScan()
                     controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
                     loggingbean.atScanEnd()            
+                except java.lang.Exception, e:
+                    #print "abort due to other Java exception"
+                    self._resetHeader()
+                    loggingbean.atCommandFailure()
+                    raise e
                 except InterruptedException, e:
                     self._resetHeader()
                     loggingbean.atCommandFailure()
@@ -187,6 +194,8 @@ class QexafsScan(Scan):
             print "This is a transmission scan"
             if self.gmsd_enabled==True:
                 return self._createDetArray(["qexafs_counterTimer01_gmsd"], scanBean)
+            elif self.additional_channels_enabled==True:
+                return self._createDetArray(["qexafs_counterTimer01", "qexafs_counterTimer01_gmsd" ], scanBean)
             else:
                 return self._createDetArray(["qexafs_counterTimer01"], scanBean)
         else:
@@ -222,3 +231,9 @@ class QexafsScan(Scan):
     
     def disableGMSD(self):
         self.gmsd_enabled=False
+        
+    def enableAdditionalChannels(self):
+        self.additional_channels_enabled=True
+    
+    def disableAdditionalChannels(self):
+        self.additional_channels_enabled=False
