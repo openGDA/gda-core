@@ -653,6 +653,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				if (newA > minEnergy)
 					a.setNumericValue(newA);
 				a.on();
+				
+				a.checkBounds();
+				b.checkBounds();
+				c.checkBounds();
 			}
 		});
 	}
@@ -684,7 +688,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				b.setNumericValue(newB);
 				b.on();
 
-				a.checkBounds();
 				
 				// change C as well if the preference has been set to do so
 				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
@@ -695,6 +698,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					c.on();
 					gaf3.on();
 				}
+				
+				a.checkBounds();
+				b.checkBounds();
+				c.checkBounds();
 			}
 		});
 	}
@@ -723,6 +730,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				c.off();
 				c.setNumericValue(calcC(newValue));
 				c.on();
+				
+				a.checkBounds();
+				b.checkBounds();
+				c.checkBounds();
 			}
 		});
 	}
