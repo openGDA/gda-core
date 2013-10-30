@@ -277,7 +277,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			super(line, abc);
 			this.gaf = gaf;
 			this.gaf.addValueListener(this);
-			this.name = "A Region Synchronizer";
+			name = "A Region Synchronizer";
 		}
 
 		@Override
@@ -395,7 +395,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private class EdgeRegionSynchronizer extends RegionSynchronizer {
 		EdgeRegionSynchronizer(IRegion line, ScaleBox abc) {
 			super(line, abc);
-			this.name = "Edge Region Synchronizer";
+			name = "Edge Region Synchronizer";
 		}
 
 		@Override
@@ -544,9 +544,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			beamlineMaxEnergy = 40000;
 		createInitialEnergy(beamlineMinEnergy);
 		createE1();
-		createFinalEnergy(beamlineMinEnergy);
+		createFinalEnergy(beamlineMaxEnergy);
 		Label edgeRegionLabel = new Label(topCentre, SWT.NONE);
 		edgeRegionLabel.setText("Edge Region");
+		
 		createAbGafChoice();
 		createGaf1();
 		createGaf2();
@@ -644,11 +645,14 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					newValue = gaf1.getNumericValue();
 				double newA = calcAorB(newValue);
 				double minEnergy = getInitialEnergy().getNumericValue();
-				if (newA > minEnergy) {
-					a.off();
+				
+				b.off();
+				b.on();
+				
+				a.off();
+				if (newA > minEnergy)
 					a.setNumericValue(newA);
-					a.on();
-				}
+				a.on();
 			}
 		});
 	}
@@ -675,9 +679,12 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				else
 					newValue = gaf2.getNumericValue();
 				double newB = calcAorB(newValue);
+				
 				b.off();
 				b.setNumericValue(newB);
 				b.on();
+
+				a.checkBounds();
 				
 				// change C as well if the preference has been set to do so
 				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
