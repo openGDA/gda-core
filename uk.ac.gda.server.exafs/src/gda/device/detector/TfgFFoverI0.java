@@ -92,7 +92,7 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		NXDetectorData data = (NXDetectorData) xspress.readout();
 		Double[] vals = data.getDoubleVals();
 
-		String[] names = data.getExtraNames();
+		String[] names = data.getInputExtraNames();
 		int column = 0;
 		for (int i = 0; i < names.length; i++) {
 			if (names[i].equals("FF")) {
