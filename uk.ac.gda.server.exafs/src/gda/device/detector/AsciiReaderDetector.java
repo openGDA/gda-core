@@ -31,22 +31,18 @@ import org.apache.commons.lang.ArrayUtils;
  * only used for simulations and GUI testing ;)
  */
 public class AsciiReaderDetector extends DetectorBase {
-
 	private BufferedReader reader;
 	private String filename = "/dls/b18/data/2010/cm1901-3/Experiment_1/ascii/Ptfoil3_1_532.dat";
-
 	private static ArrayList<String> dataLines;
 	private static int delay = 200;
-	
 	private String[] columnHeadings;
 	private int[] columnToExtraNameMap;
-
 	private String previousLine = "";
 
 	public AsciiReaderDetector() {
-		this.inputNames = new String[] {};
-		this.extraNames = new String[] { "I0", "It", "ln(I0/It)" };
-		this.outputFormat = new String[] { "%8.2f", "%8.2f", "%8.2f", "%8.2f" };
+		inputNames = new String[] {};
+		extraNames = new String[] { "I0", "It", "ln(I0/It)" };
+		outputFormat = new String[] { "%8.2f", "%8.2f", "%8.2f", "%8.2f" };
 	}
 
 	//TODO I just found this method to be a copy of AsciiReaderScannable.atScanStart() or vice versa. We should know better than to fork code.
@@ -61,15 +57,12 @@ public class AsciiReaderDetector extends DetectorBase {
 				tmpLine = reader.readLine();
 			}
 			reader.close();
-			
 			String previousLine = "";
 			while (dataLines.get(0).startsWith("#"))
 				previousLine = dataLines.remove(0);
 			// the last line will be the column headings
 			extractColumnHeadings(previousLine);
-
 			mapExtraNamesToColumns();
-
 		} catch (Exception e) {
 			throw new DeviceException(e.getMessage(), e);
 		}
@@ -132,16 +125,12 @@ public class AsciiReaderDetector extends DetectorBase {
 		try {
 			String line = dataLines.remove(0);
 			Thread.sleep(delay);
-			
 			if (line == null)
 				line = previousLine;
-
 			String[] parts = line.split("\t");
-
 			Double[] output = new Double[extraNames.length];
 			for (int i = 0; i < extraNames.length; i++)
 				output[i] = Double.parseDouble(parts[columnToExtraNameMap[i]]);
-
 			previousLine = line;
 			return output;
 		} catch (Exception e) {

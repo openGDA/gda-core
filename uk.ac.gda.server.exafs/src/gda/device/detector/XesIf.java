@@ -42,9 +42,9 @@ public class XesIf extends DetectorBase {
 	
 	@Override
 	public void configure() {
-		this.setExtraNames(new String[] { "I1","FFI1","Time" });
-		this.setInputNames(new String[0]);
-		this.setOutputFormat(new String[] { "%.4f","%.4f","%6.4g" });
+		setExtraNames(new String[] { "I1","FFI1","Time" });
+		setInputNames(new String[0]);
+		setOutputFormat(new String[] { "%.4f","%.4f","%6.4g" });
 	}
 
 

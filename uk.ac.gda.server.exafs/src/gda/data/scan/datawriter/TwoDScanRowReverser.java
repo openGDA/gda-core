@@ -21,7 +21,6 @@ package gda.data.scan.datawriter;
 import gda.scan.IScanDataPoint;
 
 public class TwoDScanRowReverser implements DataIndexer {
-
 	private int noOfRows;
 	private int noOfColumns;
 	private boolean reverseOdd;
@@ -29,7 +28,6 @@ public class TwoDScanRowReverser implements DataIndexer {
 
 	@Override
 	public void indexData(IScanDataPoint sdp) {
-
 		int currentRowNumber = findRowNumber(sdp.getCurrentPointNumber());
 		if (isOdd(currentRowNumber) && isReverseOdd())
 			sdp.setCurrentPointNumber(reversePointNumber(sdp.getCurrentPointNumber()));
@@ -46,7 +44,6 @@ public class TwoDScanRowReverser implements DataIndexer {
 			}
 		}
 		return currentPointNumber;
-
 	}
 
 	private int findRowNumber(int currentPointNumber) {
@@ -71,9 +68,8 @@ public class TwoDScanRowReverser implements DataIndexer {
 		reverser.setNoOfColumns(11);
 		reverser.setNoOfRows(4);
 		for (int j = 0; j < 4; j++) {
-			for (int i = 0; i < 11; i++) {
+			for (int i = 0; i < 11; i++)
 				System.out.print(reverser.reversePointNumber(j * 11 + i) + "\t");
-			}
 			System.out.println();
 		}
 		reverser.setNoOfColumns(10);
@@ -82,9 +78,8 @@ public class TwoDScanRowReverser implements DataIndexer {
 		System.out.println();
 		System.out.println();
 		for (int j = 0; j < 4; j++) {
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < 10; i++)
 				System.out.print(reverser.reversePointNumber(j * 10 + i) + "\t");
-			}
 			System.out.println();
 		}
 	}

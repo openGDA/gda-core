@@ -33,16 +33,13 @@ import org.slf4j.LoggerFactory;
  * To operate the Xspress through TFGv2 in the ContinuousScan framework
  */
 public class Xspress2BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector {
-
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2BufferedDetector.class);
-
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = false;
 	protected Xspress2System xspress2system = null;
 	private boolean isSlave = true;
 	protected int maxNumberOfInts = 750000; // the maximum number of integers to read out from da.server in each bunch
 	private int triggerSwitch = 0;
-											// of
 	// frames before this causes a problem 80000 = 2 frames of 9-element reading full mca
 
 	public int getTriggerSwitch() {
@@ -84,35 +81,25 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public int getNumberFrames() throws DeviceException {
-
-		if (!isContinuousMode) {
+		if (!isContinuousMode)
 			return 0;
-		}
-
 		String[] cmds = new String[] { "status show-armed", "progress", "status", "full", "lap", "frame" };
 		HashMap<String, String> currentVals = new HashMap<String, String>();
 		for (String cmd : cmds) {
 			currentVals.put(cmd, runDAServerCommand("tfg read " + cmd).toString());
 			logger.info("tfg read " + cmd + ": " + currentVals.get(cmd));
 		}
-
-		if (currentVals.isEmpty()) {
+		if (currentVals.isEmpty())
 			return 0;
-		}
-
 		// else either scan not started (return -1) or has finished (return continuousParameters.getNumberDataPoints())
-
 		// if started but nothing collected yet
-		if (currentVals.get("status show-armed").equals("EXT-ARMED") /* && currentVals.get("status").equals("IDLE") */) {
+		if (currentVals.get("status show-armed").equals("EXT-ARMED"))
 			return 0;
-		}
-
 		// if frame is non-0 then work out the current frame
 		if (!currentVals.get("frame").equals("0")) {
 			String numFrames = currentVals.get("frame");
 			return extractCurrentFrame(Integer.parseInt(numFrames));
 		}
-
 		return continuousParameters.getNumberDataPoints();
 	}
 
@@ -132,9 +119,8 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	private Object runDAServerCommand(String command) throws DeviceException {
 		Object obj = null;
 		if (xspress2system.getDaServer() != null && xspress2system.getDaServer().isConnected()) {
-			if ((obj = xspress2system.getDaServer().sendCommand(command)) == null) {
+			if ((obj = xspress2system.getDaServer().sendCommand(command)) == null)
 				throw new DeviceException("Null reply received from daserver during " + command);
-			}
 			return obj;
 		}
 		return null;
@@ -192,8 +178,7 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	private void setTimeFrames() throws DeviceException {
 		switchOnExtTrigger();
 		xspress2system.getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
-		xspress2system.getDaServer().sendCommand(
-				continuousParameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 8");
+		xspress2system.getDaServer().sendCommand(continuousParameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 8");
 		xspress2system.getDaServer().sendCommand("-1 0 0 0 0 0 0");
 		xspress2system.getDaServer().sendCommand("tfg arm");
 	}
@@ -236,30 +221,21 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		Integer numFrames = getNumberFrames();
-		if (numFrames == 0) {
-			// view the contents of the first frame anyway
+		// view the contents of the first frame anyway
+		if (numFrames == 0)
 			return readNexusTrees(0, 0)[0];
-		}
 		return readNexusTrees(numFrames - 1, numFrames - 1)[0];
 	}
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-
 		int numElements = xspress2system.getNumberOfDetectors();
-
-		if (xspress2system.getReadoutMode().equals(XspressDetector.READOUT_SCALERONLY)) {
+		if (xspress2system.getReadoutMode().equals(XspressDetector.READOUT_SCALERONLY))
 			return maxNumberOfInts / (numElements * 4);
-		}
-
 		int mcaSize = xspress2system.getCurrentMCASize();
-
 		int frameSize = mcaSize * numElements;
-
-		if (frameSize > maxNumberOfInts) {
+		if (frameSize > maxNumberOfInts)
 			return 1;
-		}
-
 		return maxNumberOfInts / frameSize;
 	}
 

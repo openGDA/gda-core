@@ -30,37 +30,27 @@ import gda.device.Scannable;
 public class AsciiMetadataConfig {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AsciiMetadataConfig.class);
-
-	String label = "";
-	
-	Scannable[] labelValues;
+	private String label = "";
+	private Scannable[] labelValues;
 
 	@Override
 	public String toString() {
-		
 		try {
-			if (labelValues == null || labelValues.length == 0){
+			if (labelValues == null || labelValues.length == 0)
 				return label;
-			}
-			
 			Object[] positions = new Object[labelValues.length];
-			
 			for (int i = 0; i < labelValues.length; i++){
 				try {
 					positions[i] = labelValues[i].getPosition();
-					if (positions[i] instanceof Short || positions[i] instanceof Integer) {
+					if (positions[i] instanceof Short || positions[i] instanceof Integer)
 						positions[i] = Double.parseDouble(positions[i].toString());
-					}
 					
 				} catch (DeviceException e) {
-					logger.error("DeviceException whilst fetching position from " + labelValues[i].getName() + " to add to metadata in file." +
-							"\nIf this problem persists then the object should be reconfigured or removed from the metadata configuration.",e);
+					logger.error("DeviceException whilst fetching position from " + labelValues[i].getName() + " to add to metadata in file." + "\nIf this problem persists then the object should be reconfigured or removed from the metadata configuration.",e);
 					positions[i] = "";
 				}
 			}
-			
 			return String.format(label, positions);
-			
 			// Should not throw this Exception, it causes the scan to die when some hardware 
 			// that is not critical is not there. Instead we return the exception string and
 			// log the exception.

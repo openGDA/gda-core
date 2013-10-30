@@ -29,6 +29,7 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 	private BufferedScaler qscaler = null;
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = true;
+	
 	@Override
 	public Double readout() throws DeviceException {
 		return 1.0;
@@ -61,9 +62,9 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 	
 	@Override
 	public void configure() {
-		this.setExtraNames(new String[] { "QexafsFFI0" });
-		this.setInputNames(new String[0]);
-		this.setOutputFormat(new String[] { "%.4f" });
+		setExtraNames(new String[] { "QexafsFFI0" });
+		setInputNames(new String[0]);
+		setOutputFormat(new String[] { "%.4f" });
 	}
 
 	@Override
@@ -94,14 +95,11 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 			for(int name=0;name<expressFrameDoubles.length;name++)
 				if(names[name].equals("FF"))
 					col=name;
-			
 			String[] exteraNames = qscaler.getExtraNames();
 			int I0Pos =0;
-			for(int j=0;j<exteraNames.length;j++){
+			for(int j=0;j<exteraNames.length;j++)
 				if(exteraNames[j].equals("I0"))
 					I0Pos=j;
-			}
-			
 			double[] scalarFrame = scalerFrames[i];
 			double io = scalarFrame[I0Pos];
 			double ff = expressFrameDoubles[col];
@@ -110,9 +108,7 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 				result = ff/io;
 			ffio[i] =  result;
 		}
-		
 		return ffio;
-		
 	}
 
 	@Override
@@ -122,9 +118,8 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 
 	@Override
 	public int getNumberFrames() throws DeviceException {
-		if (!isContinuousMode) {
+		if (!isContinuousMode)
 			return 0;
-		}
 		return continuousParameters.getNumberDataPoints();
 	}
 

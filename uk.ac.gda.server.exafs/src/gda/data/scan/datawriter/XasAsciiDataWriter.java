@@ -38,9 +38,7 @@ import uk.ac.gda.beans.xspress.DetectorElement;
  * GUI as used on spectroscopy beamlines
  */
 public class XasAsciiDataWriter extends AsciiDataWriter {
-
 	private static Logger logger = LoggerFactory.getLogger(XasAsciiDataWriter.class);
-
 	private String sampleName;
 	private List<String> descriptions;
 	private Boolean runFromExperimentDefinition = false;
@@ -56,15 +54,12 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 	@Override
 	public void createNextFile() throws Exception {
-
 		// if template has not been supplied e.g. we are in a command-line scan
 		if (asciiFileNameTemplate == null) {
-			if (LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX)) {
-				asciiFileNameTemplate = "%d_" + LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME) + "."
-						+ this.fileExtension;
-			} else {
+			if (LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX))
+				asciiFileNameTemplate = "%d_" + LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME) + "."+ this.fileExtension;
+			else
 				asciiFileNameTemplate = "%d." + this.fileExtension;
-			}
 			dataDir += "ascii/";
 		}
 
@@ -74,7 +69,6 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 	@Override
 	public void writeHeader() {
-
 		// use configured header first
 		super.writeHeader();
 
@@ -94,15 +88,14 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 			file.write("#\n");
 
 			// always make sure the header is the same number of lines, no matter what the parameters are
-			if (sampleName == null || sampleName.isEmpty()) {
+			if (sampleName == null || sampleName.isEmpty())
 				file.write("# Sample name:");
-			} else {
+			else
 				file.write("# Sample name: " + sampleName + "\n");
-			}
 			
-			if (descriptions == null || descriptions.isEmpty()) {
+			if (descriptions == null || descriptions.isEmpty())
 				file.write("# Sample description:");
-			} else {
+			else {
 				for (int i = 0; i < descriptions.size(); i++) {
 					String startMsg = "# ";
 					if (i == 0)
@@ -129,22 +122,15 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 		try {
 			if (firstData) {
 				this.setupFile();
-
 				// write out the command if its not too long
-				if (!dataPoint.getCommand().contains("org.python.core")) {
+				if (!dataPoint.getCommand().contains("org.python.core"))
 					file.write("# command: " + dataPoint.getCommand() + "\n");
-				} else {
+				else
 					file.write("#");
-				}
-
 				file.write("#\n");
 				// Set the detector type
-				String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");// Why is this a
-																									// local property?
-																									// The name is
-																									// defined in spring
-				String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");// Why is this a local property?
-																						// The name is defined in spring
+				String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");// Why is this a local property?The name isdefined in spring
+				String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");// Why is this a local property? The name is defined in spring
 				if (dataPoint.isDetector(xspressName)) {
 					file.write("# Detector: Ge (XSPRESS)\n");
 					StringBuffer buf = new StringBuffer();
@@ -154,22 +140,20 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 					if (xspress != null) {
 						for (DetectorElement element : xspress.getDetectorList()) {
 							if (element.isExcluded()) {
-								if (found) {
+								if (found)
 									buf.append(",");
-								}
 								found = true;
 								buf.append(element.getNumber());
 							}
 						}
 					}
-					if (found) {
+					if (found)
 						file.write("# " + buf);
-					}
-				} else if (dataPoint.isDetector(xmapName)) {
+				} 
+				else if (dataPoint.isDetector(xmapName))
 					file.write("# Detector: Si (XIA)\n");
-				} else {
+				else
 					file.write("#\n");
-				}
 
 				// write out dark current if a detector present is a DarkCurrentDetector
 				final DarkCurrentResults da = getDarkCurrent(dataPoint);

@@ -35,10 +35,8 @@ import org.slf4j.LoggerFactory;
  */
 public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 	private static final Logger logger = LoggerFactory.getLogger(TfgFFoverI0.class);
-
 	private XspressDetector xspress = null;
 	private String xspressSystemName;
-
 	private TfgScaler ct = null;
 	private String ctName;
 	private int i0_channel = 0;
@@ -48,50 +46,38 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 
 	@Override
 	public void configure() {
-		if (xspress == null) {
-			if ((xspress = (XspressDetector) Finder.getInstance().find(xspressSystemName)) == null) {
+		if (xspress == null)
+			if ((xspress = (XspressDetector) Finder.getInstance().find(xspressSystemName)) == null)
 				logger.error("XspressSystem " + xspressSystemName + " not found");
-			}
-		}
 		if (ct == null) {
 			logger.debug("Finding: " + ctName);
-			if ((ct = (TfgScaler) Finder.getInstance().find(ctName)) == null) {
+			if ((ct = (TfgScaler) Finder.getInstance().find(ctName)) == null)
 				logger.error("Scaler " + ctName + " not found");
-			}
 		}
 
 		this.setExtraNames(new String[] { "FFI0" });
 		this.setInputNames(new String[0]);
 		if (outputFormat == null || outputFormat.length != 1)
 			this.setOutputFormat(new String[] { "%.5f" });
-
 	}
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		Double i0 = getI0(); 
 		Double ff = getFF();
-
 		NXDetectorData thisFrame = new NXDetectorData(this);
 		INexusTree detTree = thisFrame.getDetTree(getName());
-
 		Double ffio = ff / i0;
-		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN()) {
+		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN())
 			ffio = 0.0;
-		}
-//		logger.info("FFI0 calculated based on I0 "+i0+" and FF "+ ff);
-		
 		thisFrame.addData(detTree, "FFI0", new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ffio }, "counts", 1);
 		thisFrame.setPlottableValue("FFI0", ffio);
-
 		return thisFrame;
-
 	}
 
 	private Double getFF() throws DeviceException {
 		NXDetectorData data = (NXDetectorData) xspress.readout();
 		Double[] vals = data.getDoubleVals();
-
 		String[] names = data.getInputExtraNames();
 		int column = 0;
 		for (int i = 0; i < names.length; i++) {

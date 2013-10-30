@@ -34,9 +34,6 @@ import java.util.List;
 
 import uk.ac.gda.beans.xspress.DetectorElement;
 
-/**
- *
- */
 public class XasDataWriterExtender extends AsciiWriterExtender {
 
 	private List<String> header;
@@ -47,8 +44,7 @@ public class XasDataWriterExtender extends AsciiWriterExtender {
 	 * @param header 
 	 * @param metaDataAsXML
 	 */
-	public XasDataWriterExtender(String filename, List<AsciiWriterExtenderConfig> configs, String sep,
-			                     List<String> header, boolean metaDataAsXML) {
+	public XasDataWriterExtender(String filename, List<AsciiWriterExtenderConfig> configs, String sep, List<String> header, boolean metaDataAsXML) {
 		super(filename, configs, sep, null, metaDataAsXML);
 		this.header = header;
 	}
@@ -60,23 +56,23 @@ public class XasDataWriterExtender extends AsciiWriterExtender {
 	 */
 	@Override
 	public void writeVariableToDoubleMap(Scannable scannable, Object data) {
-			for (DetectorElement detectorElement : ((Xspress2System) scannable).getDetectorList()) {
-				int j = 0;
-				for (String label : detectorElement.getLabels()) {
-					String inputName = detectorElement.getName() + "_" + label;
-					if (fieldToVariableMap.containsKey(inputName)) {
-						int index = (detectorElement.getNumber()-1) * 4 + j;
-						@SuppressWarnings("unchecked")
-						HashMap<String, NexusGroupData > positions = (HashMap<String, NexusGroupData >) data;
-						NexusGroupData ngd = positions.get("scaler");
-						int[] idata = (int[]) ngd.getBuffer();
-						long lvalue = idata[index];
-						if (lvalue < 0) lvalue = (lvalue << 32) >>> 32;
-						variableToDoubleMap.put(inputName, new Double(lvalue));
-					}
-					j++;
+		for (DetectorElement detectorElement : ((Xspress2System) scannable).getDetectorList()) {
+			int j = 0;
+			for (String label : detectorElement.getLabels()) {
+				String inputName = detectorElement.getName() + "_" + label;
+				if (fieldToVariableMap.containsKey(inputName)) {
+					int index = (detectorElement.getNumber()-1) * 4 + j;
+					@SuppressWarnings("unchecked")
+					HashMap<String, NexusGroupData > positions = (HashMap<String, NexusGroupData >) data;
+					NexusGroupData ngd = positions.get("scaler");
+					int[] idata = (int[]) ngd.getBuffer();
+					long lvalue = idata[index];
+					if (lvalue < 0) lvalue = (lvalue << 32) >>> 32;
+					variableToDoubleMap.put(inputName, new Double(lvalue));
 				}
+				j++;
 			}
+		}
 	}
 
 	@Override
@@ -85,16 +81,13 @@ public class XasDataWriterExtender extends AsciiWriterExtender {
 			final String dataDir = PathConstructor.createFromDefaultProperty();
 			final File   file    = new File(dataDir+"/"+getFileName(parent));
 			file.getParentFile().mkdirs();
-			if (!file.exists()) {
+			if (!file.exists())
 				file.createNewFile();
-			}
 			out = new BufferedWriter(new FileWriter(file));
-
 			if (header!=null){ 
 				for (String line : header) {
-					if (getHeaderPrefix()!=null) {
+					if (getHeaderPrefix()!=null)
 						line = getHeaderPrefix()+" "+line;
-					}
 					wl(line);
 				}
 			}
@@ -104,9 +97,8 @@ public class XasDataWriterExtender extends AsciiWriterExtender {
 				line.append(config.label);
 				line.append(sep);
 			}
-			if (line.length() > 0) {
+			if (line.length() > 0)
 				wl(line.toString());
-			}
 		}
 		super.addData(parent, dataPoint);
 	}
@@ -121,8 +113,7 @@ public class XasDataWriterExtender extends AsciiWriterExtender {
 				return fileName;
 			}
 		} catch (Exception ignored) {
-			// if getCurrentScanIdentifier is not a number we do not do the 
-			// format at all.
+			// if getCurrentScanIdentifier is not a number we do not do the format at all.
 		}
 		
 		return filenameTemplate;
@@ -130,7 +121,6 @@ public class XasDataWriterExtender extends AsciiWriterExtender {
 	
 	@Override
 	public void completeCollection() {
-      // Do nothing
 	}
 	
 	/**

@@ -27,17 +27,13 @@ public class Xspress2BufferedDetectorForTesting extends Xspress2BufferedDetector
 	@Override
 	public void setContinuousMode(boolean on) throws DeviceException {
 		isContinuousMode = on;
-
 		if (on) {
 			// The da.server tfg generate command expects cycles (integer) frames(integer) deadTime (seconds, double)
 			// liveTime (seconds, double) pause (integer). The incoming time is in mS.
 			double totalExptTime = continuousParameters.getTotalTime();
 			double timePerPoint = totalExptTime / continuousParameters.getNumberDataPoints();
-			xspress2system.getDaServer().sendCommand(
-					"tfg generate 1 " + continuousParameters.getNumberDataPoints() + " 0.001 " + timePerPoint / 1000.
-							+ " 1");
+			xspress2system.getDaServer().sendCommand("tfg generate 1 " + continuousParameters.getNumberDataPoints() + " 0.001 " + timePerPoint / 1000. + " 1");
 		}
-
 	}
 
 	@Override

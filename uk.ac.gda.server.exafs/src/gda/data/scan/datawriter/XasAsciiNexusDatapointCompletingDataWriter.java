@@ -27,8 +27,6 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
 
 	@Override
 	public void configureScanNumber(Long scanNumber) throws Exception {
-//		sink.configureScanNumber(scanNumber);
-		
 	}
 
 	DatapointCompletingDataWriter sink;

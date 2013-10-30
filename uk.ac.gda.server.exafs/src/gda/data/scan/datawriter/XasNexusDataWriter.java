@@ -36,12 +36,9 @@ import uk.ac.gda.beans.exafs.IScanParameters;
  * A nexus data writer that stores the XAS xml files contents.
  */
 public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
-
 	private static Logger logger = LoggerFactory.getLogger(XasNexusDataWriter.class);
-
 	private String xmlFolderName;
 	private String xmlFileName;
-	
 	private Boolean runFromExperimentDefinition;
 	private IScanParameters scanBean;
 	private IDetectorParameters detectorBean;
@@ -61,11 +58,10 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 	@Override
 	public void createNextFile() throws Exception {
 		if (getNexusFileNameTemplate() == null) {
-			if (LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX)) {
+			if (LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX))
 				setNexusFileNameTemplate("nexus/%d_" + LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME) + ".nxs");
-			} else {
+			else
 				setNexusFileNameTemplate("nexus/%d.nxs");
-			}
 		}
 		super.createNextFile();
 	}
@@ -85,9 +81,8 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 					writeXml("SampleParameters", sampleBean);
 					writeXml("OutputParameters", outputBean);
 					// if fluoresence then get the xml detector config from FluorescenceParameters else if diffraction then from  SoftXRaysParameters
-					if (xmlFolderName != null && !xmlFolderName.isEmpty() && xmlFileName != null && !xmlFileName.isEmpty()) {
+					if (xmlFolderName != null && !xmlFolderName.isEmpty() && xmlFileName != null && !xmlFileName.isEmpty())
 						writeXml("DetectorConfigurationParameters", xmlFolderName + IPath.SEPARATOR + xmlFileName);
-					}
 				} finally {
 					file.closegroup();
 				}

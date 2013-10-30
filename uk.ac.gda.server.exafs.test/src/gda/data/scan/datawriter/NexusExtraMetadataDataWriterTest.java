@@ -25,7 +25,6 @@ import java.util.Vector;
 
 import org.junit.Test;
 
-
 public class NexusExtraMetadataDataWriterTest {
 
 	@Test

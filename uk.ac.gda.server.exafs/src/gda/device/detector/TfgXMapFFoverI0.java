@@ -49,20 +49,17 @@ public class TfgXMapFFoverI0 extends DetectorBase implements NexusDetector {
 	@Override
 	public void configure() {
 		if (xmap == null) {
-			if ((xmap = (XmapDetector) Finder.getInstance().find(xmapSystemName)) == null) {
+			if ((xmap = (XmapDetector) Finder.getInstance().find(xmapSystemName)) == null)
 				logger.error("XspressSystem " + xmapSystemName + " not found");
-			}
 		}
 		if (ct == null) {
 			logger.debug("Finding: " + ctName);
-			if ((ct = (CounterTimer) Finder.getInstance().find(ctName)) == null) {
+			if ((ct = (CounterTimer) Finder.getInstance().find(ctName)) == null)
 				logger.error("Scaler " + ctName + " not found");
-			}
 		}
 
-		if (getExtraNames().length == 0) {
+		if (getExtraNames().length == 0)
 			this.setExtraNames(new String[] { getName() });
-		}
 		this.setInputNames(new String[0]);
 		if (outputFormat == null || outputFormat.length != 1)
 			this.setOutputFormat(new String[] { "%.6f" });
@@ -73,19 +70,13 @@ public class TfgXMapFFoverI0 extends DetectorBase implements NexusDetector {
 	public NexusTreeProvider readout() throws DeviceException {
 		Double i0 = getI0();
 		Double ff = getFF();
-		
 		NXDetectorData thisFrame = new NXDetectorData(this);
 		INexusTree detTree = thisFrame.getDetTree(getName());
-
 		Double ffio = ff / i0;
-		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN()) {
+		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN())
 			ffio = 0.0;
-		}
-
-		thisFrame
-				.addData(detTree, getExtraNames()[0], new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ffio }, "counts", 1);
+		thisFrame.addData(detTree, getExtraNames()[0], new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ffio }, "counts", 1);
 		thisFrame.setPlottableValue(getExtraNames()[0], ffio);
-		
 		return thisFrame;
 	}
 

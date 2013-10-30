@@ -43,13 +43,8 @@ import org.junit.Test;
  * those.
  */
 public class AsciiDataWriterTest {
-
-	/**
-	 * 
-	 */
 	@Test
 	public void testConfiguration() {
-
 		// build the configuration object
 		ArrayList<AsciiWriterExtenderConfig> columns = new ArrayList<AsciiWriterExtenderConfig>();
 		AsciiWriterExtenderConfig col1 = new AsciiWriterExtenderConfig();
@@ -65,23 +60,23 @@ public class AsciiDataWriterTest {
 
 		ArrayList<AsciiMetadataConfig> header = new ArrayList<AsciiMetadataConfig>();
 		AsciiMetadataConfig header1 = new AsciiMetadataConfig();
-		header1.label = "Diamond Light Source";
+		header1.setLabel("Diamond Light Source");
 		header.add(header1);
 		AsciiMetadataConfig header2 = new AsciiMetadataConfig();
-		header2.label = "Beamline I01";
+		header2.setLabel("Beamline I01");
 		header.add(header2);
 		AsciiMetadataConfig header4 = new AsciiMetadataConfig();
-		header4.label = "Beam current - start: %5.2f";
-		header4.labelValues = new Scannable[] { new DummyScannable("beamcurrent", 298.9) };
+		header4.setLabel("Beam current - start: %5.2f");
+		header4.setLabelValues(new Scannable[] {new DummyScannable("beamcurrent", 298.9)});
 		header.add(header4);
 		AsciiMetadataConfig header5 = new AsciiMetadataConfig();
-		header5.label = "";
+		header5.setLabel("");
 		header.add(header5);
 
 		ArrayList<AsciiMetadataConfig> footer = new ArrayList<AsciiMetadataConfig>();
 		AsciiMetadataConfig footer1 = new AsciiMetadataConfig();
-		footer1.label = "Beam current - end: %5.2f";
-		footer1.labelValues = new Scannable[] { new DummyScannable("beamcurrent", 300.0) };
+		footer1.setLabel("Beam current - end: %5.2f");
+		footer1.setLabelValues(new Scannable[] {new DummyScannable("beamcurrent", 300.0)});
 		footer.add(footer1);
 
 		AsciiDataWriterConfiguration config = new AsciiDataWriterConfiguration();
@@ -132,9 +127,8 @@ public class AsciiDataWriterTest {
 					writer.addData(point);
 				} catch (Exception e) {
 					File file = new File(writer.fileUrl);
-					if (file.exists()) {
+					if (file.exists())
 						file.delete();
-					}
 					writer.addData(point);
 				}
 			}
@@ -149,21 +143,14 @@ public class AsciiDataWriterTest {
 			String z, y;
 			
 			try (BufferedReader br = new BufferedReader(file); BufferedReader br1 = new BufferedReader(cfile);) {
-
-				while ((z = br1.readLine()) != null) {
+				while ((z = br1.readLine()) != null) 
 					contents += z;
-				}
-
-				while ((y = br.readLine()) != null) {
+				while ((y = br.readLine()) != null)
 					contents1 += y;
-				}
-
 				Assert.assertEquals(contents, contents1);
 			}
-
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
-
 	}
 }

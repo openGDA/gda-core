@@ -96,37 +96,18 @@ public class QexafsGMSDOverI0 extends DetectorBase implements BufferedDetector {
 
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		// do lots of stuff here
 		double[][] scalerFrames = (double[][])qscaler.readFrames(startFrame, finalFrame);
 		Double[] gmsdio = new Double[finalFrame-startFrame+1];
-		
 		for(int i=0;i<finalFrame-startFrame+1;i++){
-
-//			time
-//			I0
-//			tey
-//			gmsd1
-//			gmsd2
-//			gmsd3
-//			gmsd4
-//			gmsd5
-//			gmsd6
-			
 			String[] exteraNames = qscaler.getExtraNames();
 			int I0Pos =0;
-			for(int j=0;j<exteraNames.length;j++){
+			for(int j=0;j<exteraNames.length;j++)
 				if(exteraNames[j].equals("I0"))
 					I0Pos=j;
-			}
-			
 			double[] scalarFrame = scalerFrames[i];
-
-			// add gmsd1:gmsd6
 			double gmsdTotal=0;
-			for(int j=I0Pos+2;j<I0Pos+6;j++){
+			for(int j=I0Pos+2;j<I0Pos+6;j++)
 				gmsdTotal+=scalarFrame[j];
-			}
-			
 			double io = scalarFrame[I0Pos];
 			double result = 0;
 			if(gmsdTotal!=0 && io!=0)
@@ -144,7 +125,6 @@ public class QexafsGMSDOverI0 extends DetectorBase implements BufferedDetector {
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		// return gmsd maximumReadFrames()
 		// it's not cleat how big this should be. Will try 20 as that is the typical size of a typical QEXAFS scan.
 		return 20;
 	}

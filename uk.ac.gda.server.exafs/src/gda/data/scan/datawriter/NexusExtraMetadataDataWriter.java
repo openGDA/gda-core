@@ -41,11 +41,9 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 		String category = metadata.getUniqueCategory();
 		if (groupedMetadata.containsKey(category)){
 			Vector<NexusFileMetadata> group = groupedMetadata.get(category);
-			for (NexusFileMetadata existingEntry : group){
-				if (existingEntry.getName().equals(metadata.getName())){
+			for (NexusFileMetadata existingEntry : group)
+				if (existingEntry.getName().equals(metadata.getName()))
 					return;
-				}
-			}
 			group.add(metadata);				
 		} else {
 			Vector<NexusFileMetadata> newgroup = new Vector<NexusFileMetadata>();
@@ -65,9 +63,8 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 					continue;
 				}
 			}
-			if (match != null){
+			if (match != null)
 				group.remove(match);
-			}
 		}
 	}
 	
@@ -90,22 +87,17 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 	@Override
 	protected void createCustomMetaData() throws NexusException {
 		HashMap<String,Vector<NexusFileMetadata>> groups = getMetadataEntries();
-		
 		for (String groupName : groups.keySet()){
 			Vector<NexusFileMetadata> group = groupedMetadata.get(groupName);
-
 			if (group.size() > 0) {
-
 				boolean madeSubGroup = false;
 				// if its part of the instrument, then put it inside the existing 'instrument' section of the Nexus file.
 				if (group.get(0).getNxEntryType() == NexusFileMetadata.EntryTypes.NXinstrument) {
-					if (file.groupdir().get("instrument") == null) {
+					if (file.groupdir().get("instrument") == null)
 						file.makegroup("instrument", group.get(0).getNxEntryType().toString());
-					}
 					file.opengroup("instrument", group.get(0).getNxEntryType().toString());
-					if (file.groupdir().get(group.get(0).getTypeLabel()) == null) {
-							file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
-					}
+					if (file.groupdir().get(group.get(0).getTypeLabel()) == null) 
+						file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
 					file.opengroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
 					madeSubGroup = true;
 				} else {
@@ -114,13 +106,11 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 				}
 
 				try {
-					for (NexusFileMetadata thisEntry : group) {
+					for (NexusFileMetadata thisEntry : group)
 						NeXusUtils.writeNexusString(file, thisEntry.getName(), thisEntry.getValue());
-					}
 				} finally {
-					if (madeSubGroup) {
+					if (madeSubGroup)
 						file.closegroup();
-					}
 					file.closegroup();
 				}
 			}

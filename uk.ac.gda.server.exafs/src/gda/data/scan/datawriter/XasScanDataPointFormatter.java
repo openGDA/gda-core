@@ -27,9 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class XasScanDataPointFormatter implements ScanDataPointFormatter {
-
 	private static final int DEFAULT_COLUMN_WIDTH = 16;
-
 	private int columnWidth;
 
 	/**
@@ -72,146 +70,97 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 
 		// Header
 		final StringBuilder headerBuf = new StringBuilder();
-		if (data.get("bragg1") != null) {
+		if (data.get("bragg1") != null)
 			addColumnEntry(headerBuf, "bragg1");
-		}
-		if (data.get("Energy") != null) {
+		if (data.get("Energy") != null)
 			addColumnEntry(headerBuf, "Energy");
-		} else if (data.get("energy") != null) {
+		else if (data.get("energy") != null)
 			addColumnEntry(headerBuf, "energy");
-		}
-		if (data.get("XESEnergy") != null) {
+		if (data.get("XESEnergy") != null)
 			addColumnEntry(headerBuf, "Ef");	
-		} 
-		
-		if (data.get("XES") != null) {
+		if (data.get("XES") != null)
 			addColumnEntry(headerBuf, "XESBragg");
-		}
-
-		if (data.get("I0") != null) {
+		if (data.get("I0") != null)
 			addColumnEntry(headerBuf, "I0");
-		}
-		if (data.get("It") != null) {
+		if (data.get("It") != null)
 			addColumnEntry(headerBuf, "It");
-		}
-		if (data.get("Iref") != null) {
+		if (data.get("Iref") != null)
 			addColumnEntry(headerBuf, "Iref");
-		}
-		if (data.get("Iother") != null) {
+		if (data.get("Iother") != null)
 			addColumnEntry(headerBuf, "Iother");
-		}
-		if (data.get("I1") != null) {
-			addColumnEntry(headerBuf, "I1");	// xes ion chmaber
-		}
-		if (data.get("lnI0It") != null) {
+		if (data.get("I1") != null)
+			addColumnEntry(headerBuf, "I1");// xes ion chmaber
+		if (data.get("lnI0It") != null)
 			addColumnEntry(headerBuf, "lnI0It");
-		}
-		if (data.get("lnItIref") != null) {
+		if (data.get("lnItIref") != null)
 			addColumnEntry(headerBuf, "lnItIref");
-		}
-
-		if (data.get("FF") != null) {
+		if (data.get("FF") != null)
 			addColumnEntry(headerBuf, "FF");
-		}
-		if (data.get("FFI0") != null) {
+		if (data.get("FFI0") != null)
 			addColumnEntry(headerBuf, "FF/I0");
-		}
-		if (data.get("FFI1")!=null) {
+		if (data.get("FFI1")!=null)
 			addColumnEntry(headerBuf, "FF/I1"); //  vortex FF over xes ion chmaber
-		}
-
-		if (data.get("XES") == null && data.get("Time") != null) {
+		if (data.get("XES") == null && data.get("Time") != null) 
 			addColumnEntry(headerBuf, "Time");
-		}
 
 		final Map<String, String> signalData = getSignalData(data);
-		for (String name : signalData.keySet()) {
-			if (!(data.get("XES") == null && name.compareTo("Time") == 0)) {
+		for (String name : signalData.keySet())
+			if (!(data.get("XES") == null && name.compareTo("Time") == 0)) 
 				addColumnEntry(headerBuf, name);
-			}
-		}
 		
-		if (data.get("XES") != null && data.get("Time") != null) {
+		if (data.get("XES") != null && data.get("Time") != null)
 			addColumnEntry(headerBuf, "Time");
-		}
-
 
 		return headerBuf.toString();
 	}
 
 	@Override
 	public String getData(IScanDataPoint currentPoint, Map<String, String> data) {
-
 		if (!(data instanceof LinkedHashMap<?, ?>))
 			throw new RuntimeException("Cannot deal with hashtables which do not have a well defined iteration order.");
 
 		// Data
 		final StringBuilder dataBuf = new StringBuilder();
-		if (data.get("bragg1") != null) {
+		if (data.get("bragg1") != null)
 			addColumnEntry(dataBuf, data.get("bragg1"));
-		}
-		
-		if (data.get("Energy") != null) {
+		if (data.get("Energy") != null)
 			addColumnEntry(dataBuf, data.get("Energy"));
-		} else if (data.get("energy") != null) {
+		else if (data.get("energy") != null)
 			addColumnEntry(dataBuf, data.get("energy"));
-		} 
-		if (data.get("XESEnergy") != null) {
+		if (data.get("XESEnergy") != null)
 			addColumnEntry(dataBuf, data.get("XESEnergy"));	
-		} 
-		
-		if (data.get("XES") != null) {
+		if (data.get("XES") != null)
 			addColumnEntry(dataBuf, data.get("XES"));
-		}
-
-		
-		if (data.get("I0") != null) {
+		if (data.get("I0") != null)
 			addColumnEntry(dataBuf, data.get("I0"));
-		}
-		if (data.get("It") != null) {
+		if (data.get("It") != null)
 			addColumnEntry(dataBuf, data.get("It"));
-		}
-		if (data.get("Iref") != null) {
+		if (data.get("Iref") != null)
 			addColumnEntry(dataBuf, data.get("Iref"));
-		}
-		if (data.get("I1") != null) {
-			addColumnEntry(dataBuf, data.get("I1"));	
-		}
-		if (data.get("Iother") != null) {
+		if (data.get("I1") != null)
+			addColumnEntry(dataBuf, data.get("I1"));
+		if (data.get("Iother") != null)
 			addColumnEntry(dataBuf, data.get("Iother"));
-		}
-		if (data.get("lnI0It") != null) {
+		if (data.get("lnI0It") != null)
 			addColumnEntry(dataBuf, data.get("lnI0It"));
-		}
-		if (data.get("lnItIref") != null) {
+		if (data.get("lnItIref") != null)
 			addColumnEntry(dataBuf, data.get("lnItIref"));
-		}
-
-		if (data.get("FF") != null) {
+		if (data.get("FF") != null)
 			addColumnEntry(dataBuf, data.get("FF"));
-		}
-		if (data.get("FFI0") != null) {
+		if (data.get("FFI0") != null)
 			addColumnEntry(dataBuf, data.get("FFI0"));
-		}
-		if (data.get("FFI1")!=null) {
+		if (data.get("FFI1")!=null)
 			addColumnEntry(dataBuf, data.get("FFI1"));
-		}
-
-		if (data.get("XES") == null && data.get("Time") != null) {
+		if (data.get("XES") == null && data.get("Time") != null)
 			addColumnEntry(dataBuf, data.get("Time"));
-		}
 
 		final Map<String, String> signalData = getSignalData(data);
-		for (String name : signalData.keySet()) {
-			if (!(data.get("XES") == null && name.compareTo("Time") == 0)) {
+		for (String name : signalData.keySet())
+			if (!(data.get("XES") == null && name.compareTo("Time") == 0))
 				addColumnEntry(dataBuf, signalData.get(name));
-			}
-		}
 		
-		if (data.get("XES") != null && data.get("Time") != null) {
+		if (data.get("XES") != null && data.get("Time") != null)
 			addColumnEntry(dataBuf, data.get("Time"));
-		}
-
 
 		return dataBuf.toString();
 	}
@@ -220,10 +169,8 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 	 * Gets a column entry containing the value and terminated with a \t
 	 */
 	private void addColumnEntry(final StringBuilder buf, final String valString) {
-
-		if (valString == null || valString.isEmpty()) {
+		if (valString == null || valString.isEmpty())
 			return;
-		}
 
 		if (valString.length() > getColumnWidth()) {
 			buf.append(valString);
@@ -231,11 +178,10 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 			return;
 		}
 		for (int i = 0; i < getColumnWidth(); i++) {
-			if (i < valString.length()) {
+			if (i < valString.length())
 				buf.append(valString.charAt(i));
-			} else {
+			else
 				buf.append(" ");
-			}
 		}
 		buf.append("\t");
 	}
@@ -262,8 +208,7 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 
 	@Override
 	public boolean isValid(IScanDataPoint dataPoint) {
-		return dataPoint.isScannable("xas_scannable") || dataPoint.isScannable("energy")
-				|| dataPoint.isScannable("Energy") || dataPoint.isScannable("XESEnergy");
+		return dataPoint.isScannable("xas_scannable") || dataPoint.isScannable("energy") || dataPoint.isScannable("Energy") || dataPoint.isScannable("XESEnergy");
 	}
 
 	/**
