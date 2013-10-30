@@ -57,10 +57,12 @@ import uk.ac.gda.ui.utils.SWTUtils;
  */
 public class ScaleBox extends NumberBox  {
 
-	protected Shell  scaleShell;
-	protected DecimalScale  scale;
+	protected Shell scaleShell;
+	protected DecimalScale scale;
 	protected double increment=1, pageIncrement=100;
-	protected int    scaleDecimalPlaces=0;
+	protected int scaleDecimalPlaces=0;
+	protected boolean showingScale = false;
+	protected boolean shellCreated = false;
 	
 	/**
 	 * Create the composite scalebox for use in GDA UI.
@@ -72,10 +74,8 @@ public class ScaleBox extends NumberBox  {
 	 * @param style
 	 */
 	public ScaleBox(final Composite parent, final int style) {
-		
 		super(parent, style);
-		
-		this.buttonSelection = new SelectionAdapter() {
+		buttonSelection = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (scaleShell!=null&&scaleShell.isVisible()) return;
@@ -86,22 +86,20 @@ public class ScaleBox extends NumberBox  {
 	
 	@Override
 	public void dispose() {
-		if (scaleShell!=null&&!scaleShell.isDisposed()) scaleShell.dispose();
-				
+		if (scaleShell!=null&&!scaleShell.isDisposed()) 
+			scaleShell.dispose();		
 		super.dispose();
 	}
-	
-	protected boolean shellCreated = false;
 	
 	/**
 	 * Lazy initiation of the scale shell used by users
 	 * to slide a value rather than enter by text.
 	 */
 	protected void createScaleShell() {
+		if (shellCreated) 
+			return;
 		
-		if (shellCreated) return;
-		
-		this.scaleShell = new Shell(this.getShell(), SWT.NO_FOCUS | SWT.ON_TOP | SWT.TOOL);
+		scaleShell = new Shell(this.getShell(), SWT.NO_FOCUS | SWT.ON_TOP | SWT.TOOL);
 		scaleShell.setLayout(new BorderLayout());
 		
 		final Listener closeListener = new Listener() {
@@ -125,11 +123,11 @@ public class ScaleBox extends NumberBox  {
 		controlShell.addListener(SWT.Move, closeListener);
 		controlShell.addListener(SWT.Resize, closeListener);
 
-		final Composite popup = new Composite(scaleShell, SWT.NONE);
+		Composite popup = new Composite(scaleShell, SWT.NONE);
 		popup.setLayoutData(BorderLayout.CENTER);
 		popup.setLayout(new BorderLayout());
 
-        this.scale = new DecimalScale(popup, SWT.NO_FOCUS);		
+        scale = new DecimalScale(popup, SWT.NO_FOCUS);		
         scale.setLayoutData(BorderLayout.CENTER);
  
         scale.addListener(SWT.Selection, new Listener() {
@@ -144,12 +142,11 @@ public class ScaleBox extends NumberBox  {
 			public void focusGained(FocusEvent e) { }
 			@Override
 			public void focusLost(FocusEvent e) {
-		        setShowingScale(false);
+				setShowingScale(false);
 			}
         });
-       
-        scaleShell.pack();
         
+        scaleShell.pack();
         shellCreated = true;
 	}
 	@Override
@@ -159,45 +156,36 @@ public class ScaleBox extends NumberBox  {
 		}
 	}
 	
-	protected boolean showingScale = false;
     protected void toggleShowingScale() {
      	setShowingScale(!showingScale);
     }
     
 	protected void setShowingScale(final boolean isShow) {
-
 		try {
 			if (isShow) {
-				
 				createScaleShell();	
-				
-				if (button != null) button.removeSelectionListener(buttonSelection);
-				
-				final Rectangle sizeT= text.getBounds();
-				final Point     pntT = text.toDisplay(-2, sizeT.height-4);
-				final Rectangle rect = new Rectangle(pntT.x,
-										             pntT.y,
-										             sizeT.width-2,
-										             scaleShell.getBounds().height);
-		        // Must be first
+				if (button != null)
+					button.removeSelectionListener(buttonSelection);
+				Rectangle sizeT= text.getBounds();
+				Point     pntT = text.toDisplay(-2, sizeT.height-4);
+				Rectangle rect = new Rectangle(pntT.x, pntT.y, sizeT.width-2, scaleShell.getBounds().height);
 				scale.setDecimalPlaces(getScaleDecimalPlaces());
-		        scale.setMaximum(getMaximum());
-		        scale.setMinimum(getMinimum());
-		        scale.setIncrement(getIncrement());
-		        scale.setPageIncrement(getPageIncrement());
+				scale.setMaximum(getMaximum());
+				scale.setMinimum(getMinimum());
+				scale.setIncrement(getIncrement());
+				scale.setPageIncrement(getPageIncrement());
 				scale.setSelection(getIntegerValue());
 				scaleShell.setBounds(rect);
 				scaleShell.setVisible(true);
 				text.setFocus();
-				
 			} else {
 				if (scaleShell!=null&&!scaleShell.isDisposed()) {
 					scaleShell.setVisible(false);
-					
 					getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							if (button != null) button.addSelectionListener(buttonSelection);
+							if (button != null)
+								button.addSelectionListener(buttonSelection);
 						}
 					});
 				}
@@ -206,22 +194,19 @@ public class ScaleBox extends NumberBox  {
 			showingScale = isShow;
 		}
 	}
+	
 	/**
 	 * Testing use only.
 	 * @param args
 	 */
 	public static void main(String... args) {
-		
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new BorderLayout());
-		
-		final Composite comp = new Composite(shell,SWT.NONE);
+		Composite comp = new Composite(shell,SWT.NONE);
 		comp.setLayoutData(BorderLayout.NORTH);
-		
 		comp.setLayout(new ColumnLayout());
-
-		final ScaleBox box1 = new ScaleBox(comp, SWT.NONE);
+		ScaleBox box1 = new ScaleBox(comp, SWT.NONE);
 		box1.setLayoutData(new ColumnLayoutData(200));
 		box1.setUnit("eV");
 		box1.setLabel("Fred");
@@ -246,7 +231,7 @@ public class ScaleBox extends NumberBox  {
 			
 		});
 				
-		final ScaleBox box2 = new ScaleBox(comp, SWT.NONE);
+		ScaleBox box2 = new ScaleBox(comp, SWT.NONE);
 		box2.setLayoutData(new ColumnLayoutData(200));
 		box2.setMaximum(1000);
 		box2.setMinimum(0);
@@ -256,7 +241,7 @@ public class ScaleBox extends NumberBox  {
 		box2.setLabelWidth(200);
 		box2.setDecimalPlaces(4);
 		
-		final ScaleBox box3 = new ScaleBox(comp, SWT.NONE);
+		ScaleBox box3 = new ScaleBox(comp, SWT.NONE);
 		box3.setLayoutData(new ColumnLayoutData(200));
 		box3.setDecimalPlaces(2);
 		box3.setMaximum(20.51);
@@ -264,8 +249,7 @@ public class ScaleBox extends NumberBox  {
 		box3.setIncrement(0.02);
 		box3.setUnit("eV");
 		
-		
-		final ScaleBox box4 = new ScaleBox(comp, SWT.NONE);
+		ScaleBox box4 = new ScaleBox(comp, SWT.NONE);
 		box4.setLayoutData(new ColumnLayoutData(200));		
 		box4.setDecimalPlaces(0);
 		box4.setUnit("s");
@@ -328,5 +312,3 @@ public class ScaleBox extends NumberBox  {
 	}
 
 }
-
-	

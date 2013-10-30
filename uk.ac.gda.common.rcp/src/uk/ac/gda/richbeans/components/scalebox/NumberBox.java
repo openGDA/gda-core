@@ -87,7 +87,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	protected Class<?> maxClass;
 	protected boolean maximumValid = true;
 	protected boolean minimumValid = true;
-
 	protected NumberFormat numberFormat;
 	protected MouseTrackAdapter mouseTrackListener;
 	protected FocusAdapter focusListener;
@@ -95,32 +94,32 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	protected VerifyKeyListener verifyListener;
 	protected SelectionListener selectionListener;
 	protected IExpressionManager expressionManager;
-
+	private boolean permanentlyEnabled;
+	
 	private ACTIVE_MODE activeMode = ACTIVE_MODE.SET_VISIBLE_AND_ACTIVE;
 	private String boundsKey;
 
 	public NumberBox(Composite parent, int style) {
-
 		super(parent, style);
 
-		final GridLayout gridLayout = new GridLayout(3, false);
+		GridLayout gridLayout = new GridLayout(3, false);
 		gridLayout.verticalSpacing = 0;
 		gridLayout.marginWidth = 0;
 		gridLayout.marginHeight = 0;
 		gridLayout.horizontalSpacing = 0;
 		setLayout(gridLayout);
 
-		this.label = new Label(this, SWT.LEFT);
-		this.label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
+		label = new Label(this, SWT.LEFT);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
 		label.setVisible(false);
 
-		this.text = new StyledText(this, SWT.BORDER | SWT.SINGLE);
-		this.text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		text = new StyledText(this, SWT.BORDER | SWT.SINGLE);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		createTextListeners(text);
 
 		text.setToolTipText(null); // Required to stop tip fickering on linux
 		text.setStyleRange(null);
-		this.mouseTrackListener = new MouseTrackAdapter() {
+		mouseTrackListener = new MouseTrackAdapter() {
 			@Override
 			public void mouseEnter(MouseEvent e) {
 				setupToolTip();
@@ -133,7 +132,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		};
 		text.addMouseTrackListener(mouseTrackListener);
 
-		this.numberFormat = new DecimalFormat();
+		numberFormat = new DecimalFormat();
 		numberFormat.setMaximumFractionDigits(decimalPlaces);
 		numberFormat.setMinimumFractionDigits(decimalPlaces);
 		numberFormat.setGroupingUsed(false);
@@ -154,12 +153,10 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	protected void createExpressionLabel(int expressionWidthHint) {
 		if (expressionLabel != null)
 			return;
-		this.expressionLabel = new StyledText(this, SWT.BORDER | SWT.SINGLE | SWT.READ_ONLY);
-
-		final GridData gridLayout = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		expressionLabel = new StyledText(this, SWT.BORDER | SWT.SINGLE | SWT.READ_ONLY);
+		GridData gridLayout = new GridData(SWT.FILL, SWT.CENTER, false, false);
 		gridLayout.widthHint = expressionWidthHint >= 0 ? expressionWidthHint : 100;
-		this.expressionLabel.setLayoutData(gridLayout);
-
+		expressionLabel.setLayoutData(gridLayout);
 		GridUtils.setVisibleAndLayout(expressionLabel, false);
 	}
 
@@ -186,9 +183,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 				text.removeVerifyKeyListener(verifyListener);
 			text.dispose();
 		}
-		if (label != null && !label.isDisposed()) {
+		if (label != null && !label.isDisposed())
 			label.dispose();
-		}
 		super.dispose();
 	}
 
@@ -200,7 +196,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	}
 
 	protected void createModifyListener(final StyledText text) {
-		this.modifyListener = new ModifyListener() {
+		modifyListener = new ModifyListener() {
 			@Override
 			public void modifyText(final ModifyEvent e) {
 				if (NumberBox.this.isOn()){
@@ -212,7 +208,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	}
 
 	protected void createSelectionListener(final StyledText text) {
-		this.selectionListener = new SelectionAdapter() {
+		selectionListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (NumberBox.this.isOn()){
@@ -232,14 +228,13 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		verifyListener = new VerifyKeyListener() {
 			@Override
 			public void verifyKey(VerifyEvent event) {
-
 			}
 		};
 		text.addVerifyKeyListener(verifyListener);
 	}
 
 	protected void createFocusListener(final StyledText text) {
-		this.focusListener = new FocusAdapter() {
+		focusListener = new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
 				textUpdate();
@@ -263,8 +258,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 	protected void textUpdateAndFireListeners() {
 		textUpdate();
-		final double numericalValue = getNumericValue();
-		final ValueEvent evt = new ValueEvent(NumberBox.this, getFieldName());
+		double numericalValue = getNumericValue();
+		ValueEvent evt = new ValueEvent(NumberBox.this, getFieldName());
 		evt.setDoubleValue(numericalValue);
 		eventDelegate.notifyValueListeners(evt);
 	}
@@ -284,12 +279,11 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	 */
 	@Override
 	public Object getValue() {
-		final Double val = getNumericValue();
+		Double val = getNumericValue();
 		if (Double.isNaN(val))
 			return null;
-		if (isIntegerBox || getDecimalPlaces() == 0) {
+		if (isIntegerBox || getDecimalPlaces() == 0)
 			return new Integer(Math.round(Math.round(val)));
-		}
 		return new Double(val);
 	}
 
@@ -301,37 +295,32 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		return numberFormat;
 	}
 	
-	public void setNumberFormat(NumberFormat numberFormat)
-	{
+	public void setNumberFormat(NumberFormat numberFormat){
 		this.numberFormat = numberFormat;
 	}
 	
 	@Override
 	public void setValue(final Object value) {
 		if (value != null) {
-			if (value instanceof String) {
+			if (value instanceof String)
 				checkValue(value.toString());
-			} else {
+			else
 				checkValue(numberFormat.format(value));
-			}
 		} else {
 			text.setText("");
 		}
 	}
 
 	protected Pattern getRegExpression() {
-		final String regex = getRegExpressionString();
+		String regex = getRegExpressionString();
 		return Pattern.compile(regex);
 	}
 
 	protected String getRegExpressionString() {
-
 		//We need to cope with 3., 3.0, .1, so use \\d*\\.?\\d*
-		final String digitExpr = "^([-+\\s]?\\d*\\.?\\d*|[-+\\s]?Infinity)";
-		
-		if (unit == null) {
+		String digitExpr = "^([-+\\s]?\\d*\\.?\\d*|[-+\\s]?Infinity)";
+		if (unit == null)
 			return digitExpr;
-		}
 		return digitExpr + "\\s*\\Q" + unit + "\\E";
 	}
 
@@ -341,7 +330,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	}
 
 	protected void checkValue(final String txt) {
-
 		if (txt == null || "".equals(txt.trim()) || "-".equals(txt.trim())) {
 			GridUtils.setVisibleAndLayout(expressionLabel, false);
 			return;
@@ -371,14 +359,13 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		// Remove all but expression or value (no unit etc.)
 		txt = txt.trim();
-		if (unit != null && txt.endsWith(unit)) {
+		if (unit != null && txt.endsWith(unit))
 			txt = txt.substring(0, txt.length() - unit.length());
-		} else { // Remove value if required
+		else { // Remove value if required
 			pattern = Pattern.compile("(.*)\\(" + getRegExpressionString() + "\\)");
 			matcher = pattern.matcher(txt);
-			if (matcher.matches()) {
+			if (matcher.matches())
 				txt = matcher.group(1).trim();
-			}
 		}
 
 		if ("".equals(txt) || txt == null || txt.equals(unit)) {
@@ -400,11 +387,10 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		if (expressionManager.isExpressionValid()) {
 			text.setForeground(blue);
 			text.setText(txt);
-
 			setExpressionValue(expressionManager.getExpressionValue());
-
 			checkBounds(expressionManager.getExpressionValue());
-		} else {
+		}
+		else {
 			if (this.red == null)
 				red = getDisplay().getSystemColor(SWT.COLOR_RED);
 			text.setForeground(red);
@@ -412,14 +398,11 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			GridUtils.setVisibleAndLayout(expressionLabel, false);
 		}
 		text.setCaretOffset(pos);
-
 		layout();
-
 	}
 
 	@Override
 	public void setExpressionValue(final double numericalValue) {
-
 		String stringValue = numberFormat.format(numericalValue);
 		if (Double.isNaN(numericalValue)) {
 			GridUtils.setVisibleAndLayout(expressionLabel, false);
@@ -427,7 +410,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		}
 		if (Double.isInfinite(numericalValue))
 			stringValue = "∞";
-
 		if (!isExpressionAllowed())
 			return;
 		final String u = unit != null ? unit : "";
@@ -435,29 +417,23 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		GridUtils.setVisibleAndLayout(expressionLabel, true);
 		expressionLabel.setText(value);
 		layout();
-
 		checkBounds(numericalValue);
 	}
 
 	private void processAsNumber(final String txt) {
-
 		if (expressionManager != null)
 			this.expressionManager.setExpression(null);
 		if (expressionLabel != null)
 			GridUtils.setVisibleAndLayout(expressionLabel, false);
-
 		final Pattern pattern = getRegExpression();
 		final Matcher matcher = pattern.matcher(txt);
 		final boolean matches = matcher.matches();
-		
 		// return to the text box the string
 		String extractedNumberString=null;
-		if (matches) {
+		if (matches)
 			extractedNumberString = matcher.group(1);
-		} else {
+		else
 			extractedNumberString = txt;
-		}
-		
 		// but checkBounds using a Double object
 		Double numericalValue = Double.NaN;
 		try {
@@ -466,19 +442,15 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			text.setForeground(red);
 			return;
 		}
-
 		StringBuilder buf = new StringBuilder(extractedNumberString);
 		int pos = buf.toString().length() < text.getCaretOffset() ? buf.toString().length(): text.getCaretOffset();
-
 		if (unit != null && buf.length() > 0) {
 			final String unitLine = " " + unit;
 			buf.append(unitLine);
 		}
-
 		text.setForeground(black);
 		text.setText(buf.toString());
 		text.setCaretOffset(pos);
-		
 		checkBounds(numericalValue);
 		GridUtils.layout(this);
 	}
@@ -496,35 +468,31 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	 * @param numericalValue
 	 */
 	protected void checkBounds(double numericalValue) {
-
 		if (isDisposed() || text.isDisposed())
 			return;
-
-		final BoundsEvent evt = new BoundsEvent(this);
+		BoundsEvent evt = new BoundsEvent(this);
 		evt.setValue(numericalValue);
-
 		evt.setUpper(getMaximum());
 		evt.setLower(getMinimum());
-		this.validBounds = true;
+		validBounds = true;
 		if (!isValidBounds(numericalValue)) {
-			if (this.red == null)
+			if (red == null)
 				red = getDisplay().getSystemColor(SWT.COLOR_RED);
 			if (!red.isDisposed()) {
 				text.setStyleRange(null);
-				if (!isEditable()) {
+				if (!isEditable()) 
 					setCurrentFontStyle(text, SWT.ITALIC);
-				}
-				else {
+				else
 					setCurrentFontStyle(text, SWT.NORMAL);
-				}
 				text.setForeground(red);
 			}
-			this.validBounds = false;
+			validBounds = false;
 			if ((numericalValue >= maximum && !isMaximumValid()) ||
 				(numericalValue > maximum && isMaximumValid())) {
 				evt.setMode(Mode.GREATER);
 				setTooltipOveride("The value '" + numericalValue + "' is greater than the upper limit.");
-			} else if ((numericalValue <= minimum && !isMinimumValid()) ||
+			} 
+			else if ((numericalValue <= minimum && !isMinimumValid()) ||
 					(numericalValue < minimum && isMinimumValid())) {
 				evt.setMode(Mode.LESS);
 				setTooltipOveride("The value '" + numericalValue + "' is less than the lower limit.");
@@ -533,9 +501,9 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			setCurrentFontStyle(text, SWT.NORMAL);
 			setTooltipOveride(null);
 			if (isEditable()) {
-				if (this.blue == null)
+				if (blue == null)
 					blue = getDisplay().getSystemColor(SWT.COLOR_BLUE);
-				if (this.black == null)
+				if (black == null)
 					black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
 				if (expressionManager != null && expressionManager.isExpressionValid()) {
 					if (!blue.isDisposed())
@@ -556,17 +524,16 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		}
 
 		try {
-			if (currentBoundsMode != evt.getMode()) {
+			if (currentBoundsMode != evt.getMode())
 				eventDelegate.notifyBoundsListeners(evt);
-			}
 		} finally {
 			currentBoundsMode = evt.getMode();
 		}
 	}
 
 	protected boolean isValidBounds(final double numericalValue) {
-		final double maximum = getMaximum();
-		final double minimum = getMinimum();
+		double maximum = getMaximum();
+		double minimum = getMinimum();
 		if (Double.isNaN(numericalValue))
 			return true; // Something else is wrong.
 		return ((numericalValue >= minimum && isMinimumValid()) ||
@@ -576,49 +543,38 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	}
 
 	protected void setupToolTip() {
-
-		final StringBuilder buf = new StringBuilder();
+		StringBuilder buf = new StringBuilder();
 		if (getTooltipOveride() != null) {
 			buf.append(getTooltipOveride());
 			buf.append("\n\n");
 		}
-
-		if (getMinimum() == -Double.MAX_VALUE) {
+		if (getMinimum() == -Double.MAX_VALUE)
 			buf.append("-∞");
-		} else {
+		else
 			buf.append(numberFormat.format(getMinimum()));
-		}
 
 		if (unit != null)
 			buf.append(" " + unit);
 		String minSignToAppend = null;
-		if (isMinimumValid()) {
+		if (isMinimumValid())
 			minSignToAppend = " <= ";
-		} 
-		else {
+		else
 			minSignToAppend = " < ";
-		}
 		buf.append(minSignToAppend);
-		final String field = getFieldName() != null ? getFieldName() : "value";
+		String field = getFieldName() != null ? getFieldName() : "value";
 		buf.append(field);
 		String maxSignToAppend = null;
-		if (isMaximumValid()) {
+		if (isMaximumValid())
 			maxSignToAppend = " <= ";
-		}
-		else {
+		else
 			maxSignToAppend = " < ";
-		}
 		buf.append(maxSignToAppend);
-
-		if (getMaximum() == Double.MAX_VALUE) {
+		if (getMaximum() == Double.MAX_VALUE)
 			buf.append("∞");
-		} else {
+		else
 			buf.append(numberFormat.format(getMaximum()));
-		}
-
 		if (unit != null)
 			buf.append(" " + unit);
-
 		text.setToolTipText(buf.toString());
 	}
 
@@ -628,7 +584,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	 * @param isInt
 	 */
 	public void setIntegerBox(final boolean isInt) {
-		this.isIntegerBox = isInt;
+		isIntegerBox = isInt;
 		setDecimalPlaces(isInt ? 0 : 2);
 	}
 
@@ -647,11 +603,9 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	 * @return double
 	 */
 	public double getNumericValue() {
-
 		if (text.isDisposed())
 			return Double.NaN;
-
-		final String txt = text.getText();
+		String txt = text.getText();
 		return getNumericValue(txt);
 	}
 
@@ -662,14 +616,12 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			return Double.NaN;
 		if ("-".equals(txt.trim()))
 			return -0d;
-
-		if (expressionManager != null && expressionManager.isExpressionValid()) {
+		if (expressionManager != null && expressionManager.isExpressionValid())
 			return expressionManager.getExpressionValue();
-		}
-		final Pattern pattern = getRegExpression();
-		if( txt.equals("."))
+		Pattern pattern = getRegExpression();
+		if(txt.equals("."))
 			return Double.NaN;
-		final Matcher matcher = pattern.matcher(txt);
+		Matcher matcher = pattern.matcher(txt);
 		if (matcher.matches()) {
 			String group = matcher.group(1);
 			if (!group.trim().isEmpty()) {
@@ -732,19 +684,17 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 				black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
 			if (grey == null)
 				grey = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
-			if (!black.isDisposed() && !grey.isDisposed()) {
+			if (!black.isDisposed() && !grey.isDisposed())
 				text.setForeground(isEditable ? black : grey);
-			}
 
-		} else {
+		} 
+		else {
 			if (red == null)
 				red = getDisplay().getSystemColor(SWT.COLOR_RED);
 			if (!red.isDisposed())
 				text.setForeground(red);
-			if (!isEditable) {
+			if (!isEditable)
 				setCurrentFontStyle(text, SWT.ITALIC);
-			}
-			
 		}
 		if (button != null)
 			button.setEnabled(isEditable);
@@ -812,7 +762,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		if (maxProvider != null)
 			return maxProvider.getBoundValue();
 		if (maxFieldName != null && maxClass != null) {
-			final ScaleBox max = (ScaleBox) BeanUI.getBeanField(maxFieldName, maxClass);
+			ScaleBox max = (ScaleBox) BeanUI.getBeanField(maxFieldName, maxClass);
 			if (max != null)
 				return max.getNumericValue();
 		}
@@ -934,7 +884,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	 * @param width
 	 */
 	public void setLabelWidth(final int width) {
-		final GridData data = (GridData) label.getLayoutData();
+		GridData data = (GridData) label.getLayoutData();
 		data.widthHint = width;
 	}
 
@@ -950,15 +900,12 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	 *            the unit to set
 	 */
 	public void setUnit(String newUnit) {
-
 		// If we are displaying the unit now, change the text.
-		final Pattern pattern = getRegExpression();
-		final Matcher matcher = pattern.matcher(text.getText());
-		if (matcher.matches()) {
+		Pattern pattern = getRegExpression();
+		Matcher matcher = pattern.matcher(text.getText());
+		if (matcher.matches())
 			text.setText(matcher.group(1) + " " + newUnit);
-		}
-
-		this.unit = newUnit;
+		unit = newUnit;
 		updateValue();
 	}
 
@@ -1086,24 +1033,18 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	public boolean isExpressionParseRequired(String value) {
 		Pattern pattern = getRegExpression();
 		Matcher matcher = pattern.matcher(value);
-		if (matcher.matches()) {
+		if (matcher.matches())
 			return false;
-		}
-
-		if ("".equals(value) || value == null || value.equals(unit)) {
+		if ("".equals(value) || value == null || value.equals(unit))
 			return false;
-		}
 		try {
 			Double.parseDouble(value);
 			return false;
 		} catch (Throwable ignored) {
 			//
 		}
-
 		return true;
 	}
-
-	private boolean permanentlyEnabled;
 
 	/**
 	 * The bounds key for this instance can be the field name or if a field name has not been set, it will be a unique
@@ -1113,24 +1054,19 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	 */
 	private String getBoundsKey() {
 		if (boundsKey == null) {
-			if (fieldName != null) {
+			if (fieldName != null)
 				boundsKey = fieldName; // field name is mostly safe.
-
-			} else { // Generate a roughly unique and constant name.
+			else // Generate a roughly unique and constant name.
 				boundsKey = "Widget " + Calendar.getInstance().getTimeInMillis();
-			}
 		}
 		return boundsKey;
 	}
 
 	@Override
 	protected void createButton() {
-
 		super.createButton();
-
 		if (button != null && button.getLayoutData() instanceof GridData) {
 			final GridData bLayout = (GridData) button.getLayoutData();
-
 			// Platform dependant sizes but they work
 			// on linux RHEL5 ok.
 			bLayout.heightHint = 25;
