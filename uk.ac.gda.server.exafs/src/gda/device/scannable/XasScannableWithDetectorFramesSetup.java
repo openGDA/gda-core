@@ -42,32 +42,24 @@ public class XasScannableWithDetectorFramesSetup extends XasScannable {
 		this.harmonicConverterName = harmonicConverterName;
 	}
 
-	/**
-	 * 
-	 */
 	public XasScannableWithDetectorFramesSetup() {
 		super();
 	}
 	
 	@Override
-	public void configure()
-	{
+	public void configure(){
 		energyHarmonicConverter = Finder.getInstance().find(harmonicConverterName);		
 	}
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		Double[] positions = ScannableUtils.objectToArray(position);
-
 		// this move must complete first
 		energyScannable.moveTo(positions[0]);
 		lastCollectionTimeUsed = positions[1];
 	}
-
-
 	
-	public void setExafsScanRegionTimes(ArrayList<ExafsScanRegionTime> times)
-	{ 
+	public void setExafsScanRegionTimes(ArrayList<ExafsScanRegionTime> times){ 
 		this.times = times;
 	}
 
@@ -79,51 +71,38 @@ public class XasScannableWithDetectorFramesSetup extends XasScannable {
 			final DummyDAServer daServer = (DummyDAServer)server;
 			daServer.resetScanPointCount();
 		}
-		for (Scannable detector : theDetectors) 
-				{		
-					if (detector instanceof CounterTimer && !((CounterTimer)detector).isSlave() )
-					 {
-						((CounterTimer)detector).clearFrameSets();
-						 for(ExafsScanRegionTime time : times)
-						 {
-							 for(int i =0 ; i < time.getTime().length; i++){
-								 //logger.info("Setting the frames")
-						 ((CounterTimer) detector).addFrameSet(time.getStepsCount(), 1.0E-4, time.getTime()[i] *1000.0,  0,7,-1,0);
-						 	
-						 }
-						 }
-					 }
-				}
-		
+		for (Scannable detector : theDetectors) {		
+			if (detector instanceof CounterTimer && !((CounterTimer)detector).isSlave()){
+				((CounterTimer)detector).clearFrameSets();
+				 for(ExafsScanRegionTime time : times)
+					 for(int i =0 ; i < time.getTime().length; i++)
+						 ((CounterTimer) detector).addFrameSet(time.getStepsCount(), 1.0E-4, time.getTime()[i] *1000.0,  0,7,-1,0);	
+			}
 		}
-	
+	}
 	
 	@Override
-	public void atPointEnd() throws DeviceException
-	{
+	public void atPointEnd() throws DeviceException{
 		scanPointCounter++;
-		if(scanPointCounter == 1)
-		{
+		if(scanPointCounter == 1){
 			if(energyHarmonicConverter == null)
 				configure();
 			energyHarmonicConverter.disableAutoConversion();
 		}
 	}
+	
 	@Override
-	public void atScanEnd() throws DeviceException
-	{
+	public void atScanEnd() throws DeviceException{
 		if(energyHarmonicConverter == null)
 				configure();
 		energyHarmonicConverter.enableAutoConversion();
 	}
 	
 	@Override
-	public void atCommandFailure() throws DeviceException
-	{
+	public void atCommandFailure() throws DeviceException{
 		if(energyHarmonicConverter == null)
 			configure();
 		energyHarmonicConverter.enableAutoConversion();
-		
 	}
 
 }

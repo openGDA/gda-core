@@ -39,11 +39,11 @@ import uk.ac.gda.util.list.IntersectionUtils;
 
 public class DetectorValidator extends AbstractValidator {
 	
-
 	private static AbstractValidator staticInstance;
 
 	public static AbstractValidator getInstance() {
-		if (staticInstance == null) staticInstance = new DetectorValidator();
+		if (staticInstance == null) 
+			staticInstance = new DetectorValidator();
 		return staticInstance;
 	}
 	
@@ -65,19 +65,15 @@ public class DetectorValidator extends AbstractValidator {
 		final int numRegions           = dl.get(0).getRegionList().size();
 		for (int i = 0; i < dl.size(); i++) {
 			final DetectorElement e = dl.get(i);
-			if (e.getRegionList().size()!=numRegions) {
+			if (e.getRegionList().size()!=numRegions)
 				errors.add(new InvalidBeanMessage("The element '"+e.getName()+"' does not have '"+numRegions+"' regions of interest defined.", "All elements must have the same number of regions."));
-			}
-			
 			final List<RegionOfInterest> regions = e.getRegionList();
 			for (RegionOfInterest roi : regions) {
 				checkBounds("Start", roi.getWindowStart(), 0, roi.getWindowEnd(), errors, "The start is out of bounds.");
 				checkBounds("End",   roi.getWindowEnd(),   roi.getWindowStart(), 2048, errors, "The end is out of bounds.");
-				
 				checkBounds("Size of Region", roi.getWindowEnd()-roi.getWindowStart(), 1d, 900d, errors, "The size of the region is incorrect, please change start or end of the region.");
 			    checkNotNull("Name", roi.getRoiName(), errors, "The region name must be set.");
 			}
-			
 			
 			try {
 				final List<Object[]> vals = getList(regions, "windowStart", "windowEnd", "roiName");
@@ -87,21 +83,17 @@ public class DetectorValidator extends AbstractValidator {
 			} catch (Exception ne) {
 				errors.add(new InvalidBeanMessage("An internal error occurred checking region intersection."));
 			}
-
 		}
-		
 		
 		return errors;
 	}
 
-	
 	/**
 	 * Does nothing currently
 	 * @param xp
 	 * @return l
 	 */
 	public List<InvalidBeanMessage> validateXspressParameters(final XspressParameters xp) {
-		
 		// Check for intersecting windows or regions.
 		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
 		if (!xp.getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
@@ -128,28 +120,23 @@ public class DetectorValidator extends AbstractValidator {
 				} catch (Exception ne) {
 					errors.add(new InvalidBeanMessage("An internal error occurred checking region intersection."));
 				}
-				
 			}
 		}
-		
 		return errors;
 	}
 
 	private List<Object[]> getList(List<? extends Object> elementOrRegionList, String startName, String endName, final String nameName) throws Exception {
 		
 		final List<Object[]> ret = new ArrayList<Object[]>(elementOrRegionList.size());
-//		int index = 1;
 		for (Object e : elementOrRegionList) {
 			final Number start =  (Number)getBeanValue(e, startName);
 			final Number end   =  (Number)getBeanValue(e, endName);
 			Object name  =  getBeanValue(e, nameName);
 			if (name==null) continue; // There must be a name
 			ret.add(new Object[]{start,end,name});
-//			index++;
 		}
 		return ret;
 	}
-
 	
 	/**
 	 * There must be a smarter way of doing this 
@@ -161,7 +148,8 @@ public class DetectorValidator extends AbstractValidator {
 	 * @return String
 	 */
 	private static String getGetterName(final String fieldName) {
-		if (fieldName == null) return null;
+		if (fieldName == null)
+			return null;
 		return getName("get", fieldName);
 	}
 	private static String getName(final String prefix, final String fieldName) {

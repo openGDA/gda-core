@@ -49,16 +49,18 @@ public class PressureCalculation {
 	public static PressureBean getPressure(final IonChamberParameters bean) throws Exception {
 		if(!bean.isUseGasProperties())
 			throw new Exception("Gas parameters are not available to calculate pressure");
-
-		if (!OSUtils.isLinuxOS()) throw new Exception("PressureCalculation currently only runs on linux.");
+		if (!OSUtils.isLinuxOS()) 
+			throw new Exception("PressureCalculation currently only runs on linux.");
 		// If removing the isLinuxOS restriction, also remove it from DetectorParametersTest.java in plugin uk.ac.gda.client.exafs.test
-		if (LocalProperties.getConfigDir()==null) throw new Exception("The 'gda.config' variable must be set and your configuration must have the 'bin/mucal.bin' file - see the I20 config.");
+		if (LocalProperties.getConfigDir()==null) 
+			throw new Exception("The 'gda.config' variable must be set and your configuration must have the 'bin/mucal.bin' file - see the I20 config.");
 		
-		final PressureBean ret = new PressureBean();
+		PressureBean ret = new PressureBean();
 		
 		// First run mucal to get the absorption.
-		final String    mucal  = LocalProperties.getConfigDir()+"/bin/mucal.bin";
-		if (!(new File(mucal)).exists()) return null;
+		String mucal  = LocalProperties.getConfigDir()+"/bin/mucal.bin";
+		if (!(new File(mucal)).exists()) 
+			return null;
 		
 		String [] inputs = new String[]{getWorkingEnergyInKev(bean), getGasAtomicNumber(bean)};
 		OSCommandRunner osRunner = new OSCommandRunner(Arrays.asList(new String[]{mucal}), true, inputs, null);
@@ -75,10 +77,9 @@ public class PressureCalculation {
 		if (osRunner.exception!=null) throw osRunner.exception;
 		logger.debug("The gas absorption is '"+muA+"'.");
 
-		final String symbol = bean.getGasType();
-		final double ABS    = 1-(bean.getPercentAbsorption())/100d;
-		final double t      = bean.getIonChamberLength();
-
+		String symbol = bean.getGasType();
+		double ABS    = 1-(bean.getPercentAbsorption())/100d;
+		double t      = bean.getIonChamberLength();
 		double pA = Double.NaN;
 		double pB = Double.NaN;
 
@@ -86,31 +87,35 @@ public class PressureCalculation {
 		if ("He".equals(symbol)) {
 			pA = -1d*Math.log(ABS)/(muA*t);
 			errorMessageText = checkPressure(pA, muA, "He");
-			if (pA<0) pA = 0;
+			if (pA<0) 
+				pA = 0;
 			ret.setPressure(pA);
 		} else {
 			inputs    = new String[]{getWorkingEnergyInKev(bean), getHeliumAtomicNumber()};
 			osRunner  = new OSCommandRunner(Arrays.asList(new String[]{mucal}), true, inputs, null);
-			if (osRunner.exception!=null) throw osRunner.exception;
+			if (osRunner.exception!=null) 
+				throw osRunner.exception;
 			gasAbLine = osRunner.getOutputLines().get(12);		
 
-			final double muB = muA;
+			double muB = muA;
 			muA = Double.parseDouble(gasAbLine.split("    ")[1]);
-			final double pT  = bean.getTotalPressure();
-			final double muT = -1*Math.log(ABS)/t;
+			double pT  = bean.getTotalPressure();
+			double muT = -1*Math.log(ABS)/t;
 
 			pB = (muT- (muA*pT)) / (muB - muA);
 			pA = pT-pB;
 
-			if (Math.abs(muB-muA)<Double.parseDouble("1e-7")) {
+			if (Math.abs(muB-muA)<Double.parseDouble("1e-7"))
 				errorMessageText = new String[]{"Cannot calculate gas pressure. Suggest using a single gas system.",null};
-			}
 
-			final double ad = Math.exp(-(muA*pA)-(muB*pB));
-			if (errorMessageText==null) errorMessageText = checkPressure(pB, ad, bean.getGasType());
-			if (errorMessageText==null) errorMessageText = checkPressure(pA, ad, "He");
+			double ad = Math.exp(-(muA*pA)-(muB*pB));
+			if (errorMessageText==null) 
+				errorMessageText = checkPressure(pB, ad, bean.getGasType());
+			if (errorMessageText==null) 
+				errorMessageText = checkPressure(pA, ad, "He");
 
-			if (pB<0) pB = 0;
+			if (pB<0) 
+				pB = 0;
 			ret.setPressure(pB);
 		}
 
@@ -120,13 +125,12 @@ public class PressureCalculation {
 		} 
 		
 		return ret;
-
 	}
 
 	
 	private static String[] checkPressure(double p, double ad, String gasSymbol) {
-		
-		if (gasSymbol.equals("N")) gasSymbol = "N\u2082";
+		if (gasSymbol.equals("N"))
+			gasSymbol = "N\u2082";
 		if (p>2) {
 			return new String[]{"The required absorption cannot be obtained with the present gas choice.",
 								"The pressure of '"+gasSymbol+"' is "+p+" which is too large, as Pressure is limited to 2 bar.",
@@ -136,7 +140,6 @@ public class PressureCalculation {
 			return new String[]{"'"+gasSymbol+"' would have a pressure of less than 1 mbar.",
 								"Pressures of less than 1 mbar give a low accuracy, try a different mix."};
 		}
-		
 		return null;
 	}
 
@@ -144,10 +147,12 @@ public class PressureCalculation {
 		final Double value = bean.getWorkingEnergy();
 		return ""+(value/1000.0d);
 	}
+	
 	private static String getGasAtomicNumber(final IonChamberParameters bean) {
 		final String symbol = bean.getGasType();
 		return Element.getElement(symbol).getAtomicNumber()+"";
 	}
+	
 	private static String getHeliumAtomicNumber() {
 		return Element.getElement("He").getAtomicNumber()+"";
 	}

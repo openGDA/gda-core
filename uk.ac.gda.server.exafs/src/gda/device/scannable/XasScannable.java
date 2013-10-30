@@ -37,9 +37,6 @@ public class XasScannable extends ScannableBase implements Scannable {
 	protected Scannable[] theDetectors;
 	protected double lastCollectionTimeUsed = 0;
 
-	/**
-	 * 
-	 */
 	public XasScannable() {
 		super();
 	}
@@ -47,15 +44,12 @@ public class XasScannable extends ScannableBase implements Scannable {
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		Double[] positions = ScannableUtils.objectToArray(position);
-
 		// this move must complete first
 		energyScannable.moveTo(positions[0]);
 		lastCollectionTimeUsed = positions[1];
-
-		for (Scannable detector : theDetectors) {
+		for (Scannable detector : theDetectors)
 			if (detector instanceof Detector)
 				((Detector) detector).setCollectionTime(positions[1]);
-		}
 	}
 
 	@Override
@@ -85,9 +79,8 @@ public class XasScannable extends ScannableBase implements Scannable {
 	@Override
 	public String checkPositionValid(Object position) {
 		Double[] positions = ScannableUtils.objectToArray(position);
-		if (positions.length != 2){
+		if (positions.length != 2)
 			return "target position array wrong length. Should be 2.";
-		}
 		return null;
 	}
 

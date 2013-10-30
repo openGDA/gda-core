@@ -41,19 +41,14 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	private String predictedTotalTime;
 	private String outputFolder;
 	
-	
-	protected XasLoggingMessage(String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete,
-			String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder) {
+	protected XasLoggingMessage(String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder) {
 		super();
 		this.id = id;
 		this.scriptName = scriptName;
 		this.message = message;
-		// where we are in the number of repetitions of the whole scan
 		this.scanRepetitionNumber = repetition;
-		// number of the times the scan is repeated.
 		this.scanRepetitions = scanRepetitions;
 		this.sampleEnvironmentRepetitionNumber = sampleEnvironmentRepetitionNumber;
-		// the number of repeats within each scan due to the sample environment (and other) settings.
 		this.sampleEnvironmentRepetitions = sampleEnvironmentRepetitions;
 		this.percentComplete = percentComplete;
 		this.elaspedScanTime = elaspedScanTime;
@@ -62,8 +57,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		this.outputFolder = outputFolder;
 	}
 	
-	public XasLoggingMessage(String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete,
-			String elaspedScanTime, String elaspedTotalTime, IScanParameters parameters, String outputFolder) throws Exception {
+	public XasLoggingMessage(String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, IScanParameters parameters, String outputFolder) throws Exception {
 		super();
 		this.id = id;
 		this.scriptName = scriptName;
@@ -76,18 +70,14 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		this.elaspedScanTime = elaspedScanTime;
 		this.elaspedTotalTime = elaspedTotalTime;
 		this.outputFolder = outputFolder;
-		
 		long totalTime = ExafsTimeEstimator.getTime(parameters);
 		totalTime *= Integer.parseInt(scanRepetitions);
 		totalTime *= Integer.parseInt(sampleEnvironmentRepetitions);
-		
 		long hours = TimeUnit.MILLISECONDS.toHours(totalTime);
 		long minutes = TimeUnit.MILLISECONDS.toMinutes(totalTime) - TimeUnit.HOURS.toMinutes(hours);
-		long seconds = TimeUnit.MILLISECONDS.toSeconds(totalTime) - TimeUnit.HOURS.toSeconds(hours)
-				- TimeUnit.MINUTES.toSeconds(minutes);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(totalTime) - TimeUnit.HOURS.toSeconds(hours) - TimeUnit.MINUTES.toSeconds(minutes);
 		String diff = String.format("%2dh%2dm%2ds", hours, minutes, seconds);
-		
-		this.predictedTotalTime = diff;
+		predictedTotalTime = diff;
 	}
 
 	@Override
@@ -128,9 +118,8 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 
 	public String getScanRepetitions() {
 		String property = LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY);
-		if (property == null || property.isEmpty()){
+		if (property == null || property.isEmpty())
 				return scanRepetitions;
-		}
 		return property;
 	}
 

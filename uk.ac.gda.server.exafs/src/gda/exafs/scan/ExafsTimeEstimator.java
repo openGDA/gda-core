@@ -40,19 +40,14 @@ public class ExafsTimeEstimator {
 	 */
 	@SuppressWarnings({ "cast", "unchecked" })
 	public static long getTime(final IScanParameters scanParameters) throws Exception {
-		
 		PyTuple points= null;
-		if (scanParameters instanceof XanesScanParameters) {
+		if (scanParameters instanceof XanesScanParameters)
 			points = XanesScanPointCreator.calculateEnergies((XanesScanParameters)scanParameters);
-		} else if (scanParameters instanceof XasScanParameters) {
+		else if (scanParameters instanceof XasScanParameters)
 			points = ExafsScanPointCreator.calculateEnergies((XasScanParameters)scanParameters);
-		}
-		
 		if (points==null) return 0l;
-		
 		// safe to perform an unchecked cast as PyTuple is a List<PyObject>
 		return getTime((List<PyObject[]>) points);
-
 	}
 	
 	/**
@@ -68,18 +63,14 @@ public class ExafsTimeEstimator {
 	public static long getTime(List<PyObject[]> points) {
 		if (points==null) 
 			return 0l;
-		
 		// We read the monchromator energy rate (eV / ms)
 		final String monoString    = LocalProperties.get("gda.exafs.mono.energy.rate");
 		final double monoRate      = monoString!=null ? Double.parseDouble(monoString) : 1; // Default fast mono.
-		
 		// We read the xspress fudging factor
 		final String readoutString = LocalProperties.get("gda.exafs.read.out.time");
 		final double readoutConst  = readoutString!=null ? Double.parseDouble(readoutString) : 1; // Default fast detector.
-		
 		long time = 0l;
 		double lastEnergy = points.get(0)[0].asDouble();
-		
 		for (PyObject[] fa : points) {
 			double energy = fa[0].asDouble();
 			double diff   = energy-lastEnergy;
@@ -88,7 +79,6 @@ public class ExafsTimeEstimator {
 			time+=readoutConst;
 			lastEnergy = energy;
 		}
-		
 		return time;
 	}
 

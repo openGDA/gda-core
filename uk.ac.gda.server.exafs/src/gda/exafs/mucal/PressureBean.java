@@ -26,39 +26,27 @@ public class PressureBean {
 	private double pressure;
 	private String errorMessage;
 	private String errorTooltip;
-	/**
-	 * @return Returns the pressure.
-	 */
+
 	public double getPressure() {
 		return pressure;
 	}
-	/**
-	 * @param pressure The pressure to set.
-	 */
+
 	public void setPressure(double pressure) {
 		this.pressure = pressure;
 	}
-	/**
-	 * @return Returns the errorMessage.
-	 */
+
 	public String getErrorMessage() {
 		return errorMessage;
 	}
-	/**
-	 * @param errorMessage The errorMessage to set.
-	 */
+
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
-	/**
-	 * @return Returns the errorTooltip.
-	 */
+
 	public String getErrorTooltip() {
 		return errorTooltip;
 	}
-	/**
-	 * @param errorTooltip The errorTooltip to set.
-	 */
+	
 	public void setErrorTooltip(String errorTooltip) {
 		this.errorTooltip = errorTooltip;
 	}

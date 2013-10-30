@@ -32,8 +32,8 @@ import uk.ac.gda.beans.exafs.IScanParameters;
  */
 public class ScanStartedMessage implements Serializable {
 
-	IScanParameters startedScan;
-	IDetectorParameters detectorParams;
+	private IScanParameters startedScan;
+	private IDetectorParameters detectorParams;
 
 	public ScanStartedMessage(IScanParameters startedScan, IDetectorParameters detectorParams) {
 		super();

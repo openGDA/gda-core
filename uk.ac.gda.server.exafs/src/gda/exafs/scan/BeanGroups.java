@@ -50,16 +50,12 @@ public class BeanGroups {
 	 * @throws Exception 
 	 */
 	public static List<BeanGroup> expand(BeanGroup original) throws Exception {
-
 		@SuppressWarnings("unchecked") // FIXME need to refactor DOEUtils to stop using Object...
-		final List<IScanParameters> scans      = (List<IScanParameters>) DOEUtils.expand(original.getScan());
-
-		if(original.getSample() != null)
-		{
+		final List<IScanParameters> scans = (List<IScanParameters>) DOEUtils.expand(original.getScan());
+		if(original.getSample() != null){
 			@SuppressWarnings("unchecked") // FIXME need to refactor DOEUtils to stop using Object...
 			final List<ISampleParameters> sampleEnvs = (List<ISampleParameters>) DOEUtils.expand(original.getSample());
 			final List<BeanGroup> ret = new ArrayList<BeanGroup>(sampleEnvs.size()*scans.size());
-			
 			for (ISampleParameters sampleBean : sampleEnvs) {
 				for (IScanParameters scanBean : scans) {
 					BeanGroup bg = original.clone();
@@ -77,8 +73,6 @@ public class BeanGroups {
 			bg.setScan(scanBean);
 			ret.add(bg);
 		}
-
-
 		return ret;
 	}
 	
@@ -89,9 +83,7 @@ public class BeanGroups {
 	 * @throws Exception
 	 */
 	public static List<RangeInfo> getInfo(BeanGroup original) throws Exception {
-		
 		return DOEUtils.getInfoFromList(Arrays.asList(new Object[]{original.getSample(), original.getScan()}));
-		
 	}
 
 }

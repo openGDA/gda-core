@@ -25,6 +25,8 @@ import gda.factory.Finder;
 import java.util.ArrayList;
 import java.util.List;
 
+
+// TODO This is a class named ParametersManager which moves a scannable. It doesn't encapsulate (make sense).
 abstract class ParametersManager {
 
 	protected final List<Scannable> scannables;
@@ -47,16 +49,14 @@ abstract class ParametersManager {
 	}
 
 	public boolean isBusy() throws DeviceException {
-		for (Scannable s : scannables) {
+		for (Scannable s : scannables)
 			if (s.isBusy())
 				return true;
-		}
 		return false;
 	}
 
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		while (isBusy()) {
+		while (isBusy())
 			Thread.sleep(250);
-		}
 	}
 }

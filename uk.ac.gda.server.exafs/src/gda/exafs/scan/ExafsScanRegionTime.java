@@ -23,10 +23,6 @@ public class ExafsScanRegionTime {
 	private String regionName;
 	private int stepsCount;
 	private double[] time;
-	
-	public ExafsScanRegionTime() {
-		// TODO Auto-generated constructor stub
-	}
 
 	public ExafsScanRegionTime(String regionName, int stepsCount, double[] time) {
 		super();

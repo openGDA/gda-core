@@ -25,7 +25,6 @@ import gda.factory.Finder;
 import gda.util.converters.AutoRenameableConverter;
 
 public class XasScannableDetectorWithHarmonics extends XasScannable {
-//	private ArrayList<ExafsScanRegionTime> times;
 	private int scanPointCounter = 0; 
 	private AutoRenameableConverter energyHarmonicConverter = null;
 	private String harmonicConverterName;
@@ -38,67 +37,49 @@ public class XasScannableDetectorWithHarmonics extends XasScannable {
 		this.harmonicConverterName = harmonicConverterName;
 	}
 
-	/**
-	 * 
-	 */
 	public XasScannableDetectorWithHarmonics() {
 		super();
 	}
 	
 	@Override
-	public void configure()
-	{
+	public void configure(){
 		energyHarmonicConverter = Finder.getInstance().find(harmonicConverterName);		
 	}
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		Double[] positions = ScannableUtils.objectToArray(position);
-
 		// this move must complete first
 		energyScannable.moveTo(positions[0]);
 		lastCollectionTimeUsed = positions[1];
-		
 		// ensure all detectors know the time for this point
-		for (Scannable detector : theDetectors) {
+		for (Scannable detector : theDetectors)
 			if (detector instanceof Detector)
 				((Detector) detector).setCollectionTime(positions[1]);
-		}
 	}
-
-
-	
-//	public void setExafsScanRegionTimes(ArrayList<ExafsScanRegionTime> times)
-//	{ 
-////		this.times = times;
-//	}
 	
 	@Override
-	public void atPointEnd() throws DeviceException
-	{
+	public void atPointEnd() throws DeviceException{
 		scanPointCounter++;
-		if(scanPointCounter == 1)
-		{
+		if(scanPointCounter == 1){
 			if(energyHarmonicConverter == null)
 				configure();
 			energyHarmonicConverter.disableAutoConversion();
 		}
 	}
+	
 	@Override
-	public void atScanEnd() throws DeviceException
-	{
+	public void atScanEnd() throws DeviceException{
 		if(energyHarmonicConverter == null)
 				configure();
 		energyHarmonicConverter.enableAutoConversion();
 	}
 	
 	@Override
-	public void atCommandFailure() throws DeviceException
-	{
+	public void atCommandFailure() throws DeviceException{
 		if(energyHarmonicConverter == null)
 			configure();
 		energyHarmonicConverter.enableAutoConversion();
-		
 	}
 
 }

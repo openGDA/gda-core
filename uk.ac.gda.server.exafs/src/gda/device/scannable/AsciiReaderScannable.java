@@ -43,9 +43,9 @@ public class AsciiReaderScannable extends SimpleScannable {
 	private static int delay = 200;
 	
 	public AsciiReaderScannable() {
-		this.inputNames = new String[] { "Energy" };
-		this.extraNames = new String[] { "Integration Time" };
-		this.outputFormat = new String[] { "%8.2f", "%8.2f" };
+		inputNames = new String[] { "Energy" };
+		extraNames = new String[] { "Integration Time" };
+		outputFormat = new String[] { "%8.2f", "%8.2f" };
 	}
 
 	/**
@@ -74,15 +74,12 @@ public class AsciiReaderScannable extends SimpleScannable {
 				tmpLine = reader.readLine();
 			}
 			reader.close();
-			
 			String previousLine = "";
 			while (dataLines.get(0).startsWith("#"))
 				previousLine = dataLines.remove(0);
-			
 			// the last line will be the column headings
 			extractColumnHeadings(previousLine);
 			mapExtraNamesToColumns();
-
 		} catch (Exception e) {
 			throw new DeviceException(e.getMessage(), e);
 		}
@@ -121,22 +118,17 @@ public class AsciiReaderScannable extends SimpleScannable {
 				Thread.sleep(delay);
 			} catch (InterruptedException e) {
 			}
-			
 			if (line == null)
 				line = previousLine;
-
 			String[] parts = line.split("\t");
-
 			double[] output = new double[2];
 			for (int i = 0; i < 2; i++)
 				output[i] = Double.parseDouble(parts[columnToExtraNameMap[i]]);
-
 			previousLine = line;
 			return new double[] {output[0], output[1]};
 		} catch (IndexOutOfBoundsException e) {
 			throw new DeviceException(e.getMessage(), e);
 		}
-		
 	}
 
 	public void setFilename(String filename) {

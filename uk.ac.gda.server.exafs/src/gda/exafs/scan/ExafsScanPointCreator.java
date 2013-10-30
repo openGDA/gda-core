@@ -77,7 +77,6 @@ public class ExafsScanPointCreator {
 	 * @throws Exception
 	 */
 	public static PyTuple calculateEnergies(XasScanParameters parameters) throws Exception {
-
 		ExafsScanPointCreator creator = new ExafsScanPointCreator();
 		setupScanPointCreator(parameters, creator);
 		return creator.getEnergies();
@@ -98,7 +97,7 @@ public class ExafsScanPointCreator {
 
 	private static void setupScanPointCreator(XasScanParameters parameters,ExafsScanPointCreator creator ) throws Exception
 	{
-		final Double[] abc = getABC(parameters);
+		Double[] abc = getABC(parameters);
 		creator.setInitialEnergy(parameters.getInitialEnergy());
 		creator.setaEnergy(abc[0]);
 		creator.setbEnergy(abc[1]);
@@ -159,11 +158,8 @@ public class ExafsScanPointCreator {
 	 * @throws ExafsScanPointCreatorException
 	 */
 	private double[][] getScanEnergies() throws ExafsScanPointCreatorException {
-
 		checkAllValuesEntered();
-
 		checkAllValuesConsistent();
-
 		return calculateValues();
 	}
 
@@ -195,7 +191,6 @@ public class ExafsScanPointCreator {
 	}
 
 	private double[][] calculateValues() throws ExafsScanPointCreatorException {
-
 		// Rather than using two dimensional arrays, this method should use pojo objects and collections
 		// this is much easier to deal with.
 		scanTimes= new ArrayList<ExafsScanRegionTime> ();

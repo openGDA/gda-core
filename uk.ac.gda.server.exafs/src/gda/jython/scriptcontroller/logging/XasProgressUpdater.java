@@ -55,18 +55,18 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	public XasProgressUpdater(LoggingScriptController controller, XasLoggingMessage msg, long timeRepetitionsStarted) {
 		this.controller = controller;
 		this.timeRepetitionsStarted = timeRepetitionsStarted;
-		this.id = msg.getUniqueID();
-		this.scriptName = msg.getName();
-		this.thisScanrepetition = msg.getScanRepetitionNumber();
-		this.totalScanRepetitions = msg.getScanRepetitions();
-		this.sampleEnvironmentRepetition = msg.getSampleEnvironmentRepetitionNumber();
-		this.sampleEnvironmentRepetitions = msg.getSampleEnvironmentRepetitions();
-		this.predictedTotalTime = msg.getPredictedTotalTime();
-		this.outputFolder = msg.getOutputFolder();
-		this.setInputNames(new String[] {});
-		this.setExtraNames(new String[] {});
-		this.setOutputFormat(new String[] {});
-		this.setName("XAS Progress Updater");
+		id = msg.getUniqueID();
+		scriptName = msg.getName();
+		thisScanrepetition = msg.getScanRepetitionNumber();
+		totalScanRepetitions = msg.getScanRepetitions();
+		sampleEnvironmentRepetition = msg.getSampleEnvironmentRepetitionNumber();
+		sampleEnvironmentRepetitions = msg.getSampleEnvironmentRepetitions();
+		predictedTotalTime = msg.getPredictedTotalTime();
+		outputFolder = msg.getOutputFolder();
+		setInputNames(new String[] {});
+		setExtraNames(new String[] {});
+		setOutputFormat(new String[] {});
+		setName("XAS Progress Updater");
 	}
 
 	@Override
@@ -95,9 +95,9 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		String status = "Repetition complete";
 		IScanDataPoint lastSDP = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		String percentComplete = determinePercentComplete(lastSDP,true) + "%";
-		if (!sampleEnvironmentRepetition.equals(sampleEnvironmentRepetitions)) {
+		if (!sampleEnvironmentRepetition.equals(sampleEnvironmentRepetitions))
 			status = "Sample Env repetition complete";
-		} else if (thisScanrepetition.equals(totalScanRepetitions)) {
+		else if (thisScanrepetition.equals(totalScanRepetitions)) {
 			status = "Scan Complete";
 			percentComplete = "100%";
 		}
@@ -153,9 +153,9 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 							percentComplete + "%", elapsedTime, getElapsedTotalTime(), predictedTotalTime, outputFolder);
 					controller.update(this, msg);
 				}
-			} else {
+			} 
+			else
 				InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
-			}
 		}
 	}
 
@@ -163,25 +163,20 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		int pointsPerScan = sdp.getNumberOfPoints();
 		int pointsPerScanRepetition = sdp.getNumberOfPoints() * Integer.parseInt(sampleEnvironmentRepetitions);
 		int pointsInWholeExperiment = pointsPerScanRepetition * Integer.parseInt(getTotalRepetitions());
-
 		int currentPointInThisScan = sdp.getCurrentPointNumber() + 1;
 		// at the last point in the scan we get the call via atScanEnd instead of via update, so fix the current point number
-		if (lastPoint){
+		if (lastPoint)
 			currentPointInThisScan = sdp.getNumberOfPoints();
-		}
-		int currentPointInThisScanRepetition = currentPointInThisScan
-				+ (pointsPerScan * (Integer.parseInt(sampleEnvironmentRepetition) - 1));
-		int currentPointInWholeExperiment = currentPointInThisScanRepetition
-				+ (pointsPerScanRepetition * (Integer.parseInt(thisScanrepetition) - 1));
+		int currentPointInThisScanRepetition = currentPointInThisScan + (pointsPerScan * (Integer.parseInt(sampleEnvironmentRepetition) - 1));
+		int currentPointInWholeExperiment = currentPointInThisScanRepetition + (pointsPerScanRepetition * (Integer.parseInt(thisScanrepetition) - 1));
 		int percentComplete = (int) Math.round((currentPointInWholeExperiment * 100.0) / pointsInWholeExperiment);
 		return percentComplete;
 	}
 
 	private String getTotalRepetitions() {
 		String property = LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY);
-		if (property == null || property.isEmpty()) {
+		if (property == null || property.isEmpty())
 			return totalScanRepetitions;
-		}
 		return property;
 	}
 
@@ -198,23 +193,21 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		long duration = now - startTime;
 		long hours = TimeUnit.MILLISECONDS.toHours(duration);
 		long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) - TimeUnit.HOURS.toMinutes(hours);
-		long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.HOURS.toSeconds(hours)
-				- TimeUnit.MINUTES.toSeconds(minutes);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.HOURS.toSeconds(hours) - TimeUnit.MINUTES.toSeconds(minutes);
 		String diff = String.format("%2dh%2dm%2ds", hours, minutes, seconds);
 		return diff;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + (atEndCalled ? 1231 : 1237);
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((lastPercentComplete == null) ? 0 : lastPercentComplete.hashCode());
 		result = prime * result + ((outputFolder == null) ? 0 : outputFolder.hashCode());
 		result = prime * result + ((predictedTotalTime == null) ? 0 : predictedTotalTime.hashCode());
-		result = prime * result
-				+ ((sampleEnvironmentRepetitions == null) ? 0 : sampleEnvironmentRepetitions.hashCode());
+		result = prime * result	+ ((sampleEnvironmentRepetitions == null) ? 0 : sampleEnvironmentRepetitions.hashCode());
 		result = prime * result + ((scriptName == null) ? 0 : scriptName.hashCode());
 		result = prime * result + ((thisScanrepetition == null) ? 0 : thisScanrepetition.hashCode());
 		result = prime * result + (int) (timeRepetitionsStarted ^ (timeRepetitionsStarted >>> 32));
@@ -238,37 +231,44 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		if (id == null) {
 			if (other.id != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} 
+		else if (!id.equals(other.id))
 			return false;
 		if (lastPercentComplete == null) {
 			if (other.lastPercentComplete != null)
 				return false;
-		} else if (!lastPercentComplete.equals(other.lastPercentComplete))
+		} 
+		else if (!lastPercentComplete.equals(other.lastPercentComplete))
 			return false;
 		if (outputFolder == null) {
 			if (other.outputFolder != null)
 				return false;
-		} else if (!outputFolder.equals(other.outputFolder))
+		} 
+		else if (!outputFolder.equals(other.outputFolder))
 			return false;
 		if (predictedTotalTime == null) {
 			if (other.predictedTotalTime != null)
 				return false;
-		} else if (!predictedTotalTime.equals(other.predictedTotalTime))
+		} 
+		else if (!predictedTotalTime.equals(other.predictedTotalTime))
 			return false;
 		if (sampleEnvironmentRepetitions == null) {
 			if (other.sampleEnvironmentRepetitions != null)
 				return false;
-		} else if (!sampleEnvironmentRepetitions.equals(other.sampleEnvironmentRepetitions))
+		} 
+		else if (!sampleEnvironmentRepetitions.equals(other.sampleEnvironmentRepetitions))
 			return false;
 		if (scriptName == null) {
 			if (other.scriptName != null)
 				return false;
-		} else if (!scriptName.equals(other.scriptName))
+		} 
+		else if (!scriptName.equals(other.scriptName))
 			return false;
 		if (thisScanrepetition == null) {
 			if (other.thisScanrepetition != null)
 				return false;
-		} else if (!thisScanrepetition.equals(other.thisScanrepetition))
+		} 
+		else if (!thisScanrepetition.equals(other.thisScanrepetition))
 			return false;
 		if (timeRepetitionsStarted != other.timeRepetitionsStarted)
 			return false;
@@ -277,12 +277,14 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		if (totalScanRepetitions == null) {
 			if (other.totalScanRepetitions != null)
 				return false;
-		} else if (!totalScanRepetitions.equals(other.totalScanRepetitions))
+		} 
+		else if (!totalScanRepetitions.equals(other.totalScanRepetitions))
 			return false;
 		if (uniqueName == null) {
 			if (other.uniqueName != null)
 				return false;
-		} else if (!uniqueName.equals(other.uniqueName))
+		} 
+		else if (!uniqueName.equals(other.uniqueName))
 			return false;
 		return true;
 	}
