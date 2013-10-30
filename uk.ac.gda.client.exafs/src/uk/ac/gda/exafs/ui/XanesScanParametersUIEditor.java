@@ -47,8 +47,6 @@ import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 /**
  * An editor part designed to be a page in a multipage editor. This part can be entirely auto-generated and extends
  * RichBeanEditorPart which provides the link between the editor and the bean.
- * 
- * @author fcp94556
  */
 public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 
@@ -56,7 +54,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 
 	private ScaleBox finalEnergy;
 	private RegionComposite regionsEditor;
-	double edgeVal = 0;
+	private double edgeVal = 0;
 	private Button updateTable;
 	private ELEMENT_EVENT_TYPE type;
 	/**
@@ -79,18 +77,18 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 	@Override
 	public void createPartControl(Composite parent) {
 
-		this.scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		this.container = new Composite(scrolledComposite, SWT.NONE);
+		container = new Composite(scrolledComposite, SWT.NONE);
 		container.setLayout(new BorderLayout(0, 0));
 		scrolledComposite.setContent(container);
 
-		final Group exafsScanParametersGroup = new Group(container, SWT.NONE);
+		Group exafsScanParametersGroup = new Group(container, SWT.NONE);
 		exafsScanParametersGroup.setLayoutData(BorderLayout.NORTH);
 		exafsScanParametersGroup.setText("XANES/ANGLE Parameters");
-		final GridLayout gridLayout = new GridLayout();
+		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 3;
 		exafsScanParametersGroup.setLayout(gridLayout);
 
@@ -154,13 +152,13 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 
 		new Label(exafsScanParametersGroup, SWT.NONE);
 
-		final Composite bottom = new Composite(exafsScanParametersGroup, SWT.NONE);
+		Composite bottom = new Composite(exafsScanParametersGroup, SWT.NONE);
 		bottom.setLayout(new GridLayout(2, false));
 		GridData gd = new GridData(SWT.NONE, SWT.CENTER, true, false);
 		gd.widthHint = 195;
 		bottom.setLayoutData(gd);
 
-		final Label stopEnergyLabel = new Label(bottom, SWT.NONE);
+		Label stopEnergyLabel = new Label(bottom, SWT.NONE);
 		stopEnergyLabel.setText("Final Energy");
 
 		finalEnergy = new ScaleBox(bottom, SWT.NONE);
@@ -175,16 +173,14 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 				finalEnergy.setMinimum(4000.0);
 				finalEnergy.setMaximum(40000.0);
 			}
-		} else {
+		} 
+		else
 			finalEnergy.setMaximum(120000.0);
-		}
 
 		finalEnergy.setUnit("eV");
 		finalEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
 		expandContainer = container;
 		createEstimationComposite(container);
-
 		scrolledComposite.setMinSize(container.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
@@ -194,14 +190,10 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 			setPointsUpdate(false);
 			try {
 				setupElementAndEdge("XanesScanParameters");
-
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
 			super.linkUI(isPageChange);
-//			setupEstimationWidgets();
-
 			try {
 				updateElement(ELEMENT_EVENT_TYPE.INIT); // Must be after super.linkUI()
 				updatePlottedPoints();
@@ -209,15 +201,14 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 				logger.error("Cannot update Xanes points graph!", e);
 			}
 		} finally {
-			if (type != ELEMENT_EVENT_TYPE.INIT) {
+			if (type != ELEMENT_EVENT_TYPE.INIT)
 				setPointsUpdate(true);
-			}
 		}
 	}
 
 	protected double getFinalEnergyFromElement() throws Exception {
-		final Element ele = getElementUseBean();
-		final String edge = getEdgeUseBean();
+		Element ele = getElementUseBean();
+		String edge = getEdgeUseBean();
 		return ele.getFinalEnergy(edge);
 	}
 
@@ -225,9 +216,8 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 	protected void updateElement(ELEMENT_EVENT_TYPE type) {
 		try {
 			this.type = type;
-			if (type != null) {
+			if (type != null)
 				super.updateElement(type);
-			}
 		} catch (Exception e) {
 		}
 	}

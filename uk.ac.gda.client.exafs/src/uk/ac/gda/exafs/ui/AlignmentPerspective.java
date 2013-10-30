@@ -44,7 +44,6 @@ public class AlignmentPerspective implements IPerspectiveFactory {
 
 		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.5f, "folder1");
 		folderLayout.addView(JythonTerminalView.ID);
-
 	}
 
 }

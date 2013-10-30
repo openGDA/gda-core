@@ -67,7 +67,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 	private ExpandableComposite signalExpandableComposite;
 	private ExpandableComposite metadataExpandableComposite;
 	
-	OutputParameters bean;
+	private OutputParameters bean;
 
 	public OutputParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
@@ -81,19 +81,18 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		final GridLayout gridLayout = new GridLayout();
+		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		parent.setLayout(gridLayout);
 		
-		final Composite left = new Composite(parent, SWT.NONE);
+		Composite left = new Composite(parent, SWT.NONE);
 		left.setLayout(new GridLayout(2, false));
 		left.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
 
 		createExtraColumns(left);
 
-		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_METADATA_EDITOR)) {
+		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_METADATA_EDITOR))
 			createMetadata(left);
-		}
 
 		createScripts(left);
 		createOutput(left);
@@ -121,7 +120,6 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 	private String findDefaultFilterPath() {
 		List<String> jythonProjectFolders = JythonServerFacade.getInstance().getAllScriptProjectFolders();
 		String filterPath = System.getenv("user.home");
-
 		for (String path : jythonProjectFolders) {
 			if (JythonServerFacade.getInstance().projectIsUserType(path)) {
 				filterPath = path;
@@ -141,7 +139,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		gridLayout.numColumns = 1;
 		signalComp.setLayout(gridLayout);
 
-		final Group signalParametersGroup = new Group(signalComp, SWT.NONE);
+		Group signalParametersGroup = new Group(signalComp, SWT.NONE);
 
 		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
 		gd.widthHint = 400;
@@ -191,7 +189,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		gridLayout.numColumns = 1;
 		metadataComp.setLayout(gridLayout);
 
-		final Group metadataGroup = new Group(metadataComp, SWT.NONE);
+		Group metadataGroup = new Group(metadataComp, SWT.NONE);
 
 		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
 		gd.widthHint = 400;
@@ -246,7 +244,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		gd.widthHint = 400;
 		gd.heightHint = 80;
 
-		final Group jythonScriptGroup = new Group(jythonComp, SWT.NONE);
+		Group jythonScriptGroup = new Group(jythonComp, SWT.NONE);
 		jythonScriptGroup.setLayoutData(gd);
 		gridLayout = new GridLayout();
 		gridLayout.numColumns = 3;
@@ -356,7 +354,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		asciiDirectory.setToolTipText("The ascii sub-folder that will store ascii output files.");
 		asciiDirectory.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
 
-		final Label nexusFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
+		Label nexusFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
 		nexusFolderLabel.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false));
 		nexusFolderLabel.setText("Nexus Folder");
 

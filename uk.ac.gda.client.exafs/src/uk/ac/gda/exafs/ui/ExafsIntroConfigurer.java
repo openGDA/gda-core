@@ -32,9 +32,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.ui.event.PartAdapter;
 
-/**
- *
- */
 public class ExafsIntroConfigurer extends IntroConfigurer {
 
 	private final static Logger logger = LoggerFactory.getLogger(ExafsIntroConfigurer.class);
@@ -44,19 +41,14 @@ public class ExafsIntroConfigurer extends IntroConfigurer {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void init(final IIntroSite site, Map themeProperties) {
-        
     	super.init(site, themeProperties);
-        
         partListener = new PartAdapter() {
-
 			@Override
 			public void partClosed(IWorkbenchPart part) {
-				if (part instanceof ViewPart) { // Intro window closing, ensure that exafs editors are opened.
+				if (part instanceof ViewPart) {
 					try {
 						ExperimentFactory.getExperimentEditorManager();
-						// The above opens the editors for the new scan.
 					} catch (Exception e) {
-						// Unlikely
 						logger.error("Cannnot initiate ExafsWorkspace for SimplePerspective", e);
 					}
 				}
@@ -65,7 +57,7 @@ public class ExafsIntroConfigurer extends IntroConfigurer {
         };
         site.getPage().addPartListener(partListener);
  	}
-       
+	
 	@Override
 	public IntroElement[] getGroupChildren(String pageId, String groupId) {
 		return null;

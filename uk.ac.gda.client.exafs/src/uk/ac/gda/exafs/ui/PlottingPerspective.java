@@ -22,7 +22,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
 import gda.rcp.views.JythonTerminalView;
 
-import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -40,7 +39,6 @@ import uk.ac.gda.exafs.ui.views.scalersmonitor.ScalersMonitorView;
 public class PlottingPerspective implements IPerspectiveFactory {
 
 	public static final String ID = "org.diamond.exafs.ui.PlottingPerspective";
-	private IToolPageSystem system;
 	
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
