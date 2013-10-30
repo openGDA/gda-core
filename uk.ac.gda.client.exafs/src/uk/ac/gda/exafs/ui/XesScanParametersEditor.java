@@ -23,34 +23,23 @@ import java.net.URL;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-/**
- *
- */
 public final class XesScanParametersEditor extends ExafsBeanFileSelectionEditor {
 
-	/**
-	 */
 	@Override
 	public Class<?> getBeanClass() {
 		return XesScanParameters.class;
 	}
 
-	/**
-	 */
 	@Override
 	public URL getMappingUrl() {
 		return XesScanParameters.mappingURL; // Please make sure this field is present and the mapping
 	}
 
-	/**
-	 */
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
 		return new XesScanParametersUIEditor(path, getMappingUrl(), this, editingBean);
 	}
 
-	/**
-	 */
 	@Override
 	public URL getSchemaUrl() {
 		return XesScanParameters.schemaURL; // Please make sure this field is present and the schema

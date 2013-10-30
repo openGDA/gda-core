@@ -24,10 +24,6 @@ import java.net.URL;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-/**
- * @author fcp94556
- *
- */
 public class OutputParametersEditor extends ExafsBeanFileSelectionEditor {
 
 	@Override

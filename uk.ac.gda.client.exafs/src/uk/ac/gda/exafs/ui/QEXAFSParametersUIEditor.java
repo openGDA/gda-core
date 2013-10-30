@@ -44,11 +44,7 @@ import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
-/**
- *
- */
 public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
-
 	private QEXAFSParametersComposite beanComposite;
 	private static Logger logger = LoggerFactory.getLogger(QEXAFSParametersUIEditor.class);
 
@@ -56,8 +52,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 	 * @param path
 	 * @param editingBean
 	 */
-	public QEXAFSParametersUIEditor(String path, final RichBeanMultiPageEditorPart containingEditor,
-			final Object editingBean) {
+	public QEXAFSParametersUIEditor(String path, final RichBeanMultiPageEditorPart containingEditor, final Object editingBean) {
 		super(path, containingEditor.getMappingUrl(), containingEditor, editingBean);
 	}
 
@@ -73,7 +68,6 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 				Converter.setEdgeEnergy(getEdgeValue() / 1000.0);
 				return Converter.convert(e, Converter.EV, Converter.PERANGSTROM);
 			}
-
 			@Override
 			public IFieldWidget[] getPrecedents() {
 				return null;
@@ -83,12 +77,11 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 
 	@Override
 	public void createPartControl(Composite comp) {
-
-		final ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
+		ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		final Composite container = new Composite(scrolledComposite, SWT.NONE);
+		Composite container = new Composite(scrolledComposite, SWT.NONE);
 		container.setLayout(new BorderLayout(0, 0));
 		scrolledComposite.setContent(container);
 
@@ -100,7 +93,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 
 		createElementEdgeArea(grpQuickExafsParameters);
 
-		this.beanComposite = new QEXAFSParametersComposite(grpQuickExafsParameters, SWT.NONE,
+		beanComposite = new QEXAFSParametersComposite(grpQuickExafsParameters, SWT.NONE,
 				(QEXAFSParameters) editingBean, getKProvider());
 		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 2);
 		gridData.widthHint = 800;
@@ -114,7 +107,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 				try {
 					getInitialEnergy().setValue(getInitialEnergyFromElement());
 					getFinalEnergy().setValue(getFinalEnergyFromElement());
-					getCoreHole_unused().setValue(getCfromElement());
+					getCoreHoleLabel().setValue(getCfromElement());
 				} catch (Exception e1) {
 					logger.error("Cannot update energies from element selection", e1);
 				}
@@ -125,7 +118,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		new Label(grpQuickExafsParameters, SWT.NONE);
 		
 		try {
-			getCoreHole_unused().setValue(getCfromElement());
+			getCoreHoleLabel().setValue(getCfromElement());
 		} catch (Exception e) {
 			logger.error("Cannot get and set core hole", e);
 		}
@@ -137,12 +130,8 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		beanComposite.getFinalEnergy().on();
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void setFocus() {
-		// TODO
 	}
 
 	public FieldComposite getInitialEnergy() {
@@ -174,21 +163,21 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 	}
 
 	protected double getInitialEnergyFromElement() throws Exception {
-		final Element ele = getElementUseBean();
-		final String edge = getEdgeUseBean();
+		Element ele = getElementUseBean();
+		String edge = getEdgeUseBean();
 		return ele.getInitialEnergy(edge);
 	}
 
 	protected double getFinalEnergyFromElement() throws Exception {
-		final Element ele = getElementUseBean();
-		final String edge = getEdgeUseBean();
+		Element ele = getElementUseBean();
+		String edge = getEdgeUseBean();
 		double fEnergy = ele.getFinalEnergy(edge);
 		return fEnergy;
 	}
 
 	protected double getCfromElement() throws Exception {
-		final Element ele = getElementUseBean();
-		final String edge = getEdgeUseBean();
+		Element ele = getElementUseBean();
+		String edge = getEdgeUseBean();
 		return ele.getCoreHole(edge);
 	}
 
@@ -230,29 +219,18 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 			beanComposite.getInitialEnergy().on();
 			beanComposite.getFinalEnergy().on();
 			beanComposite.getBothWays().on();
-			getCoreHole_unused().on();
+			getCoreHoleLabel().on();
 			getEdgeEnergy().on();
 		} else {
 			edge.off();
 			element.off();
-//			beanComposite.getSpeed().off();
-//			beanComposite.getStepSize().off();
-//			beanComposite.getTime().off();
 			beanComposite.getInitialEnergy().off();
 			beanComposite.getFinalEnergy().off();
 			beanComposite.getBothWays().off();
-			getCoreHole_unused().off();
+			getCoreHoleLabel().off();
 			getEdgeEnergy().off();
-
-			getCoreHole_unused().off();
+			getCoreHoleLabel().off();
 			getEdgeEnergy().off();
 		}
-// 		not sure if this works as it relies on calling every getter method in the class...
-//		try {
-//			BeanUI.switchState(this, isUpdate);
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			logger.error("TODO put description of error here", e);
-//		}
 	}
 }

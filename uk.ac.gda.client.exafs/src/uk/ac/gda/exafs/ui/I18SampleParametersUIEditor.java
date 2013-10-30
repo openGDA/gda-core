@@ -58,11 +58,11 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite comp) {
-		final ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
+		ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		this.beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE,
+		beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE,
 				(I18SampleParameters) editingBean);
 		try {
 			if (((I18SampleParameters) editingBean).getSampleStageParameters().getDisable())
@@ -109,10 +109,8 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 		AttenuatorParametersComposite at1 = this.beanComposite.getAttenuatorParameter1();
 		AttenuatorParametersComposite at2 = this.beanComposite.getAttenuatorParameter2();
 		I18SampleParameters sampleBean = (I18SampleParameters) editingBean;
-
 		ArrayList<String> positions1 = sampleBean.getAttenuatorParameter1().getPosition();
 		ArrayList<String> positions2 = sampleBean.getAttenuatorParameter2().getPosition();
-		
 		at1.getSelectedPosition().setItems(positions1.toArray(new String[]{}));
 		at2.getSelectedPosition().setItems(positions2.toArray(new String[]{}));
 	}
@@ -154,9 +152,9 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 		super.linkUI(isPageChange);
 		try {
 			if (((I18SampleParameters) editingBean).getSampleStageParameters().getDisable())
-				this.beanComposite.disableSample();
+				beanComposite.disableSample();
 			else
-				this.beanComposite.enableSample();
+				beanComposite.enableSample();
 		} catch (Exception e) {
 			logger.error("Error while trying to enable/disable sample on the bean for sample parameters", e);
 		}

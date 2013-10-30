@@ -47,7 +47,7 @@ public class ExafsIntroConfigurer extends IntroConfigurer {
         
     	super.init(site, themeProperties);
         
-        this.partListener = new PartAdapter2() {
+        partListener = new PartAdapter2() {
 
 			@Override
 			public void partClosed(IWorkbenchPart part) {

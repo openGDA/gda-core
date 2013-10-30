@@ -62,10 +62,10 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 	private TextWrapper afterScanscriptName;
 	private TextWrapper beforeScanscriptName;
 
-	ExpandableComposite outputFoldersExpandableComposite;
-	ExpandableComposite jythonExpandableComposite;
-	ExpandableComposite signalExpandableComposite;
-	ExpandableComposite metadataExpandableComposite;
+	private ExpandableComposite outputFoldersExpandableComposite;
+	private ExpandableComposite jythonExpandableComposite;
+	private ExpandableComposite signalExpandableComposite;
+	private ExpandableComposite metadataExpandableComposite;
 	
 	OutputParameters bean;
 
