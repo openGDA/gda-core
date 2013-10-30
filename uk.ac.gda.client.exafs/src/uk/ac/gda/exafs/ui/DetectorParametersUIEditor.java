@@ -52,10 +52,6 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
-/**
- * @author fcp94556
- *
- */
 public class DetectorParametersUIEditor extends RichBeanEditorPart {
 
 	private ComboWrapper          experimentType;

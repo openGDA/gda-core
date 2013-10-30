@@ -119,6 +119,17 @@ public final class XesScanParametersComposite extends Composite {
 
 	private Composite scanTypeComposite;
 	private Group xesDataComp;
+	
+	private Color red, black;
+	private Label lblFileName;
+	private File editorFolder;
+	private IFile editingFile;
+	private Label lblL;
+	private LabelWrapper L;
+	private Label lblDx;
+	private LabelWrapper dx;
+	private Label lblDy;
+	private LabelWrapper dy;
 
 	public XesScanParametersComposite(Composite parent, int style) {
 		super(parent, style);
@@ -724,17 +735,6 @@ public final class XesScanParametersComposite extends Composite {
 		final double edgeEn = ele.getEdgeEnergy(edge);
 		getMonoEnergy().setValue(edgeEn); // Its in eV in Element.
 	}
-
-	private Color red, black;
-	private Label lblFileName;
-	private File editorFolder;
-	private IFile editingFile;
-	private Label lblL;
-	private LabelWrapper L;
-	private Label lblDx;
-	private LabelWrapper dx;
-	private Label lblDy;
-	private LabelWrapper dy;
 
 	@Override
 	public void dispose() {

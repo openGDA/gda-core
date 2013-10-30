@@ -46,5 +46,3 @@ public class XasScanParametersEditor extends XasXanesParametersEditor {
 		return new XasScanParametersUIEditor(path, this, (XasScanParameters)editingBean);
 	}
 }
-
-	

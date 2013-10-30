@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-
 import java.net.URL;
 
 import uk.ac.gda.beans.exafs.OutputParameters;
@@ -48,5 +47,3 @@ public class OutputParametersEditor extends ExafsBeanFileSelectionEditor {
 	}
 
 }
-
-	

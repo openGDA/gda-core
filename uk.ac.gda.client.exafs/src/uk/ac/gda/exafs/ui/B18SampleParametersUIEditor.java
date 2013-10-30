@@ -67,9 +67,6 @@ import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
 
-/**
- *
- */
 public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	private FieldComposite name;
@@ -99,9 +96,9 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private SampleWheelParametersComposite sampleWheelParametersComposite;
 	private Group grpSampleWheel;
 
-	ExpandableComposite sampleStageExpandableComposite;
-	ExpandableComposite temperatureExpandableComposite;
-	ExpandableComposite wheelExpandableComposite;
+	private ExpandableComposite sampleStageExpandableComposite;
+	private ExpandableComposite temperatureExpandableComposite;
+	private ExpandableComposite wheelExpandableComposite;
 
 	private TextWrapper afterScanscriptName;
 	private TextWrapper beforeScanscriptName;
@@ -112,10 +109,10 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private VerticalListEditor metadataList;
 	private BooleanWrapper metadataActive;
 
-	B18SampleParameters bean;
-	Composite wheelComp;
-	Composite stageComp;
-	Composite tempComp;
+	private B18SampleParameters bean;
+	private Composite wheelComp;
+	private Composite stageComp;
+	private Composite tempComp;
 
 	/**
 	 * @param path
@@ -133,10 +130,6 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		return "B18SampleParametersEditor";
 	}
 
-	/**
-	 * 
-	 */
-	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite comp) {
 		comp.setLayout(new FillLayout());
@@ -202,10 +195,8 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		ExpansionAdapter stageExpansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-//				createStage();
-				if (!stage.getValue().toString().equals("none")) {
+				if (!stage.getValue().toString().equals("none"))
 					sampleStageExpandableComposite.setExpanded(true);
-				}
 				GridUtils.layoutFull(sampleStageExpandableComposite);
 				linkuiForDynamicLoading(false);
 			}
@@ -218,7 +209,6 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			updateStageType();
 		}
 
-//		createTemp();
 		createTemp();
 
 		// temp
@@ -244,10 +234,9 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		ExpansionAdapter wheelExpansionAdapter = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-//				createWheel();
-				if (bean.getSampleWheelParameters().isWheelEnabled()) {
+				if (bean.getSampleWheelParameters().isWheelEnabled())
 					wheelExpandableComposite.setExpanded(true);
-				} else
+				else
 					wheelExpandableComposite.setExpanded(e.getState());
 				GridUtils.layoutFull(wheelExpandableComposite);
 				linkuiForDynamicLoading(false);
@@ -255,9 +244,8 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		};
 		wheelExpandableComposite.addExpansionListener(wheelExpansionAdapter);
 
-		if (bean.getSampleWheelParameters().isWheelEnabled()) {
+		if (bean.getSampleWheelParameters().isWheelEnabled())
 			wheelExpandableComposite.setExpanded(true);
-		}
 	}
 
 	public void linkuiForDynamicLoading(@SuppressWarnings("unused") final boolean isPageChange) {
@@ -315,8 +303,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			sxCryoStageComposite.setEditorClass(SXCryoStageParameters.class);
 			sxCryoStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
 
-			userStageComposite = new UserStageComposite(grpStageParameters, SWT.NONE, "user2", "user4", "user5",
-					"user6", "user7", "user8");
+			userStageComposite = new UserStageComposite(grpStageParameters, SWT.NONE, "user2", "user4", "user5", "user6", "user7", "user8");
 			userStageComposite.setVisible(true);
 			userStageComposite.setEditorClass(UserStageParameters.class);
 			userStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
@@ -468,11 +455,9 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void linkUI(final boolean isPageChange) {
-
 		try {
 			GridUtils.startMultiLayout(topComposite);
 			super.linkUI(isPageChange);
-
 			if (sampleEnvironment != null) {
 				sampleEnvironment.select(sampleEnvironment.getSelectionIndex());
 				updateEnvironmentType();

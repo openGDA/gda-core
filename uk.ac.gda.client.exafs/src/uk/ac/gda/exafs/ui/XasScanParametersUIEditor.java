@@ -186,7 +186,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	 */
 	@SuppressWarnings("unused")
 	private void createPlotRegions() {
-		
 		try {
 			aLine = plottingsystem.createRegion("a", RegionType.XAXIS_LINE);
 			aLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
@@ -203,8 +202,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			bLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 			plottingsystem.addRegion(bLine);
 			new BRegionSynchronizer(bLine, b, c, gaf2, gaf3);
-			bLine.setMobile(ExafsActivator.getDefault().getPreferenceStore()
-					.getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE));
+			bLine.setMobile(ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE));
 		} catch (Exception e) {
 			logger.error("Cannot create region for position of b!", e);
 		}
@@ -214,10 +212,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			cLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 			plottingsystem.addRegion(cLine);
 			new CRegionSynchronizer(cLine, c, gaf3);
-			cLine.setMobile(ExafsActivator.getDefault().getPreferenceStore()
-					.getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE)
-					&& !ExafsActivator.getDefault().getPreferenceStore()
-							.getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK));
+			cLine.setMobile(ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE) && !ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK));
 		} catch (Exception e) {
 			logger.error("Cannot create region for position of c!", e);
 		}

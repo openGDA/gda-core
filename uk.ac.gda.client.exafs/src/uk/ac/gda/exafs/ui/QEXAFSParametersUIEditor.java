@@ -87,7 +87,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 
 		Group grpQuickExafsParameters = new Group(container, SWT.NONE);
 		grpQuickExafsParameters.setText("Quick EXAFS Parameters");
-		final GridLayout gridLayout = new GridLayout();
+		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
 		grpQuickExafsParameters.setLayout(gridLayout);
 

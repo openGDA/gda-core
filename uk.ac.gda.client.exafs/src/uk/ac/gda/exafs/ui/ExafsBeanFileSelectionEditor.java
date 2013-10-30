@@ -65,18 +65,12 @@ public abstract class ExafsBeanFileSelectionEditor extends RichBeanMultiPageEdit
 
 	@Override
 	protected boolean confirmFileNameChange(final File oldName, final File newName) throws Exception {
-		
 		if (!oldName.getParent().equals(newName.getParent())) {
-			
-			if(allowParentChange && (oldName.getName().contains("Xspress") || oldName.getName().contains("Vortex")))
-			{//donothing
-			}					
-			
-			else{
-			MessageDialog.openError(getSite().getShell(), "Cannot save file.",
+			if(!(allowParentChange && (oldName.getName().contains("Xspress") || oldName.getName().contains("Vortex")))){
+				MessageDialog.openError(getSite().getShell(), "Cannot save file.",
 		               "The file '"+newName.getName()+"' cannot be created in '"+newName.getParentFile().getName()+"'.\n\n"+
 		               "You must save the file as an XML in the original experiment directory '"+oldName.getParentFile().getName()+"'");
-            return false;
+				return false;
 			}
 		}
 		
@@ -86,7 +80,8 @@ public abstract class ExafsBeanFileSelectionEditor extends RichBeanMultiPageEdit
 			MessageDialog.openError(getSite().getShell(), "Cannot save file.", "The file '" + newName.getName()
 					+ "' cannot be saved in '" + newName.getParentFile().getName() + "'.\n\n"
 					+ "No scan has been selected. Please enter multi-scan mode and select a scan you wish to edit.");
-		} else {
+		} 
+		else {
 			ob.renameFile(oldName.getName(), newName.getName());
 			IExperimentObjectManager man = ExperimentFactory.getManager(ob);
 			man.write();
@@ -110,11 +105,8 @@ public abstract class ExafsBeanFileSelectionEditor extends RichBeanMultiPageEdit
 	@Override
 	public void doSaveAs(){
 		final IFile currentiFile = EclipseUtils.getIFile(getEditorInput());
-		
-		if(allowParentChange && (currentiFile.getName().contains("Xspress") ||currentiFile.getName().contains("Vortex")) )
-		{			
+		if(allowParentChange && (currentiFile.getName().contains("Xspress") ||currentiFile.getName().contains("Vortex")) )		
 			path = LocalProperties.get(LocalProperties.GDA_VAR_DIR) + File.separator + currentiFile.getName();
-		}
 		super.doSaveAs();
 	}
 

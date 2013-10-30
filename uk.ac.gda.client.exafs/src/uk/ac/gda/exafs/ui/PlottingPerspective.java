@@ -40,68 +40,44 @@ import uk.ac.gda.exafs.ui.views.scalersmonitor.ScalersMonitorView;
 public class PlottingPerspective implements IPerspectiveFactory {
 
 	public static final String ID = "org.diamond.exafs.ui.PlottingPerspective";
-	IToolPageSystem system;
+	private IToolPageSystem system;
+	
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
 
-		// yuck, but will do for now.
 		String nameFrag = LocalProperties.get("gda.instrument");
+		
 		if (nameFrag.equals("i20")) {
 			IFolderLayout flTop = layout.createFolder("flTop", IPageLayout.LEFT, 1.0f, editorArea);
 			flTop.addView(LivePlotView.ID);
-			
 			IFolderLayout flBottomLeft = layout.createFolder("flBottomLeft", IPageLayout.BOTTOM, 0.7f, "flTop");
 			flBottomLeft.addView(CommandQueueViewFactory.ID);
-
 			IFolderLayout flBottom = layout.createFolder("flBottom", IPageLayout.RIGHT, 0.333f, "flBottomLeft");
 			flBottom.addView(JythonTerminalView.ID);
-
 			IFolderLayout flBottomRight = layout.createFolder("flBottomRight", IPageLayout.RIGHT, 0.5f, "flBottom");
 			flBottomRight.addView(ScriptControllerLogView.ID);
 			flBottomRight.addView(ScalersMonitorView.ID);
-
 			IFolderLayout flTopRight = layout.createFolder("flTopRight", IPageLayout.RIGHT, 0.5f, "flTop");
 			flTopRight.addView(LnI0ItScanPlotView.ID);
 			flTopRight.addView(SubtractedBackgroundScanPlotView.ID);
 			flTopRight.addView(FourierScanPlotView.ID);
 			flTopRight.addView(DerivativeScanPlotView.ID);
-			// layout.addView(LnI0ItScanPlotView.ID, IPageLayout.RIGHT, 0.5f, "flTop");
-			// layout.addView(SubtractedBackgroundScanPlotView.ID, IPageLayout.BOTTOM, 0.5f, LnI0ItScanPlotView.ID);
-			// layout.addView(FourierScanPlotView.ID, IPageLayout.RIGHT, 0.5f, SubtractedBackgroundScanPlotView.ID);
-			// layout.addView(DerivativeScanPlotView.ID, IPageLayout.RIGHT, 0.5f, LnI0ItScanPlotView.ID);
-
 			return;
 		}
 
 		IFolderLayout folderLayout_0 = layout.createFolder("folder10", IPageLayout.LEFT, 0.7f, editorArea);
 		folderLayout_0.addView(LivePlotView.ID);
-		if (!ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.HIDE_LnI0ItScanPlotView)) {
+		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.HIDE_LnI0ItScanPlotView))
 			folderLayout_0.addView(LnI0ItScanPlotView.ID);
-		}
-		
-
-		//IToolPageSystem system = (IToolPageSystem)LivePlotView.getAdapter(IToolPageSystem.class);
-
-		//system.setToolVisible("org.dawb.workbench.plotting.tools.region.editor",
-		//ToolPageRole.ROLE_2D,
-		//"org.dawb.workbench.plotting.views.toolPageView.fixed");
-		
 		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.5f, "folder1");
 		folderLayout.addView(JythonTerminalView.ID);
-
 		folderLayout.addView(ScalersMonitorView.ID);
-
 		IFolderLayout folderLayout_1 = layout.createFolder("folder0", IPageLayout.BOTTOM, 0.7f, LivePlotView.ID);
-
 		folderLayout_1.addView(CommandQueueViewFactory.ID);
-
 		IFolderLayout folderLayout_2 = layout.createFolder("folder2", IPageLayout.RIGHT, 0.5f, "folder0");
 		folderLayout_2.addView(ScriptControllerLogView.ID);
-		
-		
 	}
 
 }
