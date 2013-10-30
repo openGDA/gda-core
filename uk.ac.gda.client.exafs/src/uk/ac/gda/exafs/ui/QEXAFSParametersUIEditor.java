@@ -75,6 +75,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		};
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite comp) {
 		ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
@@ -93,7 +94,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 
 		createElementEdgeArea(grpQuickExafsParameters);
 
-		beanComposite = new QEXAFSParametersComposite(grpQuickExafsParameters, SWT.NONE,
+		beanComposite = new QEXAFSParametersComposite(grpQuickExafsParameters,
 				(QEXAFSParameters) editingBean, getKProvider());
 		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 2);
 		gridData.widthHint = 800;

@@ -27,14 +27,10 @@ import org.eclipse.swt.widgets.Label;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.FieldComposite;
-import uk.ac.gda.richbeans.components.scalebox.RangeBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 
 public class B18PulseTubeCryostatComposite extends FieldBeanComposite {
-	private RangeBox temperature1;
-	private RangeBox temperature2;
-	private RangeBox pressure;
 	private ScaleBox setPoint;
 	private ScaleBox tolerance;
 	private ScaleBox time;

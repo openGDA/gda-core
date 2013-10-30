@@ -52,9 +52,6 @@ import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
-/**
- *
- */
 public final class QEXAFSParametersComposite extends FieldBeanComposite {
 
 	private ScaleBox initialEnergy;
@@ -71,7 +68,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 	private Length crystal = null;
 	private BooleanWrapper btnBothWays;
 
-	public QEXAFSParametersComposite(Composite parent, int style, final QEXAFSParameters provider, ExpressionProvider k) {
+	public QEXAFSParametersComposite(Composite parent, final QEXAFSParameters provider, ExpressionProvider k) {
 		super(parent, SWT.NONE);
 
 		GridLayout gridLayout = new GridLayout(2, false);

@@ -79,48 +79,18 @@ import uk.ac.gda.util.schema.SchemaReader;
  * same as a field in the bean will find its way into the bean and from the bean when the editor is opened.
  */
 public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPropertyChangeListener {
-
 	private static final Logger logger = LoggerFactory.getLogger(XasScanParametersUIEditor.class);
-
-	private ComboWrapper exafsTimeType;
-	private ComboWrapper abGafChoice;
-	private ComboWrapper exafsStepType;
-
-	private ScaleBox gaf3;
-	private ScaleBox gaf2;
-	private ScaleBox gaf1;
-	private ScaleBox b, a, preEdgeTime, exafsTime, exafsStep, edgeTime, edgeStep, preEdgeStep, initialEnergy;
-	private ScaleBox exafsFromTime;
-	private ScaleBox exafsToTime;
-	private ScaleBox kWeighting;
-	
-	private ScaleBoxAndFixedExpression kStart;
-	private ScaleBoxAndFixedExpression finalEnergy, c;
-
+	private ComboWrapper exafsTimeType, abGafChoice, exafsStepType;
+	private ScaleBox gaf1, gaf2, gaf3, b, a, preEdgeTime, exafsTime, exafsStep, edgeTime, edgeStep, preEdgeStep, initialEnergy, exafsFromTime, exafsToTime, kWeighting;
+	private ScaleBoxAndFixedExpression kStart, finalEnergy, c;
 	private Link aLabel, bLabel, cLabel, e0Label, e1Label;
-
-	private Label exafsFromLabel, exafsToLabel;
-	private Label exafsStepLabel;
-	private Label exafsStepEnergyLabel;
-	private Label kWeightingLabel;
-	private Label kStartLabel;
-	private Label gaf3Label;
-
+	private Label exafsFromLabel, exafsToLabel, exafsStepLabel, exafsStepEnergyLabel, kWeightingLabel, kStartLabel, gaf3Label;
 	private SelectionAdapter e0Listener, e1Listener, aListener, bListener, cListener;
-
 	private String cachedElement;
-
 	private Group topCentre;
-	
 	private GridData gd_centre;
-	
 	private GridLayout gridLayout_1;
-
-	private IRegion aLine;
-	private IRegion bLine;
-	private IRegion cLine;
-	private IRegion edgeLine;
-	
+	private IRegion aLine, bLine, cLine, edgeLine;
 	private boolean energyInK = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_FINAL_ANGSTROM);
 	private boolean showLineAnnotations = false;
 
@@ -245,7 +215,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	private abstract class RegionSynchronizer extends ValueAdapter implements IROIListener {
-		
 		protected ScaleBox abc;
 		
 		RegionSynchronizer(IRegion line, ScaleBox abc) {
@@ -416,7 +385,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				energy = abc.getNumericValue();
 				if (energyInK)
 					energy = getKInEv().getValue(energy);
-			} else
+			} 
+			else
 				energy = calcC(gaf.getNumericValue());
 			return energy;
 		}
@@ -655,7 +625,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		Label gaf1Label = new Label(topCentre, SWT.NONE);
 		gaf1Label.setText("Gaf1");
 		gaf1Label.setToolTipText("Gamma function 1: B = Edge Energy - (Core Hole x gaf1)");
-
 		gaf1 = new ScaleBox(topCentre, SWT.NONE);
 		gaf1.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		gaf1.setNumericValue(30);
@@ -688,7 +657,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		Label gaf2Label = new Label(topCentre, SWT.NONE);
 		gaf2Label.setText("Gaf2");
 		gaf2Label.setToolTipText("Gamma function 2: B = Edge Energy - (Core Hole x gaf2)");
-
 		gaf2 = new ScaleBox(topCentre, SWT.NONE);
 		gaf2.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		gaf2.setNumericValue(10);
@@ -1150,9 +1118,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					c.setValue(value);
 				}
 				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.INITIAL_ENERGY_ELEMENT_LINK))
-					getInitialEnergy().setValue(getInitialEnergyFromElement());
+					initialEnergy.setValue(getInitialEnergyFromElement());
 				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.FINAL_ENERGY_ELEMENT_LINK))
-					getFinalEnergy().setValue(getFinalEnergyFromElement());
+					finalEnergy.setValue(getFinalEnergyFromElement());
 				rebuildGraph();
 			} else {
 				final XasScanParameters scanParams = (XasScanParameters) editingBean;

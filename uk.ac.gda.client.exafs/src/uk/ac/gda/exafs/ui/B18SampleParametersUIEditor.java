@@ -130,6 +130,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		return "B18SampleParametersEditor";
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite comp) {
 		comp.setLayout(new FillLayout());
