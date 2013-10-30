@@ -28,15 +28,10 @@ import java.util.ArrayList;
 public class AsciiDataWriterConfiguration implements Findable {
 
 	private ArrayList<AsciiWriterExtenderConfig> columns = new ArrayList<AsciiWriterExtenderConfig>();
-
 	private ArrayList<AsciiMetadataConfig> header = new ArrayList<AsciiMetadataConfig>();
-
 	private ArrayList<AsciiMetadataConfig> footer = new ArrayList<AsciiMetadataConfig>();
-
 	private String commentMarker = "#";
-
 	private String controllerName = "";
-
 	private String name = ""; // for Findable interface
 
 	/**

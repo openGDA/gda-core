@@ -43,14 +43,11 @@ public class ExafsScanRegionCalculator {
 	 */
 	public static Double[] calculateABC(String elementName, String edgeName, Double edgeEnergy, Double arg1, Double arg2, Double arg3, boolean isAB) throws Exception {
 		Double[] abc = new Double[3];
-		final Element element = Element.getElement(elementName);
-
+		Element element = Element.getElement(elementName);
 		if (element == null)
 			throw new Exception("Element " + element + " not found");
-
 		if (edgeEnergy == null)
 			edgeEnergy = element.getEdgeEnergy(edgeName);
-
 		if (!isAB) {
 			Double coreHole = element.getCoreHole(edgeName);
 			abc[0] = edgeEnergy - (arg1 * coreHole);
@@ -79,10 +76,7 @@ public class ExafsScanRegionCalculator {
 	 * @param edgeStep
 	 * @return double[]
 	 */
-	public static double[] calculateVariableStepRegion(final Double aEnergy, 
-			                                           final Double bEnergy, 
-			                                           final Double preEdgeStep,
-			                                           final Double edgeStep) throws ExafsScanPointCreatorException {
+	public static double[] calculateVariableStepRegion(final Double aEnergy, final Double bEnergy, final Double preEdgeStep, final Double edgeStep) throws ExafsScanPointCreatorException {
 		double ds = edgeStep - preEdgeStep;
 		double de = bEnergy - aEnergy;
 		double di = (edgeStep + preEdgeStep) / 2d;
@@ -93,13 +87,10 @@ public class ExafsScanRegionCalculator {
 				double dh = de - preEdgeStep * dn;
 				double aa = (3d * dh / Math.pow(dn, 2d)) - (ds / dn);
 				double bb = (-2d * dh / Math.pow(dn, 3d)) + (ds / Math.pow(dn, 2d));
-
 				final int size = (int) dn;
 				final double[] ee = new double[size];
-
-				for (int i = 1; i <= size; ++i) {
+				for (int i = 1; i <= size; ++i)
 					ee[i - 1] = aEnergy + preEdgeStep * i + aa * Math.pow(i, 2) + bb * Math.pow(i, 3);
-				}
 				return ee;
 			}
 		}

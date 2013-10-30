@@ -139,7 +139,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	public void update(Object source, Object arg) {
 		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint && !atEndCalled) {
 			ScanDataPoint sdp = (ScanDataPoint) arg;
-			if (uniqueName == null || uniqueName == sdp.getUniqueName()) {
+			if (uniqueName == null || uniqueName.equals(sdp.getUniqueName())) {
 				uniqueName = sdp.getUniqueName();
 				long now = System.currentTimeMillis();
 				int percentComplete = determinePercentComplete(sdp,false);

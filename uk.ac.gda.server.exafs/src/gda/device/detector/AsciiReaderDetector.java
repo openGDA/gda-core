@@ -85,11 +85,9 @@ public class AsciiReaderDetector extends DetectorBase {
 		for (int i = 0; i < extraNames.length; i++) {
 			String extraName = extraNames[i];
 			columnToExtraNameMap[i] = ArrayUtils.indexOf(columnHeadings, extraName);
-			if (columnToExtraNameMap[i] == -1) {
+			if (columnToExtraNameMap[i] == -1)
 				throw new DeviceException("Column " + extraName + " not found in file " + filename);
-			}
 		}
-
 	}
 
 	private void extractColumnHeadings(String previousLine) {
