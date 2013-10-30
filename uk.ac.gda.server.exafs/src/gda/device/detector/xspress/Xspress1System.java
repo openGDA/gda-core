@@ -58,9 +58,6 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	private Boolean onlyDisplayFF = false;
 	public static final String ONLY_DISPLAY_FF_ATTR = "ff_only";
 
-//	private static final int mcaChannels = 4096;
-//	private DetectorList detectorList;
-
 	private DAServer daServer;
 	private Timer timer = null;
 	private String startupScript = null;
@@ -473,33 +470,20 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
-//		if (attribute.equals("readoutModeForCalibration") && value instanceof String[]) {
-//
-//			String readoutMode = ((String[]) value)[0];
-//			String resGrade = ((String[]) value)[1];
-//
-//			// as before
-//			setReadoutMode(readoutMode);
-//
-//			// like setResGrade but the numberOfBits MUST be 12
-//			setResolutionGrade(resGrade, 12);
-//		} else 
 		if (attributeName.equals(ONLY_DISPLAY_FF_ATTR)) {
 			Boolean ffonly = Boolean.parseBoolean(value.toString());
 			this.onlyDisplayFF = ffonly;
-		} else {
+		} 
+		else
 			super.setAttribute(attributeName, value);
-		}
 	}
 
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
-		if (attributeName.equals("liveStats")) {
-//			return calculateLiveStats();
+		if (attributeName.equals("liveStats"))
 			return "Not implemented yet";
-		} else if (attributeName.equals(ONLY_DISPLAY_FF_ATTR)) {
+		else if (attributeName.equals(ONLY_DISPLAY_FF_ATTR))
 			return onlyDisplayFF;
-		}
 		return null;
 	}
 
@@ -556,28 +540,22 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 
 	@Override
 	public void start() throws DeviceException {
-		if (mcaHandle < 0 || scalerHandle < 0) {
+		if (mcaHandle < 0 || scalerHandle < 0)
 			open();
-		}
-		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
+		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
 			sendCommand("enable ", mcaHandle);
-		}
-		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
+		if (scalerHandle >= 0 && daServer != null && daServer.isConnected())
 			sendCommand("enable ", scalerHandle);
-		}
 	}
 
 	@Override
 	public void clear() throws DeviceException {
-		if (mcaHandle < 0 || scalerHandle < 0) {
+		if (mcaHandle < 0 || scalerHandle < 0)
 			open();
-		}
-		if (mcaHandle >= 0) {
+		if (mcaHandle >= 0)
 			sendCommand("clear ", mcaHandle);
-		}
-		if (scalerHandle >= 0) {
+		if (scalerHandle >= 0)
 			sendCommand("clear ", scalerHandle);
-		}
 	}
 
 	/**
@@ -586,9 +564,8 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		NexusTreeProvider out = readout(framesRead, framesRead)[0];
-		if (!timer.getAttribute("TotalFrames").equals(0)) {
+		if (!timer.getAttribute("TotalFrames").equals(0))
 			framesRead++;
-		}
 		return out;
 	}
 
@@ -596,13 +573,10 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	 * Returns a NexusTreeProvider object which the NexusDataWriter can unpack properly
 	 */
 	public NexusTreeProvider[] readout(int startFrame, int finalFrame) throws DeviceException {
-
 		int numberOfFrames = finalFrame - startFrame + 1;
 		NexusTreeProvider[] results = new NexusTreeProvider[numberOfFrames];
-
 		int[] rawscalerData = readoutHardwareScalers(startFrame, numberOfFrames);
 		int[][] unpackedScalerData = unpackRawScalerDataToFrames(rawscalerData, numberOfFrames);
-
 
 		// scaler only mode
 		if (xspressParameters.getReadoutMode().equals(XspressDetector.READOUT_SCALERONLY)) {
@@ -621,8 +595,7 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 		return results;
 	}
 
-	protected NXDetectorData addExtraInformationToNexusTree(int[][] unpackedScalerData, double[][] scalerData,
-			int frame, NXDetectorData thisFrame, INexusTree detTree) {
+	protected NXDetectorData addExtraInformationToNexusTree(int[][] unpackedScalerData, double[][] scalerData, int frame, NXDetectorData thisFrame, INexusTree detTree) {
 		thisFrame = addFFIfPossible(detTree, thisFrame, scalerData[frame]);
 		thisFrame = fillNXDetectorDataWithScalerData(thisFrame, scalerData[frame], unpackedScalerData[frame]);
 		thisFrame = addDTValuesToNXDetectorData(thisFrame, unpackedScalerData[frame]);
@@ -631,9 +604,7 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 
 	private NXDetectorData addDTValuesToNXDetectorData(NXDetectorData thisFrame, int[] unpackedScalerData) {
 		// always add raw scaler values to nexus data
-		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler values",
-				new int[] { unpackedScalerData.length }, NexusFile.NX_INT32, unpackedScalerData, "counts", 1);
-
+		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler values", new int[] { unpackedScalerData.length }, NexusFile.NX_INT32, unpackedScalerData, "counts", 1);
 		return thisFrame;
 	}
 
@@ -644,11 +615,8 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 		ArrayList<String> elementNames = new ArrayList<String>();
 		getUnFilteredChannelLabels(elementNames);
 		int ffColumn = elementNames.indexOf("FF");
-
-		if (elementNames.size() == ds.length && ffColumn > -1) {
-			thisFrame.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { ds[ffColumn] },
-					"counts", 1);
-		}
+		if (elementNames.size() == ds.length && ffColumn > -1)
+			thisFrame.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { ds[ffColumn] }, "counts", 1);
 		return thisFrame;
 	}
 
@@ -656,30 +624,26 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	 * Adds to the output the 'ascii' data which is the values which will be displayed in the Jython Terminal, plotting
 	 * and ascii file.
 	 */
-	private NXDetectorData fillNXDetectorDataWithScalerData(NXDetectorData thisFrame, double[] scalerData,
-			int[] rawScalervalues) {
+	private NXDetectorData fillNXDetectorDataWithScalerData(NXDetectorData thisFrame, double[] scalerData, int[] rawScalervalues) {
 		// only add FF
 		if (onlyDisplayFF) {
 			ArrayList<String> elementNames = new ArrayList<String>();
 			getUnFilteredChannelLabels(elementNames);
 			int ffColumn = elementNames.indexOf("FF");
 			scalerData = new double[] { scalerData[ffColumn] };
-			// names = new String[] { "FF" };
 		}
 
 		// add the raw scaler values used to calculate the deadtime to ascii
 		if (addDTScalerValuesToAscii) {
 			double[] dblRawScalerValues = new double[rawScalervalues.length];
-			for (int i = 0; i < rawScalervalues.length; i++) {
+			for (int i = 0; i < rawScalervalues.length; i++)
 				dblRawScalerValues[i] = rawScalervalues[i];
-			}
 			scalerData = ArrayUtils.addAll(scalerData, dblRawScalerValues);
 		}
 
 		String[] names = getExtraNames();
-		for (int i = 0; i < names.length; i++) {
+		for (int i = 0; i < names.length; i++)
 			thisFrame.setPlottableValue(names[i], scalerData[i]);
-		}
 
 		return thisFrame;
 	}
@@ -695,7 +659,6 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	@Override
 	public int[][][] getMCData(int time) throws DeviceException {
-
 		stop();
 		clear();
 		start();
@@ -713,9 +676,8 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 		stop();
 
 		int[] data = null;
-		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
+		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
 			data = readoutMca(0, 1, 4096); // NOTE 1 time frame
-		}
 
 		if (data != null) {
 			try {
@@ -727,7 +689,6 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 				throw new DeviceException("Error while unpacking MCA Data. Data length was " + data.length, e);
 			}
 		}
-
 		return null;
 	}
 
@@ -742,9 +703,8 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	private synchronized int[] readoutMca(int startFrame, int numberOfFrames, int mcaSize) throws DeviceException {
 		int[] value = null;
-		if (mcaHandle < 0) {
+		if (mcaHandle < 0)
 			open();
-		}
 		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
 			try {
 				value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + mcaSize + " " + numberOfDetectors
@@ -762,18 +722,16 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 		return readoutHardwareScalers(0, 1);
 	}
 
-	public double[] readoutScalerDataNoCorrection() throws DeviceException {
-		if (timer.getAttribute("TotalFrames").equals(0)) {
+	public double[] readoutScalerDataNoCorrection() throws DeviceException{
+		if (timer.getAttribute("TotalFrames").equals(0))
 			return readoutScalerData(0, 0, false)[0];
-		}
 		return readoutScalerData(framesRead, framesRead, false)[0];
 	}
 
 	@Override
 	public double[] readoutScalerData() throws DeviceException {
-		if (timer.getAttribute("TotalFrames").equals(0)) {
+		if (timer.getAttribute("TotalFrames").equals(0))
 			return readoutScalerData(0, 0, true)[0];
-		}
 		return readoutScalerData(framesRead, framesRead, true)[0];
 	}
 
@@ -788,7 +746,6 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	 * getUnFilteredChannelLabels()
 	 */
 	private double[][] readoutScalerData(int numFrames, int[] rawScalerData, boolean performCorrections) {
-
 		double[][] scalerData = new double[numFrames][];
 		
 		// else return hardware scalers using the win values from the hardwareData array
@@ -806,9 +763,9 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 					int windowed = unpackedScalerData[frame][counter + 3];
 					double deadtime = xspressDeadTimeParameters.getDetectorDT(element).getProcessDeadTimeInWindow();
 					scalerData[frame][element] = relinearize(total, resets, acc, windowed, deadtime);
-				} else {
+				} 
+				else
 					scalerData[frame][element] = unpackedScalerData[frame][counter + 3];
-				}
 				counter += 4;
 			}
 
@@ -824,9 +781,8 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 
 	private synchronized int[] readoutHardwareScalers(int startFrame, int numberOfFrames) throws DeviceException {
 		int[] value = null;
-		if (scalerHandle < 0) {
+		if (scalerHandle < 0)
 			open();
-		}
 		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
 			try {
 				value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + numberOfScalers + " "
@@ -944,18 +900,16 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	@Override
 	public ArrayList<String> getChannelLabels() {
 		ArrayList<String> channelLabels = new ArrayList<String>();
-		if (onlyDisplayFF) {
+		if (onlyDisplayFF)
 			channelLabels.add("FF");
-		} else {
+		else
 			getUnFilteredChannelLabels(channelLabels);
-		}
 		return channelLabels;
 	}
 
 	private void getUnFilteredChannelLabels(ArrayList<String> channelLabels) {
-		for (DetectorElement detector : xspressParameters.getDetectorList()) {
+		for (DetectorElement detector : xspressParameters.getDetectorList())
 			channelLabels.add(detector.getName());
-		}
 		channelLabels.add("FF");
 	}
 
@@ -997,9 +951,9 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 
 	private synchronized void sendCommand(String command, int handle) throws DeviceException {
 		Object obj;
-		if ((obj = daServer.sendCommand(command + handle)) == null) {
+		if ((obj = daServer.sendCommand(command + handle)) == null)
 			throw new DeviceException("Null reply received from daserver during " + command);
-		} else if (((Integer) obj).intValue() == -1) {
+		else if (((Integer) obj).intValue() == -1) {
 			logger.error(getName() + ": " + command + " failed");
 			close();
 			throw new DeviceException("Xspress1System " + getName() + " " + command + " failed");
@@ -1012,8 +966,7 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	 * @throws DeviceException 
 	 */
 	protected void setFail() throws DeviceException {
-		if (daServer != null && daServer.isConnected()) {
+		if (daServer != null && daServer.isConnected())
 			daServer.sendCommand("Fail");
-		}
 	}
 }

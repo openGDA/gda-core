@@ -24,9 +24,6 @@ import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 
-/**
- *
- */
 public class BeanGroup {
 
 	private boolean   incompleteDataAllowed=false;

@@ -30,26 +30,19 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
 
-/**
- *
- */
 @CorbaImplClass(ScannableImpl.class)
 @CorbaAdapterClass(ScannableAdapter.class)
 public class AsciiReaderScannable extends SimpleScannable {
 
 	private String[] columnHeadings;
 	private int[] columnToExtraNameMap;
-
 	private String previousLine = "";
-
-	private BufferedReader reader;
 	private String filename = "/dls/b18/data/2010/cm1901-3/Experiment_1/ascii/Ptfoil3_1_532.dat";
-	
+	private BufferedReader reader;
 	private static ArrayList<String> dataLines;
 	private static int delay = 200;
 	
 	public AsciiReaderScannable() {
-		
 		this.inputNames = new String[] { "Energy" };
 		this.extraNames = new String[] { "Integration Time" };
 		this.outputFormat = new String[] { "%8.2f", "%8.2f" };
@@ -64,7 +57,6 @@ public class AsciiReaderScannable extends SimpleScannable {
 	public void atScanEnd() throws DeviceException {
 		dataLines = new ArrayList<String>();
 	}
-
 	
 	/**
 	 * {@inheritDoc}
@@ -75,9 +67,7 @@ public class AsciiReaderScannable extends SimpleScannable {
 	public void atScanStart() throws DeviceException {
 		try {
 			reader = new BufferedReader(new FileReader(filename));
-			
 			dataLines = new ArrayList<String>();
-			
 			String tmpLine = reader.readLine(); 
 			while (tmpLine != null) {
 				dataLines.add(tmpLine);
@@ -86,12 +76,11 @@ public class AsciiReaderScannable extends SimpleScannable {
 			reader.close();
 			
 			String previousLine = "";
-			while (dataLines.get(0).startsWith("#")) {
+			while (dataLines.get(0).startsWith("#"))
 				previousLine = dataLines.remove(0);
-			}
+			
 			// the last line will be the column headings
 			extractColumnHeadings(previousLine);
-
 			mapExtraNamesToColumns();
 
 		} catch (Exception e) {
@@ -102,27 +91,21 @@ public class AsciiReaderScannable extends SimpleScannable {
 
 	private void mapExtraNamesToColumns() throws DeviceException {
 		columnToExtraNameMap = new int[2];
-		
 		String extraName = "Energy";
 		columnToExtraNameMap[0] = ArrayUtils.indexOf(columnHeadings, extraName);
-		if (columnToExtraNameMap[0] == -1) {
+		if (columnToExtraNameMap[0] == -1)
 			throw new DeviceException("Column " + extraName + " not found in file " + filename);
-		}
-		
 		extraName = "Integration Time";
 		columnToExtraNameMap[1] = ArrayUtils.indexOf(columnHeadings, extraName);
-		if (columnToExtraNameMap[1] == -1) {
+		if (columnToExtraNameMap[1] == -1)
 			throw new DeviceException("Column " + extraName + " not found in file " + filename);
-		}
-
 	}
 
 	private void extractColumnHeadings(String previousLine) {
 		previousLine = previousLine.trim().substring(1);
 		columnHeadings = previousLine.split("\t");
-		for (int i = 0; i < columnHeadings.length; i++) {
+		for (int i = 0; i < columnHeadings.length; i++)
 			columnHeadings[i] = columnHeadings[i].trim();
-		}
 	}
 
 	/**
@@ -137,19 +120,16 @@ public class AsciiReaderScannable extends SimpleScannable {
 			try {
 				Thread.sleep(delay);
 			} catch (InterruptedException e) {
-				//do nothing
 			}
 			
-			if (line == null) {
+			if (line == null)
 				line = previousLine;
-			}
 
 			String[] parts = line.split("\t");
 
 			double[] output = new double[2];
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 2; i++)
 				output[i] = Double.parseDouble(parts[columnToExtraNameMap[i]]);
-			}
 
 			previousLine = line;
 			return new double[] {output[0], output[1]};
@@ -166,7 +146,6 @@ public class AsciiReaderScannable extends SimpleScannable {
 	public String getFilename() {
 		return filename;
 	}
-
 
 	/**
 	 * @param args

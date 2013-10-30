@@ -32,28 +32,13 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PositionStreamingXspress extends Xspress2System implements PositionCallableProvider<NexusTreeProvider>,
-		PositionInputStream<NexusTreeProvider> {
+public class PositionStreamingXspress extends Xspress2System implements PositionCallableProvider<NexusTreeProvider>, PositionInputStream<NexusTreeProvider> {
 	private static Logger logger = LoggerFactory.getLogger(PositionStreamingXspress.class);
-	
 	private PositionStreamIndexer<NexusTreeProvider> indexer;
-//	private Double[] times;
 	private int nextFrameToRead = 0;
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-
-//		tfg.clearFrameSets();
-//		if (times != null && times.length > 0) {
-//			// create the time frames here
-//			for (int i = 0; i < times.length; i++) {
-//				tfg.addFrameSet(1, 0, times[i], 0, 0, -1, 0);
-//			}
-//			tfg.loadFrameSets();
-//			daServer.sendCommand("tfg arm");
-//			daServer.sendCommand("tfg start");
-//			nextFrameToRead = 0;
-//		}
 		indexer = new PositionStreamIndexer<NexusTreeProvider>(this);
 		super.atScanLineStart();
 	}
@@ -61,7 +46,6 @@ public class PositionStreamingXspress extends Xspress2System implements Position
 	@Override
 	public void atScanLineEnd() throws DeviceException {
 		indexer = null;
-//		times = new Double[0];
 		super.atScanLineEnd();
 	}
 
@@ -70,32 +54,20 @@ public class PositionStreamingXspress extends Xspress2System implements Position
 		return indexer.getPositionCallable();
 	}
 
-//	@Override
-//	public void collectData() throws DeviceException {
-//		if (!tfg.getAttribute("TotalFrames").equals(0)) {
-//			daServer.sendCommand("tfg cont");
-//		} else {
-//			super.collectData();
-//		}
-//	}
-
 	@Override
-	public List<NexusTreeProvider> read(int maxToRead) throws NoSuchElementException, InterruptedException,
-			DeviceException {
+	public List<NexusTreeProvider> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
 		List<NexusTreeProvider> listOfTress = new ArrayList<NexusTreeProvider>();
 		if (tfg.getAttribute("TotalFrames").equals(0)) {
 			listOfTress.add(readout());
 			return listOfTress;
 		}
 		int highestFrameNumAvailable = getNumberFrames() - 1;
-		if (highestFrameNumAvailable < nextFrameToRead) {
+		if (highestFrameNumAvailable < nextFrameToRead)
 			highestFrameNumAvailable = nextFrameToRead;
-		}
 		logger.info("readout from " + nextFrameToRead + " to " + highestFrameNumAvailable);
 		NexusTreeProvider[] trees = readout(nextFrameToRead, highestFrameNumAvailable);
-		for (NexusTreeProvider tree : trees) {
+		for (NexusTreeProvider tree : trees)
 			listOfTress.add(tree);
-		}
 		lastFrameCollected = highestFrameNumAvailable;
 		nextFrameToRead = highestFrameNumAvailable + 1;
 		return listOfTress;

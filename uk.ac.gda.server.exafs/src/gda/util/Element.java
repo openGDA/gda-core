@@ -526,27 +526,6 @@ public final class Element {
 		return (coreHoles[edge][arrayRef]);
 	}
 
-	/**
-	 * Creates and returns an AbsorptionEdge
-	 * 
-	 * @param edgeName
-	 *            the edge name ("K", "L1", "L2", "L3")
-	 * @return an AbsorptionEdge containing the relevant information or null if the edge does not exist
-	 */
-
-	public AbsorptionEdge getEdge(String edgeName) {
-		AbsorptionEdge rtrn = null;
-		double edgeEnergy;
-
-		edgeEnergy = getEdgeEnergy(edgeName);
-
-		if (edgeEnergy != Double.NaN) {
-			rtrn = new AbsorptionEdge(getSymbol(), edgeName, edgeEnergy);
-		}
-
-		return (rtrn);
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

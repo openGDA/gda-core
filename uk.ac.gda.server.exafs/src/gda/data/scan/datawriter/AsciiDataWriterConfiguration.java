@@ -126,7 +126,6 @@ public class AsciiDataWriterConfiguration implements Findable {
 	
 	@Override
 	public AsciiDataWriterConfiguration clone(){
-		
 		AsciiDataWriterConfiguration copy = new AsciiDataWriterConfiguration();
 		copy.name = name;
 		copy.controllerName = controllerName;
@@ -134,7 +133,6 @@ public class AsciiDataWriterConfiguration implements Findable {
 		copy.header = new ArrayList<AsciiMetadataConfig>(header);
 		copy.footer = new ArrayList<AsciiMetadataConfig>(footer);
 		copy.columns = new ArrayList<AsciiWriterExtenderConfig>(columns);
-		
 		return copy;
 	}
 

@@ -49,13 +49,12 @@ public class AsciiReaderDetector extends DetectorBase {
 		this.outputFormat = new String[] { "%8.2f", "%8.2f", "%8.2f", "%8.2f" };
 	}
 
+	//TODO I just found this method to be a copy of AsciiReaderScannable.atScanStart() or vice versa. We should know better than to fork code.
 	@Override
 	public void atScanStart() throws DeviceException {
 		try {
 			reader = new BufferedReader(new FileReader(filename));
-			
 			dataLines = new ArrayList<String>();
-			
 			String tmpLine = reader.readLine(); 
 			while (tmpLine != null) {
 				dataLines.add(tmpLine);
@@ -64,9 +63,8 @@ public class AsciiReaderDetector extends DetectorBase {
 			reader.close();
 			
 			String previousLine = "";
-			while (dataLines.get(0).startsWith("#")) {
+			while (dataLines.get(0).startsWith("#"))
 				previousLine = dataLines.remove(0);
-			}
 			// the last line will be the column headings
 			extractColumnHeadings(previousLine);
 
@@ -97,9 +95,8 @@ public class AsciiReaderDetector extends DetectorBase {
 	private void extractColumnHeadings(String previousLine) {
 		previousLine = previousLine.trim().substring(1);
 		columnHeadings = previousLine.split("\t");
-		for (int i = 0; i < columnHeadings.length; i++) {
+		for (int i = 0; i < columnHeadings.length; i++)
 			columnHeadings[i] = columnHeadings[i].trim();
-		}
 	}
 
 	@Override
@@ -138,16 +135,14 @@ public class AsciiReaderDetector extends DetectorBase {
 			String line = dataLines.remove(0);
 			Thread.sleep(delay);
 			
-			if (line == null) {
+			if (line == null)
 				line = previousLine;
-			}
 
 			String[] parts = line.split("\t");
 
 			Double[] output = new Double[extraNames.length];
-			for (int i = 0; i < extraNames.length; i++) {
+			for (int i = 0; i < extraNames.length; i++)
 				output[i] = Double.parseDouble(parts[columnToExtraNameMap[i]]);
-			}
 
 			previousLine = line;
 			return output;

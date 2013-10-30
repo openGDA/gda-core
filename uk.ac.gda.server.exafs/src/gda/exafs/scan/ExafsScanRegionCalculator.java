@@ -41,41 +41,31 @@ public class ExafsScanRegionCalculator {
 	 * @return Double[3]
 	 * @throws Exception
 	 */
-	public static Double[] calculateABC(String elementName, String edgeName, Double edgeEnergy, Double arg1,
-			Double arg2, Double arg3, boolean isAB) throws Exception {
+	public static Double[] calculateABC(String elementName, String edgeName, Double edgeEnergy, Double arg1, Double arg2, Double arg3, boolean isAB) throws Exception {
 		Double[] abc = new Double[3];
 		final Element element = Element.getElement(elementName);
 
-		if (element == null) {
+		if (element == null)
 			throw new Exception("Element " + element + " not found");
-		}
 
-		if (edgeEnergy == null) {
+		if (edgeEnergy == null)
 			edgeEnergy = element.getEdgeEnergy(edgeName);
-		}
 
 		if (!isAB) {
 			Double coreHole = element.getCoreHole(edgeName);
-
-			if (coreHole == Double.NaN) {
-				throw new Exception("Edge " + edgeName + " not found");
-			}
-
 			abc[0] = edgeEnergy - (arg1 * coreHole);
 			abc[1] = edgeEnergy - (arg2 * coreHole);
-			if (arg3 != null){
+			if (arg3 != null)
 				abc[2] = edgeEnergy + (arg3 * coreHole);
-			} else {
+			else
 				abc[2] = edgeEnergy + (arg2 * coreHole);
-			}
 		} else {
 			abc[0] = arg1;
 			abc[1] = arg2;
-			if (arg3 != null){
+			if (arg3 != null)
 				abc[2] = arg3;
-			} else {
+			else
 				abc[2] = edgeEnergy + (edgeEnergy - arg2);
-			}
 		}
 		return abc;
 	}
