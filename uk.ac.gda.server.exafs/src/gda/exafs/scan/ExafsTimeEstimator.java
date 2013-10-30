@@ -66,8 +66,8 @@ public class ExafsTimeEstimator {
 	 * @return time in ms
 	 */
 	public static long getTime(List<PyObject[]> points) {
-		
-		if (points==null) return 0l;
+		if (points==null) 
+			return 0l;
 		
 		// We read the monchromator energy rate (eV / ms)
 		final String monoString    = LocalProperties.get("gda.exafs.mono.energy.rate");
@@ -77,18 +77,16 @@ public class ExafsTimeEstimator {
 		final String readoutString = LocalProperties.get("gda.exafs.read.out.time");
 		final double readoutConst  = readoutString!=null ? Double.parseDouble(readoutString) : 1; // Default fast detector.
 		
-		long   time       = 0l;
+		long time = 0l;
 		double lastEnergy = points.get(0)[0].asDouble();
 		
 		for (PyObject[] fa : points) {
 			double energy = fa[0].asDouble();
 			double diff   = energy-lastEnergy;
 			time+=diff*monoRate; // ms for moving the mono
-	    	
 			time+=fa[1].asDouble()*1000;
-	    	time+=readoutConst;
-	    	
-	    	lastEnergy = energy;
+			time+=readoutConst;
+			lastEnergy = energy;
 		}
 		
 		return time;

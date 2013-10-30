@@ -529,11 +529,10 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 		Object obj = null;
 		if (daServer != null && daServer.isConnected()) {
 			if (startupScript != null) {
-				if ((obj = daServer.sendCommand(startupScript)) == null) {
+				if ((obj = daServer.sendCommand(startupScript)) == null)
 					throw new DeviceException("Null reply received from daserver during " + startupScript);
-				} else if (((Integer) obj).intValue() == -1) {
+				else if (((Integer) obj).intValue() == -1)
 					throw new DeviceException(getName() + ": " + startupScript + " failed");
-				}
 			}
 		}
 	}
@@ -770,9 +769,8 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 			}
 
 			double ff = 0;
-			for (double value : scalerData[frame]) {
+			for (double value : scalerData[frame])
 				ff += value;
-			}
 			scalerData[frame] = ArrayUtils.add(scalerData[frame], ff);
 
 		}	

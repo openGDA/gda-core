@@ -150,9 +150,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		// A real system needs a connection to a real da.server via a DAServer object.
 		if (daServer == null) {
 			logger.debug("Xspress2System.configure(): finding: " + daServerName);
-			if ((daServer = (DAServer) Finder.getInstance().find(daServerName)) == null) {
+			if ((daServer = (DAServer) Finder.getInstance().find(daServerName)) == null)
 				logger.error("Xspress2System.configure(): Server " + daServerName + " not found");
-			}
 		}
 		// Both dummy and real systems should have a tfg
 		if (tfg == null) {
@@ -390,9 +389,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-		if (!daServer.isConnected()) {
+		if (!daServer.isConnected())
 			daServer.connect();
-		}
 		// if this class was used to define framesets, then memeory is only cleared at the start of the scan
 		if (!tfg.getAttribute("TotalFrames").equals(0)) {
 			stop();
@@ -1838,30 +1836,22 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 * @return double[][]
 	 */
 	private double[][] flip2DArray(double[][] array) {
-
 		int firstDim = array.length; // 2
 		int secondDim = array[0].length; // 4096
-
 		double[][] newArray = new double[secondDim][firstDim];
-
 		for (int i = 0; i < secondDim; i++)
 			for (int j = 0; j < firstDim; j++)
 				newArray[i][j] = array[j][i];
-
 		return newArray;
 	}
 
 	private int[][] flip2DArray(int[][] array) {
-
 		int firstDim = array.length; // 2
 		int secondDim = array[0].length; // 4096
-
 		int[][] newArray = new int[secondDim][firstDim];
-
 		for (int i = 0; i < secondDim; i++)
 			for (int j = 0; j < firstDim; j++)
 				newArray[i][j] = array[j][i];
-
 		return newArray;
 	}
 
@@ -2392,10 +2382,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	
 	public int getNumberFrames() throws DeviceException {
 		// this value will be non-zero if collecting from a series of time frames outside of the continuous scan mechanism
-		if (tfg.getAttribute("TotalFrames").equals(0)) {
+		if (tfg.getAttribute("TotalFrames").equals(0))
 			return 0;
-		}
-
 		return getNumberFramesFromTFGStatus();
 	}
 

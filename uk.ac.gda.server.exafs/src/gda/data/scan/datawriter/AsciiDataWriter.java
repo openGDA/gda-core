@@ -40,16 +40,13 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 
 	protected AsciiDataWriterConfiguration configuration;
 
-	ScanDataPointFormatter scanDataPointFormatter = null;
-	String columnHeader = "";
+	private ScanDataPointFormatter scanDataPointFormatter = null;
+	protected String columnHeader = "";
 
 	public AsciiDataWriter() throws InstantiationException {
-
 		ArrayList<Findable> configs = Finder.getInstance().listAllObjects("AsciiDataWriterConfiguration");
-		if (configs.size() == 0) {
+		if (configs.size() == 0)
 			throw new InstantiationException("No configuration object for " + this.getClass().getName() + " found");
-		}
-		
 		configuration = ((AsciiDataWriterConfiguration) configs.get(0));
 	}
 	
@@ -73,8 +70,6 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 				logger.error("IOException while writing data point to ascii file: " + e.getMessage());
 			}
 
-//			updatePercentComplete(dataPoint);
-
 		} finally {
 			try {
 				super.addData(this, dataPoint);
@@ -83,18 +78,6 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 			}
 		}
 	}
-
-//	protected void updatePercentComplete(ScanDataPoint dataPoint) {
-//		if (getController() != null) {
-//			int cur = dataPoint.getCurrentPointNumber();
-//			int all = dataPoint.getNumberOfPoints();
-//			if (all < cur) {
-//				return;
-//			}
-//			int percent = (int) (((double) cur / (double) all) * 100d);
-//			getController().notifyIObservers("% Complete", new PercentCompleteEvent(this, percent));
-//		}
-//	}
 
 	@Override
 	public void writeColumnHeadings() {
@@ -134,7 +117,6 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 
 	@Override
 	public void setHeader(String header) {
-		// ignore - for this class this is set by the configuration
 	}
 
 	@Override
@@ -167,9 +149,8 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 	protected ScriptControllerBase controller;
 
 	protected ScriptControllerBase getController() {
-		if (controller == null) {
+		if (controller == null)
 			controller = (ScriptControllerBase) Finder.getInstance().find(configuration.getControllerName());
-		}
 		return controller;
 	}
 }

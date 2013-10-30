@@ -122,9 +122,8 @@ public class ExafsScanPointCreator {
 		// varying time in exafs region?
 		creator.setExafsConstantTime(parameters.getExafsTimeType().equalsIgnoreCase("Constant Time"));
 		// set the edge Energy if it is null
-		if (parameters.getEdgeEnergy() == null) {
+		if (parameters.getEdgeEnergy() == null)
 			creator.setEdgeEnergy(Element.getElement(parameters.getElement()).getEdgeEnergy(parameters.getEdge()));
-		}
 		else
 			creator.setEdgeEnergy(parameters.getEdgeEnergy());
 	}
@@ -179,26 +178,20 @@ public class ExafsScanPointCreator {
 	public Double[] getScanTimes() throws Exception {
 		double[][] energies = getScanEnergies();
 		Double[] times = new Double[energies.length];
-		for (int i = 0; i < energies.length; i++){
+		for (int i = 0; i < energies.length; i++)
 			times[i] = energies[i][1];
-		}
 		return times;
 	}
 
 	protected static PyTuple convert2DDoubleArray(double[][] doublearray, int numDetectors) {
-
 		PyObject[] floatarray = new PyObject[doublearray.length];
-
 		for (int i = 0; i < doublearray.length; i++) {
 			PyArray thisElement = new PyArray(PyFloat.class, numDetectors + 1);
-			for (int j = 0; j < numDetectors + 1; j++) {
+			for (int j = 0; j < numDetectors + 1; j++)
 				thisElement.__setitem__(j, new PyFloat(doublearray[i][j]));
-			}
 			floatarray[i] = thisElement;
 		}
-
 		return new PyTuple(floatarray);
-
 	}
 
 	private double[][] calculateValues() throws ExafsScanPointCreatorException {
@@ -215,28 +208,23 @@ public class ExafsScanPointCreator {
 		double[][] bcEnergies = createStepArray(bEnergy+edgeStep, cEnergy, edgeStep, edgeTime, false, numberDetectors);
 		scanTimes.add(new ExafsScanRegionTime("BcEnergy", bcEnergies.length, new double[]{edgeTime}));
 		// if varying time the temporarily set the exafs time to a fixed value
-		if (!exafsConstantTime) {
+		if (!exafsConstantTime)
 			exafsTime = exafsFromTime;
-		}
 
 		double[][] exafsEnergies;
-		if (exafsConstantEnergyStep) {
+		if (exafsConstantEnergyStep)
 			exafsEnergies = createStepArray(cEnergy, finalEnergy, exafsStep, exafsTime, true, numberDetectors);
-		} else {
+		else
 			exafsEnergies = calculateExafsEnergiesConstantKStep();
-		}
 		// now change all the exafs times if they vary
-		if (!exafsConstantTime) {
+		if (!exafsConstantTime)
 			exafsEnergies = convertTimes(exafsEnergies, exafsFromTime, exafsToTime);
-		}
 
 		// Smooth out the transition between edge and exafs region.
 		final double[][][] newRegions = createEdgeToExafsSteps(cEnergy, exafsEnergies, edgeStep, exafsTime);
 		final double[][] edgeToExafsEnergies = newRegions[0];
 		if(edgeToExafsEnergies != null)
-		{
 			scanTimes.add(new ExafsScanRegionTime("EdgetoExafs", edgeToExafsEnergies.length, new double[]{exafsTime}));
-		}
 		exafsEnergies = newRegions[1];
 
 		// The edgeToExafsEnergies replaces the first EXAFS_SMOOTH_COUNT
@@ -245,9 +233,7 @@ public class ExafsScanPointCreator {
 		double []exafsRegionTimeArray = new double[exafsEnergies.length];
 		int  k =0;
 		for(double[] exafsEnergy : exafsEnergies)
-		{
 			exafsRegionTimeArray[k++ ] = exafsEnergy[1];
-		}
 		scanTimes.add(new ExafsScanRegionTime("Exafs", 1,  exafsRegionTimeArray));
 		double[][] allEnergies = (double[][]) ArrayUtils.addAll(preEdgeEnergies, abEnergies);
 		allEnergies = (double[][]) ArrayUtils.addAll(allEnergies, bcEnergies);
@@ -264,15 +250,10 @@ public class ExafsScanPointCreator {
 	}
 
 	private double[][] createArrayFromEnergySteps(double a, double[] steps, Double stepTime) {
-
 		double[][] array = new double[steps.length + 1][numberDetectors + 1];
-
 		array[0] = createElement(a, stepTime, numberDetectors);
-
-		for (int i = 0; i < steps.length; i++) {
+		for (int i = 0; i < steps.length; i++)
 			array[i + 1] = createElement(steps[i], stepTime, numberDetectors);
-		}
-
 		return array;
 	}
 
@@ -282,9 +263,8 @@ public class ExafsScanPointCreator {
 			final Double stepTime) throws ExafsScanPointCreatorException {
 
 		// If too few points in exafs, we do nothing
-		if (exafsEnergies.length < EXAFS_SMOOTH_COUNT) {
+		if (exafsEnergies.length < EXAFS_SMOOTH_COUNT)
 			return new double[][][] { null, exafsEnergies };
-		}
 
 		int i = 0;
 		double kStep = exafsEnergies[i + 1][0] - exafsEnergies[i][0];
@@ -298,13 +278,9 @@ public class ExafsScanPointCreator {
 			i += 1;
 		}
 
-		double[] steps = ExafsScanRegionCalculator.calculateVariableStepRegion(cEnergy, exafsEnergies[i][0], edgeStep,
-				kStep);
-
+		double[] steps = ExafsScanRegionCalculator.calculateVariableStepRegion(cEnergy, exafsEnergies[i][0], edgeStep,kStep);
 		exafsEnergies = (double[][]) ArrayUtils.subarray(exafsEnergies, i + 1, exafsEnergies.length);
-
 		return new double[][][] { createArrayFromEnergySteps(cEnergy, steps, stepTime), exafsEnergies };
-
 	}
 
 	/**
@@ -315,15 +291,12 @@ public class ExafsScanPointCreator {
 	 * @throws Exception
 	 */
 	public static double getStartOfConstantKRegion(Object scanParametersOrXanesParameters) throws Exception {
-
 		if (scanParametersOrXanesParameters instanceof XasScanParameters) {
 			final Double[] abc = getABC((XasScanParameters) scanParametersOrXanesParameters);
 			final Double energyStep = ((XasScanParameters) scanParametersOrXanesParameters).getExafsStep();
-
 			double kStart = abc[2];
 			for (int i = 0; i < EXAFS_SMOOTH_COUNT; i++)
 				kStart += energyStep;
-
 			return kStart;
 		}
 
@@ -337,10 +310,6 @@ public class ExafsScanPointCreator {
 	private double[][] convertTimes(double[][] exafsEnergies, Double fromTime, Double toTime) {
 		// loop over the exafsEnergies array and change each time element to a number varying smootly from exafsFromTime
 		// to exafsToTime
-		/*
-		 * double timeStep = (toTime - fromTime) / (exafsEnergies.length - 1); for (int i = 0; i < exafsEnergies.length;
-		 * i++) { for (int j = 1; j <= numberDetectors; j++) { exafsEnergies[i][j] = fromTime + (timeStep * i); } }
-		 */
 		// Calculating the weighted time. when kweighting is 1, the system is linear
 		// for a cubic system use kweighting = 2 or 3.
 		double start = exafsEnergies[0][0];
@@ -357,25 +326,18 @@ public class ExafsScanPointCreator {
 				time = fromTime + (a * c) / b;
 				exafsEnergies[i][j] = time;
 			}
-
 		}
 		return exafsEnergies;
 	}
 	
 	private double[][] calculateExafsEnergiesConstantKStep() {
 		// so want to loop from edgeRegionHighEnergy to finalEnergy in k steps of size exafsStep
-
 		double lowK = evToK(cEnergy);
 		double highK = evToK(finalEnergy);
-		// this.kStart = lowK;
-
 		double[][] kArray = createStepArray(lowK, highK, exafsStep, exafsTime, true, numberDetectors);
-
 		// convert from k to energy in each element
-		for (int i = 0; i < kArray.length; i++) {
+		for (int i = 0; i < kArray.length; i++)
 			kArray[i][0] = kToEv(kArray[i][0]);
-		}
-
 		return kArray;
 	}
 
@@ -387,9 +349,6 @@ public class ExafsScanPointCreator {
 	 * @return k in inverse Angstroms
 	 */
 	private double evToK(double energy) {
-		//This uses 7% of CPU in quick xafs
-		//double val = 0.512316746*Math.sqrt(energy-edgeEnergy);    
-		//return val;
 		Converter.setEdgeEnergy(edgeEnergy / 1000.0);
 		return Converter.convert(energy, Converter.EV, Converter.PERANGSTROM);
 	}
@@ -402,113 +361,81 @@ public class ExafsScanPointCreator {
 	 * @return energy in eV
 	 */
 	private double kToEv(double value) {
-		//This uses 7% of CPU in quick xafs
-		//double val =  edgeEnergy+((value*value)/0.512316746);  
-		//return val;
 		Converter.setEdgeEnergy(edgeEnergy / 1000.0);
 		return Converter.convert(value, Converter.PERANGSTROM, Converter.EV);
 	}
 
-	protected static double[][] createStepArray(double low, double high, double step, double time,
-			boolean ensureUseHighEnergy, int numDetectors) {
+	protected static double[][] createStepArray(double low, double high, double step, double time, boolean ensureUseHighEnergy, int numDetectors) {
 		Long numSteps = Math.round((high - low) / step);
-
-		if (numSteps == 0) {
+		if (numSteps == 0)
 			return new double[][] { createElement(low, time, numDetectors) };
-		}
-
 		double[][] array = new double[numSteps.intValue()][numDetectors + 1];
-
-		for (int i = 0; i < numSteps; i++) {
+		for (int i = 0; i < numSteps; i++)
 			array[i] = createElement(low + i * step, time, numDetectors);
-		}
-
 		// room for one more?
 		if (array[array.length - 1][0] + step < high) {
 			double[][] extraarray = new double[1][numDetectors + 1];
 			extraarray[0] = createElement(array[array.length - 1][0] + step, time, numDetectors);
 			array = (double[][]) ArrayUtils.addAll(array, extraarray);
 		}
-
 		if (ensureUseHighEnergy && array[array.length - 1][0] != high) {
 			double[][] extraarray = new double[1][numDetectors + 1];
 			extraarray[0] = createElement(high, time, numDetectors);
 			array = (double[][]) ArrayUtils.addAll(array, extraarray);
 		}
-
 		return array;
 	}
 
 	private static double[] createElement(double energy, double time, int numDetectors) {
 		double[] element = new double[numDetectors + 1];
 		element[0] = energy;
-		for (int j = 1; j < numDetectors + 1; j++) {
+		for (int j = 1; j < numDetectors + 1; j++)
 			element[j] = time;
-		}
 		return element;
 	}
 
 	private void checkAllValuesEntered() throws ExafsScanPointCreatorException {
-
 		final double aNearest = getNearestAEnergy();
 		setaEnergy(aNearest);
-
-		if (initialEnergy == null) {
+		if (initialEnergy == null)
 			throw new ExafsScanPointCreatorException("initialEnergy not set");
-		}
-		if (aEnergy == null) {
+		if (aEnergy == null)
 			throw new ExafsScanPointCreatorException("A/Gaf1 Energy not set");
-		}
-		if (bEnergy == null) {
+		if (bEnergy == null)
 			throw new ExafsScanPointCreatorException("B/Gaf2 Energy not set");
-		}
-		if (preEdgeStep == null) {
+		if (preEdgeStep == null)
 			throw new ExafsScanPointCreatorException("preEdgeStep not set");
-		}
-		if (preEdgeTime == null) {
+		if (preEdgeTime == null)
 			throw new ExafsScanPointCreatorException("preEdgeTime not set");
-		}
-		if (cEnergy == null) {
+		if (cEnergy == null)
 			throw new ExafsScanPointCreatorException("cEnergy not set");
-		}
-		if (edgeStep == null) {
+		if (edgeStep == null)
 			throw new ExafsScanPointCreatorException("edgeStep not set");
-		}
-		if (edgeTime == null) {
+		if (edgeTime == null)
 			throw new ExafsScanPointCreatorException("edgeTime not set");
-		}
-		if (finalEnergy == null) {
+		if (finalEnergy == null)
 			throw new ExafsScanPointCreatorException("finalEnergy not set");
-		}
-		if (exafsStep == null) {
+		if (exafsStep == null)
 			throw new ExafsScanPointCreatorException("exafsStep not set");
-		}
-		if (exafsConstantTime && exafsTime == null) {
+		if (exafsConstantTime && exafsTime == null)
 			throw new ExafsScanPointCreatorException("exafsTime not set");
-		} else if (!exafsConstantTime && (exafsFromTime == null || exafsToTime == null)) {
+		else if (!exafsConstantTime && (exafsFromTime == null || exafsToTime == null))
 			throw new ExafsScanPointCreatorException("exafsFromTime and exafsToTime need to be set if varying exafs time to be used");
-		}
-		if (numberDetectors == null) {
+		if (numberDetectors == null)
 			throw new ExafsScanPointCreatorException("numberDetectors not set");
-		}
-
-		if (!exafsConstantEnergyStep && edgeEnergy == null) {
+		if (!exafsConstantEnergyStep && edgeEnergy == null)
 			throw new ExafsScanPointCreatorException("edgeEnergy not set when doing constant K in exafs region");
-		}
-
 	}
 
 	private double getNearestAEnergy() {
-
 		// We try to calculate the nearest point to A which fits the step sizes
 		double value = getInitialEnergy();
 		double ret = value;
 		while (value < getaEnergy()) {
 			double step = getPreEdgeStep();
 			// avoid infinite loop
-			if (step <= 0.0){
+			if (step <= 0.0)
 				step = 1.0;
-			}
 			value += step;
 			if (value > getaEnergy())
 				break;
@@ -518,27 +445,20 @@ public class ExafsScanPointCreator {
 	}
 
 	private void checkAllValuesConsistent() throws ExafsScanPointCreatorException {
-		if (initialEnergy > aEnergy) {
+		if (initialEnergy > aEnergy)
 			throw new ExafsScanPointCreatorException("initialEnergy higher than edgeRegionLowEnergy");
-		}
-		if (aEnergy > bEnergy) {
+		if (aEnergy > bEnergy)
 			throw new ExafsScanPointCreatorException("A higher than B");
-		}
-		if (cEnergy < aEnergy) {
+		if (cEnergy < aEnergy)
 			throw new ExafsScanPointCreatorException("edgeRegionLowEnergy higher than edgeRegionHighEnergy");
-		}
-		if (cEnergy > finalEnergy) {
+		if (cEnergy > finalEnergy)
 			throw new ExafsScanPointCreatorException("edgeRegionHighEnergy higher than finalEnergy");
-		}
-		if (preEdgeStep > aEnergy - initialEnergy) {
+		if (preEdgeStep > aEnergy - initialEnergy)
 			throw new ExafsScanPointCreatorException("preEdgeStep too big");
-		}
-		if (edgeStep > cEnergy - aEnergy) {
+		if (edgeStep > cEnergy - aEnergy)
 			throw new ExafsScanPointCreatorException("edgeStep too big");
-		}
-		if (exafsStep > finalEnergy - cEnergy) {
+		if (exafsStep > finalEnergy - cEnergy)
 			throw new ExafsScanPointCreatorException("exafsStep too big");
-		}
 	}
 
 	/**
@@ -915,32 +835,38 @@ public class ExafsScanPointCreator {
 		if (aEnergy == null) {
 			if (other.aEnergy != null)
 				return false;
-		} else if (!aEnergy.equals(other.aEnergy))
+		} 
+		else if (!aEnergy.equals(other.aEnergy))
 			return false;
 		if (bEnergy == null) {
 			if (other.bEnergy != null)
 				return false;
-		} else if (!bEnergy.equals(other.bEnergy))
+		} 
+		else if (!bEnergy.equals(other.bEnergy))
 			return false;
 		if (edgeEnergy == null) {
 			if (other.edgeEnergy != null)
 				return false;
-		} else if (!edgeEnergy.equals(other.edgeEnergy))
+		} 
+		else if (!edgeEnergy.equals(other.edgeEnergy))
 			return false;
 		if (cEnergy == null) {
 			if (other.cEnergy != null)
 				return false;
-		} else if (!cEnergy.equals(other.cEnergy))
+		} 
+		else if (!cEnergy.equals(other.cEnergy))
 			return false;
 		if (edgeStep == null) {
 			if (other.edgeStep != null)
 				return false;
-		} else if (!edgeStep.equals(other.edgeStep))
+		} 
+		else if (!edgeStep.equals(other.edgeStep))
 			return false;
 		if (edgeTime == null) {
 			if (other.edgeTime != null)
 				return false;
-		} else if (!edgeTime.equals(other.edgeTime))
+		} 
+		else if (!edgeTime.equals(other.edgeTime))
 			return false;
 		if (exafsConstantEnergyStep != other.exafsConstantEnergyStep)
 			return false;
@@ -949,47 +875,56 @@ public class ExafsScanPointCreator {
 		if (exafsFromTime == null) {
 			if (other.exafsFromTime != null)
 				return false;
-		} else if (!exafsFromTime.equals(other.exafsFromTime))
+		} 
+		else if (!exafsFromTime.equals(other.exafsFromTime))
 			return false;
 		if (exafsStep == null) {
 			if (other.exafsStep != null)
 				return false;
-		} else if (!exafsStep.equals(other.exafsStep))
+		} 
+		else if (!exafsStep.equals(other.exafsStep))
 			return false;
 		if (exafsTime == null) {
 			if (other.exafsTime != null)
 				return false;
-		} else if (!exafsTime.equals(other.exafsTime))
+		} 
+		else if (!exafsTime.equals(other.exafsTime))
 			return false;
 		if (exafsToTime == null) {
 			if (other.exafsToTime != null)
 				return false;
-		} else if (!exafsToTime.equals(other.exafsToTime))
+		}
+		else if (!exafsToTime.equals(other.exafsToTime))
 			return false;
 		if (finalEnergy == null) {
 			if (other.finalEnergy != null)
 				return false;
-		} else if (!finalEnergy.equals(other.finalEnergy))
+		}
+		else if (!finalEnergy.equals(other.finalEnergy))
 			return false;
 		if (initialEnergy == null) {
 			if (other.initialEnergy != null)
 				return false;
-		} else if (!initialEnergy.equals(other.initialEnergy))
+		}
+		else if (!initialEnergy.equals(other.initialEnergy))
 			return false;
 		if (numberDetectors == null) {
 			if (other.numberDetectors != null)
 				return false;
-		} else if (!numberDetectors.equals(other.numberDetectors))
+		} 
+		else if (!numberDetectors.equals(other.numberDetectors))
 			return false;
 		if (preEdgeStep == null) {
 			if (other.preEdgeStep != null)
 				return false;
-		} else if (!preEdgeStep.equals(other.preEdgeStep))
+		}
+		else if (!preEdgeStep.equals(other.preEdgeStep))
 			return false;
 		if (preEdgeTime == null) {
 			if (other.preEdgeTime != null)
 				return false;
-		} else if (!preEdgeTime.equals(other.preEdgeTime))
+		} 
+		else if (!preEdgeTime.equals(other.preEdgeTime))
 			return false;
 		return true;
 	}

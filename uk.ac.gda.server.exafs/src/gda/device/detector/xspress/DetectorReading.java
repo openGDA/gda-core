@@ -122,7 +122,6 @@ public class DetectorReading {
 		values[1] = getAcc();
 		values[2] = getResets();
 		values[3] = getWindowed();
-
 		return values;
 	}
 

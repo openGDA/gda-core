@@ -20,7 +20,6 @@ package gda.device.detector;
 
 import gda.device.DeviceException;
 
-
 /**
  * Version of Xspress2BufferedDetector which takes a software trigger. For system testing.
  */

@@ -23,6 +23,7 @@ public class ExafsScanRegionTime {
 	private String regionName;
 	private int stepsCount;
 	private double[] time;
+	
 	public ExafsScanRegionTime() {
 		// TODO Auto-generated constructor stub
 	}
@@ -33,21 +34,27 @@ public class ExafsScanRegionTime {
 		this.stepsCount = stepsCount;
 		this.time = time;
 	}
+	
 	public void setRegionName(String regionName) {
 		this.regionName = regionName;
 	}
+	
 	public String getRegionName() {
 		return regionName;
 	}
+	
 	public void setStepsCount(int stepsCount) {
 		this.stepsCount = stepsCount;
 	}
+	
 	public int getStepsCount() {
 		return stepsCount;
 	}
+	
 	public void setTime(double[] time) {
 		this.time = time;
 	}
+	
 	public double[] getTime() {
 		return time;
 	}
