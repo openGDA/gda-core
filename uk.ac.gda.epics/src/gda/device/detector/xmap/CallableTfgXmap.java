@@ -19,7 +19,6 @@
 package gda.device.detector.xmap;
 
 import gda.device.DeviceException;
-import gda.device.detector.DetectorWithReadout;
 import gda.device.scannable.PositionCallableProvider;
 
 import java.util.concurrent.Callable;

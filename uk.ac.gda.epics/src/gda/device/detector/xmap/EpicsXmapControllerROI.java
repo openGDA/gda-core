@@ -43,6 +43,7 @@ public class EpicsXmapControllerROI extends EpicsXmapController{
 		}
 	}
 
+	@Override
 	public void setNumberOfElements(int numberOfElements){
 		this.numberOfElements = numberOfElements;
 		edxdController.setNumberOfElements(numberOfElements);
