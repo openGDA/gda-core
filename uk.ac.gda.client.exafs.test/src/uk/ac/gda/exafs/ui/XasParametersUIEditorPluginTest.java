@@ -130,7 +130,7 @@ public class XasParametersUIEditorPluginTest {
 	private void checkElement(String ename, double cHole, double initialE, double finalE) throws Exception {
 		
         uiEd.getElement().setValue(ename);
-        checkValue(cHole,    uiEd.getCoreHole_unused().getValue(), "Core Hole");
+        checkValue(cHole,    uiEd.getCoreHoleLabel().getValue(), "Core Hole");
         checkValue(initialE, uiEd.getInitialEnergy().getValue(),   "Initial Energy");
         checkValue(finalE,   uiEd.getFinalEnergy().getValue(),     "Final Energy");
 		

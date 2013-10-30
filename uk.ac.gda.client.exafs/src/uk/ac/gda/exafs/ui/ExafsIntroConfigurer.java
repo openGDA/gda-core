@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
-import uk.ac.gda.ui.event.PartAdapter2;
+import uk.ac.gda.ui.event.PartAdapter;
 
 /**
  *
@@ -47,7 +47,7 @@ public class ExafsIntroConfigurer extends IntroConfigurer {
         
     	super.init(site, themeProperties);
         
-        this.partListener = new PartAdapter2() {
+        partListener = new PartAdapter() {
 
 			@Override
 			public void partClosed(IWorkbenchPart part) {

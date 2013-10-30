@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-
 import java.net.URL;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -51,24 +50,18 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite comp) {
-
-		final ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
+		ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
-
-		this.beanComposite = new XesScanParametersComposite(scrolledComposite, SWT.NONE);
+		beanComposite = new XesScanParametersComposite(scrolledComposite, SWT.NONE);
 		scrolledComposite.setContent(beanComposite);
-
 		scrolledComposite.setMinSize(beanComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-
 	}
 
 	@Override
 	public void linkUI(final boolean isPageChange) {
-
 		super.linkUI(isPageChange);
 		beanComposite.linkUI();
-
 		beanComposite.setEditingInput(getEditorInput());
 	}
 
@@ -83,17 +76,12 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 		try {
 			IExperimentEditorManager man = ExperimentFactory.getExperimentEditorManager();
 			IDetectorParameters currentDetParams = ((ScanObject)man.getSelectedScan()).getDetectorParameters();
-
-			if (currentDetParams != null) {
-				if (!currentDetParams.getExperimentType().equalsIgnoreCase("xes")) {
-					// popup to warn that wrong detector params
+			if (currentDetParams != null) 
+				if (!currentDetParams.getExperimentType().equalsIgnoreCase("xes")) 
 					MessageDialog.openInformation(getSite().getShell(), "Options inconsistent", "XES option has not been selected in the detector parameters!");
-				}
-			}
 		} catch (Exception e) {
 			// any problems, simply ignore as this will be a problem in the XafsEditorManager which will be picked up elsewhere
 		}
-
 		super.doSave(monitor);
 	}
 

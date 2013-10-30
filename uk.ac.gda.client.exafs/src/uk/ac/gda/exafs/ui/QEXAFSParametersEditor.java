@@ -24,9 +24,6 @@ import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-/**
- *
- */
 public final class QEXAFSParametersEditor extends ExafsBeanFileSelectionEditor implements DirtyContainer {
 
 	@Override

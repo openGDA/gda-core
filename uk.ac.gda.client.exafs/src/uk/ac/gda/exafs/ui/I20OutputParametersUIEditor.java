@@ -349,7 +349,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		};
 		outputFoldersExpandableComposite.addExpansionListener(outputFoldersListener);
 
-		final Label asciiFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
+		Label asciiFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
 		asciiFolderLabel.setText("Ascii Folder");
 
 		asciiDirectory = new TextWrapper(ouputFilePreferencesGroup, SWT.BORDER);
@@ -357,7 +357,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		asciiDirectory.setToolTipText("The ascii sub-folder that will store ascii output files.");
 		asciiDirectory.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
 		
-		final Label nexusFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
+		Label nexusFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
 		nexusFolderLabel.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false));
 		nexusFolderLabel.setText("Nexus Folder");
 
