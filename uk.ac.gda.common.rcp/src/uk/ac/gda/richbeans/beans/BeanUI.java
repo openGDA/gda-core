@@ -505,6 +505,7 @@ public class BeanUI {
 			Thread.currentThread().setContextClassLoader(loader);
 			XMLDecoder d = new XMLDecoder(new BufferedInputStream(stream));
 			final Object bean = d.readObject();
+			d.close();
 			return bean;
 		} finally {
 			Thread.currentThread().setContextClassLoader(original);
