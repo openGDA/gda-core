@@ -23,14 +23,10 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
-import gda.epics.LazyPVFactory;
-import gda.epics.PV;
 import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-import gov.aps.jca.event.PutEvent;
-import gov.aps.jca.event.PutListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

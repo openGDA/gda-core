@@ -41,10 +41,6 @@ import org.slf4j.LoggerFactory;
  * Class that supports Oxford Cryostream 700.
  */
 public class OxfordCryostream700 extends TemperatureBase implements IObserver {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4148829724893803187L;
 
 	/**
 	 * logging instance

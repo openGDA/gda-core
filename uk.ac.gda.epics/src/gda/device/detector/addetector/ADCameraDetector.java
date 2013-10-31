@@ -282,7 +282,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 		return ndd;
 	}
 
-	protected void addMetadata(NXDetectorData nxdata) throws DeviceException {
+	protected void addMetadata(NXDetectorData nxdata) {
 		NexusGroupData ngd;
 		INexusTree detTree = nxdata.getDetTree(getName());
 
@@ -350,11 +350,10 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 	}
 	
 	public int[] cagetArrayUnsigned() throws Exception {
-		byte[] values = array.getByteArrayData();;
+		byte[] values = array.getByteArrayData();
 		int[] uvalues = new int[values.length];
-		for(int i=0; i<values.length; i++){
+		for(int i=0; i<values.length; i++)
 			uvalues[i] = values[i]&0xff;
-		}
 		return uvalues;
 	}
 	

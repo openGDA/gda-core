@@ -41,12 +41,10 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 
 	private int elementOffset = 0;
 	
-	private static final String STARTALL = "STARTALL";
 	private static final String STOPALL = "STOPALL";
 	private static final String ERASESTART = "ERASESTART";
 	private static final String ERASEALL = "ERASEALL";
 	private static final String COLLECTIONMODE = "COLLECTMODE";
-	private static final String SETPRESETREAL = "SETPRESETREAL";
 	private static final String PIXELADVANCEMODE = "PIXELADVANCEMODE";
 	private static final String IGNOREGATE = "IGNOREGATE";
 	private static final String AUTOPIXELSPERBUFFER = "AUTOPIXELSPERBUFFER";
@@ -99,8 +97,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 			@Override
 			public void update(Object source, Object arg) {
 				logger.info("the status update from xmap is " + arg);
-				if(arg instanceof EpicsMonitorEvent)
-				{
+				if(arg instanceof EpicsMonitorEvent){
 					EpicsMonitorEvent evt = (EpicsMonitorEvent) arg;					
 					isBusy = ((DBR_Enum)evt.epicsDbr).getEnumValue()[0] == 1;
 				}
@@ -197,8 +194,6 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	 
 	@Override
 	public void setAquisitionTime(double collectionTime)throws DeviceException {
-		//removed as some versions of Epics interface does not have this SETPRESETREAL
-		//xmap.setValue(SETPRESETREAL ,"",collectionTime);
 	}
 	
 	public void setCollectionMode(COLLECTION_MODES mode) throws DeviceException{
@@ -217,10 +212,10 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	}
 	
 	public void setAutoPixelsPerBuffer(boolean auto) throws DeviceException{
-		  if(auto)
-			  xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", 1);//set as auto
-		  else
-			  xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", 0);//set as manual
+		if(auto)
+			xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", 1);//set as auto
+		else
+			xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", 0);//set as manual
 	}
 	
 	public void setPixelsPerBuffer(int number) throws DeviceException{
@@ -233,17 +228,13 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	
 	//hdf5 commands
 	public void resetCounters() throws Exception {
-			hdf5.getPluginBase().setDroppedArrays(0);
-			hdf5.getPluginBase().setArrayCounter(0);
+		hdf5.getPluginBase().setDroppedArrays(0);
+		hdf5.getPluginBase().setArrayCounter(0);
 	}
 
 	public void startRecording() throws Exception {
 		if (hdf5.getCapture() == 1)
 			throw new DeviceException("detector found already saving data when it should not be");
-		// Removed as the file path replacement happens in the higher level class XmapController 
-		//String filePath = PathConstructor.createFromDefaultProperty();
-		//filePath = filePath.replace("/dls/i18", "X:/");
-		//hdf5.setFilePath(filePath);
 		hdf5.startCapture();
 		int totalmillis = 60 * 1000;
 		int grain = 25;
@@ -361,4 +352,5 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 			return true;
 		return false;
 	}
+	
 }

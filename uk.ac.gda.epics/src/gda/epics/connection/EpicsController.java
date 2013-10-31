@@ -50,18 +50,12 @@ import gov.aps.jca.event.GetListener;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.cosylab.epics.caj.CAJMonitor;
 
 /**
  * The EPICSConnection class initialises JCA context, setting up network configuration for EPICS IOCs. It provides a
@@ -81,7 +75,11 @@ import com.cosylab.epics.caj.CAJMonitor;
  */
 public class EpicsController implements ContextExceptionListener, ContextMessageListener {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsController.class);
-
+	private double timeout = EpicsGlobals.getTimeout();// seconds
+	private AtomicInteger monitorCount = new AtomicInteger(0);
+	private Context context = null;
+	private ThreadPoolExecutor threadPool = null;
+	
 	/**
 	 * An enumerated type for DBR from EPICS.
 	 */
@@ -130,8 +128,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * 
 	 * @return <code>EpicsController</code> instance.
 	 */
-	public static synchronized EpicsController getInstance(boolean contextRequired)
-	{
+	public static synchronized EpicsController getInstance(boolean contextRequired){
 		// TODO not nice and clean
 		try {
 			if (instance == null)
@@ -163,21 +160,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		// TODO take care of shutdown
 		threadPool = new ThreadPoolExecutor(1, 5, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		threadPool.prestartAllCoreThreads();
-		if (contextRequired) {
+		if (contextRequired)
 			initializeContext();
-		}
 	}
-
-	/**
-	 * Timeout in seconds.
-	 */
-	private double timeout = EpicsGlobals.getTimeout();
-
-	private AtomicInteger monitorCount = new AtomicInteger(0);
-
-	private Context context = null;
-
-	private ThreadPoolExecutor threadPool = null;
 
 	/**
 	 * Execute task in a separate thread.

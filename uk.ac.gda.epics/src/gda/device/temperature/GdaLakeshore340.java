@@ -41,10 +41,6 @@ import org.slf4j.LoggerFactory;
  * 4K temperature control supports Lakeshore 340 device using EpicsLakeshore340Controller.
  */
 public class GdaLakeshore340 extends TemperatureBase implements IObserver {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4148829724893803187L;
 
 	/**
 	 * logging instance

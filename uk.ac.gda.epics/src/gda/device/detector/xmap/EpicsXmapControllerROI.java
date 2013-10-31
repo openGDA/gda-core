@@ -19,19 +19,15 @@
 package gda.device.detector.xmap;
 
 import gda.device.DeviceException;
-import gda.device.detector.xmap.edxd.EDXDElement;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EpicsXmapControllerROI extends EpicsXmapController{
 	private EDXDMappingController edxdController;
 	private int numberOfElements;
 	private String edxdControllerName;
 	private double[][][] controlRois;
-	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapControllerROI.class);
 	
 	@Override
 	public void configure() throws FactoryException {
@@ -84,36 +80,6 @@ public class EpicsXmapControllerROI extends EpicsXmapController{
 		for (int i = min; i <= max; i++)
 			sum += data[i];
 		return sum;
-	}
-
-	/**
-	 * @param roi
-	 * @param roiIndex
-	 * @param mcaIndex
-	 * @throws DeviceException
-	 */
-	private void setNthROI(double[] roi, int roiIndex, int mcaIndex) throws DeviceException {
-		if(roiIndex >= edxdController.getMaxAllowedROIs()){
-			logger.error("Not a valid roi index");
-			return;
-		}
-		EDXDElement element = edxdController.getSubDetector(mcaIndex);
-		double roiLow[] = element.getLowROIs();
-		double roiHigh[] = element.getHighROIs();
-		if(roi[0] <= roi[1]){
-			roiLow[roiIndex] = roi[0];
-			roiHigh[roiIndex] = roi[1];
-		}
-		else{
-			roiLow[roiIndex] = roi[1];
-			roiHigh[roiIndex] = roi[0];
-		}
-		element.setLowROIs(roiLow);
-		element.setHighROIs(roiHigh);
-		if(controlRois[mcaIndex] == null)
-			controlRois[mcaIndex] = new double[edxdController.getMaxAllowedROIs()][];
-		controlRois[mcaIndex][roiIndex] = new double []{roiLow[roiIndex], roiHigh[roiIndex]};
-		edxdController.activateROI();
 	}
 
 	/**

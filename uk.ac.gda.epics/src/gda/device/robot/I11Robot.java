@@ -40,18 +40,12 @@ import org.slf4j.LoggerFactory;
  * I11Robot Class
  */
 public class I11Robot extends ScannableBase implements Robot, IObserver {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8794981930113352657L;
 
 	/**
 	 * logging instance
 	 */
 
 	private static final Logger logger = LoggerFactory.getLogger(I11Robot.class);
-
-	private boolean configured = false;
 
 	private String robotControllerName;
 
@@ -298,6 +292,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 	 * 
 	 * @see gda.device.Robot#getSamplePosition()
 	 */
+	@Override
 	public double getSamplePosition() throws DeviceException {
 		return currentSampleNumberController.getActualSamplePosition();
 	}

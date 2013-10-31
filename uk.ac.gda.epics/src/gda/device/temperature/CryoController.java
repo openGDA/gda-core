@@ -48,22 +48,8 @@ import org.slf4j.LoggerFactory;
  * This class is designed to support Oxford Cryostream 700 and Phenix Crystat .
  */
 public class CryoController extends DeviceBase implements Configurable, Findable, InitializationListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6189569607134958641L;
-
-	/**
-	 * the logger instance
-	 */
 	private static final Logger logger = LoggerFactory.getLogger(CryoController.class);
-	/**
-	 * 
-	 */
 	public final double MAX_RAMP_RATE = 360.0; // Kevin/hour
-	/**
-	 * 
-	 */
 	public final double MIN_RAMP_RATE = 1.0; // K/hour
 	/**
 	 * start/restart the program, which is a control for the whole system
@@ -117,67 +103,28 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 	 * set plateau time
 	 */
 	private Channel ptime = null;
-	/**
-	 * current temperature
-	 */
 	private Channel temp = null;
-	/**
-	 * alarm status
-	 */
 	private Channel alarm = null;
-	/**
-	 * phase ID
-	 */
 	private Channel phase = null;
-	/**
-	 * run mode
-	 */
 	private Channel runmode = null;
-	/**
-	 * ramp rate
-	 */
 	private Channel ramprate = null;
-	/**
-	 * target temperature
-	 */
 	private Channel targettemp = null;
-	/**
-	 * time remaining in pahse
-	 */
 	private Channel remaining = null;
-	/**
-	 * pump up time
-	 */
 	private Channel runtime = null;
 	private Channel end = null;
-
 	private Channel disable=null;
-	
-	Vector<String> phases = new Vector<String>();
-	Vector<String> runmodes = new Vector<String>();
+	private Vector<String> phases = new Vector<String>();
+	private Vector<String> runmodes = new Vector<String>();
 	private AlarmListener al;
 	private CurrentTempListener ctl;
 	private ConnectionListener connlist;
 	private String alarmStatus ="No Alarm";
 	private double currtemp;
 	private String connState = "Disabled";
-	/**
-	 * GDA device Name
-	 */	
 	private String deviceName = null;
-	/**
-	 * EPICS controller
-	 */
 	private EpicsController controller;
-
-	/**
-	 * EPICS Channel Manager
-	 */
 	private EpicsChannelManager channelManager;
 
-	/**
-	 * Constructor
-	 */
 	public CryoController() {
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
@@ -541,9 +488,9 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 	 */
 	public void end() throws DeviceException {
 		try {
-			if (end != null) {
+			if (end != null)
 				controller.caput(end, 1, 2);
-			} else {
+			else {
 				JythonServerFacade.getInstance().print("end() is not available on this device: " + getName());
 				logger.info("end() is not available on this device: {}.", getName());
 			}
@@ -585,35 +532,28 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 		String[] position;
 		try {
 			position = getPhases();
-			for (int i = 0; i < position.length; i++) {
-				if (position[i] != null || position[i] != "") {
+			for (int i = 0; i < position.length; i++)
+				if (position[i] != null || position[i] != "")
 					phases.add(position[i]);
-				}
-			}
 		} catch (DeviceException e) {
 			logger.error("failed to initialise phase IDs", e);
 			e.printStackTrace();
 		}
 		try {
 			position = getRunmodes();
-			for (int i = 0; i < position.length; i++) {
-				if (position[i] != null || position[i] != "") {
+			for (int i = 0; i < position.length; i++)
+				if (position[i] != null || position[i] != "")
 					runmodes.add(position[i]);
-				}
-			}
 		} catch (DeviceException e) {
 			logger.error("failed to initialise run mode labels.", e);
 			e.printStackTrace();
 		}
 			
-		if (connState.equals("Enabled")) {
+		if (connState.equals("Enabled"))
 			logger.info("{} is initialised.", getName());
-		} else if (connState.equals("Disabled")) {
+		else if (connState.equals("Disabled"))
 			logger.warn("{} is NOT connected to hardware.", getName());
-		}
 	}
-
-
 
 	/**
 	 * @author fy65
@@ -623,16 +563,14 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr.isSTRING()) {
+			if (dbr.isSTRING())
 				alarmStatus = ((DBR_String) dbr).getStringValue()[0];
-			} else if (dbr.isLABELS()) {
+			else if (dbr.isLABELS()) {
 				alarmStatus = ((DBR_LABELS_Enum) dbr).getLabels()[0];
-				if (alarmStatus != null) {
+				if (alarmStatus != null)
 					notifyIObservers(this, alarmStatus);
-				}
 			}
 		}
-
 	}
 
 	/**
@@ -643,9 +581,8 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
+			if (dbr.isDOUBLE())
 				currtemp = ((DBR_Double) dbr).getDoubleValue()[0];
-			}
 			notifyIObservers(this, currtemp);
 		}
 	}
@@ -657,17 +594,15 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			
 			DBR dbr = arg0.getDBR();
 			if (dbr.isENUM()) {
 				connState = ((DBR_Enum) dbr).getEnumValue()[0]==0 ? "Enabled" : "Disabled";
-				if (connState.equals("Enabled")) {
+				if (connState.equals("Enabled"))
 					logger.info("{} - underlying EPICS is connected to hardware.", getName());
-				} else if (connState.equals("Disabled")) {
+				else if (connState.equals("Disabled"))
 					logger.warn("{} - underlying EPICS is not connected to hardware.", getName());
-				} else {
+				else
 					logger.error("{} error, report to Engineers.", getName());
-				}
 				notifyIObservers(this, connState);
 			}
 		}
@@ -719,11 +654,10 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 	 */
 	public void setDisbale(boolean bool) throws DeviceException {
 		try {
-			if (bool) {
+			if (bool)
 				controller.caput(disable, 1, 2);
-			} else {
+			else
 				controller.caput(disable, 0, 2);
-			}
 		} catch (Throwable e) {
 		throw new DeviceException("failed to set DISABLE PV.", e);
 		}
@@ -741,4 +675,5 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 			throw new DeviceException("failed to get from DISABLE PV.", e);
 		}
 	}
+	
 }

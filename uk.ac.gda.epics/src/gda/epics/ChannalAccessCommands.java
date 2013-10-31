@@ -20,56 +20,27 @@ package gda.epics;
 
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
-import gda.epics.connection.TIMEHandler;
-import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.util.JCAUtils;
-import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.BYTE;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DOUBLE;
-import gov.aps.jca.dbr.ENUM;
-import gov.aps.jca.dbr.FLOAT;
-import gov.aps.jca.dbr.INT;
-import gov.aps.jca.dbr.LABELS;
-import gov.aps.jca.dbr.PRECISION;
-import gov.aps.jca.dbr.SHORT;
-import gov.aps.jca.dbr.STRING;
 import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.ConnectionListener;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-import gov.aps.jca.event.PutListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The scripting interface between Jython and EPICS. CAClient provides client-side implementation of caget(), caput(),
  * and camonitor() for accessing EPICS PVs directly from Jython scripts or Jython Terminal.
  */
 public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorListener, ConnectionListener {
-
-	private static final Logger logger = LoggerFactory.getLogger(ChannalAccessCommands.class);
-
-
 	private Channel theChannel = null;
-
 	private Channel[] chs = null;
+	private EpicsController controller = EpicsController.getInstance();
+	private EpicsChannelManager channelmanager = new EpicsChannelManager();
 
-	private boolean configured = false;
-
-	EpicsController controller = EpicsController.getInstance();
-	EpicsChannelManager channelmanager = new EpicsChannelManager();
-
-	// ////////// Constructor and methods for Jython Terminal Command-line // /////////
-	/**
-	 * Constructor
-	 */
 	public ChannalAccessCommands() {
 		super();
 	}
@@ -81,7 +52,6 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 	 */
 
 	public EpicsController getController() {
-
 		return this.controller;
 	}
 
@@ -92,7 +62,6 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 	 */
 
 	public Channel getChannel() {
-
 		return this.theChannel;
 	}
 
@@ -103,7 +72,6 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 	 */
 
 	public Channel[] getChannels() {
-
 		return this.chs;
 	}
 
@@ -124,7 +92,6 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 		value = controller.caget(channel);
 		return value;
 	}
-
 
 	/**
 	 * @param pv
@@ -154,67 +121,60 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 	}
 	public void caput(String pv, int value, boolean wait) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
-		if (wait) {
+		if (wait)
 			controller.caputWait(channel, value);
-		} else {
+		else
 			controller.caput(channel, value);
-		}
 	}
 	public void caput(String pv, int value, boolean wait, double timeoutinsecond) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
-		if (wait) {
+		if (wait)
 			controller.caput(channel, value, timeoutinsecond);
-		} else {
+		else
 			controller.caput(channel, value);
-		}
 	}
 	public void caput(String pv, double value, boolean wait) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
-		if (wait) {
+		if (wait)
 			controller.caputWait(channel, value);
-		} else {
+		else
 			controller.caput(channel, value);
-		}
 	}
 	public void caput(String pv, double value, boolean wait, double timeoutinsecond) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
-		if (wait) {
+		if (wait)
 			controller.caput(channel, value, timeoutinsecond);
-		} else {
+		else
 			controller.caput(channel, value);
-		}
 	}
 	public void caput(String pv, String value, boolean wait) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
-		if (wait) {
+		if (wait)
 			controller.caputWait(channel, value);
-		} else {
+		else
 			controller.caput(channel, value);
-		}
 	}
 	public void caput(String pv, String value, boolean wait, double timeoutinsecond) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
-		if (wait) {
+		if (wait)
 			controller.caput(channel, value, timeoutinsecond);
-		} else {
+		else
 			controller.caput(channel, value);
-		}
 	}
 	public void caput(String pv, String value, boolean wait, boolean charString) throws CAException, InterruptedException, TimeoutException{
 		if (charString) {
 			int[] waveform = JCAUtils.getIntArrayFromWaveform(value);
 			caput(pv, waveform, wait);
-		} else {
+		} 
+		else
 			caput(pv, value, wait);
-		}
 	}
 	public void caput(String pv, int[] value, boolean wait) throws CAException, InterruptedException, TimeoutException {
 		Channel channel = channelmanager.createChannel(pv);
-		if (wait){
+		if (wait)
 			controller.caputWait(channel, value);
-		} else {
+		else
 			controller.caput(channel, value);
-		}
 	}
 	/**
 	 * caput a string value as waveform to the corresponding PVs in EPICS server.
@@ -240,7 +200,6 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 		controller.caput(channel, value);
 	}
 
-
 	/**
 	 * This is the default Monitor handler that simply print the PV name and value on the JythonTerminal. {@inheritDoc}
 	 * 
@@ -258,4 +217,5 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 	public void connectionChanged(ConnectionEvent arg0) {
 		arg0.getSource();
 	}
+	
 }

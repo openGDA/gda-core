@@ -27,12 +27,9 @@ import gda.device.scannable.ScannableMotor;
 
 import java.util.concurrent.Callable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, ZebraMotorInfoProvider, PositionCallableProvider<Double>, InitializingBean{
-	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMotor.class);
 	private ZebraConstantVelocityMoveController continuousMoveController;
 	private double constantVelocitySpeedFactor=0.8;
 	private double scurveTimeToVelocity=.03;//default set to rotation stage on I13

@@ -20,8 +20,6 @@ package gda.scan;
 
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
-
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -88,13 +86,15 @@ public class Trajectory implements Configurable {
 	 */
 	private int totalElementNumber = MAXIMUM_ELEMENT_NUMBER;
 
-	public int getTotalElementNumber() {
-		return totalElementNumber;
-	}
+	/**
+	 * the required or defined trajectory path for a scan
+	 */
+	private double[] path = new double[EpicsTrajectoryScanController.MAXIMUM_ELEMENT_NUMBER];
 
-	public void setTotalElementNumber(int totalElementNumber) {
-		this.totalElementNumber = totalElementNumber;
-	}
+	private ArrayList<Double> oscilation = new ArrayList<Double>();
+
+	private TrajectoryScanController controller;
+	
 	/**
 	 * total time that takes to complete the trajectory
 	 */
@@ -104,22 +104,6 @@ public class Trajectory implements Configurable {
 	 * total number of output pulses the defines the required data collection points during the trajectory scan
 	 */
 	private int totalPulseNumber = MAXIMUM_PULSE_NUMBER;
-
-	public int getTotalPulseNumber() {
-		return totalPulseNumber;
-	}
-
-	public void setTotalPulseNumber(int totalPulseNumber) {
-		this.totalPulseNumber = totalPulseNumber;
-	}
-	/**
-	 * the required or defined trajectory path for a scan
-	 */
-	private double[] path = new double[EpicsTrajectoryScanController.MAXIMUM_ELEMENT_NUMBER];
-
-	private ArrayList<Double> oscilation = new ArrayList<Double>();
-
-	private TrajectoryScanController controller;
 
 	/**
 	 * default constructor required by CASTOR if used.
@@ -143,8 +127,6 @@ public class Trajectory implements Configurable {
 		//controller = (TrajectoryScanController) finder.find("epicsTrajectoryScanController");
 	}
 
-	
-	
 	public TrajectoryScanController getController() {
 		return controller;
 	}
@@ -170,7 +152,6 @@ public class Trajectory implements Configurable {
 		calculateS(time);
 		calculateN();
 		calcTotalTime(time);
-		// calcNumberOfTrajectoryPulses(start, end, this.stepSize);
 		path = calculateCVPath(start, end, this.n, this.s);
 		return path;
 	}
@@ -190,23 +171,18 @@ public class Trajectory implements Configurable {
 		int ntimes = (totalElementNumber / (this.n * 2 + this.s * 4 - 2) + 1);
 		for (int i = 0; i < ntimes; i++) {
 			forpath = scurve(start, end, n, s);
-			for (int j = 0; j < forpath.length - 1; j++) {
+			for (int j = 0; j < forpath.length - 1; j++)
 				oscilation.add(forpath[j]);
-			}
 			backpath = scurve(end, start, n, s);
-			for (int j = 0; j < backpath.length - 1; j++) {
+			for (int j = 0; j < backpath.length - 1; j++)
 				oscilation.add(backpath[j]);
-			}
 		}
 
-		if (oscilation.size() >= totalElementNumber) {
-			for (int i = 0; i < totalElementNumber; i++) {
+		if (oscilation.size() >= totalElementNumber)
+			for (int i = 0; i < totalElementNumber; i++)
 				path[i] = oscilation.get(i);
-			}
-		} else {
+		else
 			throw new IllegalStateException("Oscillation path size " + oscilation.size() + "<" + totalElementNumber);
-		}
-
 		return path;
 	}
 	/**
@@ -228,23 +204,17 @@ public class Trajectory implements Configurable {
 		for (int i = 0; i < ntimes; i++) {
 			off = i * scale;
 			forpath = scurve(start + off, start + off + length, n, s);
-			for (int j = 0; j < forpath.length - 1; j++) {
+			for (int j = 0; j < forpath.length - 1; j++)
 				oscilation.add(forpath[j]);
-			}
 			backpath = scurve(start + off + length, start + off + scale, n, s);
-			for (int j = 0; j < backpath.length - 1; j++) {
+			for (int j = 0; j < backpath.length - 1; j++)
 				oscilation.add(backpath[j]);
-			}
 		}
-
-		if (oscilation.size() >= totalElementNumber) {
-			for (int i = 0; i < totalElementNumber; i++) {
+		if (oscilation.size() >= totalElementNumber)
+			for (int i = 0; i < totalElementNumber; i++)
 				path[i] = oscilation.get(i);
-			}
-		} else {
+		else
 			throw new IllegalStateException("Oscillation path size " + oscilation.size() + "<" + totalElementNumber);
-		}
-
 		return path;
 	}
 
@@ -254,9 +224,8 @@ public class Trajectory implements Configurable {
 	 * @return total element number
 	 */
 	public long getElementNumbers() {
-		if (totalElementNumber == 0) {
+		if (totalElementNumber == 0)
 			throw new IllegalStateException("Trajectory Path Not defined. totalElementNumber = " + totalElementNumber);
-		}
 		return totalElementNumber;
 	}
 
@@ -266,9 +235,8 @@ public class Trajectory implements Configurable {
 	 * @return total pulse number
 	 */
 	public long getPulseNumbers() {
-		if (totalPulseNumber == 0) {
+		if (totalPulseNumber == 0)
 			throw new IllegalStateException("Trajectory Path Not defined. totalPulseNumber = " + totalPulseNumber);
-		}
 		return totalPulseNumber;
 	}
 
@@ -278,9 +246,8 @@ public class Trajectory implements Configurable {
 	 * @return element number
 	 */
 	public long getStartPulseElement() {
-		if (pulseStartElement == 0) {
+		if (pulseStartElement == 0)
 			throw new IllegalStateException("Trajectory Path Not defined.pulseStartElement = " + pulseStartElement);
-		}
 		return pulseStartElement;
 	}
 
@@ -290,9 +257,8 @@ public class Trajectory implements Configurable {
 	 * @return element number
 	 */
 	public long getStopPulseElement() {
-		if (pulseStopElement == 0) {
+		if (pulseStopElement == 0)
 			throw new IllegalStateException("Trajectory Path Not defined. pulseStopElement = " + pulseStopElement);
-		}
 		return pulseStopElement;
 	}
 
@@ -302,9 +268,8 @@ public class Trajectory implements Configurable {
 	 * @return total time
 	 */
 	public double getTotalTime() {
-		if (totalTime == 0) {
+		if (totalTime == 0)
 			throw new IllegalStateException("Trajectory Path Not defined. totalTime = " + totalTime);
-		}
 		return totalTime;
 	}
 
@@ -314,9 +279,8 @@ public class Trajectory implements Configurable {
 	 * @return double array defining the path
 	 */
 	public double[] getPath() {
-		if (path != null) {
+		if (path != null)
 			throw new IllegalStateException("Trajectory Path Not defined. path = " + path);
-		}
 		return path;
 	}
 
@@ -355,45 +319,39 @@ public class Trajectory implements Configurable {
 		int totalNumElements = (int) (s + n + s + 1);
 		path = new double[totalNumElements];
 
-		for (x = 0; x < s; x++) {
+		for (x = 0; x < s; x++)
 			path[x] = (end - start) * (x * x - s * s) / (2 * s * (n - 1)) + start;
-		}
 
-		for (x = (int) s; x < s + n; x++) {
+		for (x = (int) s; x < s + n; x++)
 			path[x] = (end - start) * (x - s) / (n - 1) + start;
-		}
 
-		for (x = (int) (s + n + 1); x < s + n + s + 1; x++) {
+		for (x = (int) (s + n + 1); x < s + n + s + 1; x++)
 			path[x - 1] = (end - start) * ((s + n) * (s + n) + (4 * s + 2 * n) * (x - s - n) - x * x)
 					/ (2 * s * (n - 1)) + end;
-		}
-		if (x < totalNumElements) {
-			for (int i = x; i < totalNumElements; i++) {
+		
+		if (x < totalNumElements)
+			for (int i = x; i < totalNumElements; i++)
 				path[i] = 0;
-			}
-		}
+			
 		return path;
 	}
 	
 	private double[] scurve(double start, double end, long n, long s) {
 		int x = -1;
 		Vector<Double> spath = new Vector<Double>();
-		for (x = 0; x < s; x++) {
+		for (x = 0; x < s; x++)
 			spath.add((end - start) * (x * x - s * s) / (2 * s * (n - 1)) + start);
-		}
 
-		for (x = (int) s; x < s + n; x++) {
+		for (x = (int) s; x < s + n; x++)
 			spath.add((end - start) * (x - s) / (n - 1) + start);
-		}
 
-		for (x = (int) (s + n + 1); x < s + n + s + 1; x++) {
+		for (x = (int) (s + n + 1); x < s + n + s + 1; x++)
 			spath.add((end - start) * ((s + n) * (s + n) + (4 * s + 2 * n) * (x - s - n) - x * x)
 					/ (2 * s * (n - 1)) + end);
-		}
+
 		double[] scurve = new double[spath.size()];
-		for (int i=0;i<spath.size();i++) {
+		for (int i=0;i<spath.size();i++)
 			scurve[i] = spath.get(i);
-		}
 		return scurve;
 	}
 
@@ -424,6 +382,22 @@ public class Trajectory implements Configurable {
 	 */
 	public void setAccelerationTime(double accelerationTime) {
 		this.accelerationTime = accelerationTime;
+	}
+	
+	public int getTotalElementNumber() {
+		return totalElementNumber;
+	}
+
+	public void setTotalElementNumber(int totalElementNumber) {
+		this.totalElementNumber = totalElementNumber;
+	}
+
+	public int getTotalPulseNumber() {
+		return totalPulseNumber;
+	}
+
+	public void setTotalPulseNumber(int totalPulseNumber) {
+		this.totalPulseNumber = totalPulseNumber;
 	}
 
 }

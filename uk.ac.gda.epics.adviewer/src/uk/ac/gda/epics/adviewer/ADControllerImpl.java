@@ -27,7 +27,6 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
-import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;

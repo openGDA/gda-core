@@ -44,10 +44,6 @@ import org.slf4j.LoggerFactory;
  * This class is designed to support Cyberstar Blower, MRI Furnace, and Stoe Furnace.
  */
 public class EpicsEurotherm2kController extends DeviceBase implements Configurable, Findable, InitializationListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1247706299644034117L;
 
 	/**
 	 * the logger instance

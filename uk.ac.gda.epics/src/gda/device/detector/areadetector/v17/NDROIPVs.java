@@ -19,8 +19,6 @@
 package gda.device.detector.areadetector.v17;
 
 import gda.epics.PV;
-import gda.epics.ReadOnlyPV;
-
 
 public interface NDROIPVs {
 	
@@ -36,13 +34,9 @@ public interface NDROIPVs {
 	}
 	
 	public interface  ROIDimensionPVs { 
-		
 		PV<Boolean> getEnablePVPair();
-		
 		PV<Integer>  getMinPVPair();
-
 		PV<Integer>  getSizePVPair();
-
 	} 
 	
 	public NDPluginBasePVs getPluginBasePVs();

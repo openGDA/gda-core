@@ -1201,6 +1201,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	 * 
 	 * @return Execute status
 	 */
+	@Override
 	public ExecuteStatus getExecuteStatus() {
 		return executeStatus;
 	}

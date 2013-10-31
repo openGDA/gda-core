@@ -21,7 +21,6 @@ package gda.device.scannable;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.observable.IObserver;
 import gda.scan.Trajectory;
 import gda.scan.TrajectoryScanController;
@@ -34,33 +33,28 @@ import gov.aps.jca.TimeoutException;
 
 //TODO Explain the meaning of this class
 public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase implements ContinuouslyScannable, IObserver {
-
-//	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryScannable2.class);
-	@SuppressWarnings("unused")
-	private static final int ONEDMODE = 1;
 	private static final int TWODMODE = 2;
 	protected TrajectoryScanController tracController;
 	private double readTimeout = 60.0;
-	public double getReadTimeout() {
-		return readTimeout;
-	}
-	public void setReadTimeout(double readTimeout) {
-		this.readTimeout = readTimeout;
-	}
 	private ContinuousParameters continuousParameters;
-	@SuppressWarnings("unused")
-	private int actualPulses;
-	@SuppressWarnings("unused")
-	private double[] xpositions;
 	protected boolean trajMoveComplete;
 	private double[] scannablePositions;
 	private int mode;
 	private boolean trajectoryBuildDone;
 	protected int trajectoryIndex =0;
 	
+	public double getReadTimeout() {
+		return readTimeout;
+	}
+	
+	public void setReadTimeout(double readTimeout) {
+		this.readTimeout = readTimeout;
+	}
+	
 	public TrajectoryScanController getTracController() {
 		return tracController;
 	}
+	
 	public void setTracController(TrajectoryScanController tracController) {
 		this.tracController = tracController;
 	}
@@ -68,6 +62,7 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 	public int getMode() {
 		return mode;
 	}
+	
 	public void setMode(int mode) {
 		this.mode = mode;
 	}
@@ -94,9 +89,6 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 					trajectoryBuildDone = false;
 					throw new DeviceException("Unable to get the read status from the Trajectory Controller");
 				}
-				actualPulses = tracController.getActualPulses();
-				// get the actual xpositions
-				xpositions = tracController.getMActual(trajectoryIndex);
 			}
 		} catch (TimeoutException e) {
 			trajectoryBuildDone = false;
@@ -141,7 +133,6 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 		super.stop();
 	}
 
-	
 	@Override
 	public void prepareForContinuousMove() throws DeviceException {
 		// build the trajectory
@@ -149,18 +140,16 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 			return;
 		
 		try {
-			for(int i =1 ; i <= TrajectoryScanController.MAX_TRAJECTORY; i++)
-			{	
-				tracController.setMMove(i, false);				
-			}
+			for(int i =1 ; i <= TrajectoryScanController.MAX_TRAJECTORY; i++)	
+				tracController.setMMove(i, false);		
+			
 			tracController.setMMove(trajectoryIndex, true);
 			
 			Trajectory trajectory = new Trajectory();
 			trajectory.setTotalElementNumber(continuousParameters.getNumberDataPoints() +1 );
 			trajectory.setTotalPulseNumber(continuousParameters.getNumberDataPoints()+ 1 );
 			trajectory.setController(tracController);
-			double[] path = trajectory.defineCVPath(continuousParameters.getStartPosition(), 
-					continuousParameters.getEndPosition(), continuousParameters.getTotalTime());
+			double[] path = trajectory.defineCVPath(continuousParameters.getStartPosition(), continuousParameters.getEndPosition(), continuousParameters.getTotalTime());
 			
 			tracController.setMTraj(trajectoryIndex, path);
 			
@@ -169,21 +158,18 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 			tracController.setStartPulseElement((int) trajectory.getStartPulseElement());
 			tracController.setStopPulseElement((int) trajectory.getStopPulseElement());
 
-			if (tracController.getStopPulseElement() != (int) (trajectory.getStopPulseElement())){
+			if (tracController.getStopPulseElement() != (int) (trajectory.getStopPulseElement()))
 				tracController.setStopPulseElement((int) (trajectory.getStopPulseElement()));	
-			}
 			tracController.setTime((trajectory.getTotalTime()));
-   
-			
+
 			tracController.build();
-			while(tracController.isBuilding()){
-				//wait for the build to finsih
+			
+			//wait for the build to finsih
+			while(tracController.isBuilding())
 				Thread.sleep(30);
-			}
 			//check the build status from epics          
-			if(tracController.getBuildStatus() != BuildStatus.SUCCESS){
+			if(tracController.getBuildStatus() != BuildStatus.SUCCESS)
 				throw new DeviceException("Unable to build the trajectory with the given start and stop positions and the time");
-			}
 			trajectoryBuildDone = true;
 		} catch (TimeoutException e) {
 			throw new DeviceException(getName() + " exception in continuousMoveComplete",e);
@@ -202,21 +188,16 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 	@Override
 	//TO DO discuss with FY
 	public void update(Object source, Object arg) {
-		if(source instanceof TrajectoryScanProperty)
-		{
-			if(((TrajectoryScanProperty)source) == TrajectoryScanProperty.EXECUTE )
-			{
-				if(arg instanceof ExecuteStatus)
-				{
+		if(source instanceof TrajectoryScanProperty){
+			if(((TrajectoryScanProperty)source) == TrajectoryScanProperty.EXECUTE ){
+				if(arg instanceof ExecuteStatus){
 					if(((ExecuteStatus)arg) == ExecuteStatus.SUCCESS)
 						trajMoveComplete = true;
 					else
-						trajMoveComplete = false;
-							
+						trajMoveComplete = false;	
 				}
 			}
 		}
-		
 	}
 	@Override
 	public double calculateEnergy(int frameIndex) {
@@ -238,30 +219,33 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 		} catch (InterruptedException e) {
 			throw new DeviceException(getName() + " exception in atScanLineEnd",e);
 		}
-
 	}
 	
 	@Override
 	public void atScanEnd() throws DeviceException {
 		trajectoryBuildDone = false;
-
 	}
+	
 	@Override
-	public void atCommandFailure() 
-	{
+	public void atCommandFailure() {
 		trajectoryBuildDone = false;
 	}
+	
 	public double[] getScannablePositions() {
 		return scannablePositions;
 	}
+	
 	public void setTrajectoryIndex(int trajectoryIndex) {
 		this.trajectoryIndex = trajectoryIndex;
 	}
+	
 	public int getTrajectoryIndex() {
 		return trajectoryIndex;
 	}
+	
 	@Override
 	public int getNumberOfDataPoints() {
 		return continuousParameters.getNumberDataPoints();
 	}
+	
 }

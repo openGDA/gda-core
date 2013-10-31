@@ -41,10 +41,7 @@ import org.slf4j.LoggerFactory;
  * Class that supports Eurotherm 2000 series temperature controller.
  */
 public class Eurotherm2K extends TemperatureBase implements IObserver {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3161288950857482210L;
+
 	/**
 	 * logging instance
 	 */

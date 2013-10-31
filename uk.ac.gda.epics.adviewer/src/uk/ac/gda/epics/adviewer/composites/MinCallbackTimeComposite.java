@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
-import org.eclipse.swt.widgets.Label;
 
 public class MinCallbackTimeComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(MinCallbackTimeComposite.class);
