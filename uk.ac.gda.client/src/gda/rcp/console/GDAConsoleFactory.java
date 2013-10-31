@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.IProcessFactory;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.debug.newconsole.PydevConsole;

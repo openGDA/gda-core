@@ -1,8 +1,6 @@
 package gda.jython.logger;
 
-
 import gda.jython.ITerminalOutputProvider;
-import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
 
 /**
@@ -11,7 +9,6 @@ import gda.jython.JythonServerFacade;
 public class OutputTerminalAdapter extends TerminalAdapter  {
 
 	/**
-	 * 
 	 * @param logger
 	 * @param terminalOutputProvider The GDA's {@link JythonServerFacade} singleton is often a good choice.
 	 */

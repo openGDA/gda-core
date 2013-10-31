@@ -19,7 +19,6 @@
 
 package gda.function.lookup.corba.impl;
 
-import gda.beamline.beam.Beam;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.factory.corba.util.EventDispatcher;
@@ -27,7 +26,6 @@ import gda.factory.corba.util.EventService;
 import gda.function.Lookup;
 import gda.function.lookup.corba.CorbaLookupPOA;
 import gda.observable.IObserver;
-
 import org.omg.CORBA.Any;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +36,8 @@ import org.slf4j.LoggerFactory;
 public class LookupImpl extends CorbaLookupPOA implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(LookupImpl.class);
 	private Lookup theObject = null;
-
 	private org.omg.PortableServer.POA poa;
-
 	private EventDispatcher dispatcher;
-
 	private String name;
 
 	/**

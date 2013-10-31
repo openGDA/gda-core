@@ -46,10 +46,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-
-import oracle.sql.ARRAY;
 
 import org.nexusformat.NXlink;
 import org.nexusformat.NeXusFileInterface;
@@ -58,10 +57,6 @@ import org.nexusformat.NexusFile;
 import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.xml.internal.bind.v2.runtime.reflect.ListIterator;
-
-import java.util.Iterator;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
