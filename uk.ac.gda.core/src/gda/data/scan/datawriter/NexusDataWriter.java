@@ -391,11 +391,11 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		} finally {
 			// Even if there was an exception we call super
 			// that way the ascii file is still written.
-			try {
+//			try {
 				super.addData(this, dataPoint);
-			} catch (Exception e) {
-				logger.error("exception received from DataWriterBase.addData(...)", e);
-			}
+//			} catch (Exception e) {
+//				logger.error("exception received from DataWriterBase.addData(...)", e);
+//			}
 		}
 	}
 
