@@ -93,7 +93,6 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 		
 	}
 
-
 	@Override
 	public int getNumberOfElements() throws DeviceException {
 		return numberOfElements;
@@ -208,24 +207,21 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	 * @throws DeviceException
 	 */
 	private void setNthROI(double[] roi, int roiIndex, int mcaIndex) throws DeviceException {
-		if(roiIndex >= edxdController.getMaxAllowedROIs())
-		{
+		if(roiIndex >= edxdController.getMaxAllowedROIs()){
 			logger.error("Not a valid roi index");
-		return;
+			return;
 		}
 		EDXDElement element = edxdController.getSubDetector(mcaIndex);
 		double roiLow[] = element.getLowROIs();
 		double roiHigh[] = element.getHighROIs();
-		if(roi[0] <= roi[1])
-			{
-				roiLow[roiIndex] = roi[0];
-				roiHigh[roiIndex] = roi[1];
-			}
+		if(roi[0] <= roi[1]){
+			roiLow[roiIndex] = roi[0];
+			roiHigh[roiIndex] = roi[1];
+		}
 		else{
 			roiLow[roiIndex] = roi[1];
 			roiHigh[roiIndex] = roi[0];
 		}
-
 		element.setLowROIs(roiLow);
 		element.setHighROIs(roiHigh);
 		edxdController.activateROI();
@@ -233,8 +229,6 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 
 	@Override
 	public void setNumberOfElements(int numberOfElements) throws DeviceException {
-		//Not implemented in the new version
-		
 	}
 
 	@Override
@@ -252,7 +246,6 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	 */
 	@Override
 	public void setROI(final double[][] actualRois, int mcaIndex) throws DeviceException {
-		
 		// The ROIS might not be scaled to the max ROI size, so we ensure that this has been done
 		final double[][] rois = new double[edxdController.getMaxAllowedROIs()][2];
 		for (int i = 0; i < actualRois.length; i++) {
@@ -303,7 +296,6 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	@Override
 	public void stop() throws DeviceException {
 		edxdController.stop();
-		
 	}
 
 	/**

@@ -38,80 +38,46 @@ import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 
 	private static final String REALTIME = "REALTIME";
-	
 	private static final String ELIVETIME = "ELIVETIME";
-	
 	private static final String TLIVETIME = "TLIVETIME";
-
 	private static final String GETNBINS = "GETNBINS";
-
 	private static final String DATA = "DATA";
-	
 	private static final String EVENTS = "EVENTS";
-
 	private static final String INPUTCOUNTRATE = "INPUTCOUNTRATE";
-	
 	private static final String OUTPUTCOUNTRATE = "OUTPUTCOUNTRATE";
-	
 	private static final String ENERGYBINS = "ENERGYBINS";
-	
 	private static final String PEAKTIME = "PEAKTIME";
-	
 	private static final String DYNRANGE = "DYNRANGE";
-	
 	private static final String TRIGTHRESH = "TRIGTHRESH";
-	
 	private static final String BASETHRESH = "BASETHRESH";
-	
 	private static final String BASELENGTH = "BASELENGTH";
-	
 	private static final String ENERGYTHRESH = "ENERGYTHRESH";
-	
 	private static final String BINWIDTH = "BINWIDTH";
-	
 	private static final String PREAMPGAIN = "PREAMPGAIN";
-	
 	private static final String RESETDELAY = "RESETDELAY";
-	
 	private static final String GAPTIME = "GAPTIME";
-	
 	private static final String TRIGPEAKTIME = "TRIGPEAKTIME";
-	
 	private static final String TRIGGAPTIME = "TRIGGAPTIME";
-	
 	private static final String MAXWIDTH = "MAXWIDTH";
-	
-	
 
 	private double a = 0.0;
 	private double b = 1.0;
 	private double c = 0.0;
 	private double theta = 15.0;
-	
 	private double[] energy = null;
 	private double[] q = null;
 
-	// Setup the logging facilities
-	transient private static final Logger logger = LoggerFactory.getLogger(EDXDElement.class);
-
+	private static final Logger logger = LoggerFactory.getLogger(EDXDElement.class);
 	protected FindableEpicsDevice xmap;
-
 	protected Integer number;
-
 	private static String SCADATA = "SCADATA";
-
 	private static String SCALOWLIMITS = "SCALOWLIMITS";
-
 	private static String SCAHIGHLIMITS = "SCAHIGHLIMITS";
 
 	/**
-	 * 
 	 * @param xmapDevice the device where the element is connected to
 	 * @param elementNumber the number of the element in the xmap
 	 */
@@ -153,7 +119,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the real time
 	 * @throws DeviceException
 	 */
@@ -162,7 +127,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}	
 	
 	/**
-	 * 
 	 * @return the number of events
 	 * @throws DeviceException
 	 */
@@ -171,7 +135,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the input count rate
 	 * @throws DeviceException
 	 */
@@ -180,7 +143,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return The output count rate
 	 * @throws DeviceException
 	 */
@@ -189,21 +151,18 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return a double array containing the energy value per bin on the outputed data
 	 * @throws DeviceException
 	 */
 	public double[] getEnergyBins() throws DeviceException {
 		double[] data = (double[]) xmap.getValue(ReturnType.DBR_NATIVE,ENERGYBINS+number.toString(),"");
 		double[] result = new double[getDataDimensions()[0]];
-		for(int i = 0; i < result.length; i++) {
+		for(int i = 0; i < result.length; i++)
 			result[i] = data[i];
-		}
 		return result;
 	}
 	
 	/**
-	 * 
 	 * @return the peak time
 	 * @throws DeviceException
 	 */
@@ -223,7 +182,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the dynamic range
 	 * @throws DeviceException
 	 */
@@ -243,7 +201,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return The trigger threshold
 	 * @throws DeviceException
 	 */
@@ -263,7 +220,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the base threshold
 	 * @throws DeviceException
 	 */
@@ -283,7 +239,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return The base length
 	 * @throws DeviceException
 	 */
@@ -304,7 +259,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the energy threshold
 	 * @throws DeviceException
 	 */
@@ -324,7 +278,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the bin width
 	 * @throws DeviceException
 	 */
@@ -344,7 +297,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the preamp gain
 	 * @throws DeviceException
 	 */
@@ -364,7 +316,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the reset delay
 	 * @throws DeviceException
 	 */
@@ -384,7 +335,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return The gap time
 	 * @throws DeviceException
 	 */
@@ -404,7 +354,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the trigger peak time
 	 * @throws DeviceException
 	 */
@@ -424,7 +373,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the trigger gap time
 	 * @throws DeviceException
 	 */
@@ -444,7 +392,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the max width
 	 * @throws DeviceException
 	 */
@@ -491,8 +438,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 		Object obj =  xmap.getValue(ReturnType.DBR_NATIVE,DATA+number.toString(),"");
 		if(obj instanceof double[])
 			return (double[])obj ;
-		else if( obj instanceof int[])
-		{
+		else if( obj instanceof int[]){
 			int[] returnObj = (int[])obj;
 			double[] toreturnObj = new double[returnObj.length];
 			for(int i =0 ; i< returnObj.length; i++)
@@ -511,8 +457,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 		Object obj =  xmap.getValue(ReturnType.DBR_NATIVE,DATA+number.toString(),"");
 		if(obj instanceof int[])
 			return (int[])obj ;
-		else if( obj instanceof double[])
-		{
+		else if( obj instanceof double[]){
 			double[] returnObj = (double[])obj;
 			int[] toreturnObj = new int[returnObj.length];
 			for(int i =0 ; i< returnObj.length; i++)
@@ -528,7 +473,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 		for(int i = 0; i < energy.length; i++) {
 			energy[i] = createEnergyValue(i);
 		}
-
 		return energy;
 	}
 	
@@ -538,10 +482,8 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws DeviceException
 	 */
 	public double[] getEnergyMapping() throws DeviceException {
-		if (energy == null) {
+		if (energy == null)
 			energy = createEnergyMapping();
-		}
-		
 		return energy;
 	}
 	
@@ -555,19 +497,12 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 
 	private double[] createQMapping() throws DeviceException {
-		
 		double pre = Math.sin(theta) * ((4.0*Math.PI)/12.39);
-		
 		double[] q = new double[getDataDimensions()[0]];
-
 		double[] energy = getEnergyMapping();
-		
-		for(int i = 0; i < q.length; i++) {
+		for(int i = 0; i < q.length; i++)
 			q[i] = pre*energy[i];
-		}
-		
 		return q;
-
 	}
 	
 	/**
@@ -575,13 +510,10 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws DeviceException
 	 */
 	public double[] getQMapping() throws DeviceException {
-		if (q == null) {
+		if (q == null)
 			q = createQMapping();
-		}
-		
 		return q;
 	}
-	
 	
 	/**
 	 * The point of this function is to fit a curve to the data collected from a calibration Sample
@@ -590,28 +522,21 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws Exception 
 	 */
 	public void fitPolynomialToEnergyData(double[] actual, double[] reported) throws Exception {
-		
 		// create some dataSets
 		DataSet act = new DataSet(actual);
 		DataSet rep = new DataSet(reported);
-		
 		double[] initial = {0.0,1.0,0.0};
 		FunctionOutput out = (new DataSetFunctionFitter().fit(rep, act, new LeastSquares(0.0),new Quadratic(initial))).getFunctionOutput();
-		
 		a = out.getParameterValue(0);
 		b = out.getParameterValue(1);
 		c = out.getParameterValue(2);
-	
 		logger.debug("Polynomial fitted for energy values, with a chisquared value of {}", out.getChiSquared());
-		
 		energy = null;
 		q = null;
 	}
 	
-
 	@Override
 	public void collectData() throws DeviceException {
-	
 	}
 
 	@Override
@@ -640,7 +565,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 	
 	/**
-	 * 
 	 * @return the configuration of this element in a bean
 	 * @throws DeviceException
 	 */
@@ -681,7 +605,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 		setTriggerGapTime(bean.getTriggerGapTime());
 		setTriggerPeakTime(bean.getTriggerPeakTime());
 		setTriggerThreshold(bean.getTriggerThreshold());
-		
 	}
 
 	/**
@@ -690,26 +613,21 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws DeviceException
 	 */
 	public void setROIs(double[][] rois) throws DeviceException {
-	
 		double [] roiLow  = getLowROIs();
 		mergeRois(roiLow, rois, 0);
 		setLowROIs(roiLow);
-		
 		double [] roiHigh = getHighROIs();
 		mergeRois(roiHigh, rois, 1);
 		setHighROIs(roiHigh);
-		
-		final double[] curLow = getLowROIs();
+		double[] curLow = getLowROIs();
 		if (!Arrays.equals(roiLow, curLow)) throw new DeviceException("Did not set low rois!");
-		
-		final double[] curHi = getHighROIs();
+		double[] curHi = getHighROIs();
 		if (!Arrays.equals(curHi, roiHigh)) throw new DeviceException("Did not set high rois!");
 	}
 	
 	private void mergeRois(double[] curRois, double[][] rois, int i) {
-		for (int j = 0; j < curRois.length; j++) {
+		for (int j = 0; j < curRois.length; j++)
 			curRois[j] = rois[j][i];
-		}
 	}
 
 	/**
@@ -717,17 +635,16 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @param roiLow
 	 * @throws DeviceException
 	 */
-	public void setLowROIs(double[] roiLow) throws DeviceException
-	{
+	public void setLowROIs(double[] roiLow) throws DeviceException{
 		xmap.setValue((SCALOWLIMITS+number.toString()), "", roiLow);
 	}
+	
 	/**
 	 * get the roi low limit
 	 * @return roi low limit array
 	 * @throws DeviceException
 	 */
-	public double[] getLowROIs() throws DeviceException
-	{
+	public double[] getLowROIs() throws DeviceException{
 		return (double[])xmap.getValue(ReturnType.DBR_NATIVE, (SCALOWLIMITS+number.toString()), "");
 	}
 	
@@ -736,8 +653,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @param roiHigh
 	 * @throws DeviceException
 	 */
-	public void setHighROIs(double[] roiHigh) throws DeviceException
-	{
+	public void setHighROIs(double[] roiHigh) throws DeviceException{
 		xmap.setValue((SCAHIGHLIMITS+number.toString()), "", roiHigh);
 	}
 	
@@ -746,8 +662,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @return high limit array
 	 * @throws DeviceException
 	 */
-	public double[] getHighROIs() throws DeviceException
-	{
+	public double[] getHighROIs() throws DeviceException{
 		return (double[])xmap.getValue(ReturnType.DBR_NATIVE, (SCAHIGHLIMITS+number.toString()), "");
 	}
 

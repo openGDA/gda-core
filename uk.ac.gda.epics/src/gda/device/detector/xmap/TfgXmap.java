@@ -38,15 +38,10 @@ import org.slf4j.LoggerFactory;
  * a slave mode. In this mode methods which set things on the Tfg do nothing.
  */
 public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
-
 	private static final Logger logger = LoggerFactory.getLogger(TfgXmap.class);
-
 	private XmapDetector xmap = null;
-
 	private String xmapName;
-	
 	private int minimumReadoutDelay = 0;
-
 	private String collectionModePV;
 
 	public TfgXmap() {
@@ -57,11 +52,9 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 	@Override
 	public void configure() throws FactoryException {
 		// TODO remove finder
-		if (xmap == null) {
-			if ((xmap = (XmapDetector) Finder.getInstance().find(xmapName)) == null) {
+		if (xmap == null)
+			if ((xmap = (XmapDetector) Finder.getInstance().find(xmapName)) == null)
 				logger.error("XmapDetector " + xmapName + " not found");
-			}
-		}
 		super.configure();
 	}
 
@@ -102,10 +95,7 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 
 	@Override
 	public double[] readout() throws DeviceException {
-		
 		if(minimumReadoutDelay!=0){
-//			readoutTime = System.currentTimeMillis();
-			//long delay = readoutTime - countAsyncTime + minimumReadoutDelay;
 			long delay = minimumReadoutDelay;
 			try {
 				Thread.sleep(delay);
@@ -113,7 +103,6 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 				e.printStackTrace();
 			}
 		}
-		
 		final double ff = xmap.readoutScalerData();
 		return new double[] { ff };
 	}
@@ -125,20 +114,15 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 
 	@Override
 	public void collectData() throws DeviceException {
-		if (xmap != null) {
+		if (xmap != null)
 			xmap.clearAndStart();
-		}
-		if (!slave && timer != null) {
+		if (!slave && timer != null)
 			timer.countAsync(collectionTime);
-		}
-//		countAsyncTime = System.currentTimeMillis();
-		
 	}
 
 	private void clearXmap() throws DeviceException {
-		if (slave && xmap != null) {
+		if (slave && xmap != null)
 			xmap.clear();
-		}
 	}
 
 	@Override
@@ -189,11 +173,9 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 	public Object getPosition() throws DeviceException {
 		Object ob = this.readout();
 		double[] rois = (double[]) ob;
-		if (slave) {
+		if (slave)
 			return rois;
-		}
 		return ArrayUtils.addAll(new double[] { collectionTime }, rois);
-
 	}
 
 	/**
@@ -201,9 +183,8 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 	 */
 	@Override
 	public String[] getInputNames() {
-		if (slave) {
+		if (slave)
 			return new String[] {};
-		}
 		return new String[] { "time" };
 	}
 
@@ -221,7 +202,6 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 	public String getDetectorType() throws DeviceException {
 		return "CounterTimer";
 	}
-	
 
 	public int getMinimumReadoutDelay() {
 		return minimumReadoutDelay;

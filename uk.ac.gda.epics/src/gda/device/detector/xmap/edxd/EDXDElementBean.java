@@ -24,32 +24,18 @@ import java.io.Serializable;
  * A simple class to save xmap element data.
  */
 public class EDXDElementBean implements Serializable {
-	
-	
 	private double peakTime;
-	
 	private double dynamicRange;
-	
 	private double triggerThreshold;
-	
 	private double baseThreshold;
-	
 	private int baseLength;
-	
 	private double energyThreshold;
-	
 	private double binWidth;
-	
 	private double preampGain;
-	
 	private double resetDelay;
-	
 	private double gapTime;
-	
 	private double triggerPeakTime;
-	
 	private double triggerGapTime;
-	
 	private double maxWidth;
 
 	@Override
@@ -96,41 +82,29 @@ public class EDXDElementBean implements Serializable {
 		EDXDElementBean other = (EDXDElementBean) obj;
 		if (baseLength != other.baseLength)
 			return false;
-		if (Double.doubleToLongBits(baseThreshold) != Double
-				.doubleToLongBits(other.baseThreshold))
+		if (Double.doubleToLongBits(baseThreshold) != Double.doubleToLongBits(other.baseThreshold))
 			return false;
-		if (Double.doubleToLongBits(binWidth) != Double
-				.doubleToLongBits(other.binWidth))
+		if (Double.doubleToLongBits(binWidth) != Double.doubleToLongBits(other.binWidth))
 			return false;
-		if (Double.doubleToLongBits(dynamicRange) != Double
-				.doubleToLongBits(other.dynamicRange))
+		if (Double.doubleToLongBits(dynamicRange) != Double.doubleToLongBits(other.dynamicRange))
 			return false;
-		if (Double.doubleToLongBits(energyThreshold) != Double
-				.doubleToLongBits(other.energyThreshold))
+		if (Double.doubleToLongBits(energyThreshold) != Double.doubleToLongBits(other.energyThreshold))
 			return false;
-		if (Double.doubleToLongBits(gapTime) != Double
-				.doubleToLongBits(other.gapTime))
+		if (Double.doubleToLongBits(gapTime) != Double.doubleToLongBits(other.gapTime))
 			return false;
-		if (Double.doubleToLongBits(maxWidth) != Double
-				.doubleToLongBits(other.maxWidth))
+		if (Double.doubleToLongBits(maxWidth) != Double.doubleToLongBits(other.maxWidth))
 			return false;
-		if (Double.doubleToLongBits(peakTime) != Double
-				.doubleToLongBits(other.peakTime))
+		if (Double.doubleToLongBits(peakTime) != Double.doubleToLongBits(other.peakTime))
 			return false;
-		if (Double.doubleToLongBits(preampGain) != Double
-				.doubleToLongBits(other.preampGain))
+		if (Double.doubleToLongBits(preampGain) != Double.doubleToLongBits(other.preampGain))
 			return false;
-		if (Double.doubleToLongBits(resetDelay) != Double
-				.doubleToLongBits(other.resetDelay))
+		if (Double.doubleToLongBits(resetDelay) != Double.doubleToLongBits(other.resetDelay))
 			return false;
-		if (Double.doubleToLongBits(triggerGapTime) != Double
-				.doubleToLongBits(other.triggerGapTime))
+		if (Double.doubleToLongBits(triggerGapTime) != Double.doubleToLongBits(other.triggerGapTime))
 			return false;
-		if (Double.doubleToLongBits(triggerPeakTime) != Double
-				.doubleToLongBits(other.triggerPeakTime))
+		if (Double.doubleToLongBits(triggerPeakTime) != Double.doubleToLongBits(other.triggerPeakTime))
 			return false;
-		if (Double.doubleToLongBits(triggerThreshold) != Double
-				.doubleToLongBits(other.triggerThreshold))
+		if (Double.doubleToLongBits(triggerThreshold) != Double.doubleToLongBits(other.triggerThreshold))
 			return false;
 		return true;
 	}
@@ -317,6 +291,4 @@ public class EDXDElementBean implements Serializable {
 		this.maxWidth = maxWidth;
 	}
 
-
-	
 }

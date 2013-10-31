@@ -41,15 +41,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This class describes the EDXD detector on I12, it is made up of 24 subdetectors
  */
 public class EDXDController extends DetectorBase implements Configurable {
-
-	transient private static final Logger logger = LoggerFactory.getLogger(EDXDController.class);
+	private static final Logger logger = LoggerFactory.getLogger(EDXDController.class);
 	protected static final int NUMBER_OF_ATTEMPTS = 5;
-	protected  int numberOfElements = 24;
+	protected int numberOfElements = 24;
 	protected static final int TOTAL_NUMBER_OF_TRACE_DATASETS = 10;
 	protected static final String EDXD_PLOT = "EDXD Plot";
 	protected int version  = 2;
@@ -65,6 +63,8 @@ public class EDXDController extends DetectorBase implements Configurable {
 	protected static String SCAACTIVATE = "SCAACTIVATE";
 	protected static String SETPRESETVALUE = "SETPRESETVALUE";
 	protected static String SCAELEMENTS = "SCAELEMENTS";
+	
+	// TODO these are accessed directly and shouldn't be
 	public enum COLLECTION_MODES {MCA_SPECTRA, MCA_MAPPING, SCA_MAPPING , LIST_MAPPING}
 	public enum PIXEL_ADVANCE_MODE { GATE, SYNC}
 	public enum NEXUS_FILE_MODE {SINGLE, CAPTURE, STREAM}
@@ -87,8 +87,8 @@ public class EDXDController extends DetectorBase implements Configurable {
 		xmap.setDeviceName(epicsDeviceName);
 		xmap.setName(epicsDeviceName);
 		xmap.configure();
-        statusChannel = xmap.createEpicsChannel(ReturnType.DBR_NATIVE, STATUS , "");
-        statusChannel.addIObserver(new IObserver(){
+		statusChannel = xmap.createEpicsChannel(ReturnType.DBR_NATIVE, STATUS , "");
+		statusChannel.addIObserver(new IObserver(){
 
 			@Override
 			public void update(Object source, Object arg) {
@@ -276,14 +276,12 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setup(double maxEnergy, int numberOfBins ) throws DeviceException {
-		// set the dynamic range to twice the max energy
-		setDynamicRange(maxEnergy*2.0);
+		setDynamicRange(maxEnergy*2.0);// set the dynamic range to twice the max energy
 		int bins = setBins(numberOfBins);
 		setBinWidth((maxEnergy*1000.0)/bins);		
 	}
 
 	// All the saving and loading settings
-
 	/**
 	 * Save all the xmap settings, with no description
 	 * @param name
@@ -305,10 +303,8 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 */
 	public void saveCurrentSettings(String name, String description) throws ObjectShelfException, LocalDatabaseException, DeviceException {
 		LocalObjectShelf los = LocalObjectShelfManager.open("EDXD"+name);
-		// Save the description
-		los.addValue("desc", description);
-		// save the number of bins
-		los.addValue("nbins", getBins());
+		los.addValue("desc", description);// Save the description
+		los.addValue("nbins", getBins());// save the number of bins
 		// populate the shelf from the subdetectors
 		for( int i = 0; i < subDetectors.size(); i++)
 			los.addValue(subDetectors.get(i).getName(), subDetectors.get(i).saveConfiguration());
@@ -325,8 +321,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 */
 	public String loadSettings(String name) throws DeviceException, ObjectShelfException, LocalDatabaseException {
 		LocalObjectShelf los = LocalObjectShelfManager.open("EDXD"+name);
-		// load the number of bins
-		setBins((Integer) los.get("nbins"));
+		setBins((Integer) los.get("nbins"));// load the number of bins
 		// populate the shelf from the subdetectors
 		for( int i = 0; i < subDetectors.size(); i++) {
 			logger.info("Setting subdetector {} with loaded values",i);
@@ -367,7 +362,6 @@ public class EDXDController extends DetectorBase implements Configurable {
 	}
 	
 	// Setters for the various settings accross the board
-	
 	/**
 	 * Set the preampGain for all elements
 	 * @param preampGain 
@@ -398,7 +392,6 @@ public class EDXDController extends DetectorBase implements Configurable {
 			subDetectors.get(i).setTriggerThreshold(triggerThreshold);
 	}
 
-
 	/**
 	 * Set the baseThreshold for all elements
 	 * @param baseThreshold
@@ -408,7 +401,6 @@ public class EDXDController extends DetectorBase implements Configurable {
 		for( int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setBaseThreshold(baseThreshold);
 	}
-
 
 	/**
 	 * Set the baseLength for all elements
@@ -499,10 +491,10 @@ public class EDXDController extends DetectorBase implements Configurable {
 	* @throws DeviceException
 	*/
 	public void setResume(boolean resume)throws DeviceException{
-	    	int toset =0;
-	    	if(resume)
-	    		toset = 1;
-	    	xmap.setValue(RESUMEMODE  ,"",toset);
+		int toset =0;
+		if(resume)
+			toset = 1;
+		xmap.setValue(RESUMEMODE  ,"",toset);
 	}
 	
 	/**
@@ -566,9 +558,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	public Object readout() throws DeviceException {
 		double[][] readout = new double[numberOfElements][];
 		for(int i =0; i< numberOfElements; i++)
-		{
 			readout[i] = subDetectors.get(i).readoutDoubles();
-		}
 		return readout;
 	}
 

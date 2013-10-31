@@ -25,8 +25,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CallableTfgXmap extends TfgXmap implements PositionCallableProvider<double[]> {
-
 	AtomicBoolean readingOut = new AtomicBoolean(false);
+	
 	@Override
 	public Callable<double[]> getPositionCallable() throws DeviceException {
 		setReadingOut(true);
@@ -38,13 +38,12 @@ public class CallableTfgXmap extends TfgXmap implements PositionCallableProvider
 			return reply;
 			}
 		};		
-			return callable;
+		return callable;
 	}
 
 	@Override
 	public double[] readout() throws DeviceException {
 		Callable<double[]> positionCallable = getPositionCallable();
-
 		try {
 			double[] treeProvider = positionCallable.call();
 			return treeProvider;
@@ -53,7 +52,6 @@ public class CallableTfgXmap extends TfgXmap implements PositionCallableProvider
 		} catch (Exception e) {
 			throw new DeviceException("something wrong in the callable", e);
 		}
-
 	}
 	
 	protected double[] getSuperReadout() throws DeviceException {

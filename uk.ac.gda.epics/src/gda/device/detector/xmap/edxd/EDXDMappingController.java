@@ -114,11 +114,15 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 				}
 			}
         });
-		// Add all the EDXD Elements to the detector
+		addElements();
+	}
+
+	// Add all the EDXD Elements to the detector
+	private void addElements(){
 		for(int i = (0+ elementOffset); i < (numberOfElements + elementOffset); i++ )
 			subDetectors.add(new EDXDMappingElement(xmap,i)); 
 	}
-
+	
 	/**
 	 * Sets the dynamic range of the detector
 	 * @param dynamicRange the dynamic range in KeV

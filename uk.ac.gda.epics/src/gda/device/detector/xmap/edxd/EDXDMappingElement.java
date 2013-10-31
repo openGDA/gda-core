@@ -30,21 +30,13 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteable {
-
-	
 	private static final String MCA = "MCA";
 	private int maxROIs = 32;
 	private EpicsMCASimple simpleMca;
-
-	// Setup the logging facilities
 	transient private static final Logger logger = LoggerFactory.getLogger(EDXDMappingElement.class);
 
 	/**
-	 * 
 	 * @param xmapDevice the device where the element is connected to
 	 * @param elementNumber the number of the element in the xmap
 	 */
@@ -68,26 +60,23 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 */
 	@Override
 	public void setROIs(double[][] rois) throws DeviceException {
-	
 		double [] roiLow  = getLowROIs();
 		mergeRois(roiLow, rois, 0);
 		setLowROIs(roiLow);
-		
 		double [] roiHigh = getHighROIs();
 		mergeRois(roiHigh, rois, 1);
 		setHighROIs(roiHigh);
-		
 		final double[] curLow = getLowROIs();
-		if (!Arrays.equals(roiLow, curLow)) throw new DeviceException("Did not set low rois!");
-		
+		if (!Arrays.equals(roiLow, curLow)) 
+			throw new DeviceException("Did not set low rois!");
 		final double[] curHi = getHighROIs();
-		if (!Arrays.equals(curHi, roiHigh)) throw new DeviceException("Did not set high rois!");
+		if (!Arrays.equals(curHi, roiHigh)) 
+			throw new DeviceException("Did not set high rois!");
 	}
 	
 	private void mergeRois(double[] curRois, double[][] rois, int i) {
-		for (int j = 0; j < curRois.length; j++) {
+		for (int j = 0; j < curRois.length; j++)
 			curRois[j] = rois[j][i];
-		}
 	}
 
 	/**
@@ -96,14 +85,12 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 * @throws DeviceException
 	 */
 	@Override
-	public void setLowROIs(double[] roiLow) throws DeviceException
-	{
+	public void setLowROIs(double[] roiLow) throws DeviceException{
 		if(simpleMca.isConfigured()){
 			if(roiLow.length > maxROIs)
 				throw new DeviceException("Number of ROI's is larger than the maximum allowed value");
 			EpicsMCARegionOfInterest[] roiLowObject = new EpicsMCARegionOfInterest[roiLow.length];
-			for(int i =0 ; i < roiLow.length ; i++)
-			{
+			for(int i =0 ; i < roiLow.length ; i++){
 				EpicsMCARegionOfInterest roi = simpleMca.getNthRegionOfInterest(i);
 				roi.setRegionLow(roiLow[i]);
 				roiLowObject[i] = roi;
@@ -111,22 +98,21 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 			simpleMca.setRegionsOfInterest(roiLowObject);
 		}
 	}
+	
 	/**
 	 * get the roi low limit
 	 * @return roi low limit array
 	 * @throws DeviceException
 	 */
 	@Override
-	public double[] getLowROIs() throws DeviceException
-	{
+	public double[] getLowROIs() throws DeviceException{
 		if(simpleMca.isConfigured()){
-		double[] lowRois = new double[maxROIs];
-		EpicsMCARegionOfInterest[] roiObject = (EpicsMCARegionOfInterest[])simpleMca.getRegionsOfInterest();
-		for(int i =0 ; i< roiObject.length; i++)
-		{
-			lowRois[i] = roiObject[i].getRegionLow();
-		}
-		return lowRois;
+			double[] lowRois = new double[maxROIs];
+			EpicsMCARegionOfInterest[] roiObject = (EpicsMCARegionOfInterest[])simpleMca.getRegionsOfInterest();
+			for(int i =0 ; i< roiObject.length; i++){
+				lowRois[i] = roiObject[i].getRegionLow();
+			}
+			return lowRois;
 		}
 		return null;
 	}
@@ -137,13 +123,11 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 * @throws DeviceException
 	 */
 	@Override
-	public void setHighROIs(double[] roiHigh) throws DeviceException
-	{
+	public void setHighROIs(double[] roiHigh) throws DeviceException{
 		if(roiHigh.length > maxROIs)
 		throw new DeviceException("Number of ROI's is larger than the maximum allowed value");
 		EpicsMCARegionOfInterest[] roiHighObject = new EpicsMCARegionOfInterest[roiHigh.length];
-		for(int i =0 ; i < roiHigh.length ; i++)
-		{
+		for(int i =0 ; i < roiHigh.length ; i++){
 			EpicsMCARegionOfInterest roi = simpleMca.getNthRegionOfInterest(i);
 			roi.setRegionHigh(roiHigh[i]);
 			roiHighObject[i] = roi;
@@ -157,18 +141,16 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 * @throws DeviceException
 	 */
 	@Override
-	public double[] getHighROIs() throws DeviceException
-	{
+	public double[] getHighROIs() throws DeviceException{
 		if(simpleMca.isConfigured()){
 			double[] highRois = new double[maxROIs];
 			EpicsMCARegionOfInterest[] roiObject = (EpicsMCARegionOfInterest[])simpleMca.getRegionsOfInterest();
-			for(int i =0 ; i< roiObject.length; i++)
-			{
+			for(int i =0 ; i< roiObject.length; i++){
 				highRois[i] = roiObject[i].getRegionHigh();
 			}
 			return highRois;
-			}
-			return null;
+		}
+		return null;
 	}
 
 	/**
@@ -179,16 +161,14 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	@Override
 	public double[] getROICounts() throws DeviceException {
 		if(simpleMca.isConfigured()){
-			
 			double[][] bothCounts = simpleMca.getRegionsOfInterestCount();
 			double[] counts = new double[bothCounts.length];
-			for(int i =0 ; i< bothCounts.length; i++)
-			{
+			for(int i =0 ; i< bothCounts.length; i++){
 				counts[i] = bothCounts[i][0];
 			}
 			return counts;
-			}
-			return null;
+		}
+		return null;
 	}
 
 }

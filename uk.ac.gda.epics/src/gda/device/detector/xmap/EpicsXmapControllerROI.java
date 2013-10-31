@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EpicsXmapControllerROI extends EpicsXmapController{
-	
 	private EDXDMappingController edxdController;
 	private int numberOfElements;
 	private String edxdControllerName;
