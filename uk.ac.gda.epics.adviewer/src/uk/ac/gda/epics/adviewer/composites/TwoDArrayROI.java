@@ -144,7 +144,7 @@ public class TwoDArrayROI extends Composite {
 		minX.setDecimalPlaces(0);
 		minX.setMaximum(Double.MAX_VALUE);
 		minX.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-		new Label(minX, SWT.NONE);
+		createEmptyLabel(minX);
 		minX.addValueListener(new ValueAdapter("x value listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -164,7 +164,7 @@ public class TwoDArrayROI extends Composite {
 		minY.setDecimalPlaces(0);
 		minY.setMaximum(Double.MAX_VALUE);
 		minY.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-		new Label(minY, SWT.NONE);
+		createEmptyLabel(minY);
 		minY.addValueListener(new ValueAdapter("x value listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -184,7 +184,7 @@ public class TwoDArrayROI extends Composite {
 		sizeX.setDecimalPlaces(0);
 		sizeX.setMaximum(Double.MAX_VALUE);
 		sizeX.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-		new Label(sizeX, SWT.NONE);
+		createEmptyLabel(sizeX);
 		sizeX.addValueListener(new ValueAdapter("x value listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -204,7 +204,7 @@ public class TwoDArrayROI extends Composite {
 		sizeY.setDecimalPlaces(0);
 		sizeY.setMaximum(Double.MAX_VALUE);
 		sizeY.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-		new Label(sizeY, SWT.NONE);
+		createEmptyLabel(sizeY);
 		sizeY.addValueListener(new ValueAdapter("x value listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -374,6 +374,11 @@ public class TwoDArrayROI extends Composite {
 		}
 	}
 	
+	@SuppressWarnings("unused")
+	private void createEmptyLabel(Composite composite){
+		new Label(composite, SWT.NONE);
+	}
+	
 }
 
 class ValueBox1<T> extends StandardBox {
@@ -424,5 +429,5 @@ class ValueBox1<T> extends StandardBox {
 		};
 		observable.addObserver(observer);
 	}
-
+	
 }

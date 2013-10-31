@@ -26,7 +26,6 @@ import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
-import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
 
 import java.util.ArrayList;

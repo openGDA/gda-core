@@ -27,6 +27,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -34,12 +35,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.eclipse.swt.layout.FillLayout;
 
 public class HistogramStatus extends Composite {
-	private static final Logger logger = LoggerFactory.getLogger(HistogramStatus.class);
 	private boolean histogramMonitoring = false;
 	private Button histogramMonitoringBtn;
 	private Label histogramMonitoringLbl;
@@ -51,7 +48,6 @@ public class HistogramStatus extends Composite {
 	private Observer<String> computeHistogramObserver;
 	private Button btnFreezePlot;
 	protected boolean freezeSelected;
-
 
 	public HistogramStatus(Composite parent, int style) {
 		super(parent, style);

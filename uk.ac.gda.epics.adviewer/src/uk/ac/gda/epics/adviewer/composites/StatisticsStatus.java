@@ -89,7 +89,7 @@ public class StatisticsStatus extends Composite {
 		min.setDecimalPlaces(1);
 		min.setMaximum(Double.MAX_VALUE);
 		min.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
-		new Label(min, SWT.NONE);
+		createEmptyLabel(min);
 		
 		max = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) max.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
@@ -98,7 +98,7 @@ public class StatisticsStatus extends Composite {
 		max.setDecimalPlaces(1);
 		max.setMaximum(Double.MAX_VALUE);
 		max.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
-		new Label(max, SWT.NONE);
+		createEmptyLabel(max);
 		
 		mean = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) mean.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
@@ -107,7 +107,7 @@ public class StatisticsStatus extends Composite {
 		mean.setDecimalPlaces(1);
 		mean.setMaximum(Double.MAX_VALUE);
 		mean.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
-		new Label(mean, SWT.NONE);
+		createEmptyLabel(mean);
 		
 		total = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) total.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
@@ -117,7 +117,7 @@ public class StatisticsStatus extends Composite {
 		total.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
 		total.setNumberFormat(new DecimalFormat("0.###E0"));
 		total.setDecimalPlaces(3);
-		new Label(total, SWT.NONE);
+		createEmptyLabel(total);
 		
 		sigma = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) sigma.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
@@ -127,7 +127,7 @@ public class StatisticsStatus extends Composite {
 		sigma.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
 		sigma.setNumberFormat(new DecimalFormat("0.###E0"));
 		sigma.setDecimalPlaces(3);
-		new Label(sigma, SWT.NONE);
+		createEmptyLabel(sigma);
 		
 		addDisposeListener(new DisposeListener() {
 			
@@ -226,6 +226,11 @@ public class StatisticsStatus extends Composite {
 	public boolean getMonitoring() {
 		return monitoring;
 	}
+	
+	@SuppressWarnings("unused")
+	private void createEmptyLabel(Composite composite){
+		new Label(composite, SWT.NONE);
+	}
 }
 
 class ValueBox extends StandardBox{
@@ -274,5 +279,5 @@ class ValueBox extends StandardBox{
 		};
 		observable.addObserver(observer);
 	}
-	
+		
 }

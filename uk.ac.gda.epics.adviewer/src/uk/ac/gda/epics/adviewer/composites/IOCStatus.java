@@ -18,8 +18,6 @@
 
 package uk.ac.gda.epics.adviewer.composites;
 
-import java.awt.Desktop;
-
 import gda.observable.Observable;
 import gda.observable.Observer;
 
