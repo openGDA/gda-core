@@ -48,11 +48,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
@@ -458,6 +460,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			buf = ((Object[]) buf)[0];
 		if (buf instanceof Number)
 			return ((Number) buf).intValue();
+		if( buf.getClass().isArray()){
+			int len = ArrayUtils.getLength(buf);
+			if( len ==1){
+				 Object object = Array.get(buf, 0);
+				 return getIntfromBuffer(object);
+			}
+		}
 		return Integer.parseInt(buf.toString());
 	}
 
