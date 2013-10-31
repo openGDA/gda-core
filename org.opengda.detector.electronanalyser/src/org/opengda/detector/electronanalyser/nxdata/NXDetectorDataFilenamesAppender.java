@@ -19,6 +19,7 @@
 package org.opengda.detector.electronanalyser.nxdata;
 
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 
 import java.text.MessageFormat;
@@ -33,14 +34,17 @@ public class NXDetectorDataFilenamesAppender implements NXDetectorDataAppender {
 
 	private final List<String> elementValues;
 
+	private List<Double> totalIntensity;
 
-	public NXDetectorDataFilenamesAppender(List<String> elementNames, List<String> elementValues) {
+
+	public NXDetectorDataFilenamesAppender(List<String> elementNames, List<String> elementValues, List<Double>totalIntensity) {
 		if (elementNames.size() != elementValues.size()) {
 			throw new IllegalArgumentException(MessageFormat.format(
 					"Length of elementNames[{0}] != elementValues[{1}]", elementNames.size(), elementValues.size()));
 		}
 		this.elementNames = elementNames;
 		this.elementValues = elementValues;
+		this.totalIntensity=totalIntensity;
 	}
 
 	/**
@@ -52,10 +56,14 @@ public class NXDetectorDataFilenamesAppender implements NXDetectorDataAppender {
 		for (int i = 0; i < elementNames.size(); i++) {
 			String name = elementNames.get(i);
 			String value = elementValues.get(i);
-			//data.setPlottableValue(name, value);
-			data.addScanFileLink(detectorName, name+"-imagedata", "nxfile://" +value+ "#entry1/instrument/detector/image_data", true, true);
-			data.addScanFileLink(detectorName, name+"-spectrumdata", "nxfile://" +value+ "#entry1/instrument/detector/spectrum_data", true, true);
-			data.addScanFileLink(detectorName, name+"-externaliodata", "nxfile://" +value+ "#entry1/instrument/detector/external_io_data", true, true);
+			Double intensity=totalIntensity.get(i);
+			data.setPlottableValue(name, intensity);
+			data.addExternalFileLink(detectorName, name+"-imagedata", "nxfile://" +value+ "#entry1/instrument/detector/image_data", true, true);
+			data.addExternalFileLink(detectorName, name+"-spectrumdata", "nxfile://" +value+ "#entry1/instrument/detector/spectrum_data", true, true);
+			data.addExternalFileLink(detectorName, name+"-externaliodata", "nxfile://" +value+ "#entry1/instrument/detector/external_io_data", true, true);
+		}
+		if (data instanceof NXDetectorDataWithFilepathForSrs) {
+			((NXDetectorDataWithFilepathForSrs)data).addFileNames(detectorName, elementValues.toArray(new String[]{}));
 		}
 	}
 

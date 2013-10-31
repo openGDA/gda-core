@@ -393,34 +393,23 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXP
 				// a hack to solve EPICS cannot do binding energy issue, should be removed once EPICS issue solved.
 				if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
 					getAnalyser().setStartEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getHighEnergy(), 10.0);
-//					Sleep.sleep(2000);
 					getAnalyser().setEndEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getLowEnergy(), 10.0);
-//					Sleep.sleep(2000);
 					getAnalyser().setCentreEnergy(Double.parseDouble(getPgmenergy().getPosition().toString())-region.getFixEnergy(), 10.0);
-//					Sleep.sleep(2000);
 				} else {
 					getAnalyser().setStartEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getHighEnergy(), 10.0);
-//					Sleep.sleep(2000);
 					getAnalyser().setEndEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getLowEnergy(), 10.0);
-//					Sleep.sleep(2000);
 					getAnalyser().setCentreEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getFixEnergy(), 10.0);
-//					Sleep.sleep(2000);
 				}
 				getAnalyser().setEnergyMode("Kinetic",10.0);
 			} else {
 				getAnalyser().setStartEnergy(region.getLowEnergy(), 10.0);
-//				Sleep.sleep(2000);
 				getAnalyser().setEndEnergy(region.getHighEnergy(), 10.0);
-//				Sleep.sleep(2000);
 				getAnalyser().setCentreEnergy(region.getFixEnergy(), 10.0);
-//				Sleep.sleep(2000);
 			}
 			getAnalyser().setCachedEnergyMode(literal);
 			
 //			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 10.0);
-//			Sleep.sleep(1000);
 			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 10.0);
-//			Sleep.sleep(2000);
 			double collectionTime = region.getStepTime();
 			getAnalyser().setStepTime(collectionTime, 10.0);
 			if (!region.getRunMode().isConfirmAfterEachIteration()) {
@@ -438,14 +427,12 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXP
 						"Confirm after each iteraction is not yet supported");
 			}
 			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 10.0);
-//			Sleep.sleep(2000);
 		} catch (Exception e) {
 			throw e;
 		} 
 		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
 			((ScriptControllerBase)getScriptcontroller()).update(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
 		}
-//		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
 	}
 	@Override
 	public String getName() {

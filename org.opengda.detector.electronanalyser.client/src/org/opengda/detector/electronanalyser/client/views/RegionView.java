@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
@@ -69,6 +71,8 @@ import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.ui.dialog.MessageDialogHelper;
 
 /**
  * A Region Editor View for defining new or editing existing Region Definition for VG Scienta Electron Analyser.
@@ -882,12 +886,24 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		public void widgetDefaultSelected(SelectionEvent e) {
 			// on enter - change region name
 			if (e.getSource().equals(regionName)) {
-				String regionNamePrefix = StringUtils.prefixBeforeInt(regionName.getText());
-				if (!regionNamePrefix.isEmpty()) {
-					int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(), regionNamePrefix);
-					if (largestIntInNames != -1) {
-						largestIntInNames++;
-						regionName.setText(regionNamePrefix + largestIntInNames);
+				String newName=regionName.getText().trim();
+				if (getRegionNames().contains(newName)) {
+					MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Duplicated region name", null,
+							"Region name must be unique in the sequence definition. Select 'No' to re-enter it again, otherwise an unique name will be generated for you", 
+							MessageDialog.ERROR, new String[] { "Yes", "No" }, 0);
+					int result = msgDialog.open();
+					if (result == 0) {
+						String regionNamePrefix = StringUtils.prefixBeforeInt(regionName.getText());
+						if (!regionNamePrefix.isEmpty()) {
+							int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(), regionNamePrefix);
+							if (largestIntInNames != -1) {
+								largestIntInNames++;
+								regionName.setText(regionNamePrefix + largestIntInNames);
+							}
+						}
+					} else {
+						//must remove this duplicated new region name
+						regionName.setText("");
 					}
 				}
 				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Name(), regionName.getText());

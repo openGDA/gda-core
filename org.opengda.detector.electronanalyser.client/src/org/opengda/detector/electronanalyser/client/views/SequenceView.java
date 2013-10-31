@@ -1,13 +1,17 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.configuration.properties.LocalProperties;
-import gda.device.Device;
+import gda.data.metadata.VisitEntry;
+import gda.data.metadata.icat.Icat;
+import gda.data.metadata.icat.IcatProvider;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
+import gda.jython.authenticator.UserAuthentication;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
@@ -51,6 +55,7 @@ import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
@@ -117,8 +122,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
-import org.opengda.detector.electronanalyser.nxdetector.EW4000;
-import org.opengda.detector.electronanalyser.scan.RegionScannable;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
@@ -126,6 +129,8 @@ import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.ui.dialog.VisitIDDialog;
 
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 	private static final Logger logger = LoggerFactory.getLogger(SequenceView.class);
@@ -794,7 +799,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			@Override
 			public void run() {
 				super.run();
-				logger.info("Calling start");
+				logger.info("Start region collection test, no data saved.");
 				int order = 0;
 				resetRegionStatus();
 				runningonclient = true;
@@ -812,7 +817,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		};
 		startSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_START));
-		startSequenceAction.setToolTipText("Run on client.");
+		startSequenceAction.setToolTipText("Test region collection without data saving on client.");
 
 		stopSequenceAction = new Action() {
 			@Override
@@ -825,7 +830,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		};
 		stopSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
-		stopSequenceAction.setToolTipText("Stop run on client");
+		stopSequenceAction.setToolTipText("Stop test collection on client");
 
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(startSequenceAction);
@@ -936,7 +941,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_Location(), txtLocation.getText());
 				}
 				if (getVisit() != null) {
-					// Obtain visit ID from GDA property RCP_APP_VISIT
+					// Obtain visit ID from ICat database
 					txtUser.setText(getVisit());
 				} else if (getUser() != null) {
 					// set by Spring configuration
@@ -1011,12 +1016,36 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			@Override
 			public void run() {
 				super.run();
-				logger.info("Calling start on server.");
+				logger.info("Start data collection on GDA server.");
 				runningonserver = true;
 				updateActionIconsState();
 				try {
 					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
-					jsf.runCommand(String.format("analyserscan regions '%s' ew4000", regionDefinitionResourceUtil.getFileName()));
+					
+					String filename;
+					String fileName = regionDefinitionResourceUtil.getFileName();
+					if (fileName.startsWith(File.separator)) {
+						filename = FilenameUtils.getName(fileName);
+					} else {
+						filename=fileName;
+					}
+					List<Region> regions2 = regionDefinitionResourceUtil.getRegions();
+					int count = 0;
+					for (Region region : regions2) {
+						if (region.isEnabled()) {
+							count += 1;
+						}
+					}
+					if (count==1) {
+						logger.info("A single region is selected in the sequence file {}, so only a single data file is collected.", fileName);
+						jsf.runCommand(String.format("analyserscan regions '%s' ew4001", filename));
+					} else if (count>1) {
+						logger.info("Multiple regions are selected in the sequence file {}, so multiple data files are collected, each for one region.", fileName);
+						//jsf.runCommand(String.format("multiregionscan ds 1 1 1 ew4000 '%s'", filename));
+						jsf.runCommand("ew4000.asynchronousMoveTo(%s)", fileName);
+					} else {
+						logger.info("No active region is specified in the sequence file, so no collection is required.");
+					}
 				} catch (Exception e) {
 					logger.error("exception throws on start queue processor.", e);
 					runningonserver = false;
@@ -1026,13 +1055,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		};
 		startRunOnServerAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry()
 				.getDescriptor(ImageConstants.ICON_RUN_ON_SERVER));
-		startRunOnServerAction.setToolTipText("Run on server");
+		startRunOnServerAction.setToolTipText("Start data collection on GDA server");
 
 		stopRunOnServerAction = new Action() {
 			@Override
 			public void run() {
 				super.run();
-				logger.info("Calling stop on server");
+				logger.info("Stop collection on GDA server");
 				try {
 					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
 					jsf.haltCurrentScan();
@@ -1045,7 +1074,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		};
 		stopRunOnServerAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry()
 				.getDescriptor(ImageConstants.ICON_STOP_SERVER));
-		stopRunOnServerAction.setToolTipText("Stop run on server");
+		stopRunOnServerAction.setToolTipText("Stop collection on GDA server");
 
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(startRunOnServerAction);
@@ -1199,6 +1228,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void refreshTable(String seqFileName, boolean newFile) {
 		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
 		if (isDirty()) {
+			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
 			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
 					"Current sequence contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
 			int result = msgDialog.open();
@@ -1208,6 +1238,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				isDirty = false;
 				firePropertyChange(PROP_DIRTY);
 			}
+			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
 		}
 		try {
 			resource.eAdapters().remove(notifyListener);
@@ -1386,10 +1417,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	public String getVisit() {
-		if (visit == null) {
-			visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
-		}
-		return visit;
+		return getVisitID();
 	}
 
 	public void setVisit(String visit) {
@@ -1539,5 +1567,63 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		logger.debug("EPICS channel {} initialisation completed.", getDetectorStatePV());
 	}
+
+	/*
+	 * only sets the private chosenVisit attribute
+	 */
+	private String getVisitID() {
+		Icat instance = null;
+		try {
+			instance = IcatProvider.getInstance();
+		} catch (Exception e1) {
+			logger.info("Icat instance is not available", e1);
+		}
+		if (instance != null && !instance.icatInUse()) {
+			logger.info("Icat database not in use. Using the default visit defined by property " + LocalProperties.GDA_DEF_VISIT);
+			return LocalProperties.get("gda.defVisit", "0-0");
+		}
+
+		// test if the result has multiple entries
+		String user = UserAuthentication.getUsername();
+		VisitEntry[] visits = null;
+		try { 
+			if (instance != null) {
+				visits = instance.getMyValidVisits(user);
+			}
+		} catch (Exception e) {
+			logger.info(e.getMessage() + " - using default visit defined by property " + LocalProperties.GDA_DEF_VISIT, e);
+			return LocalProperties.get("gda.defVisit", "0-0");
+		}
+
+		// if no valid visit ID then do same as the cancel button
+		if (visits == null || visits.length == 0) {
+			logger.info("No visits found for user " + user
+					+ " at this time on this beamline. Will use default visit as ID listed as a member of staff.");
+			return LocalProperties.get("gda.defVisit", "0-0");
+		} else if (visits.length == 1) {
+			return visits[0].getVisitID();
+		} else {
+			String visitid = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
+			if (visitid != null) {
+				return visitid;
+			}
+			// send array of visits to dialog to pick one
+			String[][] visitInfo = new String[visits.length][];
+			int i = 0;
+			for (VisitEntry visit : visits) {
+				visitInfo[i] = new String[] { visit.getVisitID(), visit.getTitle() };
+				i++;
+			}
+
+			Display display=Display.getDefault();
+			final VisitIDDialog visitDialog = new VisitIDDialog(display, visitInfo);
+			if (visitDialog.open() == IDialogConstants.CANCEL_ID || visitDialog.getChoosenID() == null) {
+				logger.info("No visit is selected. Will use default visit as ID listed as a member of staff.");
+				return LocalProperties.get("gda.defVisit", "0-0");		
+			}
+			return visitDialog.getChoosenID();
+		}
+	}
+
 
 }
