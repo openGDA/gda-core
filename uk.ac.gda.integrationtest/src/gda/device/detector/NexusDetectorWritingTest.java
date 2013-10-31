@@ -30,9 +30,14 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeBuilder;
 import gda.data.nexus.tree.NexusTreeBuilder.TREE_CONTENTS;
 import gda.data.nexus.tree.NexusTreeNode;
+import gda.data.scan.datawriter.DataWriter;
+import gda.data.scan.datawriter.DataWriterExtenderBase;
+import gda.data.scan.datawriter.DefaultDataWriterFactory;
+import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.scan.ConcurrentScan;
+import gda.scan.IScanDataPoint;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -62,6 +67,15 @@ public class NexusDetectorWritingTest {
 
 		Object[] args = new Object[] { simpleScannable1, 0., 10., 1., simpleScannable2, nxDetector};
 		ConcurrentScan scan = new ConcurrentScan(args);
+		DataWriter dataWriter = DefaultDataWriterFactory.createDataWriterFromFactory();
+		dataWriter.addDataWriterExtender(new DataWriterExtenderBase(){
+
+			@Override
+			public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
+				dataPoint.getAllValuesAsDoubles();
+				super.addData(parent, dataPoint);
+			}});
+		scan.setDataWriter(dataWriter);
 		scan.runScan();
 	}
 

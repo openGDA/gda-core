@@ -23,13 +23,14 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
+import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,29 +48,25 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	private static final Logger logger = LoggerFactory.getLogger(NXDetectorData.class);
 	private INexusTree tree = null;
 	private Double[] doubleData = new Double[] { }; //must be empty on construction
-	protected String[] extraNames = new String[] {},
-			outputFormat = new String[] {};
+	private String[] inputExtraNames = new String[] {};
+	protected String []	outputFormat = new String[] {};
 
+	
 	/**
 	 * Passing in the detector helps setting up the plotable data array and does some 
 	 * useful checking
 	 * @param detector
 	 */
-	public NXDetectorData(Scannable detector) {
+	public NXDetectorData(Detector detector) {
 		this();
 		if (detector.getInputNames() != null && detector.getInputNames().length > 0) logger.warn("Dubious detector "+detector.getName()+" with input names.\nAnticipate plotting problems.");
-		this.extraNames = detector.getExtraNames();
-		if (this.extraNames == null || this.extraNames.length == 0) {
-			this.extraNames = new String[] { detector.getName() };
-		}
-		
+		this.inputExtraNames = (String [])ArrayUtils.addAll( detector.getInputNames(), detector.getExtraNames()); 
 		this.outputFormat = detector.getOutputFormat(); 
-		if (this.outputFormat == null || this.outputFormat.length == 0) {
-			logger.info("Detector "+detector.getName()+" does not provide outputFormat");
-			outputFormat = new String[] {"%5.5g"};
+		if (this.outputFormat == null || this.outputFormat.length != inputExtraNames.length ) {
+			throw new IllegalArgumentException(detector.getName() + ":outputFormat length does not match sum of inputNames and extraNames");
 		} 
 		
-		doubleData = new Double[this.extraNames.length];
+		doubleData = new Double[inputExtraNames.length];
 		for (int i = 0; i < doubleData.length; i++) {
 			doubleData[i]=null;
 		}
@@ -465,8 +462,8 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 */
 	public void setPlottableValue(String forExtraName, Double value) {
 	
-		for (int i = 0; i < extraNames.length; i++) {
-			if (extraNames[i].equals(forExtraName)) {
+		for (int i = 0; i < inputExtraNames.length; i++) {
+			if (inputExtraNames[i].equals(forExtraName)) {
 				doubleData[i] = value;
 				return;
 			}
@@ -528,7 +525,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	}
 
 	public String[] getExtraNames() {
-		return extraNames;
+		return inputExtraNames;
 	}
 
 	@Override

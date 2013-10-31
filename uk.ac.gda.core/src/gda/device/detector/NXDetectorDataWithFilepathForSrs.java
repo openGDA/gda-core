@@ -18,8 +18,8 @@
 
 package gda.device.detector;
 
+import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 
 	private int filepathOutputFieldIndex = 0;
 
-	public NXDetectorDataWithFilepathForSrs(Scannable adDetector) {
+	public NXDetectorDataWithFilepathForSrs(Detector adDetector) {
 		super(adDetector);
 	}
 	public NXDetectorDataWithFilepathForSrs() {

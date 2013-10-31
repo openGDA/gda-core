@@ -28,6 +28,7 @@ import gda.data.scan.datawriter.DataWriterBase;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.detector.NexusDetector;
 import gda.device.scannable.ScannableUtils;
 import gda.util.Serializer;
 
@@ -377,13 +378,22 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	@Override
 	public void addDetector(Detector det) {
 		detectorNames = (String[]) ArrayUtils.add(detectorNames, det.getName());
-		String[] extraNames = det.getExtraNames();
-		if (extraNames != null && extraNames.length > 0) {
-			detectorHeader = (String[]) ArrayUtils.addAll(detectorHeader, extraNames);
+
+		//TODO remove need to check for NXDetector if all detectors that returned a value now return 1 extraName
+		if( det instanceof NexusDetector){
+			//NXDetectors can have zero or non zero input and extras
+			detectorHeader = (String[]) ArrayUtils.addAll(detectorHeader, det.getInputNames());
+			detectorHeader = (String[]) ArrayUtils.addAll(detectorHeader, det.getExtraNames());
 		} else {
-			detectorHeader = (String[]) ArrayUtils.add(detectorHeader, det.getName());
+			String[] extraNames = det.getExtraNames();
+			if (extraNames != null && extraNames.length > 0) {
+				detectorHeader = (String[]) ArrayUtils.addAll(detectorHeader, extraNames);
+			} else {
+				detectorHeader = (String[]) ArrayUtils.add(detectorHeader, det.getName());
+			}
 		}
-		detectors.add(det);
+
+		detectors.add(det);		
 	}
 
 	/**
