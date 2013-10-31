@@ -17,7 +17,6 @@ from gda.scan import ConcurrentScan
 from uk.ac.gda.beans import BeansFactory
 from gda.epics import CAClient
 from gdascripts.scannable.installStandardScannableMetadataCollection import meta
-#import bimorph
 
 class TopupCountdown(PseudoDevice):
 

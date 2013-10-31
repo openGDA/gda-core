@@ -1,6 +1,3 @@
-#from gda.jython.commands.ScannableCommands import pos, scan
-#datadir = LocalProperties.getPath("gda.data.scan.datawriter.datadir",None) #@UndefinedVariable
-
 from gdascripts.scannable.detector.epics.EpicsFirewireCamera import EpicsFirewireCamera
 from gda.configuration.properties import LocalProperties
 from gda.jython.commands.GeneralCommands import run
@@ -24,7 +21,6 @@ x.asynchronousMoveTo(430)
 cam1det = CreateImageReadingDummyDetector.create(x)
 cam1 = ProcessingDetectorWrapper('cam1', cam1det, [], panel_name='ImageProPlus Plot')
 
-
 # To use a firewire camera:
 # from gdascripts.scannable.detector.epics.EpicsFirewireCamera import EpicsFirewireCamera
 # cam1det = EpicsFirewireCamera('cam1det', 'BL02I-FW-CAM-01:', datadirstring)   
@@ -35,10 +31,8 @@ mon = DummyPD('mon')
 mon.asynchronousMoveTo(1)
 scanAborter = ScanAborter("scanAborter",mon, 0.2)
 
-
 print "Creating peak2d hooked to cam1"
 peak2d = DetectorDataProcessorWithRoi('peak2d', cam1, [TwodGaussianPeak()])
-
 
 print "Creating mirror voltage controller"
 # TODO: need a dummy
@@ -46,6 +40,3 @@ print "Creating mirror voltage controller"
 # to use b16's:
 #from gdascripts.bimorph.pd_bimorph import EemBimorph #@UnresolvedImport
 #eembimorph = EemBimorph("eembimorph", 0, 8, "EEM_Bimorph:", sleepInS=0)
-
-
-

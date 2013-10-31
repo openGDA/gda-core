@@ -32,7 +32,6 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public final class BimorphParametersUIEditor extends RichBeanEditorPart {
-
 	private BimorphParametersComposite beanComposite;
 
 	public BimorphParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {

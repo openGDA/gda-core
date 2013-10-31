@@ -12,4 +12,3 @@ def suite():
 if __name__ == '__main__':
 	print sys.path
 	testhelpers.gda_test_harness.GdaTestRunner(suite(), "(script tests)", "TEST-scripts.all_tests.xml")
-

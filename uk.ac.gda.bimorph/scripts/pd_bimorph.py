@@ -1,4 +1,3 @@
-#@PydevCodeAnalysisIgnore
 from gda.device.scannable import ScannableMotionBase
 from gda.factory import Finder
 from time import sleep
@@ -22,7 +21,6 @@ class Bimorph(ScannableMotionBase):
 		LocalProperties.set("gda.scan.useScanPlotSettings","True")
 	to plot i_pin and only the first channel of the mirror:
 		LocalProperties.set("gda.plot.ScanPlotSettings.YFieldIndicesInvisible","0")
-		
 		
 	sleepdInS - time to wait after sending changes to EPICS for the bimorph to respond fully	
 	"""
@@ -61,8 +59,6 @@ class Bimorph(ScannableMotionBase):
 		return self.pos
 
 	def rawAsynchronousMoveTo(self,new_position):
-#		if len(new_position) != self.numOfChans :
-#			raise "len(new_position) != "+`self.numOfChans`
 		self.IAmBusy=True
 		try:
 			for i in range(self.startChan,self.startChan+self.numOfChans):
@@ -71,7 +67,6 @@ class Bimorph(ScannableMotionBase):
 		except:
 			pass
 		self.IAmBusy=False
-
 
 	def getPosPlusIncrement(self, increment):
 		pos = self.rawGetPosition()
@@ -102,26 +97,10 @@ class Bimorph(ScannableMotionBase):
 	def incrementOne(self, motor, increment):
 		pos=self.beamline.getValue(None,"Top",self.pvPrefix+`motor`+"DR")
 		self.moveOne(motor, pos+increment)
-
-#	def generatePosition(self, current_position, new_position, max_diff):
-#		position=[]
-#		##calculate new position which is on way to new_position
-#		return position
-		
-#	def generatePositions(self, current_position, new_position, max_diff):
-#		positions = []
-#		position = current_position
-#		while True:
-#			position = self.generatePosition(position, new_position, max_diff)
-#			positions.append(position)
-#			if position.equals(new_position):
-#				break
-#		return positions
 	
 	def incrementAll(self, increment):
 		newPos=self.getPosPlusIncrement(increment)
 		self.rawAsynchronousMoveTo(newPos)
-
 
 class DynamicPvManager(object):
 	
@@ -147,7 +126,7 @@ class EemBimorph(Bimorph):
 	pvPrefix is e.g. EEM_Bimorph:
 	"""
 	def configure(self):
-   		self.pvs = DynamicPvManager(self.pvPrefix)
+		self.pvs = DynamicPvManager(self.pvPrefix)
 	
 	def rawGetPosition(self):
 		target = []
@@ -189,7 +168,6 @@ class EemBimorph(Bimorph):
 		if len(targetArray) != len (self.channelIndexes):
 			raise Exception("Cannot move %s to %s as %i elements are required" %(self.getName(), `targetArray`, len(self.channelIndexes)) )
 
-		
 		# No delta between elements to exceed 500v
 		for i in range(len(targetArray)-1):
 			delta = float(targetArray[i+1] - targetArray[i])
@@ -224,13 +202,10 @@ class EemBimorph(Bimorph):
 	def __isTargetStatusBusy(self, i):
 		return int(self.pvs['GET-STATUS%02i'%i].caget())!=1
 
-
 class Bimorph_HFM(Bimorph):
 	def __init__(self):
 		Bimorph.__init__(self,"hfm_bimorph",0,14,"-MO-PSU-01:BM:V",0)
 
-
 class Bimorph_VFM(Bimorph):
 	def __init__(self):
 		Bimorph.__init__(self,"vfm_bimorph",14,8,"-MO-PSU-01:BM:V",0)
-	

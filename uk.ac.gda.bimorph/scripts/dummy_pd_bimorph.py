@@ -1,4 +1,3 @@
-#@PydevCodeAnalysisIgnore
 from gda.device.scannable import PseudoDevice
 from gda.factory import Finder
 from time import sleep
