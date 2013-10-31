@@ -1551,4 +1551,5 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	protected String getRichEditorTabText() {
 		return "XAS Scan";
 	}
+	
 }

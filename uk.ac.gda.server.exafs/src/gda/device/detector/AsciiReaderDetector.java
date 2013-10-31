@@ -33,8 +33,8 @@ import org.apache.commons.lang.ArrayUtils;
 public class AsciiReaderDetector extends DetectorBase {
 	private BufferedReader reader;
 	private String filename = "/dls/b18/data/2010/cm1901-3/Experiment_1/ascii/Ptfoil3_1_532.dat";
-	private static ArrayList<String> dataLines;
-	private static int delay = 200;
+	private ArrayList<String> dataLines;
+	private int delay = 200;
 	private String[] columnHeadings;
 	private int[] columnToExtraNameMap;
 	private String previousLine = "";

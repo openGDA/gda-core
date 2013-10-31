@@ -39,7 +39,6 @@ import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
 public final class I18SampleParametersComposite extends Composite {
-
 	private SampleStageParametersComposite sampleStageParameters;
 	private AttenuatorParametersComposite attenuator1;
 	private AttenuatorParametersComposite attenuator2;
@@ -57,7 +56,6 @@ public final class I18SampleParametersComposite extends Composite {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
 		bean = newBean;
-		
 		createNameAndDescription();
 		createSampleStageSection();
 		createAttenuatorSection();
@@ -94,7 +92,6 @@ public final class I18SampleParametersComposite extends Composite {
 	
 	@SuppressWarnings("unused")
 	private void createSampleStageSection(){
-		
 		Group sampleSatgeGroup = new Group(this, SWT.BORDER);
 		GridData gd_sampleSatgeGroup = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_sampleSatgeGroup.widthHint = 384;
@@ -156,13 +153,12 @@ public final class I18SampleParametersComposite extends Composite {
 	
 	@SuppressWarnings("unused")
 	private void createAttenuatorSection(){
-
 		Group attenGroup = new Group(this, SWT.NONE);
 		attenGroup.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		attenGroup.setText("Attenuators");
 		attenGroup.setLayout(new GridLayout(1, false));
 		
-		final Composite attenComp = new Composite(attenGroup, SWT.NONE);
+		Composite attenComp = new Composite(attenGroup, SWT.NONE);
 
 		GridData gridData = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
 		attenComp.setLayoutData(gridData);
@@ -255,11 +251,8 @@ public final class I18SampleParametersComposite extends Composite {
 				bean.setVfmx(Double.parseDouble(vfmXVal));
 			}
 		});
-		//vfmx.setValue(JythonServerFacade.getInstance().evaluateCommand("kb_vfm_x()"));
 		
 		kbExpandableComposite.setClient(kbComp);
-		
-		//String vfmXVal = JythonServerFacade.getInstance().evaluateCommand("kb_vfm_x()");
 	}
 	
 	public FieldComposite getName() {

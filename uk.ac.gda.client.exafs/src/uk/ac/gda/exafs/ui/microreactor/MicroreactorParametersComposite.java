@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui.microreactor;
 
-
 import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
@@ -27,7 +26,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
@@ -35,7 +33,6 @@ import uk.ac.gda.richbeans.components.wrappers.RegularExpressionTextWrapper;
 import uk.ac.gda.richbeans.components.wrappers.SpinnerWrapper;
 
 public final class MicroreactorParametersComposite extends FieldBeanComposite {
-
 	private SpinnerWrapper gas0Rate;
 	private SpinnerWrapper gas1Rate;
 	private SpinnerWrapper gas2Rate;
@@ -64,7 +61,7 @@ public final class MicroreactorParametersComposite extends FieldBeanComposite {
 		temperature.setUnit("C");
 		temperature.setMinimum(100);
 		temperature.setMaximum(300);
-		new Label(temperature, SWT.NONE);
+		createEmptyLabel(temperature);
 		
 		final Group gasPressures = new Group(this, SWT.NONE);
 		gasPressures.setText("Gas pressures (ml/min)");
@@ -189,4 +186,9 @@ public final class MicroreactorParametersComposite extends FieldBeanComposite {
 		return masses;
 	}
 
+	@SuppressWarnings("unused")
+	private void createEmptyLabel(Composite composite){
+		new Label(composite, SWT.NONE);
+	}
+	
 }

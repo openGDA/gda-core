@@ -85,7 +85,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		this.initialEnergy = new ScaleBox(this, SWT.NONE);
 		((GridData) initialEnergy.getControl().getLayoutData()).widthHint = 150;
 		initialEnergy.setUnit("eV");
-		new Label(initialEnergy, SWT.NONE);
+		createEmptyLabel(initialEnergy);
 
 		label = new Label(this, SWT.NONE);
 		label.setText("Final Energy");
@@ -102,8 +102,8 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		finalEnergy.setLayoutData(gd_finalEnergy);
 		
 		finalEnergy.setUnit("eV");
-		new Label(finalEnergy, SWT.NONE);
-		new Label(finalEnergy, SWT.NONE);
+		createEmptyLabel(finalEnergy);
+		createEmptyLabel(finalEnergy);
 
 		if (LocalProperties.get("gda.beamline.name").equals("BL18B")) {
 			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
@@ -152,7 +152,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		speed.setMinimum(0.1);
 
 
-		new Label(speed, SWT.NONE);
+		createEmptyLabel(speed);
 		Label minSpeedlabel = new Label(speedComp, SWT.NONE);
 		GridData gd_minSpeedlabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_minSpeedlabel.widthHint = 119;
@@ -180,7 +180,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		double rangeEv = finalEnergyVal - initialEnergyVal;
 		stepSize.setMaximum(rangeEv);
 
-		new Label(stepSize, SWT.NONE);
+		createEmptyLabel(stepSize);
 
 		label = new Label(this, SWT.NONE);
 		label.setText("Scan Time");
@@ -310,6 +310,11 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 
 	public BooleanWrapper getBothWays() {
 		return btnBothWays;
+	}
+	
+	@SuppressWarnings("unused")
+	private void createEmptyLabel(Composite composite){
+		new Label(composite, SWT.NONE);
 	}
 
 }

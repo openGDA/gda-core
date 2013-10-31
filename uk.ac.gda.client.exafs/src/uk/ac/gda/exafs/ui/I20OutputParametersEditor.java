@@ -31,17 +31,16 @@ public class I20OutputParametersEditor extends ExafsBeanFileSelectionEditor {
 	}
 
 	@Override
-	public URL getMappingUrl() {
-		return I20OutputParameters.mappingURL;
-	}
-
-	@Override
 	protected RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
 		return new I20OutputParametersUIEditor(path, getMappingUrl(), this, editingBean);
 	}
 
 	@Override
+	public URL getMappingUrl() {
+		return I20OutputParameters.mappingURL;
+	}
 	
+	@Override
 	public URL getSchemaUrl() {
 		return I20OutputParameters.schemaUrl;
 	}

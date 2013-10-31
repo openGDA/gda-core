@@ -98,7 +98,7 @@ public class GasFilling extends Composite {
 		gd_btnSetDefaultMix.widthHint = 125;
 		btnSetDefaultMix.setLayoutData(gd_btnSetDefaultMix);
 		btnSetDefaultMix.setText("Set Default Mix");
-		new Label(compositeEnergy, SWT.NONE);
+		createEmptyLabel(compositeEnergy);
 
 		Composite compositeGas = new Composite(composite_3, SWT.NONE);
 		GridLayout gl_compositeGas = new GridLayout(2, false);
@@ -197,4 +197,10 @@ public class GasFilling extends Composite {
 
 		expandItemAdvanced.setControl(compositeAdvanced);
 	}
+	
+	@SuppressWarnings("unused")
+	private void createEmptyLabel(Composite composite){
+		new Label(composite, SWT.NONE);
+	}
+	
 }

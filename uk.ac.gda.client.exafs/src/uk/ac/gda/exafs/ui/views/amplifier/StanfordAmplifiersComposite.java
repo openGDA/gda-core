@@ -24,10 +24,6 @@ public class StanfordAmplifiersComposite extends Composite {
 
 	public StanfordAmplifiersComposite(Composite parent, int style) {
 		super(parent, style);
-		
-		//Composite comp = new Composite(parent, SWT.NONE);
-		//comp.setLayout(new GridLayout(1, false));
-		
 		new StanfordAmplifierComposite(parent, style, "I0", "ionc1_stanford");
 		new StanfordAmplifierComposite(parent, style, "It", "ionc2_stanford");
 		new StanfordAmplifierComposite(parent, style, "Iref", "ionc3_stanford");

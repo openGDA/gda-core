@@ -61,32 +61,23 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.util.GainBean;
-import uk.ac.gda.exafs.util.GainCalculation;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
-
 import com.swtdesigner.SWTResourceManager;
 
-/**
- *
- */
 public class GainDialog extends Dialog {
-
 	private static Logger logger = LoggerFactory.getLogger(GainDialog.class);
-
 	private ScaleBox referenceEdgeEnergy;
 	private ScaleBox sampleEdgeEnergy;
 	private ScaleBox finalEnergy;
 	private ScaleBox tolerance;
-
 	private Object referenceEdgeEnergyValue = 0d;
 	private Object sampleEdgeEnergyValue = 0d;
 	private Object finalEnergyValue = 0d;
-
 	private IProgressService progressService;
 
 	/**
@@ -140,9 +131,8 @@ public class GainDialog extends Dialog {
 		advanced.setLayout(gridLayout);
 		advanced.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		final Link finalEnergyLabel = new Link(advanced, SWT.NONE);
-		finalEnergyLabel
-				.setToolTipText("Click to take energy from scan parameters. This also happens automatically when the gain form is opened.");
+		Link finalEnergyLabel = new Link(advanced, SWT.NONE);
+		finalEnergyLabel.setToolTipText("Click to take energy from scan parameters. This also happens automatically when the gain form is opened.");
 		finalEnergyLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		finalEnergyLabel.setText("<a>E1</a>");
 		finalEnergyLabel.setToolTipText("Final energy");
@@ -153,17 +143,16 @@ public class GainDialog extends Dialog {
 			}
 		});
 
-		this.finalEnergy = new ScaleBox(advanced, SWT.NONE);
+		finalEnergy = new ScaleBox(advanced, SWT.NONE);
 		finalEnergy.setMaximum(120000.0);
 		finalEnergy.setUnit("eV");
-		final GridData gd_finalEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		GridData gd_finalEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		finalEnergy.setLayoutData(gd_finalEnergy);
 		finalEnergy.setValue(finalEnergyValue);
 
-		final Link sampleEdgeEnergyLabel = new Link(advanced, SWT.NONE);
-		sampleEdgeEnergyLabel
-				.setToolTipText("Click to take energy from scan parameters.  This also happens automatically when the gain form is opened.");
-		final GridData gd_sampleEdgeEnergyLabel = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		Link sampleEdgeEnergyLabel = new Link(advanced, SWT.NONE);
+		sampleEdgeEnergyLabel.setToolTipText("Click to take energy from scan parameters.  This also happens automatically when the gain form is opened.");
+		GridData gd_sampleEdgeEnergyLabel = new GridData(SWT.FILL, SWT.CENTER, false, false);
 		sampleEdgeEnergyLabel.setLayoutData(gd_sampleEdgeEnergyLabel);
 		sampleEdgeEnergyLabel.setText("<a>E3</a>");
 		sampleEdgeEnergyLabel.setToolTipText("This is 20ev below the sample edge energy.");
@@ -174,17 +163,16 @@ public class GainDialog extends Dialog {
 			}
 		});
 
-		this.sampleEdgeEnergy = new ScaleBox(advanced, SWT.NONE);
-		final GridData gd_sampleEdgeEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		sampleEdgeEnergy = new ScaleBox(advanced, SWT.NONE);
+		GridData gd_sampleEdgeEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		sampleEdgeEnergy.setLayoutData(gd_sampleEdgeEnergy);
 		sampleEdgeEnergy.setUnit("eV");
 		sampleEdgeEnergy.setMaximum(finalEnergy);
 		sampleEdgeEnergy.setValue(sampleEdgeEnergyValue);
 
-		final Link referenceEdgeEnergyLabel = new Link(advanced, SWT.NONE);
-		referenceEdgeEnergyLabel
-				.setToolTipText("Click to take energy from sample parameters. This also happens automatically when the gain form is opened.");
-		final GridData gd_referenceEdgeEnergyLabel = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		Link referenceEdgeEnergyLabel = new Link(advanced, SWT.NONE);
+		referenceEdgeEnergyLabel.setToolTipText("Click to take energy from sample parameters. This also happens automatically when the gain form is opened.");
+		GridData gd_referenceEdgeEnergyLabel = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		referenceEdgeEnergyLabel.setLayoutData(gd_referenceEdgeEnergyLabel);
 		referenceEdgeEnergyLabel.setText("<a>E3</a>");
 		referenceEdgeEnergyLabel.setToolTipText("This is 20ev below the reference edge energy.");
@@ -195,19 +183,18 @@ public class GainDialog extends Dialog {
 			}
 		});
 
-		this.referenceEdgeEnergy = new ScaleBox(advanced, SWT.NONE);
-		final GridData gd_referenceEdgeEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		referenceEdgeEnergy = new ScaleBox(advanced, SWT.NONE);
+		GridData gd_referenceEdgeEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		referenceEdgeEnergy.setLayoutData(gd_referenceEdgeEnergy);
 		referenceEdgeEnergy.setUnit("eV");
 		referenceEdgeEnergy.setMaximum(finalEnergy);
 		referenceEdgeEnergy.setValue(referenceEdgeEnergyValue);
 
-		final Label toleranceLabel = new Label(advanced, SWT.NONE);
-		toleranceLabel
-				.setToolTipText("This is how close to the maximum intensity that the algorithm should find the gain setting for.");
+		Label toleranceLabel = new Label(advanced, SWT.NONE);
+		toleranceLabel.setToolTipText("This is how close to the maximum intensity that the algorithm should find the gain setting for.");
 		toleranceLabel.setText("Tolerance");
 
-		this.tolerance = new ScaleBox(advanced, SWT.NONE);
+		tolerance = new ScaleBox(advanced, SWT.NONE);
 		tolerance.setNumericValue(90);
 		tolerance.setUnit("%");
 		tolerance.setMinimum(1.0);
@@ -229,7 +216,7 @@ public class GainDialog extends Dialog {
 			}
 		});
 
-		final Link resultsLabel = new Link(container, SWT.WRAP);
+		Link resultsLabel = new Link(container, SWT.WRAP);
 		resultsLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		resultsLabel.setText("");
 
@@ -238,7 +225,7 @@ public class GainDialog extends Dialog {
 	}
 
 	private void setCalculationLabelText(Label label) {
-		final double val = tolerance.getNumericValue();
+		double val = tolerance.getNumericValue();
 		if (Double.isNaN(val)) {
 			label.setText("Error, the tolerance is blank but should be between 1 and 100");
 			if (getButton(IDialogConstants.OK_ID) != null)
@@ -258,10 +245,8 @@ public class GainDialog extends Dialog {
 	 */
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-
-		final Button button = createButton(parent, IDialogConstants.OK_ID, "Calculate", true);
+		Button button = createButton(parent, IDialogConstants.OK_ID, "Calculate", true);
 		button.setImage(SWTResourceManager.getImage(GainDialog.class, "/icons/calculator_edit.png"));
-
 		createButton(parent, IDialogConstants.CLOSE_ID, IDialogConstants.CLOSE_LABEL, true);
 	}
 
@@ -281,26 +266,21 @@ public class GainDialog extends Dialog {
 
 	@Override
 	protected void buttonPressed(int buttonId) {
-		if (IDialogConstants.OK_ID == buttonId) {
+		if (IDialogConstants.OK_ID == buttonId)
 			okPressed();
-		} else if (IDialogConstants.CANCEL_ID == buttonId) {
+		else if (IDialogConstants.CANCEL_ID == buttonId)
 			cancelPressed();
-		} else if (IDialogConstants.CLOSE_ID == buttonId) {
+		else if (IDialogConstants.CLOSE_ID == buttonId)
 			close();
-		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void okPressed() {
-
-		if (progressService == null) {
-			progressService = (IProgressService) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-					.getService(IProgressService.class);
-		}
+		if (progressService == null)
+			progressService = (IProgressService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IProgressService.class);
 		if (progressService == null)
 			return;
-
 		try {
 			// Setup data
 			final GainBean bean = new GainBean() {
@@ -316,60 +296,38 @@ public class GainDialog extends Dialog {
 
 			// Name of scannable
 			IExperimentEditorManager man = ExperimentFactory.getExperimentEditorManager();
-			final IScanParameters scanParams = ((ScanObject) man.getSelectedScan()).getScanParameters();
-			final String name = scanParams.getScannableName();
+			IScanParameters scanParams = ((ScanObject) man.getSelectedScan()).getScanParameters();
+			String name = scanParams.getScannableName();
 			bean.setScannableName(name);
 
 			// Name of amplifiers
 			final List<IonChamberParameters> ionChambers;
-			final String type = (String) BeanUI.getBeanField("experimentType", DetectorParameters.class).getValue();
-			if (type.equalsIgnoreCase("Transmission")) {
+			String type = (String) BeanUI.getBeanField("experimentType", DetectorParameters.class).getValue();
+			if (type.equalsIgnoreCase("Transmission"))
 				ionChambers = ((TransmissionParameters) BeanUI.getBeanField("transmissionParameters",
 						DetectorParameters.class).getValue()).getIonChamberParameters();
-			} else if (type.equalsIgnoreCase("fluorescence")) {
+			else if (type.equalsIgnoreCase("fluorescence"))
 				ionChambers = ((FluorescenceParameters) BeanUI.getBeanField("fluorescenceParameters",
 						DetectorParameters.class).getValue()).getIonChamberParameters();
-			} else {
+			else
 				throw new Exception("Cannot deal with experimentType = '" + type + "'");
-			}
 
 			progressService.run(true, true, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
 					monitor.beginTask("Calculate Gain", 100);
-
 					bean.setMonitor(monitor);
-
 					// TODO Run this in event service
 					try {
 						monitor.worked(10);
-
 						// Get the intensity of I0
 						bean.setIonChamber(ionChambers.get(0));
 						bean.setEnergy(bean.getFinalEnergy());
-
-						final double i0_orig = GainCalculation.getIntensity(bean);
-//						System.out.println("I0 = " + i0_orig);
-
-						final String i0_gain = GainCalculation.getSuggestedGain(bean);
-//						System.out.println(i0_gain);
-
-						// bean.setIonChamber(ionChambers.get(1));
-						// final String it_gain = GainCalculation.getSuggestedGain(bean);
-						// System.out.println(it_gain);
-						//
-						//
-						// bean.setIonChamber(ionChambers.get(2));
-						// final String iref_gain = GainCalculation.getSuggestedGain(bean);
-						// System.out.println(iref_gain);
-
 					} catch (Exception ne) {
 						logger.error("Cannot calculate gain automatically", ne);
 					} finally {
 						monitor.done();
 					}
-
 				}
 			});
 		} catch (Exception e) {
@@ -377,9 +335,6 @@ public class GainDialog extends Dialog {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	public void getAllValues() {
 		getFinalEnergyValue();
 		getSampleEdgeValue();
@@ -390,9 +345,9 @@ public class GainDialog extends Dialog {
 	private void getReferenceEdgeSample() {
 
 		try {
-			final int pos = (Integer) ExperimentFactory.getExperimentEditorManager().getValueFromUIOrBean(
+			int pos = (Integer) ExperimentFactory.getExperimentEditorManager().getValueFromUIOrBean(
 					"sampleWheelPosition", I20SampleParameters.class);
-			final List<ElementPosition> elePos = (List<ElementPosition>) ExperimentFactory.getExperimentEditorManager()
+			List<ElementPosition> elePos = (List<ElementPosition>) ExperimentFactory.getExperimentEditorManager()
 					.getValueFromUIOrBean("elementPositions", I20SampleParameters.class);
 			for (ElementPosition elementPosition : elePos) {
 				if (elementPosition.getWheelPosition() == pos) {
@@ -412,11 +367,10 @@ public class GainDialog extends Dialog {
 	@SuppressWarnings("unchecked")
 	private void getSampleEdgeValue() {
 		try {
-			final IFieldWidget ui = BeanUI.getBeanField("edgeEnergy", XasScanParameters.class,
-					XanesScanParameters.class);
-			if (ui != null) {
+			final IFieldWidget ui = BeanUI.getBeanField("edgeEnergy", XasScanParameters.class, XanesScanParameters.class);
+			if (ui != null)
 				this.sampleEdgeEnergyValue = ui.getValue();
-			} else {
+			else {
 				try {
 					final ScanObject ob = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 					if (ob != null) {
@@ -425,7 +379,8 @@ public class GainDialog extends Dialog {
 						if (params instanceof XanesScanParameters) {
 							element = ((XanesScanParameters) params).getElement();
 							edge = ((XanesScanParameters) params).getEdge();
-						} else {
+						} 
+						else {
 							element = ((XasScanParameters) params).getElement();
 							edge = ((XasScanParameters) params).getEdge();
 						}

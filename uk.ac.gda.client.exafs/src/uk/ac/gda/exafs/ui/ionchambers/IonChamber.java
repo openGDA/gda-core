@@ -33,12 +33,10 @@ import org.eclipse.swt.widgets.Text;
 public class IonChamber extends Composite{
 	private Text log;
 	private List ionChamberList;
-	IonChambersBean bean;
 	private String[] ionChambers = {"I0", "It", "Iref"};
 	
 	public IonChamber(Composite parent, int style, boolean inEditor, IonChambersBean bean) {
 		super(parent, style);
-		this.bean = bean;
 		setLayout(new FormLayout());
 		Group grpIonChambers = new Group(this, SWT.NONE);
 		grpIonChambers.setLayoutData(new FormData());
@@ -83,10 +81,10 @@ public class IonChamber extends Composite{
 		gd_composite.widthHint = 488;
 		composite.setLayoutData(gd_composite);
 		
-		Amplifier amplifier = new Amplifier(composite, SWT.NONE, inEditor);
+		Amplifier amplifier = new Amplifier(composite, SWT.NONE);
 		amplifier.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 
-		VoltageSupply voltageSupply = new VoltageSupply(composite, SWT.NONE, inEditor);
+		VoltageSupply voltageSupply = new VoltageSupply(composite, SWT.NONE);
 		voltageSupply.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 		
 		GasFilling gasFilling = new GasFilling(grpIonChambers, SWT.NONE, inEditor);
@@ -115,6 +113,5 @@ public class IonChamber extends Composite{
 	public List getList() {
 		return ionChamberList;
 	}
-	
 	
 }

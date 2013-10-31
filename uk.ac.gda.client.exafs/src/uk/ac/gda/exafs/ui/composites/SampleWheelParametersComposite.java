@@ -78,7 +78,7 @@ public final class SampleWheelParametersComposite extends FieldBeanComposite {
 		demand = new ScaleBox(composite, SWT.NONE);
 		((GridData) demand.getControl().getLayoutData()).widthHint = 60;
 		demand.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		new Label(demand, SWT.NONE);
+		createEmptyLabel(demand);
 		btnGetCurrentValue = new Button(composite, SWT.NONE);
 		btnGetCurrentValue.setText("Get Current Value");
 
@@ -211,5 +211,10 @@ public final class SampleWheelParametersComposite extends FieldBeanComposite {
 
 	public BooleanWrapper getWheelEnabled() {
 		return wheelEnabled;
+	}
+	
+	@SuppressWarnings("unused")
+	private void createEmptyLabel(Composite composite){
+		new Label(composite, SWT.NONE);
 	}
 }

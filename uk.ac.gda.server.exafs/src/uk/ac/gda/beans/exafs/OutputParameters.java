@@ -27,11 +27,8 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 
 public class OutputParameters implements Serializable, IOutputParameters {
-
 	public static final URL mappingURL = OutputParameters.class.getResource("ExafsParameterMapping.xml");
-
 	public static final URL schemaUrl = OutputParameters.class.getResource("ExafsParameterMapping.xsd");
-
 	private String asciiFileName;
 	private String asciiDirectory;
 	private String nexusDirectory;
@@ -43,7 +40,6 @@ public class OutputParameters implements Serializable, IOutputParameters {
 	private boolean metadataActive;
 	private boolean shouldValidate = true;
 	private boolean extraData = false;
-
 
 	public boolean isSignalActive() {
 		return signalActive;
@@ -134,7 +130,7 @@ public class OutputParameters implements Serializable, IOutputParameters {
 	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
 		result = prime * result + ((asciiDirectory == null) ? 0 : asciiDirectory.hashCode());
 		result = prime * result + ((asciiFileName == null) ? 0 : asciiFileName.hashCode());
@@ -144,7 +140,6 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		result = prime * result + (shouldValidate ? 1231 : 1237);
 		result = prime * result + (signalActive ? 1231 : 1237);
 		result = prime * result + ((signalList == null) ? 0 : signalList.hashCode());
-		
 		return result;
 	}
 
@@ -231,4 +226,5 @@ public class OutputParameters implements Serializable, IOutputParameters {
 	public String getAfterScriptName() {
 		return afterScriptName;
 	}
+	
 }

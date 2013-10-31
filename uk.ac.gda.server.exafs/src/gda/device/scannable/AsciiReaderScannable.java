@@ -39,8 +39,8 @@ public class AsciiReaderScannable extends SimpleScannable {
 	private String previousLine = "";
 	private String filename = "/dls/b18/data/2010/cm1901-3/Experiment_1/ascii/Ptfoil3_1_532.dat";
 	private BufferedReader reader;
-	private static ArrayList<String> dataLines;
-	private static int delay = 200;
+	private ArrayList<String> dataLines;
+	private int delay = 200;
 	
 	public AsciiReaderScannable() {
 		inputNames = new String[] { "Energy" };

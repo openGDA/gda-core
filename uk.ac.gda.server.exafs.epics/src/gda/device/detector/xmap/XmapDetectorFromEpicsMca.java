@@ -36,7 +36,6 @@ import gda.device.detector.analyser.EpicsMCARegionOfInterest;
 import gda.device.detector.analyser.IEpicsMCA;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.factory.FactoryException;
-import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.Collections;

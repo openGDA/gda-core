@@ -100,7 +100,7 @@ public class RegionComposite extends Composite {
 		
 		updateTable();
 		
-		new Label(parent, SWT.None);
+		createEmptyLabel(parent);
 		
 		Composite buttons = new Composite(parent, SWT.NONE);
 		FillLayout fillLayout = new FillLayout();
@@ -143,7 +143,7 @@ public class RegionComposite extends Composite {
 			}	
 		});
 		
-		new Label(parent, SWT.None);
+		createEmptyLabel(parent);
 	}
 
 	@Override
@@ -284,4 +284,10 @@ public class RegionComposite extends Composite {
 		viewer.setInput(regions);
 		site.setSelectionProvider(viewer);
 	}
+	
+	@SuppressWarnings("unused")
+	private void createEmptyLabel(Composite composite){
+		new Label(composite, SWT.NONE);
+	}
+	
 }

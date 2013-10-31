@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.layout.GridData;
 
 public class Amplifier extends Composite{
-	public Amplifier(Composite parent, int style, boolean inEditor) {
+	public Amplifier(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new FormLayout());
 

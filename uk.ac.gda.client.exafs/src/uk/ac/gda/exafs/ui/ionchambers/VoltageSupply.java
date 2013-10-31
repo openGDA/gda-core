@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class VoltageSupply extends Composite{
 	private Text text;
-	public VoltageSupply(Composite parent, int style, boolean inEditor) {
+	public VoltageSupply(Composite parent, int style) {
 		super(parent, style);
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.verticalSpacing = 0;
