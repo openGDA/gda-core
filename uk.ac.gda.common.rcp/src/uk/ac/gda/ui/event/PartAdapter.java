@@ -23,7 +23,7 @@ import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 
-public class PartAdapter2 implements IPartListener, IPartListener2 {
+public class PartAdapter implements IPartListener, IPartListener2 {
 
 	@Override
 	public void partActivated(IWorkbenchPartReference partRef) {
