@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Integrationtest
+Bundle-SymbolicName: uk.ac.gda.integrationtest
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: uk.ac.gda.core;bundle-version="8.34.0",
+ uk.ac.gda.common.client;bundle-version="8.34.0",
+ uk.ac.gda.nexus
+Import-Package: org.junit
