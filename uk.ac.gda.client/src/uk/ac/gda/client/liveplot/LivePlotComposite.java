@@ -1188,10 +1188,10 @@ class LiveData {
 		BundleContext context = GDAClientActivator.getBundleContext();
 		ServiceReference<IPlotLineColorService> serviceRef = context.getServiceReference(IPlotLineColorService.class);
 		if (serviceRef != null) {
-			IPlotLineColorService lineColor = context.getService(serviceRef);
-			Color color = lineColor.getColorForPlotLine(lineLabel);
-			if (color != null)
-				return color;
+			String colorValue = (String) serviceRef.getProperty(lineLabel);
+			if (colorValue != null) {
+				return Color.decode(colorValue);
+			}
 		}
 		return LivePlotComposite.getColour(lineNumber);
 	}

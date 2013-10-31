@@ -51,7 +51,7 @@ public class HighestExitingFileMonitorSettings implements Serializable{
 
 	public String getFullTemplate() {
 		String templateInUse = fileTemplatePrefix;
-		if (!templateInUse.endsWith(File.separator)) {
+		if (!templateInUse.endsWith(File.separator) && fileTemplate.length()>0) {
 			templateInUse += File.separator;
 		}
 		templateInUse += fileTemplate;

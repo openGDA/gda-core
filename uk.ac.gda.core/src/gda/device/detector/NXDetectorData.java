@@ -338,7 +338,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	public void addScanFileLink(String detName, String linknodename, String fileName, boolean isPointDependent, boolean isDetectorEntryData) {
 		INexusTree detTree = getDetTree(detName);
 //		NexusGroupData dummy_sds = new NexusGroupData("dummy");
-		NexusGroupData groupData = new NexusGroupData("nxfile://" + fileName + "#entry/instrument/detector/data");
+		NexusGroupData groupData = new NexusGroupData( fileName );
 		NexusTreeNode link = new NexusTreeNode(linknodename, NexusExtractor.ExternalSDSLink, null, groupData);
 		link.setIsPointDependent(isPointDependent);
 		groupData.isDetectorEntryData=isDetectorEntryData;

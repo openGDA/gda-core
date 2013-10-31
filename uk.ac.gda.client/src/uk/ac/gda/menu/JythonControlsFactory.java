@@ -167,8 +167,9 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 			super(action);
 			this.isScan = isScan;
 			InterfaceProvider.getJSFObserver().addIObserver(this);
-			JythonServerStatus status = InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus();
-			update(this, status);
+//			would be nice if this worked, but it doesn't on the client...
+//			JythonServerStatus status = InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus();
+			update(this, new JythonServerStatus(InterfaceProvider.getScriptController().getScriptStatus(), InterfaceProvider.getScanStatusHolder().getScanStatus()));
 		}
 		
 		@Override
