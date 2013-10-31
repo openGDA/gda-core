@@ -437,62 +437,6 @@ public class NXMetaDataProviderTest {
 		Assert.assertEquals(false, doesContainRemovedKey);
 	}
 
-	//
-	// @Test
-	// public void testAlphabeticalNoValues() throws Exception{
-	// TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAlphabeticalNoValues", true);
-	// NXMetaDataProvider metaDataProvider = populateForAlphabeticalTests();
-	// String actual = metaDataProvider.list(false);
-	// Assert.assertEquals("aSimpleScannable1 bSimpleScannable1 cSimpleScannable1 key zkey", actual);
-	// }
-	// @Test
-	// public void testAlphabetical() throws Exception{
-	// TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAlphabetical", true, "DEBUG");
-	// NXMetaDataProvider metaDataProvider = populateForAlphabeticalTests();
-	// String actual = metaDataProvider.list(true);
-	// Assert.assertEquals("aSimpleScannable1 bSimpleScannable1 cSimpleScannable1 key zkey", actual);
-	// }
-	//
-	// private NXMetaDataProvider populateForAlphabeticalTests() {
-	// NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
-	//
-	// Scannable splScn1 = TestHelpers.createTestScannable("aSimpleScannable1", 13., new String[] {},
-	// new String[] { "aSimpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
-	//
-	// Scannable splScn2 = TestHelpers.createTestScannable("bSimpleScannable1", 13., new String[] {},
-	// new String[] { "bSimpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
-	//
-	// Scannable splScn3 = TestHelpers.createTestScannable("cSimpleScannable1", 13., new String[] {},
-	// new String[] { "cSimpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
-	//
-	// populateNXMetaDataProvider(metaDataProvider, 1, "zkey", "value");
-	// metaDataProvider.add(splScn3 );
-	// metaDataProvider.add(splScn1 );
-	// metaDataProvider.add(splScn2 );
-	// populateNXMetaDataProvider(metaDataProvider, 1, "key", "value");
-	// metaDataProvider.lsNextItemSeparator=" ";
-	// metaDataProvider.preamble="";
-	// return metaDataProvider;
-	// }
-	//
-	// @Test
-	// public void testListForSimpleScannable() throws Exception{
-	// TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testListForSimpleScannable", true, "DEBUG");
-	// NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
-	//
-	// Scannable splScn1 = TestHelpers.createTestScannable("aSimpleScannable1", 13., new String[] {},
-	// new String[] { "aSimpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
-	//
-	// metaDataProvider.add(splScn1 );
-	// //metaDataProvider.add(bsx );
-	//
-	// metaDataProvider.lsNextItemSeparator=" ";
-	// metaDataProvider.preamble="";
-	// String actual = metaDataProvider.list(true);
-	// Assert.assertEquals("aSimpleScannable1 = 13.00", actual);
-	// }
-
-	// UserSuppliedSingleInt
 	@Test
 	public void testAddForUserSuppliedSingleIntWithoutUnitsAgainstList() throws InterruptedException, Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleIntWithoutUnitsAgainstList",
@@ -505,15 +449,9 @@ public class NXMetaDataProviderTest {
 		userSuppliedItems.clear();
 		userSuppliedItems.add(new MetaDataUserSuppliedItem(userSuppliedKey, userSuppliedValue, null));
 
-		// add
-		// metaDataProvider.add(userSuppliedKey, userSuppliedValue);
 		for (MetaDataUserSuppliedItem item : userSuppliedItems) {
-			// metaDataProvider.add(item.getKey(), item.getValue(), item.getUnits());
 			metaDataProvider.add(item);
 		}
-
-		String xxx = generateExpectedUserSupplied(userSuppliedItems, true);
-		// System.out.println("xxx1 = " + xxx);
 
 		// list
 		boolean withValues = false;
@@ -692,12 +630,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = true;
 
-		String preamble = ""; // empty string
-		String lsNextItemSeparator = " "; // white space
-		String llMidConnector = "=";
-		String llNextItemSeparator = " "; // white space
-		String llUnitsSeparator = ""; // empty string
-
 		String defaultFormatForDouble = "%5.3f";
 
 		String expected = formattingMap.get("preamble");
@@ -737,8 +669,6 @@ public class NXMetaDataProviderTest {
 
 		// list
 		boolean withValues = false;
-
-		String defaultFormatForDouble = "%5.3f";
 
 		String expected = formattingMap.get("preamble");
 		expected += userSuppliedKey;
@@ -1038,7 +968,6 @@ public class NXMetaDataProviderTest {
 		String lsNextItemSeparator = " "; // white space
 		String llMidConnector = "=";
 		String llNextItemSeparator = " "; // white space
-		String llUnitsSeparator = ""; // empty string
 
 		String expected = formattingMap.get("preamble");
 		expected += userSuppliedKey;
@@ -1133,11 +1062,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = false;
 
-		String preamble = ""; // empty string
-		String lsNextItemSeparator = " "; // white space
-		String llMidConnector = "=";
-		String llNextItemSeparator = " "; // white space
-
 		String expected = formattingMap.get("preamble");
 		expected += userSuppliedKey;
 
@@ -1227,11 +1151,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = false;
 
-		String preamble = ""; // empty string
-		String lsNextItemSeparator = " "; // white space
-		String llMidConnector = "=";
-		String llNextItemSeparator = " "; // white space
-
 		String expected = formattingMap.get("preamble");
 		expected += userSuppliedKey;
 
@@ -1262,32 +1181,13 @@ public class NXMetaDataProviderTest {
 		userSuppliedItems.clear();
 		userSuppliedItems.add(new MetaDataUserSuppliedItem(userSuppliedKey, userSuppliedValue, userSuppliedUnits));
 
-		for (MetaDataUserSuppliedItem item : userSuppliedItems) {
+		for (MetaDataUserSuppliedItem item : userSuppliedItems)
 			metaDataProvider.add(item);
-		}
-
-		String xxx = generateExpectedUserSupplied(userSuppliedItems, true);
-		// System.out.println("yyyy3 = " + xxx);
 
 		// list
 		boolean withValues = true;
 
-		String preamble = ""; // empty string
-		String lsNextItemSeparator = " "; // white space
-		String llMidConnector = "=";
-		String llNextItemSeparator = " "; // white space
 		String llUnitsSeparator = "";
-
-		// String expected = preamble;
-		// expected += userSuppliedKey;
-		// expected += llMidConnector;
-		// int arrLen = userSuppliedValue.length;
-		// for (int i=0; i < arrLen; i++ ) {
-		// expected += Double.toString(userSuppliedValue[i]);
-		// }
-		// expected += llUnitsSeparator;
-		// expected += userSuppliedUnits;
-		// expected = xxx;
 
 		String llArrayItemSeparatorUsed = formattingMap.get("llArrayItemSeparator");
 
@@ -1298,14 +1198,12 @@ public class NXMetaDataProviderTest {
 		int arrLen = userSuppliedValue.length;
 		for (int i = 0; i < arrLen; i++) {
 			Double dbl = userSuppliedValue[i];
-			// expected += String.format("%5.3f", Double.toString(userSuppliedValue[i]));
 			expected += String.format("%5.3f", (Object) dbl);
 			expected += formattingMap.get("llArrayItemSeparator");
 		}
 		int substringLen = expected.length() - llArrayItemSeparatorUsed.length();
-		if (substringLen >= 0) {
+		if (substringLen >= 0)
 			expected = expected.substring(0, substringLen);
-		}
 		expected += formattingMap.get("llArrayClose");
 		expected += llUnitsSeparator;
 		expected += userSuppliedUnits;

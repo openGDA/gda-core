@@ -107,7 +107,7 @@ public class PosComposite extends Composite {
 
 		Label lblTo = new Label(composite_2, SWT.NONE);
 		lblTo.setText("Go to");
-		new Label(composite_2, SWT.NONE);
+		createEmptyLabel(composite_2);
 		textTo = new ScaleBox(composite_2, SWT.NONE);
 
 		textTo.getControl().addKeyListener(new KeyAdapter() {
@@ -125,8 +125,8 @@ public class PosComposite extends Composite {
 			}
 		});
 		textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		new Label(textTo, SWT.NONE);
-		new Label(composite_2, SWT.NONE);
+		createEmptyLabel(textTo);
+		createEmptyLabel(composite_2);
 		
 		Button btnGo = new Button(composite_2, SWT.NONE);
 		btnGo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
@@ -143,7 +143,7 @@ public class PosComposite extends Composite {
 		
 		Label lblReadback = new Label(composite_2, SWT.NONE);
 		lblReadback.setText("Readback");
-		new Label(composite_2, SWT.NONE);
+		createEmptyLabel(composite_2);
 
 		Composite incrementNuggeComp = new Composite(composite_2, SWT.NONE);
 		GridData gd_incrementNuggeComp = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -184,7 +184,7 @@ public class PosComposite extends Composite {
 		});
 		btnIncrement.setText("+");
 		btnIncrement.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
-		new Label(composite_2, SWT.NONE);
+		createEmptyLabel(composite_2);
 		
 		final Button btnStop = new Button(composite_2, SWT.NONE);
 		GridData gd_btnStop = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -201,12 +201,12 @@ public class PosComposite extends Composite {
 
 		Label lblIncrement = new Label(composite_2, SWT.NONE);
 		lblIncrement.setText("Increment");
-		new Label(composite_2, SWT.NONE);
+		createEmptyLabel(composite_2);
 
 		incrementVal = new Text(composite_2, SWT.BORDER);
 		incrementVal.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		incrementVal.setText("1");
-		new Label(composite_2, SWT.NONE);
+		createEmptyLabel(composite_2);
 
 		updateScannables();
 		
@@ -386,4 +386,10 @@ public class PosComposite extends Composite {
 	public void setBean(SimpleScan bean) {
 		this.bean = bean;
 	}
+	
+	@SuppressWarnings("unused")
+	private void createEmptyLabel(Composite composite){
+		new Label(composite, SWT.NONE);
+	}
+	
 }
