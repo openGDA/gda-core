@@ -33,6 +33,11 @@ public class CorrectionUtils {
 		double in = 0.0;
 		double tryIn;
 		long div;
+		
+		// if processDeadTime set to zero, then simply return the unchanged fast filter rate
+		if (Double.valueOf(processDeadTime) == 0.0){ 
+			return ffr;
+		}
 
 		maxOut = 1 / processDeadTime * Math.exp(-1.0);
 		if (ffr < 0) {
