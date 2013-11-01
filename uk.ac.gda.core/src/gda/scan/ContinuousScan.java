@@ -67,7 +67,8 @@ public class ContinuousScan extends ConcurrentScanChild {
 	 * @param time
 	 * @param detectors
 	 */
-	public ContinuousScan(ContinuouslyScannable energyScannable, Double start, Double stop, Integer numberPoints, Double time, BufferedDetector[] detectors) {
+	public ContinuousScan(ContinuouslyScannable energyScannable, Double start, Double stop, Integer numberPoints,
+			Double time, BufferedDetector[] detectors) {
 		setMustBeFinal(true);
 		allScannables.add(energyScannable);
 		double step = (stop - start) / (numberPoints - 1);
@@ -120,9 +121,11 @@ public class ContinuousScan extends ConcurrentScanChild {
 		params.setTotalTime(time);
 		params.setContinuouslyScannableName(qscanAxis.getName());
 		qscanAxis.setContinuousParameters(params);
-		
-		// prepare the hardware for the continuous move and revise the number of scans points to the actual number which the hardware will do.
-		//I18 had a negative number of pulses in epics. Though theres no such thing, It is working and should be handled
+
+		// prepare the hardware for the continuous move and revise the number of scans points to the actual number which
+		// the hardware will do.
+		// I18 had a negative number of pulses in epics. Though theres no such thing, It is working and should be
+		// handled
 		qscanAxis.prepareForContinuousMove();
 		numberScanpoints = Math.abs(qscanAxis.getNumberOfDataPoints());
 
@@ -148,37 +151,52 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 		// now readout and convert each point to a regular sdp to give it to the datahandler
 		int highestFrameNumberRead = -1;
-		
-		while (qscanAxis.isBusy() && highestFrameNumberRead < numberScanpoints -1) {
-			// sleep for a second. For what reason?
-			Thread.sleep(1000);
-			checkForInterruptsIgnoreIdle();
-			// get lowest number of frames from all detectors
-			int framesReachedArray [] = new int[qscanDetectors.length];
-			fillArray(framesReachedArray, highestFrameNumberRead);
-			int frameNumberReached = highestFrameNumberRead;
-			for (int k =0; k < qscanDetectors.length; k++) {
-				try{
-					int thisNumberFrames = qscanDetectors[k].getNumberFrames();
-					if (thisNumberFrames - 1 > framesReachedArray[k])
-						framesReachedArray[k] = thisNumberFrames - 1;
-					logger.debug("Frame number for  " + qscanDetectors[k].getName() + " " + framesReachedArray[k]);
+
+		try {
+			while (qscanAxis.isBusy() && highestFrameNumberRead < numberScanpoints - 1) {
+				// sleep for a second. For what reason?
+				Thread.sleep(1000);
+				checkForInterruptsIgnoreIdle();
+				// get lowest number of frames from all detectors
+				int framesReachedArray[] = new int[qscanDetectors.length];
+				fillArray(framesReachedArray, highestFrameNumberRead);
+				int frameNumberReached = highestFrameNumberRead;
+				for (int k = 0; k < qscanDetectors.length; k++) {
+					try {
+						int thisNumberFrames = qscanDetectors[k].getNumberFrames();
+						if (thisNumberFrames - 1 > framesReachedArray[k]) {
+							framesReachedArray[k] = thisNumberFrames - 1;
+						}
+						logger.debug("Frame number for  " + qscanDetectors[k].getName() + " " + framesReachedArray[k]);
 					} catch (DeviceException e) {
 						logger.warn("Problem getting number of frames from TFG.");
 					}
+				}
+				frameNumberReached = findLowest(framesReachedArray);
+				logger.debug("the lowest frame of all the detectors is " + frameNumberReached);
+				// do not collect more than 20 frames at any one time
+				if (frameNumberReached - highestFrameNumberRead > maxFrameRead) {
+					frameNumberReached = highestFrameNumberRead + maxFrameRead;
+				}
+				// get data from detectors for that frame and create an sdp and send it out
+				if (frameNumberReached > -1 && frameNumberReached > highestFrameNumberRead) {
+					logger.info("about to createDataPoints " + (highestFrameNumberRead + 1) + " " + frameNumberReached
+							+ " " + qscanAxis.isBusy());
+					createDataPoints(highestFrameNumberRead + 1, frameNumberReached);
+				}
+
+				highestFrameNumberRead = frameNumberReached;
+				logger.info("number of frames completed:" + new Integer(frameNumberReached + 1));
+
 			}
-			frameNumberReached = findLowest(framesReachedArray);
-			logger.debug("the lowest frame of all the detectors is " + frameNumberReached);
-			// do not collect more than 20 frames at any one time
-			if (frameNumberReached - highestFrameNumberRead > maxFrameRead)
-				frameNumberReached = highestFrameNumberRead + maxFrameRead;
-			// get data from detectors for that frame and create an sdp and send it out
-			if (frameNumberReached > -1 && frameNumberReached > highestFrameNumberRead) {
-				logger.info("about to createDataPoints " + (highestFrameNumberRead + 1) +" "+ frameNumberReached + " " + qscanAxis.isBusy());
-				createDataPoints(highestFrameNumberRead + 1, frameNumberReached);
-			}
-			highestFrameNumberRead = frameNumberReached;
-			logger.info("number of frames completed:" + new Integer(frameNumberReached + 1));
+
+		} catch (InterruptedException e) {
+			// scan has been aborted, so stop the motion and let the scan write out the rest of the data point which
+			// have been collected so far
+			qscanAxis.stop();
+			qscanAxis.atCommandFailure();
+			throw e;
+
 		}
 
 		// make sure axis has stopped. otherwise next repetition will set things while the axis is moving

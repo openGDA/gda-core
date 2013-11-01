@@ -181,17 +181,18 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		}
 
 		// tfg setup-trig
-		switchOnExtTrigger();						
+		switchOnExtTrigger();
+		
 		//Send as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("tfg setup-groups ext-start cycles 1"+"\n");
 		buffer.append(parameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 " + (ttlSocket + 8)+"\n");
 		buffer.append("-1 0 0 0 0 0 0");
 		daserver.sendCommand(buffer.toString());
+		daserver.sendCommand("tfg arm");
 		/*daserver.sendCommand("tfg setup-groups ext-start cycles 1");
 		daserver.sendCommand(parameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 " + ttlSocket + 8);
 		daserver.sendCommand("-1 0 0 0 0 0 0");*/
-		daserver.sendCommand("tfg arm");
 	}
 
 	@Override
@@ -228,7 +229,8 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	 * @throws DeviceException 
 	 */
 	private void switchOnExtTrigger() throws DeviceException {
-		daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
+		Object test = daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
+		System.out.println(test);;
 	}
 
 	@Override
@@ -331,6 +333,16 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		return 99999;
 	}
 
+	public int getTtlSocket() {
+		return ttlSocket;
+	}
+
+	public void setTtlSocket(int ttlSocket) {
+		this.ttlSocket = ttlSocket;
+	}
+
+	
+	
 //	public double getDeadTimeInSeconds() {
 //		return deadTimeInSeconds;
 //	}

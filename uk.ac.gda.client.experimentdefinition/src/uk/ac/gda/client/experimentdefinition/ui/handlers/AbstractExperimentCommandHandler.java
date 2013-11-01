@@ -39,6 +39,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public abstract class AbstractExperimentCommandHandler extends AbstractHandler implements IEditorActionDelegate {
 
+	
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractExperimentCommandHandler.class);
 
 	/**
