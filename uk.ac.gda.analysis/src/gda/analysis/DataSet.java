@@ -2382,17 +2382,14 @@ public class DataSet extends DoubleDataset {
 		return convertToDataSet(super.getByIndex(index));
 	}
 
-	@Override
 	public Double max() {
 		return (Double) super.max();
 	}
 
-	@Override
 	public Double min() {
 		return (Double) super.min();
 	}
 
-	@Override
 	public Double mean() {
 		return (Double) super.mean();
 	}
