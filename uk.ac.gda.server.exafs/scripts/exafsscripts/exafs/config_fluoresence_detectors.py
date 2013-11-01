@@ -124,7 +124,8 @@ class VortexConfig():
         
         if (OutputParametersToLoad != None and isinstance(OutputParametersToLoad,I20OutputParameters)):
             saveRawSpectrum = OutputParametersToLoad.isVortexSaveRawSpectrum()
-    
+        print "XMLFileNameToLoad=", XMLFileNameToLoad
+        print "isSaveRawSpectrum", saveRawSpectrum
         self.configure(XMLFileNameToLoad, saveRawSpectrum)
 
     def createBeanFromXML(self, xmlPath):
@@ -141,4 +142,9 @@ class VortexConfig():
             print "Could not save VortexParameters bean ", e
 
     def configure(self, xmlFileName, isSaveRawSpectrum):
+        print "xmlFileName=", xmlFileName
+        print "isSaveRawSpectrum", isSaveRawSpectrum
         self.configuration.configure(xmlFileName, isSaveRawSpectrum)
+        
+    def getConfigureResult(self):
+        return self.configuration.getMessage();

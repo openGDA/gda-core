@@ -84,7 +84,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		NXDetectorData output = new NXDetectorData(this);
 		INexusTree detTree = output.getDetTree(getName());
 
-		int numberOfElements = vortexParameters.getDetectorList().size();
+		int numberOfElements = controller.getNumberOfMca();//vortexParameters.getDetectorList().size();
 		int numberOfROIs = vortexParameters.getDetectorList().get(0).getRegionList().size();
 
 		// items to write to nexus

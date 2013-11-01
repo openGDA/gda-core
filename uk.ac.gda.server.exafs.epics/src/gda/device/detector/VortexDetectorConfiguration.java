@@ -39,7 +39,8 @@ public class VortexDetectorConfiguration{
 	private Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
 	private Xmap xmap;
 	private ObservableComponent observer;
-
+	private String message = "Xspress configuration has not been applied yet";
+	
 	public VortexDetectorConfiguration(Xmap xmap, final ObservableComponent observer){
 		this.xmap = xmap;
 		this.observer = observer;
@@ -61,11 +62,18 @@ public class VortexDetectorConfiguration{
 			logger.info("Wrote new Vortex Parameters to: "+xmap.getConfigFileName());
 			xmap.loadConfigurationFromFile();
 			xmap.setSaveRawSpectrum(isVortexSaveRawSpectrum);
+			message = " The Xspress detector configuration updated.";
+			observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {
 			logger.error("Cannot configure Vortex", ne);
+			message = "Cannot configure Xspress " + ne.getMessage();
 			throw new FactoryException("Error during configuration:" + ne.getMessage());
 		}
 		String message = " The vortex detector configuration updated.";
 		observer.notifyIObservers("Message", new ScriptProgressEvent(message));
+	}
+	
+	public String getMessage() {
+		return message;
 	}
 }
