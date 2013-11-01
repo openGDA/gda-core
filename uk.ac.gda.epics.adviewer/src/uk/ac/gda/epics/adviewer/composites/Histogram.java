@@ -46,6 +46,8 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -105,12 +107,23 @@ public class Histogram extends Composite {
 	private IViewPart parentViewPart;
 
 	private Label txtPos;
+	private SashForm sashForm;
+	private static final int[] WEIGHTS_NORMAL = new int[] { 20, 3, 77 };
+	private static final int[] WEIGHTS_NO_LEFT = new int[] { 0, 3, 97 };
+	private ScrolledComposite leftScrolledComposite;
 
+	private Composite left;
+
+	private Button middle;
 	public Histogram(IViewPart parentViewPart, Composite parent, int style) throws Exception {
 		super(parent, style);
 		this.parentViewPart =parentViewPart;
-		setLayout(new GridLayout(2, false));
-		Composite left = new Composite(this, SWT.NONE);
+		this.setLayout(new FillLayout());		
+		sashForm = new SashForm(this, SWT.HORIZONTAL );
+		sashForm.setLayout(new FillLayout());
+		leftScrolledComposite= new ScrolledComposite(sashForm, SWT.V_SCROLL| SWT.H_SCROLL| SWT.BORDER);
+		left = new Composite(leftScrolledComposite, SWT.NONE);
+		leftScrolledComposite.setContent(left);
 		GridDataFactory.fillDefaults().grab(false, true).applyTo(left);
 		RowLayout layout = new RowLayout(SWT.VERTICAL);
 		layout.center = true;
@@ -142,31 +155,6 @@ public class Histogram extends Composite {
 
 		statisticsStatus = new StatisticsStatus(left, SWT.NONE);
 
-		Composite right = new Composite(this, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
-		GridLayoutFactory.fillDefaults().applyTo(right);
-
-		txtPos = new Label(right, SWT.LEFT);
-		txtPos.setText("XY value");
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(txtPos);
-		Composite plotArea = new Composite(right, SWT.NONE);
-		GridDataFactory.fillDefaults().hint(300, 300).applyTo(plotArea);
-
-		plotArea.setLayout(new FillLayout());
-
-		this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
-		plottingSystem.createPlotPart(plotArea, "", parentViewPart.getViewSite().getActionBars(), PlotType.XY,
-				parentViewPart);
-		plottingSystem.setXFirst(true);
-		plottingSystem.setShowLegend(false);
-		plottingSystemPositionListener = new IPositionListener() {
-			
-			@Override
-			public void positionChanged(PositionEvent evt) {
-				txtPos.setText(String.format("X:%.7g Y:%.7g", evt.x, evt.y));
-			}
-		};
-		plottingSystem.addPositionListener(plottingSystemPositionListener);
 		grpMjpegRange = new Group(left, SWT.NONE);
 		grpMjpegRange.setText("MJPeg Range");
 		grpMjpegRange.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
@@ -184,7 +172,54 @@ public class Histogram extends Composite {
 		autoScaleBtn = new Button(grpMjpegRange, SWT.PUSH);
 		autoScaleBtn.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		autoScaleBtn.setText("Auto-Scale");
+	
+		//now all components are added to left we can set the size
+		left.setSize(left.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
+		middle = new Button(sashForm,SWT.PUSH );
+		middle.setText("");
+		middle.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				showLeft(!getShowLeft());
+			}});
+
+		Composite right = new Composite(sashForm, SWT.NONE);		
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
+		GridLayoutFactory.fillDefaults().applyTo(right);
+
+		txtPos = new Label(right, SWT.LEFT);
+		txtPos.setText("XY value");
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(txtPos);
+
+		Composite plotArea = new Composite(right, SWT.NONE);
+		plotArea.setLayout(new FillLayout());
+		{
+			GridData gridData = new GridData();
+			gridData.horizontalAlignment = SWT.FILL;
+			gridData.grabExcessHorizontalSpace = true;
+			gridData.grabExcessVerticalSpace = true;
+			gridData.verticalAlignment = SWT.FILL;
+			plotArea.setLayoutData(gridData);
+		}		
+		
+
+		this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
+		plottingSystem.createPlotPart(plotArea, "", parentViewPart.getViewSite().getActionBars(), PlotType.XY,
+				parentViewPart);
+		plottingSystem.setXFirst(true);
+		plottingSystem.setShowLegend(false);
+		plottingSystemPositionListener = new IPositionListener() {
+			
+			@Override
+			public void positionChanged(PositionEvent evt) {
+				txtPos.setText(String.format("X:%.7g Y:%.7g", evt.x, evt.y));
+			}
+		};
+		plottingSystem.addPositionListener(plottingSystemPositionListener);
+		sashForm.setWeights(WEIGHTS_NORMAL);
 		addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -217,7 +252,24 @@ public class Histogram extends Composite {
 		});
 
 	}
+	private boolean showLeft;
 
+	/**
+	 * @param showLeft
+	 */
+	public void showLeft(Boolean showLeft) {
+		this.showLeft = showLeft;
+		sashForm.setWeights(showLeft ? WEIGHTS_NORMAL : WEIGHTS_NO_LEFT);
+		middle.setText(showLeft ? "<" : ">");
+	}
+
+	/**
+	 * @return true if left is hidden
+	 */
+	public Boolean getShowLeft() {
+		return showLeft;
+	}
+	
 	public void setADController(ADController config) {
 		this.config = config;
 

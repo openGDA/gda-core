@@ -18,13 +18,13 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
-import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import java.net.URL;
+
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -74,19 +74,31 @@ public class HistogramView extends ViewPart implements InitializingBean{
 	public void createPartControl(Composite parent) {
 
 		try {
-			ScrolledComposite sc = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL| SWT.BORDER);
-			Composite c = new Composite(sc, SWT.NONE);
-			c.setLayout(new FillLayout());
-			
-			histogram = new Histogram(this, c, SWT.NONE);
-//			c.setSize(400, 500);
-			sc.setContent(c);
-			sc.setExpandVertical(true);
-			sc.setExpandHorizontal(true);
-//			sc.setMinSize(c.computeSize(400, 500));
+			parent.setLayout(new FillLayout());
+
+			histogram = new Histogram(this, parent, SWT.NONE);
 			histogram.setADController(config);
 			histogram.start();
 			histogram.startStats();
+			histogram.showLeft(true);
+/*			List<IAction> actions = new Vector<IAction>();			
+			{
+				IAction action = new Action("", IAction.AS_CHECK_BOX) {
+					@Override
+					public void run() {
+						histogram.showLeft(!histogram.getShowLeft());
+						this.setChecked(histogram.getShowLeft());
+					}
+				};
+				action.setChecked(histogram.getShowLeft());
+				action.setToolTipText("Show/Hide Left Panel");
+				action.setImageDescriptor(Activator.getImageDescriptor("icons/show_left.png"));
+				actions.add(action);
+			}	
+			for (IAction iAction : actions) {
+				getViewSite().getActionBars().getToolBarManager().add(iAction);
+			}*/
+			
 		} catch (Exception e) {
 			logger.error("Error starting  areaDetectorProfileComposite", e);
 		}

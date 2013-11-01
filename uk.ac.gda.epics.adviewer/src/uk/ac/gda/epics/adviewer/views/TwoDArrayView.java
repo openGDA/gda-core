@@ -88,7 +88,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 		} catch (Exception e) {
 			logger.error("Error configuring twoDArray composite", e);
 		}
-
+		twoDArray.showLeft(true);
 		if( image != null) {
 			setTitleImage(image);
 		}
@@ -138,9 +138,29 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 			plotServerConnector = new PlottingSystemIRegionPlotServerConnector(this.twoDArray.getPlottingSystem(), PlotServerROISelectionProvider.getGuiName(config.getDetectorName()));
 		}
 		twoDArray.restore(name);
-		
+		createActions();		
 	}
 
+	protected void createActions() {
+/*		List<IAction> actions = new Vector<IAction>();			
+		{
+			IAction action = new Action("", IAction.AS_CHECK_BOX) {
+				@Override
+				public void run() {
+					twoDArray.showLeft(!twoDArray.getShowLeft());
+					this.setChecked(twoDArray.getShowLeft());
+				}
+			};
+			action.setChecked(twoDArray.getShowLeft());
+			action.setToolTipText("Show/Hide Left Panel");
+			action.setImageDescriptor(Activator.getImageDescriptor("icons/show_left.png"));
+			actions.add(action);
+		}	
+		for (IAction iAction : actions) {
+			getViewSite().getActionBars().getToolBarManager().add(iAction);
+		}*/
+		
+	}
 	@Override
 	public void setFocus() {
 		twoDArray.setFocus();

@@ -63,6 +63,7 @@ public class MJPegView extends ViewPart implements InitializingBean {
 				ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(iconURL);
 				image = imageDescriptor.createImage();
 			}
+			
 		}catch (Exception e){
 			logger.warn("Unable to get image for view",e);
 		}
@@ -94,7 +95,7 @@ public class MJPegView extends ViewPart implements InitializingBean {
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		mJPeg = new MJPeg(composite_2, SWT.NONE);
 		mJPeg.setADController(config);
-
+		mJPeg.showLeft(true);
 		
 		if( composite_1 != null){
 			config.getMjpegViewCompositeFactory().createComposite(config, composite_1, this, mJPeg);
@@ -127,6 +128,24 @@ public class MJPegView extends ViewPart implements InitializingBean {
 	}
 
 	protected void createActions() {
+/*		List<IAction> actions = new Vector<IAction>();			
+		{
+			IAction action = new Action("", IAction.AS_CHECK_BOX) {
+				@Override
+				public void run() {
+					mJPeg.showLeft(!mJPeg.getShowLeft());
+					this.setChecked(mJPeg.getShowLeft());
+				}
+			};
+			action.setChecked(mJPeg.getShowLeft());
+			action.setToolTipText("Show/Hide Left Panel");
+			action.setImageDescriptor(Activator.getImageDescriptor("icons/show_left.png"));
+			actions.add(action);
+		}	
+		for (IAction iAction : actions) {
+			getViewSite().getActionBars().getToolBarManager().add(iAction);
+		}*/
+		
 	}
 
 	@Override

@@ -58,6 +58,8 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -126,11 +128,25 @@ public class TwoDArray extends Composite {
 
 	Map<String, AbstractDataset> stores = new HashMap<String, AbstractDataset>();
 
+	private SashForm sashForm;
+
+	private ScrolledComposite leftScrolledComposite;
+
+	private Button middle;
+	private static final int[] WEIGHTS_NORMAL = new int[] { 20, 3, 77 };
+	private static final int[] WEIGHTS_NO_LEFT = new int[] { 0, 3, 97 };
+	
 	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) {
 		super(parent, style);
 
-		this.setLayout(new GridLayout(2, false));
-		left = new Composite(this, SWT.NONE);
+		this.setLayout(new FillLayout());
+		
+		sashForm = new SashForm(this, SWT.HORIZONTAL);
+		sashForm.setLayout(new FillLayout());
+		
+		leftScrolledComposite= new ScrolledComposite(sashForm,SWT.V_SCROLL| SWT.H_SCROLL| SWT.BORDER);
+		left = new Composite(leftScrolledComposite, SWT.NONE);
+		leftScrolledComposite.setContent(left);
 		GridDataFactory.fillDefaults().grab(false, true).applyTo(left);
 		RowLayout layout = new RowLayout(SWT.VERTICAL);
 		layout.center = true;
@@ -257,7 +273,19 @@ public class TwoDArray extends Composite {
 		autoScale = true;
 		btnAutoscale.setSelection(autoScale);
 
-		Composite right = new Composite(this, SWT.NONE);
+		left.setSize(left.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		
+		middle = new Button(sashForm,SWT.PUSH );
+		middle.setText("");
+		middle.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				showLeft(!getShowLeft());
+			}});		
+		
+		Composite right = new Composite(sashForm, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		right.setLayout(new FillLayout());
 
@@ -272,6 +300,7 @@ public class TwoDArray extends Composite {
 		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setTitle("");
 		}
+		sashForm.setWeights(WEIGHTS_NORMAL);
 
 		addDisposeListener(new DisposeListener() {
 
@@ -293,7 +322,23 @@ public class TwoDArray extends Composite {
 			}
 		});
 	}
+	private boolean showLeft;
 
+	/**
+	 * @param showLeft
+	 */
+	public void showLeft(Boolean showLeft) {
+		this.showLeft = showLeft;
+		sashForm.setWeights(showLeft ? WEIGHTS_NORMAL : WEIGHTS_NO_LEFT);
+		middle.setText(showLeft ? "<" : ">");		
+	}
+
+	/**
+	 * @return true if left is hidden
+	 */
+	public Boolean getShowLeft() {
+		return showLeft;
+	}
 	protected void setupStores(String storeName, AbstractDataset ads) {
 		stores.put(storeName, ads);
 		AbstractDataset storeA = stores.get("A");
@@ -618,7 +663,6 @@ public class TwoDArray extends Composite {
 		PlotView plotView;
 
 		void snapShot() throws Exception {
-			;
 			if (nonNullDSToPlot != null) {
 				final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 				IViewPart showView = window.getActivePage().showView("uk.ac.gda.epics.adviewer.snapshotView");
