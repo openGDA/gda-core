@@ -90,7 +90,7 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 			NXDetectorData expressFrameData = (NXDetectorData)expressFrames[i];
 			Double[] expressFrameDoubles = expressFrameData.getDoubleVals();
 			int col=0;
-			String[] names = expressFrameData.getInputExtraNames();
+			String[] names = expressFrameData.getExtraNames();
 			for(int name=0;name<expressFrameDoubles.length;name++)
 				if(names[name].equals("FF"))
 					col=name;
