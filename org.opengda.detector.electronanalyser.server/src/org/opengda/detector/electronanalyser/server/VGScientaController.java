@@ -358,6 +358,9 @@ public class VGScientaController implements Configurable {
 	public double[] getSpectrum(int i) throws TimeoutException, CAException, InterruptedException, Exception {
 		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(SPECTRUMDATA),i);
 	}
+	public double[] getImage(int i) throws TimeoutException, CAException, InterruptedException, Exception {
+		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(IMAGEDATA),i);
+	}
 
 	public double[] getExtIO(int i) throws TimeoutException, CAException, InterruptedException, Exception {
 		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(EXTIODATACOPY),i);
