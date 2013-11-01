@@ -42,6 +42,7 @@ import gda.util.OSCommandRunner;
 import gda.util.ScannableLevelComparator;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,6 +64,7 @@ import uk.ac.gda.util.ThreadManager;
 public abstract class ScanBase implements Scan {
 
 	public static final String GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST = "gda.scanbase.firstScanNumber";
+	public static final String GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL= "gda.scanbase.printTimestamp";
 
 	static public volatile boolean explicitlyHalted = false;
 
@@ -173,6 +175,7 @@ public abstract class ScanBase implements Scan {
 	private Long _scanNumber=null;
 	
 	protected boolean callCollectDataOnDetectors = true;
+
 	
 	@Override
 	public Long getScanNumber() {
@@ -626,6 +629,12 @@ public abstract class ScanBase implements Scan {
 				}
 
 				getTerminalPrinter().print("Scan complete.");
+				if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
+					java.util.Date date= new java.util.Date();
+					getTerminalPrinter().print("=== Scan ended at "+new Timestamp(date.getTime()).toString()+" ===");
+				}
+				getJythonServerNotifer().notifyServer(this, new ScanCompletedEvent());
+
 			}
 		}
 		if (!isChild()) {  // FIXME: Move all !isChild() logic up into runScan
@@ -1108,6 +1117,11 @@ public abstract class ScanBase implements Scan {
 		if (getScanStatusHolder().getScanStatus() != Jython.IDLE) {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
 		}
+		if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
+			java.util.Date date= new java.util.Date();
+			getTerminalPrinter().print("=== Scan started at "+new Timestamp(date.getTime()).toString()+" ===");
+		}
+
 		try {
 			// check if a scan or script is currently running.
 			if (this.isChild()) {
@@ -1132,6 +1146,10 @@ public abstract class ScanBase implements Scan {
 
 		if (interrupted) {
 			logger.info("Scan interupted ScanBase.interupted flag");
+			if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
+				java.util.Date date= new java.util.Date();
+				getTerminalPrinter().print("=== Scan interrupted at "+new Timestamp(date.getTime()).toString()+" ===");
+			}
 			throw new InterruptedException("Scan interrupted");
 		}
 	}
