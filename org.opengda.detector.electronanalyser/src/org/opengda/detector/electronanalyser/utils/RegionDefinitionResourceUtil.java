@@ -1,10 +1,10 @@
 package org.opengda.detector.electronanalyser.utils;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
-import gda.jython.InterfaceProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,14 +69,19 @@ public class RegionDefinitionResourceUtil {
 			if (metadataValue != null && !metadataValue.isEmpty()) {
 				metadata.setMetadataValue("subdirectory", "");
 			}
+			// A hacky impl here as this class need to run on both server and client. GDA PathConstructor provide different methods for client and server which cannot be distinguished here.
 			String defaultFolder = PathConstructor.createFromDefaultProperty();
-			if (defaultFolder != null && defaultFolder.isEmpty()) {
+			String currentVisitFolder=defaultFolder;
+			if (LocalProperties.get(LocalProperties.RCP_APP_VISIT) != null) {
+				currentVisitFolder = defaultFolder.replace(LocalProperties.get(LocalProperties.GDA_DEF_VISIT),LocalProperties.get(LocalProperties.RCP_APP_VISIT));
+			}
+			if (currentVisitFolder != null && currentVisitFolder.isEmpty()) {
 				dir = System.getProperty("user.home") + File.separator;
 			} else {
-				if (!defaultFolder.endsWith(File.separator)) {
-					defaultFolder+=File.separator;
+				if (!currentVisitFolder.endsWith(File.separator)) {
+					currentVisitFolder += File.separator;
 				}
-				dir = defaultFolder + "xml";
+				dir = currentVisitFolder + "xml";
 			}
 			// set the original value back for other processing
 			metadata.setMetadataValue("subdirectory", metadataValue);
@@ -90,15 +95,6 @@ public class RegionDefinitionResourceUtil {
 	private String fileName;
 
 	public String getFileName() {
-		// Resource resource=null;
-		// try {
-		// resource = getResource();
-		// } catch (Exception e) {
-		// logger.error("Cannot get resource.", e);
-		// }
-		// if (resource!=null) {
-		// fileName=resource.getURI().toString();
-		// }
 		return fileName;
 	}
 
@@ -138,6 +134,7 @@ public class RegionDefinitionResourceUtil {
 		if (fileName == null) {
 			fileName = getFileName();
 		}
+
 		File seqFile = new File(fileName);
 		if (!seqFile.exists()) {
 			seqFile.createNewFile();

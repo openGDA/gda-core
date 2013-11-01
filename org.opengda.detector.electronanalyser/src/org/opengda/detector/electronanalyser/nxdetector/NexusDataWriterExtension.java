@@ -104,7 +104,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 		if (scanNumber == null) {
 			scanNumber=new NumTracker(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)).getCurrentFileNumber();
 		}
-		if (filenamePrefix!=null) {
+		if (filenamePrefix!=null && !filenamePrefix.isEmpty()) {
 			regionNexusFileName = String.format(filenameFormat, filenamePrefix,scanNumber, regionName) + ".nxs";
 		} else {
 			regionNexusFileName = String.format("%05d_%s", scanNumber, regionName) + ".nxs";
@@ -128,7 +128,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 		}
 
 		String regionNexusFileUrl = dir.getAbsolutePath()+File.separator + regionNexusFileName;
-		InterfaceProvider.getTerminalPrinter().print("Region '" + regionName + "' data will be written to file : "+ regionNexusFileUrl);
+		InterfaceProvider.getTerminalPrinter().print("Region '" + regionName + "' data will write to: "+ regionNexusFileUrl);
 		NeXusFileInterface regionNexusfile = NexusFileFactory.createFile(regionNexusFileUrl, defaultNeXusBackend,LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
 		
 		RegionFileMapper regionFileMapper = new RegionFileMapper(regionName,regionNexusFileUrl,regionNexusfile );
@@ -139,7 +139,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	public NeXusFileInterface getNXFile(String regionName, int scanDataPoint) {
 		if (!files.isEmpty() && files.containsKey(regionName)) {
 			RegionFileMapper mapper = files.get(regionName);
-			InterfaceProvider.getTerminalPrinter().print("scan point: "+scanDataPoint+"\t-\tCollecting region '" + regionName + "' data to file : "+ mapper.getURL());
+//			InterfaceProvider.getTerminalPrinter().print("scan point: "+scanDataPoint+"\t-\tCollecting region '" + regionName + "' data to file : "+ mapper.getURL());
 			return mapper.getNxFile();
 		}
 		return null;

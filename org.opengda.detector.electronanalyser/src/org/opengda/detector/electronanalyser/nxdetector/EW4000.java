@@ -22,6 +22,7 @@ import gda.util.Sleep;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Collections;
 
 import org.apache.commons.io.FilenameUtils;
@@ -91,7 +92,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
-		return super.getDataDimensions();
+		return new int[] {collectionStrategy.getNumberOfActiveRegions()};
 	}
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
@@ -112,9 +113,9 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	@Override
 	public Object getPosition() throws DeviceException {
 		try {
-			return getCollectionStrategy().getAcquireTime();
+			return collectionStrategy.getTotalIntensity();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			logger.error("getposition() failed with exception",e);
 			e.printStackTrace();
 		}
 		return 0;
@@ -126,7 +127,6 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public void moveTo(Object position) throws DeviceException {
-		// TODO Auto-generated method stub
 		super.moveTo(position);
 		try {
 			getCollectionStrategy().completeCollection();
@@ -149,19 +149,21 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 			throw new DeviceException("Cannot create Number tracker instance", e);
 		}
 		InterfaceProvider.getTerminalPrinter().print("This is not a scan, so no scan file will be written");
-		long scannumber=numTracker.incrementNumber();
-//		if (getCollectionStrategy() instanceof EW4000CollectionStrategy) {
-//			EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
-			collectionStrategy.setSequence(sequence);
-			collectionStrategy.createDataWriter(scannumber);
-			collectionStrategy.setScanDataPoint(1);
-			collectionStrategy.setTotalPoints(1);
-//		}
+		long scannumber = numTracker.incrementNumber();
+		collectionStrategy.setSequence(sequence);
+		collectionStrategy.createDataWriter(scannumber);
+		collectionStrategy.setScanDataPoint(0);
+		InterfaceProvider.getTerminalPrinter().print("=== Collect data starts at "+new Timestamp(new java.util.Date().getTime()).toString()+" ===");
 		collectData();
 		Sleep.sleep(1000);
+		InterfaceProvider.getTerminalPrinter().print("=== Collect data ends at "+new Timestamp(new java.util.Date().getTime()).toString()+" ===");
 	}
 	@Override
 	public void stop() throws DeviceException {
+//		if (!collectionStrategy.isStillHaveDataToWrite()) {
+//			readout();
+//			collectionStrategy.setStillHaveDataToWrite(false);
+//		}
 		super.stop();		
 	}
 	@Override
@@ -169,15 +171,10 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		try {
 			return getCollectionStrategy().getStatus()==Detector.BUSY;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
 	}
-//	@Override
-//	public String[] getInputNames() {
-//		return new String[] {"SequenceFilename"};
-//	}
 
 	@Override
 	public void atScanStart() throws DeviceException {
@@ -188,21 +185,11 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		}
 		String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 		String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
-		InterfaceProvider.getTerminalPrinter().print("Scan file with data link to individual region data files below will be written to : "+ scanFilename);
-		int[] dims = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDimensions();
-		Sequence sequence=loadSequenceData(getSequenceFilename());
-//		if (getCollectionStrategy() instanceof EW4000CollectionStrategy){
-//			EW4000CollectionStrategy collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
-			collectionStrategy.setSequence(sequence);
-			collectionStrategy.createDataWriter(scannumber);
-			collectionStrategy.setScanDataPoint(1); //fisrt data point
-			int expectedNumPixels = dims[0];
-			for (int i = 1; i < dims.length; i++) {
-				expectedNumPixels = expectedNumPixels * dims[i];
-			}
-			collectionStrategy.setTotalPoints(expectedNumPixels);
-//		}
-		
+		InterfaceProvider.getTerminalPrinter().print("Scan data will write to : "+ scanFilename);
+		Sequence sequence = loadSequenceData(getSequenceFilename());
+		collectionStrategy.setSequence(sequence);
+		collectionStrategy.setScanDataPoint(0); // fisrt data point
+
 		super.atScanStart();		
 	}
 

@@ -127,7 +127,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="baseDirectory" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="myBaseDirectory" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="filenameFormat" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="%s_%5d_%s" unsettable="true"/>
+        defaultValueLiteral="%s_%05d_%s" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="fileExtension" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral=".nxs" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="numberOfComments" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"

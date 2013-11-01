@@ -118,7 +118,7 @@ public class ADArrayPlugin implements NXPlugin {
 			DeviceException {
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
 		if (isEnabled()) {
-			appenders.add(new NXDetectorDataArrayAppender(ndArray,firstReadoutInScan, getRegionName(), getAnalyser(), getEnergyMode()));
+			appenders.add(new NXDetectorDataAnalyserArrayAppender(ndArray,firstReadoutInScan, getRegionName(), getAnalyser(), getEnergyMode()));
 		} else {
 			appenders.add(new NXDetectorDataNullAppender());
 		}
@@ -160,17 +160,17 @@ public class ADArrayPlugin implements NXPlugin {
 	}
 }
 
-class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
+class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(NXDetectorDataArrayAppender.class);
+			.getLogger(NXDetectorDataAnalyserArrayAppender.class);
 	private boolean firstReadoutInScan;
 	private NDArray ndArray;
 	private String regionName;
 	private VGScientaAnalyser analyser;
 	private String energyMode = "Kinetic";
 
-	NXDetectorDataArrayAppender(NDArray ndArray, boolean firstReadoutInScan,String regionName, VGScientaAnalyser analyser, String energyMode) {
+	NXDetectorDataAnalyserArrayAppender(NDArray ndArray, boolean firstReadoutInScan,String regionName, VGScientaAnalyser analyser, String energyMode) {
 		this.ndArray = ndArray;
 		this.firstReadoutInScan = firstReadoutInScan;
 		this.regionName = regionName;
