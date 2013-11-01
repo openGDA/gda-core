@@ -77,6 +77,13 @@ public class NexusGroupData implements Serializable {
 		type = NexusFile.NX_INT32;
 	}
 	
+	public NexusGroupData(Double i) {
+		super();
+		double [] idata = new double[]{i};
+		dimensions = new int[]{idata.length};
+		data = idata;
+		type = NexusFile.NX_FLOAT64;
+	}
 	/**
 	 * @return The data buffer compatible with type, null if data not extracted
 	 */
