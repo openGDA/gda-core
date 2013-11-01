@@ -60,7 +60,7 @@ public class GDAInteractiveConsole extends InteractiveConsole {
         PyObject currentBuiltins = Py.getSystemState().getBuiltins();
         currentBuiltins.__setitem__("_", Py.None);
         if (o instanceof PyUnicode) {
-			if (LocalProperties.check(GDAJythonInterpreter.USE_WRITERS_PROPERTY)) {
+			if (LocalProperties.check(GDAJythonInterpreter.USE_WRITERS_PROPERTY, true)) {
 				Py.println(o);
 			} else {
 				final PyUnicode u = (PyUnicode) o;

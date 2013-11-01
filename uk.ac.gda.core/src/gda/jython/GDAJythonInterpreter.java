@@ -277,7 +277,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				fakeSysExecutable(sys);
 
 				// set the console output
-				if (LocalProperties.check(USE_WRITERS_PROPERTY)) {
+				if (LocalProperties.check(USE_WRITERS_PROPERTY, true)) {
 					final Writer terminalWriter = jythonServer.getTerminalWriter();
 					interp.setOut(terminalWriter);
 					interp.setErr(terminalWriter);
