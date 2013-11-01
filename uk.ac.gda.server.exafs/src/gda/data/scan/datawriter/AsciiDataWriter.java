@@ -91,6 +91,7 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 
 	@Override
 	public void writeFooter() {		
+		if (configuration == null) return;
 		for (AsciiMetadataConfig line : this.configuration.getFooter()) {
 			try {
 				String string = this.configuration.getCommentMarker() + " " + line.toString() + "\n";
@@ -104,6 +105,7 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 
 	@Override
 	public void writeHeader() {
+		if (configuration == null) return;
 		for (AsciiMetadataConfig line : this.configuration.getHeader()) {
 			try {
 				String string = this.configuration.getCommentMarker() + " " + line.toString() + "\n";
