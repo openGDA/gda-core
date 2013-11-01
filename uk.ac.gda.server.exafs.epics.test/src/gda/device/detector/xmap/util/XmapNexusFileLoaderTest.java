@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,25 +19,31 @@
 package gda.device.detector.xmap.util;
 
 import static org.junit.Assert.assertEquals;
-import gda.device.detector.xmap.util.XmapNexusFileLoader;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class XmapNexusFileLoaderTest {
-	XmapNexusFileLoader xMapLoader;
-	@Before
-	public void setUp()throws Exception
-	{
-		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-6777-HTXmapMca.h5";		
-		xMapLoader = new XmapNexusFileLoader(testfile1);
-		xMapLoader.loadFile();
-	
-	}
 	@Test
-	public void testgetData() {
-		short  [][]result = xMapLoader.getData(0);
-		assertEquals(result[0][513], (short)0);
+	public void testRead4ElementFile() throws Exception {
+		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-6777-HTXmapMca.h5";
+		XmapNexusFileLoader xMapLoader = new XmapNexusFileLoader(testfile1,4);
+		xMapLoader.loadFile();
+		assertEquals(58,xMapLoader.getNumberOfDataPoints());
+		short[][] result = xMapLoader.getData(0);
+		assertEquals(4, result.length);
+		assertEquals(2048, result[0].length);
+		
 	}
 	
+	@Test
+	public void testRead10ElementFile() throws Exception {
+		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-26092-0-raster_xmap.h5";
+		XmapNexusFileLoader xMapLoader = new XmapNexusFileLoader(testfile1,10);
+		xMapLoader.loadFile();
+		assertEquals(401,xMapLoader.getNumberOfDataPoints());
+		short[][] result = xMapLoader.getData(0);
+		assertEquals(10, result.length);
+		assertEquals(2048, result[0].length);
+	}
+
 }
