@@ -62,11 +62,11 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 		if (outputLogValues) {
 			if (!ArrayUtils.contains(extraNames, LNI0IT_LABEL)) {
 				extraNames = (String[]) ArrayUtils.add(extraNames, LNI0IT_LABEL);
-				outputFormat = (String[]) ArrayUtils.add(outputFormat, "%.4g");
+				outputFormat = (String[]) ArrayUtils.add(outputFormat, "%.5f");
 			}
 			if (!ArrayUtils.contains(extraNames, LNITIREF_LABEL)) {
 				extraNames = (String[]) ArrayUtils.add(extraNames, LNITIREF_LABEL);
-				outputFormat = (String[]) ArrayUtils.add(outputFormat, "%.4g");
+				outputFormat = (String[]) ArrayUtils.add(outputFormat, "%.5f");
 			}
 		} else {
 			int numInputs = inputNames.length;

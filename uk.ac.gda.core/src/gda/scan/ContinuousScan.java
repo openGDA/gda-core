@@ -148,7 +148,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 		// wait for the scannable to lined up the move to stop in another thread
 		qscanAxis.waitWhileBusy();
-		checkForInterrupts();
+		checkForInterruptsIgnoreIdle();
 		if(!isChild())
 			currentPointCount = -1;
 		qscanAxis.performContinuousMove();
@@ -160,7 +160,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 			while (qscanAxis.isBusy() && highestFrameNumberRead < numberScanpoints -1) {
 				// sleep for a second. For what reason?
 				Thread.sleep(1000);
-				checkForInterrupts();
+				checkForInterruptsIgnoreIdle();
 				// get lowest number of frames from all detectors
 				int framesReachedArray [] = new int[qscanDetectors.length];
 				fillArray(framesReachedArray, highestFrameNumberRead);
@@ -305,7 +305,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		
 		//thisFrame <= highFrame. this was thisFrame < highFrame which caused each frame to lose a point at the end
 		for (int thisFrame = lowFrame; thisFrame <= highFrame; thisFrame++) {
-			checkForInterrupts();
+			checkForInterruptsIgnoreIdle();
 			currentPointCount++;
 			this.stepId = new ScanStepId(qscanAxis.getName(), currentPointCount);
 			ScanDataPoint thisPoint = new ScanDataPoint();
@@ -361,7 +361,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 			// then write data to data handler
 			getDataWriter().addData(thisPoint);
 
-			checkForInterrupts();
+			checkForInterruptsIgnoreIdle();
 
 			// update the filename (if this was the first data point and so
 			// filename would never be defined until first data added

@@ -1,5 +1,12 @@
 <top @name=>
 <NXentry @name=entry1>
+<NXcollection @name=before_scan>
+<Attr @name=disabled>
+<dimensions><dimension>4</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>True</value>
+</Attr>
+</NXcollection>
 <SDS @name=collection_description>
 <dimensions><dimension>25</dimension></dimensions>
 <type>NX_CHAR</type>
