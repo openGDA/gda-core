@@ -524,7 +524,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		return outputFormat;
 	}
 
-	public String[] getExtraNames() {
+	public String[] getInputExtraNames() {
 		return inputExtraNames;
 	}
 
