@@ -494,7 +494,7 @@ public class ADDetectorTest {
 		setupForReadoutAndGetPositionWithFilenameAndTimes();
 		det().atScanStart();
 		NXDetectorData readout = (NXDetectorData) det().readout();
-		assertArrayEquals(new String[] { "count_time", "period", "filepath" }, readout.getExtraNames());
+		assertArrayEquals(new String[] { "count_time", "period", "filepath" }, readout.getInputExtraNames());
 		assertArrayEquals(new Double[] { 0.5, 0.55, 0.0}, readout.getDoubleVals());
 		assertEquals("0.50\t0.55\t/full/path/to/file99.cbf", readout.toString());
 	}
