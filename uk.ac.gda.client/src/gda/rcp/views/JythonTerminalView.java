@@ -29,6 +29,7 @@ import gda.rcp.util.ScanDataPointFormatterUtils;
 import gda.rcp.views.dashboard.DashboardView;
 import gda.rcp.views.dashboard.SimpleScannableObject;
 import gda.scan.IScanDataPoint;
+import gda.scan.ScanCompletedEvent;
 import gda.scan.ScanDataPointFormatter;
 import gda.util.PropertyUtils;
 
@@ -341,6 +342,16 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 			}
 			// always print the point to the terminal
 			appendOutput(sdpt.toFormattedString(scanDataPointFormatter) + "\n");
+		} else if (theObserved instanceof JythonServerFacade && changeCode instanceof ScanCompletedEvent) {
+			// BEEP to info users scan completed.
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					logger.debug("======= make system beep =======");
+					PlatformUI.getWorkbench().getDisplay().beep();
+				}
+			});
 		} else if (changeCode instanceof String) {
 			String message = (String) changeCode;
 
