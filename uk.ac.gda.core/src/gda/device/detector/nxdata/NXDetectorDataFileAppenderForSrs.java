@@ -59,7 +59,7 @@ public class NXDetectorDataFileAppenderForSrs implements NXDetectorDataAppender 
 				new NexusGroupData(1)));
 		// add filename as an NXNote
 		dataForSrs.addFileName(detectorName, filename);
-		int indexOf = Arrays.asList(data.getInputExtraNames()).indexOf(filepathExtraName);
+		int indexOf = Arrays.asList(data.getExtraNames()).indexOf(filepathExtraName);
 		dataForSrs.setFilepathOutputFieldIndex(indexOf);
 		data.setPlottableValue(filepathExtraName, 0.);// this is needed as we have added an entry in extraNames
 
