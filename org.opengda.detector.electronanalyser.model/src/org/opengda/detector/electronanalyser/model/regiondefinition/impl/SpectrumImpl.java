@@ -78,7 +78,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String USER_EDEFAULT = "cm5933-1";
+	protected static final String USER_EDEFAULT = "";
 
 	/**
 	 * The cached value of the '{@link #getUser() <em>User</em>}' attribute.
@@ -107,7 +107,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String SAMPLE_NAME_EDEFAULT = "mySample";
+	protected static final String SAMPLE_NAME_EDEFAULT = "sample name";
 
 	/**
 	 * The cached value of the '{@link #getSampleName() <em>Sample Name</em>}' attribute.
@@ -136,7 +136,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String FILENAME_PREFIX_EDEFAULT = "myPrefix";
+	protected static final String FILENAME_PREFIX_EDEFAULT = "FilenamePrefix";
 
 	/**
 	 * The cached value of the '{@link #getFilenamePrefix() <em>Filename Prefix</em>}' attribute.
@@ -194,7 +194,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String FILENAME_FORMAT_EDEFAULT = "%s_%5d_%3d_%s"; //$NON-NLS-1$
+	protected static final String FILENAME_FORMAT_EDEFAULT = "%s_%05d_%s"; //$NON-NLS-1$
 
 	/**
 	 * The cached value of the '{@link #getFilenameFormat() <em>Filename Format</em>}' attribute.
@@ -223,7 +223,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String FILE_EXTENSION_EDEFAULT = ".txt";
+	protected static final String FILE_EXTENSION_EDEFAULT = ".nxs";
 
 	/**
 	 * The cached value of the '{@link #getFileExtension() <em>File Extension</em>}' attribute.

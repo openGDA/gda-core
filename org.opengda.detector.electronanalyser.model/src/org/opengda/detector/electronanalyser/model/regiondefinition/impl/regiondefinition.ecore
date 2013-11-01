@@ -119,21 +119,21 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="location" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="Diamond I09" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="User" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="cm5933-1" unsettable="true"/>
+        defaultValueLiteral="" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sampleName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="mySample" unsettable="true"/>
+        defaultValueLiteral="sample name" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="filenamePrefix" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="myPrefix" unsettable="true"/>
+        defaultValueLiteral="FilenamePrefix" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="baseDirectory" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="myBaseDirectory" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="filenameFormat" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="%s_%5d_%3d_%s" unsettable="true"/>
+        defaultValueLiteral="%s_%05d_%s" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="fileExtension" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral=".txt" unsettable="true"/>
+        defaultValueLiteral=".nxs" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="numberOfComments" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="1" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="comments" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" defaultValueLiteral="myComments,"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" defaultValueLiteral="Put your comments here, They will be saved along with your region definitions in the sequence file."
         unsettable="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="STATUS">

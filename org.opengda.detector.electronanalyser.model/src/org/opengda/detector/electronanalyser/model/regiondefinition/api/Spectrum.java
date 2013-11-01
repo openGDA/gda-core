@@ -87,7 +87,7 @@ public interface Spectrum extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>User</b></em>' attribute.
-	 * The default value is <code>"cm5933-1"</code>.
+	 * The default value is <code>""</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>User</em>' attribute isn't clear,
@@ -99,7 +99,7 @@ public interface Spectrum extends EObject {
 	 * @see #unsetUser()
 	 * @see #setUser(String)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSpectrum_User()
-	 * @model default="cm5933-1" unsettable="true"
+	 * @model default="" unsettable="true"
 	 * @generated
 	 */
 	String getUser();
@@ -141,7 +141,7 @@ public interface Spectrum extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Sample Name</b></em>' attribute.
-	 * The default value is <code>"mySample"</code>.
+	 * The default value is <code>"sample name"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Sample Name</em>' attribute isn't clear,
@@ -153,7 +153,7 @@ public interface Spectrum extends EObject {
 	 * @see #unsetSampleName()
 	 * @see #setSampleName(String)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSpectrum_SampleName()
-	 * @model default="mySample" unsettable="true"
+	 * @model default="sample name" unsettable="true"
 	 * @generated
 	 */
 	String getSampleName();
@@ -195,7 +195,7 @@ public interface Spectrum extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Filename Prefix</b></em>' attribute.
-	 * The default value is <code>"myPrefix"</code>.
+	 * The default value is <code>"FilenamePrefix"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Filename Prefix</em>' attribute isn't clear,
@@ -207,7 +207,7 @@ public interface Spectrum extends EObject {
 	 * @see #unsetFilenamePrefix()
 	 * @see #setFilenamePrefix(String)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSpectrum_FilenamePrefix()
-	 * @model default="myPrefix" unsettable="true"
+	 * @model default="FilenamePrefix" unsettable="true"
 	 * @generated
 	 */
 	String getFilenamePrefix();
@@ -303,7 +303,7 @@ public interface Spectrum extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Filename Format</b></em>' attribute.
-	 * The default value is <code>"%s_%5d_%3d_%s"</code>.
+	 * The default value is <code>"%s_%05d_%s"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Filename Format</em>' attribute isn't clear,
@@ -315,7 +315,7 @@ public interface Spectrum extends EObject {
 	 * @see #unsetFilenameFormat()
 	 * @see #setFilenameFormat(String)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSpectrum_FilenameFormat()
-	 * @model default="%s_%5d_%3d_%s" unsettable="true"
+	 * @model default="%s_%05d_%s" unsettable="true"
 	 * @generated
 	 */
 	String getFilenameFormat();
@@ -357,7 +357,7 @@ public interface Spectrum extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>File Extension</b></em>' attribute.
-	 * The default value is <code>".txt"</code>.
+	 * The default value is <code>".nxs"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>File Extension</em>' attribute isn't clear,
@@ -369,7 +369,7 @@ public interface Spectrum extends EObject {
 	 * @see #unsetFileExtension()
 	 * @see #setFileExtension(String)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSpectrum_FileExtension()
-	 * @model default=".txt" unsettable="true"
+	 * @model default=".nxs" unsettable="true"
 	 * @generated
 	 */
 	String getFileExtension();
@@ -476,7 +476,7 @@ public interface Spectrum extends EObject {
 	 * @see #isSetComments()
 	 * @see #unsetComments()
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSpectrum_Comments()
-	 * @model default="myComments," unsettable="true"
+	 * @model default="Put your comments here, They will be saved along with your region definitions in the sequence file." unsettable="true"
 	 * @generated
 	 */
 	EList<String> getComments();
