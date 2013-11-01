@@ -60,10 +60,19 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	public NXDetectorData(Detector detector) {
 		this();
 		if (detector.getInputNames() != null && detector.getInputNames().length > 0) logger.warn("Dubious detector "+detector.getName()+" with input names.\nAnticipate plotting problems.");
-		this.inputExtraNames = (String [])ArrayUtils.addAll( detector.getInputNames(), detector.getExtraNames()); 
+		inputExtraNames = detector.getInputNames();
+		String [] extras =detector.getExtraNames();
+		if( inputExtraNames == null){
+			inputExtraNames = new String[]{};
+		}
+		if( extras != null && extras.length>0){
+			inputExtraNames = (String [])ArrayUtils.addAll( inputExtraNames,extras );
+		}
+		 
 		this.outputFormat = detector.getOutputFormat(); 
-		if (this.outputFormat == null || this.outputFormat.length != inputExtraNames.length ) {
-			throw new IllegalArgumentException(detector.getName() + ":outputFormat length does not match sum of inputNames and extraNames");
+		if ((this.outputFormat == null || this.outputFormat.length == 0) && this.inputExtraNames.length>0) {
+			logger.warn("Detector "+detector.getName()+" does not provide outputFormat");
+			outputFormat = new String[] {"%5.5g"};
 		} 
 		
 		doubleData = new Double[inputExtraNames.length];
