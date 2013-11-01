@@ -405,6 +405,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	public void stop() throws DeviceException {
 		xmap.stop();
 		stopAcq();
+		//controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
 	}
 
 	@Override
