@@ -173,19 +173,19 @@ public class RegionScannable extends ScannableBase implements Scannable {
 				busy=false;
 				return;
 			}
-			getAnalyser().setCameraMinX(region.getFirstXChannel()-1, 5.0);
-			getAnalyser().setCameraMinY(region.getFirstYChannel()-1, 5.0);
+			getAnalyser().setCameraMinX(region.getFirstXChannel(), 5.0);
+			getAnalyser().setCameraMinY(region.getFirstYChannel(), 5.0);
 			getAnalyser().setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel()+1, 5.0);
 			getAnalyser().setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel()+1, 5.0);
 			getAnalyser().setSlices(region.getSlices(), 5.0);
 			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 5.0);
 			getAnalyser().setLensMode(region.getLensMode(), 5.0);
-			getAnalyser().setEnergyMode(literal,5.0);
 			getAnalyser().setPassEnergy(region.getPassEnergy(), 5.0);
 			if (literal.equalsIgnoreCase("Kinetic")) {
 				getAnalyser().setStartEnergy(region.getLowEnergy(), 5.0);
 				getAnalyser().setEndEnergy(region.getHighEnergy(), 5.0);
 				getAnalyser().setCentreEnergy(region.getFixEnergy(), 5.0);
+				getAnalyser().setEnergyMode(literal,5.0);
 			}
 			getAdArray().setEnergyMode(literal);
 			
