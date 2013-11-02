@@ -35,7 +35,6 @@ import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -43,7 +42,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -72,25 +70,19 @@ public class MJPeg extends Composite {
 	private Label livwMonitoringLbl;
 
 	private CameraComposite cameraComposite;
-	private SashForm sashForm;
-	private static final int[] WEIGHTS_NORMAL = new int[] { 20, 3, 77 };
-	private static final int[] WEIGHTS_NO_LEFT = new int[] { 0, 3, 97 };
 	private ScrolledComposite leftScrolledComposite;
 
-	private Composite left;
-
 	private Button middle;
+
 	public MJPeg(Composite parent, int style) {
 		super(parent, style);
-		this.setLayout(new FillLayout());
-		
-		sashForm = new SashForm(this, SWT.HORIZONTAL );
-		sashForm.setLayout(new FillLayout());
-		
-		leftScrolledComposite= new ScrolledComposite(sashForm, SWT.V_SCROLL| SWT.H_SCROLL| SWT.BORDER);
-		left = new Composite(leftScrolledComposite, SWT.NONE);
+		this.setLayout(new GridLayout(3, false));
+
+		leftScrolledComposite = new ScrolledComposite(this, SWT.V_SCROLL | SWT.H_SCROLL);
+		GridDataFactory.fillDefaults().grab(false, true).applyTo(leftScrolledComposite);
+		Composite left = new Composite(leftScrolledComposite, SWT.NONE);
 		leftScrolledComposite.setContent(left);
-		
+
 		GridData gd_left = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_left.widthHint = 208;
 		left.setLayoutData(gd_left);
@@ -165,20 +157,21 @@ public class MJPeg extends Composite {
 		txtRate.setText("Unknown");
 
 		left.setSize(left.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		
-		
-		middle = new Button(sashForm,SWT.PUSH );
-		middle.setText("");
+
+		middle = new Button(this,SWT.PUSH | SWT.TOP);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.BEGINNING).applyTo(middle);
+		middle.setText(">");
 		middle.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				super.widgetSelected(e);
 				showLeft(!getShowLeft());
-			}});		
-		
-		Composite right = new Composite(sashForm, SWT.NONE);		
-		
+			}
+		});
+
+		Composite right = new Composite(this, SWT.NONE);
+
 		GridData gd_right = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
 		gd_right.widthHint = 320;
 		right.setLayoutData(gd_right);
@@ -203,7 +196,6 @@ public class MJPeg extends Composite {
 		});
 		cameraComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(cameraComposite);
-		sashForm.setWeights(WEIGHTS_NORMAL);
 		/*
 		 * @Override public void imageDragged(IImagePositionEvent event) { } }, fig);
 		 */
@@ -227,6 +219,7 @@ public class MJPeg extends Composite {
 			}
 		});
 	}
+
 	private boolean showLeft;
 
 	/**
@@ -234,8 +227,11 @@ public class MJPeg extends Composite {
 	 */
 	public void showLeft(Boolean showLeft) {
 		this.showLeft = showLeft;
-		sashForm.setWeights(showLeft ? WEIGHTS_NORMAL : WEIGHTS_NO_LEFT);
-		middle.setText(showLeft ? "<" : ">");				
+		GridData data = (GridData) leftScrolledComposite.getLayoutData();
+		data.exclude = !showLeft;
+		leftScrolledComposite.setVisible(showLeft);
+		middle.setText(showLeft ? "<" : ">");
+		layout(false);
 	}
 
 	/**
@@ -244,6 +240,7 @@ public class MJPeg extends Composite {
 	public Boolean getShowLeft() {
 		return showLeft;
 	}
+
 	public IFigure getTopFigure() {
 		return cameraComposite == null ? null : cameraComposite.getTopFigure();
 	}

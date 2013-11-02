@@ -82,63 +82,63 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 	public void createPartControl(Composite parent) {
 
 		parent.setLayout(new FillLayout());
-		twoDArray = new TwoDArray(this, parent, SWT.NONE);
 		try {
+			twoDArray = new TwoDArray(this, parent, SWT.NONE);
 			twoDArray.setADController(config);
+			twoDArray.showLeft(true);
+			partListener = new IPartListener2() {
+				
+				@Override
+				public void partVisible(IWorkbenchPartReference partRef) {
+					if( partRef.getPart(false) ==  TwoDArrayView.this)
+						twoDArray.setViewIsVisible(true);
+				}
+				
+				@Override
+				public void partOpened(IWorkbenchPartReference partRef) {
+				}
+				
+				@Override
+				public void partInputChanged(IWorkbenchPartReference partRef) {
+				}
+				
+				@Override
+				public void partHidden(IWorkbenchPartReference partRef) {
+					if( partRef.getPart(false) ==  TwoDArrayView.this)
+						twoDArray.setViewIsVisible(false);
+				}
+				
+				@Override
+				public void partDeactivated(IWorkbenchPartReference partRef) {
+				}
+				
+				@Override
+				public void partClosed(IWorkbenchPartReference partRef) {
+				}
+				
+				@Override
+				public void partBroughtToTop(IWorkbenchPartReference partRef) {
+				}
+				
+				@Override
+				public void partActivated(IWorkbenchPartReference partRef) {
+				}
+			};
+			getSite().getWorkbenchWindow().getPartService().addPartListener(partListener);
+			
+			if( config.isConnectToPlotServer()){
+				plotServerConnector = new PlottingSystemIRegionPlotServerConnector(this.twoDArray.getPlottingSystem(), PlotServerROISelectionProvider.getGuiName(config.getDetectorName()));
+			}
+			twoDArray.restore(name);
+			createActions();		
 		} catch (Exception e) {
 			logger.error("Error configuring twoDArray composite", e);
 		}
-		twoDArray.showLeft(true);
 		if( image != null) {
 			setTitleImage(image);
 		}
 		setPartName(name ); 
 
-		partListener = new IPartListener2() {
-			
-			@Override
-			public void partVisible(IWorkbenchPartReference partRef) {
-				if( partRef.getPart(false) ==  TwoDArrayView.this)
-					twoDArray.setViewIsVisible(true);
-			}
-			
-			@Override
-			public void partOpened(IWorkbenchPartReference partRef) {
-			}
-			
-			@Override
-			public void partInputChanged(IWorkbenchPartReference partRef) {
-			}
-			
-			@Override
-			public void partHidden(IWorkbenchPartReference partRef) {
-				if( partRef.getPart(false) ==  TwoDArrayView.this)
-					twoDArray.setViewIsVisible(false);
-			}
-			
-			@Override
-			public void partDeactivated(IWorkbenchPartReference partRef) {
-			}
-			
-			@Override
-			public void partClosed(IWorkbenchPartReference partRef) {
-			}
-			
-			@Override
-			public void partBroughtToTop(IWorkbenchPartReference partRef) {
-			}
-			
-			@Override
-			public void partActivated(IWorkbenchPartReference partRef) {
-			}
-		};
-		getSite().getWorkbenchWindow().getPartService().addPartListener(partListener);
-		
-		if( config.isConnectToPlotServer()){
-			plotServerConnector = new PlottingSystemIRegionPlotServerConnector(this.twoDArray.getPlottingSystem(), PlotServerROISelectionProvider.getGuiName(config.getDetectorName()));
-		}
-		twoDArray.restore(name);
-		createActions();		
 	}
 
 	protected void createActions() {

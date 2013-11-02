@@ -54,11 +54,11 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -128,23 +128,17 @@ public class TwoDArray extends Composite {
 
 	Map<String, AbstractDataset> stores = new HashMap<String, AbstractDataset>();
 
-	private SashForm sashForm;
-
 	private ScrolledComposite leftScrolledComposite;
 
 	private Button middle;
-	private static final int[] WEIGHTS_NORMAL = new int[] { 20, 3, 77 };
-	private static final int[] WEIGHTS_NO_LEFT = new int[] { 0, 3, 97 };
 	
-	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) {
+	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) throws Exception {
 		super(parent, style);
 
-		this.setLayout(new FillLayout());
+		this.setLayout(new GridLayout(3,false));
 		
-		sashForm = new SashForm(this, SWT.HORIZONTAL);
-		sashForm.setLayout(new FillLayout());
-		
-		leftScrolledComposite= new ScrolledComposite(sashForm,SWT.V_SCROLL| SWT.H_SCROLL| SWT.BORDER);
+		leftScrolledComposite= new ScrolledComposite(this,SWT.V_SCROLL| SWT.H_SCROLL);
+		GridDataFactory.fillDefaults().grab(false, true).applyTo(leftScrolledComposite);
 		left = new Composite(leftScrolledComposite, SWT.NONE);
 		leftScrolledComposite.setContent(left);
 		GridDataFactory.fillDefaults().grab(false, true).applyTo(left);
@@ -275,8 +269,9 @@ public class TwoDArray extends Composite {
 
 		left.setSize(left.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
-		middle = new Button(sashForm,SWT.PUSH );
-		middle.setText("");
+		middle = new Button(this,SWT.PUSH | SWT.TOP);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.BEGINNING).applyTo(middle);
+		middle.setText(">");
 		middle.addSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -285,23 +280,32 @@ public class TwoDArray extends Composite {
 				showLeft(!getShowLeft());
 			}});		
 		
-		Composite right = new Composite(sashForm, SWT.NONE);
+/*		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		right.setLayout(new FillLayout());
+*/
+		Composite right = new Composite(this, SWT.NONE);		
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
+		GridLayoutFactory.fillDefaults().applyTo(right);
+		
+		Composite plotArea = new Composite(right, SWT.NONE);
+		plotArea.setLayout(new FillLayout());
+		{
+			GridData gridData = new GridData();
+			gridData.horizontalAlignment = SWT.FILL;
+			gridData.grabExcessHorizontalSpace = true;
+			gridData.grabExcessVerticalSpace = true;
+			gridData.verticalAlignment = SWT.FILL;
+			plotArea.setLayoutData(gridData);
+		}		
 
-		try {
-			this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
-		} catch (Exception ne) {
-			logger.error("Cannot create a plotting system!", ne);
-			return;
-		}
-		plottingSystem.createPlotPart(right, "", parentViewPart.getViewSite().getActionBars(), PlotType.IMAGE,
+
+		this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
+		plottingSystem.createPlotPart(plotArea, "", parentViewPart.getViewSite().getActionBars(), PlotType.IMAGE,
 				parentViewPart);
 		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setTitle("");
 		}
-		sashForm.setWeights(WEIGHTS_NORMAL);
-
 		addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -329,9 +333,13 @@ public class TwoDArray extends Composite {
 	 */
 	public void showLeft(Boolean showLeft) {
 		this.showLeft = showLeft;
-		sashForm.setWeights(showLeft ? WEIGHTS_NORMAL : WEIGHTS_NO_LEFT);
-		middle.setText(showLeft ? "<" : ">");		
+		GridData data = (GridData) leftScrolledComposite.getLayoutData();
+		data.exclude = !showLeft;
+		leftScrolledComposite.setVisible(showLeft);
+		middle.setText(showLeft ? "<" : ">");
+		layout(false);
 	}
+
 
 	/**
 	 * @return true if left is hidden
