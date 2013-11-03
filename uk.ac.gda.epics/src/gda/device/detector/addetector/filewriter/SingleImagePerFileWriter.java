@@ -55,6 +55,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	private String filePathUsed = "";
 	private String fileTemplateUsed = "";
 	private long nextExpectedFileNumber = 0;
+	boolean blocking = true;  
 
 	private boolean returnPathRelativeToDatadir = false; // TODO: should really be enabled by default RobW
 
@@ -88,6 +89,14 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	 */
 	public SingleImagePerFileWriter() {
 
+	}
+
+	public boolean isBlocking() {
+		return blocking;
+	}
+
+	public void setBlocking(boolean blocking) {
+		this.blocking = blocking;
 	}
 
 	public void setWaitForFileArrival(boolean waitForFileArrival) {
@@ -172,7 +181,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if (pluginBase != null) {
 			pluginBase.enableCallbacks();
 			logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
-			pluginBase.setBlockingCallbacks((short) 1);
+			pluginBase.setBlockingCallbacks((short)(blocking? 1:0));
 			// It should be possible to avoid blocking the acquisition thread
 			// and use the pipeline by setting BlockingCallbacks according to
 			// returnExpectedFileName, but when this was tried, at r48170, it
