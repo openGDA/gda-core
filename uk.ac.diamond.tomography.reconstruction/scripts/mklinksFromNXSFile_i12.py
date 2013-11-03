@@ -59,16 +59,16 @@ def copySingleFile(src, dst):
 		msg = "INFO: File cannot be copied because it does not exist: "+`src`
 		raise Exception(msg)
 	if os.path.exists(dst):
-		msg = "INFO: File already exist (you may wish to delete the existing file and then re-run the command): "+`dst`
+		msg = "INFO: File already exists (you may wish to delete the existing file and then re-run the command): "+`dst`
 		print msg
 	else:
 		try:
-			success = True
 			shutil.copy(src, dst)
 			msg = "INFO: Copied "+`src`+" to " + `dst`
 			print msg
-		except:
-			msg = "INFO: Failed to copy "+`src`+" to " + `dst`
+			success = True
+		except Exception, ex:
+			msg = "INFO: Failed to copy "+`src`+" to " + `dst` + " :" + str(ex)
 			print msg
 			success = False
 	return success
@@ -112,7 +112,7 @@ def launchImageAveragingProcess(inDir, inFilenameFmt, outDir, outFilename="flat-
 	#files = [f for f in os.listdir(inDir) if re.match(r'^f_000_(\d{5})\.tif$',f)]
 	files = [f for f in os.listdir(inDir) if re.match(pattern,f)]
 	
-	msg = "Files for averaging (found "+`len(files)`+" matches):"
+	msg = "Files for averaging (found "+`len(files)`+" match(es)):"
 	print msg
 	for f in files:
 		print f
@@ -788,12 +788,12 @@ def makeLinksForNXSFile(\
 		print "tiffDirOverride = ", tiffDirOverride
 		for i in range(0,len(tif)):
 			s = tif[i][0]
-			print "pre s = ", tif[i][0]
+			#print "pre s = ", tif[i][0]
 			h, t = os.path.split(s)
-			print "h = ", h
-			print "t = ", t
+			#print "h = ", h
+			#print "t = ", t
 			tif[i][0] = os.path.join(tiffDirOverride, t)
-			print "post s = ", tif[i][0]
+			#print "post s = ", tif[i][0]
 		#print "pre s = ", tif[0][0]
 		#preModifyAbsolutePathsss(tif, tiffDirOverride, tif)
 		#print "post s = ", tif[0][0]		

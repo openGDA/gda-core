@@ -20,7 +20,7 @@ from gdascripts.metadata.metadata_commands import setTitle
 from gdascripts.parameters import beamline_parameters
 from java.lang import InterruptedException
 import sys
-
+from gdascripts.metadata.metadata_commands import meta_add
 
 
 
@@ -77,12 +77,12 @@ def generateScanPoints(inBeamPosition, outOfBeamPosition, theta_points, darkFiel
         index = 0
         #Added shutterNoChange state for the shutter. The scan points are added using the (pseudo) ternary operator, 
         #if index is 0 then the shutterPosition is added to the scan point, else shutterNoChange is added to scan points.
-        for i in range(imagesPerDark):
-            scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
+        for d in range(imagesPerDark):
+            scan_points.append((theta_pos, [shutterClosed, shutterNoChange][d != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
             index = index + 1
         
-        for i in range(imagesPerFlat): 
-            scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
+        for f in range(imagesPerFlat): 
+            scan_points.append((theta_pos, [shutterOpen, shutterNoChange][f != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
             index = index + 1
         
         scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamNo, image_key_project, index)) #first
@@ -97,15 +97,15 @@ def generateScanPoints(inBeamPosition, outOfBeamPosition, theta_points, darkFiel
             
             imageSinceFlat = imageSinceFlat + 1
             if imageSinceFlat == flatFieldInterval and flatFieldInterval != 0:
-                for i in range(imagesPerFlat):
-                    scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index))
+                for f in range(imagesPerFlat):
+                    scan_points.append((theta_pos, [shutterOpen, shutterNoChange][f != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index))
                     index = index + 1
                     imageSinceFlat = 0
             
             imageSinceDark = imageSinceDark + 1
             if imageSinceDark == darkFieldInterval and darkFieldInterval != 0:
-                for i in range(imagesPerDark):
-                    scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index))
+                for d in range(imagesPerDark):
+                    scan_points.append((theta_pos, [shutterClosed, shutterNoChange][d != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index))
                     index = index + 1
                     imageSinceDark = 0
             
@@ -117,12 +117,12 @@ def generateScanPoints(inBeamPosition, outOfBeamPosition, theta_points, darkFiel
         
         #add dark and flat only if not done in last steps
         if imageSinceFlat != 0:
-            for i in range(imagesPerFlat):
-                scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
+            for f in range(imagesPerFlat):
+                scan_points.append((theta_pos, [shutterOpen, shutterNoChange][f != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
                 index = index + 1
         if imageSinceDark != 0:
-            for i in range(imagesPerDark):
-                scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
+            for d in range(imagesPerDark):
+                scan_points.append((theta_pos, [shutterClosed, shutterNoChange][d != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
                 index = index + 1
     elif pattern == 'PFD':
         print "Using scan-point pattern:", pattern
@@ -142,15 +142,15 @@ def generateScanPoints(inBeamPosition, outOfBeamPosition, theta_points, darkFiel
             
             imageSinceFlat = imageSinceFlat + 1
             if imageSinceFlat == flatFieldInterval and flatFieldInterval != 0:
-                for i in range(imagesPerFlat):
-                    scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index))
+                for f in range(imagesPerFlat):
+                    scan_points.append((theta_pos, [shutterOpen, shutterNoChange][f != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index))
                     index = index + 1
                     imageSinceFlat = 0
             
             imageSinceDark = imageSinceDark + 1
             if imageSinceDark == darkFieldInterval and darkFieldInterval != 0:
-                for i in range(imagesPerDark):
-                    scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index))
+                for d in range(imagesPerDark):
+                    scan_points.append((theta_pos, [shutterClosed, shutterNoChange][d != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index))
                     index = index + 1
                     imageSinceDark = 0
             
@@ -162,12 +162,12 @@ def generateScanPoints(inBeamPosition, outOfBeamPosition, theta_points, darkFiel
         
         #add dark and flat only if not done in last steps
         if imageSinceFlat != 0:
-            for i in range(imagesPerFlat):
-                scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
+            for f in range(imagesPerFlat):
+                scan_points.append((theta_pos, [shutterOpen, shutterNoChange][f != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
                 index = index + 1
         if imageSinceDark != 0:
-            for i in range(imagesPerDark):
-                scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
+            for d in range(imagesPerDark):
+                scan_points.append((theta_pos, [shutterClosed, shutterNoChange][d != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
                 index = index + 1
     else:
         print "Unsupported scan-point pattern:", pattern
@@ -248,6 +248,9 @@ def reportJythonNamespaceMapping():
     msg = "\n These mappings can be changed by editing a file named jythonNamespaceMapping_live, "
     msg += "\n located in GDA Client under Scripts: Config (this can be done by beamline staff)."
     print msg
+
+def reportTomo():
+    return reportJythonNamespaceMapping()
 
 class   tomoScan_positions(ScanPositionProvider):
     def __init__(self, start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat,
@@ -344,6 +347,10 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         tomography_sample_stage = jns.tomography_sample_stage
         if tomography_sample_stage is None:
             raise "tomography_sample_stage is not defined in Jython namespace"
+        
+        tomo_additional_scannables = jns.tomography_additional_scannables
+        if tomo_additional_scannables is None:
+            raise "tomo_additional_scannables is not defined in Jython namespace"
         
         index = SimpleScannable()
         index.setCurrentPosition(0.0)
@@ -445,7 +452,12 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
                                                inBeamPosition, outOfBeamPosition, optimizeBeamInterval, scan_points) 
         scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime, tomography_camera_stage, tomography_sample_stage]
         scan_args.append(RotationAxisScannable("approxCOR", tomoRotationAxis))
+        meta_add(RotationAxisScannable("approxCOR", tomoRotationAxis))
+        #meta_add("RotationCoord_as_list", [tomoRotationAxis])
+        meta_add("RotationCoord_as_number", tomoRotationAxis)
         for scannable in additionalScannables:
+            scan_args.append(scannable)
+        for scannable in tomo_additional_scannables:
             scan_args.append(scannable)
         ''' setting the description provided as the title'''
         if not description == None: 
