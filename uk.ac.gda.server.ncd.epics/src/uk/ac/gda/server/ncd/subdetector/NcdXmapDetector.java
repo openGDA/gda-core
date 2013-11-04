@@ -113,11 +113,9 @@ public class NcdXmapDetector extends NcdSubDetector  {
 
 		if (xmapcontroller instanceof EpicsXmapController) {
 			EpicsXmapController emc = (EpicsXmapController) xmapcontroller;
-			//FIXME, Chris!
-			throw new DeviceException("in the following three lines an energy axis could be provided, but the controller class no longer allows this.");
-//			double[] energyaxis = emc.getEnergyBins()[0];
-//			NexusGroupData angd = new NexusGroupData(new int[]{energyaxis.length}, NexusFile.NX_FLOAT64, energyaxis);
-//			dataTree.addAxis(getTreeName(), "energy", angd, 1, 1, "keV", false);
+			double[] energyaxis = emc.getEnergyBins()[0];
+			NexusGroupData angd = new NexusGroupData(new int[]{energyaxis.length}, NexusFile.NX_FLOAT64, energyaxis);
+			dataTree.addAxis(getTreeName(), "energy", angd, 1, 1, "keV", false);
 		}
 		
 		addMetadata(dataTree);
@@ -127,9 +125,9 @@ public class NcdXmapDetector extends NcdSubDetector  {
 	public void configure() throws FactoryException {
 		if (xmapControllerName == null) throw new FactoryException("no controller defined");
 		if (xmapcontroller == null) {
-			if ((xmapcontroller = (XmapController) Finder.getInstance().find(xmapControllerName)) != null) {
+			if ((xmapcontroller = (XmapController) Finder.getInstance().find(xmapControllerName)) != null)
 				logger.debug("controller {} found", xmapControllerName);
-			} else {
+			else {
 				logger.error("EpicsXmapController {} not found", xmapControllerName);
 				throw new FactoryException("EpicsXmapController " + xmapControllerName + " not found");
 			}
