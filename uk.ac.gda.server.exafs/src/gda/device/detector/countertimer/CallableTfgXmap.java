@@ -19,9 +19,7 @@
 package gda.device.detector.countertimer;
 
 import gda.device.DeviceException;
-import gda.device.detector.DetectorWithReadout;
 import gda.device.scannable.PositionCallableProvider;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -45,7 +43,6 @@ public class CallableTfgXmap extends TfgXmap implements PositionCallableProvider
 	@Override
 	public double[] readout() throws DeviceException {
 		Callable<double[]> positionCallable = getPositionCallable();
-
 		try {
 			double[] treeProvider = positionCallable.call();
 			return treeProvider;
@@ -54,7 +51,6 @@ public class CallableTfgXmap extends TfgXmap implements PositionCallableProvider
 		} catch (Exception e) {
 			throw new DeviceException("something wrong in the callable", e);
 		}
-
 	}
 	
 	protected double[] getSuperReadout() throws DeviceException {
