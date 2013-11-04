@@ -117,14 +117,15 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 			}
         	
         });
+        addElements();
+	}
+
+    public void addElements(){
 		// Add all the EDXD Elements to the detector
 		for(int i = (0+ elementOffset); i < (NUMBER_OF_ELEMENTS + elementOffset); i++ ) {
 			subDetectors.add(new EDXDMappingElement(xmap,i)); 
-
 		}
-	}
-
-      
+    }
 
 	/**
 	 * Sets the dynamic range of the detector

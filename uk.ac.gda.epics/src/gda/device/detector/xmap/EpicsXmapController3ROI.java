@@ -56,19 +56,16 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 
 	@Override
 	public void configure() throws FactoryException {
-		if((edxdController = (EDXDMappingController)Finder.getInstance().find(edxdControllerName) )!= null)
-		{
-		numberOfMca = edxdController.getNUMBER_OF_ELEMENTS();
-		edxdController.addIObserver(this);
-		controlRois = new double[numberOfMca][][];
-		/*try {
-			edxdController.activateROI();
-		} catch (DeviceException e) {
-			logger.error("Unable to set the ROI mode for the Xmap controller", e);
-		}*/
+		if((edxdController = (EDXDMappingController)Finder.getInstance().find(edxdControllerName) )!= null){
+			edxdController.addIObserver(this);
+			configureNumberOfMca();
 		}
 	}
 	
+	public void configureNumberOfMca(){
+		numberOfMca = edxdController.getNUMBER_OF_ELEMENTS();
+		controlRois = new double[numberOfMca][][];
+	}
    
 	@Override
 	public void clearAndStart() throws DeviceException {
@@ -296,10 +293,9 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 		
 	}
 
-	@Override
-	public void setNumberOfMca(int numberOfMca) throws DeviceException {
-		//Not implemented in the new version
-		
+	public void setNumberOfElements(int numberOfMca) {
+		edxdController.setNUMBER_OF_ELEMENTS(numberOfMca);
+		this.numberOfMca=numberOfMca;
 	}
 
 	@Override
@@ -399,6 +395,9 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	}
 
 
-	
+	@Override
+	public void setNumberOfMca(int numberOfMca) throws DeviceException {
+		setNumberOfElements(numberOfMca);
+	}
 
 }

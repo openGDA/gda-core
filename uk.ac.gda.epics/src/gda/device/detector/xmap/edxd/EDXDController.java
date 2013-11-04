@@ -257,9 +257,6 @@ public class EDXDController extends DetectorBase implements Configurable {
 	public void setNUMBER_OF_ELEMENTS(int nUMBEROFELEMENTS) {
 		NUMBER_OF_ELEMENTS = nUMBEROFELEMENTS;
 	}
-
-
-	
 	
 	/**
 	 * Sets the number of bins that are used by the xmap.
