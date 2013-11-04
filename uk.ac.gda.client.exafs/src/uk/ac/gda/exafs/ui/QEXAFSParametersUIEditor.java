@@ -114,7 +114,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 				try {
 					getInitialEnergy().setValue(getInitialEnergyFromElement());
 					getFinalEnergy().setValue(getFinalEnergyFromElement());
-					getCoreHole_unused().setValue(getCfromElement());
+					getCoreHole().setValue(getCfromElement());
 				} catch (Exception e1) {
 					logger.error("Cannot update energies from element selection", e1);
 				}
@@ -125,7 +125,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		new Label(grpQuickExafsParameters, SWT.NONE);
 		
 		try {
-			getCoreHole_unused().setValue(getCfromElement());
+			getCoreHole().setValue(getCfromElement());
 		} catch (Exception e) {
 			logger.error("Cannot get and set core hole", e);
 		}
@@ -230,7 +230,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 			beanComposite.getInitialEnergy().on();
 			beanComposite.getFinalEnergy().on();
 			beanComposite.getBothWays().on();
-			getCoreHole_unused().on();
+			getCoreHole().on();
 			getEdgeEnergy().on();
 		} else {
 			edge.off();
@@ -241,10 +241,10 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 			beanComposite.getInitialEnergy().off();
 			beanComposite.getFinalEnergy().off();
 			beanComposite.getBothWays().off();
-			getCoreHole_unused().off();
+			getCoreHole().off();
 			getEdgeEnergy().off();
 
-			getCoreHole_unused().off();
+			getCoreHole().off();
 			getEdgeEnergy().off();
 		}
 // 		not sure if this works as it relies on calling every getter method in the class...
