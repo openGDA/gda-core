@@ -7,3 +7,4 @@ Require-Bundle: uk.ac.gda.core;bundle-version="8.34.0",
  uk.ac.gda.common.client;bundle-version="8.34.0",
  uk.ac.gda.nexus
 Import-Package: org.junit
+Bundle-Vendor: Diamond Light Source
