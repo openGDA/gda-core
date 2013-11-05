@@ -335,4 +335,18 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	public void setEdxdControllerName(String edxdControllerName) {
 		this.edxdControllerName = edxdControllerName;
 	}
+	
+	public double[] getEnergyBins(int mcaNumber) throws DeviceException {
+		double[] replyArray = edxdController.getSubDetector(mcaNumber).getEnergyBins();
+		return replyArray;
+	}
+
+	public double[][] getEnergyBins() throws DeviceException {
+		int numberOfBins =  getNumberOfBins();
+		double[][] data = new double[numberOfElements][numberOfBins];
+		for (int i = 0; i < numberOfElements; i++)
+			data[i] = getEnergyBins(i);
+		return data;
+	}
+	
 }
