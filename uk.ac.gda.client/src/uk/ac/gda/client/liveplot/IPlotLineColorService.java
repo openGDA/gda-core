@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.liveplot;
 
-import java.awt.Color;
-
 public interface IPlotLineColorService {
 	// Empty interface because the service colors are loaded from service properties configuration. If there are more ways to configure colors add here.
 }

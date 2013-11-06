@@ -487,6 +487,7 @@ public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver, 
 	/**
 	 * Hide all scans
 	 */
+	@Override
 	public void hideAll() {
 		xyPlot.hideAll();
 
@@ -495,6 +496,7 @@ public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver, 
 	/**
 	 * Clear the graph
 	 */
+	@Override
 	public void clearGraph() {
 		xyPlot.clearGraph();
 	}

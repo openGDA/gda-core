@@ -40,18 +40,13 @@ import uk.ac.gda.jython.ExtendedJythonSyntax;
 import uk.ac.gda.pydev.extension.Activator;
 import uk.ac.gda.pydev.ui.preferences.PreferenceConstants;
 
-/**
- *
- */
 public class ExtendedSyntaxEditor extends PyEdit implements IParserObserver, IModelListener {
    
 	private static final Logger logger = LoggerFactory.getLogger(ExtendedSyntaxEditor.class);
-	
 	/**
      * The last parsing error description we got.
      */
     static public final String ID = "uk.ac.gda.pydev.extension.editor.PythonEditor";
-	
     protected ErrorDescription currentErrorDescription;
 
     public ExtendedSyntaxEditor() {
@@ -87,7 +82,7 @@ public class ExtendedSyntaxEditor extends PyEdit implements IParserObserver, IMo
 					if (fileAdapter!=null) {
 						final IMarker[] markers = fileAdapter.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ONE);
 						if (markers.length==1) {
-							final IMarker marker = markers[0];
+							IMarker marker = markers[0];
 							ExtendedJythonMarkers.fixMarker(marker, line, alii, doc.get());
 						}
 					}
@@ -105,7 +100,6 @@ public class ExtendedSyntaxEditor extends PyEdit implements IParserObserver, IMo
 
 	@Override
 	public void modelChanged(ISimpleNode arg0) {
-		
 	}
 	
 	@Override
@@ -113,4 +107,5 @@ public class ExtendedSyntaxEditor extends PyEdit implements IParserObserver, IMo
 		super.dispose();
 		removeModelListener(this);
 	}
+	
 }

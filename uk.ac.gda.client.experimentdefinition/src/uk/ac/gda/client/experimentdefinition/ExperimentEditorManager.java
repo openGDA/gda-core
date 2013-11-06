@@ -469,52 +469,37 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@Override
 	public IExperimentObject getSelectedScan() {
-
-		final IWorkbenchPage page = getActivePage();
-
+		IWorkbenchPage page = getActivePage();
 		IExperimentObject ret = null;
 		if (page != null) { // It's null when a dialog is open
 			final ExperimentExperimentView controls = (ExperimentExperimentView) page
 					.findView(ExperimentExperimentView.ID);
-			if (controls != null && controls.isFocus()) {
+			if (controls != null && controls.isFocus())
 				return controls.getSelectedScan();
-			}
 
 			final IEditorPart ed = page.getActiveEditor();
-			if (ed != null) {
-				if (ed instanceof ExperimentRunEditor) {
+			if (ed != null)
+				if (ed instanceof ExperimentRunEditor)
 					ret = ((ExperimentRunEditor) ed).getSelectedRun();
-				}
-			}
 		}
-
 		final Object ob = getSelected();
-		if (ob instanceof IExperimentObject) {
+		if (ob instanceof IExperimentObject)
 			ret = (IExperimentObject) ob;
-		}
-
 		return ret;
-
 	}
 
 	@Override
-	public Object getValueFromUIOrBean(final String fieldName, final Class<? extends IRichBean>... classes)
-			throws Exception {
-
+	public Object getValueFromUIOrBean(final String fieldName, final Class<? extends IRichBean>... classes) throws Exception {
 		IFieldWidget uiBox = BeanUI.getBeanField(fieldName, classes);
-		if (uiBox != null) {
+		if (uiBox != null)
 			return uiBox.getValue();
-		}
 
-		final IExperimentObject ob = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
-		final List<IRichBean> params = ob.getParameters();
-		for (Object object : params) {
-			for (int i = 0; i < classes.length; i++) {
-				if (classes[i].isInstance(object)) {
+		IExperimentObject ob = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
+		List<IRichBean> params = ob.getParameters();
+		for (Object object : params)
+			for (int i = 0; i < classes.length; i++)
+				if (classes[i].isInstance(object))
 					return BeansFactory.getBeanValue(object, fieldName);
-				}
-			}
-		}
 
 		return null;
 	}
@@ -522,9 +507,8 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	@Override
 	public ExperimentExperimentView getViewer() {
 		final IWorkbenchPage page = getActivePage();
-		if (page == null) {
+		if (page == null)
 			return null;
-		}
 		return (ExperimentExperimentView) page.findView(ExperimentExperimentView.ID);
 	}
 
@@ -543,9 +527,8 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		IEditorReference newpartRef = null;
 		for (IEditorReference ref : references) {
 			try {
-				if (ref.getEditorInput() == part.getEditorInput()) {
+				if (ref.getEditorInput() == part.getEditorInput())
 					newpartRef = ref;
-				}
 			} catch (PartInitException e) {
 				// ignore this, we just want to hide the editors. Should never
 				// get this by this point.
@@ -553,15 +536,13 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 			page.hideEditor(ref);
 		}
 
-		if (newpartRef != null) {
+		if (newpartRef != null)
 			page.showEditor(newpartRef);
-		}
 
 		for (IEditorReference ref : references) {
 			try {
-				if (ref.getEditorInput() != part.getEditorInput()) {
+				if (ref.getEditorInput() != part.getEditorInput())
 					page.showEditor(ref);
-				}
 			} catch (PartInitException e) {
 				// ignore this as we want to show all the editors again
 			}
@@ -582,9 +563,8 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	protected void notifyNameChange(String oldName, IResource newFile) throws CoreException {
 		final IWorkbenchPage page = getActivePage();
-		if (page == null) {
+		if (page == null)
 			return;
-		}
 
 		final IEditorReference[] refs = page.getEditorReferences();
 
@@ -607,9 +587,8 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 				final IEditorInput cur = ref.getEditorInput();
 				if (equals(orig, cur)) {
 					IEditorPart part = ref.getEditor(false);
-					if (part == null) {
+					if (part == null)
 						continue;
-					}
 					// If setInput public then call it
 					try {
 						final Method setInput = part.getClass().getMethod("setInput", IEditorInput.class);
@@ -617,7 +596,6 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 					} catch (Exception e) {
 						logger.error("Editor without public setInput method detected " + part, e);
 					}
-
 				}
 			} catch (PartInitException e) {
 				logger.error(e.getMessage(), e);
@@ -627,17 +605,13 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@Override
 	public void notifySelectionListeners() {
-		if (!isOn()) {
+		if (!isOn())
 			return;
-		}
-		if (listeners == null) {
+		if (listeners == null)
 			return;
-		}
 		final StructuredSelection evt = new StructuredSelection(getSelected());
-		for (ISelectionListener l : listeners) {
+		for (ISelectionListener l : listeners)
 			l.selectionChanged(getViewer(), evt);
-		}
-
 	}
 
 	/**
@@ -663,23 +637,17 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	 */
 	@Override
 	public boolean openDefaultEditors(final IExperimentObject ob, boolean checkCurrentPerspective) {
-
-		if (ClientManager.isTestingMode()) {
+		if (ClientManager.isTestingMode())
 			return true; // We do not open other editors.
-		}
-		if (ob == null) {
+		if (ob == null)
 			return false;
-		}
-		if (checkCurrentPerspective && !EclipseUtils.isActivePerspective(ExperimentPerspective.ID)) {
+		if (checkCurrentPerspective && !EclipseUtils.isActivePerspective(ExperimentPerspective.ID))
 			return false;
-		}
-
 		try {
 			openRequiredEditors(ob);
 		} catch (Throwable ne) {
 			logger.error("Cannot open default editors", ne);
 		}
-
 		return true;
 	}
 
@@ -687,23 +655,20 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	 * Returns the files to open. This resolves when files are missing.
 	 */
 	private List<IFile> listFilesToOpen(final IExperimentObject ob) {
-
 		Map<String, IFile> mapOfTypesToFiles = ob.getFilesWithTypes();
-		Collection<IExperimentBeanDescription> allBeanDescriptions = ExperimentBeanManager.INSTANCE
-				.getBeanDescriptions();
+		Collection<IExperimentBeanDescription> allBeanDescriptions = ExperimentBeanManager.INSTANCE.getBeanDescriptions();
 
 		// reorder Map based on order in allBeanDescriptions as this is the same order registered in the Extension Point
 		// which should be the order to be shown in the UI
 		mapOfTypesToFiles = orderMapOfTypes(ob, mapOfTypesToFiles, allBeanDescriptions);
 
 		// start list of files to open and list of missing file types
-		final List<IFile> filteredEditorList = new ArrayList<IFile>();
+		List<IFile> filteredEditorList = new ArrayList<IFile>();
 		for (String fileType : mapOfTypesToFiles.keySet()) {
 			IFile file = mapOfTypesToFiles.get(fileType);
-			if (file != null && file.exists()) {
+			if (file != null && file.exists())
 				filteredEditorList.add(file);
-			} else {
-
+			else {
 				// now match missing file types to descriptions
 				Vector<IExperimentBeanDescription> beansOfType = new Vector<IExperimentBeanDescription>();
 				Vector<IExperimentBeanDescription> beanType = new Vector<IExperimentBeanDescription>();
@@ -716,12 +681,9 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 						}
 					}
 				}
-
 				// if a problem then take any type.
-				if (beanType.size() == 0) {
+				if (beanType.size() == 0)
 					beanType.set(0, beansOfType.get(0));
-				}
-
 				IFile selection;
 				if (file == null) {
 					XMLFileDialog xmlFileDialog = new XMLFileDialog(PlatformUI.getWorkbench()
@@ -740,9 +702,8 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 				if (selection != null) {
 					String name = selection.getName();
 					ob.setFileName(beanType.get(0).getBeanType(), name);
-					if (!"None".equalsIgnoreCase(name)) {
+					if (!"None".equalsIgnoreCase(name))
 						filteredEditorList.add(selection);
-					}
 					try {
 						IExperimentObjectManager man = ExperimentFactory.getManager(ob.getFolder(),ob.getMultiScanName());
 						man.write();
@@ -752,7 +713,6 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 				}
 			}
 		}
-
 		return filteredEditorList;
 	}
 
@@ -769,15 +729,9 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		HashMap<String, IFile> orderedMap = new HashMap<String, IFile>();
 
 		for (String type : typesInOrder) {
-
-			// Vector<String> typesDone = new Vector<String>();
 			for (IExperimentBeanDescription desc : allBeanDescriptions) {
-				// if (!typesDone.contains(desc.getBeanType())) {
-				// for (String type : mapOfTypesToFiles.keySet()) {
-				if (type.equalsIgnoreCase(desc.getBeanType())) {
+				if (type.equalsIgnoreCase(desc.getBeanType())) 
 					orderedMap.put(type, mapOfTypesToFiles.get(type));
-				}
-				// }
 			}
 		}
 		return orderedMap;
@@ -790,27 +744,23 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		} catch (Exception e) {
 			anyEditors = false;
 		}
-
 		List<IFile> filesToOpen = listFilesToOpen(ob);
 		IEditorPart[] editors = new IEditorPart[filesToOpen.size()];
-
 		if (anyEditors) {
-
 			// open each editor required and put it all thw
 			for (int i = editors.length - 1; i >= 0; i--) {
 				if (isEditor(filesToOpen.get(i))) {
 					editors[i] = getEditor(filesToOpen.get(i));
 					moveEditorToTheLeftEnd(getActivePage(), editors[i]);
-				} else {
-					editors[i] = openEditorAndMoveToTheLeft(filesToOpen.get(i), false);
 				}
+				else
+					editors[i] = openEditorAndMoveToTheLeft(filesToOpen.get(i), false);
 			}
 
-		} else {
-			for (int i = editors.length - 1; i >= 0; i--) {
+		} 
+		else
+			for (int i = editors.length - 1; i >= 0; i--)
 				editors[i] = openEditorAndMoveToTheLeft(filesToOpen.get(i), false);
-			}
-		}
 
 		if (editors.length > 0) {
 			closeUnwantedEditors(editors);
@@ -822,19 +772,13 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	private void closeUnwantedEditors(IEditorPart[] ourEditors) {
 		IEditorReference[] openEdRefs = getActivePage().getEditorReferences();
 		IEditorInput[] ourEdParts = new IEditorInput[ourEditors.length];
-
-		for (int i = 0; i < ourEditors.length; i++) {
+		for (int i = 0; i < ourEditors.length; i++)
 			ourEdParts[i] = ourEditors[i].getEditorInput();
-		}
-
 		IEditorReference[] edRefsToClose = new IEditorReference[0];
-
 		for (IEditorReference edRef : openEdRefs) {
 			try {
-				if (!ArrayUtils.contains(ourEdParts, edRef.getEditorInput())) {
-
+				if (!ArrayUtils.contains(ourEdParts, edRef.getEditorInput()))
 					edRefsToClose = (IEditorReference[]) ArrayUtils.add(edRefsToClose, edRef);
-				}
 			} catch (PartInitException e) {
 				logger.warn("Exception initialising " + edRef.getContentDescription(), e);
 			}
@@ -849,15 +793,11 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@Override
 	public IEditorPart openEditor(IFile file, boolean activate) {
-		if (file == null || !file.exists()) {
+		if (file == null || !file.exists())
 			return null;
-		}
-		if (getActivePage() == null) {
+		if (getActivePage() == null)
 			return null;
-		}
-
 		return openEditor(getActivePage(), file, activate);
-
 	}
 
 	@Override
@@ -867,21 +807,14 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	private IEditorPart openEditor(IEditorInput input, String id, boolean closeOtherEditors) {
 		IWorkbenchPage page = getActivePage();
-		if (page == null) {
+		if (page == null)
 			return null;
-		}
-
-		if (page.getActiveEditor() != null) {
-			if (page.getActiveEditor().getEditorSite().getId().equals(id)) {
-				if (page.getActiveEditor().getEditorInput().equals(input)) {
+		if (page.getActiveEditor() != null)
+			if (page.getActiveEditor().getEditorSite().getId().equals(id))
+				if (page.getActiveEditor().getEditorInput().equals(input))
 					return page.getActiveEditor();
-				}
-			}
-		}
-		if (closeOtherEditors) {
+		if (closeOtherEditors)
 			page.closeAllEditors(true);
-		}
-
 		try {
 			return page.openEditor(input, id);
 		} catch (Exception e) {
@@ -896,16 +829,10 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	}
 
 	protected IEditorPart openEditor(final IWorkbenchPage page, final IFile file, final boolean activate) {
-
-		if (file == null || !file.exists()) {
+		if (file == null || !file.exists() || page == null)
 			return null;
-		}
-		if (page == null) {
-			return null;
-		}
-
-		final IEditorInput input = new FileEditorInput(file);
-		final String id = XMLBeanContentDescriberFactory.getInstance().getId(file);
+		IEditorInput input = new FileEditorInput(file);
+		String id = XMLBeanContentDescriberFactory.getInstance().getId(file);
 		if (id != null && !"".equals(id)) {
 			try {
 				return page.openEditor(input, id, activate);
@@ -913,17 +840,13 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 				logger.error("Cannot open editor " + id, e);
 			}
 		}
-
 		return null;
 	}
 
 	private IEditorPart openEditorAndMoveToTheLeft(IFile iFile, boolean activate) {
 		IEditorPart newpart = openEditor(iFile, activate);
-
-		if (newpart != null) {
+		if (newpart != null)
 			moveEditorToTheLeftEnd(getActivePage(), newpart);
-		}
-
 		return newpart;
 	}
 
@@ -934,33 +857,25 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@Override
 	public void refreshViewers() {
-		if (getViewer() == null) {
+		if (getViewer() == null)
 			return;
-		}
 		getViewer().refreshTree();
 	}
 
 	@Override
 	public void removeSelectionListener(ISelectionListener selectionListener) {
-		if (listeners == null) {
+		if (listeners == null)
 			listeners = new ArrayList<ISelectionListener>(7);
-		}
 		listeners.remove(selectionListener);
-
 	}
 
 	private void restoreSelected() {
-
 		final Properties prefs = getPreferences();
-		if (!prefs.containsKey("path")) {
+		if (!prefs.containsKey("path"))
 			return;
-		}
-
 		final IFile file = currentProject.getFile(new Path(prefs.getProperty("path")));
-		if (!file.exists()) {
+		if (!file.exists())
 			return;
-		}
-
 		IExperimentObjectManager man = null;
 		try {
 			man = ExperimentFactory.getManager(file);
@@ -971,15 +886,13 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		final int index = Integer.parseInt(prefs.getProperty("index"));
 		if (index > -1 && man != null && index < man.getExperimentList().size()) {
 			selected = man.getExperimentList().get(index);
-			if (selected == null) {
+			if (selected == null)
 				selected = man.getExperimentList().get(0);
-			}
-		} else if (man != null) {
+		} 
+		else if (man != null)
 			selected = man;
-		} else {
+		else
 			selected = file;
-		}
-
 	}
 
 	private void saveProperties(final Properties prefs) {
@@ -999,30 +912,23 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	}
 
 	private void saveSelectedPath(final Object selected) {
-
-		if (selected == null) {
+		if (selected == null)
 			return;
-		}
-
 		IFile selPath = null;
 		int scanIndex = -1;
-		if (selected instanceof IFile) {
+		if (selected instanceof IFile)
 			selPath = (IFile) selected;
-		} else if (selected instanceof IExperimentObjectManager) {
+		else if (selected instanceof IExperimentObjectManager)
 			selPath = ((IExperimentObjectManager) selected).getFile();
-
-		} else if (selected instanceof IExperimentObject) {
+		else if (selected instanceof IExperimentObject) {
 			final IExperimentObject ob = (IExperimentObject) selected;
 			final IExperimentObjectManager man = ExperimentFactory.getManager(ob);
 			selPath = man.getFile();
 			scanIndex = man.getExperimentList().indexOf(ob);
 		}
-
-		if (selPath == null) {
+		if (selPath == null)
 			return;
-		}
-
-		final Properties prefs = getPreferences();
+		Properties prefs = getPreferences();
 		prefs.setProperty("path", selPath.getProjectRelativePath().toString());
 		prefs.setProperty("index", String.valueOf(scanIndex));
 		saveProperties(prefs);
@@ -1030,19 +936,16 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@Override
 	public void select(Object element) {
-		if (element == null) {
+		if (element == null)
 			return;
-		}
-		if (getViewer() == null) {
+		if (getViewer() == null)
 			return;
-		}
 		try {
 			off();
 			getViewer().setSelected(element); // Fires listeners
 		} finally {
 			on();
 		}
-
 	}
 
 	@Override

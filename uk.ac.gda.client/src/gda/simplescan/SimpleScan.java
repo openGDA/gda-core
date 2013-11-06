@@ -26,10 +26,8 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 
 public class SimpleScan implements Serializable{
-
 	static public final URL mappingURL = SimpleScan.class.getResource("simpleScanMapping.xml");
 	static public final URL schemaURL = SimpleScan.class.getResource("simpleScanSchema.xsd");
-	
 	private String scannableName;
 	private Double fromPos;
 	private Double toPos;
@@ -45,7 +43,6 @@ public class SimpleScan implements Serializable{
 		toPos=0.0;
 		stepSize=0.0;
 		acqTime=0.0;
-		
 	}
 	
 	@Override
@@ -91,19 +88,17 @@ public class SimpleScan implements Serializable{
 		else if (!acqTime.equals(other.acqTime))
 			return false;
 		if (scannables == null) {
-			if (other.scannables != null) {
+			if (other.scannables != null)
 				return false;
-			}
-		} else if (!scannables.equals(other.scannables)) {
-			return false;
 		}
+		else if (!scannables.equals(other.scannables))
+			return false;
 		if (detectors == null) {
-			if (other.detectors != null) {
+			if (other.detectors != null)
 				return false;
-			}
-		} else if (!detectors.equals(other.detectors)) {
+		} 
+		else if (!detectors.equals(other.detectors))
 			return false;
-		}
 		return true;
 	}
 
@@ -178,12 +173,9 @@ public class SimpleScan implements Serializable{
 	}
 	
 	public void removeScannable(int[] index) {
-		for(int i=0;i<index.length;i++){
-			if(index.length>1){
-			}
-			else
+		for(int i=0;i<index.length;i++)
+			if(index.length<=1)
 				scannables.remove(index[i]);
-		}
 	}
 	public List<DetectorManagerBean> getDetectors() {
 		return detectors;
@@ -198,11 +190,9 @@ public class SimpleScan implements Serializable{
 	}
 	
 	public void removeDetector(int[] index) {
-		for(int i=0;i<index.length;i++){
-			if(index.length>1){
-			}
-			else
+		for(int i=0;i<index.length;i++)
+			if(index.length<=1)
 				detectors.remove(index[i]);
-		}
+		
 	}
 }

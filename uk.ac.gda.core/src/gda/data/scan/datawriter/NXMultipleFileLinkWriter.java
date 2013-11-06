@@ -29,12 +29,11 @@ import org.slf4j.LoggerFactory;
 public class NXMultipleFileLinkWriter extends DataWriterExtenderBase{
 	private static final Logger logger = LoggerFactory.getLogger(NXMultipleFileLinkWriter.class);
 
-	Vector<String> externalfilenames;
-	String filename;
+	private Vector<String> externalfilenames;
+	private String filename;
 	private NXLinkCreator linkCreator;
 
 	private Vector<String> detectorHeader;
-	
 	
 	public NXMultipleFileLinkWriter(NXLinkCreator linkCreator) {
 		super();
@@ -46,11 +45,9 @@ public class NXMultipleFileLinkWriter extends DataWriterExtenderBase{
 		filename=new File(dataPoint.getCurrentFilename()).getAbsolutePath();
 		Vector<Object> data = dataPoint.getDetectorData();
 		detectorHeader = dataPoint.getDetectorHeader();
-		for (Object name : data) {
-			if (name instanceof String) {
+		for (Object name : data)
+			if (name instanceof String)
 				externalfilenames.add(name.toString());
-			}
-		}
 	}
 
 	@Override
@@ -68,8 +65,6 @@ public class NXMultipleFileLinkWriter extends DataWriterExtenderBase{
 		} catch (Throwable e) {
 			logger.error("Error making links in " + filename, e);
 		}
-
 	}
 
-};
-
+}

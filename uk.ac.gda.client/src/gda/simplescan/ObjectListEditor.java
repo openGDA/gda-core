@@ -10,28 +10,25 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
 
 public class ObjectListEditor extends FieldBeanComposite {
-
 	protected TableViewer viewer;
 	private String title;
 	
 	public ObjectListEditor(Composite parent, int style, String title) {
 		super(parent, style);
 		this.title = title;
-		final GridLayout gridLayout = new GridLayout();
+		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		setLayout(gridLayout);
 		viewer = new TableViewer(this, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		createColumns();
-		final Table table = viewer.getTable();
+		Table table = viewer.getTable();
 		if(title.equals(""))
 			table.setHeaderVisible(false);
 		else
@@ -43,8 +40,8 @@ public class ObjectListEditor extends FieldBeanComposite {
 	}
 
 	private TableViewerColumn createTableViewerColumn(String title, int bound) {
-		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
-		final TableColumn column = viewerColumn.getColumn();
+		TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
+		TableColumn column = viewerColumn.getColumn();
 		column.setText(title);
 		column.setWidth(bound);
 		column.setResizable(true);
@@ -70,4 +67,5 @@ public class ObjectListEditor extends FieldBeanComposite {
 	public int[] getSelected() {
 		return viewer.getTable().getSelectionIndices();
 	}
+	
 }
