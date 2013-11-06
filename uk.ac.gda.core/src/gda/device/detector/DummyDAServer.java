@@ -46,10 +46,10 @@ import uk.ac.gda.util.io.FileUtils;
  */
 public class DummyDAServer extends DAServer {
 	private static Logger logger = LoggerFactory.getLogger(DummyDAServer.class);
-	private static int key = 0;
-	private HashMap<Integer, String> handles;
+	protected static int key = 0;
+	protected HashMap<Integer, String> handles;
 	private int count = 0;
-	private boolean fail = false;
+	protected boolean fail = false;
 	private boolean connected = true;
 	private int memorySize = 1024 * 512 * 512; // should be able to do 1kx1kx100 frames
 	private int runnum = 0;
