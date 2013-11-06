@@ -414,6 +414,11 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			logger.warn("Unrecognized file type - " + path);
 		}
 	}
+	
+	public void addData(String scanIdentifier, String fileName, String label, DoubleDataset xData, DoubleDataset yData,
+			boolean visible, boolean reload, AxisSpec yAxisName) {
+		xyPlot.addData(scanIdentifier, fileName, label, xData, yData, visible, reload, yAxisName);
+	}
 
 	/**
 	 * Call this method to open a new view with a unique id
