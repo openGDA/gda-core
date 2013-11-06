@@ -71,23 +71,6 @@ public class LocalPropertiesTest extends TestCase {
 		testProperty = LocalProperties.get("gda.objectDelimiter");
 		assertTrue("Should contain gda.objectDelimiter", testProperty != null);
 
-		testProperty = LocalProperties.get("gda.ORBClass");
-		assertTrue("Should contain gda.ORBClass", testProperty != null);
-
-		testProperty = LocalProperties.get("gda.ORBSingletonClass");
-		assertTrue("Should contain gda.ORBSingletonClass", testProperty != null);
-
-		// testProperty = LocalProperties.get("gda.ORBInitialPort");
-		// assertTrue("Should contain gda.ORBInitialPort", testProperty !=
-		// null);
-
-		// testProperty = LocalProperties.get("gda.ORBInitialHost");
-		// assertTrue("Should contain gda.ORBInitialHost", testProperty !=
-		// null);
-
-		testProperty = LocalProperties.get("gda.eventChannelName");
-		assertTrue("Should contain gda.eventChannelName", testProperty != null);
-
 		testProperty = LocalProperties.get("gda.gui.xml");
 		assertTrue("Should contain gda.gui.xml", testProperty != null);
 
