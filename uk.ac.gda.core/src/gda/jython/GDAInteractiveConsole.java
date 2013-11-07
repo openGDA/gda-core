@@ -76,13 +76,11 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 	@Override
 	public void showexception(PyException arg0) {
 		if (arg0 instanceof PySyntaxError) {
-			System.err.println("*** Handling PySyntaxError");
 			if( logger.isTraceEnabled() )
 				super.showexception(arg0);
 			InterfaceProvider.getTerminalPrinter().print(arg0.toString());
 		} else {
 			if (arg0.type instanceof PyJavaType) {
-				System.err.printf("*** Handling PyException with type == PyJavaType - value is |%s|%n", arg0.value);
 				// in this case the jython code is just way too verbose for users
 				// we cut it down to the jython stack trace and the exception message (and class)
 				InterfaceProvider.getTerminalPrinter().print(arg0.traceback.dumpStack());
@@ -90,7 +88,6 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 				Throwable throwable = (Throwable) value.__tojava__(Throwable.class);
 				InterfaceProvider.getTerminalPrinter().print(throwable.getClass().getName()+": "+throwable.getMessage());
 			} else {
-				System.err.printf("*** Handling PyException with type == %s - value is |%s|%n", arg0.type, arg0.value);
 				super.showexception(arg0);
 			}
 		}

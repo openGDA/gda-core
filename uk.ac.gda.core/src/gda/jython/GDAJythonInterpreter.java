@@ -152,6 +152,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		gdaCustomProperties.setProperty("python.cachedir", cacheDir.getAbsolutePath());
 		String jythonRoot = LocalProperties.getParentGitDir() + "diamond-jython.git/uk.ac.diamond.jython/jython2.5/";
 
+		if( !(new File(jythonRoot)).exists())
+			throw new RuntimeException("Jython root not found  :" + jythonRoot);
+		
 		// something sets path to jython lib already!
 		// gdaCustomProperties.setProperty("python.path", jythonRoot + "Lib");
 		gdaCustomProperties.setProperty("python.home", jythonRoot);
@@ -290,7 +293,115 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				
 				this.interp.set("command_server", output);
 				this.interp.runsource("import gda.jython");
+
+				// site import
+				this.interp.runsource("import site");
+		
+				// standard imports
+				this.interp.runsource("import java");
+				this.interp.runsource("from java.lang import Thread");
+				this.interp.runsource("from java.lang import Runnable");
+				this.interp.runsource("from java.lang import InterruptedException");
+
+				// gda imports
+				this.interp.runsource("from gda.scan import *");
+				this.interp.runsource("from gda.device import *");
+				this.interp.runsource("from gda.jython import JythonServer");
+				this.interp.runsource("from gda.jython import ScriptBase");
+				this.interp.runsource("from gda.device.monitor import BeamMonitor");
+
+				this.interp.runsource("from gda.factory import Finder");
+				this.interp.runsource("from gda.device.detector import DetectorBase");
+				this.interp.runsource("from gda.device import Scannable");
+				this.interp.runsource("from gda.device.scannable.scannablegroup import IScannableGroup");
+				this.interp.runsource("finder = Finder.getInstance();");
+				this.interp.runsource("from gda.device.scannable import ScannableBase");
+				this.interp.runsource("from gda.device.scannable import DummyScannable");
+				this.interp.runsource("from gda.device.scannable import ContinuouslyScannable");
+				this.interp.runsource("from gda.device.scannable import SimulatedContinuouslyScannable");
+				this.interp.runsource("from gda.device.scannable import PseudoDevice");
+				this.interp.runsource("from gda.jython.commands import ScannableCommands");
+				this.interp.runsource("from gda.jython.commands.ScannableCommands import *");
+				this.interp.runsource("from gda.jython.commands import GeneralCommands");
+				this.interp.runsource("from gda.jython.commands.GeneralCommands import *");
+				this.interp.runsource("from gda.jython.commands import InputCommands");
+				this.interp.runsource("from gda.jython.commands.InputCommands import *");
+
+				// oe plugin commands
+				try {
+					Class.forName("gda.oe.OE");
+					this.interp.runsource("from gda.device.scannable import OEAdapter");
+					this.interp.runsource("from gda.device.scannable import DOFAdapter");
+					this.interp.runsource("from gda.oe import OE");
+					this.interp.runsource("from gda.oe.dofs import DOF");
+					this.interp.runsource("from gda.oe import OE");
+				} catch (Exception e1) {
+					// ignore
+				}
+
+				// persistence
+				this.interp.runsource("from gda.util.persistence import LocalParameters");
+				this.interp.runsource("from gda.util.persistence import LocalObjectShelfManager");
+
+				// plotting
+				this.interp.runsource("from gda.analysis import *");
 				
+				//the following import fails on b18. don't know why
+				//this.interp.runsource("from gda.analysis.utils import *");
+				// not there in 8.2 this.interp.runsource("from gda.analysis.functions import *");
+
+				// import other interfaces to use with list command
+				this.interp.runsource("from gda.device import ScannableMotion");
+				this.interp.runsource("import gda.device.scannable.ScannableUtils");
+				this.interp.runsource("from gda.util.converters import IReloadableQuantitiesConverter");
+				// Channel access commands
+
+				this.interp.runsource("from PySrc._completer import Completer");
+				this.interp.runsource("completer = Completer(locals(), globals())");
+				// inform translator what the built-in commands are by
+				// aliasing them -- i.e. reserved words
+				this.runcode("alias ls");
+				this.runcode("alias ls_names");
+				this.runcode("vararg_alias pos");
+				this.runcode("vararg_alias upos");
+				this.runcode("vararg_alias inc");
+				this.runcode("vararg_alias uinc");
+				this.runcode("alias help");
+				this.runcode("alias list_defaults");
+				this.runcode("vararg_alias add_default");
+				this.runcode("vararg_alias remove_default");
+				this.runcode("vararg_alias level");
+				this.runcode("alias pause");
+				this.runcode("alias reset_namespace");
+				this.runcode("alias run");
+				this.runcode("vararg_alias scan");
+				this.runcode("vararg_alias pscan");
+				this.runcode("vararg_alias cscan");
+				this.runcode("vararg_alias zacscan");
+				this.runcode("vararg_alias testscan");
+				this.runcode("vararg_alias gscan");
+				this.runcode("vararg_alias tscan");
+				this.runcode("vararg_alias timescan");
+				this.runcode("vararg_alias staticscan");
+				this.runcode("alias lastScanDataPoint");
+
+				// define a function that can check a java object for a field or method called
+				// __doc__ and print it out
+				this.runcode("def _gdahelp(obj=None):\n" + "    if obj is None:\n"
+						+ "        GeneralCommands.gdahelp()\n" + "        return\n"
+						+ "    if hasattr(obj, '__class__'):\n"
+						+ "        if issubclass(obj.__class__, java.lang.Object):\n" + "            helptext = None\n"
+						+ "            if hasattr(obj, '__doc__'):\n" + "                helptext = obj.__doc__\n"
+						+ "                if not isinstance(helptext, str):\n"
+						+ "                    if hasattr(helptext, '__call__'):\n"
+						+ "                        helptext = helptext()\n" + "                    else:\n"
+						+ "                        helptext = None\n" + "            if helptext is not None:\n"
+						+ "                print helptext\n" + "                return\n" + "    import pydoc\n"
+						+ "    pydoc.help(obj)\n" + "    print\n");
+
+				populateNamespace();
+				runStationStartupScript();
+
 			} catch (Exception ex) {
 				String message = "GDAJythonInterpreter: error while initialising " + ex.getMessage();
 				logger.error(message, ex);
