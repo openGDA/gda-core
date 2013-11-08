@@ -246,7 +246,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		}
 	}
 
-	public double getMonitorAvaerage() throws TimeoutException, CAException, InterruptedException {
+	public double getMonitorAvaerage() throws TimeoutException, CAException {
 		return controller.cagetDouble(mav);
 	}
 
@@ -256,9 +256,8 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @return total time in seconds
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
 	 */
-	public double getTime() throws TimeoutException, CAException, InterruptedException {
+	public double getTime() throws TimeoutException, CAException {
 		return controller.cagetDouble(timechannel);
 	}
 
@@ -269,7 +268,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 *            in seconds
 	 * @throws CAException
 	 */
-	public void setTime(double time) throws CAException, InterruptedException {
+	public void setTime(double time) throws CAException {
 		controller.caput(timechannel, time);
 	}
 
@@ -296,23 +295,19 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @throws DeviceException
 	 */
 	public void setProfile(String profile) throws DeviceException {
-		try{
-			if (profiles.contains(profile)) {
-				int target = profiles.indexOf(profile);
+		if (profiles.contains(profile)) {
+			int target = profiles.indexOf(profile);
+			try {
 				controller.caput(profilechannel, target);
-			} else {
-				throw new DeviceException("Profile called " + profile + " is not found.");
+			} catch (CAException e) {
+				throw new DeviceException(profilechannel.getName() + " failed to move to " + profile, e);
 			}
-		} catch (Exception e) {
-			if( e instanceof RuntimeException)
-				throw (RuntimeException)e;
-			if( e instanceof DeviceException)
-				throw (DeviceException)e;
-			throw new DeviceException(getName() + " exception in setProfile",e);
+		} else {
+			throw new DeviceException("Profile called " + profile + " is not found.");
 		}
 	}
 
-	public boolean isKeepSeparate() throws TimeoutException, CAException, InterruptedException {
+	public boolean isKeepSeparate() throws TimeoutException, CAException {
 		String isKeepSeparate = controller.cagetLabels(keepseparate)[0];
 		if (isKeepSeparate.equalsIgnoreCase("Yes")) {
 			return true;
@@ -320,7 +315,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return false;
 	}
 
-	public void setKeepSeparate(boolean b) throws CAException, InterruptedException {
+	public void setKeepSeparate(boolean b) throws CAException {
 		if (b) {
 			controller.caput(keepseparate, 1);
 		} else {
@@ -335,7 +330,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @throws TimeoutException
 	 * @throws CAException
 	 */
-	public double get2ndMotorStartPosition() throws TimeoutException, CAException, InterruptedException {
+	public double get2ndMotorStartPosition() throws TimeoutException, CAException {
 		return controller.cagetDouble(mstart);
 	}
 
@@ -345,7 +340,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @param position
 	 * @throws CAException
 	 */
-	public void set2ndMotorStartPosition(double position) throws CAException, InterruptedException {
+	public void set2ndMotorStartPosition(double position) throws CAException {
 		controller.caput(mstart, position);
 	}
 
@@ -356,7 +351,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @throws TimeoutException
 	 * @throws CAException
 	 */
-	public double get2ndMotorScanRange() throws TimeoutException, CAException, InterruptedException {
+	public double get2ndMotorScanRange() throws TimeoutException, CAException {
 		return controller.cagetDouble(mrange);
 	}
 
@@ -366,7 +361,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @param position
 	 * @throws CAException
 	 */
-	public void set2ndMotorScanRange(double position) throws CAException, InterruptedException {
+	public void set2ndMotorScanRange(double position) throws CAException {
 		controller.caput(mrange, position);
 	}
 
@@ -377,7 +372,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * 
 	 * @throws CAException
 	 */
-	public void start() throws CAException, InterruptedException {
+	public void start() throws CAException {
 		if (currentstate == CurrentState.Done || currentstate == CurrentState.Aborted
 				|| currentstate == CurrentState.Paused || currentstate == CurrentState.Fault) {
 			busy = true;
@@ -395,9 +390,8 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * pauses current constant velocity scan.
 	 * 
 	 * @throws CAException
-	 * @throws InterruptedException 
 	 */
-	public void pause() throws CAException, InterruptedException {
+	public void pause() throws CAException {
 		controller.caput(pause, 1, pausecallbacklistener);
 		logger.info("{}: Pause CV scan", getName());
 	}
@@ -407,7 +401,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * 
 	 * @throws CAException
 	 */
-	public void abort() throws CAException, InterruptedException {
+	public void abort() throws CAException {
 		controller.caput(abort, 1, abortcallbacklistener);
 		logger.info("{}: Abort CV scan", getName());
 	}
@@ -419,7 +413,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @throws TimeoutException
 	 * @throws CAException
 	 */
-	public CurrentState getCurrentState() throws TimeoutException, CAException, InterruptedException {
+	public CurrentState getCurrentState() throws TimeoutException, CAException {
 		short value = controller.cagetEnum(currentstatechannel);
 		if (value == 0) {
 			currentstate = CurrentState.Done;
@@ -452,7 +446,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @throws TimeoutException
 	 * @throws CAException
 	 */
-	public String getStatusMessage() throws TimeoutException, CAException, InterruptedException {
+	public String getStatusMessage() throws TimeoutException, CAException {
 		return message = controller.cagetString(statusmessagechannel);
 	}
 
@@ -463,7 +457,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @throws TimeoutException
 	 * @throws CAException
 	 */
-	public int getNumberOfPulsesDone() throws TimeoutException, CAException, InterruptedException {
+	public int getNumberOfPulsesDone() throws TimeoutException, CAException {
 		return numberofpulsedone = controller.cagetInt(pulsesnumberdonechannel);
 	}
 
@@ -474,7 +468,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @throws TimeoutException
 	 * @throws CAException
 	 */
-	public int getTotalNumberPulses() throws TimeoutException, CAException, InterruptedException {
+	public int getTotalNumberPulses() throws TimeoutException, CAException {
 		return totalnumberofpulse = controller.cagetInt(puslestotalnumberchannel);
 	}
 
@@ -486,7 +480,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * @throws TimeoutException
 	 * @throws CAException
 	 */
-	public double[] getRaw2ThetaPositions() throws TimeoutException, CAException, InterruptedException {
+	public double[] getRaw2ThetaPositions() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(rawx);
 	}
 
@@ -494,7 +488,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return rawx.getElementCount();
 	}
 
-	public double[] getRebinned2ThetaPositions() throws TimeoutException, CAException, InterruptedException {
+	public double[] getRebinned2ThetaPositions() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(allx);
 	}
 
@@ -502,7 +496,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return allx.getElementCount();
 	}
 
-	public double[] getRebinnedCounts() throws TimeoutException, CAException, InterruptedException {
+	public double[] getRebinnedCounts() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(ally);
 	}
 
@@ -510,7 +504,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return ally.getElementCount();
 	}
 
-	public double[] getRebinnedCountErrors() throws TimeoutException, CAException, InterruptedException {
+	public double[] getRebinnedCountErrors() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(allye);
 	}
 
@@ -518,7 +512,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return allye.getElementCount();
 	}
 
-	public double[] getMAC1X() throws TimeoutException, CAException, InterruptedException {
+	public double[] getMAC1X() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(mac1x);
 	}
 
@@ -526,7 +520,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return mac1x.getElementCount();
 	}
 
-	public double[] getMAC2X() throws TimeoutException, CAException, InterruptedException {
+	public double[] getMAC2X() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(mac2x);
 	}
 
@@ -534,7 +528,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return mac3x.getElementCount();
 	}
 
-	public double[] getMAC3X() throws TimeoutException, CAException, InterruptedException {
+	public double[] getMAC3X() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(mac3x);
 	}
 
@@ -542,7 +536,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return mac3x.getElementCount();
 	}
 
-	public double[] getMAC4X() throws TimeoutException, CAException, InterruptedException {
+	public double[] getMAC4X() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(mac4x);
 	}
 
@@ -550,7 +544,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return mac4x.getElementCount();
 	}
 
-	public double[] getMAC5X() throws TimeoutException, CAException, InterruptedException {
+	public double[] getMAC5X() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(mac5x);
 	}
 
@@ -558,7 +552,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return mac5x.getElementCount();
 	}
 
-	public double[] getMAC1Y() throws TimeoutException, CAException, InterruptedException {
+	public double[] getMAC1Y() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(mac1y);
 	}
 
@@ -566,7 +560,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return mac1y.getElementCount();
 	}
 
-	public double[] getMAC2Y() throws TimeoutException, CAException, InterruptedException {
+	public double[] getMAC2Y() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(mac2y);
 	}
 
@@ -574,7 +568,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return mac3y.getElementCount();
 	}
 
-	public double[] getMAC3Y() throws TimeoutException, CAException, InterruptedException {
+	public double[] getMAC3Y() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(mac3y);
 	}
 
@@ -582,7 +576,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return mac3y.getElementCount();
 	}
 
-	public double[] getMAC4Y() throws TimeoutException, CAException, InterruptedException {
+	public double[] getMAC4Y() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(mac4y);
 	}
 
@@ -590,13 +584,53 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		return mac4y.getElementCount();
 	}
 
-	public double[] getMAC5Y() throws TimeoutException, CAException, InterruptedException {
+	public double[] getMAC5Y() throws TimeoutException, CAException {
 		return controller.cagetDoubleArray(mac5y);
 	}
 
 	public int getMAC5YSize() {
 		return mac5y.getElementCount();
 	}
+
+	// public double[] getMAC1M() throws TimeoutException, CAException {
+	// return controller.cagetDoubleArray(mac1m);
+	// }
+	//
+	// public int getMAC1MSize() {
+	// return mac1m.getElementCount();
+	// }
+	//
+	// public double[] getMAC2M() throws TimeoutException, CAException {
+	// return controller.cagetDoubleArray(mac2m);
+	// }
+	//
+	// public int getMAC2MSize() {
+	// return mac3m.getElementCount();
+	// }
+	//
+	// public double[] getMAC3M() throws TimeoutException, CAException {
+	// return controller.cagetDoubleArray(mac3m);
+	// }
+	//
+	// public int getMAC3MSize() {
+	// return mac3m.getElementCount();
+	// }
+	//
+	// public double[] getMAC4M() throws TimeoutException, CAException {
+	// return controller.cagetDoubleArray(mac4m);
+	// }
+	//
+	// public int getMAC4MSize() {
+	// return mac4m.getElementCount();
+	// }
+	//
+	// public double[] getMAC5M() throws TimeoutException, CAException {
+	// return controller.cagetDoubleArray(mac5m);
+	// }
+	//
+	// public int getMAC5MSize() {
+	// return mac5m.getElementCount();
+	// }
 
 	/**
 	 * return the latest status message that updated from EPICS
@@ -650,12 +684,20 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		this.plotPanelName = plotPanelName;
 	}
 
-	public String[] getProfiles() throws TimeoutException, CAException, InterruptedException {
-		return controller.cagetLabels(profilechannel);
+	public String[] getProfiles() {
+		String[] profileLabels = new String[profiles.size()];
+		try {
+			profileLabels = controller.cagetLabels(profilechannel);
+		} catch (TimeoutException e) {
+			logger.error("Timeout on initialising Profiles of " + getName(), e);
+		} catch (CAException e) {
+			logger.error("CAException on initialising Profiles of " + getName(), e);
+		}
+		return profileLabels;
 	}
 
 	@Override
-	public void initializationCompleted() throws TimeoutException, CAException, InterruptedException {
+	public void initializationCompleted() {
 		// initialse Profile choices
 		String[] profiles = getProfiles();
 		for (int i = 0; i < profiles.length; i++) {
@@ -664,8 +706,20 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 			}
 		}
 		// initialise state variables
-		this.currentstate = getCurrentState();
-		this.message = getStatusMessage();
+		try {
+			this.currentstate = getCurrentState();
+		} catch (TimeoutException e) {
+			logger.error("Timeout on initialising Current State of " + getName(), e);
+		} catch (CAException e) {
+			logger.error("CAException on initialising Current State of " + getName(), e);
+		}
+		try {
+			this.message = getStatusMessage();
+		} catch (TimeoutException e) {
+			logger.error("Timeout on initialising Status Message of " + getName(), e);
+		} catch (CAException e) {
+			logger.error("CAException on initialising Status Message of " + getName(), e);
+		}
 		logger.info("{} is initialised", this.getName());
 	}
 
@@ -781,33 +835,29 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 				return;
 			}
 			if (dbr.isINT()) {
-				try{
-					numberofpulsedone = ((DBR_Int) dbr).getIntValue()[0];
-					if (numberofpulsedone == 0) { // if current state=Fault, restart do not send Pulse processed = 0 event
-						// logger.info("get 2theta data");
-						x = get2Theta();
+				numberofpulsedone = ((DBR_Int) dbr).getIntValue()[0];
+				if (numberofpulsedone == 0) { // if current state=Fault, restart do not send Pulse processed = 0 event
+					// logger.info("get 2theta data");
+					x = get2Theta();
+					filePrefix = LocalProperties.get("gda.data.file.prefix", "");
+					fileSuffix = LocalProperties.get("gda.data.file.suffix", "-mac");
+					legend = filePrefix + getFileNumber() + fileSuffix + "-" + String.format("%03d", collectionNumber);
+					// logger.info("2theta size {}", x.length);
+				} else {
+					// logger.info("get counts data");
+					y = getCount();
+					// logger.info("Count size {}", y.length);
+				}
+				if (x != null && y != null) {
+					DoubleDataset yds = new DoubleDataset(y);
+					if (legend == null) {
 						filePrefix = LocalProperties.get("gda.data.file.prefix", "");
 						fileSuffix = LocalProperties.get("gda.data.file.suffix", "-mac");
-						legend = filePrefix + getFileNumber() + fileSuffix + "-" + String.format("%03d", collectionNumber);
-						// logger.info("2theta size {}", x.length);
-					} else {
-						// logger.info("get counts data");
-						y = getCount();
-						// logger.info("Count size {}", y.length);
+						legend = filePrefix + getFileNumber() + fileSuffix + "-"
+								+ String.format("%03d", collectionNumber);
 					}
-					if (x != null && y != null) {
-						DoubleDataset yds = new DoubleDataset(y);
-						if (legend == null) {
-							filePrefix = LocalProperties.get("gda.data.file.prefix", "");
-							fileSuffix = LocalProperties.get("gda.data.file.suffix", "-mac");
-							legend = filePrefix + getFileNumber() + fileSuffix + "-"
-									+ String.format("%03d", collectionNumber);
-						}
-						yds.setName(legend);
-						Plotter.plot(getPlotPanelName(), new DoubleDataset(x), yds);
-					}
-				} catch(Exception e){
-					logger.error(getName() + " exception in PulseDoneListener",e);
+					yds.setName(legend);
+					Plotter.plot(getPlotPanelName(), new DoubleDataset(x), yds);
 				}
 			} else {
 				logger.error("{} : PulseDoneListener expect Integer type but got {} type.", getName(), dbr.getType());
@@ -815,23 +865,133 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		}
 	}
 
-	private double[] get2Theta() throws TimeoutException, CAException, InterruptedException {
-		double[] x1 = getMAC1X();
-		double[] x2 = getMAC2X();
-		double[] x3 = getMAC3X();
-		double[] x4 = getMAC4X();
-		double[] x5 = getMAC5X();
+	private double[] get2Theta() {
+		double[] x1 = null;
+		try {
+			// logger.info("gets MAC1X");
+			x1 = getMAC1X();
+			// logger.info("gets MAC1X DONE");
+		} catch (TimeoutException e) {
+			logger.error("Timeout while gets MAC1X", e);
+			e.printStackTrace();
+		} catch (CAException e) {
+			logger.error("CAException while gets MAC1X", e);
+			e.printStackTrace();
+		}
+		double[] x2 = null;
+		try {
+			// logger.info("gets MAC2X");
+			x2 = getMAC2X();
+			// logger.info("gets MAC2X DONE");
+		} catch (TimeoutException e) {
+			logger.error("Timeout while gets MAC2X", e);
+			e.printStackTrace();
+		} catch (CAException e) {
+			logger.error("CAException while gets MAC2X", e);
+			e.printStackTrace();
+		}
+		double[] x3 = null;
+		try {
+			// logger.info("gets MAC3X");
+			x3 = getMAC3X();
+			// logger.info("gets MAC3X DONE");
+		} catch (TimeoutException e) {
+			logger.error("Timeout while gets MAC3X", e);
+			e.printStackTrace();
+		} catch (CAException e) {
+			logger.error("CAException while gets MAC3X", e);
+			e.printStackTrace();
+		}
+		double[] x4 = null;
+		try {
+			// logger.info("gets MAC4X");
+			x4 = getMAC4X();
+			// logger.info("gets MAC4X DONE");
+		} catch (TimeoutException e) {
+			logger.error("Timeout while gets MAC4X", e);
+			e.printStackTrace();
+		} catch (CAException e) {
+			logger.error("CAException while gets MAC4X", e);
+			e.printStackTrace();
+		}
+		double[] x5 = null;
+		try {
+			// logger.info("gets MAC5X");
+			x5 = getMAC5X();
+			// logger.info("gets MAC5X DONE");
+		} catch (TimeoutException e) {
+			logger.error("Timeout while gets MAC5X", e);
+			e.printStackTrace();
+		} catch (CAException e) {
+			logger.error("CAException while gets MAC5X", e);
+			e.printStackTrace();
+		}
 		return ArrayUtils.subarray(ArrayUtils.addAll(ArrayUtils.addAll(
 				ArrayUtils.addAll(ArrayUtils.addAll(x1, x2), x3), x4), x5), 16500, 305000);
 	}
 
 	// Y1,Y2,Y3,Y4,Y5 only temperarily available in EPICS so must be get first before processing them.
-	private double[] getCount() throws TimeoutException, CAException, InterruptedException {
-		double[] y1 = getMAC1Y();
-		double[] y2 = getMAC2Y();
-		double[] y3 = getMAC3Y();
-		double[] y4 = getMAC4Y();
-		double[] y5 = getMAC5Y();
+	private double[] getCount() {
+		double[] y1 = null;
+		try {
+			// logger.info("gets MAC1Y");
+			y1 = getMAC1Y();
+			// logger.info("gets MAC1Y DONE");
+		} catch (TimeoutException e) {
+			logger.error("Timeout while gets MAC1Y", e);
+			e.printStackTrace();
+		} catch (CAException e) {
+			logger.error("CAException while gets MAC1Y", e);
+			e.printStackTrace();
+		}
+		double[] y2 = null;
+		try {
+			// logger.info("gets MAC2Y");
+			y2 = getMAC2Y();
+			// logger.info("gets MAC2Y DONE");
+		} catch (TimeoutException e) {
+			logger.error("Timeout while gets MAC2Y", e);
+			e.printStackTrace();
+		} catch (CAException e) {
+			logger.error("CAException while gets MAC2Y", e);
+			e.printStackTrace();
+		}
+		double[] y3 = null;
+		try {
+			// logger.info("gets MAC3Y");
+			y3 = getMAC3Y();
+			// logger.info("gets MAC3Y DONE");
+		} catch (TimeoutException e) {
+			logger.error("Timeout while gets MAC3Y", e);
+			e.printStackTrace();
+		} catch (CAException e) {
+			logger.error("CAException while gets MAC3Y", e);
+			e.printStackTrace();
+		}
+		double[] y4 = null;
+		try {
+			// logger.info("gets MAC4Y");
+			y4 = getMAC4Y();
+			// logger.info("gets MAC4Y DONE");
+		} catch (TimeoutException e) {
+			logger.error("Timeout while gets MAC4Y", e);
+			e.printStackTrace();
+		} catch (CAException e) {
+			logger.error("CAException while gets MAC4Y", e);
+			e.printStackTrace();
+		}
+		double[] y5 = null;
+		try {
+			// logger.info("gets MAC5Y");
+			y5 = getMAC5Y();
+			// logger.info("gets MAC5Y DONE");
+		} catch (TimeoutException e) {
+			logger.error("Timeout while gets MAC5Y", e);
+			e.printStackTrace();
+		} catch (CAException e) {
+			logger.error("CAException while gets MAC5Y", e);
+			e.printStackTrace();
+		}
 		return ArrayUtils.subarray(ArrayUtils.addAll(ArrayUtils.addAll(
 				ArrayUtils.addAll(ArrayUtils.addAll(y1, y2), y3), y4), y5), 16500, 305000);
 	}
@@ -864,8 +1024,9 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 			DBR dbr = arg0.getDBR();
 			if (dbr.isENUM()) {
 				short profileindex = ((DBR_Enum) dbr).getEnumValue()[0];
-				profile = profiles.get(profileindex);
-				notifyIObservers(profile);
+				if (!profiles.isEmpty())
+					profile = profiles.get(profileindex);
+					notifyIObservers(profile);
 			} else {
 				logger.error("{} : ProfileListener expect Enum type but got {} type.", getName(), dbr.getType());
 			}
@@ -894,8 +1055,10 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 				if ((currentstate = getCurrentState()) == CurrentState.Done) {
 					busy = false;
 				}
-			} catch (Exception e) {
-				logger.error(getName() +"exception in StartCallbackListener ", e);
+			} catch (TimeoutException e) {
+				logger.error("Timeout on getting current state from " + currentstatechannel.getName(), e);
+			} catch (CAException e) {
+				logger.error("CAException on getting current state from " + currentstatechannel.getName(), e);
 			}
 
 		}
@@ -915,8 +1078,10 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 			try {
 				busy = true;
 				currentstate = getCurrentState();
-			} catch (Exception e) {
-				logger.error(getName() +" exception in PauseCallbackListener ", e);
+			} catch (TimeoutException e) {
+				logger.error("Timeout on getting current state from " + currentstatechannel.getName(), e);
+			} catch (CAException e) {
+				logger.error("CAException on getting current state from " + currentstatechannel.getName(), e);
 			}
 		}
 	}
@@ -934,8 +1099,10 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 			try {
 				busy = false;
 				currentstate = getCurrentState();
-			} catch (Exception e) {
-				logger.error(getName() +" exception in AbortCallbackListener ", e);
+			} catch (TimeoutException e) {
+				logger.error("Timeout on getting current state from " + currentstatechannel.getName(), e);
+			} catch (CAException e) {
+				logger.error("CAException on getting current state from " + currentstatechannel.getName(), e);
 			}
 		}
 
