@@ -349,13 +349,6 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				this.interp.runsource("from gda.util.persistence import LocalParameters");
 				this.interp.runsource("from gda.util.persistence import LocalObjectShelfManager");
 
-				// plotting
-				this.interp.runsource("from gda.analysis import *");
-				
-				//the following import fails on b18. don't know why
-				//this.interp.runsource("from gda.analysis.utils import *");
-				// not there in 8.2 this.interp.runsource("from gda.analysis.functions import *");
-
 				// import other interfaces to use with list command
 				this.interp.runsource("from gda.device import ScannableMotion");
 				this.interp.runsource("import gda.device.scannable.ScannableUtils");
