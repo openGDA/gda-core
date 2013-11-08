@@ -1,6 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council Daresbury Laboratory
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,20 +18,18 @@
 
 package gda.jython;
 
-import gda.observable.IObserver;
+import java.io.Serializable;
 
-/**
- * An interface for objects which register themselves with the JythonServerFacade and act like a terminal for that
- * object.
- */
-public interface Terminal extends IObserver {
-	/**
-	 * This method accepts information for the terminal to display to the user.
-	 * 
-	 * @param output
-	 */
-	public void write(byte[] output);
+public class TerminalOutput implements Serializable {
 
-	public void write(String output);
+	private final String output;
+
+	public TerminalOutput(String output) {
+		this.output = output;
+	}
+
+	public String getOutput() {
+		return output;
+	}
 
 }

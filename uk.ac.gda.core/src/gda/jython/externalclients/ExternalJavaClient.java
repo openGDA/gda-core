@@ -79,8 +79,12 @@ public class ExternalJavaClient implements Terminal
 
 	@Override
 	public void write(byte[] output) {
-		logger.debug(new String(output));
+		write(new String(output));
+	}
 
+	@Override
+	public void write(String output) {
+		logger.debug(output);
 	}
 
 	/**
