@@ -279,10 +279,12 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 				// set the console output
 				if (LocalProperties.check(USE_WRITERS_PROPERTY)) {
+					logger.info("Using new Writer instead of OutputStream");
 					final Writer terminalWriter = jythonServer.getTerminalWriter();
 					interp.setOut(terminalWriter);
 					interp.setErr(terminalWriter);
 				} else {
+					logger.warn("Using old OutputStream rather than the new Writer. This is prone to crashing the JVM. On 8.34 opt in to using the new Writer with property: " + USE_WRITERS_PROPERTY);
 					final OutputStream terminalOutputStream = jythonServer.getTerminalOutputStream();
 					interp.setOut(terminalOutputStream);
 					interp.setErr(terminalOutputStream);
