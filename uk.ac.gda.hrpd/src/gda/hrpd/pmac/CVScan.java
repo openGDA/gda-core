@@ -337,7 +337,12 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	 * set or change CVScan profile
 	 */
 	public void setCVScanProfile(String profile) throws DeviceException {
-		controller.setProfile(profile);
+		try {
+			controller.setProfile(profile);
+		} catch (InterruptedException e) {
+			logger.error("InterruptedException ", e);
+			throw new DeviceException(e);
+		}
 	}
 
 	/**
