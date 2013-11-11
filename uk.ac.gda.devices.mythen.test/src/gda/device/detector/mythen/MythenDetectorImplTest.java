@@ -78,6 +78,9 @@ public class MythenDetectorImplTest {
 
 		delta.asynchronousMoveTo(10);
 		mythen.collectData();
+		while (mythen.isBusy()){
+			Sleep.sleep(100);
+		}
 		double[][] data2 = mythen.readoutProcessedData().toDoubleArray();
 		assertEquals(10.0 + data1[0][0], data2[0][0], 0.001);
 	}
