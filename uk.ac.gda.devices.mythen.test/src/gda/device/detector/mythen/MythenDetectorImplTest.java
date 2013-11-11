@@ -27,6 +27,7 @@ import gda.device.detector.mythen.data.DataConverter;
 import gda.device.scannable.DummyScannable;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
+import gda.util.Sleep;
 import gda.util.TestUtils;
 
 import java.io.File;
@@ -68,7 +69,10 @@ public class MythenDetectorImplTest {
 		mythen.setDeltaScannable(delta);
 
 		delta.asynchronousMoveTo(0);
-		mythen.collectData();
+		mythen.collectData(); // change collectData() method to Non-blocking as interface defined
+		while (mythen.isBusy()){
+			Sleep.sleep(100);
+		}
 		double[][] data1 = mythen.readoutProcessedData().toDoubleArray();
 		assertEquals(0.0017567, data1[0][0], 0.001);
 
