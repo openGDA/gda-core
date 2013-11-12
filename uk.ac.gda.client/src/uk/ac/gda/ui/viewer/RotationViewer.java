@@ -387,6 +387,12 @@ public class RotationViewer {
 		return target;
 	}
 	
+	private Composite composite;
+	
+	public Composite getComposite() {
+		return composite;
+	}
+	
 	/**
 	 * Create widgets
 	 * @param parent composite
@@ -490,6 +496,8 @@ public class RotationViewer {
 				minusBigButton  = createButton(buttonGroup, "-"+df.format(bigStep), null, data);
 				plusBigButton  = createButton(buttonGroup, "+"+df.format(bigStep), null, data);
 			}
+			
+			composite = rotationGroup;
 		}
 		
 		Composite inOutButtonsComp = new Composite(otherControls, SWT.NONE);
