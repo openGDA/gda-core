@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client;
 
+import gda.jython.InterfaceProvider;
 import gda.rcp.util.BrowserUtil;
 
 import java.io.IOException;
@@ -83,6 +84,11 @@ public class HelpHandlerImpl implements HelpHandler{
 			} else if( address.startsWith("{cheatSheetFile}")){
 				String substring = address.substring((new String("{cheatSheetFile}")).length());
 				(new org.eclipse.ui.cheatsheets.OpenCheatSheetAction(text,text, new URL(substring))).run();
+			} else if( address.startsWith("{gda_command}")){
+				String substring = address.substring((new String("{gda_command}")).length());
+				String resp = InterfaceProvider.getCommandRunner().evaluateCommand(substring);
+				if( resp != null && !resp.equals("None"))
+					buf.append(resp);
 			}
 			else {
 				buf.append(topic + " - " + address );
