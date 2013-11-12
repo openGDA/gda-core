@@ -42,7 +42,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	private String nexusFileNameTemplate;
 	private String asciiFileNameTemplate;
 	private Boolean firstData = true;
-	private Boolean runFromExperimentDefinition;
+	private Boolean runFromExperimentDefinition = false;
 	private IScanParameters scanBean;
 	private IDetectorParameters detectorBean;
 	private ISampleParameters sampleBean;
