@@ -171,11 +171,11 @@ public class Config {
 		if (initialDataAsDoubles[xAxisIndex] != null) {
 			for (int j = 0; j < numberOfScannables; j++, index++) {
 				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, yAxesMap, point
-						.getPositionHeader().get(j), index, xAxisIndex);
+						.getPositionHeader().get(j), index, xAxisIndex, scanPlotSettings.getUnlistedColumnBehaviour());
 			}
 			for (int j = 0; j < point.getDetectorHeader().size(); j++, index++) {
 				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, yAxesMap, point
-						.getDetectorHeader().get(j), index, xAxisIndex);
+						.getDetectorHeader().get(j), index, xAxisIndex, scanPlotSettings.getUnlistedColumnBehaviour());
 			}
 		} else {
 			logger.warn("xAxis is not plottable for scan " + point.getUniqueName());
@@ -183,23 +183,26 @@ public class Config {
 		}
 		id = point.getUniqueName();
 	}
-
+	
+	// FIXME this logic lifted from from ScanDataPointPlotConfig to handle correct behaviour of 'unlisted' columns, but
+	// there seems to be some duplication here which needs resolving
 	private void addIfWanted(Vector<ConfigLine> linesToAdd, Double val, Vector<String> yAxesShown,
-			Vector<String> yAxesNotShown, AxisSpecProvider axisSpecProvider, String name, int index, int xAxisIndex) {
+			Vector<String> yAxesNotShown, AxisSpecProvider axisSpecProvider, String name, int index, int xAxisIndex,
+			int defaultBehaviour) {
 		// do not add a line if we are unable to convert the string representation to a double
 		if (val == null)
 			return;
 		if (index != xAxisIndex) {
+			AxisSpec yaxisSpec = axisSpecProvider != null ? axisSpecProvider.getAxisSpec(name) : null;
 			if (yAxesShown == null || yAxesShown.contains(name)) {
-				AxisSpec yaxisSpec = axisSpecProvider != null ? axisSpecProvider.getAxisSpec(name):null;
 				linesToAdd.add(new ConfigLine(index, name, true, yaxisSpec));
-			} else {
-				if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
-					AxisSpec yaxisSpec = axisSpecProvider != null ? axisSpecProvider.getAxisSpec(name):null;
-					linesToAdd.add(new ConfigLine(index, name, false, yaxisSpec));
-				}
+			} else if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
+				linesToAdd.add(new ConfigLine(index, name, false, yaxisSpec));
+			} else if (defaultBehaviour == ScanPlotSettings.PLOT) {
+				linesToAdd.add(new ConfigLine(index, name, true, yaxisSpec));
+			} else if (defaultBehaviour == ScanPlotSettings.PLOT_NOT_VISIBLE) {
+				linesToAdd.add(new ConfigLine(index, name, false, yaxisSpec));
 			}
 		}
-
 	}
 }
