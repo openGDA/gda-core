@@ -27,6 +27,7 @@ import java.net.URL;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 public class HelpHandlerImpl implements HelpHandler{
 
@@ -54,7 +55,8 @@ public class HelpHandlerImpl implements HelpHandler{
 	
 	@Override
 	public boolean handle(String text, StringBuffer buf) throws IOException, PartInitException, ConfigurationException {
-		String[] parts = text.split(" ");
+		
+		String[] parts = text.trim().split(" ",2); //remove whitespace before or after
 		String topic = parts.length>1 ? parts[1] : "default";
 		if( topic.equals("reloadHelp")){
 			config=null;
@@ -64,13 +66,16 @@ public class HelpHandlerImpl implements HelpHandler{
 			loadAddressMap( );
 		}
 		String address = null;
+		String val[];
 		String topicToFind=topic;
 		while(true){
-			address = config.getString(topicToFind, null);
-			if( address != null)
+			val = config.getStringArray(topicToFind);
+			if( val.length>0){
+				address=val[0];
 				break;
+			}
 			int lastIndexOf = topicToFind.lastIndexOf(".");
-			if( lastIndexOf==-1)
+			if( lastIndexOf<=0)
 				break;
 			topicToFind = topicToFind.substring(0, lastIndexOf);
 		}
@@ -84,6 +89,12 @@ public class HelpHandlerImpl implements HelpHandler{
 			} else if( address.startsWith("{cheatSheetFile}")){
 				String substring = address.substring((new String("{cheatSheetFile}")).length());
 				(new org.eclipse.ui.cheatsheets.OpenCheatSheetAction(text,text, new URL(substring))).run();
+			} else if( address.startsWith("{helpResource}")){
+				String substring = address.substring((new String("{helpResource}")).length());
+				PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(substring);
+			} else if( address.startsWith("{helpId}")){
+				String substring = address.substring((new String("{helpId}")).length());
+				PlatformUI.getWorkbench().getHelpSystem().displayHelp(substring);
 			} else if( address.startsWith("{gda_command}")){
 				String substring = address.substring((new String("{gda_command}")).length());
 				String resp = InterfaceProvider.getCommandRunner().evaluateCommand(substring);
@@ -91,7 +102,10 @@ public class HelpHandlerImpl implements HelpHandler{
 					buf.append(resp);
 			}
 			else {
-				buf.append(topic + " - " + address );
+				buf.append("Available " + topic + ":");
+				for( String s : val){
+					buf.append("\n\t" + s );
+				}
 			}
 			return true;
 		}
