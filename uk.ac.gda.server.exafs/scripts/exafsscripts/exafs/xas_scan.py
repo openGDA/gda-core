@@ -1,5 +1,6 @@
 from java.lang import InterruptedException, System
-from scan import Scan
+import java.lang.Exception
+
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter, XasAsciiNexusDataWriter
 from gda.device.scannable import XasScannable, XasScannableWithDetectorFramesSetup, JEPScannable
@@ -10,6 +11,9 @@ from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan
+
+from scan import Scan
+
 from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters, XesScanParameters
 
 class XasScan(Scan):
@@ -133,6 +137,8 @@ class XasScan(Scan):
 						self.printRepetition(numRepetitions, repetitionNumber, scriptType)
 						logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName)
 						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg)
+				except java.lang.Exception, e:
+					self.handleScanInterrupt(numRepetitions, repetitionNumber)
 				except InterruptedException, e:
 					self.handleScanInterrupt(numRepetitions, repetitionNumber)
 				self._runScript(beanGroup.getOutput().getAfterScriptName())# run the after scan script
@@ -262,49 +268,7 @@ class XasScan(Scan):
 					#print detectorBean.getFluorescenceParameters().getDetectorType(), "experiment"
 					return self._createDetArray(group.getDetector(), scanBean)
 
-	"""
-	Get the relevant datawriter config, create a datawriter and if it of the correct type then give it the config.
-	Give the datawriter to the scan.
-	"""
-	def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
-		nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
-		asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
-		nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
-		asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
-		if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
-			nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
-			asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
-
-		# create XasAsciiNexusDataWriter object and give it the parameters
-		dataWriter = XasAsciiNexusDataWriter()
-		dataWriter.setRunFromExperimentDefinition(True);
-		dataWriter.setScanBean(scanBean);
-		dataWriter.setDetectorBean(detectorBean);
-		dataWriter.setSampleBean(sampleBean);
-		dataWriter.setOutputBean(outputBean);
-		dataWriter.setSampleName(sampleName);
-		dataWriter.setXmlFolderName(experimentFullPath)
-		dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
-		dataWriter.setDescriptions(descriptions);
-		dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
-		dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
-		# get the ascii file format configuration (if not set here then will get it from the Finder inside the Java class
-		asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
-		if asciidatawriterconfig != None :
-			dataWriter.setConfiguration(asciidatawriterconfig)
-		thisscan.setDataWriter(dataWriter)
-		return thisscan
-	
-	def _determineDetectorFilename(self,detectorBean):
-		xmlFileName = None
-		if detectorBean.getExperimentType() == "Fluorescence" :
-			fluoresenceParameters = detectorBean.getFluorescenceParameters()
-			xmlFileName = fluoresenceParameters.getConfigFileName()
-		elif detectorBean.getExperimentType() == "XES" :
-			fluoresenceParameters = detectorBean.getXesParameters()
-			xmlFileName = fluoresenceParameters.getConfigFileName()
-		return xmlFileName
-	
+		
 	# Move to start energy so that harmonic can be set by gap_converter for i18 only
 	def setupHarmonic(self, scanBean, gap_converter):
 		initialEnergy = scanBean.getInitialEnergy()
