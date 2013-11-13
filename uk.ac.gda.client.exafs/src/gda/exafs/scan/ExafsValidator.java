@@ -328,5 +328,16 @@ public abstract class ExafsValidator extends AbstractValidator {
 		}
 
 	}
+	
+	protected boolean stringCouldBeConvertedToValidUnixFilename(String sampleName){
+		// ignore spaces as these will have underscores automatically substituted
+		if (sampleName.startsWith("-")
+		|| sampleName.contains(";") || sampleName.contains("<") || sampleName.contains("\t")
+		|| sampleName.contains("'") || sampleName.contains("\"") || sampleName.contains("\\")
+		|| sampleName.contains("\n")|| sampleName.contains("..")){
+			return false;
+		}
+		return true;
+	}
 
 }

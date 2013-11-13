@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -46,15 +46,6 @@ public class XYThetaStageComposite extends FieldBeanComposite {
 	private String yName;
 	private String thetaName;
 
-	/**
-	 * Create the composite.
-	 * 
-	 * @param parent
-	 * @param style
-	 * @param xName
-	 * @param yName
-	 * @param thetaName
-	 */
 	public XYThetaStageComposite(Composite parent, int style, String xName, String yName, String thetaName) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
@@ -70,7 +61,7 @@ public class XYThetaStageComposite extends FieldBeanComposite {
 		x = new ScaleBox(this, SWT.NONE);
 		x.setUnit("mm");
 		x.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		x.setDecimalPlaces(20);
+		x.setDecimalPlaces(3);
 		Label lblY = new Label(this, SWT.NONE);
 		lblY.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblY.setText("Y");
@@ -78,7 +69,7 @@ public class XYThetaStageComposite extends FieldBeanComposite {
 		y = new ScaleBox(this, SWT.NONE);
 		y.setUnit("mm");
 		y.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		y.setDecimalPlaces(20);
+		y.setDecimalPlaces(3);
 		Label lblZ = new Label(this, SWT.NONE);
 		lblZ.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblZ.setText("Theta");
@@ -86,7 +77,7 @@ public class XYThetaStageComposite extends FieldBeanComposite {
 		theta = new ScaleBox(this, SWT.NONE);
 		theta.setUnit("deg");
 		theta.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		theta.setDecimalPlaces(20);
+		theta.setDecimalPlaces(3);
 		Label label_3 = new Label(this, SWT.NONE);
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 
@@ -107,21 +98,26 @@ public class XYThetaStageComposite extends FieldBeanComposite {
 		btnGetCurrentValues.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				x.setValue(JythonServerFacade.getInstance().evaluateCommand(XYThetaStageComposite.this.xName + "()"));
-				y.setValue(JythonServerFacade.getInstance().evaluateCommand(XYThetaStageComposite.this.yName + "()"));
-				theta.setValue(JythonServerFacade.getInstance().evaluateCommand(
-						XYThetaStageComposite.this.thetaName + "()"));
+				try {
+					String xPosition = JythonServerFacade.getInstance().evaluateCommand(XYThetaStageComposite.this.xName + "()");
+					x.setValue(String.format("%.4f", xPosition));
+				} catch (Exception e) {
+					logger.error("Exception retrieving current x motor position", e);
+				}
+				try {
+					String yPosition = JythonServerFacade.getInstance().evaluateCommand(XYThetaStageComposite.this.yName + "()");
+					y.setValue(String.format("%.4f", yPosition));
+				} catch (Exception e) {
+					logger.error("Exception retrieving current y motor position", e);
+				}
+				try {
+					String thetaPosition = JythonServerFacade.getInstance().evaluateCommand(XYThetaStageComposite.this.thetaName + "()");
+					theta.setValue(String.format("%.4f", thetaPosition));
+				} catch (Exception e) {
+					logger.error("Exception retrieving current theta motor position", e);
+				}
 			}
 		});
-
-		// try {
-		// HardwareUI.setHardwareLimits(x, xName);
-		// HardwareUI.setHardwareLimits(y, yName);
-		// HardwareUI.setHardwareLimits(theta, thetaName);
-		// } catch (Exception e) {
-		// logger.warn("exception while fetching hardware limits: " + e.getMessage(), e);
-		// }
-
 	}
 
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
