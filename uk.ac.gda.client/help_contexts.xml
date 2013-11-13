@@ -1,0 +1,7 @@
+<contexts>
+	<context id="jython_console" title="Jython Console">
+		<description>The Jython Console has a prompt area for entering commands and a feedback area to show the results of commands.
+		</description>
+		<topic href="http://www.opengda.org/documentation/manuals/GDA_User_Guide/trunk/commandline_introduction.html" label="Help on using the Jython Console"/>
+	</context>
+</contexts>

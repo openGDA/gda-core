@@ -73,6 +73,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.actions.TextViewerAction;
+import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,6 +148,8 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 
 	private HelpHandler helpHandler;
 
+	private Composite root;
+
 
 	/***/
 	public JythonTerminalView() {
@@ -184,7 +187,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		int tabSize = 4;
 
 		{
-			Composite root = new Composite(parent, SWT.NONE);
+			root = new Composite(parent, SWT.NONE);
 			root.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 			GridLayout gl = new GridLayout();
 			gl.horizontalSpacing = 0;
@@ -271,6 +274,12 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 				autoCompleter = new AutoCompleter(txtInput);
 			}
 		}
+		setHelpContextIDS();
+	}
+
+	private void setHelpContextIDS() {
+		IWorkbenchHelpSystem helpSystem = getSite().getWorkbenchWindow().getWorkbench().getHelpSystem();
+		helpSystem.setHelp(root, "uk.ac.gda.client.jython_console");
 	}
 
 	/**
@@ -1155,4 +1164,6 @@ class SimpleOutputUpdater implements Runnable {
 			}
 		}
 	}
+	
+	
 }
