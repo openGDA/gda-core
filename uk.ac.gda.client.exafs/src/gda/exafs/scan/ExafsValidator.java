@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -46,11 +46,13 @@ import uk.ac.gda.exafs.ui.data.ScanObject;
  * Abstract to hold generic XAS validations for beamlines using the server.exafs plugin
  */
 public abstract class ExafsValidator extends AbstractValidator {
-	
+
 	protected JEP jepParser;
 
 	protected static final List<String> EDGES = Arrays.asList(new String[] { "K", "L1", "L2", "L3" });
 	protected static boolean isCheckingFinables = true;
+	private static final char[] ILLEGAL_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<',
+			'>', '|', '\"', ':', '@', '!', '$', '#', '%', '&', '(', ')' };
 
 	protected ScanObject bean;
 
@@ -147,7 +149,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 		return null;
 	}
-	
+
 	public List<InvalidBeanMessage> validateIDetectorParameters(IDetectorParameters iDetectorParams) {
 
 		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
@@ -161,15 +163,17 @@ public abstract class ExafsValidator extends AbstractValidator {
 		}
 
 		if (iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) {
-			if (iDetectorParams.getFluorescenceParameters().getConfigFileName() == null || iDetectorParams.getFluorescenceParameters().getConfigFileName().isEmpty()) {
+			if (iDetectorParams.getFluorescenceParameters().getConfigFileName() == null
+					|| iDetectorParams.getFluorescenceParameters().getConfigFileName().isEmpty()) {
 				errors.add(new InvalidBeanMessage("Fluorescence detector XML configuration file not specified!"));
 			}
 		} else if (iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.XES_TYPE)) {
-			if (iDetectorParams.getXesParameters().getConfigFileName() == null || iDetectorParams.getXesParameters().getConfigFileName().isEmpty()) {
+			if (iDetectorParams.getXesParameters().getConfigFileName() == null
+					|| iDetectorParams.getXesParameters().getConfigFileName().isEmpty()) {
 				errors.add(new InvalidBeanMessage("Fluorescence detector XML configuration file not specified!"));
 			}
 		}
-		
+
 		if (bean != null) {
 			setFileName(errors, bean.getDetectorFileName());
 		}
@@ -187,7 +191,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 			return errors;
 		}
 
-		if (!isARealScannable(x.getScannableName())){
+		if (!isARealScannable(x.getScannableName())) {
 			errors.add(new InvalidBeanMessage("The scannable " + x.getScannableName() + " cannot be found!"));
 		}
 
@@ -211,7 +215,8 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return errors;
 	}
 
-	public List<InvalidBeanMessage> validateXasScanParameters(XasScanParameters x, double beamlineMinEnergy, double beamlineMaxEnergy) {
+	public List<InvalidBeanMessage> validateXasScanParameters(XasScanParameters x, double beamlineMinEnergy,
+			double beamlineMaxEnergy) {
 
 		if (x == null) {
 			return Collections.emptyList();
@@ -221,8 +226,8 @@ public abstract class ExafsValidator extends AbstractValidator {
 		if (!x.isShouldValidate()) {
 			return errors;
 		}
-		
-		if (!isARealScannable(x.getScannableName())){
+
+		if (!isARealScannable(x.getScannableName())) {
 			errors.add(new InvalidBeanMessage("The scannable " + x.getScannableName() + " cannot be found!"));
 		}
 
@@ -270,10 +275,9 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 	}
 
-
 	private boolean isARealScannable(String scannableName) {
 		Findable obj = Finder.getInstance().find(scannableName);
-		if (obj != null){
+		if (obj != null) {
 			return obj instanceof Scannable;
 		}
 		return false;
@@ -328,14 +332,16 @@ public abstract class ExafsValidator extends AbstractValidator {
 		}
 
 	}
-	
-	protected boolean stringCouldBeConvertedToValidUnixFilename(String sampleName){
+
+	protected boolean stringCouldBeConvertedToValidUnixFilename(String sampleName) {
 		// ignore spaces as these will have underscores automatically substituted
-		if (sampleName.startsWith("-")
-		|| sampleName.contains(";") || sampleName.contains("<") || sampleName.contains("\t")
-		|| sampleName.contains("'") || sampleName.contains("\"") || sampleName.contains("\\")
-		|| sampleName.contains("\n")|| sampleName.contains("..")){
+		if (sampleName.startsWith("-")) {
 			return false;
+		}
+		for (char thischar : ILLEGAL_CHARACTERS) {
+			if (sampleName.indexOf(thischar) > 0) {
+				return false;
+			}
 		}
 		return true;
 	}
