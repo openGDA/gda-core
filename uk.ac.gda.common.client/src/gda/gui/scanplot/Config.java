@@ -167,15 +167,21 @@ public class Config {
 			}
 		}
 
+		// scanPlotSettings may be null at this point
+		int unlistedBehaviour = ScanPlotSettings.PLOT; // default default is to plot every line
+		if (scanPlotSettings != null){
+			unlistedBehaviour = scanPlotSettings.getUnlistedColumnBehaviour();
+		}
+		
 		initialDataAsDoubles = point.getAllValuesAsDoubles();
 		if (initialDataAsDoubles[xAxisIndex] != null) {
 			for (int j = 0; j < numberOfScannables; j++, index++) {
 				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, yAxesMap, point
-						.getPositionHeader().get(j), index, xAxisIndex, scanPlotSettings.getUnlistedColumnBehaviour());
+						.getPositionHeader().get(j), index, xAxisIndex, unlistedBehaviour);
 			}
 			for (int j = 0; j < point.getDetectorHeader().size(); j++, index++) {
 				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, yAxesMap, point
-						.getDetectorHeader().get(j), index, xAxisIndex, scanPlotSettings.getUnlistedColumnBehaviour());
+						.getDetectorHeader().get(j), index, xAxisIndex, unlistedBehaviour);
 			}
 		} else {
 			logger.warn("xAxis is not plottable for scan " + point.getUniqueName());
