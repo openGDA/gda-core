@@ -84,7 +84,7 @@ public final class SimpleScanComposite extends Composite {
 	private Job scanStatusJob;
 	private Button scan;
 	private Button stop;
-	private String scannable;
+//	private String scannable;
 	
 	public SimpleScanComposite(Composite parent, int style, Object editingBean) {
 		super(parent, style);
@@ -177,7 +177,8 @@ public final class SimpleScanComposite extends Composite {
 		((GridData) stepSize.getControl().getLayoutData()).widthHint = 41;
 		stepSize.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-		new Label(composite, SWT.NONE);
+		@SuppressWarnings("unused")
+		Label lbl = new Label(composite, SWT.NONE);
 
 		detComposite = new Composite(grpScannable, SWT.NONE);
 		GridLayout gl_detComposite = new GridLayout(1, false);
@@ -195,16 +196,16 @@ public final class SimpleScanComposite extends Composite {
 
 		updateDetectors();
 
-		createScanButton(this);
+//		createScanButton(this);
 
 		this.fromPos.setValue(bean.getFromPos());
-		new Label(fromPos, SWT.NONE);
+		lbl = new Label(fromPos, SWT.NONE);
 		this.toPos.setValue(bean.getToPos());
-		new Label(toPos, SWT.NONE);
+		lbl = new Label(toPos, SWT.NONE);
 		this.stepSize.setValue(bean.getStepSize());
-		new Label(stepSize, SWT.NONE);
+		lbl = new Label(stepSize, SWT.NONE);
 		this.acqTime.setValue(bean.getAcqTime());
-		new Label(acqTime, SWT.NONE);
+		lbl = new Label(acqTime, SWT.NONE);
 
 		scannables = bean.getScannables();
 		boolean found = false;
@@ -289,8 +290,8 @@ public final class SimpleScanComposite extends Composite {
 		}
 	}
 
-	public void createScanButton(Composite comp) {
-	}
+//	public void createScanButton(Composite comp) {
+//	}
 
 	private void performScan() {
 
@@ -390,7 +391,8 @@ public final class SimpleScanComposite extends Composite {
 		acqTime = new ScaleBox(composite_3, SWT.NONE);
 		((GridData) acqTime.getControl().getLayoutData()).widthHint = 71;
 		acqTime.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
-				new Label(composite_3, SWT.NONE);
+				@SuppressWarnings("unused")
+				Label lbl = new Label(composite_3, SWT.NONE);
 		
 				scan = new Button(composite_3, SWT.NONE);
 				scan.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, true, 1, 1));
@@ -399,7 +401,7 @@ public final class SimpleScanComposite extends Composite {
 					@Override
 					public void widgetSelected(SelectionEvent arg0) {
 						performScan();
-						scannable = scannableName.getItem(scannableName.getSelectionIndex());
+//						scannable = scannableName.getItem(scannableName.getSelectionIndex());
 						scanStatusJob.schedule();
 					}
 
