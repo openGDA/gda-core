@@ -214,6 +214,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		this.dataWrapper = readStoredData();
 		try {
 			this.sashPlotForm = createSashPlot(parent);
+			sashPlotForm.getPlottingSystem().setRescale(false);
 		} catch (Exception e) {
 			logger.error("Exception while creating detector editor", e);
 		}
@@ -760,9 +761,11 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		}
 
 		sashPlotForm.setDataSets(data.toArray(new AbstractDataset[data.size()]));
+		sashPlotForm.getPlottingSystem().setRescale(updateTitle);
 		sashPlotForm.plotData();
 		sashPlotForm.getPlottingSystem().setTitle(plotTitle);
 		calculateAndPlotCountTotals(true);
+		sashPlotForm.getPlottingSystem().setRescale(false);
 	}
 
 	private double getTotalElementCounts(int elementNumber) {
