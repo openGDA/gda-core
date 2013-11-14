@@ -19,6 +19,7 @@
 package gda.spring;
 
 import gda.configuration.epics.ConfigurationNotFoundException;
+import gda.device.DeviceException;
 import gda.device.enumpositioner.EpicsEnumPositioner;
 import gda.device.enumpositioner.EpicsPneumaticCallback;
 
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.FactoryBean;
 public class EpicsEnumPositionerFactoryBean extends EpicsConfigurationFactoryBeanBase<EpicsEnumPositioner> {
 
 	private String pvBase;
+	private Integer protectionLevel = null;
 	
 	@Override
 	public Class<?> getObjectType() {
@@ -44,6 +46,12 @@ public class EpicsEnumPositionerFactoryBean extends EpicsConfigurationFactoryBea
 		epicsEnumPositioner.setName(name);
 		epicsEnumPositioner.setPvBase(pvBase);
 		epicsEnumPositioner.setLocal(isLocal());
+		try {
+			if (protectionLevel != null)
+					epicsEnumPositioner.setProtectionLevel(protectionLevel);
+		} catch (DeviceException e) {
+			throw new ConfigurationNotFoundException("cannot set protection level for "+name);
+		}
 	}
 
 	@Override
@@ -57,5 +65,13 @@ public class EpicsEnumPositionerFactoryBean extends EpicsConfigurationFactoryBea
 
 	public void setPvBase(String pvBase) {
 		this.pvBase = pvBase;
+	}
+
+	public Integer getProtectionLevel() {
+		return protectionLevel;
+	}
+
+	public void setProtectionLevel(Integer protectionLevel) {
+		this.protectionLevel = protectionLevel;
 	}
 }
