@@ -25,6 +25,7 @@ import gda.device.detector.xspress.XspressDetector;
 import gda.factory.Finder;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.scan.ScanBase;
 
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.axis.IAxis;
@@ -179,6 +180,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 		// only collect new data outside of scans else will readout the last data collected
 		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xspress.isBusy()
 				&& !ionchambers.isBusy()) {
+			ScanBase.setInterrupted(false);
 			xspress.collectData();
 			ionchambers.setCollectionTime(1);
 			ionchambers.clearFrameSets();

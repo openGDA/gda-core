@@ -19,6 +19,10 @@
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
 import gda.device.DeviceException;
+import gda.jython.Jython;
+import gda.jython.JythonServerFacade;
+import gda.jython.JythonServerStatus;
+import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
 
 import org.dawnsci.plotting.api.IPlottingSystem;
@@ -46,7 +50,7 @@ import uk.ac.gda.client.CommandQueueViewFactory;
  * <p>
  * Should be able to continue to show data during a scan by reading from the detectors but not operating them.
  */
-public abstract class MonitorViewBase extends ViewPart implements Runnable, IPartListener2 {
+public abstract class MonitorViewBase extends ViewPart implements Runnable, IPartListener2, IObserver {
 
 	protected static final Logger logger = LoggerFactory.getLogger(MonitorViewBase.class);
 	protected final String ALREADY_RUNNING_MSG = "Scan and/or detectors already running.";
@@ -75,10 +79,28 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	public void init(IViewSite site) throws PartInitException {
 		try {
 			myPlotter = PlottingFactory.createPlottingSystem();
+			JythonServerFacade.getInstance().addIObserver(this);
 		} catch (Exception e) {
 			throw new PartInitException("Exception creating PlottingSystem", e);
 		}
 		super.init(site);
+	}
+
+	@Override
+	public void update(final Object source, final Object arg) {
+		if (source instanceof JythonServerFacade && arg instanceof JythonServerStatus) {
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					int newstatus = ((JythonServerStatus) arg).scanStatus;
+					if (newstatus == Jython.IDLE) {
+						btnRunPause.setEnabled(true);
+					} else {
+						btnRunPause.setEnabled(false);
+					}
+				}
+			});
+		}
 	}
 
 	/**
