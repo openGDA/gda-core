@@ -804,4 +804,10 @@ public class ADBaseSimulator implements ADBase {
 		
 	}
 
+	@Override
+	public void waitForDetectorStateIDLE(double timeoutS) throws InterruptedException, Exception, TimeoutException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
