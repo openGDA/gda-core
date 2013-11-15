@@ -390,7 +390,7 @@ public class CommandProcessorComposite extends Composite {
 					btnRunPause.setToolTipText("Pause current task if possible. Stop queue");
 					setRunBtnState(false);
 					btnRunPause.setEnabled(true);
-
+					btnStop.setEnabled(true);
 					btnSkip.setEnabled(true);
 					btnStopAfterCurrent.setEnabled(true);
 					txtState.setText("Running");
@@ -403,9 +403,6 @@ public class CommandProcessorComposite extends Composite {
 					txtState.setText("Unknown");
 					break;
 				case WAITING_QUEUE:
-					if (disableJythonControls) {
-						JythonControlsFactory.enableUIControls();
-					}
 					if (showText){
 						btnRunPause.setText(strPause);
 					} else {
@@ -413,15 +410,15 @@ public class CommandProcessorComposite extends Composite {
 					}
 					btnRunPause.setToolTipText("Pause current task if possible. Stop queue");
 					setRunBtnState(false);
-					btnRunPause.setEnabled(true);
-
+					btnRunPause.setEnabled(false);
+					btnStop.setEnabled(false);
 					btnSkip.setEnabled(false);
 					btnStopAfterCurrent.setEnabled(true);
 					txtState.setText("Queue is empty");
 					break;
 				case WAITING_START:
 					if (disableJythonControls) {
-						JythonControlsFactory.enableUIControls();
+						JythonControlsFactory.disableUIControls();
 					}
 					if (showText){
 						btnRunPause.setText(strRun);
@@ -431,7 +428,7 @@ public class CommandProcessorComposite extends Composite {
 					btnRunPause.setToolTipText("Run current task if paused or start next task");
 					setRunBtnState(true);
 					btnRunPause.setEnabled(true);
-
+					btnStop.setEnabled(true);
 					btnSkip.setEnabled(currentItem != null);
 					btnStopAfterCurrent.setEnabled(true);
 					txtState.setText("Paused");

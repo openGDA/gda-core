@@ -31,6 +31,8 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import uk.ac.gda.common.rcp.NamedServiceProvider;
+
 /**
  * The activator class controls the plug-in life cycle.
  * 
@@ -74,10 +76,16 @@ public class GDAClientActivator extends AbstractUIPlugin {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
-
-		UIScanDataPointEventService.getInstance().dispose();
+		try{
+			super.stop(context);
+			if(namedServiceProvider != null){
+				namedServiceProvider.close();
+				namedServiceProvider = null;
+			}
+			UIScanDataPointEventService.getInstance().dispose();
+		} finally{
+			plugin = null;
+		}
 	}
 
 	/**
@@ -131,4 +139,15 @@ public class GDAClientActivator extends AbstractUIPlugin {
 			reg.put(imgPath, imageDescriptorFromPlugin(PLUGIN_ID, imgPath));
 		}
 	}
+	
+	private static NamedServiceProvider namedServiceProvider;
+	
+	public static Object getNamedService(@SuppressWarnings("rawtypes") Class clzz, final String name) {
+		if(namedServiceProvider == null){
+			namedServiceProvider = new NamedServiceProvider(plugin.context);
+		}
+		return namedServiceProvider.getNamedService(clzz, "SERVICE_NAME", name);
+		
+	}	
+	
 }
