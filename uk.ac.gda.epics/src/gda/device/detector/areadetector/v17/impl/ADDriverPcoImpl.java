@@ -21,6 +21,7 @@ package gda.device.detector.areadetector.v17.impl;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.detector.areadetector.v17.ADDriverPco;
+import gda.epics.CachedLazyPVFactory;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 
@@ -28,13 +29,9 @@ public class ADDriverPcoImpl implements ADDriverPco, InitializingBean{
 
 
 	private String basePvName;
+	CachedLazyPVFactory dev;
 	
 	private PV<Boolean> armModePV;
-	private PV<Double> cameraUsagePV;
-
-	private PV<Integer> adcModePV;
-
-	private PV<Integer> timeStampModePV;
 
 	@Deprecated // replace with a proper ADDriverPco - when it has been written!
 	public void setBasePvName(String basePvName) {
@@ -51,9 +48,7 @@ public class ADDriverPcoImpl implements ADDriverPco, InitializingBean{
 			throw new IllegalArgumentException("armModePvName must be set");
 		}
 		armModePV = LazyPVFactory.newBooleanFromEnumPV(basePvName + ":ARM_MODE"); 
-		cameraUsagePV = LazyPVFactory.newDoublePV(basePvName + ":CAM_RAM_USE_RBV"); 
-		adcModePV = LazyPVFactory.newIntegerPV(basePvName + ":ADC_MODE");
-		timeStampModePV = LazyPVFactory.newIntegerPV(basePvName + ":TIMESTAMP_MODE");
+		dev = new CachedLazyPVFactory(basePvName+":");
 		
 	}
 
@@ -64,17 +59,47 @@ public class ADDriverPcoImpl implements ADDriverPco, InitializingBean{
 
 	@Override
 	public PV<Double> getCameraUsagePV() {
-		return cameraUsagePV;
+		return dev.getPVDouble("CAM_RAM_USE_RBV");
 	}
 
 	@Override
 	public PV<Integer> getAdcModePV() {
-		return adcModePV;
+		return dev.getPVInteger("ADC_MODE");
 	}
 
 	@Override
 	public PV<Integer> getTimeStampModePV() {
-		return timeStampModePV;
+		return dev.getPVInteger("TIMESTAMP_MODE");
+	}
+
+	@Override
+	public PV<Integer> getBinXPV() {
+		return dev.getPVInteger("BinX");
+	}
+
+	@Override
+	public PV<Integer> getBinYPV() {
+		return dev.getPVInteger("BinY");
+	}
+
+	@Override
+	public PV<Integer> getMinXPV() {
+		return dev.getPVInteger("MinX");
+	}
+
+	@Override
+	public PV<Integer> getSizeXPV() {
+		return dev.getPVInteger("SizeX");
+	}
+
+	@Override
+	public PV<Integer> getMinYPV() {
+		return dev.getPVInteger("MinY");
+	}
+
+	@Override
+	public PV<Integer> getSizeYPV() {
+		return dev.getPVInteger("SizeY");
 	}
 	
 	

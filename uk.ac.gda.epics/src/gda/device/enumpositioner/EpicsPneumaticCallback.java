@@ -39,8 +39,6 @@ import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.dbr.Severity;
-import gov.aps.jca.dbr.Status;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
@@ -83,8 +81,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	private boolean allPVsSet = false;
 	
 	private PutCallbackListener pcl;
-	private Status callbackstatus = Status.NO_ALARM;
-	private Severity callbackseverity = Severity.NO_ALARM;
 
 	private StatusMonitorListener statusMonitor;
 
@@ -422,16 +418,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 					logger.info("{} move done", getName());
 					positionerStatus=EnumPositionerStatus.IDLE;
 				}
-
-				if (callbackstatus == Status.NO_ALARM && callbackseverity == Severity.NO_ALARM) {
-					logger.info("{} moves OK", getName());
-					positionerStatus=EnumPositionerStatus.IDLE;				
-				} else {
-					// if Alarmed, check and report MSTA status
-					logger.error("{} reports Alarm: {}", getName(), status);
-					positionerStatus=EnumPositionerStatus.ERROR;			
-				}
-
 			} catch (Exception ex) {
 				exceptionUtils.logException(logger, "Error in putCompleted for " + getName(), ex);
 			}
