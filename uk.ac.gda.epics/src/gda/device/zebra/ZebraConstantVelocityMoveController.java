@@ -60,6 +60,8 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 
 	private int mode=Zebra.PC_MODE_TIME;
 
+	private double minAccDistance;
+
 
 	public ZebraConstantVelocityMoveController() {
 		super();
@@ -79,7 +81,9 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 
 			requiredSpeed = (Math.abs(step)/triggerPeriod);
 			
-			scannableMotor.asynchronousMoveTo(start - (step>0 ? 1.0 : -1.0)*zebraMotorInfoProvider.distanceToAccToVelocity(requiredSpeed));
+			//Use at least .5 degrees otherwise we may get error due to encoder noise
+			minAccDistance = Math.max(.5, zebraMotorInfoProvider.distanceToAccToVelocity(requiredSpeed));
+			scannableMotor.asynchronousMoveTo(start - (step>0 ? 1.0 : -1.0)*minAccDistance);
 
 			//sources must be set first
 			zebra.setPCGateSource(0 );// Always position
@@ -120,7 +124,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 				requiredSpeed = (Math.abs(pcPulseStepRBV) / triggerPeriod)*zebraMotorInfoProvider.getConstantVelocitySpeedFactor();
 				break;
 			case Zebra.PC_MODE_TIME:
-				zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS); //s
+				zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS); //ms
 				zebra.setPCPulseWidth(.1); //.01ms
 				pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
 				zebra.setPCPulseStep(triggerPeriod*1000); // in  ms
@@ -129,7 +133,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 				
 				double gateWidthTime = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
 				requiredSpeed = (Math.abs(step)/pcPulseStepRBV);
-				zebra.setPCGateWidth((gateWidthTime * requiredSpeed));
+				zebra.setPCGateWidth((gateWidthTime * requiredSpeed)+minAccDistance);
 				
 				pcGateWidthRBV = zebra.getPCGateWidthRBV();
 				pcGateStartRBV = zebra.getPCGateStartRBV();
@@ -171,7 +175,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 				double speed = scannableMotor.getSpeed();
 				try {
 					scannableMotor.setSpeed(requiredSpeed);
-					scannableMotor.moveTo(pcGateStartRBV + (pcGateWidthRBV*(step > 0? 1: -1)+(step>0 ? 1.0 : -1.0)*zebraMotorInfoProvider.distanceToAccToVelocity(requiredSpeed))); 
+					scannableMotor.moveTo(pcGateStartRBV + (pcGateWidthRBV*(step > 0? 1: -1)+(step>0 ? 1.0 : -1.0)*minAccDistance)); 
 					
 				} finally {
 					scannableMotor.setSpeed(speed);

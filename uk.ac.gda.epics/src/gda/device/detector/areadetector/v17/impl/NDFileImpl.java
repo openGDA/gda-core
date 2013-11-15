@@ -730,6 +730,9 @@ public class NDFileImpl implements InitializingBean, NDFile {
 			} else {
 				EPICS_CONTROLLER.caput(getChannel(Capture), 1, startCallback);
 			}
+			while(getCapture_RBV() != 1) {
+				Thread.sleep(50);
+			}
 		} catch (Exception e) {
 			setStatus(Detector.IDLE);
 			logger.error("Exception caught on start Capture", e);
