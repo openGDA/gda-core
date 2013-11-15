@@ -71,9 +71,10 @@ public class ChannelServer {
 			eventChannelName = args[0];
 		else if ((property = NameFilter.getEventChannelName()) != null)
 			eventChannelName = property;
-		else
+		else {
 			logger.warn("NameFilter.getEventChannelName() should never null!");
 			eventChannelName = "local.eventChannel";
+		}
 
 		ORB orb = ORB.init(args, props);
 		ChannelServer channelServer = new ChannelServer(eventChannelName, orb);
