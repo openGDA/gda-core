@@ -76,14 +76,16 @@ public class GDAClientActivator extends AbstractUIPlugin {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
-		if(namedServiceProvider != null){
-			namedServiceProvider.close();
-			namedServiceProvider = null;
+		try{
+			super.stop(context);
+			if(namedServiceProvider != null){
+				namedServiceProvider.close();
+				namedServiceProvider = null;
+			}
+			UIScanDataPointEventService.getInstance().dispose();
+		} finally{
+			plugin = null;
 		}
-		plugin.context = null;
-		UIScanDataPointEventService.getInstance().dispose();
 	}
 
 	/**
