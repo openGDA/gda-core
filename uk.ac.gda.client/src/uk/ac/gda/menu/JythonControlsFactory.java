@@ -174,7 +174,7 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		
 		@Override
 		public void update(Object source, Object arg) {
-			if (arg instanceof JythonServerStatus && controlsEnabled) {
+			if (arg instanceof JythonServerStatus) {
 				JythonServerStatus status = (JythonServerStatus)arg;
 				getAction().setEnabled(isRunning(status));
 			}
