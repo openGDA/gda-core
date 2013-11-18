@@ -245,7 +245,7 @@ class Map(Scan):
             beam = command_server.getFromJythonNamespace("beam", None)
             detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
             trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-            print "setting collection time to" , str(collectionTime)        
+            print "Setting collection time to" , str(collectionTime)        
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setCollectionTime(collectionTime)
             

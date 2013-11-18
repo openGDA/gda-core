@@ -97,7 +97,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		numberOfXPoints= 11;
 		numberOfYPoints = 2;
 		vortexParameters = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, (new File("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/Vortex_Parameters.xml")));
-		fileLoader = new XmapNexusFileLoader("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/i18-6931-0-raster_xmap.h5");
+		fileLoader = new XmapNexusFileLoader("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/i18-6931-0-raster_xmap.h5",4);
 		fileLoader.loadFile();
 		pointsList = new ScanDataPoint[numberOfScanDataPoints];
 		for(int i =0 ; i < pointsList.length; i++){
@@ -132,7 +132,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		numberOfXPoints= 11;
 		numberOfYPoints = 2;
 		vortexParameters = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, (new File("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/Vortex_Parameters.xml")));
-		fileLoader = new XmapNexusFileLoader("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/i18-6931-0-raster_xmap.h5");
+		fileLoader = new XmapNexusFileLoader("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/i18-6931-0-raster_xmap.h5",4);
 		fileLoader.loadFile();
 		pointsList = new ScanDataPoint[numberOfScanDataPoints];
 		int reverseCounter =1;
