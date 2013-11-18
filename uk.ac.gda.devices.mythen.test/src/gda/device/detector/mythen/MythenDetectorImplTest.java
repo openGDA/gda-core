@@ -63,7 +63,6 @@ public class MythenDetectorImplTest {
 
 		MythenDetectorImpl mythen = new MythenDetectorImpl();
 		mythen.setDetectorID("Mythen");
-		mythen.setDataDirectory(scratchDir);
 		mythen.setMythenClient(mythenClient);
 		mythen.setDataConverter(dataConverter);
 		mythen.setDeltaScannable(delta);
