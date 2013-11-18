@@ -66,42 +66,42 @@ public class UserStageComposite extends FieldBeanComposite {
 		lbl1.setText("User Axis 2");
 		axis2 = new ScaleBox(this, SWT.NONE);
 		axis2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		axis2.setDecimalPlaces(8);
+		axis2.setDecimalPlaces(4);
 
 		Label lbl2 = new Label(this, SWT.NONE);
 		lbl2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lbl2.setText("User Axis 4");
 		axis4 = new ScaleBox(this, SWT.NONE);
 		axis4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		axis4.setDecimalPlaces(8);
+		axis4.setDecimalPlaces(4);
 
 		Label lbl3 = new Label(this, SWT.NONE);
 		lbl3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lbl3.setText("User Axis 5");
 		axis5 = new ScaleBox(this, SWT.NONE);
 		axis5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		axis5.setDecimalPlaces(8);
+		axis5.setDecimalPlaces(4);
 
 		Label lbl4 = new Label(this, SWT.NONE);
 		lbl4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lbl4.setText("User Axis 6");
 		axis6 = new ScaleBox(this, SWT.NONE);
 		axis6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		axis6.setDecimalPlaces(8);
+		axis6.setDecimalPlaces(4);
 
 		Label lbl5 = new Label(this, SWT.NONE);
 		lbl5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lbl5.setText("User Axis 7");
 		axis7 = new ScaleBox(this, SWT.NONE);
 		axis7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		axis7.setDecimalPlaces(8);
+		axis7.setDecimalPlaces(4);
 
 		Label lbl6 = new Label(this, SWT.NONE);
 		lbl6.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lbl6.setText("User Axis 8");
 		axis8 = new ScaleBox(this, SWT.NONE);
 		axis8.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		axis8.setDecimalPlaces(8);
+		axis8.setDecimalPlaces(4);
 
 		new Label(this, SWT.NONE);
 

@@ -21,6 +21,10 @@ class XspressConfig():
         self.configuration = Xspress2DetectorConfiguration(self.xspress2system, self.ExafsScriptObserver)
         
     def __call__(self,XMLFileNameToLoad,OutputParametersToLoad):
+        
+        if (self.configuration == None):
+            self.initialize()
+        
         onlyShowFF = False
         showDTRawValues = False
         saveRawSpectrum = False
@@ -117,6 +121,10 @@ class VortexConfig():
         self.configuration = VortexDetectorConfiguration(self.xmap, self.ExafsScriptObserver)
         
     def __call__(self,XMLFileNameToLoad,OutputParametersToLoad):
+
+        if (self.configuration == None):
+            self.initialize()
+        
         saveRawSpectrum = False
         
         if (OutputParametersToLoad != None and isinstance(OutputParametersToLoad,I20OutputParameters)):

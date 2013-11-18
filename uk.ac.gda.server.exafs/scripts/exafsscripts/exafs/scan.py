@@ -1,8 +1,12 @@
-from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
-from gda.jython.commands.GeneralCommands import run
-from uk.ac.gda.beans import BeansFactory
 from org.slf4j import LoggerFactory
+from uk.ac.gda.beans import BeansFactory
+
+from gda.configuration.properties import LocalProperties
 from gda.exafs.scan import BeanGroup, BeanGroups
+from gda.jython.commands.GeneralCommands import run
+from gda.data.scan.datawriter import NexusDataWriter, XasAsciiNexusDataWriter
+
+from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 
 class Scan:
     
@@ -75,3 +79,46 @@ class Scan:
         if scriptName != None and scriptName != "":
             scriptName = scriptName[scriptName.rfind("scripts/") + 8:]
             run(scriptName)
+            
+    """
+    Get the relevant datawriter config, create a datawriter and if it of the correct type then give it the config.
+    Give the datawriter to the scan.
+    """
+    def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
+        nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
+        asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
+        nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
+        asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
+        if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
+            nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
+            asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
+
+        # create XasAsciiNexusDataWriter object and give it the parameters
+        dataWriter = XasAsciiNexusDataWriter()
+        dataWriter.setRunFromExperimentDefinition(True);
+        dataWriter.setScanBean(scanBean);
+        dataWriter.setDetectorBean(detectorBean);
+        dataWriter.setSampleBean(sampleBean);
+        dataWriter.setOutputBean(outputBean);
+        dataWriter.setSampleName(sampleName);
+        dataWriter.setXmlFolderName(experimentFullPath)
+        dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+        dataWriter.setDescriptions(descriptions);
+        dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
+        dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
+        # get the ascii file format configuration (if not set here then will get it from the Finder inside the Java class
+        asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
+        if asciidatawriterconfig != None :
+            dataWriter.setConfiguration(asciidatawriterconfig)
+        thisscan.setDataWriter(dataWriter)
+        return thisscan
+
+    def _determineDetectorFilename(self,detectorBean):
+        xmlFileName = None
+        if detectorBean.getExperimentType() == "Fluorescence" :
+            fluoresenceParameters = detectorBean.getFluorescenceParameters()
+            xmlFileName = fluoresenceParameters.getConfigFileName()
+        elif detectorBean.getExperimentType() == "XES" :
+            fluoresenceParameters = detectorBean.getXesParameters()
+            xmlFileName = fluoresenceParameters.getConfigFileName()
+        return xmlFileName

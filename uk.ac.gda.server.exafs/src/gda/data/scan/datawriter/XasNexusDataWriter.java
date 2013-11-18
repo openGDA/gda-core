@@ -39,7 +39,7 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 	private static Logger logger = LoggerFactory.getLogger(XasNexusDataWriter.class);
 	private String xmlFolderName;
 	private String xmlFileName;
-	private Boolean runFromExperimentDefinition;
+	private Boolean runFromExperimentDefinition = false;
 	private IScanParameters scanBean;
 	private IDetectorParameters detectorBean;
 	private ISampleParameters sampleBean;

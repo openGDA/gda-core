@@ -920,7 +920,9 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	protected void LoadAcquireFromFile() {
 		String dataDir = PathConstructor.createFromDefaultProperty();
 		dataDir += "processing";
-		openDialog.setFilterPath(dataDir);
+		if (openDialog.getFilterPath() == null){
+			openDialog.setFilterPath(dataDir);
+		}
 		final String filePath = openDialog.open();
 		if (filePath != null) {
 			final String msg = ("Loading map from " + filePath);
@@ -960,7 +962,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 							public void run() {
 								acquireFileLabel.setText("Loaded: " + filePath);
 								getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-								plot(getDetectorList().getSelectedIndex(),false);
+								plot(getDetectorList().getSelectedIndex(),true);
 								setEnabled(true);
 							}
 						});
