@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,96 +24,86 @@ import gda.data.nexus.tree.NexusTreeBuilder;
 import gda.data.nexus.tree.NexusTreeNodeSelection;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class XmapNexusFileLoader implements XmapFileLoader{
+public class XmapNexusFileLoader implements XmapFileLoader {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmapNexusFileLoader.class);
 	private String fileName;
-	private ArrayList<MappingMode1Data> fullDataArray;
-	public XmapNexusFileLoader(String testfile1) {
+	private ChannelData[][] fullDataArray; // [number of pixels(data points)][element]
+	private int numberChannelsToRead;
+
+	public XmapNexusFileLoader(String testfile1, int numberChannelsToRead) {
 		this.fileName = testfile1;
+		this.numberChannelsToRead = numberChannelsToRead;
 	}
 
-	public MappingMode1Data getModeData(int dataPointNumber)
-	{
-		if(fullDataArray != null)
-		return fullDataArray.get(dataPointNumber);
-		return null;
-	}
 	@Override
-	public short[][] getData(int dataPointNumber)
-	{
-		if(fullDataArray != null)
-		{
-			return new short[][]{fullDataArray.get(dataPointNumber).channel0Spectrum, fullDataArray.get(dataPointNumber).channel1Spectrum
-, fullDataArray.get(dataPointNumber).channel2Spectrum, fullDataArray.get(dataPointNumber).channel3Spectrum};
-		}
-		return null;
+	public int getNumberOfDataPoints() {
+		if (fullDataArray != null)
+			return fullDataArray.length;
+		return 0;
 	}
-	
-	@Override
-	public int getNumberOfDataPoints()
-	{
-		if(fullDataArray != null)
-			return fullDataArray.size();
-			return 0;
-	}
+
 	@Override
 	public void loadFile() throws Exception {
-		//fileName = "/dls/i18/data/2011/cm2065-4/i18-6871-0-raster_xmap.h5";
-		INexusTree tree = NexusTreeBuilder.getNexusTree(fileName.trim(), NexusTreeNodeSelection.createTreeForAllNXEntries());
+		INexusTree tree = NexusTreeBuilder.getNexusTree(fileName.trim(),
+				NexusTreeNodeSelection.createTreeForAllNXEntries());
 		INexusTree mainTree = tree.getChildNode("entry", "NXentry");
-		mainTree = mainTree.getChildNode("instrument","NXinstrument");
-		mainTree = mainTree.getChildNode("detector","NXdetector");
+		mainTree = mainTree.getChildNode("instrument", "NXinstrument");
+		mainTree = mainTree.getChildNode("detector", "NXdetector");
 		NexusGroupData gdata = mainTree.getChildNode("data", "SDS").getData();
-		/*INexusTree mainTree = tree.getChildNode("Collected Data", "NXentry");
-		INexusTree rawDataTree = mainTree.getChildNode(
-				"rawData", "NXdata");
-		INexusTree dataTree = rawDataTree.getChildNode(
-				"data", "SDS");
-		NexusGroupData gdata = dataTree.getData();*/
+
+		int[] dataDim = gdata.dimensions;
+		short[] arry = (short[]) gdata.getBuffer();
+		short[][][] packedArray = packArray(arry, dataDim); // [buffer][XIA module][data]
+		int numberPixels = getNumberPixels(packedArray);
+		fullDataArray = new ChannelData[numberPixels][numberChannelsToRead];
 		
-		int dataDim[] = gdata.dimensions;
-		short [] arry = (short[])gdata.getBuffer();
-		short[][][] packedArray = packArray(arry, dataDim);
-		int startIndex =0;
-		fullDataArray = new ArrayList<MappingMode1Data>();
-		for(int m =0 ; m < packedArray.length; m++){
-			startIndex = 0;
-			logger.debug("the array legth is  " + packedArray[m].length);
-			for(int n =0; n < packedArray[m].length; n++){
+		logger.debug("Reading " + fileName.trim() + " which has " + packedArray.length + " buffers containing "
+				+ numberPixels + " pixels");
+		
+		for (int m = 0; m < packedArray.length; m++) {
+			for (int n = 0; n < packedArray[m].length; n++) {
 				BufferHeader bufHeader = readCommonHeader(packedArray[m][n]);
-				startIndex += bufHeader.bufferHeadderSize;
-				MappingMode1Data[] dataArray = new MappingMode1Data[bufHeader.numberOfPixelsInBuffer];
-				for(int i =0; i < bufHeader.numberOfPixelsInBuffer; i++)
-				{
-					dataArray [i] = (new MappingMode1Data());
-					dataArray[i].read(packedArray[m][n], startIndex);
-					startIndex += (dataArray[i].channel0Size + dataArray[i].channel1Size+ dataArray[i].channel2Size + dataArray[i].channel3Size + dataArray[i].pixelheaderSize);
-					fullDataArray.add(dataArray[i]);
+				int readIndex = bufHeader.bufferHeaderSize;
+				for (int pixel = 0; pixel < bufHeader.numberOfPixelsInBuffer; pixel++) {
+					MappingMode1BufferData dataArray = new MappingMode1BufferData();
+					dataArray.read(packedArray[m][n], readIndex);
+
+					readIndex += (dataArray.channel0Size + dataArray.channel1Size + dataArray.channel2Size
+							+ dataArray.channel3Size + dataArray.pixelheaderSize);
+
+					if (fullDataArray[dataArray.pixelNumber][bufHeader.detectorChannel0] != null)
+						logger.debug("oops");
+
+					if (bufHeader.detectorChannel0 < numberChannelsToRead)
+						fullDataArray[dataArray.pixelNumber][bufHeader.detectorChannel0] = dataArray.channel0Data;
+					if (bufHeader.detectorChannel1 < numberChannelsToRead)
+						fullDataArray[dataArray.pixelNumber][bufHeader.detectorChannel1] = dataArray.channel1Data;
+					if (bufHeader.detectorChannel2 < numberChannelsToRead)
+						fullDataArray[dataArray.pixelNumber][bufHeader.detectorChannel2] = dataArray.channel2Data;
+					if (bufHeader.detectorChannel3 < numberChannelsToRead)
+						fullDataArray[dataArray.pixelNumber][bufHeader.detectorChannel3] = dataArray.channel3Data;
 				}
-				
 			}
 		}
-		
-		logger.debug("The number of points in the data file is  " + fullDataArray.size());
-			
-		
+	}
+
+	private int getNumberPixels(short[][][] packedArray) {
+		// in the last buffer, add the number of pixels to the pixel-offset to get the total pixels in the HDF5 file
+		int totalPixels = packedArray[packedArray.length - 1][0][8] + packedArray[packedArray.length - 1][0][9];
+		return totalPixels;
 	}
 
 	private short[][][] packArray(short[] arry, int[] dataDim) {
-		short [][][] pArray = new short [dataDim[0]][dataDim[1]][dataDim[2]];
-		int startIndex =0;
-		for(int i =0; i< pArray.length; i++)
-		{
-			for(int  j =0 ; j< pArray[i].length; j++ )
-			{
-				for(int k =0; k < pArray[i][j].length;k++)
-				{
+		short[][][] pArray = new short[dataDim[0]][dataDim[1]][dataDim[2]];
+		int startIndex = 0;
+		for (int i = 0; i < pArray.length; i++) {
+			for (int j = 0; j < pArray[i].length; j++) {
+				for (int k = 0; k < pArray[i][j].length; k++) {
 					pArray[i][j][k] = arry[startIndex++];
 				}
 			}
@@ -126,12 +116,12 @@ public class XmapNexusFileLoader implements XmapFileLoader{
 		header.read(arry);
 		return header;
 
-		
 	}
-	private class BufferHeader{
+
+	private class BufferHeader {
 		int tagWord0;
 		int tagWord1;
-		int bufferHeadderSize;
+		int bufferHeaderSize;
 		int mappingMode;
 		int runNumber;
 		int sequentialBufferNumber;
@@ -152,44 +142,42 @@ public class XmapNexusFileLoader implements XmapFileLoader{
 		int channel2Size;
 		int channel3Size;
 		int bufferErrors;
-		
-		void read(short[] arry)
-		{
-			tagWord0  = arry[0];
+
+		void read(short[] arry) {
+			tagWord0 = arry[0];
 			tagWord1 = arry[1];
-			bufferHeadderSize= arry[2];
-			mappingMode= arry[3];
-			 runNumber = arry[4];
-			 int right = arry[5];
-			 int left  = arry[6];
-			 
-			 sequentialBufferNumber =  left << 16 |(right & 0xFFFF);
-			 bufferID= arry[7];
-			 numberOfPixelsInBuffer= arry[8];
-			 startingPixelNumber= (arry[10] << 16) |(arry[9] & 0xFFFF) ;
-			 moduleSerialNumber= arry[11];
-			 detectorChannel0= arry[12];
-			 detectorElementChannel0= arry[13];
-			 detectorChannel1= arry[14];
-			 detectorElementChannel1= arry[15];
-			 detectorChannel2= arry[16];
-			 detectorElementChannel2= arry[17];
-			 detectorChannel3= arry[18];
-			 detectorElementChannel3= arry[19];
-			 channel0Size= arry[20];
-			 channel1Size= arry[21];
-			 channel2Size= arry[22];
-			 channel3Size= arry[23];
-			 bufferErrors= arry[24];
+			bufferHeaderSize = arry[2];
+			mappingMode = arry[3];
+			runNumber = arry[4];
+			int right = arry[5];
+			int left = arry[6];
+
+			sequentialBufferNumber = left << 16 | (right & 0xFFFF);
+			bufferID = arry[7];
+			numberOfPixelsInBuffer = arry[8];
+			startingPixelNumber = (arry[10] << 16) | (arry[9] & 0xFFFF);
+			moduleSerialNumber = arry[11];
+			detectorChannel0 = arry[12];
+			detectorElementChannel0 = arry[13];
+			detectorChannel1 = arry[14];
+			detectorElementChannel1 = arry[15];
+			detectorChannel2 = arry[16];
+			detectorElementChannel2 = arry[17];
+			detectorChannel3 = arry[18];
+			detectorElementChannel3 = arry[19];
+			channel0Size = arry[20];
+			channel1Size = arry[21];
+			channel2Size = arry[22];
+			channel3Size = arry[23];
+			bufferErrors = arry[24];
 		}
-		
+
 		@Override
-		public String toString()
-		{
+		public String toString() {
 			String output = "";
 			output += ("tagWord0 " + tagWord0 + "\n");
 			output += ("tagWord1 " + tagWord1 + "\n");
-			output += ("bufferHeadderSize " + bufferHeadderSize + "\n");
+			output += ("bufferHeadderSize " + bufferHeaderSize + "\n");
 			output += ("mappingMode " + mappingMode + "\n");
 			output += ("runNumber " + runNumber + "\n");
 			output += ("sequentialBufferNumber " + sequentialBufferNumber + "\n");
@@ -212,10 +200,15 @@ public class XmapNexusFileLoader implements XmapFileLoader{
 			output += ("bufferErrors " + bufferErrors + "\n");
 			return output;
 		}
-		
+
 	}
-	private class MappingMode1Data {
-//		int spaceToStart;
+
+	private class ChannelData {
+		ChannelStatistics channelStatistics;
+		short[] spectrum;
+	}
+
+	private class MappingMode1BufferData {
 		int tagWord0;
 		int tagWord1;
 		int pixelheaderSize;
@@ -226,69 +219,69 @@ public class XmapNexusFileLoader implements XmapFileLoader{
 		int channel1Size, l;
 		int channel2Size, m;
 		int channel3Size, n;
-		ChannelStatistics channel0Statistics;
-		ChannelStatistics channel1Statistics;
-		ChannelStatistics channel2Statistics;
-		ChannelStatistics channel3Statistics;
-		short[] channel0Spectrum;
-		short[] channel1Spectrum;
-		short[] channel2Spectrum;
-		short[] channel3Spectrum;
+		ChannelData channel0Data;
+		ChannelData channel1Data;
+		ChannelData channel2Data;
+		ChannelData channel3Data;
 
-		short[] readSpectrum(short[] in,int startIndex, int sizeOfSpectrum) {
+		short[] readSpectrum(short[] in, int startIndex, int sizeOfSpectrum) {
 			short[] spectrum = new short[sizeOfSpectrum];
 			int endIndex = startIndex + sizeOfSpectrum;
 			for (int i = startIndex; i < endIndex; i++) {
-				spectrum[i- startIndex] =in[i];
+				spectrum[i - startIndex] = in[i];
 			}
 			return spectrum;
 		}
 
 		@SuppressWarnings("unused")
-		void read(short[] in , int startIndex) throws IOException {
-			
+		void read(short[] in, int startIndex) throws IOException {
+
 			tagWord0 = in[startIndex++];
 			tagWord1 = in[startIndex++];
 			pixelheaderSize = in[startIndex++];
 			mappingMode = in[startIndex++];
 			int right = in[startIndex++];
 			int left = in[startIndex++];
-			pixelNumber = left <<16 | ( right & 0xFFFF);
+			pixelNumber = left << 16 | (right & 0xFFFF);
 			right = in[startIndex++];
 			left = in[startIndex++];
-			totalPixelBlockSize = left <<16| ( right & 0xFFFF);
+			totalPixelBlockSize = left << 16 | (right & 0xFFFF);
 			channel0Size = in[startIndex++];
 			k = channel0Size;
-			channel1Size =in[startIndex++];
+			channel1Size = in[startIndex++];
 			l = channel1Size;
 			channel2Size = in[startIndex++];
 			m = channel2Size;
 			channel3Size = in[startIndex++];
-			n = channel3Size;//skip 20 words
+			n = channel3Size;// skip 20 words
 			startIndex += 20;
-			channel0Statistics = new ChannelStatistics();
-			channel0Statistics.read(in, startIndex);
+			channel0Data = new ChannelData();
+			channel0Data.channelStatistics = new ChannelStatistics();
+			channel0Data.channelStatistics.read(in, startIndex);
 			startIndex += 8;
-			channel1Statistics = new ChannelStatistics();
-			channel1Statistics.read(in, startIndex);
-			startIndex +=8;
-			channel2Statistics = new ChannelStatistics();
-			channel2Statistics.read(in, startIndex);
-			startIndex +=8;
-			channel3Statistics = new ChannelStatistics();
-			channel3Statistics.read(in, startIndex);
-			startIndex +=8;
-			//skipping 192 words
-			startIndex +=192;
-			
-			channel0Spectrum = readSpectrum(in, startIndex, k);
+			channel1Data = new ChannelData();
+			channel1Data.channelStatistics = new ChannelStatistics();
+			channel1Data.channelStatistics.read(in, startIndex);
+			startIndex += 8;
+			channel2Data = new ChannelData();
+			channel2Data.channelStatistics = new ChannelStatistics();
+			channel2Data.channelStatistics.read(in, startIndex);
+			startIndex += 8;
+			channel3Data = new ChannelData();
+			channel3Data.channelStatistics = new ChannelStatistics();
+			channel3Data.channelStatistics.read(in, startIndex);
+			startIndex += 8;
+			// skipping 192 words
+			startIndex += 192;
+
+			channel0Data.spectrum = readSpectrum(in, startIndex, k);
 			startIndex += k;
-			channel1Spectrum = readSpectrum(in,startIndex, l);
-			startIndex +=l;
-			channel2Spectrum = readSpectrum(in, startIndex,m);
-			startIndex +=m;
-			channel3Spectrum = readSpectrum(in,startIndex, n);
-			startIndex +=n;
+			channel1Data.spectrum = readSpectrum(in, startIndex, l);
+			startIndex += l;
+			channel2Data.spectrum = readSpectrum(in, startIndex, m);
+			startIndex += m;
+			channel3Data.spectrum = readSpectrum(in, startIndex, n);
+			startIndex += n;
 		}
 
 		/**
@@ -313,145 +306,105 @@ public class XmapNexusFileLoader implements XmapFileLoader{
 			output += "(l) = " + l + "\n";
 			output += "(m) = " + m + "\n";
 			output += "(n) = " + n + "\n";
-			output += "Channel 0 Statistics = " + channel0Statistics + "\n";
-			output += "Channel 1 Statistics = " + channel1Statistics + "\n";
-			output += "Channel 2 Statistics = " + channel2Statistics + "\n";
-			output += "Channel 3 Statistics = " + channel3Statistics + "\n";
+			output += "Channel 0 Statistics = " + channel0Data.channelStatistics + "\n";
+			output += "Channel 1 Statistics = " + channel1Data.channelStatistics + "\n";
+			output += "Channel 2 Statistics = " + channel2Data.channelStatistics + "\n";
+			output += "Channel 3 Statistics = " + channel3Data.channelStatistics + "\n";
 			return output;
 		}
 	}
 
-		private class ChannelStatistics {
-			float realtime;
-			float livetime;
-			int triggers;
-			int outputEvents;
+	private class ChannelStatistics {
+		float realtime;
+		float livetime;
+		int triggers;
+		int outputEvents;
 
-			void read(short[] in , int startIndex) {
-				float clock = 3125000;
-				int right = in[startIndex++];
-				int left = in[startIndex++];
-				int lreal = left <<16;
-				int rreal = (right & 0xFFFF);
-				int ored = lreal| rreal;
-				realtime = ored/clock;
-				right = in[startIndex++];
-				left = in[startIndex++];
-				livetime = (left <<16 | (right & 0xFFFF))/clock;
-				right = in[startIndex++];
-				left = in[startIndex++];
-				triggers =left <<16 | (right & 0xFFFF);
-				right = in[startIndex++];
-				left = in[startIndex++];
-				outputEvents =left <<16 | (right & 0xFFFF);
-			}
-
-			/**
-			 * Overloaded tostring method
-			 * 
-			 * @return output
-			 */
-			@Override
-			public String toString() {
-				return "Realtime " + realtime + ": Livetime " + livetime + ": Triggers " + triggers + ": Output Events "
-						+ outputEvents;
-			}
-
+		void read(short[] in, int startIndex) {
+			float clock = 3125000;
+			int right = in[startIndex++];
+			int left = in[startIndex++];
+			int lreal = left << 16;
+			int rreal = (right & 0xFFFF);
+			int ored = lreal | rreal;
+			realtime = ored / clock;
+			right = in[startIndex++];
+			left = in[startIndex++];
+			livetime = (left << 16 | (right & 0xFFFF)) / clock;
+			right = in[startIndex++];
+			left = in[startIndex++];
+			triggers = left << 16 | (right & 0xFFFF);
+			right = in[startIndex++];
+			left = in[startIndex++];
+			outputEvents = left << 16 | (right & 0xFFFF);
 		}
 
+		/**
+		 * Overloaded tostring method
+		 * 
+		 * @return output
+		 */
 		@Override
-		public double getTrigger(int dataPointNumber, int element) {
-			switch(element){
-				case 0:
-					return fullDataArray.get(dataPointNumber).channel0Statistics.triggers;
-				case 1:
-					return fullDataArray.get(dataPointNumber).channel1Statistics.triggers;
-				case 2:
-					return fullDataArray.get(dataPointNumber).channel2Statistics.triggers;
-				case 3:
-					return fullDataArray.get(dataPointNumber).channel3Statistics.triggers;
-				default:
-					return 0.0;
-			}
+		public String toString() {
+			return "Realtime " + realtime + ": Livetime " + livetime + ": Triggers " + triggers + ": Output Events "
+					+ outputEvents;
 		}
 
-		@Override
-		public double getRealTime(int dataPointNumber, int element) {
-			switch(element){
-				case 0:
-					return fullDataArray.get(dataPointNumber).channel0Statistics.realtime;
-				case 1:
-					return fullDataArray.get(dataPointNumber).channel1Statistics.realtime;
-				case 2:
-					return fullDataArray.get(dataPointNumber).channel2Statistics.realtime;
-				case 3:
-					return fullDataArray.get(dataPointNumber).channel3Statistics.realtime;
-				default:
-					return 0.0;
-			}
-		}
-		@Override
-		public double getLiveTime(int dataPointNumber, int element) {
-			switch(element){
-				case 0:
-					return fullDataArray.get(dataPointNumber).channel0Statistics.livetime;
-				case 1:
-					return fullDataArray.get(dataPointNumber).channel1Statistics.livetime;
-				case 2:
-					return fullDataArray.get(dataPointNumber).channel2Statistics.livetime;
-				case 3:
-					return fullDataArray.get(dataPointNumber).channel3Statistics.livetime;
-				default:
-					return 0.0;
-			}
-		}
-		
-		@Override
-		public double getEvents(int dataPointNumber, int element) {
-			switch(element){
-				case 0:
-					return fullDataArray.get(dataPointNumber).channel0Statistics.outputEvents;
-				case 1:
-					return fullDataArray.get(dataPointNumber).channel1Statistics.outputEvents;
-				case 2:
-					return fullDataArray.get(dataPointNumber).channel2Statistics.outputEvents;
-				case 3:
-					return fullDataArray.get(dataPointNumber).channel3Statistics.outputEvents;
-				default:
-					return 0.0;
-			}
-		}
+	}
 
-		@Override
-		public short[][][] getData(int fromDataPointNumber, int toDataPointNumber) throws Exception {
-			int totalToRead =(toDataPointNumber -  fromDataPointNumber) + 1; 
-			if(fullDataArray == null || fromDataPointNumber > fullDataArray.size() || toDataPointNumber >= fullDataArray.size())
-			{
-				throw new Exception("Data not available for the requested range " + fromDataPointNumber + " - " + toDataPointNumber );
+	@Override
+	public double getTrigger(int dataPointNumber, int element) {
+		return fullDataArray[dataPointNumber][element].channelStatistics.triggers;
+	}
+
+	@Override
+	public double getRealTime(int dataPointNumber, int element) {
+		return fullDataArray[dataPointNumber][element].channelStatistics.realtime;
+	}
+
+	@Override
+	public double getLiveTime(int dataPointNumber, int element) {
+		return fullDataArray[dataPointNumber][element].channelStatistics.livetime;
+	}
+
+	@Override
+	public double getEvents(int dataPointNumber, int element) {
+		return fullDataArray[dataPointNumber][element].channelStatistics.outputEvents;
+	}
+
+	@Override
+	public short[][] getData(int dataPointNumber) {
+		if (fullDataArray != null) {
+			short[][] dataFromArrays = new short[numberChannelsToRead][];
+			for (int chn = 0; chn < numberChannelsToRead; chn++) {
+				dataFromArrays[chn] = fullDataArray[dataPointNumber][chn].spectrum;
 			}
-			if(fromDataPointNumber > toDataPointNumber)
-			{
-				int temp = toDataPointNumber;
-				toDataPointNumber = fromDataPointNumber;
-				fromDataPointNumber = temp;
-			}
-			short [][][] returnData  = new short[totalToRead][][];
-			if(fullDataArray != null)
-			{
-				if(fromDataPointNumber == toDataPointNumber)
-				{
-					returnData[0] =  new short[][]{fullDataArray.get(fromDataPointNumber).channel0Spectrum, fullDataArray.get(fromDataPointNumber).channel1Spectrum
-							, fullDataArray.get(fromDataPointNumber).channel2Spectrum, fullDataArray.get(fromDataPointNumber).channel3Spectrum};
-					return returnData;
-				}
-				int returnIndex=0;
-				for(int dataPointNumber =fromDataPointNumber; dataPointNumber <= toDataPointNumber; dataPointNumber++)
-				{
-					returnData[returnIndex++] = new short[][]{fullDataArray.get(dataPointNumber).channel0Spectrum, fullDataArray.get(dataPointNumber).channel1Spectrum
-	, fullDataArray.get(dataPointNumber).channel2Spectrum, fullDataArray.get(dataPointNumber).channel3Spectrum};
-				}
-				return returnData;
-			}
-			return null;
+			return dataFromArrays;
 		}
+		return null;
+	}
+
+	@Override
+	public short[][][] getData(int fromDataPointNumber, int toDataPointNumber) throws Exception {
+		int totalToRead = (toDataPointNumber - fromDataPointNumber) + 1;
+		if (fullDataArray == null || fromDataPointNumber > fullDataArray.length
+				|| toDataPointNumber >= fullDataArray.length) {
+			throw new Exception("Data not available for the requested range " + fromDataPointNumber + " - "
+					+ toDataPointNumber);
+		}
+		if (fromDataPointNumber > toDataPointNumber) {
+			int temp = toDataPointNumber;
+			toDataPointNumber = fromDataPointNumber;
+			fromDataPointNumber = temp;
+		}
+		short[][][] returnData = new short[totalToRead][][];
+
+		if (fullDataArray != null) {
+			for (int dataPointNumber = fromDataPointNumber; dataPointNumber <= toDataPointNumber; dataPointNumber++) {
+				returnData[dataPointNumber] = getData(dataPointNumber);
+			}
+			return returnData;
+		}
+		return null;
+	}
 }

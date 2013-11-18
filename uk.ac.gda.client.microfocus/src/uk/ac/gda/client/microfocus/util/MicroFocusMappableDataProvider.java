@@ -189,6 +189,14 @@ public abstract class MicroFocusMappableDataProvider {
 				ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/raster_counterTimer01/I0");
 				i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
 			}
+			else if(names.contains("/entry1/instrument/counterTimer01/I0")){
+				ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/instrument/counterTimer01/I0");
+				i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+			}
+			else if(names.contains("/entry1/instrument/raster_counterTimer01/I0")){
+				ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/instrument/raster_counterTimer01/I0");
+				i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+			}
 			
 			if(names.contains("/entry1/counterTimer01/It")){
 				ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/counterTimer01/It");
@@ -198,6 +206,14 @@ public abstract class MicroFocusMappableDataProvider {
 				ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/raster_counterTimer01/It");
 				itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
 			}
+			else if(names.contains("/entry1/counterTimer01/It")){
+					ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/instrument/counterTimer01/It");
+					itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+				}
+			else if(names.contains("/entry1/raster_counterTimer01/It")){
+					ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/instrument/raster_counterTimer01/It");
+					itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+				}
 			
 			if (xscannableDS == null) {
 				

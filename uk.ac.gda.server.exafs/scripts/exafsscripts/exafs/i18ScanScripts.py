@@ -31,7 +31,7 @@ class I18XasScan(XasScan):
             collectionTime = scan.getExafsTime()
             if(scan.getExafsToTime() > collectionTime):
                 collectionTime = scan.getExafsToTime()
-        self.log( "setting collection time to" , str(collectionTime))
+        self.log( "Setting collection time to" , str(collectionTime))
 
         if self.topupMonitor!=None:
             self.topupMonitor.setPauseBeforePoint(True)

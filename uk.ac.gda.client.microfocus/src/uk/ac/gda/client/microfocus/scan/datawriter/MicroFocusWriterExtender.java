@@ -382,17 +382,17 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 							}
 						}
 					}
-					if (roiNames != null){
-						for (String s : roiNames) {
-							double val = roiTable.get(s);
-							DecimalFormat df = new DecimalFormat("#");
-							rgbLine.append(df.format(val));
-							rgbLine.append("	");
-						}
-					}
 					logger.debug("The y value is " + xy[0]);
 					logger.debug("the x value is " + xy[1]);
 					logger.debug("the data to plot is " + value);
+				}
+			}
+			if (roiNames != null){
+				for (String s : roiNames) {
+					double val = roiTable.get(s);
+					DecimalFormat df = new DecimalFormat("#");
+					rgbLine.append(df.format(val));
+					rgbLine.append("	");
 				}
 			}
 			if (dataPoint.getCurrentPointNumber() == 0)

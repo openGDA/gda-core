@@ -59,11 +59,13 @@ class RasterMapReturnWrite(Map):
             self.trajSampleX = self.traj1SampleX
             self.trajPositionReader = self.traj1PositionReader
             self.trajtfg=self.traj1tfg
+            self.trajtfg.setTtlSocket(1)
             self.trajxmap=self.traj1xmap
         elif stage==3:
             self.trajSampleX = self.traj3SampleX
             self.trajPositionReader = self.traj3PositionReader
             self.trajtfg=self.traj3tfg
+            self.trajtfg.setTtlSocket(2)
             self.trajxmap=self.traj3xmap
         else:
             print "please enter 1 or 3 as a parameter where 1 is the small stage and 3 is the large stage"
@@ -211,15 +213,15 @@ class RasterMapReturnWrite(Map):
         
     def setup(self, beanGroup):
         rasterscan = beanGroup.getScan()
-        print "collection time is " , str(rasterscan.getRowTime())   
+        print "Collection time is " , str(rasterscan.getRowTime())   
         collectionTime = rasterscan.getRowTime()
-        print "1setting collection time to" , str(collectionTime)  
+        print "Setting collection time to" , str(collectionTime)  
         command_server = self.finder.find("command_server")    
         topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
         beam = command_server.getFromJythonNamespace("beam", None)
         detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
         trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-        print "setting collection time to" , str(collectionTime)
+        print "Setting collection time to" , str(collectionTime)
         if(not (topupMonitor == None)):        
             topupMonitor.setPauseBeforePoint(False)
             topupMonitor.setPauseBeforeLine(True)

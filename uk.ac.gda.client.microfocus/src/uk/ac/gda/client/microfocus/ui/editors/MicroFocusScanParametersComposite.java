@@ -32,7 +32,6 @@ import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
-import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
@@ -327,11 +326,11 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		numberOfRowsLabel.setText("No. of rows : " + numberOfRows);
 		if (raster.getValue()) {
 			double timePerPoint = rowTime.getNumericValue() / pointsPerRow;
-			timePerPointLabel.setText("Time per point : " + df.format(timePerPoint));
+			timePerPointLabel.setText("Time per point (s) : " + df.format(timePerPoint));
 			scanTypeLabel.setText("Raster Map");
 		} else {
 			scanTypeLabel.setText("Step Map");
-			timePerPointLabel.setText("Time per point : " + df.format(collectionTime.getNumericValue()));
+			timePerPointLabel.setText("Time per point (s) : " + df.format(collectionTime.getNumericValue()));
 		}
 		infoComposite.layout();
 	}

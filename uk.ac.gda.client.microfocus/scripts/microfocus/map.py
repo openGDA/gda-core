@@ -25,7 +25,7 @@ from gda.configuration.properties import LocalProperties
 
 class Map(Scan):
     
-    def __init__(self, d7a, d7b, counterTimer01, rcpController):
+    def __init__(self, d7a, d7b, counterTimer01, rcpController, xScan, yScan):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -34,6 +34,8 @@ class Map(Scan):
         self.detectorBeanFileName = ""
         self.rcpController = rcpController
         self.beamEnabled = True
+        self.xScan = xScan
+        self.yScan = yScan
     
     def enableBeam(self):
         self.beamEnabled = True
@@ -129,8 +131,8 @@ class Map(Scan):
                 firstDetector = detectorList[0]
                 #detectorList=[]
                 
-                if (detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" ):
-                    detectorList.append(self.finder.find("counterTimer02"))
+                #if (detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" ):
+                #    detectorList.append(self.finder.find("counterTimer02"))
                 #else:
                 #    detectorList.append(self.finder.find("counterTimer03"))
                 #detectorList.append(self.counterTimer01)
@@ -145,12 +147,33 @@ class Map(Scan):
             else:
                 self.mfd.setZValue(zScannablePos)
             dataWriter.addDataWriterExtender(self.mfd)
-            xScannable = self.finder.find(scanBean.getXScannableName())
+            
+            
+            
+            
+            print scanBean.getXScannableName()
+            print scanBean.getYScannableName()
+            
+            #print self.xScan
+            
+            if scanBean.getXScannableName() == 'micosx':
+                xScannable=self.xScan
+            else:
+                xScannable = self.finder.find(scanBean.getXScannableName())
+                
+            if scanBean.getYScannableName() == 'micosy':
+                yScannable=self.yScan
+            else:
+                yScannable = self.finder.find(scanBean.getYScannableName())
+                    
+                    
+                    
+                    
             if xScannable is None:
-                xScannable =   globals()[scanBean.getXScannableName()]
-            yScannable = self.finder.find(scanBean.getYScannableName())
+                xScannable = globals()[scanBean.getXScannableName()]
             if yScannable is None:
                 yScannable = globals()[scanBean.getYScannableName()]
+                
             useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
             print "using frames ", str(useFrames)
             energyScannable = self.finder.find(scanBean.getEnergyScannableName())
@@ -222,7 +245,7 @@ class Map(Scan):
             beam = command_server.getFromJythonNamespace("beam", None)
             detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
             trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-            print "setting collection time to" , str(collectionTime)        
+            print "Setting collection time to" , str(collectionTime)        
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setCollectionTime(collectionTime)
             

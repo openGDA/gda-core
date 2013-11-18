@@ -85,12 +85,12 @@ public class MicroFocusDisplayController {
 	public boolean displayPlot(int x, int y) throws Exception {
 		if (currentDetectorProvider != null && ObjectStateManager.isActive(detectorProvider)) {
 			double[] spectrum = null;
-			try{
+			String detectorName = currentDetectorProvider.getDetectorName();
+			if(detectorName.equals("xmapMca"))
 				spectrum = currentDetectorProvider.getSpectrum(this.currentDetectorElementNo, x, y);
-			}
-			catch(Exception e){
+			else
 				spectrum = currentDetectorProvider.getSpectrum(this.currentDetectorElementNo, y, x);
-			}
+			
 			if (spectrum != null) {
 				AbstractDataset yaxis = AbstractDataset.array(spectrum);
 
@@ -101,7 +101,6 @@ public class MicroFocusDisplayController {
 				} catch (DeviceException e) {
 					logger.error("Unable to plot the spectrum for " + x + " " + y, e);
 					throw new Exception("Unable to plot the spectrum for " + x + " " + y, e);
-
 				}
 			}
 			throw new Exception("No Spectrum available for index " + x + "," + y);
@@ -135,10 +134,16 @@ public class MicroFocusDisplayController {
 		}
 
 		if (selectedElement.equals("I0"))
-			plotter.plotDataset(detectorProvider.getI0data());
+			if(detectorProvider!=null)
+				plotter.plotDataset(detectorProvider.getI0data());
+			else
+				JythonServerFacade.getInstance().evaluateCommand("map.getMFD().displayPlot(\"" + selectedElement + "\")");
 		
 		else if(selectedElement.equals("It"))
-			plotter.plotDataset(detectorProvider.getItdata());
+			if(detectorProvider!=null)
+				plotter.plotDataset(detectorProvider.getItdata());
+			else
+				JythonServerFacade.getInstance().evaluateCommand("map.getMFD().displayPlot(\"" + selectedElement + "\")");
 		
 		else if (ObjectStateManager.isActive(detectorProvider)) {
 			if (plotter != null) {
