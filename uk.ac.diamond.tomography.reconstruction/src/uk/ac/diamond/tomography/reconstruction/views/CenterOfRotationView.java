@@ -30,6 +30,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.dawnsci.common.widgets.stepper.IStepperSelectionListener;
+import org.dawnsci.common.widgets.stepper.Stepper;
+import org.dawnsci.common.widgets.stepper.StepperChangedEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -68,9 +71,6 @@ import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.BackprojectionType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.FBPType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.HMxmlType;
-import uk.ac.gda.ui.components.IStepperSelectionListener;
-import uk.ac.gda.ui.components.Stepper;
-import uk.ac.gda.ui.components.StepperChangedEvent;
 import uk.ac.gda.util.io.FileUtils;
 
 public class CenterOfRotationView extends BaseParameterView implements ISelectionListener {

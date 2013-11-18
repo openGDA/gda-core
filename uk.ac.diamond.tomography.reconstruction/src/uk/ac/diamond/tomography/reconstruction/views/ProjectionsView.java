@@ -20,6 +20,9 @@ package uk.ac.diamond.tomography.reconstruction.views;
 import gda.analysis.io.ScanFileHolderException;
 
 import org.dawb.common.services.IPaletteService;
+import org.dawnsci.common.widgets.stepper.IStepperSelectionListener;
+import org.dawnsci.common.widgets.stepper.Stepper;
+import org.dawnsci.common.widgets.stepper.StepperChangedEvent;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.PlottingFactory;
@@ -72,9 +75,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
-import uk.ac.gda.ui.components.IStepperSelectionListener;
-import uk.ac.gda.ui.components.Stepper;
-import uk.ac.gda.ui.components.StepperChangedEvent;
 
 public class ProjectionsView extends BaseTomoReconPart implements ISelectionListener, ISelectionProvider {
 
