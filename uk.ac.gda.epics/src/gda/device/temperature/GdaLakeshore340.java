@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 4K temperature control supports Lakeshore 340 device using EpicsLakeshore340Controoler.
+ * 4K temperature control supports Lakeshore 340 device using EpicsLakeshore340Controller.
  */
 public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	/**

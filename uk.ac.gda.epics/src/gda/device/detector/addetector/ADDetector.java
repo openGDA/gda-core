@@ -184,8 +184,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private static final String[] A = new String[] {};
 
-	protected static final String UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE = "ADDetector does not support operation through its Scannable interface. Do not use pos until pos supports detectors as Detectors rather than Scannables";
-
 	protected static final String FILEPATH_EXTRANAME = "filepath";
 
 	private static Logger logger = LoggerFactory.getLogger(ADDetector.class);
@@ -203,8 +201,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	private String description = "ADDetector";
 
 	private String detectorType = "ADDetector";
-
-	private static String ARRAY_DATA_NAME = "arrayData";
 
 	private boolean computeStats = false;
 
@@ -476,17 +472,22 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void asynchronousMoveTo(Object collectionTime) throws DeviceException {
-		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+		throw new DeviceException("ADDetector does not support operation through its Scannable interface.");
 	}
 
 	@Override
-	public boolean isBusy() {
-		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+	public boolean isBusy() throws DeviceException {
+		return getStatus() == BUSY;
 	}
 
 	@Override
 	public Object getPosition() throws DeviceException {
-		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+		try {
+			// in some cases this message can be logged twice every millisecond and fill up the disks
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		} 
+		throw new RuntimeException("ADDetector does not support operation through its Scannable interface.");
 	}
 
 	@Override
@@ -653,12 +654,12 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	protected void addDoubleItemToNXData(NXDetectorData data, String name, Double val) {
-		data.addData(getName(), name, dims, NexusFile.NX_FLOAT64, new double[] { val }, null, null);
+		INexusTree valdata = data.addData(getName(), name, dims, NexusFile.NX_FLOAT64, new double[] { val }, null, null);
+		valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s",  getName(), name))));
 		data.setPlottableValue(name, val);
 	}
 
 	protected final void addMultipleDoubleItemsToNXData(NXDetectorData data, String[] nameArray, Double[] valArray) {
-
 		for (int i = 0; i < valArray.length; i++) {
 			addDoubleItemToNXData(data, nameArray[i], valArray[i]);
 		}
@@ -694,6 +695,8 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	boolean usePipeline = false;
 
 	boolean checkFileExists = false;
+
+	private int[] dataChunking;
 
 	public boolean isUsePipeline() {
 		return usePipeline;
@@ -799,8 +802,18 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			throws Exception, DeviceException {
 
 		ArrayData arrayData = ArrayData.readArrayData(ndArray);
-		data.addData(detectorName, "data", arrayData.getDims(), arrayData.getNexusType(), arrayData.getDataVals(),
-				ARRAY_DATA_NAME, 1);
+		NexusGroupData ngd = new NexusGroupData(arrayData.getDims(), arrayData.getNexusType(), arrayData.getDataVals());
+		ngd.isDetectorEntryData = true;
+		ngd.chunkDimensions = dataChunking;
+		data.addData(detectorName, "data", ngd, null, 1);
+	}
+
+	public int[] getDataChunking() {
+		return dataChunking;
+	}
+
+	public void setDataChunking(int[] dataChunking) {
+		this.dataChunking = dataChunking;
 	}
 
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {

@@ -117,6 +117,14 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 		} catch (Exception e) {
 			throw new DeviceException("Problem while waiting for point: " + desiredPoint, e);
 		}
+		
+		try {
+			// Jon Thompson and Giles Knap have discovered that this works around pushing 1 to the TSRead not updating
+			// the arrays.
+			tsControlPV.putWait(TSControlCommands.READ);
+		} catch (IOException e1) {
+			throw new DeviceException("Problem asking EPICS to read data up into PVs: " + desiredPoint, e1);
+		}
 
 		int numNewPoints = numPointsAvailable - numPointsReturned;
 		// Below a 'point' is a list of doubles, one for each pv to read.
