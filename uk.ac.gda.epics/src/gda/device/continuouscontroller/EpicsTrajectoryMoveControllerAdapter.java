@@ -220,7 +220,8 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 
 	private boolean zeroLength(Double[] offset) {
 		for (int i = 0; i < offset.length; i++) {
-			if (offset[i] != 0) {
+			Double offseti = offset[i];
+			if ((offseti != null) && (offseti != 0)) {
 				return false;
 			}
 		}
