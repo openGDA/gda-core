@@ -21,9 +21,6 @@ package gda.simplescan;
 import gda.configuration.properties.LocalProperties;
 
 import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -37,7 +34,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
