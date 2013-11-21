@@ -538,7 +538,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					int[] dataDimMake = generateDataDim(tree.isPointDependent(),
 							tree.isPointDependent() ? scanDimensions : null, sds.dimensions);
 
-					// TODO allow NGD to specify compression and chunks
 					if (sds.dimensions != null && sds.dimensions.length > 1) {
 						int[] chunks = Arrays.copyOf(dataDimMake, dataDimMake.length);						
 						for (int i = 0; i < chunks.length; i++) {
