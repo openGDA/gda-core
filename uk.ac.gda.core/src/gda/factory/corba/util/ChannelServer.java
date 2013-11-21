@@ -64,18 +64,17 @@ public class ChannelServer {
 		String property;
 		Properties props = System.getProperties();
 
-		if ((property = LocalProperties.get("gda.ORBClass")) != null)
-			props.put("org.omg.CORBA.ORBClass", property);
-
-		if ((property = LocalProperties.get("gda.ORBSingletonClass")) != null)
-			props.put("org.omg.CORBA.ORBSingletonClass", property);
+		props.put("org.omg.CORBA.ORBClass", LocalProperties.get("gda.ORBClass", "org.jacorb.orb.ORB"));
+		props.put("org.omg.CORBA.ORBSingletonClass", LocalProperties.get("gda.ORBSingletonClass", "org.jacorb.orb.ORBSingleton"));
 
 		if (args.length > 0)
 			eventChannelName = args[0];
 		else if ((property = NameFilter.getEventChannelName()) != null)
 			eventChannelName = property;
-		else
-			eventChannelName = "DefaultEventChannel";
+		else {
+			logger.warn("NameFilter.getEventChannelName() should never null!");
+			eventChannelName = "local.eventChannel";
+		}
 
 		ORB orb = ORB.init(args, props);
 		ChannelServer channelServer = new ChannelServer(eventChannelName, orb);

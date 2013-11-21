@@ -234,7 +234,6 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 						int size = queue.getSummaryList().size();
 						if (size == 0) {
 							this.state = STATE.WAITING_START;
-							sendCommandToManagerThread(100, COMMAND.PAUSE);
 						}
 					} catch (Exception e) {
 						// should never be a timeout when pausing an empty queue

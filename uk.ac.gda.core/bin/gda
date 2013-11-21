@@ -829,7 +829,7 @@ where task can be:
 			else:
 				rcpclient_required_dependent=["org.python.pydev","org.python.pydev.core","org.python.pydev.debug","org.python.pydev.ast","org.python.pydev.customizations","org.python.pydev.help","org.python.pydev.jython","org.python.pydev.parser","org.python.pydev.refactoring","com.python.pydev","com.python.pydev.analysis","com.python.pydev.codecompletion","com.python.pydev.debug","com.python.pydev.fastparser","com.python.pydev.refactoring","ch.qos.logback.eclipse"]
 				#Only RCP client requires these bundles so become critial - a real hack, need a better solution.
-				if self.task != "rcpclient" and dependent not in rcpclient_required_dependent:
+				if self.task == "rcpclient" and dependent not in rcpclient_required_dependent:
 					self.logger.critical("Cannot find dependent: %s" % (dependent,))
 
 

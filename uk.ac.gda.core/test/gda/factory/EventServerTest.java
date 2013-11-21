@@ -77,8 +77,8 @@ public class EventServerTest extends TestCase {
 		// because it then blocks.
 		Properties props = System.getProperties();
 
-		props.put("org.omg.CORBA.ORBClass", LocalProperties.get("gda.ORBClass"));
-		props.put("org.omg.CORBA.ORBSingletonClass", LocalProperties.get("gda.ORBSingletonClass"));
+		props.put("org.omg.CORBA.ORBClass", LocalProperties.get("gda.ORBClass", "org.jacorb.orb.ORB"));
+		props.put("org.omg.CORBA.ORBSingletonClass", LocalProperties.get("gda.ORBSingletonClass", "org.jacorb.orb.ORBSingleton"));
 
 		orb = org.omg.CORBA.ORB.init(args, props);
 
