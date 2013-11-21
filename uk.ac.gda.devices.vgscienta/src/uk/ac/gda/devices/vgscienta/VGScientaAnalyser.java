@@ -20,6 +20,8 @@ package uk.ac.gda.devices.vgscienta;
 
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
 import gda.device.MotorStatus;
 import gda.device.corba.impl.DeviceAdapter;
@@ -249,7 +251,8 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		}
 	}
 	protected void addDoubleItem(NXDetectorData data, String name, Double d, String units){
-		data.addData(getName(), name, new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { d }), units, null, null, true);
+		INexusTree valdata = data.addData(getName(), name, new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { d }), units, null, null, true);
+		valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s", getName(), name))));
 		data.setPlottableValue(name, d);
 	}
 	
