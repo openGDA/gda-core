@@ -24,19 +24,24 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableMotor;
+import gda.scan.ScanPositionRecordable;
+import gda.scan.ScanPositionRecorder;
 
 import java.util.concurrent.Callable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, ZebraMotorInfoProvider, PositionCallableProvider<Double>, InitializingBean{
-	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMotor.class);
+/**
+ * Class to use with ZebraConstantVelocityMoveController and ConstantVelocityScanLine to perform flyscans
+ * 
+ * 
+ */
+public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, ZebraMotorInfoProvider, PositionCallableProvider<Double>, ScanPositionRecordable, InitializingBean{
+//	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMotor.class);
 	private ZebraConstantVelocityMoveController continuousMoveController;
-	private double constantVelocitySpeedFactor=0.8;
 	private double scurveTimeToVelocity=.03;//default set to rotation stage on I13
 	private int pcEnc=0;
+	private ScannableMotor scannableMotor;
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
@@ -69,7 +74,11 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	// Scannable //
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		continuousMoveController.addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
+		if (recorder != null) {
+			recorder.addPositionToCurrentPoint(this, position);
+		} else {
+			continuousMoveController.addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
+		}
 	}
 	@Override
 	public Object getPosition() throws DeviceException {
@@ -91,14 +100,6 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 		return; //this is never busy as it does not talk to hardware
 	}
 
-	@Override
-	public double getConstantVelocitySpeedFactor() {
-		return constantVelocitySpeedFactor;
-	}
-
-	public void setConstantVelocitySpeedFactor(double constantVelocitySpeedFactor) {
-		this.constantVelocitySpeedFactor = constantVelocitySpeedFactor;
-	}
 
 	/**
 	 * 
@@ -130,12 +131,45 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 		return pcEnc;
 	}
 
-	/**
-	 * 
-	 * @param pcEnc index of Posn Trig PV of Zebra for this motor Enc1 = 0
-	 */
 	public void setPcEnc(int pcEnc) {
 		this.pcEnc = pcEnc;
 	}
+
+	@Override
+	public ScannableMotor getActualScannableMotor() {
+		if (scannableMotor == null){
+			scannableMotor = new ScannableMotor();
+			scannableMotor.setMotor(getMotor());
+			scannableMotor.setName(getName()+"_actualMotor");
+		}
+		return scannableMotor;
+	}
+	private ScanPositionRecorder recorder;
+	private double exposureStep;
+	private boolean exposureStepDefined=false;
+	
+	@Override
+	public void setRecorder(ScanPositionRecorder recorder) {
+		this.recorder=recorder;
+	}
+
+	@Override
+	public double getExposureStep() {
+		return Math.abs(exposureStep);
+	}
+
+	public void setExposureStep(double exposureStep) {
+		this.exposureStep = exposureStep;
+	}
+
+	@Override
+	public boolean isExposureStepDefined() {
+		return exposureStepDefined;
+	}
+
+	public void setExposureStepDefined(boolean exposureStepDefined) {
+		this.exposureStepDefined = exposureStepDefined;
+	}
+
 
 }
