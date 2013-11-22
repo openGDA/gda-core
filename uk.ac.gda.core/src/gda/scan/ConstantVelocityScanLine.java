@@ -22,6 +22,7 @@ import static gda.jython.InterfaceProvider.getTerminalPrinter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
+import gda.device.continuouscontroller.ConstantVelocityMoveController2;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.PositionConvertorFunctions;
 
@@ -76,7 +77,11 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 		@Override
 	protected void configureControllerTriggerTimes() throws DeviceException {
 		getController().setTriggerPeriod(extractCommonCollectionTimeFromDetectors());
-
+		ConstantVelocityMoveController controller = getController();
+		if( controller instanceof ConstantVelocityMoveController2){
+			ConstantVelocityMoveController2 cvmc2 = (ConstantVelocityMoveController2)controller;
+			cvmc2.setDetectors(detectors);
+		}
 	}
 	
 	
@@ -97,15 +102,23 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 	@Override
 	protected void configureControllerPositions(boolean detectorsIntegrateBetweenTriggers) throws DeviceException, InterruptedException {
 		
-		getController().stopAndReset();
+		ConstantVelocityMoveController controller = getController();
+		controller.stopAndReset();
+		if( controller instanceof ConstantVelocityMoveController2){
+			ConstantVelocityMoveController2 cvmc2 = (ConstantVelocityMoveController2)controller;
+			cvmc2.setStart(start);
+			cvmc2.setEnd(stop);
+			cvmc2.setScannableToMove(scannablesToMove);
+		}else{
 		if (detectorsIntegrateBetweenTriggers) {
-			getController().setStart(start - step / 2.);
-			getController().setEnd(stop - step / 2.);
+			controller.setStart(start - step / 2.);
+			controller.setEnd(stop - step / 2.);
 		} else {
-			getController().setStart(start);
-			getController().setEnd(stop);
+			controller.setStart(start);
+			controller.setEnd(stop);
 		}
-		getController().setStep(step);
+		}
+		controller.setStep(step);
 	}
 
 }
