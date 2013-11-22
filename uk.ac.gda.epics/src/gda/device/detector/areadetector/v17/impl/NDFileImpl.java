@@ -22,6 +22,7 @@ import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
 import gda.device.Detector;
+import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
@@ -730,8 +731,13 @@ public class NDFileImpl implements InitializingBean, NDFile {
 			} else {
 				EPICS_CONTROLLER.caput(getChannel(Capture), 1, startCallback);
 			}
+			int counter=0;
 			while(getCapture_RBV() != 1) {
+				ScanBase.checkForInterrupts();
 				Thread.sleep(50);
+				counter++;
+				if( counter > 100) // more than 5 seconds
+					throw new DeviceException("Capture failed");
 			}
 		} catch (Exception e) {
 			setStatus(Detector.IDLE);
@@ -1164,7 +1170,4 @@ public class NDFileImpl implements InitializingBean, NDFile {
 		Channel channel = config != null ? createChannel(config.getWriteStatus().getPv()) : getChannel(WriteStatus);
 		return EPICS_CONTROLLER.cagetShort(channel)!=0;
 	}
-	
-	
-	
 }
