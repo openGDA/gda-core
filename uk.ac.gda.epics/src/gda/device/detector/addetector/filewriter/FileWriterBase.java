@@ -53,8 +53,8 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	private boolean writeStatusErr=false;
 
-	private Observer<Short>  statusObserver; 
-	
+	private Observer<Short>  statusObserver;
+
 	abstract protected void disableFileWriting() throws Exception;
 	
 	@Override
@@ -70,13 +70,11 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		if (fileNumberAtScanStart == null)
 			throw new IllegalStateException("fileNumberAtScanStart is null");
 		writeStatusObservable = getNdFile().createWriteStatusObservable();
-		
 	}
 	
 
 	private boolean writeErrorStatusSupported=true;
 
-	
 	public boolean isWriteErrorStatusSupported() {
 		return writeErrorStatusSupported;
 	}
@@ -101,6 +99,24 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 			writeStatusErr = getNdFile().isWriteStatusErr();
 		}
 		return writeStatusErr;
+	}
+
+	protected void checkErrorStatus() throws DeviceException {
+		boolean writeStatusErr;
+		try {
+			writeStatusErr = isWriteStatusErr();
+		} catch (Exception e) {
+			throw new DeviceException(getName() + " error checking writeStatusErr",e);
+		}
+		if (writeStatusErr) {
+			String writeMessage="";
+			try {
+				writeMessage = getNdFile().getWriteMessage();
+			} catch (Exception e) {
+				throw new DeviceException(getName() + " file writer plugin in error. Error getting writeMessage",e);
+			}
+			throw new DeviceException(getName() + " file writer plugin reports '" + writeMessage + "'");
+		}
 	}
 
 	/**

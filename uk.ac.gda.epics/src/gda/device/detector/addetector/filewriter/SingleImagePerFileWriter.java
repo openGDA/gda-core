@@ -364,22 +364,4 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		this.returnPathRelativeToDatadir = returnPathRelativeToDatadir;
 	}
 
-	private void checkErrorStatus() throws DeviceException {
-		boolean writeStatusErr;
-		try {
-			writeStatusErr = isWriteStatusErr();
-		} catch (Exception e) {
-			throw new DeviceException(getName() + " error checking writeStatusErr",e);
-		}
-		if (writeStatusErr) {
-			String writeMessage="";
-			try {
-				writeMessage = getNdFile().getWriteMessage();
-			} catch (Exception e) {
-				throw new DeviceException(getName() + " file writer plugin in error. Error getting writeMessage",e);
-			}
-			throw new DeviceException(getName() + " file writer plugin reports '" + writeMessage + "'");
-		}
-	}
-
 }
