@@ -268,7 +268,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 
 	@Override
 	public boolean isMoving() throws DeviceException {
-		logger.info("isMoving");
+		logger.debug("isMoving");
 
 		return !((moveFuture == null) || (moveFuture.isDone()));
 	}
