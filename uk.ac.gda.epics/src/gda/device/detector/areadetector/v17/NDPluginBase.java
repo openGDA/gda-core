@@ -312,4 +312,9 @@ public interface NDPluginBase {
 
 	Observable<Double> createMinCallbackTimeObservable() throws Exception;
 
+	Observable<Integer> createDroppedFramesObservable()  throws Exception;
+	
+	public void checkDroppedFrames() throws Exception;
+	
+
 }
