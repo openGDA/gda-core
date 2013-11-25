@@ -693,7 +693,7 @@ public class NumberEditorControl extends Composite {
 	}
 
 	private ImageDescriptor getImageDescriptor(String imageName) {
-		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+		Bundle bundle = FrameworkUtil.getBundle(NumberEditorControl.class);
 		URL url = FileLocator.find(bundle,
 				new Path(ICONS_PATH + imageName), null);
 		return ImageDescriptor.createFromURL(url);
