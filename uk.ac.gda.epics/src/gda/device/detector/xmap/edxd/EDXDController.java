@@ -125,16 +125,19 @@ public class EDXDController extends DetectorBase implements Configurable {
 				} catch (DeviceException e) {
 					logger.error("ln351 : AcqStatusListener , error ", e);
 				}
-				
+				addElements();
 			}
 		});
+	}
+
+	private void addElements(){
 		// Add all the EDXD Elements to the detector
 		for (int i = 0; i < NUMBER_OF_ELEMENTS; i++) {
 			subDetectors.add(new EDXDElement(xmap, i + 1));
-
+			
 		}
 	}
-
+	
 	@Override
 	public void reconfigure() throws FactoryException {
 		try {
