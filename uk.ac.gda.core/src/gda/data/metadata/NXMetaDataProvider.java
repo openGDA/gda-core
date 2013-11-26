@@ -946,6 +946,9 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 					dblData[i] = Double.valueOf(item.toString());
 				}
 			}
+			int[] dims = new int[] { dblData.length };
+			int type = NexusFile.NX_FLOAT64;
+			groupData = new NexusGroupData(dims, type, dblData);
 		} else if (object instanceof PySequence) {
 			// coerce PySequence into double array.
 			int dataLen = ((PySequence) object).__len__();
@@ -960,6 +963,9 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 					dblData[i] = Double.valueOf(item.toString());
 				}
 			}
+			int[] dims = new int[] { dblData.length };
+			int type = NexusFile.NX_FLOAT64;
+			groupData = new NexusGroupData(dims, type, dblData);
 		} else {
 			logger.error("unhandled data type: " + object.getClass().getName()
 					+ " - this dataset might not have been written correctly to Nexus file.");

@@ -18,7 +18,6 @@
 
 package gda.scan;
 
-import gda.scan.AbstractContinuousScanLine.ScanPositionRecorder;
 
 public interface ScanPositionRecordable {
 	public void setRecorder(ScanPositionRecorder recorder);

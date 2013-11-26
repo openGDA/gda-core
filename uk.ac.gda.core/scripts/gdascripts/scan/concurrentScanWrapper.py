@@ -101,7 +101,6 @@ class ConcurrentScanWrapper(object):
         return self.__repr__()
 
     def __call__(self, *args):
-        
         # Also support arguments passed in a single list or tuple. This is to be compatable
         # with the original ConcurrentScan constructor.
         if len(args) == 1:
@@ -109,7 +108,6 @@ class ConcurrentScanWrapper(object):
                 args = list(args[0])
             except TypeError:
                 pass  # The single arg was iterable so leave it be.
-
 
         self.prepareScanListeners()
 
@@ -169,7 +167,7 @@ class ConcurrentScanWrapper(object):
         # Inform scan listeners the scan has completed
         self.updateScanListeners(scan)
         if len(self.scanListenerResults)==1:
-            print self.scanListenerResults[0]
+            print self.scanListenerResults[0].__str__()
             return self.scanListenerResults[0]
         elif len(self.scanListenerResults)>1:
             return self.scanListenerResults
