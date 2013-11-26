@@ -440,34 +440,39 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		NXDetectorData output = new NXDetectorData(xmap);
 		INexusTree detTree = output.getDetTree(xmap.getName());
 
-		int numberOfElements = this.xmap.vortexParameters.getDetectorList().size();
-		int numberOfROIs = this.xmap.vortexParameters.getDetectorList().get(0).getRegionList().size();
+		int numFilteredElements = xmap.getNumberOfIncludedDetectors();
+//		int numberOfElements = xmap.vortexParameters.getDetectorList().size();
+		int originalNumberOfElements = xmap.vortexParameters.getDetectorList().size();
+		int numberOfROIs = xmap.vortexParameters.getDetectorList().get(0).getRegionList().size();
 
 		// items to write to nexus
 		double[] summation = null;
-		double[] correctedAllCounts = new double[numberOfElements];
+		double[] correctedAllCounts = new double[numFilteredElements];
 		final List<Double> times = this.xmap.getEventProcessingTimes();
-		double[] ocrs = new double[numberOfElements];
-		double[] icrs = new double[numberOfElements];
-		double[][] roiCounts = new double[numberOfROIs][numberOfElements];
+		double[] ocrs = new double[numFilteredElements];
+		double[] icrs = new double[numFilteredElements];
+		double[][] roiCounts = new double[numberOfROIs][numFilteredElements];
 		String[] roiNames = new String[numberOfROIs];
-//		short detectorData[][] = s;
+		short reducedData[][] = new short[numFilteredElements][];
 
-		for (int element = 0; element < this.xmap.vortexParameters.getDetectorList().size(); element++) {
+		int index = -1;
+		for (int element = 0; element < originalNumberOfElements; element++) {
 
 			DetectorElement thisElement = this.xmap.vortexParameters.getDetectorList().get(element);
 			if (thisElement.isExcluded())
 				continue;
-
-			// TODO replacae
+			index ++;
+			
+			reducedData[index] = detectorData[element];
+			
 			final double ocr = getOCR(dataPointNumber, element);
-			ocrs[element] = ocr;
+			ocrs[index] = ocr;
 			final double icr = getICR(dataPointNumber, element);
-			icrs[element] = icr;
+			icrs[index] = icr;
 
 			// Total counts
 			double allCounts = getEvents(dataPointNumber, element);
-			correctedAllCounts[element] = allCounts;// * deadTimeCorrectionFactor;
+			correctedAllCounts[index] = allCounts;// * deadTimeCorrectionFactor
 
 			// REGIONS
 			for (int iroi = 0; iroi < thisElement.getRegionList().size(); iroi++) {
@@ -483,7 +488,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 					else
 						count *= deadTimeCorrectionFactor;
 				}
-				roiCounts[iroi][element] = count;
+				roiCounts[iroi][index] = count;
 				roiNames[iroi] = roi.getRoiName();
 			}
 
@@ -497,11 +502,15 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		}
 
 		// add total counts
-		final INexusTree counts = output.addData(detTree, "totalCounts", new int[] { numberOfElements },
-				NexusFile.NX_UINT16, correctedAllCounts, "counts", 1);
-		for (int element = 0; element < numberOfElements; element++) {
-			DetectorElement thisElement = this.xmap.vortexParameters.getDetectorList().get(element);
-			output.setPlottableValue(thisElement.getName(), correctedAllCounts[element]);
+		final INexusTree counts = output.addData(detTree, "totalCounts", new int[] { numFilteredElements },
+				NexusFile.NX_FLOAT64, correctedAllCounts, "counts", 1);
+		index = -1;
+		for (int element = 0; element < originalNumberOfElements; element++) {
+			DetectorElement thisElement = xmap.vortexParameters.getDetectorList().get(element);
+			if (thisElement.isExcluded())
+				continue;
+			index++;
+			output.setPlottableValue(thisElement.getName(), correctedAllCounts[index]);
 		}
 
 		// event processing time.
@@ -514,29 +523,33 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				new NexusGroupData(evtProcessTimeAsString)));
 
 		// ICR
-		output.addData(detTree, "icr", new int[] { numberOfElements }, NexusFile.NX_UINT16, icrs, "Hz", 1);
+		output.addData(detTree, "icr", new int[] { numFilteredElements }, NexusFile.NX_FLOAT64, icrs, "Hz", 1);
 
 		// OCR
-		output.addData(detTree, "ocr", new int[] { numberOfElements }, NexusFile.NX_UINT16, ocrs, "Hz", 1);
+		output.addData(detTree, "ocr", new int[] { numFilteredElements }, NexusFile.NX_FLOAT64, ocrs, "Hz", 1);
 
 		// roicounts
 		for (int iroi = 0; iroi < numberOfROIs; iroi++) {
 			String roiName = roiNames[iroi];
-			output.addData(detTree, roiName, new int[] { numberOfElements }, NexusFile.NX_UINT16, roiCounts[iroi],
+			output.addData(detTree, roiName, new int[] { numFilteredElements }, NexusFile.NX_FLOAT64, roiCounts[iroi],
 					"counts", 1);
-			for (int element = 0; element < numberOfElements; element++) {
-				String elementName = this.xmap.vortexParameters.getDetectorList().get(element).getName();
-				output.setPlottableValue(elementName + "_" + roiName, roiCounts[iroi][element]);
+			index = -1;
+			for (int element = 0; element < originalNumberOfElements; element++) {
+				DetectorElement detElement = xmap.vortexParameters.getDetectorList().get(element);
+				if (detElement.isExcluded()) 
+					continue;
+				index++;
+				String elementName = detElement.getName();
+				output.setPlottableValue(elementName + "_" + roiName, roiCounts[iroi][index]);
 			}
 		}
 
 		// add the full spectrum
-		output.addData(detTree, "fullSpectrum", new int[] { numberOfElements, detectorData[0].length },
-				NexusFile.NX_INT16, detectorData, "counts", 1);
+		output.addData(detTree, "fullSpectrum", new int[] { numFilteredElements, reducedData[0].length },
+				NexusFile.NX_INT16, reducedData, "counts", 1);
 
-		// ToDo implement the getROI and readout scanler data
 		double ff = calculateScalerData(dataPointNumber, numberOfROIs, detectorData);
-		output.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_UINT16, new Double[] { ff }, "counts", 1);
+		output.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ff }, "counts", 1);
 		output.setPlottableValue("FF", ff);
 
 		if (summation != null)

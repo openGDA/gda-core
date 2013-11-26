@@ -29,6 +29,7 @@ def vortexEx(controller, vortexFileName, outputfile,path):
 	return worker(controller, vortexFileName, outputfile, path)
 
 def worker (controller, vortexFileName,outputfile,path,LocalProperties=LocalProperties):
+	print path
 	try:
 		if(path == None):
 			conf = VortexDetectorConfiguration(controller, defaultScriptFolder(), vortexFileName,outputfile)
@@ -37,7 +38,7 @@ def worker (controller, vortexFileName,outputfile,path,LocalProperties=LocalProp
 		msg  = conf.configure() #  Might throw Exception
 		log(controller, "Vortex configuration successfully applied", None, None, None, False)
 		return msg
-	except :
+	except:
 		type, exception, traceback = sys.exc_info()
 		log(controller, "Error configuring Vortex", type, exception, traceback, True)
 

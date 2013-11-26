@@ -117,6 +117,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		find.addIObserver(this);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void createPartControl(Composite parent) {
 		logger.info("Part Control the title is " + this.getTitle());
@@ -129,7 +130,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		elementList.setLayoutData(gridData);
 
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
-		openDialog.setFilterPath(LocalProperties.get("gda.data.scan.datawriter.datadir"));
+		openDialog.setFilterPath(LocalProperties.getBaseDataDir());
 		selectedElement = elementList.getItemCount() > 0 ? elementList.getItem(0) : null;
 		elementList.addSelectionListener(this);
 		elementList.setToolTipText(loadedDetectorFileName);
@@ -399,6 +400,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			tree = hdf5Loader.loadTree(null);
 		} catch (ScanFileHolderException e2) {
 			logger.error("Could not load tree from " + filePath, e2);
+			return;
 		}
 
 		DataHolder dataHolder = null;
@@ -406,6 +408,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			dataHolder = hdf5Loader.loadFile();
 		} catch (ScanFileHolderException e1) {
 			logger.error("Could not load nexus file " + filePath, e1);
+			return;
 		}
 
 		// get detector type xspress/vortex from nexus
@@ -416,6 +419,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			metaNames = metadata.getMetaNames().toString();
 		} catch (Exception e) {
 			logger.error("Cannot retreive metadata from nexus file " + filePath, e);
+			return;
 		}
 
 		if (metaNames.contains("xspress2system"))

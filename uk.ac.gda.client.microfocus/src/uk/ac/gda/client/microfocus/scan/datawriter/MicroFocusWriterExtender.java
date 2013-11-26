@@ -31,6 +31,7 @@ import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.xmap.XmapBufferedDetector;
 import gda.device.detector.xspress.XspressDetector;
 import gda.scan.IScanDataPoint;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -49,6 +50,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
@@ -65,7 +67,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	private int windowStart = 67;
 	private int windowEnd = 1200;
 	private String selectedElement = "";
-	private Object detectorBean;
+	private IRichBean detectorBean;
 	private double firstX = 0.0;
 	private double firstY = 0.0;
 	@SuppressWarnings("rawtypes")
@@ -130,33 +132,43 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		} catch (Exception e) {
 			logger.error("Error loading bean from " + detectorBeanFileName, e);
 		}
+		numberOfSubDetectors = getNumberOfEnabledMCA();
 
 		for (Detector detector : detectors) {
-			if (detector instanceof XspressDetector)
-				try {
-					XspressDetector xspress = (XspressDetector) detector;
-					detectorName = xspress.getName();
-					numberOfSubDetectors = xspress.getNumberOfDetectors();
-					elementRois = new List[numberOfSubDetectors];
-					for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
-						elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
-								.getRegionList();
-				} catch (DeviceException e) {
-					logger.error("Error getting windows from the bean file ", e);
-				}
-			else if (detector instanceof XmapDetector)
-				try {
-					XmapDetector xspress = (XmapDetector) detector;
-					detectorName = xspress.getName();
-					numberOfSubDetectors = xspress.getNumberOfMca();
-					elementRois = new List[numberOfSubDetectors];
-					for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
-						elementRois[detectorNo] = ((VortexParameters) detectorBean).getDetector(detectorNo)
-								.getRegionList();
-				} catch (DeviceException e) {
-					logger.error("Error getting windows from the bean file ", e);
-				}
+			if (detector instanceof XspressDetector) {
+				XspressDetector xspress = (XspressDetector) detector;
+				detectorName = xspress.getName();
+				elementRois = new List[numberOfSubDetectors];
+				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
+					elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
+							.getRegionList();
+			} else if (detector instanceof XmapDetector) {
+				XmapDetector xspress = (XmapDetector) detector;
+				detectorName = xspress.getName();
+				elementRois = new List[numberOfSubDetectors];
+				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
+					elementRois[detectorNo] = ((VortexParameters) detectorBean).getDetector(detectorNo).getRegionList();
+			}
 		}
+	}
+	
+	private int getNumberOfEnabledMCA() {
+		if (detectorBean instanceof XspressParameters) {
+			XspressParameters xspressParameters = (XspressParameters) detectorBean;
+			int numFilteredDetectors = 0;
+			for (int element = 0; element < xspressParameters.getDetectorList().size(); element++)
+				if (!xspressParameters.getDetectorList().get(element).isExcluded())
+					numFilteredDetectors++;
+			return numFilteredDetectors;
+
+		}
+		// assume it must be vortex then // else if (detectorBean instanceof VortexParameters) {
+		VortexParameters vortexParameters = (VortexParameters) detectorBean;
+		int numFilteredDetectors = 0;
+		for (int element = 0; element < vortexParameters.getDetectorList().size(); element++)
+			if (!vortexParameters.getDetectorList().get(element).isExcluded())
+				numFilteredDetectors++;
+		return numFilteredDetectors;
 	}
 
 	private void fillRoiNames() {
