@@ -21,7 +21,6 @@ package gda.device.scannable;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.observable.IObserver;
 import gda.scan.Trajectory;
 import gda.scan.TrajectoryScanController;
@@ -135,6 +134,7 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 	public void stop() throws DeviceException {
 		try {
 			tracController.stop();
+			trajectoryBuildDone = false;
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " exception in stop",e);
 		}

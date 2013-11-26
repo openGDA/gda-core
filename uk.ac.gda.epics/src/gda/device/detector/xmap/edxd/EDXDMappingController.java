@@ -42,12 +42,12 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 
 	
 	private int elementOffset = 0;
-	private static final String STARTALL = "STARTALL";
+//	private static final String STARTALL = "STARTALL";
 	private static final String STOPALL = "STOPALL";
 	private static final String ERASESTART = "ERASESTART";
 	private static final String ERASEALL = "ERASEALL";
 	private static final String COLLECTIONMODE = "COLLECTMODE";
-	private static final String SETPRESETREAL = "SETPRESETREAL";
+//	private static final String SETPRESETREAL = "SETPRESETREAL";
 	private static final String PIXELADVANCEMODE = "PIXELADVANCEMODE";
 	private static final String IGNOREGATE = "IGNOREGATE";
 	private static final String AUTOPIXELSPERBUFFER = "AUTOPIXELSPERBUFFER";
@@ -89,7 +89,6 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	@Override
 	public void configure() throws FactoryException {
 		//FIXME this should be pulled in from the spring configuration
-		//TODO Please be aware that use of the finder prevents others from understanding how the code flows!
 		xmap = new FindableEpicsDevice();
 		xmap.setDeviceName(epicsDeviceName);
 		xmap.setName(epicsDeviceName);
@@ -118,14 +117,15 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 			}
         	
         });
+        addElements();
+	}
+
+    public void addElements(){
 		// Add all the EDXD Elements to the detector
 		for(int i = (0+ elementOffset); i < (NUMBER_OF_ELEMENTS + elementOffset); i++ ) {
 			subDetectors.add(new EDXDMappingElement(xmap,i)); 
-
 		}
-	}
-
-      
+    }
 
 	/**
 	 * Sets the dynamic range of the detector
@@ -300,12 +300,11 @@ public void endRecording() throws Exception {
 		hdf5.setFileTemplate(String.format("%%s%%s-%%d-%s.h5", name));
 	}
 	 //Nexus related commands
-	 public void setNexusCapture(int number) throws DeviceException
-	 {
+	 public void setNexusCapture(int number) throws DeviceException{
 		 xmap.setValueNoWait(CAPTURE, "", number);
 	 }
-	 public void setHdfNumCapture(int number) throws DeviceException
-	 {
+	 
+	 public void setHdfNumCapture(int number) throws DeviceException{
 		 try {
 			hdf5.setNumCapture(number);
 		} catch (Exception e) {
@@ -313,41 +312,38 @@ public void endRecording() throws Exception {
 		}
 	 }
 	 
-	 public void setNexusFileFormat(String format) throws DeviceException
-	 {
+	 public void setNexusFileFormat(String format) throws DeviceException{
 		 xmap.setValueNoWait(NEXUSFILEFORMAT, "", format);
 	 }
 	 
-	 public void setFileWriteMode(NEXUS_FILE_MODE mode) throws DeviceException
-	 {
+	 public void setFileWriteMode(NEXUS_FILE_MODE mode) throws DeviceException{
 		 xmap.setValueNoWait(NEXUSFILEWRITEMODE, "", mode.ordinal());
 	 }
 	 
-	 public void setCallback(boolean yes) throws DeviceException
-	 {
+	 public void setCallback(boolean yes) throws DeviceException{
 		if(yes)
 			xmap.setValueNoWait(CALLBACK, "",1);
 		else
 			xmap.setValueNoWait(CALLBACK, "",0);
 	 }
-	 public void setNexusFileName(String filename) throws DeviceException
-	 {
+	 
+	 public void setNexusFileName(String filename) throws DeviceException{
 		 xmap.setValueNoWait(NEXUSFILENAME, "",filename);
 	 }
-	 public String getNexusFileName() throws DeviceException
-	 {
+	 
+	 public String getNexusFileName() throws DeviceException{
 		 return xmap.getValueAsString(NEXUSFILENAME, "");
 	 }
-	 public String getNexusFilePath() throws DeviceException
-	 {
+	 
+	 public String getNexusFilePath() throws DeviceException{
 		return xmap.getValueAsString(NEXUSFILEPATH, "");
 	 }
-	 public void setNexusFilePath(String filepath) throws DeviceException
-	 {
+	 
+	 public void setNexusFilePath(String filepath) throws DeviceException{
 		 xmap.setValueNoWait(NEXUSFILEPATH, "",filepath);
 	 }
-	 public int getFileNumber() throws DeviceException
-	 {
+	 
+	 public int getFileNumber() throws DeviceException{
 		 int fileNumber =  (Integer) xmap.getValue(ReturnType.DBR_NATIVE,FILENUMBER  ,"");
 		 return fileNumber;
 	 }
@@ -366,14 +362,11 @@ public void endRecording() throws Exception {
 		return false;
 	 }
 
-	 public boolean isBufferedArrayPort() throws Exception
-	 {
+	 public boolean isBufferedArrayPort() throws Exception{
 		if( hdf5.getArrayPort().equals("xbuf"))
 			return true;
 		return false;
 		
 	 }
+	 
 }
-
-
-

@@ -991,10 +991,13 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	@Override
 	public void setTime(double value) throws DeviceException, InterruptedException {
 		try{
-		controller.caput(time, value);
+		controller.caputWait(time, value);
 	} catch (CAException e) {
 		logger.error("Error setting m1Move " , e);
 		throw new DeviceException("Error setting m1Move " , e);
+	} catch (TimeoutException e) {
+		logger.error("TimeoutException setting m1Move " , e);
+		throw new DeviceException("TimeoutException setting m1Move " , e);
 	}
 	}
 
@@ -1201,6 +1204,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	 * 
 	 * @return Execute status
 	 */
+	@Override
 	public ExecuteStatus getExecuteStatus() {
 		return executeStatus;
 	}
