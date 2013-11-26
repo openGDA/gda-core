@@ -73,7 +73,6 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 		exception = e;
 		logger.info("Storing an Exception caught computing a point: " + e.getMessage());
 		shutdownNow();
-
 	}
 	
 	/**
@@ -88,28 +87,32 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 	}
 	
 	private void shutdownNow() {
-		logger.info("Shutting down datapointCompleterExecutor NOW.");
-		datapointCompleterSingleThreadpool.shutdownNow();
+		if (!datapointCompleterSingleThreadpool.isShutdown()) {
+			logger.info("Shutting down datapointCompleterExecutor NOW.");
+			datapointCompleterSingleThreadpool.shutdownNow();
+		}
 	}
 	
 	private void shutdown() {
-		InterfaceProvider.getTerminalPrinter().print("Shutting down datapointCompleterThreadPool gently.");
-		logger.info("Shutting down datapointCompleterThreadPool gently.");
+//		InterfaceProvider.getTerminalPrinter().print("Shutting down datapointCompleterThreadPool gently.");
+		if (datapointCompleterSingleThreadpool.isShutdown())
+			return;
+		logger.debug("Shutting down datapointCompleterThreadPool gently.");
 		datapointCompleterSingleThreadpool.shutdown();
 		try {
 			datapointCompleterSingleThreadpool.awaitTermination(10, TimeUnit.MINUTES);
 		} catch (InterruptedException e) {
 			logger.warn("InterruptedException during shutdown - there may be orphaned threads", e.getStackTrace());
 		}
-		logger.info("Shutting down datapointCompleterThreadPool gently - completed");
+		logger.debug("Shutting down datapointCompleterThreadPool gently - completed");
 		}
 		
 	@Override
 	public void completeCollection() throws Exception {
-		InterfaceProvider.getTerminalPrinter().print("DAtapointcmDW complete collection is called");
+		logger.debug("DAtapointcmDW complete collection is called");
 		throwException();
 		shutdown();
-		InterfaceProvider.getTerminalPrinter().print("DAtapointcmDW  sink complete collection is called");
+		logger.debug("DAtapointcmDW  sink complete collection is called");
 		sink.completeCollection();
 	}
 

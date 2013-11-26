@@ -235,7 +235,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 		}
 		if( beforeScanMetaData == null){
-			InterfaceProvider.getTerminalPrinter().print("Meta data before_scan is not being added");
+			logger.debug("Meta data before_scan is not being added");
 			beforeScanMetaData = new NexusTreeNode("before_scan", NexusExtractor.NXCollectionClassName, null);
 			beforeScanMetaData.addChildNode(new NexusTreeNode("disabled", NexusExtractor.AttrClassName, beforeScanMetaData,
 					new NexusGroupData("True")));
