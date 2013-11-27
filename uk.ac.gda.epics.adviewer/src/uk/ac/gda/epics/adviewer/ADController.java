@@ -27,8 +27,6 @@ import gda.device.detector.areadetector.v17.NDStats;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 
-import uk.ac.gda.epics.adviewer.views.ADViewerCompositeFactory;
-
 public interface ADController {
 
 	//unique name used to identify this object - also used to name the service 
@@ -105,8 +103,6 @@ public interface ADController {
 	
 	public abstract double getArrayMinCallbackTime();
 
-	//composite factory to make the GUI component above the MJPeg composite
-	public abstract ADViewerCompositeFactory getMjpegViewCompositeFactory();
 
 	//NDROI for the ROI plugin that controls the ImageArray
 	public abstract NDROI getImageNDROI();

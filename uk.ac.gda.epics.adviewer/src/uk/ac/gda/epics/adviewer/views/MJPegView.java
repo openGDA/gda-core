@@ -23,13 +23,12 @@ import java.net.URL;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -43,8 +42,8 @@ import uk.ac.gda.epics.adviewer.composites.MJPeg;
 public class MJPegView extends ViewPart implements InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(MJPegView.class);
 
-	protected MJPeg mJPeg;
-	ADController config;
+	private MJPeg mJPeg;
+	private ADController config;
 
 	private String name="";
 
@@ -53,8 +52,8 @@ public class MJPegView extends ViewPart implements InitializingBean {
 
 	public MJPegView(ADController config, IConfigurationElement configurationElement) {
 		this.config = config;
-		name = configurationElement.getAttribute("name");
 		try{
+			name = configurationElement.getAttribute("name");
 			String icon = configurationElement.getAttribute("icon");
 			if( icon.isEmpty()){
 				image = config.getTwoDarrayViewImageDescriptor().createImage();
@@ -81,24 +80,10 @@ public class MJPegView extends ViewPart implements InitializingBean {
 
 		parent.setLayout(new FillLayout());
 
-		Composite composite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(composite);
-		Composite composite_1=null;
-		ADViewerCompositeFactory mjpegViewCompositeFactory = config.getMjpegViewCompositeFactory();
-		if( mjpegViewCompositeFactory != null){
-			composite_1 = new Composite(composite, SWT.NONE);
-			composite_1.setLayout(new RowLayout(SWT.HORIZONTAL));
-		}
-
-		Composite composite_2 = new Composite(composite, SWT.NONE);
-		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
-		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		mJPeg = new MJPeg(composite_2, SWT.NONE);
-		mJPeg.setADController(config);
-		mJPeg.showLeft(true);
-		
-		if( composite_1 != null){
-			config.getMjpegViewCompositeFactory().createComposite(config, composite_1, this, mJPeg);
+		try {
+			mJPeg=createPartControlEx(parent);
+		} catch (Exception e) {
+			logger.error("Error creating MJPEGView", e);
 		}
 		
 		
@@ -113,6 +98,21 @@ public class MJPegView extends ViewPart implements InitializingBean {
 		createContextMenu();
 		hookGlobalActions();
 
+		
+	}
+
+	
+	protected MJPeg createPartControlEx(Composite parent) throws Exception {
+		Composite composite = new Composite(parent, SWT.NONE);
+		composite.setLayout(new GridLayout(1, false));
+		Composite composite_2 = new Composite(composite, SWT.NONE);
+		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
+		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		mJPeg = new MJPeg(composite_2, SWT.NONE);		
+		
+		mJPeg.setADController(config);
+		mJPeg.showLeft(true);
+		return mJPeg;
 	}
 
 	protected void hookGlobalActions() {

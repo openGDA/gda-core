@@ -32,6 +32,6 @@ import uk.ac.gda.epics.adviewer.composites.MJPeg;
 public interface ADViewerCompositeFactory {
 	
 	//The composite should dispose resources within a dispose listener
-	public Composite createComposite(ADController config, Composite parent, MJPegView mjPegView, MJPeg mJPeg);
+	public Composite createComposite(ADController config, Composite parent, MJPegView mjPegView, MJPeg mJPeg) throws Exception;
 
 }
