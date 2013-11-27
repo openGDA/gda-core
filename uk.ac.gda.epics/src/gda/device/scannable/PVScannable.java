@@ -35,6 +35,8 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DOUBLE;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
@@ -238,26 +240,26 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		return isBusy;
 	}
 
-	/**
-	 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
-	 */
 	@Override
-	public void monitorChanged(MonitorEvent arg0) {
-
-		try {
-			double newPosition = (Double) getPosition();
-			// if there is a deadband then test if change is great enough
-			if (this.deadband > 0) {
-				if (Math.abs(newPosition - this.lastKnownValue) > this.deadband) {
-					notifyObserversOfNewPosition(newPosition);
-				}
-			} else {
+	public void monitorChanged(MonitorEvent event) {
+		
+		final DBR dbr = event.getDBR();
+		
+		if (!dbr.isDOUBLE()) {
+			return;
+		}
+		
+		final DOUBLE doubleDbr = (DOUBLE) dbr;
+		final double newPosition = doubleDbr.getDoubleValue()[0];
+		
+		// if there is a deadband then test if change is great enough
+		if (this.deadband > 0) {
+			if (Math.abs(newPosition - this.lastKnownValue) > this.deadband) {
 				notifyObserversOfNewPosition(newPosition);
 			}
-		} catch (DeviceException e) {
-			logger.error("DeviceException during monitorChanged in " + getName() + ": " + e.getMessage());
+		} else {
+			notifyObserversOfNewPosition(newPosition);
 		}
-
 	}
 	
 	private void notifyObserversOfNewPosition(Serializable newPosition) {
