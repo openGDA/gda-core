@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;

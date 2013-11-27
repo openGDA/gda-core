@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -28,19 +28,12 @@ import gda.observable.ObservableComponent;
 
 import java.io.ByteArrayInputStream;
 
-import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
-import org.dawnsci.plotting.jreality.overlay.Overlay2DProvider;
-import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
-import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
-import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -49,7 +42,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
@@ -76,14 +68,13 @@ import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.controller.MicroFocusDisplayController;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class MicroFocusElementListView extends ViewPart implements Overlay2DConsumer, SelectionListener, FocusListener,
+public class MicroFocusElementListView extends ViewPart implements SelectionListener, 
 		IObservable, IObserver {
-	/**
-	 * The extension point ID for 3rd party contribution
-	 */
+
 	public static final String ID = "uk.ac.gda.client.microfocus.ElementListView";
-	private Overlay2DProvider provider;
-	int boxPrimID = -1;
+
+	protected final IExperimentEditorManager controller = ExperimentFactory.getExperimentEditorManager();
+	
 	private List elementList;
 	private MicroFocusDisplayController displayController;
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
@@ -92,23 +83,10 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	private double[] xyz = new double[3];
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private boolean loadMapForScan = false;
-	private int plotX = 0;
-	private int plotY = 0;
 	private PlotView plotView;
 	private String selectedElement;
 	private XspressParameters xspressBean;
 	private VortexParameters vortexBean;
-
-	public boolean isLoadMapForScan() {
-		return loadMapForScan;
-	}
-
-	public void toggleLoadMapForScan() {
-		this.loadMapForScan = !loadMapForScan;
-	}
-
-	protected final IExperimentEditorManager controller = ExperimentFactory.getExperimentEditorManager();
-	private Spinner elementSpinner;
 
 	public MicroFocusElementListView() {
 		super();
@@ -129,7 +107,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		elementList.setLayoutData(gridData);
 
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
-		openDialog.setFilterPath(LocalProperties.get("gda.data.scan.datawriter.datadir"));
+		openDialog.setFilterPath(LocalProperties.getBaseDataDir());
 		selectedElement = elementList.getItemCount() > 0 ? elementList.getItem(0) : null;
 		elementList.addSelectionListener(this);
 		elementList.setToolTipText(loadedDetectorFileName);
@@ -138,13 +116,11 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 
 		try {
 			// get an instance of the plotView we want to use
-			IViewPart newview = getSite().getPage().showView("uk.ac.gda.beamline.i18.MapView", null,
+			IViewPart newview = getSite().getPage().showView(MapPlotView.ID, null,
 					IWorkbenchPage.VIEW_CREATE);
 			if (newview instanceof PlotView) {
 				plotView = (PlotView) newview;
 				plotView.updatePlotMode(GuiPlotMode.TWOD);
-				// then register this with the plot.
-				plotView.getMainPlotter().registerOverlay(this);
 				logger.info("The Plot View is " + plotView);
 			}
 		} catch (Exception e) {
@@ -191,98 +167,8 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	public void setFocus() {
 	}
 
-	@Override
-	public void hideOverlays() {
-		System.out.println("Calling Hide");
-		if (provider != null) {
-			provider.setPrimitiveVisible(boxPrimID, false);
-		}
-	}
-
-	@Override
-	public void showOverlays() {
-		System.out.println("Calling Show");
-		if (provider != null) {
-			boxPrimID = provider.registerPrimitive(PrimitiveType.BOX);
-			provider.setPrimitiveVisible(boxPrimID, true);
-		}
-	}
-
-	@Override
-	public void registerProvider(OverlayProvider provider) {
-		this.provider = (Overlay2DProvider) provider;
-		boxPrimID = provider.registerPrimitive(PrimitiveType.BOX);
-		System.out.println("BoxID =" + boxPrimID);
-	}
-
-	@Override
-	public void removePrimitives() {
-		boxPrimID = -1;
-	}
-
-	@Override
-	public void unregisterProvider() {
-	}
-
-	@Override
-	public void imageDragged(IImagePositionEvent event) {
-		logger.info("the image dragged click position is " + event.getImagePosition()[0] + " "
-				+ event.getImagePosition()[1]);
-	}
-
-	@Override
-	public void imageFinished(final IImagePositionEvent event) {
-		logger.info("the image finished click position is " + event.getImagePosition()[0] + " "
-				+ event.getImagePosition()[1]);
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (getViewSite().getPage().isPartVisible(MicroFocusElementListView.this)) {
-						plotX = event.getImagePosition()[0];
-						plotY = event.getImagePosition()[1];
-						displayController.displayPlot(plotX, plotY);
-					}
-				} catch (Exception e) {
-					logger.error("Error displaying the plot", e);
-					e.printStackTrace();
-					showErrorMessage("Error displaying the plot " + e.getMessage());
-				}
-			}
-		});
-	}
-
 	public double[] getXYZ() {
 		return xyz;
-	}
-
-	@Override
-	public void imageStart(final IImagePositionEvent event) {
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (getViewSite().getPage().isPartVisible(MicroFocusElementListView.this)) {
-						logger.info("the image start click position is " + event.getImagePosition()[0] + " "
-								+ event.getImagePosition()[1]);
-						if (event.getFlags() == IImagePositionEvent.RIGHTMOUSEBUTTON) {
-							double xy[] = displayController.getXY(event.getImagePosition()[1],
-									event.getImagePosition()[0]);
-							if (xy != null) {
-								logger.info("the image start click position x y z values are is " + xy[0] + " " + xy[1]
-										+ " " + xy[2]);
-								xyz = xy;
-								notifyIObservers(this, xyz);
-							}
-						}
-					}
-				} catch (Exception e) {
-					logger.error("Error displaying the plot", e);
-					e.printStackTrace();
-					showErrorMessage("Error displaying the plot " + e.getMessage());
-				}
-			}
-		});
 	}
 
 	@Override
@@ -406,6 +292,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			dataHolder = hdf5Loader.loadFile();
 		} catch (ScanFileHolderException e1) {
 			logger.error("Could not load nexus file " + filePath, e1);
+			return;
 		}
 
 		// get detector type xspress/vortex from nexus
@@ -416,6 +303,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			metaNames = metadata.getMetaNames().toString();
 		} catch (Exception e) {
 			logger.error("Cannot retreive metadata from nexus file " + filePath, e);
+			return;
 		}
 
 		if (metaNames.contains("xspress2system"))
@@ -448,22 +336,6 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			};
 			job.setUser(true);
 			job.schedule();
-		} else if (e.getSource().equals(elementSpinner)) {
-			displayController.setDetectorElementNumber(elementSpinner.getSelection());
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						if (getViewSite().getPage().isPartVisible(MicroFocusElementListView.this)) {
-							displayController.displayPlot(plotX, plotY);
-						}
-					} catch (Exception e) {
-						logger.error("Error displaying the plot", e);
-						e.printStackTrace();
-						showErrorMessage("Error displaying the plot " + e.getMessage());
-					}
-				}
-			});
 		}
 	}
 
@@ -484,56 +356,30 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	}
 
 	@Override
-	public void focusGained(FocusEvent e) {
-	}
-
-	@Override
-	public void focusLost(FocusEvent e) {
-	}
-
-	/**
-	 * Add an object to this objects's list of IObservers.
-	 * 
-	 * @param anIObserver
-	 *            object that implement IObserver and wishes to be notified by this object
-	 */
-	@Override
 	public void addIObserver(IObserver anIObserver) {
 		observableComponent.addIObserver(anIObserver);
-
 	}
 
-	/**
-	 * Delete an object from this objects's list of IObservers.
-	 * 
-	 * @param anIObserver
-	 *            object that implement IObserver and wishes to be notified by this object
-	 */
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
 		observableComponent.deleteIObserver(anIObserver);
-
 	}
 
-	/**
-	 * delete all IObservers from list of observing objects
-	 */
 	@Override
 	public void deleteIObservers() {
 		observableComponent.deleteIObservers();
-
 	}
 
-	/**
-	 * Notify all observers on the list of the requested change.
-	 * 
-	 * @param theObserved
-	 *            the observed component
-	 * @param theArgument
-	 *            the data to be sent to the observer.
-	 */
 	public void notifyIObservers(Object theObserved, Object theArgument) {
 		observableComponent.notifyIObservers(theObserved, theArgument);
+	}
+	
+	public boolean isLoadMapForScan() {
+		return loadMapForScan;
+	}
+
+	public void toggleLoadMapForScan() {
+		this.loadMapForScan = !loadMapForScan;
 	}
 
 	@Override
