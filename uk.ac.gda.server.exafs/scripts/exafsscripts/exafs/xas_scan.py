@@ -126,12 +126,14 @@ class XasScan(Scan):
 					# DO NOT COMMIT!!! For I18 only!!!
 					# Move to start energy so that harmonic can be set by gap_converter
 					initialEnergy = beanGroup.getScan().getInitialEnergy()
-					print "moving ", beanGroup.getScan().getScannableName(), " to start energy ", initialEnergy
+					print "Moving", beanGroup.getScan().getScannableName(), "to start energy ", initialEnergy
 					energyScannable = Finder.getInstance().find(beanGroup.getScan().getScannableName())
 					energyScannable(initialEnergy)
-					print "move complete, diasabling harmonic change"
 					if gap_converter != None:
+						print "Move complete; disabling harmonic change."
 						gap_converter.disableAutoConversion()
+					else:
+						print "Move complete."
 					self._doScan(beanGroup,scriptType,scan_unique_id, xmlFolderName, controller,logmsg,timeRepetitionsStarted)
 		
 				except InterruptedException, e:
@@ -210,7 +212,6 @@ class XasScan(Scan):
 		
 		# send out initial messages for logging and display to user
 		outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
-		print "*****outputFolder",outputFolder
 		#self.loggingcontroller.update(None,logmsg)
 		self.loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
 		loggingbean = XasProgressUpdater(self.loggingcontroller,logmsg,timeRepetitionsStarted)
