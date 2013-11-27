@@ -92,14 +92,22 @@ public class MythenProcessedDataset {
 	 * 
 	 * @param file the file to save the data to
 	 */
-	public void save(File file) {
+	public void save(File file, boolean hasChannelInfo) {
 		try {
 			PrintWriter pw = new PrintWriter(file);
-			pw.printf("%s\n", "&SRS");
-			pw.printf("%s\n", "&END");
-			pw.printf("Angle	Count	Error	Channel\n");
-			for (MythenProcessedData line : lines) {
-				pw.printf("%f	%d	%d	%d\n", line.getAngle(), line.getCount(), line.getError(), line.getChannel());
+//			pw.printf("%s\n", "&SRS");
+//			pw.printf("%s\n", "&END");
+			if (!hasChannelInfo) {
+				//pw.printf("Angle	Count	Error\n");
+				for (MythenProcessedData line : lines) {
+					pw.printf("%f %d %d\n", line.getAngle(), line.getCount(), line.getError());
+				}
+				
+			} else {
+				pw.printf("Angle	Count	Error	Channel\n");
+				for (MythenProcessedData line : lines) {
+					pw.printf("%f	%d	%d	%d\n", line.getAngle(), line.getCount(), line.getError(), line.getChannel());
+				}
 			}
 			pw.close();
 		} catch (IOException ioe) {

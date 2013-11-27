@@ -294,8 +294,11 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	protected String collectionFilename;
 	protected double delta;
 
+	private boolean hasChannelInfo=true;
+
 	protected void beforeCollectData() throws DeviceException {
-		beforeCollectData((int) collectionNumber++);
+		collectionNumber++;
+		beforeCollectData(collectionNumber);
 	}
 	
 	/**
@@ -304,7 +307,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	 * @param collectionNumber
 	 * @throws DeviceException
 	 */
-	protected void beforeCollectData(int collectionNumber) throws DeviceException {
+	protected void beforeCollectData(long collectionNumber) throws DeviceException {
 		status = BUSY;
 
 		if (!getDataDirectory().exists()) {
@@ -369,7 +372,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		rawData = new MythenRawDataset(rawFile);
 		processedData = dataConverter.process(rawData, delta);
 		processedFile = new File(getDataDirectory(), collectionFilename + ".dat");
-		processedData.save(processedFile);
+		processedData.save(processedFile, isHasChannelInfo());
 		if (InterfaceProvider.getTerminalPrinter() != null) {
 			InterfaceProvider.getTerminalPrinter().print("Save to file " + processedFile.getAbsolutePath());
 		}
@@ -491,7 +494,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 			MythenRawDataset rawData = new MythenRawDataset(rawFile);
 			MythenProcessedDataset processedData = dataConverter.process(rawData, delta);
 			File processedFile = new File(dataDirectory, String.format(filenameTemplate, prefix, frame, "dat"));
-			processedData.save(processedFile);
+			processedData.save(processedFile,isHasChannelInfo());
 		}
 
 		logger.info("Finished");
@@ -517,7 +520,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		logger.info("Processing data");
 		MythenRawDataset rawData = new MythenRawDataset(rawFile);
 		MythenProcessedDataset processedData = dataConverter.process(rawData, delta);
-		processedData.save(processedFile);
+		processedData.save(processedFile,isHasChannelInfo());
 	}
 
 	public void gated(int numGates) throws DeviceException {
@@ -543,7 +546,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		logger.info("Processing data");
 		MythenRawDataset rawData = new MythenRawDataset(rawFile);
 		MythenProcessedDataset processedData = dataConverter.process(rawData, delta);
-		processedData.save(processedFile);
+		processedData.save(processedFile, isHasChannelInfo());
 	}
 
 	/**
@@ -598,7 +601,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 			rawData = new MythenRawDataset(rawFile);
 			processedData = dataConverter.process(rawData, delta);
 			processedFile = new File(getDataDirectory(), collectionFilename + ".dat");
-			processedData.save(processedFile);
+			processedData.save(processedFile,isHasChannelInfo());
 			if (InterfaceProvider.getTerminalPrinter() != null) {
 				InterfaceProvider.getTerminalPrinter().print("Save to file " + processedFile.getAbsolutePath());
 			}
@@ -673,7 +676,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		rawData = new MythenRawDataset(rawFile);
 		processedData = dataConverter.process(rawData, delta);
 		processedFile = new File(rawFile.getAbsolutePath().replace(".raw", ".dat"));
-		processedData.save(processedFile);
+		processedData.save(processedFile,isHasChannelInfo());
 		if (InterfaceProvider.getTerminalPrinter() != null) {
 			InterfaceProvider.getTerminalPrinter().print("Save to file " + processedFile.getAbsolutePath());
 		}
@@ -706,7 +709,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		rawData = new MythenRawDataset(rawFile);
 		processedData = dataConverter.process(rawData, delta);
 		processedFile = new File(getDataDirectory(), collectionFilename + ".dat");
-		processedData.save(processedFile);
+		processedData.save(processedFile, isHasChannelInfo());
 		if (InterfaceProvider.getTerminalPrinter() != null) {
 			InterfaceProvider.getTerminalPrinter().print("Save to file " + processedFile.getAbsolutePath());
 		}
@@ -724,6 +727,14 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		for (AtPointEndTask task : atPointEndTasks) {
 			task.run(filename, processedData);
 		}
+	}
+
+	public boolean isHasChannelInfo() {
+		return hasChannelInfo;
+	}
+
+	public void setHasChannelInfo(boolean hasChannelInfo) {
+		this.hasChannelInfo = hasChannelInfo;
 	}
 
 }
