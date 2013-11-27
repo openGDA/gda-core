@@ -230,8 +230,8 @@ public class Converter {
 				value = waveVector.to(NonSIext.PER_ANGSTROM).getAmount();
 			}
 		} else if (convertFromUnit.equals(PERANGSTROM)) {
-			Vector v = Quantity.valueOf(value, NonSIext.PER_ANGSTROM);
-			Energy energy = PhotonEnergy.photonEnergyOf(edgeEnergy, v);
+			Vector q = Quantity.valueOf(value, NonSIext.PER_ANGSTROM);
+			Energy energy = PhotonEnergy.photonEnergyOf(edgeEnergy, q);
 			if (convertToUnit.equals(EV)) {
 				value = energy.to(NonSI.ELECTRON_VOLT).getAmount();
 			} else if (convertToUnit.equals(KEV)) {

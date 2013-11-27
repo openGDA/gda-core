@@ -28,16 +28,17 @@ class I18SamplePreparer:
 		self.rcpController.openPerspective("org.diamond.exafs.ui.PlottingPerspective")
 
 		stage = sampleParameters.getSampleStageParameters()
+		self.log("Moving sample stage to [" + str(stage.getX()) + ", " + str(stage.getY()) + ", " + str(stage.getZ()) + "]...")
 		self.sc_MicroFocusSampleX(stage.getX())
 		self.sc_MicroFocusSampleY(stage.getY())
 		self.sc_sample_z(stage.getZ())
 
-		att2 = sampleParameters.getAttenuatorParameter2()
 		att1 = sampleParameters.getAttenuatorParameter1()
-		
+		att2 = sampleParameters.getAttenuatorParameter2()
+		self.log("Moving attenuators to [" + str(att1.getSelectedPosition()) + ", " + str(att2.getSelectedPosition()) + "]...")
 		self.D7A(att1.getSelectedPosition())
 		self.D7B(att2.getSelectedPosition())
 		
 		if sampleParameters.isVfmxActive():
-			print "******", sampleParameters.getVfmx()
+			self.log( "Moving kb_vfm_x to " + str( sampleParameters.getVfmx()) )
 			self.kb_vfm_x(sampleParameters.getVfmx())
