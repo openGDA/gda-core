@@ -236,8 +236,19 @@ public class DLSdicat extends IcatBase {
 		Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
 		
 		java.util.Properties info = new java.util.Properties();
-		info.put ("user", LocalProperties.get(USER_PROP));
-		info.put ("password", LocalProperties.get(PASSWORD_PROP));
+		
+		final String username = LocalProperties.get(USER_PROP);
+		if (username == null) {
+			throw new RuntimeException("DiCAT username not set. Have you set the " + USER_PROP + " property?");
+		}
+		
+		final String password = LocalProperties.get(PASSWORD_PROP);
+		if (password == null) {
+			throw new RuntimeException("DiCAT password not set. Have you set the " + PASSWORD_PROP + " property?");
+		}
+		
+		info.put ("user", username);
+		info.put ("password", password);
 		info.put ("oracle.jdbc.timezoneAsRegion", "false");
 
 		connection = DriverManager.getConnection(LocalProperties.get(URL_PROP), info);
