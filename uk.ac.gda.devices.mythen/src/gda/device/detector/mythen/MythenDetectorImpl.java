@@ -90,7 +90,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	/**
 	 * The directory below the main data collection directory in which Mythen data files are saved.
 	 */
-	protected String subDirectory;
+	protected String subDirectory="";
 
 	/**
 	 * Creates a new Mythen detector with a default collection time of 1s.
