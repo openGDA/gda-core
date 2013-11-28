@@ -51,7 +51,6 @@ def createExcaliburConfigFromNexusTree(tree):
 
 def sendToDetector(exconf):
     c = Finder.getInstance().find("excalibur_config")
-    print "excalibur Config read from detector" + `c`
     nodes = c.get("readoutFems")
     print "Sending to detector"
     uk.ac.gda.excalibur.config.model.util.ExcaliburConfigModelHelper.INSTANCE.sendToExcalibur(nodes, exconf)
