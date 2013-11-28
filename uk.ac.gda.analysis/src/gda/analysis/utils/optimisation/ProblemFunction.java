@@ -23,6 +23,8 @@ import gda.analysis.functions.IFunction;
 import gda.analysis.functions.Parameter;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.IParameter;
+import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 
 public class ProblemFunction implements IFunction {
 
@@ -83,6 +85,11 @@ public class ProblemFunction implements IFunction {
 	}
 
 	@Override
+	public void setParameter(int index, IParameter parameter) {
+		parameters[index] = parameter.getValue();
+	}
+
+	@Override
 	public void setParameterValues(double... params) {
 		parameters = params;
 	}
@@ -137,6 +144,15 @@ public class ProblemFunction implements IFunction {
 	public void setParameterName(String name, int index) {
 		getParameter(index).setName(name);
 		
+	}
+
+	@Override
+	public void setMonitor(IMonitor monitor) {
+	}
+
+	@Override
+	public IMonitor getMonitor() {
+		return null;
 	}
 
 }
