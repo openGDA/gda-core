@@ -37,7 +37,7 @@ public class HideTempNxsViewerFilter extends ViewerFilter {
 		if (element instanceof IFile) {
 			return !(((IFile) element).getFullPath().toOSString().contains(File.separator + "tmp" + File.separator));
 		}
-		return false;
+		return true;
 	}
 
 }
