@@ -70,12 +70,6 @@ public class Quadratic extends uk.ac.diamond.scisoft.analysis.fitting.functions.
 		super(Params);
 	}
 
-
-	@Override
-	public IFunction getFunction(int index) {
-		return this;
-	}
-
 	@Override
 	public DataSet makeDataSet(DoubleDataset... values) {
 		return DataSet.convertToDataSet(makeSerialDataset(values));

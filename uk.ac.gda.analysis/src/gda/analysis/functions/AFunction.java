@@ -34,11 +34,6 @@ public abstract class AFunction extends uk.ac.diamond.scisoft.analysis.fitting.f
 		super(values);
 	}
 
-	@Override
-	public IFunction getFunction(int index) {
-		return this;
-	}
-
 	/**
 	 * Added by mark to get round problems in Jython
 	 * @param value

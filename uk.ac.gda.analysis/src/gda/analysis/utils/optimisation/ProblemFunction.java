@@ -65,16 +65,6 @@ public class ProblemFunction implements IFunction {
 	}
 
 	@Override
-	public int getNoOfFunctions() {
-		return 0;
-	}
-
-	@Override
-	public IFunction getFunction(int index) {
-		return null;
-	}
-
-	@Override
 	public double getParameterValue(int index) {
 		return parameters == null ? 0 : parameters[index];
 	}
@@ -96,6 +86,11 @@ public class ProblemFunction implements IFunction {
 
 	@Override
 	public double partialDeriv(int Parameter, double... position) {
+		return 0;
+	}
+
+	@Override
+	public double partialDeriv(IParameter param, double... values) {
 		return 0;
 	}
 
@@ -155,4 +150,12 @@ public class ProblemFunction implements IFunction {
 		return null;
 	}
 
+	@Override
+	public IFunction copy() throws Exception {
+		return null;
+	}
+
+	@Override
+	public void setDirty(boolean isDirty) {
+	}
 }

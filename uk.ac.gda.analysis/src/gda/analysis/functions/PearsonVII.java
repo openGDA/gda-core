@@ -80,16 +80,10 @@ public class PearsonVII extends uk.ac.diamond.scisoft.analysis.fitting.functions
 		super(minPeakPosition, maxPeakPosition, maxFWHM, maxArea, mixing);
 	}	
 
-	@Override
 	public PearsonVII createPeakFunction(double minPosition, double maxPosition, double maxArea, double maxFWHM) {
 		return new PearsonVII(minPosition,maxPosition,maxArea,maxFWHM);
 	}
 	
-	@Override
-	public IFunction getFunction(int index) {
-		return this;
-	}
-
 	@Override
 	public DataSet makeDataSet(DoubleDataset... values) {
 		return DataSet.convertToDataSet(makeSerialDataset(values));

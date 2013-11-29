@@ -59,11 +59,6 @@ public class StraightLine extends uk.ac.diamond.scisoft.analysis.fitting.functio
 	}
 
 	@Override
-	public IFunction getFunction(int index) {
-		return this;
-	}
-
-	@Override
 	public DataSet makeDataSet(DoubleDataset... values) {
 		return DataSet.convertToDataSet(makeSerialDataset(values));
 	}

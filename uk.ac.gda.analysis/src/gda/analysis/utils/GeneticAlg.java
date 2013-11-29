@@ -29,6 +29,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.IOperator;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IParameter;
 
 /**
@@ -95,6 +96,7 @@ public class GeneticAlg implements IOptimizer {
 	}
 
 	public void Optimize(final DoubleDataset[] coords, final DoubleDataset yAxis, final IFunction function, int maxItterations) throws Exception {
+		IOperator operator = (function instanceof IOperator) ? (IOperator) function : null;
 
 		// set some factors
 		final double mutantProportion = 0.5;
@@ -106,7 +108,7 @@ public class GeneticAlg implements IOptimizer {
 		if (epochSize < 100)
 			epochSize = 100;
 		// for the time being these are the same size
-		final int nfuncs = function.getNoOfFunctions();
+		final int nfuncs = operator != null ? operator.getNoOfFunctions() : 1;
 
 		// generate the first epoch, each member will be a random initial
 		// position picked from the maximum parameters
@@ -207,12 +209,24 @@ public class GeneticAlg implements IOptimizer {
 				int parent = mum;
 				int count = 0;
 
-				for (int i = 0; i < nfuncs; i++) {
-					if (i >= point) {
+				if (operator != null) {
+					for (int i = 0; i < nfuncs; i++) {
+						if (i >= point) {
+							parent = dad;
+						}
+	
+						final int fnparams = operator.getFunction(i).getNoOfParameters();
+						for (int l = 0; l < fnparams; l++) {
+							nextepoch[j][count] = epoch[parent][count];
+							count++;
+						}
+					}
+				} else {
+					if (0 >= point) {
 						parent = dad;
 					}
 
-					final int fnparams = function.getFunction(i).getNoOfParameters();
+					final int fnparams = function.getNoOfParameters();
 					for (int l = 0; l < fnparams; l++) {
 						nextepoch[j][count] = epoch[parent][count];
 						count++;

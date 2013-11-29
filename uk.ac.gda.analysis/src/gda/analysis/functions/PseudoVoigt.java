@@ -60,14 +60,8 @@ public class PseudoVoigt extends uk.ac.diamond.scisoft.analysis.fitting.function
 		super(minPos, maxPos, max_FWHM, max_Area);
 	}
 
-	@Override
 	public PseudoVoigt createPeakFunction(double minPosition, double maxPosition, double maxArea, double maxFWHM){
 		return new PseudoVoigt(minPosition, maxPosition, maxFWHM, maxArea);
-	}
-
-	@Override
-	public IFunction getFunction(int index) {
-		return this;
 	}
 
 	@Override

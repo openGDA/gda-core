@@ -65,14 +65,8 @@ public class Gaussian extends uk.ac.diamond.scisoft.analysis.fitting.functions.G
 		super(minPeakPosition, maxPeakPosition, maxFWHM, maxArea);
 	}
 	
-	@Override
 	public Gaussian createPeakFunction(double minPosition, double maxPosition, double maxArea, double maxFWHM) {
 		return new Gaussian(minPosition,  maxPosition,  maxArea,  maxFWHM);
-	}
-
-	@Override
-	public IFunction getFunction(int index) {
-		return this;
 	}
 
 	@Override

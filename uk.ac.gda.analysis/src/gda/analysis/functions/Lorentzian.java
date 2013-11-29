@@ -72,16 +72,10 @@ public class Lorentzian extends uk.ac.diamond.scisoft.analysis.fitting.functions
 		super(minPeakPosition, maxPeakPosition, maxHeight, maxHalfWidth);
 	}
 
-	@Override
 	public Lorentzian createPeakFunction(double minPosition, double maxPosition, double maxArea, double maxFWHM) {
 		double maxHalfWidth = maxFWHM / 2;
 		double maxHeight = 2 * maxArea / maxHalfWidth; // triangular approximation of the max height of the peak.
 		return new Lorentzian(minPosition, maxPosition, maxHeight, maxHalfWidth);
-	}
-
-	@Override
-	public IFunction getFunction(int index) {
-		return this;
 	}
 
 	@Override

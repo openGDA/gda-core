@@ -45,16 +45,6 @@ public interface IFunction extends uk.ac.diamond.scisoft.analysis.fitting.functi
 	public DataSet makeDataSet(DoubleDataset... values);
 
 	/**
-	 * Function which gets a particular function from the composite function
-	 * 
-	 * @param index
-	 *            The index of the object to retrieve
-	 * @return A link to the function itself
-	 */
-	@Override
-	public IFunction getFunction(int index);
-
-	/**
 	 * Displays the content of the Function
 	 */
 	@Deprecated

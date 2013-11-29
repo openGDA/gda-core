@@ -23,6 +23,8 @@ import gda.analysis.TerminalPrinter;
 
 import java.io.Serializable;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
@@ -53,9 +55,9 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 	}
 
 	class PFunction extends AFunction {
-		uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction function;
+		uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction function;
 
-		public PFunction(uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction fn) {
+		public PFunction(uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction fn) {
 			super(fn.getParameterValues());
 			function = fn;
 			setName(function.getName());
@@ -63,7 +65,7 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 
 		@Override
 		public DoubleDataset makeDataset(IDataset... values) {
-			return function.makeDataset(values);
+			return (DoubleDataset) DatasetUtils.cast(function.makeDataset(values), AbstractDataset.FLOAT64);
 		}
 
 		@Override
