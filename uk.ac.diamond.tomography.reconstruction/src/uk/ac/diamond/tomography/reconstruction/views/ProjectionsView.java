@@ -19,10 +19,10 @@ package uk.ac.diamond.tomography.reconstruction.views;
 
 import gda.analysis.io.ScanFileHolderException;
 
-import org.dawb.common.services.IPaletteService;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.PlottingFactory;
+import org.dawnsci.plotting.api.histogram.IPaletteService;
 import org.dawnsci.plotting.api.preferences.BasePlottingConstants;
 import org.dawnsci.plotting.api.preferences.ToolbarConfigurationConstants;
 import org.dawnsci.plotting.api.region.IROIListener;

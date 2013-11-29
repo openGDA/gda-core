@@ -414,7 +414,7 @@ set -x
 
 #add the modules required 
 source /dls_sw/i12/modulefiles/modules.sh
-module add/dls_sw/i12/modulefiles/local-64
+module add /dls_sw/i12/modulefiles/local-64
 myjob=$JOB_ID
 mytask=$SGE_TASK_ID
 """ )
