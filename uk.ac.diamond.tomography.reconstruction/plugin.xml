@@ -142,20 +142,6 @@
          point="org.eclipse.ui.navigator.navigatorContent">
       <commonFilter
             activeByDefault="true"
-            class="uk.ac.diamond.tomography.reconstruction.views.HideTempNxsViewerFilter"
-            description="Hide NeXus files in tmp folder"
-            id="uk.ac.diamond.tomography.reconstruction.filters.hidetempFilter"
-            name="Hide Temporary NeXus Files">
-      </commonFilter>
-      <commonFilter
-            activeByDefault="true"
-            class="uk.ac.diamond.tomography.reconstruction.views.HideProcessingNxsViewerFilter"
-            description="Hide NeXus files in processing folder"
-            id="uk.ac.diamond.tomography.reconstruction.filters.hideprocessingFilter"
-            name="Hide Processing NeXus Files">
-      </commonFilter>
-      <commonFilter
-            activeByDefault="true"
             description="Hide files that do not have the nxs extension"
             id="uk.ac.diamond.tomography.reconstruction.filters.hideNonNexusFiles"
             name="Hide Non-NeXus Files"
