@@ -6,4 +6,4 @@ class MinPositionAndValue(XYDataSetFunction):
 		XYDataSetFunction.__init__(self, name, labelList,'minpos', formatString)
 	
 	def _process(self,xDataSet, yDataSet):
-		return ( xDataSet[int(yDataSet.minPos()[0])], yDataSet.min() )
+		return ( xDataSet.get(yDataSet.minPos()[0]), yDataSet.min() )

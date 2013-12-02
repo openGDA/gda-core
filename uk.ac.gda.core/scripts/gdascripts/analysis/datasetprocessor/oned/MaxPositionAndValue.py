@@ -6,4 +6,4 @@ class MaxPositionAndValue(XYDataSetFunction):
 		XYDataSetFunction.__init__(self, name, labelList, 'maxpos', formatString)
 	
 	def _process(self,xDataSet, yDataSet):
-		return ( xDataSet[int(yDataSet.maxPos()[0])], yDataSet.max() )
+		return ( xDataSet.get(yDataSet.maxPos()[0]), yDataSet.max() )
