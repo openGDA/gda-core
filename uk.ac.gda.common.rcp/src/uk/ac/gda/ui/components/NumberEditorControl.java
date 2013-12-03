@@ -77,6 +77,8 @@ import uk.ac.gda.beans.ObservableModel;
 public class NumberEditorControl extends Composite {
 	
 	private static final Logger logger = LoggerFactory.getLogger(NumberEditorControl.class);
+	
+	public static final String EDITABLE_PROP_NAME = "editable";
 
 	private static final String ICONS_PATH = "icons/";
 	private static final int LARGE_INCREMENT_WIDTH_PADDING = 6;
@@ -116,6 +118,7 @@ public class NumberEditorControl extends Composite {
 	private Binding incrementLabelBinding;
 
 	private Color disabledColor;
+	private Color enabledColor;
 
 	private static final int INITIAL_STEP = (int) (0.1 * Math.pow(10, DEFAULT_DECIMAL_PLACES));
 
@@ -206,12 +209,12 @@ public class NumberEditorControl extends Composite {
 
 			decrementButtonEditableBinding = ctx.bindValue(
 					WidgetProperties.enabled().observe(decrementButton),
-					BeanProperties.value(NumberEditorWidgetModel.EDITABLE_PROP_NAME).observe(controlModel));
+					BeanProperties.value(EDITABLE_PROP_NAME).observe(controlModel));
 
 
 			incrementButtonEditableBinding = ctx.bindValue(
 					WidgetProperties.enabled().observe(incrementButton),
-					BeanProperties.value(NumberEditorWidgetModel.EDITABLE_PROP_NAME).observe(controlModel));
+					BeanProperties.value(EDITABLE_PROP_NAME).observe(controlModel));
 
 			incrementText.addListener(SWT.MouseUp, openStepEditorListener);
 			incrementText.addMouseTrackListener(editableMouseListener);
@@ -227,7 +230,7 @@ public class NumberEditorControl extends Composite {
 		}
 		numberLabel.addMouseTrackListener(editableMouseListener);
 		numberLabel.addListener(SWT.MouseUp, openEditorListener);
-		numberLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+		numberLabel.setBackground(enabledColor);
 
 		binded = true;
 	}
@@ -268,8 +271,6 @@ public class NumberEditorControl extends Composite {
 			decrementButton.removeMouseListener(incrementEnabledListener);
 			decrementButton.removeMouseTrackListener(editableIncrementMouseListener);
 			incrementText.setText("");
-
-
 
 		}
 		numberLabel.removeMouseTrackListener(editableMouseListener);
@@ -359,6 +360,10 @@ public class NumberEditorControl extends Composite {
 
 	public void setEditable(boolean value) {
 		controlModel.setEditable(value);
+		if (!numberLabel.isDisposed()) {
+			Color color = controlModel.isEditable() ? Display.getDefault().getSystemColor(SWT.COLOR_WHITE) : this.disabledColor;
+			numberLabel.setBackground(color);
+		}
 	}
 
 	public boolean isEditing() {
@@ -434,7 +439,8 @@ public class NumberEditorControl extends Composite {
 	};
 
 	protected void setupControls() {
-		disabledColor = new Color (this.getDisplay(), 245, 245, 245);
+		disabledColor = new Color (this.getDisplay(), 230, 230, 230);
+		enabledColor = this.getDisplay().getSystemColor(SWT.COLOR_WHITE);
 		editorComposite = new Composite(this, SWT.None);
 		editorComposite.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
 		int columns = (useSpinner) ? 3 : 1;
@@ -710,7 +716,6 @@ public class NumberEditorControl extends Composite {
 	}
 
 	protected class NumberEditorWidgetModel extends ObservableModel {
-		public static final String EDITABLE_PROP_NAME = "editable";
 		private boolean editable = true;
 
 		public static final String MAX_VALUE_PROP_NAME = "maxValue";
