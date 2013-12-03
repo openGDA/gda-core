@@ -46,7 +46,8 @@ Require-Bundle: org.eclipse.help.ui,
  org.eclipse.jface.databinding;bundle-version="1.6.0",
  org.dawnsci.persistence;bundle-version="1.2.0",
  org.dawnsci.jexl;bundle-version="1.2.0",
- org.dawnsci.conversion;bundle-version="1.2.0"
+ org.dawnsci.conversion;bundle-version="1.2.0",
+ org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)"
 Bundle-ActivationPolicy: lazy
 Bundle-Version: 8.36.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core
