@@ -26,6 +26,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.timer.FrameSet;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
@@ -54,7 +55,8 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	private Timer timer;
 	protected DeviceException tfgMisconfigurationException = new DeviceException("Triggering not set up");
 	private String filename = "/dev/null";
-
+	private List<NXPlugin> nxplugins;
+	
 	@Override
 	public void clear() throws DeviceException {
 		// we are clear
@@ -344,5 +346,13 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			throw new DeviceException("Detetor in fault while reading");
 		
 		logger.info("we think we are ready for the next acquisition now.");
+	}
+
+	public List<NXPlugin> getNxplugins() {
+		return nxplugins;
+	}
+
+	public void setNxplugins(List<NXPlugin> nxplugins) {
+		this.nxplugins = nxplugins;
 	}
 }
