@@ -78,4 +78,19 @@ public class Gaussian extends uk.ac.diamond.scisoft.analysis.fitting.functions.G
 	public void disp() {
 		TerminalPrinter.print(toString());
 	}
+
+	@Override
+	public IFunction getFunction(int index) {
+		return this;
+	}
+
+	@Override
+	public String getParameterName(int index) {
+		return getParameter(index).getName();
+	}
+
+	@Override
+	public void setParameterName(String name, int index) {
+		getParameter(index).setName(name);
+	}
 }

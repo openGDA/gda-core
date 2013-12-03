@@ -34,6 +34,11 @@ public abstract class AFunction extends uk.ac.diamond.scisoft.analysis.fitting.f
 		super(values);
 	}
 
+	@Override
+	public IFunction getFunction(int index) {
+		return this;
+	}
+
 	/**
 	 * Added by mark to get round problems in Jython
 	 * @param value
@@ -41,5 +46,15 @@ public abstract class AFunction extends uk.ac.diamond.scisoft.analysis.fitting.f
 	 */
 	public DataSet makeDataSet(DoubleDataset value) {
 		return DataSet.convertToDataSet(super.makeDataset(value));
+	}
+
+	@Override
+	public String getParameterName(int index) {
+		return getParameter(index).getName();
+	}
+
+	@Override
+	public void setParameterName(String name, int index) {
+		getParameter(index).setName(name);
 	}
 }

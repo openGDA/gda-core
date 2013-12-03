@@ -103,6 +103,12 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 		public DataSet makeDataSet(DoubleDataset... values) {
 			return DataSet.convertToDataSet(function.makeDataset(values));
 		}
+
+
+		@Override
+		public IFunction getFunction(int index) {
+			return this;
+		}
 	}
 
 	@Override
@@ -113,5 +119,15 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 	@Override
 	public void disp() {
 		TerminalPrinter.print(toString());
+	}
+
+	@Override
+	public String getParameterName(int index) {
+		return getParameter(index).getName();
+	}
+
+	@Override
+	public void setParameterName(String name, int index) {
+		getParameter(index).setName(name);
 	}
 }

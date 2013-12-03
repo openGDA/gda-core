@@ -158,4 +158,9 @@ public class ProblemFunction implements IFunction {
 	@Override
 	public void setDirty(boolean isDirty) {
 	}
+
+	@Override
+	public IFunction getFunction(int index) {
+		return this;
+	}
 }
