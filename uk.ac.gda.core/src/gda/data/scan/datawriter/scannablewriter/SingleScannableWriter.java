@@ -91,7 +91,7 @@ public class SingleScannableWriter implements ScannableWriter {
 
 		for (int i = 0; i < componentsFor(s); i++) {
 			try {
-				if (paths[i].isEmpty())
+				if (paths == null || paths.length <= i || paths[i].isEmpty())
 					continue;
 				String componentName = componentNameFor(s, i);
 				String unit = null;
@@ -113,7 +113,7 @@ public class SingleScannableWriter implements ScannableWriter {
 	public void writeScannable(NeXusFileInterface file, Scannable s, Object position, int[] start)
 			throws NexusException {
 		for (int i = 0; i < componentsFor(s); i++) {
-			if (paths[i].isEmpty())
+			if (paths == null || paths.length <= i || paths[i].isEmpty())
 				continue;
 			Object slab;
 			slab = getComponentObject(s, position, i);
