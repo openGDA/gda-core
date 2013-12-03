@@ -32,11 +32,11 @@ Export-Package: gda.configuration.properties,
  uk.ac.gda.util.schema
 Require-Bundle: org.junit4,
  com.springsource.ch.qos.logback.classic;bundle-version="0.9.15",
- com.springsource.ch.qos.logback.core;bundle-version="0.9.15"
+ com.springsource.ch.qos.logback.core;bundle-version="0.9.15",
+ org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.commons.beanutils,
- org.apache.commons.configuration;version="1.6.0",
  org.apache.commons.lang,
  org.exolab.castor.mapping;version="1.2.0",
  org.exolab.castor.xml;version="1.2.0",
