@@ -23,9 +23,13 @@ import gda.rcp.GDAClientActivator;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -52,6 +56,7 @@ public class StageCompositeFactory implements CompositeFactory {
 
 	String label;
 	private Integer labelWidth = null;
+	private Image image;
 
 	public String getLabel() {
 		return label;
@@ -87,7 +92,12 @@ public class StageCompositeFactory implements CompositeFactory {
 		label2.setText("Stop all motors on this stage");
 		GridDataFactory.swtDefaults().applyTo(label2);
 		Button button = new Button(c1, SWT.PUSH);
-		button.setImage(GDAClientActivator.getImageDescriptor("icons/stop.png").createImage());
+		ImageDescriptor descr = GDAClientActivator.getImageDescriptor("icons/stop.png");
+		if (descr != null){
+			image = descr.createImage();
+			button.setImage(image);
+			
+		}
 		button.setToolTipText("Stop all the motors on this stage");
 		GridDataFactory.swtDefaults().applyTo(button);
 		button.addSelectionListener(new SelectionAdapter() {
@@ -128,6 +138,17 @@ public class StageCompositeFactory implements CompositeFactory {
 			GridDataFactory.fillDefaults().grab(true,false).applyTo(sep1);
 		}
 
+		cmp.addDisposeListener(new DisposeListener() {
+			
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				if(image != null){
+					image.dispose();
+					image=null;
+				}
+				
+			}
+		});
 		return cmp;
 	}
 
