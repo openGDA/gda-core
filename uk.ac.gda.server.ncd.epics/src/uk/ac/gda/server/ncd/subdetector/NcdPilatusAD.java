@@ -26,6 +26,8 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.timer.FrameSet;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
@@ -33,6 +35,7 @@ import gda.observable.IObserver;
 import gda.scan.ScanInformation;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +57,8 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	private Timer timer;
 	protected DeviceException tfgMisconfigurationException = new DeviceException("Triggering not set up");
 	private String filename = "/dev/null";
-
+	private List<NXPlugin> nxplugins;
+	
 	@Override
 	public void clear() throws DeviceException {
 		// we are clear
@@ -303,6 +307,17 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder()
 				.getCurrentScanInformation();
 		try {
+			if (nxplugins != null) {
+				for (NXPlugin nxpi: nxplugins) {
+					nxpi.stop();
+					nxpi.prepareForCollection(controller.getNumImages(), scanInformation);
+					nxpi.prepareForLine();
+				}
+			}
+	} catch (Exception e) {
+		throw new DeviceException("error setting up nxplugins", e);
+	}
+			try {
 			controller.setScanDimensions(scanInformation.getDimensions());
 			setupFilename();
 			controller.resetCounters();
@@ -318,6 +333,12 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		try {
 			controller.stopAcquiringWithTimeout();
 			controller.endRecording();
+			if (nxplugins != null) {
+				for (NXPlugin nxpi: nxplugins) {
+					nxpi.stop();
+					nxpi.completeCollection();
+				}
+			}
 		} catch (Exception e) {
 			throw new DeviceException("error finalising data acquitision/writing", e);
 		} finally {
@@ -335,6 +356,17 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 
 		addMetadata(dataTree);
 		
+		if (nxplugins != null) {
+			for (NXPlugin nxpi: nxplugins) {
+				try {
+					List<NXDetectorDataAppender> appenderlist = nxpi.read(1);
+					for(NXDetectorDataAppender appender : appenderlist)
+						appender.appendTo(dataTree, getTreeName());
+				} catch (Exception e) {
+					throw new DeviceException("error reading nxplugin "+nxpi.getName(), e);
+				} 
+			}
+		}
 		// delay returning from that method until area detector had a chance to read in all files
 		// not pretty, but best solution I can come up with now.
 		// there should be some getstatus or are you ready call
@@ -344,5 +376,13 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			throw new DeviceException("Detetor in fault while reading");
 		
 		logger.info("we think we are ready for the next acquisition now.");
+	}
+
+	public List<NXPlugin> getNxplugins() {
+		return nxplugins;
+	}
+
+	public void setNxplugins(List<NXPlugin> nxplugins) {
+		this.nxplugins = nxplugins;
 	}
 }
