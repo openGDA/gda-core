@@ -58,9 +58,12 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 		uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction function;
 
 		public PFunction(uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction fn) {
-			super(fn.getParameterValues());
+			super(fn.getNoOfParameters());
 			function = fn;
-			setName(function.getName());
+			int n = function.getNoOfParameters();
+			for (int i = 0; i < n; i++) {
+				setParameter(i, function.getParameter(i));
+			}
 		}
 
 		@Override
@@ -85,8 +88,14 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 
 		@Override
 		public void setParameterValues(double... params) {
-			super.setParameterValues(params);
 			function.setParameterValues(params);
+			setDirty(true);
+		}
+
+		@Override
+		public void setDirty(boolean isDirty) {
+			super.setDirty(isDirty);
+			function.setDirty(isDirty);
 		}
 
 		@Override
@@ -103,7 +112,6 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 		public DataSet makeDataSet(DoubleDataset... values) {
 			return DataSet.convertToDataSet(function.makeDataset(values));
 		}
-
 
 		@Override
 		public IFunction getFunction(int index) {

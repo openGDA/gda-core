@@ -30,6 +30,10 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 @Deprecated
 public abstract class AFunction extends uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction implements IFunction, Serializable {
 
+	public AFunction(int numberOfParameters) {
+		super(numberOfParameters);
+	}
+
 	public AFunction(double[] values) {
 		super(values);
 	}
