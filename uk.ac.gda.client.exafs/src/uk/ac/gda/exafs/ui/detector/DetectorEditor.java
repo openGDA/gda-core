@@ -112,45 +112,35 @@ import com.swtdesigner.SWTResourceManager;
  * Class to contain plotting which some detector editors require.
  */
 public abstract class DetectorEditor extends RichBeanEditorPart {
-
 	/*
 	 * name of ScriptController that must be in the system for uploading to device to work
 	 */
 	private static final String EXAFS_SCRIPT_OBSERVER = "ExafsScriptObserver";
 	private static final Logger logger = LoggerFactory.getLogger(DetectorEditor.class);
 	protected SashFormPlotComposite sashPlotForm;
-
 	// Used for temporary storage of data
 	protected volatile double[/* element */][/* grade */][/* mca */] detectorData;
 	// NOTE: Grades often not applicable in which case that dimension is size 1.
-
 	// Used for saving data to XML
 	protected DataWrapper dataWrapper;
-
-	// The command run to send the parameters to the server
-	protected final String command;
-
+	protected final String serverCommand;
 	private ExpansionAdapter expansionListener;
-
 	private volatile boolean continuousAquire = false;
 	private Thread continuousThread;
 	private ReentrantLock lock = new ReentrantLock();
 	private DetectorListComposite detectorListComposite;
 	private Composite importComposite;
 	private Boolean calculateSingleElement = true;
-
-	int selectedRegionIndex;
-	int lastSelectedElementIndex;
+	private int lastSelectedElementIndex;
 	private Object bean;
 	private Action uploadAction;
 	private volatile Boolean updatingAfterROIDrag = null;
-
 	private String plotTitle = "Saved Data";
 	
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean, final String command) {
 		super(path, mappingURL, dirtyContainer, editingBean);
-		this.command = command;
+		this.serverCommand = command;
 		this.bean = editingBean;
 	}
 
@@ -158,9 +148,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class clazz) {
-		if (clazz == IToolPageSystem.class) {
+		if (clazz == IToolPageSystem.class)
 			return sashPlotForm.getPlottingSystem();
-		}
 		return super.getAdapter(clazz);
 	}
 
@@ -287,28 +276,23 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	// While there are still many parameters, at least they are now unique types so it is much
 	// easier to use the method
 	protected DetectorListComposite createDetectorList(final Composite parent,
-			final Class<? extends IDetectorElement> editorClass, final int elementListSize,
-			final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory,
-			final Boolean showAdvanced) {
-
+	final Class<? extends IDetectorElement> editorClass, final int elementListSize,
+	final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory,
+	final Boolean showAdvanced) {
 		importComposite = new Composite(parent, SWT.NONE);
-		
 		importComposite.setLayout(new GridLayout(2, false));
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(importComposite);
-
-		final Label importLabel = new Label(importComposite, SWT.NONE);
+		Label importLabel = new Label(importComposite, SWT.NONE);
 		importLabel.setText("Import Regions Of Interest");
 		final Button importButton = new Button(importComposite, SWT.NONE);
 		GridDataFactory grab = GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, false);
 		grab.hint(60, SWT.DEFAULT).applyTo(importButton);
-		importButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class,
-				"/icons/calculator_edit.png"));
+		importButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class, "/icons/calculator_edit.png"));
 		importButton.setToolTipText("Import Regions Of Interest from other Parameters files");
 		final SelectionAdapter importButtonListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardDialog dialog = new WizardDialog(importButton.getShell(), new ImportROIWizard(
-						elementListSize, DetectorEditor.this));
+				WizardDialog dialog = new WizardDialog(importButton.getShell(), new ImportROIWizard(elementListSize, DetectorEditor.this));
 				dialog.create();
 				dialog.open();
 			}
@@ -336,7 +320,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
 				if (getDetectorList().getSelectedIndex() == lastSelectedElementIndex) {
-					selectedRegionIndex = evt.getSelectionIndex();
 					if (bean instanceof XspressParameters) {
 						XspressParameters detBean = (XspressParameters) bean;
 						detBean.setSelectedRegionNumber(evt.getSelectionIndex());
@@ -378,9 +361,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 	
 	private void setRegionEditableFromPreference(){
-		sashPlotForm.getRegionOnDisplay().setMobile(
-				ExafsActivator.getDefault().getPreferenceStore()
-						.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
+		sashPlotForm.getRegionOnDisplay().setMobile(ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
 	}
 
 	@Override
@@ -434,7 +415,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected void upload() throws Exception {
-		
 		// the bean from the enclosing scan (may be null if no scan selected)
 		IExperimentObject experimentObject = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 		final IOutputParameters outputBean;
@@ -459,9 +439,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 					data.put("XMLFileNameToLoad", path);
 					data.put("OutputParametersToLoad", outputBean);
 					monitor.worked(10);
-					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command + "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
+					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, serverCommand + "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
 					monitor.worked(50);
-					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(command + ".getConfigureResult()");
+					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(serverCommand + ".getConfigureResult()");
 					sashPlotForm.appendStatus(configureResult, logger);
 				} catch (Exception e) {
 					logger.error("Internal error cannot get data from detector.", e);
@@ -529,18 +509,17 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 		if (showMessage) {
 			if (!MessageDialog.openConfirm(getSite().getShell(), "Confirm Apply To All",
-			"Do you want to apply currently selected elements regions of interest to all detecors?\n\nThis will write new regions for the elements automatically.")) {
+			"Do you want to apply currently selected elements regions of interest to all detecors?\n\nThis will write new regions for the elements automatically."))
 				return false;
-			}
 		}
 		final int currentIndex = getDetectorList().getSelectedIndex();
 
 		// Uses bean utils to clone the region list and reflection to send it
 		// to the other elements.
-		final Object startWindow = getDetectorElementComposite().getWindowStart() != null ? getDetectorElementComposite().getWindowStart().getValue() : null;
-		final Object endWindow = getDetectorElementComposite().getWindowEnd() != null ? getDetectorElementComposite().getWindowEnd().getValue() : null;
-		final List<?> regions = (List<?>) getDetectorElementComposite().getRegionList().getValue();
-		final List<?> elements = (List<?>) getDetectorList().getValue();
+		Object startWindow = getDetectorElementComposite().getWindowStart() != null ? getDetectorElementComposite().getWindowStart().getValue() : null;
+		Object endWindow = getDetectorElementComposite().getWindowEnd() != null ? getDetectorElementComposite().getWindowEnd().getValue() : null;
+		List<?> regions = (List<?>) getDetectorElementComposite().getRegionList().getValue();
+		List<?> elements = (List<?>) getDetectorList().getValue();
 		int index = -1;
 		try {
 			for (Object element : elements) {
@@ -702,13 +681,11 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	
 	protected void plot(final int ielement, boolean updateTitle) {
 		final List<AbstractDataset> data = unpackDataSets(ielement);
-
 		if (updateTitle) {
 			Date now = new Date();
 			SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
 			plotTitle = "Acquire at " + dt.format(now);
 		}
-		
 		for (int i = 0; i < data.size(); i++) {
 			String name = getChannelName(ielement);
 			if (data.size() > 1)
@@ -716,7 +693,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			name += " " + plotTitle;
 			data.get(i).setName(name);
 		}
-
 		sashPlotForm.setDataSets(data.toArray(new AbstractDataset[data.size()]));
 		sashPlotForm.getPlottingSystem().setRescale(updateTitle);
 		sashPlotForm.plotData();
@@ -752,9 +728,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	protected double getMin(Collection<AbstractDataset> data) {
 		double ret = Double.MAX_VALUE;
-		for (AbstractDataset dataSet : data) {
+		for (AbstractDataset dataSet : data)
 			ret = Math.min(ret, dataSet.min().doubleValue());
-		}
 		return ret;
 	}
 
@@ -766,15 +741,13 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected List<AbstractDataset> unpackDataSets(int ielement) {
-
-		final List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
+		List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
 		if (ielement < 0 || detectorData == null) {
 			DoubleDataset ds = new DoubleDataset(new double[] { 0d });
 			ret.add(ds);
 			return ret;
 		}
-
-		final double[][] data = detectorData[ielement];
+		double[][] data = detectorData[ielement];
 		for (int i = 0; i < data.length; i++) {
 			DoubleDataset ds = new DoubleDataset(data[i]);
 			ret.add(ds);
