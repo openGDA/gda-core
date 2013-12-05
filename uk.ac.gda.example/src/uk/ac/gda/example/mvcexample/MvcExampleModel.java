@@ -18,8 +18,20 @@
 
 package uk.ac.gda.example.mvcexample;
 
-public interface MvcExampleModel {
+import java.beans.PropertyChangeListener;
+
+public interface MvcExampleModel{
 	boolean isSelected();
 	void setSelected(boolean selected);
-//	public static final String SELECTED_PROPERTY_NAME="selected";
+	
+	double getPosition();
+	void setPosition(double position);
+	
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener);
+	public void removePropertyChangeListener(PropertyChangeListener listener);
+	public static final String SELECTED_PROPERTY_NAME="selected";
+	public static final String POSITION_PROPERTY_NAME="position";
+	
+	
 }

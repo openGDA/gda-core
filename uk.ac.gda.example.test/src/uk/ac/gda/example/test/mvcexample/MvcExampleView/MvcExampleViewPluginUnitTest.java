@@ -2,7 +2,9 @@ package uk.ac.gda.example.test.mvcexample.MvcExampleView;
 
 import gda.rcp.util.OSGIServiceRegister;
 
-import org.eclipse.core.databinding.observable.value.IObservableValue;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -37,25 +39,28 @@ public class MvcExampleViewPluginUnitTest {
 	@Test
 	public void testSetBtnSelected() throws Exception {
 		MyMvcExampleModel model = new MyMvcExampleModel();
-		
+
 		OSGIServiceRegister modelReg = new OSGIServiceRegister();
 		modelReg.setClass(MvcExampleModel.class);
 		modelReg.setService(model);
-		modelReg.afterPropertiesSet();		
-		
-		
-		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		MvcExampleView view = (MvcExampleView)window.getActivePage().showView(MvcExampleView.ID);
+		modelReg.afterPropertiesSet();
+
+		final IWorkbenchWindow window = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow();
+		MvcExampleView view = (MvcExampleView) window.getActivePage().showView(
+				MvcExampleView.ID);
 		window.getActivePage().activate(view);
-		
-		ActionFactory.IWorkbenchAction  maximizeAction = ActionFactory.MAXIMIZE.create(window);
-		maximizeAction.run(); // Will maximize the active part		
-		for(int i=0; i<60; i++){
+
+		ActionFactory.IWorkbenchAction maximizeAction = ActionFactory.MAXIMIZE
+				.create(window);
+		maximizeAction.run(); // Will maximize the active part
+		for (int i = 0; i < 60; i++) {
 			delay(1000);
 			model.setSelected(!model.isSelected());
 		}
-		
+
 	}
+
 	/**
 	 * Process UI input but do not return for the specified time interval.
 	 * 
@@ -86,16 +91,42 @@ public class MvcExampleViewPluginUnitTest {
 			}
 		}
 	}
-	
+
 	class MyMvcExampleModel implements MvcExampleModel{
+		private final PropertyChangeSupport pcs = new PropertyChangeSupport(
+				this);
+
+		@Override
+		public void addPropertyChangeListener(PropertyChangeListener listener) {
+			this.pcs.addPropertyChangeListener(listener);
+		}
+
+		@Override
+		public void removePropertyChangeListener(PropertyChangeListener listener) {
+			this.pcs.removePropertyChangeListener(listener);
+		}
+
 		boolean selected;
 
+		@Override
 		public boolean isSelected() {
 			return selected;
 		}
 
+		@Override
 		public void setSelected(boolean selected) {
-			this.selected = selected;
+			this.pcs.firePropertyChange(MvcExampleModel.SELECTED_PROPERTY_NAME, this.selected, this.selected=selected);
+		}
+
+		double position;
+		@Override
+		public double getPosition() {
+			return position;
+		}
+
+		@Override
+		public void setPosition(double position) {
+			this.pcs.firePropertyChange(MvcExampleModel.POSITION_PROPERTY_NAME, this.position, this.position=position);
 		}
 
 	};
