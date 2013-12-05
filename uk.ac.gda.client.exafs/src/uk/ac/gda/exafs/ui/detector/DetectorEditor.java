@@ -117,13 +117,13 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 */
 	private static final String EXAFS_SCRIPT_OBSERVER = "ExafsScriptObserver";
 	private static final Logger logger = LoggerFactory.getLogger(DetectorEditor.class);
-	protected SashFormPlotComposite sashPlotForm;
+	protected SashFormPlotComposite sashPlotFormComposite;
 	// Used for temporary storage of data
 	protected volatile double[/* element */][/* grade */][/* mca */] detectorData;
 	// NOTE: Grades often not applicable in which case that dimension is size 1.
 	// Used for saving data to XML
 	protected DataWrapper dataWrapper;
-	protected final String serverCommand;
+	protected final String command;
 	private ExpansionAdapter expansionListener;
 	private volatile boolean continuousAquire = false;
 	private Thread continuousThread;
@@ -140,7 +140,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean, final String command) {
 		super(path, mappingURL, dirtyContainer, editingBean);
-		this.serverCommand = command;
+		this.command = command;
 		this.bean = editingBean;
 	}
 
@@ -149,7 +149,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class clazz) {
 		if (clazz == IToolPageSystem.class)
-			return sashPlotForm.getPlottingSystem();
+			return sashPlotFormComposite.getPlottingSystem();
 		return super.getAdapter(clazz);
 	}
 
@@ -204,8 +204,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public void createPartControl(Composite parent) {
 		this.dataWrapper = readStoredData();
 		try {
-			this.sashPlotForm = createSashPlot(parent);
-			sashPlotForm.getPlottingSystem().setRescale(false);
+			this.sashPlotFormComposite = createSashPlot(parent);
+			sashPlotFormComposite.getPlottingSystem().setRescale(false);
 		} catch (Exception e) {
 			logger.error("Exception while creating detector editor", e);
 		}
@@ -304,14 +304,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		expansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-				sashPlotForm.getLeftScroll().setMinSize(sashPlotForm.getLeft().computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				sashPlotFormComposite.getLeftScroll().setMinSize(sashPlotFormComposite.getLeft().computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			}
 		};
 		
 		expansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-				sashPlotForm.getLeftScroll().setMinSize(sashPlotForm.getLeft().computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				sashPlotFormComposite.getLeftScroll().setMinSize(sashPlotFormComposite.getLeft().computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			}
 		};
 		detectorListComposite.addExpansionListener(expansionListener);
@@ -361,15 +361,15 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 	
 	private void setRegionEditableFromPreference(){
-		sashPlotForm.getRegionOnDisplay().setMobile(ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
+		sashPlotFormComposite.getRegionOnDisplay().setMobile(ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
 	}
 
 	@Override
 	public void dispose() {
 		if (detectorListComposite != null && !detectorListComposite.isDisposed())
 			detectorListComposite.removeExpansionListener(expansionListener);
-		if (sashPlotForm != null)
-			sashPlotForm.dispose();
+		if (sashPlotFormComposite != null)
+			sashPlotFormComposite.dispose();
 		if (autoApplyToAllListener != null)
 			autoApplyToAll(false); // remove all auto-apply to all listeners
 		super.dispose();
@@ -439,10 +439,10 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 					data.put("XMLFileNameToLoad", path);
 					data.put("OutputParametersToLoad", outputBean);
 					monitor.worked(10);
-					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, serverCommand + "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
+					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command + "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
 					monitor.worked(50);
-					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(serverCommand + ".getConfigureResult()");
-					sashPlotForm.appendStatus(configureResult, logger);
+					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(command + ".getConfigureResult()");
+					sashPlotFormComposite.appendStatus(configureResult, logger);
 				} catch (Exception e) {
 					logger.error("Internal error cannot get data from detector.", e);
 				} finally {
@@ -550,15 +550,15 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			public void update(Object theObserved, Object changeCode) {
 				if (theObserved instanceof ScriptcontrollerAdapter)
 					if (changeCode instanceof String)
-						sashPlotForm.appendStatus((String) changeCode, getLogger());
+						sashPlotFormComposite.appendStatus((String) changeCode, getLogger());
 			}
 		};
 	}
 
 	protected void configureUI() {
-		sashPlotForm.setXAxisLabel("Channel Number");
-		sashPlotForm.setYAxisLabel("Counts");
-		sashPlotForm.computeSizes();
+		sashPlotFormComposite.setXAxisLabel("Channel Number");
+		sashPlotFormComposite.setYAxisLabel("Counts");
+		sashPlotFormComposite.computeSizes();
 		try {
 			getDetectorElementComposite().addStartListener(new ValueAdapter("windowStartListener") {
 				@Override
@@ -592,8 +592,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected void updateROIAfterElementCompositeChange() {
 		double roiStart = ((Number) getDetectorElementComposite().getStart().getValue()).doubleValue();
 		double roiEnd = ((Number) getDetectorElementComposite().getEnd().getValue()).doubleValue();
-		sashPlotForm.getRegionOnDisplay().setROI(new RectangularROI(roiStart, 0, roiEnd - roiStart, 0, 0));
-		sashPlotForm.getRegionOnDisplay().repaint();
+		sashPlotFormComposite.getRegionOnDisplay().setROI(new RectangularROI(roiStart, 0, roiEnd - roiStart, 0, 0));
+		sashPlotFormComposite.getRegionOnDisplay().repaint();
 	}
 
 	protected void calculateAndPlotCountTotals(Boolean currentEditIndividual) {
@@ -662,8 +662,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			if (updatingAfterROIDrag == null) {
 				try {
 					updatingAfterROIDrag = true;
-					double start = ((RectangularROI) sashPlotForm.getRegionOnDisplay().getROI()).getPoint()[0];
-					double end = ((RectangularROI) sashPlotForm.getRegionOnDisplay().getROI()).getEndPoint()[0];
+					double start = ((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getPoint()[0];
+					double end = ((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getEndPoint()[0];
 					getDetectorElementComposite().getStart().setValue(start);
 					getDetectorElementComposite().getEnd().setValue(end);
 					// then update the totals
@@ -693,12 +693,12 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			name += " " + plotTitle;
 			data.get(i).setName(name);
 		}
-		sashPlotForm.setDataSets(data.toArray(new AbstractDataset[data.size()]));
-		sashPlotForm.getPlottingSystem().setRescale(updateTitle);
-		sashPlotForm.plotData();
-		sashPlotForm.getPlottingSystem().setTitle(plotTitle);
+		sashPlotFormComposite.setDataSets(data.toArray(new AbstractDataset[data.size()]));
+		sashPlotFormComposite.getPlottingSystem().setRescale(updateTitle);
+		sashPlotFormComposite.plotData();
+		sashPlotFormComposite.getPlottingSystem().setTitle(plotTitle);
 		calculateAndPlotCountTotals(true);
-		sashPlotForm.getPlottingSystem().setRescale(false);
+		sashPlotFormComposite.getPlottingSystem().setRescale(false);
 	}
 
 	private double getTotalElementCounts(int elementNumber) {
@@ -796,7 +796,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		if (continuousAquire && lock != null && lock.isLocked()) {
 			final String msg = "There is currently an acquire running. You cannot run another one.";
 			logger.info(msg);
-			sashPlotForm.appendStatus(msg, getLogger());
+			sashPlotFormComposite.appendStatus(msg, getLogger());
 			return;
 		}
 		final long aquireTime = getAcquireWaitTime();
