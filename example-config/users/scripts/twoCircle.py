@@ -1,8 +1,8 @@
 import java
 #import gda.device.scannable.PseudoDevice
-import gda.device.scannable.PseudoDevice
+import gda.device.scannable.ScannableMotionBase
 
-class TwoCircle(gda.device.scannable.PseudoDevice):
+class TwoCircle(gda.device.scannable.ScannableMotionBase):
 
     def __init__(self, name, theta, ttheta):
         self.name = name

@@ -26,7 +26,6 @@
 	<bean id="plot_server" class="uk.ac.diamond.scisoft.analysis.plotserver.PlotServerBase"/>
 
 
-	<import resource="jythonServerFacade.xml" />
 	<import resource="commandQueueProcessor.xml"/>
 
 <!--for an 'empty' configuration, remove the imports below, and the other xml files and directories inside the xml/server directory-->
@@ -35,6 +34,7 @@
 	<import resource="jaw.xml" />     
 	<import resource="detectors.xml" />     
 	<import resource="LoggingScriptController.xml" />     
+	<import resource="jythonServerFacade.xml" />
 	<corba:export namespace="gda" />     
 
 

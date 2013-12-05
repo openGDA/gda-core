@@ -1,9 +1,9 @@
 import java
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from gda.epics import CAClient
 
 
-class SimpleEpicsScannable(PseudoDevice):
+class SimpleEpicsScannable(ScannableMotionBase):
 
 	def __init__(self, name, pvName):
 		self.name = name

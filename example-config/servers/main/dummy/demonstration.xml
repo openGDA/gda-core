@@ -43,15 +43,6 @@
 			</list>
 		</property>
 	</bean>
-
-	<!-- a Gaussian bean for testing instantiation of scannableGaussian2 bean -->
-	<bean id="testGaussian" class="gda.org.myls.scannable.Gaussian">
-		<property name="name" value="testGaussian" />
-		<property name="centre" value="0.0"/>
-		<property name="width" value="1.0" />
-		<property name="height" value="1.0" />
-		<property name="noise" value="0.1" />
-	</bean>
 	
 	<!-- instantiate a ScannableGaussian with all properties defined -->
     <bean id="scannableGaussian0" class="gda.org.myls.scannable.ScannableGaussian">
@@ -98,19 +89,6 @@
    		<property name="noise" value="0.1" />
      </bean>
      
-     <!-- instantiate a ScannableGaussian using the testGaussian bean defined above -->
-     <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
-     <bean id="scannableGaussian2" class="gda.org.myls.scannable.ScannableGaussian">
-    	<property name="name" value="scannableGaussian2" />
-   		<constructor-arg ref="testGaussian" />
-     </bean>
-     
-     <!-- instantiate a ScannableGaussian using the zero-arg constructor -->
-     <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
-     <bean id="scannableGaussian3" class="gda.org.myls.scannable.ScannableGaussian">
-    	<property name="name" value="scannableGaussian3" />
-     </bean>
-     
      <!--  instantiate a scannableSine, setting sine-specific properties here -->
      <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
      <bean id="scannableSine" class="gda.org.myls.scannable.ScannableSine">
@@ -139,11 +117,51 @@
      	<property name="name" value="scannableSine1"/>
      	<property name="sineWave" ref="testSineWave"/> 
      </bean>
-     
-     <!-- instantiate a scannableSine, using the no argument constructor -->
-     <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
-     <bean id="scannableSine2" class="gda.org.myls.scannable.ScannableSine">
-     	<property name="name" value="scannableSine2"/>
-     </bean>
-     
+
+	<bean id="attenuator" class="gda.device.enumpositioner.DummyPositioner">
+		<property name="positions">
+			<list>
+				<value>Empty</value>
+				<value>Filter 1</value>
+				<value>Filter 2</value>
+				<value>0.3 mm pC</value>
+				<value>1.0 mm pC</value>
+				<value>0.3 mm SiC</value>
+				<value>all beams</value>
+				<value>M1 Filter 1</value>
+				<value>current 1mm pC</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="m3_stripe" class="gda.device.enumpositioner.DummyPositioner">
+		<property name="positions">
+			<list>
+				<value>Rhodium</value>
+				<value>Platinum</value>
+				<value>Zero</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="m3_y_motor" class="gda.device.motor.DummyMotor" />
+	<bean id="m3_x_motor" class="gda.device.motor.DummyMotor" />
+	<bean id="m3_y" class="gda.device.scannable.ScannableMotor">
+		<property name="motor" ref="m3_y_motor" />
+	</bean>
+	<bean id="m3_x" class="gda.device.scannable.ScannableMotor">
+		<property name="motor" ref="m3_x_motor" />		
+	</bean>
+
+	<bean id="shutter1" class="gda.device.enumpositioner.DummyValve">
+		<property name="position" value="Open" />
+	</bean>
+
+	<bean id="ringCurrent" class="gda.device.monitor.DummyMonitor">
+		<property name="value" value="300" />
+	</bean>
+	
+	<bean id="ringEnergy" class="gda.device.monitor.DummyMonitor">
+		<property name="value" value="3.00088" />
+	</bean>
+
 </beans>

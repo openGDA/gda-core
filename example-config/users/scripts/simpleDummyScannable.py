@@ -1,8 +1,6 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableBase
 
-p="namespace pollution is bad"
-
-class SimpleDummyScannable(PseudoDevice):
+class SimpleDummyScannable(ScannableBase):
 	def __init__(self, name, initialValue):
 		self.name = name
 		self.currentposition = initialValue
@@ -19,7 +17,7 @@ class SimpleDummyScannable(PseudoDevice):
 
 
 
-class VerboseDummyScannable(PseudoDevice):
+class VerboseDummyScannable(ScannableBase):
 	def __init__(self, name, initialValue = 0.0):
 		self.name = name
 		self.currentposition = initialValue
