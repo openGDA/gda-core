@@ -1,7 +1,7 @@
 import java
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 
-class hklScannable(PseudoDevice):
+class hklScannable(ScannableMotionBase):
 
 	def __init__(self, name):
 		self.name = name

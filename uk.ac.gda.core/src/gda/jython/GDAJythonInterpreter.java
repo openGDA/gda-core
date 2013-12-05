@@ -268,6 +268,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 						if (!scriptDir.exists()){
 							throw new FactoryException("Configured Jython script location " + scriptFolderName + " does not exist.");
 						}
+						logger.info("Adding " + scriptDir + " to the Command Server Jython path");
+						
 						if (!sys.path.contains(scriptFolderName)) {
 							removeAllJythonClassFiles(new File(path));
 							sys.path.append(scriptFolderName);

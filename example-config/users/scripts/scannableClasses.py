@@ -1,9 +1,9 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 import math
 import random
 
 
-class SimpleScannable(PseudoDevice):
+class SimpleScannable(ScannableMotionBase):
 	def __init__(self, name, initialValue):
 		self.name = name
 		self.currentposition = initialValue
@@ -21,7 +21,7 @@ class SimpleScannable(PseudoDevice):
 
 
 
-class ScannableGaussian(PseudoDevice):
+class ScannableGaussian(ScannableMotionBase):
 	"""
 	This class is a Scannable (PseudoDevice) which returns the value of a Gaussian at each sampled point in the scan.
 
@@ -86,7 +86,7 @@ class ScannableGaussian(PseudoDevice):
 
 	
 
-class ScannableSine(PseudoDevice):
+class ScannableSine(ScannableMotionBase):
 	"""
 	This class is a Scannable (PseudoDevice) which returns the value of a sine at each sampled point in the scan.
 
@@ -133,7 +133,7 @@ class ScannableSine(PseudoDevice):
 	
 
 
-class ScannableRandom(PseudoDevice):
+class ScannableRandom(ScannableMotionBase):
 	"""
 	For each scanned position, the value returned is random.random()
 	"""
@@ -155,7 +155,7 @@ class ScannableRandom(PseudoDevice):
 
 
 
-class ScannableRandomRange(PseudoDevice):
+class ScannableRandomRange(ScannableMotionBase):
 	def __init__(self, name, initialValue):
 		self.name = name
 		self.currentposition = initialValue
@@ -177,7 +177,7 @@ class ScannableRandomRange(PseudoDevice):
 
 
 
-class ScannableGaussianDev(PseudoDevice):
+class ScannableGaussianDev(ScannableMotionBase):
 	def __init__(self, name, initialValue, mu=0, sigma=1):
 		self.name = name
 		self.currentposition = initialValue

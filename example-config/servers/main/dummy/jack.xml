@@ -8,18 +8,18 @@
 
 	<import resource="devices/simulated/jack_motors.xml" />
 	
-	<bean id="FrontJackScannable" class="gda.device.scannable.ScannableMotor">
+	<bean id="frontjack" class="gda.device.scannable.ScannableMotor">
 		<property name="motor" ref="RightFrontJack_Motor" />
 	</bean>	
-	<bean id="LeftJackScannable" class="gda.device.scannable.ScannableMotor">
+	<bean id="leftjack" class="gda.device.scannable.ScannableMotor">
 		<property name="motor" ref="LeftFrontJack_Motor" />
 	</bean>	
 	<!--  this is needed to JCameraman to get the zoom -->
-	<bean id="Jack" class="gda.device.scannable.scannablegroup.ScannableGroup">
+	<bean id="jack" class="gda.device.scannable.scannablegroup.ScannableGroup">
 		<property name="groupMembers">
 			<list>
-				<ref bean="FrontJackScannable" />
-				<ref bean="LeftJackScannable" />
+				<ref bean="frontjack" />
+				<ref bean="leftjack" />
 			</list>
 		</property>
 	</bean>	
