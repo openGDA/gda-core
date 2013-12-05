@@ -81,6 +81,11 @@
             id="gda.example.views.samplealignment"
             name="Sample Alignment"
             restorable="true">
+      </view>
+      <view
+            class="uk.ac.gda.example.mvcexample.MvcExampleView"
+            id="uk.ac.gda.example.mvcexample.MvcExampleView"
+            name="Model View Controller Example">
       </view>  
    </extension>
    <extension
