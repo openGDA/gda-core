@@ -1,9 +1,3 @@
-'''
-Created on 1 Jul 2009
-
-@author: mtq65916
-'''
-
 def square(x):
     return x * x
 
