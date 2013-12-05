@@ -34,7 +34,6 @@ public class Amplifier extends Composite{
 	public Amplifier(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new FormLayout());
-
 		Group grpAmplifier = new Group(this, SWT.NONE);
 		GridLayout gl_grpAmplifier = new GridLayout(1, false);
 		gl_grpAmplifier.horizontalSpacing = 3;
@@ -49,7 +48,6 @@ public class Amplifier extends Composite{
 		fd_grpAmplifier.right = new FormAttachment(0, 228);
 		grpAmplifier.setLayoutData(fd_grpAmplifier);
 		grpAmplifier.setText("Amplifier");
-
 		Composite composite = new Composite(grpAmplifier, SWT.NONE);
 		GridData gd_composite = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
 		gd_composite.widthHint = 221;
@@ -60,26 +58,13 @@ public class Amplifier extends Composite{
 		gl_composite.marginHeight = 0;
 		gl_composite.horizontalSpacing = 3;
 		composite.setLayout(gl_composite);
-
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setText("Sensitivity");
-
 		Combo combo = new Combo(composite, SWT.NONE);
 		GridData gd_combo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_combo.widthHint = 107;
 		combo.setLayoutData(gd_combo);
-
-//		if (inEditor) {
-//			Button btnCheckButton = new Button(composite, SWT.CHECK);
-//			btnCheckButton.setText("Change Before Scan");
-//			fd_grpAmplifier.bottom = new FormAttachment(0, 65);
-//			fd_grpAmplifier.right = new FormAttachment(0, 370);
-//			gd_composite.widthHint = 360;
-//		}
-		
-		//else {
-			Button btnSet = new Button(composite, SWT.NONE);
-			btnSet.setText("Set");
-		//}
+		Button btnSet = new Button(composite, SWT.NONE);
+		btnSet.setText("Set");
 	}
 }

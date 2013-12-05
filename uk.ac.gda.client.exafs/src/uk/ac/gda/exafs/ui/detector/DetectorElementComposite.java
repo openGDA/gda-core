@@ -65,74 +65,54 @@ public class DetectorElementComposite extends Composite {
 	private DetectorROIComposite detectorROIComposite;
 
 	public DetectorElementComposite(final Composite parent, final int style, final boolean isMultipleElements,
-			final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory,
-			Boolean showAdvanced) {
-
+	final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory,
+	Boolean showAdvanced) {
 		super(parent, style);
-
 		GridLayout gridLayout = new GridLayout();
 		setLayout(gridLayout);
-
 		mainComposite = new Composite(this, SWT.NONE);
-		{
-			GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, true);
-			gridData.widthHint = 293;
-			mainComposite.setLayoutData(gridData);
-		}
+		GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, true);
+		gridData.widthHint = 293;
+		mainComposite.setLayoutData(gridData);
 		gridLayout = new GridLayout();
 		mainComposite.setLayout(gridLayout);
 
 		if (isMultipleElements) {
 			Composite topComposite = new Composite(mainComposite, SWT.NONE);
-			{
-				GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-				topComposite.setLayoutData(gridData);
-			}
+			gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+			topComposite.setLayoutData(gridData);
 			topComposite.setLayout(new GridLayout(2, false));
-
 			name = new LabelWrapper(topComposite, SWT.NONE);
-			{
-				GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-				name.setLayoutData(gridData);
-			}
+			gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+			name.setLayoutData(gridData);
 			name.setText("Element100");
 			name.setTextType(TEXT_TYPE.PLAIN_TEXT);
-
 			excluded = new BooleanWrapper(topComposite, SWT.NONE);
 			excluded.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
 			excluded.setBooleanMode(BOOLEAN_MODE.REVERSE);
 			excluded.setText("Enabled");
-
-			this.totalCounts = new LabelWrapper(topComposite, SWT.NONE);
+			totalCounts = new LabelWrapper(topComposite, SWT.NONE);
 			totalCounts.setTextType(TEXT_TYPE.PLAIN_TEXT);
 			totalCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 			totalCounts.setText("");
-
-			this.elementTotalCounts = new LabelWrapper(topComposite, SWT.NONE);
+			elementTotalCounts = new LabelWrapper(topComposite, SWT.NONE);
 			elementTotalCounts.setTextType(TEXT_TYPE.PLAIN_TEXT);
 			elementTotalCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 			elementTotalCounts.setText("");
-
-			this.windowComposite = new Group(mainComposite, SWT.NONE);
+			windowComposite = new Group(mainComposite, SWT.NONE);
 			windowComposite.setText("Window");
-			{
-				GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
-				windowComposite.setLayoutData(gridData);
-			}
+			gridData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
+			windowComposite.setLayoutData(gridData);
 			windowComposite.setLayout(new GridLayout(2, false));
-
-			final Label windowStartLabel = new Label(windowComposite, SWT.NONE);
+			Label windowStartLabel = new Label(windowComposite, SWT.NONE);
 			windowStartLabel.setText("Start");
-
 			windowStart = new ScaleBox(windowComposite, SWT.NONE);
 			windowStart.setIntegerBox(true);
 			windowStart.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			windowStart.setButtonVisible(true);
 			windowStart.setDecimalPlaces(0);
-
-			final Label windowEndLabel = new Label(windowComposite, SWT.NONE);
+			Label windowEndLabel = new Label(windowComposite, SWT.NONE);
 			windowEndLabel.setText("End");
-
 			windowEnd = new ScaleBox(windowComposite, SWT.NONE);
 			windowEnd.setIntegerBox(true);
 			windowEnd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -141,79 +121,57 @@ public class DetectorElementComposite extends Composite {
 			windowEnd.setMaximum(4095);
 			windowStart.setMaximum(windowEnd);
 			windowEnd.setMinimum(windowStart);
-
-			final Label windowCountsLabel = new Label(windowComposite, SWT.NONE);
+			Label windowCountsLabel = new Label(windowComposite, SWT.NONE);
 			windowCountsLabel.setText("In window counts");
-
 			windowCounts = new LabelWrapper(windowComposite, SWT.NONE);
 			windowCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			windowCounts.setDecimalPlaces(0);
 		}
 
-		this.regionList = new VerticalListEditor(mainComposite, isMultipleElements ? SWT.BORDER : SWT.NONE);
+		regionList = new VerticalListEditor(mainComposite, isMultipleElements ? SWT.BORDER : SWT.NONE);
 		regionList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		regionList.setEditorClass(regionClass);
-
 		detectorROIComposite = regionEditorFactory.createDetectorROIComposite(regionList, SWT.NONE);
 		regionList.setEditorUI(detectorROIComposite);
-
 		detectorROIComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
 		regionList.setTemplateName("ROI");
 		regionList.setNameField("roiName");
 		regionList.setListHeight(100);
 
 		if (showAdvanced) {
-
-			this.advancedExpandableComposite = new ExpandableComposite(this, SWT.NONE);
-			{
-				GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-				gridData.minimumWidth = 130;
-				advancedExpandableComposite.setLayoutData(gridData);
-			}
+			advancedExpandableComposite = new ExpandableComposite(this, SWT.NONE);
+			gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+			gridData.minimumWidth = 130;
+			advancedExpandableComposite.setLayoutData(gridData);
 			advancedExpandableComposite.setText("Advanced");
-
 			final Composite advanced = new Composite(advancedExpandableComposite, SWT.BORDER);
 			advanced.setLayout(new GridLayout(2, false));
-
-			final Label gainLabel = new Label(advanced, SWT.NONE);
+			Label gainLabel = new Label(advanced, SWT.NONE);
 			gainLabel.setText("Gain");
-
 			gain = new ScaleBox(advanced, SWT.NONE);
-			{
-				GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-				gridData.minimumWidth = 130;
-				gain.setLayoutData(gridData);
-			}
+			gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+			gridData.minimumWidth = 130;
+			gain.setLayoutData(gridData);
 			gain.setUnit("eV");
 			gain.setMinimum(1);
 			gain.setMaximum(1000000.0);
 			gain.setDecimalPlaces(0);
-
 			Label lblPeakingTime = new Label(advanced, SWT.NONE);
 			lblPeakingTime.setText("Peaking Time");
-
 			peakingTime = new ScaleBox(advanced, SWT.NONE);
-			{
-				GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-				gridData.minimumWidth = 130;
-				peakingTime.setLayoutData(gridData);
-			}
+			gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+			gridData.minimumWidth = 130;
+			peakingTime.setLayoutData(gridData);
 			peakingTime.setUnit("\u03BCs");
-
-			final Label offSetLabel = new Label(advanced, SWT.NONE);
+			Label offSetLabel = new Label(advanced, SWT.NONE);
 			offSetLabel.setText("Offset");
-
 			offset = new ScaleBox(advanced, SWT.NONE);
-			{
-				GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-				gridData.minimumWidth = 130;
-				offset.setLayoutData(gridData);
-			}
+			gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+			gridData.minimumWidth = 130;
+			offset.setLayoutData(gridData);
 			offset.setMinimum(-100);
 			offset.setMaximum(100);
 			offset.setDecimalPlaces(0);
-
 			advancedExpandableComposite.setClient(advanced);
 			this.expansionListener = new ExpansionAdapter() {
 				@Override
@@ -223,7 +181,6 @@ public class DetectorElementComposite extends Composite {
 			};
 			advancedExpandableComposite.addExpansionListener(expansionListener);
 		}
-		
 		GridUtils.layoutFull(mainComposite);
 	}
 
@@ -320,7 +277,6 @@ public class DetectorElementComposite extends Composite {
 		if (roiEnd == null)
 			roiEnd = detectorROIComposite.getFieldWidgetsForDetectorElementsComposite().getRoiEnd();
 		return roiEnd;
-
 	}
 
 	public void addEndListener(ValueAdapter v) {
@@ -359,7 +315,6 @@ public class DetectorElementComposite extends Composite {
 	public IFieldWidget getCount() {
 		if (isWindows)
 			return getWindowCounts();
-
 		return detectorROIComposite.getFieldWidgetsForDetectorElementsComposite().getCounts();
 	}
 
@@ -377,24 +332,16 @@ public class DetectorElementComposite extends Composite {
 
 	private void updateTotalCountsDisplay() {
 		// if too early in lifecycle of composite
-		if (elementTotalCounts == null || totalCounts == null) {
+		if (elementTotalCounts == null || totalCounts == null)
 			return;
-		}
-
-		if (isIndividualElements && thisElementTotalCountsValue != null) {
-			elementTotalCounts.setValue("Element Total Counts "
-					+ NumberFormat.getInstance().format(thisElementTotalCountsValue));
-		} else {
+		if (isIndividualElements && thisElementTotalCountsValue != null)
+			elementTotalCounts.setValue("Element Total Counts " + NumberFormat.getInstance().format(thisElementTotalCountsValue));
+		else
 			elementTotalCounts.setValue("									");
-		}
-
-		if (allElementTotalCountsValue != null) {
-			totalCounts.setValue("All Element Total Counts "
-					+ NumberFormat.getInstance().format(allElementTotalCountsValue));
-		} else {
+		if (allElementTotalCountsValue != null)
+			totalCounts.setValue("All Element Total Counts " + NumberFormat.getInstance().format(allElementTotalCountsValue));
+		else
 			totalCounts.setValue("");
-		}
-
 		GridUtils.layoutFull(mainComposite);
 	}
 
@@ -405,9 +352,8 @@ public class DetectorElementComposite extends Composite {
 			return;
 		if (totalCounts == null)
 			return;
-		if (isIndividualElements) {
+		if (isIndividualElements)
 			thisElementTotalCountsValue = total;
-		}
 		updateTotalCountsDisplay();
 	}
 
@@ -430,4 +376,5 @@ public class DetectorElementComposite extends Composite {
 	public boolean isIndividualElements() {
 		return isIndividualElements;
 	}
+	
 }

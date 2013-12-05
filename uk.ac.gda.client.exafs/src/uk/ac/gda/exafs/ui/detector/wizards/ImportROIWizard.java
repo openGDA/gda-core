@@ -65,11 +65,9 @@ import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
  * 
  */
 public class ImportROIWizard extends Wizard {
-
 	private ImportROIWizardPage mainPage;
 	private int elementListSize;
 	private DetectorEditor detectorEditor;
-
 
 	public ImportROIWizard(int elementListSize, DetectorEditor detectorEditor) {
 		super();
@@ -84,13 +82,11 @@ public class ImportROIWizard extends Wizard {
 		return true;
 	}
 
-
 	@Override
 	public void addPages() {
 		super.addPages();
 		VerticalListEditor regionList = detectorEditor.getDetectorElementComposite().getRegionList();
 		double maximum = detectorEditor.getDetectorElementComposite().getEnd().getMaximum();
-
 		// the region list must store the right type
 		@SuppressWarnings("unchecked")
 		List<? extends DetectorROI> value = (List<? extends DetectorROI>)regionList.getValue();
@@ -100,11 +96,10 @@ public class ImportROIWizard extends Wizard {
 		} catch (Exception e) {
 			clonedValue = null;
 		}
-		if (detectorEditor instanceof XspressParametersUIEditor) {
+		if (detectorEditor instanceof XspressParametersUIEditor)
 			mainPage = new ImportXspressROIWizardPage(elementListSize, clonedValue, maximum);
-		} else if (detectorEditor instanceof VortexParametersUIEditor) {
+		else if (detectorEditor instanceof VortexParametersUIEditor)
 			mainPage = new ImportVortexROIWizardPage(elementListSize, clonedValue, maximum);			
-		}
 		mainPage.setListEditor(detectorEditor.getDetectorList());
 		addPage(mainPage);
 	}

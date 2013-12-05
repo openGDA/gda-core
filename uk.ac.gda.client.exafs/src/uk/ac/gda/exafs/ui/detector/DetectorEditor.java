@@ -145,6 +145,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	private Action uploadAction;
 	private volatile Boolean updatingAfterROIDrag = null;
 
+	private String plotTitle = "Saved Data";
+	
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean, final String command) {
 		super(path, mappingURL, dirtyContainer, editingBean);
@@ -270,12 +272,12 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 		if (this.getDataWrapper().getValue() != null) {
 			this.detectorData = getData(ElementCountsData.getDataFrom(getDataWrapper().getValue()));
-			if (detectorData != null) {
+			if (detectorData != null)
 				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-			}
 			plot(0,false);
 			setEnabled(true);
-		} else {
+		} 
+		else {
 			plot(-1,false);
 			setEnabled(false);
 		}
@@ -290,32 +292,30 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			final Boolean showAdvanced) {
 
 		importComposite = new Composite(parent, SWT.NONE);
-		{
-			importComposite.setLayout(new GridLayout(2, false));
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(importComposite);
+		
+		importComposite.setLayout(new GridLayout(2, false));
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(importComposite);
 
-			final Label importLabel = new Label(importComposite, SWT.NONE);
-			importLabel.setText("Import Regions Of Interest");
-			final Button importButton = new Button(importComposite, SWT.NONE);
-			GridDataFactory grab = GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, false);
-			grab.hint(60, SWT.DEFAULT).applyTo(importButton);
-			importButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class,
-					"/icons/calculator_edit.png"));
-			importButton.setToolTipText("Import Regions Of Interest from other Parameters files");
-			final SelectionAdapter importButtonListener = new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					WizardDialog dialog = new WizardDialog(importButton.getShell(), new ImportROIWizard(
-							elementListSize, DetectorEditor.this));
-					dialog.create();
-					dialog.open();
-				}
-			};
-			importButton.addSelectionListener(importButtonListener);
-		}
-
-		detectorListComposite = new DetectorListComposite(parent, editorClass, elementListSize, regionClass,
-				regionEditorFactory, showAdvanced);
+		final Label importLabel = new Label(importComposite, SWT.NONE);
+		importLabel.setText("Import Regions Of Interest");
+		final Button importButton = new Button(importComposite, SWT.NONE);
+		GridDataFactory grab = GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, false);
+		grab.hint(60, SWT.DEFAULT).applyTo(importButton);
+		importButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class,
+				"/icons/calculator_edit.png"));
+		importButton.setToolTipText("Import Regions Of Interest from other Parameters files");
+		final SelectionAdapter importButtonListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				WizardDialog dialog = new WizardDialog(importButton.getShell(), new ImportROIWizard(
+						elementListSize, DetectorEditor.this));
+				dialog.create();
+				dialog.open();
+			}
+		};
+		importButton.addSelectionListener(importButtonListener);
+		
+		detectorListComposite = new DetectorListComposite(parent, editorClass, elementListSize, regionClass, regionEditorFactory, showAdvanced);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(detectorListComposite);
 		expansionListener = new ExpansionAdapter() {
 			@Override
@@ -323,7 +323,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				sashPlotForm.getLeftScroll().setMinSize(sashPlotForm.getLeft().computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			}
 		};
-
 		
 		expansionListener = new ExpansionAdapter() {
 			@Override
@@ -336,18 +335,17 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		getDetectorElementComposite().getRegionList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
-
 				if (getDetectorList().getSelectedIndex() == lastSelectedElementIndex) {
 					selectedRegionIndex = evt.getSelectionIndex();
 					if (bean instanceof XspressParameters) {
 						XspressParameters detBean = (XspressParameters) bean;
 						detBean.setSelectedRegionNumber(evt.getSelectionIndex());
-					} else if (bean instanceof VortexParameters) {
+					} 
+					else if (bean instanceof VortexParameters) {
 						VortexParameters detBean = (VortexParameters) bean;
 						detBean.setSelectedRegionNumber(evt.getSelectionIndex());
 					}
 				}
-
 				lastSelectedElementIndex = getDetectorList().getSelectedIndex();
 				updateROIAfterElementCompositeChange();
 			}
@@ -360,7 +358,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				if (bean instanceof XspressParameters) {
 					XspressParameters xspress = (XspressParameters) bean;
 					getDetectorElementComposite().getRegionList().setSelectedIndex(xspress.getSelectedRegionNumber());
-				} else if (bean instanceof VortexParameters) {
+				} 
+				else if (bean instanceof VortexParameters) {
 					VortexParameters vortex = (VortexParameters) bean;
 					getDetectorElementComposite().getRegionList().setSelectedIndex(vortex.getSelectedRegionNumber());
 				}
@@ -370,14 +369,11 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().compareTo(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED) == 0) {
+				if (event.getProperty().compareTo(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED) == 0)
 					setRegionEditableFromPreference();
-				}
 			}
 		});
-
 		setRegionEditableFromPreference();
-
 		return detectorListComposite;
 	}
 	
@@ -389,14 +385,12 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	@Override
 	public void dispose() {
-		if (detectorListComposite != null && !detectorListComposite.isDisposed()) {
+		if (detectorListComposite != null && !detectorListComposite.isDisposed())
 			detectorListComposite.removeExpansionListener(expansionListener);
-		}
 		if (sashPlotForm != null)
 			sashPlotForm.dispose();
-		if (autoApplyToAllListener != null) {
+		if (autoApplyToAllListener != null)
 			autoApplyToAll(false); // remove all auto-apply to all listeners
-		}
 		super.dispose();
 	}
 
@@ -444,19 +438,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		// the bean from the enclosing scan (may be null if no scan selected)
 		IExperimentObject experimentObject = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 		final IOutputParameters outputBean;
-		if (experimentObject != null && experimentObject instanceof ScanObject){
+		if (experimentObject != null && experimentObject instanceof ScanObject)
 			outputBean = ((ScanObject) experimentObject).getOutputParameters();
-		} else {
+		else
 			outputBean = null;
-		}
-
-		final boolean ok = MessageDialog
-				.openConfirm(
-						getSite().getShell(),
-						"Confirm Configure",
-						"Are you sure you would like to permanently change the detector configuration?\n\n"
-								+ "Please note, this will overwrite the detector configuration and ask the detector to reconfigure."
-								+ "\n\n(A local copy of the file has been saved if you choose to cancel.)");
+		final boolean ok = MessageDialog.openConfirm(getSite().getShell(),"Confirm Configure",
+			"Are you sure you would like to permanently change the detector configuration?\n\n" + 
+			"Please note, this will overwrite the detector configuration and ask the detector to reconfigure." + 
+			"\n\n(A local copy of the file has been saved if you choose to cancel.)");
 		if (!ok)
 			return;
 
@@ -464,16 +453,13 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		service.run(true, false, new IRunnableWithProgress() {
 			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
 				monitor.beginTask("Configure Detector", 100);
-
 				try {
 					final Map<String, Serializable> data = new HashMap<String, Serializable>(1);
 					data.put("XMLFileNameToLoad", path);
 					data.put("OutputParametersToLoad", outputBean);
 					monitor.worked(10);
-					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command 
-							+ "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
+					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command + "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
 					monitor.worked(50);
 					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(command + ".getConfigureResult()");
 					sashPlotForm.appendStatus(configureResult, logger);
@@ -517,7 +503,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				regionList.addValueListener(autoApplyToAllListener);
 			if (getDetectorList() != null)
 				getDetectorList().addValueListener(autoApplyToAllListener);
-		} else {
+		} 
+		else {
 			if (windowStart != null)
 				windowStart.removeValueListener(autoApplyToAllListener);
 			if (windowEnd != null)
@@ -526,7 +513,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				regionList.removeValueListener(autoApplyToAllListener);
 			if (getDetectorList() != null)
 				getDetectorList().removeValueListener(autoApplyToAllListener);
-
 		}
 	}
 
@@ -542,11 +528,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected boolean applyToAll(boolean showMessage) {
 
 		if (showMessage) {
-			if (!MessageDialog
-					.openConfirm(
-							getSite().getShell(),
-							"Confirm Apply To All",
-							"Do you want to apply currently selected elements regions of interest to all detecors?\n\nThis will write new regions for the elements automatically.")) {
+			if (!MessageDialog.openConfirm(getSite().getShell(), "Confirm Apply To All",
+			"Do you want to apply currently selected elements regions of interest to all detecors?\n\nThis will write new regions for the elements automatically.")) {
 				return false;
 			}
 		}
@@ -554,11 +537,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 		// Uses bean utils to clone the region list and reflection to send it
 		// to the other elements.
-		final Object startWindow = getDetectorElementComposite().getWindowStart() != null ? getDetectorElementComposite()
-				.getWindowStart().getValue() : null;
-		final Object endWindow = getDetectorElementComposite().getWindowEnd() != null ? getDetectorElementComposite()
-				.getWindowEnd().getValue() : null;
-
+		final Object startWindow = getDetectorElementComposite().getWindowStart() != null ? getDetectorElementComposite().getWindowStart().getValue() : null;
+		final Object endWindow = getDetectorElementComposite().getWindowEnd() != null ? getDetectorElementComposite().getWindowEnd().getValue() : null;
 		final List<?> regions = (List<?>) getDetectorElementComposite().getRegionList().getValue();
 		final List<?> elements = (List<?>) getDetectorList().getValue();
 		int index = -1;
@@ -567,11 +547,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				++index;
 				if (index == currentIndex)
 					continue;
-
 				final List<?> regionClone = BeanUI.cloneBeans(regions);
 				final Method setRegionList = element.getClass().getMethod("setRegionList", java.util.List.class);
 				setRegionList.invoke(element, regionClone);
-
 				// If there are a window start and end, set them
 				try {
 					BeansFactory.setBeanValue(element, "windowStart", startWindow);
@@ -591,21 +569,17 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		return new IObserver() {
 			@Override
 			public void update(Object theObserved, Object changeCode) {
-				if (theObserved instanceof ScriptcontrollerAdapter) {
-					if (changeCode instanceof String) {
+				if (theObserved instanceof ScriptcontrollerAdapter)
+					if (changeCode instanceof String)
 						sashPlotForm.appendStatus((String) changeCode, getLogger());
-					}
-				}
 			}
 		};
 	}
 
 	protected void configureUI() {
-
 		sashPlotForm.setXAxisLabel("Channel Number");
 		sashPlotForm.setYAxisLabel("Counts");
 		sashPlotForm.computeSizes();
-
 		try {
 			getDetectorElementComposite().addStartListener(new ValueAdapter("windowStartListener") {
 				@Override
@@ -644,34 +618,23 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected void calculateAndPlotCountTotals(Boolean currentEditIndividual) {
-
 		// use last value or store new value;
-		if (currentEditIndividual == null) {
+		if (currentEditIndividual == null)
 			currentEditIndividual = calculateSingleElement;
-		} else {
+		else
 			calculateSingleElement = currentEditIndividual;
-		}
-
 		if (detectorData == null)
 			return;
-
-		if (getDetectorElementComposite().getCount() == null || getDetectorElementComposite().getStart() == null
-				|| getDetectorElementComposite().getEnd() == null) {
+		if (getDetectorElementComposite().getCount() == null || getDetectorElementComposite().getStart() == null || getDetectorElementComposite().getEnd() == null)
 			return;
-		}
-		if (getDetectorElementComposite().getStart().getValue() == null
-				|| getDetectorElementComposite().getEnd().getValue() == null) {
+		if (getDetectorElementComposite().getStart().getValue() == null|| getDetectorElementComposite().getEnd().getValue() == null)
 			return;
-		}
-
-		final int start = (Integer) getDetectorElementComposite().getStart().getValue();
-		final int end = (Integer) getDetectorElementComposite().getEnd().getValue();
-
+		int start = (Integer) getDetectorElementComposite().getStart().getValue();
+		int end = (Integer) getDetectorElementComposite().getEnd().getValue();
 		int total = getInWindowsCounts(currentEditIndividual, start, end);
 		getDetectorElementComposite().getCount().setValue(total);
 		getDetectorElementComposite().setTotalCounts(getTotalCounts());
 		getDetectorElementComposite().setTotalElementCounts(getTotalElementCounts(getCurrentSelectedElementIndex()));
-
 	}
 
 	protected int getCurrentSelectedElementIndex() {
@@ -680,13 +643,11 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	private int getInWindowsCounts(Boolean currentEditIndividual, final int start, final int end) {
 		int total = 0;
-		if (currentEditIndividual) {
+		if (currentEditIndividual)
 			total = sumElementInWindowCounts(start, end, total, getCurrentSelectedElementIndex());
-		} else {
-			for (int element = 0; element < detectorData.length; element++) {
+		else
+			for (int element = 0; element < detectorData.length; element++)
 				total = sumElementInWindowCounts(start, end, total, element);
-			}
-		}
 		return total;
 	}
 
@@ -694,13 +655,12 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		if (start == -1)
 			return 0;
 		final int numGrades = detectorData[element].length;
-		for (int igrade = 0; igrade < numGrades; ++igrade) {
+		for (int igrade = 0; igrade < numGrades; ++igrade)
 			for (int icount = start; icount <= end; ++icount) {
 				if (icount >= detectorData[element][igrade].length)
 					continue;
 				total = total + (int) detectorData[element][igrade][icount];
 			}
-		}
 		return total;
 	}
 
@@ -723,8 +683,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			if (updatingAfterROIDrag == null) {
 				try {
 					updatingAfterROIDrag = true;
-					final double start = ((RectangularROI) sashPlotForm.getRegionOnDisplay().getROI()).getPoint()[0];
-					final double end = ((RectangularROI) sashPlotForm.getRegionOnDisplay().getROI()).getEndPoint()[0];
+					double start = ((RectangularROI) sashPlotForm.getRegionOnDisplay().getROI()).getPoint()[0];
+					double end = ((RectangularROI) sashPlotForm.getRegionOnDisplay().getROI()).getEndPoint()[0];
 					getDetectorElementComposite().getStart().setValue(start);
 					getDetectorElementComposite().getEnd().setValue(end);
 					// then update the totals
@@ -739,8 +699,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		public void roiSelected(ROIEvent evt) {
 		}
 	}
-
-	private String plotTitle = "Saved Data";
 	
 	protected void plot(final int ielement, boolean updateTitle) {
 		final List<AbstractDataset> data = unpackDataSets(ielement);
@@ -753,9 +711,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		
 		for (int i = 0; i < data.size(); i++) {
 			String name = getChannelName(ielement);
-			if (data.size() > 1){
+			if (data.size() > 1)
 				name += " " + i;
-			}
 			name += " " + plotTitle;
 			data.get(i).setName(name);
 		}
@@ -770,11 +727,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	private double getTotalElementCounts(int elementNumber) {
 		double sum = 0;
-		for (int j = 0; j < detectorData[elementNumber].length; j++) {
-			for (int k = 0; k < detectorData[elementNumber][j].length; k++) {
+		for (int j = 0; j < detectorData[elementNumber].length; j++)
+			for (int k = 0; k < detectorData[elementNumber][j].length; k++)
 				sum += detectorData[elementNumber][j][k];
-			}
-		}
 		return sum;
 	}
 
@@ -782,9 +737,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		if (detectorData == null)
 			return Double.NaN;
 		double sum = 0;
-		for (int i = 0; i < detectorData.length; i++) {
+		for (int i = 0; i < detectorData.length; i++)
 			sum += getTotalElementCounts(i);
-		}
 		return sum;
 	}
 
@@ -806,9 +760,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	protected double getMax(Collection<AbstractDataset> data) {
 		double ret = -Double.MAX_VALUE;
-		for (AbstractDataset dataSet : data) {
+		for (AbstractDataset dataSet : data)
 			ret = Math.max(ret, dataSet.max().doubleValue());
-		}
 		return ret;
 	}
 
@@ -839,22 +792,17 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 */
 	protected double[][][] getData(int[][][] int_data) {
 		double[][][] data = new double[int_data.length][int_data[0].length][int_data[0][0].length];
-		for (int i = 0; i < int_data.length; i++) {
-			for (int j = 0; j < int_data[i].length; j++) {
-				for (int k = 0; k < int_data[i][j].length; k++) {
+		for (int i = 0; i < int_data.length; i++)
+			for (int j = 0; j < int_data[i].length; j++)
+				for (int k = 0; k < int_data[i][j].length; k++)
 					data[i][j][k] = int_data[i][j][k];
-				}
-			}
-		}
 		return data;
 	}
 
 	protected void singleAcquire() throws Exception {
-
 		final double time = getDetectorCollectionTime();
 		IProgressService service = (IProgressService) getSite().getService(IProgressService.class);
 		service.run(true, true, new IRunnableWithProgress() {
-
 			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				try {
@@ -871,19 +819,15 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected void continuousAcquire() {
-
-		this.continuousAquire = !continuousAquire;
-
+		continuousAquire = !continuousAquire;
 		if (continuousAquire && lock != null && lock.isLocked()) {
 			final String msg = "There is currently an acquire running. You cannot run another one.";
 			logger.info(msg);
 			sashPlotForm.appendStatus(msg, getLogger());
 			return;
 		}
-
 		final long aquireTime = getAcquireWaitTime();
 		final double collectiontime = getDetectorCollectionTime();
-
 		try {
 			if (continuousAquire) {
 				acquireStarted();
@@ -914,18 +858,17 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 					}
 				}, "Detector Live Runner");
 				continuousThread.start();
-			} else {
+			} 
+			else {
 				// Run later otherwise button looks unresponsive.
 				// Even though this is the display thread already.
 				getSite().getShell().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						try {
-
 							lock.lock();
 							acquireFinished();
-
-							final Detector detector = (Detector) Finder.getInstance().find(getDetectorName());
+							Detector detector = (Detector) Finder.getInstance().find(getDetectorName());
 							logger.debug("Stopping detector");
 							detector.stop();
 						} catch (Exception e) {
@@ -955,17 +898,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public void save(double[][][] data, String filePath) {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
-
 			StringBuffer toWrite = new StringBuffer();
-			for (int i = 0; i < data.length; i++) {
+			for (int i = 0; i < data.length; i++) 
 				for (int j = 0; j < data[0].length; j++) {
-					for (int k = 0; k < data[0][0].length; k++) {
+					for (int k = 0; k < data[0][0].length; k++)
 						toWrite.append(data[i][j][k] + "\t");
-					}
 					writer.write(toWrite.toString() + "\n");
 					toWrite = new StringBuffer();
 				}
-			}
 			writer.close();
 		} catch (IOException e) {
 			logger.warn("Exception writing acquire data to xml file", e);
@@ -973,20 +913,17 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	public DetectorElementComposite getDetectorElementComposite() {
-		if (detectorListComposite == null) {
+		if (detectorListComposite == null)
 			return null;
-		}
 		return detectorListComposite.getDetectorElementComposite();
 	}
 
 	protected DataWrapper readStoredData() {
 		DataWrapper newwrapper = new DataWrapper();
-
 		try {
 			File dataFile = new File(getDataXMLName());
-			if (!dataFile.exists()) {
+			if (!dataFile.exists())
 				return newwrapper;
-			}
 			BufferedReader in = new BufferedReader(new FileReader(dataFile));
 			ElementCountsData[] elements = new ElementCountsData[0];
 			String strLine;
@@ -998,18 +935,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 			// Close the input stream
 			in.close();
-
-			if (elements.length == 0) {
+			if (elements.length == 0)
 				return newwrapper;
-			}
-
 			newwrapper.setValue(elements);
 
 		} catch (IOException e) {
 			logger.error("IOException whilst reading stored detector editor data from file " + getDataXMLName());
 			return newwrapper;
 		}
-
 		return newwrapper;
 	}
 

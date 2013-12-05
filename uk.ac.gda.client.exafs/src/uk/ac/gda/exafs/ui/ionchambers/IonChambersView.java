@@ -35,8 +35,8 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 public class IonChambersView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(IonChambersView.class);
 	private String path;
-	IonChambersBean bean = null;
-	IonChamber ionChamber;
+	private IonChambersBean bean = null;
+	private IonChamber ionChamber;
 	
 	private IPartListener partListener = new IPartListener() {
 		@Override
@@ -66,15 +66,12 @@ public class IonChambersView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		path = LocalProperties.getConfigDir() + File.separator+ "templates" + File.separator+ "ionChambers.xml";
         try {
-			bean = (IonChambersBean) XMLHelpers.createFromXML(IonChambersBean.mappingURL, IonChambersBean.class,
-					IonChambersBean.schemaURL, path);
+			bean = (IonChambersBean) XMLHelpers.createFromXML(IonChambersBean.mappingURL, IonChambersBean.class, IonChambersBean.schemaURL, path);
 		} catch (Exception e) {
 			logger.error("Could not load xml " + path + " into bean", e);
 		}
-		
 		ionChamber = new IonChamber(parent, SWT.NONE, false, bean);
 		getSite().getPage().addPartListener(partListener);
-		
 	}
 
 	@Override

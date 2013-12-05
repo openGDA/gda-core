@@ -37,9 +37,6 @@ import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.Object;
 import org.omg.CORBA.TRANSIENT;
 
-/**
- *
- */
 public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetector, Findable, Scannable {
 	private CorbaXmapDetector corbaXmapDetector;
 	/**
@@ -84,8 +81,6 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 			}
 		}
 		throw new DeviceException("Communication failure: retry failed");
-		
-		
 	}
 
 	@Override
@@ -412,6 +407,4 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 		throw new DeviceException("readoutScalerData not implemented for remote!");
 	}
 	
-
-
 }

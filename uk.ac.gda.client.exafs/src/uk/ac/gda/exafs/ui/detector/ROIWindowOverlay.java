@@ -27,38 +27,19 @@ import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
 import org.eclipse.swt.widgets.Display;
 
 public class ROIWindowOverlay extends AbstractOverlayConsumer {
-
 	private double xStart, xEnd, yMin, yMax;
 	private boolean busy = false;
 	private boolean draw = true;
-	/**
-	 * @return Returns the busy.
-	 */
+
 	public boolean isBusy() {
 		return busy;
 	}
 
-	/**
-	 * @param busy The busy to set.
-	 */
 	public void setBusy(boolean busy) {
 		this.busy = busy;
 	}
 
-	/**
-	 * 
-	 * @param display 
-	 * @param yMin
-	 * @param yMax
-	 * @param defaultXStart 
-	 * @param defaultXEnd 
-	 */
-	public ROIWindowOverlay(final Display display,
-			                   final double  yMin, 
-			                   final double  yMax,
-			                   final double  defaultXStart,
-			                   final double  defaultXEnd) {
-		
+	public ROIWindowOverlay(final Display display, final double  yMin, final double  yMax, final double  defaultXStart, final double  defaultXEnd) {
 		super(display);
 		this.yMin          = yMin;
 		this.yMax          = yMax;
@@ -75,11 +56,10 @@ public class ROIWindowOverlay extends AbstractOverlayConsumer {
 	
     @Override
 	protected void drawOverlay(final OverlayDrawingEvent event) {
-		if (event.isInitialDraw()) {
+		if (event.isInitialDraw())
 			draw(xStart, xEnd);	
-		} else {
+		else
 			draw(event.getStart().getX(),event.getEnd().getX());
-		}
 	}
        
     /**
@@ -93,20 +73,15 @@ public class ROIWindowOverlay extends AbstractOverlayConsumer {
         draw(x1.doubleValue(), x2.doubleValue());
     }
     
-    private void draw(final double x1, final double x2) {
-    	
-    	this.xStart = x1;
-    	this.xEnd   = x2;
-    	
+    private void draw(double xStart, double xEnd) {
+    	this.xStart = xStart;
+    	this.xEnd   = xEnd;
     	if (draw & (provider != null)){
 	    	provider.begin(OverlayType.VECTOR2D);
-			
 			provider.setColour(parts[0], java.awt.Color.RED);
 			provider.setColour(parts[1], java.awt.Color.RED);
-			
 			((Overlay1DProvider)provider).drawLine(parts[0], xStart, yMin, xStart, yMax);		
 			((Overlay1DProvider)provider).drawLine(parts[1], xEnd,   yMin, xEnd,   yMax);
-			
 			provider.end(OverlayType.VECTOR2D);
 		}
    }
@@ -139,4 +114,5 @@ public class ROIWindowOverlay extends AbstractOverlayConsumer {
 	public void setDraw(boolean draw) {
 		this.draw  = draw;
 	}
+	
 }

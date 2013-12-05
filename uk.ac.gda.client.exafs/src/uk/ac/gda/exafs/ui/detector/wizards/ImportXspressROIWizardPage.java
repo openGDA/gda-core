@@ -55,7 +55,6 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 	private static final Logger logger = LoggerFactory.getLogger(ImportXspressROIWizardPage.class);
-
 	private int elementListSize;
 	private List<XspressROI> currentBeans;
 	private double maximum;
@@ -64,7 +63,6 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 	private VerticalListEditor importFileRegionList;
 	private boolean validSource;
 	private XspressParameters xspressParameters;
-
 	
 	// Region list stores a list of ROIs, potentially unsafe conversion, if it fails
 	// there will be runtime class cast exceptions
@@ -74,7 +72,6 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 		this.currentBeans = (List<XspressROI>)currentBeans;
 		this.maximum = maximum;
 	}
-
 
 	@Override
 	protected void updateEnables() {
@@ -86,12 +83,12 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			importFileRegionList.setEnabled(true);
 			Composite composite = (Composite)importFileRegionList.getEditorUI();
 			setEnables(composite, false);
-		} else {
+		}
+		else {
 			setErrorMessage("Please select a valid Xspress Parameters file for this beamline.");
 			setEnables(detectorListComposite, false);
 		}
 		updateAddButtonEnables();
-		
 	}
 	
 	private void updateAddButtonEnables() {
@@ -99,11 +96,13 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			// error set by invalid source
 			addButton.setEnabled(false);
 			addToAllButton.setEnabled(false);
-		} else if (getBeansToAdd().size() >= XspressParametersUIHelper.INSTANCE.getMaximumRegions()) {
+		}
+		else if (getBeansToAdd().size() >= XspressParametersUIHelper.INSTANCE.getMaximumRegions()) {
 			setMessage("Maximum number of Regions reached. Please select Finish, or Delete existing items to copy more");
 			addButton.setEnabled(false);
 			addToAllButton.setEnabled(false);
-		} else {
+		}
+		else {
 			setMessage(null);
 			addButton.setEnabled(true);
 			addToAllButton.setEnabled(true);
@@ -112,20 +111,16 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 
 	@Override
 	protected void createSourceControls(Composite parent) {
-	
 		IDetectorROICompositeFactory factory = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
-		detectorListComposite = new DetectorListComposite(parent,
-				DetectorElement.class, elementListSize, XspressROI.class, factory,false);
+		detectorListComposite = new DetectorListComposite(parent,DetectorElement.class, elementListSize, XspressROI.class, factory,false);
 		GridListEditor detectorListGridEditor = detectorListComposite.getDetectorList();
 		XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
-
 		detectorListComposite.addExpansionListener(new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
 				scrolledComp.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			}
 		});
-		
 		importFileRegionList = detectorListComposite.getDetectorElementComposite().getRegionList();
 		importFileRegionList.setListEditorUI(new ListEditorUI() {
 			
@@ -156,9 +151,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 		GridUtils.setVisibleAndLayout(importFileRegionList, true);
 	}
 
-
-	public class DetectorComposite extends Composite
-	{
+	public class DetectorComposite extends Composite{
 		private VerticalListEditor regionList;
 
 		public DetectorComposite(Composite parent, int style, double maximum) {
@@ -167,13 +160,10 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			regionList = new VerticalListEditor(this, SWT.BORDER);
 			regionList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			regionList.setEditorClass(XspressROI.class);
-			
-			final DetectorROIComposite detectorROIComposite = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory().createDetectorROIComposite(regionList, SWT.NONE);
+			DetectorROIComposite detectorROIComposite = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory().createDetectorROIComposite(regionList, SWT.NONE);
 			detectorROIComposite.getFieldWidgetsForDetectorElementsComposite().getRoiEnd().setMaximum(maximum);
 			regionList.setEditorUI(detectorROIComposite);
-			
 			detectorROIComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
 			regionList.setTemplateName("ROI");
 			regionList.setNameField("roiName");
 			regionList.setListHeight(250);
@@ -209,26 +199,21 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 					return false;
 				}
 			});
-		
 		}
 		
-
 		public VerticalListEditor getRegionList() {
 			return regionList;
 		}
-		
-		
+
 	}
 	
 	@Override
 	protected void createDestinationControls(Composite parent) {
 		roisToImportComposite = new DetectorComposite(parent, SWT.NONE, maximum);
 		GridDataFactory.swtDefaults().applyTo(roisToImportComposite);
-		
 		// create a temporary DetectorElement as a container for the beans
 		DetectorElement element = new DetectorElement();
 		element.setRegionList(currentBeans);
-		
 		try {
 			BeanUI.switchState(element, roisToImportComposite, false);
 			BeanUI.beanToUI(element, roisToImportComposite);
@@ -273,23 +258,20 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 	protected void performAddAll() {
 		Object bean = detectorListComposite.getDetectorElementComposite().getRegionList().getBean();
 		List <XspressROI> regionToCopy;
-		if(bean instanceof XspressROI)
-		{
+		if(bean instanceof XspressROI){
 			List<DetectorElement> detectors = xspressParameters.getDetectorList();
 			regionToCopy = new ArrayList<XspressROI>(detectors.size());
 			for(int i =0 ; i < detectors.size() ; i++){
 				boolean regionFound = false;
 				List <XspressROI>elementROIList = detectors.get(i).getRegionList();
 				for ( XspressROI roi : elementROIList){
-					if(roi.getRoiName().equals(((XspressROI)bean).getRoiName()))
-					{
+					if(roi.getRoiName().equals(((XspressROI)bean).getRoiName())){
 						regionFound = true;
 						regionToCopy.add(roi);
 						break;
 					}
 				}
-				if(!regionFound)
-				{
+				if(!regionFound){
 					logger.error("Unable to find the common region all elements, cannot copy");
 					return;
 				}
@@ -299,25 +281,18 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			final List<?> elements = (List<?>) this.currentDetectorList.getValue();
 			final List<?> regionClone = BeanUI.cloneBeans(regionToCopy);
 			int index = -1;
-			
 				for (Object element : elements) {
 					++index;
-					
 					if(index == currentDetectorList.getSelectedIndex())
-					{
 						roisToImportComposite.getRegionList().addBean(regionClone.get(index), -1);
-					}
-					else
-					{
-						final Method addRegion = element.getClass().getMethod("addRegion", uk.ac.gda.beans.xspress.XspressROI.class);
+					else{
+						Method addRegion = element.getClass().getMethod("addRegion", uk.ac.gda.beans.xspress.XspressROI.class);
 						addRegion.invoke(element, regionClone.get(index));
 					}
-					
 				}
 			} catch (Exception e1) {
 				logger.error("Error apply current detector regions to all detectors.", e1);
-			}		
-			
+			}
 		}
 	}
 	

@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
 public class ChangeNumberRepetitionsDialog extends TitleAreaDialog {
-
 	private Spinner spinner;
 	private Label message;
 
@@ -52,24 +51,19 @@ public class ChangeNumberRepetitionsDialog extends TitleAreaDialog {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		parent.setLayout(layout);
-
 		message = new Label(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(message);
 		message.setText("Number of repetitions:");
-
 		spinner = new Spinner(parent, SWT.BORDER);
 		GridDataFactory.fillDefaults().applyTo(spinner);
 		spinner.setValues(getLiveValue(), 0, 10000, 0, 1, 10);
-
 		return parent;
 	}
 
 	private int getLiveValue() {
-		String numRepsString = InterfaceProvider.getCommandRunner().evaluateCommand(
-				"LocalProperties.get(\"" + RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY + "\")");
-		if (numRepsString != null && !numRepsString.isEmpty()) {
+		String numRepsString = InterfaceProvider.getCommandRunner().evaluateCommand( "LocalProperties.get(\"" + RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY + "\")");
+		if (numRepsString != null && !numRepsString.isEmpty())
 			return Integer.parseInt(numRepsString);
-		}
 		return 0;
 	}
 
@@ -80,9 +74,9 @@ public class ChangeNumberRepetitionsDialog extends TitleAreaDialog {
 	}
 
 	private void setLiveValue(int newValue) {
-		InterfaceProvider.getCommandRunner().runCommand(
-				"LocalProperties.set(\"" + RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY + "\",str(" + newValue + "))");
+		InterfaceProvider.getCommandRunner().runCommand("LocalProperties.set(\"" + RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY + "\",str(" + newValue + "))");
 		InterfaceProvider.getTerminalPrinter().print("Changed the number of repetitons of the scan currently running to "+ newValue);
 
 	}
+	
 }

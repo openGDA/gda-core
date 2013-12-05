@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class VoltageSupply extends Composite{
 	private Text text;
+	
 	public VoltageSupply(Composite parent, int style) {
 		super(parent, style);
 		GridLayout gridLayout = new GridLayout(1, false);
@@ -37,7 +38,6 @@ public class VoltageSupply extends Composite{
 		gridLayout.marginHeight = 0;
 		gridLayout.horizontalSpacing = 0;
 		setLayout(gridLayout);
-		
 		Group grpVoltageSupply = new Group(this, SWT.NONE);
 		GridData gd_grpVoltageSupply = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_grpVoltageSupply.widthHint = 250;
@@ -49,28 +49,23 @@ public class VoltageSupply extends Composite{
 		gl_grpVoltageSupply.horizontalSpacing = 3;
 		grpVoltageSupply.setLayout(gl_grpVoltageSupply);
 		grpVoltageSupply.setText("Voltage Supply");
-		
 		Label lblNewLabel = new Label(grpVoltageSupply, SWT.NONE);
 		lblNewLabel.setText("Current Voltage");
-		
 		Label lblNewLabel_2 = new Label(grpVoltageSupply, SWT.NONE);
 		lblNewLabel_2.setText("1200 V");
-		
 		Button btnNewButton = new Button(grpVoltageSupply, SWT.NONE);
 		btnNewButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnNewButton.setText("Get");
-		
 		Label lblNewLabel_1 = new Label(grpVoltageSupply, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("Demand Voltage");
-		
 		text = new Text(grpVoltageSupply, SWT.BORDER);
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_text.widthHint = 75;
 		text.setLayoutData(gd_text);
-		
 		Button btnSet = new Button(grpVoltageSupply, SWT.NONE);
 		btnSet.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnSet.setText("Set");
 	}
+	
 }

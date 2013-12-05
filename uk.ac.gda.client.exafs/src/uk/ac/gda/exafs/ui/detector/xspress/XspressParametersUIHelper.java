@@ -56,10 +56,8 @@ public enum XspressParametersUIHelper {
 	 * @return map of pixels read from extension point or null.
 	 */
 	public Map<Integer, Integer> getIndexToElectricalChannelMap() {
-		
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.exafs.xspress.pixel.map");
 		if (config==null||config.length<1) return null; 
-			
 		final Map<Integer,Integer> ret = new HashMap<Integer, Integer>(64);
 		for (IConfigurationElement e : config) {
 		    final String pixel = e.getAttribute("pixel");

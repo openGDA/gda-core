@@ -30,34 +30,24 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 
 public class SwitchScanWizard extends Wizard implements INewWizard {
-
-	@SuppressWarnings("unused")
-	private IStructuredSelection initialSelection;
-
-	SwitchScanWizardPageOne page1;
-	SwitchScanWizardPageTwo page2;
+	private SwitchScanWizardPageOne page1;
+	private SwitchScanWizardPageTwo page2;
 
 	@Override
 	public boolean performFinish() {
-
 		IFile newScanFile = page2.getNewScanFile();
 		IFile newSampleFile = page2.getNewSampleFile();
 		IFile newDetectorFile = page2.getNewDetectorFile();
 		IFile newOutputFile = page2.getNewOutputFile();
-
 		ScanObject selected = page2.getSelected();
 		IExperimentEditorManager controller = page2.getController();
-
 		selected.setScanFileName(newScanFile.getName());
 		selected.setSampleFileName(newSampleFile.getName());
 		selected.setDetectorFileName(newDetectorFile.getName());
 		selected.setOutputFileName(newOutputFile.getName());
-
 		IExperimentObjectManager man = ExperimentFactory.getManager(selected);
 		man.write();
-
 		controller.openDefaultEditors(selected, true);
-
 		return true;
 	}
 
@@ -72,11 +62,11 @@ public class SwitchScanWizard extends Wizard implements INewWizard {
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		initialSelection = selection;
 	}
 
 	@Override
 	public boolean canFinish() {
 		return getContainer().getCurrentPage().equals(page2);
 	}
+	
 }

@@ -47,7 +47,6 @@ public class IonChamber extends Composite{
 		gl_grpIonChambers.marginHeight = 3;
 		grpIonChambers.setLayout(gl_grpIonChambers);
 		grpIonChambers.setText("Ion Chambers");
-		
 		Composite composite_1 = new Composite(grpIonChambers, SWT.NONE);
 		GridLayout gl_composite_1 = new GridLayout(2, false);
 		gl_composite_1.marginWidth = 0;
@@ -57,19 +56,16 @@ public class IonChamber extends Composite{
 		gd_composite_1.heightHint = 72;
 		gd_composite_1.widthHint = 489;
 		composite_1.setLayoutData(gd_composite_1);
-		
 		ionChamberList = new List(composite_1, SWT.BORDER);
 		ionChamberList.setItems(ionChambers);
 		GridData gd_list = new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1);
 		gd_list.widthHint = 90;
 		ionChamberList.setLayoutData(gd_list);
-		
 		log = new Text(composite_1, SWT.BORDER | SWT.V_SCROLL | SWT.MULTI);
 		GridData gd_text = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
 		gd_text.widthHint = 366;
 		log.setLayoutData(gd_text);
 		log.append(bean.getLog());
-		
 		Composite composite = new Composite(grpIonChambers, SWT.NONE);
 		GridLayout gl_composite = new GridLayout(2, false);
 		gl_composite.verticalSpacing = 0;
@@ -80,20 +76,16 @@ public class IonChamber extends Composite{
 		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_composite.widthHint = 488;
 		composite.setLayoutData(gd_composite);
-		
 		Amplifier amplifier = new Amplifier(composite, SWT.NONE);
 		amplifier.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
-
 		VoltageSupply voltageSupply = new VoltageSupply(composite, SWT.NONE);
 		voltageSupply.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
-		
 		GasFilling gasFilling = new GasFilling(grpIonChambers, SWT.NONE, inEditor);
 		GridLayout gridLayout = (GridLayout) gasFilling.getLayout();
 		gridLayout.verticalSpacing = 0;
 		gridLayout.marginWidth = 0;
 		gridLayout.marginHeight = 0;
 		gridLayout.horizontalSpacing = 0;
-		
 		ionChamberList.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {

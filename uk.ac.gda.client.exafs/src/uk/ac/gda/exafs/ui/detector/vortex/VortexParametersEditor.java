@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector.vortex;
 
-
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -27,9 +26,6 @@ import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.exafs.ui.ExafsBeanFileSelectionEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-/**
- *
- */
 public class VortexParametersEditor extends ExafsBeanFileSelectionEditor {
 
 	@Override
@@ -43,8 +39,7 @@ public class VortexParametersEditor extends ExafsBeanFileSelectionEditor {
 	}
 
 	@Override
-	protected RichBeanEditorPart getRichBeanEditorPart(String path,
-			                                           Object editingBean) {
+	protected RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
 		return new VortexParametersUIEditor(path, getMappingUrl(), this, editingBean);
 	}
 
@@ -57,4 +52,5 @@ public class VortexParametersEditor extends ExafsBeanFileSelectionEditor {
 	public List<String> getPrivateXMLFields() {
 		return Arrays.asList(new String[]{"data"});
 	}
+	
 }

@@ -24,13 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IonChambersBean implements Serializable {
-	
 	static public final URL mappingURL = IonChambersBean.class.getResource("ionChamberMapping.xml");
 	static public final URL schemaURL = IonChambersBean.class.getResource("ionChamberMapping.xsd");
-	
 	private String log;
 	private double energy;
-	
 	private List<IonChamberBean> ionChambers;
 	
 	public IonChambersBean(){

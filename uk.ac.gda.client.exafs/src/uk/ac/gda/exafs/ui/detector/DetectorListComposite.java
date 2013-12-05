@@ -47,20 +47,16 @@ public class DetectorListComposite extends Composite {
 		
 		// Important Note: This is designed to work with more than one detector element.
 		// That simply comes from the data, if it has four elements it will show the grid.
-		this.detectorList = new GridListEditor(this, SWT.NONE, elementListSize);
+		detectorList = new GridListEditor(this, SWT.NONE, elementListSize);
 		detectorList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		detectorList.setEditorClass(editorClass);
-		
-		this.detectorElementComposite = new DetectorElementComposite(detectorList, SWT.NONE, elementListSize > 1,
-				regionClass, regionEditorFactory,showAdvanced);
+		detectorElementComposite = new DetectorElementComposite(detectorList, SWT.NONE, elementListSize > 1, regionClass, regionEditorFactory,showAdvanced);
 		detectorElementComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
-		
 		detectorList.setEditorUI(detectorElementComposite);
 		detectorList.setGridWidth(200);
 		detectorList.setEnabled(false);
 		detectorList.setAdditionalLabelProvider(new ColumnLabelProvider() {
-		    private final Color lightGray   = SWTResourceManager.getColor(SWT.COLOR_GRAY);
+			private final Color lightGray   = SWTResourceManager.getColor(SWT.COLOR_GRAY);
 			@Override
 			public Color getForeground(Object element) {
 				if (element instanceof IDetectorElement) {
@@ -75,12 +71,7 @@ public class DetectorListComposite extends Composite {
 				return null;
 			}
 		});
-			
-
 	}
-	
-
-
 
 	/**
 	 * Notified when the advanced section is expanded.
@@ -94,11 +85,9 @@ public class DetectorListComposite extends Composite {
 		detectorElementComposite.removeExpansionListener(l);
 	}
 
-
 	public DetectorElementComposite getDetectorElementComposite() {
 		return detectorElementComposite;
 	}
-
 
 	public GridListEditor getDetectorList() {
 		return detectorList;

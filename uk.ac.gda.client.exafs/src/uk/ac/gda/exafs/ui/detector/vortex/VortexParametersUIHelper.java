@@ -50,4 +50,5 @@ public enum VortexParametersUIHelper {
 	public int getMaximumRegions() {
 		return 16;
 	}
+	
 }

@@ -32,14 +32,9 @@ import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
  * A wizard is used to monitor progress while gain calculation runs.
  */
 public class GainWizard extends Wizard {
-
 	private final static Logger logger = LoggerFactory.getLogger(GainWizard.class);
-	
     private GainWizardPage gainPage;
 
-    /**
-     * 
-     */
     public GainWizard() {
     	super();
     	setNeedsProgressMonitor(true);
@@ -56,20 +51,20 @@ public class GainWizard extends Wizard {
     @SuppressWarnings("unchecked")
 	@Override
 	public boolean performFinish() {
-    	
 		final VerticalListEditor ionChambers;
 		final String type = (String)BeanUI.getBeanField("experimentType", DetectorParameters.class).getValue();
 		if (type.equalsIgnoreCase("Transmission")) {
 			TransmissionComposite tpc = (TransmissionComposite)BeanUI.getBeanField("transmissionParameters", DetectorParameters.class);
 			ionChambers = tpc.getIonChamberParameters();
-		} else if (type.equalsIgnoreCase("fluorescence")) {
+		} 
+		else if (type.equalsIgnoreCase("fluorescence")) {
 			FluorescenceComposite fpc = (FluorescenceComposite)BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class);
 			ionChambers = fpc.getIonChamberParameters();
-		} else {
+		} 
+		else {
 			logger.error("Cannot deal with experimentType = '"+type+"'");
 			throw new RuntimeException("Cannot deal with experimentType = '"+type+"'");
 		}
-
 		try {
 			ionChambers.setValue(0, "gain", gainPage.getI0_gain());
 			ionChambers.setValue(1, "gain", gainPage.getIt_gain());
@@ -77,13 +72,9 @@ public class GainWizard extends Wizard {
 		} catch (Exception ne) {
 			logger.error("Cannot set gain for ion chambers", ne);
 		}
-			
 		return true;
 	}
     
-	/**
-	 * 
-	 */
 	protected void getAllValues() {
 		gainPage.getFinalEnergyValue();
 		gainPage.getSampleEdgeValue();

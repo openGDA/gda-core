@@ -22,11 +22,8 @@ import java.io.Serializable;
 import java.net.URL;
 
 public class IonChamberBean implements Serializable {
-	
 	static public final URL mappingURL = IonChambersBean.class.getResource("ionChamberMapping.xml");
 	static public final URL schemaURL = IonChambersBean.class.getResource("ionChamberMapping.xsd");
-	
-	
 	private String ionChamberScannable;
 	private String ionChamberName;
 	private String amplifierScannable;

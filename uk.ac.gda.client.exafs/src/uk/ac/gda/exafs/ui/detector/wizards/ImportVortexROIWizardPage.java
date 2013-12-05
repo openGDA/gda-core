@@ -54,7 +54,6 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 	private static final Logger logger = LoggerFactory.getLogger(ImportVortexROIWizardPage.class);
-
 	private int elementListSize;
 	private List<RegionOfInterest> currentBeans;
 	private double maximum;
@@ -62,9 +61,7 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 	private DetectorListComposite detectorListComposite;
 	private VerticalListEditor importFileRegionList;
 	private boolean validSource;
-
 	private VortexParameters vortexParameters;
-
 	
 	// Region list stores a list of ROIs, potentially unsafe conversion, if it fails
 	// there will be runtime class cast exceptions
@@ -74,7 +71,6 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 		this.currentBeans = (List<RegionOfInterest>)currentBeans;
 		this.maximum = maximum;
 	}
-
 
 	@Override
 	protected void updateEnables() {
@@ -86,7 +82,8 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 			importFileRegionList.setEnabled(true);
 			Composite composite = (Composite)importFileRegionList.getEditorUI();
 			setEnables(composite, false);
-		} else {
+		} 
+		else {
 			setErrorMessage("Please select a valid Vortex Parameters file for this beamline.");
 			setEnables(detectorListComposite, false);
 		}
@@ -99,11 +96,13 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 			// error set by invalid source
 			addButton.setEnabled(false);
 			addToAllButton.setEnabled(false);
-		} else if (getBeansToAdd().size() >= VortexParametersUIHelper.INSTANCE.getMaximumRegions()) {
+		} 
+		else if (getBeansToAdd().size() >= VortexParametersUIHelper.INSTANCE.getMaximumRegions()) {
 			setMessage("Maximum number of Regions reached. Please select Finish, or Delete existing items to copy more");
 			addButton.setEnabled(false);
 			addToAllButton.setEnabled(false);
-		} else {
+		} 
+		else {
 			setMessage(null);
 			addButton.setEnabled(true);
 			addToAllButton.setEnabled(true);
@@ -113,20 +112,16 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 
 	@Override
 	protected void createSourceControls(Composite parent) {
-	
 		IDetectorROICompositeFactory factory = VortexParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
-		detectorListComposite = new DetectorListComposite(parent,
-				DetectorElement.class, elementListSize, RegionOfInterest.class, factory,false);
+		detectorListComposite = new DetectorListComposite(parent, DetectorElement.class, elementListSize, RegionOfInterest.class, factory,false);
 		GridListEditor detectorListGridEditor = detectorListComposite.getDetectorList();
 		VortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
-
 		detectorListComposite.addExpansionListener(new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
 				scrolledComp.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			}
 		});
-		
 		importFileRegionList = detectorListComposite.getDetectorElementComposite().getRegionList();
 		importFileRegionList.setListEditorUI(new ListEditorUI() {
 			
@@ -156,9 +151,7 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 		GridUtils.setVisibleAndLayout(importFileRegionList, true);
 	}
 
-
-	public class DetectorComposite extends Composite
-	{
+	public class DetectorComposite extends Composite{
 		private VerticalListEditor regionList;
 
 		public DetectorComposite(Composite parent, int style, double maximum) {
@@ -167,13 +160,10 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 			regionList = new VerticalListEditor(this, SWT.BORDER);
 			regionList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			regionList.setEditorClass(RegionOfInterest.class);
-			
-			final DetectorROIComposite detectorROIComposite = VortexParametersUIHelper.INSTANCE.getDetectorROICompositeFactory().createDetectorROIComposite(regionList, SWT.NONE);
+			DetectorROIComposite detectorROIComposite = VortexParametersUIHelper.INSTANCE.getDetectorROICompositeFactory().createDetectorROIComposite(regionList, SWT.NONE);
 			detectorROIComposite.getFieldWidgetsForDetectorElementsComposite().getRoiEnd().setMaximum(maximum);
 			regionList.setEditorUI(detectorROIComposite);
-			
 			detectorROIComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
 			regionList.setTemplateName("ROI");
 			regionList.setNameField("roiName");
 			regionList.setListHeight(250);
@@ -208,14 +198,11 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 					return false;
 				}
 			});
-		
 		}
-		
 
 		public VerticalListEditor getRegionList() {
 			return regionList;
 		}
-		
 		
 	}
 	
@@ -223,11 +210,9 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 	protected void createDestinationControls(Composite parent) {
 		roisToImportComposite = new DetectorComposite(parent, SWT.NONE, maximum);
 		GridDataFactory.swtDefaults().applyTo(roisToImportComposite);
-		
 		// create a temporary DetectorElement as a container for the beans
 		DetectorElement element = new DetectorElement();
 		element.setRegionList(currentBeans);
-		
 		try {
 			BeanUI.switchState(element, roisToImportComposite, false);
 			BeanUI.beanToUI(element, roisToImportComposite);
@@ -273,23 +258,20 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 	protected void performAddAll() {
 		Object bean = detectorListComposite.getDetectorElementComposite().getRegionList().getBean();
 		List <RegionOfInterest> regionToCopy;
-		if(bean instanceof RegionOfInterest)
-		{
+		if(bean instanceof RegionOfInterest){
 			List<DetectorElement> detectors = vortexParameters.getDetectorList();
 			regionToCopy = new ArrayList<RegionOfInterest>(detectors.size());
 			for(int i =0 ; i < detectors.size() ; i++){
 				boolean regionFound = false;
 				List <RegionOfInterest>elementROIList = detectors.get(i).getRegionList();
 				for ( RegionOfInterest roi : elementROIList){
-					if(roi.getRoiName().equals(((RegionOfInterest)bean).getRoiName()))
-					{
+					if(roi.getRoiName().equals(((RegionOfInterest)bean).getRoiName())){
 						regionFound = true;
 						regionToCopy.add(roi);
 						break;
 					}
 				}
-				if(!regionFound)
-				{
+				if(!regionFound){
 					logger.error("Unable to find the common region all elements, cannot copy");
 					return;
 				}
@@ -299,27 +281,20 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 			final List<?> elements = (List<?>) this.currentDetectorList.getValue();
 			final List<?> regionClone = BeanUI.cloneBeans(regionToCopy);
 			int index = -1;
-			
 				for (Object element : elements) {
 					++index;
-					
-					if(index == currentDetectorList.getSelectedIndex())
-					{
+					if(index == currentDetectorList.getSelectedIndex()){
 						roisToImportComposite.getRegionList().addBean(regionClone.get(index), -1);
 					}
-					else
-					{
-						final Method addRegion = element.getClass().getMethod("addRegion", uk.ac.gda.beans.vortex.RegionOfInterest.class);
+					else{
+						Method addRegion = element.getClass().getMethod("addRegion", uk.ac.gda.beans.vortex.RegionOfInterest.class);
 						addRegion.invoke(element, regionClone.get(index));
 					}
-					
 				}
 			} catch (Exception e1) {
 				logger.error("Error apply current detector regions to all detectors.", e1);
-			}		
-			
+			}
 		}
-		
 	}
 	
 	@Override
@@ -329,6 +304,5 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 		List<? extends DetectorROI> value = (List<? extends DetectorROI>)roisToImportComposite.getRegionList().getValue();
 		return value;
 	}
-
 
 }

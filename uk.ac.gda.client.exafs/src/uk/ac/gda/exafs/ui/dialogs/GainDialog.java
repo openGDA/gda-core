@@ -80,57 +80,38 @@ public class GainDialog extends Dialog {
 	private Object finalEnergyValue = 0d;
 	private IProgressService progressService;
 
-	/**
-	 * Create the dialog
-	 * 
-	 * @param parentShell
-	 */
 	public GainDialog(Shell parentShell) {
 		super(parentShell);
 	}
 
-	/**
-	 * Create contents of the dialog
-	 * 
-	 * @param parent
-	 */
 	@Override
 	protected Control createDialogArea(final Composite parent) {
-
 		final Composite container = (Composite) super.createDialogArea(parent);
 		container.setLayout(new GridLayout());
-
 		final Label theCalculationLooksLabel = new Label(container, SWT.WRAP);
-		final GridData gd_theCalculationLooksLabel = new GridData(SWT.FILL, SWT.FILL, true, false);
+		GridData gd_theCalculationLooksLabel = new GridData(SWT.FILL, SWT.FILL, true, false);
 		theCalculationLooksLabel.setLayoutData(gd_theCalculationLooksLabel);
-
-		final Composite main = new Composite(container, SWT.BORDER);
+		Composite main = new Composite(container, SWT.BORDER);
 		main.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		main.setLayout(new GridLayout());
-
-		final Composite top = new Composite(main, SWT.NONE);
-		final GridLayout gridLayout = new GridLayout();
+		Composite top = new Composite(main, SWT.NONE);
+		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
 		top.setLayout(gridLayout);
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		final Label calculationExtentLabel = new Label(top, SWT.NONE);
+		Label calculationExtentLabel = new Label(top, SWT.NONE);
 		calculationExtentLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		calculationExtentLabel.setText("Calculation Extent");
-
-		final ComboWrapper comboWrapper = new ComboWrapper(top, SWT.READ_ONLY);
+		ComboWrapper comboWrapper = new ComboWrapper(top, SWT.READ_ONLY);
 		comboWrapper.setItems(new String[] { "All ion chambers" });
 		comboWrapper.select(0);
 		comboWrapper.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
-		final ExpandableComposite advancedExpandableComposite = new ExpandableComposite(main, SWT.NONE);
+		ExpandableComposite advancedExpandableComposite = new ExpandableComposite(main, SWT.NONE);
 		advancedExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		advancedExpandableComposite.setText("Advanced");
-
-		final Composite advanced = new Composite(advancedExpandableComposite, SWT.NONE);
+		Composite advanced = new Composite(advancedExpandableComposite, SWT.NONE);
 		advanced.setLayout(gridLayout);
 		advanced.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
 		Link finalEnergyLabel = new Link(advanced, SWT.NONE);
 		finalEnergyLabel.setToolTipText("Click to take energy from scan parameters. This also happens automatically when the gain form is opened.");
 		finalEnergyLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -142,14 +123,12 @@ public class GainDialog extends Dialog {
 				getFinalEnergyValue();
 			}
 		});
-
 		finalEnergy = new ScaleBox(advanced, SWT.NONE);
 		finalEnergy.setMaximum(120000.0);
 		finalEnergy.setUnit("eV");
 		GridData gd_finalEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		finalEnergy.setLayoutData(gd_finalEnergy);
 		finalEnergy.setValue(finalEnergyValue);
-
 		Link sampleEdgeEnergyLabel = new Link(advanced, SWT.NONE);
 		sampleEdgeEnergyLabel.setToolTipText("Click to take energy from scan parameters.  This also happens automatically when the gain form is opened.");
 		GridData gd_sampleEdgeEnergyLabel = new GridData(SWT.FILL, SWT.CENTER, false, false);
@@ -162,14 +141,12 @@ public class GainDialog extends Dialog {
 				getSampleEdgeValue();
 			}
 		});
-
 		sampleEdgeEnergy = new ScaleBox(advanced, SWT.NONE);
 		GridData gd_sampleEdgeEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		sampleEdgeEnergy.setLayoutData(gd_sampleEdgeEnergy);
 		sampleEdgeEnergy.setUnit("eV");
 		sampleEdgeEnergy.setMaximum(finalEnergy);
 		sampleEdgeEnergy.setValue(sampleEdgeEnergyValue);
-
 		Link referenceEdgeEnergyLabel = new Link(advanced, SWT.NONE);
 		referenceEdgeEnergyLabel.setToolTipText("Click to take energy from sample parameters. This also happens automatically when the gain form is opened.");
 		GridData gd_referenceEdgeEnergyLabel = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -182,18 +159,15 @@ public class GainDialog extends Dialog {
 				getReferenceEdgeSample();
 			}
 		});
-
 		referenceEdgeEnergy = new ScaleBox(advanced, SWT.NONE);
 		GridData gd_referenceEdgeEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		referenceEdgeEnergy.setLayoutData(gd_referenceEdgeEnergy);
 		referenceEdgeEnergy.setUnit("eV");
 		referenceEdgeEnergy.setMaximum(finalEnergy);
 		referenceEdgeEnergy.setValue(referenceEdgeEnergyValue);
-
 		Label toleranceLabel = new Label(advanced, SWT.NONE);
 		toleranceLabel.setToolTipText("This is how close to the maximum intensity that the algorithm should find the gain setting for.");
 		toleranceLabel.setText("Tolerance");
-
 		tolerance = new ScaleBox(advanced, SWT.NONE);
 		tolerance.setNumericValue(90);
 		tolerance.setUnit("%");
@@ -207,7 +181,6 @@ public class GainDialog extends Dialog {
 			}
 		});
 		tolerance.on();
-
 		advancedExpandableComposite.setClient(advanced);
 		advancedExpandableComposite.addExpansionListener(new ExpansionAdapter() {
 			@Override
@@ -215,11 +188,9 @@ public class GainDialog extends Dialog {
 				container.layout();
 			}
 		});
-
 		Link resultsLabel = new Link(container, SWT.WRAP);
 		resultsLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		resultsLabel.setText("");
-
 		setCalculationLabelText(theCalculationLooksLabel);
 		return container;
 	}
@@ -230,9 +201,9 @@ public class GainDialog extends Dialog {
 			label.setText("Error, the tolerance is blank but should be between 1 and 100");
 			if (getButton(IDialogConstants.OK_ID) != null)
 				getButton(IDialogConstants.OK_ID).setEnabled(false);
-		} else {
-			label.setText("The calculation looks at the intensity for each ion chamber based on the scan parameters and attempts to adjust gain until intensity is ~"
-					+ val + "% of the detector maximum.");
+		} 
+		else {
+			label.setText("The calculation looks at the intensity for each ion chamber based on the scan parameters and attempts to adjust gain until intensity is ~" + val + "% of the detector maximum.");
 			if (getButton(IDialogConstants.OK_ID) != null)
 				getButton(IDialogConstants.OK_ID).setEnabled(true);
 		}
@@ -293,13 +264,11 @@ public class GainDialog extends Dialog {
 			bean.setCollectionTime(1000L);
 			bean.setTolerance(tolerance.getNumericValue());
 			bean.setLogger(logger);
-
 			// Name of scannable
 			IExperimentEditorManager man = ExperimentFactory.getExperimentEditorManager();
 			IScanParameters scanParams = ((ScanObject) man.getSelectedScan()).getScanParameters();
 			String name = scanParams.getScannableName();
 			bean.setScannableName(name);
-
 			// Name of amplifiers
 			final List<IonChamberParameters> ionChambers;
 			String type = (String) BeanUI.getBeanField("experimentType", DetectorParameters.class).getValue();
@@ -311,7 +280,6 @@ public class GainDialog extends Dialog {
 						DetectorParameters.class).getValue()).getIonChamberParameters();
 			else
 				throw new Exception("Cannot deal with experimentType = '" + type + "'");
-
 			progressService.run(true, true, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -455,4 +423,5 @@ public class GainDialog extends Dialog {
 	public ScaleBox getTolerance() {
 		return tolerance;
 	}
+	
 }

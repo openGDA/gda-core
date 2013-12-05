@@ -44,7 +44,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
 public class DetectorPlotter extends Composite {
-
 	private SashForm sash;
 	private Composite plotterComposite;
 	private IPlottingSystem plottingsystem;
@@ -63,7 +62,6 @@ public class DetectorPlotter extends Composite {
 	private void createPlotterComposite(final IWorkbenchPart part) throws Exception {
 		plotterComposite = new Composite(sash, SWT.NONE);
 		ActionBarWrapper wrapper = ActionBarWrapper.createActionBars(plotterComposite, null);
-
 		plottingsystem = PlottingFactory.createPlottingSystem();
 		plottingsystem.createPlotPart(plotterComposite, "", null, PlotType.XY, part);
 		plottingsystem.setRescale(true);
@@ -110,9 +108,8 @@ public class DetectorPlotter extends Composite {
 	public void plotData() {
 		plottingsystem.clear();
 		List<IDataset> ys = new ArrayList<IDataset>();
-		for (AbstractDataset ds : dataSets) {
+		for (AbstractDataset ds : dataSets)
 			ys.add(ds);
-		}
 		plottingsystem.createPlot1D(null, ys, null);
 		plottingsystem.setTitle("");
 	}
@@ -126,7 +123,6 @@ public class DetectorPlotter extends Composite {
 	public void appendStatus(final String text, Logger logger) {
 		if (logger != null)
 			logger.info(text);
-
 		if (getShell() == null)
 			return;
 		if (getShell().isDisposed())
@@ -144,9 +140,8 @@ public class DetectorPlotter extends Composite {
 
 	@Override
 	public void dispose() {
-		if (plottingsystem != null) {
+		if (plottingsystem != null)
 			plottingsystem.dispose();
-		}
 	}
 
 }
