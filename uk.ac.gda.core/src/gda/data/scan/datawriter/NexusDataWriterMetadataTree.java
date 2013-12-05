@@ -136,8 +136,8 @@ public class NexusDataWriterMetadataTree extends NexusDataWriter {
 				file.closedata();
 			}
 			for (int i = 0; i < extraNames.length; i++) {
-				file.makedata(inputNames[i], NexusFile.NX_FLOAT64, 1, new int[] {1});
-				file.opendata(inputNames[i]);
+				file.makedata(extraNames[i], NexusFile.NX_FLOAT64, 1, new int[] {1});
+				file.opendata(extraNames[i]);
 				file.putdata(new double[] {positions[i]});
 				file.closedata();
 			}
