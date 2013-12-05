@@ -102,42 +102,41 @@ import com.swtdesigner.ResourceManager;
 import com.swtdesigner.SWTResourceManager;
 
 public class XspressParametersUIEditor extends DetectorEditor {
+	private Composite parentComposite;
+	private Composite middleComposite;
 	private static final String GDA_DEVICE_XSPRESS_SPOOL_DIR = "gda.device.xspress.spoolDir";
 	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
 	private static final Map<String, Object> RES_ALL;
 	private static final Map<String, Object> RES_NO_16;
 	private boolean writeToDisk = LocalProperties.check("gda.detectors.save.single.acquire");
+	static {
+		RES_ALL = new HashMap<String, Object>(3);
+		RES_ALL.put("Sum all grades", ResGrades.NONE);
+		RES_ALL.put("Individual grades", ResGrades.ALLGRADES);
+		RES_ALL.put("Threshold", ResGrades.THRESHOLD);
+		
+		RES_NO_16 = new HashMap<String, Object>(3);
+		RES_NO_16.put("Sum all grades", ResGrades.NONE);
+		RES_NO_16.put("Threshold", ResGrades.THRESHOLD);
+	}
 	// super mode override property to set the mode always to Scalers and MCA for the parameters file sent to the server
 	// this flag will also be used to fix some of the gui display parameters for I18
 	// readout mode will be set to regions of Interest for display, but will be sent as Scalers and MCa to the server
 	// res grade will be fixed to none and not shown
 	// readout type will not be shown
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
-	static {
-		RES_ALL = new HashMap<String, Object>(3);
-		RES_ALL.put("Sum all grades", ResGrades.NONE);
-		RES_ALL.put("Individual grades", ResGrades.ALLGRADES);
-		RES_ALL.put("Threshold", ResGrades.THRESHOLD);
-
-		RES_NO_16 = new HashMap<String, Object>(3);
-		RES_NO_16.put("Sum all grades", ResGrades.NONE);
-		RES_NO_16.put("Threshold", ResGrades.THRESHOLD);
-	}
 	private ComboWrapper readoutMode;
 	private ComboAndNumberWrapper resGrade;
 	private XspressParameters xspressParameters;
 	private Button applyToAllButton;
 	private Button applyToAllLabel;
 	private SelectionAdapter applyToAllListener;
-	private Composite acquire;
 	private ScaleBox acquireTime;
 	private BooleanWrapper showIndividualElements;
 	private Group detectorElementsGroup;
 	private boolean isAdditiveResolutionGradeMode = false;
 	private Action additiveResModeAction;
 	private Label resGradeLabel;
-	private Composite topComposite;
-	private Composite parentComposite;
 	private FileDialog openDialog;
 	private Button autoSave;
 	private Label acquireFileLabel;
@@ -148,7 +147,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private Label lblRegionBins;
 	private ComboWrapper regionType;
 	private ValueListener detectorElementCompositeValueListener;
-	private Composite middleComposite;
 	private String uiResGrade = null;
 	private String uiReadoutMode = null;
 	
@@ -174,44 +172,82 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 
 	@Override
-	public void createPartControl(final Composite parent) {
-		parentComposite = parent;
-		super.createPartControl(parent);
+	public void createPartControl(Composite composite) {
+		parentComposite = composite;
+		super.createPartControl(parentComposite);
 		Composite left = sashPlotForm.getLeft();
-		topComposite = new Composite(left, SWT.NONE);
+		Composite topComposite = new Composite(left, SWT.NONE);
 		topComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		GridLayout gridLayout_1 = new GridLayout();
 		gridLayout_1.numColumns = 2;
 		topComposite.setLayout(gridLayout_1);
-		Label readoutModeLabel = new Label(topComposite, SWT.NONE);
+		
+		createReadoutMode(topComposite);
+		
+		createResGrade(topComposite);
+		
+		if (modeOverride) {
+			GridUtils.setVisibleAndLayout(readoutMode, false);
+			GridUtils.setVisibleAndLayout(resGradeLabel, false);
+			GridUtils.setVisibleAndLayout(resGrade, false);
+			GridUtils.setVisibleAndLayout(lblRegionBins, false);
+			GridUtils.setVisibleAndLayout(regionType, false);
+		}
+		
+		lblRegionBins = new Label(topComposite, SWT.NONE);
+		lblRegionBins.setText("Region type");
+		
+		regionType = new ComboWrapper(topComposite, SWT.READ_ONLY);
+		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		regionType.setItems(new String[]{XspressParameters.VIRTUALSCALER, XspressROI.MCA});
+		regionType.select(0);
+
+		createControl(left);
+		createElements(left);
+		
+		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
+			addOutputPreferences(left);
+
+		sashPlotForm.setWeights(new int[] { 30, 74 });
+		configureUI();
+		createApplyToAllObserver();
+	}
+	
+	private void createReadoutMode(final Composite composite){
+		Label readoutModeLabel = new Label(composite, SWT.NONE);
 		readoutModeLabel.setText("Read out mode");
 		readoutModeLabel.setToolTipText("The type of data which will be written to file");
 		readoutModeLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		readoutMode = new ComboWrapper(topComposite, SWT.READ_ONLY);
+		if (modeOverride)
+			GridUtils.setVisibleAndLayout(readoutModeLabel, false);
+		readoutMode = new ComboWrapper(composite, SWT.READ_ONLY);
 		readoutMode.setItems(new String[] { XspressDetector.READOUT_SCALERONLY, XspressDetector.READOUT_MCA, XspressDetector.READOUT_ROIS });
 		readoutMode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		readoutMode.select(0);
 		readoutMode.addValueListener(new ValueAdapter("readoutMode") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				GridUtils.startMultiLayout(parentComposite);
+				GridUtils.startMultiLayout(composite.getParent());
 				try {
 					updateOverrideMode();
 					updateResModeItems();
 					updateRoiVisibility();
-					updateResGradeVisibility();
+					updateResGradeVisibility(composite);
 					configureUI();
 				} finally {
 					GridUtils.endMultiLayout();
 				}
 			}
 		});
-
-		resGradeLabel = new Label(topComposite, SWT.NONE);
+	}
+	
+	private void createResGrade(Composite composite){
+		resGradeLabel = new Label(composite, SWT.NONE);
 		resGradeLabel.setText("Resolution Grade");
 		resGradeLabel.setToolTipText("The resolution setting during calibration and XAS scans");
 		resGradeLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		resGrade = new ComboAndNumberWrapper(topComposite, SWT.READ_ONLY, Arrays.asList(new String[] { ResGrades.THRESHOLD }));
+		
+		resGrade = new ComboAndNumberWrapper(composite, SWT.READ_ONLY, Arrays.asList(new String[] { ResGrades.THRESHOLD }));
 		resGrade.setItems(RES_ALL);
 		resGrade.getValueField().setMaximum(15.99);
 		resGrade.getValueField().setMinimum(0.0);
@@ -224,21 +260,10 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				updateAdditiveMode();
 			}
 		});
-		if (modeOverride) {
-			GridUtils.setVisibleAndLayout(readoutModeLabel, false);
-			GridUtils.setVisibleAndLayout(readoutMode, false);
-			GridUtils.setVisibleAndLayout(resGradeLabel, false);
-			GridUtils.setVisibleAndLayout(resGrade, false);
-			GridUtils.setVisibleAndLayout(lblRegionBins, false);
-			GridUtils.setVisibleAndLayout(regionType, false);
-		}
-		lblRegionBins = new Label(topComposite, SWT.NONE);
-		lblRegionBins.setText("Region type");
-		regionType = new ComboWrapper(topComposite, SWT.READ_ONLY);
-		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		regionType.setItems(new String[]{XspressParameters.VIRTUALSCALER, XspressROI.MCA});
-		regionType.select(0);
-		Group grpAcquire = new Group(left, SWT.NONE);
+	}
+	
+	private void createControl(Composite composite){
+		Group grpAcquire = new Group(composite, SWT.NONE);
 		grpAcquire.setText("Acquire Spectra");
 		grpAcquire.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
 		GridLayout gridLayout = new GridLayout();
@@ -257,11 +282,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				}
 			}
 		});
-		acquire = new Composite(grpAcquire, SWT.NONE);
+		Composite acquire = new Composite(grpAcquire, SWT.NONE);
 		GridLayout gridLayoutAcq = new GridLayout();
 		gridLayoutAcq.numColumns = 5;
 		gridLayoutAcq.marginWidth = 0;
 		acquire.setLayout(gridLayoutAcq);
+		
 		Button acquireBtn = new Button(acquire, SWT.NONE);
 		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/application_side_expand.png"));
 		acquireBtn.setText("Acquire");
@@ -281,6 +307,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		acquireTime.setMaximum(50000);
 		acquireTime.setUnit("ms");
 		acquireTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		
 		autoSave = new Button(acquire, SWT.CHECK);
 		autoSave.setText("Save on Acquire");
 		autoSave.setSelection(writeToDisk);
@@ -298,18 +325,23 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			}
 		});
 		autoSave.setSelection(writeToDisk);
+		
 		acquireFileLabel = new Label(grpAcquire, SWT.NONE);
 		acquireFileLabel.setText("										");
 		acquireFileLabel.setToolTipText("The file path for the acquire data");
 		acquireFileLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
+		
+		openDialog = new FileDialog(composite.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
-		Composite grid = new Composite(left, SWT.BORDER);
+	}
+	
+	private void createElements(final Composite composite){
+		Composite grid = new Composite(composite, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(grid);
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(grid);
 		showIndividualElements = new BooleanWrapper(grid, SWT.NONE);
 		showIndividualElements.setText("Show individual elements");
-		middleComposite = new Composite(grid, SWT.BORDER);
+		Composite middleComposite = new Composite(grid, SWT.BORDER);
 		middleComposite.setLayout(new GridLayout(2, false));
 		GridDataFactory.fillDefaults()/*.grab(true, false)*/.applyTo(middleComposite);
 		applyToAllLabel = new Button(middleComposite, SWT.CHECK);
@@ -322,12 +354,11 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			public void widgetSelected(SelectionEvent e) {
 				if (applyToAllLabel.getSelection()) {
 					if (applyToAll(true)) {
-						if (detectorElementCompositeValueListener == null){
+						if (detectorElementCompositeValueListener == null)
 							createApplyToAllObserver();
-						}
-					} else {
+					} 
+					else
 						applyToAllLabel.setSelection(false);
-					}
 				}
 				applyToAllButton.setEnabled(!applyToAllLabel.getSelection());
 			}
@@ -362,7 +393,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 						return;
 					}
 				}
-				updateElementsVisibility();
+				updateElementsVisibility(composite);
 			}
 		});
 
@@ -382,13 +413,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		} catch (Exception e1) {
 			logger.error("Cannot create region editor.", e1);
 		}
-		
-		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
-			addOutputPreferences(left);
-
-		sashPlotForm.setWeights(new int[] { 30, 74 });
-		configureUI();
-		createApplyToAllObserver();
 	}
 	
 	protected void createApplyToAllObserver() {
@@ -479,8 +503,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		};
 	}
 
-	private void updateResGradeVisibility() {
-		GridUtils.startMultiLayout(parentComposite);
+	private void updateResGradeVisibility(Composite composite) {
+		GridUtils.startMultiLayout(composite.getParent());
 		try {
 			if (readoutMode.getSelectionIndex() == 2 && !modeOverride) {
 				GridUtils.setVisibleAndLayout(resGradeLabel, true);
@@ -551,7 +575,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	@Override
 	protected String getChannelName(int iChannel) {
-		final String resGrade = getResGradeAllowingForReadoutMode();
+		String resGrade = getResGradeAllowingForReadoutMode();
 		if (resGrade.equals(ResGrades.ALLGRADES))
 			return "Resolution Grade " + (iChannel + 1);
 		else if (resGrade.startsWith(ResGrades.THRESHOLD)) {
@@ -567,8 +591,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		return super.getChannelName(iChannel);
 	}
 
-	protected void updateElementsVisibility() {
-		GridUtils.startMultiLayout(parentComposite);
+	protected void updateElementsVisibility(Composite composite) {
+		GridUtils.startMultiLayout(composite.getParent());
 		try {
 			boolean currentEditIndividual = showIndividualElements.getValue();
 			if (currentEditIndividual)
@@ -631,9 +655,9 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			updateOverrideMode();
 			updateResModeItems();
 			updateRoiVisibility();
-			updateElementsVisibility();
+			updateElementsVisibility(parentComposite);
 			updateAdditiveMode();
-			updateResGradeVisibility();
+			updateResGradeVisibility(parentComposite);
 			// notify the composite immediately of a possible change
 			listEditorUI.notifySelected(getDetectorElementComposite().getRegionList());
 			// setup for all future notifications
@@ -818,7 +842,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			// must pass by value as we are going to do some maths on it!!!
 			AbstractDataset d = new DoubleDataset(Arrays.copyOf(elementData[resGrade],elementData[resGrade].length));
 			if (!ret.isEmpty()) {
-				final AbstractDataset p = ret.get(resGrade - 1);
+				AbstractDataset p = ret.get(resGrade - 1);
 				d.iadd(p);
 			}
 			ret.add(d);

@@ -78,6 +78,13 @@ public class XspressROIComposite extends DetectorROIComposite {
 		GridUtils.endMultiLayout();
 	}	
 
+	@Override
+	public FieldWidgetsForDetectorElementsComposite getFieldWidgetsForDetectorElementsComposite() {
+		if (widgets == null)
+			widgets = new FieldWidgetsForDetectorElementsComposite(getRoiStart(), getRoiEnd(), getCounts());
+		return widgets;
+	}	
+
 	public ScaleBox getRoiEnd() {
 		return roiEnd;
 	}
@@ -93,13 +100,6 @@ public class XspressROIComposite extends DetectorROIComposite {
 	public TextWrapper getRoiName() {
 		return roiName;
 	}
-	
-	@Override
-	public FieldWidgetsForDetectorElementsComposite getFieldWidgetsForDetectorElementsComposite() {
-		if (widgets == null)
-			widgets = new FieldWidgetsForDetectorElementsComposite(getRoiStart(), getRoiEnd(), getCounts());
-		return widgets;
-	}	
 	
 	public ScaleBox getRegionEnd() {
 		return roiEnd;
