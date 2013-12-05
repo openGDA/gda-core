@@ -1,7 +1,6 @@
 package uk.ac.gda.tomography.devices.p2r;
 
 import gda.device.motor.simplemotor.SimpleMotor;
-import gda.device.motor.simplemotor.SimpleMotorViaIndexedController;
 import gda.io.socket.SocketBidiAsciiCommunicator;
 
 import org.junit.Assert;
@@ -15,14 +14,13 @@ public class P2RTest {
 		DummyP2RBidiAsciiCommunicator communicator = new DummyP2RBidiAsciiCommunicator();
 		P2RMotorController cont = new P2RMotorController();
 		cont.setBidiAsciiCommunicator(communicator);
+		cont.setPrefix("D");
+		cont.setPosition_index(0);
+		cont.setSpeed_index(3);
 		cont.afterPropertiesSet();
-		SimpleMotorViaIndexedController singleMotorController = new SimpleMotorViaIndexedController();
-		singleMotorController.setSimc(cont);
-		singleMotorController.setIndex(0);
-		singleMotorController.afterPropertiesSet();
 		SimpleMotor motor = new SimpleMotor();
 		motor.setName("simpleMotor");
-		motor.setSmc(singleMotorController);
+		motor.setSmc(cont);
 		motor.afterPropertiesSet();
 		motor.moveTo(10.);
 		double position = motor.getPosition();
@@ -32,26 +30,30 @@ public class P2RTest {
 	@Ignore
 	public void testTelnet() throws Exception {
 		SocketBidiAsciiCommunicator communicator = new SocketBidiAsciiCommunicator();
-		communicator.setAddress("172.23.6.180");
+		communicator.setAddress("192.168.0.2");
 		communicator.setPort(23);
 		communicator.afterPropertiesSet();
 		P2RMotorController cont = new P2RMotorController();
 		cont.setBidiAsciiCommunicator(communicator);
+		cont.setPrefix("D");
+		cont.setPosition_index(0);
+		cont.setSpeed_index(3);
 		cont.afterPropertiesSet();
-		SimpleMotorViaIndexedController singleMotorController = new SimpleMotorViaIndexedController();
-		singleMotorController.setSimc(cont);
-		singleMotorController.setIndex(0);
-		singleMotorController.afterPropertiesSet();
 		SimpleMotor motor = new SimpleMotor();
 		motor.setName("simpleMotor");
-		motor.setSmc(singleMotorController);
+		motor.setSmc(cont);
 		motor.afterPropertiesSet();
-		motor.moveTo(10.);
+		motor.setSpeed(.1);
+		motor.moveTo(0.);
+		while(motor.isMoving()){
+			Thread.sleep(50);
+		}
+		motor.moveTo(1.);
 		while(motor.isMoving()){
 			Thread.sleep(50);
 		}
 		double position = motor.getPosition();
-		Assert.assertEquals(10., position,.001);
+		Assert.assertEquals(10., position,.005);
 	}
 	
 }
