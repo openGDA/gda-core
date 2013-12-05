@@ -46,18 +46,28 @@ public class SingleScannableWriter implements ScannableWriter {
 	protected Collection<String> prerequisiteScannableNames;
 	protected Map<String, ComponentWriter> cwriter = new HashMap<String, ComponentWriter>();
 
-	protected int componentsFor(Scannable s) {
+	protected static int componentsFor(Scannable s) {
 		int i = s.getInputNames() != null ? s.getInputNames().length : 0;
 		int e = s.getExtraNames() != null ? s.getExtraNames().length : 0;
 		return i + e;
 	}
 
-	protected String componentNameFor(Scannable s, int i) {
+	protected static String componentNameFor(Scannable s, int i) {
 		return ArrayUtils.addAll(s.getInputNames() != null ? s.getInputNames() : new String[] {},
 				s.getExtraNames() != null ? s.getExtraNames() : new String[] {})[i].toString();
 	}
 
-	protected ComponentWriter getComponentWriter(String componentName, Object object) {
+	protected static int indexForcomponentName(Scannable s, String component) {
+		String[] all = (String[]) ArrayUtils.addAll(s.getInputNames() != null ? s.getInputNames() : new String[] {},
+				s.getExtraNames() != null ? s.getExtraNames() : new String[] {});
+		for (int i = 0; i < all.length; i++) {
+			if (component.equals(all[i]))
+				return i;
+		}
+		throw new ArrayIndexOutOfBoundsException();
+	}
+	
+	protected ComponentWriter getComponentWriter(Scannable s, String componentName, Object object) {
 		if (cwriter.containsKey(componentName))
 			return cwriter.get(componentName);
 		DefaultComponentWriter cw = null;
@@ -81,7 +91,7 @@ public class SingleScannableWriter implements ScannableWriter {
 
 		for (int i = 0; i < componentsFor(s); i++) {
 			try {
-				if (paths[i].isEmpty())
+				if (paths == null || paths.length <= i || paths[i].isEmpty())
 					continue;
 				String componentName = componentNameFor(s, i);
 				String unit = null;
@@ -90,7 +100,7 @@ public class SingleScannableWriter implements ScannableWriter {
 				if (units != null && units.length > i)
 					unit = units[i];
 				Object componentObject = getComponentObject(s, position, i);
-				ComponentWriter cw = getComponentWriter(componentName, componentObject);
+				ComponentWriter cw = getComponentWriter(s, componentName, componentObject);
 				sclc.addAll(cw.makeComponent(file, dim, paths[i], s.getName(), componentName, componentObject, unit));
 			} catch (Exception e) {
 				logger.error("error converting scannable data", e);
@@ -103,7 +113,7 @@ public class SingleScannableWriter implements ScannableWriter {
 	public void writeScannable(NeXusFileInterface file, Scannable s, Object position, int[] start)
 			throws NexusException {
 		for (int i = 0; i < componentsFor(s); i++) {
-			if (paths[i].isEmpty())
+			if (paths == null || paths.length <= i || paths[i].isEmpty())
 				continue;
 			Object slab;
 			slab = getComponentObject(s, position, i);
