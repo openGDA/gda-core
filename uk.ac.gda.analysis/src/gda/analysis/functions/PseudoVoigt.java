@@ -39,12 +39,13 @@ public class PseudoVoigt extends uk.ac.diamond.scisoft.analysis.fitting.function
 	 * @param mix
 	 */
 	public PseudoVoigt(double position, double gaussianFWHM, double lorentzianFWHM, double area, double mix) {
-		super(position, gaussianFWHM, lorentzianFWHM, area, mix);
+		super(position, lorentzianFWHM, area, gaussianFWHM, mix);
 	}
 	
 	/**
 	 * Initialise with set parameters
-	 * @param params Position, GaussianFWHM, LorentzianFWHM, Area, Mix(0-1)
+	 * Note, this constructor has a different order from the scisoft one.
+	 * @param params Position, LorentzianFWHM, Area, GaussianFWHM, Mix(0-1)
 	 */
 	public PseudoVoigt(IParameter[] params) {
 		super(params);

@@ -31,6 +31,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 @RunWith(JUnitParamsRunner.class)
 public class PeakProfileTest {
 	
+	private static final double FACTOR = 1.05; // multiplier for step to give delta for asserts
+
 	@Test
 	@Parameters({
 		"Simple Peak,  0.01, 0.0, 100.0, 50.0, 10.0, 2.0",
@@ -53,8 +55,7 @@ public class PeakProfileTest {
 		
 		double threshold = (Double)data.max()/2.0;
 		
-		// needs to start on one as otherwise this is not inclusive
-		int count = 1;
+		int count = 0;
 		for(int i = 0; i < data.getShape()[0]; i++) {
 			if ( data.getDouble(i) > threshold ) {
 				count++;
@@ -62,7 +63,7 @@ public class PeakProfileTest {
 		}
 		double width = count * step;
 		
-		assertEquals("Gaussian Width for '"+description+"' is not correct", gaussian.getFWHM(), width, step);		
+		assertEquals("Gaussian Width for '"+description+"' is not correct", gaussian.getFWHM(), width, FACTOR * step);		
 		
 	}
 	
@@ -90,8 +91,7 @@ public class PeakProfileTest {
 		
 		double threshold = (Double)data.max()/2.0;
 		
-		// needs to start on one as otherwise this is not inclusive
-		int count = 1;
+		int count = 0;
 		for(int i = 0; i < data.getShape()[0]; i++) {
 			if ( data.getDouble(i) > threshold ) {
 				count++;
@@ -99,7 +99,7 @@ public class PeakProfileTest {
 		}
 		double width = count * step;
 		
-		assertEquals("Lorentzian Width for '"+description+"' is not correct", lorentzian.getFWHM(), width, step);		
+		assertEquals("Lorentzian Width for '"+description+"' is not correct", lorentzian.getFWHM(), width, FACTOR * step);		
 		
 	}
 	
@@ -121,8 +121,7 @@ public class PeakProfileTest {
 		
 		double threshold = (Double)data.max()/2.0;
 		
-		// needs to start on one as otherwise this is not inclusive
-		int count = 1;
+		int count = 0;
 		for(int i = 0; i < data.getShape()[0]; i++) {
 			if ( data.getDouble(i) > threshold ) {
 				count++;
@@ -130,7 +129,7 @@ public class PeakProfileTest {
 		}
 		double width = count * step;
 		
-		assertEquals("PseudoVoigt Width for '"+description+"' is not correct", pseudoVoigt.getFWHM(), width, (Math.abs(gfwhm-lfwhm)/2.0)+ step);		
+		assertEquals("PseudoVoigt Width for '"+description+"' is not correct", pseudoVoigt.getFWHM(), width, (Math.abs(gfwhm-lfwhm)/2.0)+ FACTOR * step);		
 		
 	}
 	
@@ -150,8 +149,7 @@ public class PeakProfileTest {
 		
 		double threshold = (Double)data.max()/2.0;
 		
-		// needs to start on one as otherwise this is not inclusive
-		int count = 1;
+		int count = 0;
 		for(int i = 0; i < data.getShape()[0]; i++) {
 			if ( data.getDouble(i) > threshold ) {
 				count++;
@@ -159,7 +157,7 @@ public class PeakProfileTest {
 		}
 		double width = count * step;
 		
-		assertEquals("PearsonVII FWHM for '"+description+"' is not correct", pearsonVII.getFWHM(), width, step);		
+		assertEquals("PearsonVII FWHM for '"+description+"' is not correct", pearsonVII.getFWHM(), width, FACTOR * step);		
 		
 	}
 	
