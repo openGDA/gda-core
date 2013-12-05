@@ -138,10 +138,11 @@ public class PeakProfileTest {
 		"Simple Peak, 0.01, 0.0, 10000.0, 5000.0, 10.0, 5.0, 1.0",
 		"Bigger Peak, 0.1, 0.0, 100000.0, 50000.0, 1000.0, 5.0, 1.0",
 		"Small FWHM, 0.01, 0.0, 10000.0, 5000.0, 10.0, 2.0, 1.0",})
-	public void testPearsonVII(String description, double step ,double min ,double max ,double mean ,double area ,double fwhm ,double mix) {
-		
+	public void testPearsonVII(String description, double step, double min, double max, double mean, double area,
+			double fwhm, double power) {
+
 		DoubleDataset axis = DoubleDataset.arange(min, max, step);
-		PearsonVII pearsonVII = new PearsonVII(new double[] {mean, fwhm, mix, area} );
+		PearsonVII pearsonVII = new PearsonVII(new double[] {mean, fwhm, area, power} );
 		DoubleDataset data = pearsonVII.makeDataset(axis);
 		
 		assertEquals("PearsonVII Area for '"+description+"' is not correct", pearsonVII.getArea(), ((Double)data.sum()*step), step);
