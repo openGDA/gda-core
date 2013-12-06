@@ -91,6 +91,12 @@
             id="uk.ac.gda.example.mvcexample.MvcExampleView"
             name="Model View Controller Example">
       </view>  
+      <view
+            class="gda.example.views.CalculatorView"
+            id="uk.ac.gda.example.calculatorview"
+            name="Calculator"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="uk.ac.gda.richbeans.beantypes">
