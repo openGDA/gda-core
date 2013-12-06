@@ -1,16 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Test
+Bundle-Name: Example Test
 Bundle-SymbolicName: uk.ac.gda.example.test
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: uk.ac.gda.example.test.Activator
 Bundle-Vendor: Diamond Light Source
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.junit;bundle-version="4.10.0",
- uk.ac.gda.example;bundle-version="8.36.0",
- uk.ac.gda.common.rcp;bundle-version="1.2.0",
- uk.ac.gda.client;bundle-version="8.36.0",
- org.eclipse.core.databinding.observable;bundle-version="1.4.1"
+Fragment-Host: uk.ac.gda.example;bundle-version="1.0.0"
+Require-Bundle: org.junit;bundle-version="4.10.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
