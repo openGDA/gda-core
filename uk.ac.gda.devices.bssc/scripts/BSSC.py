@@ -22,7 +22,7 @@ class BSSCRun:
         self.stepspersample = 8
         self.stepsperbuffer = 3
         self.ispyb = BioSAXSDBFactory.makeAPI()
-        self.visit = self.ispyb.getSessionForVisit(GDAMetadataProvider.getInstance().getMetadataValue("visit"))
+        self.proposal = self.ispyb.getProposalForVisit(GDAMetadataProvider.getInstance().getMetadataValue("visit"))
         self.experiment = self.ispyb.createExperiment(self.proposal, "BSSC", "TEMPLATE", "BSSC")
         self.energy = float(gda.factory.Finder.getInstance().find("dcm_energy").getPosition())
         self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample + (self.bean.getMeasurements().size() + 1) * self.stepsperbuffer
@@ -141,7 +141,7 @@ class BSSCRun:
             self.setTitle("Buffer for next and preceding sample measurement")
             filename = self.expose(duration)
             self.reportSampleProgress(titration, "Cleaning after Buffer")
-            id = self.ispyb.createBufferMeasurement(self.visit, titration.getBufferLocation().getPlate(), titration.getBufferLocation().getRowAsInt(), titration.getBufferLocation().getColumn(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/detector/data")
+            id = self.ispyb.createBufferMeasurement(self.proposal, titration.getBufferLocation().getPlate(), titration.getBufferLocation().getRowAsInt(), titration.getBufferLocation().getColumn(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/detector/data")
             self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
             self.clean()
    
@@ -152,7 +152,7 @@ class BSSCRun:
             self.reportSampleProgress(titration, "Exposing Sample")
             self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
             filename = self.expose(duration)
-            id = self.ispyb.createSampleMeasurement(self.visit, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/detector/data")
+            id = self.ispyb.createSampleMeasurement(self.experiment, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/detector/data")
             self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
             if not titration.getRecouperateLocation() is None:
                 self.reportSampleProgress(titration, "Recuperating Sample to "+titration.getRecouperateLocation().toString()+" and Cleaning")
@@ -190,7 +190,7 @@ class BSSCRun:
         self.bssc.setViscosityLevel("high")
         self.clean()
         
-        self.datacollection = self.ispyb.createSaxsDataCollection(self.visit)
+        self.datacollection = self.ispyb.createSaxsDataCollection(self.experiment)
         
         self.reportProgress("Opening Shutter")
         self.openShutter()

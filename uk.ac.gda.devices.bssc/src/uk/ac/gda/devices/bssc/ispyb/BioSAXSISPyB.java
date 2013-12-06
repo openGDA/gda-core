@@ -35,9 +35,9 @@ public interface BioSAXSISPyB {
 	 *  
 	 * @param visitname
 	 *            e.g. sm9999-9
-	 * @return sessionID
+	 * @return proposalID
 	 */
-	public abstract long getSessionForVisit(String visitname) throws SQLException;
+	public abstract long getProposalForVisit(String visitname) throws SQLException;
 
 	/**
 	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
