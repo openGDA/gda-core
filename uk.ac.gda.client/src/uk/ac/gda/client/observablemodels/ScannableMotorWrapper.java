@@ -16,22 +16,8 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.motor.simplemotor;
+package uk.ac.gda.client.observablemodels;
 
-import gda.device.DeviceException;
-
-public interface SimpleIndexedMotorController {
-
-	void stop()throws DeviceException;
-
-	boolean isBusy()throws DeviceException;
-
-	void moveTo(double position, int index)throws DeviceException;
-
-	double getPosition(int index) throws DeviceException;
-
-	void setSpeed(double speed, int index) throws DeviceException;
-
-	double getSpeed(int index) throws DeviceException;
+public class ScannableMotorWrapper {
 
 }
