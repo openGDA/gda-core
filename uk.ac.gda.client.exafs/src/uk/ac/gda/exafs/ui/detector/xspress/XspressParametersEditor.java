@@ -40,8 +40,7 @@ public class XspressParametersEditor extends ExafsBeanFileSelectionEditor {
 	}
 
 	@Override
-	protected RichBeanEditorPart getRichBeanEditorPart(String path,
-			                                           Object editingBean) {
+	protected RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
 		return new XspressParametersUIEditor(path, getMappingUrl(), this, editingBean);
 	}
 

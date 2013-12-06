@@ -87,6 +87,7 @@ import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
+import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.ListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditorUIAdapter;
@@ -106,19 +107,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private Composite middleComposite;
 	private static final String GDA_DEVICE_XSPRESS_SPOOL_DIR = "gda.device.xspress.spoolDir";
 	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
-	private static final Map<String, Object> RES_ALL;
-	private static final Map<String, Object> RES_NO_16;
 	private boolean writeToDisk = LocalProperties.check("gda.detectors.save.single.acquire");
-	static {
-		RES_ALL = new HashMap<String, Object>(3);
-		RES_ALL.put("Sum all grades", ResGrades.NONE);
-		RES_ALL.put("Individual grades", ResGrades.ALLGRADES);
-		RES_ALL.put("Threshold", ResGrades.THRESHOLD);
-		
-		RES_NO_16 = new HashMap<String, Object>(3);
-		RES_NO_16.put("Sum all grades", ResGrades.NONE);
-		RES_NO_16.put("Threshold", ResGrades.THRESHOLD);
-	}
 	// super mode override property to set the mode always to Scalers and MCA for the parameters file sent to the server
 	// this flag will also be used to fix some of the gui display parameters for I18
 	// readout mode will be set to regions of Interest for display, but will be sent as Scalers and MCa to the server
@@ -135,7 +124,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private BooleanWrapper showIndividualElements;
 	private Group detectorElementsGroup;
 	private boolean isAdditiveResolutionGradeMode = false;
-	private Action additiveResModeAction;
+	private Action plotAction;
 	private Label resGradeLabel;
 	private FileDialog openDialog;
 	private Button autoSave;
@@ -149,6 +138,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private ValueListener detectorElementCompositeValueListener;
 	private String uiResGrade = null;
 	private String uiReadoutMode = null;
+	private ResolutionGrade resolutionGrade;
 	
 	/**
 	 * @param path
@@ -175,16 +165,22 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	public void createPartControl(Composite composite) {
 		parentComposite = composite;
 		super.createPartControl(parentComposite);
-		Composite left = sashPlotForm.getLeft();
+		Composite left = sashPlotFormComposite.getLeft();
 		Composite topComposite = new Composite(left, SWT.NONE);
 		topComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		GridLayout gridLayout_1 = new GridLayout();
 		gridLayout_1.numColumns = 2;
 		topComposite.setLayout(gridLayout_1);
-		
 		createReadoutMode(topComposite);
-		
-		createResGrade(topComposite);
+		resolutionGrade = new ResolutionGrade(topComposite);
+		resGrade = resolutionGrade.getResGrade();
+		createAdditiveResModeAction();
+		resolutionGrade.getResGrade().addValueListener(new ValueAdapter("resGrade") {
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateAdditiveMode();
+			}
+		});
 		
 		if (modeOverride) {
 			GridUtils.setVisibleAndLayout(readoutMode, false);
@@ -208,7 +204,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
 			addOutputPreferences(left);
 
-		sashPlotForm.setWeights(new int[] { 30, 74 });
+		sashPlotFormComposite.setWeights(new int[] { 30, 74 });
 		configureUI();
 		createApplyToAllObserver();
 	}
@@ -230,34 +226,17 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				GridUtils.startMultiLayout(composite.getParent());
 				try {
 					updateOverrideMode();
-					updateResModeItems();
+					boolean readoutRois = false;
+					if(resolutionGrade.getResGrade().getValue().equals(XspressDetector.READOUT_ROIS)){
+						readoutRois = true;
+					}
+					resolutionGrade.updateResModeItems(readoutRois);
 					updateRoiVisibility();
 					updateResGradeVisibility(composite);
 					configureUI();
 				} finally {
 					GridUtils.endMultiLayout();
 				}
-			}
-		});
-	}
-	
-	private void createResGrade(Composite composite){
-		resGradeLabel = new Label(composite, SWT.NONE);
-		resGradeLabel.setText("Resolution Grade");
-		resGradeLabel.setToolTipText("The resolution setting during calibration and XAS scans");
-		resGradeLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
-		resGrade = new ComboAndNumberWrapper(composite, SWT.READ_ONLY, Arrays.asList(new String[] { ResGrades.THRESHOLD }));
-		resGrade.setItems(RES_ALL);
-		resGrade.getValueField().setMaximum(15.99);
-		resGrade.getValueField().setMinimum(0.0);
-		resGrade.getValueField().setDecimalPlaces(1);
-		resGrade.getValueField().setNumericValue(1d);
-		resGrade.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		resGrade.addValueListener(new ValueAdapter("resGrade") {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				updateAdditiveMode();
 			}
 		});
 	}
@@ -523,38 +502,32 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		}
 	}
 
-	protected void updateAdditiveMode() {
-		additiveResModeAction.setEnabled(resGrade.getValue().equals(ResGrades.ALLGRADES));
-	}
-
 	private void updateOverrideMode() {
 		if (modeOverride)
 			this.readoutMode.setValue(XspressDetector.READOUT_ROIS);
 	}
 
-	/**
-	 * Override to ass custom actions.
-	 * 
-	 * @param parent
-	 * @return SashFormPlotComposite
-	 * @throws Exception 
-	 */
-	@Override
-	protected SashFormPlotComposite createSashPlot(Composite parent) throws Exception {
-		this.additiveResModeAction = new Action("Show resolution grades added", IAction.AS_CHECK_BOX) {
+	private Action createAdditiveResModeAction(){
+		plotAction = new Action("Show resolution grades added", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				isAdditiveResolutionGradeMode = isChecked();
 				plot(getDetectorList().getSelectedIndex(),false);
 			}
 		};
-		additiveResModeAction.setImageDescriptor(ResourceManager.getImageDescriptor(XspressParametersUIEditor.class, "/icons/chart_line_add.png"));
-		return new SashFormPlotComposite(parent, this,new RegionSynchronizer(), additiveResModeAction,createUpLoadAction());
+		plotAction.setImageDescriptor(ResourceManager.getImageDescriptor(XspressParametersUIEditor.class, "/icons/chart_line_add.png"));
+		return plotAction;
+	}
+	
+
+	
+	protected void updateAdditiveMode() {
+		plotAction.setEnabled(resGrade.getValue().equals(ResGrades.ALLGRADES));
 	}
 
 	@Override
 	protected java.awt.Color getChannelColor(int iChannel) {
-		final String resGrade = getResGradeAllowingForReadoutMode();
+		String resGrade = getResGradeAllowingForReadoutMode();
 		if (resGrade.startsWith(ResGrades.THRESHOLD)) {
 			switch (iChannel) {
 			case 0:
@@ -608,20 +581,11 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			GridUtils.layoutFull(getDetectorElementComposite().getExcluded().getParent());
 			getDetectorList().setListVisible(currentEditIndividual);
 			autoApplyToAll(!currentEditIndividual);
-			sashPlotForm.layout();
+			sashPlotFormComposite.layout();
 			calculateAndPlotCountTotals(currentEditIndividual);
 		} finally {
 			GridUtils.endMultiLayout();
 		}
-	}
-
-	protected void updateResModeItems() {
-		Object val = resGrade.getValue();
-		if (readoutMode.getValue().equals(XspressDetector.READOUT_ROIS))
-			resGrade.setItems(RES_ALL);
-		else
-			resGrade.setItems(RES_NO_16);
-		resGrade.setValue(val);
 	}
 
 	protected void updateRoiVisibility() {
@@ -653,7 +617,10 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		try {
 			super.linkUI(isPageChange);
 			updateOverrideMode();
-			updateResModeItems();
+			boolean readoutRois = false;
+			if(resolutionGrade.getResGrade().getValue().equals(XspressDetector.READOUT_ROIS))
+				readoutRois = true;
+			resolutionGrade.updateResModeItems(readoutRois);
 			updateRoiVisibility();
 			updateElementsVisibility(parentComposite);
 			updateAdditiveMode();
@@ -721,7 +688,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				uiResGrade = getResGradeAllowingForReadoutMode();
 			}
 		});
-		sashPlotForm.appendStatus("Collecting a single frame of MCA data with resolution grade set to '" + uiResGrade + "'.", logger);
+		sashPlotFormComposite.appendStatus("Collecting a single frame of MCA data with resolution grade set to '" + uiResGrade + "'.", logger);
 		try {
 			xsDetector.setAttribute("readoutModeForCalibration", new String[] { uiReadoutMode, uiResGrade });
 			// Get MCA Data
@@ -740,12 +707,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				String spoolDirPath = PathConstructor.createFromProperty(GDA_DEVICE_XSPRESS_SPOOL_DIR);
 				if (spoolDirPath == null || spoolDirPath.length() == 0)
 					throw new Exception("Error saving data. Xspress device spool dir is not defined in property "
-							+ GDA_DEVICE_XSPRESS_SPOOL_DIR);
+						+ GDA_DEVICE_XSPRESS_SPOOL_DIR);
 				long snapShotNumber = new NumTracker("Xspress_snapshot").incrementNumber();
 				String fileName = "xspress_snap_" + snapShotNumber + ".mca";
 				final File filePath = new File(spoolDirPath + "/" + fileName);
 				save(detectorData, filePath.getAbsolutePath());
-				sashPlotForm.appendStatus("Xspress snapshot saved to " + filePath, logger);
+				sashPlotFormComposite.appendStatus("Xspress snapshot saved to " + filePath, logger);
 				getSite().getShell().getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -755,7 +722,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			}
 			if (monitor != null)
 				monitor.done();
-			sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
+			sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
 		} catch (IllegalArgumentException e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -773,8 +740,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 					MessageDialog.openWarning(getSite().getShell(), "Cannot operate detector", "You do not hold the baton and so cannot operate the detector.");
 				}
 			});
-			sashPlotForm
-					.appendStatus("Cannot read out detector data. Check the log and inform beamline staff.", logger);
+			sashPlotFormComposite.appendStatus("Cannot read out detector data. Check the log and inform beamline staff.", logger);
 			return;
 		} catch (Exception e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -783,16 +749,16 @@ public class XspressParametersUIEditor extends DetectorEditor {
 					MessageDialog.openWarning(getSite().getShell(), "Cannot read out detector data", "Problem acquiring data. See log for details.");
 				}
 			});
-			sashPlotForm.appendStatus("Cannot read out detector data. Check the log and inform beamline staff.", logger);
+			sashPlotFormComposite.appendStatus("Cannot read out detector data. Check the log and inform beamline staff.", logger);
 			return;
 		} finally {
 			try {
 				xsDetector.setResGrade(resGrade_orig);
 				xsDetector.setReadoutMode(readoutMode_orig);
 			} catch (DeviceException e) {
-				sashPlotForm.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
+				sashPlotFormComposite.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
 			}
-			sashPlotForm.appendStatus("Reset detector to resolution grade '" + resGrade_orig + "'.", logger);
+			sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + resGrade_orig + "'.", logger);
 		}
 
 		// Note: currently has to be in this order.
@@ -878,12 +844,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 						}
 						// find the res grade
 
-						int resGrade = data.size() / xspressParameters.getDetectorList().size();
-						detectorData = new double[xspressParameters.getDetectorList().size()][resGrade][];
+						int numberOfElements = data.size() / xspressParameters.getDetectorList().size();
+						detectorData = new double[xspressParameters.getDetectorList().size()][numberOfElements][];
 						int dataIndex = 0;
 						// Int array above is [element][grade (1, 2 or all 16)][mca channel]
 						for (int i = 0; i < detectorData.length; i++)
-							for (int j = 0; j < resGrade; j++)
+							for (int j = 0; j < numberOfElements; j++)
 								detectorData[i][j] = data.get(dataIndex++);
 						getSite().getShell().getDisplay().asyncExec(new Runnable() {
 							@Override

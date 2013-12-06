@@ -116,10 +116,10 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
-		final Composite left = sashPlotForm.getLeft();
+		final Composite left = sashPlotFormComposite.getLeft();
 		createAcquireSpectraPanel(parent, left);
 		createROIPanel(left);
-		sashPlotForm.setWeights(new int[] { 35, 74 });
+		sashPlotFormComposite.setWeights(new int[] { 35, 74 });
 		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
 			addOutputPreferences(left);
 		configureUI();
@@ -366,12 +366,12 @@ public class VortexParametersUIEditor extends DetectorEditor {
 					deadTimeLabel.setValue(deadTimeFinal);
 					lblDeadTime.setVisible(true);
 					deadTimeLabel.setVisible(true);
-					sashPlotForm.getLeft().layout();
+					sashPlotFormComposite.getLeft().layout();
 				}
 			});
 			if (monitor != null) {
 				monitor.worked(1);
-				sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
+				sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
 			}
 		} catch (IllegalArgumentException e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -391,7 +391,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 					MessageDialog.openWarning(getSite().getShell(), "Cannot operate detector", "You do not hold the baton and so cannot operate the detector.");
 				}
 			});
-			sashPlotForm
+			sashPlotFormComposite
 					.appendStatus("Cannot read out detector data. Check the log and inform beamline staff.", logger);
 			return;
 		} catch (DeviceException e) {
@@ -401,7 +401,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 					MessageDialog.openWarning(getSite().getShell(), "Cannot read out detector data", "Problem acquiring data. See log for details.");
 				}
 			});
-			sashPlotForm.appendStatus(
+			sashPlotFormComposite.appendStatus(
 					"Cannot get xMap data from Vortex detector. Check the log and inform beamline staff.", logger);
 			return;
 		}
