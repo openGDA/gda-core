@@ -42,14 +42,14 @@ public interface BioSAXSISPyB {
 	/**
 	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
 	 * 
-	 * @param sessionID
-	 * @return experimentID
+	 * @param experimentID
+	 * @return saxsDataCollectionID
 	 */
-	public abstract long createSaxsDataCollection(long sessionID) throws SQLException;
+	public abstract long createSaxsDataCollection(long experimentID) throws SQLException;
 
 	/**
-	 * @param blsessionId
-	 *            The ID of the visit
+	 * @param proposalId
+	 *            The ID of the proposal
 	 * @param plate
 	 *            does not seem to be in the database. it is 1,2,3 and you could create a SamplePlate for each per
 	 *            Experiment
@@ -70,13 +70,13 @@ public interface BioSAXSISPyB {
 	 *            "/entry1/detector/data"
 	 * @return bufferMeasurementId
 	 */
-	public abstract long createBufferMeasurement(long blsessionId, short plate, short row, short column, float storageTemperature,
+	public abstract long createBufferMeasurement(long proposalId, short plate, short row, short column, float storageTemperature,
 			float exposureTemperature, int numFrames, double timePerFrame, double flow, double volume,
 			double energyInkeV, String viscosity, String fileName, String internalPath) throws SQLException;
 
 	/**
-	 * @param blsessionId
-	 *            The ID of the visit
+	 * @param experimentId
+	 *            The ID of the experiment
 	 * @param plate
 	 * @param row
 	 * @param column
@@ -94,7 +94,7 @@ public interface BioSAXSISPyB {
 	 * @param internalPath
 	 * @return sampleMeasurementId
 	 */
-	public abstract long createSampleMeasurement(long blsessionId, short plate, short row, short column, String name,
+	public abstract long createSampleMeasurement(long experimentId, short plate, short row, short column, String name,
 			double concentration, float storageTemperature, float exposureTemperature, int numFrames,
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, 
 			String fileName, String internalPath) throws SQLException;
@@ -116,13 +116,13 @@ public interface BioSAXSISPyB {
 	public List<SampleInfo> getSaxsDataCollectionInfo(long saxsDataCollectionId) throws SQLException;
 
 	/**
-	 * retrieve all data collection ids for a session (visit)
+	 * retrieve all data collection ids for a proposal
 	 * 
-	 * @param blsessionId
+	 * @param proposalId
 	 * @return all ids
 	 * @throws SQLException
 	 */
-	public List<Long> getSaxsDataCollectionsForSession(long blsessionId) throws SQLException;
+	public List<Long> getSaxsDataCollectionsForProposal(long proposalId) throws SQLException;
 	
 	/**
 	 * @param proposalId
