@@ -116,7 +116,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
-		final Composite left = sashPlotFormComposite.getLeft();
+		Composite left = sashPlotFormComposite.getLeft();
 		createAcquireSpectraPanel(parent, left);
 		createROIPanel(left);
 		sashPlotFormComposite.setWeights(new int[] { 35, 74 });
@@ -435,7 +435,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	}
 
 	protected int[][][] get3DArray(int[][] data) {
-		final int[][][] ret = new int[data.length][1][];
+		int[][][] ret = new int[data.length][1][];
 		for (int i = 0; i < data.length; i++)
 			ret[i][0] = data[i];
 		return ret;

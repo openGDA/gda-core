@@ -35,9 +35,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -67,7 +65,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
@@ -87,7 +84,6 @@ import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.ListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditorUIAdapter;
@@ -115,7 +111,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	// readout type will not be shown
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 	private ComboWrapper readoutMode;
-	private ComboAndNumberWrapper resGrade;
+	private ComboAndNumberWrapper resolutionGradeCombo;
 	private XspressParameters xspressParameters;
 	private Button applyToAllButton;
 	private Button applyToAllLabel;
@@ -165,27 +161,33 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	public void createPartControl(Composite composite) {
 		parentComposite = composite;
 		super.createPartControl(parentComposite);
+		
 		Composite left = sashPlotFormComposite.getLeft();
+		
 		Composite topComposite = new Composite(left, SWT.NONE);
 		topComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		
 		GridLayout gridLayout_1 = new GridLayout();
 		gridLayout_1.numColumns = 2;
 		topComposite.setLayout(gridLayout_1);
+		
 		createReadoutMode(topComposite);
+		
 		resolutionGrade = new ResolutionGrade(topComposite);
-		resGrade = resolutionGrade.getResGrade();
-		createAdditiveResModeAction();
-		resolutionGrade.getResGrade().addValueListener(new ValueAdapter("resGrade") {
+		resolutionGradeCombo = resolutionGrade.getResolutionGradeCombo();
+		resolutionGradeCombo.addValueListener(new ValueAdapter("resGrade") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateAdditiveMode();
 			}
 		});
 		
+		createAdditiveResModeAction();
+		
 		if (modeOverride) {
 			GridUtils.setVisibleAndLayout(readoutMode, false);
 			GridUtils.setVisibleAndLayout(resGradeLabel, false);
-			GridUtils.setVisibleAndLayout(resGrade, false);
+			GridUtils.setVisibleAndLayout(resolutionGradeCombo, false);
 			GridUtils.setVisibleAndLayout(lblRegionBins, false);
 			GridUtils.setVisibleAndLayout(regionType, false);
 		}
@@ -227,9 +229,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				try {
 					updateOverrideMode();
 					boolean readoutRois = false;
-					if(resolutionGrade.getResGrade().getValue().equals(XspressDetector.READOUT_ROIS)){
+					if(resolutionGrade.getResolutionGradeCombo().getValue().equals(XspressDetector.READOUT_ROIS))
 						readoutRois = true;
-					}
 					resolutionGrade.updateResModeItems(readoutRois);
 					updateRoiVisibility();
 					updateResGradeVisibility(composite);
@@ -365,13 +366,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		showIndividualElements.addValueListener(new ValueAdapter("editIndividualElements") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if ((Boolean) e.getValue() == false) {
+				if ((Boolean) e.getValue() == false)
 					if (!applyToAll(true)) {
 						// user didn't want to lose individual settings, cancel change
 						showIndividualElements.setValue(true);
 						return;
 					}
-				}
 				updateElementsVisibility(composite);
 			}
 		});
@@ -455,9 +455,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				if (ob != null) {
 					try {
 						IDetectorParameters params = ob.getDetectorParameters();
-						if (params.getExperimentType().equalsIgnoreCase(DetectorParameters.TRANSMISSION_TYPE)) {
+						if (params.getExperimentType().equalsIgnoreCase(DetectorParameters.TRANSMISSION_TYPE))
 							showWarning();
-						} 
 						else if (params.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) {
 							if (!params.getFluorescenceParameters().getDetectorType().equalsIgnoreCase("Germanium"))
 								showWarning();
@@ -487,13 +486,13 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		try {
 			if (readoutMode.getSelectionIndex() == 2 && !modeOverride) {
 				GridUtils.setVisibleAndLayout(resGradeLabel, true);
-				GridUtils.setVisibleAndLayout(resGrade, true);
+				GridUtils.setVisibleAndLayout(resolutionGradeCombo, true);
 				GridUtils.setVisibleAndLayout(lblRegionBins, true);
 				GridUtils.setVisibleAndLayout(regionType, true);
 			} 
 			else {
 				GridUtils.setVisibleAndLayout(resGradeLabel, false);
-				GridUtils.setVisibleAndLayout(resGrade, false);
+				GridUtils.setVisibleAndLayout(resolutionGradeCombo, false);
 				GridUtils.setVisibleAndLayout(lblRegionBins, false);
 				GridUtils.setVisibleAndLayout(regionType, false);
 			}
@@ -519,10 +518,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		return plotAction;
 	}
 	
-
-	
 	protected void updateAdditiveMode() {
-		plotAction.setEnabled(resGrade.getValue().equals(ResGrades.ALLGRADES));
+		plotAction.setEnabled(resolutionGradeCombo.getValue().equals(ResGrades.ALLGRADES));
 	}
 
 	@Override
@@ -581,7 +578,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			GridUtils.layoutFull(getDetectorElementComposite().getExcluded().getParent());
 			getDetectorList().setListVisible(currentEditIndividual);
 			autoApplyToAll(!currentEditIndividual);
-			sashPlotFormComposite.layout();
 			calculateAndPlotCountTotals(currentEditIndividual);
 		} finally {
 			GridUtils.endMultiLayout();
@@ -618,7 +614,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			super.linkUI(isPageChange);
 			updateOverrideMode();
 			boolean readoutRois = false;
-			if(resolutionGrade.getResGrade().getValue().equals(XspressDetector.READOUT_ROIS))
+			if(resolutionGrade.getResolutionGradeCombo().getValue().equals(XspressDetector.READOUT_ROIS))
 				readoutRois = true;
 			resolutionGrade.updateResModeItems(readoutRois);
 			updateRoiVisibility();
@@ -644,7 +640,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 
 	public ComboWrapper getResGrade() {
-		return resGrade;
+		return resolutionGradeCombo;
 	}
 
 	public BooleanWrapper getEditIndividualElements() {
@@ -799,7 +795,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	@Override
 	protected List<AbstractDataset> unpackDataSets(int ielement) {
-		if (ielement < 0 || detectorData == null || !isAdditiveResolutionGradeMode || !resGrade.getValue().equals(ResGrades.ALLGRADES))
+		if (ielement < 0 || detectorData == null || !isAdditiveResolutionGradeMode || !resolutionGradeCombo.getValue().equals(ResGrades.ALLGRADES))
 			return super.unpackDataSets(ielement);
 		// We are ResGrades.ALLGRADES and isAdditiveResolutionGradeMode, so we add them.
 		final List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);

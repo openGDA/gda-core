@@ -123,7 +123,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	// NOTE: Grades often not applicable in which case that dimension is size 1.
 	// Used for saving data to XML
 	protected DataWrapper dataWrapper;
-	protected final String command;
+	protected String serverCommand;
 	private ExpansionAdapter expansionListener;
 	private volatile boolean continuousAquire = false;
 	private Thread continuousThread;
@@ -138,9 +138,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	private String plotTitle = "Saved Data";
 	
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
-			final Object editingBean, final String command) {
+			final Object editingBean, final String serverCommand) {
 		super(path, mappingURL, dirtyContainer, editingBean);
-		this.command = command;
+		this.serverCommand = serverCommand;
 		this.bean = editingBean;
 	}
 
@@ -435,13 +435,13 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				monitor.beginTask("Configure Detector", 100);
 				try {
-					final Map<String, Serializable> data = new HashMap<String, Serializable>(1);
+					Map<String, Serializable> data = new HashMap<String, Serializable>(1);
 					data.put("XMLFileNameToLoad", path);
 					data.put("OutputParametersToLoad", outputBean);
 					monitor.worked(10);
-					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command + "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
+					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, serverCommand + "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
 					monitor.worked(50);
-					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(command + ".getConfigureResult()");
+					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(serverCommand + ".getConfigureResult()");
 					sashPlotFormComposite.appendStatus(configureResult, logger);
 				} catch (Exception e) {
 					logger.error("Internal error cannot get data from detector.", e);

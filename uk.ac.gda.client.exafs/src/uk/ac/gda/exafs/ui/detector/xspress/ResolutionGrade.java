@@ -19,20 +19,22 @@
 package uk.ac.gda.exafs.ui.detector.xspress;
 
 import gda.device.detector.xspress.ResGrades;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
 
 public class ResolutionGrade{
 	private static final Map<String, Object> RES_ALL;
 	private static final Map<String, Object> RES_NO_16;
-	private ComboAndNumberWrapper resGrade;
+	private ComboAndNumberWrapper resolutionGradeCombo;
 	static {
 		RES_ALL = new HashMap<String, Object>(3);
 		RES_ALL.put("Sum all grades", ResGrades.NONE);
@@ -44,35 +46,35 @@ public class ResolutionGrade{
 	}
 	
 	public ResolutionGrade(Composite parent) {
-		createResGrade(parent);
+		createResolutionGrade(parent);
 	}
 
-	private void createResGrade(Composite composite){
+	private void createResolutionGrade(Composite composite){
 		Label resGradeLabel = new Label(composite, SWT.NONE);
 		resGradeLabel.setText("Resolution Grade");
 		resGradeLabel.setToolTipText("The resolution setting during calibration and XAS scans");
 		resGradeLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
-		resGrade = new ComboAndNumberWrapper(composite, SWT.READ_ONLY, Arrays.asList(new String[] { ResGrades.THRESHOLD }));
-		resGrade.setItems(RES_ALL);
-		resGrade.getValueField().setMaximum(15.99);
-		resGrade.getValueField().setMinimum(0.0);
-		resGrade.getValueField().setDecimalPlaces(1);
-		resGrade.getValueField().setNumericValue(1d);
-		resGrade.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		resolutionGradeCombo = new ComboAndNumberWrapper(composite, SWT.READ_ONLY, Arrays.asList(new String[] { ResGrades.THRESHOLD }));
+		resolutionGradeCombo.setItems(RES_ALL);
+		resolutionGradeCombo.getValueField().setMaximum(15.99);
+		resolutionGradeCombo.getValueField().setMinimum(0.0);
+		resolutionGradeCombo.getValueField().setDecimalPlaces(1);
+		resolutionGradeCombo.getValueField().setNumericValue(1d);
+		resolutionGradeCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 	}
 	
 	protected void updateResModeItems(boolean readoutRois) {
-		Object val = resGrade.getValue();
+		Object val = resolutionGradeCombo.getValue();
 		if (readoutRois)
-			resGrade.setItems(RES_ALL);
+			resolutionGradeCombo.setItems(RES_ALL);
 		else
-			resGrade.setItems(RES_NO_16);
-		resGrade.setValue(val);
+			resolutionGradeCombo.setItems(RES_NO_16);
+		resolutionGradeCombo.setValue(val);
 	}
 
-	public ComboAndNumberWrapper getResGrade() {
-		return resGrade;
+	public ComboAndNumberWrapper getResolutionGradeCombo() {
+		return resolutionGradeCombo;
 	}
 
 }
