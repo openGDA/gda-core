@@ -34,6 +34,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.composites.MotorPositionEditorControl;
 import uk.ac.gda.ui.components.NumberEditorControl;
 
 
@@ -68,6 +69,14 @@ public class MvcExampleView extends ViewPart {
 		cmpRoot.setLayout(layout);
 		Button btn1 = toolkit.createButton(cmpRoot, "Press Me", SWT.CHECK);
 		Button btn2 = toolkit.createButton(cmpRoot, "Press Me", SWT.CHECK);
+		IObservableValue btn1ObservableValue = SWTObservables.observeSelection(btn1);
+		IObservableValue btn2ObservableValue = SWTObservables.observeSelection(btn2);
+		IObservableValue btnSelectedObserveValue1 = BeanProperties.value(MvcExampleModel.SELECTED_PROPERTY_NAME).observe(model);
+
+		bindingContext = new DataBindingContext();
+		bindingContext.bindValue(btn1ObservableValue, btnSelectedObserveValue1);
+		bindingContext.bindValue(btn2ObservableValue, btnSelectedObserveValue1);
+		btnSelectedObserveValue1.setValue(true);		
 		
 		try {
 			NumberEditorControl comp1 = new NumberEditorControl(cmpRoot, SWT.NONE, model, MvcExampleModel.POSITION_PROPERTY_NAME, false);
@@ -82,14 +91,19 @@ public class MvcExampleView extends ViewPart {
 			logger.error("Error creating UI", e);
 		}
 
-		IObservableValue btn1ObservableValue = SWTObservables.observeSelection(btn1);
-		IObservableValue btn2ObservableValue = SWTObservables.observeSelection(btn2);
-		IObservableValue btnSelectedObserveValue1 = BeanProperties.value(MvcExampleModel.SELECTED_PROPERTY_NAME).observe(model);
+		try {
+			MotorPositionEditorControl comp1 = new MotorPositionEditorControl(cmpRoot, SWT.NONE, model.getScannableWrapper(), false);
+			comp1.setRange(0, 100);
+			GridDataFactory.fillDefaults().applyTo(comp1);
+			toolkit.adapt(comp1);
+			NumberEditorControl comp2 = new MotorPositionEditorControl(cmpRoot, SWT.NONE, model.getScannableWrapper(), false);
+			comp1.setRange(0, 100);
+			GridDataFactory.fillDefaults().applyTo(comp2);
+			toolkit.adapt(comp2);
+		} catch (Exception e) {
+			logger.error("Error creating UI", e);
+		}
 
-		bindingContext = new DataBindingContext();
-		bindingContext.bindValue(btn1ObservableValue, btnSelectedObserveValue1);
-		bindingContext.bindValue(btn2ObservableValue, btnSelectedObserveValue1);
-		btnSelectedObserveValue1.setValue(true);		
 		
 		createActions();
 		initializeToolBar();

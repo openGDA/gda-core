@@ -1,5 +1,10 @@
 package uk.ac.gda.example.test.mvcexample.MvcExampleView;
 
+import gda.device.DeviceException;
+import gda.device.ScannableMotionUnits;
+import gda.device.motor.DummyMotor;
+import gda.device.scannable.ScannableMotor;
+import gda.factory.FactoryException;
 import gda.rcp.util.OSGIServiceRegister;
 
 import java.beans.PropertyChangeListener;
@@ -15,6 +20,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.ac.gda.client.observablemodels.ScannableWrapper;
 import uk.ac.gda.example.mvcexample.MvcExampleModel;
 import uk.ac.gda.example.mvcexample.MvcExampleView;
 
@@ -107,7 +113,11 @@ public class MvcExampleViewPluginUnitTest {
 		}
 
 		boolean selected;
+		ScannableMotionUnits scannable;
 
+		ScannableWrapper wrapper;
+		
+		
 		@Override
 		public boolean isSelected() {
 			return selected;
@@ -127,6 +137,21 @@ public class MvcExampleViewPluginUnitTest {
 		@Override
 		public void setPosition(double position) {
 			this.pcs.firePropertyChange(MvcExampleModel.POSITION_PROPERTY_NAME, this.position, this.position=position);
+		}
+
+		@Override
+		public ScannableWrapper getScannableWrapper() throws Exception{
+			if( wrapper == null){
+				DummyMotor dummyMotor = new DummyMotor();
+				dummyMotor.setName("dummy_motor");
+				dummyMotor.configure();
+				ScannableMotor scannable =  new ScannableMotor();
+				scannable.setMotor(dummyMotor);
+				scannable.setName("motor1");
+				scannable.configure();
+				wrapper = new ScannableWrapper(scannable);
+			}
+			return wrapper;
 		}
 
 	};

@@ -18,7 +18,11 @@
 
 package uk.ac.gda.example.mvcexample;
 
+import gda.device.DeviceException;
+
 import java.beans.PropertyChangeListener;
+
+import uk.ac.gda.client.observablemodels.ScannableWrapper;
 
 public interface MvcExampleModel{
 	boolean isSelected();
@@ -32,6 +36,7 @@ public interface MvcExampleModel{
 	public void removePropertyChangeListener(PropertyChangeListener listener);
 	public static final String SELECTED_PROPERTY_NAME="selected";
 	public static final String POSITION_PROPERTY_NAME="position";
+	ScannableWrapper getScannableWrapper() throws DeviceException, Exception;
 	
 	
 }

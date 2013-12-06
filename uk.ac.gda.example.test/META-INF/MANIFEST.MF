@@ -11,6 +11,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.example;bundle-version="8.36.0",
  uk.ac.gda.common.rcp;bundle-version="1.2.0",
  uk.ac.gda.client;bundle-version="8.36.0",
- org.eclipse.core.databinding.observable;bundle-version="1.4.1"
+ org.eclipse.core.databinding.observable;bundle-version="1.4.1",
+ uk.ac.gda.core;bundle-version="8.36.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
