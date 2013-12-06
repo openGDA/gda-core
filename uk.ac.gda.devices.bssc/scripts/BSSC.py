@@ -23,6 +23,7 @@ class BSSCRun:
         self.stepsperbuffer = 3
         self.ispyb = BioSAXSDBFactory.makeAPI()
         self.visit = self.ispyb.getSessionForVisit(GDAMetadataProvider.getInstance().getMetadataValue("visit"))
+        self.experiment = self.ispyb.createExperiment(self.proposal, "BSSC", "TEMPLATE", "BSSC")
         self.energy = float(gda.factory.Finder.getInstance().find("dcm_energy").getPosition())
         self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample + (self.bean.getMeasurements().size() + 1) * self.stepsperbuffer
         lastTitration=None

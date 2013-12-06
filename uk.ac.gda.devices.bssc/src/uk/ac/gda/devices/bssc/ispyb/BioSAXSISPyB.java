@@ -123,4 +123,15 @@ public interface BioSAXSISPyB {
 	 * @throws SQLException
 	 */
 	public List<Long> getSaxsDataCollectionsForSession(long blsessionId) throws SQLException;
+	
+	/**
+	 * @param proposalId
+	 * @param name
+	 * @param experimentType - TEMPLATE, HPLC, STATIC
+	 * @param comments
+	 * @return experimentId
+	 * @throws SQLException
+	 */
+	public long createExperiment(long proposalId, String name, String experimentType, String comments) throws SQLException;
+
 }
