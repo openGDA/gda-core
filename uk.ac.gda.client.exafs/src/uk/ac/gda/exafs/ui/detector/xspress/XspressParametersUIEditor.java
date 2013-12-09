@@ -707,7 +707,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				long snapShotNumber = new NumTracker("Xspress_snapshot").incrementNumber();
 				String fileName = "xspress_snap_" + snapShotNumber + ".mca";
 				final File filePath = new File(spoolDirPath + "/" + fileName);
-				save(detectorData, filePath.getAbsolutePath());
+				plotData.save(detectorData, filePath.getAbsolutePath());
 				sashPlotFormComposite.appendStatus("Xspress snapshot saved to " + filePath, logger);
 				getSite().getShell().getDisplay().syncExec(new Runnable() {
 					@Override

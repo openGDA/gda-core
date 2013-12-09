@@ -417,7 +417,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 				String fileName = "vortex_snap_" + snapShotNumber+ ".mca";
 				File filePath = new File(spoolDirPath + "/" + fileName);
 				spoolFilePath = filePath.getAbsolutePath();
-				save(detectorData, spoolFilePath);
+				plotData.save(detectorData, spoolFilePath);
 				msg = "Saved: " + spoolFilePath;
 				logger.info("Vortex snapshot saved to " + spoolFilePath);
 			} finally {

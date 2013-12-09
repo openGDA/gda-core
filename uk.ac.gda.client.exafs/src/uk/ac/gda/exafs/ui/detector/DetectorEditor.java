@@ -132,7 +132,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	private Action uploadAction;
 	private volatile Boolean updatingAfterROIDrag = null;
 	private String plotTitle = "Saved Data";
-	private Data data;
+	protected Data plotData;
 	
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean, final String serverCommand) {
@@ -199,8 +199,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		data = new Data();
-		this.dataWrapper = data.readStoredData(getDataXMLName());
+		plotData = new Data();
+		this.dataWrapper = plotData.readStoredData(getDataXMLName());
 		try {
 			this.sashPlotFormComposite = createSashPlot(parent);
 			sashPlotFormComposite.getPlottingSystem().setRescale(false);
@@ -211,7 +211,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		data.writeStoredData(getDataXMLName(), (ElementCountsData[]) dataWrapper.getValue());
+		plotData.writeStoredData(getDataXMLName(), (ElementCountsData[]) dataWrapper.getValue());
 		super.doSave(monitor);
 	}
 
@@ -865,29 +865,10 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		uploadAction.setEnabled(isEnabled);
 	}
 
-	public void save(double[][][] data, String filePath) {
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
-			StringBuffer toWrite = new StringBuffer();
-			for (int i = 0; i < data.length; i++) 
-				for (int j = 0; j < data[0].length; j++) {
-					for (int k = 0; k < data[0][0].length; k++)
-						toWrite.append(data[i][j][k] + "\t");
-					writer.write(toWrite.toString() + "\n");
-					toWrite = new StringBuffer();
-				}
-			writer.close();
-		} catch (IOException e) {
-			logger.warn("Exception writing acquire data to xml file", e);
-		}
-	}
-
 	public DetectorElementComposite getDetectorElementComposite() {
 		if (detectorListComposite == null)
 			return null;
 		return detectorListComposite.getDetectorElementComposite();
 	}
-
-	
 
 }

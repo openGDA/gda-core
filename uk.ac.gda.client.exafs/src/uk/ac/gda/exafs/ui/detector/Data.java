@@ -26,7 +26,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,7 @@ public class Data {
 		// TODO Auto-generated constructor stub
 	}
 	
-	protected DataWrapper readStoredData(String dataXMLName) {
+	public DataWrapper readStoredData(String dataXMLName) {
 		DataWrapper newwrapper = new DataWrapper();
 		try {
 			File dataFile = new File(dataXMLName);
@@ -69,7 +68,7 @@ public class Data {
 		return newwrapper;
 	}
 
-	protected void writeStoredData(String dataXMLName, ElementCountsData[] elementCountsData) {
+	public void writeStoredData(String dataXMLName, ElementCountsData[] elementCountsData) {
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(dataXMLName));
 			for (int i = 0; i < elementCountsData.length; i++) {
@@ -79,6 +78,23 @@ public class Data {
 			out.close();
 		} catch (IOException e) {
 			logger.error("IOException whilst writing stored detector editor data from file " + dataXMLName);
+		}
+	}
+	
+	public void save(double[][][] data, String filePath) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+			StringBuffer toWrite = new StringBuffer();
+			for (int i = 0; i < data.length; i++) 
+				for (int j = 0; j < data[0].length; j++) {
+					for (int k = 0; k < data[0][0].length; k++)
+						toWrite.append(data[i][j][k] + "\t");
+					writer.write(toWrite.toString() + "\n");
+					toWrite = new StringBuffer();
+				}
+			writer.close();
+		} catch (IOException e) {
+			logger.warn("Exception writing acquire data to xml file", e);
 		}
 	}
 
