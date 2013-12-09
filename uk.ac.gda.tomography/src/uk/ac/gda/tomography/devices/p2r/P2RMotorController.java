@@ -19,17 +19,23 @@
 package uk.ac.gda.tomography.devices.p2r;
 
 import gda.device.DeviceException;
-import gda.device.motor.simplemotor.SimpleIndexedMotorController;
+import gda.device.motor.simplemotor.SimpleMotorController;
 import gda.io.BidiAsciiCommunicator;
 
 import org.springframework.beans.factory.InitializingBean;
 
-public class P2RMotorController implements SimpleIndexedMotorController, InitializingBean{
+public class P2RMotorController implements SimpleMotorController, InitializingBean {
 
 	BidiAsciiCommunicator bidiAsciiCommunicator;
-	
+	private String prefix;
+	boolean busy = false;
+	double m[] = new double[] { 0., 0., 0., 0. ,0.};
+	private int position_index = -1;
+	private int speed_index = -1;
+
 	@Override
-	public void stop() {
+	public void stop() throws DeviceException {
+		sendAndCheckReply(String.format("AB"));
 	}
 
 	@Override
@@ -39,72 +45,68 @@ public class P2RMotorController implements SimpleIndexedMotorController, Initial
 	}
 
 	@Override
-	public void moveTo(double position, int index) throws DeviceException {
-		if( index != 0 && index != 1)
-			throw new DeviceException("Index must be 0 or 1");
-		updateStatus(); //to get current position for other motor
-		String msg = String.format("M%f, %f,",index==0? position: m[0], index==1? position: m[1] );
-		String reply = bidiAsciiCommunicator.send(msg);
-		if( !reply.equals(msg)){
-			throw new DeviceException("Error sending moveTo command '" + msg + "' reply = '" + reply + "'");
-		}
+	public void moveTo(double position) throws DeviceException {
+		sendAndCheckReply(String.format("M%s%f", prefix, position));
+		sendAndCheckReply(String.format("MS"));
 		busy = true;
-		 
-/*		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
-			throw new DeviceException("Sleep interrupted",e);
-		}
-*/		
+
 	}
 
-	@Override
-	public double getPosition(int index) throws DeviceException {
-		if( index < 0 || index > 2)
-			throw new DeviceException("Index must be between 0 and  2 inclusive");
-		updateStatus();
-		return m[index];
+	private void sendAndCheckReply(String msg) throws DeviceException {
+		String reply = bidiAsciiCommunicator.send(msg);
+		if (!reply.equals(msg)) {
+			throw new DeviceException("Error sending moveTo command '" + msg + "' reply = '" + reply + "'");
+		}
 	}
-	
+
 	void updateStatus() throws DeviceException {
-		String reply = bidiAsciiCommunicator.send("S");
+		String reply = bidiAsciiCommunicator.send("ST");
 		boolean busy;
-		Double m1, m2, m3;
-		if(reply.startsWith("T")){
+		Double m1, m2, m3, m4,m5;
+		if (reply.startsWith("T")) {
 			busy = true;
-		} else if (reply.startsWith("F")){
+		} else if (reply.startsWith("F")) {
 			busy = false;
 		} else {
 			throw new DeviceException("Error returned from reading status. Reply = '" + reply + "'");
 		}
 		String substring = reply.substring(1, reply.length());
 		String[] split = substring.split(",");
-		if( split.length==3){
+		if (split.length == 5) {
 			m1 = Double.valueOf(split[0]);
 			m2 = Double.valueOf(split[1]);
 			m3 = Double.valueOf(split[2]);
+			m4 = Double.valueOf(split[3]);
+			m5 = Double.valueOf(split[4]);
 		} else {
-			throw new DeviceException("Error returned from reading status. Reply = '" + reply+"'");
+			throw new DeviceException("Error returned from reading status. Reply = '" + reply + "'");
 		}
-		setStatus(busy, m1, m2, m3);
+		setStatus(busy, m1, m2, m3, m4,m5);
 	}
 
-	boolean busy=false;
-	double m[]=new double[]{0., 0., 0.};
-	
-	private void setStatus(boolean busy, Double m1, Double m2, Double m3) {
+	private void setStatus(boolean busy, Double m1, Double m2, Double m3, Double m4, Double m5) {
 		this.busy = busy;
 		this.m[0] = m1;
 		this.m[1] = m2;
 		this.m[2] = m3;
+		this.m[3] = m4;
+		this.m[4] = m5;
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if(bidiAsciiCommunicator == null){
+		if (bidiAsciiCommunicator == null) {
 			throw new Exception("conn = null");
 		}
-		
+		if (prefix == null) {
+			throw new Exception("prefix = null");
+		}
+		if (position_index < 0 || position_index > 4) {
+			throw new Exception("position_index <0 || position_index > 4");
+		}
+		if (speed_index < 0 || speed_index > 4) {
+			throw new Exception("speed_index <0 || speed_index > 4");
+		}
 	}
 
 	public BidiAsciiCommunicator getBidiAsciiCommunicator() {
@@ -116,16 +118,45 @@ public class P2RMotorController implements SimpleIndexedMotorController, Initial
 	}
 
 	@Override
-	public void setSpeed(double speed, int index) throws DeviceException {
-		// do nothing - not supported
+	public double getMotorPosition() throws DeviceException {
+		updateStatus();
+		return m[position_index];
 	}
 
 	@Override
-	public double getSpeed(int index) throws DeviceException {
-		// do nothing - not supported
-		return 0;
+	public void setSpeed(double speed) throws DeviceException {
+		sendAndCheckReply(String.format("S%s%f", prefix, speed));
+		sendAndCheckReply(String.format("SS"));
 	}
 
+	@Override
+	public double getSpeed() throws DeviceException {
+		updateStatus();
+		return m[speed_index];
+	}
 
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
+	public int getPosition_index() {
+		return position_index;
+	}
+
+	public void setPosition_index(int position_index) {
+		this.position_index = position_index;
+	}
+
+	public int getSpeed_index() {
+		return speed_index;
+	}
+
+	public void setSpeed_index(int speed_index) {
+		this.speed_index = speed_index;
+	}
 
 }

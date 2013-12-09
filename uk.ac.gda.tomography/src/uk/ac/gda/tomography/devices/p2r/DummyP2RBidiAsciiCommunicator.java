@@ -23,22 +23,25 @@ import gda.io.BidiAsciiCommunicator;
 
 public class DummyP2RBidiAsciiCommunicator implements BidiAsciiCommunicator {
 
-	private double m1=0.;
-	private double m2=0.;
+
+	private double md=0.;
+	private double mr=0.;
+	private double mf=0.;
+	private double sd=1.;
+	private double sr=1;
 
 	@Override
 	public String send(String string) {
-		if(string.startsWith("M")){
-			String substring = string.substring(1, string.length());
-			String[] split = substring.split(",");
-			if( split.length==2){
-				m1 = Double.valueOf(split[0]);
-				m2 = Double.valueOf(split[1]);	
-				return string;
-			}
+		if(string.startsWith("MD")){
+			String substring = string.substring(2, string.length());
+			md = Double.valueOf(substring);
+			return string;
 		}
-		if(string.startsWith("S")){
-			return String.format("F%f,%f,", m1,m2);
+		if(string.startsWith("ST")){
+			return String.format("F%f,%f,%f,%f,%f", md,mr,mf,sd,sr);
+		}
+		if(string.equals("MS")){
+			return string;
 		}
 		return "ERROR";
 
