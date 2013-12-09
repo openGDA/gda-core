@@ -26,10 +26,7 @@ import gda.jython.scriptcontroller.ScriptExecutor;
 import gda.jython.scriptcontroller.corba.impl.ScriptcontrollerAdapter;
 import gda.observable.IObserver;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
@@ -45,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
@@ -136,6 +132,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	private Action uploadAction;
 	private volatile Boolean updatingAfterROIDrag = null;
 	private String plotTitle = "Saved Data";
+	private Data data;
 	
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean, final String serverCommand) {
@@ -202,7 +199,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		this.dataWrapper = readStoredData();
+		data = new Data();
+		this.dataWrapper = data.readStoredData(getDataXMLName());
 		try {
 			this.sashPlotFormComposite = createSashPlot(parent);
 			sashPlotFormComposite.getPlottingSystem().setRescale(false);
@@ -213,7 +211,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		writeStoredData(monitor);
+		data.writeStoredData(getDataXMLName(), (ElementCountsData[]) dataWrapper.getValue());
 		super.doSave(monitor);
 	}
 
@@ -258,7 +256,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	@Override
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
-
 		if (this.getDataWrapper().getValue() != null) {
 			this.detectorData = getData(ElementCountsData.getDataFrom(getDataWrapper().getValue()));
 			if (detectorData != null)
@@ -891,47 +888,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		return detectorListComposite.getDetectorElementComposite();
 	}
 
-	protected DataWrapper readStoredData() {
-		DataWrapper newwrapper = new DataWrapper();
-		try {
-			File dataFile = new File(getDataXMLName());
-			if (!dataFile.exists())
-				return newwrapper;
-			BufferedReader in = new BufferedReader(new FileReader(dataFile));
-			ElementCountsData[] elements = new ElementCountsData[0];
-			String strLine;
-			while ((strLine = in.readLine()) != null) {
-				// Print the content on the console
-				ElementCountsData newData = new ElementCountsData();
-				newData.setDataString(strLine);
-				elements = (ElementCountsData[]) ArrayUtils.add(elements, newData);
-			}
-			// Close the input stream
-			in.close();
-			if (elements.length == 0)
-				return newwrapper;
-			newwrapper.setValue(elements);
-
-		} catch (IOException e) {
-			logger.error("IOException whilst reading stored detector editor data from file " + getDataXMLName());
-			return newwrapper;
-		}
-		return newwrapper;
-	}
-
-	protected void writeStoredData(@SuppressWarnings("unused") IProgressMonitor monitor) {
-		try {
-			String dataXMLName = getDataXMLName();
-			BufferedWriter out = new BufferedWriter(new FileWriter(dataXMLName));
-			ElementCountsData[] elements = (ElementCountsData[]) dataWrapper.getValue();
-			for (int i = 0; i < elements.length; i++) {
-				out.write(elements[i].getDataString());
-				out.write("\n");
-			}
-			out.close();
-		} catch (IOException e) {
-			logger.error("IOException whilst writing stored detector editor data from file " + getDataXMLName());
-		}
-	}
+	
 
 }
