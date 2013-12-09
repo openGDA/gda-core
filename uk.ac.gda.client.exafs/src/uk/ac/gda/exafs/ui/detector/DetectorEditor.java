@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import gda.device.Detector;
-import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.gui.JythonGuiConstants;
 import gda.jython.scriptcontroller.ScriptExecutor;
@@ -37,7 +35,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
@@ -59,6 +56,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.progress.IProgressService;
@@ -97,7 +95,6 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
-
 import com.swtdesigner.SWTResourceManager;
 
 public abstract class DetectorEditor extends RichBeanEditorPart {
@@ -108,7 +105,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected DataWrapper dataWrapper;
 	protected String serverCommand;
 	private ExpansionAdapter expansionListener;
-	private ReentrantLock lock = new ReentrantLock();
 	private DetectorListComposite detectorListComposite;
 	private Composite importComposite;
 	private int lastSelectedElementIndex;
@@ -119,8 +115,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected Data plotData;
 	private ValueListener autoApplyToAllListener;
 	protected Counts counts;
-	private volatile boolean continuousAquire = false;
-	private Thread continuousThread;
 	
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean, final String serverCommand) {
@@ -128,93 +122,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		this.serverCommand = serverCommand;
 		this.bean = editingBean;
 	}
-
-	protected void continuousAcquire() {
-		continuousAquire = !continuousAquire;
-		if (continuousAquire && lock != null && lock.isLocked()) {
-			final String msg = "There is currently an acquire running. You cannot run another one.";
-			logger.info(msg);
-			sashPlotFormComposite.appendStatus(msg, logger);
-			return;
-		}
-		final long aquireTime = getAcquireWaitTime();
-		final double collectiontime = getDetectorCollectionTime();
-		try {
-			if(continuousAquire) {
-				acquireStarted();
-				continuousThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							lock.lock();
-							while (continuousAquire) {
-								if (!lock.isLocked())
-									break;
-								if (isDisposed())
-									break;
-								acquire(null, collectiontime);
-								if (!lock.isLocked())
-									break;
-								if (isDisposed())
-									break;
-								Thread.sleep(aquireTime);
-							}
-						} catch (InterruptedException e) {
-							// Expected
-						} catch (Throwable e) {
-							logger.error("Continuous acquire problem with detector.", e);
-						} finally {
-							lock.unlock();
-						}
-					}
-				}, "Detector Live Runner");
-				continuousThread.start();
-			} 
-			else {
-				// Run later otherwise button looks unresponsive.
-				// Even though this is the display thread already.
-				getSite().getShell().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							lock.lock();
-							acquireFinished();
-							Detector detector = (Detector) Finder.getInstance().find(getDetectorName());
-							logger.debug("Stopping detector");
-							detector.stop();
-						} catch (Exception e) {
-							logger.error("Continuous problem configuring detector -  cannot stop detector.", e);
-						} finally {
-							lock.unlock();
-						}
-					}
-				});
-			}
-		} catch (Exception e) {
-			logger.error("Internal errror process continuous data from detector.", e);
-			acquireFinished();
-		}
-	}
-	
-	protected void singleAcquire() throws Exception {
-		final double time = getDetectorCollectionTime();
-		IProgressService service = (IProgressService) getSite().getService(IProgressService.class);
-		service.run(true, true, new IRunnableWithProgress() {
-			@Override
-			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				try {
-					acquire(monitor, time);
-				} catch (Exception e) {
-					logger.error("Error performing single acquire", e);
-				}
-			}
-		});
-	}
-	
-	protected void acquire(IProgressMonitor monitor, double collectionTimeValue) throws Exception {
-		
-	}
-	
 	
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class clazz) {

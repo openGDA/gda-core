@@ -90,6 +90,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	private boolean autoSaveEnabled;
 	private Label lblDeadTime;
 	private VortexData vortexData;
+	private VortexAcquire vortexAcquire;
 	
 	public VortexParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean, "vortexConfig");
@@ -110,6 +111,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		vortexData = new VortexData();
+		vortexAcquire = new VortexAcquire();
 		Composite left = sashPlotFormComposite.getLeft();
 		createAcquireSpectraPanel(parent, left);
 		createROIPanel(left);
@@ -251,9 +253,9 @@ public class VortexParametersUIEditor extends DetectorEditor {
 					if (!writeToDisk || !autoSaveEnabled)
 						acquireFileLabel.setText("										");
 					if (!live.getSelection())
-						singleAcquire();
+						vortexAcquire.singleAcquire(acquireTime.getNumericValue(), getSite());
 					else
-						continuousAcquire();
+						vortexAcquire.continuousAcquire(getSite().getShell().getDisplay(), isDisposed(), sashPlotFormComposite, getAcquireWaitTime(), getDetectorCollectionTime(), getDetectorName());
 				} catch (Exception e1) {
 					logger.error("Cannot acquire xmap data", e1);
 				}
