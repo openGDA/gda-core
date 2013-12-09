@@ -28,20 +28,13 @@ import gda.factory.Finder;
 import gda.jython.accesscontrol.AccessDeniedException;
 
 import java.awt.Color;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -135,6 +128,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private String uiResGrade = null;
 	private String uiReadoutMode = null;
 	private ResolutionGrade resolutionGrade;
+	private XspressData xspressData;
 	
 	/**
 	 * @param path
@@ -161,6 +155,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	public void createPartControl(Composite composite) {
 		parentComposite = composite;
 		super.createPartControl(parentComposite);
+		
+		xspressData = new XspressData();
 		
 		Composite left = sashPlotFormComposite.getLeft();
 		
@@ -254,9 +250,19 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		loadBtn.setText("Load Saved mca");
 		loadBtn.addListener(SWT.Selection, new Listener() {
 			@Override
-			public void handleEvent(Event event) {
+			public void handleEvent(Event event) {			
 				try {
-					LoadAcquireFromFile();
+					final String filePath = openDialog.open();
+					xspressData.load(openDialog, xspressParameters, filePath);
+					getSite().getShell().getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							acquireFileLabel.setText("Loaded: " + filePath);
+							getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
+							plot(getDetectorList().getSelectedIndex(),false);
+							setEnabled(true);
+						}
+					});
 				} catch (Exception e1) {
 					logger.error("Cannot acquire xspress data", e1);
 				}
@@ -416,7 +422,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 
 	private void addOutputPreferences(Composite comp) {
-		// Xspress not an option for I20 XESscans
 		if (!ScanObjectManager.isXESOnlyMode()) {
 			Group xspressParametersGroup = new Group(comp, SWT.NONE);
 			xspressParametersGroup.setText("Output Preferences");
@@ -443,7 +448,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private void addXspressOptionsListener(BooleanWrapper booleanwrapper) {
 		if (xspressOptionsListener == null)
 			createXspressOptionsListener();
-		// BooleanWrappers have Buttons as their control
 		((Button) booleanwrapper.getControl()).addSelectionListener(xspressOptionsListener);
 	}
 
@@ -468,7 +472,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			}
 
 			protected void showWarning() {
-				// popup warning that these parameters will have no effect
 				getSite().getShell().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -578,7 +581,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			GridUtils.layoutFull(getDetectorElementComposite().getExcluded().getParent());
 			getDetectorList().setListVisible(currentEditIndividual);
 			autoApplyToAll(!currentEditIndividual);
-			calculateAndPlotCountTotals(currentEditIndividual);
+			counts.calculateAndPlotCountTotals(currentEditIndividual, true, detectorData, getDetectorElementComposite(),  getCurrentSelectedElementIndex());
 		} finally {
 			GridUtils.endMultiLayout();
 		}
@@ -665,7 +668,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	protected void acquire(IProgressMonitor monitor, double collectionTime) {
 		if (monitor != null)
 			monitor.beginTask("Acquire xspress data", 100);
-		// Get detector
 		XspressDetector xsDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
 		String resGrade_orig;
 		String readoutMode_orig;
@@ -688,22 +690,21 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		try {
 			xsDetector.setAttribute("readoutModeForCalibration", new String[] { uiReadoutMode, uiResGrade });
 			// Get MCA Data
-			final int[][][] data = xsDetector.getMCData((int) collectionTime);
+			int[][][] data = xsDetector.getMCData((int) collectionTime);
 			// Int array above is [element][grade (1, 2 or all 16)][mca channel]
 			getDataWrapper().setValue(ElementCountsData.getDataFor(data));
-			this.dirtyContainer.setDirty(true);
+			dirtyContainer.setDirty(true);
 			detectorData = getData(data);
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					calculateAndPlotCountTotals(showIndividualElements.getValue());
+					counts.calculateAndPlotCountTotals(showIndividualElements.getValue(), true, detectorData, getDetectorElementComposite(),  getCurrentSelectedElementIndex());
 				}
 			});
 			if (writeToDisk) {
 				String spoolDirPath = PathConstructor.createFromProperty(GDA_DEVICE_XSPRESS_SPOOL_DIR);
 				if (spoolDirPath == null || spoolDirPath.length() == 0)
-					throw new Exception("Error saving data. Xspress device spool dir is not defined in property "
-						+ GDA_DEVICE_XSPRESS_SPOOL_DIR);
+					throw new Exception("Error saving data. Xspress device spool dir is not defined in property " + GDA_DEVICE_XSPRESS_SPOOL_DIR);
 				long snapShotNumber = new NumTracker("Xspress_snapshot").incrementNumber();
 				String fileName = "xspress_snap_" + snapShotNumber + ".mca";
 				final File filePath = new File(spoolDirPath + "/" + fileName);
@@ -719,7 +720,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			if (monitor != null)
 				monitor.done();
 			sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
-		} catch (IllegalArgumentException e) {
+		}
+		catch (IllegalArgumentException e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -729,7 +731,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			});
 			logger.error("Cannot read out detector data.", e);
 			return;
-		} catch (AccessDeniedException e) {
+		}
+		catch (AccessDeniedException e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -738,7 +741,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			});
 			sashPlotFormComposite.appendStatus("Cannot read out detector data. Check the log and inform beamline staff.", logger);
 			return;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -747,7 +751,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			});
 			sashPlotFormComposite.appendStatus("Cannot read out detector data. Check the log and inform beamline staff.", logger);
 			return;
-		} finally {
+		}
+		finally {
 			try {
 				xsDetector.setResGrade(resGrade_orig);
 				xsDetector.setReadoutMode(readoutMode_orig);
@@ -797,11 +802,9 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	protected List<AbstractDataset> unpackDataSets(int ielement) {
 		if (ielement < 0 || detectorData == null || !isAdditiveResolutionGradeMode || !resolutionGradeCombo.getValue().equals(ResGrades.ALLGRADES))
 			return super.unpackDataSets(ielement);
-		// We are ResGrades.ALLGRADES and isAdditiveResolutionGradeMode, so we add them.
 		final List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
 		final double[][] elementData = detectorData[ielement];
 		for (int resGrade = 0; resGrade < elementData.length; resGrade++) {
-			// must pass by value as we are going to do some maths on it!!!
 			AbstractDataset d = new DoubleDataset(Arrays.copyOf(elementData[resGrade],elementData[resGrade].length));
 			if (!ret.isEmpty()) {
 				AbstractDataset p = ret.get(resGrade - 1);
@@ -810,69 +813,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			ret.add(d);
 		}
 		return ret;
-	}
-	
-	@Override
-	protected void LoadAcquireFromFile() {
-		String dataDir = PathConstructor.createFromDefaultProperty();
-		dataDir += "processing";
-		if (openDialog.getFilterPath() == null)
-			openDialog.setFilterPath(dataDir);
-		final String filePath = openDialog.open();
-		if (filePath != null) {
-			final String msg = ("Loading map from " + filePath);
-			Job job = new Job(msg) {
-
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					BufferedReader reader = null;
-					try {
-						reader = new BufferedReader(new FileReader(filePath));
-						String line = reader.readLine();
-						ArrayList<double[]> data = new ArrayList<double[]>();
-						while (line != null) {
-							StringTokenizer tokens = new StringTokenizer(line);
-							double elementData[] = new double[tokens.countTokens()];
-							for (int i = 0; i < elementData.length; i++)
-								elementData[i] = Double.parseDouble(tokens.nextToken());
-							data.add(elementData);
-							line = reader.readLine();
-						}
-						// find the res grade
-
-						int numberOfElements = data.size() / xspressParameters.getDetectorList().size();
-						detectorData = new double[xspressParameters.getDetectorList().size()][numberOfElements][];
-						int dataIndex = 0;
-						// Int array above is [element][grade (1, 2 or all 16)][mca channel]
-						for (int i = 0; i < detectorData.length; i++)
-							for (int j = 0; j < numberOfElements; j++)
-								detectorData[i][j] = data.get(dataIndex++);
-						getSite().getShell().getDisplay().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								acquireFileLabel.setText("Loaded: " + filePath);
-								getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-								plot(getDetectorList().getSelectedIndex(),true);
-								setEnabled(true);
-							}
-						});
-					} catch (Exception e) {
-						logger.warn("Exception while reading data from xspress parameters xml file", e);
-					} finally {
-						if (reader != null) {
-							try {
-								reader.close();
-							} catch (IOException e) {
-								logger.warn("Exception while reading data from xspress parameters xml file", e);
-							}
-						}
-					}
-					return Status.OK_STATUS;
-				}
-			};
-			job.setUser(true);
-			job.schedule();
-		}
 	}
 
 	@Override
@@ -903,6 +843,11 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	
 	public ComboWrapper getRegionType() {
 		return regionType;
+	}
+	
+	public String _testGetRegionName(final int index) {
+		final List<XspressROI> rois = (List<XspressROI>) getDetectorElementComposite().getRegionList().getValue();
+		return rois.get(index).getRoiName();
 	}
 	
 }

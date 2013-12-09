@@ -27,19 +27,11 @@ import gda.device.XmapDetector;
 import gda.factory.Finder;
 import gda.jython.accesscontrol.AccessDeniedException;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -97,7 +89,8 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	private Button acquireBtn;
 	private boolean autoSaveEnabled;
 	private Label lblDeadTime;
-
+	private VortexData vortexData;
+	
 	public VortexParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean, "vortexConfig");
 		vortexParameters = (VortexParameters) editingBean;
@@ -116,6 +109,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
+		vortexData = new VortexData();
 		Composite left = sashPlotFormComposite.getLeft();
 		createAcquireSpectraPanel(parent, left);
 		createROIPanel(left);
@@ -185,9 +179,19 @@ public class VortexParametersUIEditor extends DetectorEditor {
 			@Override
 			public void handleEvent(Event event) {
 				try {
-					LoadAcquireFromFile();
+					final String filePath = openDialog.open();
+					vortexData.load(openDialog, vortexParameters, filePath);
+					getSite().getShell().getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							acquireFileLabel.setText("Loaded: " + filePath);
+							getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
+							plot(getDetectorList().getSelectedIndex(),false);
+							setEnabled(true);
+						}
+					});
 				} catch (Exception e1) {
-					logger.error("Cannot acquire xspress data", e1);
+					logger.error("Cannot acquire vortex data", e1);
 				}
 			}
 		});
@@ -502,67 +506,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	@Override
 	protected Logger getLogger() {
 		return logger;
-	}
-
-	@Override
-	protected void LoadAcquireFromFile() {
-		String dataDir = PathConstructor.createFromDefaultProperty();
-		dataDir += "processing";
-		openDialog.setFilterPath(dataDir);
-		final String filePath = openDialog.open();
-		if (filePath != null) {
-			final String msg = ("Loading map from " + filePath);
-			Job job = new Job(msg) {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					BufferedReader reader = null;
-					try {
-						reader = new BufferedReader(new FileReader(filePath));
-						String line = reader.readLine();
-						ArrayList<double[]> data = new ArrayList<double[]>();
-						while (line != null) {
-							StringTokenizer tokens = new StringTokenizer(line);
-							double elementData[] = new double[tokens.countTokens()];
-							for (int i = 0; i < elementData.length; i++)
-								elementData[i] = Double.parseDouble(tokens.nextToken());
-							data.add(elementData);
-							line = reader.readLine();
-						}
-						// find the res grade
-
-						int resGrade = data.size() / vortexParameters.getDetectorList().size();
-						detectorData = new double[vortexParameters.getDetectorList().size()][resGrade][];
-						int dataIndex = 0;
-						// Int array above is [element][grade (1, 2 or all 16)][mca channel]
-						for (int i = 0; i < detectorData.length; i++)
-							for (int j = 0; j < resGrade; j++)
-								detectorData[i][j] = data.get(dataIndex++);
-						getSite().getShell().getDisplay().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								acquireFileLabel.setText("Loaded: " + filePath);
-								getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-								plot(getDetectorList().getSelectedIndex(),false);
-								setEnabled(true);
-							}
-						});
-					} catch (Exception e) {
-						logger.warn("Exception whilst loading map", e);
-					} finally {
-						if (reader != null) {
-							try {
-								reader.close();
-							} catch (IOException e) {
-								// don't report
-							}
-						}
-					}
-					return Status.OK_STATUS;
-				}
-			};
-			job.setUser(true);
-			job.schedule();
-		}
 	}
 
 	public BooleanWrapper getSaveRawSpectrum() {

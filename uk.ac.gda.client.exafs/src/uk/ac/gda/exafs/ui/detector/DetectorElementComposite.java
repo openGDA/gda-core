@@ -47,8 +47,8 @@ public class DetectorElementComposite extends Composite {
 	private ScaleBox offset;
 	private LabelWrapper totalCounts;
 	private LabelWrapper elementTotalCounts;
-	private Double allElementTotalCountsValue;
-	private Double thisElementTotalCountsValue;
+	private int allElementTotalCountsValue;
+	private int thisElementTotalCountsValue;
 	private ScaleBox gain;
 	private LabelWrapper name;
 	private ScaleBox peakingTime;
@@ -331,40 +331,17 @@ public class DetectorElementComposite extends Composite {
 	}
 
 	private void updateTotalCountsDisplay() {
-		// if too early in lifecycle of composite
-		if (elementTotalCounts == null || totalCounts == null)
-			return;
-		if (isIndividualElements && thisElementTotalCountsValue != null)
-			elementTotalCounts.setValue("Element Total Counts " + NumberFormat.getInstance().format(thisElementTotalCountsValue));
-		else
-			elementTotalCounts.setValue("									");
-		if (allElementTotalCountsValue != null)
-			totalCounts.setValue("All Element Total Counts " + NumberFormat.getInstance().format(allElementTotalCountsValue));
-		else
-			totalCounts.setValue("");
-		GridUtils.layoutFull(mainComposite);
+		elementTotalCounts.setValue("Element Total Counts " + NumberFormat.getInstance().format(thisElementTotalCountsValue));
+		totalCounts.setValue("All Element Total Counts " + NumberFormat.getInstance().format(allElementTotalCountsValue));
 	}
 
-	public void setTotalElementCounts(final Double total) {
-		if (Double.isNaN(total))
-			return;
-		if (Double.isInfinite(total))
-			return;
-		if (totalCounts == null)
-			return;
-		if (isIndividualElements)
-			thisElementTotalCountsValue = total;
+	public void setTotalElementCounts(int total) {
+		thisElementTotalCountsValue = total;
 		updateTotalCountsDisplay();
 	}
 
-	public void setTotalCounts(final Double total) {
-		if (Double.isNaN(total))
-			return;
-		if (Double.isInfinite(total))
-			return;
-		if (totalCounts == null)
-			return;
-		allElementTotalCountsValue = total;
+	public void setTotalCounts(int totalCounts) {
+		allElementTotalCountsValue = totalCounts;
 		updateTotalCountsDisplay();
 	}
 
