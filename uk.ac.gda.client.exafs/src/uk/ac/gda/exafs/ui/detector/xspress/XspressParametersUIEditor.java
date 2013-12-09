@@ -48,6 +48,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -260,7 +261,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 							acquireFileLabel.setText("Loaded: " + filePath);
 							getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
 							plot(getDetectorList().getSelectedIndex(),false);
-							setEnabled(true);
+							setWindowsEnabled(true);
 						}
 					});
 				} catch (Exception e1) {
@@ -657,15 +658,14 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void notifyFileSaved(File file) {
-		final FluorescenceComposite comp = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class);
+		FluorescenceComposite comp = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class);
 		if (comp == null || comp.isDisposed())
 			return;
 		comp.getDetectorType().setValue("Germanium");
 		comp.getConfigFileName().setValue(file.getAbsolutePath());
 	}
 
-	@Override
-	protected void acquire(IProgressMonitor monitor, double collectionTime) {
+	protected void acquire(IProgressMonitor monitor, double collectionTimeValue) throws Exception {
 		if (monitor != null)
 			monitor.beginTask("Acquire xspress data", 100);
 		XspressDetector xsDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
@@ -687,10 +687,11 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			}
 		});
 		sashPlotFormComposite.appendStatus("Collecting a single frame of MCA data with resolution grade set to '" + uiResGrade + "'.", logger);
+		Display display = getSite().getShell().getDisplay();
 		try {
 			xsDetector.setAttribute("readoutModeForCalibration", new String[] { uiReadoutMode, uiResGrade });
 			// Get MCA Data
-			int[][][] data = xsDetector.getMCData((int) collectionTime);
+			int[][][] data = xsDetector.getMCData((int) collectionTimeValue);
 			// Int array above is [element][grade (1, 2 or all 16)][mca channel]
 			getDataWrapper().setValue(ElementCountsData.getDataFor(data));
 			dirtyContainer.setDirty(true);
@@ -710,7 +711,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				final File filePath = new File(spoolDirPath + "/" + fileName);
 				plotData.save(detectorData, filePath.getAbsolutePath());
 				sashPlotFormComposite.appendStatus("Xspress snapshot saved to " + filePath, logger);
-				getSite().getShell().getDisplay().syncExec(new Runnable() {
+				display.syncExec(new Runnable() {
 					@Override
 					public void run() {
 						acquireFileLabel.setText("Saved: " + filePath.getAbsolutePath());
@@ -722,7 +723,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
 		}
 		catch (IllegalArgumentException e) {
-			getSite().getShell().getDisplay().asyncExec(new Runnable() {
+			display.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					MessageDialog.openWarning(getSite().getShell(), "Cannot write out detector data",
@@ -733,7 +734,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			return;
 		}
 		catch (AccessDeniedException e) {
-			getSite().getShell().getDisplay().asyncExec(new Runnable() {
+			display.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					MessageDialog.openWarning(getSite().getShell(), "Cannot operate detector", "You do not hold the baton and so cannot operate the detector.");
@@ -743,7 +744,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			return;
 		}
 		catch (Exception e) {
-			getSite().getShell().getDisplay().asyncExec(new Runnable() {
+			display.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					MessageDialog.openWarning(getSite().getShell(), "Cannot read out detector data", "Problem acquiring data. See log for details.");
@@ -763,12 +764,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		}
 
 		// Note: currently has to be in this order.
-		getSite().getShell().getDisplay().asyncExec(new Runnable() {
+		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
 				plot(getDetectorList().getSelectedIndex(),true);
-				setEnabled(true);
+				setWindowsEnabled(true);
 			}
 		});
 	}
@@ -791,11 +792,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	@Override
 	public XMLCommandHandler getXMLCommandHandler() {
 		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(XspressParameters.class);
-	}
-
-	@Override
-	protected Logger getLogger() {
-		return logger;
 	}
 
 	@Override

@@ -68,7 +68,7 @@ public class XspressParametersUIEditorPluginTest {
 	public final void testNested() throws Throwable {
 		
 		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)editor.getRichBeanEditor();
-		uiEd.setEnabled(true);
+		uiEd.setWindowsEnabled(true);
 		
 		uiEd._testSetSelectedElement(0);
 		uiEd._testAddRegionOfInterest("bill");
@@ -95,7 +95,7 @@ public class XspressParametersUIEditorPluginTest {
 	public final void testRoiName() throws Throwable {
 	
 		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)editor.getRichBeanEditor();
-		uiEd.setEnabled(true);
+		uiEd.setWindowsEnabled(true);
 		
 		uiEd._testSetSelectedElement(0);
 		uiEd._testAddRegionOfInterest("fred");

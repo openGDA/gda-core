@@ -187,7 +187,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 							acquireFileLabel.setText("Loaded: " + filePath);
 							getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
 							plot(getDetectorList().getSelectedIndex(),false);
-							setEnabled(true);
+							setWindowsEnabled(true);
 						}
 					});
 				} catch (Exception e1) {
@@ -298,14 +298,8 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		getDetectorElementComposite().setIndividualElements(true);
 	}
 
-	/**
-	 * Not called in UI thread. This needs to be protected if data is obtained from ui objects.
-	 * 
-	 * @param monitor
-	 * @throws Exception
-	 */
-	@Override
-	protected void acquire(final IProgressMonitor monitor, final double collectionTimeValue) throws Exception {
+
+	protected void acquire(IProgressMonitor monitor, double collectionTimeValue) throws Exception {
 		int loopSleepTimeInMillis = 100;
 		int numWorkUnits = (int) Math.round((collectionTimeValue * 1000 / loopSleepTimeInMillis) / 1000);
 		if (monitor != null)
@@ -360,23 +354,26 @@ public class VortexParametersUIEditor extends DetectorEditor {
 			// returns the icr and ocr
 			Double[] liveStats = (Double[]) xmapDetector.getAttribute("countRates");
 			final double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
+			
 			// Note: currently has to be in this order.
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
 					plot(getDetectorList().getSelectedIndex(),true);
-					setEnabled(true);
+					setWindowsEnabled(true);
 					deadTimeLabel.setValue(deadTimeFinal);
 					lblDeadTime.setVisible(true);
 					deadTimeLabel.setVisible(true);
 					sashPlotFormComposite.getLeft().layout();
 				}
 			});
+			
 			if (monitor != null) {
 				monitor.worked(1);
 				sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
 			}
+			
 		} catch (IllegalArgumentException e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -501,11 +498,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	@Override
 	public XMLCommandHandler getXMLCommandHandler() {
 		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(VortexParameters.class);
-	}
-
-	@Override
-	protected Logger getLogger() {
-		return logger;
 	}
 
 	public BooleanWrapper getSaveRawSpectrum() {

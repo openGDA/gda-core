@@ -108,8 +108,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected DataWrapper dataWrapper;
 	protected String serverCommand;
 	private ExpansionAdapter expansionListener;
-	private volatile boolean continuousAquire = false;
-	private Thread continuousThread;
 	private ReentrantLock lock = new ReentrantLock();
 	private DetectorListComposite detectorListComposite;
 	private Composite importComposite;
@@ -121,6 +119,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected Data plotData;
 	private ValueListener autoApplyToAllListener;
 	protected Counts counts;
+	private volatile boolean continuousAquire = false;
+	private Thread continuousThread;
 	
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean, final String serverCommand) {
@@ -129,22 +129,99 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		this.bean = editingBean;
 	}
 
-	protected abstract Logger getLogger();
-
+	protected void continuousAcquire() {
+		continuousAquire = !continuousAquire;
+		if (continuousAquire && lock != null && lock.isLocked()) {
+			final String msg = "There is currently an acquire running. You cannot run another one.";
+			logger.info(msg);
+			sashPlotFormComposite.appendStatus(msg, logger);
+			return;
+		}
+		final long aquireTime = getAcquireWaitTime();
+		final double collectiontime = getDetectorCollectionTime();
+		try {
+			if(continuousAquire) {
+				acquireStarted();
+				continuousThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							lock.lock();
+							while (continuousAquire) {
+								if (!lock.isLocked())
+									break;
+								if (isDisposed())
+									break;
+								acquire(null, collectiontime);
+								if (!lock.isLocked())
+									break;
+								if (isDisposed())
+									break;
+								Thread.sleep(aquireTime);
+							}
+						} catch (InterruptedException e) {
+							// Expected
+						} catch (Throwable e) {
+							logger.error("Continuous acquire problem with detector.", e);
+						} finally {
+							lock.unlock();
+						}
+					}
+				}, "Detector Live Runner");
+				continuousThread.start();
+			} 
+			else {
+				// Run later otherwise button looks unresponsive.
+				// Even though this is the display thread already.
+				getSite().getShell().getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							lock.lock();
+							acquireFinished();
+							Detector detector = (Detector) Finder.getInstance().find(getDetectorName());
+							logger.debug("Stopping detector");
+							detector.stop();
+						} catch (Exception e) {
+							logger.error("Continuous problem configuring detector -  cannot stop detector.", e);
+						} finally {
+							lock.unlock();
+						}
+					}
+				});
+			}
+		} catch (Exception e) {
+			logger.error("Internal errror process continuous data from detector.", e);
+			acquireFinished();
+		}
+	}
+	
+	protected void singleAcquire() throws Exception {
+		final double time = getDetectorCollectionTime();
+		IProgressService service = (IProgressService) getSite().getService(IProgressService.class);
+		service.run(true, true, new IRunnableWithProgress() {
+			@Override
+			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				try {
+					acquire(monitor, time);
+				} catch (Exception e) {
+					logger.error("Error performing single acquire", e);
+				}
+			}
+		});
+	}
+	
+	protected void acquire(IProgressMonitor monitor, double collectionTimeValue) throws Exception {
+		
+	}
+	
+	
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class clazz) {
 		if (clazz == IToolPageSystem.class)
 			return sashPlotFormComposite.getPlottingSystem();
 		return super.getAdapter(clazz);
 	}
-
-	/**
-	 * monitor can be null if the task is not being monitored.
-	 * 
-	 * @param monitor
-	 * @throws Exception
-	 */
-	protected abstract void acquire(final IProgressMonitor monitor, final double collectionTimeValue) throws Exception;
 
 	/**
 	 * @return the time that is waited during the acquisition loop. Called in the display thread.
@@ -189,7 +266,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		counts = new Counts();
 		this.dataWrapper = plotData.readStoredData(getDataXMLName());
 		try {
-			this.sashPlotFormComposite = createSashPlot(parent);
+			sashPlotFormComposite = createSashPlot(parent);
 			sashPlotFormComposite.getPlottingSystem().setRescale(false);
 		} catch (Exception e) {
 			logger.error("Exception while creating detector editor", e);
@@ -248,11 +325,11 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			if (detectorData != null)
 				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
 			plot(0,false);
-			setEnabled(true);
+			setWindowsEnabled(true);
 		} 
 		else {
 			plot(-1,false);
-			setEnabled(false);
+			setWindowsEnabled(false);
 		}
 	}
 
@@ -359,29 +436,18 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		super.dispose();
 	}
 
-	/**
-	 * Call to add a region of interest programatically.
-	 * 
-	 * @param name
-	 * @throws Exception
-	 */
+
 	public void _testAddRegionOfInterest(final String name) throws Exception {
 		getDetectorElementComposite().getRegionList().addBean();
 		getDetectorElementComposite().getRegionList().setField("roiName", name);
 	}
 
-	/**
-	 * Call to add a region of interest programatically.
-	 */
+
 	public void _testDeleteRegionOfInterest() {
 		getDetectorElementComposite().getRegionList().deleteBean();
 	}
 
-	/**
-	 * Call to add a region of interest programatically.
-	 * 
-	 * @param value
-	 */
+
 	public void _testMoveRegionOfInterest(final int value) {
 		getDetectorElementComposite().getRegionList().moveBean(value);
 	}
@@ -476,7 +542,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 *         perform the update. If showMessage == false always returns true.
 	 */
 	protected boolean applyToAll(boolean showMessage) {
-
 		if (showMessage) {
 			if (!MessageDialog.openConfirm(getSite().getShell(), "Confirm Apply To All",
 			"Do you want to apply currently selected elements regions of interest to all detecors?\n\nThis will write new regions for the elements automatically."))
@@ -521,7 +586,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			public void update(Object theObserved, Object changeCode) {
 				if (theObserved instanceof ScriptcontrollerAdapter)
 					if (changeCode instanceof String)
-						sashPlotFormComposite.appendStatus((String) changeCode, getLogger());
+						sashPlotFormComposite.appendStatus((String) changeCode, logger);
 			}
 		};
 	}
@@ -683,90 +748,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		return data;
 	}
 
-	protected void singleAcquire() throws Exception {
-		final double time = getDetectorCollectionTime();
-		IProgressService service = (IProgressService) getSite().getService(IProgressService.class);
-		service.run(true, true, new IRunnableWithProgress() {
-			@Override
-			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				try {
-					acquire(monitor, time);
-				} catch (Exception e) {
-					logger.error("Error performing single acquire", e);
-				}
-			}
-		});
-	}
-
 	protected void setImportCompositeVisible(boolean visible) {
 		GridUtils.setVisibleAndLayout(importComposite, visible);
-	}
-
-	protected void continuousAcquire() {
-		continuousAquire = !continuousAquire;
-		if (continuousAquire && lock != null && lock.isLocked()) {
-			final String msg = "There is currently an acquire running. You cannot run another one.";
-			logger.info(msg);
-			sashPlotFormComposite.appendStatus(msg, getLogger());
-			return;
-		}
-		final long aquireTime = getAcquireWaitTime();
-		final double collectiontime = getDetectorCollectionTime();
-		try {
-			if (continuousAquire) {
-				acquireStarted();
-				continuousThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							lock.lock();
-							while (continuousAquire) {
-								if (!lock.isLocked())
-									break;
-								if (isDisposed())
-									break;
-								acquire(null, collectiontime);
-								if (!lock.isLocked())
-									break;
-								if (isDisposed())
-									break;
-								Thread.sleep(aquireTime);
-							}
-						} catch (InterruptedException e) {
-							// Expected
-						} catch (Throwable e) {
-							logger.error("Continuous acquire problem with detector.", e);
-						} finally {
-							lock.unlock();
-						}
-					}
-				}, "Detector Live Runner");
-				continuousThread.start();
-			} 
-			else {
-				// Run later otherwise button looks unresponsive.
-				// Even though this is the display thread already.
-				getSite().getShell().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							lock.lock();
-							acquireFinished();
-							Detector detector = (Detector) Finder.getInstance().find(getDetectorName());
-							logger.debug("Stopping detector");
-							detector.stop();
-						} catch (Exception e) {
-							logger.error("Continuous problem configuring detector -  cannot stop detector.", e);
-						} finally {
-							lock.unlock();
-						}
-					}
-				});
-			}
-		} catch (Exception e) {
-			logger.error("Internal errror process continuous data from detector.", e);
-			acquireFinished();
-		}
 	}
 
 	/**
@@ -774,7 +757,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 * 
 	 * @param isEnabled
 	 */
-	public void setEnabled(final boolean isEnabled) {
+	public void setWindowsEnabled(final boolean isEnabled) {
 		getDetectorList().setEnabled(isEnabled);
 		uploadAction.setEnabled(isEnabled);
 	}

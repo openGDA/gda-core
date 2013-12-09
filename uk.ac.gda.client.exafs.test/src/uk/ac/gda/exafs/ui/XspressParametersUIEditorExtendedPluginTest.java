@@ -65,7 +65,7 @@ public class XspressParametersUIEditorExtendedPluginTest {
 	public final void testInputIdentified() throws Throwable {
 		
 		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)boundsEditor.getRichBeanEditor();
-		uiEd.setEnabled(true);
+		uiEd.setWindowsEnabled(true);
 		
 		uiEd._testSetSelectedElement(0);
 		uiEd._testSetSelectedElement(1);
@@ -87,7 +87,7 @@ public class XspressParametersUIEditorExtendedPluginTest {
 	public final void testCanDelete() throws Throwable {
 		
 		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)boundsEditor.getRichBeanEditor();
-		uiEd.setEnabled(true);
+		uiEd.setWindowsEnabled(true);
 		
 		uiEd._testSetSelectedElement(0);
 		uiEd._testSetSelectedElement(1);
@@ -107,7 +107,7 @@ public class XspressParametersUIEditorExtendedPluginTest {
 	public final void testCanMove() throws Throwable {
 		
 		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)boundsEditor.getRichBeanEditor();
-		uiEd.setEnabled(true);
+		uiEd.setWindowsEnabled(true);
 		
 		uiEd._testSetSelectedElement(0);
 		uiEd._testSetSelectedElement(1);
