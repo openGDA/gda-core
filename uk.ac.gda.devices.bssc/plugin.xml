@@ -91,9 +91,15 @@
            restorable="true">
      </view>
      <view
-           class="uk.ac.gda.devices.bssc.BioSaxsProgressView"
+           class="uk.ac.gda.devices.bssc.ui.BioSaxsProgressView"
            id="uk.ac.gda.devices.bssc.biosaxsprogressview"
            name="BioSAXS Progress View"
+           restorable="true">
+     </view>
+     <view
+           class="uk.ac.gda.devices.bssc.ui.BioSAXASessionBeanUIView"
+           id="uk.ac.gda.devices.bssc.biosaxssetupview"
+           name="BioSAXS Setup View"
            restorable="true">
      </view>
   </extension>
