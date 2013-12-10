@@ -546,7 +546,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						if (sds.chunkDimensions != null && sds.chunkDimensions.length <= chunks.length) {
 							int lendiff = chunks.length - sds.chunkDimensions.length;
 							for (int i = 0; i < sds.chunkDimensions.length; i++) {
-								chunks[i+lendiff] = sds.chunkDimensions[i];
+								chunks[i+lendiff] = dataDimMake[i+lendiff] == -1 ? sds.chunkDimensions[i] : Math.min(sds.chunkDimensions[i], chunks[i+lendiff]);
 							}
 						}
 						int compression = sds.compressionType != null ? sds.compressionType : NexusFile.NX_COMP_LZW_LVL1;

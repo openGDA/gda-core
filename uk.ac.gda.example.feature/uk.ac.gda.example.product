@@ -20,9 +20,32 @@ See &lt;http://www.opengda.org/&gt;
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Xms512m
--Xmx1024m
--XX:MaxPermSize=128m</vmArgs>
+      <vmArgs>-Dgda.mode=dummy
+-Dosgi.locking=none
+-Dgda.install.workspace.loc=/dls_sw/apps/GDAexample/8.36/workspace
+-Dgda.install.git.loc=/dls_sw/apps/GDAexample/8.36/workspace_git
+-Dgda.config=$HOME/gda_training/example-config/
+-Djava.library.path=/dls_sw/apps/GDAexample/8.36/workspace_git/gda-nexus.git/uk.ac.gda.nexus/lib/linux-x86_64
+-Dgda.propertiesFile=$HOME/gda_training/example-config//properties/dummy/java.properties
+-Djacorb.config.dir=$HOME/gda_training/example-config/jacorb/dummy
+-Dgov.aps.jca.JCALibrary.properties=$HOME/gda_training/example-config/jca/dummy/JCALibrary.properties
+-Xms512m
+-Xmx2048m
+-XX:MaxPermSize=1024m
+-XX:+DisableExplicitGC</vmArgs>
+      <vmArgsLin>-Dgda.mode=dummy
+-Dosgi.locking=none
+-Dgda.install.workspace.loc=/dls_sw/apps/GDAexample/8.36/workspace
+-Dgda.install.git.loc=/dls_sw/apps/GDAexample/8.36/workspace_git
+-Dgda.config=${env_var:HOME}/gda_training/example-config/
+-Djava.library.path=/dls_sw/apps/GDAexample/8.36/workspace_git/gda-nexus.git/uk.ac.gda.nexus/lib/linux-x86_64
+-Dgda.propertiesFile=${env_var:HOME}/gda_training/example-config//properties/dummy/java.properties
+-Djacorb.config.dir=${env_var:HOME}/gda_training/example-config/jacorb/dummy
+-Dgov.aps.jca.JCALibrary.properties=${env_var:HOME}/gda_training/example-config/jca/dummy/JCALibrary.properties
+-Xms512m
+-Xmx2048m
+-XX:MaxPermSize=1024m
+-XX:+DisableExplicitGC</vmArgsLin>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 

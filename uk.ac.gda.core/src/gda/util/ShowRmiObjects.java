@@ -16,22 +16,19 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.motor.simplemotor;
+package gda.util;
 
-import gda.device.DeviceException;
+import java.rmi.Naming;
+import java.util.Arrays;
 
-public interface SimpleIndexedMotorController {
+public class ShowRmiObjects {
 
-	void stop()throws DeviceException;
-
-	boolean isBusy()throws DeviceException;
-
-	void moveTo(double position, int index)throws DeviceException;
-
-	double getPosition(int index) throws DeviceException;
-
-	void setSpeed(double speed, int index) throws DeviceException;
-
-	double getSpeed(int index) throws DeviceException;
+	public static void main(String[] args) throws Exception {
+		final String[] names = Naming.list("rmi://localhost:1099");
+		Arrays.sort(names, String.CASE_INSENSITIVE_ORDER);
+		for (String name : names) {
+			System.out.println(name);
+		}
+	}
 
 }
