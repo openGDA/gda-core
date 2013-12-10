@@ -63,7 +63,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
@@ -112,10 +111,10 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	private Object bean;
 	private Action uploadAction;
 	private volatile Boolean updatingAfterROIDrag = null;
-	private String plotTitle = "Saved Data";
 	protected Data plotData;
 	private ValueListener autoApplyToAllListener;
 	protected Counts counts;
+	public Plot plot;
 	
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean, final String serverCommand) {
@@ -154,16 +153,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public abstract XMLCommandHandler getXMLCommandHandler();
 
 	/**
-	 * Called when acquire started in display thread.
-	 */
-	public abstract void acquireStarted();
-
-	/**
-	 * Called when acquire finished in display thread.
-	 */
-	public abstract void acquireFinished();
-
-	/**
 	 * @return - String- the full path of the xml where the acquired data is persisted.
 	 */
 	protected abstract String getDataXMLName();
@@ -172,13 +161,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public void createPartControl(Composite parent) {
 		plotData = new Data();
 		counts = new Counts();
-		this.dataWrapper = plotData.readStoredData(getDataXMLName());
+		//this.dataWrapper = plotData.readStoredData(getDataXMLName());
 		try {
 			sashPlotFormComposite = createSashPlot(parent);
 			sashPlotFormComposite.getPlottingSystem().setRescale(false);
 		} catch (Exception e) {
 			logger.error("Exception while creating detector editor", e);
 		}
+		plot = new Plot(sashPlotFormComposite, counts);
 	}
 
 	@Override
@@ -232,18 +222,15 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			detectorData = ElementCountsData.getDataFrom(getDataWrapper().getValue());
 			if (detectorData != null)
 				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-			plot(0,false);
+			//plot.plot(0,false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, null);
 			setWindowsEnabled(true);
 		} 
 		else {
-			plot(-1,false);
+			//plot.plot(-1,false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, null);
 			setWindowsEnabled(false);
 		}
 	}
 
-	// There has been a long standing work item to reduce how many parameters this method takes.
-	// While there are still many parameters, at least they are now unique types so it is much
-	// easier to use the method
 	protected DetectorListComposite createDetectorList(final Composite parent,
 	final Class<? extends IDetectorElement> editorClass, final int elementListSize,
 	final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory,
@@ -306,7 +293,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
-				plot(evt.getSelectionIndex(),false);
+				plot.plot(evt.getSelectionIndex(),false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, null);
 				if (bean instanceof XspressParameters) {
 					XspressParameters xspress = (XspressParameters) bean;
 					getDetectorElementComposite().getRegionList().setSelectedIndex(xspress.getSelectedRegionNumber());
@@ -344,17 +331,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		super.dispose();
 	}
 
-
 	public void _testAddRegionOfInterest(final String name) throws Exception {
 		getDetectorElementComposite().getRegionList().addBean();
 		getDetectorElementComposite().getRegionList().setField("roiName", name);
 	}
 
-
 	public void _testDeleteRegionOfInterest() {
 		getDetectorElementComposite().getRegionList().deleteBean();
 	}
-
 
 	public void _testMoveRegionOfInterest(final int value) {
 		getDetectorElementComposite().getRegionList().moveBean(value);
@@ -580,34 +564,10 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		}
 	}
 	
-	protected void plot(final int ielement, boolean updateTitle) {
-		final List<AbstractDataset> data = unpackDataSets(ielement);
-		if (updateTitle) {
-			Date now = new Date();
-			SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
-			plotTitle = "Acquire at " + dt.format(now);
-		}
-		for (int i = 0; i < data.size(); i++) {
-			String name = getChannelName(ielement);
-			if (data.size() > 1)
-				name += " " + i;
-			name += " " + plotTitle;
-			data.get(i).setName(name);
-		}
-		sashPlotFormComposite.setDataSets(data.toArray(new AbstractDataset[data.size()]));
-		sashPlotFormComposite.getPlottingSystem().setRescale(updateTitle);
-		sashPlotFormComposite.plotData();
-		sashPlotFormComposite.getPlottingSystem().setTitle(plotTitle);
-		counts.calculateAndPlotCountTotals(true, true, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex());
-		sashPlotFormComposite.getPlottingSystem().setRescale(false);
-	}
+	
 
 	protected java.awt.Color getChannelColor(int i) {
 		return PlotColorUtility.getDefaultColour(i);
-	}
-
-	protected String getChannelName(int iChannel) {
-		return "" + iChannel;
 	}
 
 	protected double getMin(Collection<AbstractDataset> data) {
@@ -621,21 +581,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		double ret = -Double.MAX_VALUE;
 		for (AbstractDataset dataSet : data)
 			ret = Math.max(ret, dataSet.max().doubleValue());
-		return ret;
-	}
-
-	protected List<AbstractDataset> unpackDataSets(int ielement) {
-		List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
-		if (ielement < 0 || detectorData == null) {
-			IntegerDataset ds = new IntegerDataset(new int[]{});
-			ret.add(ds);
-			return ret;
-		}
-		int[][] data = detectorData[ielement];
-		for (int i = 0; i < data.length; i++) {
-			IntegerDataset ds = new IntegerDataset(data[i], data[i].length);
-			ret.add(ds);
-		}
 		return ret;
 	}
 

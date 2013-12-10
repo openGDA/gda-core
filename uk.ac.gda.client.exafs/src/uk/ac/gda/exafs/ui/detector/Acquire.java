@@ -40,10 +40,6 @@ public class Acquire {
 		lock = new ReentrantLock();
 	}
 	
-	//isDisposed()
-	//getAcquireWaitTime()
-	//getDetectorCollectionTime()
-	//getDetectorName()
 	public void continuousAcquire(Display display, final boolean disposed, SashFormPlotComposite sashPlotFormComposite, final long aquireWaitTime, final double collectiontime, final String detectorName) {
 		continuousAquire = !continuousAquire;
 		if (continuousAquire && lock != null && lock.isLocked()) {
@@ -54,7 +50,6 @@ public class Acquire {
 		}
 		try {
 			if(continuousAquire) {
-				acquireStarted();
 				continuousThread = new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -84,14 +79,11 @@ public class Acquire {
 				continuousThread.start();
 			} 
 			else {
-				// Run later otherwise button looks unresponsive.
-				// Even though this is the display thread already.
 				display.asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						try {
 							lock.lock();
-							acquireFinished();
 							Detector detector = (Detector) Finder.getInstance().find(detectorName);
 							logger.debug("Stopping detector");
 							detector.stop();
@@ -105,19 +97,10 @@ public class Acquire {
 			}
 		} catch (Exception e) {
 			logger.error("Internal errror process continuous data from detector.", e);
-			acquireFinished();
 		}
 	}
 	
 	public void acquire(IProgressMonitor monitor, double collectionTimeValue) throws Exception {
-		
-	}
-	
-	public void acquireStarted() {
-		
-	}
-
-	public void acquireFinished() {
 		
 	}
 	

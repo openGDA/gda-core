@@ -21,13 +21,10 @@ package uk.ac.gda.exafs.ui.detector.xspress;
 import gda.configuration.properties.LocalProperties;
 import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
-import gda.factory.Finder;
 
 import java.awt.Color;
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -53,9 +50,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.gda.beans.ElementCountsData;
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
@@ -69,12 +64,16 @@ import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
+import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
+import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
+import uk.ac.gda.exafs.ui.detector.Plot;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
+import uk.ac.gda.richbeans.components.data.DataWrapper;
+import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditorUIAdapter;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
@@ -91,9 +90,8 @@ import com.swtdesigner.SWTResourceManager;
 public class XspressParametersUIEditor extends DetectorEditor {
 	private Composite parentComposite;
 	private Composite middleComposite;
-	private static final String xspressSaveDir = "gda.device.xspress.spoolDir";
+	private XspressAcquire xspressAcquire;
 	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
-	private boolean saveMcaOnAcquire;
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 	private ComboWrapper readoutMode;
 	private ComboAndNumberWrapper resolutionGradeCombo;
@@ -101,15 +99,11 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private Button applyToAllButton;
 	private Button applyToAllLabel;
 	private SelectionAdapter applyToAllListener;
-	private ScaleBox acquireTime;
 	private BooleanWrapper showIndividualElements;
 	private Group detectorElementsGroup;
-	private boolean isAdditiveResolutionGradeMode = false;
 	private Action plotAction;
 	private Label resGradeLabel;
 	private FileDialog openDialog;
-	private Button autoSave;
-	private Label acquireFileLabel;
 	private BooleanWrapper onlyShowFF;
 	private BooleanWrapper showDTRawValues;
 	private BooleanWrapper saveRawSpectrum;
@@ -119,7 +113,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private ValueListener detectorElementCompositeValueListener;
 	private ResolutionGrade resolutionGrade;
 	private XspressData xspressData;
-	private XspressAcquire xspressAcquire;
 	
 	public XspressParametersUIEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer, final Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean, "xspressConfig");
@@ -141,7 +134,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		parentComposite = composite;
 		super.createPartControl(parentComposite);
 		xspressData = new XspressData();
-		xspressAcquire = new XspressAcquire();
 		Composite left = sashPlotFormComposite.getLeft();
 		Composite topComposite = new Composite(left, SWT.NONE);
 		topComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -178,6 +170,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		sashPlotFormComposite.setWeights(new int[] { 30, 74 });
 		configureUI();
 		createApplyToAllObserver();
+		xspressAcquire.init(counts, xspressParameters, readoutMode, resolutionGradeCombo, dataWrapper, showIndividualElements, getDetectorElementComposite(), getCurrentSelectedElementIndex(), getDetectorList(), plot);
 	}
 	
 	private void createReadoutMode(final Composite composite){
@@ -230,9 +223,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 					getSite().getShell().getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							acquireFileLabel.setText("Loaded: " + filePath);
 							getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-							plot(getDetectorList().getSelectedIndex(),false);
+							plot.plot(getDetectorList().getSelectedIndex(),false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, resolutionGradeCombo);
 							setWindowsEnabled(true);
 						}
 					});
@@ -247,71 +239,10 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		gridLayoutAcq.marginWidth = 0;
 		acquire.setLayout(gridLayoutAcq);
 		
-		Button acquireBtn = new Button(acquire, SWT.NONE);
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/application_side_expand.png"));
-		acquireBtn.setText("Acquire");
-		acquireBtn.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				try {
-					String uiReadoutMode = (String) getReadoutMode().getValue();
-					String uiResolutionGrade = getResGradeAllowingForReadoutMode();
-					XspressDetector xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
-					Display display = getSite().getShell().getDisplay();
-					xspressAcquire.acquire(xspressDetector, null, acquireTime.getNumericValue(), sashPlotFormComposite, uiReadoutMode, uiResolutionGrade);
-					int[][][] mcaData = xspressAcquire.getMcaData();
-					dirtyContainer.setDirty(true);
-					ElementCountsData[] elementCountsData = ElementCountsData.getDataFor(mcaData);
-					getDataWrapper().setValue(elementCountsData);
-					counts.calculateAndPlotCountTotals(showIndividualElements.getValue(), true, mcaData, getDetectorElementComposite(), getCurrentSelectedElementIndex());
-					if (saveMcaOnAcquire)
-						xspressAcquire.saveMca(sashPlotFormComposite, xspressSaveDir, plotData);
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							String acquireFileLabelText = xspressAcquire.getAcquireFileLabelText();
-							if(acquireFileLabelText!=null)
-								acquireFileLabel.setText(acquireFileLabelText);
-							getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-							plot(getDetectorList().getSelectedIndex(),true);
-							setWindowsEnabled(true);
-						}
-					});
-				} catch (Exception e1) {
-					logger.error("Cannot acquire xmap data", e1);
-				}
-			}
-		});
-		acquireTime = new ScaleBox(acquire, SWT.NONE);
-		acquireTime.setMinimum(1);
-		acquireTime.setValue(1000);
-		acquireTime.setMaximum(50000);
-		acquireTime.setUnit("ms");
-		acquireTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
-		autoSave = new Button(acquire, SWT.CHECK);
-		autoSave.setText("Save on Acquire");
-		autoSave.setSelection(LocalProperties.check("gda.detectors.save.single.acquire"));
-		autoSave.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
-		autoSave.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				saveMcaOnAcquire = autoSave.getSelection();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-
-			}
-		});
-		autoSave.setSelection(saveMcaOnAcquire);
+		xspressAcquire = new XspressAcquire(acquire, sashPlotFormComposite, getSite().getShell().getDisplay());
 		
-		acquireFileLabel = new Label(grpAcquire, SWT.NONE);
-		acquireFileLabel.setText("										");
-		acquireFileLabel.setToolTipText("The file path for the acquire data");
-		acquireFileLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
+		dirtyContainer.setDirty(true);
 		openDialog = new FileDialog(composite.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 	}
@@ -508,8 +439,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		plotAction = new Action("Show resolution grades added", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				isAdditiveResolutionGradeMode = isChecked();
-				plot(getDetectorList().getSelectedIndex(),false);
+				plot.plot(getDetectorList().getSelectedIndex(),false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), isChecked(), resolutionGradeCombo);
 			}
 		};
 		plotAction.setImageDescriptor(ResourceManager.getImageDescriptor(XspressParametersUIEditor.class, "/icons/chart_line_add.png"));
@@ -541,7 +471,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		return uiReadoutMode.equals(XspressDetector.READOUT_ROIS) ? (String) getResGrade().getValue() : ResGrades.NONE;
 	}
 
-	@Override
 	protected String getChannelName(int iChannel) {
 		String resGrade = getResGradeAllowingForReadoutMode();
 		if (resGrade.equals(ResGrades.ALLGRADES))
@@ -553,10 +482,10 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			case 1:
 				return "Good";
 			default:
-				return super.getChannelName(iChannel);
+				return "" + iChannel;
 			}
 		}
-		return super.getChannelName(iChannel);
+		return "" + iChannel;
 	}
 
 	protected void updateElementsVisibility(Composite composite) {
@@ -660,7 +589,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	
 	@Override
 	protected double getDetectorCollectionTime() {
-		return acquireTime.getNumericValue(); // convert to ms
+		return xspressAcquire.getCollectionTime();
 	}
 
 	@Override
@@ -676,31 +605,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	@Override
 	public XMLCommandHandler getXMLCommandHandler() {
 		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(XspressParameters.class);
-	}
-
-	@Override
-	protected List<AbstractDataset> unpackDataSets(int ielement) {
-		if (ielement < 0 || detectorData == null || !isAdditiveResolutionGradeMode || !resolutionGradeCombo.getValue().equals(ResGrades.ALLGRADES))
-			return super.unpackDataSets(ielement);
-		final List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
-		final int[][] elementData = detectorData[ielement];
-		for (int resGrade = 0; resGrade < elementData.length; resGrade++) {
-			AbstractDataset d = new DoubleDataset(Arrays.copyOf(elementData[resGrade],elementData[resGrade].length));
-			if (!ret.isEmpty()) {
-				AbstractDataset p = ret.get(resGrade - 1);
-				d.iadd(p);
-			}
-			ret.add(d);
-		}
-		return ret;
-	}
-
-	@Override
-	public void acquireStarted() {
-	}
-
-	@Override
-	public void acquireFinished() {
 	}
 
 	public BooleanWrapper getOnlyShowFF() {

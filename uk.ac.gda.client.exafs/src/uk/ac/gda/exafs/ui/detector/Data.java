@@ -50,7 +50,6 @@ public class Data {
 			ElementCountsData[] elements = new ElementCountsData[0];
 			String strLine;
 			while ((strLine = in.readLine()) != null) {
-				// Print the content on the console
 				ElementCountsData newData = new ElementCountsData();
 				newData.setDataString(strLine);
 				elements = (ElementCountsData[]) ArrayUtils.add(elements, newData);

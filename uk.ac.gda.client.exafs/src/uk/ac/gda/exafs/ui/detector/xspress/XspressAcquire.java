@@ -18,20 +18,46 @@
 
 package uk.ac.gda.exafs.ui.detector.xspress;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
+import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
+import gda.factory.Finder;
 
 import java.io.File;
 
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.gda.beans.ElementCountsData;
+import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.exafs.ui.detector.Acquire;
+import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.Data;
+import uk.ac.gda.exafs.ui.detector.DetectorEditor;
+import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detector.Plot;
+import uk.ac.gda.richbeans.components.data.DataWrapper;
+import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
+import uk.ac.gda.richbeans.components.selector.GridListEditor;
+import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
+import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
+import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
+
+import com.swtdesigner.SWTResourceManager;
 
 public class XspressAcquire extends Acquire {
 	private static final Logger logger = LoggerFactory.getLogger(XspressAcquire.class);
@@ -40,8 +66,90 @@ public class XspressAcquire extends Acquire {
 	private String originalReadoutMode;
 	private int[][][] mcaData;
 	private String acquireFileLabelText;
+	private static final String xspressSaveDir = "gda.device.xspress.spoolDir";
+	private boolean saveMcaOnAcquire;
+	private Button autoSave;
+	private ScaleBox acquireTime;
+	private Label acquireFileLabel;
+	private SashFormPlotComposite sashPlotFormComposite;
+	private XspressDetector xspressDetector;
+	private Data plotData;
+	private double collectionTime;
+	private Button acquireBtn;
+	private Display display;
 	
-	public void writeToDisk(String xspressSaveDir, SashFormPlotComposite sashPlotFormComposite, Data plotData, int[][][] detectorData) throws Exception{
+	public XspressAcquire(Composite acquire, final SashFormPlotComposite sashPlotFormComposite, Display display){
+		this.display = display;
+		this.sashPlotFormComposite = sashPlotFormComposite;
+		acquireBtn = new Button(acquire, SWT.NONE);
+		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/application_side_expand.png"));
+		acquireBtn.setText("Acquire");
+		acquireTime = new ScaleBox(acquire, SWT.NONE);
+		acquireTime.setMinimum(1);
+		acquireTime.setValue(1000);
+		acquireTime.setMaximum(50000);
+		acquireTime.setUnit("ms");
+		acquireTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		
+		autoSave = new Button(acquire, SWT.CHECK);
+		autoSave.setText("Save on Acquire");
+		autoSave.setSelection(LocalProperties.check("gda.detectors.save.single.acquire"));
+		autoSave.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
+		autoSave.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				saveMcaOnAcquire = autoSave.getSelection();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+
+			}
+		});
+		autoSave.setSelection(saveMcaOnAcquire);
+		
+		acquireFileLabel = new Label(acquire, SWT.NONE);
+		acquireFileLabel.setText("										");
+		acquireFileLabel.setToolTipText("The file path for the acquire data");
+		acquireFileLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+	}
+	
+	public void init(final Counts counts, XspressParameters xspressParameters, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final DataWrapper dataWrapper, final BooleanWrapper showIndividualElements, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex, final GridListEditor detectorList, final Plot plot){
+		xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
+		
+		acquireBtn.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				try {
+					String uiReadoutMode = (String) readoutMode.getValue();
+					String uiResolutionGrade = uiReadoutMode.equals(XspressDetector.READOUT_ROIS) ? (String) resolutionGrade.getValue() : ResGrades.NONE;
+					acquire(xspressDetector, acquireTime.getNumericValue(), uiReadoutMode, uiResolutionGrade);
+					ElementCountsData[] elementCountsData = ElementCountsData.getDataFor(mcaData);
+					//dataWrapper.setValue(elementCountsData);
+					counts.calculateAndPlotCountTotals(showIndividualElements.getValue(), true, mcaData, detectorElementComposite, currentSelectedElementIndex);
+					if (saveMcaOnAcquire)
+						saveMca(sashPlotFormComposite, xspressSaveDir);
+					display.asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							String acquireFileLabelText = getAcquireFileLabelText();
+							if(acquireFileLabelText!=null)
+								acquireFileLabel.setText(acquireFileLabelText);
+							detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
+							plot.plot(detectorList.getSelectedIndex(),true, mcaData, detectorElementComposite, currentSelectedElementIndex, false, resolutionGrade);
+							//setWindowsEnabled(true);
+						}
+					});
+				} catch (Exception e1) {
+					logger.error("Cannot acquire xmap data", e1);
+				}
+			}
+			
+		});
+	}
+	
+	public void writeToDisk(String xspressSaveDir, int[][][] detectorData) throws Exception{
 		String xspressSaveFullDir = PathConstructor.createFromProperty(xspressSaveDir);
 		if (xspressSaveFullDir == null || xspressSaveFullDir.length() == 0)
 			throw new Exception("Error saving data. Xspress device spool dir is not defined in property " + xspressSaveDir);
@@ -57,7 +165,8 @@ public class XspressAcquire extends Acquire {
 		return detectorFileLocation;
 	}
 	
-	protected void acquire(XspressDetector xspressDetector, IProgressMonitor monitor, double collectionTime, SashFormPlotComposite sashPlotFormComposite, String uiReadoutMode, String uiResolutionGrade) {
+	protected void acquire(XspressDetector xspressDetector, double collectionTime, String uiReadoutMode, String uiResolutionGrade) {
+		this.collectionTime = collectionTime;
 		try {
 			originalResolutionGrade = xspressDetector.getResGrade();
 			originalReadoutMode = xspressDetector.getReadoutMode();
@@ -96,10 +205,10 @@ public class XspressAcquire extends Acquire {
 		return originalReadoutMode;
 	}
 	
-	public void saveMca(SashFormPlotComposite sashPlotFormComposite, String xspressSaveDir, Data plotData){
+	public void saveMca(SashFormPlotComposite sashPlotFormComposite, String xspressSaveDir){
 		try {
-			writeToDisk(xspressSaveDir, sashPlotFormComposite, plotData, mcaData);
-			acquireFileLabelText = "Saved: " + detectorFileLocation;
+			writeToDisk(xspressSaveDir, mcaData);
+			acquireFileLabel.setText("Saved: " + detectorFileLocation);
 		} catch (Exception e) {
 			sashPlotFormComposite.appendStatus("Cannot write xspress detector data to disk", logger);
 			logger.error("Cannot write xspress detector data to disk.", e);
@@ -109,6 +218,27 @@ public class XspressAcquire extends Acquire {
 
 	public String getAcquireFileLabelText() {
 		return acquireFileLabelText;
+	}
+	
+//	public void acquireStarted() {
+//		acquireBtn.setText("Stop");
+//		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/stop.png"));
+//		autoSave.setEnabled(false);
+//		autoSaveEnabled = false;
+//		acquireFileLabel.setText("										");
+//		live.setEnabled(false);
+//	}
+//
+//	public void acquireFinished() {
+//		acquireBtn.setText("Acquire");
+//		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/application_side_expand.png"));
+//		autoSave.setEnabled(false);
+//		autoSaveEnabled = false;
+//		live.setEnabled(true);
+//	}
+	
+	public double getCollectionTime(){
+		return collectionTime;
 	}
 
 }

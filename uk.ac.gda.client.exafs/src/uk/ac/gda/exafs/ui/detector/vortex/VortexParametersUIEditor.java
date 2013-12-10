@@ -184,7 +184,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 						public void run() {
 							acquireFileLabel.setText("Loaded: " + filePath);
 							getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-							plot(getDetectorList().getSelectedIndex(),false);
+							//plot.plot(getDetectorList().getSelectedIndex(),false, mcaData, detectorElementComposite, currentSelectedElementIndex, false, null);
 							setWindowsEnabled(true);
 						}
 					});
@@ -270,7 +270,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 							@Override
 							public void run() {
 								getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
-								plot(getDetectorList().getSelectedIndex(),true);
+								//plot.plot(getDetectorList().getSelectedIndex(),true, mcaData, detectorElementComposite, currentSelectedElementIndex, false, null);
 								setWindowsEnabled(true);
 								deadTimeLabel.setValue(deadTimeFinal);
 								lblDeadTime.setVisible(true);
@@ -363,25 +363,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	@Override
 	protected long getAcquireWaitTime() {
 		return Math.round((Double) getCollectionTime().getValue() * 0.1d);
-	}
-
-	@Override
-	public void acquireStarted() {
-		acquireBtn.setText("Stop");
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/stop.png"));
-		autoSave.setEnabled(false);
-		autoSaveEnabled = false;
-		acquireFileLabel.setText("										");
-		live.setEnabled(false);
-	}
-
-	@Override
-	public void acquireFinished() {
-		acquireBtn.setText("Acquire");
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/application_side_expand.png"));
-		autoSave.setEnabled(false);
-		autoSaveEnabled = false;
-		live.setEnabled(true);
 	}
 
 	@Override
