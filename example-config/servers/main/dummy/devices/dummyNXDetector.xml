@@ -1,0 +1,60 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:corba="http://www.diamond.ac.uk/schema/gda/corba"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+			    http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd" >
+
+	<bean id="dummy_cam_pluginBase" class="gda.device.detector.areadetector.v17.impl.NDPluginBaseSimulator">
+	<property name="dims" value="1000,1000"/>
+	<property name="datatype" value="UINT32"/>
+	</bean>
+	<bean id="dummy_cam_base" class="gda.device.detector.areadetector.v17.impl.ADBaseSimulator"/>
+
+	<bean id="dummy_cam_arr" class="gda.device.detector.areadetector.v17.impl.NDArraySimulator">
+	<property name="pluginBase" ref="dummy_cam_pluginBase"/>
+	</bean>
+
+
+	<bean id="dummy_cam_stat" class="gda.device.detector.areadetector.v17.impl.NDStatsSimulator">
+	<property name="pluginBase" ref="dummy_cam_pluginBase"/>
+	<property name="minValue" value="10"></property>
+	<property name="maxValue" value="100."></property>
+	<property name="meanValue" value="50"></property>
+	<property name="total" value="1000"></property>
+	<property name="net" value="1000."></property>
+	<property name="sigma" value="5"></property>
+	</bean>
+
+	<bean id="dummy_cam_ndfile" class="gda.device.detector.areadetector.v17.impl.NDFileSimulator">
+		<constructor-arg ref="dummy_cam_pluginBase" />
+	</bean>
+
+
+
+	<bean id="dummy_cam_collection_strategy" class="gda.device.detector.addetector.triggering.SimpleAcquire">
+	<constructor-arg ref="dummy_cam_base"/>
+	<constructor-arg value="0."/>
+	</bean>
+	<bean id="dummy_cam_basicStats" class="gda.device.detector.nxdetector.plugin.areadetector.ADBasicStats">
+	<constructor-arg ref="dummy_cam_stat"/>
+	<property name="computeStats" value="true"/>
+	</bean>
+	<bean id="dummy_cam_array" class="gda.device.detector.nxdetector.plugin.areadetector.ADArrayPlugin">
+	<constructor-arg ref="dummy_cam_arr"/>
+	</bean>
+
+	<bean id="dummyNXDetector" class="gda.device.detector.NXDetector">
+		<property name="name" value="dummyNXDetector"/>
+		<property name="collectionStrategy" ref="dummy_cam_collection_strategy" />
+		<property name="additionalPluginList">
+			<list>
+				<ref bean="dummy_cam_basicStats" />
+				<ref bean="dummy_cam_array" />
+			</list>
+		</property>
+	</bean>	
+</beans>
+
