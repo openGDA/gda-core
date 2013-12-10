@@ -21,23 +21,19 @@ package uk.ac.gda.exafs.ui.detector;
 import gda.device.Detector;
 import gda.factory.Finder;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IWorkbenchPartSite;
-import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 
 public class Acquire {
+	private static final Logger logger = LoggerFactory.getLogger(Acquire.class);
 	private boolean continuousAquire = false;
 	private Thread continuousThread;
-	private static final Logger logger = LoggerFactory.getLogger(Acquire.class);
 	private ReentrantLock lock;
 	
 	public Acquire() {
@@ -113,22 +109,7 @@ public class Acquire {
 		}
 	}
 	
-	//getSite()
-	public void singleAcquire(final double time, IWorkbenchPartSite site) throws Exception {
-		IProgressService service = (IProgressService) site.getService(IProgressService.class);
-		service.run(true, true, new IRunnableWithProgress() {
-			@Override
-			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				try {
-					acquire(monitor, time);
-				} catch (Exception e) {
-					logger.error("Error performing single acquire", e);
-				}
-			}
-		});
-	}
-	
-	protected void acquire(IProgressMonitor monitor, double collectionTimeValue) throws Exception {
+	public void acquire(IProgressMonitor monitor, double collectionTimeValue) throws Exception {
 		
 	}
 	

@@ -19,7 +19,6 @@
 package uk.ac.gda.exafs.ui.detector.xspress;
 
 import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
 import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
 import gda.factory.Finder;
@@ -95,11 +94,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private static final String xspressSaveDir = "gda.device.xspress.spoolDir";
 	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
 	private boolean saveMcaOnAcquire;
-	// super mode override property to set the mode always to Scalers and MCA for the parameters file sent to the server
-	// this flag will also be used to fix some of the gui display parameters for I18
-	// readout mode will be set to regions of Interest for display, but will be sent as Scalers and MCa to the server
-	// res grade will be fixed to none and not shown
-	// readout type will not be shown
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 	private ComboWrapper readoutMode;
 	private ComboAndNumberWrapper resolutionGradeCombo;
@@ -127,12 +121,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private XspressData xspressData;
 	private XspressAcquire xspressAcquire;
 	
-	/**
-	 * @param path
-	 * @param mappingURL
-	 * @param dirtyContainer
-	 * @param editingBean
-	 */
 	public XspressParametersUIEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer, final Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean, "xspressConfig");
 		xspressParameters = (XspressParameters) editingBean;
@@ -663,11 +651,11 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public void notifyFileSaved(File file) {
-		FluorescenceComposite comp = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class);
-		if (comp == null || comp.isDisposed())
+		FluorescenceComposite fluorescenceComposite = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class);
+		if (fluorescenceComposite == null || fluorescenceComposite.isDisposed())
 			return;
-		comp.getDetectorType().setValue("Germanium");
-		comp.getConfigFileName().setValue(file.getAbsolutePath());
+		fluorescenceComposite.getDetectorType().setValue("Germanium");
+		fluorescenceComposite.getConfigFileName().setValue(file.getAbsolutePath());
 	}
 	
 	@Override
@@ -735,11 +723,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	
 	public ComboWrapper getRegionType() {
 		return regionType;
-	}
-	
-	public String _testGetRegionName(final int index) {
-		final List<XspressROI> rois = (List<XspressROI>) getDetectorElementComposite().getRegionList().getValue();
-		return rois.get(index).getRoiName();
 	}
 	
 }

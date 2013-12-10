@@ -18,18 +18,31 @@
 
 package uk.ac.gda.exafs.ui.detector.vortex;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
+import gda.device.Timer;
+import gda.device.XmapDetector;
 import uk.ac.gda.exafs.ui.detector.Acquire;
 
 public class VortexAcquire extends Acquire {
-
-	public VortexAcquire() {
-		// TODO Auto-generated constructor stub
+	private int[][][] data3d;
+	
+	protected void acquire(double collectionTime, XmapDetector xmapDetector, Timer tfg) throws Exception {
+		xmapDetector.clearAndStart();
+		tfg.countAsync(collectionTime);
+		xmapDetector.stop();
+		xmapDetector.waitWhileBusy();
+		int[][] data = xmapDetector.getData();
+		data3d = convert2DTo3DArray(data);
+	}
+	
+	public int[][][] getData3d() {
+		return data3d;
 	}
 
-	protected void acquire(IProgressMonitor monitor, double collectionTimeValue) throws Exception {
-
+	protected int[][][] convert2DTo3DArray(int[][] data) {
+		int[][][] ret = new int[data.length][1][];
+		for (int i = 0; i < data.length; i++)
+			ret[i][0] = data[i];
+		return ret;
 	}
 
 }

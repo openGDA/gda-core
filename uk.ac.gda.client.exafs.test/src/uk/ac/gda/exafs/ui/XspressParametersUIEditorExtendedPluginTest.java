@@ -99,24 +99,4 @@ public class XspressParametersUIEditorExtendedPluginTest {
 		if (uiEd._testGetNumberOfRegions()!=1) throw new Exception("Region of interest did not delete properly.");
 	}
 
-
-	/**
-	 * @throws Throwable 
-	 */
-	@Test
-	public final void testCanMove() throws Throwable {
-		
-		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)boundsEditor.getRichBeanEditor();
-		uiEd.setWindowsEnabled(true);
-		
-		uiEd._testSetSelectedElement(0);
-		uiEd._testSetSelectedElement(1);
-		uiEd._testAddRegionOfInterest("bar");
-		uiEd._testMoveRegionOfInterest(1);
-		uiEd._testSetSelectedElement(0);
-		uiEd._testSetSelectedElement(1);
-		
-		if (!uiEd._testGetRegionName(1).equals("bar")) throw new Exception("Move did not move and keep position when changing elements in parent.");
-	}
-
 }

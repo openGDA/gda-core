@@ -57,9 +57,7 @@ public class XspressAcquire extends Acquire {
 		return detectorFileLocation;
 	}
 	
-	protected void acquire(XspressDetector xspressDetector, IProgressMonitor monitor, double collectionTimeValue, SashFormPlotComposite sashPlotFormComposite, String uiReadoutMode, String uiResolutionGrade) {
-		if (monitor != null)
-			monitor.beginTask("Acquire xspress data", 100);
+	protected void acquire(XspressDetector xspressDetector, IProgressMonitor monitor, double collectionTime, SashFormPlotComposite sashPlotFormComposite, String uiReadoutMode, String uiResolutionGrade) {
 		try {
 			originalResolutionGrade = xspressDetector.getResGrade();
 			originalReadoutMode = xspressDetector.getReadoutMode();
@@ -70,14 +68,11 @@ public class XspressAcquire extends Acquire {
 		sashPlotFormComposite.appendStatus("Collecting a single frame of MCA data with resolution grade set to '" + uiResolutionGrade + "'.", logger);
 		try {
 			xspressDetector.setAttribute("readoutModeForCalibration", new String[] { uiReadoutMode, uiResolutionGrade });
-			mcaData = xspressDetector.getMCData((int) collectionTimeValue);
+			mcaData = xspressDetector.getMCData((int) collectionTime);
 		} catch (DeviceException e) {
 			sashPlotFormComposite.appendStatus("Cannot read out xspress detector data", logger);
 			logger.error("Cannot read out xspress detector data", e);
 		}
-		
-		if (monitor != null)
-			monitor.done();
 		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
 		try {
 			xspressDetector.setResGrade(originalResolutionGrade);
