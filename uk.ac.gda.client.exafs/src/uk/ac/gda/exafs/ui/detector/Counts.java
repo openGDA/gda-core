@@ -20,7 +20,7 @@ package uk.ac.gda.exafs.ui.detector;
 
 public class Counts {
 	
-	public void calculateAndPlotCountTotals(Boolean currentEditIndividual, Boolean calculateSingleElement, double[][][] detectorData, DetectorElementComposite detectorElementComposite, int currentSelectedElementIndex) {
+	public void calculateAndPlotCountTotals(Boolean currentEditIndividual, Boolean calculateSingleElement, int[][][] detectorData, DetectorElementComposite detectorElementComposite, int currentSelectedElementIndex) {
 		// use last value or store new value;
 		if (currentEditIndividual == null)
 			currentEditIndividual = calculateSingleElement;
@@ -40,7 +40,7 @@ public class Counts {
 		detectorElementComposite.setTotalElementCounts(getTotalElementCounts(currentSelectedElementIndex, detectorData));
 	}
 	
-	private int getInWindowsCounts(Boolean currentEditIndividual, int start, int end, int currentSelectedElementIndex, double[][][] detectorData) {
+	private int getInWindowsCounts(Boolean currentEditIndividual, int start, int end, int currentSelectedElementIndex, int[][][] detectorData) {
 		int total = 0;
 		if (currentEditIndividual)
 			total = sumElementInWindowCounts(start, end, currentSelectedElementIndex, detectorData);
@@ -50,7 +50,7 @@ public class Counts {
 		return total;
 	}
 	
-	protected int sumElementInWindowCounts(int start, int end, int element, double[][][] detectorData) {
+	protected int sumElementInWindowCounts(int start, int end, int element, int[][][] detectorData) {
 		if (start == -1)
 			return 0;
 		int total = 0;
@@ -64,7 +64,7 @@ public class Counts {
 		return total;
 	}
 	
-	public int getTotalElementCounts(int elementNumber, double[][][] detectorData) {
+	public int getTotalElementCounts(int elementNumber, int[][][] detectorData) {
 		int sum = 0;
 		for (int j = 0; j < detectorData[elementNumber].length; j++)
 			for (int k = 0; k < detectorData[elementNumber][j].length; k++)
@@ -72,7 +72,7 @@ public class Counts {
 		return sum;
 	}
 	
-	private int getTotalCounts(double[][][] detectorData) {
+	private int getTotalCounts(int[][][] detectorData) {
 		int sum = 0;
 		for (int i = 0; i < detectorData.length; i++)
 			sum += getTotalElementCounts(i, detectorData);

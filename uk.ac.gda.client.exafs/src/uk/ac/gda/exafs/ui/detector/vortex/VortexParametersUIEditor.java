@@ -350,7 +350,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 				monitor.worked(1);
 			int[][][] data3d = get3DArray(data);
 			getDataWrapper().setValue(ElementCountsData.getDataFor(data3d));
-			detectorData = getData(data3d);
+			detectorData = data3d;
 			if (monitor != null)
 				monitor.worked(1);
 			// returns the icr and ocr

@@ -56,7 +56,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.progress.IProgressService;
@@ -65,6 +64,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.BeansFactory;
@@ -95,13 +95,14 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
+
 import com.swtdesigner.SWTResourceManager;
 
 public abstract class DetectorEditor extends RichBeanEditorPart {
 	private static final String EXAFS_SCRIPT_OBSERVER = "ExafsScriptObserver";// name of ScriptController that must be in the system for uploading to device to work
 	private static final Logger logger = LoggerFactory.getLogger(DetectorEditor.class);
 	protected SashFormPlotComposite sashPlotFormComposite;
-	protected volatile double[/* element */][/* grade */][/* mca */] detectorData;
+	protected volatile int[/* element */][/* grade */][/* mca */] detectorData;
 	protected DataWrapper dataWrapper;
 	protected String serverCommand;
 	private ExpansionAdapter expansionListener;
@@ -228,7 +229,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
 		if (getDataWrapper().getValue() != null) {
-			detectorData = getData(ElementCountsData.getDataFrom(getDataWrapper().getValue()));
+			detectorData = ElementCountsData.getDataFrom(getDataWrapper().getValue());
 			if (detectorData != null)
 				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
 			plot(0,false);
@@ -626,13 +627,13 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected List<AbstractDataset> unpackDataSets(int ielement) {
 		List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
 		if (ielement < 0 || detectorData == null) {
-			DoubleDataset ds = new DoubleDataset(new double[] { 0d });
+			IntegerDataset ds = new IntegerDataset(new int[]{});
 			ret.add(ds);
 			return ret;
 		}
-		double[][] data = detectorData[ielement];
+		int[][] data = detectorData[ielement];
 		for (int i = 0; i < data.length; i++) {
-			DoubleDataset ds = new DoubleDataset(data[i]);
+			IntegerDataset ds = new IntegerDataset(data[i], data[i].length);
 			ret.add(ds);
 		}
 		return ret;
@@ -640,19 +641,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	protected DataWrapper getDataWrapper() {
 		return dataWrapper;
-	}
-
-	/**
-	 * @param int_data
-	 * @return a double [][][] from an int[][][]
-	 */
-	protected double[][][] getData(int[][][] int_data) {
-		double[][][] data = new double[int_data.length][int_data[0].length][int_data[0][0].length];
-		for (int i = 0; i < int_data.length; i++)
-			for (int j = 0; j < int_data[i].length; j++)
-				for (int k = 0; k < int_data[i][j].length; k++)
-					data[i][j][k] = int_data[i][j][k];
-		return data;
 	}
 
 	protected void setImportCompositeVisible(boolean visible) {

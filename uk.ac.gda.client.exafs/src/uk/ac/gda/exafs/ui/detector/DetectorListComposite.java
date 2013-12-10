@@ -34,7 +34,7 @@ import com.swtdesigner.SWTResourceManager;
 
 public class DetectorListComposite extends Composite {
 
-	protected GridListEditor           detectorList;
+	protected GridListEditor detectorList;
 	private DetectorElementComposite detectorElementComposite;
 
 	public DetectorListComposite(final Composite                  parent, 

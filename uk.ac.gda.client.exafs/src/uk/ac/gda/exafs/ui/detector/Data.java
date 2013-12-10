@@ -81,7 +81,7 @@ public class Data {
 		}
 	}
 	
-	public void save(double[][][] data, String filePath) {
+	public void save(int[][][] data, String filePath) {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
 			StringBuffer toWrite = new StringBuffer();

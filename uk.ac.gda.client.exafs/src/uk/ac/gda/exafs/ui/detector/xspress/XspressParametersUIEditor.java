@@ -270,8 +270,25 @@ public class XspressParametersUIEditor extends DetectorEditor {
 					String uiResolutionGrade = getResGradeAllowingForReadoutMode();
 					XspressDetector xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
 					Display display = getSite().getShell().getDisplay();
-					xspressAcquire.acquire(xspressDetector, null, acquireTime.getNumericValue(), xspressParameters.getDetectorName(), saveMcaOnAcquire, display, sashPlotFormComposite, uiReadoutMode, uiResolutionGrade);
-					acquire(xspressAcquire.getMcaData(), display, null, xspressDetector, xspressAcquire.getOriginalResolutionGrade(), xspressAcquire.getOriginalReadoutMode());
+					xspressAcquire.acquire(xspressDetector, null, acquireTime.getNumericValue(), sashPlotFormComposite, uiReadoutMode, uiResolutionGrade);
+					int[][][] mcaData = xspressAcquire.getMcaData();
+					dirtyContainer.setDirty(true);
+					ElementCountsData[] elementCountsData = ElementCountsData.getDataFor(mcaData);
+					getDataWrapper().setValue(elementCountsData);
+					counts.calculateAndPlotCountTotals(showIndividualElements.getValue(), true, mcaData, getDetectorElementComposite(), getCurrentSelectedElementIndex());
+					if (saveMcaOnAcquire)
+						xspressAcquire.saveMca(sashPlotFormComposite, xspressSaveDir, plotData);
+					display.asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							String acquireFileLabelText = xspressAcquire.getAcquireFileLabelText();
+							if(acquireFileLabelText!=null)
+								acquireFileLabel.setText(acquireFileLabelText);
+							getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
+							plot(getDetectorList().getSelectedIndex(),true);
+							setWindowsEnabled(true);
+						}
+					});
 				} catch (Exception e1) {
 					logger.error("Cannot acquire xmap data", e1);
 				}
@@ -309,58 +326,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		
 		openDialog = new FileDialog(composite.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
-	}
-	
-	private void acquire(int[][][] mcaData, Display display, IProgressMonitor monitor, XspressDetector xspressDetector, String originalResolutionGrade, String originalReadoutMode){
-		getDataWrapper().setValue(ElementCountsData.getDataFor(mcaData));
-		dirtyContainer.setDirty(true);
-		detectorData = getData(mcaData);
-		
-		getSite().getShell().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				counts.calculateAndPlotCountTotals(showIndividualElements.getValue(), true, detectorData, getDetectorElementComposite(),  getCurrentSelectedElementIndex());
-			}
-		});
-		
-		if (saveMcaOnAcquire)
-			try {
-				xspressAcquire.writeToDisk(xspressSaveDir, sashPlotFormComposite, plotData, detectorData);
-				display.syncExec(new Runnable() {
-					@Override
-					public void run() {
-						acquireFileLabel.setText("Saved: " + xspressAcquire.getDetectorFileLocation());
-					}
-				});
-			} catch (Exception e) {
-				sashPlotFormComposite.appendStatus("Cannot write xspress detector data to disk", logger);
-				logger.error("Cannot write xspress detector data to disk.", e);
-				return;
-			}
-		
-		if (monitor != null)
-			monitor.done();
-		
-		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
-		
-		try {
-			xspressDetector.setResGrade(originalResolutionGrade);
-			xspressDetector.setReadoutMode(originalReadoutMode);
-		} catch (DeviceException e) {
-			sashPlotFormComposite.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
-			logger.error("Cannot reset res grade, detector may be in an error state", e);
-		}
-		sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
-		
-
-		display.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-				plot(getDetectorList().getSelectedIndex(),true);
-				setWindowsEnabled(true);
-			}
-		});
 	}
 	
 	private void createElements(final Composite composite){
@@ -730,7 +695,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		if (ielement < 0 || detectorData == null || !isAdditiveResolutionGradeMode || !resolutionGradeCombo.getValue().equals(ResGrades.ALLGRADES))
 			return super.unpackDataSets(ielement);
 		final List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
-		final double[][] elementData = detectorData[ielement];
+		final int[][] elementData = detectorData[ielement];
 		for (int resGrade = 0; resGrade < elementData.length; resGrade++) {
 			AbstractDataset d = new DoubleDataset(Arrays.copyOf(elementData[resGrade],elementData[resGrade].length));
 			if (!ret.isEmpty()) {

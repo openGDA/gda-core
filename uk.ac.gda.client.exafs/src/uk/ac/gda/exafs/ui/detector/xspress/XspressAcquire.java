@@ -26,7 +26,6 @@ import gda.device.detector.xspress.XspressDetector;
 import java.io.File;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,18 +39,15 @@ public class XspressAcquire extends Acquire {
 	private String originalResolutionGrade;
 	private String originalReadoutMode;
 	private int[][][] mcaData;
+	private String acquireFileLabelText;
 	
-	public XspressAcquire() {
-		// TODO Auto-generated constructor stub
-	}
-	
-	public void writeToDisk(String xspressSaveDir, SashFormPlotComposite sashPlotFormComposite, Data plotData, double[][][] detectorData) throws Exception{
-		String spoolDirPath = PathConstructor.createFromProperty(xspressSaveDir);
-		if (spoolDirPath == null || spoolDirPath.length() == 0)
+	public void writeToDisk(String xspressSaveDir, SashFormPlotComposite sashPlotFormComposite, Data plotData, int[][][] detectorData) throws Exception{
+		String xspressSaveFullDir = PathConstructor.createFromProperty(xspressSaveDir);
+		if (xspressSaveFullDir == null || xspressSaveFullDir.length() == 0)
 			throw new Exception("Error saving data. Xspress device spool dir is not defined in property " + xspressSaveDir);
 		long snapShotNumber = new NumTracker("Xspress_snapshot").incrementNumber();
 		String fileName = "xspress_snap_" + snapShotNumber + ".mca";
-		File detectorFile = new File(spoolDirPath + "/" + fileName);
+		File detectorFile = new File(xspressSaveFullDir + "/" + fileName);
 		detectorFileLocation = detectorFile.getAbsolutePath();
 		plotData.save(detectorData, detectorFileLocation);
 		sashPlotFormComposite.appendStatus("Xspress snapshot saved to " + detectorFile, logger);
@@ -61,10 +57,9 @@ public class XspressAcquire extends Acquire {
 		return detectorFileLocation;
 	}
 	
-	protected void acquire(XspressDetector xspressDetector, IProgressMonitor monitor, double collectionTimeValue, String detectorName, boolean saveMcaOnAcquire, Display display, SashFormPlotComposite sashPlotFormComposite, String uiReadoutMode, String uiResolutionGrade) {
+	protected void acquire(XspressDetector xspressDetector, IProgressMonitor monitor, double collectionTimeValue, SashFormPlotComposite sashPlotFormComposite, String uiReadoutMode, String uiResolutionGrade) {
 		if (monitor != null)
 			monitor.beginTask("Acquire xspress data", 100);
-		
 		try {
 			originalResolutionGrade = xspressDetector.getResGrade();
 			originalReadoutMode = xspressDetector.getReadoutMode();
@@ -80,6 +75,18 @@ public class XspressAcquire extends Acquire {
 			sashPlotFormComposite.appendStatus("Cannot read out xspress detector data", logger);
 			logger.error("Cannot read out xspress detector data", e);
 		}
+		
+		if (monitor != null)
+			monitor.done();
+		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
+		try {
+			xspressDetector.setResGrade(originalResolutionGrade);
+			xspressDetector.setReadoutMode(originalReadoutMode);
+		} catch (DeviceException e) {
+			sashPlotFormComposite.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
+			logger.error("Cannot reset res grade, detector may be in an error state", e);
+		}
+		sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
 	}
 	
 	public int[][][] getMcaData(){
@@ -92,6 +99,21 @@ public class XspressAcquire extends Acquire {
 	
 	public String getOriginalReadoutMode(){
 		return originalReadoutMode;
+	}
+	
+	public void saveMca(SashFormPlotComposite sashPlotFormComposite, String xspressSaveDir, Data plotData){
+		try {
+			writeToDisk(xspressSaveDir, sashPlotFormComposite, plotData, mcaData);
+			acquireFileLabelText = "Saved: " + detectorFileLocation;
+		} catch (Exception e) {
+			sashPlotFormComposite.appendStatus("Cannot write xspress detector data to disk", logger);
+			logger.error("Cannot write xspress detector data to disk.", e);
+			return;
+		}
+	}
+
+	public String getAcquireFileLabelText() {
+		return acquireFileLabelText;
 	}
 
 }
