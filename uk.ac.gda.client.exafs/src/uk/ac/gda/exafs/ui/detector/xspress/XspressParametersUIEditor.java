@@ -19,8 +19,6 @@
 package uk.ac.gda.exafs.ui.detector.xspress;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
@@ -125,8 +123,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private Label lblRegionBins;
 	private ComboWrapper regionType;
 	private ValueListener detectorElementCompositeValueListener;
-	private String uiResolutionGrade = null;
-	private String uiReadoutMode = null;
 	private ResolutionGrade resolutionGrade;
 	private XspressData xspressData;
 	private XspressAcquire xspressAcquire;
@@ -156,22 +152,15 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	public void createPartControl(Composite composite) {
 		parentComposite = composite;
 		super.createPartControl(parentComposite);
-		
 		xspressData = new XspressData();
-		
 		xspressAcquire = new XspressAcquire();
-		
 		Composite left = sashPlotFormComposite.getLeft();
-		
 		Composite topComposite = new Composite(left, SWT.NONE);
 		topComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
 		GridLayout gridLayout_1 = new GridLayout();
 		gridLayout_1.numColumns = 2;
 		topComposite.setLayout(gridLayout_1);
-		
 		createReadoutMode(topComposite);
-		
 		resolutionGrade = new ResolutionGrade(topComposite);
 		resolutionGradeCombo = resolutionGrade.getResolutionGradeCombo();
 		resolutionGradeCombo.addValueListener(new ValueAdapter("resGrade") {
@@ -180,9 +169,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				updateAdditiveMode();
 			}
 		});
-		
 		createAdditiveResModeAction();
-		
 		if (modeOverride) {
 			GridUtils.setVisibleAndLayout(readoutMode, false);
 			GridUtils.setVisibleAndLayout(resGradeLabel, false);
@@ -190,21 +177,16 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			GridUtils.setVisibleAndLayout(lblRegionBins, false);
 			GridUtils.setVisibleAndLayout(regionType, false);
 		}
-		
 		lblRegionBins = new Label(topComposite, SWT.NONE);
 		lblRegionBins.setText("Region type");
-		
 		regionType = new ComboWrapper(topComposite, SWT.READ_ONLY);
 		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		regionType.setItems(new String[]{XspressParameters.VIRTUALSCALER, XspressROI.MCA});
 		regionType.select(0);
-
-		createControl(left);
+		createAcquireControl(left);
 		createElements(left);
-		
 		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
 			addOutputPreferences(left);
-
 		sashPlotFormComposite.setWeights(new int[] { 30, 74 });
 		configureUI();
 		createApplyToAllObserver();
@@ -241,7 +223,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		});
 	}
 	
-	private void createControl(Composite composite){
+	private void createAcquireControl(Composite composite){
 		Group grpAcquire = new Group(composite, SWT.NONE);
 		grpAcquire.setText("Acquire Spectra");
 		grpAcquire.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
@@ -284,8 +266,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			@Override
 			public void handleEvent(Event event) {
 				try {
-					//xspressAcquire.singleAcquire(acquireTime.getNumericValue(), getSite());
-					acquire(null, acquireTime.getNumericValue(),xspressParameters.getDetectorName(), saveMcaOnAcquire);
+					String uiReadoutMode = (String) getReadoutMode().getValue();
+					String uiResolutionGrade = getResGradeAllowingForReadoutMode();
+					XspressDetector xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
+					Display display = getSite().getShell().getDisplay();
+					xspressAcquire.acquire(xspressDetector, null, acquireTime.getNumericValue(), xspressParameters.getDetectorName(), saveMcaOnAcquire, display, sashPlotFormComposite, uiReadoutMode, uiResolutionGrade);
+					acquire(xspressAcquire.getMcaData(), display, null, xspressDetector, xspressAcquire.getOriginalResolutionGrade(), xspressAcquire.getOriginalReadoutMode());
 				} catch (Exception e1) {
 					logger.error("Cannot acquire xmap data", e1);
 				}
@@ -323,6 +309,58 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		
 		openDialog = new FileDialog(composite.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
+	}
+	
+	private void acquire(int[][][] mcaData, Display display, IProgressMonitor monitor, XspressDetector xspressDetector, String originalResolutionGrade, String originalReadoutMode){
+		getDataWrapper().setValue(ElementCountsData.getDataFor(mcaData));
+		dirtyContainer.setDirty(true);
+		detectorData = getData(mcaData);
+		
+		getSite().getShell().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				counts.calculateAndPlotCountTotals(showIndividualElements.getValue(), true, detectorData, getDetectorElementComposite(),  getCurrentSelectedElementIndex());
+			}
+		});
+		
+		if (saveMcaOnAcquire)
+			try {
+				xspressAcquire.writeToDisk(xspressSaveDir, sashPlotFormComposite, plotData, detectorData);
+				display.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						acquireFileLabel.setText("Saved: " + xspressAcquire.getDetectorFileLocation());
+					}
+				});
+			} catch (Exception e) {
+				sashPlotFormComposite.appendStatus("Cannot write xspress detector data to disk", logger);
+				logger.error("Cannot write xspress detector data to disk.", e);
+				return;
+			}
+		
+		if (monitor != null)
+			monitor.done();
+		
+		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
+		
+		try {
+			xspressDetector.setResGrade(originalResolutionGrade);
+			xspressDetector.setReadoutMode(originalReadoutMode);
+		} catch (DeviceException e) {
+			sashPlotFormComposite.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
+			logger.error("Cannot reset res grade, detector may be in an error state", e);
+		}
+		sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
+		
+
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
+				plot(getDetectorList().getSelectedIndex(),true);
+				setWindowsEnabled(true);
+			}
+		});
 	}
 	
 	private void createElements(final Composite composite){
@@ -665,96 +703,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			return;
 		comp.getDetectorType().setValue("Germanium");
 		comp.getConfigFileName().setValue(file.getAbsolutePath());
-	}
-
-	protected void acquire(IProgressMonitor monitor, double collectionTimeValue, String detectorName, boolean saveMcaOnAcquire) {
-		
-		if (monitor != null)
-			monitor.beginTask("Acquire xspress data", 100);
-		
-		XspressDetector xspressDetector = Finder.getInstance().find(detectorName);
-		
-		String originalResolutionGrade;
-		String originalReadoutMode;
-		
-		try {
-			originalResolutionGrade = xspressDetector.getResGrade();
-			originalReadoutMode = xspressDetector.getReadoutMode();
-		} catch (DeviceException e) {
-			logger.error("Cannot get current resolution grade", e);
-			return;
-		}
-		
-		Display display = getSite().getShell().getDisplay();
-		display.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				uiReadoutMode = (String) getReadoutMode().getValue();
-				uiResolutionGrade = getResGradeAllowingForReadoutMode();
-			}
-		});
-		sashPlotFormComposite.appendStatus("Collecting a single frame of MCA data with resolution grade set to '" + uiResolutionGrade + "'.", logger);
-		
-		int[][][] mcaData = null;
-		
-		try {
-			xspressDetector.setAttribute("readoutModeForCalibration", new String[] { uiReadoutMode, uiResolutionGrade });
-			mcaData = xspressDetector.getMCData((int) collectionTimeValue);
-		} catch (DeviceException e) {
-			sashPlotFormComposite.appendStatus("Cannot read out xspress detector data", logger);
-			logger.error("Cannot read out xspress detector data", e);
-		}
-		
-		finally {
-			getDataWrapper().setValue(ElementCountsData.getDataFor(mcaData));
-			dirtyContainer.setDirty(true);
-			detectorData = getData(mcaData);
-			
-			getSite().getShell().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					counts.calculateAndPlotCountTotals(showIndividualElements.getValue(), true, detectorData, getDetectorElementComposite(),  getCurrentSelectedElementIndex());
-				}
-			});
-			
-			if (saveMcaOnAcquire)
-				try {
-					xspressAcquire.writeToDisk(originalReadoutMode, sashPlotFormComposite, plotData, detectorData);
-					display.syncExec(new Runnable() {
-						@Override
-						public void run() {
-							acquireFileLabel.setText("Saved: " + xspressAcquire.getDetectorFileLocation());
-						}
-					});
-				} catch (Exception e) {
-					sashPlotFormComposite.appendStatus("Cannot write xspress detector data to disk", logger);
-					logger.error("Cannot write xspress detector data to disk.", e);
-					return;
-				}
-			
-			if (monitor != null)
-				monitor.done();
-			
-			sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
-			
-			try {
-				xspressDetector.setResGrade(originalResolutionGrade);
-				xspressDetector.setReadoutMode(originalReadoutMode);
-			} catch (DeviceException e) {
-				sashPlotFormComposite.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
-				logger.error("Cannot reset res grade, detector may be in an error state", e);
-			}
-			sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
-		}
-
-		display.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-				plot(getDetectorList().getSelectedIndex(),true);
-				setWindowsEnabled(true);
-			}
-		});
 	}
 	
 	@Override

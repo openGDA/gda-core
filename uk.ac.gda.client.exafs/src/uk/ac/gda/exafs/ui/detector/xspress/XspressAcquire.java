@@ -20,9 +20,13 @@ package uk.ac.gda.exafs.ui.detector.xspress;
 
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.device.detector.xspress.XspressDetector;
 
 import java.io.File;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +37,9 @@ import uk.ac.gda.exafs.ui.detector.Data;
 public class XspressAcquire extends Acquire {
 	private static final Logger logger = LoggerFactory.getLogger(XspressAcquire.class);
 	private String detectorFileLocation;
+	private String originalResolutionGrade;
+	private String originalReadoutMode;
+	private int[][][] mcaData;
 	
 	public XspressAcquire() {
 		// TODO Auto-generated constructor stub
@@ -54,5 +61,37 @@ public class XspressAcquire extends Acquire {
 		return detectorFileLocation;
 	}
 	
+	protected void acquire(XspressDetector xspressDetector, IProgressMonitor monitor, double collectionTimeValue, String detectorName, boolean saveMcaOnAcquire, Display display, SashFormPlotComposite sashPlotFormComposite, String uiReadoutMode, String uiResolutionGrade) {
+		if (monitor != null)
+			monitor.beginTask("Acquire xspress data", 100);
+		
+		try {
+			originalResolutionGrade = xspressDetector.getResGrade();
+			originalReadoutMode = xspressDetector.getReadoutMode();
+		} catch (DeviceException e) {
+			logger.error("Cannot get current resolution grade", e);
+			return;
+		}
+		sashPlotFormComposite.appendStatus("Collecting a single frame of MCA data with resolution grade set to '" + uiResolutionGrade + "'.", logger);
+		try {
+			xspressDetector.setAttribute("readoutModeForCalibration", new String[] { uiReadoutMode, uiResolutionGrade });
+			mcaData = xspressDetector.getMCData((int) collectionTimeValue);
+		} catch (DeviceException e) {
+			sashPlotFormComposite.appendStatus("Cannot read out xspress detector data", logger);
+			logger.error("Cannot read out xspress detector data", e);
+		}
+	}
+	
+	public int[][][] getMcaData(){
+		return mcaData;
+	}
+	
+	public String getOriginalResolutionGrade(){
+		return originalResolutionGrade;
+	}
+	
+	public String getOriginalReadoutMode(){
+		return originalReadoutMode;
+	}
 
 }
