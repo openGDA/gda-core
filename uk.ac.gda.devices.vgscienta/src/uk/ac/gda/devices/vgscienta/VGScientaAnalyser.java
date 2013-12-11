@@ -30,6 +30,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
+import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
@@ -68,6 +69,8 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	private FlexibleFrameStrategy flex;
 
 	private EntranceSlitInformationProvider entranceSlitInformationProvider;
+	
+	private RectangularROIProvider<Integer> cpsRoiProvider;
 	
 	@Override
 	public void configure() throws FactoryException {
@@ -236,6 +239,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
 		switch (groupData.type) {
 		case NexusFile.NX_FLOAT32: 
+			// TODO calculate cps within ROI only
 			float[] floats = (float[]) groupData.getBuffer();
 			long sum = 0;
 			for (int i = 0; i < floats.length; i++) {
@@ -453,5 +457,13 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void stop() throws DeviceException {
 		inScan = false;
 		super.stop();
+	}
+
+	public RectangularROIProvider<Integer> getCpsRoiProvider() {
+		return cpsRoiProvider;
+	}
+
+	public void setCpsRoiProvider(RectangularROIProvider<Integer> cpsRoiProvider) {
+		this.cpsRoiProvider = cpsRoiProvider;
 	}
 }
