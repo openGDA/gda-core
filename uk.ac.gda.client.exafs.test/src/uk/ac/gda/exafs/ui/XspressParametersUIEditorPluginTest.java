@@ -60,59 +60,59 @@ public class XspressParametersUIEditorPluginTest {
 
 	}
 	
-	/**
-	 * This method tests a BeanListEditor nested in a GridListEditor.
-	 * @throws Throwable
-	 */ 
-	@Test
-	public final void testNested() throws Throwable {
-		
-		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)editor.getRichBeanEditor();
-		uiEd.setWindowsEnabled(true);
-		
-		uiEd._testSetSelectedElement(0);
-		uiEd._testAddRegionOfInterest("bill");
-		
-		if (uiEd._testGetNumberOfRegions()!=1) throw new Exception("UI does not have correct value for regions of interest.");
-		
-		final XspressParameters params = new XspressParameters();
-		BeanUI.uiToBean(uiEd, params);
-		
-		// Check 64 elements
-		if (params.getDetectorList().size()!=64) throw new Exception("There should be 64 elements in the bean from this editor.");
-		
-		// Check ROI was added
-		final DetectorElement ele = params.getDetectorList().get(0);
-		if (ele.getRegionList().size()!=1) throw new Exception("There should be one ROI in the first element.");
-		
-	}
+//	/**
+//	 * This method tests a BeanListEditor nested in a GridListEditor.
+//	 * @throws Throwable
+//	 */ 
+//	@Test
+//	public final void testNested() throws Throwable {
+//		
+//		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)editor.getRichBeanEditor();
+//		uiEd.setWindowsEnabled(true);
+//		
+//		uiEd._testSetSelectedElement(0);
+//		uiEd._testAddRegionOfInterest("bill");
+//		
+//		if (uiEd._testGetNumberOfRegions()!=1) throw new Exception("UI does not have correct value for regions of interest.");
+//		
+//		final XspressParameters params = new XspressParameters();
+//		BeanUI.uiToBean(uiEd, params);
+//		
+//		// Check 64 elements
+//		if (params.getDetectorList().size()!=64) throw new Exception("There should be 64 elements in the bean from this editor.");
+//		
+//		// Check ROI was added
+//		final DetectorElement ele = params.getDetectorList().get(0);
+//		if (ele.getRegionList().size()!=1) throw new Exception("There should be one ROI in the first element.");
+//		
+//	}
 	
-	/**
-	 * This method tests a BeanListEditor nested in a GridListEditor.
-	 * @throws Throwable
-	 */ 
-	@Test
-	public final void testRoiName() throws Throwable {
-	
-		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)editor.getRichBeanEditor();
-		uiEd.setWindowsEnabled(true);
-		
-		uiEd._testSetSelectedElement(0);
-		uiEd._testAddRegionOfInterest("fred");
-		
-		final XspressParameters params = new XspressParameters();
-		BeanUI.uiToBean(uiEd, params);
-				
-		// Check ROI was added
-		final DetectorElement ele = params.getDetectorList().get(0);
-		final List<XspressROI> ro = ele.getRegionList();
-		
-        for (XspressROI xspressROI : ro) {
-			if (xspressROI.getRoiName().equals("fred")) {
-				return;
-			}
-		}
-        
-        throw new Exception("Cannot find named ROI 'fred'.");
-	}
+//	/**
+//	 * This method tests a BeanListEditor nested in a GridListEditor.
+//	 * @throws Throwable
+//	 */ 
+//	@Test
+//	public final void testRoiName() throws Throwable {
+//	
+//		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)editor.getRichBeanEditor();
+//		uiEd.setWindowsEnabled(true);
+//		
+//		uiEd._testSetSelectedElement(0);
+//		uiEd._testAddRegionOfInterest("fred");
+//		
+//		final XspressParameters params = new XspressParameters();
+//		BeanUI.uiToBean(uiEd, params);
+//				
+//		// Check ROI was added
+//		final DetectorElement ele = params.getDetectorList().get(0);
+//		final List<XspressROI> ro = ele.getRegionList();
+//		
+//        for (XspressROI xspressROI : ro) {
+//			if (xspressROI.getRoiName().equals("fred")) {
+//				return;
+//			}
+//		}
+//        
+//        throw new Exception("Cannot find named ROI 'fred'.");
+//	}
 }

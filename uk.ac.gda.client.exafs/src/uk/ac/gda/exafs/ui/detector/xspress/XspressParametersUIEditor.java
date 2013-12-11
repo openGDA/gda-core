@@ -28,8 +28,6 @@ import java.net.URL;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -77,7 +75,6 @@ import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
 
-import com.swtdesigner.ResourceManager;
 import com.swtdesigner.SWTResourceManager;
 
 public class XspressParametersUIEditor extends DetectorEditor {
@@ -94,7 +91,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private SelectionAdapter applyToAllListener;
 	private BooleanWrapper showIndividualElements;
 	private Group detectorElementsGroup;
-	private Action plotAction;
 	private Label resGradeLabel;
 	private FileDialog openDialog;
 	private BooleanWrapper onlyShowFF;
@@ -107,14 +103,9 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private ResolutionGrade resolutionGrade;
 	private XspressData xspressData;
 	
-	public XspressParametersUIEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer, final Object editingBean) {
+	public XspressParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean, "xspressConfig");
 		xspressParameters = (XspressParameters) editingBean;
-	}
-
-	@Override
-	protected String getDetectorName() {
-		return xspressParameters.getDetectorName();
 	}
 
 	@Override
@@ -136,13 +127,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		createReadoutMode(topComposite);
 		resolutionGrade = new ResolutionGrade(topComposite);
 		resolutionGradeCombo = resolutionGrade.getResolutionGradeCombo();
-		resolutionGradeCombo.addValueListener(new ValueAdapter("resGrade") {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				updateAdditiveMode();
-			}
-		});
-		createAdditiveResModeAction();
 		if (modeOverride) {
 			GridUtils.setVisibleAndLayout(readoutMode, false);
 			GridUtils.setVisibleAndLayout(resGradeLabel, false);
@@ -163,7 +147,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		sashPlotFormComposite.setWeights(new int[] { 30, 74 });
 		configureUI();
 		createApplyToAllObserver();
-		xspressAcquire.init(counts, xspressParameters, readoutMode, resolutionGradeCombo, dataWrapper, showIndividualElements, getDetectorElementComposite(), getCurrentSelectedElementIndex(), getDetectorList(), plot);
+		xspressAcquire.init(counts, xspressParameters, readoutMode, resolutionGradeCombo, dataWrapper, showIndividualElements, getDetectorElementComposite(), getCurrentSelectedElementIndex(), getDetectorList(), plot, dirtyContainer);
 	}
 	
 	private void createReadoutMode(final Composite composite){
@@ -232,10 +216,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		gridLayoutAcq.marginWidth = 0;
 		acquire.setLayout(gridLayoutAcq);
 		
-		
 		xspressAcquire = new XspressAcquire(acquire, sashPlotFormComposite, getSite().getShell().getDisplay());
 		
-		dirtyContainer.setDirty(true);
 		openDialog = new FileDialog(composite.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 	}
@@ -428,21 +410,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			this.readoutMode.setValue(XspressDetector.READOUT_ROIS);
 	}
 
-	private Action createAdditiveResModeAction(){
-		plotAction = new Action("Show resolution grades added", IAction.AS_CHECK_BOX) {
-			@Override
-			public void run() {
-				plot.plot(getDetectorList().getSelectedIndex(),false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), isChecked(), resolutionGradeCombo);
-			}
-		};
-		plotAction.setImageDescriptor(ResourceManager.getImageDescriptor(XspressParametersUIEditor.class, "/icons/chart_line_add.png"));
-		return plotAction;
-	}
-	
-	protected void updateAdditiveMode() {
-		plotAction.setEnabled(resolutionGradeCombo.getValue().equals(ResGrades.ALLGRADES));
-	}
-
 	@Override
 	protected java.awt.Color getChannelColor(int iChannel) {
 		String resGrade = getResGradeAllowingForReadoutMode();
@@ -539,7 +506,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			resolutionGrade.updateResModeItems(readoutRois);
 			updateRoiVisibility();
 			updateElementsVisibility(parentComposite);
-			updateAdditiveMode();
 			updateResGradeVisibility(parentComposite);
 			// notify the composite immediately of a possible change
 			listEditorUI.notifySelected(getDetectorElementComposite().getRegionList());
@@ -579,26 +545,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		fluorescenceComposite.getDetectorType().setValue("Germanium");
 		fluorescenceComposite.getConfigFileName().setValue(file.getAbsolutePath());
 	}
-	
-	@Override
-	protected double getDetectorCollectionTime() {
-		return xspressAcquire.getCollectionTime();
-	}
-
-	@Override
-	protected long getAcquireWaitTime() {
-		return 1100l;
-	}
-
-	@SuppressWarnings("unchecked")
-	public int _testGetNumberOfRegions() {
-		return ((List<? extends Object>) this.getDetectorElementComposite().getRegionList().getValue()).size();
-	}
-
-	@Override
-	public XMLCommandHandler getXMLCommandHandler() {
-		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(XspressParameters.class);
-	}
 
 	public BooleanWrapper getOnlyShowFF() {
 		return onlyShowFF;
@@ -620,6 +566,22 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	
 	public ComboWrapper getRegionType() {
 		return regionType;
+	}
+	
+	protected String getDetectorName() {
+		return xspressParameters.getDetectorName();
+	}
+	
+	public XMLCommandHandler getXMLCommandHandler() {
+		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(XspressParameters.class);
+	}
+	
+	protected double getDetectorCollectionTime() {
+		return xspressAcquire.getCollectionTime();
+	}
+
+	protected long getAcquireWaitTime() {
+		return 1100l;
 	}
 	
 }

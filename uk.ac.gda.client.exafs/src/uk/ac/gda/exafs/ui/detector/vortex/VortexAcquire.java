@@ -18,14 +18,34 @@
 
 package uk.ac.gda.exafs.ui.detector.vortex;
 
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Timer;
 import gda.device.XmapDetector;
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.exafs.ui.detector.Acquire;
 
 public class VortexAcquire extends Acquire {
 	private int[][][] data3d;
+	private static final Logger logger = LoggerFactory.getLogger(Acquire.class);
+	private boolean continuousAquire = false;
+	private Thread continuousThread;
+	private ReentrantLock lock;
+	private XmapDetector xmapDetector;
+	private Timer tfg;
+	private SashFormPlotComposite sashPlotFormComposite;
 	
-	protected void acquire(double collectionTime, XmapDetector xmapDetector, Timer tfg) throws Exception {
+	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg){
+		this.sashPlotFormComposite = sashPlotFormComposite;
+		this.xmapDetector = xmapDetector;
+		this.tfg = tfg;
+		lock = new ReentrantLock();
+	}
+	
+	protected void acquire(double collectionTime) throws Exception {
 		xmapDetector.clearAndStart();
 		tfg.countAsync(collectionTime);
 		xmapDetector.stop();
@@ -43,6 +63,43 @@ public class VortexAcquire extends Acquire {
 		for (int i = 0; i < data.length; i++)
 			ret[i][0] = data[i];
 		return ret;
+	}
+	
+	public void continuousAcquire(final long aquireWaitTime, final double collectiontime) {
+		if (lock != null && lock.isLocked()) {
+			final String msg = "There is currently an acquire running. You cannot run another one.";
+			logger.info(msg);
+			sashPlotFormComposite.appendStatus(msg, logger);
+			return;
+		}
+		try {
+			continuousThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					lock.lock();
+					while (continuousAquire) {
+						if (!lock.isLocked())
+							break;
+						acquire(collectiontime);
+						if (!lock.isLocked())
+							break;
+						Thread.sleep(aquireWaitTime);
+					}
+				} catch (InterruptedException e) {
+					logger.error("Continuous acquire problem with detector.", e);
+				} catch (Throwable e) {
+					logger.error("Continuous acquire problem with detector.", e);
+				} finally {
+					lock.unlock();
+				}
+			}
+		}, "Detector Live Runner");
+		continuousThread.start();
+		} 
+		catch (Exception e) {
+			logger.error("Internal errror process continuous data from detector.", e);
+		}
 	}
 
 }

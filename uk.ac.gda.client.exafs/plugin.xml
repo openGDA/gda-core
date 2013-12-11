@@ -187,12 +187,6 @@
             name="Delete from Queue">
       </command>
       <command
-            defaultHandler="uk.ac.gda.exafs.ui.actions.RevertDetectorParametersToTemplateAction"
-            description="Revert detector configuration file."
-            id="uk.ac.gda.exafs.ui.actions.RevertDetectorParametersToTemplateAction"
-            name="Revert">
-      </command>
-      <command
             defaultHandler="uk.ac.gda.exafs.ui.actions.AlignmentModeHandler"
             id="uk.ac.gda.client.exafs.alignmentCommand"
             name="Aligment Mode">

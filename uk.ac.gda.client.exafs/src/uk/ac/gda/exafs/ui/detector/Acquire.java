@@ -18,87 +18,19 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import gda.device.Detector;
-import gda.factory.Finder;
-
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
-
 public class Acquire {
-	private static final Logger logger = LoggerFactory.getLogger(Acquire.class);
-	private boolean continuousAquire = false;
-	private Thread continuousThread;
-	private ReentrantLock lock;
+
 	
 	public Acquire() {
-		lock = new ReentrantLock();
 	}
 	
-	public void continuousAcquire(Display display, final boolean disposed, SashFormPlotComposite sashPlotFormComposite, final long aquireWaitTime, final double collectiontime, final String detectorName) {
-		continuousAquire = !continuousAquire;
-		if (continuousAquire && lock != null && lock.isLocked()) {
-			final String msg = "There is currently an acquire running. You cannot run another one.";
-			logger.info(msg);
-			sashPlotFormComposite.appendStatus(msg, logger);
-			return;
-		}
-		try {
-			if(continuousAquire) {
-				continuousThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							lock.lock();
-							while (continuousAquire) {
-								if (!lock.isLocked())
-									break;
-								if (disposed)
-									break;
-								acquire(null, collectiontime);
-								if (!lock.isLocked())
-									break;
-								if (disposed)
-									break;
-								Thread.sleep(aquireWaitTime);
-							}
-						} catch (InterruptedException e) {
-							// Expected
-						} catch (Throwable e) {
-							logger.error("Continuous acquire problem with detector.", e);
-						} finally {
-							lock.unlock();
-						}
-					}
-				}, "Detector Live Runner");
-				continuousThread.start();
-			} 
-			else {
-				display.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							lock.lock();
-							Detector detector = (Detector) Finder.getInstance().find(detectorName);
-							logger.debug("Stopping detector");
-							detector.stop();
-						} catch (Exception e) {
-							logger.error("Continuous problem configuring detector -  cannot stop detector.", e);
-						} finally {
-							lock.unlock();
-						}
-					}
-				});
-			}
-		} catch (Exception e) {
-			logger.error("Internal errror process continuous data from detector.", e);
-		}
-	}
+	
 	
 	public void acquire(IProgressMonitor monitor, double collectionTimeValue) throws Exception {
 		

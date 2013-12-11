@@ -87,7 +87,8 @@ public class Plot {
 		List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
 		int[][] elementData = detectorData[ielement];
 		for (int resGrade = 0; resGrade < elementData.length; resGrade++) {
-			AbstractDataset d = new DoubleDataset(Arrays.copyOf(elementData[resGrade],elementData[resGrade].length));
+			int[] data = Arrays.copyOf(elementData[resGrade],elementData[resGrade].length);
+			IntegerDataset d = new IntegerDataset(data, data.length);
 			if (!ret.isEmpty()) {
 				AbstractDataset p = ret.get(resGrade - 1);
 				d.iadd(p);

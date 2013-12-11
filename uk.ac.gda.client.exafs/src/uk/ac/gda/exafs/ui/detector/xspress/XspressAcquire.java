@@ -56,6 +56,7 @@ import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
+import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -115,7 +116,7 @@ public class XspressAcquire extends Acquire {
 		acquireFileLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 	}
 	
-	public void init(final Counts counts, XspressParameters xspressParameters, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final DataWrapper dataWrapper, final BooleanWrapper showIndividualElements, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex, final GridListEditor detectorList, final Plot plot){
+	public void init(final Counts counts, XspressParameters xspressParameters, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final DataWrapper dataWrapper, final BooleanWrapper showIndividualElements, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex, final GridListEditor detectorList, final Plot plot, final DirtyContainer dirtyContainer){
 		xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
 		
 		acquireBtn.addListener(SWT.Selection, new Listener() {
@@ -138,7 +139,7 @@ public class XspressAcquire extends Acquire {
 								acquireFileLabel.setText(acquireFileLabelText);
 							detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
 							plot.plot(detectorList.getSelectedIndex(),true, mcaData, detectorElementComposite, currentSelectedElementIndex, false, resolutionGrade);
-							//setWindowsEnabled(true);
+							dirtyContainer.setDirty(true);
 						}
 					});
 				} catch (Exception e1) {

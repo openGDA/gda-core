@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +57,7 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.BeansFactory;
@@ -126,28 +125,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	/**
-	 * @return the time that is waited during the acquisition loop. Called in the display thread.
-	 */
-	protected abstract double getDetectorCollectionTime();
-
-	/**
-	 * @return the time that is waited during the acquisition loop. Called in the display thread.
-	 */
-	protected abstract long getAcquireWaitTime();
-
-	/**
-	 * Name of the Detector which should be findable.
-	 * 
-	 * @return detector.
-	 */
-	protected abstract String getDetectorName();
-
-	/**
-	 * @return the copier which can get the template file from the server.
-	 */
-	public abstract XMLCommandHandler getXMLCommandHandler();
-
-	/**
 	 * @return - String- the full path of the xml where the acquired data is persisted.
 	 */
 	protected abstract String getDataXMLName();
@@ -201,19 +178,10 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		return uploadAction;
 	}
 
-	/**
-	 * Call to select particular detector element.
-	 * 
-	 * @param index
-	 */
-	public void _testSetSelectedElement(final int index) {
-		getDetectorList().setSelectedIndex(index);
-	}
-
 	@Override
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
-		if (getDataWrapper().getValue() != null)
+		if (dataWrapper.getValue() != null)
 			setWindowsEnabled(true);
 		else
 			setWindowsEnabled(false);
@@ -317,19 +285,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		if (autoApplyToAllListener != null)
 			autoApplyToAll(false); // remove all auto-apply to all listeners
 		super.dispose();
-	}
-
-	public void _testAddRegionOfInterest(final String name) throws Exception {
-		getDetectorElementComposite().getRegionList().addBean();
-		getDetectorElementComposite().getRegionList().setField("roiName", name);
-	}
-
-	public void _testDeleteRegionOfInterest() {
-		getDetectorElementComposite().getRegionList().deleteBean();
-	}
-
-	public void _testMoveRegionOfInterest(final int value) {
-		getDetectorElementComposite().getRegionList().moveBean(value);
 	}
 
 	protected void upload() throws Exception {
@@ -525,7 +480,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		getDetectorList().setFocus();
 	}
 
-	public class RegionSynchronizer implements IROIListener {
+	private class RegionSynchronizer implements IROIListener {
 		@Override
 		public void roiDragged(ROIEvent evt) {
 		}
@@ -551,30 +506,32 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		public void roiSelected(ROIEvent evt) {
 		}
 	}
-	
-	
 
 	protected java.awt.Color getChannelColor(int i) {
 		return PlotColorUtility.getDefaultColour(i);
 	}
 
-	protected double getMin(Collection<AbstractDataset> data) {
-		double ret = Double.MAX_VALUE;
-		for (AbstractDataset dataSet : data)
-			ret = Math.min(ret, dataSet.min().doubleValue());
-		return ret;
-	}
+//	protected double getMin(Collection<AbstractDataset> data) {
+//		double ret = Double.MAX_VALUE;
+//		for (AbstractDataset dataSet : data)
+//			ret = Math.min(ret, dataSet.min().doubleValue());
+//		return ret;
+//	}
 
-	protected double getMax(Collection<AbstractDataset> data) {
-		double ret = -Double.MAX_VALUE;
-		for (AbstractDataset dataSet : data)
-			ret = Math.max(ret, dataSet.max().doubleValue());
-		return ret;
-	}
+//	protected double getMax(Collection<AbstractDataset> data) {
+//		double ret = -Double.MAX_VALUE;
+//		for (AbstractDataset dataSet : data)
+//			ret = Math.max(ret, dataSet.max().doubleValue());
+//		return ret;
+//	}
+	
+	//protected abstract double getDetectorCollectionTime();
 
-	protected DataWrapper getDataWrapper() {
-		return dataWrapper;
-	}
+	//protected abstract long getAcquireWaitTime();
+
+	//protected abstract String getDetectorName();
+
+	//public abstract XMLCommandHandler getXMLCommandHandler();
 
 	protected void setImportCompositeVisible(boolean visible) {
 		GridUtils.setVisibleAndLayout(importComposite, visible);

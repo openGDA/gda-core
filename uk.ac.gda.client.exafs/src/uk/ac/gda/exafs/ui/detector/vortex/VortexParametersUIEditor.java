@@ -87,6 +87,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	private Label lblDeadTime;
 	private VortexData vortexData;
 	private VortexAcquire vortexAcquire;
+	private XmapDetector xmapDetector;
 	
 	public VortexParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean, "vortexConfig");
@@ -99,15 +100,14 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	}
 
 	@Override
-	protected String getDetectorName() {
-		return vortexParameters.getDetectorName();
-	}
-
-	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		vortexData = new VortexData();
-		vortexAcquire = new VortexAcquire();
+		String detectorName = vortexParameters.getDetectorName();
+		xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
+		String tfgName = vortexParameters.getTfgName();
+		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
+		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg);
 		Composite left = sashPlotFormComposite.getLeft();
 		createAcquire(parent, left);
 		createROIPanel(left);
@@ -249,15 +249,12 @@ public class VortexParametersUIEditor extends DetectorEditor {
 					if (!writeToDisk || !autoSaveEnabled)
 						acquireFileLabel.setText("										");
 					if (!live.getSelection()){
-						String detectorName = vortexParameters.getDetectorName();
-						XmapDetector xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
-						String tfgName = vortexParameters.getTfgName();
-						Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-						vortexAcquire.acquire(acquireTime.getNumericValue(), xmapDetector, tfg);
+					
+						vortexAcquire.acquire(acquireTime.getNumericValue());
 						
 						Display display = getSite().getShell().getDisplay();
-						int[][][] data3d = vortexAcquire.getData3d();
-						getDataWrapper().setValue(ElementCountsData.getDataFor(data3d));
+						final int[][][] data3d = vortexAcquire.getData3d();
+						dataWrapper.setValue(ElementCountsData.getDataFor(data3d));
 						
 						detectorData = data3d;
 						
@@ -270,7 +267,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 							@Override
 							public void run() {
 								getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
-								//plot.plot(getDetectorList().getSelectedIndex(),true, mcaData, detectorElementComposite, currentSelectedElementIndex, false, null);
+								plot.plot(getDetectorList().getSelectedIndex(),true, data3d, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, null);
 								setWindowsEnabled(true);
 								deadTimeLabel.setValue(deadTimeFinal);
 								lblDeadTime.setVisible(true);
@@ -304,7 +301,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 						}
 					}
 					else
-						vortexAcquire.continuousAcquire(getSite().getShell().getDisplay(), isDisposed(), sashPlotFormComposite, getAcquireWaitTime(), getDetectorCollectionTime(), getDetectorName());
+						vortexAcquire.continuousAcquire(1000, 1000);
 				} catch (Exception e1) {
 					logger.error("Cannot acquire xmap data", e1);
 				}
@@ -349,21 +346,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		getDetectorElementComposite().setIndividualElements(true);
 	}
 
-	/**
-	 * Cannot be called in non-ui thread.
-	 */
-	@Override
-	protected double getDetectorCollectionTime() {
-		return (Double) getCollectionTime().getValue();
-	}
-
-	/**
-	 * Cannot be called in non-ui thread.
-	 */
-	@Override
-	protected long getAcquireWaitTime() {
-		return Math.round((Double) getCollectionTime().getValue() * 0.1d);
-	}
 
 	@Override
 	public void notifyFileSaved(File file) {
@@ -381,11 +363,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 	public ComboWrapper getCountType() {
 		return countType;
-	}
-
-	@Override
-	public XMLCommandHandler getXMLCommandHandler() {
-		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(VortexParameters.class);
 	}
 
 	public BooleanWrapper getSaveRawSpectrum() {
@@ -410,6 +387,22 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		acquireFileLabel.dispose();
 		acquireBtn.dispose();
 		super.dispose();
+	}
+	
+	protected double getDetectorCollectionTime() {
+		return (Double) getCollectionTime().getValue();
+	}
+	
+	protected long getAcquireWaitTime() {
+		return Math.round((Double) getCollectionTime().getValue() * 0.1d);
+	}
+	
+	public XMLCommandHandler getXMLCommandHandler() {
+		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(VortexParameters.class);
+	}
+	
+	protected String getDetectorName() {
+		return vortexParameters.getDetectorName();
 	}
 	
 }
