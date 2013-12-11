@@ -126,7 +126,7 @@ public class XspressAcquire extends Acquire {
 					String uiResolutionGrade = uiReadoutMode.equals(XspressDetector.READOUT_ROIS) ? (String) resolutionGrade.getValue() : ResGrades.NONE;
 					acquire(xspressDetector, acquireTime.getNumericValue(), uiReadoutMode, uiResolutionGrade);
 					ElementCountsData[] elementCountsData = ElementCountsData.getDataFor(mcaData);
-					//dataWrapper.setValue(elementCountsData);
+					dataWrapper.setValue(elementCountsData);
 					counts.calculateAndPlotCountTotals(showIndividualElements.getValue(), true, mcaData, detectorElementComposite, currentSelectedElementIndex);
 					if (saveMcaOnAcquire)
 						saveMca(sashPlotFormComposite, xspressSaveDir);
@@ -145,7 +145,6 @@ public class XspressAcquire extends Acquire {
 					logger.error("Cannot acquire xmap data", e1);
 				}
 			}
-			
 		});
 	}
 	

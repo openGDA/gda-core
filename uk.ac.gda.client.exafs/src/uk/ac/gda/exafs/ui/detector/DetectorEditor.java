@@ -28,10 +28,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,9 +58,7 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.BeansFactory;
@@ -161,7 +156,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public void createPartControl(Composite parent) {
 		plotData = new Data();
 		counts = new Counts();
-		//this.dataWrapper = plotData.readStoredData(getDataXMLName());
+		this.dataWrapper = plotData.readStoredData(getDataXMLName());
 		try {
 			sashPlotFormComposite = createSashPlot(parent);
 			sashPlotFormComposite.getPlottingSystem().setRescale(false);
@@ -218,17 +213,10 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	@Override
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
-		if (getDataWrapper().getValue() != null) {
-			detectorData = ElementCountsData.getDataFrom(getDataWrapper().getValue());
-			if (detectorData != null)
-				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-			//plot.plot(0,false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, null);
+		if (getDataWrapper().getValue() != null)
 			setWindowsEnabled(true);
-		} 
-		else {
-			//plot.plot(-1,false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, null);
+		else
 			setWindowsEnabled(false);
-		}
 	}
 
 	protected DetectorListComposite createDetectorList(final Composite parent,
