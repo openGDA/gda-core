@@ -5,8 +5,6 @@
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
 <path>/uk.ac.gda.epics/scripts</path>
 <path>/uk.ac.gda.epics/bin</path>
-</pydev_pathproperty>
-<pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
-<path>${gda_root}/workspace_git/gda-epics.git/uk.ac.gda.epics/jars/jca-2.3.5.jar</path>
+<path>/uk.ac.gda.epics/jars/jca-2.3.5.jar</path>
 </pydev_pathproperty>
 </pydev_project>
