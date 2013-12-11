@@ -68,15 +68,11 @@ public class XspressAcquire extends Acquire {
 	private int[][][] mcaData;
 	private String acquireFileLabelText;
 	private static final String xspressSaveDir = "gda.device.xspress.spoolDir";
-	private boolean saveMcaOnAcquire;
-	private Button autoSave;
 	private ScaleBox acquireTime;
-	private Label acquireFileLabel;
 	private SashFormPlotComposite sashPlotFormComposite;
 	private XspressDetector xspressDetector;
 	private Data plotData;
 	private double collectionTime;
-	private Button acquireBtn;
 	private Display display;
 	
 	public XspressAcquire(Composite acquire, final SashFormPlotComposite sashPlotFormComposite, Display display){
@@ -219,23 +215,6 @@ public class XspressAcquire extends Acquire {
 	public String getAcquireFileLabelText() {
 		return acquireFileLabelText;
 	}
-	
-//	public void acquireStarted() {
-//		acquireBtn.setText("Stop");
-//		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/stop.png"));
-//		autoSave.setEnabled(false);
-//		autoSaveEnabled = false;
-//		acquireFileLabel.setText("										");
-//		live.setEnabled(false);
-//	}
-//
-//	public void acquireFinished() {
-//		acquireBtn.setText("Acquire");
-//		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/application_side_expand.png"));
-//		autoSave.setEnabled(false);
-//		autoSaveEnabled = false;
-//		live.setEnabled(true);
-//	}
 	
 	public double getCollectionTime(){
 		return collectionTime;

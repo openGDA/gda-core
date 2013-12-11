@@ -18,22 +18,38 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+
+import com.swtdesigner.SWTResourceManager;
 
 public class Acquire {
-
+	protected Button acquireBtn;
+	protected boolean saveMcaOnAcquire;
+	protected Button autoSave;
+	protected Label acquireFileLabel;
 	
 	public Acquire() {
 	}
 	
-	
-	
 	public void acquire(IProgressMonitor monitor, double collectionTimeValue) throws Exception {
 		
+	}
+	
+	public void acquireStarted() {
+		acquireBtn.setText("Stop");
+		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/stop.png"));
+		autoSave.setEnabled(false);
+		acquireFileLabel.setText("										");
+		//live.setEnabled(false);
+	}
+
+	public void acquireFinished() {
+		acquireBtn.setText("Acquire");
+		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/application_side_expand.png"));
+		autoSave.setEnabled(false);
+		//live.setEnabled(true);
 	}
 	
 }

@@ -69,7 +69,6 @@ import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
-import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObject;
@@ -108,7 +107,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected Data plotData;
 	private ValueListener autoApplyToAllListener;
 	protected Counts counts;
-	public Plot plot;
+	protected Plot plot;
 	
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean, final String serverCommand) {
@@ -124,9 +123,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		return super.getAdapter(clazz);
 	}
 
-	/**
-	 * @return - String- the full path of the xml where the acquired data is persisted.
-	 */
 	protected abstract String getDataXMLName();
 
 	@Override
@@ -149,13 +145,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		super.doSave(monitor);
 	}
 
-	/**
-	 * Override to ass custom actions.
-	 * 
-	 * @param parent
-	 * @return SashFormPlotComposite
-	 * @throws Exception
-	 */
 	protected SashFormPlotComposite createSashPlot(Composite parent) throws Exception {
 		return new SashFormPlotComposite(parent, this, new RegionSynchronizer(), createUpLoadAction());
 	}
@@ -325,12 +314,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		});
 	}
 
-	/**
-	 * Turn on auto-apply to all of other detectors to match the current one.
-	 * 
-	 * @param on
-	 *            true to turn on auto-apply to all, false to turn it off
-	 */
 	protected void autoApplyToAll(boolean on) {
 		if (autoApplyToAllListener == null) {
 			autoApplyToAllListener = new ValueAdapter("autoApplyToAllListener") {
@@ -367,15 +350,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		}
 	}
 
-	/**
-	 * Currently copies all the regions from the current element to all the other elements, later read an offset file
-	 * when doing this step.
-	 * 
-	 * @param showMessage
-	 *            if true prompts user to confirm
-	 * @return Returns true if the user accepted to do the apply to all, or returns false if the user did not want to
-	 *         perform the update. If showMessage == false always returns true.
-	 */
 	protected boolean applyToAll(boolean showMessage) {
 		if (showMessage) {
 			if (!MessageDialog.openConfirm(getSite().getShell(), "Confirm Apply To All",
@@ -468,7 +442,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected int getCurrentSelectedElementIndex() {
-		return this.detectorListComposite.getDetectorList().getSelectedIndex();
+		return detectorListComposite.getDetectorList().getSelectedIndex();
 	}
 
 	public GridListEditor getDetectorList() {
@@ -494,7 +468,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 					double end = ((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getEndPoint()[0];
 					getDetectorElementComposite().getStart().setValue(start);
 					getDetectorElementComposite().getEnd().setValue(end);
-					// then update the totals
 					counts.calculateAndPlotCountTotals(true, true, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex());
 				} finally {
 					updatingAfterROIDrag = null;
@@ -510,28 +483,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected java.awt.Color getChannelColor(int i) {
 		return PlotColorUtility.getDefaultColour(i);
 	}
-
-//	protected double getMin(Collection<AbstractDataset> data) {
-//		double ret = Double.MAX_VALUE;
-//		for (AbstractDataset dataSet : data)
-//			ret = Math.min(ret, dataSet.min().doubleValue());
-//		return ret;
-//	}
-
-//	protected double getMax(Collection<AbstractDataset> data) {
-//		double ret = -Double.MAX_VALUE;
-//		for (AbstractDataset dataSet : data)
-//			ret = Math.max(ret, dataSet.max().doubleValue());
-//		return ret;
-//	}
-	
-	//protected abstract double getDetectorCollectionTime();
-
-	//protected abstract long getAcquireWaitTime();
-
-	//protected abstract String getDetectorName();
-
-	//public abstract XMLCommandHandler getXMLCommandHandler();
 
 	protected void setImportCompositeVisible(boolean visible) {
 		GridUtils.setVisibleAndLayout(importComposite, visible);
