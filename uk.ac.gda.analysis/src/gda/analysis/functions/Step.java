@@ -95,7 +95,7 @@ public class Step extends uk.ac.diamond.scisoft.analysis.fitting.functions.Step 
 
 	@Override
 	public DataSet makeDataSet(DoubleDataset... values) {
-		return DataSet.convertToDataSet(makeSerialDataset(values));
+		return DataSet.convertToDataSet(calculateValues(values));
 	}
 
 	@Override

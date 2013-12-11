@@ -71,7 +71,7 @@ public class Gaussian extends uk.ac.diamond.scisoft.analysis.fitting.functions.G
 
 	@Override
 	public DataSet makeDataSet(DoubleDataset... values) {
-		return DataSet.convertToDataSet(makeSerialDataset(values));
+		return DataSet.convertToDataSet(calculateValues(values));
 	}
 
 	@Override

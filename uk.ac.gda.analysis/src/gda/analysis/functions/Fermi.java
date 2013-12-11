@@ -66,7 +66,7 @@ public class Fermi extends uk.ac.diamond.scisoft.analysis.fitting.functions.Ferm
 
 	@Override
 	public DataSet makeDataSet(DoubleDataset... values) {
-		return DataSet.convertToDataSet(makeSerialDataset(values));
+		return DataSet.convertToDataSet(calculateValues(values));
 	}
 
 	@Override

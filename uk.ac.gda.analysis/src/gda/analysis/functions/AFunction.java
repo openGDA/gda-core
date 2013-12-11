@@ -49,7 +49,7 @@ public abstract class AFunction extends uk.ac.diamond.scisoft.analysis.fitting.f
 	 * @return A Dataset!
 	 */
 	public DataSet makeDataSet(DoubleDataset value) {
-		return DataSet.convertToDataSet(super.makeDataset(value));
+		return DataSet.convertToDataSet(super.calculateValues(value));
 	}
 
 	@Override

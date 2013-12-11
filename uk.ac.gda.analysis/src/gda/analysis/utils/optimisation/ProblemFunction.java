@@ -163,4 +163,19 @@ public class ProblemFunction implements IFunction {
 	public IFunction getFunction(int index) {
 		return this;
 	}
+
+	@Override
+	public IDataset calculateValues(IDataset... coords) {
+		return null;
+	}
+
+	@Override
+	public IDataset calculatePartialDerivativeValues(IParameter param, IDataset... coords) {
+		return null;
+	}
+
+	@Override
+	public double weightedResidual(boolean allValues, IDataset sigma, IDataset data, IDataset... values) {
+		return residual(allValues, data, values);
+	}
 }

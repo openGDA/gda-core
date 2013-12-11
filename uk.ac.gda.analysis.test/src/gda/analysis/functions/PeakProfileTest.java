@@ -48,7 +48,7 @@ public class PeakProfileTest {
 		
 		DoubleDataset axis = DoubleDataset.arange(min, max, step);
 		Gaussian gaussian = new Gaussian(mean, fwhm, area);
-		DoubleDataset data = gaussian.makeDataset(axis);
+		DoubleDataset data = gaussian.calculateValues(axis);
 		
 		assertEquals("Gaussain Area for '"+description+"' is not correct", gaussian.getArea(), ((Double)data.sum()*step), step);
 		assertEquals("Gaussian Position for '"+description+"' is not correct", gaussian.getPosition(), axis.get(data.maxPos()), step);
@@ -84,7 +84,7 @@ public class PeakProfileTest {
 		
 		DoubleDataset axis = DoubleDataset.arange(min, max, step);
 		Lorentzian lorentzian = new Lorentzian(mean, fwhm, area);
-		DoubleDataset data = lorentzian.makeDataset(axis);
+		DoubleDataset data = lorentzian.calculateValues(axis);
 		
 		assertEquals("Lorentzian Area for '"+description+"' is not correct", lorentzian.getArea(), ((Double)data.sum()*step), step);
 		assertEquals("Lorentzian Position for '"+description+"' is not correct", lorentzian.getPosition(), axis.get(data.maxPos()), step);
@@ -114,7 +114,7 @@ public class PeakProfileTest {
 		
 		DoubleDataset axis = DoubleDataset.arange(min, max, step);
 		PseudoVoigt pseudoVoigt = new PseudoVoigt(mean, gfwhm, lfwhm, area, mix);
-		DoubleDataset data = pseudoVoigt.makeDataset(axis);
+		DoubleDataset data = pseudoVoigt.calculateValues(axis);
 		
 		assertEquals("PseudoVoigt Area for '"+description+"' is not correct", pseudoVoigt.getArea(), ((Double)data.sum()*step), step);
 		assertEquals("PseudoVoigt Position for '"+description+"' is not correct", pseudoVoigt.getPosition(), axis.get(data.maxPos()), step);
@@ -143,7 +143,7 @@ public class PeakProfileTest {
 
 		DoubleDataset axis = DoubleDataset.arange(min, max, step);
 		PearsonVII pearsonVII = new PearsonVII(new double[] {mean, fwhm, area, power} );
-		DoubleDataset data = pearsonVII.makeDataset(axis);
+		DoubleDataset data = pearsonVII.calculateValues(axis);
 		
 		assertEquals("PearsonVII Area for '"+description+"' is not correct", pearsonVII.getArea(), ((Double)data.sum()*step), step);
 		assertEquals("PearsonVII Position for '"+description+"' is not correct", pearsonVII.getPosition(), axis.get(data.maxPos()), step);

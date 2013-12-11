@@ -27,6 +27,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.CoordinatesIterator;
 
 
 /**
@@ -51,7 +52,7 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 		// as the threading overheads in java slow the performance
 		// significantly.
 		// return makeParallelDataSet(XValues);
-		return DataSet.convertToDataSet(makeSerialDataset(values));
+		return DataSet.convertToDataSet(calculateValues(values));
 	}
 
 	class PFunction extends AFunction {
@@ -68,7 +69,7 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 
 		@Override
 		public DoubleDataset makeDataset(IDataset... values) {
-			return (DoubleDataset) DatasetUtils.cast(function.makeDataset(values), AbstractDataset.FLOAT64);
+			return (DoubleDataset) DatasetUtils.cast(function.calculateValues(values), AbstractDataset.FLOAT64);
 		}
 
 		@Override
@@ -110,13 +111,25 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 
 		@Override
 		public DataSet makeDataSet(DoubleDataset... values) {
-			return DataSet.convertToDataSet(function.makeDataset(values));
+			return DataSet.convertToDataSet(function.calculateValues(values));
 		}
 
 		@Override
 		public IFunction getFunction(int index) {
 			return this;
 		}
+
+		@Override
+		public void fillWithValues(DoubleDataset data, CoordinatesIterator it) {
+			if (function instanceof uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction) {
+				((uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction)function).fillWithValues(data, it);
+			}
+		}
+	}
+
+	@Override
+	public void fillWithValues(DoubleDataset data, CoordinatesIterator it) {
+		super.fillWithValues(data, it);
 	}
 
 	@Override
