@@ -23,7 +23,9 @@ import gda.rcp.GDAClientActivator;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
@@ -31,8 +33,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ViewPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.composites.MotorPositionEditorControl;
 import uk.ac.gda.ui.components.NumberEditorControl;
@@ -45,11 +45,18 @@ import uk.ac.gda.ui.components.NumberEditorControl;
  * Note that the mode provide property change support and so we use the BeanProperties factory
  */
 public class MvcExampleView extends ViewPart {
-	private static final Logger logger = LoggerFactory.getLogger(MvcExampleView.class);
+//	private static final Logger logger = LoggerFactory.getLogger(MvcExampleView.class);
 
 	public static final String ID = "uk.ac.gda.example.mvcexample.MvcExampleView"; //$NON-NLS-1$
 	private FormToolkit toolkit;
 	DataBindingContext bindingContext;
+
+	protected MotorPositionEditorControl motorPosControl;
+
+	protected NumberEditorControl numberControl;
+
+	protected Button btn1;
+	private MvcExampleModel model;
 	public MvcExampleView() {
 	}
 
@@ -62,52 +69,37 @@ public class MvcExampleView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		
-		MvcExampleModel model = (MvcExampleModel) GDAClientActivator.getNamedService(MvcExampleModel.class, null);
+		model = (MvcExampleModel) GDAClientActivator.getNamedService(MvcExampleModel.class, null);
 		toolkit = new FormToolkit(parent.getDisplay());
 		Composite cmpRoot = toolkit.createComposite(parent);
 		GridLayout layout = new GridLayout();
 		cmpRoot.setLayout(layout);
-		Button btn1 = toolkit.createButton(cmpRoot, "Press Me", SWT.CHECK);
-		Button btn2 = toolkit.createButton(cmpRoot, "Press Me", SWT.CHECK);
-		IObservableValue btn1ObservableValue = SWTObservables.observeSelection(btn1);
-		IObservableValue btn2ObservableValue = SWTObservables.observeSelection(btn2);
-		IObservableValue btnSelectedObserveValue1 = BeanProperties.value(MvcExampleModel.SELECTED_PROPERTY_NAME).observe(model);
 
-		bindingContext = new DataBindingContext();
-		bindingContext.bindValue(btn1ObservableValue, btnSelectedObserveValue1);
-		bindingContext.bindValue(btn2ObservableValue, btnSelectedObserveValue1);
-		btnSelectedObserveValue1.setValue(true);		
-		
+		btn1 = toolkit.createButton(cmpRoot, "Press Me", SWT.CHECK);
+
 		try {
-			NumberEditorControl comp1 = new NumberEditorControl(cmpRoot, SWT.NONE, model, MvcExampleModel.POSITION_PROPERTY_NAME, false);
-			comp1.setRange(0, 100);
-			GridDataFactory.fillDefaults().applyTo(comp1);
-			toolkit.adapt(comp1);
-			NumberEditorControl comp2 = new NumberEditorControl(cmpRoot, SWT.NONE, model, MvcExampleModel.POSITION_PROPERTY_NAME, false);
-			comp1.setRange(0, 100);
-			GridDataFactory.fillDefaults().applyTo(comp2);
-			toolkit.adapt(comp2);
+			numberControl = new NumberEditorControl(cmpRoot, SWT.NONE, model, MvcExampleModel.POSITION_PROPERTY_NAME, false);
+			numberControl.setRange(0, 100);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(numberControl);
+			toolkit.adapt(numberControl);
 		} catch (Exception e) {
-			logger.error("Error creating UI", e);
+			throw new RuntimeException("Error adding numberControl to UI", e);
 		}
 
 		try {
-			MotorPositionEditorControl comp1 = new MotorPositionEditorControl(cmpRoot, SWT.NONE, model.getScannableWrapper(), false);
-			comp1.setRange(0, 100);
-			GridDataFactory.fillDefaults().applyTo(comp1);
-			toolkit.adapt(comp1);
-			NumberEditorControl comp2 = new MotorPositionEditorControl(cmpRoot, SWT.NONE, model.getScannableWrapper(), false);
-			comp1.setRange(0, 100);
-			GridDataFactory.fillDefaults().applyTo(comp2);
-			toolkit.adapt(comp2);
+			motorPosControl = new MotorPositionEditorControl(cmpRoot, SWT.NONE, model.getScannableWrapper(), false);
+			motorPosControl.setRange(0, 100);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(motorPosControl);
+			toolkit.adapt(motorPosControl);
 		} catch (Exception e) {
-			logger.error("Error creating UI", e);
+			throw new RuntimeException("Error adding motorPosControl to UI", e);
 		}
 
 		
 		createActions();
 		initializeToolBar();
 		initializeMenu();
+		bindingContext = initDataBindings();
 	}
 
 	/**
@@ -136,4 +128,13 @@ public class MvcExampleView extends ViewPart {
 		// Set the focus
 	}
 
+	protected DataBindingContext initDataBindings() {
+		DataBindingContext bindingContext = new DataBindingContext();
+		//
+		IObservableValue observeSelectionBtn1ObserveWidget = WidgetProperties.selection().observe(btn1);
+		IObservableValue selectedModelObserveValue = BeanProperties.value("selected").observe(model);
+		bindingContext.bindValue(observeSelectionBtn1ObserveWidget, selectedModelObserveValue, null, null);
+		//
+		return bindingContext;
+	}
 }
