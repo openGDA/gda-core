@@ -55,10 +55,10 @@ public class Plot {
 		}
 		sashPlotFormComposite.setDataSets(data.toArray(new AbstractDataset[data.size()]));
 		sashPlotFormComposite.getPlottingSystem().setRescale(updateTitle);
+		sashPlotFormComposite.getPlottingSystem().setRescale(true);
 		sashPlotFormComposite.plotData();
 		sashPlotFormComposite.getPlottingSystem().setTitle(plotTitle);
 		counts.calculateAndPlotCountTotals(true, true, detectorData, detectorElementComposite, currentSelectedElementIndex);
-		sashPlotFormComposite.getPlottingSystem().setRescale(false);
 	}
 	
 	protected List<AbstractDataset> unpackDataSets(int ielement, int[][][] detectorData, boolean isAdditiveResolutionGradeMode, ComboAndNumberWrapper resolutionGradeCombo) {

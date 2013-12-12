@@ -88,11 +88,11 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
 		String tfgName = vortexParameters.getTfgName();
 		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, getSite().getShell().getDisplay(), plot);
+		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, getSite().getShell().getDisplay(), plot, plotData);
 		Composite left = sashPlotFormComposite.getLeft();
 		vortexAcquire.createAcquire(parent, left);
 		createROIPanel(left);
-		vortexAcquire.addAcquireListener(plotData, dataWrapper, getCurrentSelectedElementIndex(), getDetectorList(), getDetectorElementComposite());
+		vortexAcquire.addAcquireListener(dataWrapper, getCurrentSelectedElementIndex(), getDetectorList(), getDetectorElementComposite());
 		vortexAcquire.addLoadListener(vortexParameters, getDetectorList(), getDetectorElementComposite(), getCurrentSelectedElementIndex());
 		sashPlotFormComposite.setWeights(new int[] { 35, 74 });
 		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
@@ -106,7 +106,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 				int[][][] data3d = vortexAcquire.getData3d();
 				plot.plot(evt.getSelectionIndex(),false, data3d, getDetectorElementComposite(), currentSelectedElementIndex, false, null);
 				getDetectorElementComposite().getRegionList().setSelectedIndex(vortexParameters.getSelectedRegionNumber());
-				
 			}
 		});
 	}

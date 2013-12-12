@@ -81,13 +81,15 @@ public class VortexAcquire extends Acquire {
 	private VortexData vortexData;
 	private Button loadBtn;
 	private Plot plot;
+	private Data plotData;
 	
-	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot){
+	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Data plotData){
 		this.sashPlotFormComposite = sashPlotFormComposite;
 		this.xmapDetector = xmapDetector;
 		this.tfg = tfg;
 		this.display = display;
 		this.plot = plot;
+		this.plotData = plotData;
 		vortexData = new VortexData();
 	}
 	
@@ -110,7 +112,7 @@ public class VortexAcquire extends Acquire {
 		});
 	}
 	
-	public void writeToDisk(final Data plotData) throws IOException{
+	public void writeToDisk() throws IOException{
 		if (writeToDisk && autoSaveEnabled) {
 			String msg = "Error saving detector data to file";
 			String vortexFilePath = "";
@@ -136,7 +138,7 @@ public class VortexAcquire extends Acquire {
 		}
 	}
 	
-	public void addAcquireListener(final Data plotData, final DataWrapper dataWrapper, final int currentSelectedElementIndex, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
+	public void addAcquireListener(final DataWrapper dataWrapper, final int currentSelectedElementIndex, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
 		acquireBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -145,7 +147,7 @@ public class VortexAcquire extends Acquire {
 						acquire(acquireTime.getNumericValue());
 						plotData(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
 						if(writeToDisk)
-							writeToDisk(plotData);
+							writeToDisk();
 						else
 							acquireFileLabel.setText("										");
 					}
@@ -167,15 +169,17 @@ public class VortexAcquire extends Acquire {
 			public void handleEvent(Event event) {
 				try {
 					final String filePath = openDialog.open();
-					vortexData.load(openDialog, vortexParameters, filePath);
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							acquireFileLabel.setText("Loaded: " + filePath);
-							detectorElementComposite.setEndMaximum((data3d[0][0].length) - 1);
-							plot.plot(detectorList.getSelectedIndex(),false, vortexData.getDetectorData(), detectorElementComposite, currentSelectedElementIndex, false, null);
-						}
-					});
+					if(filePath!=null){
+						vortexData.load(openDialog, vortexParameters, filePath);
+						display.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								acquireFileLabel.setText("Loaded: " + filePath);
+								detectorElementComposite.setEndMaximum((data3d[0][0].length) - 1);
+								plot.plot(detectorList.getSelectedIndex(),false, vortexData.getDetectorData(), detectorElementComposite, currentSelectedElementIndex, false, null);
+							}
+						});
+					}
 				} catch (Exception e1) {
 					logger.error("Cannot acquire vortex data", e1);
 				}

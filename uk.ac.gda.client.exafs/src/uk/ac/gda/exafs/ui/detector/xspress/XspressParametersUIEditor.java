@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
-import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
@@ -64,7 +63,6 @@ import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
-import uk.ac.gda.exafs.ui.detector.vortex.VortexAcquire;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
@@ -209,15 +207,17 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			public void handleEvent(Event event) {			
 				try {
 					final String filePath = openDialog.open();
-					xspressData.load(openDialog, xspressParameters, filePath);
-					getSite().getShell().getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-							plot.plot(getDetectorList().getSelectedIndex(),false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, resolutionGradeCombo);
-							setWindowsEnabled(true);
-						}
-					});
+					if(filePath!=null){
+						xspressData.load(openDialog, xspressParameters, filePath);
+						getSite().getShell().getDisplay().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
+								plot.plot(getDetectorList().getSelectedIndex(),false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, resolutionGradeCombo);
+								setWindowsEnabled(true);
+							}
+						});
+					}
 				} catch (Exception e1) {
 					logger.error("Cannot acquire xspress data", e1);
 				}
@@ -229,7 +229,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		gridLayoutAcq.marginWidth = 0;
 		acquire.setLayout(gridLayoutAcq);
 		
-		xspressAcquire = new XspressAcquire(acquire, sashPlotFormComposite, getSite().getShell().getDisplay());
+		xspressAcquire = new XspressAcquire(acquire, sashPlotFormComposite, getSite().getShell().getDisplay(), plotData);
 		
 		openDialog = new FileDialog(composite.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));

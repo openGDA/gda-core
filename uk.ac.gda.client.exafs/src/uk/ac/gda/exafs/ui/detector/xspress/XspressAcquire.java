@@ -75,9 +75,10 @@ public class XspressAcquire extends Acquire {
 	private double collectionTime;
 	private Display display;
 	
-	public XspressAcquire(Composite acquire, final SashFormPlotComposite sashPlotFormComposite, Display display){
+	public XspressAcquire(Composite acquire, final SashFormPlotComposite sashPlotFormComposite, Display display, Data plotData){
 		this.display = display;
 		this.sashPlotFormComposite = sashPlotFormComposite;
+		this.plotData = plotData;
 		acquireBtn = new Button(acquire, SWT.NONE);
 		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/application_side_expand.png"));
 		acquireBtn.setText("Acquire");
@@ -107,9 +108,11 @@ public class XspressAcquire extends Acquire {
 		autoSave.setSelection(saveMcaOnAcquire);
 		
 		acquireFileLabel = new Label(acquire, SWT.NONE);
-		acquireFileLabel.setText("										");
+		acquireFileLabel.setText("									                                                    	                                                                        ");
 		acquireFileLabel.setToolTipText("The file path for the acquire data");
-		acquireFileLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, false);
+		gridData.horizontalSpan=6;
+		acquireFileLabel.setLayoutData(gridData);
 	}
 	
 	public void init(final Counts counts, XspressParameters xspressParameters, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final DataWrapper dataWrapper, final BooleanWrapper showIndividualElements, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex, final GridListEditor detectorList, final Plot plot, final DirtyContainer dirtyContainer){
