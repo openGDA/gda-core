@@ -52,6 +52,8 @@ import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
+import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
+import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
@@ -90,11 +92,23 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		Composite left = sashPlotFormComposite.getLeft();
 		vortexAcquire.createAcquire(parent, left);
 		createROIPanel(left);
-		vortexAcquire.addAcquireListener(plotData, dataWrapper, getCurrentSelectedElementIndex(), getDetectorList(), vortexParameters, getDetectorElementComposite());
+		vortexAcquire.addAcquireListener(plotData, dataWrapper, getCurrentSelectedElementIndex(), getDetectorList(), getDetectorElementComposite());
+		vortexAcquire.addLoadListener(vortexParameters, getDetectorList(), getDetectorElementComposite(), getCurrentSelectedElementIndex());
 		sashPlotFormComposite.setWeights(new int[] { 35, 74 });
 		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
 			addOutputPreferences(left);
 		configureUI();
+		
+		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
+			@Override
+			public void selectionChanged(BeanSelectionEvent evt) {
+				int currentSelectedElementIndex = getCurrentSelectedElementIndex();
+				int[][][] data3d = vortexAcquire.getData3d();
+				plot.plot(evt.getSelectionIndex(),false, data3d, getDetectorElementComposite(), currentSelectedElementIndex, false, null);
+				getDetectorElementComposite().getRegionList().setSelectedIndex(vortexParameters.getSelectedRegionNumber());
+				
+			}
+		});
 	}
 
 	private void createROIPanel(final Composite left) {

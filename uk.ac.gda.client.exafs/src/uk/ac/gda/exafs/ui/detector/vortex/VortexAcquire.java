@@ -18,9 +18,15 @@
 
 package uk.ac.gda.exafs.ui.detector.vortex;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.device.XmapDetector;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -40,14 +46,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.device.Timer;
-import gda.device.XmapDetector;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.vortex.VortexParameters;
@@ -60,6 +58,8 @@ import uk.ac.gda.richbeans.components.data.DataWrapper;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
+
+import com.swtdesigner.SWTResourceManager;
 
 public class VortexAcquire extends Acquire {
 	private int[][][] data3d;
@@ -136,7 +136,7 @@ public class VortexAcquire extends Acquire {
 		}
 	}
 	
-	public void addAcquireListener(final Data plotData, final DataWrapper dataWrapper, final int currentSelectedElementIndex, final GridListEditor detectorList, final VortexParameters vortexParameters, final DetectorElementComposite detectorElementComposite){
+	public void addAcquireListener(final Data plotData, final DataWrapper dataWrapper, final int currentSelectedElementIndex, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
 		acquireBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -159,7 +159,9 @@ public class VortexAcquire extends Acquire {
 				}
 			}
 		});
-		
+	}
+	
+	public void addLoadListener(final VortexParameters vortexParameters, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
 		loadBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -171,7 +173,7 @@ public class VortexAcquire extends Acquire {
 						public void run() {
 							acquireFileLabel.setText("Loaded: " + filePath);
 							detectorElementComposite.setEndMaximum((data3d[0][0].length) - 1);
-							//plot.plot(getDetectorList().getSelectedIndex(),false, mcaData, detectorElementComposite, currentSelectedElementIndex, false, null);
+							plot.plot(detectorList.getSelectedIndex(),false, vortexData.getDetectorData(), detectorElementComposite, currentSelectedElementIndex, false, null);
 						}
 					});
 				} catch (Exception e1) {

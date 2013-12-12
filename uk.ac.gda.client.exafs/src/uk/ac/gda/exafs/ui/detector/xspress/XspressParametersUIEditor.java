@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
+import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
@@ -63,8 +64,11 @@ import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
+import uk.ac.gda.exafs.ui.detector.vortex.VortexAcquire;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
+import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
+import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.selector.ListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditorUIAdapter;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
@@ -148,6 +152,15 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		configureUI();
 		createApplyToAllObserver();
 		xspressAcquire.init(counts, xspressParameters, readoutMode, resolutionGradeCombo, dataWrapper, showIndividualElements, getDetectorElementComposite(), getCurrentSelectedElementIndex(), getDetectorList(), plot, dirtyContainer);
+		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
+			@Override
+			public void selectionChanged(BeanSelectionEvent evt) {
+				int currentSelectedElementIndex = getCurrentSelectedElementIndex();
+				int[][][] mcaData = xspressAcquire.getMcaData();
+				plot.plot(evt.getSelectionIndex(),false, mcaData, getDetectorElementComposite(), currentSelectedElementIndex, false, null);
+				getDetectorElementComposite().getRegionList().setSelectedIndex(xspressParameters.getSelectedRegionNumber());
+			}
+		});
 	}
 	
 	private void createReadoutMode(final Composite composite){

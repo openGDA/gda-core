@@ -38,7 +38,8 @@ import uk.ac.gda.beans.vortex.VortexParameters;
 
 public class VortexData {
 	private static final Logger logger = LoggerFactory.getLogger(VortexData.class);
-
+	int[][][] detectorData;
+	
 	protected void load(FileDialog openDialog, final VortexParameters vortexParameters, final String filePath) {
 		String dataDir = PathConstructor.createFromDefaultProperty();
 		dataDir += "processing";
@@ -52,21 +53,18 @@ public class VortexData {
 					try {
 						reader = new BufferedReader(new FileReader(filePath));
 						String line = reader.readLine();
-						ArrayList<double[]> data = new ArrayList<double[]>();
+						ArrayList<int[]> data = new ArrayList<int[]>();
 						while (line != null) {
 							StringTokenizer tokens = new StringTokenizer(line);
-							double elementData[] = new double[tokens.countTokens()];
+							int elementData[] = new int[tokens.countTokens()];
 							for (int i = 0; i < elementData.length; i++)
-								elementData[i] = Double.parseDouble(tokens.nextToken());
+								elementData[i] = Integer.parseInt(tokens.nextToken());
 							data.add(elementData);
 							line = reader.readLine();
 						}
-						// find the res grade
-
 						int resGrade = data.size() / vortexParameters.getDetectorList().size();
-						double[][][] detectorData = new double[vortexParameters.getDetectorList().size()][resGrade][];
+						detectorData = new int[vortexParameters.getDetectorList().size()][resGrade][];
 						int dataIndex = 0;
-						// Int array above is [element][grade (1, 2 or all 16)][mca channel]
 						for (int i = 0; i < detectorData.length; i++)
 							for (int j = 0; j < resGrade; j++)
 								detectorData[i][j] = data.get(dataIndex++);
@@ -86,6 +84,10 @@ public class VortexData {
 			job.setUser(true);
 			job.schedule();
 		}
+	}
+	
+	public int[][][] getDetectorData(){
+		return detectorData;
 	}
 	
 }

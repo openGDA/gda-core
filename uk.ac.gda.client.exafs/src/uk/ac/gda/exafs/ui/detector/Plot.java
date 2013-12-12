@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.List;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
@@ -44,11 +43,9 @@ public class Plot {
 	public void plot(int ielement, boolean updateTitle, int[][][] detectorData, DetectorElementComposite detectorElementComposite, int currentSelectedElementIndex, boolean isAdditiveResolutionGradeMode, ComboAndNumberWrapper resolutionGradeCombo) {
 		final List<AbstractDataset> data = unpackDataSets(ielement, detectorData, isAdditiveResolutionGradeMode, resolutionGradeCombo);
 		String plotTitle = null;
-		if (updateTitle) {
-			Date now = new Date();
-			SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
-			plotTitle = "Acquire at " + dt.format(now);
-		}
+		Date now = new Date();
+		SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+		plotTitle = "Acquire at " + dt.format(now);
 		for (int i = 0; i < data.size(); i++) {
 			String name = "" + ielement;
 			if (data.size() > 1)

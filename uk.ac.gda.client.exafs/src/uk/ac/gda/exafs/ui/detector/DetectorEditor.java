@@ -235,21 +235,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 		});
 
-		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
-			@Override
-			public void selectionChanged(BeanSelectionEvent evt) {
-				plot.plot(evt.getSelectionIndex(),false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, null);
-				if (bean instanceof XspressParameters) {
-					XspressParameters xspress = (XspressParameters) bean;
-					getDetectorElementComposite().getRegionList().setSelectedIndex(xspress.getSelectedRegionNumber());
-				} 
-				else if (bean instanceof VortexParameters) {
-					VortexParameters vortex = (VortexParameters) bean;
-					getDetectorElementComposite().getRegionList().setSelectedIndex(vortex.getSelectedRegionNumber());
-				}
-			}
-		});
-
 		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
