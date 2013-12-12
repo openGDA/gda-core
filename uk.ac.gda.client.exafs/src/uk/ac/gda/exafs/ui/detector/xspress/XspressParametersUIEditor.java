@@ -60,6 +60,7 @@ import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
+import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
@@ -120,6 +121,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		parentComposite = composite;
 		super.createPartControl(parentComposite);
 		xspressData = new XspressData();
+		counts = new Counts();
 		Composite left = sashPlotFormComposite.getLeft();
 		Composite topComposite = new Composite(left, SWT.NONE);
 		topComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -149,7 +151,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		sashPlotFormComposite.setWeights(new int[] { 30, 74 });
 		configureUI();
 		createApplyToAllObserver();
-		xspressAcquire.init(counts, xspressParameters, readoutMode, resolutionGradeCombo, dataWrapper, showIndividualElements, getDetectorElementComposite(), getCurrentSelectedElementIndex(), getDetectorList(), plot, dirtyContainer);
+		xspressAcquire.init(xspressParameters, dataWrapper, getDetectorElementComposite(), getCurrentSelectedElementIndex(), getDetectorList(), counts, showIndividualElements);
 		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
@@ -229,7 +231,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		gridLayoutAcq.marginWidth = 0;
 		acquire.setLayout(gridLayoutAcq);
 		
-		xspressAcquire = new XspressAcquire(acquire, sashPlotFormComposite, getSite().getShell().getDisplay(), plotData);
+		xspressAcquire = new XspressAcquire(acquire, sashPlotFormComposite, getSite().getShell().getDisplay(), plotData, readoutMode, resolutionGradeCombo, plot, dirtyContainer);
 		
 		openDialog = new FileDialog(composite.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));

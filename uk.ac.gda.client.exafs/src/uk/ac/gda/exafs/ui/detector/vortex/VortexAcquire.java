@@ -63,40 +63,40 @@ import com.swtdesigner.SWTResourceManager;
 
 public class VortexAcquire extends Acquire {
 	private int[][][] data3d;
-	private static final Logger logger = LoggerFactory.getLogger(Acquire.class);
-	private boolean continuousAquire = false;
-	private Thread continuousThread;
+	private static final Logger logger = LoggerFactory.getLogger(VortexAcquire.class);
 	private XmapDetector xmapDetector;
 	private Timer tfg;
 	private SashFormPlotComposite sashPlotFormComposite;
 	private FileDialog openDialog;
 	private LabelWrapper deadTimeLabel;
-	private ScaleBox acquireTime;
 	private Composite acquire;
-	private Button live;
 	private Label lblDeadTime;
-	private Display display;
 	private boolean autoSaveEnabled;
-	protected boolean writeToDisk = LocalProperties.check("gda.detectors.save.single.acquire");
 	private VortexData vortexData;
 	private Button loadBtn;
 	private Plot plot;
-	private Data plotData;
 	
 	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Data plotData){
+		super(display);
 		this.sashPlotFormComposite = sashPlotFormComposite;
 		this.xmapDetector = xmapDetector;
 		this.tfg = tfg;
-		this.display = display;
 		this.plot = plot;
 		this.plotData = plotData;
 		vortexData = new VortexData();
 	}
 	
-	private void plotData(final DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) throws DeviceException{
+	@Override
+	public void plotData(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
 		data3d = getData3d();
 		dataWrapper.setValue(ElementCountsData.getDataFor(data3d));
-		Double[] liveStats = (Double[]) xmapDetector.getAttribute("countRates");
+		Double[] liveStats = null;
+		try {
+			liveStats = (Double[]) xmapDetector.getAttribute("countRates");
+		} catch (DeviceException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
 		final double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
 		display.asyncExec(new Runnable() {
 			@Override
@@ -138,30 +138,7 @@ public class VortexAcquire extends Acquire {
 		}
 	}
 	
-	public void addAcquireListener(final DataWrapper dataWrapper, final int currentSelectedElementIndex, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
-		acquireBtn.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				try {
-					if (!live.getSelection()){
-						acquire(acquireTime.getNumericValue());
-						plotData(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
-						if(writeToDisk)
-							writeToDisk();
-						else
-							acquireFileLabel.setText("										");
-					}
-					else{
-						continuousAquire=!continuousAquire;
-						if(continuousAquire)
-							continuousAcquire(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
-					}
-				} catch (Exception e1) {
-					logger.error("Cannot acquire xmap data", e1);
-				}
-			}
-		});
-	}
+	
 	
 	public void addLoadListener(final VortexParameters vortexParameters, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
 		loadBtn.addListener(SWT.Selection, new Listener() {
@@ -187,7 +164,7 @@ public class VortexAcquire extends Acquire {
 		});
 	}
 	
-	protected void acquire(double collectionTime) throws Exception {
+	public void acquire(double collectionTime) throws Exception {
 		xmapDetector.clearAndStart();
 		tfg.countAsync(collectionTime);
 		xmapDetector.stop();
@@ -205,44 +182,6 @@ public class VortexAcquire extends Acquire {
 		for (int i = 0; i < data.length; i++)
 			ret[i][0] = data[i];
 		return ret;
-	}
-	
-	public void continuousAcquire(final DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
-		try {
-			continuousThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					while (continuousAquire) {
-						display.asyncExec(new Runnable() {
-							@Override
-							public void run() {								
-								try {
-									acquire(acquireTime.getNumericValue());
-								} catch (Exception e) {
-									logger.error("Error acquiring vortex data", e);
-								}
-								try {
-									plotData(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
-								} catch (DeviceException e) {
-									logger.error("Error plotting vortex data", e);
-								}
-							}
-						});
-						Thread.sleep(100);
-					}
-				} catch (InterruptedException e) {
-					logger.error("Continuous acquire problem with detector.", e);
-				} catch (Throwable e) {
-					logger.error("Continuous acquire problem with detector.", e);
-				}
-			}
-		}, "Detector Live Runner");
-		continuousThread.start();
-		} 
-		catch (Exception e) {
-			logger.error("Internal errror process continuous data from detector.", e);
-		}
 	}
 	
 	public void createAcquire(Composite parent, final Composite left) {

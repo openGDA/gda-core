@@ -54,7 +54,6 @@ public class Plot {
 			data.get(i).setName(name);
 		}
 		sashPlotFormComposite.setDataSets(data.toArray(new AbstractDataset[data.size()]));
-		sashPlotFormComposite.getPlottingSystem().setRescale(updateTitle);
 		sashPlotFormComposite.getPlottingSystem().setRescale(true);
 		sashPlotFormComposite.plotData();
 		sashPlotFormComposite.getPlottingSystem().setTitle(plotTitle);
