@@ -101,7 +101,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	private DetectorListComposite detectorListComposite;
 	private Composite importComposite;
 	private int lastSelectedElementIndex;
-	private Object bean;
+	private Object bean;	
 	private Action uploadAction;
 	private volatile Boolean updatingAfterROIDrag = null;
 	protected Data plotData;
@@ -216,24 +216,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 		};
 		detectorListComposite.addExpansionListener(expansionListener);
-
-		getDetectorElementComposite().getRegionList().addBeanSelectionListener(new BeanSelectionListener() {
-			@Override
-			public void selectionChanged(BeanSelectionEvent evt) {
-				if (getDetectorList().getSelectedIndex() == lastSelectedElementIndex) {
-					if (bean instanceof XspressParameters) {
-						XspressParameters detBean = (XspressParameters) bean;
-						detBean.setSelectedRegionNumber(evt.getSelectionIndex());
-					} 
-					else if (bean instanceof VortexParameters) {
-						VortexParameters detBean = (VortexParameters) bean;
-						detBean.setSelectedRegionNumber(evt.getSelectionIndex());
-					}
-				}
-				lastSelectedElementIndex = getDetectorList().getSelectedIndex();
-				updateROIAfterElementCompositeChange();
-			}
-		});
 
 		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override

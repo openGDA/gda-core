@@ -47,6 +47,7 @@ import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
+import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -67,7 +68,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	private ComboWrapper countType;
 	private Button autoSave;
 	private BooleanWrapper saveRawSpectrum;
-	private Button acquireBtn;
 	private VortexAcquire vortexAcquire;
 	private XmapDetector xmapDetector;
 	
@@ -88,7 +88,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
 		String tfgName = vortexParameters.getTfgName();
 		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, getSite().getShell().getDisplay(), plot, plotData);
+		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, getSite().getShell().getDisplay(), plot, plotData, new Counts());
 		Composite left = sashPlotFormComposite.getLeft();
 		vortexAcquire.createAcquire(parent, left);
 		createROIPanel(left);
@@ -210,7 +210,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		autoSave.dispose();
 		saveRawSpectrum.dispose();
 		acquireFileLabel.dispose();
-		acquireBtn.dispose();
 		super.dispose();
 	}
 	

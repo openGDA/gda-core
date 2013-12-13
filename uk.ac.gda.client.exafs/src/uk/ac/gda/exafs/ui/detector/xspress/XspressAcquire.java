@@ -25,9 +25,7 @@ import gda.device.DeviceException;
 import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
 import gda.factory.Finder;
-
 import java.io.File;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -40,7 +38,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.xspress.XspressParameters;
@@ -57,7 +54,6 @@ import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
-
 import com.swtdesigner.SWTResourceManager;
 
 public class XspressAcquire extends Acquire {
@@ -66,7 +62,6 @@ public class XspressAcquire extends Acquire {
 	private String originalResolutionGrade;
 	private String originalReadoutMode;
 	private int[][][] mcaData;
-	private String acquireFileLabelText;
 	private static final String xspressSaveDir = "gda.device.xspress.spoolDir";
 	private SashFormPlotComposite sashPlotFormComposite;
 	private XspressDetector xspressDetector;
@@ -89,8 +84,8 @@ public class XspressAcquire extends Acquire {
 		this.plot = plot;
 		
 		acquireBtn = new Button(acquire, SWT.NONE);
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/application_side_expand.png"));
 		acquireBtn.setText("Acquire");
+		
 		acquireTime = new ScaleBox(acquire, SWT.NONE);
 		acquireTime.setMinimum(1);
 		acquireTime.setValue(1000);
@@ -131,7 +126,14 @@ public class XspressAcquire extends Acquire {
 		acquireBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				plotData(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
+				try {
+					acquire(acquireTime.getNumericValue());
+					plotData(detectorList, detectorElementComposite, currentSelectedElementIndex);
+				} catch (DeviceException e) {
+					logger.error("Error acquiring/plotting xspress data", e);
+				} catch (InterruptedException e) {
+					logger.error("Error acquiring/plotting xspress data", e);
+				}
 			}
 		});
 	}
@@ -152,7 +154,8 @@ public class XspressAcquire extends Acquire {
 		return detectorFileLocation;
 	}
 	
-	protected void acquire(XspressDetector xspressDetector, double collectionTime, String uiReadoutMode, String uiResolutionGrade) {
+	@Override
+	public void acquire(double collectionTime) throws DeviceException, InterruptedException{
 		this.collectionTime = collectionTime;
 		try {
 			originalResolutionGrade = xspressDetector.getResGrade();
@@ -161,6 +164,8 @@ public class XspressAcquire extends Acquire {
 			logger.error("Cannot get current resolution grade", e);
 			return;
 		}
+		String uiReadoutMode = (String) readoutMode.getValue();
+		String uiResolutionGrade = uiReadoutMode.equals(XspressDetector.READOUT_ROIS) ? (String) resolutionGrade.getValue() : ResGrades.NONE;
 		sashPlotFormComposite.appendStatus("Collecting a single frame of MCA data with resolution grade set to '" + uiResolutionGrade + "'.", logger);
 		try {
 			xspressDetector.setAttribute("readoutModeForCalibration", new String[] { uiReadoutMode, uiResolutionGrade });
@@ -180,28 +185,21 @@ public class XspressAcquire extends Acquire {
 		sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
 	}
 	
+	//public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
 	@Override
-	public void plotData(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
-		String uiReadoutMode = (String) readoutMode.getValue();
-		String uiResolutionGrade = uiReadoutMode.equals(XspressDetector.READOUT_ROIS) ? (String) resolutionGrade.getValue() : ResGrades.NONE;
-		acquire(xspressDetector, acquireTime.getNumericValue(), uiReadoutMode, uiResolutionGrade);
-		ElementCountsData[] elementCountsData = ElementCountsData.getDataFor(mcaData);
-		dataWrapper.setValue(elementCountsData);
+	public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex)  throws DeviceException, InterruptedException {
 		Boolean showIndividualElementsValue = showIndividualElements.getValue();
 		counts.calculateAndPlotCountTotals(showIndividualElementsValue, true, mcaData, detectorElementComposite, currentSelectedElementIndex);
 		if (saveMcaOnAcquire)
 			saveMca(sashPlotFormComposite, xspressSaveDir);
-		display.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				String acquireFileLabelText = getAcquireFileLabelText();
-				if(acquireFileLabelText!=null)
-					acquireFileLabel.setText(acquireFileLabelText);
-				detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
-				plot.plot(detectorList.getSelectedIndex(),true, mcaData, detectorElementComposite, currentSelectedElementIndex, false, resolutionGrade);
-				dirtyContainer.setDirty(true);
-			}
-		});
+		detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
+		plot.plot(detectorList.getSelectedIndex(),true, mcaData, detectorElementComposite, currentSelectedElementIndex, false, resolutionGrade);
+		dirtyContainer.setDirty(true);
+	}
+	
+	public void updateStats(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
+		ElementCountsData[] elementCountsData = ElementCountsData.getDataFor(mcaData);
+		dataWrapper.setValue(elementCountsData);
 	}
 	
 	public int[][][] getMcaData(){
@@ -219,20 +217,21 @@ public class XspressAcquire extends Acquire {
 	public void saveMca(SashFormPlotComposite sashPlotFormComposite, String xspressSaveDir){
 		try {
 			writeToDisk(xspressSaveDir, mcaData);
-			acquireFileLabel.setText("Saved: " + detectorFileLocation);
+			display.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					acquireFileLabel.setText("Saved: " + detectorFileLocation);
+				}
+			});
 		} catch (Exception e) {
 			sashPlotFormComposite.appendStatus("Cannot write xspress detector data to disk", logger);
 			logger.error("Cannot write xspress detector data to disk.", e);
 			return;
 		}
 	}
-
-	public String getAcquireFileLabelText() {
-		return acquireFileLabelText;
-	}
 	
 	public double getCollectionTime(){
 		return collectionTime;
 	}
-
+	
 }

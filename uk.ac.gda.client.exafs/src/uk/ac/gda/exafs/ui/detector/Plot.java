@@ -57,7 +57,6 @@ public class Plot {
 		sashPlotFormComposite.getPlottingSystem().setRescale(true);
 		sashPlotFormComposite.plotData();
 		sashPlotFormComposite.getPlottingSystem().setTitle(plotTitle);
-		counts.calculateAndPlotCountTotals(true, true, detectorData, detectorElementComposite, currentSelectedElementIndex);
 	}
 	
 	protected List<AbstractDataset> unpackDataSets(int ielement, int[][][] detectorData, boolean isAdditiveResolutionGradeMode, ComboAndNumberWrapper resolutionGradeCombo) {

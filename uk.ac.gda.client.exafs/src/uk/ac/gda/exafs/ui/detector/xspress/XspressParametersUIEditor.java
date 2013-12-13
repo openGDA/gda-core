@@ -87,21 +87,20 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 	private ComboWrapper readoutMode;
+	private ComboWrapper regionType;
 	private ComboAndNumberWrapper resolutionGradeCombo;
 	private XspressParameters xspressParameters;
 	private Button applyToAllButton;
 	private Button applyToAllLabel;
 	private SelectionAdapter applyToAllListener;
-	private BooleanWrapper showIndividualElements;
 	private Group detectorElementsGroup;
 	private Label resGradeLabel;
-	private FileDialog openDialog;
+	private BooleanWrapper showIndividualElements;
 	private BooleanWrapper onlyShowFF;
 	private BooleanWrapper showDTRawValues;
 	private BooleanWrapper saveRawSpectrum;
 	private SelectionAdapter xspressOptionsListener;
 	private Label lblRegionBins;
-	private ComboWrapper regionType;
 	private ValueListener detectorElementCompositeValueListener;
 	private ResolutionGrade resolutionGrade;
 	private XspressData xspressData;
@@ -204,6 +203,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		Button loadBtn = new Button(grpAcquire, SWT.NONE);
 		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/folder.png"));
 		loadBtn.setText("Load Saved mca");
+		final FileDialog openDialog = new FileDialog(composite.getShell(), SWT.OPEN);
+		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 		loadBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {			
@@ -230,11 +231,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		gridLayoutAcq.numColumns = 5;
 		gridLayoutAcq.marginWidth = 0;
 		acquire.setLayout(gridLayoutAcq);
-		
 		xspressAcquire = new XspressAcquire(acquire, sashPlotFormComposite, getSite().getShell().getDisplay(), plotData, readoutMode, resolutionGradeCombo, plot, dirtyContainer);
-		
-		openDialog = new FileDialog(composite.getShell(), SWT.OPEN);
-		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 	}
 	
 	private void createElements(final Composite composite){
@@ -330,8 +327,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				return null;
 			}
 		};
-		
-		// if any changes in certain UI components then apply to all elements
 		getDetectorElementComposite().getWindowStart().addValueListener(detectorElementCompositeValueListener);
 		getDetectorElementComposite().getWindowEnd().addValueListener(detectorElementCompositeValueListener);
 		getDetectorElementComposite().getRegionList().addValueListener(detectorElementCompositeValueListener);

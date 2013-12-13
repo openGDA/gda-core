@@ -18,11 +18,15 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import java.io.IOException;
-
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 
+import java.io.IOException;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
@@ -36,111 +40,132 @@ import uk.ac.gda.richbeans.components.data.DataWrapper;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 
-import com.swtdesigner.SWTResourceManager;
-
 public class Acquire {
 	private static final Logger logger = LoggerFactory.getLogger(Acquire.class);
 	protected Button acquireBtn;
 	protected boolean saveMcaOnAcquire;
 	protected Button autoSave;
 	protected Label acquireFileLabel;
-	private Thread continuousThread;
 	private boolean continuousAquire = false;
 	protected Button live;
 	protected Display display;
 	protected ScaleBox acquireTime;
 	protected Data plotData;
 	protected boolean writeToDisk = LocalProperties.check("gda.detectors.save.single.acquire");
+	private Job continiousAcquireJob;
+	private double acquireTimeValue;
 	
 	public Acquire(Display display) {
 		this.display = display;
 	}
 	
-	public void acquire(double collectionTimeValue) throws Exception {
+	public void acquire(double collectionTime) throws DeviceException, InterruptedException{
 		
 	}
 	
-	public void plotData(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
+	public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) throws DeviceException, InterruptedException {
 			
 	}
-		
 	
 	public void writeToDisk() throws IOException{
 		
 	}
 	
-	public void continuousAcquire(final DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
+	public void updateStats(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
+	}
+	
+	public void acquireAndPlotAndUpdateStats(double acquireTime, final DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
 		try {
-			continuousThread = new Thread(new Runnable() {
+			acquire(acquireTime);
+		} catch (DeviceException e) {
+			logger.error("Cannot acquire", e);
+		} catch (InterruptedException e) {
+			logger.error("Cannot acquire", e);
+		}
+		try {
+			plotData(detectorList, detectorElementComposite, currentSelectedElementIndex);
+		} catch (DeviceException e) {
+			logger.error("Cannot plot", e);
+		} catch (InterruptedException e) {
+			logger.error("Cannot plot", e);
+		}
+		updateStats(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
+	}
+	
+	public void createContinuousAcquireJob(final DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
+		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					while (continuousAquire) {
-						display.asyncExec(new Runnable() {
-							@Override
-							public void run() {								
-								try {
-									acquire(acquireTime.getNumericValue());
-								} catch (Exception e) {
-									logger.error("Error acquiring vortex data", e);
-								}
-								plotData(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
-							}
-						});
-						Thread.sleep(100);
-					}
-				} catch (InterruptedException e) {
-					logger.error("Continuous acquire problem with detector.", e);
-				} catch (Throwable e) {
-					logger.error("Continuous acquire problem with detector.", e);
-				}
+				acquireTimeValue = acquireTime.getNumericValue();
 			}
-		}, "Detector Live Runner");
-		continuousThread.start();
-		} 
-		catch (Exception e) {
-			logger.error("Internal errror process continuous data from detector.", e);
-		}
+		});
+		continiousAcquireJob = new Job("updateScanStatus") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				while(continuousAquire){
+					acquireAndPlotAndUpdateStats(acquireTimeValue, dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+					}
+				}
+				return Status.OK_STATUS;
+			}
+		};	
 	}
 	
 	public void addAcquireListener(final DataWrapper dataWrapper, final int currentSelectedElementIndex, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
 		acquireBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
+				createContinuousAcquireJob(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
 				try {
 					if (!live.getSelection()){
-						acquire(acquireTime.getNumericValue());
-						plotData(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {	
+								acquireBtn.setText("Stop");
+							}
+						});
+						acquireAndPlotAndUpdateStats(acquireTimeValue, dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
 						if(writeToDisk)
 							writeToDisk();
 						else
 							acquireFileLabel.setText("										");
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								acquireBtn.setText("Acquire");
+							}
+						});
 					}
 					else{
 						continuousAquire=!continuousAquire;
-						if(continuousAquire)
-							continuousAcquire(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
+						if(continuousAquire){
+							continiousAcquireJob.schedule();
+							Display.getDefault().asyncExec(new Runnable() {
+								@Override
+								public void run() {	
+									acquireBtn.setText("Stop");
+								}
+							});
+						}
+						else{
+							continiousAcquireJob.cancel();
+							continiousAcquireJob.schedule();
+							Display.getDefault().asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									acquireBtn.setText("Acquire");
+								}
+							});
+						}
 					}
 				} catch (Exception e1) {
 					logger.error("Cannot acquire xmap data", e1);
 				}
 			}
 		});
-	}
-	
-	public void acquireStarted() {
-		acquireBtn.setText("Stop");
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/stop.png"));
-		autoSave.setEnabled(false);
-		acquireFileLabel.setText("										");
-		//live.setEnabled(false);
-	}
-
-	public void acquireFinished() {
-		acquireBtn.setText("Acquire");
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/application_side_expand.png"));
-		autoSave.setEnabled(false);
-		//live.setEnabled(true);
 	}
 	
 }

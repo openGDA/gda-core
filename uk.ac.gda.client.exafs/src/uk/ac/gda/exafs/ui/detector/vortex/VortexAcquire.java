@@ -50,6 +50,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.exafs.ui.detector.Acquire;
+import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.Data;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
@@ -75,43 +76,44 @@ public class VortexAcquire extends Acquire {
 	private VortexData vortexData;
 	private Button loadBtn;
 	private Plot plot;
+	private Counts counts;
 	
-	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Data plotData){
+	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Data plotData, Counts counts){
 		super(display);
 		this.sashPlotFormComposite = sashPlotFormComposite;
 		this.xmapDetector = xmapDetector;
 		this.tfg = tfg;
 		this.plot = plot;
 		this.plotData = plotData;
+		this.counts = counts;
 		vortexData = new VortexData();
 	}
 	
 	@Override
-	public void plotData(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
-		data3d = getData3d();
+	public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
+		plot.plot(detectorList.getSelectedIndex(),true, getData3d(), detectorElementComposite, currentSelectedElementIndex, false, null);
+	}
+	
+	public void updateStats(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
 		dataWrapper.setValue(ElementCountsData.getDataFor(data3d));
-		Double[] liveStats = null;
-		try {
-			liveStats = (Double[]) xmapDetector.getAttribute("countRates");
-		} catch (DeviceException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
-		}
-		final double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
-		display.asyncExec(new Runnable() {
+		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				detectorElementComposite.setEndMaximum(data3d[0][0].length - 1);
-				if(detectorList!=null)
-					plot.plot(detectorList.getSelectedIndex(),true, data3d, detectorElementComposite, currentSelectedElementIndex, false, null);
+				counts.calculateAndPlotCountTotals(true, true, data3d, detectorElementComposite, currentSelectedElementIndex);
+				Double[] liveStats = null;
+				try {
+					liveStats = (Double[]) xmapDetector.getAttribute("countRates");
+				} catch (DeviceException e) {
+					logger.error("Problem getting attribute countRates from xmap", e);
+				}
+				double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
 				deadTimeLabel.setValue(deadTimeFinal);
-				lblDeadTime.setVisible(true);
-				deadTimeLabel.setVisible(true);
-				sashPlotFormComposite.getLeft().layout();
 			}
 		});
 	}
 	
+	@Override
 	public void writeToDisk() throws IOException{
 		if (writeToDisk && autoSaveEnabled) {
 			String msg = "Error saving detector data to file";
@@ -138,8 +140,6 @@ public class VortexAcquire extends Acquire {
 		}
 	}
 	
-	
-	
 	public void addLoadListener(final VortexParameters vortexParameters, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
 		loadBtn.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -164,11 +164,12 @@ public class VortexAcquire extends Acquire {
 		});
 	}
 	
-	public void acquire(double collectionTime) throws Exception {
+	@Override
+	public void acquire(double collectionTime) throws DeviceException, InterruptedException{
 		xmapDetector.clearAndStart();
 		tfg.countAsync(collectionTime);
-		xmapDetector.stop();
 		xmapDetector.waitWhileBusy();
+		xmapDetector.stop();
 		int[][] data = xmapDetector.getData();
 		data3d = convert2DTo3DArray(data);
 	}
@@ -200,7 +201,6 @@ public class VortexAcquire extends Acquire {
 		gridLayoutAcq.marginWidth = 0;
 		acquire.setLayout(gridLayoutAcq);
 		acquireBtn = new Button(acquire, SWT.NONE);
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/application_side_expand.png"));
 		acquireBtn.setText("Acquire");
 		acquireTime = new ScaleBox(acquire, SWT.NONE);
 		acquireTime.setMinimum(1);
