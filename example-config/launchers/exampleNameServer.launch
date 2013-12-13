@@ -13,5 +13,5 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.jacorb.naming.NameServer"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="uk.ac.gda.core"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djacorb.config.dir=${project_loc:example-config}/properties&#13;&#10;-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB&#13;&#10;-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton&#13;&#10;-DOAPort=6700"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djacorb.config.dir=${project_loc:example-config}/jacorb/dummy&#13;&#10;-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB&#13;&#10;-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton&#13;&#10;-DOAPort=6700"/>
 </launchConfiguration>

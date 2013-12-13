@@ -13,5 +13,5 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gda.factory.corba.util.ChannelServer"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="uk.ac.gda.core"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dgda.root=${project_loc:uk.ac.gda.core}/..&#13;&#10;-Dgda.config=${project_loc:example-config}&#13;&#10;-Djacorb.config.dir=${project_loc:example-config}/properties&#13;&#10;-Dgov.aps.jca.JCALibrary.properties=${project_loc:example-config}/properties/JCALibrary.properties"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dgda.root=${project_loc:uk.ac.gda.core}/..&#13;&#10;-Dgda.config=${project_loc:example-config}&#13;&#10;-Djacorb.config.dir=${project_loc:example-config}/jacorb/dummy&#13;&#10;-Dgov.aps.jca.JCALibrary.properties=${project_loc:example-config}/properties/JCALibrary.properties"/>
 </launchConfiguration>
