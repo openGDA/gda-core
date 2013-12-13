@@ -72,7 +72,6 @@ public class VortexAcquire extends Acquire {
 	private LabelWrapper deadTimeLabel;
 	private Composite acquire;
 	private Label lblDeadTime;
-	private boolean autoSaveEnabled;
 	private VortexData vortexData;
 	private Button loadBtn;
 	private Plot plot;
@@ -94,6 +93,7 @@ public class VortexAcquire extends Acquire {
 		plot.plot(detectorList.getSelectedIndex(),true, getData3d(), detectorElementComposite, currentSelectedElementIndex, false, null);
 	}
 	
+	@Override
 	public void updateStats(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
 		dataWrapper.setValue(ElementCountsData.getDataFor(data3d));
 		Display.getDefault().asyncExec(new Runnable() {
@@ -115,29 +115,28 @@ public class VortexAcquire extends Acquire {
 	
 	@Override
 	public void writeToDisk() throws IOException{
-		if (writeToDisk && autoSaveEnabled) {
-			String msg = "Error saving detector data to file";
-			String vortexFilePath = "";
-			try {
-				String vortexSaveDir = PathConstructor.createFromProperty("gda.device.vortex.spoolDir");
-				long snapShotNumber = new NumTracker("Vortex_snapshot").incrementNumber();
-				String fileName = "vortex_snap_" + snapShotNumber+ ".mca";
-				File filePath = new File(vortexSaveDir + "/" + fileName);
-				vortexFilePath = filePath.getAbsolutePath();
-				plotData.save(data3d, vortexFilePath);
-				msg = "Saved: " + vortexFilePath;
-				logger.info("Vortex snapshot saved to " + vortexFilePath);
-			}
-			finally {
-				final String msgFinal = msg;
-				display.syncExec(new Runnable() {
-					@Override
-					public void run() {
-						acquireFileLabel.setText(msgFinal);
-					}
-				});
-			}
+		String msg = "Error saving detector data to file";
+		String detectorFile = "";
+		try {
+			String vortexSaveDir = PathConstructor.createFromProperty("gda.device.vortex.spoolDir");
+			long snapShotNumber = new NumTracker("Vortex_snapshot").incrementNumber();
+			String fileName = "vortex_snap_" + snapShotNumber+ ".mca";
+			File filePath = new File(vortexSaveDir + "/" + fileName);
+			detectorFile = filePath.getAbsolutePath();
+			plotData.save(data3d, detectorFile);
+			msg = "Saved: " + detectorFile;
+			logger.info("Vortex snapshot saved to " + detectorFile);
 		}
+		finally {
+			final String msgFinal = msg;
+			display.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					acquireFileLabel.setText(msgFinal);
+				}
+			});
+		}
+		sashPlotFormComposite.appendStatus("Xspress snapshot saved to " + detectorFile, logger);
 	}
 	
 	public void addLoadListener(final VortexParameters vortexParameters, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
@@ -172,6 +171,7 @@ public class VortexAcquire extends Acquire {
 		xmapDetector.stop();
 		int[][] data = xmapDetector.getData();
 		data3d = convert2DTo3DArray(data);
+		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
 	}
 	
 	public int[][][] getData3d() {
@@ -224,7 +224,6 @@ public class VortexAcquire extends Acquire {
 			}
 		});
 		autoSave.setSelection(writeToDisk);
-		autoSaveEnabled = true;
 
 		live = new Button(acquire, SWT.CHECK);
 		live.setText("Live");
@@ -234,7 +233,6 @@ public class VortexAcquire extends Acquire {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				autoSave.setEnabled(!live.getSelection());
-				autoSaveEnabled = !live.getSelection();
 			}
 
 			@Override
