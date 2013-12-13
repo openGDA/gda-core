@@ -30,7 +30,7 @@ Export-Package: gda.configuration.properties,
  uk.ac.gda.util.number,
  uk.ac.gda.util.reflect,
  uk.ac.gda.util.schema
-Require-Bundle: org.junit4,
+Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  com.springsource.ch.qos.logback.classic;bundle-version="0.9.15",
  com.springsource.ch.qos.logback.core;bundle-version="0.9.15",
  org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)"
