@@ -6,7 +6,7 @@ Bundle-Version: 8.36.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.gda.client;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.junit4;bundle-version="4.5.0",
+Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  org.dawnsci.plotting.jreality;bundle-version="1.0.0",
  org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
  com.springsource.org.objenesis;bundle-version="[1.0.0,2.0.0)",
