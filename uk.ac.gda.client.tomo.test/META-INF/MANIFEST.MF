@@ -1,9 +1,8 @@
 Bundle-ManifestVersion: 2
 Bundle-Name: Tomography Client Test
 Bundle-Version: 1.0.0.qualifier
-Require-Bundle: org.junit4,
- com.windowtester.swt.runtime,
- org.junit,
+Require-Bundle: com.windowtester.swt.runtime,
+ org.junit;bundle-version="[4.10.0,5.0.0)",
  com.windowtester.runtime,
  com.windowtester.swing.runtime,
  org.eclipse.jface,
