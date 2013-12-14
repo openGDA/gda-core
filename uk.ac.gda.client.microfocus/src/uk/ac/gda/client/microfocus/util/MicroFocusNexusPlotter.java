@@ -60,14 +60,6 @@ public class MicroFocusNexusPlotter implements IROIListener {
 		}
 	}
 
-	private void removeRegion() {
-		if (region != null) {
-			region.removeROIListener(this);
-			region.remove();
-			region = null;
-		}
-	}
-
 	public void plotElement(final String elementName) {
 
 
@@ -106,8 +98,9 @@ public class MicroFocusNexusPlotter implements IROIListener {
 
 		PointROI selectedPixel = (PointROI) evt.getROI();
 
-		int x = (int) Math.round(selectedPixel.getPointX());
-		int y = (int) Math.round(selectedPixel.getPointY());
+		// cast to int to round down, not round to nearest int
+		int x = (int) selectedPixel.getPointX();
+		int y = (int) selectedPixel.getPointY();
 
 		displayPlot(x, y);
 
