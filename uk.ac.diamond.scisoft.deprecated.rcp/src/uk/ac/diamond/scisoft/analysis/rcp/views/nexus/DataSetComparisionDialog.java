@@ -178,7 +178,7 @@ public class DataSetComparisionDialog extends Dialog {
 			Collection<String>  names   = data != null ? data.getDataNames() : null;
 			if (names == null)  {
 				final DataHolder dh = LoaderFactory.getData(path, new ProgressMonitorWrapper(monitor));
-				names = dh != null ? dh.getMap().keySet() : null;
+				names = dh != null ? dh.toLazyMap().keySet() : null;
 			}
 			SortingUtils.removeIgnoredNames(names,ignored);
 			

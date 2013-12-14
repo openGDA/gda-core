@@ -406,7 +406,7 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 	@Override
 	public boolean isDataSetName(String name, IMonitor monitor) {
         createCachedData(monitor);
-		return cachedDataHolder.getMap().keySet().contains(name);
+		return cachedDataHolder.toLazyMap().keySet().contains(name);
 	}
 	
 	public AbstractDataset getDataSet(final Object object, final IProgressMonitor monitor) {
