@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -38,12 +38,11 @@ import uk.ac.gda.client.microfocus.util.ObjectStateManager;
 public class MicroFocusDisplayController {
 	private MicroFocusMappableDataProvider detectorProvider;
 	private MicroFocusMappableDataProvider currentDetectorProvider;
+	private MicroFocusNexusPlotter plotter;
+	private String[] trajectoryScannableName;
 	private String xScannable = "sc_MicroFocusSampleX";
 	private String yScannable = "sc_MicroFocusSampleY";
-	private MicroFocusNexusPlotter plotter;
 	private String detectorFile;
-	private int currentDetectorElementNo;
-	private String[] trajectoryScannableName;
 	private String zScannableName;
 	private String trajectoryCounterTimerName;
 
@@ -82,36 +81,6 @@ public class MicroFocusDisplayController {
 
 	}
 
-	public boolean displayPlot(int x, int y) throws Exception {
-		if (currentDetectorProvider != null && ObjectStateManager.isActive(detectorProvider)) {
-			double[] spectrum = null;
-			String detectorName = currentDetectorProvider.getDetectorName();
-			if(detectorName.equals("xmapMca"))
-				spectrum = currentDetectorProvider.getSpectrum(this.currentDetectorElementNo, x, y);
-			else
-				spectrum = currentDetectorProvider.getSpectrum(this.currentDetectorElementNo, y, x);
-			
-			if (spectrum != null) {
-				AbstractDataset yaxis = AbstractDataset.array(spectrum);
-
-				logger.info("Plotting spectrum for " + this.currentDetectorElementNo + "," + x + "," + y);
-				try {
-					SDAPlotter.plot("McaPlot", yaxis);
-					return true;
-				} catch (DeviceException e) {
-					logger.error("Unable to plot the spectrum for " + x + " " + y, e);
-					throw new Exception("Unable to plot the spectrum for " + x + " " + y, e);
-				}
-			}
-			throw new Exception("No Spectrum available for index " + x + "," + y);
-		}
-		// server needs to show the spectrum
-		logger.info("Plotting spectrum for " + this.currentDetectorElementNo + "," + x + "," + y);
-		JythonServerFacade.getInstance().evaluateCommand(
-				"map.getMFD().plotSpectrum(" + this.currentDetectorElementNo + "," + x + "," + y + ")");
-		return true;
-	}
-
 	private void setDataProviderForElement(String selectedElement) {
 		if (detectorProvider.hasPlotData(selectedElement))
 			currentDetectorProvider = detectorProvider;
@@ -123,7 +92,7 @@ public class MicroFocusDisplayController {
 		// check whether map scan is running
 		String mfd = JythonServerFacade.getInstance().evaluateCommand("map.getMFD()");
 		String active = null;
-		if(mfd!=null && !mfd.equals("None"))
+		if (mfd != null && !mfd.equals("None"))
 			active = JythonServerFacade.getInstance().evaluateCommand("map.getMFD().isActive()");
 
 		// if a map scan is running then disable the provider but what does provider provide? Names are important!
@@ -133,26 +102,26 @@ public class MicroFocusDisplayController {
 			}
 		}
 
-		if (selectedElement.equals("I0"))
-			if(detectorProvider!=null)
+		if (selectedElement.equals("I0")) {
+			if (detectorProvider != null)
 				plotter.plotDataset(detectorProvider.getI0data());
 			else
-				JythonServerFacade.getInstance().evaluateCommand("map.getMFD().displayPlot(\"" + selectedElement + "\")");
-		
-		else if(selectedElement.equals("It"))
-			if(detectorProvider!=null)
+				JythonServerFacade.getInstance().evaluateCommand(
+						"map.getMFD().displayPlot(\"" + selectedElement + "\")");
+		} else if (selectedElement.equals("It")) {
+			if (detectorProvider != null)
 				plotter.plotDataset(detectorProvider.getItdata());
 			else
-				JythonServerFacade.getInstance().evaluateCommand("map.getMFD().displayPlot(\"" + selectedElement + "\")");
-		
-		else if (ObjectStateManager.isActive(detectorProvider)) {
+				JythonServerFacade.getInstance().evaluateCommand(
+						"map.getMFD().displayPlot(\"" + selectedElement + "\")");
+		} else if (ObjectStateManager.isActive(detectorProvider)) {
 			if (plotter != null) {
 				setDataProviderForElement(selectedElement);
 				plotter.setDataProvider(currentDetectorProvider);
 				plotter.plotElement(selectedElement);
 			}
-		} 
-		
+		}
+
 		else
 			JythonServerFacade.getInstance().evaluateCommand("map.getMFD().displayPlot(\"" + selectedElement + "\")");
 	}
@@ -160,7 +129,6 @@ public class MicroFocusDisplayController {
 	public void displayMap(String selectedElement, String filePath, Object bean) {
 		if (plotter == null)
 			plotter = new MicroFocusNexusPlotter();
-		plotter.setPlottingWindowName("MapPlot");
 		detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(bean);
 		ObjectStateManager.register(detectorProvider);
 		detectorProvider.setXScannableName(xScannable);
@@ -180,7 +148,6 @@ public class MicroFocusDisplayController {
 	public void displayMap(String selectedElement, String filePath) {
 		if (plotter == null)
 			plotter = new MicroFocusNexusPlotter();
-		plotter.setPlottingWindowName("MapPlot");
 
 		if (detectorProvider == null) {
 			detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(detectorFile);
@@ -232,9 +199,5 @@ public class MicroFocusDisplayController {
 
 	public void disableProvider() {
 		ObjectStateManager.setInactive(detectorProvider);
-	}
-
-	public void setDetectorElementNumber(int selection) {
-		this.currentDetectorElementNo = selection;
 	}
 }
