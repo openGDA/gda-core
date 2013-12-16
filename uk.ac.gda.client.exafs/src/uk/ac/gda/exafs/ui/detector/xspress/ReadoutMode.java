@@ -65,7 +65,6 @@ public class ReadoutMode {
 					resolutionGrade.updateResModeItems(readoutRois);
 //					updateRoiVisibility();
 //					updateResGradeVisibility(parent);
-//					configureUI();
 				} finally {
 					GridUtils.endMultiLayout();
 				}

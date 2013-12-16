@@ -131,7 +131,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected Action createUpLoadAction() {
-		this.uploadAction = new Action("Configure") {
+		uploadAction = new Action("Configure") {
 			@Override
 			public void run() {
 				try {
@@ -142,7 +142,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				}
 			}
 		};
-		uploadAction.setEnabled(false);
 		uploadAction.setText("Configure");
 		uploadAction.setToolTipText("Applies the configuration settings to the detector.");
 		return uploadAction;
@@ -425,16 +424,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	protected void setImportCompositeVisible(boolean visible) {
 		GridUtils.setVisibleAndLayout(importComposite, visible);
-	}
-
-	/**
-	 * Allows users to enter windows.
-	 * 
-	 * @param isEnabled
-	 */
-	public void setWindowsEnabled(final boolean isEnabled) {
-		getDetectorList().setEnabled(isEnabled);
-		uploadAction.setEnabled(isEnabled);
 	}
 
 	public DetectorElementComposite getDetectorElementComposite() {

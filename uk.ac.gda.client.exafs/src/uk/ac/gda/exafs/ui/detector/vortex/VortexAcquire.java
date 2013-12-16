@@ -61,7 +61,7 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 import com.swtdesigner.SWTResourceManager;
 
 public class VortexAcquire extends Acquire {
-	private int[][][] data3d;
+	private int[][][] mcaData;
 	private static final Logger logger = LoggerFactory.getLogger(VortexAcquire.class);
 	private XmapDetector xmapDetector;
 	private Timer tfg;
@@ -89,7 +89,7 @@ public class VortexAcquire extends Acquire {
 	
 	@Override
 	public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
-		plot.plot(detectorList.getSelectedIndex(), getData3d(), false, null);
+		plot.plot(detectorList.getSelectedIndex(), getMcaData(), false, null);
 		dirtyContainer.setDirty(true);
 	}
 	
@@ -98,8 +98,8 @@ public class VortexAcquire extends Acquire {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				detectorElementComposite.setEndMaximum(data3d[0][0].length - 1);
-				counts.calculateAndPlotCountTotals(true, true, data3d, detectorElementComposite, currentSelectedElementIndex);
+				detectorElementComposite.setEndMaximum(mcaData[0][0].length - 1);
+				counts.calculateAndPlotCountTotals(true, true, mcaData, detectorElementComposite, currentSelectedElementIndex);
 				Double[] liveStats = null;
 				try {
 					liveStats = (Double[]) xmapDetector.getAttribute("countRates");
@@ -124,7 +124,7 @@ public class VortexAcquire extends Acquire {
 			String fileName = "vortex_snap_" + snapShotNumber+ ".mca";
 			File filePath = new File(vortexSaveDir + "/" + fileName);
 			detectorFile = filePath.getAbsolutePath();
-			vortexData.save(data3d, detectorFile);
+			vortexData.save(mcaData, detectorFile);
 			msg = "Saved: " + detectorFile;
 			logger.info("Vortex snapshot saved to " + detectorFile);
 		}
@@ -152,7 +152,7 @@ public class VortexAcquire extends Acquire {
 							@Override
 							public void run() {
 								acquireFileLabel.setText("Loaded: " + filePath);
-								detectorElementComposite.setEndMaximum((data3d[0][0].length) - 1);
+								detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
 								plot.plot(detectorList.getSelectedIndex(), vortexData.getDetectorData(), false, null);
 							}
 						});
@@ -171,12 +171,12 @@ public class VortexAcquire extends Acquire {
 		xmapDetector.waitWhileBusy();
 		xmapDetector.stop();
 		int[][] data = xmapDetector.getData();
-		data3d = convert2DTo3DArray(data);
+		mcaData = convert2DTo3DArray(data);
 		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
 	}
 	
-	public int[][][] getData3d() {
-		return data3d;
+	public int[][][] getMcaData() {
+		return mcaData;
 	}
 
 	protected int[][][] convert2DTo3DArray(int[][] data) {

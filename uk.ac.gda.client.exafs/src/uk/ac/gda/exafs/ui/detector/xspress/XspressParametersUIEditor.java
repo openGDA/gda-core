@@ -23,12 +23,10 @@ import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
 
 import java.awt.Color;
-import java.io.File;
 import java.net.URL;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -44,18 +42,13 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.exafs.DetectorParameters;
-import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
-import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ExafsActivator;
-import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
@@ -63,7 +56,6 @@ import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
-import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.selector.ListEditor;
@@ -76,25 +68,22 @@ import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
 
 public class XspressParametersUIEditor extends DetectorEditor {
+	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
 	private Composite parentComposite;
 	private Composite middleComposite;
 	private XspressAcquire xspressAcquire;
-	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
 	private XspressParameters xspressParameters;
 	private Button applyToAllButton;
 	private Button applyToAllLabel;
 	private SelectionAdapter applyToAllListener;
 	private Group detectorElementsGroup;
 	private BooleanWrapper showIndividualElements;
-	private BooleanWrapper onlyShowFF;
-	private BooleanWrapper showDTRawValues;
-	private BooleanWrapper saveRawSpectrum;
-	private SelectionAdapter xspressOptionsListener;
 	private Label lblRegionBins;
 	private ValueListener detectorElementCompositeValueListener;
 	private ResolutionGrade resolutionGrade;
 	private ReadoutMode readoutMode;
 	private RegionType regionType;
+	private XspressPreferences xspressPreferences;
 	
 	public XspressParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean, "xspressConfig");
@@ -133,7 +122,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		
 		createElements(left);
 		if(!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS) && !ScanObjectManager.isXESOnlyMode())
-			addOutputPreferences(left);
+			xspressPreferences = new XspressPreferences(left);
 		sashPlotFormComposite.setWeights(new int[] { 30, 74 });
 		configureUI();
 		createApplyToAllObserver();
@@ -205,7 +194,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			public void valueChangePerformed(ValueEvent e) {
 				if ((Boolean) e.getValue() == false)
 					if (!applyToAll(true)) {
-						// user didn't want to lose individual settings, cancel change
 						showIndividualElements.setValue(true);
 						return;
 					}
@@ -248,67 +236,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		getDetectorElementComposite().getWindowStart().addValueListener(detectorElementCompositeValueListener);
 		getDetectorElementComposite().getWindowEnd().addValueListener(detectorElementCompositeValueListener);
 		getDetectorElementComposite().getRegionList().addValueListener(detectorElementCompositeValueListener);
-	}
-
-	private void addOutputPreferences(Composite comp) {
-		Group xspressParametersGroup = new Group(comp, SWT.NONE);
-		xspressParametersGroup.setText("Output Preferences");
-		xspressParametersGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		xspressParametersGroup.setLayout(gridLayout);
-		onlyShowFF = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
-		onlyShowFF.setText("Hide individual elements");
-		onlyShowFF.setToolTipText("In ascii output, only display the total in-window counts (FF) from the Xspress detector");
-		onlyShowFF.setValue(Boolean.FALSE);
-		addXspressOptionsListener(onlyShowFF);
-		showDTRawValues = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
-		showDTRawValues.setText("Show DT values");
-		showDTRawValues.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
-		showDTRawValues.setValue(Boolean.FALSE);
-		addXspressOptionsListener(showDTRawValues);
-		saveRawSpectrum = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
-		saveRawSpectrum.setText("Save raw spectrum to file");
-		saveRawSpectrum.setValue(false);
-	}
-
-	private void addXspressOptionsListener(BooleanWrapper booleanwrapper) {
-		if (xspressOptionsListener == null)
-			createXspressOptionsListener();
-		((Button) booleanwrapper.getControl()).addSelectionListener(xspressOptionsListener);
-	}
-
-	protected void createXspressOptionsListener() {
-		this.xspressOptionsListener = new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				final ScanObject ob = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
-				if (ob != null) {
-					try {
-						IDetectorParameters params = ob.getDetectorParameters();
-						if (params.getExperimentType().equalsIgnoreCase(DetectorParameters.TRANSMISSION_TYPE))
-							showWarning();
-						else if (params.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) {
-							if (!params.getFluorescenceParameters().getDetectorType().equalsIgnoreCase("Germanium"))
-								showWarning();
-						}
-					} catch (Exception e1) {
-						logger.warn("Exception while retrieving current DetectorParameters object", e1);
-					}
-				}
-			}
-
-			protected void showWarning() {
-				getSite().getShell().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						MessageDialog.openWarning(getSite().getShell(),
-							"Inconsistent options",
-							"The Xspress detector is not currently selected in the detector parameters editor.\n\nIf you wish to use the Xspress then change the detector parameters.");
-					}
-				});
-			}
-		};
 	}
 
 	@Override
@@ -436,25 +363,25 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		return readoutMode.getReadoutMode();
 	}
 
-	@Override
-	public void notifyFileSaved(File file) {
-		FluorescenceComposite fluorescenceComposite = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class);
-		if (fluorescenceComposite == null || fluorescenceComposite.isDisposed())
-			return;
-		fluorescenceComposite.getDetectorType().setValue("Germanium");
-		fluorescenceComposite.getConfigFileName().setValue(file.getAbsolutePath());
-	}
+//	@Override
+//	public void notifyFileSaved(File file) {
+//		FluorescenceComposite fluorescenceComposite = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class);
+//		if (fluorescenceComposite == null || fluorescenceComposite.isDisposed())
+//			return;
+//		fluorescenceComposite.getDetectorType().setValue("Germanium");
+//		fluorescenceComposite.getConfigFileName().setValue(file.getAbsolutePath());
+//	}
 
 	public BooleanWrapper getOnlyShowFF() {
-		return onlyShowFF;
+		return xspressPreferences.getOnlyShowFF();
 	}
 
 	public BooleanWrapper getShowDTRawValues() {
-		return showDTRawValues;
+		return xspressPreferences.getShowDTRawValues();
 	}
 
 	public BooleanWrapper getSaveRawSpectrum() {
-		return saveRawSpectrum;
+		return xspressPreferences.getSaveRawSpectrum();
 	}
 
 	@Override

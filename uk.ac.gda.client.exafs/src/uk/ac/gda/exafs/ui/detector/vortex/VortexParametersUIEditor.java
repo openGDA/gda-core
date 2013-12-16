@@ -103,7 +103,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
-				int[][][] mcaData = vortexAcquire.getData3d();
+				int[][][] mcaData = vortexAcquire.getMcaData();
 				plot.plot(evt.getSelectionIndex(),mcaData, false, null);
 				DetectorElementComposite detectorElementComposite = getDetectorElementComposite();
 				detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
