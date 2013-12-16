@@ -47,18 +47,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
-import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.exafs.ui.detector.Acquire;
 import uk.ac.gda.exafs.ui.detector.Counts;
-import uk.ac.gda.exafs.ui.detector.Data;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.Plot;
-import uk.ac.gda.richbeans.components.data.DataWrapper;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
+import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -76,26 +74,27 @@ public class VortexAcquire extends Acquire {
 	private Button loadBtn;
 	private Plot plot;
 	private Counts counts;
+	private DirtyContainer dirtyContainer;
 	
-	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Data plotData, Counts counts){
+	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Counts counts, final DirtyContainer dirtyContainer){
 		super(display);
 		this.sashPlotFormComposite = sashPlotFormComposite;
 		this.xmapDetector = xmapDetector;
 		this.tfg = tfg;
 		this.plot = plot;
-		this.plotData = plotData;
 		this.counts = counts;
+		this.dirtyContainer = dirtyContainer;
 		vortexData = new VortexData();
 	}
 	
 	@Override
 	public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
-		plot.plot(detectorList.getSelectedIndex(),true, getData3d(), detectorElementComposite, currentSelectedElementIndex, false, null);
+		plot.plot(detectorList.getSelectedIndex(), getData3d(), false, null);
+		dirtyContainer.setDirty(true);
 	}
 	
 	@Override
-	public void updateStats(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
-		dataWrapper.setValue(ElementCountsData.getDataFor(data3d));
+	public void updateStats(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -107,8 +106,10 @@ public class VortexAcquire extends Acquire {
 				} catch (DeviceException e) {
 					logger.error("Problem getting attribute countRates from xmap", e);
 				}
-				double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
-				deadTimeLabel.setValue(deadTimeFinal);
+				if(liveStats!=null){
+					double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
+					deadTimeLabel.setValue(deadTimeFinal);
+				}
 			}
 		});
 	}
@@ -123,7 +124,7 @@ public class VortexAcquire extends Acquire {
 			String fileName = "vortex_snap_" + snapShotNumber+ ".mca";
 			File filePath = new File(vortexSaveDir + "/" + fileName);
 			detectorFile = filePath.getAbsolutePath();
-			plotData.save(data3d, detectorFile);
+			vortexData.save(data3d, detectorFile);
 			msg = "Saved: " + detectorFile;
 			logger.info("Vortex snapshot saved to " + detectorFile);
 		}
@@ -139,7 +140,7 @@ public class VortexAcquire extends Acquire {
 		sashPlotFormComposite.appendStatus("Xspress snapshot saved to " + detectorFile, logger);
 	}
 	
-	public void addLoadListener(final VortexParameters vortexParameters, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
+	public void addLoadListener(final VortexParameters vortexParameters, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
 		loadBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -152,7 +153,7 @@ public class VortexAcquire extends Acquire {
 							public void run() {
 								acquireFileLabel.setText("Loaded: " + filePath);
 								detectorElementComposite.setEndMaximum((data3d[0][0].length) - 1);
-								plot.plot(detectorList.getSelectedIndex(),false, vortexData.getDetectorData(), detectorElementComposite, currentSelectedElementIndex, false, null);
+								plot.plot(detectorList.getSelectedIndex(), vortexData.getDetectorData(), false, null);
 							}
 						});
 					}

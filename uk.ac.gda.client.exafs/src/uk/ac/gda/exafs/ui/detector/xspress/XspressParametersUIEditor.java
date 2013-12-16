@@ -39,11 +39,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +59,7 @@ import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
+import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -71,30 +69,22 @@ import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.selector.ListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditorUIAdapter;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
-import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
 
-import com.swtdesigner.SWTResourceManager;
-
 public class XspressParametersUIEditor extends DetectorEditor {
 	private Composite parentComposite;
 	private Composite middleComposite;
 	private XspressAcquire xspressAcquire;
 	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
-	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
-	private ComboWrapper readoutMode;
-	private ComboWrapper regionType;
-	private ComboAndNumberWrapper resolutionGradeCombo;
 	private XspressParameters xspressParameters;
 	private Button applyToAllButton;
 	private Button applyToAllLabel;
 	private SelectionAdapter applyToAllListener;
 	private Group detectorElementsGroup;
-	private Label resGradeLabel;
 	private BooleanWrapper showIndividualElements;
 	private BooleanWrapper onlyShowFF;
 	private BooleanWrapper showDTRawValues;
@@ -103,7 +93,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private Label lblRegionBins;
 	private ValueListener detectorElementCompositeValueListener;
 	private ResolutionGrade resolutionGrade;
-	private XspressData xspressData;
+	private ReadoutMode readoutMode;
+	private RegionType regionType;
 	
 	public XspressParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean, "xspressConfig");
@@ -119,7 +110,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	public void createPartControl(Composite composite) {
 		parentComposite = composite;
 		super.createPartControl(parentComposite);
-		xspressData = new XspressData();
 		counts = new Counts();
 		Composite left = sashPlotFormComposite.getLeft();
 		Composite topComposite = new Composite(left, SWT.NONE);
@@ -127,111 +117,39 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		GridLayout gridLayout_1 = new GridLayout();
 		gridLayout_1.numColumns = 2;
 		topComposite.setLayout(gridLayout_1);
-		createReadoutMode(topComposite);
 		resolutionGrade = new ResolutionGrade(topComposite);
-		resolutionGradeCombo = resolutionGrade.getResolutionGradeCombo();
-		if (modeOverride) {
-			GridUtils.setVisibleAndLayout(readoutMode, false);
-			GridUtils.setVisibleAndLayout(resGradeLabel, false);
-			GridUtils.setVisibleAndLayout(resolutionGradeCombo, false);
+		readoutMode = new ReadoutMode(topComposite, resolutionGrade);
+		if(readoutMode.isModeOveride()) {
+			GridUtils.setVisibleAndLayout(readoutMode.getReadoutMode(), false);
+			GridUtils.setVisibleAndLayout(resolutionGrade.getResGradeLabel(), false);
+			GridUtils.setVisibleAndLayout(resolutionGrade.getResolutionGradeCombo(), false);
 			GridUtils.setVisibleAndLayout(lblRegionBins, false);
-			GridUtils.setVisibleAndLayout(regionType, false);
+			GridUtils.setVisibleAndLayout(regionType.getRegionType(), false);
 		}
 		lblRegionBins = new Label(topComposite, SWT.NONE);
 		lblRegionBins.setText("Region type");
-		regionType = new ComboWrapper(topComposite, SWT.READ_ONLY);
-		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		regionType.setItems(new String[]{XspressParameters.VIRTUALSCALER, XspressROI.MCA});
-		regionType.select(0);
-		createAcquireControl(left);
+		regionType = new RegionType(topComposite);
+		xspressAcquire = new XspressAcquire(left, sashPlotFormComposite, getSite().getShell().getDisplay(), readoutMode.getReadoutMode(), resolutionGrade.getResolutionGradeCombo(), plot, dirtyContainer);
+		
 		createElements(left);
-		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
+		if(!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS) && !ScanObjectManager.isXESOnlyMode())
 			addOutputPreferences(left);
 		sashPlotFormComposite.setWeights(new int[] { 30, 74 });
 		configureUI();
 		createApplyToAllObserver();
-		xspressAcquire.init(xspressParameters, dataWrapper, getDetectorElementComposite(), getCurrentSelectedElementIndex(), getDetectorList(), counts, showIndividualElements);
+		xspressAcquire.init(xspressParameters, counts, showIndividualElements);
+		xspressAcquire.addAcquireListener(getCurrentSelectedElementIndex(), getDetectorList(), getDetectorElementComposite());
 		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
-				int currentSelectedElementIndex = getCurrentSelectedElementIndex();
 				int[][][] mcaData = xspressAcquire.getMcaData();
-				plot.plot(evt.getSelectionIndex(),false, mcaData, getDetectorElementComposite(), currentSelectedElementIndex, false, null);
-				getDetectorElementComposite().getRegionList().setSelectedIndex(xspressParameters.getSelectedRegionNumber());
+				plot.plot(evt.getSelectionIndex(), mcaData, false, null);
+				DetectorElementComposite detectorElementComposite = getDetectorElementComposite();
+				detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
+				detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
 			}
 		});
-	}
-	
-	private void createReadoutMode(final Composite composite){
-		Label readoutModeLabel = new Label(composite, SWT.NONE);
-		readoutModeLabel.setText("Read out mode");
-		readoutModeLabel.setToolTipText("The type of data which will be written to file");
-		readoutModeLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		if (modeOverride)
-			GridUtils.setVisibleAndLayout(readoutModeLabel, false);
-		readoutMode = new ComboWrapper(composite, SWT.READ_ONLY);
-		readoutMode.setItems(new String[] { XspressDetector.READOUT_SCALERONLY, XspressDetector.READOUT_MCA, XspressDetector.READOUT_ROIS });
-		readoutMode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		readoutMode.select(0);
-		readoutMode.addValueListener(new ValueAdapter("readoutMode") {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				GridUtils.startMultiLayout(composite.getParent());
-				try {
-					updateOverrideMode();
-					boolean readoutRois = false;
-					if(resolutionGrade.getResolutionGradeCombo().getValue().equals(XspressDetector.READOUT_ROIS))
-						readoutRois = true;
-					resolutionGrade.updateResModeItems(readoutRois);
-					updateRoiVisibility();
-					updateResGradeVisibility(composite);
-					configureUI();
-				} finally {
-					GridUtils.endMultiLayout();
-				}
-			}
-		});
-	}
-	
-	private void createAcquireControl(Composite composite){
-		Group grpAcquire = new Group(composite, SWT.NONE);
-		grpAcquire.setText("Acquire Spectra");
-		grpAcquire.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		grpAcquire.setLayout(gridLayout);
-		Button loadBtn = new Button(grpAcquire, SWT.NONE);
-		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/folder.png"));
-		loadBtn.setText("Load Saved mca");
-		final FileDialog openDialog = new FileDialog(composite.getShell(), SWT.OPEN);
-		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
-		loadBtn.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {			
-				try {
-					final String filePath = openDialog.open();
-					if(filePath!=null){
-						xspressData.load(openDialog, xspressParameters, filePath);
-						getSite().getShell().getDisplay().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-								plot.plot(getDetectorList().getSelectedIndex(),false, detectorData, getDetectorElementComposite(), getCurrentSelectedElementIndex(), false, resolutionGradeCombo);
-								setWindowsEnabled(true);
-							}
-						});
-					}
-				} catch (Exception e1) {
-					logger.error("Cannot acquire xspress data", e1);
-				}
-			}
-		});
-		Composite acquire = new Composite(grpAcquire, SWT.NONE);
-		GridLayout gridLayoutAcq = new GridLayout();
-		gridLayoutAcq.numColumns = 5;
-		gridLayoutAcq.marginWidth = 0;
-		acquire.setLayout(gridLayoutAcq);
-		xspressAcquire = new XspressAcquire(acquire, sashPlotFormComposite, getSite().getShell().getDisplay(), plotData, readoutMode, resolutionGradeCombo, plot, dirtyContainer);
+		xspressAcquire.addLoadListener(getDetectorList(), getDetectorElementComposite(), xspressParameters.getDetectorList().size());
 	}
 	
 	private void createElements(final Composite composite){
@@ -242,7 +160,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		showIndividualElements.setText("Show individual elements");
 		Composite middleComposite = new Composite(grid, SWT.BORDER);
 		middleComposite.setLayout(new GridLayout(2, false));
-		GridDataFactory.fillDefaults()/*.grab(true, false)*/.applyTo(middleComposite);
+		GridDataFactory.fillDefaults().applyTo(middleComposite);
 		applyToAllLabel = new Button(middleComposite, SWT.CHECK);
 		applyToAllLabel.setText("Apply Changes To All Elements ");
 		applyToAllLabel.setEnabled(true);
@@ -333,27 +251,25 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 
 	private void addOutputPreferences(Composite comp) {
-		if (!ScanObjectManager.isXESOnlyMode()) {
-			Group xspressParametersGroup = new Group(comp, SWT.NONE);
-			xspressParametersGroup.setText("Output Preferences");
-			xspressParametersGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-			GridLayout gridLayout = new GridLayout();
-			gridLayout.numColumns = 1;
-			xspressParametersGroup.setLayout(gridLayout);
-			onlyShowFF = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
-			onlyShowFF.setText("Hide individual elements");
-			onlyShowFF.setToolTipText("In ascii output, only display the total in-window counts (FF) from the Xspress detector");
-			onlyShowFF.setValue(Boolean.FALSE);
-			addXspressOptionsListener(onlyShowFF);
-			showDTRawValues = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
-			showDTRawValues.setText("Show DT values");
-			showDTRawValues.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
-			showDTRawValues.setValue(Boolean.FALSE);
-			addXspressOptionsListener(showDTRawValues);
-			saveRawSpectrum = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
-			saveRawSpectrum.setText("Save raw spectrum to file");
-			saveRawSpectrum.setValue(false);
-		}
+		Group xspressParametersGroup = new Group(comp, SWT.NONE);
+		xspressParametersGroup.setText("Output Preferences");
+		xspressParametersGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		GridLayout gridLayout = new GridLayout();
+		gridLayout.numColumns = 1;
+		xspressParametersGroup.setLayout(gridLayout);
+		onlyShowFF = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
+		onlyShowFF.setText("Hide individual elements");
+		onlyShowFF.setToolTipText("In ascii output, only display the total in-window counts (FF) from the Xspress detector");
+		onlyShowFF.setValue(Boolean.FALSE);
+		addXspressOptionsListener(onlyShowFF);
+		showDTRawValues = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
+		showDTRawValues.setText("Show DT values");
+		showDTRawValues.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
+		showDTRawValues.setValue(Boolean.FALSE);
+		addXspressOptionsListener(showDTRawValues);
+		saveRawSpectrum = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
+		saveRawSpectrum.setText("Save raw spectrum to file");
+		saveRawSpectrum.setValue(false);
 	}
 
 	private void addXspressOptionsListener(BooleanWrapper booleanwrapper) {
@@ -393,31 +309,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				});
 			}
 		};
-	}
-
-	private void updateResGradeVisibility(Composite composite) {
-		GridUtils.startMultiLayout(composite.getParent());
-		try {
-			if (readoutMode.getSelectionIndex() == 2 && !modeOverride) {
-				GridUtils.setVisibleAndLayout(resGradeLabel, true);
-				GridUtils.setVisibleAndLayout(resolutionGradeCombo, true);
-				GridUtils.setVisibleAndLayout(lblRegionBins, true);
-				GridUtils.setVisibleAndLayout(regionType, true);
-			} 
-			else {
-				GridUtils.setVisibleAndLayout(resGradeLabel, false);
-				GridUtils.setVisibleAndLayout(resolutionGradeCombo, false);
-				GridUtils.setVisibleAndLayout(lblRegionBins, false);
-				GridUtils.setVisibleAndLayout(regionType, false);
-			}
-		} finally {
-			GridUtils.endMultiLayout();
-		}
-	}
-
-	private void updateOverrideMode() {
-		if (modeOverride)
-			this.readoutMode.setValue(XspressDetector.READOUT_ROIS);
 	}
 
 	@Override
@@ -482,7 +373,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 
 	protected void updateRoiVisibility() {
-		boolean isRoi = readoutMode.getValue().equals(XspressDetector.READOUT_ROIS);
+		boolean isRoi = readoutMode.getReadoutMode().getValue().equals(XspressDetector.READOUT_ROIS);
 		getDetectorElementComposite().setWindowsEditable(!isRoi);
 		Composite roi = getDetectorElementComposite().getRegionList();
 		GridUtils.setVisibleAndLayout(roi, isRoi);
@@ -509,17 +400,15 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		GridUtils.startMultiLayout(parentComposite);
 		try {
 			super.linkUI(isPageChange);
-			updateOverrideMode();
+			readoutMode.updateOverrideMode();
 			boolean readoutRois = false;
 			if(resolutionGrade.getResolutionGradeCombo().getValue().equals(XspressDetector.READOUT_ROIS))
 				readoutRois = true;
 			resolutionGrade.updateResModeItems(readoutRois);
 			updateRoiVisibility();
 			updateElementsVisibility(parentComposite);
-			updateResGradeVisibility(parentComposite);
-			// notify the composite immediately of a possible change
+			resolutionGrade.updateResGradeVisibility(parentComposite);
 			listEditorUI.notifySelected(getDetectorElementComposite().getRegionList());
-			// setup for all future notifications
 			getDetectorElementComposite().getRegionList().setListEditorUI(listEditorUI);
 			updateROIAfterElementCompositeChange();
 		} finally {
@@ -536,7 +425,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 
 	public ComboWrapper getResGrade() {
-		return resolutionGradeCombo;
+		return resolutionGrade.getResolutionGradeCombo();
 	}
 
 	public BooleanWrapper getEditIndividualElements() {
@@ -544,7 +433,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 
 	public ComboWrapper getReadoutMode() {
-		return readoutMode;
+		return readoutMode.getReadoutMode();
 	}
 
 	@Override
@@ -575,7 +464,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 	
 	public ComboWrapper getRegionType() {
-		return regionType;
+		return regionType.getRegionType();
 	}
 	
 	protected String getDetectorName() {
@@ -584,14 +473,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	
 	public XMLCommandHandler getXMLCommandHandler() {
 		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(XspressParameters.class);
-	}
-	
-	protected double getDetectorCollectionTime() {
-		return xspressAcquire.getCollectionTime();
-	}
-
-	protected long getAcquireWaitTime() {
-		return 1100l;
 	}
 	
 }

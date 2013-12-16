@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.richbeans.components.data.DataWrapper;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 
@@ -50,7 +49,6 @@ public class Acquire {
 	protected Button live;
 	protected Display display;
 	protected ScaleBox acquireTime;
-	protected Data plotData;
 	protected boolean writeToDisk = LocalProperties.check("gda.detectors.save.single.acquire");
 	private Job continiousAcquireJob;
 	private double acquireTimeValue;
@@ -71,10 +69,10 @@ public class Acquire {
 		
 	}
 	
-	public void updateStats(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
+	public void updateStats(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
 	}
 	
-	public void acquireAndPlotAndUpdateStats(double acquireTime, final DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
+	public void acquireAndPlotAndUpdateStats(double acquireTime, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
 		try {
 			acquire(acquireTime);
 		} catch (DeviceException e) {
@@ -89,10 +87,10 @@ public class Acquire {
 		} catch (InterruptedException e) {
 			logger.error("Cannot plot", e);
 		}
-		updateStats(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
+		updateStats(detectorList, detectorElementComposite, currentSelectedElementIndex);
 	}
 	
-	public void createContinuousAcquireJob(final DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
+	public void createContinuousAcquireJob(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -103,7 +101,7 @@ public class Acquire {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				while(continuousAquire){
-					acquireAndPlotAndUpdateStats(acquireTimeValue, dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
+					acquireAndPlotAndUpdateStats(acquireTimeValue, detectorList, detectorElementComposite, currentSelectedElementIndex);
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
@@ -114,20 +112,21 @@ public class Acquire {
 		};	
 	}
 	
-	public void addAcquireListener(final DataWrapper dataWrapper, final int currentSelectedElementIndex, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
+	public void addAcquireListener(final int currentSelectedElementIndex, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
+		
 		acquireBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				createContinuousAcquireJob(dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
+				createContinuousAcquireJob(detectorList, detectorElementComposite, currentSelectedElementIndex);
 				try {
-					if (!live.getSelection()){
+					if (live==null || !live.getSelection()){
 						Display.getDefault().asyncExec(new Runnable() {
 							@Override
 							public void run() {	
 								acquireBtn.setText("Stop");
 							}
 						});
-						acquireAndPlotAndUpdateStats(acquireTimeValue, dataWrapper, detectorList, detectorElementComposite, currentSelectedElementIndex);
+						acquireAndPlotAndUpdateStats(acquireTimeValue, detectorList, detectorElementComposite, currentSelectedElementIndex);
 						if(writeToDisk)
 							writeToDisk();
 						else

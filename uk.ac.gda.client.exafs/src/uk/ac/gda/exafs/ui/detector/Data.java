@@ -37,7 +37,6 @@ public class Data {
 	private static final Logger logger = LoggerFactory.getLogger(Data.class);
 	
 	public Data() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public DataWrapper readStoredData(String dataXMLName) {
@@ -54,12 +53,10 @@ public class Data {
 				newData.setDataString(strLine);
 				elements = (ElementCountsData[]) ArrayUtils.add(elements, newData);
 			}
-			// Close the input stream
 			in.close();
 			if (elements.length == 0)
 				return newwrapper;
 			newwrapper.setValue(elements);
-
 		} catch (IOException e) {
 			logger.error("IOException whilst reading stored detector editor data from file " + dataXMLName);
 			return newwrapper;

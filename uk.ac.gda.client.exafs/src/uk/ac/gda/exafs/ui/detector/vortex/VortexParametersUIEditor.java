@@ -49,6 +49,7 @@ import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
+import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
@@ -88,12 +89,12 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
 		String tfgName = vortexParameters.getTfgName();
 		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, getSite().getShell().getDisplay(), plot, plotData, new Counts());
+		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, getSite().getShell().getDisplay(), plot, new Counts(), dirtyContainer);
 		Composite left = sashPlotFormComposite.getLeft();
 		vortexAcquire.createAcquire(parent, left);
 		createROIPanel(left);
-		vortexAcquire.addAcquireListener(dataWrapper, getCurrentSelectedElementIndex(), getDetectorList(), getDetectorElementComposite());
-		vortexAcquire.addLoadListener(vortexParameters, getDetectorList(), getDetectorElementComposite(), getCurrentSelectedElementIndex());
+		vortexAcquire.addAcquireListener(getCurrentSelectedElementIndex(), getDetectorList(), getDetectorElementComposite());
+		vortexAcquire.addLoadListener(vortexParameters, getDetectorList(), getDetectorElementComposite());
 		sashPlotFormComposite.setWeights(new int[] { 35, 74 });
 		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
 			addOutputPreferences(left);
@@ -102,10 +103,11 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
-				int currentSelectedElementIndex = getCurrentSelectedElementIndex();
-				int[][][] data3d = vortexAcquire.getData3d();
-				plot.plot(evt.getSelectionIndex(),false, data3d, getDetectorElementComposite(), currentSelectedElementIndex, false, null);
-				getDetectorElementComposite().getRegionList().setSelectedIndex(vortexParameters.getSelectedRegionNumber());
+				int[][][] mcaData = vortexAcquire.getData3d();
+				plot.plot(evt.getSelectionIndex(),mcaData, false, null);
+				DetectorElementComposite detectorElementComposite = getDetectorElementComposite();
+				detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
+				detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
 			}
 		});
 	}
@@ -174,7 +176,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		getDetectorElementComposite().setIndividualElements(true);
 	}
 
-
 	@Override
 	public void notifyFileSaved(File file) {
 		@SuppressWarnings("unchecked")
@@ -213,20 +214,8 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		super.dispose();
 	}
 	
-	protected double getDetectorCollectionTime() {
-		return (Double) getCollectionTime().getValue();
-	}
-	
-	protected long getAcquireWaitTime() {
-		return Math.round((Double) getCollectionTime().getValue() * 0.1d);
-	}
-	
 	public XMLCommandHandler getXMLCommandHandler() {
 		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(VortexParameters.class);
-	}
-	
-	protected String getDetectorName() {
-		return vortexParameters.getDetectorName();
 	}
 	
 }

@@ -33,14 +33,12 @@ import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
 
 public class Plot {
 	private SashFormPlotComposite sashPlotFormComposite;
-	private Counts counts;
 	
-	public Plot(SashFormPlotComposite sashPlotFormComposite, Counts counts) {
+	public Plot(SashFormPlotComposite sashPlotFormComposite) {
 		this.sashPlotFormComposite = sashPlotFormComposite;
-		this.counts = counts;
 	}
 
-	public void plot(int ielement, boolean updateTitle, int[][][] detectorData, DetectorElementComposite detectorElementComposite, int currentSelectedElementIndex, boolean isAdditiveResolutionGradeMode, ComboAndNumberWrapper resolutionGradeCombo) {
+	public void plot(int ielement, int[][][] detectorData, boolean isAdditiveResolutionGradeMode, ComboAndNumberWrapper resolutionGradeCombo) {
 		final List<AbstractDataset> data = unpackDataSets(ielement, detectorData, isAdditiveResolutionGradeMode, resolutionGradeCombo);
 		String plotTitle = null;
 		Date now = new Date();

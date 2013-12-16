@@ -34,13 +34,13 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.exafs.ui.detector.Data;
 
-public class XspressData {
+public class XspressData extends Data{
 	
 	private static final Logger logger = LoggerFactory.getLogger(XspressData.class);
 	
-	protected void load(FileDialog openDialog, final XspressParameters xspressParameters, final String filePath) {
+	protected void load(FileDialog openDialog, final int detectorListLength, final String filePath) {
 		String dataDir = PathConstructor.createFromDefaultProperty();
 		dataDir += "processing";
 		if (openDialog.getFilterPath() == null)
@@ -48,7 +48,6 @@ public class XspressData {
 		if (filePath != null) {
 			final String msg = ("Loading map from " + filePath);
 			Job job = new Job(msg) {
-
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					BufferedReader reader = null;
@@ -64,12 +63,9 @@ public class XspressData {
 							data.add(elementData);
 							line = reader.readLine();
 						}
-						// find the res grade
-
-						int numberOfElements = data.size() / xspressParameters.getDetectorList().size();
-						double[][][] detectorData = new double[xspressParameters.getDetectorList().size()][numberOfElements][];
+						int numberOfElements = data.size() / detectorListLength;
+						double[][][] detectorData = new double[detectorListLength][numberOfElements][];
 						int dataIndex = 0;
-						// Int array above is [element][grade (1, 2 or all 16)][mca channel]
 						for (int i = 0; i < detectorData.length; i++)
 							for (int j = 0; j < numberOfElements; j++)
 								detectorData[i][j] = data.get(dataIndex++);

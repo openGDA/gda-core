@@ -59,7 +59,7 @@ public class Counts {
 			for (int icount = start; icount <= end; ++icount) {
 				if (icount >= detectorData[element][igrade].length)
 					continue;
-				total = total + (int) detectorData[element][igrade][icount];
+				total = total + detectorData[element][igrade][icount];
 			}
 		return total;
 	}
@@ -72,7 +72,7 @@ public class Counts {
 		return sum;
 	}
 	
-	private int getTotalCounts(int[][][] detectorData) {
+	public int getTotalCounts(int[][][] detectorData) {
 		int sum = 0;
 		for (int i = 0; i < detectorData.length; i++)
 			sum += getTotalElementCounts(i, detectorData);

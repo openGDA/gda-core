@@ -29,6 +29,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
 
 public class ResolutionGrade{
@@ -44,6 +45,7 @@ public class ResolutionGrade{
 		RES_NO_16.put("Sum all grades", ResGrades.NONE);
 		RES_NO_16.put("Threshold", ResGrades.THRESHOLD);
 	}
+	private Label resGradeLabel;
 	
 	public ResolutionGrade(Composite parent) {
 		createResolutionGrade(parent);
@@ -66,7 +68,7 @@ public class ResolutionGrade{
 	
 	protected void updateResModeItems(boolean readoutRois) {
 		Object val = resolutionGradeCombo.getValue();
-		if (readoutRois)
+		if(readoutRois)
 			resolutionGradeCombo.setItems(RES_ALL);
 		else
 			resolutionGradeCombo.setItems(RES_NO_16);
@@ -75,6 +77,30 @@ public class ResolutionGrade{
 
 	public ComboAndNumberWrapper getResolutionGradeCombo() {
 		return resolutionGradeCombo;
+	}
+	
+	public void updateResGradeVisibility(Composite composite) {
+		GridUtils.startMultiLayout(composite.getParent());
+		try {
+//			if(readoutMode.getReadoutMode().getSelectionIndex() == 2 && !readoutMode.isModeOveride()) {
+//				GridUtils.setVisibleAndLayout(resGradeLabel, true);
+//				GridUtils.setVisibleAndLayout(resolutionGradeCombo, true);
+//				GridUtils.setVisibleAndLayout(lblRegionBins, true);
+//				GridUtils.setVisibleAndLayout(regionType, true);
+//			} 
+//			else {
+//				GridUtils.setVisibleAndLayout(resGradeLabel, false);
+//				GridUtils.setVisibleAndLayout(resolutionGradeCombo, false);
+//				GridUtils.setVisibleAndLayout(lblRegionBins, false);
+//				GridUtils.setVisibleAndLayout(regionType, false);
+//			}
+		} finally {
+			GridUtils.endMultiLayout();
+		}
+	}
+
+	public Label getResGradeLabel() {
+		return resGradeLabel;
 	}
 
 }

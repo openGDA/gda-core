@@ -25,25 +25,32 @@ import gda.device.DeviceException;
 import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
 import gda.factory.Finder;
+
 import java.io.File;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
+
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.exafs.ui.detector.Acquire;
 import uk.ac.gda.exafs.ui.detector.Counts;
-import uk.ac.gda.exafs.ui.detector.Data;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.Plot;
@@ -54,7 +61,6 @@ import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
-import com.swtdesigner.SWTResourceManager;
 
 public class XspressAcquire extends Acquire {
 	private static final Logger logger = LoggerFactory.getLogger(XspressAcquire.class);
@@ -72,16 +78,40 @@ public class XspressAcquire extends Acquire {
 	private DirtyContainer dirtyContainer;
 	private BooleanWrapper showIndividualElements;
 	private Plot plot;
+	private XspressData xspressData;
+	private Button loadBtn;
+	private FileDialog openDialog;
 	
-	public XspressAcquire(Composite acquire, final SashFormPlotComposite sashPlotFormComposite, Display display, Data plotData, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, final DirtyContainer dirtyContainer){
+	public XspressAcquire(Composite parent, final SashFormPlotComposite sashPlotFormComposite, Display display, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, final DirtyContainer dirtyContainer){
 		super(display);
 		this.display = display;
 		this.sashPlotFormComposite = sashPlotFormComposite;
-		this.plotData = plotData;
 		this.readoutMode = readoutMode;
 		this.resolutionGrade = resolutionGrade;
 		this.dirtyContainer = dirtyContainer;
 		this.plot = plot;
+		
+		Group grpAcquire = new Group(parent, SWT.NONE);
+		grpAcquire.setText("Acquire Spectra");
+		grpAcquire.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+		GridLayout gridLayout = new GridLayout();
+		gridLayout.numColumns = 1;
+		grpAcquire.setLayout(gridLayout);
+		
+		Composite acquire = new Composite(grpAcquire, SWT.NONE);
+		GridLayout gridLayoutAcq = new GridLayout();
+		gridLayoutAcq.numColumns = 5;
+		gridLayoutAcq.marginWidth = 0;
+		acquire.setLayout(gridLayoutAcq);
+		
+		loadBtn = new Button(acquire, SWT.NONE);
+		loadBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 5, 1));
+		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/folder.png"));
+		loadBtn.setText("Load Saved mca");
+		openDialog = new FileDialog(acquire.getShell(), SWT.OPEN);
+		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
+		
+		xspressData = new XspressData();
 		
 		acquireBtn = new Button(acquire, SWT.NONE);
 		acquireBtn.setText("Acquire");
@@ -112,6 +142,7 @@ public class XspressAcquire extends Acquire {
 		autoSave.setSelection(saveMcaOnAcquire);
 		
 		acquireFileLabel = new Label(acquire, SWT.NONE);
+
 		acquireFileLabel.setText("									                                                    	                                                                        ");
 		acquireFileLabel.setToolTipText("The file path for the acquire data");
 		GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, false);
@@ -119,23 +150,33 @@ public class XspressAcquire extends Acquire {
 		acquireFileLabel.setLayoutData(gridData);
 	}
 	
-	public void init(XspressParameters xspressParameters, final DataWrapper dataWrapper, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex, final GridListEditor detectorList, final Counts counts, final BooleanWrapper showIndividualElements){
+	public void addLoadListener(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int detectorListLength){
+		loadBtn.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {			
+				try {
+					final String filePath = openDialog.open();
+					if(filePath!=null){
+						xspressData.load(openDialog, detectorListLength, filePath);
+						display.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
+								plot.plot(detectorList.getSelectedIndex(), mcaData, false, resolutionGrade);
+							}
+						});
+					}
+				} catch (Exception e1) {
+					logger.error("Cannot acquire xspress data", e1);
+				}
+			}
+		});		
+	}
+	
+	public void init(XspressParameters xspressParameters, final Counts counts, final BooleanWrapper showIndividualElements){
 		this.counts = counts;
 		this.showIndividualElements = showIndividualElements;
 		xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
-		acquireBtn.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				try {
-					acquire(acquireTime.getNumericValue());
-					plotData(detectorList, detectorElementComposite, currentSelectedElementIndex);
-				} catch (DeviceException e) {
-					logger.error("Error acquiring/plotting xspress data", e);
-				} catch (InterruptedException e) {
-					logger.error("Error acquiring/plotting xspress data", e);
-				}
-			}
-		});
 	}
 	
 	public void writeToDisk(String xspressSaveDir, int[][][] detectorData) throws Exception{
@@ -146,7 +187,7 @@ public class XspressAcquire extends Acquire {
 		String fileName = "xspress_snap_" + snapShotNumber + ".mca";
 		File detectorFile = new File(xspressSaveFullDir + "/" + fileName);
 		detectorFileLocation = detectorFile.getAbsolutePath();
-		plotData.save(detectorData, detectorFileLocation);
+		xspressData.save(detectorData, detectorFileLocation);
 		sashPlotFormComposite.appendStatus("Xspress snapshot saved to " + detectorFile, logger);
 	}
 	
@@ -185,7 +226,6 @@ public class XspressAcquire extends Acquire {
 		sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
 	}
 	
-	//public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
 	@Override
 	public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex)  throws DeviceException, InterruptedException {
 		Boolean showIndividualElementsValue = showIndividualElements.getValue();
@@ -193,11 +233,11 @@ public class XspressAcquire extends Acquire {
 		if (saveMcaOnAcquire)
 			saveMca(sashPlotFormComposite, xspressSaveDir);
 		detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
-		plot.plot(detectorList.getSelectedIndex(),true, mcaData, detectorElementComposite, currentSelectedElementIndex, false, resolutionGrade);
+		plot.plot(detectorList.getSelectedIndex(), mcaData, false, resolutionGrade);
 		dirtyContainer.setDirty(true);
 	}
 	
-	public void updateStats(DataWrapper dataWrapper, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
+	public void updateStats(DataWrapper dataWrapper){
 		ElementCountsData[] elementCountsData = ElementCountsData.getDataFor(mcaData);
 		dataWrapper.setValue(elementCountsData);
 	}

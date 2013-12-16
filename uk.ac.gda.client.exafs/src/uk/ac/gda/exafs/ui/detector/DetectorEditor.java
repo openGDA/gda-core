@@ -62,11 +62,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.exafs.IOutputParameters;
-import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.common.rcp.util.GridUtils;
@@ -76,10 +73,7 @@ import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.components.data.DataWrapper;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
-import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
@@ -95,16 +89,12 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	private static final Logger logger = LoggerFactory.getLogger(DetectorEditor.class);
 	protected SashFormPlotComposite sashPlotFormComposite;
 	protected volatile int[/* element */][/* grade */][/* mca */] detectorData;
-	protected DataWrapper dataWrapper;
 	protected String serverCommand;
 	private ExpansionAdapter expansionListener;
 	private DetectorListComposite detectorListComposite;
 	private Composite importComposite;
-	private int lastSelectedElementIndex;
-	private Object bean;	
 	private Action uploadAction;
 	private volatile Boolean updatingAfterROIDrag = null;
-	protected Data plotData;
 	private ValueListener autoApplyToAllListener;
 	protected Counts counts;
 	protected Plot plot;
@@ -113,7 +103,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			final Object editingBean, final String serverCommand) {
 		super(path, mappingURL, dirtyContainer, editingBean);
 		this.serverCommand = serverCommand;
-		this.bean = editingBean;
 	}
 	
 	@Override
@@ -127,22 +116,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		plotData = new Data();
 		counts = new Counts();
-		this.dataWrapper = plotData.readStoredData(getDataXMLName());
 		try {
 			sashPlotFormComposite = createSashPlot(parent);
 			sashPlotFormComposite.getPlottingSystem().setRescale(false);
 		} catch (Exception e) {
 			logger.error("Exception while creating detector editor", e);
 		}
-		plot = new Plot(sashPlotFormComposite, counts);
-	}
-
-	@Override
-	public void doSave(IProgressMonitor monitor) {
-		plotData.writeStoredData(getDataXMLName(), (ElementCountsData[]) dataWrapper.getValue());
-		super.doSave(monitor);
+		plot = new Plot(sashPlotFormComposite);
 	}
 
 	protected SashFormPlotComposite createSashPlot(Composite parent) throws Exception {
@@ -165,15 +146,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		uploadAction.setText("Configure");
 		uploadAction.setToolTipText("Applies the configuration settings to the detector.");
 		return uploadAction;
-	}
-
-	@Override
-	public void linkUI(final boolean isPageChange) {
-		super.linkUI(isPageChange);
-		if (dataWrapper.getValue() != null)
-			setWindowsEnabled(true);
-		else
-			setWindowsEnabled(false);
 	}
 
 	protected DetectorListComposite createDetectorList(final Composite parent,
