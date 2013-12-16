@@ -597,24 +597,22 @@ public abstract class ScanBase implements Scan {
 				for (Scannable scannable : allDetectors) {
 					scannable.stop();
 				}
-			} finally  {
+			} finally {
 				// disengage with the data handler, in case this scan is
 				// restarted
 				try {
-					final int SECONDS_TO_WAIT = 10;
-					report("Allowing up to " + SECONDS_TO_WAIT + "s for collected points to be written");
-
 					if (scanDataPointPipeline != null) {
+						final int SECONDS_TO_WAIT = 10;
+						report("Scan interrupted, so allow up to " + SECONDS_TO_WAIT + "s for collected points to be written to file");
 						scanDataPointPipeline.shutdown(SECONDS_TO_WAIT * 1000);
 					}
 				} catch (DeviceException e) {
-					report(e.getMessage());  // The pipeline did not shutdown in the time provided and was harshly shutdown. No need to raise this.
+					report(e.getMessage()); // The pipeline did not shutdown in the time provided and was harshly shutdown. No need to raise this.
 				} catch (InterruptedException e) {
 					// TODO endScan should throw InteruptedException
 					throw new DeviceException("Problem shutting down scan pipeline while completing and interurupted scan.", e);
 				}
 			}
-
 
 		} else { // NOTE: Code will come through here even if there has been an exception in the run method.
 			if (getChild() == null) {
