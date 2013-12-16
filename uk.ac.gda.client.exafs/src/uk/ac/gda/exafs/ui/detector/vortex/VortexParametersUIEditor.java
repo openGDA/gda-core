@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -225,7 +225,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		acquire.setLayout(gridLayoutAcq);
 
 		acquireBtn = new Button(acquire, SWT.NONE);
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/application_side_expand.png"));
+		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/camera.png"));
 		acquireBtn.setText("Acquire");
 
 		acquireTime = new ScaleBox(acquire, SWT.NONE);
@@ -513,7 +513,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	@Override
 	public void acquireStarted() {
 		acquireBtn.setText("Stop");
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/stop.png"));
+		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/stop.png"));
 		autoSave.setEnabled(false);
 		autoSaveEnabled = false;
 		acquireFileLabel.setText("										");
@@ -523,7 +523,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	@Override
 	public void acquireFinished() {
 		acquireBtn.setText("Acquire");
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/application_side_expand.png"));
+		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/camera.png"));
 		autoSave.setEnabled(false);
 		autoSaveEnabled = false;
 		live.setEnabled(true);
