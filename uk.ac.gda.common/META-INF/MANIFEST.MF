@@ -33,11 +33,11 @@ Export-Package: gda.configuration.properties,
 Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  com.springsource.ch.qos.logback.classic;bundle-version="0.9.15",
  com.springsource.ch.qos.logback.core;bundle-version="0.9.15",
- org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)"
+ org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)",
+ org.apache.commons.beanutils;bundle-version="[1.8.3,1.9.0)"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.apache.commons.beanutils,
- org.apache.commons.lang,
+Import-Package: org.apache.commons.lang,
  org.exolab.castor.mapping;version="1.2.0",
  org.exolab.castor.xml;version="1.2.0",
  org.slf4j;version="[1.5.0,2.0.0)",
