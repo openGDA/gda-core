@@ -10,7 +10,7 @@ from gda.factory import Finder
 from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
-from gda.scan import ScanBase, ConcurrentScan
+from gda.scan import ScanBase, ConcurrentScan, ScanInterruptedException
 
 from scan import Scan
 
@@ -77,13 +77,14 @@ class XasScan(Scan):
 			# check if a panic stop has been issued, so the whole script should stop
 			if ScriptBase.isInterrupted():
 				ScriptBase.interrupted = False
-				raise e
+				raise ScanInterruptedException()
 			# only wanted to skip this repetition, so absorb the exception and continue the loop
 			if numRepetitions > 1:
 				self.log("Repetition", str(repetitionNumber),"skipped.")
 		else:
-			print e
-			raise # any other exception we are not expecting so raise whatever this is to abort the script
+			raise ScanInterruptedException()
+#			print e
+#			raise # any other exception we are not expecting so raise whatever this is to abort the script
 						
 	def _doItterator(self, iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, experimentFolderName):
 		iterator.resetIterator()
