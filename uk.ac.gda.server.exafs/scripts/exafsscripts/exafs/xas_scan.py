@@ -10,7 +10,7 @@ from gda.factory import Finder
 from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
-from gda.scan import ScanBase, ConcurrentScan
+from gda.scan import ScanBase, ConcurrentScan, ScanInterruptedException
 
 from scan import Scan
 
@@ -70,21 +70,20 @@ class XasScan(Scan):
 		timeSinceRepetitionsStarted = self.calcTimeSinceRepetitionsStarted(timeRepetitionsStarted)
 		return XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),scanBean,experimentFolderName)
 		
-	def handleScanInterrupt(self, numRepetitions, repetitionNumber,exception):
+	def handleScanInterrupt(self, numRepetitions, repetitionNumber):
 		ScanBase.interrupted = False
 		if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
 			LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
 			# check if a panic stop has been issued, so the whole script should stop
 			if ScriptBase.isInterrupted():
 				ScriptBase.interrupted = False
-				raise exception
+				raise ScanInterruptedException()
 			# only wanted to skip this repetition, so absorb the exception and continue the loop
 			if numRepetitions > 1:
 				self.log("Repetition", str(repetitionNumber),"skipped.")
 		else:
-			print exception
-			raise # any other exception we are not expecting so raise whatever this is to abort the script
-						
+			raise ScanInterruptedException()
+
 	def _doItterator(self, iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, experimentFolderName):
 		iterator.resetIterator()
 		num_sample_repeats = int(iterator.getNumberOfRepeats())
@@ -138,9 +137,9 @@ class XasScan(Scan):
 						logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName)
 						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg)
 				except java.lang.Exception, e:
-					self.handleScanInterrupt(numRepetitions, repetitionNumber,e)
+					self.handleScanInterrupt(numRepetitions, repetitionNumber)
 				except InterruptedException, e:
-					self.handleScanInterrupt(numRepetitions, repetitionNumber,e)
+					self.handleScanInterrupt(numRepetitions, repetitionNumber)
 				self._runScript(beanGroup.getOutput().getAfterScriptName())# run the after scan script
 				self.checkForPause(numRepetitions, repetitionNumber)
 				finished=self.checkIfRepetitionsFinished(numRepetitions, repetitionNumber)
