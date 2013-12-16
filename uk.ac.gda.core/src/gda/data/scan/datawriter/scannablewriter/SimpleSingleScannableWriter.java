@@ -26,6 +26,7 @@ package gda.data.scan.datawriter.scannablewriter;
  * this just refers to that and otherwise avoids the need to define single element lists in the 
  * Spring configuration 
  */
+@Deprecated // Spring handles this simplification automatically 
 public class SimpleSingleScannableWriter extends SingleScannableWriter {
 
 	public String getPath() {
