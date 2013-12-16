@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -80,7 +80,7 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 		z.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 
 		try {
-			setMotorLimits("sc_MicroFocusSampleX", (x));
+			setMotorLimits("sc_MicroFocusSampleX", x);
 			setMotorLimits("sc_MicroFocusSampleX", y);
 			setMotorLimits("sc_sample_z", z);
 		} catch (Exception e) {
@@ -113,11 +113,11 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 	}
 
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
-		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerInnerLimit()");
-		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperInnerLimit()");
-		if (!lowerLimit.equals("None") && !lowerLimit.isEmpty())
+		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerGdaLimit()");
+		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperGdaLimit()");
+		if (lowerLimit != null && !lowerLimit.isEmpty())
 			box.setMinimum(Double.parseDouble(lowerLimit));
-		if (!upperLimit.equals("None") && !upperLimit.isEmpty())
+		if (upperLimit != null && !upperLimit.isEmpty())
 			box.setMaximum(Double.parseDouble(upperLimit));
 	}
 
