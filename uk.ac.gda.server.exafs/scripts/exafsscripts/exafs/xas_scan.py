@@ -70,19 +70,19 @@ class XasScan(Scan):
 		timeSinceRepetitionsStarted = self.calcTimeSinceRepetitionsStarted(timeRepetitionsStarted)
 		return XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),scanBean,experimentFolderName)
 		
-	def handleScanInterrupt(self, numRepetitions, repetitionNumber):
+	def handleScanInterrupt(self, numRepetitions, repetitionNumber,exception):
 		ScanBase.interrupted = False
 		if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
 			LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
 			# check if a panic stop has been issued, so the whole script should stop
 			if ScriptBase.isInterrupted():
 				ScriptBase.interrupted = False
-				raise e
+				raise exception
 			# only wanted to skip this repetition, so absorb the exception and continue the loop
 			if numRepetitions > 1:
 				self.log("Repetition", str(repetitionNumber),"skipped.")
 		else:
-			print e
+			print exception
 			raise # any other exception we are not expecting so raise whatever this is to abort the script
 						
 	def _doItterator(self, iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, experimentFolderName):
@@ -138,9 +138,9 @@ class XasScan(Scan):
 						logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName)
 						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg)
 				except java.lang.Exception, e:
-					self.handleScanInterrupt(numRepetitions, repetitionNumber)
+					self.handleScanInterrupt(numRepetitions, repetitionNumber,e)
 				except InterruptedException, e:
-					self.handleScanInterrupt(numRepetitions, repetitionNumber)
+					self.handleScanInterrupt(numRepetitions, repetitionNumber,e)
 				self._runScript(beanGroup.getOutput().getAfterScriptName())# run the after scan script
 				self.checkForPause(numRepetitions, repetitionNumber)
 				finished=self.checkIfRepetitionsFinished(numRepetitions, repetitionNumber)

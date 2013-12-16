@@ -28,7 +28,7 @@ class Metadata():
             scannable=finder.find(name)
             if scannable==None:
                 jython_mapper = JythonNameSpaceMapping()
-                scannable=self.jython_mapper.__getitem__(name)
+                scannable=jython_mapper.__getitem__(name)
             asciiConfig.setLabelValues([scannable])
             new_header.add(asciiConfig)
             self.add_to_nexus_metadata(name, str(scannable), "additional_scannables", NXinstrumentSubTypes.NXpositioner)
