@@ -83,8 +83,10 @@ public class NumberEditorControl extends Composite {
 	private static final String ICONS_PATH = "icons/";
 	private static final int LARGE_INCREMENT_WIDTH_PADDING = 6;
 	private static final int MIN_STEP_LABEL_WIDTH = 43;
-	private static final int DEFAULT_DECIMAL_PLACES = 2;
+	
+	protected static final int DEFAULT_DECIMAL_PLACES = 3;
 	protected Object targetObject;
+	
 	private String propertyName;
 
 	private Label numberLabel;
@@ -316,6 +318,11 @@ public class NumberEditorControl extends Composite {
 		controlModel.setMinValue(minValue);
 		controlModel.setMaxValue(maxValue);
 	}
+	
+	public void setRange(double minValue, double maxValue) {
+		controlModel.setMinValue(minValue);
+		controlModel.setMaxValue(maxValue);
+	}
 
 	public void setDigits(int value) throws NumberFormatException {
 		if (!controlModel.getBindingPropertyType().equals(double.class)) {
@@ -526,7 +533,7 @@ public class NumberEditorControl extends Composite {
 								PropertyUtils.setProperty(targetObject, propertyName, value + increment);
 							} else  {
 								double incremented = value + increment;
-								if (incremented <= controlModel.getMaxValue()) {
+								if (incremented <= controlModel.getMaxValue().doubleValue()) {
 									PropertyUtils.setProperty(targetObject, propertyName, incremented);
 								}
 							}
@@ -535,7 +542,7 @@ public class NumberEditorControl extends Composite {
 								PropertyUtils.setProperty(targetObject, propertyName, value - increment);
 							} else  {
 								double decremented = value - increment;
-								if (decremented >= controlModel.getMinValue()) {
+								if (decremented >= controlModel.getMinValue().doubleValue()) {
 									PropertyUtils.setProperty(targetObject, propertyName, decremented);
 								}
 							}
@@ -548,7 +555,7 @@ public class NumberEditorControl extends Composite {
 								PropertyUtils.setProperty(targetObject, propertyName, value + increment);
 							} else  {
 								double incremented = value + increment;
-								if (incremented <= controlModel.getMaxValue()) {
+								if (incremented <= controlModel.getMaxValue().intValue()) {
 									PropertyUtils.setProperty(targetObject, propertyName, (int) incremented);
 								}
 							}
@@ -557,7 +564,7 @@ public class NumberEditorControl extends Composite {
 								PropertyUtils.setProperty(targetObject, propertyName, value - increment);
 							} else  {
 								double decremented = value - increment;
-								if (decremented >= controlModel.getMinValue()) {
+								if (decremented >= controlModel.getMinValue().intValue()) {
 									PropertyUtils.setProperty(targetObject, propertyName, (int) decremented);
 								}
 							}
@@ -719,10 +726,10 @@ public class NumberEditorControl extends Composite {
 		private boolean editable = true;
 
 		public static final String MAX_VALUE_PROP_NAME = "maxValue";
-		private int maxValue;
+		private Number maxValue;
 
 		public static final String MIN_VALUE_PROP_NAME = "minValue";
-		private int minValue;
+		private Number minValue;
 
 		public static final String RANGE_SET_PROP_NAME = "rangeSet";
 		private boolean rangeSet;
@@ -744,17 +751,17 @@ public class NumberEditorControl extends Composite {
 		public void setEditable(boolean value) {
 			firePropertyChange(EDITABLE_PROP_NAME, editable, editable = value);
 		}
-		public int getMaxValue() {
+		public Number getMaxValue() {
 			return maxValue;
 		}
-		public void setMaxValue(int value) {
+		public void setMaxValue(Number value) {
 			firePropertyChange(MAX_VALUE_PROP_NAME, maxValue, maxValue = value);
 			firePropertyChange(RANGE_SET_PROP_NAME, rangeSet, rangeSet = true);
 		}
-		public int getMinValue() {
+		public Number getMinValue() {
 			return minValue;
 		}
-		public void setMinValue(int value) {
+		public void setMinValue(Number value) {
 			firePropertyChange(MIN_VALUE_PROP_NAME, minValue, minValue = value);
 			firePropertyChange(RANGE_SET_PROP_NAME, rangeSet, rangeSet = true);
 		}
@@ -884,12 +891,12 @@ public class NumberEditorControl extends Composite {
 						}
 						// TODO Max and min are int, review
 						if (controlModel.getBindingPropertyType().equals(double.class)) {
-							if (((Number) value).doubleValue() >= controlModel.getMinValue() & ((Number) value).doubleValue() <= controlModel.getMaxValue()) {
+							if (((Number) value).doubleValue() >= controlModel.getMinValue().doubleValue() & ((Number) value).doubleValue() <= controlModel.getMaxValue().doubleValue()) {
 								return ValidationStatus.ok();
 							}
 							return ValidationStatus.error("Out of range");
 						} else if (controlModel.getBindingPropertyType().equals(int.class)) {
-							if (((Number) value).intValue() >= controlModel.getMinValue() & ((Number) value).intValue() <= controlModel.getMaxValue()) {
+							if (((Number) value).intValue() >= controlModel.getMinValue().intValue() & ((Number) value).intValue() <= controlModel.getMaxValue().intValue()) {
 								return ValidationStatus.ok();
 							}
 							return ValidationStatus.error("Out of range");
