@@ -174,11 +174,10 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	public void setAxis(String axisName, IDataset inData) throws ScanFileHolderException {
 		try {
 			if (holder.contains(axisName)) {
-				int i = holder.indexOf(axisName);
 				if (inData instanceof AbstractDataset)
-					holder.setDataset(i, inData);
+					holder.addDataset(axisName, inData);
 				else
-					holder.setDataset(i, inData);
+					holder.addDataset(axisName, inData);
 				return;
 			}
 
