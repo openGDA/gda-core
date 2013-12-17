@@ -7,7 +7,7 @@ import gda.configuration.properties.LocalProperties;
 
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.authoriser.AuthoriserProvider;
-import gda.dal.DALStartup;
+import uk.ac.gda.dal.DALStartup;
 
 
 import org.csstudio.sds.ui.runmode.RunModeService;

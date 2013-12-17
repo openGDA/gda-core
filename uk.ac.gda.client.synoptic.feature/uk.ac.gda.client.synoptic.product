@@ -16,9 +16,25 @@ The GDA project is an open-source framework for creating customised data acquisi
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Xms512m
+      <vmArgs>-startup
+plugins/org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar
+--launcher.library
+plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.200.v20120913-144807
+-vmargs
+-Dgda.install.workspace.loc=/dls_sw/i20/software/gda
+-Dgda.install.git.loc=/dls_sw/i20/software/gda_git
+-Dgda.config=/dls_sw/i20/software/gda/config
+-Djava.library.path=/dls_sw/i20/software/gda_git/gda-nexus.git/uk.ac.gda.nexus/lib/linux-x86_64
+-Dgda.propertiesFile=/dls_sw/i20/software/gda/config/properties/live/synoptic.properties
+-Djacorb.config.dir=/dls_sw/i20/software/gda/config/jacorb/live
+-Dgov.aps.jca.JCALibrary.properties=/dls_sw/i20/software/gda/config/jca/live/JCALibrary.properties
+-Dgda.mode=live
+-Dgda.client.jython.automatic.interpreter=1
+-Xms512m
 -Xmx1024m
--XX:MaxPermSize=128m</vmArgs>
+-XX:PermSize=128m
+-XX:MaxPermSize=1024m
+-XX:+DisableExplicitGC</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
@@ -58,8 +74,6 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
    <plugins>
       <plugin id="ch.qos.logback.eclipse"/>
-      <plugin id="com.amd.aparapi"/>
-      <plugin id="com.google.gson"/>
       <plugin id="com.ibm.icu"/>
       <plugin id="com.python.pydev"/>
       <plugin id="com.python.pydev.analysis"/>
@@ -74,6 +88,7 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="com.springsource.org.aopalliance"/>
       <plugin id="com.springsource.org.apache.commons.beanutils"/>
       <plugin id="com.springsource.org.apache.commons.collections"/>
+      <plugin id="com.springsource.org.apache.commons.digester"/>
       <plugin id="com.springsource.org.apache.commons.io"/>
       <plugin id="com.springsource.org.hamcrest.core"/>
       <plugin id="com.springsource.org.jdom"/>
@@ -84,7 +99,9 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="com.thoughtworks.xstream"/>
       <plugin id="javax.servlet"/>
       <plugin id="javax.vecmath"/>
+      <plugin id="javax.xml"/>
       <plugin id="ncsa.hdf"/>
+      <plugin id="org.apache.ant"/>
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.httpclient"/>
       <plugin id="org.apache.commons.jexl"/>
@@ -95,23 +112,39 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="org.apache.lucene"/>
       <plugin id="org.apache.lucene.analysis"/>
       <plugin id="org.apache.lucene.core"/>
+      <plugin id="org.apache.xerces"/>
+      <plugin id="org.apache.xml.resolver"/>
+      <plugin id="org.apache.xml.serializer"/>
+      <plugin id="org.csstudio.csdata"/>
+      <plugin id="org.csstudio.dal"/>
+      <plugin id="org.csstudio.dal.simulator"/>
+      <plugin id="org.csstudio.dal.ui"/>
+      <plugin id="org.csstudio.data"/>
+      <plugin id="org.csstudio.domain.common"/>
+      <plugin id="org.csstudio.javax.annotation"/>
+      <plugin id="org.csstudio.platform.simpledal"/>
+      <plugin id="org.csstudio.sds"/>
+      <plugin id="org.csstudio.sds.components"/>
+      <plugin id="org.csstudio.sds.components.ui"/>
+      <plugin id="org.csstudio.sds.ui"/>
       <plugin id="org.csstudio.swt.widgets"/>
       <plugin id="org.csstudio.swt.xygraph"/>
-      <plugin id="org.dawb.common.gpu"/>
+      <plugin id="org.csstudio.ui.util"/>
       <plugin id="org.dawb.common.services"/>
       <plugin id="org.dawb.common.ui"/>
       <plugin id="org.dawb.common.util"/>
-      <plugin id="org.dawb.gda.extensions"/>
       <plugin id="org.dawb.hdf5"/>
-      <plugin id="org.dawb.hdf5.editor"/>
       <plugin id="org.dawb.workbench.jmx"/>
       <plugin id="org.dawnsci.common.widgets"/>
-      <plugin id="org.dawnsci.jexl"/>
-      <plugin id="org.dawnsci.persistence"/>
+      <plugin id="org.dawnsci.common.widgets.gda"/>
+      <plugin id="org.dawnsci.doe"/>
+      <plugin id="org.dawnsci.io"/>
       <plugin id="org.dawnsci.plotting"/>
+      <plugin id="org.dawnsci.plotting.api"/>
       <plugin id="org.dawnsci.plotting.draw2d"/>
       <plugin id="org.dawnsci.plotting.jreality"/>
       <plugin id="org.dom4j"/>
+      <plugin id="org.eclipse.ant.core"/>
       <plugin id="org.eclipse.compare"/>
       <plugin id="org.eclipse.compare.core"/>
       <plugin id="org.eclipse.core.commands"/>
@@ -123,10 +156,22 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="org.eclipse.core.expressions"/>
       <plugin id="org.eclipse.core.filebuffers"/>
       <plugin id="org.eclipse.core.filesystem"/>
+      <plugin id="org.eclipse.core.filesystem.aix.ppc" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.aix.ppc64" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.hpux.ia64_32" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.linux.ppc" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.linux.ppc64" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.linux.x86" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.linux.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.macosx" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.solaris.sparc" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.resources"/>
+      <plugin id="org.eclipse.core.resources.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.core.runtime.compatibility.auth"/>
       <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
       <plugin id="org.eclipse.core.variables"/>
       <plugin id="org.eclipse.debug.core"/>
@@ -136,6 +181,8 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="org.eclipse.emf.common.ui"/>
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.http.jetty"/>
+      <plugin id="org.eclipse.equinox.http.servlet"/>
       <plugin id="org.eclipse.equinox.p2.core"/>
       <plugin id="org.eclipse.equinox.p2.engine"/>
       <plugin id="org.eclipse.equinox.p2.metadata"/>
@@ -144,6 +191,9 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.equinox.security"/>
+      <plugin id="org.eclipse.equinox.security.macosx" fragment="true"/>
+      <plugin id="org.eclipse.equinox.security.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.equinox.security.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.gef"/>
       <plugin id="org.eclipse.help"/>
       <plugin id="org.eclipse.help.base"/>
@@ -156,22 +206,48 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="org.eclipse.jdt.debug.ui"/>
       <plugin id="org.eclipse.jdt.launching"/>
       <plugin id="org.eclipse.jdt.ui"/>
+      <plugin id="org.eclipse.jetty.continuation"/>
+      <plugin id="org.eclipse.jetty.http"/>
+      <plugin id="org.eclipse.jetty.io"/>
+      <plugin id="org.eclipse.jetty.security"/>
+      <plugin id="org.eclipse.jetty.server"/>
+      <plugin id="org.eclipse.jetty.servlet"/>
+      <plugin id="org.eclipse.jetty.util"/>
       <plugin id="org.eclipse.jface"/>
       <plugin id="org.eclipse.jface.databinding"/>
       <plugin id="org.eclipse.jface.text"/>
       <plugin id="org.eclipse.ltk.core.refactoring"/>
       <plugin id="org.eclipse.ltk.ui.refactoring"/>
+      <plugin id="org.eclipse.nebula.jface"/>
+      <plugin id="org.eclipse.nebula.widgets"/>
+      <plugin id="org.eclipse.nebula.widgets.gallery"/>
       <plugin id="org.eclipse.nebula.widgets.nattable.core"/>
       <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.search"/>
       <plugin id="org.eclipse.swt"/>
+      <plugin id="org.eclipse.swt.cocoa.macosx" fragment="true"/>
+      <plugin id="org.eclipse.swt.cocoa.macosx.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.aix.ppc" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.aix.ppc64" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.hpux.ia64_32" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.ppc" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.ppc64" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.s390" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.s390x" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.x86" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.solaris.sparc" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.solaris.x86" fragment="true"/>
+      <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.swt.win32.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.team.core"/>
       <plugin id="org.eclipse.team.ui"/>
       <plugin id="org.eclipse.text"/>
       <plugin id="org.eclipse.ui"/>
       <plugin id="org.eclipse.ui.browser"/>
       <plugin id="org.eclipse.ui.cheatsheets"/>
+      <plugin id="org.eclipse.ui.cocoa" fragment="true"/>
       <plugin id="org.eclipse.ui.console"/>
       <plugin id="org.eclipse.ui.editors"/>
       <plugin id="org.eclipse.ui.forms"/>
@@ -180,9 +256,12 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="org.eclipse.ui.navigator.resources"/>
       <plugin id="org.eclipse.ui.views"/>
       <plugin id="org.eclipse.ui.views.properties.tabbed"/>
+      <plugin id="org.eclipse.ui.win32" fragment="true"/>
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.eclipse.ui.workbench.texteditor"/>
+      <plugin id="org.ehcache"/>
       <plugin id="org.hamcrest.core"/>
+      <plugin id="org.jdom"/>
       <plugin id="org.junit"/>
       <plugin id="org.junit4"/>
       <plugin id="org.mockito.mockito-core"/>
@@ -211,21 +290,25 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="uk.ac.diamond.org.jfree"/>
       <plugin id="uk.ac.diamond.org.jfree.chart"/>
       <plugin id="uk.ac.diamond.org.jscience"/>
+      <plugin id="uk.ac.diamond.org.jscience4"/>
       <plugin id="uk.ac.diamond.org.nfunk.jep"/>
       <plugin id="uk.ac.diamond.org.springframework"/>
       <plugin id="uk.ac.diamond.rxtx"/>
       <plugin id="uk.ac.diamond.scisoft.analysis"/>
+      <plugin id="uk.ac.diamond.scisoft.analysis.api"/>
+      <plugin id="uk.ac.diamond.scisoft.analysis.plotserver"/>
       <plugin id="uk.ac.diamond.scisoft.analysis.rcp"/>
       <plugin id="uk.ac.diamond.scisoft.analysis.rcp.contributions" fragment="true"/>
+      <plugin id="uk.ac.diamond.scisoft.analysis.xmlrpc"/>
       <plugin id="uk.ac.diamond.scisoft.deprecated"/>
       <plugin id="uk.ac.diamond.scisoft.deprecated.rcp"/>
       <plugin id="uk.ac.diamond.scisoft.python"/>
-      <plugin id="uk.ac.diamond.sda.meta"/>
       <plugin id="uk.ac.gda.analysis"/>
       <plugin id="uk.ac.gda.analysis.test" fragment="true"/>
       <plugin id="uk.ac.gda.api"/>
       <plugin id="uk.ac.gda.browser"/>
       <plugin id="uk.ac.gda.client"/>
+      <plugin id="uk.ac.gda.client.synoptic"/>
       <plugin id="uk.ac.gda.client.test" fragment="true"/>
       <plugin id="uk.ac.gda.common"/>
       <plugin id="uk.ac.gda.common.client"/>
@@ -234,6 +317,7 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="uk.ac.gda.common.test" fragment="true"/>
       <plugin id="uk.ac.gda.core"/>
       <plugin id="uk.ac.gda.core.test" fragment="true"/>
+      <plugin id="uk.ac.gda.dal"/>
       <plugin id="uk.ac.gda.libs"/>
       <plugin id="uk.ac.gda.nexus"/>
       <plugin id="uk.ac.gda.nexus.test" fragment="true"/>
