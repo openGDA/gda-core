@@ -53,12 +53,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.swtdesigner.SWTResourceManager;
 
 import uk.ac.gda.util.ThreadManager;
 
@@ -67,6 +64,7 @@ public class NcdButtonPanelView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(NcdButtonPanelView.class);
 
 	protected Combo titleEntry;
+	private final int historyLength = 6;
 //	protected Text titleEntry;
 	private String titleString;
 	private Button startButton;
@@ -125,16 +123,18 @@ public class NcdButtonPanelView extends ViewPart {
 							"Enter scan title (e.g. sample information)", "", new TitleValidator());
 					if (dlg.open() == Window.OK) {
 						// User clicked OK; update the label with the input
-						GDAMetadataProvider.getInstance().setMetadataValue("title", dlg.getValue().trim());
+						String dialogTitle = dlg.getValue().trim();
+						GDAMetadataProvider.getInstance().setMetadataValue("title", dialogTitle);
+						updateList(dialogTitle);
 					} else {
 						// cancel
 						//if cancel, delete whitespace
 						titleEntry.setText("");
 						return;
 					}
+				} else {
+					updateList(titleEntry.getText());
 				}
-			
-				updateList(titleEntry.getText());
 				
 				//FIXME this need to capture the exceptions, but interface does not allow that
 				JythonServerFacade.getInstance().runCommand(
@@ -295,13 +295,15 @@ public class NcdButtonPanelView extends ViewPart {
 	}
 
 	protected void updateList(String text) {
-		int selectionIndex = titleEntry.indexOf(text);
-		if (selectionIndex != -1) {
-			titleEntry.remove(selectionIndex);
-		} 
-		titleEntry.add(text,0);
-		while (titleEntry.getItemCount() > 6) {
-			titleEntry.remove(6);
+		if (!text.equals("")) {
+			int selectionIndex = titleEntry.indexOf(text);
+			if (selectionIndex != -1) {
+				titleEntry.remove(selectionIndex);
+			} 
+			titleEntry.add(text,0);
+			while (titleEntry.getItemCount() > historyLength) {
+				titleEntry.remove(historyLength);
+			}
 		}
 	}
 
