@@ -753,8 +753,9 @@ public class ExcaliburEqualizationHelper {
 
 	/**
 	 * @return result of fitting Gaussian over the population within the slice given by start, stop, step
+	 * @throws Exception 
 	 */
-	public CompositeFunction fitGaussianToBinnedPopulation(double[] xvals, double [] yvals) {
+	public CompositeFunction fitGaussianToBinnedPopulation(double[] xvals, double [] yvals) throws Exception {
 
 		if (xvals.length > 0 && xvals.length==yvals.length) {
 			DoubleDataset xvals_ds = new DoubleDataset(xvals);
