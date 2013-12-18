@@ -18,29 +18,12 @@
 
 package uk.ac.gda.example.mvcexample;
 
-import gda.device.DeviceException;
-
 import java.beans.PropertyChangeListener;
 
-import org.eclipse.core.databinding.observable.list.IObservableList;
-
-import uk.ac.gda.client.observablemodels.ScannableWrapper;
-
-public interface MvcExampleModel {
-	boolean isSelected();
-	void setSelected(boolean selected);
-	
-	double getPosition();
-	void setPosition(double position);
-	
-	
+public interface MvcExampleItem {
+	double getValue();
+	public static final String VALUE_PROPERTY_NAME="value";
 	public void addPropertyChangeListener(PropertyChangeListener listener);
 	public void removePropertyChangeListener(PropertyChangeListener listener);
-	public static final String SELECTED_PROPERTY_NAME="selected";
-	public static final String POSITION_PROPERTY_NAME="position";
-	ScannableWrapper getScannableWrapper() throws DeviceException, Exception;
 	
-	//To allow the list to be updated outside of the UI we need to return an ObservableList
-	//rather than a List
-	IObservableList getItems();
 }
