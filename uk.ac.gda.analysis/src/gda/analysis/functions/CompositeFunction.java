@@ -83,6 +83,11 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 		}
 
 		@Override
+		public double residual(boolean allValues, IDataset data, IDataset weight, IDataset... coords) {
+			return function.residual(allValues, data, weight, coords);
+		}
+
+		@Override
 		public double val(double... values) {
 			return function.val(values);
 		}

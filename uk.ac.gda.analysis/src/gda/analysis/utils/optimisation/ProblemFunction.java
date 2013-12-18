@@ -114,6 +114,11 @@ public class ProblemFunction implements IFunction {
 	}
 
 	@Override
+	public double residual(boolean allValues, IDataset data, IDataset weight, IDataset... values) {
+		return residual(allValues, data, values);
+	}
+
+	@Override
 	public void disp() {
 //		TerminalPrinter.print(toString());
 	}
@@ -172,10 +177,5 @@ public class ProblemFunction implements IFunction {
 	@Override
 	public IDataset calculatePartialDerivativeValues(IParameter param, IDataset... coords) {
 		return null;
-	}
-
-	@Override
-	public double residual(boolean allValues, IDataset data, IDataset weight, IDataset... values) {
-		return residual(allValues, data, values);
 	}
 }
