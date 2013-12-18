@@ -28,10 +28,8 @@ import org.eclipse.core.databinding.observable.set.IObservableSet;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
-import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.databinding.viewers.ViewerSupport;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
@@ -44,6 +42,9 @@ import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.gda.client.composites.MotorPositionEditorControl;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
+import uk.ac.gda.common.rcp.jface.viewers.ObservableMapColumnLabelProvider;
+import uk.ac.gda.common.rcp.jface.viewers.ObservableMapProgressBarProvider;
+import uk.ac.gda.common.rcp.jface.viewers.ObservableMapProgressBarProvider.ElementToProgressConverter;
 import uk.ac.gda.ui.components.NumberEditorControl;
 
 /***
@@ -80,6 +81,9 @@ public class MvcExampleView extends ViewPart {
 	public void createPartControl(Composite parent) {
 
 		model = (MvcExampleModel) GDAClientActivator.getNamedService(MvcExampleModel.class, null);
+		Object elementType = model.getItems().getElementType();
+		if( !elementType.equals(MvcExampleItem.class))
+			throw new RuntimeException("model is invalid. elementType = " + elementType);
 		toolkit = new FormToolkit(parent.getDisplay());
 		Composite cmpRoot = toolkit.createComposite(parent);
 		GridLayout layout = new GridLayout();
@@ -107,13 +111,43 @@ public class MvcExampleView extends ViewPart {
 			throw new RuntimeException("Error adding motorPosControl to UI", e);
 		}
 
-		// Define the viewer to display items from model - this is bound to model by ObservableListContentProvider and ObservableMapLabelProvider
+		// Define the viewer to display items from model - this is bound to model by ObservableListContentProvider and
+		// ObservableMapLabelProvider
 		viewer = new TableViewer(parent);
 		viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		{
-			TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
-			column.getColumn().setWidth(100);
-			column.getColumn().setText(MvcExampleItem.VALUE_PROPERTY_NAME);
+			TableViewerColumn column1 = new TableViewerColumn(viewer, SWT.NONE);
+			column1.getColumn().setWidth(100);
+			column1.getColumn().setText(MvcExampleItem.VALUE_PROPERTY_NAME);
+
+			
+			ObservableListContentProvider contentProvider = new ObservableListContentProvider();
+			viewer.setContentProvider(contentProvider);
+			// IObservableList input = Properties.selfList(MvcExampleItem.class).observe(model.getItems());
+
+			// create the label provider including monitoring
+			// of the changes of the labels
+			IObservableSet knownElements = contentProvider.getKnownElements();
+
+			final IObservableMap values = BeanProperties.value(MvcExampleItem.class, MvcExampleItem.VALUE_PROPERTY_NAME)
+					.observeDetail(knownElements);
+
+			column1.setLabelProvider(new ObservableMapColumnLabelProvider(values));
+			
+			
+		
+			
+			
+			TableViewerColumn column2 = new TableViewerColumn(viewer, SWT.NONE);
+			column2.getColumn().setWidth(100); 
+			column2.getColumn().setText(MvcExampleItem.VALUE_PROPERTY_NAME);
+			ElementToProgressConverter converter = new ObservableMapProgressBarProvider.ElementToProgressConverter(){
+
+				@Override
+				public int convertToProgress(Object value) {
+					return ((Double)value).intValue();
+				}};
+			column2.setLabelProvider(new ObservableMapProgressBarProvider(values, converter));
 			viewer.getTable().setHeaderVisible(true);
 		}
 
@@ -139,33 +173,12 @@ public class MvcExampleView extends ViewPart {
 		 * list implementing the IObservableList interface. The Properties class allows you to wrap another list with
 		 * its selfList() method into an IObservableList.
 		 */
-		ObservableListContentProvider contentProvider = new ObservableListContentProvider();
-		viewer.setContentProvider(contentProvider);
-		// IObservableList input = Properties.selfList(MvcExampleItem.class).observe(model.getItems());
-
-		// create the label provider including monitoring
-		// of the changes of the labels
-		IObservableSet knownElements = contentProvider.getKnownElements();
-
-		final IObservableMap values = BeanProperties.value(MvcExampleItem.class, MvcExampleItem.VALUE_PROPERTY_NAME)
-				.observeDetail(knownElements);
-
-		IObservableMap[] labelMaps = { values };
-
-		ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps) {
-			@Override
-			public String getText(Object element) {
-				return values.get(element).toString();
-			}
-		};
-		viewer.setLabelProvider(labelProvider);
+//		viewer.setLabelProvider(labelProvider);
 		IObservableList input = model.getItems();
 		viewer.setInput(input);
 
-		ViewerSupport.bind(viewer2, input, 
-			    BeanProperties.
-			    values(new String[] { MvcExampleItem.VALUE_PROPERTY_NAME })); 		
-		
+		ViewerSupport.bind(viewer2, input, BeanProperties.values(new String[] { MvcExampleItem.VALUE_PROPERTY_NAME }));
+
 		bindingContext = initDataBindings();
 	}
 

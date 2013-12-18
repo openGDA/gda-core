@@ -86,15 +86,15 @@ public class MvcExampleViewPluginUnitTest {
 
 	@Test
 	public void testMotor() throws Exception {
-		Assert.assertEquals("0 mm", view.motorPosControl.getText());
+		Assert.assertEquals("0 mm", view.motorPosControl._getTextForTesting());
 		model.scannable.asynchronousMoveTo(1.);
 		delay(2000);
-		Assert.assertEquals("1 mm", view.motorPosControl.getText());
+		Assert.assertEquals("1 mm", view.motorPosControl._getTextForTesting());
 	}
 	@Test
 	public void testPosition() throws Exception {
 		model.setPosition(10.);
-		Assert.assertEquals("10", view.numberControl.getText());
+		Assert.assertEquals("10", view.numberControl._getTextForTesting());
 	}
 	
 	
@@ -109,7 +109,7 @@ public class MvcExampleViewPluginUnitTest {
 			for( int j=0; j<100; j++){
 				((MyMvcExampleItem)items.get(j)).setValue(i+j);
 			}
-			delay(10);
+			delay(50);
 		}
 		Assert.assertEquals("149.0",view.viewer.getTable().getItem(50).getText(0));
 	}
@@ -207,6 +207,8 @@ class MyMvcExampleModel  extends ObservableModel  implements MvcExampleModel {
 	public WritableList getItems() {
 		return items;
 	}
+
+
 
 };
 

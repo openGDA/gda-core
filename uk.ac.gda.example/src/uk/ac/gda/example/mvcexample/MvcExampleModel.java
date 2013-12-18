@@ -40,7 +40,7 @@ public interface MvcExampleModel {
 	public static final String POSITION_PROPERTY_NAME="position";
 	ScannableWrapper getScannableWrapper() throws DeviceException, Exception;
 	
-	//To allow the list to be updated outside of the UI we need to return an ObservableList
+	//To allow the list to be updated outside of the UI we need to return an ObservableList whose getElementType returns MvcExampleItem
 	//rather than a List
 	IObservableList getItems();
 }
