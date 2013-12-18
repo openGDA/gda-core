@@ -132,7 +132,7 @@ public class GeneticAlg implements IOptimizer {
 		// now the first epoch has been created and calculate the fitness
 		for (int i = 0; i < epochSize; i++) {
 			function.setParameterValues(epoch[i]);
-			epoch[i][nparams] = function.residual(true, yAxis, coords);
+			epoch[i][nparams] = function.residual(true, yAxis, null, coords);
 			if (((Double) (epoch[i][nparams])).isNaN()) {
 				epoch[i][nparams] = Double.MAX_VALUE;
 			}
@@ -165,7 +165,7 @@ public class GeneticAlg implements IOptimizer {
 			}
 
 			function.setParameterValues(nextepoch[0]);
-			nextepoch[0][nparams] = function.residual(true, yAxis, coords);
+			nextepoch[0][nparams] = function.residual(true, yAxis, null, coords);
 
 			// now go on and get the rest of the population
 			for (int j = 1; j < epochSize; j++) {
@@ -264,7 +264,7 @@ public class GeneticAlg implements IOptimizer {
 
 				// finally calculate the fitness and put it in the last digit
 				function.setParameterValues(epoch[i]);
-				epoch[i][nparams] = function.residual(true, yAxis, coords);
+				epoch[i][nparams] = function.residual(true, yAxis, null, coords);
 				
 			    double delta = epoch[i][nparams] - mean;
 			    mean = mean + delta/(i+1);

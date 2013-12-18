@@ -45,7 +45,7 @@ public class FittingProblemDefinition implements ProblemDefinition {
 	@Override
 	public double eval(double[] parameters) {
 		function.setParameterValues(parameters);
-		return function.residual(true, data, values);
+		return function.residual(true, data, null, values);
 	}
 
 	@Override
