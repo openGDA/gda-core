@@ -989,4 +989,8 @@ public class NumberEditorControl extends Composite {
 		}
 		return formattedValue;
 	}
+
+	public String _getTextForTesting() {
+		return numberLabel.getText();
+	}
 }
