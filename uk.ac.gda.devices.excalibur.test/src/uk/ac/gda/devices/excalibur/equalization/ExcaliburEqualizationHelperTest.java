@@ -20,8 +20,6 @@ package uk.ac.gda.devices.excalibur.equalization;
 
 import static org.junit.Assert.assertEquals;
 import gda.TestHelpers;
-import gda.analysis.numerical.straightline.Results;
-import gda.util.TestUtils;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -39,7 +37,6 @@ import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.gda.analysis.hdf5.HDF5HelperLocations;
 import uk.ac.gda.analysis.hdf5.Hdf5Helper;
-import uk.ac.gda.analysis.hdf5.Hdf5Helper.TYPE;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
 
 public class ExcaliburEqualizationHelperTest {
@@ -210,7 +207,7 @@ public class ExcaliburEqualizationHelperTest {
 	}
 	
 	@Test
-	public void testFitGaussianSingleGaussian(){
+	public void testFitGaussianSingleGaussian() throws Exception{
 		ExcaliburEqualizationHelper equalizationHelper = ExcaliburEqualizationHelper.getInstance();
 		int width=200;
 		int height=100;
