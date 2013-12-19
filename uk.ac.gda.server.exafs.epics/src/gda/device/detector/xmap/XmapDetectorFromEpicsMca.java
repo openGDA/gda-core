@@ -50,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 /**
@@ -324,7 +324,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 				for (DetectorElement e : detectorList) {
 					final double[][] rois = new double[e.getRegionList().size()][2];
 					int iregion = 0;
-					for (RegionOfInterest roi : e.getRegionList()) {
+					for (VortexROI roi : e.getRegionList()) {
 						rois[iregion][0] = roi.getWindowStart();
 						rois[iregion][1] = roi.getWindowEnd();
 						++iregion;
@@ -346,7 +346,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	private void configureChannelLabels(VortexParameters vp) {
 		roiChannelLabels = new ArrayList<String>(7);
 		int roiNum = 0;
-		for (RegionOfInterest roi : vp.getDetectorList().get(0).getRegionList()) {
+		for (VortexROI roi : vp.getDetectorList().get(0).getRegionList()) {
 			String name = roi.getRoiName();
 			if(name==null) name = "ROI "+roiNum;
 			roiChannelLabels.add(name);
@@ -552,7 +552,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 			// REGIONS
 			for (int roiIndex = 0; roiIndex < thisElement.getRegionList().size(); roiIndex++) {
 	
-				final RegionOfInterest roi = thisElement.getRegionList().get(roiIndex);
+				final VortexROI roi = thisElement.getRegionList().get(roiIndex);
 				if( isReportInvalidROI() || roi.getRoiStart() != -1){
 					double count;
 					if( epicsMCA != null){
@@ -678,7 +678,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		return getROICountsUsingCache(iRoi, null);
 	}
 
-	String getExtraName(DetectorElement detEl, RegionOfInterest roi){
+	String getExtraName(DetectorElement detEl, VortexROI roi){
 		return prefixExtraNameWithDetElement ? detEl.getName()+"_"+roi.getRoiName() : roi.getRoiName();
 	}
 	@Override
@@ -690,7 +690,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 			if (thisElement.isExcluded()) continue;
 			extraNames.add(thisElement.getName() + "_realtime");
 			extraNames.add(thisElement.getName() + "_livetime");
-			for (RegionOfInterest roi : thisElement.getRegionList()) {
+			for (VortexROI roi : thisElement.getRegionList()) {
 				if( isReportInvalidROI() || roi.getRoiStart() != -1)
 					extraNames.add(getExtraName(thisElement, roi));
 			}
@@ -760,12 +760,12 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 				Analyser anly = analysers.get(i);
 				int regions = anly.getNumberOfRegions();
 				//either fill in an existing region or create a new one
-				List<RegionOfInterest> regionList = de.getRegionList();
+				List<VortexROI> regionList = de.getRegionList();
 				for( int ir=0; ir< regions; ir++){
 					if( ir >= regionList.size()){
-						regionList.add(new RegionOfInterest());
+						regionList.add(new VortexROI());
 					}
-					RegionOfInterest roi = regionList.get(ir);
+					VortexROI roi = regionList.get(ir);
 					if( anly instanceof IEpicsMCA){
 						IEpicsMCA mca =(IEpicsMCA)anly;
 						EpicsMCARegionOfInterest mcaRoi = mca.getNthRegionOfInterest(ir);

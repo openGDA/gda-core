@@ -311,7 +311,7 @@ public class DetectorElementComposite extends Composite {
 			roiEnd = detectorROIComposite.getFieldWidgetsForDetectorElementsComposite().getRoiEnd();
 		roiEnd.setEnabled(isEnabled);
 	}
-
+	
 	public IFieldWidget getCount() {
 		if (isWindows)
 			return getWindowCounts();

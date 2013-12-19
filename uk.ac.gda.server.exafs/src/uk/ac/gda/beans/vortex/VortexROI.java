@@ -25,9 +25,9 @@ import org.apache.commons.beanutils.BeanUtils;
 import uk.ac.gda.beans.DetectorROI;
 
 /**
- * RegionOfInterest bean
+ * VortexROI bean
  */
-public class RegionOfInterest implements DetectorROI, Serializable {
+public class VortexROI implements DetectorROI, Serializable {
 	
 	private String roiName;
 	private int    windowStart;
@@ -77,7 +77,7 @@ public class RegionOfInterest implements DetectorROI, Serializable {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		RegionOfInterest other = (RegionOfInterest) obj;
+		VortexROI other = (VortexROI) obj;
 		if (roiName == null) {
 			if (other.roiName != null) {
 				return false;

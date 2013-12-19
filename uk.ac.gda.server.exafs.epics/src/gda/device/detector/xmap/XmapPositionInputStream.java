@@ -38,7 +38,7 @@ import java.util.NoSuchElementException;
 import org.nexusformat.NexusFile;
 
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.util.CorrectionUtils;
 
 class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> {
@@ -141,7 +141,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 			// REGIONS
 			for (int iroi = 0; iroi < thisElement.getRegionList().size(); iroi++) {
 
-				final RegionOfInterest roi = thisElement.getRegionList().get(iroi);
+				final VortexROI roi = thisElement.getRegionList().get(iroi);
 
 				// TODO calculate roi from the full spectrum data
 				double count = calculateROICounts(roi.getRoiStart(), roi.getRoiEnd(), detectorData[element]);
@@ -239,7 +239,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 						.get(j);
 				if (element.isExcluded())
 					continue;
-				RegionOfInterest region = element.getRegionList().get(i);
+				VortexROI region = element.getRegionList().get(i);
 				double correctedMCA = calculateROICounts(region.getRoiStart(), region.getRoiStart(), detectorData[j])
 						* k[j];
 				rois[i] += correctedMCA;

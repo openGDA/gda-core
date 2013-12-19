@@ -29,7 +29,7 @@ import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.beans.validation.InvalidBeanException;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
@@ -67,8 +67,8 @@ public class DetectorValidator extends AbstractValidator {
 			final DetectorElement e = dl.get(i);
 			if (e.getRegionList().size()!=numRegions)
 				errors.add(new InvalidBeanMessage("The element '"+e.getName()+"' does not have '"+numRegions+"' regions of interest defined.", "All elements must have the same number of regions."));
-			final List<RegionOfInterest> regions = e.getRegionList();
-			for (RegionOfInterest roi : regions) {
+			final List<VortexROI> regions = e.getRegionList();
+			for (VortexROI roi : regions) {
 				checkBounds("Start", roi.getWindowStart(), 0, roi.getWindowEnd(), errors, "The start is out of bounds.");
 				checkBounds("End",   roi.getWindowEnd(),   roi.getWindowStart(), 2048, errors, "The end is out of bounds.");
 				checkBounds("Size of Region", roi.getWindowEnd()-roi.getWindowStart(), 1d, 900d, errors, "The size of the region is incorrect, please change start or end of the region.");

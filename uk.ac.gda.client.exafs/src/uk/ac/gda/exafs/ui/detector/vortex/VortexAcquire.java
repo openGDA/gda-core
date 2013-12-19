@@ -99,7 +99,10 @@ public class VortexAcquire extends Acquire {
 			@Override
 			public void run() {
 				detectorElementComposite.setEndMaximum(mcaData[0][0].length - 1);
-				counts.calculateAndPlotCountTotals(true, true, mcaData, detectorElementComposite, currentSelectedElementIndex);
+				//counts.calculateAndPlotCountTotals(true, true, mcaData, detectorElementComposite, currentSelectedElementIndex);
+				
+				
+				
 				Double[] liveStats = null;
 				try {
 					liveStats = (Double[]) xmapDetector.getAttribute("countRates");

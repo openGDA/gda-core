@@ -41,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.util.CorrectionUtils;
 
 public class DummyXmapBufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector {
@@ -367,7 +367,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 			// REGIONS
 			for (int iroi = 0; iroi < thisElement.getRegionList().size(); iroi++) {
 
-				final RegionOfInterest roi = thisElement.getRegionList().get(iroi);
+				final VortexROI roi = thisElement.getRegionList().get(iroi);
 
 				// TODO calculate roi from the full spectrum data
 				double count = calculateROICounts(roi, detectorData[element]);
@@ -495,7 +495,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 
 	
 
-	private double calculateROICounts(RegionOfInterest roi, short[]data)
+	private double calculateROICounts(VortexROI roi, short[]data)
 	{
 		int regionLow = roi.getRoiStart();
 		int regionHigh = roi.getRoiEnd();

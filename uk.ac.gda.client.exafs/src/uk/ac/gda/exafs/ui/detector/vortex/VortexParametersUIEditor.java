@@ -25,23 +25,11 @@ import gda.factory.Finder;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
-import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
@@ -50,27 +38,23 @@ import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
-import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
+import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
-import com.swtdesigner.SWTResourceManager;
-
 public class VortexParametersUIEditor extends DetectorEditor {
-	private static final Logger logger = LoggerFactory.getLogger(VortexParametersUIEditor.class);
 	public Label acquireFileLabel;
 	protected VortexParameters vortexParameters;
 	private ComboWrapper countType;
-	private Button autoSave;
-	private BooleanWrapper saveRawSpectrum;
 	private VortexAcquire vortexAcquire;
 	private XmapDetector xmapDetector;
+	private VortexElements vortexElements;
 	
 	public VortexParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean, "vortexConfig");
@@ -85,21 +69,22 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
+		Composite left = sashPlotFormComposite.getLeft();
 		String detectorName = vortexParameters.getDetectorName();
 		xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
 		String tfgName = vortexParameters.getTfgName();
 		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
 		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, getSite().getShell().getDisplay(), plot, new Counts(), dirtyContainer);
-		Composite left = sashPlotFormComposite.getLeft();
 		vortexAcquire.createAcquire(parent, left);
-		createROIPanel(left);
+		sashPlotFormComposite.setWeights(new int[] { 35, 74 });
+		vortexElements = new VortexElements(left, this.getSite().getShell(), dirtyContainer, sashPlotFormComposite, vortexParameters, counts);
+		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
+			vortexElements.addOutputPreferences(left);
+		vortexElements.createROI(left);
+		vortexElements.configureUI(vortexAcquire.getMcaData(), getCurrentSelectedElementIndex());
+		
 		vortexAcquire.addAcquireListener(getCurrentSelectedElementIndex(), getDetectorList(), getDetectorElementComposite());
 		vortexAcquire.addLoadListener(vortexParameters, getDetectorList(), getDetectorElementComposite());
-		sashPlotFormComposite.setWeights(new int[] { 35, 74 });
-		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
-			addOutputPreferences(left);
-		configureUI();
-		
 		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
@@ -108,66 +93,9 @@ public class VortexParametersUIEditor extends DetectorEditor {
 				DetectorElementComposite detectorElementComposite = getDetectorElementComposite();
 				detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
 				detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
+				vortexElements.configureUI(vortexAcquire.getMcaData(), evt.getSelectionIndex());
 			}
 		});
-	}
-
-	private void createROIPanel(final Composite left) {
-		Composite grid = new Composite(left, SWT.BORDER);
-		grid.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		grid.setLayout(new GridLayout());
-		List<DetectorElement> detectorList = vortexParameters.getDetectorList();
-		if (detectorList.size() > 1) {
-			Composite buttonPanel = new Composite(grid, SWT.NONE);
-			buttonPanel.setLayout(new GridLayout(2, false));
-			Label applyToAllLabel = new Label(buttonPanel, SWT.NONE);
-			applyToAllLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-			applyToAllLabel.setText("Apply To All Elements ");
-			Button applyToAllButton = new Button(buttonPanel, SWT.NONE);
-			GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-			gridData.widthHint = 60;
-			gridData.minimumWidth = 60;
-			applyToAllButton.setLayoutData(gridData);
-			applyToAllButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class, "/icons/camera_go.png"));
-			applyToAllButton.setToolTipText("Apply current detector regions of interest to all other detector elements.");
-			SelectionAdapter applyToAllListener = new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					applyToAll(true);
-				}
-			};
-			applyToAllButton.addSelectionListener(applyToAllListener);
-			Label sep = new Label(grid, SWT.SEPARATOR | SWT.HORIZONTAL);
-			sep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		}
-		Label detectorElementsLabel = new Label(grid, SWT.NONE);
-		detectorElementsLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		if (detectorList.size() > 1)
-			detectorElementsLabel.setText(" Detector Element");
-		else
-			detectorElementsLabel.setText(" Regions of Interest");
-		try {
-			IDetectorROICompositeFactory factory = VortexParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
-			createDetectorList(grid, DetectorElement.class, detectorList.size(), RegionOfInterest.class, factory, false);
-			VortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(getDetectorList());
-			getDetectorElementComposite().setWindowsEditable(false);
-			getDetectorElementComposite().setMinimumRegions(VortexParametersUIHelper.INSTANCE.getMinimumRegions());
-			getDetectorElementComposite().setMaximumRegions(VortexParametersUIHelper.INSTANCE.getMaximumRegions());
-		} catch (Exception e1) {
-			logger.error("Cannot create ui for VortexParameters", e1);
-		}
-	}
-
-	private void addOutputPreferences(Composite comp) {
-		Group xspressParametersGroup = new Group(comp, SWT.NONE);
-		xspressParametersGroup.setText("Output Preferences");
-		xspressParametersGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		xspressParametersGroup.setLayout(gridLayout);
-		saveRawSpectrum = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
-		saveRawSpectrum.setText("Save raw spectrum to file");
-		saveRawSpectrum.setValue(false);
 	}
 
 	@Override
@@ -195,7 +123,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	}
 
 	public BooleanWrapper getSaveRawSpectrum() {
-		return saveRawSpectrum;
+		return vortexElements.getSaveRawSpectrum();
 	}
 
 	@Override
@@ -208,14 +136,31 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	public void dispose() {
 		if (countType != null)
 			countType.dispose();
-		autoSave.dispose();
-		saveRawSpectrum.dispose();
+		vortexElements.getSaveRawSpectrum().dispose();
 		acquireFileLabel.dispose();
 		super.dispose();
 	}
 	
 	public XMLCommandHandler getXMLCommandHandler() {
 		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(VortexParameters.class);
+	}
+	
+	public DetectorElementComposite getDetectorElementComposite() {
+		return vortexElements.getDetectorListComposite().getDetectorElementComposite();
+	}
+
+	@Override
+	public void setFocus() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public GridListEditor getDetectorList() {
+		return vortexElements.getDetectorListComposite().getDetectorList();
+	}
+	
+	protected int getCurrentSelectedElementIndex() {
+		return vortexElements.getDetectorListComposite().getDetectorList().getSelectedIndex();
 	}
 	
 }

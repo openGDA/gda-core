@@ -41,7 +41,7 @@
 		<field name="number" type="integer">
 			<bind-xml name="number" node="element"/>
 		</field>
-		<field name="ROI" type="uk.ac.gda.beans.vortex.RegionOfInterest"
+		<field name="ROI" type="uk.ac.gda.beans.vortex.VortexROI"
 			collection="collection" set-method="addRegion" get-method="getRegionList">
 			<bind-xml name="ROI" node="element"/>
 		</field>
@@ -75,7 +75,7 @@
 		</field>		
 	</class>
 	
-	<class name="uk.ac.gda.beans.vortex.RegionOfInterest">
+	<class name="uk.ac.gda.beans.vortex.VortexROI">
 		<map-to xml="ROI"/>
 		<field name="roiName" type="string">
 			<bind-xml name="name" node="element"/>

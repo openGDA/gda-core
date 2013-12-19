@@ -228,8 +228,8 @@ public class XspressAcquire extends Acquire {
 	
 	@Override
 	public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex)  throws DeviceException, InterruptedException {
-		Boolean showIndividualElementsValue = showIndividualElements.getValue();
-		counts.calculateAndPlotCountTotals(showIndividualElementsValue, true, mcaData, detectorElementComposite, currentSelectedElementIndex);
+		detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(currentSelectedElementIndex, mcaData));
+		detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
 		if (saveMcaOnAcquire)
 			saveMca(sashPlotFormComposite, xspressSaveDir);
 		detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);

@@ -219,8 +219,8 @@ public class VortexParameters implements Serializable, IRichBean {
 		setTfgName(vp.tfgName);
 	}
 
-	public List<RegionOfInterest> getRois() {
-		List<RegionOfInterest> list = new Vector<RegionOfInterest>();
+	public List<VortexROI> getRois() {
+		List<VortexROI> list = new Vector<VortexROI>();
 		for (DetectorElement d : getDetectorList()) {
 			list.addAll(d.getRegionList());
 		}

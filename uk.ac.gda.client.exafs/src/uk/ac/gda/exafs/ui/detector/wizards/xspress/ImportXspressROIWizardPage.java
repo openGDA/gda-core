@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.detector.wizards;
+package uk.ac.gda.exafs.ui.detector.wizards.xspress;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -43,6 +43,7 @@ import uk.ac.gda.exafs.ui.detector.DetectorListComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
+import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizardPage;
 import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersUIHelper;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;

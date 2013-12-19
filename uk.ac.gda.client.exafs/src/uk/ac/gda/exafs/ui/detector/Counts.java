@@ -20,27 +20,18 @@ package uk.ac.gda.exafs.ui.detector;
 
 public class Counts {
 	
-	public void calculateAndPlotCountTotals(Boolean currentEditIndividual, Boolean calculateSingleElement, int[][][] detectorData, DetectorElementComposite detectorElementComposite, int currentSelectedElementIndex) {
+	public int calculateInWindowCounts(Boolean currentEditIndividual, Boolean calculateSingleElement, int[][][] detectorData, DetectorElementComposite detectorElementComposite, int currentSelectedElementIndex) {
 		// use last value or store new value;
 		if (currentEditIndividual == null)
 			currentEditIndividual = calculateSingleElement;
 		else
 			calculateSingleElement = currentEditIndividual;
-		if (detectorData == null)
-			return;
-		if (detectorElementComposite.getCount() == null || detectorElementComposite.getStart() == null || detectorElementComposite.getEnd() == null)
-			return;
-		if (detectorElementComposite.getStart().getValue() == null|| detectorElementComposite.getEnd().getValue() == null)
-			return;
 		int start = (Integer) detectorElementComposite.getStart().getValue();
 		int end = (Integer) detectorElementComposite.getEnd().getValue();
-		int total = getInWindowsCounts(currentEditIndividual, start, end, currentSelectedElementIndex, detectorData);
-		detectorElementComposite.getCount().setValue(total);
-		detectorElementComposite.setTotalCounts(getTotalCounts(detectorData));
-		detectorElementComposite.setTotalElementCounts(getTotalElementCounts(currentSelectedElementIndex, detectorData));
+		return getInWindowsCounts(currentEditIndividual, start, end, currentSelectedElementIndex, detectorData);
 	}
 	
-	private int getInWindowsCounts(Boolean currentEditIndividual, int start, int end, int currentSelectedElementIndex, int[][][] detectorData) {
+	public int getInWindowsCounts(Boolean currentEditIndividual, int start, int end, int currentSelectedElementIndex, int[][][] detectorData) {
 		int total = 0;
 		if (currentEditIndividual)
 			total = sumElementInWindowCounts(start, end, currentSelectedElementIndex, detectorData);

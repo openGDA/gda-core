@@ -34,7 +34,7 @@ import uk.ac.gda.beans.exafs.IDetectorElement;
  */
 public class DetectorElement  implements Serializable, IDetectorElement {
 	
-	private List<RegionOfInterest> regionList;
+	private List<VortexROI> regionList;
 
 	private String name;
 	
@@ -59,7 +59,7 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 	 * default constructor for Castor
 	 */
 	public DetectorElement() {
-		regionList = new ArrayList<RegionOfInterest>();
+		regionList = new ArrayList<VortexROI>();
 	}
 
 	/**
@@ -236,20 +236,20 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 	/**
 	 * @param r
 	 */
-	public void addRegion(RegionOfInterest r) {
+	public void addRegion(VortexROI r) {
 		regionList.add(r);
 	}
 	/**
 	 * @return Returns the regions.
 	 */
-	public List<RegionOfInterest> getRegionList() {
+	public List<VortexROI> getRegionList() {
 		return regionList;
 	}
 
 	/**
 	 * @param regions The regions to set.
 	 */
-	public void setRegionList(List<RegionOfInterest> regions) {
+	public void setRegionList(List<VortexROI> regions) {
 		this.regionList = regions;
 	}
 
@@ -260,9 +260,9 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 		number = detectorElement.number;
 		offset = detectorElement.offset;
 		peakingTime = detectorElement.peakingTime;
-		Vector<RegionOfInterest> rois = new Vector<RegionOfInterest>();
-		for( RegionOfInterest rl : detectorElement.getRegionList()){
-			RegionOfInterest roi = new RegionOfInterest();
+		Vector<VortexROI> rois = new Vector<VortexROI>();
+		for( VortexROI rl : detectorElement.getRegionList()){
+			VortexROI roi = new VortexROI();
 			roi.setRoiName(rl.getRoiName());
 			roi.setWindowEnd(rl.getWindowEnd());
 			roi.setWindowStart(rl.getWindowStart());

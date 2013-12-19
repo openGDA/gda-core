@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.util.CorrectionUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -126,7 +126,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 		channelLabels = new ArrayList<String>(7);
 
 		int roiNum = 0;
-		for (RegionOfInterest roi : vp.getDetectorList().get(0).getRegionList()) {
+		for (VortexROI roi : vp.getDetectorList().get(0).getRegionList()) {
 			String name = roi.getRoiName();
 			if (name == null)
 				name = "ROI " + roiNum;
@@ -149,10 +149,10 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 			int mcaIndex = 0;
 			for (DetectorElement e : dl) {
-				final List<RegionOfInterest> regions = e.getRegionList();
+				final List<VortexROI> regions = e.getRegionList();
 				final double[][] rois = new double[regions.size()][2];
 				int iregion = 0;
-				for (RegionOfInterest roi : regions) {
+				for (VortexROI roi : regions) {
 					rois[iregion][0] = roi.getWindowStart();
 					rois[iregion][1] = roi.getWindowEnd();
 					++iregion;
