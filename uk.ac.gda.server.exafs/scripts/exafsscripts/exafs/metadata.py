@@ -42,4 +42,6 @@ class Metadata():
     def addScannableMetadataEntry(self, scannableName, type, subtype):
         jythonNameMap = JythonNameSpaceMapping()
         scannable = jythonNameMap.__getitem__(scannableName)
-        self.add_to_nexus_metadata(scannableName, str(scannable), "type", subtype)  
+        self.add_to_nexus_metadata(scannableName, str(scannable()), type, subtype)  
+        
+        
