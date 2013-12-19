@@ -95,6 +95,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		find.addIObserver(this);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void createPartControl(Composite parent) {
 		logger.info("Part Control the title is " + this.getTitle());
@@ -283,6 +284,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			tree = hdf5Loader.loadTree(null);
 		} catch (ScanFileHolderException e2) {
 			logger.error("Could not load tree from " + filePath, e2);
+			return;
 		}
 
 		DataHolder dataHolder = null;

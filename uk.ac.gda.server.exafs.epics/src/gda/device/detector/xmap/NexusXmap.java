@@ -201,7 +201,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				output.addData(detTree, "fullSpectrum", new int[] {detectorData[0].length },
 						NexusFile.NX_INT32, detectorData[0], "counts", 1);
 			} else {
-				output.addData(detTree, "fullSpectrum", new int[] { numFilteredElements, detectorData[0].length },
+				output.addData(detTree, "fullSpectrum", new int[] { numFilteredElements, reducedDetectorData[0].length },
 						NexusFile.NX_INT32, detectorData, "counts", 1);
 			}
 			
@@ -211,7 +211,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 						reducedDetectorData[0], "counts", 1);
 			} else {
 				output.addData(detTree, "fullSpectrum", new int[] { numFilteredElements, correctedDetData[0].length },
-						NexusFile.NX_FLOAT64, correctedDetData, "counts", 1);
+						NexusFile.NX_FLOAT64, reducedDetectorData, "counts", 1);
 			}
 		}
 		double ff = ffFromRoi;
