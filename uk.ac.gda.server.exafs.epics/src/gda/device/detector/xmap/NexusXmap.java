@@ -308,7 +308,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		return getElementNames()[elementNumber]+ "_ocr";
 	}
 	
-	private int getNumberOfIncludedDetectors() {
+	public int getNumberOfIncludedDetectors() {
 		int numFilteredDetectors = 0;
 		for (int element = 0; element < vortexParameters.getDetectorList().size(); element++)
 			if (!vortexParameters.getDetectorList().get(element).isExcluded())
