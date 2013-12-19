@@ -25,7 +25,6 @@ import gda.device.Scannable;
 import gda.device.Timer;
 import gda.device.XmapDetector;
 import gda.device.detector.DetectorBase;
-import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
