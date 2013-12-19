@@ -659,7 +659,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 //			String msg = "Move failed for " + getName() + " " + e.getMessage();
 //			logger.error(msg, e);
 //			return new PyString(msg);
-			if (e instanceof NullPointerException || e.getMessage().isEmpty()){
+			if (e instanceof NullPointerException || e.getMessage() == null || e.getMessage().isEmpty()){
 				throw new RuntimeException("Move failed for " + getName() + ".moveTo("+new_position+")",e);
 			}
 			throw new RuntimeException(e.getMessage(),e);
