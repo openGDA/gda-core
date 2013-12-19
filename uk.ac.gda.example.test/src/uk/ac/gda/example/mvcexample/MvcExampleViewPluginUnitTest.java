@@ -101,17 +101,26 @@ public class MvcExampleViewPluginUnitTest {
 	@Test
 	public void testItems() throws Exception {
 		ObservableList items = model.getItems();
-		for( int i=0; i<100; i++){
+		for( int i=0; i<10; i++){
 			MyMvcExampleItem e = new MyMvcExampleItem();
 			items.add(e);
 		}
-		for( int i=0; i<100; i++){
-			for( int j=0; j<100; j++){
+		delay(1000);
+		for( int i=0; i<10; i++){
+			for( int j=0; j<10; j++){
 				((MyMvcExampleItem)items.get(j)).setValue(i+j);
 			}
-			delay(50);
+			delay(1000);
 		}
-		Assert.assertEquals("149.0",view.viewer.getTable().getItem(50).getText(0));
+		Assert.assertEquals("18.0",view.viewer.getTable().getItem(9).getText(0));
+		items.clear();
+		delay(1000);
+		for( int i=0; i<10; i++){
+			MyMvcExampleItem e = new MyMvcExampleItem();
+			items.add(e);
+		}
+		delay(1000);
+		
 	}
 	
 	/**
