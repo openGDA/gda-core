@@ -705,6 +705,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			getDetectorElementComposite().getRegionList().setListEditorUI(listEditorUI);
 			
 			updateROIAfterElementCompositeChange();
+			
+			sashPlotForm.getPlottingSystem().autoscaleAxes();
 		} finally {
 			GridUtils.endMultiLayout();
 		}
