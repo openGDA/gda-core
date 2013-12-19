@@ -18,8 +18,6 @@
 
 package uk.ac.gda.devices;
 
-import org.springframework.beans.factory.InitializingBean;
-
 import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.SingleExposureStandard;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -30,7 +28,12 @@ import gda.epics.PV;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 public class ExcaliburCollectionStrategy extends SingleExposureStandard implements InitializingBean{
+	private static final Logger logger = LoggerFactory.getLogger(ExcaliburCollectionStrategy.class);
 
 	private PV<String> operationModePV;
 	private boolean burst=false;
@@ -123,6 +126,9 @@ public class ExcaliburCollectionStrategy extends SingleExposureStandard implemen
 		this.softwareTrigger = softwareTrigger;
 	}
 
-
+	@Override
+	public void stop() throws Exception {
+		logger.error("Stop called for Excalibur but not possible as it will lead to a fault in the FEM comms");
+	}
 
 }

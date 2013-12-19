@@ -8,6 +8,7 @@ from epics_scripts.simple_channel_access import caput, caget
 from  uk.ac.gda.devices.excalibur.scannable import ChipRegAnperScannable 
 from gda.device.detector.addetector import ADDetector
 from gda.device.detector import NXDetector
+from uk.ac.gda.devices import ExcaliburDacScanCollectionStrategy
 
 class   dacScan_positions(ScanPositionProvider):
     def __init__(self, firstScannable, start, stop, step):
@@ -85,6 +86,7 @@ class dac_scannable(ScannableBase):
 
 from gda.device.detector.addetector.triggering import SimpleAcquire
 
+#not used
 class BurstModeTrigger(SimpleAcquire):
     def __init__(self, adBase):
         SimpleAcquire.__init__(self,adBase, 0.)
@@ -96,7 +98,7 @@ class BurstModeTrigger(SimpleAcquire):
         SimpleAcquire.collectData(self)
 
 
-
+#DacScanTrigger should no longer be needed as we have ExcaliburDacScanCollectionStrategy
 class DacScanTrigger(SimpleAcquire):
     def __init__(self, adBase, dacNumber, start, stop, step, ):
         SimpleAcquire.__init__(self,adBase, 0.)
@@ -147,8 +149,16 @@ def dacscan(args):
             dacScannable=dac_scannable(args[i])
             newargs.append(dacScannable)
             det = args[i+4]
-            trigger=DacScanTrigger(det.getCollectionStrategy().getAdBase(), args[i].getIndex(), args[i+1], args[i+2], args[i+3])
-            det.setCollectionStrategy(trigger)
+            cs=det.getCollectionStrategy()
+            if isinstance(cs,ExcaliburDacScanCollectionStrategy ):
+                cs.dacNumber=args[i].getIndex()
+                cs.scanStart=args[i+1]
+                cs.scanStop=args[i+2]
+                cs.scanStep=args[i+3]
+            else:
+                print "Creating DacScanTrigger"
+                trigger=DacScanTrigger(det.getCollectionStrategy().getAdBase(), args[i].getIndex(), args[i+1], args[i+2], args[i+3])
+                det.setCollectionStrategy(trigger)
             dacScannableFound=True
         else:
             newargs.append(args[i])

@@ -9,10 +9,216 @@ configurator.setup()
 '''
 import sys
 from gda.factory import Finder
+from gdascripts.messages import handle_messages
+from gda.scan import RepeatScan
+import recordConfig
+from gda.configuration.properties import LocalProperties
+from gdascripts.parameters import beamline_parameters
 
+def _getTestPattern(on=True):
+    if not on:
+        return [0]*65536
+    testPulse = []
+    filepath = LocalProperties.getVarDir() + "excalibur_test_triangle.mask"
+#    handle_messages.log(None,"Loading test mask from " + `filepath`)
+    f = open(filepath)
+    for line in iter(f):
+        row = line.split()
+        row = [(1 - int(val)) for val in row]
+        testPulse.extend(row)
+    f.close()    
+    return testPulse
+    
+def loadTestPattern(on=True):
+    if on:
+        handle_messages.log(None,"Loading test mask...")
+    else:
+        handle_messages.log(None,"Clearing test mask...")
+    testPulse=_getTestPattern(on)
+    config= Finder.getInstance().find("excalibur_config")
+    nodes = config.get("readoutFems")
+    for node in nodes:
+        for j in range(8):
+            handle_messages.log(None,"...chip "+ `j+1`)
+            node.getIndexedMpxiiiChipReg(j).pixel.setTest(testPulse)
+            node.getIndexedMpxiiiChipReg(j).loadPixelConfig()
+    if on:
+        handle_messages.log(None,"Loading test mask done")
+    else:
+        handle_messages.log(None,"Clearing test mask done")
+    
+    
+def setOperationModeToNormal(dev):
+    handle_messages.log(None,"force operation mode to normal")
+    dev.set("1:FEM:OperationMode", 0) #normal
+    dev.set("2:FEM:OperationMode", 0) #normal
+    dev.set("3:FEM:OperationMode", 0) #normal
+    dev.set("4:FEM:OperationMode", 0) #normal
+    dev.set("5:FEM:OperationMode", 0) #normal
+    dev.set("6:FEM:OperationMode", 0) #normal
+    dev.set("CONFIG:ACQUIRE:OperationMode", 0) #normal
+    
+def runContinuous(exposureTime):
+    config= Finder.getInstance().find("excalibur_config")
+    dev=config.get("excaliburDev")
+    setOperationModeToNormal(dev)
+    dev.set("CONFIG:ACQUIRE:AcquireTime", exposureTime)
+    dev.set("CONFIG:ACQUIRE:AcquirePeriod", exposureTime)
+    dev.set("CONFIG:ACQUIRE:ImageMode", 2) #continuous
+    dev.set("CONFIG:ACQUIRE:Acquire", 1) #start
+
+import time
+def checkFEMInitOK(dev):
+    handle_messages.log(None,"Waiting for FEMs to initalise...")
+    for i in range(10):
+        ok=True
+        ok= ok and dev.getInteger("1:HK:FemInitOk")==1
+        ok= ok and dev.getInteger("2:HK:FemInitOk")==1
+        ok= ok and dev.getInteger("3:HK:FemInitOk")==1
+        ok= ok and dev.getInteger("4:HK:FemInitOk")==1
+        ok= ok and dev.getInteger("5:HK:FemInitOk")==1
+        ok= ok and dev.getInteger("6:HK:FemInitOk")==1
+        if ok:
+            return True
+        time.sleep(1)
+    return False
+        
+def switch_on():
+    config= Finder.getInstance().find("excalibur_config")
+    dev=config.get("excaliburDev")
+    
+    handle_messages.log(None,"Checking interlocks")
+    if dev.getInteger("1:HK:COOLANT_TEMP_STATUS") != 1:
+        handle_messages.log(None,"Coolant temp is bad",Raise=True)
+    if dev.getInteger("1:HK:HUMIDITY_STATUS") != 1:
+        handle_messages.log(None,"Humidity is too high",Raise=True)
+    if dev.getInteger("1:HK:COOLANT_FLOW_STATUS") != 1:
+        handle_messages.log(None,"Coolant flow is too low",Raise=True)
+    if dev.getInteger("1:HK:AIR_TEMP_STATUS") != 1:
+        handle_messages.log(None,"Air flow is too high",Raise=True)
+    if dev.getInteger("1:HK:FAN_FAULT") != 0:
+        handle_messages.log(None,"Fan fault",Raise=True)
+        
+    handle_messages.log(None,"Setting alarm limits")
+    excaliburConfigurator=ExcaliburConfigurator(fix=True)
+    excaliburConfigurator.do_hklimits()
+
+    if dev.getInteger('1:HK:HUMIDITY_MON.STAT') != 0:
+        handle_messages.log(None,"HUMIDITY MON is in alarm", Raise=True)
+
+    handle_messages.log(None,"Turning on LV")
+    
+    dev.set('CONFIG:ACQUIRE:LvControl',1) #on
+    if dev.getDouble('CONFIG:ACQUIRE:LvControl') != 1:
+        handle_messages.log(None,"LV is OFF", Raise=True)
+        
+    if not checkFEMInitOK(dev):
+        handle_messages.log(None,"FEMs did not initialise (FEMInitOK)", Raise=True)
+
+    handle_messages.log(None,"Turning on HV and ramping to desired level")
+
+    dev.set('1:HK:BIAS_ON_OFF',1) #on
+    dev.set('1:HK:BIAS_LEVEL',117.5) 
+    if dev.getDouble('1:HK:BIAS_ON_OFF') != 1:
+        handle_messages.log(None,"HV is OFF", Raise=True)
+        
+    #check vmon is ok. Loop until it is ok, then check
+    for i in range(10):
+        ok = dev.getInteger('1:HK:BIAS_VMON.STAT') == 0
+        if ok:
+            break
+        time.sleep(1)
+    if dev.getInteger('1:HK:BIAS_VMON.STAT') != 0:
+        handle_messages.log(None,"HV VMON is in alarm after 10s", Raise=True)
+        
+    handle_messages.log(None,"POWER OK")
+
+    handle_messages.log(None,"Setting up areaDetector plugins ")
+    time.sleep(2) #slow things done to avoid problems
+    excaliburConfigurator.setupPlugins()
+
+    
+    handle_messages.log(None,"take image to initialise HDF5 plugin")
+    time.sleep(2) #slow things done to avoid problems
+    jns=beamline_parameters.JythonNameSpaceMapping()
+    det=jns.excalibur_config_normal
+    if det is None:
+        handle_messages.log(None,"excalibur_config_normal not found", Raise=True)
+
+    setOperationModeToNormal(dev)
+
+    det.pluginList[1].enabled=False #turn off file saving as it will fail due to uninitialised PHDF5 plugin
+    try:
+        scan=RepeatScan.create_repscan([1, det, .01])
+        scan.runScan()
+    finally:
+        det.pluginList[1].enabled=True #turn on file saving
+
+
+    #load default config
+    config_filepath = LocalProperties.getVarDir() + "excalibur_default_calibration.excaliburconfig"
+    handle_messages.log(None,"Loading default config from " + `config_filepath`)
+    time.sleep(2) #slow things done to avoid problems
+    recordConfig.sendConfigInFileToDetector(config_filepath)
+
+    time.sleep(2) #slow things done to avoid problems
+    setOperationModeToNormal(dev) #sendConfigInFileToDetector may have changed readout node states
+
+    measureTestPattern()
+    
+    handle_messages.log(None,"Switch on done")
+
+def measureTestPattern():
+    config= Finder.getInstance().find("excalibur_config")
+    dev=config.get("excaliburDev")
+    
+    loadTestPattern()
+
+    handle_messages.log(None,"Turning on test pulses")
+    time.sleep(2) #slow things done to avoid problems
+    
+    
+    dev.set("CONFIG:ACQUIRE:NumTestPulses",4000)
+    nodes = config.get("readoutFems")
+    for node in nodes:
+        for j in range(8):
+            node.getIndexedMpxiiiChipReg(j).anper.setTpref(128)
+            node.getIndexedMpxiiiChipReg(j).anper.setTprefA(400)
+            node.getIndexedMpxiiiChipReg(j).anper.setTprefB(400)
+    
+
+    handle_messages.log(None,"Taking a single image - you should see a set of triangles")
+    time.sleep(2) #slow things done to avoid problems
+
+    jns=beamline_parameters.JythonNameSpaceMapping()
+    det=jns.excalibur_config_normal
+    if det is None:
+        handle_messages.log(None,"excalibur_config_normal not found", Raise=True)
+
+    setOperationModeToNormal(dev)
+
+    scan=RepeatScan.create_repscan([1, det, 1])
+    scan.runScan()
+    loadTestPattern(False)
+    
+def switch_off():
+    config= Finder.getInstance().find("excalibur_config")
+    dev=config.get("excaliburDev")
+
+    handle_messages.log(None,"Turning power off")
+    
+    dev.set('CONFIG:ACQUIRE:LvControl',0) #off
+    dev.set('1:HK:BIAS_ON_OFF',0) #off
+    if dev.getInteger('CONFIG:ACQUIRE:LvControl') != 0:
+        handle_messages.log(None,"LV is ON", Raise=True)
+    if dev.getInteger('1:HK:BIAS_ON_OFF') != 0:
+        handle_messages.log(None,"HV is ON", Raise=True)
+    handle_messages.log(None,"POWER OFF")
+
+    handle_messages.log(None,"Switch off done")
 
 class ExcaliburConfigurator():
-    def __init__(self, fix=False, gap=True, arr=False, master=True, hdf5=False, phdf5=True ):
+    def __init__(self, fix=True, gap=True, arr=False, master=True, hdf5=False, phdf5=True ):
         self.config= Finder.getInstance().find("excalibur_config")
         self.dev=self.config.get("excaliburDev")
         self.configSync=self.config.get("sync")
@@ -49,15 +255,18 @@ class ExcaliburConfigurator():
         self.hdf5=hdf5
         self.phdf5=phdf5
     
-    def setup(self):
+    def setupPlugins(self):
         self.do_configFem()
-        self.do_hklimits()
         self.do_fix()
         self.do_gap()
         self.do_configArr()
         self.do_summary()
         self.do_hdf5()
         self.do_phdf5()
+
+    def setup(self):
+        self.setupPlugins()
+        self.do_hklimits()
             
     '''Configures the excalibur detector in the basic mode setting the summ image to link with the configuration and enable a few other panels'''
     def do_configFem(self):
@@ -70,50 +279,50 @@ class ExcaliburConfigurator():
         
     def do_hklimits(self): 
         self.dev.set('1:HK:P5V_A_VMON.HIGH', 5.2)
-        self.dev.set('1:HK:P5V_B_VMON.HIGH', 5.2)
-        self.dev.set('1:HK:P5V_FEMO0_IMON.HIGH', 6.0)
-        self.dev.set('1:HK:P5V_FEMO1_IMON.HIGH', 6.0)
-        self.dev.set('1:HK:P5V_FEMO2_IMON.HIGH', 6.0)
-        self.dev.set('1:HK:P5V_FEMO3_IMON.HIGH', 6.0)
-        self.dev.set('1:HK:P5V_FEMO4_IMON.HIGH', 6.0)
-        self.dev.set('1:HK:P5V_FEMO5_IMON.HIGH', 6.0)
-        self.dev.set('1:HK:P48V_VMON.HIGH', 52.0)
-        self.dev.set('1:HK:P48V_IMON.HIGH', 10.0)
-        self.dev.set('1:HK:P5VSUP_VMON.HIGH', 5.2)
-        self.dev.set('1:HK:P5VSUP_IMON.HIGH', 3.0)
         self.dev.set('1:HK:P5V_A_VMON.LOW', 4.8)
+        self.dev.set('1:HK:P5V_B_VMON.HIGH', 5.2)
         self.dev.set('1:HK:P5V_B_VMON.LOW', 4.8)
-        self.dev.set('1:HK:P5V_FEMO0_IMON.LOW', 0.0)
-        self.dev.set('1:HK:P5V_FEMO1_IMON.LOW', 0.0)
-        self.dev.set('1:HK:P5V_FEMO2_IMON.LOW', 0.0)
-        self.dev.set('1:HK:P5V_FEMO3_IMON.LOW', 0.0)
-        self.dev.set('1:HK:P5V_FEMO4_IMON.LOW', 0.0)
-        self.dev.set('1:HK:P5V_FEMO5_IMON.LOW', 0.0)
+        self.dev.set('1:HK:P5V_FEMO0_IMON.HIGH', 5.2)
+        self.dev.set('1:HK:P5V_FEMO0_IMON.LOW', 4.2)
+        self.dev.set('1:HK:P5V_FEMO1_IMON.HIGH', 5.2)
+        self.dev.set('1:HK:P5V_FEMO1_IMON.LOW', 4.2)
+        self.dev.set('1:HK:P5V_FEMO2_IMON.HIGH', 5.2)
+        self.dev.set('1:HK:P5V_FEMO2_IMON.LOW', 4.2)
+        self.dev.set('1:HK:P5V_FEMO3_IMON.HIGH', 5.2)
+        self.dev.set('1:HK:P5V_FEMO3_IMON.LOW', 4.2)
+        self.dev.set('1:HK:P5V_FEMO4_IMON.HIGH', 5.2)
+        self.dev.set('1:HK:P5V_FEMO4_IMON.LOW', 4.2)
+        self.dev.set('1:HK:P5V_FEMO5_IMON.HIGH', 5.2)
+        self.dev.set('1:HK:P5V_FEMO5_IMON.LOW', 4.2)
+        self.dev.set('1:HK:P48V_VMON.HIGH', 52.0)
         self.dev.set('1:HK:P48V_VMON.LOW', 44.0)
-        self.dev.set('1:HK:P48V_IMON.LOW', 0.0)
+        self.dev.set('1:HK:P48V_IMON.HIGH', 11.0)
+        self.dev.set('1:HK:P48V_IMON.LOW', 9.0)
+        self.dev.set('1:HK:P5VSUP_VMON.HIGH', 5.2)
         self.dev.set('1:HK:P5VSUP_VMON.LOW', 4.8)
-        self.dev.set('1:HK:P5VSUP_IMON.LOW', 0.0)
-        self.dev.set('1:HK:HUMIDITY_MON.HIGH', 50.0)
-        self.dev.set('1:HK:AIR_TEMP_MON.HIGH', 40.0)
-        self.dev.set('1:HK:COOLANT_TEMP_MON.HIGH', 30.0)
-        self.dev.set('1:HK:COOLANT_FLOW_MON.HIGH', 10000)
-        self.dev.set('1:HK:P3V3_IMON.HIGH', 3.0)
-        self.dev.set('1:HK:P1V8_IMON_A.HIGH', 20.0)
-        self.dev.set('1:HK:BIAS_IMON.HIGH', 10.0)
-        self.dev.set('1:HK:P3V3_VMON.HIGH', 3.5)
-        self.dev.set('1:HK:P1V8_VMON_A.HIGH', 1.9)
-        self.dev.set('1:HK:P1V8_IMON_B.HIGH', 20.0)
-        self.dev.set('1:HK:P1V8_VMON_B.HIGH', 1.9)
+        self.dev.set('1:HK:P5VSUP_IMON.HIGH', 3.0)
+        self.dev.set('1:HK:P5VSUP_IMON.LOW', 1.5)
+        self.dev.set('1:HK:HUMIDITY_MON.HIGH', 40.0)
         self.dev.set('1:HK:HUMIDITY_MON.LOW', 0.0)
+        self.dev.set('1:HK:AIR_TEMP_MON.HIGH', 30.0)
         self.dev.set('1:HK:AIR_TEMP_MON.LOW', 0.0)
+        self.dev.set('1:HK:COOLANT_TEMP_MON.HIGH', 30.0)
         self.dev.set('1:HK:COOLANT_TEMP_MON.LOW', 0.0)
-        self.dev.set('1:HK:COOLANT_FLOW_MON.LOW', 100)
-        self.dev.set('1:HK:P3V3_IMON.LOW', 0.0)
-        self.dev.set('1:HK:P1V8_IMON_A.LOW', 0.0)
-        self.dev.set('1:HK:BIAS_IMON.LOW', 0.0)
-        self.dev.set('1:HK:P3V3_VMON.LOW', 3.1)
+        self.dev.set('1:HK:COOLANT_FLOW_MON.HIGH', 2000)
+        self.dev.set('1:HK:COOLANT_FLOW_MON.LOW', 1200)
+        self.dev.set('1:HK:P3V3_IMON.HIGH', 3.0)
+        self.dev.set('1:HK:P3V3_IMON.LOW', 2.5)
+        self.dev.set('1:HK:P1V8_IMON_A.HIGH', 15.0)
+        self.dev.set('1:HK:P1V8_IMON_A.LOW', 10.0)
+        self.dev.set('1:HK:P1V8_IMON_B.HIGH', 15.0)
+        self.dev.set('1:HK:P1V8_IMON_B.LOW', 10.0)
+        self.dev.set('1:HK:BIAS_IMON.HIGH', .0006)
+        self.dev.set('1:HK:BIAS_IMON.LOW', .0001)
+        self.dev.set('1:HK:P3V3_VMON.HIGH', 3.5)
+        self.dev.set('1:HK:P3V3_VMON.LOW', 3.15)
+        self.dev.set('1:HK:P1V8_VMON_A.HIGH', 1.9)
         self.dev.set('1:HK:P1V8_VMON_A.LOW', 1.7)
-        self.dev.set('1:HK:P1V8_IMON_B.LOW', 0.0)
+        self.dev.set('1:HK:P1V8_VMON_B.HIGH', 1.9)
         self.dev.set('1:HK:P1V8_VMON_B.LOW', 1.7)
         self.dev.set('1:HK:MOLY_TEMPERATURE.HIGH', 35.0)
         self.dev.set('1:HK:MOLY_TEMPERATURE.LOW', 0.0)
@@ -121,7 +330,7 @@ class ExcaliburConfigurator():
         self.dev.set('1:HK:LOCAL_TEMP.LOW', 0.0)
         self.dev.set('1:HK:REMOTE_DIODE_TEMP.HIGH', 55.0)
         self.dev.set('1:HK:REMOTE_DIODE_TEMP.LOW', 0.0)
-        self.dev.set('1:HK:MOLY_HUMIDITY.HIGH', 70.0)
+        self.dev.set('1:HK:MOLY_HUMIDITY.HIGH', 40.0)
         self.dev.set('1:HK:MOLY_HUMIDITY.LOW', 0.0)
 
     def do_configArr(self):
