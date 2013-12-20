@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.xspress.XspressROI;
 
 public class MicroFocusNexusReaderTest {
@@ -126,7 +126,7 @@ public class MicroFocusNexusReaderTest {
 	public void testConstructMappableDatafromXmap() throws Exception
 	{
 		rdr3.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-173.nxs");
-		List<RegionOfInterest>[] roi = rdr3.getWindowsfromVortexBean("testfiles/uk/ac/gda/client/microfocus/util/Vortex_Parameters.xml");
+		List<VortexROI>[] roi = rdr3.getWindowsfromVortexBean("testfiles/uk/ac/gda/client/microfocus/util/Vortex_Parameters.xml");
 		assertEquals(roi.length, 4, 0);
 		double d[][] = rdr3.constructMappableDatafromXmap("Pb");
 		assertEquals(1.8190637E7, d[0][0], 0.0);

@@ -50,7 +50,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
@@ -364,9 +364,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 								wholeDataArray[j] = (double[]) singleElementSpectrum;
 							}
 							spectrumLength = wholeDataArray[j].length;
-							List<RegionOfInterest> roiList = elementRois[j];
+							List<VortexROI> roiList = elementRois[j];
 							// calculating window total manually instead of using xmap ROIs
-							for (RegionOfInterest roi : roiList) {
+							for (VortexROI roi : roiList) {
 								String key = roi.getRoiName();
 								if (roiTable.containsKey(key)) {
 									this.setWindows(roi.getRoiStart(), roi.getRoiEnd());

@@ -33,7 +33,7 @@ import org.junit.Test;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 
 public class VortexMFMappableDataProviderTest {
 	final static String testScratchDirectoryName =
@@ -66,7 +66,7 @@ public class VortexMFMappableDataProviderTest {
 	public void testGetWindowsFromBean()
 	{
 		
-		List<RegionOfInterest>[] roi = vortexDataProvider.getElementRois();
+		List<VortexROI>[] roi = vortexDataProvider.getElementRois();
 		assertEquals(roi.length, 4, 0);
 	}
 	@SuppressWarnings("unused")
