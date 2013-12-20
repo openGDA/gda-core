@@ -204,8 +204,8 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		if (canMove) {
 			double target = ScannableUtils.objectToArray(position)[0];
 			try {
-				controller.caput(theChannel, target, this);
 				isBusy = true;
+				controller.caput(theChannel, target, this);
 			} catch (Exception e) {
 				isBusy = false;
 				throw new DeviceException(e.getMessage(),e);
