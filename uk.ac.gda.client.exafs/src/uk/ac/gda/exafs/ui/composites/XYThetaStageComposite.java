@@ -100,19 +100,19 @@ public class XYThetaStageComposite extends FieldBeanComposite {
 			public void handleEvent(Event event) {
 				try {
 					String xPosition = JythonServerFacade.getInstance().evaluateCommand(XYThetaStageComposite.this.xName + "()");
-					x.setValue(String.format("%.4f", xPosition));
+					x.setValue(String.format("%.4f", Double.parseDouble(xPosition)));
 				} catch (Exception e) {
 					logger.error("Exception retrieving current x motor position", e);
 				}
 				try {
 					String yPosition = JythonServerFacade.getInstance().evaluateCommand(XYThetaStageComposite.this.yName + "()");
-					y.setValue(String.format("%.4f", yPosition));
+					y.setValue(String.format("%.4f", Double.parseDouble(yPosition)));
 				} catch (Exception e) {
 					logger.error("Exception retrieving current y motor position", e);
 				}
 				try {
 					String thetaPosition = JythonServerFacade.getInstance().evaluateCommand(XYThetaStageComposite.this.thetaName + "()");
-					theta.setValue(String.format("%.4f", thetaPosition));
+					theta.setValue(String.format("%.4f", Double.parseDouble(thetaPosition)));
 				} catch (Exception e) {
 					logger.error("Exception retrieving current theta motor position", e);
 				}
