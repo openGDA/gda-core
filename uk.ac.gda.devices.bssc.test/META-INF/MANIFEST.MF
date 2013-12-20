@@ -1,8 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Test
-Bundle-SymbolicName: uk.ac.gda.devices.bssc.test
+Bundle-Name: BSSC Test
+Bundle-SymbolicName: uk.ac.gda.devices.bssc.test;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.junit
-Import-Package: uk.ac.gda.devices.bssc.ispyb
+Bundle-Vendor: Diamond Light Source
+Fragment-Host: uk.ac.gda.devices.bssc;bundle-version="1.0.0"
+Require-Bundle: org.junit;bundle-version="4.10.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

@@ -91,7 +91,7 @@
            restorable="true">
      </view>
      <view
-           class="uk.ac.gda.devices.bssc.ui.BioSaxsProgressView"
+           class="uk.ac.gda.devices.bssc.ui.BioSAXSProgressView"
            id="uk.ac.gda.devices.bssc.biosaxsprogressview"
            name="BioSAXS Progress View"
            restorable="true">
