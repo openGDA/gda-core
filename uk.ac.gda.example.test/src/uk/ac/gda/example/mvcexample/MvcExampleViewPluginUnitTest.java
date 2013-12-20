@@ -1,15 +1,15 @@
 package uk.ac.gda.example.mvcexample;
 
-import gda.device.ScannableMotionUnits;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
 import gda.rcp.util.OSGIServiceRegister;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 
 import junit.framework.Assert;
 
+import org.eclipse.core.databinding.observable.list.ObservableList;
+import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.ac.gda.beans.ObservableModel;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 
 public class MvcExampleViewPluginUnitTest {
@@ -32,6 +33,9 @@ public class MvcExampleViewPluginUnitTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		model = new MyMvcExampleModel();
+		ObservableList items = model.getItems();
+		MyMvcExampleItem e = new MyMvcExampleItem();
+		items.add(e);
 
 		OSGIServiceRegister modelReg = new OSGIServiceRegister();
 		modelReg.setClass(MvcExampleModel.class);
@@ -56,7 +60,7 @@ public class MvcExampleViewPluginUnitTest {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		waitForJobs();
-		delay(20000);
+//		delay(20000);
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.hideView(view);
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
@@ -80,6 +84,45 @@ public class MvcExampleViewPluginUnitTest {
 		
 	}
 
+	@Test
+	public void testMotor() throws Exception {
+		Assert.assertEquals("0 mm", view.motorPosControl._getTextForTesting());
+		model.scannable.asynchronousMoveTo(1.);
+		delay(2000);
+		Assert.assertEquals("1 mm", view.motorPosControl._getTextForTesting());
+	}
+	@Test
+	public void testPosition() throws Exception {
+		model.setPosition(10.);
+		Assert.assertEquals("10", view.numberControl._getTextForTesting());
+	}
+	
+	
+	@Test
+	public void testItems() throws Exception {
+		ObservableList items = model.getItems();
+		for( int i=0; i<10; i++){
+			MyMvcExampleItem e = new MyMvcExampleItem();
+			items.add(e);
+		}
+		delay(1000);
+		for( int i=0; i<10; i++){
+			for( int j=0; j<10; j++){
+				((MyMvcExampleItem)items.get(j)).setValue(i+j);
+			}
+			delay(1000);
+		}
+		Assert.assertEquals("18.0",view.viewer.getTable().getItem(9).getText(0));
+		items.clear();
+		delay(1000);
+		for( int i=0; i<10; i++){
+			MyMvcExampleItem e = new MyMvcExampleItem();
+			items.add(e);
+		}
+		delay(1000);
+		
+	}
+	
 	/**
 	 * Process UI input but do not return for the specified time interval.
 	 * 
@@ -120,22 +163,9 @@ public class MvcExampleViewPluginUnitTest {
 	}
 }
 
-class MyMvcExampleModel implements MvcExampleModel {
-	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-
-	@Override
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		this.pcs.addPropertyChangeListener(listener);
-	}
-
-	@Override
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		this.pcs.removePropertyChangeListener(listener);
-	}
+class MyMvcExampleModel  extends ObservableModel  implements MvcExampleModel {
 
 	boolean selected;
-	ScannableMotionUnits scannable;
-
 	ScannableWrapper wrapper;
 
 	@Override
@@ -145,7 +175,7 @@ class MyMvcExampleModel implements MvcExampleModel {
 
 	@Override
 	public void setSelected(boolean selected) {
-		this.pcs.firePropertyChange(MvcExampleModel.SELECTED_PROPERTY_NAME,
+		firePropertyChange(MvcExampleModel.SELECTED_PROPERTY_NAME,
 				this.selected, this.selected = selected);
 	}
 
@@ -158,23 +188,51 @@ class MyMvcExampleModel implements MvcExampleModel {
 
 	@Override
 	public void setPosition(double position) {
-		this.pcs.firePropertyChange(MvcExampleModel.POSITION_PROPERTY_NAME,
+		firePropertyChange(MvcExampleModel.POSITION_PROPERTY_NAME,
 				this.position, this.position = position);
 	}
-
+	protected DummyMotor dummyMotor;
+	protected ScannableMotor scannable;
+	
 	@Override
 	public ScannableWrapper getScannableWrapper() throws Exception {
 		if (wrapper == null) {
-			DummyMotor dummyMotor = new DummyMotor();
+			dummyMotor = new DummyMotor();
 			dummyMotor.setName("dummy_motor");
 			dummyMotor.configure();
-			ScannableMotor scannable = new ScannableMotor();
+			scannable = new ScannableMotor();
 			scannable.setMotor(dummyMotor);
 			scannable.setName("motor1");
+			scannable.setUserUnits("mm");
 			scannable.configure();
 			wrapper = new ScannableWrapper(scannable);
 		}
 		return wrapper;
 	}
 
+	WritableList items = new WritableList(new ArrayList<MvcExampleItem>(), MvcExampleItem.class);
+	
+	@Override
+	public WritableList getItems() {
+		return items;
+	}
+
+
+
 };
+
+
+
+class MyMvcExampleItem extends ObservableModel implements MvcExampleItem {
+
+	double value;
+	@Override
+	public double getValue() {
+		return value;
+	}
+
+	public void setValue(double newVal){
+		firePropertyChange(MvcExampleItem.VALUE_PROPERTY_NAME,
+				this.value, this.value = newVal);
+	}
+}

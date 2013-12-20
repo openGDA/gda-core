@@ -33,9 +33,6 @@ import uk.ac.gda.ui.components.NumberEditorControl;
 public class MotorPositionEditorControl extends NumberEditorControl {
 
 	private static final Logger logger = LoggerFactory.getLogger(MotorPositionEditorControl.class);
-	// TODO this should be declare at the source
-	private static final String LOWER_LIMIT_ATTRIBUTE_NAME = "lowerMotorLimit";
-	private static final String UPPER_LIMIT_ATTRIBUTE_NAME = "upperMotorLimit";
 
 	public MotorPositionEditorControl(Composite parent, int style, ScannableWrapper scannableWrapper, boolean userSpinner) throws Exception {
 		super(parent, style, scannableWrapper, ScannableWrapper.POSITION_PROP_NAME, userSpinner);
@@ -54,16 +51,12 @@ public class MotorPositionEditorControl extends NumberEditorControl {
 		}
 		this.setCommitOnOutOfFocus(false);
 		this.setDigits(NumberEditorControl.DEFAULT_DECIMAL_PLACES);
-			Object lowerLimitObj = scannableWrapper.getScannable().getAttribute(LOWER_LIMIT_ATTRIBUTE_NAME);
-			Object upperLimitObj = scannableWrapper.getScannable().getAttribute(UPPER_LIMIT_ATTRIBUTE_NAME);
-			if (lowerLimitObj != null && upperLimitObj != null) {
-				double lowerLimit = (double) lowerLimitObj;
-				double upperLimit = (double) upperLimitObj;
-				this.setRange(lowerLimit, upperLimit);
-				this.setToolTipText(String.format("Lower limit: %s Upper limit: %s",
-						roundDoubletoString(lowerLimit, NumberEditorControl.DEFAULT_DECIMAL_PLACES),
-						roundDoubletoString(upperLimit, NumberEditorControl.DEFAULT_DECIMAL_PLACES)));
-			}
+		if (scannableWrapper.getLowerLimit() != null && scannableWrapper.getUpperLimit() != null) {
+			this.setRange(scannableWrapper.getLowerLimit(), scannableWrapper.getUpperLimit());
+			this.setToolTipText(String.format("Lower limit: %s Upper limit: %s",
+					roundDoubletoString(scannableWrapper.getLowerLimit(), NumberEditorControl.DEFAULT_DECIMAL_PLACES),
+					roundDoubletoString(scannableWrapper.getUpperLimit(), NumberEditorControl.DEFAULT_DECIMAL_PLACES)));
+		}
 
 	}
 
