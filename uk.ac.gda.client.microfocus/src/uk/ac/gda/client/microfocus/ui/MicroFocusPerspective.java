@@ -23,6 +23,7 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
+import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 
 public class MicroFocusPerspective implements IPerspectiveFactory {
 
@@ -42,7 +43,7 @@ public class MicroFocusPerspective implements IPerspectiveFactory {
 		
 		IFolderLayout detfolder = layout.createFolder("middle", IPageLayout.BOTTOM, 0.05f, IPageLayout.ID_EDITOR_AREA);
 		
-		outputfolder.addView("uk.ac.gda.beamline.i18.MapView");
+		outputfolder.addView(MapPlotView.ID);
 		
 		leftFolder.addView("uk.ac.gda.client.microfocus.SelectExafsView");
 		leftFolder.addView("uk.ac.gda.client.microfocus.XspressElementListView");
