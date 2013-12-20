@@ -177,6 +177,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		etfg.setMonitorInBackground(false);
 
 		getAdBase().setAcquireTime(collectionTime);
+		getAdBase().setAcquirePeriod(collectionTime);
 
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
@@ -254,7 +255,8 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		}
 		// open the shutter
 		openShutter(true);
-		etfg.cont();
+		logger.error("etg.cont");
+		etfg.cont(); 
 		collectingData = true;
 		expectedExposureEndTime = System.currentTimeMillis() + (long) (collectionTime * 1000.);
 		expectedCycle--;

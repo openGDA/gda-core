@@ -155,26 +155,27 @@ public class NDArraySimulator implements NDArray {
 		return bytes;
 	}
 
+	//currently we only return signed values so return max val that can fit into these 
 	private double getMaxHeightForType(short dataType) throws Exception {
 		double maxHeightForType;
 		switch (dataType) {
 		case NDPluginBase.UInt8:
-			maxHeightForType = ((double) Byte.MAX_VALUE) * 2 - 1;
+			maxHeightForType = getMaxHeightForType(NDPluginBase.Int8);
 			break;
 		case NDPluginBase.Int8:
-			maxHeightForType = Byte.MAX_VALUE;
+			maxHeightForType = Byte.MAX_VALUE* (1.0 - Math.random()*0.1);//10% randomness;
 			break;
 		case NDPluginBase.UInt16:
-			maxHeightForType = ((double) Short.MAX_VALUE) * 2 - 1;
+			maxHeightForType = getMaxHeightForType(NDPluginBase.Int16);
 			break;
 		case NDPluginBase.Int16:
-			maxHeightForType = Short.MAX_VALUE;
+			maxHeightForType = Short.MAX_VALUE* (1.0 - Math.random()*0.1);//10% randomness
 			break;
 		case NDPluginBase.UInt32:
-			maxHeightForType = ((double) Integer.MAX_VALUE) * 2 - 1;
+			maxHeightForType = getMaxHeightForType(NDPluginBase.Int32);
 			break;
 		case NDPluginBase.Int32:
-			maxHeightForType = Integer.MAX_VALUE;
+			maxHeightForType = Integer.MAX_VALUE * (1.0 - Math.random()*0.1);//10% randomness;;
 			break;
 		default:
 			throw new Exception("Does not support data type:" + dataType);
@@ -215,7 +216,8 @@ public class NDArraySimulator implements NDArray {
 		int[] bytes = new int[width * height];
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
-				bytes[j * width + i] = (int)Math.min(maxHeightForType, g.getVal(i, j));
+				double val = g.getVal(i, j);
+				bytes[j * width + i] = (int)Math.min(maxHeightForType, val);
 			}
 		}
 		return bytes;

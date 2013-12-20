@@ -70,7 +70,7 @@ public class ADControllerImpl implements ADController, InitializingBean {
 
 	private double arrayMinCallbackTime=1.0;
 
-	private ADViewerCompositeFactory mjpegViewCompositeFactory;
+
 
 	private NDROI imageNDROI;
 
@@ -532,14 +532,7 @@ public class ADControllerImpl implements ADController, InitializingBean {
 		this.arrayMinCallbackTime = arrayMinCallbackTime;
 	}
 
-	@Override
-	public ADViewerCompositeFactory getMjpegViewCompositeFactory() {
-		return mjpegViewCompositeFactory;
-	}
 
-	public void setMjpegViewCompositeFactory(ADViewerCompositeFactory mjpegViewCompositeFactory) {
-		this.mjpegViewCompositeFactory = mjpegViewCompositeFactory;
-	}
 
 	
 	@Override

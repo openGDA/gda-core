@@ -459,7 +459,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	@Override
 	public void setSpeed(double mmPerSec) throws MotorException {
 		try {
-			controller.caput(velo, mmPerSec);
+			//must use caputWait to ensure the speed is set before we start moving
+			controller.caputWait(velo, mmPerSec);
 			currentSpeed = mmPerSec;
 		} catch (Throwable ex) {
 			throw new MotorException(getStatus(), "failed to set setSpeed", ex);
