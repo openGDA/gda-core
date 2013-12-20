@@ -292,4 +292,14 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 	public Observable<Double> createMinCallbackTimeObservable() throws Exception {
 		return null;
 	}
+
+	@Override
+	public Observable<Integer> createDroppedFramesObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public void checkDroppedFrames() throws Exception {
+		//do nothing
+	}
 }

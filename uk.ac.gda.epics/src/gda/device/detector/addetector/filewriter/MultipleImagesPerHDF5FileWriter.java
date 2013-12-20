@@ -51,10 +51,13 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	
 	private boolean blocking = true;
 	
-	private int rowChunks = 1;
-	private int colChunks=1;
-	private int framesChunks=16;
-	private int framesFlush=64;
+	/*
+	 * default chunking is off so we get 1 image per chunk
+	 */
+	private int rowChunks = 0;
+	private int colChunks=0;
+	private int framesChunks=1;
+	private int framesFlush=1;
 
 	private boolean firstReadoutInScan;
 	
@@ -148,6 +151,10 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	private Integer boundaryAlign=null;
 
 	private String expectedFullFileName;
+
+	private int numToBeCaptured;
+
+	private int numCaptured;
 	
 	public Integer getBoundaryAlign() {
 		return boundaryAlign;
@@ -307,12 +314,12 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	
 	@Override
 	public void completeCollection() throws Exception{
+		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
 		FileRegistrarHelper.registerFile(getNdFileHDF5().getFullFileName_RBV());
 		endRecording();
 		disableFileWriting();
-		alreadyPrepared=false;
 	}
 	
 	private void endRecording() throws Exception {
@@ -363,11 +370,30 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		NXDetectorDataAppender dataAppender;
+		//wait until the NumCaptured_RBV is equal to or exceeds maxToRead.
+		checkErrorStatus();
+		try {
+			getNdFile().getPluginBase().checkDroppedFrames();
+		} catch (Exception e) {
+			throw new DeviceException("Error in " + getName(), e);
+		}
 		if (firstReadoutInScan) {
 			dataAppender = new NXDetectorDataFileLinkAppender(expectedFullFileName);
+			numToBeCaptured=1;
+			numCaptured=0;
 		}
 		else {
 			dataAppender = new NXDetectorDataNullAppender();
+			numToBeCaptured++;
+		}
+		while( numCaptured< numToBeCaptured){
+			try {
+				numCaptured = getNdFileHDF5().getNumCaptured_RBV();
+			} catch (Exception e) {
+				throw new DeviceException("Error in getCapture_RBV" + getName(), e);
+			}
+			Thread.sleep(50);
+			ScanBase.checkForInterrupts();
 		}
 		firstReadoutInScan = false;
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
@@ -375,7 +401,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		return appenders;
 	}
 
-
+	
 	 class NXDetectorDataFileLinkAppenderDelayed implements NXDetectorDataAppender {
 
 			@Override
