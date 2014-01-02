@@ -25,4 +25,5 @@ Bundle-ActivationPolicy: lazy
 Import-Package: com.artenum.jyconsole,
  org.eclipse.debug.ui,
  org.eclipse.search.ui,
- org.eclipse.ui.console
+ org.eclipse.ui.console,
+ uk.ac.gda.pydev.extension.ui.perspective
