@@ -233,7 +233,7 @@ class Map(Scan):
         if asciidatawriterconfig != None :
             dataWriter.setConfiguration(asciidatawriterconfig)
             
-            
+        print "adding mfd to map"
         dataWriter.addDataWriterExtender(self.mfd)
         
         thisscan.setDataWriter(dataWriter)
@@ -257,7 +257,7 @@ class Map(Scan):
         if beanGroup.getDetector().getExperimentType() == "Fluorescence":
             fluoresenceParameters = beanGroup.getDetector().getFluorescenceParameters()
             detType = fluoresenceParameters.getDetectorType()
-            xmlFileName = beanGroup.getScriptFolder() + fluoresenceParameters.getConfigFileName()
+            xmlFileName = beanGroup.getXmlFolder() + fluoresenceParameters.getConfigFileName()
             if detType == "Germanium":
                 self.xspressConfig.initialize()
                 xspressBean = self.xspressConfig.createBeanFromXML(xmlFileName)
@@ -281,8 +281,9 @@ class Map(Scan):
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setCollectionTime(collectionTime)
             
-            if(not (beam == None) and self.beamEnabled==True):
-                self.finder.find("command_server").addDefault(beam);
+            # temp RJW I have removed this for the moment as it does not seem to do anything!
+            #if(not (beam == None) and self.beamEnabled==True):
+            #    self.finder.find("command_server").addDefault(beam);
             
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setPauseBeforeLine(False)
@@ -292,7 +293,7 @@ class Map(Scan):
             beam.setPauseBeforeLine(True)
             
             if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
-                self.finder.find("command_server").addDefault(detectorFillingMonitor);
+                #self.finder.find("command_server").addDefault(detectorFillingMonitor);
                 detectorFillingMonitor.setPauseBeforePoint(True)
                 detectorFillingMonitor.setPauseBeforeLine(False)
                 detectorFillingMonitor.setCollectionTime(collectionTime)
@@ -306,6 +307,8 @@ class Map(Scan):
         att2 = sampleParameters.getAttenuatorParameter2()
         print att1.getSelectedPosition()
         print att2.getSelectedPosition()
+        print self.d7a
+        print self.d7b
         self.d7a(att1.getSelectedPosition())
         self.d7b(att2.getSelectedPosition())
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")

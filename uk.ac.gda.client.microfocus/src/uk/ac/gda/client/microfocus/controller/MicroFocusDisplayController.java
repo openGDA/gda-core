@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.microfocus.controller;
 
-import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
 
 import java.util.StringTokenizer;
@@ -28,8 +27,6 @@ import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.gda.client.microfocus.util.MicroFocusMappableDataProvider;
 import uk.ac.gda.client.microfocus.util.MicroFocusMappableDataProviderFactory;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
@@ -111,6 +108,7 @@ public class MicroFocusDisplayController {
 		} else if (selectedElement.equals("It")) {
 			if (detectorProvider != null)
 				plotter.plotDataset(detectorProvider.getItdata());
+			
 			else
 				JythonServerFacade.getInstance().evaluateCommand(
 						"map.getMFD().displayPlot(\"" + selectedElement + "\")");
@@ -195,6 +193,13 @@ public class MicroFocusDisplayController {
 		logger.info("the xy from server is " + s);
 
 		return xy;
+	}
+	
+	public Double getZ() {
+		if (currentDetectorProvider != null && ObjectStateManager.isActive(detectorProvider)) {
+		return currentDetectorProvider.getZValue();
+		}
+		return null;
 	}
 
 	public void disableProvider() {

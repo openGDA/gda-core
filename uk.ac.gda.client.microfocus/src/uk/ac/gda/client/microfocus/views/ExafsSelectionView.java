@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.microfocus.views;
 
-import gda.observable.IObserver;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.text.DecimalFormat;
@@ -32,7 +30,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,24 +38,22 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
 
-public class ExafsSelectionView extends ViewPart implements IObserver {
+public class ExafsSelectionView extends ViewPart {
 
 	public static final String ID = "uk.ac.gda.client.microfocus.SelectExafsView";
+	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
+	private List exafsScanList;
+	private List selectedScanList;
+	private Text pointText;
+	protected final IExperimentEditorManager    controller;
+	private Text multiScanNameText;
+	private DecimalFormat format = new DecimalFormat(".###");
+
 	public ExafsSelectionView() {
 		super();
 		controller = ExperimentFactory.getExperimentEditorManager();
 	}
 	
-	private List exafsScanList;
-	private List selectedScanList;
-	private Text pointText;
-	private MicroFocusElementListView MFView;
-	protected final IExperimentEditorManager    controller;
-	private Text multiScanNameText;
-	private DecimalFormat format = new DecimalFormat(".###");
-
-	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
-	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite exafsRunComp = new Composite(parent, SWT.BORDER);
@@ -95,7 +90,8 @@ public class ExafsSelectionView extends ViewPart implements IObserver {
 		gridData.grabExcessHorizontalSpace = true;
 		exafsScanList.setLayoutData(gridData);
 		populateExafsScanList();
-		new Label(exafsRunComp, SWT.NONE);
+		@SuppressWarnings("unused")
+		Label label2 = new Label(exafsRunComp, SWT.NONE);
 		Label selectedExafsLabel = new Label(exafsRunComp, SWT.LEFT);
 		selectedExafsLabel.setText("Selected Scans");
 		gridData = new GridData();
@@ -111,26 +107,9 @@ public class ExafsSelectionView extends ViewPart implements IObserver {
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
 		selectedScanList.setLayoutData(gridData);
-		try {
-			// get an instance of the plotView we want to use
-			MFView = (MicroFocusElementListView) getSite().getPage().showView("uk.ac.gda.client.microfocus.XspressElementListView",
-					null, IWorkbenchPage.VIEW_CREATE);
-			MFView.addIObserver(this);
-			MFView = (MicroFocusElementListView) getSite().getPage().showView("uk.ac.gda.client.microfocus.VortexElementListView",
-					null, IWorkbenchPage.VIEW_CREATE);
-			MFView.addIObserver(this);
-			
-		}
-		catch (Exception e) {
-			logger.error("Error while finding the MF view", e);
-		}
-			
-		
-		
 	}
 
 	private void populateExafsScanList() {
-		// TODO Auto-generated method stub
 		File projectDir = controller.getProjectFolder();
 		ScanFilter scanFilter = new ScanFilter(); 
 		File dirList[] =projectDir.listFiles();
@@ -180,27 +159,18 @@ public class ExafsSelectionView extends ViewPart implements IObserver {
 	}
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
-
+		// ignore
 	}
 
-	@Override
-	public void update(Object source, Object arg) {
-		logger.info("Info from the Exafs Selection View called" );
-		if(arg instanceof double[])
-		{
-			final double[] ob = (double[])arg;
-			logger.info("Info from Exafs Selection view " + ob[0] + " " + ob[1]); 
-			getSite().getShell().getDisplay().asyncExec(new Runnable()  {
-				@Override
-				public void run() {
-					setStatusLine("("+format.format(ob[0])+","+format.format(ob[1])+ ","+ format.format(ob[2])+")");
-					pointText.setText("("+format.format(ob[0])+","+format.format(ob[1])+ ","+ format.format(ob[2])+")");
-					//selectedScanList.add("("+ob[0]+","+ob[1]+ ","+ ob[2]+")");
-				}
-			});
-			
-		}
+	public void setSelectedPoint(final Double[] xyzPosition){
+		logger.info("Info from Exafs Selection view " + xyzPosition[0] + " " + xyzPosition[1]+ " " + xyzPosition[2]); 
+		getSite().getShell().getDisplay().asyncExec(new Runnable()  {
+			@Override
+			public void run() {
+				setStatusLine("("+format.format(xyzPosition[0])+","+format.format(xyzPosition[1])+ ","+ format.format(xyzPosition[2])+")");
+				pointText.setText("("+format.format(xyzPosition[0])+","+format.format(xyzPosition[1])+ ","+ format.format(xyzPosition[2])+")");
+			}
+		});
 	}
 
 	public void refresh()

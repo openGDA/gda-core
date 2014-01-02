@@ -20,9 +20,15 @@ package uk.ac.gda.client.microfocus.util;
 
 import gda.jython.JythonServerFacade;
 
+import org.dawnsci.plotting.api.IPlottingSystem;
+import org.dawnsci.plotting.api.axis.IPositionListener;
+import org.dawnsci.plotting.api.axis.PositionEvent;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.dawnsci.plotting.api.region.IRegionListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
+import org.dawnsci.plotting.api.region.RegionEvent;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
@@ -30,19 +36,42 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.views.AbstractPlotView;
 import uk.ac.diamond.scisoft.analysis.roi.PointROI;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
+import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
 
-public class MicroFocusNexusPlotter implements IROIListener {
+public class MicroFocusNexusPlotter extends IROIListener.Stub {
 
 	public static final String MCA_PLOTTER = "MCA Plot";
 
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusNexusPlotter.class);
 
+	private boolean createdListener = false;
 	private MicroFocusMappableDataProvider dataProvider;
-
 	private IRegion region;
+
+	public MicroFocusNexusPlotter() {
+		super();
+
+		IViewPart mapplotview;
+		try {
+			mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MapPlotView.ID);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e1);
+			return;
+		}
+
+		IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
+		system.addPositionListener(new IPositionListener() {
+
+			@Override
+			public void positionChanged(PositionEvent evt) {
+				// TODO Auto-generated method stub
+				logger.error("TODO put description of error here");
+			}
+		});
+	}
 
 	public MicroFocusMappableDataProvider getDataProvider() {
 		return dataProvider;
@@ -61,8 +90,6 @@ public class MicroFocusNexusPlotter implements IROIListener {
 	}
 
 	public void plotElement(final String elementName) {
-
-
 		dataProvider.setSelectedElement(elementName);
 		double[][] mapData = dataProvider.constructMappableData();
 		final AbstractDataset plotSet = AbstractDataset.array(mapData);
@@ -70,7 +97,7 @@ public class MicroFocusNexusPlotter implements IROIListener {
 			@Override
 			public void run() {
 				try {
-					
+
 					SDAPlotter.imagePlot(MapPlotView.NAME, plotSet);
 					createPointRegionListener();
 				} catch (Exception e) {
@@ -81,39 +108,60 @@ public class MicroFocusNexusPlotter implements IROIListener {
 	}
 
 	private void createPointRegionListener() throws Exception {
-//		removeRegion();
+		registerRegionListener();
 		IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.showView(MapPlotView.ID);
 		if (region == null) {
-//			((AbstractPlotView) mapplotview).getPlottingSystem().removeRegion(region);
-		
-		region = ((AbstractPlotView) mapplotview).getPlottingSystem().createRegion("Select pixel",
-				IRegion.RegionType.POINT);
-		region.addROIListener(this);
+			// ((AbstractPlotView) mapplotview).getPlottingSystem().removeRegion(region);
+
+			IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
+			region = system.createRegion("Select pixel", IRegion.RegionType.POINT);
+
 		}
 	}
 
 	@Override
-	public void roiChanged(ROIEvent evt) {
+	public void update(ROIEvent evt) {
+		try {
+			PointROI selectedPixel = (PointROI) evt.getROI();
+			
+			// TODO store here the X and Y coordinates, get the Z value from MicroFocusDisplayController.getXY()
+			// (this converst from pixel into data space, but the ROIEvent here already is in data space.
+			
+			// then have a command which fetches these and passes them to the ExafsSelectionView
+			
+			MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
+			
+			mfElements.setLastXYSelection(selectedPixel.getPointX(),selectedPixel.getPointY());
 
-		PointROI selectedPixel = (PointROI) evt.getROI();
+			// cast to int to round down, not round to nearest int
+			int x = (int) selectedPixel.getPointX();
+			int y = (int) selectedPixel.getPointY();
 
-		// cast to int to round down, not round to nearest int
-		int x = (int) selectedPixel.getPointX();
-		int y = (int) selectedPixel.getPointY();
+			displayPlot(x, y);
 
-		displayPlot(x, y);
+			IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.showView(MapPlotView.ID);
 
+			IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
+			system.removeRegion(region);
+
+			region = system.createRegion("Select pixel", IRegion.RegionType.POINT);
+		} catch (Throwable ne) {
+			ne.printStackTrace();
+		}
 	}
 
 	private void displayPlot(final int l, final int m) {
 		if (dataProvider != null && ObjectStateManager.isActive(dataProvider)) {
 			double[] spectrum = null;
 			String detectorName = dataProvider.getDetectorName();
-			if (detectorName.equals("xmapMca"))
+			if (detectorName.equals("xmapMca")) {
 				spectrum = dataProvider.getSpectrum(0, l, m);
-			else
+			}
+			else {
 				spectrum = dataProvider.getSpectrum(0, m, l);
+			}
 
 			if (spectrum != null) {
 				final AbstractDataset yaxis = AbstractDataset.array(spectrum);
@@ -140,15 +188,47 @@ public class MicroFocusNexusPlotter implements IROIListener {
 
 	}
 
+	private void registerRegionListener() throws Exception {
+		if (!createdListener) {
+			IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.showView(MapPlotView.ID);
+
+			IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
+			system.addRegionListener(new IRegionListener.Stub() {
+				@Override
+				public void regionCreated(RegionEvent evt) {
+					if (evt.getRegion().getRegionType() != RegionType.POINT)
+						return;
+					evt.getRegion().addROIListener(MicroFocusNexusPlotter.this);
+				}
+
+				@Override
+				public void regionsRemoved(RegionEvent evt) {
+					if (evt.getRegion().getRegionType() != RegionType.POINT)
+						return;
+					evt.getRegion().removeROIListener(MicroFocusNexusPlotter.this);
+				}
+			});
+
+			createdListener = true;
+		}
+	}
+
 	@Override
 	public void roiDragged(ROIEvent evt) {
-		//
-		logger.info("get heer");
+		// Do nothing
+	}
+
+	@Override
+	public void roiChanged(ROIEvent evt) {
+		update(evt);
+
 	}
 
 	@Override
 	public void roiSelected(ROIEvent evt) {
-		//
-		logger.info("get heer");
+		update(evt);
+
 	}
+
 }

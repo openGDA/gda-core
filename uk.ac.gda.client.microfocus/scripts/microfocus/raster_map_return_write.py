@@ -257,7 +257,7 @@ class RasterMapReturnWrite(Map):
         if beanGroup.getDetector().getExperimentType() == "Fluorescence":
             fluoresenceParameters = beanGroup.getDetector().getFluorescenceParameters()
             detType = fluoresenceParameters.getDetectorType()
-            xmlFileName = beanGroup.getScriptFolder() + fluoresenceParameters.getConfigFileName()
+            xmlFileName = beanGroup.getXmlFolder() + fluoresenceParameters.getConfigFileName()
             if detType == "Germanium":
                 self.xspressConfig.initialize()
                 xspressBean = self.xspressConfig.createBeanFromXML(xmlFileName)

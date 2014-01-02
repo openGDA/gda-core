@@ -12,6 +12,7 @@ from gda.configuration.properties import LocalProperties
 from gda.factory import Finder
 from gda.data.scan.datawriter import XasAsciiDataWriter
 from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
+from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, XasAsciiDataWriter, NexusDataWriter, XasAsciiNexusDataWriter
 from gda.device import Detector
 from gda.device.detector.xspress import XspressDetector, ResGrades
 from gda.device.scannable import ScannableUtils
@@ -25,7 +26,7 @@ from java.lang import String
 
 class RasterMap(Map):
     # TODO why are counterTimer01 and raster_counterTimer01 both used
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, rcpController):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, rcpController,outputPreparer):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -50,6 +51,8 @@ class RasterMap(Map):
         self.rcpController = rcpController
         
         self.beamEnabled = True
+
+        self.outputPreparer = outputPreparer
         
     def enableBeam(self):
         self.beamEnabled = True
@@ -77,21 +80,24 @@ class RasterMap(Map):
 
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
      
-        xmlFolderName = folderName + "/"
-        folderName = folderName[folderName.find("xml")+4:]
+        #xmlFolderName = folderName + "/"
+        #folderName = folderName[folderName.find("xml")+4:]
+        
+        experimentFullPath, experimentFolderName = self.determineExperimentPath(folderName)
+        
         if(sampleFileName == None or sampleFileName == 'None'):
             sampleBean = None
         else:
-            sampleBean   = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
+            sampleBean   = BeansFactory.getBeanObject(experimentFullPath, sampleFileName)
             
-        scanBean     = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
-        detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
+        scanBean     = BeansFactory.getBeanObject(experimentFullPath, scanFileName)
+        detectorBean = BeansFactory.getBeanObject(experimentFullPath, detectorFileName)
       
-        outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
+        outputBean   = BeansFactory.getBeanObject(experimentFullPath, outputFileName)
     
         beanGroup = BeanGroup()
         beanGroup.setController(self.finder.find("ExafsScriptObserver"))
-        beanGroup.setScriptFolder(xmlFolderName)
+        beanGroup.setXmlFolder(experimentFullPath)
         beanGroup.setScannable(self.finder.find(scanBean.getXScannableName())) #TODO
         beanGroup.setExperimentFolderName(folderName)
         beanGroup.setScanNumber(scanNumber)
@@ -101,7 +107,7 @@ class RasterMap(Map):
         beanGroup.setOutput(outputBean)
         beanGroup.setValidate(validation)
         beanGroup.setScan(scanBean)
-        XasAsciiDataWriter.setBeanGroup(beanGroup)
+       # XasAsciiDataWriter.setBeanGroup(beanGroup)
         
         detectorList = self.getDetectors(detectorBean, scanBean) 
     
@@ -124,9 +130,9 @@ class RasterMap(Map):
             else:   
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 if(folderName != None):
-                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
-                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
                 print self.detectorBeanFileName
                 elements = showElementsList(self.detectorBeanFileName)
                 selectedElement = elements[0]
@@ -171,9 +177,14 @@ class RasterMap(Map):
                     cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap]) 
                     xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
                     xmapRasterscan.getScanPlotSettings().setIgnore(1)
-                    xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
-                    xasWriter.addDataWriterExtender(self.mfd)
-                    xmapRasterscan.setDataWriter(xasWriter)
+                    
+                    #xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
+                    #xasWriter.addDataWriterExtender(self.mfd)
+                    #xmapRasterscan.setDataWriter(xasWriter)
+                    sampleName = sampleBean.getName()
+                    descriptions = sampleBean.getDescriptions()
+                    xmapRasterscan = self._setUpDataWriter(xmapRasterscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
+
                     self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                     xmapRasterscan.runScan()
                 else:
@@ -181,9 +192,14 @@ class RasterMap(Map):
                     cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress])
                     xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
                     xspressRasterscan.getScanPlotSettings().setIgnore(1)
-                    xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
-                    xasWriter.addDataWriterExtender(self.mfd)
-                    xspressRasterscan.setDataWriter(xasWriter)
+                    
+                    #xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
+                    #xasWriter.addDataWriterExtender(self.mfd)
+                    #xspressRasterscan.setDataWriter(xasWriter)
+                    sampleName = sampleBean.getName()
+                    descriptions = sampleBean.getDescriptions()
+                    xspressRasterscan = self._setUpDataWriter(xspressRasterscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
+
                     self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                     xspressRasterscan.runScan()
     
@@ -196,7 +212,42 @@ class RasterMap(Map):
                 handle_messages.simpleLog("map start time " + str(scanStart))
                 handle_messages.simpleLog("map end time " + str(scanEnd))
                 self.finish()
-    
+                
+                
+    def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
+        nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
+        asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
+        
+        nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
+        asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
+        if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
+            nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
+            asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
+
+        # create XasAsciiNexusDataWriter object and give it the parameters
+        dataWriter = XasAsciiNexusDataWriter()
+        dataWriter.setRunFromExperimentDefinition(True);
+        dataWriter.setScanBean(scanBean);
+        dataWriter.setDetectorBean(detectorBean);
+        dataWriter.setSampleBean(sampleBean);
+        dataWriter.setOutputBean(outputBean);
+        dataWriter.setSampleName(sampleName);
+        dataWriter.setXmlFolderName(experimentFullPath)
+        #dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+        dataWriter.setDescriptions(descriptions);
+        dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
+        dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
+        # get the ascii file format configuration (if not set here then will get it from the Finder inside the Java class
+        asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
+        if asciidatawriterconfig != None :
+            dataWriter.setConfiguration(asciidatawriterconfig)
+            
+        print "adding mfd to raster map"
+        dataWriter.addDataWriterExtender(self.mfd)
+        
+        thisscan.setDataWriter(dataWriter)
+        return thisscan
+
     def setupForRaster(self, beanGroup):
         rasterscan = beanGroup.getScan()
         collectionTime = rasterscan.getRowTime()
@@ -215,16 +266,16 @@ class RasterMap(Map):
                 topupMonitor1.setPauseBeforeLine(True)
                 topupMonitor1.setCollectionTime(collectionTime)
             if(not (beam == None) and self.beamEnabled==True):
-                self.finder.find("command_server").addDefault(beam);
+                #self.finder.find("command_server").addDefault(beam);
                 beam.setPauseBeforePoint(False)
                 beam.setPauseBeforeLine(True)
             if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"and not (detectorFillingMonitor == None)):
-                self.finder.find("command_server").addDefault(detectorFillingMonitor);
+                #self.finder.find("command_server").addDefault(detectorFillingMonitor);
                 detectorFillingMonitor.setPauseBeforePoint(False)
                 detectorFillingMonitor.setPauseBeforeLine(True)
                 detectorFillingMonitor.setCollectionTime(collectionTime)
            
-                fullFileName = beanGroup.getScriptFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
+                fullFileName = beanGroup.getXmlFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
                 print fullFileName
                 bean = BeansFactory.getBean(File(fullFileName));
                 print dir(bean)
@@ -249,7 +300,7 @@ class RasterMap(Map):
         if beanGroup.getDetector().getExperimentType() == "Fluorescence":
             fluoresenceParameters = beanGroup.getDetector().getFluorescenceParameters()
             detType = fluoresenceParameters.getDetectorType()
-            xmlFileName = beanGroup.getScriptFolder() + fluoresenceParameters.getConfigFileName()
+            xmlFileName = beanGroup.getXmlFolder() + fluoresenceParameters.getConfigFileName()
             if detType == "Germanium":
                 self.xspressConfig.initialize()
                 xspressBean = self.xspressConfig.createBeanFromXML(xmlFileName)
