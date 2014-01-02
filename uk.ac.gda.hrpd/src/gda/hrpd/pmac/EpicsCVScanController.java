@@ -48,6 +48,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class EpicsCVScanController extends DeviceBase implements InitializationListener, Configurable, Findable {
@@ -872,6 +873,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 								+ String.format("%03d", collectionNumber);
 					}
 					yds.setName(legend);
+					try {
+						SDAPlotter.plot(getPlotPanelName(), new DoubleDataset(x), yds);
+					} catch (Exception e) {
+						logger.error("MAC detector data live plot failed.", e);
+					}
 					Plotter.plot(getPlotPanelName(), new DoubleDataset(x), yds);
 				}
 			} else {

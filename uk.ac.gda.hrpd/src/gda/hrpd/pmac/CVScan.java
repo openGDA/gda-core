@@ -45,6 +45,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class CVScan extends ScannableMotionBase implements IObserver {
@@ -613,6 +614,11 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				rebinnedCounts, rebinnedCountErrors, totaltime, monitorAverage);
 		DoubleDataset counts = new DoubleDataset(rebinnedCounts);
 		counts.setName(getFilename());
+		try {
+			SDAPlotter.plot(getPlotPanelName(), new DoubleDataset(rebinned2theta), counts);
+		} catch (Exception e) {
+			logger.error("MAC detector rebinned data plot failed.", e);
+		}
 		Plotter.plot(getPlotPanelName(), new DoubleDataset(rebinned2theta), counts);
 
 		return rebinfilename;

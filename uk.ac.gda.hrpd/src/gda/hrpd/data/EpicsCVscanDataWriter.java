@@ -520,7 +520,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 				}
 			}
 		} else {
-			header = "tth" + delimiter + "counts" + delimiter + "count error";
+			header = "tth" + delimiter + "counts" + delimiter + "error";
 		}
 		header = header.trim() + "\n";
 		try {
