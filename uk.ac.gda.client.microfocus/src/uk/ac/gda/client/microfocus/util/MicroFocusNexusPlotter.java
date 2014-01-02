@@ -196,9 +196,10 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 
 				@Override
 				public void regionsRemoved(RegionEvent evt) {
-					if (evt.getRegion().getRegionType() != RegionType.POINT)
-						return;
-					evt.getRegion().removeROIListener(MicroFocusNexusPlotter.this);
+					// classcast exception inside evt.getRegion(), so just skip this code
+//					if (evt.getRegion().getRegionType() != RegionType.POINT)
+//						return;
+//					evt.getRegion().removeROIListener(MicroFocusNexusPlotter.this);
 				}
 			});
 
