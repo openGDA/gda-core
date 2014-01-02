@@ -50,19 +50,19 @@
             category="uk.ac.gda.client.microfocus.category"
             class="uk.ac.gda.client.microfocus.views.ExafsSelectionView"
             id="uk.ac.gda.client.microfocus.SelectExafsView"
-            name="Exafs Selection View"
+            name="Exafs Selection"
             restorable="true">
       </view>
       <view
             category="uk.ac.gda.client.microfocus.category"
             class="uk.ac.gda.client.microfocus.views.SampleStagePositionControlView"
             id="uk.ac.gda.client.microfocus.views.SamplePositionView"
-            name="SampleStagePositionsView"
+            name="Sample Stage Positions"
             restorable="true">
       </view>
       <category
             id="uk.ac.gda.client.microfocus.category"
-            name="Data Acquisition - MicroFous">
+            name="Data Acquisition - MicroFocus">
       </category>
       <view
             category="uk.ac.gda.client.microfocus.category"
@@ -107,7 +107,7 @@
       </command>
       <command
             id="uk.ac.gda.client.microfocus.UpdateExafsScanCommand"
-            name="UpdateScans">
+            name="UpdateMultiScan">
       </command>
       <command
             description="Option to load files for scanning or viewing"
@@ -149,18 +149,21 @@
                commandId="uk.ac.gda.client.microfocus.AddExafsScanCommand"
                icon="icons/chart_line_add.png"
                id="uk.ac.gda.client.microfocus.toolbars.AddExafsScan"
+               label="Add Scan"
                style="push">
          </command>
          <command
                commandId="uk.ac.gda.client.microfocus.DeleteExafsScanCommand"
                icon="icons/chart_line_delete.png"
                id="uk.ac.gda.client.microfocus.toolbars.DeleteExafsScan"
+               label="Remove Scan"
                style="push">
          </command>
          <command
                commandId="uk.ac.gda.client.microfocus.UpdateExafsScanCommand"
                icon="icons/page_refresh.png"
                id="uk.ac.gda.client.microfocus.toolbars.UpdateExafsScan"
+               label="Create / Update Multiscan"
                style="push">
          </command>
       </menuContribution>

@@ -393,6 +393,12 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 	}
 
+	/**
+	 * Set the X and Y selected point, as data values, not the index numbers of the data array
+	 * 
+	 * @param pointX
+	 * @param pointY
+	 */
 	public void setLastXYSelection(double pointX, double pointY) {
 		this.pointX = pointX;
 		this.pointY = pointY;

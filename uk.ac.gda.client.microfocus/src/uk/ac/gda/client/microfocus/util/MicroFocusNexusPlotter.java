@@ -21,8 +21,6 @@ package uk.ac.gda.client.microfocus.util;
 import gda.jython.JythonServerFacade;
 
 import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.axis.IPositionListener;
-import org.dawnsci.plotting.api.axis.PositionEvent;
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.IRegion;
 import org.dawnsci.plotting.api.region.IRegion.RegionType;
@@ -49,28 +47,11 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 	private boolean createdListener = false;
 	private MicroFocusMappableDataProvider dataProvider;
 	private IRegion region;
+	private IRegion lastregion;
+	private int regionUID = 0; // so all regions have a unique name
 
 	public MicroFocusNexusPlotter() {
 		super();
-
-		IViewPart mapplotview;
-		try {
-			mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MapPlotView.ID);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e1);
-			return;
-		}
-
-		IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
-		system.addPositionListener(new IPositionListener() {
-
-			@Override
-			public void positionChanged(PositionEvent evt) {
-				// TODO Auto-generated method stub
-				logger.error("TODO put description of error here");
-			}
-		});
 	}
 
 	public MicroFocusMappableDataProvider getDataProvider() {
@@ -91,14 +72,21 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 
 	public void plotElement(final String elementName) {
 		dataProvider.setSelectedElement(elementName);
+
 		double[][] mapData = dataProvider.constructMappableData();
 		final AbstractDataset plotSet = AbstractDataset.array(mapData);
+		
+		Double[] xData = dataProvider.getXarray();
+		final AbstractDataset xDataset = AbstractDataset.array(xData);
+		
+		Double[] yData = dataProvider.getYarray();
+		final AbstractDataset yDataset = AbstractDataset.array(yData);
+		
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {
-
-					SDAPlotter.imagePlot(MapPlotView.NAME, plotSet);
+					SDAPlotter.imagePlot(MapPlotView.NAME, xDataset, yDataset, plotSet);
 					createPointRegionListener();
 				} catch (Exception e) {
 					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
@@ -112,46 +100,50 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 		IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.showView(MapPlotView.ID);
 		if (region == null) {
-			// ((AbstractPlotView) mapplotview).getPlottingSystem().removeRegion(region);
-
 			IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
-			region = system.createRegion("Select pixel", IRegion.RegionType.POINT);
-
+			regionUID++;
+			region = system.createRegion("Select pixel "+regionUID, IRegion.RegionType.POINT);
 		}
 	}
 
 	@Override
 	public void update(ROIEvent evt) {
 		try {
+			// the ROI is not in the data values, but the pixel index number
 			PointROI selectedPixel = (PointROI) evt.getROI();
-			
-			// TODO store here the X and Y coordinates, get the Z value from MicroFocusDisplayController.getXY()
-			// (this converst from pixel into data space, but the ROIEvent here already is in data space.
-			
-			// then have a command which fetches these and passes them to the ExafsSelectionView
-			
-			MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
-			
-			mfElements.setLastXYSelection(selectedPixel.getPointX(),selectedPixel.getPointY());
-
 			// cast to int to round down, not round to nearest int
-			int x = (int) selectedPixel.getPointX();
-			int y = (int) selectedPixel.getPointY();
+			int xArrayIndex = (int) selectedPixel.getPointX();
+			int yArrayIndex = (int) selectedPixel.getPointY();
+			
+			Double[] xData = dataProvider.getXarray();
+			Double selectedXDataValue = xData[xArrayIndex];
+			
+			Double[] yData = dataProvider.getYarray();
+			Double selectedYDataValue = yData[yArrayIndex];
 
-			displayPlot(x, y);
+			MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
+			mfElements.setLastXYSelection(selectedXDataValue,selectedYDataValue);
+
+			displayPlot(xArrayIndex, yArrayIndex);
 
 			IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 					.showView(MapPlotView.ID);
-
 			IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
-			system.removeRegion(region);
-
-			region = system.createRegion("Select pixel", IRegion.RegionType.POINT);
+			if (lastregion != null) {
+				system.removeRegion(lastregion);
+			}
+			lastregion = region;
+			regionUID++;
+			region = system.createRegion("Select pixel "+regionUID, IRegion.RegionType.POINT);
+			
 		} catch (Throwable ne) {
-			ne.printStackTrace();
+			logger.debug(ne.getMessage());
 		}
 	}
 
+	/*
+	 * Display the MCA of the selected point. The x and y values are the data array indexes, not data values.
+	 */
 	private void displayPlot(final int l, final int m) {
 		if (dataProvider != null && ObjectStateManager.isActive(dataProvider)) {
 			double[] spectrum = null;

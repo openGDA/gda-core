@@ -42,10 +42,11 @@ public class ExafsSelectionView extends ViewPart {
 
 	public static final String ID = "uk.ac.gda.client.microfocus.SelectExafsView";
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
+	
 	private List exafsScanList;
 	private List selectedScanList;
 	private Text pointText;
-	protected final IExperimentEditorManager    controller;
+	protected final IExperimentEditorManager controller;
 	private Text multiScanNameText;
 	private DecimalFormat format = new DecimalFormat(".###");
 
@@ -53,7 +54,7 @@ public class ExafsSelectionView extends ViewPart {
 		super();
 		controller = ExperimentFactory.getExperimentEditorManager();
 	}
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite exafsRunComp = new Composite(parent, SWT.BORDER);
@@ -63,26 +64,26 @@ public class ExafsSelectionView extends ViewPart {
 		exafsRunComp.setLayout(grid);
 		Label pointLabel = new Label(exafsRunComp, SWT.LEFT);
 		pointLabel.setText("Selected Point");
-		pointText  = new Text(exafsRunComp, SWT.BORDER|SWT.READ_ONLY| SWT.RIGHT);
+		pointText = new Text(exafsRunComp, SWT.BORDER | SWT.READ_ONLY | SWT.RIGHT);
 		gridData = new GridData();
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		pointText.setLayoutData(gridData);
 		Label scanNameLabel = new Label(exafsRunComp, SWT.LEFT);
 		scanNameLabel.setText("Scan Name");
-		multiScanNameText = new Text(exafsRunComp, SWT.BORDER| SWT.RIGHT);
+		multiScanNameText = new Text(exafsRunComp, SWT.BORDER | SWT.RIGHT);
 		gridData = new GridData();
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		multiScanNameText.setLayoutData(gridData);
 		Label label = new Label(exafsRunComp, SWT.SEPARATOR | SWT.HORIZONTAL);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-		//new Label(exafsRunComp, SWT.NONE);
+		// new Label(exafsRunComp, SWT.NONE);
 		Label availableExafsLabel = new Label(exafsRunComp, SWT.LEFT);
 		availableExafsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		availableExafsLabel.setText("Available Exafs Scans");
-		exafsScanList = new List(exafsRunComp,SWT.BORDER |SWT.SINGLE | SWT.V_SCROLL );
-		//exafsScanList.setS
+		exafsScanList = new List(exafsRunComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+		// exafsScanList.setS
 		gridData = new GridData();
 		gridData.horizontalSpan = 2;
 		gridData.heightHint = 125;
@@ -97,9 +98,9 @@ public class ExafsSelectionView extends ViewPart {
 		gridData = new GridData();
 		gridData.horizontalSpan = 2;
 		gridData.horizontalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;		
+		gridData.grabExcessHorizontalSpace = true;
 		selectedExafsLabel.setLayoutData(gridData);
-		selectedScanList = new List (exafsRunComp,SWT.BORDER |SWT.MULTI | SWT.V_SCROLL );
+		selectedScanList = new List(exafsRunComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
 		gridData = new GridData();
 		gridData.horizontalSpan = 2;
 		gridData.heightHint = 179;
@@ -111,86 +112,83 @@ public class ExafsSelectionView extends ViewPart {
 
 	private void populateExafsScanList() {
 		File projectDir = controller.getProjectFolder();
-		ScanFilter scanFilter = new ScanFilter(); 
-		File dirList[] =projectDir.listFiles();
-		for (File dir : dirList){
-			if(dir.isDirectory() && dir.getName().startsWith("Experiment")){
+		ScanFilter scanFilter = new ScanFilter();
+		File dirList[] = projectDir.listFiles();
+		for (File dir : dirList) {
+			if (dir.isDirectory() && dir.getName().startsWith("Experiment")) {
 				String[] files = dir.list(scanFilter);
-				for (String file : files){
-					exafsScanList.add(dir.getName()+ File.separator+ file);
+				for (String file : files) {
+					exafsScanList.add(dir.getName() + File.separator + file);
 				}
 			}
 		}
-		
+
 	}
 
-	public String[] getScanSelection()
-	{
+	public String[] getScanSelection() {
 		return this.selectedScanList.getItems();
 	}
-	
-	public String getNewMultiScanName()
-	{
+
+	public String getNewMultiScanName() {
 		return multiScanNameText.getText();
 	}
-	
-	public void add()
-	{
+
+	public void add() {
 		final String point = pointText.getText();
 		final String[] selection = exafsScanList.getSelection();
-		getSite().getShell().getDisplay().asyncExec(new Runnable()  {
+		getSite().getShell().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-		for (String s : selection)
-		{
-			selectedScanList.add(point + s);
-		}
+				for (String s : selection) {
+					selectedScanList.add(point + s);
+				}
 			}
 		});
-		
+
 	}
-	
-	public void delete()
-	{
+
+	public void delete() {
 		String[] sel = selectedScanList.getSelection();
-		for(String s : sel){
+		for (String s : sel) {
 			selectedScanList.remove(s);
 		}
 	}
+
 	@Override
 	public void setFocus() {
 		// ignore
 	}
 
-	public void setSelectedPoint(final Double[] xyzPosition){
-		logger.info("Info from Exafs Selection view " + xyzPosition[0] + " " + xyzPosition[1]+ " " + xyzPosition[2]); 
-		getSite().getShell().getDisplay().asyncExec(new Runnable()  {
+	public void setSelectedPoint(final Double[] xyzPosition) {
+		logger.info("Info from Exafs Selection view " + xyzPosition[0] + " " + xyzPosition[1] + " " + xyzPosition[2]);
+		getSite().getShell().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				setStatusLine("("+format.format(xyzPosition[0])+","+format.format(xyzPosition[1])+ ","+ format.format(xyzPosition[2])+")");
-				pointText.setText("("+format.format(xyzPosition[0])+","+format.format(xyzPosition[1])+ ","+ format.format(xyzPosition[2])+")");
+				setStatusLine("(" + format.format(xyzPosition[0]) + "," + format.format(xyzPosition[1]) + ","
+						+ format.format(xyzPosition[2]) + ")");
+				pointText.setText("(" + format.format(xyzPosition[0]) + "," + format.format(xyzPosition[1]) + ","
+						+ format.format(xyzPosition[2]) + ")");
 			}
 		});
 	}
 
-	public void refresh()
-	{
+	public void refresh() {
 		logger.info("REfresh called from ExafsSelectionView");
 		exafsScanList.removeAll();
 		populateExafsScanList();
 	}
+
 	private void setStatusLine(String message) {
 		// Get the status line and set the text
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getStatusLineManager().setMessage(message);
 	}
 
-	
 	class ScanFilter implements FilenameFilter {
-	    @Override
-	    public boolean accept(File dir, String name) {
-	        return (name.endsWith(".scan"));
-	    }
+		@Override
+		public boolean accept(File dir, String name) {
+			return (name.endsWith(".scan"));
+		}
 	}
 
 }
