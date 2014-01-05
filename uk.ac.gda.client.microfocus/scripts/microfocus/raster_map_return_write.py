@@ -126,7 +126,6 @@ class RasterMapReturnWrite(Map):
         for energy in energyList:
             self.mfd = TwoWayMicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
             globals()["microfocusScanWriter"] = self.mfd # TODO I think this can be removed but check
-            self.mfd.setPlotName("MapPlot")
             print " the detector is " 
             print detectorList
             if(detectorBean.getExperimentType() == "Transmission"):

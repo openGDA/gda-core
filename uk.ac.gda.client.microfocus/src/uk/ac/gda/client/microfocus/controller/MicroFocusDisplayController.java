@@ -20,8 +20,6 @@ package uk.ac.gda.client.microfocus.controller;
 
 import gda.jython.JythonServerFacade;
 
-import java.util.StringTokenizer;
-
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
@@ -35,7 +33,7 @@ import uk.ac.gda.client.microfocus.util.ObjectStateManager;
 public class MicroFocusDisplayController {
 	private MicroFocusMappableDataProvider detectorProvider;
 	private MicroFocusMappableDataProvider currentDetectorProvider;
-	private MicroFocusNexusPlotter plotter;
+	private MicroFocusNexusPlotter plotter = new MicroFocusNexusPlotter();
 	private String[] trajectoryScannableName;
 	private String xScannable = "sc_MicroFocusSampleX";
 	private String yScannable = "sc_MicroFocusSampleY";
@@ -100,28 +98,27 @@ public class MicroFocusDisplayController {
 		}
 
 		if (selectedElement.equals("I0")) {
-			if (detectorProvider != null)
+			if (detectorProvider != null) {
+				plotter.plotMapFromServer(selectedElement);
 				plotter.plotDataset(detectorProvider.getI0data());
-			else
-				JythonServerFacade.getInstance().evaluateCommand(
-						"map.getMFD().displayPlot(\"" + selectedElement + "\")");
+			} else {
+				plotter.plotMapFromServer(selectedElement);
+			}
 		} else if (selectedElement.equals("It")) {
-			if (detectorProvider != null)
+			if (detectorProvider != null) {
 				plotter.plotDataset(detectorProvider.getItdata());
-			
-			else
-				JythonServerFacade.getInstance().evaluateCommand(
-						"map.getMFD().displayPlot(\"" + selectedElement + "\")");
+			} else {
+				plotter.plotMapFromServer(selectedElement);
+			}
 		} else if (ObjectStateManager.isActive(detectorProvider)) {
 			if (plotter != null) {
 				setDataProviderForElement(selectedElement);
 				plotter.setDataProvider(currentDetectorProvider);
 				plotter.plotElement(selectedElement);
 			}
+		} else {
+			plotter.plotMapFromServer(selectedElement);
 		}
-
-		else
-			JythonServerFacade.getInstance().evaluateCommand("map.getMFD().displayPlot(\"" + selectedElement + "\")");
 	}
 
 	public void displayMap(String selectedElement, String filePath, Object bean) {
@@ -138,15 +135,16 @@ public class MicroFocusDisplayController {
 		detectorProvider.loadBean(bean);
 		detectorProvider.loadData(filePath);
 		ObjectStateManager.setActive(detectorProvider);
+		// hack warning!!
+		// (Need to refactor so there is a single, distributed object which controls the map plotting instead of having
+		// two competing methods)
+		JythonServerFacade.getInstance().runCommand("map.getMFD().setActive(False)");
 		displayMap(selectedElement);
 
 		logger.info("displayed map for " + selectedElement + " " + currentDetectorProvider);
 	}
 
 	public void displayMap(String selectedElement, String filePath) {
-		if (plotter == null)
-			plotter = new MicroFocusNexusPlotter();
-
 		if (detectorProvider == null) {
 			detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(detectorFile);
 			ObjectStateManager.register(detectorProvider);
@@ -168,36 +166,9 @@ public class MicroFocusDisplayController {
 		this.detectorFile = filename;
 	}
 
-	public void dispose() {
-	}
-
-	public double[] getXY(int y, int x) {
-		double xy[] = new double[3];
-		if (currentDetectorProvider != null && ObjectStateManager.isActive(detectorProvider)) {
-			xy[0] = currentDetectorProvider.getXarray()[x];
-			xy[1] = currentDetectorProvider.getYarray()[y];
-			xy[2] = currentDetectorProvider.getZValue();
-			return xy;
-		}
-		Object s = JythonServerFacade.getInstance().evaluateCommand("map.getMFD().getXY(" + x + "," + y + ")");
-
-		if (s instanceof String) {
-			String xyString = (String) s;
-			xyString = xyString.substring(xyString.indexOf("[") + 1, xyString.indexOf("]"));
-			StringTokenizer tokens = new StringTokenizer(xyString, ",");
-			for (int i = 0; i < xy.length; i++) {
-				if (tokens.hasMoreTokens())
-					xy[i] = Double.valueOf(tokens.nextToken());
-			}
-		}
-		logger.info("the xy from server is " + s);
-
-		return xy;
-	}
-	
 	public Double getZ() {
 		if (currentDetectorProvider != null && ObjectStateManager.isActive(detectorProvider)) {
-		return currentDetectorProvider.getZValue();
+			return currentDetectorProvider.getZValue();
 		}
 		return null;
 	}

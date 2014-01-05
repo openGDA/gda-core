@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.microfocus.util;
 
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
 import org.dawnsci.plotting.api.IPlottingSystem;
@@ -28,6 +29,7 @@ import org.dawnsci.plotting.api.region.IRegionListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.api.region.RegionEvent;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +64,22 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 		this.dataProvider = dataProvider;
 	}
 
+	public void plotMapFromServer(final String elementName) {
+		this.dataProvider = null;
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					JythonServerFacade.getInstance().evaluateCommand(
+							"map.getMFD().displayPlot(\"" + elementName + "\")");
+					createPointRegionListener();
+				} catch (Exception e) {
+					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
+				}
+			}
+		});
+	}
+
 	public void plotDataset(AbstractDataset dataset) {
 		try {
 			SDAPlotter.imagePlot(MapPlotView.NAME, dataset);
@@ -71,17 +89,18 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 	}
 
 	public void plotElement(final String elementName) {
+		ObjectStateManager.setActive(dataProvider);
 		dataProvider.setSelectedElement(elementName);
 
 		double[][] mapData = dataProvider.constructMappableData();
 		final AbstractDataset plotSet = AbstractDataset.array(mapData);
-		
+
 		Double[] xData = dataProvider.getXarray();
 		final AbstractDataset xDataset = AbstractDataset.array(xData);
-		
+
 		Double[] yData = dataProvider.getYarray();
 		final AbstractDataset yDataset = AbstractDataset.array(yData);
-		
+
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -97,13 +116,7 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 
 	private void createPointRegionListener() throws Exception {
 		registerRegionListener();
-		IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-				.showView(MapPlotView.ID);
-		if (region == null) {
-			IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
-			regionUID++;
-			region = system.createRegion("Select pixel "+regionUID, IRegion.RegionType.POINT);
-		}
+		updateRegion();
 	}
 
 	@Override
@@ -114,31 +127,51 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 			// cast to int to round down, not round to nearest int
 			int xArrayIndex = (int) selectedPixel.getPointX();
 			int yArrayIndex = (int) selectedPixel.getPointY();
-			
-			Double[] xData = dataProvider.getXarray();
-			Double selectedXDataValue = xData[xArrayIndex];
-			
-			Double[] yData = dataProvider.getYarray();
-			Double selectedYDataValue = yData[yArrayIndex];
 
-			MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
-			mfElements.setLastXYSelection(selectedXDataValue,selectedYDataValue);
+			if (dataProvider == null || !ObjectStateManager.isActive(dataProvider)) {
+				JythonServerFacade.getInstance().runCommand(
+						"map.getMFD().plotSpectrum(0," + xArrayIndex + "," + yArrayIndex + ")");
+				
+				// hack warning!
+				String xyValues = InterfaceProvider.getCommandRunner().evaluateCommand("map.getMFD().getXYPositions(" + xArrayIndex + "," + yArrayIndex + ")");
+				String[] parts = xyValues.split("[\\[\\],]");
+				Double x = Double.parseDouble(parts[2]);
+				Double y = Double.parseDouble(parts[3]);
+				
+				MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
+				mfElements.setLastXYSelection(x, y);
+			} else {
+				Double[] xData = dataProvider.getXarray();
+				Double selectedXDataValue = xData[xArrayIndex];
 
-			displayPlot(xArrayIndex, yArrayIndex);
+				Double[] yData = dataProvider.getYarray();
+				Double selectedYDataValue = yData[yArrayIndex];
 
-			IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView(MapPlotView.ID);
-			IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
-			if (lastregion != null) {
-				system.removeRegion(lastregion);
+				MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
+				mfElements.setLastXYSelection(selectedXDataValue, selectedYDataValue);
+
+				displayPlot(xArrayIndex, yArrayIndex);
 			}
-			lastregion = region;
-			regionUID++;
-			region = system.createRegion("Select pixel "+regionUID, IRegion.RegionType.POINT);
-			
+
+			updateRegion();
+
 		} catch (Throwable ne) {
 			logger.debug(ne.getMessage());
 		}
+	}
+
+	private void updateRegion() throws PartInitException, Exception {
+		IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.showView(MapPlotView.ID);
+		IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
+		if (lastregion != null) {
+			system.removeRegion(lastregion);
+		}
+		lastregion = region;
+		regionUID++;
+		region = system.createRegion("Select pixel " + regionUID, IRegion.RegionType.POINT);
 	}
 
 	/*
@@ -150,8 +183,7 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 			String detectorName = dataProvider.getDetectorName();
 			if (detectorName.equals("xmapMca")) {
 				spectrum = dataProvider.getSpectrum(0, l, m);
-			}
-			else {
+			} else {
 				spectrum = dataProvider.getSpectrum(0, m, l);
 			}
 
@@ -197,9 +229,9 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 				@Override
 				public void regionsRemoved(RegionEvent evt) {
 					// classcast exception inside evt.getRegion(), so just skip this code
-//					if (evt.getRegion().getRegionType() != RegionType.POINT)
-//						return;
-//					evt.getRegion().removeROIListener(MicroFocusNexusPlotter.this);
+					// if (evt.getRegion().getRegionType() != RegionType.POINT)
+					// return;
+					// evt.getRegion().removeROIListener(MicroFocusNexusPlotter.this);
 				}
 			});
 

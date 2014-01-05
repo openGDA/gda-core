@@ -120,7 +120,6 @@ class RasterMap(Map):
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
         self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
-        self.mfd.setPlotName("MapPlot")
         for energy in energyList:
             print " the detector is " 
             print detectorList

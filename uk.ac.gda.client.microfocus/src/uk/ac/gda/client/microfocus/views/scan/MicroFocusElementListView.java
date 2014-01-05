@@ -79,7 +79,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	private MicroFocusDisplayController displayController;
 	private FileDialog openDialog;
 	private String loadedDetectorFileName;
-	private double[] xyz = new double[3];
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private boolean loadMapForScan = false;
 	private PlotView plotView;
@@ -168,11 +167,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	@Override
 	public void setFocus() {
 	}
-
-	public double[] getXYZ() {
-		return xyz;
-	}
-
+	
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
 	}

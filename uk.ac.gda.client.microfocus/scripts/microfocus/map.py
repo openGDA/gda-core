@@ -108,7 +108,6 @@ class Map(Scan):
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
         self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
-        self.mfd.setPlotName("MapPlot")
 
         for energy in energyList:
             
@@ -349,7 +348,7 @@ class Map(Scan):
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_thetacoarse", str(jython_mapper.sc_sample_thetacoarse()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_thetafine", str(jython_mapper.sc_sample_thetafine()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
     
-        #attenustors
+        # attenuators
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7A", str(jython_mapper.D7A()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7B", str(jython_mapper.D7B()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
     
@@ -372,4 +371,4 @@ class Map(Scan):
         detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
         self.finder.find("command_server").removeDefault(beam);
         self.finder.find("command_server").removeDefault(detectorFillingMonitor);
-        self.mfd.finalize()
+        self.mfd.closeWriter()

@@ -38,13 +38,6 @@ public class MicroFocusPerspective implements IPerspectiveFactory {
 	private void defineLayout(IPageLayout layout) {
 		layout.getEditorArea();
 		
-//		TODO once I get back:
-//			
-//			get this layout working  [done]
-//			check that the button appears in the mapplot view toolbar and that it works
-//			then get detectors swicthed back on and sign out a source
-//			then run some scans to test that maps, raster maps work, that the UI worsk and that exafs can be correctly queued.
-		
 		IFolderLayout elementsFolder = layout.createFolder("elements", IPageLayout.TOP, 0.6f, IPageLayout.ID_EDITOR_AREA);
 		elementsFolder.addView(MicroFocusElementListView.ID);
 		

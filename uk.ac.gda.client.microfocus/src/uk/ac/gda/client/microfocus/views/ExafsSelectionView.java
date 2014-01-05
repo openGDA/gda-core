@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.microfocus.views;
 
+import gda.jython.InterfaceProvider;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.text.DecimalFormat;
@@ -161,6 +163,9 @@ public class ExafsSelectionView extends ViewPart {
 
 	public void setSelectedPoint(final Double[] xyzPosition) {
 		logger.info("Info from Exafs Selection view " + xyzPosition[0] + " " + xyzPosition[1] + " " + xyzPosition[2]);
+		if (xyzPosition[2] == null){
+			xyzPosition[2] = Double.parseDouble(InterfaceProvider.getCommandRunner().evaluateCommand("sc_sample_z()"));
+		}
 		getSite().getShell().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {

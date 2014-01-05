@@ -91,12 +91,6 @@
             name="Refresh">
       </command>
       <command
-            defaultHandler="uk.ac.gda.client.microfocus.ui.commands.RunExafsHandler"
-            description="Run exafs at the selected point"
-            id="uk.ac.gda.client.microfocus.runExafsCommand"
-            name="runExafs">
-      </command>
-      <command
             id="uk.ac.gda.client.microfocus.AddExafsScanCommand"
             name="AddExafsScan">
       </command>
@@ -182,10 +176,6 @@
       <handler
             class="uk.ac.gda.client.microfocus.ui.commands.LoadFileHandler"
             commandId="uk.ac.gda.client.microfocus.LoadFileCommand">
-      </handler>
-      <handler
-            class="uk.ac.gda.client.microfocus.ui.commands.RunExafsHandler"
-            commandId="uk.ac.gda.client.microfocus.runExafsCommand">
       </handler>
       <handler
             class="uk.ac.gda.client.microfocus.ui.commands.AddExafsScanCommandHandler"
