@@ -18,7 +18,6 @@
 
 package uk.ac.gda.devices.mythen.visualisation.views;
 
-import gda.analysis.DataSet;
 import gda.device.detector.mythen.data.MythenDataFileUtils;
 
 import java.io.File;
@@ -45,6 +44,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
@@ -83,8 +84,8 @@ public class MythenDataControlView extends ViewPart {
 
 	private boolean useChannel = false;
 
-	DataSet anglesDataset;
-	DataSet channelsDataset;
+	IDataset anglesDataset;
+	IDataset channelsDataset;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -264,10 +265,11 @@ public class MythenDataControlView extends ViewPart {
 			data = MythenDataFileUtils.getDataSubset(data, minAngle, maxAngle);
 		}
 		// Build DataSets
-		List<DataSet> datasets = new Vector<DataSet>();
+		List<IDataset> datasets = new Vector<IDataset>();
 		for (int i = 0; i < data.length; i++) {
 			double[] dataSubset = column(data[i], 1);
-			DataSet dataset = new DataSet("data", dataSubset);
+			IDataset dataset = new DoubleDataset(dataSubset);
+			dataset.setName("data");
 			datasets.add(dataset);
 		}
 
@@ -279,14 +281,16 @@ public class MythenDataControlView extends ViewPart {
 		if (useChannel) {
 			// Build channel axis dataset
 			channels = column(data[0], 3);
-			channelsDataset = new DataSet("channel", channels);
+			channelsDataset = new DoubleDataset(channels);
+			channelsDataset.setName("channel");
 		}
 
 		else {
 			// Build angle axis dataset
 
 			angles = column(data[0], 0);
-			anglesDataset = new DataSet("angle", angles);
+			anglesDataset = new DoubleDataset(angles);
+			anglesDataset.setName("angle");
 		}
 
 		// Open plot view, if not already open
@@ -304,7 +308,7 @@ public class MythenDataControlView extends ViewPart {
 
 		DataBean dataBean = new DataBean();
 
-		for (DataSet d : datasets) {
+		for (IDataset d : datasets) {
 			DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
 			axisData.setAxisMap(amb);
 			axisData.setData(d);
@@ -333,17 +337,28 @@ public class MythenDataControlView extends ViewPart {
 		// Bin & restrict data
 		data = MythenDataFileUtils.binMythenData(data, binSize);
 		data = MythenDataFileUtils.getDataSubset(data, minAngle, maxAngle);
-
+		
+		IDataset dataset = new DoubleDataset(data.length, data[0].length);
+		
 		// Build DataSet
-		double[][] two_d_data = new double[data.length][];
 		for (int i = 0; i < data.length; i++) {
-			two_d_data[i] = column(data[i], 1);
+			for (int j = 0; j < data[i].length; j++) {
+				dataset.set(data[i][j][1], i, j);
+			}
 		}
-		DataSet dataset = new DataSet("data", two_d_data);
+		
+		
+//		// Build DataSet
+//		double[][] two_d_data = new double[data.length][];
+//		for (int i = 0; i < data.length; i++) {
+//			two_d_data[i] = column(data[i], 1);
+//		}
+//		IDataset dataset = new DataSet("data", two_d_data);
 
 		// Build angle axis dataset
 		double[] angles = column(data[0], 0);
-		DataSet anglesDataset = new DataSet("angle", angles);
+		IDataset anglesDataset = new DoubleDataset(angles);
+		anglesDataset.setName("angle");
 
 		// Open plot view, if not already open
 		ensureMythenPlotViewIsOpen();
