@@ -56,11 +56,12 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -364,22 +365,24 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 		});
 
-		if (!ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED)) {
-			getDetectorElementComposite().getEnableDragRegions().addSelectionListener(new SelectionListener() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					sashPlotForm.getRegionOnDisplay().setMobile(
-							getDetectorElementComposite().getEnableDragRegions().getSelection());
+		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty().compareTo(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED) == 0) {
+					setRegionEditableFromPreference();
 				}
+			}
+		});
 
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-				}
-			});
-		}
+		setRegionEditableFromPreference();
 
 		return detectorListComposite;
+	}
+	
+	private void setRegionEditableFromPreference(){
+		sashPlotForm.getRegionOnDisplay().setMobile(
+				ExafsActivator.getDefault().getPreferenceStore()
+						.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
 	}
 
 	@Override

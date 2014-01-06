@@ -227,7 +227,6 @@ public class ExafsScanPointCreator {
 		}
 		// now change all the exafs times if they vary
 		if (!exafsConstantTime) {
-//			exafsTime = null;
 			exafsEnergies = convertTimes(exafsEnergies, exafsFromTime, exafsToTime);
 		}
 
@@ -260,15 +259,7 @@ public class ExafsScanPointCreator {
 
 	private double[][] convertABSteps(Double aEnergy, Double bEnergy, Double preEdgeStep, Double edgeStep,
 			Double stepTime) throws ExafsScanPointCreatorException {
-
-		// double[][] abEnergies = createStepArray(aEnergy, bEnergy, preEdgeStep, stepTime, false);
 		double[] steps = ExafsScanRegionCalculator.calculateVariableStepRegion(aEnergy, bEnergy, preEdgeStep, edgeStep);
-
-		// // replace steps in abEnergies with those from steps
-		// for (int i = 0; i < abEnergies.length; i++) {
-		// abEnergies[i+1][0] = steps[i];
-		// }
-
 		return createArrayFromEnergySteps(aEnergy, steps, stepTime);
 	}
 
@@ -418,21 +409,6 @@ public class ExafsScanPointCreator {
 		return Converter.convert(value, Converter.PERANGSTROM, Converter.EV);
 	}
 
-	// /**
-	// * timeForK calculates the appropriate counting time for a particular k value
-	// *
-	// * @param k
-	// * double
-	// * @return double
-	// */
-	// private double timeForK(double k) {
-	// double a = Math.pow(k - start, kWeighting);
-	// double b = Math.pow(stop - start, kWeighting);
-	// double c = (kEndTime - kStartTime);
-	// double time = kStartTime + (a * c) / b;
-	// return time;
-	// }
-
 	protected static double[][] createStepArray(double low, double high, double step, double time,
 			boolean ensureUseHighEnergy, int numDetectors) {
 		Long numSteps = Math.round((high - low) / step);
@@ -544,6 +520,9 @@ public class ExafsScanPointCreator {
 	private void checkAllValuesConsistent() throws ExafsScanPointCreatorException {
 		if (initialEnergy > aEnergy) {
 			throw new ExafsScanPointCreatorException("initialEnergy higher than edgeRegionLowEnergy");
+		}
+		if (aEnergy > bEnergy) {
+			throw new ExafsScanPointCreatorException("A higher than B");
 		}
 		if (cEnergy < aEnergy) {
 			throw new ExafsScanPointCreatorException("edgeRegionLowEnergy higher than edgeRegionHighEnergy");

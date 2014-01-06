@@ -79,7 +79,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 			if(hardwareTriggeredNexusXmap.isInBufferMode())
 				fileLoader = new XmapBufferedHdf5FileLoader(fileName);
 			else
-				fileLoader = new XmapNexusFileLoader(fileName,hardwareTriggeredNexusXmap.getNumberOfMca());			
+				fileLoader = new XmapNexusFileLoader(fileName);			
 			fileLoader.loadFile();
 		
 		int totalToRead = readSoFar + maxToRead;

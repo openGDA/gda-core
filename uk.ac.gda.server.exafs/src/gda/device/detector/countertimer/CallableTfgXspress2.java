@@ -19,9 +19,7 @@
 package gda.device.detector.countertimer;
 
 import gda.device.DeviceException;
-import gda.device.detector.DetectorWithReadout;
 import gda.device.scannable.PositionCallableProvider;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 

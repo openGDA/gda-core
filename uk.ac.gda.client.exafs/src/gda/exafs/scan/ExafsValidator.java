@@ -187,6 +187,10 @@ public abstract class ExafsValidator extends AbstractValidator {
 			return errors;
 		}
 
+		if (!isARealScannable(x.getScannableName())){
+			errors.add(new InvalidBeanMessage("The scannable " + x.getScannableName() + " cannot be found!"));
+		}
+
 		try {
 			x.checkRegions();
 		} catch (Exception e) {
@@ -216,6 +220,10 @@ public abstract class ExafsValidator extends AbstractValidator {
 		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
 		if (!x.isShouldValidate()) {
 			return errors;
+		}
+		
+		if (!isARealScannable(x.getScannableName())){
+			errors.add(new InvalidBeanMessage("The scannable " + x.getScannableName() + " cannot be found!"));
 		}
 
 		String minElement = LocalProperties.get("gda.exafs.element.min", "P");
@@ -262,6 +270,18 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 	}
 
+
+	private boolean isARealScannable(String scannableName) {
+		Findable obj = Finder.getInstance().find(scannableName);
+		if (obj != null){
+			return obj instanceof Scannable;
+		}
+//		Object objInJython = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+//		if (objInJython != null){
+//			return InterfaceProvider.getCommandRunner().evaluateCommand("isinstance("+scannableName+",gda.device.Scannable)").equals("True");
+//		}
+		return false;
+	}
 
 	/**
 	 * Used in testing mode to switch off checking of findables which are not there.

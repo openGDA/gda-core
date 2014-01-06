@@ -53,6 +53,18 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		
 	}
 
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		XmapBufferedHdf5FileLoader loader = new XmapBufferedHdf5FileLoader("/scratch/vortex-fast-raster-exp2.h5");
+		try {
+			loader.loadFile();
+		} catch (Exception e) {
+			logger.error("Error loading xmap hdf5 file from /scratch/vortex-fast-raster-exp2.h5 *** this should not be hard coded!", e);
+		}
+	}
+
 	@Override
 	public short[][] getData(int dataPointNumber) {
 		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/data");
@@ -107,7 +119,8 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 
 	@Override
 	public int getNumberOfDataPoints() {
-		return lazyDataset.getShape().length;
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	

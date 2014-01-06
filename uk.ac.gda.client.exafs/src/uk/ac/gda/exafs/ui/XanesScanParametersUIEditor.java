@@ -200,7 +200,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 			}
 
 			super.linkUI(isPageChange);
-			setupEstimationWidgets();
+//			setupEstimationWidgets();
 
 			try {
 				updateElement(ELEMENT_EVENT_TYPE.INIT); // Must be after super.linkUI()
