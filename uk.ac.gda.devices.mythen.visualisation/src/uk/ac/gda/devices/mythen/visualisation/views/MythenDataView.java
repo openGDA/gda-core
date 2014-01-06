@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
 import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.ConstMapFunction;
 import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.SquareRootMapFunction;
@@ -60,7 +61,7 @@ public class MythenDataView extends ViewPart {
 		parent.setLayout(new FormLayout());
 	}
 
-	public void plot1D(List<DataSet> data) {
+	public void plot1D(List<IDataset> data) {
 		replacePlotter(PlottingMode.ONED);
 		
 		try {
@@ -91,7 +92,7 @@ public class MythenDataView extends ViewPart {
 		}
 	}
 	
-	public void plot3D(DataSet data, @SuppressWarnings("unused") int yScaleFactor) {
+	public void plot3D(IDataset data, @SuppressWarnings("unused") int yScaleFactor) {
 		replacePlotter(PlottingMode.SURF2D);
 //		((DataSet3DPlot3D) plotter.getPlotter()).setYScaleFactor(yScaleFactor);
 		

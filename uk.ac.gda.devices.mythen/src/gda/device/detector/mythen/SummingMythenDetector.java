@@ -18,12 +18,6 @@
 
 package gda.device.detector.mythen;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.analysis.DataSet;
 import gda.analysis.Plotter;
 import gda.data.fileregistrar.FileRegistrarHelper;
@@ -31,6 +25,15 @@ import gda.device.DeviceException;
 import gda.device.detector.mythen.data.MythenDataFileUtils;
 import gda.device.detector.mythen.data.MythenDataFileUtils.FileType;
 import gda.device.detector.mythen.data.MythenSum;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class SummingMythenDetector extends MythenDetectorImpl {
 	
@@ -104,8 +107,11 @@ public class SummingMythenDetector extends MythenDetectorImpl {
 			angles[i] = summedData[i][0];
 			counts[i] = summedData[i][1];
 		}
-		DataSet anglesDataset = new DataSet("angle", angles);
-		DataSet countsDataset = new DataSet("summed data", counts);
+		String name2 = FilenameUtils.getName(summedDataFile.getAbsolutePath());
+		DoubleDataset anglesDataset = new DoubleDataset(angles);
+		anglesDataset.setName("angle");
+		DoubleDataset countsDataset = new DoubleDataset(counts);
+		countsDataset.setName(name2);
 		Plotter.plot(panelName, anglesDataset, countsDataset);
 	}
 
