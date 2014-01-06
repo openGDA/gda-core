@@ -62,17 +62,17 @@
            name="BSSC Perspective">
      </perspective>
      <perspective
-           class="uk.ac.gda.devices.bssc.perspectives.BioSaxsProgressPerspective"
+           class="uk.ac.gda.devices.bssc.perspectives.BioSAXSProgressPerspective"
            id="uk.ac.gda.devices.progress.biosaxsprogressperspective"
            name="BioSAXS Progress">
      </perspective>
      <perspective
-           class="uk.ac.gda.devices.bssc.perspectives.BioSaxsResultPerspective"
+           class="uk.ac.gda.devices.bssc.perspectives.BioSAXSResultPerspective"
            id="uk.ac.gda.devices.result.perspective"
            name="BioSAXS Result">
      </perspective>
      <perspective
-           class="uk.ac.gda.devices.bssc.perspectives.BioSaxsSetupPerspective"
+           class="uk.ac.gda.devices.bssc.perspectives.BioSAXSSetupPerspective"
            id="uk.ac.gda.devices.bssc.biosaxssetupPerspective"
            name="BioSAXS Setup">
      </perspective>
@@ -94,12 +94,6 @@
            class="uk.ac.gda.devices.bssc.ui.BioSAXSProgressView"
            id="uk.ac.gda.devices.bssc.biosaxsprogressview"
            name="BioSAXS Progress View"
-           restorable="true">
-     </view>
-     <view
-           class="uk.ac.gda.devices.bssc.ui.BioSAXASessionBeanUIView"
-           id="uk.ac.gda.devices.bssc.biosaxssetupview"
-           name="BioSAXS Setup View"
            restorable="true">
      </view>
   </extension>
