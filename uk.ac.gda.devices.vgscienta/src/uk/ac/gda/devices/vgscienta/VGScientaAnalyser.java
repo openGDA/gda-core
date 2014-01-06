@@ -169,7 +169,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 	public double[] getAngleAxis() throws Exception {
 		return getCapabilities().getAngleAxis(controller.getLensMode(), getAdBase().getMinY_RBV(),
-				getAdBase().getArraySizeY_RBV());
+				getAdBase().getSizeY_RBV());
 	}
 
 	@Override
