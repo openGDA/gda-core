@@ -30,6 +30,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+
 /**
  * Holds data from a Mythen {@code .dat} file.
  */
@@ -95,8 +99,6 @@ public class MythenProcessedDataset {
 	public void save(File file, boolean hasChannelInfo) {
 		try {
 			PrintWriter pw = new PrintWriter(file);
-//			pw.printf("%s\n", "&SRS");
-//			pw.printf("%s\n", "&END");
 			if (!hasChannelInfo) {
 				//pw.printf("Angle	Count	Error\n");
 				for (MythenProcessedData line : lines) {
@@ -104,6 +106,8 @@ public class MythenProcessedDataset {
 				}
 				
 			} else {
+				pw.printf("%s\n", "&SRS");
+				pw.printf("%s\n", "&END");
 				pw.printf("Angle	Count	Error	Channel\n");
 				for (MythenProcessedData line : lines) {
 					pw.printf("%f	%d	%d	%d\n", line.getAngle(), line.getCount(), line.getError(), line.getChannel());
@@ -166,7 +170,16 @@ public class MythenProcessedDataset {
 	public DataSet getAngleDataSet() {
 		return new DataSet("angle", getAngleArray());
 	}
-	
+	/**
+	 * Returns a {@link IDataset} containing the angles in this dataset.
+	 * 
+	 * @return a {@link IDataset} of angles
+	 */
+	public AbstractDataset getAngleDataset() {
+		DoubleDataset dataset = new DoubleDataset(getAngleArray());
+		dataset.setName("angle");
+		return dataset;
+	}
 	/**
 	 * Returns a {@link DataSet} containing the counts in this dataset.
 	 * 
@@ -175,7 +188,11 @@ public class MythenProcessedDataset {
 	public DataSet getCountDataSet() {
 		return new DataSet("count", getCountArray());
 	}
-	
+	public AbstractDataset getCountDataset() {
+		DoubleDataset dataset = new DoubleDataset(getCountArray());
+		dataset.setName("counts");
+		return dataset;
+	}
 	@Override
 	public String toString() {
 		final int numLines = lines.size();

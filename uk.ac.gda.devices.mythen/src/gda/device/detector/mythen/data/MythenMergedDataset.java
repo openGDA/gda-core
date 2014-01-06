@@ -59,13 +59,18 @@ public class MythenMergedDataset {
 			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 			String line = null;
 			while ((line = br.readLine()) != null) {
-				String[] tokens = line.split("\t");
+				String[] tokens = line.split(" ");
 				final double angle = Double.parseDouble(tokens[0]);
 				final double count = Double.parseDouble(tokens[1]);
 				final double error = Double.parseDouble(tokens[2]);
-				final double channel = Double.parseDouble(tokens[3]);
-				MythenMergedData data = new MythenMergedData(angle, count, error, channel);
-				lines.add(data);
+				if(tokens.length>3){
+					final double channel = Double.parseDouble(tokens[3]);
+					MythenMergedData data = new MythenMergedData(angle, count, error, channel);
+					lines.add(data);
+				} else {
+					MythenMergedData data = new MythenMergedData(angle, count, error);
+					lines.add(data);
+				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Couldn't read Mythen data file " + file, e);

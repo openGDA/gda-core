@@ -41,6 +41,12 @@ public class MythenMergedData {
 		this.channel = channel;
 	}
 	
+	public MythenMergedData(double angle, double count, double error) {
+		this.angle = angle;
+		this.count = count;
+		this.error = error;
+	}
+
 	/**
 	 * Returns the angle.
 	 * 
