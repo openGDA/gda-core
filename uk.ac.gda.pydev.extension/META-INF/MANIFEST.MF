@@ -35,7 +35,8 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.common.client,
  uk.ac.gda.common.rcp,
  uk.ac.gda.common,
- uk.ac.gda.core
+ uk.ac.gda.core,
+ org.eclipse.ui.navigator.resources;bundle-version="3.4.400"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: gda.jython,
