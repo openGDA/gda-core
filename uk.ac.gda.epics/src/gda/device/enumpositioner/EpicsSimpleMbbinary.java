@@ -23,6 +23,7 @@ import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
+import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
@@ -143,7 +144,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 	private void createChannelAccess(gda.epics.interfaceSpec.Device device) throws FactoryException {
 		try {
 			pv = channelManager.createChannel(device.getField("RECORD").getPV(), pvMonitor, MonitorType.NATIVE, false);
-			readOnly = device.getField("RECORD").isReadOnly();
+			setReadOnly(device.getField("RECORD").isReadOnly());
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 
@@ -156,7 +157,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 	private void createChannelAccess(SimpleMbbinaryType config) throws FactoryException {
 		try {
 			pv = channelManager.createChannel(config.getRECORD().getPv(), pvMonitor, MonitorType.NATIVE, false);
-			readOnly = config.getRECORD().getRo();
+			setReadOnly(config.getRECORD().getRo());
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 
@@ -219,14 +220,20 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		if (readOnly) {
+		if (isReadOnly()) {
 			JythonServerFacade.getInstance().print("You can not write to a READ-ONLY field in EPICS");
 			logger.warn("Failed to write to Read-Only field in {}.", getName());
 			return;
 		}
 		// find in the positionNames array the index of the string
+		int target = -1;
 		if (positions.contains(position.toString())) {
-			int target = positions.indexOf(position.toString());
+			target = positions.indexOf(position.toString());
+		} else if (positions.contains(position.toString().toUpperCase())) {
+			//fast shutter use 'OPEN' and 'CLOSE' instead of 'Open' and 'Close'
+			target=positions.indexOf(position.toString().toUpperCase());
+		}
+		if (target != -1) {
 			try {
 				positionerStatus = EnumPositionerStatus.MOVING;
 				controller.caput(pv, target, pcbl);
@@ -284,6 +291,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 							positionerStatus = EnumPositionerStatus.IDLE;
 						}
 						logger.info("{} is at {}", getName(), position);
+						notifyIObservers(EpicsSimpleMbbinary.this, new ScannablePositionChangeEvent(position));
 					}
 				}
 			}
@@ -359,5 +367,13 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 			logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
 			return getName();
 		}
+	}
+
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+
+	private void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
 	}
 }
