@@ -33,6 +33,7 @@ import gda.epics.interfaces.PneumaticCallbackType;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.util.Sleep;
 import gda.util.exceptionUtils;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -69,7 +70,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	private String controlPv;
 	private String statusPv;
-	
+
 	public String getControlPv() {
 		return controlPv;
 	}
@@ -79,7 +80,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	}
 
 	private boolean allPVsSet = false;
-	
+
 	private PutCallbackListener pcl;
 
 	private StatusMonitorListener statusMonitor;
@@ -87,14 +88,13 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	private Object lock = new Object();
 
 	protected Vector<String> statuspositions = new Vector<String>();
-	
+
 	private boolean readOnly = false;
 
 	/**
 	 * If statusPv is simply a list of positions and does not contains state such as IDLE, MOVING etc set this to true
-	 * 
 	 */
-	public boolean statusPvIndicatesPositionOnly=false;
+	public boolean statusPvIndicatesPositionOnly = false;
 
 	public boolean isStatusPvIndicatesPositionOnly() {
 		return statusPvIndicatesPositionOnly;
@@ -152,8 +152,9 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 									Xml.pneumaticCallback_type_name, deviceName);
 							setPvNames(device);
 						} catch (Exception ex) {
-							logger.error("Can NOT find EPICS configuration for scaler " + getDeviceName() + "."
-									+ e.getMessage(), ex);
+							logger.error(
+									"Can NOT find EPICS configuration for scaler " + getDeviceName() + "."
+											+ e.getMessage(), ex);
 						}
 					}
 
@@ -199,7 +200,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		setPvNames(basePV);
 	}
 
-	
 	/**
 	 * Sets the control PV used by this object.
 	 * 
@@ -221,7 +221,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		this.statusPv = statusPv;
 		setAllPVsSet(controlPv != null);
 	}
-	
+
 	// method supporting EpicsDevice interface
 	private void setPvNames(gda.epics.interfaceSpec.Device device) {
 		controlPv = device.getField("CONTROL").getPV();
@@ -280,9 +280,10 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		if (isReadOnly()) {
-			throw new DeviceException("Cannot move " + getName() + " as it is configured (within the gda software) to be read only");
+			throw new DeviceException("Cannot move " + getName()
+					+ " as it is configured (within the gda software) to be read only");
 		}
-		
+
 		// find in the positionNames array the index of the string
 		if (positions.contains(position.toString())) {
 			int target = positions.indexOf(position.toString());
@@ -295,10 +296,12 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 				controller.caput(control, target, pcl);
 			} catch (CAException e) {
 				positionerStatus = EnumPositionerStatus.ERROR;
-				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString() + "\n!!! Epics Channel Access problem: " + e.getMessage(), e);
+				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString()
+						+ "\n!!! Epics Channel Access problem: " + e.getMessage(), e);
 			} catch (Throwable th) {
 				positionerStatus = EnumPositionerStatus.ERROR;
-				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString() + "\n!!! " + th.getMessage(), th);
+				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString() + "\n!!! "
+						+ th.getMessage(), th);
 			}
 			return;
 		}
@@ -310,21 +313,21 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	@Override
 	public void stop() throws DeviceException {
-		//throw new DeviceException("stop() operation is not available for " + getName());
+		// throw new DeviceException("stop() operation is not available for " + getName());
 	}
 
 	/**
 	 * gets the available positions from this device.
 	 * 
 	 * @return the available positions from this device.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public String[] getPositions() throws DeviceException {
 		try {
 			return controller.cagetLabels(control);
 		} catch (Exception e) {
-			throw new DeviceException(getName() + " exception in getPositions",e);
+			throw new DeviceException(getName() + " exception in getPositions", e);
 		}
 	}
 
@@ -332,13 +335,13 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	 * gets the available status positions from this device.
 	 * 
 	 * @return the available status positions from this device.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public String[] getStatusPositions() throws DeviceException {
 		try {
 			return controller.cagetLabels(status);
 		} catch (Exception e) {
-			throw new DeviceException(getName() + " exception in getStatusPositions",e);
+			throw new DeviceException(getName() + " exception in getStatusPositions", e);
 		}
 	}
 
@@ -369,20 +372,21 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		public void monitorChanged(MonitorEvent arg0) {
 			short value = -1;
 			DBR dbr = arg0.getDBR();
-			if( statusPvIndicatesPositionOnly){
-				if( dbr != null){
-					try {
-						notifyIObservers(EpicsPneumaticCallback.this, new ScannablePositionChangeEvent(getPosition()));
-					} catch (DeviceException e) {
-						logger.error("Error getting position of " + getName(), e);
-					}
-					
-				}
+			if (dbr.isENUM()) {
+				value = ((DBR_Enum) dbr).getEnumValue()[0];
 			}
-			else {
-				if (dbr.isENUM()) {
-					value = ((DBR_Enum) dbr).getEnumValue()[0];
+			if (statusPvIndicatesPositionOnly) {
+				try {
+					// See GDA-5822 - wait for status positions field being initialised before calling getPosition().
+					while (statuspositions.size() < value) {
+						Sleep.sleep(100);
+					}
+					notifyIObservers(EpicsPneumaticCallback.this, new ScannablePositionChangeEvent(getPosition()));
+				} catch (DeviceException e) {
+					logger.error("Error getting position of " + getName(), e);
 				}
+
+			} else {
 				if (value == 0) {
 					synchronized (lock) {
 						positionerStatus = EnumPositionerStatus.ERROR;
@@ -400,7 +404,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 			}
 		}
 	}
-	
+
 	private class PutCallbackListener implements PutListener {
 		volatile PutEvent event = null;
 
@@ -411,12 +415,12 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 				event = ev;
 
 				if (event.getStatus() != CAStatus.NORMAL) {
-					logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(), event
-							.getStatus());
-					positionerStatus=EnumPositionerStatus.ERROR;
+					logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(),
+							event.getStatus());
+					positionerStatus = EnumPositionerStatus.ERROR;
 				} else {
 					logger.info("{} move done", getName());
-					positionerStatus=EnumPositionerStatus.IDLE;
+					positionerStatus = EnumPositionerStatus.IDLE;
 				}
 			} catch (Exception ex) {
 				exceptionUtils.logException(logger, "Error in putCompleted for " + getName(), ex);
