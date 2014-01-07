@@ -857,4 +857,6 @@ public interface ADBase  {
 	void setNumExposures(int numexposures, double timeout) throws Exception;
 
 	void setImageModeWait(ImageMode imagemode, double timeout) throws Exception;
+
+	void waitForDetectorStateIDLE(double timeoutS) throws InterruptedException, Exception, TimeoutException;
 }

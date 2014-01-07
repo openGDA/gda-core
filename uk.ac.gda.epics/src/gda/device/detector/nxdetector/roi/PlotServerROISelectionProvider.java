@@ -29,22 +29,20 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
-//import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
-/**
- * 
- */
 public class PlotServerROISelectionProvider implements IndexedRectangularROIProvider<Integer>{
 	
+	private int maximumActiveRois;
+	private String viewName;
 	private static final String ROIViewNameSuffix = " Array View";
 
 	public static String getGuiName(String detectorName){
 		return detectorName + ROIViewNameSuffix;
 	}
-	final private int maximumActiveRois;
-	
-	private String viewName;
 
+	public PlotServerROISelectionProvider() {
+	}
+	
 	public PlotServerROISelectionProvider(String detectorName, int maximumActiveRois) {
 		viewName = getGuiName(detectorName);
 		this.maximumActiveRois = maximumActiveRois;
@@ -119,7 +117,21 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 			str += (i + 1) + ". " + roiRepr + "\n";
 		}
 		return new PyString(str);
-
 	}
 
+	public int getMaximumActiveRois() {
+		return maximumActiveRois;
+	}
+
+	public void setMaximumActiveRois(int maximumActiveRois) {
+		this.maximumActiveRois = maximumActiveRois;
+	}
+
+	public String getViewName() {
+		return viewName;
+	}
+
+	public void setViewName(String viewName) {
+		this.viewName = viewName;
+	}
 }

@@ -249,6 +249,10 @@ public class Histogram extends Composite {
 	}
 	private boolean showLeft;
 
+	//Do not update the plot whilst the roi is being changed as otherwise the
+	//region suddenly changed 
+	protected boolean roiBeingChanged=false;
+
 	/**
 	 * @param showLeft
 	 */
@@ -434,6 +438,8 @@ public class Histogram extends Composite {
 						}
 						if (histogramStatus.isFreezeSelected()  || !histogramStatus.getHistogramMonitoring())
 							return;
+						if( roiBeingChanged)
+							return;
 						if (updateHistogramJob == null) {
 							updateHistogramJob = new Job("Update histogram") {
 
@@ -593,13 +599,14 @@ public class Histogram extends Composite {
 				@Override
 				public void roiDragged(ROIEvent evt) {
 					try {
-						handleROIChangeEvent(evt);
+						handleROIChangeEvent(evt, false);
 					} catch (Exception e) {
 						logger.error("Error handling change to scaling roi", e);
 					}
 				}
 
-				private void handleROIChangeEvent(ROIEvent evt) throws Exception {
+				private void handleROIChangeEvent(ROIEvent evt, boolean changeComplete) throws Exception {
+					roiBeingChanged = !changeComplete;
 					final IRegion region = (IRegion) evt.getSource();
 					RectangularROI roi = (RectangularROI) region.getROI();
 					double min = roi.getPointX();
@@ -614,7 +621,7 @@ public class Histogram extends Composite {
 				@Override
 				public void roiChanged(ROIEvent evt) {
 					try {
-						handleROIChangeEvent(evt);
+						handleROIChangeEvent(evt, true);
 					} catch (Exception e) {
 						logger.error("Error handling change to scaling roi", e);
 					}

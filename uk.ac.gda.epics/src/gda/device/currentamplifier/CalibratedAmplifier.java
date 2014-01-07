@@ -31,7 +31,17 @@ public class CalibratedAmplifier extends EpicsScannable {
 	private double upperThreshold = 0.3;
 	private long settletime = 150;
 	private boolean autoGain = true;
+	private boolean unidirectrional = true;
 	
+	
+	public boolean isUnidirectrional() {
+		return unidirectrional;
+	}
+
+	public void setUnidirectrional(boolean unidirectrional) {
+		this.unidirectrional = unidirectrional;
+	}
+
 	public boolean isAutoGain() {
 		return autoGain;
 	}
@@ -72,6 +82,7 @@ public class CalibratedAmplifier extends EpicsScannable {
 	@Override
 	public Object getPosition() throws DeviceException {
 		double value;
+		short lastStepDirection = 0;
 		do {
 			value = (Double) super.rawGetPosition();
 			if (scalingAndOffset == null)
@@ -80,11 +91,17 @@ public class CalibratedAmplifier extends EpicsScannable {
 				break;
 			try {
 				if (value > upperThreshold) {
+					if (isUnidirectrional() && lastStepDirection == 1)
+						break;
 					scalingAndOffset.decreaseAmplification();
 					scalingAndOffset.waitWhileBusy();
+					lastStepDirection = -1;
 				} else if (value < 0.085 * upperThreshold) {
+					if (isUnidirectrional() && lastStepDirection == -1)
+						break;
 					scalingAndOffset.increaseAmplification();
 					scalingAndOffset.waitWhileBusy();
+					lastStepDirection = 1;
 				} else 
 					break;
 				Thread.sleep(settletime);

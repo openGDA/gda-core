@@ -20,6 +20,7 @@ package gda.device.detector.areadetector.v17.impl;
 
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
+import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.LazyPVFactory;
@@ -873,8 +874,42 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	public Observable<Double> createMinCallbackTimeObservable() throws Exception {
 		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(MinCallbackTime_RBV));
 	}
+
+	@Override
+	public Observable<Integer> createDroppedFramesObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(DroppedArrays_RBV));
+	}
+
+	private Observable<Integer> droppedFramesObservable; 
+	private Observer<Integer>  droppedFramesObserver;
 	
+	protected Integer droppedFrames=0;
+
+	private int getDroppedFrames() throws Exception {
+		if( droppedFramesObservable == null){
+			droppedFramesObservable = createDroppedFramesObservable();
+		}
+		if( droppedFramesObserver == null){
+			droppedFramesObserver = new Observer<Integer>() {
+				
+				@Override
+				public void update(Observable<Integer> source, Integer arg) {
+					droppedFrames = arg;
+				}
+			};
+			droppedFramesObservable.addObserver(droppedFramesObserver);
+			droppedFrames = getDroppedArrays_RBV();
+		}
+		return droppedFrames;
+	}	
 	
+	@Override
+	public void checkDroppedFrames() throws Exception {
+		int droppedFrames2 = getDroppedFrames();
+		if (droppedFrames2 >0) {
+			throw new DeviceException("NDPlugin dropped frames : " + droppedFrames2);
+		}
+	}
 }
 
 class ConnectionStateObservable implements Observable<Boolean>{

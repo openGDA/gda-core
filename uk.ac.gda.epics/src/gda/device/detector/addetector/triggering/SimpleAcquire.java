@@ -82,7 +82,7 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 	}
 
 	@Override
-	public int getNumberImagesPerCollection(double collectionTime) {
+	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
 		return 1;
 	}
 

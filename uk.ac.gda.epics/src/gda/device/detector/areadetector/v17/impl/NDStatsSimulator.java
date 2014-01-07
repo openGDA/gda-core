@@ -25,6 +25,12 @@ import gda.observable.Observable;
 public class NDStatsSimulator implements NDStats {
 
 	NDPluginBase pluginBase;
+	private double minValue=0.;
+	private double maxValue=0.;
+	private double meanValue=0.;
+	private double total;
+	private double net;
+	private double sigma;
 
 	public void setPluginBase(NDPluginBase pluginBase) {
 		this.pluginBase = pluginBase;
@@ -71,38 +77,37 @@ public class NDStatsSimulator implements NDStats {
 
 	@Override
 	public double getMinValue_RBV() throws Exception {
-
-		return 0;
+		return minValue* (1.0 - Math.random()*0.1);
 	}
 
 	@Override
 	public double getMaxValue_RBV() throws Exception {
 
-		return 0;
+		return maxValue* (1.0 - Math.random()*0.1);
 	}
 
 	@Override
 	public double getMeanValue_RBV() throws Exception {
 
-		return 0;
+		return meanValue* (1.0 - Math.random()*0.1);
 	}
 
 	@Override
 	public double getSigma_RBV() throws Exception {
 
-		return 0;
+		return sigma * (1.0 - Math.random()*0.1);
 	}
 
 	@Override
 	public double getTotal_RBV() throws Exception {
 
-		return 0;
+		return total * (1.0 - Math.random()*0.1);
 	}
 
 	@Override
 	public double getNet_RBV() throws Exception {
 
-		return 0;
+		return net * (1.0 - Math.random()*0.1);
 	}
 
 	@Override
@@ -445,6 +450,54 @@ public class NDStatsSimulator implements NDStats {
 	@Override
 	public Observable<Double> createSigmaObservable() throws Exception {
 		return null;
+	}
+
+	public double getMinValue() {
+		return minValue;
+	}
+
+	public void setMinValue(double minValue) {
+		this.minValue = minValue;
+	}
+
+	public double getMaxValue() {
+		return maxValue;
+	}
+
+	public void setMaxValue(double maxValue) {
+		this.maxValue = maxValue;
+	}
+
+	public double getMeanValue() {
+		return meanValue;
+	}
+
+	public void setMeanValue(double meanValue) {
+		this.meanValue = meanValue;
+	}
+
+	public double getTotal() {
+		return total;
+	}
+
+	public void setTotal(double total) {
+		this.total = total;
+	}
+
+	public double getNet() {
+		return net;
+	}
+
+	public void setNet(double net) {
+		this.net = net;
+	}
+
+	public double getSigma() {
+		return sigma;
+	}
+
+	public void setSigma(double sigma) {
+		this.sigma = sigma;
 	}
 
 }
