@@ -167,11 +167,13 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 	@Override
 	public void hold() throws DeviceException {
 		logger.warn("hold() is not available for {}", getName());
+		throw new IllegalStateException("Device " + getName() +" does have this function.");
 	}
 
 	@Override
 	public void runRamp() throws DeviceException {
 		logger.warn("runRamp() is not available for {}", getName());
+		throw new IllegalStateException("Device " + getName() +" does have this function.");
 	}
 
 	/**
@@ -408,8 +410,18 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 			}
 		} else if (theObserved instanceof EpicsEurotherm2kController.ConnectionListener) {
 			if (((String)changeCode).equals("Disabled")) {
+				if (isConfigured()) {
+					setConfigured(false);
+				}
 				logger.warn("{} is currently NOT connected to hardware.", getName());
 			} else if (((String)changeCode).equals("Enabled")) {
+				if (!isConfigured()) {
+					try {
+						reconfigure();
+					} catch (FactoryException e) {
+						logger.error("Cannot configure "+getName(), e);
+					}
+				}
 				logger.info("{} is current temperature controller.", getName() );
 			}
 		}

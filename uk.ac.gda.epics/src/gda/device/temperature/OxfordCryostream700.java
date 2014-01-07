@@ -418,12 +418,21 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 			}
 		} else if (theObserved instanceof CryoController.ConnectionListener) {
 			if (((String)changeCode).equals("Disabled")) {
+				if (isConfigured()) {
+					setConfigured(false);
+				}
 				logger.warn("{} is currently NOT connected to hardware.", getName());
 			} else if (((String)changeCode).equals("Enabled")) {
+				if (!isConfigured()) {
+					try {
+						reconfigure();
+					} catch (FactoryException e) {
+						logger.error("Cannot configure "+getName(), e);
+					}
+				}
 				logger.info("{} is current temperature controller.", getName() );
 			}
 		}
-		
 	}
 
 	@Override
