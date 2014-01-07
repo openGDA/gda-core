@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.gda.epics.client.mythen.views.MythenView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.epics.client.mythen.views.mytheView"
+            name="Mythen"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.epics.client.mythen.MythenPerspective"
+            id="uk.ac.gda.epics.client.mythen.perspective"
+            name="PSD">
+      </perspective>
+   </extension>
+
+</plugin>
