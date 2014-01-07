@@ -30,6 +30,8 @@ import org.springframework.beans.factory.FactoryBean;
 public class EpicsPneumaticFactoryBean extends EpicsConfigurationFactoryBeanBase<EpicsPneumaticCallback> {
 
 	private String deviceName;
+	private boolean statusPvIndicatesPositionOnly=false;
+
 	
 	/**
 	 * Sets the EPICS device name which will be used to obtain the PV record
@@ -53,12 +55,21 @@ public class EpicsPneumaticFactoryBean extends EpicsConfigurationFactoryBeanBase
 		PneumaticCallbackType config = getEpicsConfiguration().getConfiguration(deviceName, PneumaticCallbackType.class);
 		epicsPneumaticCallback = new EpicsPneumaticCallback();
 		epicsPneumaticCallback.setName(name);
+		epicsPneumaticCallback.setStatusPvIndicatesPositionOnly(statusPvIndicatesPositionOnly);
 		epicsPneumaticCallback.setPvNames(config);
 	}
 
 	@Override
 	public EpicsPneumaticCallback getObject() throws Exception {
 		return epicsPneumaticCallback;
+	}
+
+	public boolean isStatusPvIndicatesPositionOnly() {
+		return statusPvIndicatesPositionOnly;
+	}
+
+	public void setStatusPvIndicatesPositionOnly(boolean statusPvIndicatesPositionOnly) {
+		this.statusPvIndicatesPositionOnly = statusPvIndicatesPositionOnly;
 	}
 
 }
