@@ -293,7 +293,7 @@ public class LocalProperties {
 	 * Prefix for the title of the GDA window
 	 */
 	public static final String GDA_GUI_TITLEBAR_PREFIX = "gda.gui.titlebar.prefix";
-
+	public static final String GDA_GUI_TITLEBAR_SUFFIX = "gda.gui.titlebar.suffix";
 	/**
 	 * Option to display RCP Workbench default menus (default usually true)
 	 */
