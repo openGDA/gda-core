@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -29,22 +29,30 @@ import gda.observable.IObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EpicsXmapController extends DeviceBase implements XmapController ,IObserver{
-	
-	private EDXDMappingController edxdController;
-	private int numberOfElements;
-	private String edxdControllerName;
-	protected int actualNumberOfROIs;
+public class EpicsXmapController extends DeviceBase implements XmapController, IObserver {
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapController.class);
-	
+
+	protected EDXDMappingController edxdController;
+	protected int numberOfElements;
+	protected String edxdControllerName;
+	protected int actualNumberOfROIs;
+
 	@Override
 	public void configure() throws FactoryException {
-		if((edxdController = (EDXDMappingController)Finder.getInstance().find(edxdControllerName) )!= null){
-			numberOfElements = edxdController.getNumberOfElements();
-			edxdController.addIObserver(this);
+		if (edxdController == null && edxdControllerName == null) {
+			throw new FactoryException(getName()
+					+ " (EpicsXmapControllerROI) must be given the EDXD object or object name to be able to configure");
 		}
+
+		if (edxdController == null) {
+			edxdController = (EDXDMappingController) Finder.getInstance().find(edxdControllerName);
+		}
+
+		numberOfElements = edxdController.getNumberOfElements();
+		edxdController.addIObserver(this);
 	}
-	
+
 	@Override
 	public void clearAndStart() throws DeviceException {
 		edxdController.setResume(false);
@@ -53,7 +61,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 
 	@Override
 	public void deleteROIs(int mcaIndex) throws DeviceException {
-		
+
 	}
 
 	@Override
@@ -63,7 +71,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 
 	@Override
 	public int[] getData(int mcaNumber) throws DeviceException {
-		int numberOfBins =  getNumberOfBins();
+		int numberOfBins = getNumberOfBins();
 		int[] returnArray = new int[numberOfBins];
 		int[] replyArray = edxdController.getSubDetector(mcaNumber).readoutInts();
 		System.arraycopy(replyArray, 0, returnArray, 0, numberOfBins);
@@ -72,9 +80,9 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 
 	@Override
 	public int[][] getData() throws DeviceException {
-		//should write data to a file
-		//bespoke scan scripts write data at the moment
-		int numberOfBins =  getNumberOfBins();
+		// should write data to a file
+		// bespoke scan scripts write data at the moment
+		int numberOfBins = getNumberOfBins();
 		int[][] data = new int[numberOfElements][numberOfBins];
 		for (int i = 0; i < numberOfElements; i++) {
 			data[i] = getData(i);
@@ -90,7 +98,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	@Override
 	public void setNumberOfBins(int numberOfBins) throws DeviceException {
 		edxdController.setBins(numberOfBins);
-		
+
 	}
 
 	@Override
@@ -99,12 +107,12 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	}
 
 	/**
-	 * Returns the roi count if they have been set, otherwise reads the total possible count
-	 * from EPICS
+	 * Returns the roi count if they have been set, otherwise reads the total possible count from EPICS
 	 */
 	@Override
 	public int getNumberOfROIs() {
-		if (actualNumberOfROIs>0) return actualNumberOfROIs;
+		if (actualNumberOfROIs > 0)
+			return actualNumberOfROIs;
 		try {
 			return edxdController.getMaxAllowedROIs();
 		} catch (DeviceException e) {
@@ -114,8 +122,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	}
 
 	/**
-	 * Returns a count for each mca for a given roi number
-	 * For instance if roi=0 the first roi 
+	 * Returns a count for each mca for a given roi number For instance if roi=0 the first roi
 	 */
 	@Override
 	public double[] getROICounts(int roiIndex) throws DeviceException {
@@ -126,6 +133,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 		}
 		return roiCounts;
 	}
+
 	/**
 	 * @param mcaNumber
 	 * @return double array of regions of interest
@@ -156,14 +164,15 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 		// Not implemented in the new Interface
 		return 0;
 	}
-	
+
 	@Override
 	public double getRealTime() throws DeviceException {
 		return getRealTime(0);
 	}
-	
+
 	/**
 	 * Get the real time for the mca element
+	 * 
 	 * @param mcaNumber
 	 * @return real time
 	 * @throws DeviceException
@@ -199,7 +208,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 		}
 		actualNumberOfROIs = roiIndex + 1;
 	}
-	
+
 	/**
 	 * @param roi
 	 * @param roiIndex
@@ -207,18 +216,17 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	 * @throws DeviceException
 	 */
 	private void setNthROI(double[] roi, int roiIndex, int mcaIndex) throws DeviceException {
-		if(roiIndex >= edxdController.getMaxAllowedROIs()){
+		if (roiIndex >= edxdController.getMaxAllowedROIs()) {
 			logger.error("Not a valid roi index");
 			return;
 		}
 		EDXDElement element = edxdController.getSubDetector(mcaIndex);
 		double roiLow[] = element.getLowROIs();
 		double roiHigh[] = element.getHighROIs();
-		if(roi[0] <= roi[1]){
+		if (roi[0] <= roi[1]) {
 			roiLow[roiIndex] = roi[0];
 			roiHigh[roiIndex] = roi[1];
-		}
-		else{
+		} else {
 			roiLow[roiIndex] = roi[1];
 			roiHigh[roiIndex] = roi[0];
 		}
@@ -234,15 +242,13 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	@Override
 	public void setNumberOfROIs(int numberOfROIs) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/**
-	 * Set rois the array can be of size [maximum number rois][2] if it is lower for instance
-	 * [actual number of rois][2] then the other possible rois will be set to zero.
-	 * 
-	 * The actual number of rois is also taken from the length of the first dimension of this array
-	 * so it should always be passed in with size of the actual number of rois.
+	 * Set rois the array can be of size [maximum number rois][2] if it is lower for instance [actual number of rois][2]
+	 * then the other possible rois will be set to zero. The actual number of rois is also taken from the length of the
+	 * first dimension of this array so it should always be passed in with size of the actual number of rois.
 	 */
 	@Override
 	public void setROI(final double[][] actualRois, int mcaIndex) throws DeviceException {
@@ -253,7 +259,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 			rois[i][1] = actualRois[i][1];
 		}
 		EDXDElement subDetector = edxdController.getSubDetector(mcaIndex);
-		if(subDetector!=null)
+		if (subDetector != null)
 			subDetector.setROIs(rois);
 		edxdController.activateROI();
 		actualNumberOfROIs = actualRois.length;
@@ -261,14 +267,14 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 
 	@Override
 	public void setROIs(double[][] rois) throws DeviceException {
-		for(int i =0; i< numberOfElements; i++)
+		for (int i = 0; i < numberOfElements; i++)
 			setROI(rois, i);
 	}
 
 	@Override
 	public void setReadRate(double readRate) throws DeviceException {
 		// Not implemented in new xmap epics interface
-		
+
 	}
 
 	@Override
@@ -284,13 +290,13 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	@Override
 	public void setStatusRate(String statusRate) throws DeviceException {
 		// Not implemented in new xmap epics interface
-		
+
 	}
 
 	@Override
 	public void start() throws DeviceException {
-		//edxdController.setResume(true);
-	    edxdController.start();
+		// edxdController.setResume(true);
+		edxdController.start();
 	}
 
 	@Override
@@ -300,6 +306,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 
 	/**
 	 * Returns the total events recorded
+	 * 
 	 * @param mcaNumber
 	 * @throws DeviceException
 	 */
@@ -310,7 +317,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		//TODO status update needs to be made
+		// TODO status update needs to be made
 	}
 
 	@Override
@@ -327,26 +334,34 @@ public class EpicsXmapController extends DeviceBase implements XmapController ,I
 	public double[] getROIs(int mcaNumber, int[][] data) throws DeviceException {
 		return getROIs(mcaNumber);
 	}
-	
+
 	public String getEdxdControllerName() {
 		return edxdControllerName;
 	}
-	
+
 	public void setEdxdControllerName(String edxdControllerName) {
 		this.edxdControllerName = edxdControllerName;
 	}
-	
+
+	public EDXDMappingController getEdxdController() {
+		return edxdController;
+	}
+
+	public void setEdxdController(EDXDMappingController edxdController) {
+		this.edxdController = edxdController;
+	}
+
 	public double[] getEnergyBins(int mcaNumber) throws DeviceException {
 		double[] replyArray = edxdController.getSubDetector(mcaNumber).getEnergyBins();
 		return replyArray;
 	}
 
 	public double[][] getEnergyBins() throws DeviceException {
-		int numberOfBins =  getNumberOfBins();
+		int numberOfBins = getNumberOfBins();
 		double[][] data = new double[numberOfElements][numberOfBins];
 		for (int i = 0; i < numberOfElements; i++)
 			data[i] = getEnergyBins(i);
 		return data;
 	}
-	
+
 }
