@@ -21,6 +21,7 @@ package gda.device.monitor;
 import gda.configuration.properties.LocalProperties;
 import gda.device.CurrentAmplifier;
 import gda.device.DeviceException;
+import gda.device.IBeamMonitor;
 import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.currentamplifier.EpicsCurrAmpSingle;
@@ -30,6 +31,7 @@ import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.jython.ScriptBase;
 import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import gda.scan.ScanBase;
 
 import java.lang.reflect.Array;
@@ -45,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * java parameter {@code gda.device.monitor.resumeScan} setting. This monitor behaviour can be switched on and off as
  * required.
  */
-public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scannable, Runnable, IObserver {
+public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scannable, Runnable, IObserver, IBeamMonitor {
 	/**
 	 * the logger instance
 	 */
@@ -80,6 +82,9 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	 * the current value of this monitor
 	 */
 	private volatile double currentValue;
+
+	private ObservableComponent observableComponent = new ObservableComponent();
+
 
 	/**
 	 * Empty constructor for Castor configuration.
@@ -246,6 +251,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 					}
 				}
 			}
+			notifyIObservers(this, isBeamOn());
 			delay(100);
 		}
 	}
@@ -303,6 +309,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	/**
 	 * switch on beam monitoring
 	 */
+	@Override
 	public void on() {
 		if (!monitorOn)
 			setMonitorOn(true);
@@ -311,6 +318,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	/**
 	 * switch off beam monitoring
 	 */
+	@Override
 	public void off() {
 		if (monitorOn)
 			setMonitorOn(false);
@@ -414,7 +422,8 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	/**
 	 * @return boolean
 	 */
-	public boolean isBeamOn() {
+	@Override
+	public Boolean isBeamOn() {
 		return beamOn;
 	}
 
