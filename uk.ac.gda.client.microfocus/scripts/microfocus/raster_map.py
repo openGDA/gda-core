@@ -107,7 +107,6 @@ class RasterMap(Map):
         beanGroup.setOutput(outputBean)
         beanGroup.setValidate(validation)
         beanGroup.setScan(scanBean)
-       # XasAsciiDataWriter.setBeanGroup(beanGroup)
         
         detectorList = self.getDetectors(detectorBean, scanBean) 
     
@@ -174,12 +173,11 @@ class RasterMap(Map):
                 if(detectorType == "Silicon"):
                     print "Vortex raster scan"
                     cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap]) 
-                    xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
+                    # NB: cannot use trajPositionReader in ContinuousScan and is not a priority for I18. Seems unclear how this would be used as the RealPositionReader interface is not used outside of Epics
+#                    xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
+                    xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs])
                     xmapRasterscan.getScanPlotSettings().setIgnore(1)
-                    
-                    #xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
-                    #xasWriter.addDataWriterExtender(self.mfd)
-                    #xmapRasterscan.setDataWriter(xasWriter)
+
                     sampleName = sampleBean.getName()
                     descriptions = sampleBean.getDescriptions()
                     xmapRasterscan = self._setUpDataWriter(xmapRasterscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
@@ -189,12 +187,11 @@ class RasterMap(Map):
                 else:
                     print "Xspress Raster Scan"
                     cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress])
-                    xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
+                    # NB: cannot use trajPositionReader in ContinuousScan and is not a priority for I18. Seems unclear how this would be used as the RealPositionReader interface is not used outside of Epics
+#                    xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
+                    xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs])
                     xspressRasterscan.getScanPlotSettings().setIgnore(1)
-                    
-                    #xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
-                    #xasWriter.addDataWriterExtender(self.mfd)
-                    #xspressRasterscan.setDataWriter(xasWriter)
+
                     sampleName = sampleBean.getName()
                     descriptions = sampleBean.getDescriptions()
                     xspressRasterscan = self._setUpDataWriter(xspressRasterscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
