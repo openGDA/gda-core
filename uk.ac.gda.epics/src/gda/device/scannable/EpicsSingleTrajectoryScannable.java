@@ -78,6 +78,7 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 		//if(tracController == null)
 		//	tracController = (TrajectoryScanController)Finder.getInstance().find("epicsTrajectoryScanController");
 		tracController.addIObserver(this);
+		inputNames = new String[]{getName()};
 	}
 	@Override
 	public void continuousMoveComplete() throws DeviceException {
