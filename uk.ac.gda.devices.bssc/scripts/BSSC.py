@@ -192,7 +192,7 @@ class BSSCRun:
         self.bssc.setViscosityLevel("high")
         self.clean()
         
-        self.datacollection = self.ispyb.createSaxsDataCollection(self.experiment)
+        self.datacollection = self.ispyb.createSaxsDataCollection(self.session, self.experiment)
         
         self.reportProgress("Opening Shutter")
         self.openShutter()

@@ -50,10 +50,11 @@ public interface BioSAXSISPyB {
 	/**
 	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
 	 * 
+	 * @param sessionID
 	 * @param experimentID
 	 * @return saxsDataCollectionID
 	 */
-	public abstract long createSaxsDataCollection(long experimentID) throws SQLException;
+	public abstract long createSaxsDataCollection(long sessionID, long experimentID) throws SQLException;
 
 	/**
 	 * @param blsessionId
