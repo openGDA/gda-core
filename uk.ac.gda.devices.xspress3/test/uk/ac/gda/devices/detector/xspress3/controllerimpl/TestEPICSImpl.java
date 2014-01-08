@@ -33,7 +33,7 @@ public class TestEPICSImpl {
 	private static EpicsController x3c;
 	private static Xspress3Detector x3d;
 
-	private static final String IOC_TEMPLATE = "richard:XSP3";
+	private static final String IOC_TEMPLATE = "BL18B-EA-XSP3-01";
 
 	public static void main(String[] args) {
 		try {
@@ -46,10 +46,8 @@ public class TestEPICSImpl {
 			x3c.setEpicsTemplate(IOC_TEMPLATE);
 			x3c.configure();
 			x3c.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);
-			x3c.setPerformMCAUpdates(true);
 			x3c.setPerformROICalculations(true);
 			x3c.setPerformROIUpdates(true);
-			x3c.setPerformScalerUpdates(true);
 
 			// create detector
 			x3d = new Xspress3Detector(x3c);

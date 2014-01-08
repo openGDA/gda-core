@@ -49,15 +49,15 @@ public class EpicsControllerPvProvider {
 	private static String NEXT_FILENUMBER = ":HDF5:FileNumber";
 	
 	// Display Updates
-	private static String SCALER_UPDATE_SUFFIX = ":CTRL_DATA_UPDATE";
-	private static String SCALER_UPDATE_RBV_SUFFIX = ":CTRL_DATA_UPDATE_RBV";
-	private static String SCALER_UPDATE_PERIOD_SUFFIX = ":CTRL_DATA_UPDATE_PERIOD";
-	private static String MCA_UPDATE_SUFFIX = ":CTRL_MCA_UPDATE";
-	private static String MCA_UPDATE_RBV_SUFFIX = ":CTRL_MCA_UPDATE_RBV";
-	private static String MCA_UPDATE_PERIOD_SUFFIX = ":CTRL_MCA_UPDATE_PERIOD";
-	private static String SCA_UPDATE_SUFFIX = ":CTRL_SCA_UPDATE";
-	private static String SCA_UPDATE_RBV_SUFFIX = ":CTRL_SCA_UPDATE_RBV";
-	private static String SCA_UPDATE_PERIOD_SUFFIX = ":CTRL_SCA_UPDATE_PERIOD";
+//	private static String SCALER_UPDATE_SUFFIX = ":CTRL_DATA_UPDATE";
+//	private static String SCALER_UPDATE_RBV_SUFFIX = ":CTRL_DATA_UPDATE_RBV";
+//	private static String SCALER_UPDATE_PERIOD_SUFFIX = ":CTRL_DATA_UPDATE_PERIOD";
+//	private static String MCA_UPDATE_SUFFIX = ":CTRL_MCA_UPDATE";
+//	private static String MCA_UPDATE_RBV_SUFFIX = ":CTRL_MCA_UPDATE_RBV";
+//	private static String MCA_UPDATE_PERIOD_SUFFIX = ":CTRL_MCA_UPDATE_PERIOD";
+//	private static String SCA_UPDATE_SUFFIX = ":CTRL_SCA_UPDATE";
+//	private static String SCA_UPDATE_RBV_SUFFIX = ":CTRL_SCA_UPDATE_RBV";
+//	private static String SCA_UPDATE_PERIOD_SUFFIX = ":CTRL_SCA_UPDATE_PERIOD";
 
 	// MCA and ROI
 	private static String ROI_LOW_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_LLM";  // channel (1-8),ROI (1-4)
@@ -95,8 +95,8 @@ public class EpicsControllerPvProvider {
 	
 	// the shared PVs with the Controller which uses this object
 	protected String epicsTemplate;
-	protected PV<Integer> pvAcquire;
-	protected PV<Integer> pvErase;
+	protected PV<ACQUIRE_STATE> pvAcquire;
+	protected PV<ERASE_STATE> pvErase;
 	protected PV<Integer> pvReset;
 	protected PV<Integer> pvUpdate;
 	protected PV<Integer> pvSetNumImages;
@@ -110,18 +110,18 @@ public class EpicsControllerPvProvider {
 	protected ReadOnlyPV<Integer> pvGetNumFramesPerReadout;
 	protected ReadOnlyPV<Boolean> pvIsBusy;
 	protected ReadOnlyPV<Integer> pvGetNumFramesAvailableToReadout;
-	protected ReadOnlyPV<Boolean> pvIsConnected;
+	protected ReadOnlyPV<CONNECTION_STATE> pvIsConnected;
 	protected ReadOnlyPV<Integer> pvGetMaxFrames;
 	protected ReadOnlyPV<Integer> pvGetMCASize;
-	protected PV<UPDATE_CTRL> pvSetScalerUpdate;
-	protected ReadOnlyPV<UPDATE_RBV> pvGetScalerUpdate;
-	protected PV<Integer> pvScalerUpdatePeriod;
-	protected PV<UPDATE_CTRL> pvSetMCAUpdate;
-	protected ReadOnlyPV<UPDATE_RBV> pvGetMCAUpdate;
-	protected PV<Integer> pvMCAUpdatePeriod;
-	protected PV<UPDATE_CTRL> pvSetSCAROIUpdate;
-	protected ReadOnlyPV<UPDATE_RBV> pvGetSCAROIUpdate;
-	protected PV<Integer> pvSCAROIUpdatePeriod;
+//	protected PV<UPDATE_CTRL> pvSetScalerUpdate;
+//	protected ReadOnlyPV<UPDATE_RBV> pvGetScalerUpdate;
+//	protected PV<Integer> pvScalerUpdatePeriod;
+//	protected PV<UPDATE_CTRL> pvSetMCAUpdate;
+//	protected ReadOnlyPV<UPDATE_RBV> pvGetMCAUpdate;
+//	protected PV<Integer> pvMCAUpdatePeriod;
+//	protected PV<UPDATE_CTRL> pvSetSCAROIUpdate;
+//	protected ReadOnlyPV<UPDATE_RBV> pvGetSCAROIUpdate;
+//	protected PV<Integer> pvSCAROIUpdatePeriod;
 	protected ReadOnlyPV<Double[]>[] pvsScalerWindow1;
 	protected ReadOnlyPV<Double[]>[] pvsScalerWindow2;
 	protected ReadOnlyPV<Integer[]>[] pvsTime;
@@ -174,8 +174,8 @@ public class EpicsControllerPvProvider {
 	}
 
 	private void createControlPVs() {
-		 pvAcquire = LazyPVFactory.newIntegerPV(generatePVName(ACQUIRE_SUFFIX));
-		 pvErase = LazyPVFactory.newIntegerPV(generatePVName(ERASE_SUFFIX));
+		 pvAcquire = LazyPVFactory.newEnumPV(generatePVName(ACQUIRE_SUFFIX),ACQUIRE_STATE.class);
+		 pvErase = LazyPVFactory.newEnumPV(generatePVName(ERASE_SUFFIX), ERASE_STATE.class);
 		 pvReset = LazyPVFactory.newIntegerPV(generatePVName(RESET_SUFFIX));
 		 pvUpdate = LazyPVFactory.newIntegerPV(generatePVName(UPDATEARRAYS_SUFFIX));
 		 pvSetNumImages = LazyPVFactory.newIntegerPV(generatePVName(NUM_IMAGES_SUFFIX));
@@ -189,7 +189,7 @@ public class EpicsControllerPvProvider {
 		 pvGetNumFramesPerReadout = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FRAMES_PER_READ_SUFFIX));
 		 pvGetNumFramesAvailableToReadout = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FRAMES_AVAILABLE_SUFFIX));
 		 pvIsBusy = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(generatePVName(BUSY_SUFFIX));
-		 pvIsConnected = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(generatePVName(CONNECTION_STATUS));
+		 pvIsConnected = LazyPVFactory.newReadOnlyEnumPV(generatePVName(CONNECTION_STATUS), CONNECTION_STATE.class);
 	}
 	
 	private void createFileWritingPVs() {
@@ -205,15 +205,15 @@ public class EpicsControllerPvProvider {
 	private void createDisplayPVs() {
 		 pvGetMaxFrames = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MAX_FRAMES_SUFFIX));
 		 pvGetMCASize = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MCA_SIZE_SUFFIX));
-		 pvSetScalerUpdate = LazyPVFactory.newEnumPV(generatePVName(SCALER_UPDATE_SUFFIX),UPDATE_CTRL.class);
-		 pvGetScalerUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCALER_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
-		 pvScalerUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(SCALER_UPDATE_PERIOD_SUFFIX));
-		 pvSetMCAUpdate = LazyPVFactory.newEnumPV(generatePVName(MCA_UPDATE_SUFFIX),UPDATE_CTRL.class);
-		 pvGetMCAUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(MCA_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
-		 pvMCAUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(MCA_UPDATE_PERIOD_SUFFIX));
-		 pvSetSCAROIUpdate = LazyPVFactory.newEnumPV(generatePVName(SCA_UPDATE_SUFFIX),UPDATE_CTRL.class);
-		 pvGetSCAROIUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCA_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
-		 pvSCAROIUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(SCA_UPDATE_PERIOD_SUFFIX));
+//		 pvSetScalerUpdate = LazyPVFactory.newEnumPV(generatePVName(SCALER_UPDATE_SUFFIX),UPDATE_CTRL.class);
+//		 pvGetScalerUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCALER_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
+//		 pvScalerUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(SCALER_UPDATE_PERIOD_SUFFIX));
+//		 pvSetMCAUpdate = LazyPVFactory.newEnumPV(generatePVName(MCA_UPDATE_SUFFIX),UPDATE_CTRL.class);
+//		 pvGetMCAUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(MCA_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
+//		 pvMCAUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(MCA_UPDATE_PERIOD_SUFFIX));
+//		 pvSetSCAROIUpdate = LazyPVFactory.newEnumPV(generatePVName(SCA_UPDATE_SUFFIX),UPDATE_CTRL.class);
+//		 pvGetSCAROIUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCA_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
+//		 pvSCAROIUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(SCA_UPDATE_PERIOD_SUFFIX));
 	}
 
 	@SuppressWarnings("unchecked")
