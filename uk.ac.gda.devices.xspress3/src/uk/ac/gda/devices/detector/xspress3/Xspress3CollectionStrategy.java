@@ -4,7 +4,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
-import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.epics.CAClient;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-public class Xspress3CollectionStrategy implements NXCollectionStrategyPlugin, Configurable{
+public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Configurable{
 
 	private Xspress3Controller controller;
 	private Integer frameToLookFor = null;
@@ -176,6 +176,11 @@ public class Xspress3CollectionStrategy implements NXCollectionStrategyPlugin, C
 	@Override
 	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
 		return 1;
+	}
+
+	@Override
+	public boolean requiresAsynchronousPlugins() {
+		return true;
 	}
 
 }
