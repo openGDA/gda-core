@@ -63,17 +63,17 @@
      </perspective>
      <perspective
            class="uk.ac.gda.devices.bssc.perspectives.BioSAXSProgressPerspective"
-           id="uk.ac.gda.devices.progress.biosaxsprogressperspective"
+           id="uk.ac.gda.devices.bssc.biosaxsprogressperspective"
            name="BioSAXS Progress">
      </perspective>
      <perspective
            class="uk.ac.gda.devices.bssc.perspectives.BioSAXSResultPerspective"
-           id="uk.ac.gda.devices.result.perspective"
+           id="uk.ac.gda.devices.bssc.biosaxsresultperspective"
            name="BioSAXS Result">
      </perspective>
      <perspective
            class="uk.ac.gda.devices.bssc.perspectives.BioSAXSSetupPerspective"
-           id="uk.ac.gda.devices.bssc.biosaxssetupPerspective"
+           id="uk.ac.gda.devices.bssc.biosaxssetupperspective"
            name="BioSAXS Setup">
      </perspective>
   </extension>
