@@ -5,7 +5,6 @@ from gda.data.scan.datawriter import DataWriterFactory
 from gda.factory import Finder
 import gda.jython.commands.ScannableCommands.scan
 from gda.analysis import DataSet
-from uk.ac.diamond.scisoft.analysis import SDAPlotter as RCPPlotter
 from uk.ac.diamond.scisoft.analysis.roi import GridROI
 from uk.ac.diamond.scisoft.analysis.plotserver import GuiParameters
 from gdascripts.messages import handle_messages
@@ -14,6 +13,7 @@ from uk.ac.gda.server.ncd.subdetector import LastImageProvider
 import scisoftpy as dnp
 from uk.ac.diamond.scisoft.analysis.io import Metadata
 from uk.ac.diamond.scisoft.analysis.roi import GridPreferences
+from uk.ac.diamond.scisoft.analysis import SDAPlotter as RCPPlotter
 
 class Grid(DataWriterExtenderBase):
 	
@@ -50,14 +50,14 @@ class Grid(DataWriterExtenderBase):
 				ya = dnp.array([(y-ybs)/yres for y in range(ys)])
 				xa.setName("mm")
 				ya.setName("mm")
-				RCPPlotter.imagePlot(self.cameraPanel, xa, ya, image)
+				dnp.plot.image(image, xa, ya, name=self.cameraPanel) # TODO unlear
 			else:
-				RCPPlotter.imagePlot(self.cameraPanel, image)
+				dnp.plot.image(image, name=self.cameraPanel)
 		except:
 			print "  gridscan: error getting camera image"
 		
 	def scan(self):
-		beanbag=RCPPlotter.getGuiBean(self.cameraPanel)
+		beanbag=dnp.plot.getbean(name=self.cameraPanel)
 		if beanbag == None:
 			print "No Bean found on "+self.camerPanel+" (that is strange)"
 			return
