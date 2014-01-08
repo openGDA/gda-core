@@ -1,6 +1,7 @@
 from TwodDataSetResult import TwodDataSetResult
 from gdascripts.analysis.datasetprocessor.twod.TwodDataSetResult import TwodDataSetResult
 
+# XXX This is extended by Eric's FlippingDevice from i06 and/or i07
 class TwodDataSetProcessor(object):
 
 	def _process(self, dataset,dsxaxis, dsyaxis):
