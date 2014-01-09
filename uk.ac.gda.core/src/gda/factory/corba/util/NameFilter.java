@@ -31,7 +31,7 @@ public final class NameFilter implements Filter {
 	
 	private final String name;
 
-	private static String eventChannelName = LocalProperties.get("gda.eventChannelName");
+	private static String eventChannelName = LocalProperties.get("gda.eventChannelName", "local.eventChannel");
 
 	private final IIsBeingObserved isBeingObserved;
 

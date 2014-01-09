@@ -144,6 +144,7 @@ public class TestHelpers {
 		InterfaceProvider.setScanDataPointProviderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setBatonStateProviderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setJSFObserverForTesting(mockJythonServerFacade);
+		InterfaceProvider.setJythonServerNotiferForTesting(mockJythonServerFacade);
 		LocalProperties.set(LocalProperties.GDA_DATA, testScratchDirectoryName + "/Data");
 		LocalProperties.set(LocalProperties.GDA_VAR_DIR, testScratchDirectoryName + "/Data");
 		LocalProperties.set(LocalProperties.GDA_LOGS_DIR, testScratchDirectoryName + "/Data");

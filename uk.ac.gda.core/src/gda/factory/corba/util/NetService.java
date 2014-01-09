@@ -92,11 +92,8 @@ public class NetService {
 		String property;
 		Properties props = System.getProperties();
 
-		if ((property = LocalProperties.get("gda.ORBClass")) != null)
-			props.put("org.omg.CORBA.ORBClass", property);
-
-		if ((property = LocalProperties.get("gda.ORBSingletonClass")) != null)
-			props.put("org.omg.CORBA.ORBSingletonClass", property);
+		props.put("org.omg.CORBA.ORBClass", LocalProperties.get("gda.ORBClass", "org.jacorb.orb.ORB"));
+		props.put("org.omg.CORBA.ORBSingletonClass", LocalProperties.get("gda.ORBSingletonClass", "org.jacorb.orb.ORBSingleton"));
 
 		System.setProperties(props);
 		try {

@@ -18,6 +18,7 @@
 
 package gda.scan;
 
+import static gda.jython.InterfaceProvider.getJythonServerNotifer;
 import static gda.scan.ScanDataPoint.handleZeroInputExtraNameDevice;
 import gda.device.ContinuousParameters;
 import gda.device.Detector;
@@ -51,22 +52,11 @@ public class ContinuousScan extends ConcurrentScanChild {
 	private Integer numberScanpoints;
 	private BufferedDetector[] qscanDetectors;
 
-	/**
-	 * 
-	 */
 	public ContinuousScan() {
 		super();
 		setMustBeFinal(true);
 	}
 
-	/**
-	 * @param energyScannable
-	 * @param start
-	 * @param stop
-	 * @param numberPoints
-	 * @param time
-	 * @param detectors
-	 */
 	public ContinuousScan(ContinuouslyScannable energyScannable, Double start, Double stop, Integer numberPoints,
 			Double time, BufferedDetector[] detectors) {
 		setMustBeFinal(true);
@@ -358,9 +348,10 @@ public class ContinuousScan extends ConcurrentScanChild {
 			thisPoint.setCurrentFilename(getDataWriter().getCurrentFileName());
 
 			// then notify IObservers of this scan (e.g. GUI panels)
-			notifyServer(thisPoint);
-			// this new command re-reads the detectors - so do not want that!!
-			// scanDataPointPipeline.populatePositionsAndDataAndPublish(thisPoint);
+			getJythonServerNotifer().notifyServer(this, thisPoint);
+			// TODO might want to allow for PositionCallableProviders and add points to the ScanDataPointPipeline
+			// instead of simply calling notifyServer here
+
 		}
 	}
 
