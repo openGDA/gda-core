@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,31 +19,24 @@
 package gda.device.detector.xmap;
 
 import gda.device.DeviceException;
-import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 
-public class EpicsXmapControllerROI extends EpicsXmapController{
-	private EDXDMappingController edxdController;
-	private int numberOfElements;
-	private String edxdControllerName;
+public class EpicsXmapControllerROI extends EpicsXmapController {
+
 	private double[][][] controlRois;
-	
+
 	@Override
 	public void configure() throws FactoryException {
-		if((edxdController = (EDXDMappingController)Finder.getInstance().find(edxdControllerName) )!= null){
-			numberOfElements = edxdController.getNumberOfElements();
-			edxdController.addIObserver(this);
-			controlRois = new double[numberOfElements][][];
-		}
+		super.configure();
+		controlRois = new double[numberOfElements][][];
 	}
 
 	@Override
-	public void setNumberOfElements(int numberOfElements){
+	public void setNumberOfElements(int numberOfElements) {
 		this.numberOfElements = numberOfElements;
 		edxdController.setNumberOfElements(numberOfElements);
 	}
-	
+
 	@Override
 	public void deleteROIs(int mcaIndex) throws DeviceException {
 		controlRois[mcaIndex] = null;
@@ -59,22 +52,22 @@ public class EpicsXmapControllerROI extends EpicsXmapController{
 		int[] mcaData = getData(mcaNumber);
 		double[] roiSums = new double[controlRois[mcaNumber].length];
 		for (int i = 0; i < controlRois[mcaNumber].length; i++)
-			roiSums[i] = calcROICounts((int)controlRois[mcaNumber][i][0], (int)controlRois[mcaNumber][i][1], mcaData);
+			roiSums[i] = calcROICounts((int) controlRois[mcaNumber][i][0], (int) controlRois[mcaNumber][i][1], mcaData);
 		return roiSums;
 	}
-	
+
 	@Override
 	public double[] getROIs(int mcaNumber, int[][] data) throws DeviceException {
 		int[] mcaData = data[mcaNumber];
 		double[] roiSums = new double[controlRois[mcaNumber].length];
 		for (int i = 0; i < controlRois[mcaNumber].length; i++) {
-			int min = (int)controlRois[mcaNumber][i][0];
-			int max = (int)controlRois[mcaNumber][i][1];
+			int min = (int) controlRois[mcaNumber][i][0];
+			int max = (int) controlRois[mcaNumber][i][1];
 			roiSums[i] = calcROICounts(min, max, mcaData);
 		}
 		return roiSums;
 	}
-	
+
 	private double calcROICounts(int min, int max, int[] data) {
 		double sum = 0;
 		for (int i = min; i <= max; i++)
@@ -102,4 +95,5 @@ public class EpicsXmapControllerROI extends EpicsXmapController{
 		edxdController.activateROI();
 		actualNumberOfROIs = actualRois.length;
 	}
+
 }

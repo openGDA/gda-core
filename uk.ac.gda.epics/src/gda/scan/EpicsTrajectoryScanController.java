@@ -1558,16 +1558,17 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	 * stop or abort the trajectory scan.
 	 * 
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void stop() throws DeviceException, InterruptedException {
-		
-		try{controller.caput(abort, 1);
-	} catch (CAException e) {
-		logger.error("Error setting m1Move " , e);
-		throw new DeviceException("Error setting m1Move " , e);
-	}
+		try {
+			controller.caput(read, 0);
+			controller.caput(abort, 1);
+		} catch (CAException e) {
+			logger.error("Error setting m1Move ", e);
+			throw new DeviceException("Error setting m1Move ", e);
+		}
 	}
 
 	/**
