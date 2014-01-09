@@ -48,9 +48,9 @@ class Grid(DataWriterExtenderBase):
 				yres = self.getResolutionY()
 				xa = dnp.array([(x-xbs)/xres for x in range(xs)])
 				ya = dnp.array([(y-ybs)/yres for y in range(ys)])
-				xa.setName("mm")
-				ya.setName("mm")
-				dnp.plot.image(image, xa, ya, name=self.cameraPanel) # TODO unlear
+				xa._jdataset().setName("mm")
+				ya._jdataset().setName("mm")
+				dnp.plot.image(image, x=xa, y=ya, name=self.cameraPanel)
 			else:
 				dnp.plot.image(image, name=self.cameraPanel)
 		except:
@@ -61,7 +61,7 @@ class Grid(DataWriterExtenderBase):
 		if beanbag == None:
 			print "No Bean found on "+self.camerPanel+" (that is strange)"
 			return
-		roi=beanbag[GuiParameters.ROIDATA]
+		roi=beanbag[GuiParameters.ROIDATA]._jroi()
 		if not isinstance(roi, GridROI):
 			print "no Grid ROI selected"
 			return
