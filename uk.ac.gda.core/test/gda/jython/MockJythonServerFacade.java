@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner, ITerminalPrinter,
 		ICurrentScanController, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider ,
-		IScriptController, IPanicStop, IBatonStateProvider, JSFObserver, AliasedCommandProvider{
+		IScriptController, IPanicStop, IBatonStateProvider, JSFObserver, AliasedCommandProvider, IJythonServerNotifer{
 	private static final Logger logger = LoggerFactory.getLogger(MockJythonServerFacade.class);
 	
 	private String terminalOutput = "";
@@ -326,5 +326,10 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	public String locateScript(String scriptToRun) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void notifyServer(Object source, Object data) {
+		update(source, data);		
 	}	
 }
