@@ -254,12 +254,14 @@ public class EpicsAreaDetectorFileSaveImpl implements EpicsAreaDetectorFileSave{
 
 	@Override
 	public void setFilePath(String filePath) throws CAException, InterruptedException {
-		ecl.caput(channelFilePath, filePath.getBytes());
+		String nullterm = filePath + '\0';
+		ecl.caput(channelFilePath, nullterm.getBytes());
 	}
 
 	@Override
 	public void setFileName(String fileName) throws CAException, InterruptedException {
-		ecl.caput(channelFileName, fileName.getBytes());
+		String nullterm = fileName + '\0';
+		ecl.caput(channelFileName, nullterm.getBytes());
 	}
 	@Override
 	public String getFullFileName() throws TimeoutException, CAException, InterruptedException {
@@ -281,7 +283,8 @@ public class EpicsAreaDetectorFileSaveImpl implements EpicsAreaDetectorFileSave{
 	}
 	@Override
 	public void setFileTemplate(String fileTemplate) throws CAException, InterruptedException {
-		ecl.caput(channelFileTemplate, fileTemplate.getBytes());
+		String nullterm = fileTemplate + '\0';
+		ecl.caput(channelFileTemplate, nullterm.getBytes());
 	}
 	
 	@Override
