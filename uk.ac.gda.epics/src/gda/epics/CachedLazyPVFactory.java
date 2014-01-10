@@ -31,6 +31,7 @@ public class CachedLazyPVFactory {
 	protected Map<String, PV<Integer>> pvIntegers;
 	protected Map<String, PVValueCache<Integer>> pvValueCacheIntegers;
 	protected Map<String, PVValueCache<Double>> pvValueCacheDoubles;
+	protected Map<String, PV<String>> pvStrings;
 
 	private String deviceprefix;
 
@@ -137,6 +138,17 @@ public class CachedLazyPVFactory {
 		if (pv == null) {
 			pv = new PVValueCache<Double>(getPVDouble((suffix)));
 			pvValueCacheDoubles.put(suffix, pv);
+		}
+		return pv;
+	}
+
+	public PV<String> getPVString(String suffix) {
+		if (pvStrings == null)
+			pvStrings = new HashMap<String, PV<String>>();
+		PV<String> pv = pvStrings.get(suffix);
+		if (pv == null) {
+			pv = LazyPVFactory.newStringPV(deviceprefix + suffix);
+			pvStrings.put(suffix, pv);
 		}
 		return pv;
 	}
