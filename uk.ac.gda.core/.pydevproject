@@ -20,4 +20,8 @@
 <path>${gda_root}/workspace/tp/plugins/org.apache.commons.math3_3.2.0.jar</path>
 <path>${gda_root}/workspace_git/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/org.springframework.beans-3.2.2.RELEASE.jar</path>
 </pydev_pathproperty>
+<pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION">
+<key>gda_root</key>
+<value>/dls_sw/i11/software/gda</value>
+</pydev_variables_property>
 </pydev_project>
