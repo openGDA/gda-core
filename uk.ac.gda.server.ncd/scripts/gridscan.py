@@ -103,8 +103,9 @@ class Grid(DataWriterExtenderBase):
 		return self.getSaxsDetector().getName()
 
 	def addData(self, parent, dataPoint):
+		if not self.scanrunning:
+			return
 		try:
-			if self.scanrunning:
 				pno=dataPoint.getCurrentPointNumber()
 				index=dataPoint.getDetectorNames().indexOf(self.ncddetectors.getName())
 				tree=dataPoint.getDetectorData().get(index).getNexusTree()
