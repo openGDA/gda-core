@@ -8,10 +8,9 @@ import gda.device.detector.BufferedDetector;
  * When using an Xspress3 system in a ContinuousScan.
  * 
  * @author rjw82
- *
+ * 
  */
-public class Xspress3BufferedDetector extends Xspress3Detector implements
-		BufferedDetector {
+public class Xspress3BufferedDetector extends Xspress3Detector implements BufferedDetector {
 
 	private ContinuousParameters parameters;
 	private boolean isContinuousModeOn;
@@ -23,14 +22,20 @@ public class Xspress3BufferedDetector extends Xspress3Detector implements
 
 	@Override
 	public void clearMemory() throws DeviceException {
+		controller.doStop();
 		controller.doErase();
 	}
 
 	@Override
 	public void setContinuousMode(boolean on) throws DeviceException {
 		this.isContinuousModeOn = on;
-		this.controller.setNumFramesToAcquire(parameters.getNumberDataPoints());
-		this.controller.setTriggerMode(triggerModeWhenInContinuousScan);
+		if (on) {
+			this.controller.setNumFramesToAcquire(parameters.getNumberDataPoints());
+			this.controller.setTriggerMode(triggerModeWhenInContinuousScan);
+			// Epics needs us to clear memory again after setting trig mode and num frames
+			clearMemory();
+			controller.doStart();
+		}
 	}
 
 	@Override
@@ -39,14 +44,12 @@ public class Xspress3BufferedDetector extends Xspress3Detector implements
 	}
 
 	@Override
-	public void setContinuousParameters(ContinuousParameters parameters)
-			throws DeviceException {
-				this.parameters = parameters;
+	public void setContinuousParameters(ContinuousParameters parameters) throws DeviceException {
+		this.parameters = parameters;
 	}
 
 	@Override
-	public ContinuousParameters getContinuousParameters()
-			throws DeviceException {
+	public ContinuousParameters getContinuousParameters() throws DeviceException {
 		return parameters;
 	}
 
@@ -56,8 +59,7 @@ public class Xspress3BufferedDetector extends Xspress3Detector implements
 	}
 
 	@Override
-	public Object[] readFrames(int startFrame, int finalFrame)
-			throws DeviceException {
+	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		return super.readoutFrames(startFrame, finalFrame);
 	}
 
@@ -68,15 +70,14 @@ public class Xspress3BufferedDetector extends Xspress3Detector implements
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		return controller.getNumFramesPerReadout();
+		return 50;
 	}
 
 	public TRIGGER_MODE getTriggerModeWhenInContinuousScan() {
 		return triggerModeWhenInContinuousScan;
 	}
 
-	public void setTriggerModeWhenInContinuousScan(
-			TRIGGER_MODE triggerModeWhenInContinuousScan) {
+	public void setTriggerModeWhenInContinuousScan(TRIGGER_MODE triggerModeWhenInContinuousScan) {
 		this.triggerModeWhenInContinuousScan = triggerModeWhenInContinuousScan;
 	}
 
