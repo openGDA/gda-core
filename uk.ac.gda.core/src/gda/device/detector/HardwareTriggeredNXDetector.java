@@ -18,6 +18,7 @@
 
 package gda.device.detector;
 
+import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
@@ -61,6 +62,12 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 			throw new DeviceException(e);
 		}
 
+	}
+	
+	@Override
+	public NexusTreeProvider readout() throws DeviceException {
+		lastReadoutValue = null; // outside a HW scan this would be called in collectData
+		return super.readout();
 	}
 	
 	@Override
