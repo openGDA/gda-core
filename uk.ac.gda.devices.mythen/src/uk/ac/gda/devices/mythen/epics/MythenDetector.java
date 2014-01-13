@@ -22,11 +22,16 @@ import gda.device.DeviceException;
 import gda.device.detector.NXDetector;
 import gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
+import gda.device.detector.mythen.MythenDetectorImpl;
 import gda.scan.ConcurrentScan;
 import gda.scan.RepeatScan;
 import gda.scan.ScanInformation;
 
-public class MythenDetector extends NXDetector {
+public class MythenDetector extends MythenDetectorImpl {
+	
+	private MythenEpicsController controller;
+	
+	
 	
 	public void acquire(double collectionTime, int numImages) throws Exception {
 		// TO-DO
@@ -36,8 +41,7 @@ public class MythenDetector extends NXDetector {
 		
 		ScanInformation scanInfo_IGNORED = null;
 		int numberImagesPerCollection_IGNORED = -1;
-		SimpleAcquire psa = (SimpleAcquire)this.getCollectionStrategy();
-		psa.prepareForCollection(collectionTime, numberImagesPerCollection_IGNORED, scanInfo_IGNORED);
+		//prepareForCollection(collectionTime, numberImagesPerCollection_IGNORED, scanInfo_IGNORED);
 		ConcurrentScan scan = RepeatScan.create_repscan(numImages, this);
 		scan.runScan();
 	}
@@ -52,8 +56,8 @@ public class MythenDetector extends NXDetector {
 		numImages = 12; //for testing
 		ScanInformation scanInfo_IGNORED = null;
 		int numberImagesPerCollection_IGNORED = -1;
-		SimpleAcquire psa = (SimpleAcquire)this.getCollectionStrategy();
-		psa.prepareForCollection(collectionTime, numberImagesPerCollection_IGNORED, scanInfo_IGNORED);
+		//SimpleAcquire psa = (SimpleAcquire)this.getCollectionStrategy();
+		//psa.prepareForCollection(collectionTime, numberImagesPerCollection_IGNORED, scanInfo_IGNORED);
 		ConcurrentScan scan = RepeatScan.create_repscan(numImages, this);
 		scan.runScan();
 	}
@@ -69,7 +73,7 @@ public class MythenDetector extends NXDetector {
 	}
 	
 	public void stopAcquiring() throws Exception {
-		AbstractADTriggeringStrategy ats = (AbstractADTriggeringStrategy)this.getCollectionStrategy();
-		ats.getAdBase().stopAcquiring();
+		//AbstractADTriggeringStrategy ats = (AbstractADTriggeringStrategy)this.getCollectionStrategy();
+		//ats.getAdBase().stopAcquiring();
 	}
 }
