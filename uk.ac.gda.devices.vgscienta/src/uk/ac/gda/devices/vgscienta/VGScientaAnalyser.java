@@ -24,6 +24,7 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
 import gda.device.MotorStatus;
+import gda.device.Scannable;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.NXDetectorData;
@@ -31,6 +32,7 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.device.detector.nxdetector.roi.RectangularROIProvider;
+import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
@@ -71,6 +73,50 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	private EntranceSlitInformationProvider entranceSlitInformationProvider;
 	
 	private RectangularROIProvider<Integer> cpsRoiProvider;
+	
+	private boolean kineticEnergyChangesDuringScan = false;
+	
+	final public Scannable centre_energy = new ScannableBase() {
+	
+		@Override
+		public void atScanStart() throws DeviceException {
+			kineticEnergyChangesDuringScan = true;
+		}
+		
+		@Override
+		public Double getPosition() throws DeviceException {
+			try {
+				if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
+					return getCentreEnergy();
+				} 
+				return 0.5 * (getStartEnergy() + getEndEnergy());
+			} catch (Exception e) {
+				throw new DeviceException("error getting to EPICS", e);
+			}
+		}
+		
+		@Override
+		public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
+			Double energy = ((Number) externalPosition).doubleValue();
+			try {
+				if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
+					setCentreEnergy(energy);
+					return;
+				} 
+				Double moveby = this.getPosition() - energy;
+				setStartEnergy(getStartEnergy() - moveby);
+				setEndEnergy(getEndEnergy() - moveby);
+				return;
+			} catch (Exception e) {
+				throw new DeviceException("error getting to EPICS", e);
+			}
+		}
+		
+		@Override
+		public boolean isBusy() throws DeviceException {
+			return false;
+		}
+	};
 	
 	@Override
 	public void configure() throws FactoryException {
@@ -139,6 +185,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			// if the scan went well until this we don't want to spoil it, so logging is enough
 			logger.error("zero supplies generated an error at end of scan", e);
 		}
+		kineticEnergyChangesDuringScan = false;
 	}
 	
 	public int getNumberOfSweeptSteps() throws Exception {
@@ -207,6 +254,8 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			double[] axis = getAngleAxis();
 			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, 1, 1, aunit, false);
 			
+			if (kineticEnergyChangesDuringScan)
+				logger.error("we should be recording a dynamic energy axis here!"); // FIXME
 			axis = getEnergyAxis();
 			data.addAxis(getName(), "energies", new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, 2, 1, "eV", false);
 
@@ -362,7 +411,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	}
 	
 	public Double getStartEnergy() throws Exception {
-		return getStartEnergy();
+		return controller.getStartEnergy();
 	}
 
 	public void setCentreEnergy(Double value) throws Exception {
@@ -465,5 +514,9 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 	public void setCpsRoiProvider(RectangularROIProvider<Integer> cpsRoiProvider) {
 		this.cpsRoiProvider = cpsRoiProvider;
+	}
+	
+	public Scannable getCentreEnergyScannable() {
+		return centre_energy;
 	}
 }
