@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 
+import org.dawnsci.plotting.services.util.SWTImageUtils;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -56,7 +57,6 @@ import org.springframework.util.StringUtils;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.SWTImageUtils;
 import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.components.scalebox.DemandBox;
 import uk.ac.gda.richbeans.components.scalebox.NumberBox;
