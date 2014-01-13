@@ -109,7 +109,9 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		try {
 			if (LocalProperties.isScanSetsScanNumber()) {
 				this.scanNumTracker = new NumTracker("scanbase_numtracker");
-			} else {
+			} else  if (LocalProperties.check(LocalProperties.GDA_BEAMLINE_NAME)){
+				this.scanNumTracker=new NumTracker(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME));
+			} else  {
 				this.scanNumTracker = new NumTracker("tmp");
 			}
 		} catch (IOException e) {
