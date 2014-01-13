@@ -21,6 +21,7 @@ package uk.ac.gda.epics.adviewer.composites;
 import gda.images.camera.ImageListener;
 import gda.images.camera.VideoReceiver;
 
+import org.dawnsci.plotting.services.util.SWTImageUtils;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -38,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.SWTImageUtils;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.ImageViewer;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.NewImageListener;
 
