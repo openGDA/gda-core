@@ -1,4 +1,11 @@
 import sys
+import java.io.FileOutputStream as FileOutputStream
+import java.io.FileInputStream as FileInputStream
+import java.io.ObjectOutputStream as ObjectOutputStream
+import java.io.ObjectInputStream as ObjectInputStream
+import os.path
+import gda.configuration.properties.LocalProperties as lp
+
 from gda.data.scan.datawriter import DataWriterExtenderBase
 from gda.device.scannable.scannablegroup import ScannableGroup
 from gda.data.scan.datawriter import DataWriterFactory
@@ -33,7 +40,13 @@ class Grid(DataWriterExtenderBase):
 		extenders=[ex for ex in extenders if not "iAmAGridThingy" in dir(ex)]
 		extenders.append(self)
 		dwf.setDataWriterExtenders(extenders)
-		self.gridpreferences=GridPreferences()
+		self.gridpreferencesStorage = lp.get("gda.var") + "mappingGridPreferences"
+		try:
+			self.loadPreferences()
+		except Exception, e:
+			#print e
+			print "Using default grid preferences"
+			self.gridpreferences=GridPreferences()
 	
 	def snap(self):
 		try:
@@ -133,8 +146,10 @@ class Grid(DataWriterExtenderBase):
 		return self.gridpreferences.getBeamlinePosY()
 	def setBeamCentreX(self, x):
 		self.gridpreferences.setBeamlinePosX(x)
+		self.updatePreferences()
 	def setBeamCentreY(self, y):
 		self.gridpreferences.setBeamlinePosY(y)
+		self.updatePreferences()
 		
 	def getResolutionX(self):
 		return self.gridpreferences.getResolutionX()
@@ -142,5 +157,28 @@ class Grid(DataWriterExtenderBase):
 		return self.gridpreferences.getResolutionY()
 	def setResolutionX(self, x):
 		self.gridpreferences.setResolutionX(x)
+		self.updatePreferences()
 	def setResolutionY(self, y):
 		self.gridpreferences.setResolutionY(y)
+		self.updatePreferences()
+	
+	def updatePreferences(self):
+		self.savePreferences()
+		self.snap()
+	
+	def loadPreferences(self):
+		if not os.path.isfile(self.gridpreferencesStorage):
+			raise Exception("No preferences saved")
+			
+		fileIn = FileInputStream(self.gridpreferencesStorage)
+		objIn = ObjectInputStream(fileIn)
+		self.gridpreferences = objIn.readObject()
+		objIn.close()
+		fileIn.close()
+			
+	def savePreferences(self):
+		fileOut = FileOutputStream(self.gridpreferencesStorage)
+		objOut = ObjectOutputStream(fileOut)
+		objOut.writeObject(self.gridpreferences)
+		objOut.close()
+		fileOut.close()
