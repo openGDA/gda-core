@@ -71,10 +71,12 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		XesMaterial material = getCurrentMaterial();
-		double bragg = XesUtils.getBragg(Double.parseDouble(position.toString()), material, getCrystalCut());
+		String stringPosition = position.toString();
+		double doublePosition = Double.parseDouble(stringPosition);
+		double bragg = XesUtils.getBragg(doublePosition, material, getCrystalCut());
 		if (bragg >= 60.0 && bragg <= 85.0){
 			xes.asynchronousMoveTo(bragg);
-		} else {
+		} else{
 			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be 60 to 85 deg.");
 		}
 	}
