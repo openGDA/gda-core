@@ -50,7 +50,7 @@ def getFilenameZidxOffset(inDir, inFilenameFmt="p_%05d.tif"):
 		#pattern_dct['%05d.tif'] = r'^(\d{5})\.tif$'
 		#pattern = pattern_dct[inFilenameFmt]
 		#files = [f for f in os.listdir(inDir) if re.match(pattern,f)]
-	offset = 0
+	#offset = 0
 	return offset
 	
 def copySingleFile(src, dst):
@@ -399,7 +399,7 @@ def decimate(inList, decimationRate=1):
 	return outList
 
 
-def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir, tif_lst, dark_idx, flat_idx, proj_idx, unpicked_idx_dct, filenameOffset=0, decimationRate=1, verbose=False):
+def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir, tif_lst, dark_idx, flat_idx, proj_idx, unpicked_idx_dct, filenameOffset=0, filenameFmt="p_%05d.tif", decimationRate=1, verbose=False):
 
 	"""
 	Create:
@@ -456,20 +456,20 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, 
 
 	#e.g. /dls/i13/data/2012/mt5811-1/564/pco1/pco1564-00002.tif
 	#Note that src_proj_split contains some empty strings, i.e.''
-	makeLinks_arg={}
-	makeLinks_arg['beamlineID']=src_proj_split[2]
-	makeLinks_arg['year']=int(src_proj_split[4])
-	makeLinks_arg['visit']=src_proj_split[5]
+	#makeLinks_arg={}
+	#makeLinks_arg['beamlineID']=src_proj_split[2]
+	#makeLinks_arg['year']=int(src_proj_split[4])
+	#makeLinks_arg['visit']=src_proj_split[5]
 	#makeLinks_arg['scanNumber']=int(src_proj_split[6])
-	makeLinks_arg['scanNumber']=src_proj_split[6]
-	makeLinks_arg['detector']=src_proj_split[7]
+	#makeLinks_arg['scanNumber']=src_proj_split[6]
+	#makeLinks_arg['detector']=src_proj_split[7]
 	
-	makeLinks_arg['firstImage']=proj_idx[0]
-	makeLinks_arg['lastImage']=proj_idx[len(proj_idx)-1]
+	#makeLinks_arg['firstImage']=proj_idx[0]
+	#makeLinks_arg['lastImage']=proj_idx[len(proj_idx)-1]
 
 	detectorName=src_proj_split[7]
-	makeLinks_outdir=head+os.sep+proj_dir
-	print "makeLinks_outdir=%s"%makeLinks_outdir
+	#makeLinks_outdir=head+os.sep+proj_dir
+	#print "makeLinks_outdir=%s"%makeLinks_outdir
 
 
 	proj_idx_decimated=decimate(proj_idx, decimationRate)
@@ -490,15 +490,15 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, 
 #						, outdir=(head+os.sep+proj_dir))
 
 	#filenameFmt=detectorName+scanNumber_str+"-"+"%05d.tif"
-	filenameFmt="p_%05d.tif"
+	outFilenameFmt="p_%05d.tif"
 	makeLinksToOriginalFiles(\
 							listOfProjIdx=proj_idx_decimated\
 							, indir=genAncestorPath(refFilename, 1)\
 							, inFilenameFmt=filenameFmt\
 							, outdir=(head+os.sep+proj_dir)\
-							, outFilenameFmt=filenameFmt\
+							, outFilenameFmt=outFilenameFmt\
 							, inFilenameOffset=filenameOffset)
-	filenameFmt="p_%05d.tif"
+	#filenameFmt="p_%05d.tif"
 	#outFnameFmt="f_%03d_%05d.tif"
 	outPrefixFnameFmt="f_%03d_"
 	outPostixFnameFmt="%05d.tif"
@@ -517,7 +517,7 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, 
 		subseq += 1
 	
 	# create links to all darks
-	filenameFmt="p_%05d.tif"
+	#filenameFmt="p_%05d.tif"
 	#outFnameFmt="d_%03d_%05d.tif"
 	outPrefixFnameFmt="d_%03d_"
 	outPostixFnameFmt="%05d.tif"
@@ -823,7 +823,7 @@ def makeLinksForNXSFile(\
 	#print "inHead =", inHead
 	#print "inTail =", inTail
 	filenameZidxOffset = getFilenameZidxOffset(inHead, inFilenameFmt)
-	filenameZidxOffset = 0
+	#filenameZidxOffset = 0
 	
 	# lists to store the indices of DARK, FLAT and PROJ images, respectively
 	dark_idx=[]
@@ -1045,7 +1045,7 @@ def makeLinksForNXSFile(\
 	
 	scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir=createDirs(refFilename=srcfile_proj, outdir=outdir, mandatorydir=mandatory_parent_foldername, verbose=verbose)
 	
-	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir, tif, dark_idx, flat_idx, proj_idx, unpicked_idx_dct, filenameZidxOffset, decimationRate, verbose=verbose)
+	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir, tif, dark_idx, flat_idx, proj_idx, unpicked_idx_dct, filenameZidxOffset, inFilenameFmt, decimationRate, verbose=verbose)
 	
 	# average flats
 	avgf_success = False
