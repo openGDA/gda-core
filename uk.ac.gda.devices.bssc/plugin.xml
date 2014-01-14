@@ -97,5 +97,18 @@
            restorable="true">
      </view>
   </extension>
+  <extension
+        point="org.eclipse.ui.menus">
+     <menuContribution
+           allPopups="false"
+           locationURI="popup:uk.ac.gda.client.CommandQueueViewFactory?after=additions">
+        <menu
+              label="Edit Queued Item">
+        </menu>
+     </menuContribution>
+  </extension>
+  <extension
+        point="org.eclipse.ui.commands">
+  </extension>
 
 </plugin>
