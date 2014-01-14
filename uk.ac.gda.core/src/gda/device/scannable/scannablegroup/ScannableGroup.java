@@ -312,7 +312,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 					
 					Object pos = member.getPosition();
 					if (pos != null) {
-						memberPosition = ScannableUtils.objectToArray(pos);						
+						memberPosition = ScannableUtils.objectToArray(pos);
 					} else {
 						memberPosition = new Object[0];
 					}
