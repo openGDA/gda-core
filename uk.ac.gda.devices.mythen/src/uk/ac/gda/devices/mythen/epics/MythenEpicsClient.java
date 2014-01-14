@@ -19,6 +19,9 @@
 package uk.ac.gda.devices.mythen.epics;
 
 import gda.device.DeviceException;
+import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.mythen.client.AcquisitionParameters;
+import gda.device.detector.mythen.client.MythenClient;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
@@ -31,8 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class MythenEpicsController implements InitializingBean {
-	static final Logger logger = LoggerFactory.getLogger(MythenEpicsController.class);
+public class MythenEpicsClient implements MythenClient, InitializingBean {
+	static final Logger logger = LoggerFactory.getLogger(MythenEpicsClient.class);
 
 	private static final String THRESHOLD_ENERGY = "ThresholdEnergy";
 	private static final String THRESHOLD_ENERGY_RBV = "ThresholdEnergy_RBV";
@@ -75,10 +78,11 @@ public class MythenEpicsController implements InitializingBean {
 	private static final String AUTO_SAVE = "AutoSave";
 	private static final String FILE_TEMPLATE = "FileTemplate";
 	private static final String FILE_TEMPLATE_RBV = "FileTemplate_RBV";
-	private static final String FILE_FORMAT = "FileFormat";
+//	 private static final String FILE_FORMAT = "FileFormat"; 
 	private static final String FULL_FILE_NAME_RBV = "FullFileName_RBV";
 	
-	private enum Setting {
+	private ADBase adbase;
+	public enum Setting {
 		standard,
 		fast,
 		highgain;
@@ -166,11 +170,11 @@ public class MythenEpicsController implements InitializingBean {
 	public int getNumFrames() throws Exception {
 		return dev.getPVInteger(NUM_FRAMES_RBV).get();
 	}
-	public void setDelayTime(int value) throws IOException {
-		dev.getPVInteger(DELAY_TIME).putWait(value);
+	public void setDelayTime(double value) throws IOException {
+		dev.getPVDouble(DELAY_TIME).putWait(value);
 	}
-	public int getDelayTime() throws Exception {
-		return dev.getPVInteger(DELAY_TIME_RBV).get();
+	public double getDelayTime() throws Exception {
+		return dev.getPVDouble(DELAY_TIME_RBV).get();
 	}
 	public void setNumGates(int value) throws IOException {
 		dev.getPVInteger(NUM_GATES).putWait(value);
@@ -191,7 +195,7 @@ public class MythenEpicsController implements InitializingBean {
 	public void disableFlatFieldCorrection() throws IOException {
 		dev.getPVInteger(USE_FLAT_FIELD).putWait(0);
 	}
-	public boolean isFlatFieldCorrectionEnabled() throws IOException {
+	public boolean isFlatFieldCorrected() throws IOException {
 		return dev.getPVInteger(USE_FLAT_FIELD).get().intValue()==1;
 	}
 	public void setFlatFieldFile(String value) throws IOException {
@@ -207,7 +211,7 @@ public class MythenEpicsController implements InitializingBean {
 	public void disableCountRateCorrection() throws IOException {
 		dev.getPVInteger(USE_COUNT_RATE).putWait(0);
 	}
-	public boolean isCountRateCorrectionEnabled() throws IOException {
+	public boolean isCountRateCorrected() throws IOException {
 		return dev.getPVInteger(USE_COUNT_RATE).get().intValue()==1;
 	}
 	public void enableBadChannelCorrection() throws IOException {
@@ -216,7 +220,7 @@ public class MythenEpicsController implements InitializingBean {
 	public void disableBadChannelCorrection() throws IOException {
 		dev.getPVInteger(USE_PIXEL_MASK).putWait(0);
 	}
-	public boolean isBadChannelCorrectionEnabled() throws IOException {
+	public boolean isBadChannelCorrected() throws IOException {
 		return dev.getPVInteger(USE_PIXEL_MASK).get().intValue()==1;
 	}
 	public void enableAngularConversion() throws IOException {
@@ -268,11 +272,17 @@ public class MythenEpicsController implements InitializingBean {
 	public void disableAutoIncrement() throws IOException {
 		dev.getPVInteger(AUTO_INCREMENT).putWait(0);
 	}
+	public boolean isAutoIncrement() throws IOException {
+		return dev.getPVInteger(AUTO_INCREMENT).get().intValue()==1;
+	}
 	public void enableAutoSave() throws IOException {
 		dev.getPVInteger(AUTO_SAVE).putWait(1);
 	}
 	public void disableAutoSave() throws IOException {
 		dev.getPVInteger(AUTO_SAVE).putWait(0);
+	}
+	public boolean isAutoSave() throws IOException {
+		return dev.getPVInteger(AUTO_SAVE).get().intValue()==1;
 	}
 	public void setFileTemplate(String value) throws IOException {
 		dev.getPVString(FILE_TEMPLATE).putWait(value);
@@ -408,6 +418,81 @@ public class MythenEpicsController implements InitializingBean {
 			return "NotEqualTo(" + value + ")";
 		}
 	}
-	
+	/**
+	 * start acquire data from detector asynchronously.
+	 * Note the MythenClient interface parameter - {@link AcquisitionParameters} is no longer suitable for Mythen 3. 
+	 * This method is implemented here only for matching interface requirement. No detector configuration is set. 
+	 */
+	@Override
+	public void acquire(AcquisitionParameters params) throws DeviceException {
+		//set parameters
+		
+		// acquire data
+		try {
+			adbase.startAcquiring();
+		} catch (Exception e) {
+			logger.error("Start acquisition failed", e);
+			throw new DeviceException("Start acquisition failed", e);
+		}
+		
+		
+	}
 
+	public ADBase getAdbase() {
+		return adbase;
+	}
+
+	public void setAdbase(ADBase adbase) {
+		this.adbase = adbase;
+	}
+	/**
+	 * synchronise acquire data from detector
+	 * @throws DeviceException
+	 */
+	public void startWait() throws DeviceException {
+		try {
+			adbase.startAcquiringSynchronously();
+		} catch (Exception e) {
+			logger.error("Start acquisition failed", e);
+			throw new DeviceException("Start acquisition failed", e);
+		}
+	}
+	
+	public void autoMode() throws Exception {
+		setTriggerMode(0);
+	}
+	public void triggerMode() throws Exception {
+		setTriggerMode(1);
+	}
+	public void ro_TriggerMode() throws Exception {
+		setTriggerMode(2);
+	}
+	public void gatingMode() throws Exception {
+		setTriggerMode(3);
+	}
+	public void triggerredGatingMode() throws Exception {
+		setTriggerMode(4);
+	}
+
+	public void setTriggerMode(int value) throws Exception {
+		adbase.setTriggerMode(value);
+	}
+	public void setExposure(double exposureTime) throws Exception {
+		adbase.setAcquireTime(exposureTime);
+	}
+	public double getExposure() throws Exception {
+		return adbase.getAcquireTime_RBV();
+	}
+	public void setAcquirePeriod(double acquireperiod) throws Exception {
+		adbase.setAcquirePeriod(acquireperiod);
+	}
+	public double getAcquirePeriod() throws Exception {
+		return adbase.getAcquirePeriod_RBV();
+	}
+	public void stop() throws Exception {
+		adbase.stopAcquiring();
+	}
+	public void resetArrayCounter() throws Exception {
+		adbase.setArrayCounter(0);
+	}
 }
