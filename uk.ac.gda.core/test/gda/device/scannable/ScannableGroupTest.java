@@ -255,7 +255,7 @@ public class ScannableGroupTest extends TestCase {
 		assertArraysEqual(new String[] {"input1", "input2","input3"}, inputNames);
 		assertArraysEqual(new String[] {"extra1", "extra2"}, extraNames);
 		// GDA-5794 from here
-		assertArraysEqual(new Object[] {10., 20., 10, 3., .901}, position);
+		assertArraysEqual(new Object[] {10., 20., 10., 3., .901}, position);
 		assertArraysEqual(new String[] {"%1.1g", "%2.2g","%4.4g","%3.3f","%5.5g"}, outputFormat);
 	}
 	/**
