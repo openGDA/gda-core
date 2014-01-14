@@ -29,7 +29,7 @@ public class ARPESWizardUtils {
 
 	public static InputStream sessionBeanToStream(ARPESScanBean sessionBean) {
 		try {
-			File tempFile = File.createTempFile("arpes-", ".xml");
+			File tempFile = File.createTempFile("arpes-", ".arpes");
 			tempFile.deleteOnExit();
 			XMLHelpers.writeToXML(ARPESScanBean.mappingURL, sessionBean, tempFile);
 			return new FileInputStream(tempFile);

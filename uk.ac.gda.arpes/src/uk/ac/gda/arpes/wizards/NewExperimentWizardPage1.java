@@ -109,7 +109,7 @@ public class NewExperimentWizardPage1 extends WizardPage {
 	}
 
 	private void populateFileName() {
-		fileText.setText("arpes.xml");
+		fileText.setText("arpes.arpes");
 	}
 
 	private void populateContainer() {
@@ -181,8 +181,8 @@ public class NewExperimentWizardPage1 extends WizardPage {
 		int dotLoc = fileName.lastIndexOf('.');
 		if (dotLoc != -1) {
 			String ext = fileName.substring(dotLoc + 1);
-			if (ext.equalsIgnoreCase("xml") == false) {
-				updateStatus("File extension must be \"xml\"");
+			if (ext.equalsIgnoreCase("arpes") == false) {
+				updateStatus("File extension must be \"arpes\"");
 				return;
 			}
 		}
