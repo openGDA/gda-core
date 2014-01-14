@@ -1580,9 +1580,11 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			for (int frame = 0; frame < numberOfFrames; frame++) {
 				NXDetectorData thisFrame = new NXDetectorData(this);
 				INexusTree detTree = thisFrame.getDetTree(getName());
+				// remove the FF value which readoutScalerData would have added
+				double[] scalerValues = ArrayUtils.subarray(scalerData[frame], 0, numberOfDetectors);
 				// do not use numberOfDetectors here so all information in the array is added to Nexus (i.e. FF)
 				thisFrame.addData(detTree, "scalers", new int[] { numberOfDetectors }, NexusFile.NX_FLOAT64,
-						ArrayUtils.subarray(scalerData[frame], 0, numberOfDetectors - 1), "counts", 1);
+						scalerValues, "counts", 1);
 				thisFrame = addExtraInformationToNexusTree(unpackedScalerData, scalerData, frame, thisFrame, detTree);
 				results[frame] = thisFrame;
 			}
