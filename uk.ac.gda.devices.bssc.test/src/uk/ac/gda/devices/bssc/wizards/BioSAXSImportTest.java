@@ -37,14 +37,14 @@ public class BioSAXSImportTest {
 	private static final int BUFFER_PLATE_COL_NO = 7;
 	private static final int BUFFER_ROW_COL_NO = 8;
 	private static final int BUFFER_COLUMN_COL_NO = 9;
-	private static final int RECOUP_COL_NO = 10;
-	private static final int RECOUP_PLATE_COL_NO = 11;
-	private static final int RECOUP_ROW_COL_NO = 12;
-	private static final int RECOUP_COLUMN_COL_NO = 13;
-	private static final int TIME_PER_FRAME_COL_NO = 14;
-	private static final int FRAMES_COL_NO = 15;
-	private static final int EXPOSURE_TEMP_COL_NO = 16;
-	
+	// private static final int RECOUP_COL_NO = 10;
+	private static final int RECOUP_PLATE_COL_NO = 10;
+	private static final int RECOUP_ROW_COL_NO = 11;
+	private static final int RECOUP_COLUMN_COL_NO = 12;
+	private static final int TIME_PER_FRAME_COL_NO = 13;
+	private static final int FRAMES_COL_NO = 14;
+	private static final int EXPOSURE_TEMP_COL_NO = 15;
+
 	private float sampleStorageTemperature = 15;
 
 	@BeforeClass
@@ -88,9 +88,8 @@ public class BioSAXSImportTest {
 	public void testImport() {
 		Workbook wb;
 		try {
-			wb = WorkbookFactory
-					.create(new File(
-							"/home/xlw00930/Desktop/TestTemplate.xls"));
+			wb = WorkbookFactory.create(new File(
+					"/home/xlw00930/Desktop/TestTemplate.xls"));
 
 			Sheet sheet = wb.getSheetAt(0);
 
@@ -150,7 +149,7 @@ public class BioSAXSImportTest {
 					measurements.add(tibi);
 				} catch (Exception e) {
 					logger.debug("row rejected" + row.toString());
-//					Assert.fail("row rejected" + row.toString());
+					// Assert.fail("row rejected" + row.toString());
 				}
 			}
 
@@ -164,7 +163,7 @@ public class BioSAXSImportTest {
 			e1.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void testImportFromMSExcel() {
 		Workbook wb;
@@ -231,12 +230,74 @@ public class BioSAXSImportTest {
 					measurements.add(tibi);
 				} catch (Exception e) {
 					logger.debug("row rejected" + row.toString());
-//					Assert.fail("row rejected" + row.toString());
+					// Assert.fail("row rejected" + row.toString());
 				}
 			}
 
 			sessionBean.setMeasurements(measurements);
 			Assert.assertEquals(sessionBean.getMeasurements().size(), 3);
+
+			for (int rowIndex = 0; rowIndex < measurements.size(); rowIndex++) {
+				TitrationBean titrationBean = sessionBean.getMeasurements()
+						.get(rowIndex);
+				Row spreadSheetRow = sheet.getRow(rowIndex + 1);
+				LocationBean plateLocation = titrationBean.getLocation();
+				LocationBean bufferLocation = titrationBean.getBufferLocation();
+				LocationBean recoupLocation = titrationBean
+						.getRecouperateLocation();
+
+				// Assert.assertEquals(plateLocation.getPlate(),
+				// spreadSheetRow.getCell(PLATE_COL_NO));
+				Assert.assertEquals(String.valueOf(plateLocation.getRow()),
+						spreadSheetRow.getCell(PLATE_ROW_COL_NO)
+								.getStringCellValue());
+				// Assert.assertEquals(
+				// plateLocation.getColumn(),
+				// Short.valueOf(String.valueOf(spreadSheetRow.getCell(
+				// PLATE_COLUMN_COL_NO).getNumericCellValue())).shortValue());
+				Assert.assertEquals(titrationBean.getSampleName(),
+						spreadSheetRow.getCell(SAMPLE_NAME_COL_NO)
+								.getStringCellValue());
+				Assert.assertEquals(
+						String.valueOf(titrationBean.getConcentration()),
+						String.valueOf(spreadSheetRow.getCell(
+								CONCENTRATION_COL_NO).getNumericCellValue()));
+				Assert.assertEquals(titrationBean.getViscosity(),
+						spreadSheetRow.getCell(VISCOSITY_COL_NO)
+								.getStringCellValue());
+				Assert.assertEquals(
+						String.valueOf(titrationBean.getMolecularWeight()),
+						String.valueOf(spreadSheetRow.getCell(
+								MOLECULAR_WEIGHT_COL_NO).getNumericCellValue()));
+				// Assert.assertEquals(bufferLocation.getPlate(), String
+				// .valueOf(spreadSheetRow.getCell(BUFFER_PLATE_COL_NO)));
+				Assert.assertEquals(String.valueOf(bufferLocation.getRow()),
+						spreadSheetRow.getCell(BUFFER_ROW_COL_NO)
+								.getStringCellValue());
+				// Assert.assertEquals(bufferLocation.getColumn(),
+				// spreadSheetRow.getCell(BUFFER_COLUMN_COL_NO));
+				if (recoupLocation != null) {
+					// Assert.assertEquals(recoupLocation.getPlate(),
+					// spreadSheetRow.getCell(RECOUP_PLATE_COL_NO));
+					Assert.assertEquals(
+							String.valueOf(recoupLocation.getRow()),
+							spreadSheetRow.getCell(RECOUP_ROW_COL_NO)
+									.getStringCellValue());
+					// Assert.assertEquals(recoupLocation.getColumn(),
+					// spreadSheetRow.getCell(RECOUP_COLUMN_COL_NO));
+				}
+				Assert.assertEquals(
+						String.valueOf(titrationBean.getTimePerFrame()),
+						String.valueOf(spreadSheetRow.getCell(
+								TIME_PER_FRAME_COL_NO).getNumericCellValue()));
+				// Assert.assertEquals(String.valueOf(titrationBean.getFrames()),
+				// String.valueOf(spreadSheetRow.getCell(FRAMES_COL_NO)
+				// .getNumericCellValue()));
+				Assert.assertEquals(
+						String.valueOf(titrationBean.getExposureTemperature()),
+						String.valueOf(spreadSheetRow.getCell(
+								EXPOSURE_TEMP_COL_NO).getNumericCellValue()));
+			}
 		} catch (InvalidFormatException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
