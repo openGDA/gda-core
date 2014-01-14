@@ -18,7 +18,6 @@
 
 package gda.data.metadata;
 
-import gda.data.metadata.StoredMetadataEntry;
 import gda.device.DeviceBase;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.corba.impl.DeviceImpl;
@@ -31,7 +30,7 @@ import gda.observable.IObserver;
 @CorbaImplClass(DeviceImpl.class)
 public class MetadataBlaster extends DeviceBase implements IObserver {
 	
-	private StoredMetadataEntry sme;
+	private MetadataEntry sme;
 	
 	@Override
 	public void configure() throws FactoryException {
@@ -40,11 +39,11 @@ public class MetadataBlaster extends DeviceBase implements IObserver {
 			sme.addIObserver(this);
 	}
 
-	public void setStoredMetadataEntry(StoredMetadataEntry sme) {
+	public void setStoredMetadataEntry(MetadataEntry sme) {
 		this.sme = sme;
 	}
 
-	public StoredMetadataEntry getStoredMetadataEntry() {
+	public MetadataEntry getStoredMetadataEntry() {
 		return sme;
 	}
 
