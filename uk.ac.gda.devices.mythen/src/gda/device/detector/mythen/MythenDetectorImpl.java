@@ -245,7 +245,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	/** File containing the most recently collected processed dataset. */
 	protected File processedFile;
 
-	private long scanNumber;
+	protected long scanNumber;
 
 	@Override
 	public int getStatus() throws DeviceException {
