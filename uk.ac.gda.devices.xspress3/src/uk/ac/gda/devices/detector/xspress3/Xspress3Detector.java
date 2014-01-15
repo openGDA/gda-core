@@ -4,11 +4,14 @@ import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanInformation;
 
 import java.io.IOException;
 
@@ -47,9 +50,9 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	private int fileNumber = -1;
 	private String numTrackerExtension = "nxs";
 	private NumTracker numTracker;
+	private Long currentScanNumber = -1L;
 
 	public Xspress3Detector() {
-
 	}
 
 	public Xspress3Detector(Xspress3Controller controller) {
@@ -67,6 +70,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		if (filePrefix.isEmpty() && !getName().isEmpty()) {
 			filePrefix = getName();
 		}
+		inputNames = new String[]{};
 	}
 
 	private void createNumTracker() {
@@ -74,21 +78,44 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 			try {
 				numTracker = new NumTracker(numTrackerExtension);
 			} catch (IOException e) {
-				throw new IllegalArgumentException("NumTracker with extension '" + numTrackerExtension
-						+ "' could not be created.", e);
+				throw new IllegalArgumentException(
+						"NumTracker with extension '" + numTrackerExtension
+								+ "' could not be created.", e);
 			}
 		}
 	}
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		ScanInformation currentscan = InterfaceProvider
+				.getCurrentScanInformationHolder().getCurrentScanInformation();
+		currentScanNumber = currentscan.getScanNumber();
+		int numDimensions = currentscan.getDimensions().length;
+		int lengthOfEachScanLine = currentscan.getDimensions()[numDimensions - 1];
+		setNumberOfFramesToCollect(lengthOfEachScanLine);
+		stop();
 		prepareFileWriting();
 	}
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		framesRead = 0;
+		startRunningXspress3FrameSet();
+	}
+
+	protected void startRunningXspress3FrameSet() throws DeviceException {
 		controller.doErase();
+		controller.doStart();
+		if (writeHDF5Files) {
+			// do not do this if writeHDF5Files is false as may cause errors in
+			// epics
+			controller.setSavingFiles(writeHDF5Files);
+		}
+	}
+
+	@Override
+	public void atScanEnd() throws DeviceException {
+		currentScanNumber = -1L;
 	}
 
 	private void prepareFileWriting() throws DeviceException {
@@ -97,7 +124,8 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 			if (filePath != null && !filePath.isEmpty()) {
 				controller.setFilePath(filePath);
 			} else {
-				controller.setFilePath(PathConstructor.createFromDefaultProperty());
+				controller.setFilePath(PathConstructor
+						.createFromDefaultProperty());
 			}
 
 			if (filePrefix != null && !filePrefix.isEmpty()) {
@@ -115,24 +143,12 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	}
 
 	private String getScanNumber() {
-		if (numTracker != null) {
-			return Long.toString(numTracker.getCurrentFileNumber());
-		}
-		return "";
+		return Long.toString(currentScanNumber);
 	}
 
 	@Override
 	public void collectData() throws DeviceException {
-		startRunningXspress3FrameSet();
-	}
-
-	protected void startRunningXspress3FrameSet() throws DeviceException {
-		if (writeHDF5Files) {
-			// do not do this if writeHDF5Files is false as may cause errors in
-			// epics
-			controller.setSavingFiles(writeHDF5Files);
-		}
-		controller.doStart();
+		// do nothing here as its passive
 	}
 
 	@Override
@@ -146,7 +162,15 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 
 	@Override
 	public int getStatus() throws DeviceException {
-		return controller.getStatus();
+		int controllerStatus = controller.getStatus();
+		if (controllerStatus == Detector.FAULT
+				|| controllerStatus == Detector.STANDBY) {
+			return controllerStatus;
+		}
+		// This detector class is completely passive and is dependent on being
+		// triggered by the TFG, so always return idle and let whatever other
+		// Detector object driving the TFG to control the status
+		return Detector.IDLE;
 	}
 
 	@Override
@@ -161,6 +185,17 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		// this method is for step scan readout and so it assumed that the data
 		// has been collected by the time this method is called
 
+		try {
+			// yuck, but unavoidable. The Xspress3 is driven by the TFG, but we
+			// are
+			// looking at the EPICS layer which will be a bit behind the gate
+			// signals sent to the xspress3 electronics, so need a delay until
+			// the available frames PV (and therefore all the data PVs) has been updated
+			Thread.sleep(150);
+		} catch (InterruptedException e) {
+			throw new DeviceException("InterruptedException during readout.");
+		}
+		
 		if (framesRead == controller.getTotalFramesAvailable()) {
 			// we have run out of data! This method should not have been called.
 			// Problem in the logic somewhere.
@@ -189,16 +224,19 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	 * @return NexusTreeProvider array for every frame
 	 * @throws DeviceException
 	 */
-	public NexusTreeProvider[] readoutFrames(int firstFrame, int lastFrame) throws DeviceException {
+	public NexusTreeProvider[] readoutFrames(int firstFrame, int lastFrame)
+			throws DeviceException {
 		int numFramesAvailable = controller.getTotalFramesAvailable();
 		if (lastFrame > numFramesAvailable) {
-			throw new DeviceException("Only " + numFramesAvailable + " frames available, cannot return frames "
-					+ firstFrame + " to " + lastFrame);
+			throw new DeviceException("Only " + numFramesAvailable
+					+ " frames available, cannot return frames " + firstFrame
+					+ " to " + lastFrame);
 		}
-		
+
 		// readout ROI in format [frame][detector channel][ROIs]
-		Double[][][] data = controller.readoutDTCorrectedROI(firstFrame, lastFrame, firstChannelToRead,
-				numberOfChannelsToRead + firstChannelToRead - 1);
+		Double[][][] data = controller.readoutDTCorrectedROI(firstFrame,
+				lastFrame, firstChannelToRead, numberOfChannelsToRead
+						+ firstChannelToRead - 1);
 		// calc FF from ROI
 		int numFramesRead = lastFrame - firstFrame + 1;
 		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector
@@ -219,21 +257,24 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			NXDetectorData thisFrame = new NXDetectorData(this);
 			INexusTree detTree = thisFrame.getDetTree(getName());
-			thisFrame.addData(detTree, sumLabel, new int[] { numberOfChannelsToRead }, NexusFile.NX_FLOAT64,
-					FFs[frame], unitsLabel, 1);			
+			thisFrame.addData(detTree, sumLabel,
+					new int[] { numberOfChannelsToRead }, NexusFile.NX_FLOAT64,
+					FFs[frame], unitsLabel, 1);
 			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
-				thisFrame.setPlottableValue(getExtraNames()[chan], FFs[frame][chan]);
+				thisFrame.setPlottableValue(getExtraNames()[chan],
+						FFs[frame][chan]);
 			}
 			results[frame] = thisFrame;
 		}
 		return results;
 	}
-	
+
 	@Override
 	public String[] getExtraNames() {
-		// these are the plottable values. For this detector it is the FF for each channel
+		// these are the plottable values. For this detector it is the FF for
+		// each channel
 		String[] extraNames = new String[numberOfChannelsToRead];
-		for (int i = 0; i < numberOfChannelsToRead; i++){
+		for (int i = 0; i < numberOfChannelsToRead; i++) {
 			extraNames[i] = "Chan" + (firstChannelToRead + i);
 		}
 		return extraNames;
@@ -249,13 +290,16 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 
 	public void setRegionsOfInterest(ROI[] regionList) throws DeviceException {
 		if (regionList.length > MAX_ROI_PER_CHANNEL) {
-			throw new DeviceException("Too many regions! Only " + MAX_ROI_PER_CHANNEL + " allowed.");
+			throw new DeviceException("Too many regions! Only "
+					+ MAX_ROI_PER_CHANNEL + " allowed.");
 		}
-		for (int chan = firstChannelToRead; chan < numberOfChannelsToRead + firstChannelToRead; chan++) {
+		for (int chan = firstChannelToRead; chan < numberOfChannelsToRead
+				+ firstChannelToRead; chan++) {
 			for (int roiNum = 0; roiNum < MAX_ROI_PER_CHANNEL; roiNum++) {
 				if (roiNum < regionList.length) {
 					controller.setROILimits(chan, roiNum,
-							new int[] { regionList[roiNum].getStart(), regionList[roiNum].getEnd() });
+							new int[] { regionList[roiNum].getStart(),
+									regionList[roiNum].getEnd() });
 				} else {
 					controller.setROILimits(chan, roiNum, new int[] { 0, 0 });
 				}
@@ -301,13 +345,13 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		// this defines the number of extraNames as currently extraNames = FF
 		// per channel
 		String[] newExtraNames = new String[numberOfChannelsToRead];
-		String[] newoutputFormat = new String[numberOfChannelsToRead + 1];
+		String[] newoutputFormat = new String[numberOfChannelsToRead];
 		newoutputFormat[0] = this.outputFormat[0];
 
 		for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
 			String label = channelLabelPrefix + (chan + firstChannelToRead);
 			newExtraNames[chan] = label;
-			newoutputFormat[chan + 1] = this.outputFormat[0];
+			newoutputFormat[chan] = this.outputFormat[0];
 		}
 		this.extraNames = newExtraNames;
 		this.outputFormat = newoutputFormat;
@@ -317,7 +361,8 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		return controller.getNumFramesToAcquire();
 	}
 
-	public void setNumberOfFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
+	public void setNumberOfFramesToCollect(int numberOfFramesToCollect)
+			throws DeviceException {
 		controller.setNumFramesToAcquire(numberOfFramesToCollect);
 	}
 
