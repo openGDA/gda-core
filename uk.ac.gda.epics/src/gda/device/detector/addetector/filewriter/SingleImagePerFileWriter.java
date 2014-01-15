@@ -171,8 +171,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if (isSetFileNameAndNumber()) {
 			configureNdFile();
 		} else {
-			if (!getNdFile().filePathExists())
-				throw new Exception("Path does not exist on IOC");
+			if( !getNdFile().filePathExists())
+				if (isPathErrorSuppressed())
+					logger.warn("Ignoring Path does not exist on IOC '" + filePath + "'");
+				else
+					throw new Exception("Path does not exist on IOC '" + filePath + "'");
 		}
 		clearWriteStatusErr();
 

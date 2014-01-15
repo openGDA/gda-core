@@ -333,9 +333,11 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 			filePath += File.separator;
 		getNdFile().setFilePath(filePath);
 		if( !getNdFile().filePathExists())
-			throw new Exception("Path does not exist on IOC '" + filePath + "'");		
+			if (isPathErrorSuppressed())
+				logger.warn("Ignoring Path does not exist on IOC '" + filePath + "'");
+			else
+				throw new Exception("Path does not exist on IOC '" + filePath + "'");
 		long scanNumber = getScanNumber();
-
 		
 		getNdFile().setFileNumber((int)scanNumber);	
 		getNdFile().setAutoSave((short) 0);

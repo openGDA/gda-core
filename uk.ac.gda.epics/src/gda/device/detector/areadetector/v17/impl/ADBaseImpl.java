@@ -108,6 +108,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	private PV<Integer> pvArrayCounter_RBV;
 
+	private PV<Integer> pvDetectorState_RBV;
+
 	/**
 	*
 	*/
@@ -2084,6 +2086,9 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 		pvArrayCounter_RBV = LazyPVFactory.newIntegerPV((config == null) ? genenerateFullPvName(ArrayCounter_RBV)
 				: config.getArrayCounter_RBV().getPv());
+		
+		pvDetectorState_RBV = LazyPVFactory.newIntegerPV((config == null) ? genenerateFullPvName(DetectorState_RBV)
+				: config.getDetectorState_RBV().getPv());
 	}
 
 	/**
@@ -2418,6 +2423,21 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}, timeoutS);
 	}
 
+	@Override
+	public void waitForDetectorStateIDLE(double timeoutS) throws InterruptedException,
+			Exception, java.util.concurrent.TimeoutException {
+
+		pvDetectorState_RBV.setValueMonitoring(true);
+		pvDetectorState_RBV.waitForValue(new Predicate<Integer>() {
+			@Override
+			public boolean apply(Integer object) {
+				return (object == 0);
+			}
+		}, timeoutS);
+	}
+
+	
+	
 	private String getChannelName(String pvElementName, String... args)throws Exception{
 		return genenerateFullPvName(pvElementName, args);
 	}	
@@ -2460,5 +2480,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}
 
 	}
+	
+	
 
 }
