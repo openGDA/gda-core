@@ -167,6 +167,7 @@ public abstract class ScanBase implements Scan {
 	// attributes relating to the thread which started this scan.
 	protected int permissionLevel = 0;
 
+	// FIXME what is the purpose of this? It is not referenced anywhere and should be removed (but I will not do this on a release branch)
 	ScanDataPoint point = null;
 
 	private int pointNumberAtLineBeginning;

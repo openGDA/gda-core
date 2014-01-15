@@ -304,7 +304,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 		// loop through members and add position values to array
 		try {
-			int i = 0;
+			List<Object[]> memberPositions = new Vector<Object[]>();
 			for (Scannable member : groupMembers) {
 
 				Object[] memberPosition;
@@ -312,7 +312,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 					
 					Object pos = member.getPosition();
 					if (pos != null) {
-						memberPosition = ScannableUtils.objectToArray(pos);						
+						memberPosition = ScannableUtils.objectToArray(pos);
 					} else {
 						memberPosition = new Object[0];
 					}
@@ -320,10 +320,20 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 					// if this fails, try getting strings instead. If that fails then let exception escalate
 					memberPosition = ScannableUtils.getFormattedCurrentPositionArray(member);
 				}
-
-				for (Object element : memberPosition) {
-					position[i] = element;
-					i++;
+				memberPositions.add(memberPosition);
+			}
+			
+			int n = 0;
+			for (int i = 0; i < groupMembers.size(); i++) {
+				for (int j = 0; j < groupMembers.get(i).getInputNames().length; j++) {
+					position[n] = memberPositions.get(i)[j];
+					n++;
+				}
+			}
+			for (int i = 0; i < groupMembers.size(); i++) {
+				for (int j = 0; j < groupMembers.get(i).getExtraNames().length; j++) {
+					position[n] = memberPositions.get(i)[j+groupMembers.get(i).getInputNames().length];
+					n++;
 				}
 			}
 		} catch (Exception e) {
@@ -463,12 +473,18 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	@Override
 	public String[] getOutputFormat() {
-		// recalculate every time as these attributes may be dynamic
-		String[] outputFormat = new String[0];
-		for (Scannable member : groupMembers) {
-			outputFormat = (String[]) ArrayUtils.addAll(outputFormat, member.getOutputFormat());
+		List<String> outputFormat = new Vector<String>();
+		for (int i = 0; i < groupMembers.size(); i++) {
+			for (int j = 0; j < groupMembers.get(i).getInputNames().length; j++) {
+				outputFormat.add(groupMembers.get(i).getOutputFormat()[j]);
+			}
 		}
-		return outputFormat;
+		for (int i = 0; i < groupMembers.size(); i++) {
+			for (int j = 0; j < groupMembers.get(i).getExtraNames().length; j++) {
+				outputFormat.add(groupMembers.get(i).getOutputFormat()[j+groupMembers.get(i).getInputNames().length]);
+			}
+		}
+		return outputFormat.toArray(new String[]{});
 	}
 
 	@Override
