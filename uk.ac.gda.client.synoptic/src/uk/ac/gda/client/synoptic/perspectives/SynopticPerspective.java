@@ -7,13 +7,14 @@ import gda.configuration.properties.LocalProperties;
 
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.authoriser.AuthoriserProvider;
-import gda.dal.DALStartup;
 
 
 import org.csstudio.sds.ui.runmode.RunModeService;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
+
+import uk.ac.gda.dal.DALStartup;
 
 public class SynopticPerspective implements IPerspectiveFactory {
 	
