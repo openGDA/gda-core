@@ -222,7 +222,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				throw new DeviceException("Unalble to end hdf5 capture", e1);
 			}
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			throw new DeviceException("Unable to load file " + fileName, e);
+			throw new DeviceException("Unable to load file called " + fileName, e);
 		}
 	}
 

@@ -49,17 +49,17 @@ public class MicroFocusDisplayController {
 				"uk.ac.gda.microfocus.xScannableName");
 		if ((null != config) && (config.length > 0)) {
 			xScannable = config[0].getAttribute("name");
-			logger.info("the x scannable ffrom extn is " + xScannable);
+			logger.debug("the x scannable from extn is " + xScannable);
 		}
 		config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.microfocus.yScannableName");
 		if ((null != config) && (config.length > 0)) {
 			yScannable = config[0].getAttribute("name");
-			logger.info("the y scannable ffrom extn is " + yScannable);
+			logger.debug("the y scannable from extn is " + yScannable);
 		}
 		config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.microfocus.zScannableName");
 		if ((null != config) && (config.length > 0)) {
 			zScannableName = config[0].getAttribute("name");
-			logger.info("the z scannable ffrom extn is " + zScannableName);
+			logger.debug("the z scannable from extn is " + zScannableName);
 		}
 		config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 				"uk.ac.gda.microfocus.trajectory.xScannableName");
@@ -141,7 +141,7 @@ public class MicroFocusDisplayController {
 		JythonServerFacade.getInstance().runCommand("map.getMFD().setActive(False)");
 		displayMap(selectedElement);
 
-		logger.info("displayed map for " + selectedElement + " " + currentDetectorProvider);
+		logger.debug("displayed map for " + selectedElement + " using " + currentDetectorProvider.getClass());
 	}
 
 	public void displayMap(String selectedElement, String filePath) {
@@ -159,7 +159,7 @@ public class MicroFocusDisplayController {
 		ObjectStateManager.setActive(detectorProvider);
 		displayMap(selectedElement);
 
-		logger.info("displayed map for " + selectedElement + " " + currentDetectorProvider);
+		logger.debug("displayed map for " + selectedElement + " using " + currentDetectorProvider.getClass());
 	}
 
 	public void setDetectorFile(String filename) {

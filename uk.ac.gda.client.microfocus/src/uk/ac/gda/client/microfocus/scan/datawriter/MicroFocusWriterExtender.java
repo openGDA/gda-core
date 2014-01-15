@@ -284,7 +284,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						rgbLine.append("	");
 					}
 					scalerValues[dataPoint.getCurrentPointNumber()] = scalerData;
-					logger.info("The rgb Line with scaler values is " + rgbLine.toString());
+					logger.debug("The rgb Line with scaler values is " + rgbLine.toString());
 
 				} else if (obj instanceof NXDetectorData) {
 					if (roiNames != null && (roiTable == null || roiTable.size() == 0)) {
@@ -405,9 +405,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			addToRgbFile(rgbLine.toString().trim());
 			if (roiTable != null)
 				roiTable.clear();
-			logger.info("the calculated y x are " + (int) Math.abs(Math.round(((xy[0] - firstY) / yStepSize))) + " "
+			logger.debug("the calculated y x are " + (int) Math.abs(Math.round(((xy[0] - firstY) / yStepSize))) + " "
 					+ (int) Math.abs(Math.round((xy[1] - firstX) / xStepSize)));
-			logger.info("the assumed y x are " + yIndex + " "
+			logger.debug("the assumed y x are " + yIndex + " "
 					+ (int) Math.abs(Math.round((xy[1] - firstX) / xStepSize)));
 			if (value < minValue) {
 				minValue = value;
@@ -546,7 +546,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		// displaying the map for the scaler
 		{
 			minValue = Double.MAX_VALUE;
-			logger.info("about to fill the data set");
 			for (int i = 0; i <= plottedSoFar; i++) {
 				if (scalerValues[i][selectedElementIndex] < minValue) {
 					minValue = scalerValues[i][selectedElementIndex];
@@ -563,8 +562,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			return;
 		} else if (isXspressScan()) {
 			minValue = Double.MAX_VALUE;
-			@SuppressWarnings("unused")
-			boolean mapFound = false;
 			Integer elementIndex = roiNameMap.get(selectedElement);
 			if (elementIndex != null) {
 				for (int point = 0; point <= plottedSoFar; point++) {
@@ -600,8 +597,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			return;
 		}
 		throw new Exception("unable to determine the detector for the selected element ");
-		// is it xspress or the vortex detector
-
 	}
 
 	private boolean isXspressScan() {
@@ -620,19 +615,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 		return false;
 	}
-
-	// public double[] getXY(int x, int y) {
-	// double[] xy = new double[3];
-	// int pointNumber = findPointNumber(y, x);
-	// xy[0] = xValues[pointNumber];
-	// xy[1] = yValues[pointNumber];
-	// xy[2] = zValue;
-	// return xy;
-	// }
-	//
-	// private int findPointNumber(int y, int x) {
-	// return (y * numberOfXPoints + x);
-	// }
 
 	private void addToRgbFile(String string) throws IOException {
 		active = true;
@@ -666,7 +648,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 	
 	public void closeWriter() throws Throwable {
-		writer.close();
+		if (writer != null) writer.close();
 	}
 
 	public void setSelectedElement(String selectedElement) {

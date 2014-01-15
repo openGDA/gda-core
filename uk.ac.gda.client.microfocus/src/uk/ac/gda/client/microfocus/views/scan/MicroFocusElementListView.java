@@ -98,7 +98,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 	@Override
 	public void createPartControl(Composite parent) {
-		logger.info("Part Control the title is " + this.getTitle());
 		Composite xspressComposite = new Composite(parent, SWT.NONE);
 		xspressComposite.setLayout(new GridLayout(2, false));
 		elementList = new List(xspressComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
@@ -121,8 +120,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 					IWorkbenchPage.VIEW_CREATE);
 			if (newview instanceof PlotView) {
 				plotView = (PlotView) newview;
-//				plotView.updatePlotMode(GuiPlotMode.TWOD);
-				logger.info("The Plot View is " + plotView);
 			}
 		} catch (Exception e) {
 			logger.error("Error while finding the plot view", e);
