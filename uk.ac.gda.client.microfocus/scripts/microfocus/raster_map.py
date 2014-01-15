@@ -1,8 +1,6 @@
 import time
 from jarray import array
 
-from exafsscripts.exafs.config_fluoresence_detectors import XspressConfig, VortexConfig
-from gdascripts.messages import handle_messages
 from map import Map
 from microfocus_elements import showElementsList
 
@@ -10,22 +8,19 @@ from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 from uk.ac.gda.beans import BeansFactory
 from gda.configuration.properties import LocalProperties
 from gda.factory import Finder
-from gda.data.scan.datawriter import XasAsciiDataWriter
-from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, XasAsciiDataWriter, NexusDataWriter, XasAsciiNexusDataWriter
+from gda.data.scan.datawriter import NexusDataWriter, XasAsciiNexusDataWriter
 from gda.device import Detector
 from gda.device.detector.xspress import XspressDetector, ResGrades
 from gda.device.scannable import ScannableUtils
 from gda.exafs.scan import BeanGroup
 from gda.jython.commands import ScannableCommands
-from gda.scan import ContinuousScan
+from gda.scan import ContinuousScan, ScanBase
 
 from java.io import File
 from java.lang import String
 
 
 class RasterMap(Map):
-    # TODO why are counterTimer01 and raster_counterTimer01 both used
     def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, rcpController,outputPreparer):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
@@ -78,10 +73,9 @@ class RasterMap(Map):
     
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
 
+        ScanBase.interrupted = False
+
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
-     
-        #xmlFolderName = folderName + "/"
-        #folderName = folderName[folderName.find("xml")+4:]
         
         experimentFullPath, experimentFolderName = self.determineExperimentPath(folderName)
         
@@ -114,14 +108,13 @@ class RasterMap(Map):
     
         nx = ScannableUtils.getNumberSteps(self.finder.find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
         ny = ScannableUtils.getNumberSteps(self.finder.find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
-        print "number of x points is ", str(nx)
-        print "number of y points is ", str(ny)
+        self.log("Number x points: " + str(nx))
+        self.log("Number y points: " + str(ny))
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
         self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
         for energy in energyList:
-            print " the detector is " 
-            print detectorList
+            self.log("Detectors: " + str(detectorList))
             if(detectorBean.getExperimentType() == "Transmission"):
                 self.mfd.setSelectedElement("I0")
                 self.mfd.setDetectors(array(detectorList, Detector))
@@ -131,7 +124,7 @@ class RasterMap(Map):
                     self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
                     self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
-                print self.detectorBeanFileName
+                self.log("Detector configuration file: " + str( self.detectorBeanFileName))
                 elements = showElementsList(self.detectorBeanFileName)
                 selectedElement = elements[0]
                 self.mfd.setRoiNames(array(elements, String))
@@ -150,8 +143,7 @@ class RasterMap(Map):
             
             energyScannable = self.finder.find(scanBean.getEnergyScannableName())
             zScannable = self.finder.find(scanBean.getZScannableName())
-            print "energy is ", str(energy)
-            print detectorList
+            self.log("Energy: " + str(energy))
             energyScannable.moveTo(energy) 
             zScannable.moveTo(zScannablePos)
             scanStart = time.asctime()
@@ -166,12 +158,12 @@ class RasterMap(Map):
                 collectionTime = float(scanBean.getRowTime())/float(numberPoints)
                 
                 self.counterTimer01.setCollectionTime(collectionTime)
-                print "row time = ", float(scanBean.getRowTime())
-                print "no. points = ", float(numberPoints)
+                
+                self.log("Row time: " + str(float(scanBean.getRowTime())))
+                self.log("Number points: "+ str(float(numberPoints)))
 
                 #TODO the if/else below looks remarkably like something that can be turned into a method that takes a single parameter.
                 if(detectorType == "Silicon"):
-                    print "Vortex raster scan"
                     cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap]) 
                     # NB: cannot use trajPositionReader in ContinuousScan and is not a priority for I18. Seems unclear how this would be used as the RealPositionReader interface is not used outside of Epics
 #                    xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
@@ -185,7 +177,6 @@ class RasterMap(Map):
                     self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                     xmapRasterscan.runScan()
                 else:
-                    print "Xspress Raster Scan"
                     cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress])
                     # NB: cannot use trajPositionReader in ContinuousScan and is not a priority for I18. Seems unclear how this would be used as the RealPositionReader interface is not used outside of Epics
 #                    xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
@@ -205,8 +196,8 @@ class RasterMap(Map):
                     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
                 else:
                     LocalProperties.set("gda.scan.useScanPlotSettings", "false")
-                handle_messages.simpleLog("map start time " + str(scanStart))
-                handle_messages.simpleLog("map end time " + str(scanEnd))
+                self.log("Map start time " + str(scanStart))
+                self.log("Map end time " + str(scanEnd))
                 self.finish()
                 
                 
@@ -229,7 +220,7 @@ class RasterMap(Map):
         dataWriter.setOutputBean(outputBean);
         dataWriter.setSampleName(sampleName);
         dataWriter.setXmlFolderName(experimentFullPath)
-        #dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+        dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
@@ -238,7 +229,6 @@ class RasterMap(Map):
         if asciidatawriterconfig != None :
             dataWriter.setConfiguration(asciidatawriterconfig)
             
-        print "adding mfd to raster map"
         dataWriter.addDataWriterExtender(self.mfd)
         
         thisscan.setDataWriter(dataWriter)
@@ -247,7 +237,9 @@ class RasterMap(Map):
     def setupForRaster(self, beanGroup):
         rasterscan = beanGroup.getScan()
         collectionTime = rasterscan.getRowTime()
-        command_server = self.finder.find("command_server")    
+        command_server = self.finder.find("command_server")
+        
+        self.log("Starting raster scan...")
         
         if (LocalProperties.get("gda.mode") == 'live'):
             topupMonitor1 = command_server.getFromJythonNamespace("topupMonitor", None)    
@@ -256,25 +248,20 @@ class RasterMap(Map):
             trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
             if not (trajBeamMonitor == None):
                 trajBeamMonitor.setActive(True)
-            print "setting collection time to" , str(collectionTime)        
             if(not (topupMonitor1 == None)):
                 topupMonitor1.setPauseBeforePoint(False)
                 topupMonitor1.setPauseBeforeLine(True)
                 topupMonitor1.setCollectionTime(collectionTime)
             if(not (beam == None) and self.beamEnabled==True):
-                #self.finder.find("command_server").addDefault(beam);
                 beam.setPauseBeforePoint(False)
                 beam.setPauseBeforeLine(True)
             if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"and not (detectorFillingMonitor == None)):
-                #self.finder.find("command_server").addDefault(detectorFillingMonitor);
                 detectorFillingMonitor.setPauseBeforePoint(False)
                 detectorFillingMonitor.setPauseBeforeLine(True)
                 detectorFillingMonitor.setCollectionTime(collectionTime)
            
                 fullFileName = beanGroup.getXmlFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
-                print fullFileName
                 bean = BeansFactory.getBean(File(fullFileName));
-                print dir(bean)
                 bean.setReadoutMode(XspressDetector.READOUT_MCA);
                 bean.setResGrade(ResGrades.NONE);
                 elements = bean.getDetectorList();
@@ -285,7 +272,6 @@ class RasterMap(Map):
         outputBean=beanGroup.getOutput()
         sampleParameters = beanGroup.getSample()
         outputBean.setAsciiFileName(sampleParameters.getName())
-        print "Setting the ascii file name as " ,sampleParameters.getName()    
         att1 = sampleParameters.getAttenuatorParameter1()
         att2 = sampleParameters.getAttenuatorParameter2()
         self.d7a(att1.getSelectedPosition())
