@@ -31,7 +31,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
-import gda.device.detector.nxdetector.roi.RectangularROIProvider;
+import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
@@ -45,6 +45,11 @@ import gov.aps.jca.event.MonitorListener;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
+import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
 import com.cosylab.epics.caj.CAJChannel;
 
@@ -72,8 +77,9 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 	private EntranceSlitInformationProvider entranceSlitInformationProvider;
 	
-	private RectangularROIProvider<Integer> cpsRoiProvider;
-	
+	private gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider cpsRoiProvider;
+	private RectangularROI cpsRoi;
+
 	private boolean kineticEnergyChangesDuringScan = false;
 	
 	final public Scannable centre_energy = new ScannableBase() {
@@ -117,6 +123,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			return false;
 		}
 	};
+
 	
 	@Override
 	public void configure() throws FactoryException {
@@ -170,6 +177,13 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			// if the thing wasn't acquiring in the first place nothing is lost
 			// if this is an important problem we'll hit that later, so no need to rethrow
 			logger.error("error stopping acquisition before running scan", e);
+		}
+		try {
+			// don't ask, but getRoi doesn't return what you expect
+			cpsRoi = cpsRoiProvider.getScisoftRoiListFromSDAPlotter().get(0);
+		} catch (Exception e) {
+			logger.info("no cps roi could be retireved, cps will be calculated over entire active detector");
+			cpsRoi = null;
 		}
 		super.atScanStart();
 		inScan = true;
@@ -268,6 +282,15 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			data.addData(getName(), "region_origin", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }), null, null);
 			data.addData(getName(), "region_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }), null, null);
 
+			if (cpsRoi != null) {
+				data.addData(getName(), "cps_region_origin", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, cpsRoi.getIntPoint()), null, null);
+				data.addData(getName(), "cps_region_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, cpsRoi.getIntLengths()), null, null);
+			} else {
+				NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
+				data.addData(getName(), "cps_region_origin", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { 0, 0 }), null, null);
+				data.addData(getName(), "cps_region_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, groupData.dimensions), null, null);
+			}
+			
 			if (entranceSlitInformationProvider != null) {
 				data.addData(getName(), "entrance_slit_size", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { entranceSlitInformationProvider.getSizeInMM() }), "mm", null);
 				data.addData(getName(), "entrance_slit_setting", new NexusGroupData(String.format("%03d", entranceSlitInformationProvider.getRawValue().intValue())), null, null);
@@ -288,11 +311,15 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
 		switch (groupData.type) {
 		case NexusFile.NX_FLOAT32: 
-			// TODO calculate cps within ROI only
-			float[] floats = (float[]) groupData.getBuffer();
 			long sum = 0;
-			for (int i = 0; i < floats.length; i++) {
-				sum += floats[i];
+			if (cpsRoi == null) {
+				float[] floats = (float[]) groupData.getBuffer();
+				for (int i = 0; i < floats.length; i++) {
+					sum += floats[i];
+				}
+			} else {
+				AbstractDataset[] datasets = ROIProfile.box(new FloatDataset((float[]) groupData.getBuffer(), groupData.dimensions), cpsRoi);
+				sum = ((Number) datasets[0].sum()).longValue();
 			}
 			addDoubleItem(data, "cps", sum / acquireTime_RBV, "Hz");
 			break;
@@ -508,11 +535,11 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		super.stop();
 	}
 
-	public RectangularROIProvider<Integer> getCpsRoiProvider() {
+	public PlotServerROISelectionProvider getCpsRoiProvider() {
 		return cpsRoiProvider;
 	}
 
-	public void setCpsRoiProvider(RectangularROIProvider<Integer> cpsRoiProvider) {
+	public void setCpsRoiProvider(PlotServerROISelectionProvider cpsRoiProvider) {
 		this.cpsRoiProvider = cpsRoiProvider;
 	}
 	
