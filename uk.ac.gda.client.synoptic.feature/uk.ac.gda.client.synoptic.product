@@ -358,7 +358,7 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="uk.ac.gda.nexus.test" fragment="true"/>
       <plugin id="uk.ac.gda.pydev.extension"/>
       <plugin id="uk.ac.gda.test.helpers"/>
-   </plugins>
+</plugins>
 
    <features>
       <feature id="uk.ac.gda.client.synoptic.feature" version="8.36.0.qualifier"/>

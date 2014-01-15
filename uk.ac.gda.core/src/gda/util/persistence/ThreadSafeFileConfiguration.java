@@ -233,7 +233,7 @@ public class ThreadSafeFileConfiguration implements FileConfiguration {
 	}
 
 	@Override
-	public Iterator<?> getKeys(String prefix) {
+	public Iterator<String> getKeys(String prefix) {
 		synchronized (lock) {
 			return config.getKeys(prefix);
 		}
@@ -247,7 +247,7 @@ public class ThreadSafeFileConfiguration implements FileConfiguration {
 	}
 
 	@Override
-	public Iterator<?> getKeys() {
+	public Iterator<String> getKeys() {
 		synchronized (lock) {
 			return config.getKeys();
 		}
@@ -527,14 +527,14 @@ public class ThreadSafeFileConfiguration implements FileConfiguration {
 	}
 
 	@Override
-	public List<?> getList(String key) {
+	public List<Object> getList(String key) {
 		synchronized (lock) {
 			return config.getList(key);
 		}
 	}
 
 	@Override
-	public List<?> getList(String key, @SuppressWarnings("rawtypes") List defaultValue) {
+	public List<Object> getList(String key, @SuppressWarnings("rawtypes") List defaultValue) {
 		synchronized (lock) {
 			return config.getList(key, defaultValue);
 		}

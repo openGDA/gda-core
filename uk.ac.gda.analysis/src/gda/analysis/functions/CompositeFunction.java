@@ -27,6 +27,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.CoordinatesIterator;
 
 
 /**
@@ -51,21 +52,24 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 		// as the threading overheads in java slow the performance
 		// significantly.
 		// return makeParallelDataSet(XValues);
-		return DataSet.convertToDataSet(makeSerialDataset(values));
+		return DataSet.convertToDataSet(calculateValues(values));
 	}
 
 	class PFunction extends AFunction {
 		uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction function;
 
 		public PFunction(uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction fn) {
-			super(fn.getParameterValues());
+			super(fn.getNoOfParameters());
 			function = fn;
-			setName(function.getName());
+			int n = function.getNoOfParameters();
+			for (int i = 0; i < n; i++) {
+				setParameter(i, function.getParameter(i));
+			}
 		}
 
 		@Override
 		public DoubleDataset makeDataset(IDataset... values) {
-			return (DoubleDataset) DatasetUtils.cast(function.makeDataset(values), AbstractDataset.FLOAT64);
+			return (DoubleDataset) DatasetUtils.cast(function.calculateValues(values), AbstractDataset.FLOAT64);
 		}
 
 		@Override
@@ -75,7 +79,12 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 
 		@Override
 		public double residual(boolean allValues, IDataset data, IDataset... values) {
-			return function.residual(allValues, data, values);
+			return function.residual(allValues, data, null, values);
+		}
+
+		@Override
+		public double residual(boolean allValues, IDataset data, IDataset weight, IDataset... coords) {
+			return function.residual(allValues, data, weight, coords);
 		}
 
 		@Override
@@ -85,8 +94,14 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 
 		@Override
 		public void setParameterValues(double... params) {
-			super.setParameterValues(params);
 			function.setParameterValues(params);
+			setDirty(true);
+		}
+
+		@Override
+		public void setDirty(boolean isDirty) {
+			super.setDirty(isDirty);
+			function.setDirty(isDirty);
 		}
 
 		@Override
@@ -101,8 +116,25 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 
 		@Override
 		public DataSet makeDataSet(DoubleDataset... values) {
-			return DataSet.convertToDataSet(function.makeDataset(values));
+			return DataSet.convertToDataSet(function.calculateValues(values));
 		}
+
+		@Override
+		public IFunction getFunction(int index) {
+			return this;
+		}
+
+		@Override
+		public void fillWithValues(DoubleDataset data, CoordinatesIterator it) {
+			if (function instanceof uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction) {
+				((uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction)function).fillWithValues(data, it);
+			}
+		}
+	}
+
+	@Override
+	public void fillWithValues(DoubleDataset data, CoordinatesIterator it) {
+		super.fillWithValues(data, it);
 	}
 
 	@Override
@@ -113,5 +145,15 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 	@Override
 	public void disp() {
 		TerminalPrinter.print(toString());
+	}
+
+	@Override
+	public String getParameterName(int index) {
+		return getParameter(index).getName();
+	}
+
+	@Override
+	public void setParameterName(String name, int index) {
+		getParameter(index).setName(name);
 	}
 }

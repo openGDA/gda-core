@@ -30,8 +30,17 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 @Deprecated
 public abstract class AFunction extends uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction implements IFunction, Serializable {
 
+	public AFunction(int numberOfParameters) {
+		super(numberOfParameters);
+	}
+
 	public AFunction(double[] values) {
 		super(values);
+	}
+
+	@Override
+	public IFunction getFunction(int index) {
+		return this;
 	}
 
 	/**
@@ -40,6 +49,16 @@ public abstract class AFunction extends uk.ac.diamond.scisoft.analysis.fitting.f
 	 * @return A Dataset!
 	 */
 	public DataSet makeDataSet(DoubleDataset value) {
-		return DataSet.convertToDataSet(super.makeDataset(value));
+		return DataSet.convertToDataSet(super.calculateValues(value));
+	}
+
+	@Override
+	public String getParameterName(int index) {
+		return getParameter(index).getName();
+	}
+
+	@Override
+	public void setParameterName(String name, int index) {
+		getParameter(index).setName(name);
 	}
 }

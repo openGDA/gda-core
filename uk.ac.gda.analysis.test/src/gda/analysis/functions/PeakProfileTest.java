@@ -31,6 +31,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 @RunWith(JUnitParamsRunner.class)
 public class PeakProfileTest {
 	
+	private static final double FACTOR = 1.05; // multiplier for step to give delta for asserts
+
 	@Test
 	@Parameters({
 		"Simple Peak,  0.01, 0.0, 100.0, 50.0, 10.0, 2.0",
@@ -46,15 +48,14 @@ public class PeakProfileTest {
 		
 		DoubleDataset axis = DoubleDataset.arange(min, max, step);
 		Gaussian gaussian = new Gaussian(mean, fwhm, area);
-		DoubleDataset data = gaussian.makeDataset(axis);
+		DoubleDataset data = gaussian.calculateValues(axis);
 		
 		assertEquals("Gaussain Area for '"+description+"' is not correct", gaussian.getArea(), ((Double)data.sum()*step), step);
 		assertEquals("Gaussian Position for '"+description+"' is not correct", gaussian.getPosition(), axis.get(data.maxPos()), step);
 		
 		double threshold = (Double)data.max()/2.0;
 		
-		// needs to start on one as otherwise this is not inclusive
-		int count = 1;
+		int count = 0;
 		for(int i = 0; i < data.getShape()[0]; i++) {
 			if ( data.getDouble(i) > threshold ) {
 				count++;
@@ -62,7 +63,7 @@ public class PeakProfileTest {
 		}
 		double width = count * step;
 		
-		assertEquals("Gaussian Width for '"+description+"' is not correct", gaussian.getFWHM(), width, step);		
+		assertEquals("Gaussian Width for '"+description+"' is not correct", gaussian.getFWHM(), width, FACTOR * step);		
 		
 	}
 	
@@ -83,15 +84,14 @@ public class PeakProfileTest {
 		
 		DoubleDataset axis = DoubleDataset.arange(min, max, step);
 		Lorentzian lorentzian = new Lorentzian(mean, fwhm, area);
-		DoubleDataset data = lorentzian.makeDataset(axis);
+		DoubleDataset data = lorentzian.calculateValues(axis);
 		
 		assertEquals("Lorentzian Area for '"+description+"' is not correct", lorentzian.getArea(), ((Double)data.sum()*step), step);
 		assertEquals("Lorentzian Position for '"+description+"' is not correct", lorentzian.getPosition(), axis.get(data.maxPos()), step);
 		
 		double threshold = (Double)data.max()/2.0;
 		
-		// needs to start on one as otherwise this is not inclusive
-		int count = 1;
+		int count = 0;
 		for(int i = 0; i < data.getShape()[0]; i++) {
 			if ( data.getDouble(i) > threshold ) {
 				count++;
@@ -99,7 +99,7 @@ public class PeakProfileTest {
 		}
 		double width = count * step;
 		
-		assertEquals("Lorentzian Width for '"+description+"' is not correct", lorentzian.getFWHM(), width, step);		
+		assertEquals("Lorentzian Width for '"+description+"' is not correct", lorentzian.getFWHM(), width, FACTOR * step);		
 		
 	}
 	
@@ -114,15 +114,14 @@ public class PeakProfileTest {
 		
 		DoubleDataset axis = DoubleDataset.arange(min, max, step);
 		PseudoVoigt pseudoVoigt = new PseudoVoigt(mean, gfwhm, lfwhm, area, mix);
-		DoubleDataset data = pseudoVoigt.makeDataset(axis);
+		DoubleDataset data = pseudoVoigt.calculateValues(axis);
 		
 		assertEquals("PseudoVoigt Area for '"+description+"' is not correct", pseudoVoigt.getArea(), ((Double)data.sum()*step), step);
 		assertEquals("PseudoVoigt Position for '"+description+"' is not correct", pseudoVoigt.getPosition(), axis.get(data.maxPos()), step);
 		
 		double threshold = (Double)data.max()/2.0;
 		
-		// needs to start on one as otherwise this is not inclusive
-		int count = 1;
+		int count = 0;
 		for(int i = 0; i < data.getShape()[0]; i++) {
 			if ( data.getDouble(i) > threshold ) {
 				count++;
@@ -130,7 +129,7 @@ public class PeakProfileTest {
 		}
 		double width = count * step;
 		
-		assertEquals("PseudoVoigt Width for '"+description+"' is not correct", pseudoVoigt.getFWHM(), width, (Math.abs(gfwhm-lfwhm)/2.0)+ step);		
+		assertEquals("PseudoVoigt Width for '"+description+"' is not correct", pseudoVoigt.getFWHM(), width, (Math.abs(gfwhm-lfwhm)/2.0)+ FACTOR * step);		
 		
 	}
 	
@@ -139,19 +138,19 @@ public class PeakProfileTest {
 		"Simple Peak, 0.01, 0.0, 10000.0, 5000.0, 10.0, 5.0, 1.0",
 		"Bigger Peak, 0.1, 0.0, 100000.0, 50000.0, 1000.0, 5.0, 1.0",
 		"Small FWHM, 0.01, 0.0, 10000.0, 5000.0, 10.0, 2.0, 1.0",})
-	public void testPearsonVII(String description, double step ,double min ,double max ,double mean ,double area ,double fwhm ,double mix) {
-		
+	public void testPearsonVII(String description, double step, double min, double max, double mean, double area,
+			double fwhm, double power) {
+
 		DoubleDataset axis = DoubleDataset.arange(min, max, step);
-		PearsonVII pearsonVII = new PearsonVII(new double[] {mean, fwhm, mix, area} );
-		DoubleDataset data = pearsonVII.makeDataset(axis);
+		PearsonVII pearsonVII = new PearsonVII(new double[] {mean, fwhm, area, power} );
+		DoubleDataset data = pearsonVII.calculateValues(axis);
 		
 		assertEquals("PearsonVII Area for '"+description+"' is not correct", pearsonVII.getArea(), ((Double)data.sum()*step), step);
 		assertEquals("PearsonVII Position for '"+description+"' is not correct", pearsonVII.getPosition(), axis.get(data.maxPos()), step);
 		
 		double threshold = (Double)data.max()/2.0;
 		
-		// needs to start on one as otherwise this is not inclusive
-		int count = 1;
+		int count = 0;
 		for(int i = 0; i < data.getShape()[0]; i++) {
 			if ( data.getDouble(i) > threshold ) {
 				count++;
@@ -159,7 +158,7 @@ public class PeakProfileTest {
 		}
 		double width = count * step;
 		
-		assertEquals("PearsonVII FWHM for '"+description+"' is not correct", pearsonVII.getFWHM(), width, step);		
+		assertEquals("PearsonVII FWHM for '"+description+"' is not correct", pearsonVII.getFWHM(), width, FACTOR * step);		
 		
 	}
 	

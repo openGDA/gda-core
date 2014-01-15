@@ -180,7 +180,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.springsource.org.apache.commons.beanutils"
+         id="org.apache.commons.beanutils"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -343,5 +343,25 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.configuration"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.gda.common.rcp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.junit"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>

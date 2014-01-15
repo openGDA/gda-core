@@ -49,4 +49,35 @@ public interface IFunction extends uk.ac.diamond.scisoft.analysis.fitting.functi
 	 */
 	@Deprecated
 	public void disp();
+
+	/**
+	 * Function which gets a particular function from the composite function
+	 * 
+	 * @param index
+	 *            The index of the object to retrieve
+	 * @return A link to the function itself
+	 */
+	@Deprecated
+	public IFunction getFunction(int index);
+
+	/**
+	 * Get the parameter name at a particular index in the function
+	 * 
+	 * @param index
+	 *            The index to retrieve
+	 * @return The parameter's name
+	 */
+	@Deprecated
+	String getParameterName(int index);
+
+	/**
+	 * Set a parameter name of the function
+	 * 
+	 * @param name
+	 *           A string array with the parameter name
+	 * @param index
+	 *           The index of the parameter name
+	 */
+	@Deprecated
+	public void setParameterName(String name, int index);
 }

@@ -46,6 +46,7 @@ public class JythonPerspective implements IPerspectiveFactory {
 		String editorArea = layout.getEditorArea();
 		IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float)0.2, editorArea); //$NON-NLS-1$
         topLeft.addView(IPageLayout.ID_PROJECT_EXPLORER);
+        topLeft.addPlaceholder("uk.ac.gda.pydev.extension.gda.navigator");
         
         IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.7, editorArea); //$NON-NLS-1$
         outputfolder.addView("gda.rcp.jythonterminalview");
@@ -56,6 +57,7 @@ public class JythonPerspective implements IPerspectiveFactory {
         outputfolder.addPlaceholder(IProgressConstants.PROGRESS_VIEW_ID);
         
         layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float)0.65, editorArea);
+
 	}
 
 	private void defineLayout(IPageLayout layout) {
@@ -71,7 +73,7 @@ public class JythonPerspective implements IPerspectiveFactory {
         layout.addShowViewShortcut(IConsoleConstants.ID_CONSOLE_VIEW);
         layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
         layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
-        layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
+        layout.addShowViewShortcut("uk.ac.gda.pydev.extension.gda.navigator");
         layout.addShowViewShortcut("org.eclipse.pde.runtime.LogView");
         layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
         layout.addShowViewShortcut("org.python.pydev.views.PyRefactorView");

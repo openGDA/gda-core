@@ -78,9 +78,6 @@ public class Config {
 		previousScan.addAll(namesOfInVisibleLinesInPreviousScan);
 		Set<String> currentScan = new HashSet<String>(point.getPositionHeader());
 		currentScan.addAll(point.getDetectorHeader());
-		if (previousScan.size() != currentScan.size()) {
-			return false;
-		}
 		for (String scanName : previousScan) {
 			if (!currentScan.contains(scanName)) {
 				return false;

@@ -72,7 +72,7 @@ public class MonteCarlo implements IOptimizer {
 		double[] params = function.getParameterValues();
 
 		// find out the first Value
-		double minval = function.residual(true, Objective, coords);
+		double minval = function.residual(true, Objective, null, coords);
 
 		// set up all the random values
 		Random rand = new Random();
@@ -127,7 +127,7 @@ public class MonteCarlo implements IOptimizer {
 			params[pos] = newRandomParameterValue;
 
 			function.setParameterValues(params);
-			double testval = function.residual(true, Objective, coords);
+			double testval = function.residual(true, Objective, null, coords);
 			
 			if (testval < minval) {
 				minval = testval;

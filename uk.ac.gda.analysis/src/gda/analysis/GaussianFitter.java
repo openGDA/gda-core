@@ -207,9 +207,9 @@ public class GaussianFitter implements Serializable {
 
 		FunctionOutput result = new FunctionOutput(comp);
 
-		result.setChiSquared(comp.residual(true, data, coords));
+		result.setChiSquared(comp.residual(true, data, null, coords));
 
-		result.setAreaUnderFit((Double) comp.makeDataset(coords).sum()
+		result.setAreaUnderFit((Double) comp.calculateValues(coords).sum()
 				* ((coords[0].max().doubleValue() - coords[0].min().doubleValue()) / coords[0].getSize()));
 
 		return result;
@@ -232,9 +232,9 @@ public class GaussianFitter implements Serializable {
 
 		FunctionOutput result = new FunctionOutput(comp);
 
-		result.setChiSquared(comp.residual(true, data, coords));
+		result.setChiSquared(comp.residual(true, data, null, coords));
 
-		result.setAreaUnderFit((Double) comp.makeDataset(coords).sum()
+		result.setAreaUnderFit((Double) comp.calculateValues(coords).sum()
 				* ((coords[0].max().doubleValue() - coords[0].min().doubleValue()) / coords[0].getSize()));
 
 		return result;

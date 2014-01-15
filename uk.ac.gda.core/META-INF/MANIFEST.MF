@@ -4,7 +4,7 @@ Bundle-Name: uk.ac.gda.core plugin
 Bundle-SymbolicName: uk.ac.gda.core;singleton:=true
 Bundle-Version: 8.36.0.qualifier
 Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
- org.junit4,
+ org.junit;bundle-version="[4.10.0,5.0.0)",
  com.springsource.org.aopalliance,
  org.apache.commons.httpclient,
  javax.servlet;bundle-version="2.5.0",
@@ -27,7 +27,8 @@ Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  com.springsource.org.objenesis;bundle-version="[1.0.0,2.0.0)",
  com.springsource.org.hamcrest.core;bundle-version="[1.1.0,2.0.0)",
  org.dawb.hdf5;bundle-version="1.2.0",
- org.apache.commons.math3;bundle-version="[3.2.0,3.3.0)"
+ org.apache.commons.math3;bundle-version="[3.2.0,3.3.0)",
+ org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)"
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered
