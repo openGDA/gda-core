@@ -27,32 +27,35 @@ public class GridScanPerspective implements IPerspectiveFactory {
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setEditorAreaVisible(false);
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.RIGHT, 0.6f, IPageLayout.ID_EDITOR_AREA);
+		{//image and thumbnail grid
+			IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.RIGHT, 0.525f, IPageLayout.ID_EDITOR_AREA);
 			folderLayout.addView("uk.ac.gda.client.ncd.gridcameraview");
 			folderLayout.addView("uk.ac.gda.client.ncd.mappingthumb");
 		}
-<<<<<<< Updated upstream
-		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.ncd.gridcameraview");
-		layout.addView("gda.rcp.jythonterminalview", IPageLayout.LEFT, 0.8f, IPageLayout.ID_EDITOR_AREA);
+
+		layout.addView("gda.rcp.jythonterminalview", IPageLayout.BOTTOM	, 0.52f, IPageLayout.ID_EDITOR_AREA);
+		layout.addView("uk.ac.gda.arpes.ui.view.samplemetadata", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
+		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.BOTTOM, 0.65f, "uk.ac.gda.arpes.ui.view.samplemetadata");
+		layout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.gridTool", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
+//		layout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
+//		layout.addView("gda.rcp.views.baton.BatonView", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		{
-			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.6f, "gda.rcp.jythonterminalview");
-		//	folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.2D");//uk.ac.gda.client.ncd.gridDetails");//, IPageLayout.BOTTOM, 0.4f, IPageLayout.ID_EDITOR_AREA);//"gda.rcp.jythonterminalview");
-			folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.gridTool");//uk.ac.gda.client.ncd.gridDetails");//, IPageLayout.BOTTOM, 0.4f, IPageLayout.ID_EDITOR_AREA);//"gda.rcp.jythonterminalview");
-=======
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder_2", IPageLayout.TOP, 0.3f, "uk.ac.gda.client.ncd.gridcameraview");
-			folderLayout.addView("uk.ac.gda.arpes.ui.view.samplemetadata");
-			folderLayout.addView("uk.ac.gda.rcp.views.dashboardView");
-			//		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.ncd.gridcameraview");
-		}
-		layout.addView("gda.rcp.jythonterminalview", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.5f, "gda.rcp.jythonterminalview");
-			folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.gridTool");
->>>>>>> Stashed changes
+			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.81f, "uk.ac.gda.client.ncd.gridcameraview");
 			folderLayout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView");
 			folderLayout.addView("gda.rcp.views.baton.BatonView");
 		}
+//		{
+//			IFolderLayout folderLayout = layout.createFolder("folder_2", IPageLayout.TOP, 0.3f, "uk.ac.gda.client.ncd.gridcameraview");
+//			folderLayout.addView("uk.ac.gda.arpes.ui.view.samplemetadata");
+//			folderLayout.addView("uk.ac.gda.rcp.views.dashboardView");
+//			//		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.ncd.gridcameraview");
+//		}
+//		layout.addView("gda.rcp.jythonterminalview", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
+//		{
+//			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.5f, "gda.rcp.jythonterminalview");
+//			folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.gridTool");
+//			folderLayout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView");
+//			folderLayout.addView("gda.rcp.views.baton.BatonView");
+//		}
 	}
 }
