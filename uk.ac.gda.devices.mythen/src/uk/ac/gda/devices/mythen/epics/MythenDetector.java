@@ -21,14 +21,19 @@ package uk.ac.gda.devices.mythen.epics;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
 import gda.device.detector.mythen.MythenDetectorImpl;
+import gda.device.detector.mythen.data.MythenDataFileUtils.FileType;
 import gda.device.detector.mythen.data.MythenProcessedDataset;
 import gda.device.detector.mythen.data.MythenRawDataset;
+import gda.device.detector.mythen.tasks.DataProcessingTask;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.util.Sleep;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +50,8 @@ public class MythenDetector extends MythenDetectorImpl {
 	
 	@SuppressWarnings("hiding")
 	private MythenEpicsClient mythenClient;
+
+	private ArrayList<File> processedDataFilesForScan=new ArrayList<File>();
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
@@ -106,6 +113,9 @@ public class MythenDetector extends MythenDetectorImpl {
 	@Override
 	public void atScanStart() throws DeviceException {
 		super.atScanStart();
+		if (!processedDataFilesForScan.isEmpty()) {
+			processedDataFilesForScan.clear();
+		}
 		try {
 			configureDetectorForAutoModeAcquisition();
 		} catch (Exception e) {
@@ -145,6 +155,12 @@ public class MythenDetector extends MythenDetectorImpl {
 	protected String buildFilenameWithoutSuffix(String s) {
 		return String.format("%d-mythen_%s", this.scanNumber, s);
 	}
+	
+	@Override
+	public String buildFilename(String s, FileType type) {
+		final String suffix = (type == FileType.PROCESSED) ? "dat" : "raw";
+		return String.format("%d-mythen_%s.%s", this.scanNumber, s, suffix);
+	}
 	/**
 	 * collect data from detector using EPICS client.
 	 * This method is non-blocking.
@@ -178,6 +194,11 @@ public class MythenDetector extends MythenDetectorImpl {
 		mythenAcquire.start();
 	}
 	@Override
+	protected void afterCollectData() {
+		super.afterCollectData();
+		processedDataFilesForScan.add(processedFile);
+	}
+	@Override
 	public void stop() throws DeviceException {
 		try {
 			getMythenClient().stop();
@@ -187,6 +208,15 @@ public class MythenDetector extends MythenDetectorImpl {
 		}
 		super.stop();
 	}
+	private List<DataProcessingTask> processingTasks = new Vector<DataProcessingTask>();
+	
+	@Override
+	public void atScanEnd() throws DeviceException {
+		super.atScanEnd();
+		for (DataProcessingTask task : getProcessingTasks()) {
+			task.run(this);
+		}
+	}	
 	//############### special methods for multiple frames, triggered, gated collections
 	/**
 	 * Captures multiple frames using a software trigger.
@@ -673,5 +703,21 @@ public class MythenDetector extends MythenDetectorImpl {
 	}
 	private void resetArrayCounter() throws Exception {
 		getMythenClient().resetArrayCounter();
+	}
+
+	public ArrayList<File> getProcessedDataFilesForThisScan() {
+		return processedDataFilesForScan;
+	}
+
+	public int getNumberOfModules() {
+		return numberOfModules;
+	}
+
+	public List<DataProcessingTask> getProcessingTasks() {
+		return processingTasks;
+	}
+
+	public void setProcessingTasks(List<DataProcessingTask> processingTasks) {
+		this.processingTasks = processingTasks;
 	}
 }
