@@ -26,7 +26,7 @@ import uk.ac.gda.devices.bssc.beans.TitrationBean;
 
 public class BioSAXSImportTest {
 	private static final Logger logger = LoggerFactory
-			.getLogger(BSSCImportWizardPage.class);
+			.getLogger(BioSAXSImportTest.class);
 	private static final int PLATE_COL_NO = 0;
 	private static final int PLATE_ROW_COL_NO = 1;
 	private static final int PLATE_COLUMN_COL_NO = 2;
@@ -37,7 +37,6 @@ public class BioSAXSImportTest {
 	private static final int BUFFER_PLATE_COL_NO = 7;
 	private static final int BUFFER_ROW_COL_NO = 8;
 	private static final int BUFFER_COLUMN_COL_NO = 9;
-	// private static final int RECOUP_COL_NO = 10;
 	private static final int RECOUP_PLATE_COL_NO = 10;
 	private static final int RECOUP_ROW_COL_NO = 11;
 	private static final int RECOUP_COLUMN_COL_NO = 12;
@@ -85,225 +84,165 @@ public class BioSAXSImportTest {
 	}
 
 	@Test
-	public void testImport() {
-		Workbook wb;
+	public void testImportFromLibreOffice() {
 		try {
-			wb = WorkbookFactory.create(new File(
+			Workbook wb = WorkbookFactory.create(new File(
 					"/home/xlw00930/Desktop/TestTemplate.xls"));
-
-			Sheet sheet = wb.getSheetAt(0);
-
-			BSSCSessionBean sessionBean = new BSSCSessionBean();
-			sessionBean.setSampleStorageTemperature(sampleStorageTemperature);
-			List<TitrationBean> measurements = new ArrayList<TitrationBean>();
-
-			for (Row row : sheet) {
-
-				try {
-					TitrationBean tibi = new TitrationBean();
-
-					LocationBean location = locationFromCells(
-							row.getCell(PLATE_COL_NO),
-							row.getCell(PLATE_ROW_COL_NO),
-							row.getCell(PLATE_COLUMN_COL_NO));
-					if (!location.isValid())
-						throw new Exception("invalid sample location");
-					tibi.setLocation(location);
-
-					tibi.setSampleName(row.getCell(SAMPLE_NAME_COL_NO)
-							.getStringCellValue());
-
-					location = locationFromCells(
-							row.getCell(BUFFER_PLATE_COL_NO),
-							row.getCell(BUFFER_ROW_COL_NO),
-							row.getCell(BUFFER_COLUMN_COL_NO));
-					if (!location.isValid())
-						throw new Exception("invalid buffer location");
-					tibi.setBufferLocation(location);
-
-					try {
-						location = locationFromCells(
-								row.getCell(RECOUP_PLATE_COL_NO),
-								row.getCell(RECOUP_ROW_COL_NO),
-								row.getCell(RECOUP_COLUMN_COL_NO));
-						if (!location.isValid())
-							location = null;
-					} catch (Exception e) {
-						location = null;
-					}
-					tibi.setRecouperateLocation(location);
-					tibi.setConcentration(row.getCell(CONCENTRATION_COL_NO)
-							.getNumericCellValue());
-					tibi.setViscosity(row.getCell(VISCOSITY_COL_NO)
-							.getStringCellValue());
-					tibi.setMolecularWeight(row
-							.getCell(MOLECULAR_WEIGHT_COL_NO)
-							.getNumericCellValue());
-					tibi.setTimePerFrame(row.getCell(TIME_PER_FRAME_COL_NO)
-							.getNumericCellValue());
-					tibi.setFrames((int) row.getCell(FRAMES_COL_NO)
-							.getNumericCellValue());
-					tibi.setExposureTemperature((float) row.getCell(
-							EXPOSURE_TEMP_COL_NO).getNumericCellValue());
-
-					measurements.add(tibi);
-				} catch (Exception e) {
-					logger.debug("row rejected" + row.toString());
-					// Assert.fail("row rejected" + row.toString());
-				}
-			}
-
-			sessionBean.setMeasurements(measurements);
-			Assert.assertEquals(sessionBean.getMeasurements().size(), 3);
-		} catch (InvalidFormatException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			testImport(wb);
+		} catch (InvalidFormatException e) {
+			logger.error(e.getMessage());
+		} catch (IOException e) {
+			logger.error(e.getMessage());
 		}
 	}
 
 	@Test
-	public void testImportFromMSExcel() {
-		Workbook wb;
+	public void testImportFromExcel() {
 		try {
-			wb = WorkbookFactory
+			Workbook wb = WorkbookFactory
 					.create(new File(
 							"/home/xlw00930/Desktop/U/BioSAXS Test Spreadsheets/ExportedTemplate.xls"));
+			testImport(wb);
+		} catch (InvalidFormatException e) {
+			logger.error(e.getMessage());
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+	}
 
-			Sheet sheet = wb.getSheetAt(0);
+	private void testImport(Workbook wb) {
+		Row spreadSheetRow = null;
 
-			BSSCSessionBean sessionBean = new BSSCSessionBean();
-			sessionBean.setSampleStorageTemperature(sampleStorageTemperature);
-			List<TitrationBean> measurements = new ArrayList<TitrationBean>();
+		Sheet sheet = wb.getSheetAt(0);
 
-			for (Row row : sheet) {
+		BSSCSessionBean sessionBean = new BSSCSessionBean();
+		sessionBean.setSampleStorageTemperature(sampleStorageTemperature);
+		List<TitrationBean> measurements = new ArrayList<TitrationBean>();
 
-				try {
-					TitrationBean tibi = new TitrationBean();
+		int rowCount = sheet.getLastRowNum() - sheet.getFirstRowNum();
 
-					LocationBean location = locationFromCells(
-							row.getCell(PLATE_COL_NO),
-							row.getCell(PLATE_ROW_COL_NO),
-							row.getCell(PLATE_COLUMN_COL_NO));
-					if (!location.isValid())
-						throw new Exception("invalid sample location");
-					tibi.setLocation(location);
+		for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
 
-					tibi.setSampleName(row.getCell(SAMPLE_NAME_COL_NO)
-							.getStringCellValue());
+			try {
+				TitrationBean tibi = new TitrationBean();
+				spreadSheetRow = sheet.getRow(rowIndex + 1);
 
-					location = locationFromCells(
-							row.getCell(BUFFER_PLATE_COL_NO),
-							row.getCell(BUFFER_ROW_COL_NO),
-							row.getCell(BUFFER_COLUMN_COL_NO));
-					if (!location.isValid())
-						throw new Exception("invalid buffer location");
-					tibi.setBufferLocation(location);
+				LocationBean plateLocation = tibi.getLocation();
+				LocationBean bufferLocation = tibi.getBufferLocation();
+				LocationBean recoupLocation = tibi.getRecouperateLocation();
 
-					try {
-						location = locationFromCells(
-								row.getCell(RECOUP_PLATE_COL_NO),
-								row.getCell(RECOUP_ROW_COL_NO),
-								row.getCell(RECOUP_COLUMN_COL_NO));
-						if (!location.isValid())
-							location = null;
-					} catch (Exception e) {
-						location = null;
-					}
-					tibi.setRecouperateLocation(location);
-					tibi.setConcentration(row.getCell(CONCENTRATION_COL_NO)
-							.getNumericCellValue());
-					tibi.setViscosity(row.getCell(VISCOSITY_COL_NO)
-							.getStringCellValue());
-					tibi.setMolecularWeight(row
-							.getCell(MOLECULAR_WEIGHT_COL_NO)
-							.getNumericCellValue());
-					tibi.setTimePerFrame(row.getCell(TIME_PER_FRAME_COL_NO)
-							.getNumericCellValue());
-					tibi.setFrames((int) row.getCell(FRAMES_COL_NO)
-							.getNumericCellValue());
-					tibi.setExposureTemperature((float) row.getCell(
-							EXPOSURE_TEMP_COL_NO).getNumericCellValue());
+				plateLocation = locationFromCells(
+						spreadSheetRow.getCell(PLATE_COL_NO),
+						spreadSheetRow.getCell(PLATE_ROW_COL_NO),
+						spreadSheetRow.getCell(PLATE_COLUMN_COL_NO));
 
-					measurements.add(tibi);
-				} catch (Exception e) {
-					logger.debug("row rejected" + row.toString());
-					// Assert.fail("row rejected" + row.toString());
-				}
-			}
-
-			sessionBean.setMeasurements(measurements);
-			Assert.assertEquals(sessionBean.getMeasurements().size(), 3);
-
-			for (int rowIndex = 0; rowIndex < measurements.size(); rowIndex++) {
-				TitrationBean titrationBean = sessionBean.getMeasurements()
-						.get(rowIndex);
-				Row spreadSheetRow = sheet.getRow(rowIndex + 1);
-				LocationBean plateLocation = titrationBean.getLocation();
-				LocationBean bufferLocation = titrationBean.getBufferLocation();
-				LocationBean recoupLocation = titrationBean
-						.getRecouperateLocation();
-
-				// Assert.assertEquals(plateLocation.getPlate(),
-				// spreadSheetRow.getCell(PLATE_COL_NO));
+				if (!plateLocation.isValid())
+					throw new Exception("invalid sample location");
+				tibi.setLocation(plateLocation);
+				Assert.assertEquals(plateLocation.getPlate(),
+						parsePlateCell(spreadSheetRow.getCell(PLATE_COL_NO)));
 				Assert.assertEquals(String.valueOf(plateLocation.getRow()),
 						spreadSheetRow.getCell(PLATE_ROW_COL_NO)
 								.getStringCellValue());
-				// Assert.assertEquals(
-				// plateLocation.getColumn(),
-				// Short.valueOf(String.valueOf(spreadSheetRow.getCell(
-				// PLATE_COLUMN_COL_NO).getNumericCellValue())).shortValue());
-				Assert.assertEquals(titrationBean.getSampleName(),
-						spreadSheetRow.getCell(SAMPLE_NAME_COL_NO)
-								.getStringCellValue());
-				Assert.assertEquals(
-						String.valueOf(titrationBean.getConcentration()),
-						String.valueOf(spreadSheetRow.getCell(
-								CONCENTRATION_COL_NO).getNumericCellValue()));
-				Assert.assertEquals(titrationBean.getViscosity(),
-						spreadSheetRow.getCell(VISCOSITY_COL_NO)
-								.getStringCellValue());
-				Assert.assertEquals(
-						String.valueOf(titrationBean.getMolecularWeight()),
-						String.valueOf(spreadSheetRow.getCell(
-								MOLECULAR_WEIGHT_COL_NO).getNumericCellValue()));
-				// Assert.assertEquals(bufferLocation.getPlate(), String
-				// .valueOf(spreadSheetRow.getCell(BUFFER_PLATE_COL_NO)));
+				Assert.assertEquals(plateLocation.getColumn(), Math
+						.round(spreadSheetRow.getCell(PLATE_COLUMN_COL_NO)
+								.getNumericCellValue()));
+
+				tibi.setSampleName(spreadSheetRow.getCell(SAMPLE_NAME_COL_NO)
+						.getStringCellValue());
+				Assert.assertEquals(tibi.getSampleName(), spreadSheetRow
+						.getCell(SAMPLE_NAME_COL_NO).getStringCellValue());
+
+				bufferLocation = locationFromCells(
+						spreadSheetRow.getCell(BUFFER_PLATE_COL_NO),
+						spreadSheetRow.getCell(BUFFER_ROW_COL_NO),
+						spreadSheetRow.getCell(BUFFER_COLUMN_COL_NO));
+				if (!bufferLocation.isValid())
+					throw new Exception("invalid buffer location");
+				tibi.setBufferLocation(bufferLocation);
+				Assert.assertEquals(bufferLocation.getPlate(),
+						parsePlateCell(spreadSheetRow
+								.getCell(BUFFER_PLATE_COL_NO)));
+
 				Assert.assertEquals(String.valueOf(bufferLocation.getRow()),
 						spreadSheetRow.getCell(BUFFER_ROW_COL_NO)
 								.getStringCellValue());
-				// Assert.assertEquals(bufferLocation.getColumn(),
-				// spreadSheetRow.getCell(BUFFER_COLUMN_COL_NO));
+				Assert.assertEquals(bufferLocation.getColumn(), Math
+						.round(spreadSheetRow.getCell(BUFFER_COLUMN_COL_NO)
+								.getNumericCellValue()));
+
+				try {
+					recoupLocation = locationFromCells(
+							spreadSheetRow.getCell(RECOUP_PLATE_COL_NO),
+							spreadSheetRow.getCell(RECOUP_ROW_COL_NO),
+							spreadSheetRow.getCell(RECOUP_COLUMN_COL_NO));
+					if (!recoupLocation.isValid())
+						recoupLocation = null;
+				} catch (Exception e) {
+					recoupLocation = null;
+				}
+				tibi.setRecouperateLocation(recoupLocation);
 				if (recoupLocation != null) {
-					// Assert.assertEquals(recoupLocation.getPlate(),
-					// spreadSheetRow.getCell(RECOUP_PLATE_COL_NO));
+					Assert.assertEquals(recoupLocation.getPlate(),
+							parsePlateCell(spreadSheetRow
+									.getCell(RECOUP_PLATE_COL_NO)));
 					Assert.assertEquals(
 							String.valueOf(recoupLocation.getRow()),
 							spreadSheetRow.getCell(RECOUP_ROW_COL_NO)
 									.getStringCellValue());
-					// Assert.assertEquals(recoupLocation.getColumn(),
-					// spreadSheetRow.getCell(RECOUP_COLUMN_COL_NO));
+					Assert.assertEquals(recoupLocation.getColumn(), Math
+							.round(spreadSheetRow.getCell(RECOUP_COLUMN_COL_NO)
+									.getNumericCellValue()));
 				}
+
+				tibi.setConcentration(spreadSheetRow.getCell(
+						CONCENTRATION_COL_NO).getNumericCellValue());
 				Assert.assertEquals(
-						String.valueOf(titrationBean.getTimePerFrame()),
+						String.valueOf(tibi.getConcentration()),
+						String.valueOf(spreadSheetRow.getCell(
+								CONCENTRATION_COL_NO).getNumericCellValue()));
+
+				tibi.setViscosity(spreadSheetRow.getCell(VISCOSITY_COL_NO)
+						.getStringCellValue());
+				Assert.assertEquals(tibi.getViscosity(), spreadSheetRow
+						.getCell(VISCOSITY_COL_NO).getStringCellValue());
+
+				tibi.setMolecularWeight(spreadSheetRow.getCell(
+						MOLECULAR_WEIGHT_COL_NO).getNumericCellValue());
+				Assert.assertEquals(
+						String.valueOf(tibi.getMolecularWeight()),
+						String.valueOf(spreadSheetRow.getCell(
+								MOLECULAR_WEIGHT_COL_NO).getNumericCellValue()));
+
+				tibi.setTimePerFrame(spreadSheetRow.getCell(
+						TIME_PER_FRAME_COL_NO).getNumericCellValue());
+				Assert.assertEquals(
+						String.valueOf(tibi.getTimePerFrame()),
 						String.valueOf(spreadSheetRow.getCell(
 								TIME_PER_FRAME_COL_NO).getNumericCellValue()));
-				// Assert.assertEquals(String.valueOf(titrationBean.getFrames()),
-				// String.valueOf(spreadSheetRow.getCell(FRAMES_COL_NO)
-				// .getNumericCellValue()));
+
+				tibi.setFrames((int) spreadSheetRow.getCell(FRAMES_COL_NO)
+						.getNumericCellValue());
 				Assert.assertEquals(
-						String.valueOf(titrationBean.getExposureTemperature()),
+						String.valueOf(tibi.getFrames()),
+						String.valueOf(Math.round(spreadSheetRow.getCell(
+								FRAMES_COL_NO).getNumericCellValue())));
+
+				tibi.setExposureTemperature((float) spreadSheetRow.getCell(
+						EXPOSURE_TEMP_COL_NO).getNumericCellValue());
+				Assert.assertEquals(
+						String.valueOf(tibi.getExposureTemperature()),
 						String.valueOf(spreadSheetRow.getCell(
 								EXPOSURE_TEMP_COL_NO).getNumericCellValue()));
+
+				measurements.add(tibi);
+			} catch (Exception e) {
+				logger.debug("row rejected" + spreadSheetRow.toString());
+				Assert.fail("row rejected" + spreadSheetRow.toString());
 			}
-		} catch (InvalidFormatException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
+
+		sessionBean.setMeasurements(measurements);
+		Assert.assertEquals(sessionBean.getMeasurements().size(), 3);
 	}
 }
