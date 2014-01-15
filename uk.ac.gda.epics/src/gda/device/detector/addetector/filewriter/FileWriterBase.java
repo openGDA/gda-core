@@ -49,6 +49,8 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	private boolean setFileNameAndNumber = true;
 
+	private boolean pathErrorSuppressed=false;
+
 	private Observable<Short> writeStatusObservable;
 
 	private boolean writeStatusErr=false;
@@ -215,7 +217,14 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		return setFileNameAndNumber;
 	}
 
-	
+	public boolean isPathErrorSuppressed() {
+		return pathErrorSuppressed;
+	}
+
+	public void setPathErrorSuppressed(boolean pathErrorSuppressed) {
+		this.pathErrorSuppressed = pathErrorSuppressed;
+	}
+
 	/**
 	 * @return the file path to configure in AreaDetector
 	 */
