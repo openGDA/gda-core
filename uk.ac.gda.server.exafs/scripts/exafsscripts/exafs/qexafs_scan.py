@@ -133,12 +133,14 @@ class QexafsScan(Scan):
                     thisscan.runScan()
                     controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
                     loggingbean.atScanEnd()            
+#                except java.lang.Exception, e:
+#                    #print "abort due to other Java exception"
+#                    self._resetHeader()
+#                    loggingbean.atCommandFailure()
+#                    raise e
+                # handle every Java exception through this code, as sometimes an interrupt gets 
+                # encapsulated in a DeviceException (which should not happen)
                 except java.lang.Exception, e:
-                    #print "abort due to other Java exception"
-                    self._resetHeader()
-                    loggingbean.atCommandFailure()
-                    raise e
-                except InterruptedException, e:
                     self._resetHeader()
                     loggingbean.atCommandFailure()
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":

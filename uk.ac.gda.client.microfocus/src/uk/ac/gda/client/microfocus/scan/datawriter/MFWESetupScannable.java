@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
 
+import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 import gda.device.Detector;
 import gda.device.scannable.ScanDataListenerScannable;
 import gda.scan.IScanDataPoint;
@@ -85,7 +86,7 @@ public class MFWESetupScannable extends ScanDataListenerScannable {
 			return null;
 		// ok a candidate
 		MicroFocusWriterExtender ext = new MicroFocusWriterExtender(dims[0], dims[1], 1, 1);
-		ext.setPlotName("MapPlot");
+		ext.setPlotName(MapPlotView.ID);
 		ext.setDetectorBeanFileName(detectorBeanFileName);
 		ext.setDetectors(detectors);
 		ext.getWindowsfromBean();

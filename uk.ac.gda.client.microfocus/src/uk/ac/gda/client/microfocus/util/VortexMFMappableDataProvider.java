@@ -30,21 +30,21 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.VortexROI;
 
 public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider {
 	private static final Logger logger = LoggerFactory.getLogger(VortexMFMappableDataProvider.class);
 	private int numberOfdetectorElements;
-	private List<RegionOfInterest>[] elementRois;
+	private List<VortexROI>[] elementRois;
 	private double[][] vortexData;
 	private HashMap<String, Integer> roiNameMap;
 
-	public List<RegionOfInterest>[] getElementRois() {
+	public List<VortexROI>[] getElementRois() {
 		return elementRois;
 	}
 
-	public void setElementRois(List<RegionOfInterest>[] elementRois) {
+	public void setElementRois(List<VortexROI>[] elementRois) {
 		this.elementRois = elementRois;
 	}
 
@@ -78,8 +78,8 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 					dataSliceFromFile = getDataSliceFromFile(i);
 					for (int j = 0; j < xAxisLengthFromFile; j++) {
 						for (int detectorNo = 0; detectorNo < noOfDetectors; detectorNo++) {
-							List<RegionOfInterest> roiList = elementRois[detectorNo];
-							for (RegionOfInterest roi : roiList) {
+							List<VortexROI> roiList = elementRois[detectorNo];
+							for (VortexROI roi : roiList) {
 								if (roi.getRoiName().equals(selectedElement)) {
 									int windowEnd = roi.getRoiEnd();
 									for (int k = roi.getRoiStart(); k <= windowEnd; k++)
@@ -116,8 +116,8 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 					}
 					for (int xIndex = 0; xIndex < xAxisLengthFromFile; xIndex++) {
 						for (int detectorNo = 0; detectorNo < noOfDetectors; detectorNo++) {
-							List<RegionOfInterest> roiList = elementRois[detectorNo];
-							for (RegionOfInterest roi : roiList) {
+							List<VortexROI> roiList = elementRois[detectorNo];
+							for (VortexROI roi : roiList) {
 								if (roi.getRoiName().equals(selectedElement)) {
 									int windowEnd = roi.getRoiEnd();
 									for (int k = roi.getRoiStart(); k <= windowEnd; k++) {
@@ -308,15 +308,15 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		ArrayList<String> elementRefList = new ArrayList<String>();
 		ArrayList<String> elementRefList2 = new ArrayList<String>();
 		ArrayList<String> elementsList = new ArrayList<String>();
-		List<RegionOfInterest> elementROI = elementRois[0];
-		for (RegionOfInterest roi : elementROI) {
+		List<VortexROI> elementROI = elementRois[0];
+		for (VortexROI roi : elementROI) {
 			elementRefList.add(roi.getRoiName());
 			elementRefList2.add(roi.getRoiName());
 		}
 		for (int i = 1; i < elementRois.length; i++) {
 			elementROI = elementRois[i];
 			elementsList.clear();
-			for (RegionOfInterest roi : elementROI) {
+			for (VortexROI roi : elementROI) {
 				elementsList.add(roi.getRoiName());
 			}
 			for (String s : elementRefList) {

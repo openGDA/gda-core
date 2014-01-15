@@ -40,7 +40,7 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
 		this.indexer = indexer;
 	}
 
-	public XasAsciiNexusDatapointCompletingDataWriter() throws Exception {
+	public XasAsciiNexusDatapointCompletingDataWriter() {
 		XasAsciiNexusDataWriter xasAsciiNexusDataWriter = new XasAsciiNexusDataWriter();
 		sink = new DatapointCompletingDataWriter();
 		sink.setDatawriter(xasAsciiNexusDataWriter);

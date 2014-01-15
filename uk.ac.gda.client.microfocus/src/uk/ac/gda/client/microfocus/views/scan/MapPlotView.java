@@ -23,6 +23,10 @@ import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
 
 public class MapPlotView extends AbstractScanPlotView {
+	
+	public static final String ID = "uk.ac.gda.beamline.i18.MapView";
+	
+	public static final String NAME = "MapPlot";
 
 	@Override
 	protected String getCurrentPlotName(int scanNumber) {

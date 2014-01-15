@@ -31,6 +31,7 @@ import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.xmap.XmapBufferedDetector;
 import gda.device.detector.xspress.XspressDetector;
 import gda.scan.IScanDataPoint;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -49,10 +50,11 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
+import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
 
 public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	private String plotName;
@@ -362,9 +364,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 								wholeDataArray[j] = (double[]) singleElementSpectrum;
 							}
 							spectrumLength = wholeDataArray[j].length;
-							List<RegionOfInterest> roiList = elementRois[j];
+							List<VortexROI> roiList = elementRois[j];
 							// calculating window total manually instead of using xmap ROIs
-							for (RegionOfInterest roi : roiList) {
+							for (VortexROI roi : roiList) {
 								String key = roi.getRoiName();
 								if (roiTable.containsKey(key)) {
 									this.setWindows(roi.getRoiStart(), roi.getRoiEnd());
@@ -471,7 +473,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			if (slice != null) {
 				ILazyDataset sqSlice = slice.squeeze();
 				try {
-					RCPPlotter.plot("McaPlot", (IDataset) sqSlice);
+					RCPPlotter.plot(MicroFocusNexusPlotter.MCA_PLOTTER, (IDataset) sqSlice);
 				} catch (DeviceException e) {
 					logger.error("Unable to plot the spectrum for " + x + " " + y, e);
 					throw new Exception("Unable to plot the spectrum for " + x + " " + y, e);

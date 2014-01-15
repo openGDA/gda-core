@@ -41,16 +41,18 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
+import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
 import uk.ac.gda.client.microfocus.util.RandomLineFileWriter;
 
 public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
@@ -379,9 +381,9 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 							wholeDataArray[j] = (double[]) singleElementSpectrum;
 						spectrumLength = wholeDataArray[j].length;
 						@SuppressWarnings("unchecked")
-						List<RegionOfInterest> roiList = elementRois[j];
+						List<VortexROI> roiList = elementRois[j];
 						//calculating window total manually instead of using xmap ROIs
-						for (RegionOfInterest roi : roiList) {
+						for (VortexROI roi : roiList) {
 							String key = roi.getRoiName();
 							if (roiTable.containsKey(key)) {
 								this.setWindows(roi.getRoiStart(), roi.getRoiEnd());
@@ -444,7 +446,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		lastFilledValue = minValue2;
 	}
 
-	@SuppressWarnings("static-access")
 	public void plotSpectrum(int detNo, int x, int y) throws Exception
 	{
 		//always make sure the spectrum asked to plot is less than the last data point to prevent crashing of the server
@@ -453,7 +454,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			if(slice != null)
 			{
 				try {
-					RCPPlotter.plot("McaPlot",slice);
+					SDAPlotter.plot(MicroFocusNexusPlotter.MCA_PLOTTER,slice);
 				} catch (DeviceException e) {
 					logger.error("Unable to plot the spectrum for "+ x + " " + y, e);
 					throw new Exception("Unable to plot the spectrum for "+ x + " " + y,e);
@@ -496,7 +497,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		return slice;
 	}
 	
-	@SuppressWarnings("static-access")
 	public void displayPlot(String selectedElement)throws Exception
 	{
 		int fillDecrement =0;
@@ -533,7 +533,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			fillDecrement = (int)minValue /100;
 			if(plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
 				fillDataSet((minValue -fillDecrement));
-			RCPPlotter.imagePlot(plotName, dataSet);
+			SDAPlotter.imagePlot(plotName, dataSet);
 			//reset the selected element index
 			selectedElementIndex = -1;
 			return;
@@ -558,7 +558,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 				fillDecrement = (int) minValue/100;
 				if(plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
 					fillDataSet((minValue - fillDecrement));
-				RCPPlotter.imagePlot(plotName, dataSet);
+				SDAPlotter.imagePlot(plotName, dataSet);
 			return;
 		}
 		
@@ -579,7 +579,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			fillDecrement = (int)minValue/100;
 			if(plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
 				fillDataSet((minValue - fillDecrement));
-			RCPPlotter.imagePlot(plotName, dataSet);
+			SDAPlotter.imagePlot(plotName, dataSet);
 			return;			
 		}
 		

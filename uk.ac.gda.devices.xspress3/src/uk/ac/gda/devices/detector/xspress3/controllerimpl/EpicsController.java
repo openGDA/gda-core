@@ -45,8 +45,8 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 		pvProvider = new EpicsControllerPvProvider(epicsTemplate);
 
 		try {
-			Boolean epicsConnectionToHardware = pvProvider.pvIsConnected.get();
-			if (epicsConnectionToHardware) {
+			Boolean epicsConnectionToHardware = pvProvider.pvIsConnected.get() == CONNECTION_STATE.Connected;
+			if (!epicsConnectionToHardware) {
 				logger.error("EPICS is not connected to underlying Xspress3 hardware.\\nConnect EPICS to Xspreess3 before doing any more in GDA.");
 			}
 		} catch (IOException e) {
@@ -67,12 +67,14 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public void doStart() throws DeviceException {
 		try {
-			pvProvider.pvErase.putCallback(1);
-			// nowait
-//			pvProvider.pvAcquire.putCallback(1);
-			pvProvider.pvAcquire.put(1);
+			pvProvider.pvErase.putWait(ERASE_STATE.Erase);
+			// nowait as the IOC does not send a callback (until all data collection finished I suppose, which is not what we want here)
+			pvProvider.pvAcquire.putNoWait(ACQUIRE_STATE.Acquire);
+			Thread.sleep(100);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while starting acquisition", e);
+		} catch (InterruptedException e) {
+			throw new DeviceException("InterruptedException while starting acquisition", e);
 		}
 	}
 
@@ -87,9 +89,9 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException {
 		try {
 			if (saveFiles) {
-				pvProvider.pvStartStopFileWriting.put(CAPTURE_CTRL_RBV.Capture);
+				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Capture);
 			} else {
-				pvProvider.pvStartStopFileWriting.put(CAPTURE_CTRL_RBV.Done);
+				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
 			}
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting save files flag", e);
@@ -99,16 +101,19 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public void doStop() throws DeviceException {
 		try {
-			pvProvider.pvAcquire.put(0);
+			pvProvider.pvAcquire.putNoWait(ACQUIRE_STATE.Done);
+			Thread.sleep(100);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while stopping acquisition", e);
+		} catch (InterruptedException e) {
+			throw new DeviceException("InterruptedException while stopping acquisition", e);
 		}
 	}
 
 	@Override
 	public void doErase() throws DeviceException {
 		try {
-			pvProvider.pvErase.put(1);
+			pvProvider.pvErase.putWait(ERASE_STATE.Erase);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while erasing memory", e);
 		}
@@ -117,7 +122,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public void doReset() throws DeviceException {
 		try {
-			pvProvider.pvReset.put(1);
+			pvProvider.pvReset.putWait(1);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while resetting", e);
 		}
@@ -135,7 +140,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public void setNumFramesToAcquire(Integer numFrames) throws DeviceException {
 		try {
-			pvProvider.pvSetNumImages.put(numFrames);
+			pvProvider.pvSetNumImages.putWait(numFrames);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while resetting", e);
 		}
@@ -147,7 +152,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 			if (doCalcs) {
 				setValue = UPDATE_CTRL.Enable;
 			}
-			pvProvider.pvSetRoiCalc.put(setValue);
+			pvProvider.pvSetRoiCalc.putWait(setValue);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting ROI calculations on/off", e);
 		}
@@ -168,7 +173,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public void setTriggerMode(TRIGGER_MODE mode) throws DeviceException {
 		try {
-			pvProvider.pvSetTrigMode.put(mode);
+			pvProvider.pvSetTrigMode.putWait(mode);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting trigger mode", e);
 		}
@@ -196,7 +201,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public Boolean isConnected() throws DeviceException {
 		try {
-			return pvProvider.pvIsConnected.get();
+			return pvProvider.pvIsConnected.get() == CONNECTION_STATE.Connected;
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting isConnected value", e);
 		}
@@ -270,85 +275,85 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 		}
 	}
 
-	public void setPerformScalerUpdates(Boolean doUpdates) throws DeviceException {
-		try {
-			UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
-			if (doUpdates) {
-				setValue = UPDATE_CTRL.Enable;
-			}
-			pvProvider.pvSetScalerUpdate.put(setValue);
-		} catch (IOException e) {
-			throw new DeviceException("IOException while setting scaler updates on/off", e);
-		}
-	}
+//	public void setPerformScalerUpdates(Boolean doUpdates) throws DeviceException {
+//		try {
+//			UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
+//			if (doUpdates) {
+//				setValue = UPDATE_CTRL.Enable;
+//			}
+//			pvProvider.pvSetScalerUpdate.putWait(setValue);
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while setting scaler updates on/off", e);
+//		}
+//	}
+//
+//	public Boolean getPerformScalerUpdates() throws DeviceException {
+//		try {
+//			UPDATE_RBV getValue = pvProvider.pvGetScalerUpdate.get();
+//			if (getValue == UPDATE_RBV.Enabled) {
+//				return true;
+//			}
+//			return false;
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while getting scaler updates setting", e);
+//		}
+//	}
+//
+//	public void setScalerRefreshPeriod(int numFrames) throws DeviceException {
+//		try {
+//			pvProvider.pvScalerUpdatePeriod.putWait(numFrames);
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while setting scaler refresh period", e);
+//		}
+//	}
 
-	public Boolean getPerformScalerUpdates() throws DeviceException {
-		try {
-			UPDATE_RBV getValue = pvProvider.pvGetScalerUpdate.get();
-			if (getValue == UPDATE_RBV.Enabled) {
-				return true;
-			}
-			return false;
-		} catch (IOException e) {
-			throw new DeviceException("IOException while getting scaler updates setting", e);
-		}
-	}
-
-	public void setScalerRefreshPeriod(int numFrames) throws DeviceException {
-		try {
-			pvProvider.pvScalerUpdatePeriod.put(numFrames);
-		} catch (IOException e) {
-			throw new DeviceException("IOException while setting scaler refresh period", e);
-		}
-	}
-
-	public int getScalerRefreshPeriod() throws DeviceException {
-		try {
-			return pvProvider.pvScalerUpdatePeriod.get();
-		} catch (IOException e) {
-			throw new DeviceException("IOException while fetching scaler refresh period", e);
-		}
-	}
-
-	public void setPerformMCAUpdates(Boolean doUpdates) throws DeviceException {
-		try {
-			UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
-			if (doUpdates) {
-				setValue = UPDATE_CTRL.Enable;
-			}
-			pvProvider.pvSetMCAUpdate.put(setValue);
-		} catch (IOException e) {
-			throw new DeviceException("IOException while setting mca updates on/off", e);
-		}
-	}
-
-	public Boolean getPerformMCAUpdates() throws DeviceException {
-		try {
-			UPDATE_RBV getValue = pvProvider.pvGetMCAUpdate.get();
-			if (getValue == UPDATE_RBV.Enabled) {
-				return true;
-			}
-			return false;
-		} catch (IOException e) {
-			throw new DeviceException("IOException while getting mca updates setting", e);
-		}
-	}
-
-	public void setMCARefreshPeriod(int numFrames) throws DeviceException {
-		try {
-			pvProvider.pvMCAUpdatePeriod.put(numFrames);
-		} catch (IOException e) {
-			throw new DeviceException("IOException while setting mca refresh period", e);
-		}
-	}
-
-	public int getMCARefreshPeriod() throws DeviceException {
-		try {
-			return pvProvider.pvMCAUpdatePeriod.get();
-		} catch (IOException e) {
-			throw new DeviceException("IOException while fetching mca refresh period", e);
-		}
-	}
+//	public int getScalerRefreshPeriod() throws DeviceException {
+//		try {
+//			return pvProvider.pvScalerUpdatePeriod.get();
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while fetching scaler refresh period", e);
+//		}
+//	}
+//
+//	public void setPerformMCAUpdates(Boolean doUpdates) throws DeviceException {
+//		try {
+//			UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
+//			if (doUpdates) {
+//				setValue = UPDATE_CTRL.Enable;
+//			}
+//			pvProvider.pvSetMCAUpdate.putWait(setValue);
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while setting mca updates on/off", e);
+//		}
+//	}
+//
+//	public Boolean getPerformMCAUpdates() throws DeviceException {
+//		try {
+//			UPDATE_RBV getValue = pvProvider.pvGetMCAUpdate.get();
+//			if (getValue == UPDATE_RBV.Enabled) {
+//				return true;
+//			}
+//			return false;
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while getting mca updates setting", e);
+//		}
+//	}
+//
+//	public void setMCARefreshPeriod(int numFrames) throws DeviceException {
+//		try {
+//			pvProvider.pvMCAUpdatePeriod.putWait(numFrames);
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while setting mca refresh period", e);
+//		}
+//	}
+//
+//	public int getMCARefreshPeriod() throws DeviceException {
+//		try {
+//			return pvProvider.pvMCAUpdatePeriod.get();
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while fetching mca refresh period", e);
+//		}
+//	}
 
 	public void setPerformROIUpdates(Boolean doUpdates) throws DeviceException {
 		try {
@@ -356,7 +361,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 			if (doUpdates) {
 				setValue = UPDATE_CTRL.Enable;
 			}
-			pvProvider.pvSetRoiCalc.put(setValue);
+			pvProvider.pvSetRoiCalc.putWait(setValue);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting roi updates on/off", e);
 		}
@@ -374,21 +379,21 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 		}
 	}
 
-	public void setROIRefreshPeriod(int numFrames) throws DeviceException {
-		try {
-			pvProvider.pvSCAROIUpdatePeriod.put(numFrames);
-		} catch (IOException e) {
-			throw new DeviceException("IOException while setting ROI refresh period", e);
-		}
-	}
-
-	public int getROIRefreshPeriod() throws DeviceException {
-		try {
-			return pvProvider.pvSCAROIUpdatePeriod.get();
-		} catch (IOException e) {
-			throw new DeviceException("IOException while fetching ROI refresh period", e);
-		}
-	}
+//	public void setROIRefreshPeriod(int numFrames) throws DeviceException {
+//		try {
+//			pvProvider.pvSCAROIUpdatePeriod.putWait(numFrames);
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while setting ROI refresh period", e);
+//		}
+//	}
+//
+//	public int getROIRefreshPeriod() throws DeviceException {
+//		try {
+//			return pvProvider.pvSCAROIUpdatePeriod.get();
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while fetching ROI refresh period", e);
+//		}
+//	}
 
 	@Override
 	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel)
@@ -518,7 +523,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 
 	private void updateArrays() throws DeviceException {
 		try {
-			pvProvider.pvUpdate.put(1);
+			pvProvider.pvUpdate.putWait(1);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while updating Xspress3 arrays", e);
 		}
@@ -543,8 +548,8 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) throws DeviceException {
 		try {
-			pvProvider.pvsROILLM[roiNumber][channel].put(lowHighMCAChannels[0]);
-			pvProvider.pvsROIHLM[roiNumber][channel].put(lowHighMCAChannels[1]);
+			pvProvider.pvsROILLM[roiNumber][channel].putWait(lowHighMCAChannels[0]);
+			pvProvider.pvsROIHLM[roiNumber][channel].putWait(lowHighMCAChannels[1]);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting ROI limits", e);
 		}
@@ -567,12 +572,12 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 		try {
 			switch (windowNumber) {
 			case 1:
-				pvProvider.pvsScaWin1Low[channel].put(lowHighScalerWindowChannels[0]);
-				pvProvider.pvsScaWin1High[channel].put(lowHighScalerWindowChannels[1]);
+				pvProvider.pvsScaWin1Low[channel].putWait(lowHighScalerWindowChannels[0]);
+				pvProvider.pvsScaWin1High[channel].putWait(lowHighScalerWindowChannels[1]);
 				break;
 			case 2:
-				pvProvider.pvsScaWin2Low[channel].put(lowHighScalerWindowChannels[0]);
-				pvProvider.pvsScaWin2High[channel].put(lowHighScalerWindowChannels[1]);
+				pvProvider.pvsScaWin2Low[channel].putWait(lowHighScalerWindowChannels[0]);
+				pvProvider.pvsScaWin2High[channel].putWait(lowHighScalerWindowChannels[1]);
 				break;
 			default:
 				throw new DeviceException("Cannot set scaler window: value for window unacceptable");
@@ -713,7 +718,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public void setFilePath(String path) throws DeviceException {
 		try {
-			pvProvider.pvSetFilePath.putCallback(path);
+			pvProvider.pvSetFilePath.putWait(path);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting filepath", e);
 		}
@@ -723,7 +728,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public void setFilePrefix(String template) throws DeviceException {
 		try {
-			pvProvider.pvSetFilePrefix.putCallback(template);
+			pvProvider.pvSetFilePrefix.putWait(template);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting file prefix", e);
 		}
@@ -733,7 +738,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public void setNextFileNumber(int nextNumber) throws DeviceException {
 		try {
-			pvProvider.pvNextFileNumber.putCallback(nextNumber);
+			pvProvider.pvNextFileNumber.putWait(nextNumber);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting file number", e);
 		}
