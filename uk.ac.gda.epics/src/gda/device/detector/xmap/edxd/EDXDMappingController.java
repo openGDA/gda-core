@@ -41,12 +41,12 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 
 	private int elementOffset = 0;
 	
-	private static final String STARTALL = "STARTALL";
+//	private static final String STARTALL = "STARTALL";
 	private static final String STOPALL = "STOPALL";
 	private static final String ERASESTART = "ERASESTART";
 	private static final String ERASEALL = "ERASEALL";
 	private static final String COLLECTIONMODE = "COLLECTMODE";
-	private static final String SETPRESETREAL = "SETPRESETREAL";
+//	private static final String SETPRESETREAL = "SETPRESETREAL";
 	private static final String PIXELADVANCEMODE = "PIXELADVANCEMODE";
 	private static final String IGNOREGATE = "IGNOREGATE";
 	private static final String AUTOPIXELSPERBUFFER = "AUTOPIXELSPERBUFFER";
@@ -98,7 +98,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 
 			@Override
 			public void update(Object source, Object arg) {
-				logger.info("the status update from xmap is " + arg);
+				logger.debug("the status update from xmap is " + arg);
 				if(arg instanceof EpicsMonitorEvent)
 				{
 					EpicsMonitorEvent evt = (EpicsMonitorEvent) arg;					
