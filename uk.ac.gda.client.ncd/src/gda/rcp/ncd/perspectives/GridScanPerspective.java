@@ -32,14 +32,13 @@ public class GridScanPerspective implements IPerspectiveFactory {
 			folderLayout.addView("uk.ac.gda.client.ncd.gridcameraview");
 			folderLayout.addView("uk.ac.gda.client.ncd.mappingthumb");
 		}
-<<<<<<< Updated upstream
 		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.ncd.gridcameraview");
 		layout.addView("gda.rcp.jythonterminalview", IPageLayout.LEFT, 0.8f, IPageLayout.ID_EDITOR_AREA);
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.6f, "gda.rcp.jythonterminalview");
 		//	folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.2D");//uk.ac.gda.client.ncd.gridDetails");//, IPageLayout.BOTTOM, 0.4f, IPageLayout.ID_EDITOR_AREA);//"gda.rcp.jythonterminalview");
 			folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.gridTool");//uk.ac.gda.client.ncd.gridDetails");//, IPageLayout.BOTTOM, 0.4f, IPageLayout.ID_EDITOR_AREA);//"gda.rcp.jythonterminalview");
-=======
+		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_2", IPageLayout.TOP, 0.3f, "uk.ac.gda.client.ncd.gridcameraview");
 			folderLayout.addView("uk.ac.gda.arpes.ui.view.samplemetadata");
@@ -50,7 +49,6 @@ public class GridScanPerspective implements IPerspectiveFactory {
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.5f, "gda.rcp.jythonterminalview");
 			folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.gridTool");
->>>>>>> Stashed changes
 			folderLayout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView");
 			folderLayout.addView("gda.rcp.views.baton.BatonView");
 		}
