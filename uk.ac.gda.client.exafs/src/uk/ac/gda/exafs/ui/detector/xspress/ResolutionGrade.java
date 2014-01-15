@@ -51,13 +51,13 @@ public class ResolutionGrade{
 		createResolutionGrade(parent);
 	}
 
-	private void createResolutionGrade(Composite composite){
-		Label resGradeLabel = new Label(composite, SWT.NONE);
+	private void createResolutionGrade(Composite parent){
+		Label resGradeLabel = new Label(parent, SWT.NONE);
 		resGradeLabel.setText("Resolution Grade");
 		resGradeLabel.setToolTipText("The resolution setting during calibration and XAS scans");
 		resGradeLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
-		resolutionGradeCombo = new ComboAndNumberWrapper(composite, SWT.READ_ONLY, Arrays.asList(new String[] { ResGrades.THRESHOLD }));
+		resolutionGradeCombo = new ComboAndNumberWrapper(parent, SWT.READ_ONLY, Arrays.asList(new String[] { ResGrades.THRESHOLD }));
 		resolutionGradeCombo.setItems(RES_ALL);
 		resolutionGradeCombo.getValueField().setMaximum(15.99);
 		resolutionGradeCombo.getValueField().setMinimum(0.0);
@@ -77,26 +77,6 @@ public class ResolutionGrade{
 
 	public ComboAndNumberWrapper getResolutionGradeCombo() {
 		return resolutionGradeCombo;
-	}
-	
-	public void updateResGradeVisibility(Composite composite) {
-		GridUtils.startMultiLayout(composite.getParent());
-		try {
-//			if(readoutMode.getReadoutMode().getSelectionIndex() == 2 && !readoutMode.isModeOveride()) {
-//				GridUtils.setVisibleAndLayout(resGradeLabel, true);
-//				GridUtils.setVisibleAndLayout(resolutionGradeCombo, true);
-//				GridUtils.setVisibleAndLayout(lblRegionBins, true);
-//				GridUtils.setVisibleAndLayout(regionType, true);
-//			} 
-//			else {
-//				GridUtils.setVisibleAndLayout(resGradeLabel, false);
-//				GridUtils.setVisibleAndLayout(resolutionGradeCombo, false);
-//				GridUtils.setVisibleAndLayout(lblRegionBins, false);
-//				GridUtils.setVisibleAndLayout(regionType, false);
-//			}
-		} finally {
-			GridUtils.endMultiLayout();
-		}
 	}
 
 	public Label getResGradeLabel() {

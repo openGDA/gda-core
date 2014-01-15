@@ -70,6 +70,7 @@ public class Acquire {
 	}
 	
 	public void updateStats(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
+		
 	}
 	
 	public void acquireAndPlotAndUpdateStats(double acquireTime, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
@@ -113,7 +114,6 @@ public class Acquire {
 	}
 	
 	public void addAcquireListener(final int currentSelectedElementIndex, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
-		
 		acquireBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {

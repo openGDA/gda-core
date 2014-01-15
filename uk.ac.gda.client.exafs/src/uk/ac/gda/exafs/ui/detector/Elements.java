@@ -205,17 +205,13 @@ public class Elements {
 	}
 	
 	private void updateUIAfterDetectorElementCompositeChange(int[][][] detectorData, int selectedElementIndex) {
-		if (updatingAfterROIDrag == null){
-			try {
+		if(detectorData!=null)
+			if(detectorData.length!=0){
 				updatingAfterROIDrag = false;
-				//counts.calculateAndPlotCountTotals(null, true, detectorData, detectorListComposite.getDetectorElementComposite(), selectedElementIndex);
 				detectorListComposite.getDetectorElementComposite().setTotalCounts(counts.getTotalCounts(detectorData));
 				detectorListComposite.getDetectorElementComposite().setTotalElementCounts(counts.getTotalElementCounts(selectedElementIndex, detectorData));
 				updateROIAfterElementCompositeChange();
-			} finally {
-				updatingAfterROIDrag = null;
 			}
-		}
 	}
 	public void updateROIAfterElementCompositeChange() {
 		double roiStart = ((Number) detectorListComposite.getDetectorElementComposite().getStart().getValue()).doubleValue();

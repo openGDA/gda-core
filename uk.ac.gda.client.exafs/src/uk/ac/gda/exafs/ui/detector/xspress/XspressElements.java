@@ -199,14 +199,6 @@ public class XspressElements extends Elements{
 		autoApplyToAll(!currentEditIndividual);
 	}
 	
-//	protected void updateRoiVisibility() {
-//	boolean isRoi = readoutMode.getReadoutMode().getValue().equals(XspressDetector.READOUT_ROIS);
-//	detectorElementComposite.setWindowsEditable(!isRoi);
-//	Composite roi = detectorElementComposite.getRegionList();
-//	GridUtils.setVisibleAndLayout(roi, isRoi);
-//	setImportCompositeVisible(isRoi);
-//}
-	
 	public BooleanWrapper getShowIndividualElements() {
 		return showIndividualElements;
 	}

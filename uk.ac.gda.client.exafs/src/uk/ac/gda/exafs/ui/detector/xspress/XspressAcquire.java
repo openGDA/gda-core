@@ -76,13 +76,12 @@ public class XspressAcquire extends Acquire {
 	private ComboWrapper readoutMode;
 	private ComboAndNumberWrapper resolutionGrade;
 	private DirtyContainer dirtyContainer;
-	private BooleanWrapper showIndividualElements;
 	private Plot plot;
 	private XspressData xspressData;
 	private Button loadBtn;
 	private FileDialog openDialog;
 	
-	public XspressAcquire(Composite parent, final SashFormPlotComposite sashPlotFormComposite, Display display, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, final DirtyContainer dirtyContainer){
+	public XspressAcquire(Composite parent, final SashFormPlotComposite sashPlotFormComposite, Display display, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, final DirtyContainer dirtyContainer, XspressParameters xspressParameters, Counts counts){
 		super(display);
 		this.display = display;
 		this.sashPlotFormComposite = sashPlotFormComposite;
@@ -148,6 +147,9 @@ public class XspressAcquire extends Acquire {
 		GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, false);
 		gridData.horizontalSpan=6;
 		acquireFileLabel.setLayoutData(gridData);
+		
+		this.counts = counts;
+		xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
 	}
 	
 	public void addLoadListener(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int detectorListLength){
@@ -171,12 +173,6 @@ public class XspressAcquire extends Acquire {
 				}
 			}
 		});		
-	}
-	
-	public void init(XspressParameters xspressParameters, final Counts counts, final BooleanWrapper showIndividualElements){
-		this.counts = counts;
-		this.showIndividualElements = showIndividualElements;
-		xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
 	}
 	
 	public void writeToDisk(String xspressSaveDir, int[][][] detectorData) throws Exception{
@@ -235,11 +231,6 @@ public class XspressAcquire extends Acquire {
 		detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
 		plot.plot(detectorList.getSelectedIndex(), mcaData, false, resolutionGrade);
 		dirtyContainer.setDirty(true);
-	}
-	
-	public void updateStats(DataWrapper dataWrapper){
-		ElementCountsData[] elementCountsData = ElementCountsData.getDataFor(mcaData);
-		dataWrapper.setValue(elementCountsData);
 	}
 	
 	public int[][][] getMcaData(){
