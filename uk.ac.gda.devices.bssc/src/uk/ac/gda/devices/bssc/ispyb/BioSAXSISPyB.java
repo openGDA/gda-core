@@ -35,6 +35,14 @@ public interface BioSAXSISPyB {
 	 *  
 	 * @param visitname
 	 *            e.g. sm9999-9
+	 * @return proposalID
+	 */
+	public abstract long getProposalForVisit(String visitname) throws SQLException;
+
+	/**
+	 *  
+	 * @param visitname
+	 *            e.g. sm9999-9
 	 * @return sessionID
 	 */
 	public abstract long getSessionForVisit(String visitname) throws SQLException;
@@ -43,13 +51,16 @@ public interface BioSAXSISPyB {
 	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
 	 * 
 	 * @param sessionID
-	 * @return experimentID
+	 * @param experimentID
+	 * @return saxsDataCollectionID
 	 */
-	public abstract long createSaxsDataCollection(long sessionID) throws SQLException;
+	public abstract long createSaxsDataCollection(long sessionID, long experimentID) throws SQLException;
 
 	/**
 	 * @param blsessionId
 	 *            The ID of the visit
+	 * @param experimentId
+	 *            The ID of the experiment
 	 * @param plate
 	 *            does not seem to be in the database. it is 1,2,3 and you could create a SamplePlate for each per
 	 *            Experiment
@@ -70,13 +81,15 @@ public interface BioSAXSISPyB {
 	 *            "/entry1/detector/data"
 	 * @return bufferMeasurementId
 	 */
-	public abstract long createBufferMeasurement(long blsessionId, short plate, short row, short column, float storageTemperature,
+	public abstract long createBufferMeasurement(long blsessionId, long experimentId, short plate, short row, short column, float storageTemperature,
 			float exposureTemperature, int numFrames, double timePerFrame, double flow, double volume,
 			double energyInkeV, String viscosity, String fileName, String internalPath) throws SQLException;
 
 	/**
 	 * @param blsessionId
 	 *            The ID of the visit
+	 * @param experimentId
+	 *            The ID of the experiment
 	 * @param plate
 	 * @param row
 	 * @param column
@@ -94,7 +107,7 @@ public interface BioSAXSISPyB {
 	 * @param internalPath
 	 * @return sampleMeasurementId
 	 */
-	public abstract long createSampleMeasurement(long blsessionId, short plate, short row, short column, String name,
+	public abstract long createSampleMeasurement(long blsessionId, long experimentId, short plate, short row, short column, String name,
 			double concentration, float storageTemperature, float exposureTemperature, int numFrames,
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, 
 			String fileName, String internalPath) throws SQLException;
@@ -123,4 +136,15 @@ public interface BioSAXSISPyB {
 	 * @throws SQLException
 	 */
 	public List<Long> getSaxsDataCollectionsForSession(long blsessionId) throws SQLException;
+	
+	/**
+	 * @param proposalId
+	 * @param name
+	 * @param experimentType - TEMPLATE, HPLC, STATIC
+	 * @param comments
+	 * @return experimentId
+	 * @throws SQLException
+	 */
+	public long createExperiment(long proposalId, String name, String experimentType, String comments) throws SQLException;
+
 }
