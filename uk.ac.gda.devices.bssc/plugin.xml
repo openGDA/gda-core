@@ -102,13 +102,19 @@
      <menuContribution
            allPopups="false"
            locationURI="popup:uk.ac.gda.client.CommandQueueViewFactory?after=additions">
-        <menu
-              label="Edit Queued Item">
-        </menu>
+           <command
+                 commandId="uk.ac.gda.devices.bssc.EditQueuedItem"
+                 label="Edit Queued Item">
+         </command>
      </menuContribution>
   </extension>
   <extension
         point="org.eclipse.ui.commands">
+     <command
+           defaultHandler="uk.ac.gda.devices.bssc.ui.handlers.EditQueuedItemHandler"
+           id="uk.ac.gda.devices.bssc.EditQueuedItem"
+           name="Edit Queued Item">
+     </command>
   </extension>
 
 </plugin>
