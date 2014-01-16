@@ -180,7 +180,11 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		}
 		try {
 			// don't ask, but getRoi doesn't return what you expect
-			cpsRoi = cpsRoiProvider.getScisoftRoiListFromSDAPlotter().get(0);
+			if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
+				cpsRoi = cpsRoiProvider.getScisoftRoiListFromSDAPlotter().get(0);
+			} else {
+				cpsRoi = null;
+			}
 		} catch (Exception e) {
 			logger.info("no cps roi could be retireved, cps will be calculated over entire active detector");
 			cpsRoi = null;
@@ -193,12 +197,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void atScanEnd() throws DeviceException {
 		inScan = false;
 		super.atScanEnd();
-		try {
-			zeroSupplies();
-		} catch (Exception e) {
-			// if the scan went well until this we don't want to spoil it, so logging is enough
-			logger.error("zero supplies generated an error at end of scan", e);
-		}
+		zeroSuppliesIgnoreErrors();
 		kineticEnergyChangesDuringScan = false;
 	}
 	
@@ -214,7 +213,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			start = controller.getCentreEnergy() - (getCapabilities().getEnergyWidthForPass(pass) / 2);
 			step = getCapabilities().getEnergyStepForPass(pass) / 1000.0;
 			length = getAdBase().getSizeX_RBV();
-			startChannel = getAdBase().getMinX_RBV();
+			startChannel = getAdBase().getMinX_RBV()-1; //TODO check if -1 required
 		} else {
 			start = controller.getStartEnergy();
 			step = controller.getEnergyStep();
@@ -229,7 +228,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	}
 
 	public double[] getAngleAxis() throws Exception {
-		return getCapabilities().getAngleAxis(controller.getLensMode(), getAdBase().getMinY_RBV(),
+		return getCapabilities().getAngleAxis(controller.getLensMode(), getAdBase().getMinY_RBV()-1, //TODO check if -1 required
 				getAdBase().getSizeY_RBV());
 	}
 
@@ -468,6 +467,14 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void zeroSupplies() throws Exception {
 		controller.zeroSupplies();
 	}
+	
+	public void zeroSuppliesIgnoreErrors() {
+		try {
+			zeroSupplies();
+		} catch (Exception e) {
+			logger.error("error zeroing power supplies", e);
+		}
+	}
 
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
@@ -526,6 +533,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		inScan = false;
+		zeroSuppliesIgnoreErrors();
 		super.atCommandFailure();
 	}
 	
