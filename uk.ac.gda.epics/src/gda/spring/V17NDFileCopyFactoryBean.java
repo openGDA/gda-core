@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,44 +18,31 @@
 
 package gda.spring;
 
-import uk.ac.gda.util.FilePathConverter;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
-import gda.device.detector.areadetector.v17.impl.NDFileImpl;
-/**
- * FactoryBean to make the creation of an bean that implements NDFile easier
- */
-public class V17NDFileFactoryBean extends V17PluginFactoryBeanBase<NDFile>{
+import gda.device.detector.areadetector.v17.impl.NDFileCopy;
 
-	protected boolean resetToInitialValues;
-	protected FilePathConverter filePathConverter;
+public class V17NDFileCopyFactoryBean extends V17NDFileFactoryBean {
+	private String copyPluginPrefix="BL13I-EA-DET-01:COPY";
 
-	public boolean isResetToInitialValues() {
-		return resetToInitialValues;
+	public String getCopyPluginPrefix() {
+		return copyPluginPrefix;
 	}
 
-	public void setResetToInitialValues(boolean resetToInitialValues) {
-		this.resetToInitialValues = resetToInitialValues;
+	public void setCopyPluginPrefix(String copyPluginPrefix) {
+		this.copyPluginPrefix = copyPluginPrefix;
 	}
-
-	public FilePathConverter getFilePathConverter() {
-		return filePathConverter;
-	}
-
-	public void setFilePathConverter(FilePathConverter filePathConverter) {
-		this.filePathConverter = filePathConverter;
-	}
-
 	@Override
 	protected NDFile createObject(NDPluginBase pluginBase, IPVProvider pvProvider) throws Exception {
-		NDFileImpl plugin = new NDFileImpl();
+		NDFileCopy plugin = new NDFileCopy();
+		plugin.setCopyPluginPrefix(copyPluginPrefix);
 		plugin.setPluginBase(pluginBase);
 		plugin.setPvProvider(pvProvider);
 		plugin.setResetToInitialValues(resetToInitialValues);
 		plugin.setFilePathConverter(filePathConverter);
 		plugin.afterPropertiesSet();
 		return plugin;
-	}
 
+	}
 }
