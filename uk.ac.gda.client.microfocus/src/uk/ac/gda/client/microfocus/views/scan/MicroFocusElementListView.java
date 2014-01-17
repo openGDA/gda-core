@@ -38,6 +38,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
@@ -67,14 +68,13 @@ import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.controller.MicroFocusDisplayController;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class MicroFocusElementListView extends ViewPart implements SelectionListener, 
-		IObservable, IObserver {
+public class MicroFocusElementListView extends ViewPart implements SelectionListener, IObservable, IObserver {
 
 	public static final String ID = "uk.ac.gda.client.microfocus.ElementListView";
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
 
 	protected final IExperimentEditorManager controller = ExperimentFactory.getExperimentEditorManager();
-	
+
 	private List elementList;
 	private MicroFocusDisplayController displayController;
 	private FileDialog openDialog;
@@ -82,12 +82,11 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private boolean loadMapForScan = false;
 	private PlotView plotView;
-	private String selectedElement;
 	private XspressParameters xspressBean;
 	private VortexParameters vortexBean;
-
 	private double pointX;
 	private double pointY;
+	private Combo cmbChannelChoice;
 
 	public MicroFocusElementListView() {
 		super();
@@ -100,6 +99,14 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	public void createPartControl(Composite parent) {
 		Composite xspressComposite = new Composite(parent, SWT.NONE);
 		xspressComposite.setLayout(new GridLayout(2, false));
+
+		cmbChannelChoice = new Combo(xspressComposite, SWT.NONE);
+		cmbChannelChoice.setText("Detector Channel:");
+		cmbChannelChoice.setItems(new String[] { "0" });
+		cmbChannelChoice.select(0);
+
+		cmbChannelChoice.addSelectionListener(this);
+
 		elementList = new List(xspressComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
 		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1);
 		gridData.widthHint = 598;
@@ -108,7 +115,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.getBaseDataDir());
-		selectedElement = elementList.getItemCount() > 0 ? elementList.getItem(0) : null;
 		elementList.addSelectionListener(this);
 		elementList.setToolTipText(loadedDetectorFileName);
 
@@ -116,8 +122,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 		try {
 			// get an instance of the plotView we want to use
-			IViewPart newview = getSite().getPage().showView(MapPlotView.ID, null,
-					IWorkbenchPage.VIEW_CREATE);
+			IViewPart newview = getSite().getPage().showView(MapPlotView.ID, null, IWorkbenchPage.VIEW_CREATE);
 			if (newview instanceof PlotView) {
 				plotView = (PlotView) newview;
 			}
@@ -164,7 +169,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	@Override
 	public void setFocus() {
 	}
-	
+
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
 	}
@@ -187,6 +192,9 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		int numElements = regionList.size();
 		String[] elements = new String[numElements];
 
+		int numChannels = xspressBean.getDetectorList().size();
+		updateNumberDetectorChannels(numChannels);
+
 		elementList.removeAll();
 		for (int i = 0; i < numElements; i++) {
 			String roiName = regionList.get(i).getRoiName();
@@ -194,16 +202,15 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			elementList.add(roiName);
 		}
 
-		selectedElement = elementList.getItem(0);
-
-		if (selectedElement != null && filePath != null) {
+		if (filePath != null) {
 			final String msg = ("Loading map from " + filePath);
+			final Integer selectedChannel = getSelectedChannel();
 			Job job = new Job(msg) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					try {
 						displayController.displayMap(xspressBean.getDetector(0).getRegionList().get(0).getRoiName(),
-								filePath, xspressBean);
+								filePath, xspressBean, selectedChannel);
 					} catch (Exception e) {
 						logger.error("Error displaying the map ", e);
 						showErrorMessage("Error displaying the map " + e.getMessage());
@@ -216,6 +223,20 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			job.setUser(true);
 			job.schedule();
 		}
+	}
+
+	private void updateNumberDetectorChannels(final int numChannels) {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				String[] array = new String[numChannels];
+				for (int i = 0; i < numChannels; i++) {
+					array[i] = Integer.toString(i);
+				}
+				cmbChannelChoice.setItems(array);
+				cmbChannelChoice.select(0);
+			}
+		});
 	}
 
 	public void loadXmapNexus(HDF5File tree, final String filePath) {
@@ -236,6 +257,9 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		int numElements = regionList.size();
 		String[] elements = new String[numElements];
 
+		int numChannels = vortexBean.getDetectorList().size();
+		updateNumberDetectorChannels(numChannels);
+
 		elementList.removeAll();
 		for (int i = 0; i < numElements; i++) {
 			String roiName = regionList.get(i).getRoiName();
@@ -243,16 +267,15 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			elementList.add(roiName);
 		}
 
-		selectedElement = elementList.getItem(0);
-
-		if (selectedElement != null && filePath != null) {
+		if (filePath != null) {
 			final String msg = ("Loading map from " + filePath);
+			final Integer selectedChannel = getSelectedChannel();
 			Job job = new Job(msg) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					try {
 						displayController.displayMap(vortexBean.getDetector(0).getRegionList().get(0).getRoiName(),
-								filePath, vortexBean);
+								filePath, vortexBean, selectedChannel);
 					} catch (Exception e) {
 						logger.error("Error displaying the map ", e);
 						showErrorMessage("Error displaying the map " + e.getMessage());
@@ -309,24 +332,29 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 	@Override
 	public void widgetSelected(SelectionEvent e) {
-		selectedElement = elementList.getSelection()[0];
-		final String msg = "Loading the map for  " + selectedElement;
-		if (e.getSource().equals(elementList)) {
-			Job job = new Job(msg) {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					try {
-						displayController.displayMap(selectedElement);
-					} catch (Exception e1) {
-						logger.error("Error displaying the map ", e1);
-						showErrorMessage("Error displaying the map " + e1.getMessage());
-					}
-					return Status.OK_STATUS;
+		final String selectedElement = elementList.getSelection()[0];
+		final Integer selectedChannel = getSelectedChannel();
+		final String msg = "Loading the map for  " + selectedElement + " channel " + selectedChannel;
+		Job job = new Job(msg) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					displayController.displayMap(selectedElement, selectedChannel);
+				} catch (Exception e1) {
+					logger.error("Error displaying the map ", e1);
+					showErrorMessage("Error displaying the map " + e1.getMessage());
 				}
-			};
-			job.setUser(true);
-			job.schedule();
-		}
+				return Status.OK_STATUS;
+			}
+		};
+		job.setUser(true);
+		job.schedule();
+	}
+
+	private Integer getSelectedChannel() {
+		String selectedChannelString = cmbChannelChoice.getItems()[cmbChannelChoice.getSelectionIndex()];
+		final Integer selectedChannel = Integer.parseInt(selectedChannelString);
+		return selectedChannel;
 	}
 
 	@Override
@@ -363,7 +391,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	public void notifyIObservers(Object theObserved, Object theArgument) {
 		observableComponent.notifyIObservers(theObserved, theArgument);
 	}
-	
+
 	public boolean isLoadMapForScan() {
 		return loadMapForScan;
 	}

@@ -64,14 +64,14 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 		this.dataProvider = dataProvider;
 	}
 
-	public void plotMapFromServer(final String elementName) {
+	public void plotMapFromServer(final String elementName, final int selectedChannel) {
 		this.dataProvider = null;
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					JythonServerFacade.getInstance().evaluateCommand(
-							"map.getMFD().displayPlot(\"" + elementName + "\")");
+							"map.getMFD().displayPlot(\"" + elementName + "\"," + selectedChannel + ")");
 					createPointRegionListener();
 				} catch (Exception e) {
 					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
@@ -88,9 +88,11 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 		}
 	}
 
-	public void plotElement(final String elementName) {
+	public void plotElement(final String elementName, Integer selectedChannel) {
 		ObjectStateManager.setActive(dataProvider);
+
 		dataProvider.setSelectedElement(elementName);
+		dataProvider.setSelectedChannel(selectedChannel);
 
 		double[][] mapData = dataProvider.constructMappableData();
 		final AbstractDataset plotSet = AbstractDataset.array(mapData);
@@ -131,13 +133,14 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 			if (dataProvider == null || !ObjectStateManager.isActive(dataProvider)) {
 				JythonServerFacade.getInstance().runCommand(
 						"map.getMFD().plotSpectrum(0," + xArrayIndex + "," + yArrayIndex + ")");
-				
+
 				// hack warning!
-				String xyValues = InterfaceProvider.getCommandRunner().evaluateCommand("map.getMFD().getXYPositions(" + xArrayIndex + "," + yArrayIndex + ")");
+				String xyValues = InterfaceProvider.getCommandRunner().evaluateCommand(
+						"map.getMFD().getXYPositions(" + xArrayIndex + "," + yArrayIndex + ")");
 				String[] parts = xyValues.split("[\\[\\],]");
 				Double x = Double.parseDouble(parts[2]);
 				Double y = Double.parseDouble(parts[3]);
-				
+
 				MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
 				mfElements.setLastXYSelection(x, y);
@@ -182,32 +185,35 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 			double[] spectrum = null;
 			String detectorName = dataProvider.getDetectorName();
 			if (detectorName.equals("xmapMca")) {
-				spectrum = dataProvider.getSpectrum(0, l, m);
+				spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), l, m);
 			} else {
-				spectrum = dataProvider.getSpectrum(0, m, l);
+				spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), m, l);
 			}
 
 			if (spectrum != null) {
 				final AbstractDataset yaxis = AbstractDataset.array(spectrum);
 
-				logger.info("Plotting spectrum for element 0," + l + "," + m);
+				logger.info("Plotting spectrum for channel " + dataProvider.getSelectedChannel() + ", pixel " + l + ","
+						+ m);
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						try {
 							SDAPlotter.plot(MCA_PLOTTER, yaxis);
 						} catch (Exception e) {
-							logger.error("Unable to plot the spectrum for " + l + " " + m, e);
+							logger.error("Unable to plot the spectrum for " + dataProvider.getSelectedChannel() + " "
+									+ l + " " + m, e);
 						}
 					}
 				});
 			} else {
-				logger.info("No Spectrum available for index " + l + "," + m);
+				logger.info("No Spectrum available for index " + dataProvider.getSelectedChannel() + " " + l + "," + m);
 			}
 		} else {
 			// server needs to show the spectrum
 			logger.info("Plotting spectrum for element 0," + l + "," + m);
-			JythonServerFacade.getInstance().evaluateCommand("map.getMFD().plotSpectrum(0," + l + "," + m + ")");
+			JythonServerFacade.getInstance().evaluateCommand(
+					"map.getMFD().plotSpectrum(0," + l + "," + m + ")");
 		}
 
 	}

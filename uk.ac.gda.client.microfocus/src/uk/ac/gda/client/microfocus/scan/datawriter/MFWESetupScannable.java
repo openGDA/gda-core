@@ -84,10 +84,10 @@ public class MFWESetupScannable extends ScanDataListenerScannable {
 		if (dims.length != 2)
 			return null;
 		// ok a candidate
-		MicroFocusWriterExtender ext = new MicroFocusWriterExtender(dims[0], dims[1], 1, 1);
-		ext.setDetectorBeanFileName(detectorBeanFileName);
-		ext.setDetectors(detectors);
-		ext.getWindowsfromBean();
+		MicroFocusWriterExtender ext = new MicroFocusWriterExtender(dims[0], dims[1], 1, 1, detectorBeanFileName, detectors);
+//		ext.setDetectorBeanFileName(detectorBeanFileName);
+//		ext.setDetectors(detectors);
+//		ext.getWindowsfromBean();
 		// ext.setRoiFromBean();//commented due to merge issue from 8.22. This method can go back in but I (Chris C)
 		// first want to see what this new class is for. (Ask Paul G)
 		// ext.setSelectedElement(initialSelectedElement);

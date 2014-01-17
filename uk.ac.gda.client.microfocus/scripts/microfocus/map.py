@@ -209,6 +209,8 @@ class Map(Scan):
         dataWriter.setOutputBean(outputBean);
         dataWriter.setSampleName(sampleName);
         dataWriter.setXmlFolderName(experimentFullPath)
+        
+        # add the detector configuration file to the metadata
         dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
