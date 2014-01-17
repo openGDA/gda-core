@@ -113,6 +113,14 @@ public interface BioSAXSISPyB {
 			String fileName, String internalPath) throws SQLException;
 
 	/**
+	 * Retrieve a dataCollectionId from SaxsDataCollection that matches the desired experimentId
+	 * @param experimentId
+	 * @return first dataCollectionId
+	 * @throws SQLException
+	 */
+	public long getDataCollectionForExperiment(long experimentId) throws SQLException;
+
+	/**
 	 * 
 	 * @param saxsDataCollectionId from that call
 	 * @param measurementId can be buffer or sample measurement
@@ -147,4 +155,58 @@ public interface BioSAXSISPyB {
 	 */
 	public long createExperiment(long proposalId, String name, String experimentType, String comments) throws SQLException;
 
+	/**
+	 * Call this method when data reduction is started so that its status can be recorded
+	 * @param dataCollectionId
+	 * @return SubtractionId
+	 * @throws SQLException
+	 */
+	public long createDataReductionStarted(long dataCollectionId) throws SQLException;
+
+	/**
+	 * @param subtractionId
+	 * @return whether data reduction is still running or not
+	 * @throws SQLException
+	 */
+	public boolean isDataReductionRunning(long subtractionId) throws SQLException;
+
+	/**
+	 * Clear the flag that indicates that the data reduction is running. Run this method when data reduction has completed but before results are put into the ISPyB database
+	 * @param subtractionId
+	 * @return success of clearing procedure
+	 * @throws SQLException
+	 */
+	public boolean clearDataReductionStarted(long subtractionId) throws SQLException;
+
+	/**
+	 * Checks whether the data reduction failed to complete at all
+	 * @param subtractionId
+	 * @return whether data reduction failed to complete
+	 * @throws SQLException
+	 */
+	public boolean isDataReductionFailedToComplete(long subtractionId) throws SQLException;
+
+	/**
+	 * Sets the state that the data reduction has failed
+	 * @param subtractionId
+	 * @throws SQLException
+	 */
+	public void setDataReductionFailedToComplete(long subtractionId) throws SQLException;
+
+	/**
+	 * The data reduction has returned some information, but it may not be complete.
+	 * @param dataCollectionId
+	 * @return whether data reduction failed (incomplete results) or not
+	 * @throws SQLException
+	 */
+	public boolean isDataReductionFailed(long dataCollectionId) throws SQLException;
+
+	/**
+	 * True when data reduction is not currently running and the process has resulted in complete data in the ISPyB database
+	 * @param dataCollectionId
+	 * @param subtractionId
+	 * @return data reduction has succeeded
+	 * @throws SQLException
+	 */
+	public boolean isDataReductionSuccessful(long dataCollectionId, long subtractionId) throws SQLException;
 }
