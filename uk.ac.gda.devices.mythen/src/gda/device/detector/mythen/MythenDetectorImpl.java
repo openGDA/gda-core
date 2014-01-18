@@ -96,11 +96,6 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	 * Creates a new Mythen detector with a default collection time of 1s.
 	 */
 	public MythenDetectorImpl() {
-		try {
-			setCollectionTime(1);
-		} catch (DeviceException e) {
-			logger.error("MythenDetectorImpl caught DeviceException during instantiation: ", e);
-		}
 	}
 
 	@Override
@@ -117,6 +112,12 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		} catch (IOException e) {
 			throw new FactoryException("Couldn't create NumTracker for Mythen detector", e);
 		}
+		try {
+			setCollectionTime(1);
+		} catch (DeviceException e) {
+			logger.error("MythenDetectorImpl caught DeviceException during instantiation: ", e);
+		}
+
 	}
 
 	

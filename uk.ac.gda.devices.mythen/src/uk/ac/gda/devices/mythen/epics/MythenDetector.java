@@ -52,6 +52,9 @@ public class MythenDetector extends MythenDetectorImpl {
 	private MythenEpicsClient mythenClient;
 
 	private ArrayList<File> processedDataFilesForScan=new ArrayList<File>();
+	public MythenDetector() {
+		
+	}
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
@@ -124,7 +127,7 @@ public class MythenDetector extends MythenDetectorImpl {
 		}
 		try {
 			setFilePath(getDataDirectory().getAbsolutePath());
-			setFileName(getCurrentFilename());
+			setFileName(getBaseFilename());
 			setNextFileNumber((int)collectionNumber+1);	//set starting index number
 		} catch (IOException e) {
 			logger.error("Failed to set data output parameters", e);
@@ -156,10 +159,22 @@ public class MythenDetector extends MythenDetectorImpl {
 		return String.format("%d-mythen_%s", this.scanNumber, s);
 	}
 	
+	protected String getBaseFilename() {
+		return String.format("%d-mythen", this.scanNumber);
+	}
 	@Override
 	public String buildFilename(String s, FileType type) {
 		final String suffix = (type == FileType.PROCESSED) ? "dat" : "raw";
 		return String.format("%d-mythen_%s.%s", this.scanNumber, s, suffix);
+	}
+	/**
+	 * rebuild Raw data file name added for Jython use as Jython does not support enum Java type yet.
+	 * @param number
+	 * @return filename
+	 */
+	@Override
+	public String buildRawFilename(int number) {
+		return buildFilename(String.format("%d", number), FileType.RAW);
 	}
 	/**
 	 * collect data from detector using EPICS client.
@@ -207,6 +222,11 @@ public class MythenDetector extends MythenDetectorImpl {
 			throw new DeviceException("Fail to stop detector acquisition.", e);
 		}
 		super.stop();
+	}
+	@Override
+	public Object readout() throws DeviceException {
+		String filename = processedFile.getName();
+		return filename;
 	}
 	private List<DataProcessingTask> processingTasks = new Vector<DataProcessingTask>();
 	
@@ -546,13 +566,13 @@ public class MythenDetector extends MythenDetectorImpl {
 		return getMythenClient().getsetBeamEnergy();
 	}
 	public void standard() throws Exception {
-		getMythenClient().setSetting(Setting.standard.ordinal());
+		getMythenClient().setSetting(Setting.standard);
 	}
 	public void fast() throws Exception {
-		getMythenClient().setSetting(Setting.fast.ordinal());
+		getMythenClient().setSetting(Setting.fast);
 	}
 	public void highgain() throws Exception {
-		getMythenClient().setSetting(Setting.highgain.ordinal());
+		getMythenClient().setSetting(Setting.highgain);
 	}
 	public void setBitDepth(int bitDepth) throws Exception {
 		getMythenClient().setBitDepth(bitDepth);
