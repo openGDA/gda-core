@@ -6,10 +6,9 @@
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
-            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
-            class="uk.ac.gda.epics.client.mythen.views.MythenView"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/chart_curve.png"
-            id="uk.ac.gda.epics.client.mythen.views.mytheView"
+            id="uk.ac.gda.epics.client.mythen.views.mythenView"
             name="Mythen"
             restorable="true">
       </view>
