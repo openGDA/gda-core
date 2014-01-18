@@ -34,6 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import uk.ac.gda.devices.mythen.epics.MythenEpicsClient.Setting;
+
 public class MythenEpicsClient implements MythenClient, InitializingBean {
 	static final Logger logger = LoggerFactory.getLogger(MythenEpicsClient.class);
 
@@ -89,7 +91,18 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 	}
 	private CachedLazyPVFactory dev;
 	private String prefix;
-	
+
+	private enum YesNo {
+		No,
+		Yes;
+	}
+	public enum TriggerMode{
+		auto,
+		trigger,
+		ro_trigger,
+		gating,
+		triggered_gating;
+	}
 	public String getPrefix() {
 		return prefix;
 	}
@@ -103,6 +116,9 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 		
 		if (prefix == null) {
 			throw new IllegalArgumentException("The prefix must not be null!");
+		}
+		if (adbase== null) {
+			throw new IllegalArgumentException("The adbase must not be null!");
 		}
 		dev = new CachedLazyPVFactory(prefix);
 	}
@@ -127,15 +143,8 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 		LazyPVFactory.newEnumPV(prefix+SETTING, Setting.class).putWait(setting);
 	}
 	
-	public void setSetting(int setting) throws Exception {
-		dev.getPVInteger(SETTING).putWait(setting);
-	}
-	public int getSetting() throws Exception {
-		return dev.getPVInteger(SETTING).get();
-	}
-	
-	public Setting getSettingEnum() throws Exception {
-		return LazyPVFactory.newEnumPV(SETTING, Setting.class).get();
+	public Setting getSetting() throws Exception {
+		return LazyPVFactory.newEnumPV(prefix+SETTING, Setting.class).get();
 	}
 	public void setBitDepth(int value) throws Exception {
 		dev.getPVInteger(BIT_DEPTH).putWait(value);
@@ -146,15 +155,15 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 	}
 	
 	public void online() throws Exception {
-		dev.getPVInteger(ONLINE).putWait(1);
+		LazyPVFactory.newEnumPV(prefix+ONLINE,YesNo.class).putWait(YesNo.Yes);
 	}
 	
 	public void offline() throws Exception {
-		dev.getPVInteger(ONLINE).putWait(0);
+		LazyPVFactory.newEnumPV(prefix+ONLINE,YesNo.class).putWait(YesNo.No);
 	}
 	
 	public boolean isOnline() throws IOException{
-		return dev.getPVInteger(ONLINE).get().intValue()==1;
+		return LazyPVFactory.newEnumPV(prefix+ONLINE,YesNo.class).get()==YesNo.Yes;
 	}
 	
 	public void setNumCycles(int value) throws IOException {
@@ -184,81 +193,81 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 	}
 	
 	public void setFlatFieldPath(String value) throws IOException {
-		dev.getPVString(FLAT_FIELD_PATH).putWait(value);
+		dev.getPVStringAsBytes(FLAT_FIELD_PATH).putWait(value);
 	}
 	public String getFlatFieldPath() throws Exception {
-		return dev.getPVString(FLAT_FIELD_PATH_RBV).get();
+		return dev.getPVStringAsBytes(FLAT_FIELD_PATH_RBV).get();
 	}
 	public void enableFlatFieldCorrection() throws IOException {
-		dev.getPVInteger(USE_FLAT_FIELD).putWait(1);
+		LazyPVFactory.newEnumPV(prefix+USE_FLAT_FIELD, YesNo.class).putWait(YesNo.Yes);
 	}
 	public void disableFlatFieldCorrection() throws IOException {
-		dev.getPVInteger(USE_FLAT_FIELD).putWait(0);
+		LazyPVFactory.newEnumPV(prefix+USE_FLAT_FIELD, YesNo.class).putWait(YesNo.No);
 	}
 	public boolean isFlatFieldCorrected() throws IOException {
-		return dev.getPVInteger(USE_FLAT_FIELD).get().intValue()==1;
+		return LazyPVFactory.newEnumPV(prefix+USE_FLAT_FIELD, YesNo.class).get()==YesNo.Yes;
 	}
 	public void setFlatFieldFile(String value) throws IOException {
-		dev.getPVString(FLAT_FIELD_FILE).putWait(value);
+		dev.getPVStringAsBytes(FLAT_FIELD_FILE).putWait(value);
 	}
 	public String getFlatFieldFile() throws Exception {
-		return dev.getPVString(FLAT_FIELD_FILE_RBV).get();
+		return dev.getPVStringAsBytes(FLAT_FIELD_FILE_RBV).get();
 	}
 	
 	public void enableCountRateCorrection() throws IOException {
-		dev.getPVInteger(USE_COUNT_RATE).putWait(1);
+		LazyPVFactory.newEnumPV(prefix+USE_COUNT_RATE, YesNo.class).putWait(YesNo.Yes);
 	}
 	public void disableCountRateCorrection() throws IOException {
-		dev.getPVInteger(USE_COUNT_RATE).putWait(0);
+		LazyPVFactory.newEnumPV(prefix+USE_COUNT_RATE, YesNo.class).putWait(YesNo.No);
 	}
 	public boolean isCountRateCorrected() throws IOException {
-		return dev.getPVInteger(USE_COUNT_RATE).get().intValue()==1;
+		return LazyPVFactory.newEnumPV(prefix+USE_COUNT_RATE, YesNo.class).get()==YesNo.Yes;
 	}
 	public void enableBadChannelCorrection() throws IOException {
-		dev.getPVInteger(USE_PIXEL_MASK).putWait(1);
+		LazyPVFactory.newEnumPV(prefix+USE_PIXEL_MASK, YesNo.class).putWait(YesNo.Yes);
 	}
 	public void disableBadChannelCorrection() throws IOException {
-		dev.getPVInteger(USE_PIXEL_MASK).putWait(0);
+		LazyPVFactory.newEnumPV(prefix+USE_PIXEL_MASK, YesNo.class).putWait(YesNo.No);
 	}
 	public boolean isBadChannelCorrected() throws IOException {
-		return dev.getPVInteger(USE_PIXEL_MASK).get().intValue()==1;
+		return LazyPVFactory.newEnumPV(prefix+USE_PIXEL_MASK, YesNo.class).get()==YesNo.Yes;
 	}
 	public void enableAngularConversion() throws IOException {
-		dev.getPVInteger(USE_ANGULAR_CONV).putWait(1);
+		LazyPVFactory.newEnumPV(prefix+USE_ANGULAR_CONV,YesNo.class).putWait(YesNo.Yes);
 	}
 	public void disableAngularConversion() throws IOException {
-		dev.getPVInteger(USE_ANGULAR_CONV).putWait(0);
+		LazyPVFactory.newEnumPV(prefix+USE_ANGULAR_CONV,YesNo.class).putWait(YesNo.No);
 	}
 	public boolean isAngularConversionEnabled() throws IOException {
-		return dev.getPVInteger(USE_ANGULAR_CONV).get().intValue()==1;
+		return LazyPVFactory.newEnumPV(prefix+USE_ANGULAR_CONV,YesNo.class).get()==YesNo.Yes;
 	}
 	public void setConfigFile(String value) throws IOException {
-		dev.getPVString(SETUP_FILE).putWait(value);
+		dev.getPVStringAsBytes(SETUP_FILE).putWait(value);
 	}
 	public String getConfigFile() throws Exception {
-		return dev.getPVString(SETUP_FILE).get();
+		return dev.getPVStringAsBytes(SETUP_FILE).get();
 	}
 	public void loadConfigFile() throws IOException {
-		dev.getPVInteger(LOAD_SETUP).putWait(1);
+		LazyPVFactory.newEnumPV(prefix+LOAD_SETUP, YesNo.class).putWait(YesNo.Yes);
 	}
 	public void saveConfigFile() throws IOException {
-		dev.getPVInteger(SAVE_SETUP).putWait(1);
+		LazyPVFactory.newEnumPV(prefix+SAVE_SETUP,YesNo.class).putWait(YesNo.Yes);
 	}
 	
 	public void setFilePath(String value) throws IOException {
-		dev.getPVString(FILE_PATH).putWait(value);
+		dev.getPVStringAsBytes(FILE_PATH).putWait(value);
 	}
 	public String getFilePath() throws Exception {
-		return dev.getPVString(FILE_PATH_RBV).get();
+		return dev.getPVStringAsBytes(FILE_PATH_RBV).get();
 	}
 	public boolean isFilePathExists() throws IOException {
-		return dev.getPVInteger(FILE_PATH_EXISTS_RBV).get().intValue()==1;
+		return LazyPVFactory.newEnumPV(prefix+FILE_PATH_EXISTS_RBV, YesNo.class).get()==YesNo.Yes;
 	}
 	public void setFileName(String value) throws IOException {
-		dev.getPVString(FILE_NAME).putWait(value);
+		dev.getPVStringAsBytes(FILE_NAME).putWait(value);
 	}
 	public String getFileName() throws Exception {
-		return dev.getPVString(FILE_NAME_RBV).get();
+		return dev.getPVStringAsBytes(FILE_NAME_RBV).get();
 	}
 	public void setNextFileNumber(int value) throws IOException {
 		dev.getPVInteger(FILE_NUMBER).putWait(value);
@@ -267,32 +276,34 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 		return dev.getPVInteger(FILE_NUMBER_RBV).get();
 	}
 	public void enableAutoIncrement() throws IOException {
-		dev.getPVInteger(AUTO_INCREMENT).putWait(1);
+		//dev.getPVInteger(AUTO_INCREMENT).putWait(1);
+		LazyPVFactory.newEnumPV(getPrefix()+AUTO_INCREMENT, YesNo.class).putWait(YesNo.Yes);
 	}
 	public void disableAutoIncrement() throws IOException {
-		dev.getPVInteger(AUTO_INCREMENT).putWait(0);
+		LazyPVFactory.newEnumPV(getPrefix()+AUTO_INCREMENT, YesNo.class).putWait(YesNo.No);
 	}
 	public boolean isAutoIncrement() throws IOException {
-		return dev.getPVInteger(AUTO_INCREMENT).get().intValue()==1;
+		return LazyPVFactory.newEnumPV(getPrefix()+AUTO_INCREMENT, YesNo.class).get()==YesNo.Yes;
 	}
 	public void enableAutoSave() throws IOException {
-		dev.getPVInteger(AUTO_SAVE).putWait(1);
+		LazyPVFactory.newEnumPV(getPrefix()+AUTO_SAVE, YesNo.class).putWait(YesNo.Yes);
 	}
 	public void disableAutoSave() throws IOException {
-		dev.getPVInteger(AUTO_SAVE).putWait(0);
+		LazyPVFactory.newEnumPV(getPrefix()+AUTO_SAVE, YesNo.class).putWait(YesNo.No);
 	}
 	public boolean isAutoSave() throws IOException {
-		return dev.getPVInteger(AUTO_SAVE).get().intValue()==1;
+		return LazyPVFactory.newEnumPV(getPrefix()+AUTO_SAVE, YesNo.class).get()==YesNo.Yes;
 	}
 	public void setFileTemplate(String value) throws IOException {
-		dev.getPVString(FILE_TEMPLATE).putWait(value);
+		//dev.getPVString(FILE_TEMPLATE).putWait(value);
+		dev.getPVStringAsBytes(FILE_TEMPLATE).putWait(value);
 	}
 
 	public String getFileTemplate() throws Exception {
-		return dev.getPVString(FILE_TEMPLATE_RBV).get();
+		return dev.getPVStringAsBytes(FILE_TEMPLATE_RBV).get();
 	}
 	public String getFullFilename() throws Exception {
-		return dev.getPVString(FULL_FILE_NAME_RBV).get();
+		return dev.getPVStringAsBytes(FULL_FILE_NAME_RBV).get();
 	}
 
 	public void waitForIntPVValEqualTo(PV<Integer> pv, int valWaitedFor, double timeoutSec) throws DeviceException {
@@ -495,4 +506,5 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 	public void resetArrayCounter() throws Exception {
 		adbase.setArrayCounter(0);
 	}
+
 }
