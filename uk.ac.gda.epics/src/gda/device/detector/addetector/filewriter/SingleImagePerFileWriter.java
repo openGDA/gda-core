@@ -73,6 +73,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	private FileWriteMode fileWriteMode = FileWriteMode.SINGLE;
 
+	@Override
+	public String getName() {
+		return "tifwriter"; // TODO: Multiple filewriters require different names.
+	}
+	
 	public String getFileWriteMode() {
 		return fileWriteMode.toString();
 	}
@@ -235,7 +240,10 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		getNdFile().setFilePath(filePathUsed);
 
 		if (!getNdFile().filePathExists())
-			throw new Exception("Path does not exist on IOC '" + filePathUsed + "'");
+			if (isPathErrorSuppressed())
+				logger.warn("Ignoring Path does not exist on IOC '" + filePathUsed + "'");
+			else
+				throw new Exception("Path does not exist on IOC '" + filePathUsed + "'");
 
 		fileNameUsed = getFileName();
 		getNdFile().setFileName(fileNameUsed);
