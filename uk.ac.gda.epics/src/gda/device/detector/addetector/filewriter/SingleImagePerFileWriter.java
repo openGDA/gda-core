@@ -73,6 +73,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	private FileWriteMode fileWriteMode = FileWriteMode.SINGLE;
 
+	@Override
+	public String getName() {
+		return "tifwriter"; // TODO: Multiple filewriters require different names.
+	}
+	
 	public String getFileWriteMode() {
 		return fileWriteMode.toString();
 	}
