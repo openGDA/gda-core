@@ -138,7 +138,7 @@ public class MythenDetector extends MythenDetectorImpl {
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		super.setCollectionTime(collectionTime);
 		try {
-			setExposureTime(exposureTime.doubleValue());
+			setExposureTime(collectionTime);
 		} catch (Exception e) {
 			logger.error("failed to set exposure time", e);
 			throw new DeviceException("failed to set exposure time",e);
