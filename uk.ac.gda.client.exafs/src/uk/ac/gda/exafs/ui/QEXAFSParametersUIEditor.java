@@ -230,8 +230,6 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 			beanComposite.getBothWays().off();
 			getCoreHole().off();
 			getEdgeEnergy().off();
-			getCoreHole().off();
-			getEdgeEnergy().off();
 		}
 	}
 }
