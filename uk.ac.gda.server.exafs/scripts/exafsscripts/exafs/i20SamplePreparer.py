@@ -4,7 +4,7 @@ from org.slf4j import LoggerFactory
 
 class I20SamplePreparer:
     
-    def __init__(self, sample_x,sample_y,sample_z,sample_rot,sample_fine_rot, sample_roll,sample_pitch,filterwheel):
+    def __init__(self, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot, sample_roll, sample_pitch, filterwheel, cryostat, cryostick_pos):
         self.sample_x = sample_x
         self.sample_y = sample_y
         self.sample_z = sample_z
@@ -13,6 +13,8 @@ class I20SamplePreparer:
         self.sample_roll = sample_roll
         self.sample_pitch = sample_pitch
         self.filterwheel = filterwheel
+        self.cryostat = cryostat
+        self.cryostick_pos = cryostick_pos
         self.logger = LoggerFactory.getLogger("exafsscripts.exafs.scan")
     
     def prepare(self, sampleBean):  
@@ -39,7 +41,7 @@ class I20SamplePreparer:
             iterator.setSampleBean(sampleBean)
         #XAS/XANES cryostat
         elif experiment_type != 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
-            iterator = XASXANES_Cryostat_Iterator()
+            iterator = XASXANES_Cryostat_Iterator(self.cryostat, self.cryostick_pos)
             iterator.setSampleBean(sampleBean)
         else :
             iterator = I20_SingleSample_Iterator()

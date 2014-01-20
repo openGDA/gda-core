@@ -225,12 +225,11 @@ class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
 
 class XASXANES_Cryostat_Iterator(SampleIterator):
     
-    def __init__(self, cryostat_scannable, sample_y, sample_fine_rot):
+    def __init__(self, cryostat, cryostick_pos):
         self.sample_increment = 0
         self.temp_increment = 0
-        self.cryostat_scannable = cryostat_scannable
-        self.sample_y=sample_y
-        self.sample_fine_rot=sample_fine_rot
+        self.cryostat = cryostat
+        self.cryostick_pos = cryostick_pos
     
     def setSampleBean(self, sampleBean):
         self.params = sampleBean.getCryostatParameters()
@@ -266,7 +265,7 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
     
     def _configureCryostat(self, cryoStatParameters):
         if LocalProperties.get("gda.mode") != 'dummy':
-            self.cryostat_scannable.setupFromBean(cryoStatParameters)
+            self.cryostat.setupFromBean(cryoStatParameters)
 
     def getNextSampleName(self):
         return self.samplename
@@ -279,7 +278,6 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
         self._configureCryostat(self.params)
         
         y = self.samples_array[self.sample_increment].getPosition()
-        finepos = self.samples_array[self.sample_increment].getFinePosition()
         name = self.samples_array[self.sample_increment].getSample_name()
         desc = self.samples_array[self.sample_increment].getSampleDescription()
         sample_repeats = self.samples_array[self.sample_increment].getNumberOfRepetitions()
@@ -287,23 +285,24 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
         print "**********"
         self.log( "Using sample",name,"in next iteration.")
         
-        self.log( "Moving sample stage to",y,finepos,"...")
-        self.sample_y.asynchronousMoveTo(y)
-        self.sam_fine_pos.asynchronousMoveTo(finepos) 
+        self.cryostat.setTempSelect(1)
+        
+        self.log( "Moving cryostick_pos to ",self.cryostick_pos)
+        self.cryostick_pos.asynchronousMoveTo(y)
         self.samplename = name
         self.descriptions = [desc]
 
         temp = self.temperatures_array[self.temp_increment]
-#        self.log( "Setting cryostat to",str(temp),"K...")
-#        self.cryostat_scannable.asynchronousMoveTo(temp)
-        self.log( "Would set cryostat to",str(temp),"K but I wont until the Scannable has been tested.")
+        self.log( "Setting cryostat to",str(temp),"K...")
+        self.cryostat.asynchronousMoveTo(temp)
         
-        self.sample_y.waitWhileBusy()
-        self.sam_fine_pos.waitWhileBusy()
-        self.log("Sample stage move complete.")
+        self.log("Waiting for cryostick_pos to move")
+        self.cryostick_pos.waitWhileBusy()
+        self.log("cryostick_pos move complete.")
         ScriptBase.checkForPauses()
         
-        self.cryostat_scannable.waitWhileBusy()
+        self.log("Waiting for Cryostat to set temperature")
+        self.cryostat.waitWhileBusy()
         self.log( "Cryostat temperature change complete.")
         ScriptBase.checkForPauses()
             
