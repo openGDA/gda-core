@@ -142,6 +142,7 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	 * @return double array of regions of interest
 	 * @throws DeviceException
 	 */
+	@Override
 	public double[] getROIs(int mcaNumber) throws DeviceException {
 		int[] mcaData = getData(mcaNumber);
 		double[] roiSums = new double[controlRois[mcaNumber].length];
