@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
 
-import gda.analysis.RCPPlotter;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
@@ -44,32 +43,38 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
+import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 
 public class MicroFocusWriterExtender extends DataWriterExtenderBase {
-	private String plotName;
+
 	private int numberOfXPoints = 0;
 	private int numberOfYPoints = 0;
-	private AbstractDataset dataSet;
 	private double xStepSize;
 	private double yStepSize;
+	private DoubleDataset dataSet;
 	private Detector detectors[];
 	private int windowStart = 67;
 	private int windowEnd = 1200;
 	private String selectedElement = "";
-	private Object detectorBean;
+	private IRichBean detectorBean;
 	private double firstX = 0.0;
 	private double firstY = 0.0;
+	// FIXME this warning is showing that how this list is used is not clear - needs a redesign
 	@SuppressWarnings("rawtypes")
 	private List[] elementRois;
 	private Logger logger = LoggerFactory.getLogger(MicroFocusWriterExtender.class);
@@ -103,18 +108,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	private double normaliseValue = 1.0;
 	private boolean active = false;
 
-	public boolean isActive() {
-		return active;
-	}
-
-	public String[] getRoiNames() {
-		return roiNames;
-	}
-	
-	public void setRoiNames(String[] roiNames) {
-		this.roiNames = roiNames;
-	}
-
 	public MicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize) {
 		this.numberOfXPoints = xPoints;
 		this.numberOfYPoints = yPoints;
@@ -122,8 +115,23 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		this.yStepSize = yStepSize;
 		this.yIndex = 0;
 		minValue = Double.MAX_VALUE;
-		createDataSet();
 		logger.info("The number of X and Y points are " + this.numberOfXPoints + " " + this.numberOfYPoints);
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public String[] getRoiNames() {
+		return roiNames;
+	}
+
+	public void setRoiNames(String[] roiNames) {
+		this.roiNames = roiNames;
 	}
 
 	public void getWindowsfromBean() {
@@ -132,33 +140,43 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		} catch (Exception e) {
 			logger.error("Error loading bean from " + detectorBeanFileName, e);
 		}
+		numberOfSubDetectors = getNumberOfEnabledMCA();
 
 		for (Detector detector : detectors) {
-			if (detector instanceof XspressDetector)
-				try {
-					XspressDetector xspress = (XspressDetector) detector;
-					detectorName = xspress.getName();
-					numberOfSubDetectors = xspress.getNumberOfDetectors();
-					elementRois = new List[numberOfSubDetectors];
-					for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
-						elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
-								.getRegionList();
-				} catch (DeviceException e) {
-					logger.error("Error getting windows from the bean file ", e);
-				}
-			else if (detector instanceof XmapDetector)
-				try {
-					XmapDetector xspress = (XmapDetector) detector;
-					detectorName = xspress.getName();
-					numberOfSubDetectors = xspress.getNumberOfMca();
-					elementRois = new List[numberOfSubDetectors];
-					for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
-						elementRois[detectorNo] = ((VortexParameters) detectorBean).getDetector(detectorNo)
-								.getRegionList();
-				} catch (DeviceException e) {
-					logger.error("Error getting windows from the bean file ", e);
-				}
+			if (detector instanceof XspressDetector) {
+				XspressDetector xspress = (XspressDetector) detector;
+				detectorName = xspress.getName();
+				elementRois = new List[numberOfSubDetectors];
+				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
+					elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
+							.getRegionList();
+			} else if (detector instanceof XmapDetector) {
+				XmapDetector xspress = (XmapDetector) detector;
+				detectorName = xspress.getName();
+				elementRois = new List[numberOfSubDetectors];
+				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
+					elementRois[detectorNo] = ((VortexParameters) detectorBean).getDetector(detectorNo).getRegionList();
+			}
 		}
+	}
+
+	private int getNumberOfEnabledMCA() {
+		if (detectorBean instanceof XspressParameters) {
+			XspressParameters xspressParameters = (XspressParameters) detectorBean;
+			int numFilteredDetectors = 0;
+			for (int element = 0; element < xspressParameters.getDetectorList().size(); element++)
+				if (!xspressParameters.getDetectorList().get(element).isExcluded())
+					numFilteredDetectors++;
+			return numFilteredDetectors;
+
+		}
+		// assume it must be vortex then // else if (detectorBean instanceof VortexParameters) {
+		VortexParameters vortexParameters = (VortexParameters) detectorBean;
+		int numFilteredDetectors = 0;
+		for (int element = 0; element < vortexParameters.getDetectorList().size(); element++)
+			if (!vortexParameters.getDetectorList().get(element).isExcluded())
+				numFilteredDetectors++;
+		return numFilteredDetectors;
 	}
 
 	private void fillRoiNames() {
@@ -182,16 +200,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		this.detectors = xspress;
 	}
 
-	private void createDataSet() {
-		dataSet = AbstractDataset.array(new double[numberOfYPoints][numberOfXPoints]);
-		dataSet.fill(0.0);
-	}
-
-	public void setPlotName(String plotName) {
-		this.plotName = plotName;
-	}
-
-	@SuppressWarnings({ "static-access", "unchecked" })
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		Double[] xy = dataPoint.getPositionsAsDoubles();
@@ -200,15 +208,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		Vector<Detector> detFromDP = dataPoint.getDetectors();
 		if (dataPoint.getCurrentPointNumber() == 0 && lastDataPoint == null) {
 			// this is the first point in the scan
-			firstX = xy[1];
-			firstY = xy[0];
 			fillRoiNames();
-			totalPoints = numberOfXPoints * numberOfYPoints;
-			scalerValues = new double[totalPoints][];
-			if(roiNameMap!=null)
-				detectorValues = new double[roiNameMap.size()][];
-			xValues = new double[totalPoints];
-			yValues = new double[totalPoints];
+			totalPoints = deriveXYArrays(xy);
 			// get the list of names from Scaler
 			for (Detector det : detFromDP) {
 				if (det instanceof TfgScaler) {
@@ -247,11 +248,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 		}
 
-		if ((lastDataPoint == null
-				|| (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(
-						dataPoint.getCurrentFilename())) )&&(xValues!=null||yValues!=null)) {
-			xValues[dataPoint.getCurrentPointNumber()] = xy[1];
-			yValues[dataPoint.getCurrentPointNumber()] = xy[0];
+		if ((lastDataPoint == null || (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(
+				dataPoint.getCurrentFilename())))
+				&& (xValues != null || yValues != null)) {
+//			xValues[dataPoint.getCurrentPointNumber()] = xy[1];
+//			yValues[dataPoint.getCurrentPointNumber()] = xy[0];
 			double value = 0;
 			double windowTotal = 0.0;
 
@@ -284,10 +285,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						rgbLine.append("	");
 					}
 					scalerValues[dataPoint.getCurrentPointNumber()] = scalerData;
-					logger.info("The rgb Line with scaler values is " + rgbLine.toString());
+					logger.debug("The rgb Line with scaler values is " + rgbLine.toString());
 
 				} else if (obj instanceof NXDetectorData) {
-					if (roiNames!=null && (roiTable == null || roiTable.size() == 0)) {
+					if (roiNames != null && (roiTable == null || roiTable.size() == 0)) {
 						roiTable = new Hashtable<String, Double>(roiNames.length);
 						for (String s : roiNames) {
 							roiTable.put(s, 0.0);
@@ -303,6 +304,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						// assuming all detector elements have the same number of roi
 						spectrumLength = dataArray[0].length;
 						for (int i = 0; i < numberOfSubDetectors; i++) {
+							@SuppressWarnings("unchecked")
 							List<XspressROI> roiList = elementRois[i];
 							for (XspressROI roi : roiList) {
 								String key = roi.getRoiName();
@@ -389,7 +391,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					logger.debug("the data to plot is " + value);
 				}
 			}
-			if (roiNames != null){
+			if (roiNames != null) {
 				for (String s : roiNames) {
 					double val = roiTable.get(s);
 					DecimalFormat df = new DecimalFormat("#");
@@ -402,9 +404,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			addToRgbFile(rgbLine.toString().trim());
 			if (roiTable != null)
 				roiTable.clear();
-			logger.info("the calculated y x are " + (int) Math.abs(Math.round(((xy[0] - firstY) / yStepSize))) + " "
+			logger.debug("the calculated y x are " + (int) Math.abs(Math.round(((xy[0] - firstY) / yStepSize))) + " "
 					+ (int) Math.abs(Math.round((xy[1] - firstX) / xStepSize)));
-			logger.info("the assumed y x are " + yIndex + " "
+			logger.debug("the assumed y x are " + yIndex + " "
 					+ (int) Math.abs(Math.round((xy[1] - firstX) / xStepSize)));
 			if (value < minValue) {
 				minValue = value;
@@ -419,21 +421,55 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					detectorValues[i][dataPoint.getCurrentPointNumber()] = detectorValues[i][dataPoint
 							.getCurrentPointNumber()] / normaliseValue;
 			}
+			
 			dataSet.set(value, dataPoint.getCurrentPointNumber() / numberOfXPoints, dataPoint.getCurrentPointNumber()
 					% numberOfXPoints);
-			fillDataSet((minValue - fillDecrement), (dataPoint.getCurrentPointNumber() + 1) / numberOfXPoints,
+			fillDataSet(dataSet, (minValue - fillDecrement), (dataPoint.getCurrentPointNumber() + 1) / numberOfXPoints,
 					(dataPoint.getCurrentPointNumber() + 1) % numberOfXPoints);
 			if (((dataPoint.getCurrentPointNumber() + 1) / (yIndex + 1)) == numberOfXPoints) {
 				yIndex++;
 			}
+
 			plottedSoFar = dataPoint.getCurrentPointNumber();
-			if (plottedSoFar % plotUpdateFrequency == 0 || (plottedSoFar + 1) == (numberOfXPoints * numberOfYPoints))
-				RCPPlotter.imagePlot(plotName, dataSet);
+			if (plottedSoFar % plotUpdateFrequency == 0 || (plottedSoFar + 1) == (numberOfXPoints * numberOfYPoints)) {
+				plotImage(dataSet);
+			}
 			lastDataPoint = dataPoint;
 		}
 	}
 
-	private void fillDataSet(double minValue2, int i, int j) {
+	private int deriveXYArrays(Double[] xy) {
+		firstX = xy[1];
+		firstY = xy[0];
+		int totalPoints = numberOfXPoints * numberOfYPoints;
+		scalerValues = new double[totalPoints][];
+		if (roiNameMap != null)
+			detectorValues = new double[roiNameMap.size()][];
+		xValues = new double[numberOfXPoints];
+		yValues = new double[numberOfYPoints];
+
+		// pre-populate the xValues and yValues arrays to enables plotting
+		// these arrays will be gradually overwritten by actual data as it is collected
+		for (int xIndex = 0; xIndex < numberOfXPoints; xIndex++) {
+			xValues[xIndex] = firstX + (xIndex * xStepSize);
+		}
+		for (int yIndex = 0; yIndex < numberOfYPoints; yIndex++) {
+			yValues[yIndex] = firstY + (yIndex * yStepSize);
+		}
+		
+		dataSet = new DoubleDataset(numberOfYPoints,numberOfXPoints);
+		
+		return totalPoints;
+	}
+
+	private void plotImage(DoubleDataset dataSet) throws Exception {
+		// create these at every point using the latest arrays, as these will be updated as the map progresses
+		AbstractDataset xDataset = AbstractDataset.array(xValues);
+		AbstractDataset yDataset = AbstractDataset.array(yValues);
+		SDAPlotter.imagePlot(MapPlotView.NAME, xDataset, yDataset, dataSet);
+	}
+
+	private void fillDataSet(DoubleDataset dataSet, double minValue2, int i, int j) {
 		for (int yindex = i; yindex < numberOfYPoints; yindex++) {
 			for (int xindex = j; xindex < numberOfXPoints; xindex++) {
 				dataSet.set(minValue2, yindex, xindex);
@@ -442,7 +478,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 	}
 
-	@SuppressWarnings("static-access")
 	public void plotSpectrum(int detNo, int x, int y) throws Exception {
 		// always make sure the spectrum asked to plot is less than the last data point to prevent crashing of the
 		// server
@@ -471,9 +506,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 
 			if (slice != null) {
-				ILazyDataset sqSlice = slice.squeeze();
+				IDataset sqSlice = slice.squeeze();
 				try {
-					RCPPlotter.plot(MicroFocusNexusPlotter.MCA_PLOTTER, (IDataset) sqSlice);
+					SDAPlotter.plot(MicroFocusNexusPlotter.MCA_PLOTTER, sqSlice);
 				} catch (DeviceException e) {
 					logger.error("Unable to plot the spectrum for " + x + " " + y, e);
 					throw new Exception("Unable to plot the spectrum for " + x + " " + y, e);
@@ -483,8 +518,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 		dataHolder = null;
 	}
+	
+	public Double[] getXYPositions(int xIndex, int yIndex) {
+		return new Double[]{xValues[xIndex], yValues[yIndex]};
+	}
 
-	@SuppressWarnings("static-access")
 	public void displayPlot(String selectedElement) throws Exception {
 		int fillDecrement = 0;
 		this.setSelectedElement(selectedElement);
@@ -506,10 +544,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		if (selectedElementIndex != -1)// the selected element is a scaler value
 		// displaying the map for the scaler
 		{
-			createDataSet();
 			minValue = Double.MAX_VALUE;
-			logger.info("about to fill the data set");
-
 			for (int i = 0; i <= plottedSoFar; i++) {
 				if (scalerValues[i][selectedElementIndex] < minValue) {
 					minValue = scalerValues[i][selectedElementIndex];
@@ -518,16 +553,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 			fillDecrement = (int) minValue / 100;
 			if (plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
-				fillDataSet((minValue - fillDecrement), (plottedSoFar + 1) / numberOfXPoints, (plottedSoFar + 1)
-						% numberOfXPoints);
-			RCPPlotter.imagePlot(plotName, dataSet);
+				fillDataSet(dataSet, (minValue - fillDecrement), (plottedSoFar + 1) / numberOfXPoints,
+						(plottedSoFar + 1) % numberOfXPoints);
+			plotImage(dataSet);
 			// reset the selected element index
 			selectedElementIndex = -1;
 			return;
 		} else if (isXspressScan()) {
 			minValue = Double.MAX_VALUE;
-			@SuppressWarnings("unused")
-			boolean mapFound = false;
 			Integer elementIndex = roiNameMap.get(selectedElement);
 			if (elementIndex != null) {
 				for (int point = 0; point <= plottedSoFar; point++) {
@@ -539,14 +572,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 			fillDecrement = (int) minValue / 100;
 			if (plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
-				fillDataSet((minValue - fillDecrement), (plottedSoFar + 1) / numberOfXPoints, (plottedSoFar + 1)
-						% numberOfXPoints);
-			RCPPlotter.imagePlot(plotName, dataSet);
-
+				fillDataSet(dataSet, (minValue - fillDecrement), (plottedSoFar + 1) / numberOfXPoints,
+						(plottedSoFar + 1) % numberOfXPoints);
+			plotImage(dataSet);
 			return;
-		}
-
-		else if (isXmapScan()){
+		} else if (isXmapScan()) {
 			minValue = Double.MAX_VALUE;
 			Integer elementIndex = roiNameMap.get(selectedElement);
 			if (elementIndex != null) {
@@ -558,15 +588,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				}
 			}
 			fillDecrement = (int) minValue / 100;
-			if (plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
-				fillDataSet((minValue - fillDecrement), (plottedSoFar + 1) / numberOfXPoints, (plottedSoFar + 1)
-						% numberOfXPoints);
-			RCPPlotter.imagePlot(plotName, dataSet);
+			if (plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints)) {
+				fillDataSet(dataSet, (minValue - fillDecrement), (plottedSoFar + 1) / numberOfXPoints,
+						(plottedSoFar + 1) % numberOfXPoints);
+			}
+			plotImage(dataSet);
 			return;
 		}
 		throw new Exception("unable to determine the detector for the selected element ");
-		// is it xspress or the vortex detector
-
 	}
 
 	private boolean isXspressScan() {
@@ -584,19 +613,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				return true;
 		}
 		return false;
-	}
-
-	public double[] getXY(int x, int y) {
-		double[] xy = new double[3];
-		int pointNumber = findPointNumber(y, x);
-		xy[0] = xValues[pointNumber];
-		xy[1] = yValues[pointNumber];
-		xy[2] = zValue;
-		return xy;
-	}
-
-	private int findPointNumber(int y, int x) {
-		return (y * numberOfXPoints + x);
 	}
 
 	private void addToRgbFile(String string) throws IOException {
@@ -629,6 +645,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 		return total;
 	}
+	
+	public void closeWriter() throws Throwable {
+		if (writer != null) writer.close();
+	}
 
 	public void setSelectedElement(String selectedElement) {
 		this.selectedElement = selectedElement;
@@ -644,11 +664,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 	public String getDetectorBeanFileName() {
 		return detectorBeanFileName;
-	}
-
-	@Override
-	public void finalize() throws Throwable {
-		active = false;
 	}
 
 	public void setZValue(double zValue) {

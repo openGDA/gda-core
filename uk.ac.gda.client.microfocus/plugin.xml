@@ -42,34 +42,27 @@
       <view
             category="uk.ac.gda.client.microfocus.category"
             class="uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView"
-            id="uk.ac.gda.client.microfocus.XspressElementListView"
-            name="Xspress Elements"
-            restorable="true">
-      </view>
-      <view
-            category="uk.ac.gda.client.microfocus.category"
-            class="uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView"
-            id="uk.ac.gda.client.microfocus.VortexElementListView"
-            name="Vortex Elements"
+            id="uk.ac.gda.client.microfocus.ElementListView"
+            name="Elements"
             restorable="true">
       </view>
       <view
             category="uk.ac.gda.client.microfocus.category"
             class="uk.ac.gda.client.microfocus.views.ExafsSelectionView"
             id="uk.ac.gda.client.microfocus.SelectExafsView"
-            name="Exafs Selection View"
+            name="Exafs Selection"
             restorable="true">
       </view>
       <view
             category="uk.ac.gda.client.microfocus.category"
             class="uk.ac.gda.client.microfocus.views.SampleStagePositionControlView"
             id="uk.ac.gda.client.microfocus.views.SamplePositionView"
-            name="SampleStagePositionsView"
+            name="Sample Stage Positions"
             restorable="true">
       </view>
       <category
             id="uk.ac.gda.client.microfocus.category"
-            name="Data Acquisition - MicroFous">
+            name="Data Acquisition - MicroFocus">
       </category>
       <view
             category="uk.ac.gda.client.microfocus.category"
@@ -98,57 +91,32 @@
             name="Refresh">
       </command>
       <command
-            defaultHandler="uk.ac.gda.client.microfocus.ui.commands.RunExafsHandler"
-            description="Run exafs at the selected point"
-            id="uk.ac.gda.client.microfocus.runExafsCommand"
-            name="runExafs">
-      </command>
-      <command
             id="uk.ac.gda.client.microfocus.AddExafsScanCommand"
             name="AddExafsScan">
       </command>
       <command
-            description="Delect Exafs scan"
+            description="Delete Exafs scan"
             id="uk.ac.gda.client.microfocus.DeleteExafsScanCommand"
             name="Delete Exafs Scan">
       </command>
       <command
             id="uk.ac.gda.client.microfocus.UpdateExafsScanCommand"
-            name="UpdateScans">
+            name="UpdateMultiScan">
       </command>
       <command
             description="Option to load files for scanning or viewing"
             id="uk.ac.gda.client.microfocus.SelectScanOrViewCommand"
             name="Load File for Scan/View">
       </command>
+      <command
+            id="uk.ac.gda.client.microfocus.addpointtoexafsselectionviewhandler"
+            name="Add Selected Point to Exafs Selection View">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="toolbar:uk.ac.gda.client.microfocus.XspressElementListView?after=additions">
-         <command
-               commandId="uk.ac.gda.client.microfocus.LoadFileCommand"
-               icon="icons/folder_image.png"
-               id="uk.ac.gda.client.microfocus.toolbars.MFElementListLoadView"
-               style="push"
-               tooltip="load">
-         </command>
-         <command
-               commandId="uk.ac.gda.client.microfocus.RefreshListCommand"
-               icon="icons/page_refresh.png"
-               id="uk.ac.gda.client.microfocus.toolbars.MFElementListRefreshView"
-               style="push">
-         </command>
-         <command
-               commandId="uk.ac.gda.client.microfocus.SelectScanOrViewCommand"
-               id="uk.ac.gda.client.microfocus.toolbars.MFElementListOptionView"
-               label="scan"
-               style="toggle"
-               tooltip="load files for scan/view">
-         </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:uk.ac.gda.client.microfocus.VortexElementListView?after=additions">
+            locationURI="toolbar:uk.ac.gda.client.microfocus.ElementListView?after=additions">
          <command
                commandId="uk.ac.gda.client.microfocus.RefreshListCommand"
                icon="icons/page_refresh.png"
@@ -175,18 +143,30 @@
                commandId="uk.ac.gda.client.microfocus.AddExafsScanCommand"
                icon="icons/chart_line_add.png"
                id="uk.ac.gda.client.microfocus.toolbars.AddExafsScan"
+               label="Add Scan"
                style="push">
          </command>
          <command
                commandId="uk.ac.gda.client.microfocus.DeleteExafsScanCommand"
                icon="icons/chart_line_delete.png"
-               id="uk.ac.gda.client.microfocus.toolbars.DelecteExafsScan"
+               id="uk.ac.gda.client.microfocus.toolbars.DeleteExafsScan"
+               label="Remove Scan"
                style="push">
          </command>
          <command
                commandId="uk.ac.gda.client.microfocus.UpdateExafsScanCommand"
                icon="icons/page_refresh.png"
                id="uk.ac.gda.client.microfocus.toolbars.UpdateExafsScan"
+               label="Create / Update Multiscan"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.beamline.i18.MapView">
+         <command
+               commandId="uk.ac.gda.client.microfocus.addpointtoexafsselectionviewhandler"
+               icon="icons/chart_line_add.png"
                style="push">
          </command>
       </menuContribution>
@@ -196,10 +176,6 @@
       <handler
             class="uk.ac.gda.client.microfocus.ui.commands.LoadFileHandler"
             commandId="uk.ac.gda.client.microfocus.LoadFileCommand">
-      </handler>
-      <handler
-            class="uk.ac.gda.client.microfocus.ui.commands.RunExafsHandler"
-            commandId="uk.ac.gda.client.microfocus.runExafsCommand">
       </handler>
       <handler
             class="uk.ac.gda.client.microfocus.ui.commands.AddExafsScanCommandHandler"
@@ -216,6 +192,10 @@
       <handler
             class="uk.ac.gda.client.microfocus.ui.commands.SelectScanOrViewCommandHandler"
             commandId="uk.ac.gda.client.microfocus.SelectScanOrViewCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.microfocus.ui.commands.AddPointToExafsSelectionViewHandler"
+            commandId="uk.ac.gda.client.microfocus.addpointtoexafsselectionviewhandler">
       </handler>
    </extension>
 

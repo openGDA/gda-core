@@ -33,6 +33,10 @@
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="showDTRawValues" type="xsd:boolean"
 					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="xspressOnlyShowFF" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="xspressShowDTRawValues" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="saveRawSpectrum" type="xsd:boolean"
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="selectedRegionNumber" type="xsd:integer"

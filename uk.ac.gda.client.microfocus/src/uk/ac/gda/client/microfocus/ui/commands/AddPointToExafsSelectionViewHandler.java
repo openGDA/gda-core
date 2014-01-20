@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -21,27 +21,28 @@ package uk.ac.gda.client.microfocus.ui.commands;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.HandlerUtil;
 
+import uk.ac.gda.client.microfocus.views.ExafsSelectionView;
 import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
 
-public class RunExafsHandler extends AbstractHandler implements IHandler {
+public class AddPointToExafsSelectionViewHandler extends AbstractHandler {
+
+	public static String ID = "uk.ac.gda.client.microfocus.addpointtoexafsselectionviewhandler";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		System.out.println("Inside the popup command handler");
-		if(HandlerUtil.getActivePart(event).getClass().equals(MicroFocusElementListView.class)){
-			double[] xyz = ((MicroFocusElementListView)HandlerUtil.getActivePart(event)).getXYZ();
-			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-			MessageDialog.openInformation(shell, "Run Exafs", "Selected point is (" + xyz[0] + "," + xyz[1] + "," + xyz[2] 
-			                                            +").\nWould you like to run a Exaf Scan?");
-	}
+
+		MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
+
+		Double[] xyz = mfElements.getLastXYZSelection();
+
+		ExafsSelectionView selectionView = (ExafsSelectionView) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+				.getActivePage().findView(ExafsSelectionView.ID);
+		selectionView.setSelectedPoint(xyz);
 
 		return null;
 	}
-}
 
+}

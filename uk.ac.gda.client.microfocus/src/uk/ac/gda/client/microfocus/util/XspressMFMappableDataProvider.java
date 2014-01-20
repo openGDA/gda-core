@@ -57,7 +57,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 
 	@Override
 	public double[][] constructMappableData() {
-		logger.info("getting data for " + selectedElement);
+		logger.debug("getting data for " + selectedElement);
 		int noOfDetectors;
 		double dataSliceFromFile[][][] = null;
 		double[][] mapData = new double[yarray.length][xarray.length];

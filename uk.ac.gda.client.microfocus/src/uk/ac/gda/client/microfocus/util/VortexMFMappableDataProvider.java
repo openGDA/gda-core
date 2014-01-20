@@ -34,7 +34,9 @@ import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
 
 public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider {
+	
 	private static final Logger logger = LoggerFactory.getLogger(VortexMFMappableDataProvider.class);
+	
 	private int numberOfdetectorElements;
 	private List<VortexROI>[] elementRois;
 	private double[][] vortexData;
@@ -50,7 +52,6 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 
 	public VortexMFMappableDataProvider() {
 		super();
-		this.loadBean();
 	}
 
 	@Override
@@ -65,7 +66,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 
 	@Override
 	public double[][] constructMappableData() {
-		logger.info("getting data for " + selectedElement);
+		logger.debug("getting data for " + selectedElement);
 		double[][] mapData = new double[yarray.length][xarray.length];
 		Integer selectedElementIndex = roiNameMap.get(selectedElement);
 		int noOfDetectors = numberOfdetectorElements;
@@ -230,7 +231,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 			}
 			return doubleSpectrum;
 		}
-		logger.info("the return object is " + spectrum);
+		logger.debug("the return object is " + spectrum);
 		if (spectrum instanceof short[]) {
 			short[] retInt = (short[]) spectrum;
 			double[] retDouble = new double[retInt.length];

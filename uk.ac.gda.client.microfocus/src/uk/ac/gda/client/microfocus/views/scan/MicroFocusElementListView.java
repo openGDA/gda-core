@@ -55,7 +55,6 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
@@ -72,21 +71,23 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		IObservable, IObserver {
 
 	public static final String ID = "uk.ac.gda.client.microfocus.ElementListView";
+	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
 
 	protected final IExperimentEditorManager controller = ExperimentFactory.getExperimentEditorManager();
 	
 	private List elementList;
 	private MicroFocusDisplayController displayController;
-	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
 	private FileDialog openDialog;
 	private String loadedDetectorFileName;
-	private double[] xyz = new double[3];
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private boolean loadMapForScan = false;
 	private PlotView plotView;
 	private String selectedElement;
 	private XspressParameters xspressBean;
 	private VortexParameters vortexBean;
+
+	private double pointX;
+	private double pointY;
 
 	public MicroFocusElementListView() {
 		super();
@@ -97,7 +98,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 	@Override
 	public void createPartControl(Composite parent) {
-		logger.info("Part Control the title is " + this.getTitle());
 		Composite xspressComposite = new Composite(parent, SWT.NONE);
 		xspressComposite.setLayout(new GridLayout(2, false));
 		elementList = new List(xspressComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
@@ -120,8 +120,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 					IWorkbenchPage.VIEW_CREATE);
 			if (newview instanceof PlotView) {
 				plotView = (PlotView) newview;
-				plotView.updatePlotMode(GuiPlotMode.TWOD);
-				logger.info("The Plot View is " + plotView);
 			}
 		} catch (Exception e) {
 			logger.error("Error while finding the plot view", e);
@@ -166,11 +164,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	@Override
 	public void setFocus() {
 	}
-
-	public double[] getXYZ() {
-		return xyz;
-	}
-
+	
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
 	}
@@ -283,6 +277,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			tree = hdf5Loader.loadTree(null);
 		} catch (ScanFileHolderException e2) {
 			logger.error("Could not load tree from " + filePath, e2);
+			return;
 		}
 
 		DataHolder dataHolder = null;
@@ -388,5 +383,20 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			}
 		});
 
+	}
+
+	/**
+	 * Set the X and Y selected point, as data values, not the index numbers of the data array
+	 * 
+	 * @param pointX
+	 * @param pointY
+	 */
+	public void setLastXYSelection(double pointX, double pointY) {
+		this.pointX = pointX;
+		this.pointY = pointY;
+	}
+
+	public Double[] getLastXYZSelection() {
+		return new Double[] { pointX, pointY, displayController.getZ() };
 	}
 }

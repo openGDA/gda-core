@@ -17,6 +17,7 @@
  */
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
+
 import gda.analysis.RCPPlotter;
 import gda.analysis.io.ScanFileHolderException;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
@@ -59,7 +60,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	private String plotName;
 	private int numberOfXPoints = 0;
 	private int numberOfYPoints = 0;
-	private AbstractDataset dataSet;	
+	private AbstractDataset dataSet;
 	private double xStepSize;
 	private double yStepSize;
 	private Detector detectors[];
@@ -87,12 +88,12 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	private double energyValue;
 	private int plottedSoFar = -1;
 	private int rowsPlottedSoFar = -1;
-	private IScanDataPoint lastDataPoint =null;
+	private IScanDataPoint lastDataPoint = null;
 	private int plotUpdateFrequency = 5;
 	private double minValue = Double.MAX_VALUE;
-	private HDF5Loader hdf5Loader ;
-	private DataHolder dataHolder ;
-	private ILazyDataset  lazyDataset;
+	private HDF5Loader hdf5Loader;
+	private DataHolder dataHolder;
+	private ILazyDataset lazyDataset;
 	private int spectrumLength = 4096;
 	private boolean normalise = false;
 	private String normaliseElement = "I0";
@@ -104,7 +105,11 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	public boolean isActive() {
 		return active;
 	}
-	
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
 	public AbstractDataset getDataSet() {
 		return dataSet;
 	}
@@ -133,41 +138,42 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			e.printStackTrace();
 		}
 
-		for(Detector detector : detectors){
-		if (detector instanceof XspressDetector)
-			try {
-				XspressDetector xspress = (XspressDetector) detector;
-				detectorName = xspress.getName();
-				numberOfSubDetectors = xspress.getNumberOfDetectors();
-				elementRois = new List[numberOfSubDetectors];
-				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
-					elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
-							.getRegionList();
-			} catch (DeviceException e) {
-				logger.error("Error getting windows from the bean file ", e);
-			}
-		else if (detector instanceof XmapDetector)
-			try {
-				XmapDetector xspress = (XmapDetector) detector;
-				detectorName = xspress.getName();
-				numberOfSubDetectors = xspress.getNumberOfMca();
-				elementRois = new List[numberOfSubDetectors];
-				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
-					elementRois[detectorNo] = ((VortexParameters) detectorBean).getDetector(detectorNo).getRegionList();
-			} catch (DeviceException e) {
-				logger.error("Error getting windows from the bean file ", e);
-			}
+		for (Detector detector : detectors) {
+			if (detector instanceof XspressDetector)
+				try {
+					XspressDetector xspress = (XspressDetector) detector;
+					detectorName = xspress.getName();
+					numberOfSubDetectors = xspress.getNumberOfDetectors();
+					elementRois = new List[numberOfSubDetectors];
+					for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
+						elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
+								.getRegionList();
+				} catch (DeviceException e) {
+					logger.error("Error getting windows from the bean file ", e);
+				}
+			else if (detector instanceof XmapDetector)
+				try {
+					XmapDetector xspress = (XmapDetector) detector;
+					detectorName = xspress.getName();
+					numberOfSubDetectors = xspress.getNumberOfMca();
+					elementRois = new List[numberOfSubDetectors];
+					for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
+						elementRois[detectorNo] = ((VortexParameters) detectorBean).getDetector(detectorNo)
+								.getRegionList();
+				} catch (DeviceException e) {
+					logger.error("Error getting windows from the bean file ", e);
+				}
 		}
 	}
 
 	private void fillRoiNames() {
-		if(roiNames == null)
+		if (roiNames == null)
 			return;
-		if(null == roiNameMap)
+		if (null == roiNameMap)
 			roiNameMap = new Hashtable<String, Integer>();
-		int roiIndex =0;
+		int roiIndex = 0;
 		for (String roi : roiNames) {
-			roiNameMap.put(roi,roiIndex);
+			roiNameMap.put(roi, roiIndex);
 			roiIndex++;
 		}
 	}
@@ -195,14 +201,16 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		active = true;
-		updateDataSetFromSDP(dataPoint );
-		if(plottedSoFar % plotUpdateFrequency == 0 || (plottedSoFar + 1 ) == (numberOfXPoints * numberOfYPoints))
-			RCPPlotter.imagePlot(plotName,dataSet);
+		updateDataSetFromSDP(dataPoint);
+		if (plottedSoFar % plotUpdateFrequency == 0 || (plottedSoFar + 1) == (numberOfXPoints * numberOfYPoints))
+			RCPPlotter.imagePlot(plotName, dataSet);
 		lastDataPoint = dataPoint;
-		
+
 	}
+
 	/**
-	 * This method is made public only for testing . 
+	 * This method is made public only for testing .
+	 * 
 	 * @param plottedSoFar
 	 */
 	public void setPlottedSoFar(int plottedSoFar) {
@@ -210,11 +218,10 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		this.rowsPlottedSoFar = plottedSoFar / numberOfXPoints + 1;
 	}
 
-	public void updateDataSetFromSDP(IScanDataPoint dataPoint )throws Exception
-	{
+	public void updateDataSetFromSDP(IScanDataPoint dataPoint) throws Exception {
 		Double[] xy = dataPoint.getPositionsAsDoubles();
-		int fillDecrement =0;
-		int totalPoints =0;
+		int fillDecrement = 0;
+		int totalPoints = 0;
 		Vector<Detector> detFromDP = dataPoint.getDetectors();
 		if (dataPoint.getCurrentPointNumber() == 0 && lastDataPoint == null) {
 			// this is the first point in the scan
@@ -224,10 +231,9 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			detectorValues = new double[roiNameMap.size()][];
 			xValues = new double[totalPoints];
 			yValues = new double[totalPoints];
-			//get the list of names from Scaler
-			for(Detector det : detFromDP){
-				if(det instanceof TfgScaler)
-				{
+			// get the list of names from Scaler
+			for (Detector det : detFromDP) {
+				if (det instanceof TfgScaler) {
 					String[] s = det.getExtraNames();
 					for (int i = 0; i < s.length; i++) {
 						if (s[i].equals(selectedElement)) {
@@ -236,400 +242,385 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 						}
 						selectedElementIndex = -1;
 					}
-					if(isNormalise())
-					{
+					if (isNormalise()) {
 						for (int i = 0; i < s.length; i++) {
 							if (s[i].equals(normaliseElement)) {
-								normaliseElementIndex  = i;
+								normaliseElementIndex = i;
 								break;
 							}
 							normaliseElementIndex = -1;
 						}
 					}
-					//Build the rgb file column names with scaler names
+					// Build the rgb file column names with scaler names
 					roiHeader = new StringBuffer("row  column  ");
-					int headerCounter=0;
+					int headerCounter = 0;
 					for (String h : s) {
 						roiHeader.append(h);
-						if(++headerCounter != s.length)
+						if (++headerCounter != s.length)
 							roiHeader.append("  ");
 					}
 				}
-			}	
-			
+			}
+
 			// create the rgb file
 			createRgbFile((new StringTokenizer(dataPoint.getCurrentFilename(), ".")).nextToken());
-			//load the dataset for reading the spectrum
+			// load the dataset for reading the spectrum
 			hdf5Loader = new HDF5Loader(dataPoint.getCurrentFilename());
 		}
 
-		if(lastDataPoint == null || (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(dataPoint.getCurrentFilename()))){
-			int[]xyIndex = getXYIndex(dataPoint.getCurrentPointNumber(),xy[1]);
-			int correctedDataPointNumber = xyIndex[1]*numberOfXPoints+xyIndex[0];
+		if (lastDataPoint == null
+				|| (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(
+						dataPoint.getCurrentFilename()))) {
+			int[] xyIndex = getXYIndex(dataPoint.getCurrentPointNumber(), xy[1]);
+			int correctedDataPointNumber = xyIndex[1] * numberOfXPoints + xyIndex[0];
 			xValues[correctedDataPointNumber] = xy[1];
 			yValues[correctedDataPointNumber] = xy[0];
-			
-		double value = 0;
-		double windowTotal = 0.0;
 
-		StringBuffer rgbLine = new StringBuffer();
-		rgbLine.append(xyIndex[1] + " " + xyIndex[0] + " ");
-		NXDetectorData d = null;
-		Vector<Object> detectorsData = dataPoint.getDetectorData();
-		for (int detDataIndex =0 ; detDataIndex < detectorsData.size() ; detDataIndex++){
-			Object obj= detectorsData.get(detDataIndex);
-			if (obj instanceof double[] && (detFromDP.get(detDataIndex) instanceof TfgScaler)) {
-				double[] scalerData = (double[]) obj;
-				if (selectedElementIndex == -1){
-					String[] s = detFromDP.get(detDataIndex).getExtraNames();
-					for (int i = 0; i < s.length; i++) {
-						if (s[i].equals(selectedElement)) {
-							selectedElementIndex = i;
-							break;
+			double value = 0;
+			double windowTotal = 0.0;
+
+			StringBuffer rgbLine = new StringBuffer();
+			rgbLine.append(xyIndex[1] + " " + xyIndex[0] + " ");
+			NXDetectorData d = null;
+			Vector<Object> detectorsData = dataPoint.getDetectorData();
+			for (int detDataIndex = 0; detDataIndex < detectorsData.size(); detDataIndex++) {
+				Object obj = detectorsData.get(detDataIndex);
+				if (obj instanceof double[] && (detFromDP.get(detDataIndex) instanceof TfgScaler)) {
+					double[] scalerData = (double[]) obj;
+					if (selectedElementIndex == -1) {
+						String[] s = detFromDP.get(detDataIndex).getExtraNames();
+						for (int i = 0; i < s.length; i++) {
+							if (s[i].equals(selectedElement)) {
+								selectedElementIndex = i;
+								break;
+							}
+							selectedElementIndex = -1;
 						}
-						selectedElementIndex = -1;
 					}
-				}
-				if (selectedElementIndex != -1)
-					value = scalerData[selectedElementIndex];
-				if(normaliseElementIndex != -1)
-					normaliseValue = scalerData[normaliseElementIndex];
-				for (double i : scalerData) {
-					rgbLine.append(i);
-					rgbLine.append(" ");
-				}
-				scalerValues[correctedDataPointNumber] = scalerData;
-				//logger.info("The rgb Line with scaler values is " + rgbLine.toString());
+					if (selectedElementIndex != -1)
+						value = scalerData[selectedElementIndex];
+					if (normaliseElementIndex != -1)
+						normaliseValue = scalerData[normaliseElementIndex];
+					for (double i : scalerData) {
+						rgbLine.append(i);
+						rgbLine.append(" ");
+					}
+					scalerValues[correctedDataPointNumber] = scalerData;
+					// logger.info("The rgb Line with scaler values is " + rgbLine.toString());
 
-			} else if (obj instanceof NXDetectorData) {
-				if (roiTable == null || roiTable.size() == 0) {
-					roiTable = new Hashtable<String, Double>(roiNames.length);
-					for (String s : roiNames) {
-						roiTable.put(s, 0.0);
-						if(dataPoint.getCurrentPointNumber() == 0)
-							roiHeader.append("  " + s);
+				} else if (obj instanceof NXDetectorData) {
+					if (roiTable == null || roiTable.size() == 0) {
+						roiTable = new Hashtable<String, Double>(roiNames.length);
+						for (String s : roiNames) {
+							roiTable.put(s, 0.0);
+							if (dataPoint.getCurrentPointNumber() == 0)
+								roiHeader.append("  " + s);
+						}
 					}
-				}
-				if (isXspressScan() && ((detFromDP.get(detDataIndex) instanceof XspressDetector) ||(detFromDP.get(detDataIndex) instanceof BufferedDetector) )) {
-					d = ((NXDetectorData) obj);
-					//double[][] dataArray = new double[numberOfSubDetectors][];
-					double[][] dataArray =(double[][])d.getData(detectorName, "MCAs" , "SDS").getBuffer();
-					//assuming all detector elements have the same number of roi
-					spectrumLength = dataArray[0].length;
-					for (int i = 0; i < numberOfSubDetectors; i++) {
-						//data = d.getData(detectorName, detectorName + "_element_" + i, "SDS");
-						//dataArray[i] = ((double[]) ((NexusGroupData) data).getBuffer());
-						@SuppressWarnings("unchecked")
-						List<XspressROI> roiList = elementRois[i];
-						for (XspressROI roi : roiList) {
-							String key = roi.getRoiName();
-							if (roiTable.containsKey(key)) {
-								this.setWindows(roi.getRoiStart(), roi.getRoiEnd());
-								if(detectorValues[roiNameMap.get(key)] == null)
-									detectorValues[roiNameMap.get(key)] = new double[totalPoints];
-								windowTotal = getWindowedData(dataArray[i]);
-								double db = roiTable.get(roi.getRoiName());
-								detectorValues[roiNameMap.get(key)][correctedDataPointNumber ] = db + windowTotal;
-								roiTable.put(key, db + windowTotal);
-								if (roi.getRoiName().equals(selectedElement)) {
-									value += windowTotal;
+					if (isXspressScan()
+							&& ((detFromDP.get(detDataIndex) instanceof XspressDetector) || (detFromDP
+									.get(detDataIndex) instanceof BufferedDetector))) {
+						d = ((NXDetectorData) obj);
+						// double[][] dataArray = new double[numberOfSubDetectors][];
+						double[][] dataArray = (double[][]) d.getData(detectorName, "MCAs", "SDS").getBuffer();
+						// assuming all detector elements have the same number of roi
+						spectrumLength = dataArray[0].length;
+						for (int i = 0; i < numberOfSubDetectors; i++) {
+							// data = d.getData(detectorName, detectorName + "_element_" + i, "SDS");
+							// dataArray[i] = ((double[]) ((NexusGroupData) data).getBuffer());
+							@SuppressWarnings("unchecked")
+							List<XspressROI> roiList = elementRois[i];
+							for (XspressROI roi : roiList) {
+								String key = roi.getRoiName();
+								if (roiTable.containsKey(key)) {
+									this.setWindows(roi.getRoiStart(), roi.getRoiEnd());
+									if (detectorValues[roiNameMap.get(key)] == null)
+										detectorValues[roiNameMap.get(key)] = new double[totalPoints];
+									windowTotal = getWindowedData(dataArray[i]);
+									double db = roiTable.get(roi.getRoiName());
+									detectorValues[roiNameMap.get(key)][correctedDataPointNumber] = db + windowTotal;
+									roiTable.put(key, db + windowTotal);
+									if (roi.getRoiName().equals(selectedElement)) {
+										value += windowTotal;
+									}
 								}
 							}
 						}
-					}
-					logger.debug("the value for the selected emenet " + selectedElement + " is " + value);
-				} 
-				else if (isXmapScan()&& ((detFromDP.get(detDataIndex) instanceof XmapDetector)||(detFromDP.get(detDataIndex) instanceof BufferedDetector)) ) {
-					d = ((NXDetectorData) obj);
-					double wholeDataArray[][] = new double[numberOfSubDetectors][]; 
-					Object wholeDataArrayObject ;
-					try {
-						wholeDataArrayObject= d.getData(detectorName, "fullSpectrum", "SDS").getBuffer();
-					} catch (Exception e) {
-						//elements spectrum is not available as twod array
-						wholeDataArrayObject = null;
-					}
-					for (int j = 0; j < numberOfSubDetectors; j++) {
-						Object singleElementSpectrum = null;
-						if(wholeDataArrayObject == null)
-							singleElementSpectrum = ( d.getData(detectorName,"Element"+j+"_fullSpectrum", "SDS").getBuffer());
-						else
-						{
-							if(wholeDataArrayObject instanceof int[][])
-							{
-							singleElementSpectrum =((int[][]) wholeDataArrayObject)[j];
+						logger.debug("the value for the selected emenet " + selectedElement + " is " + value);
+					} else if (isXmapScan()
+							&& ((detFromDP.get(detDataIndex) instanceof XmapDetector) || (detFromDP.get(detDataIndex) instanceof BufferedDetector))) {
+						d = ((NXDetectorData) obj);
+						double wholeDataArray[][] = new double[numberOfSubDetectors][];
+						Object wholeDataArrayObject;
+						try {
+							wholeDataArrayObject = d.getData(detectorName, "fullSpectrum", "SDS").getBuffer();
+						} catch (Exception e) {
+							// elements spectrum is not available as twod array
+							wholeDataArrayObject = null;
+						}
+						for (int j = 0; j < numberOfSubDetectors; j++) {
+							Object singleElementSpectrum = null;
+							if (wholeDataArrayObject == null)
+								singleElementSpectrum = (d
+										.getData(detectorName, "Element" + j + "_fullSpectrum", "SDS").getBuffer());
+							else {
+								if (wholeDataArrayObject instanceof int[][]) {
+									singleElementSpectrum = ((int[][]) wholeDataArrayObject)[j];
+								} else if (wholeDataArrayObject instanceof double[][])
+									singleElementSpectrum = ((double[][]) wholeDataArrayObject)[j];
+								else if (wholeDataArrayObject instanceof short[][])
+									singleElementSpectrum = ((short[][]) wholeDataArrayObject)[j];
 							}
-							else if(wholeDataArrayObject instanceof double[][])
-								singleElementSpectrum = ((double[][]) wholeDataArrayObject)[j];
-							else if(wholeDataArrayObject instanceof short[][])
-								singleElementSpectrum = ((short[][]) wholeDataArrayObject)[j];
-						}
-						if(singleElementSpectrum instanceof int[]){
-							wholeDataArray[j] = new double[((int[])singleElementSpectrum).length];
-							//do an array copy to convert from int to double
-							for(int arIndex =0 ; arIndex < ((int[])singleElementSpectrum).length; arIndex++)
-								wholeDataArray[j][arIndex] = ((int[])singleElementSpectrum)[arIndex];
-						}
-						if(singleElementSpectrum instanceof short[]){
-							wholeDataArray[j] = new double[((short[])singleElementSpectrum).length];
-							//do an array copy to convert from int to double
-							for(int arIndex =0 ; arIndex < ((short[])singleElementSpectrum).length; arIndex++)
-								wholeDataArray[j][arIndex] = ((short[])singleElementSpectrum)[arIndex];
-						}
-
-						else if(singleElementSpectrum instanceof double[])
-							wholeDataArray[j] = (double[]) singleElementSpectrum;
-						spectrumLength = wholeDataArray[j].length;
-						@SuppressWarnings("unchecked")
-						List<VortexROI> roiList = elementRois[j];
-						//calculating window total manually instead of using xmap ROIs
-						for (VortexROI roi : roiList) {
-							String key = roi.getRoiName();
-							if (roiTable.containsKey(key)) {
-								this.setWindows(roi.getRoiStart(), roi.getRoiEnd());
-								if(detectorValues[roiNameMap.get(key)] == null)
-									detectorValues[roiNameMap.get(key)] = new double[totalPoints];
-								windowTotal = getWindowedData(wholeDataArray[j]);
-								double db = roiTable.get(roi.getRoiName());
-								detectorValues[roiNameMap.get(key)][correctedDataPointNumber] = db + windowTotal;
-								roiTable.put(key, db + windowTotal);
-								if (roi.getRoiName().equals(selectedElement))
-									value += windowTotal;
+							if (singleElementSpectrum instanceof int[]) {
+								wholeDataArray[j] = new double[((int[]) singleElementSpectrum).length];
+								// do an array copy to convert from int to double
+								for (int arIndex = 0; arIndex < ((int[]) singleElementSpectrum).length; arIndex++)
+									wholeDataArray[j][arIndex] = ((int[]) singleElementSpectrum)[arIndex];
+							}
+							if (singleElementSpectrum instanceof short[]) {
+								wholeDataArray[j] = new double[((short[]) singleElementSpectrum).length];
+								// do an array copy to convert from int to double
+								for (int arIndex = 0; arIndex < ((short[]) singleElementSpectrum).length; arIndex++)
+									wholeDataArray[j][arIndex] = ((short[]) singleElementSpectrum)[arIndex];
 							}
 
+							else if (singleElementSpectrum instanceof double[])
+								wholeDataArray[j] = (double[]) singleElementSpectrum;
+							spectrumLength = wholeDataArray[j].length;
+							@SuppressWarnings("unchecked")
+							List<VortexROI> roiList = elementRois[j];
+							// calculating window total manually instead of using xmap ROIs
+							for (VortexROI roi : roiList) {
+								String key = roi.getRoiName();
+								if (roiTable.containsKey(key)) {
+									this.setWindows(roi.getRoiStart(), roi.getRoiEnd());
+									if (detectorValues[roiNameMap.get(key)] == null)
+										detectorValues[roiNameMap.get(key)] = new double[totalPoints];
+									windowTotal = getWindowedData(wholeDataArray[j]);
+									double db = roiTable.get(roi.getRoiName());
+									detectorValues[roiNameMap.get(key)][correctedDataPointNumber] = db + windowTotal;
+									roiTable.put(key, db + windowTotal);
+									if (roi.getRoiName().equals(selectedElement))
+										value += windowTotal;
+								}
+							}
 						}
+						for (String s : roiNames) {
+							rgbLine.append(Math.round(roiTable.get(s)));
+							rgbLine.append(" ");
+						}
+						logger.debug("The y value is " + xy[0]);
+						logger.debug("the x value is " + xy[1]);
+						logger.debug("the data to plot is " + value);
 					}
 				}
-				for (String s : roiNames) {
-					rgbLine.append(Math.round(roiTable.get(s)));
-					rgbLine.append(" ");
+				if (dataPoint.getCurrentPointNumber() == 0)
+					writer.addHeader(roiHeader.toString());
+				writer.addToFile(correctedDataPointNumber, rgbLine.toString().trim());
+				if (roiTable != null)
+					roiTable.clear();
+				if (value < minValue)
+					minValue = value;
+				fillDecrement = (int) minValue / 100;
+				if (isNormalise()) {// if normalise is requested plot the normalised value in map and save normalised
+									// value
+									// internally
+									// but write raw value to rgb files
+					value = value / normaliseValue;
+
+					for (int i = 0; i < detectorValues.length; i++)
+						detectorValues[i][correctedDataPointNumber] = detectorValues[i][correctedDataPointNumber]
+								/ normaliseValue;
 				}
-				logger.debug("The y value is " + xy[0]);
-				logger.debug("the x value is " + xy[1]);
-				logger.debug("the data to plot is " + value);
+				setPlottedSoFar(dataPoint.getCurrentPointNumber());
+				// yIndex,xIndex
+				dataSet.set(value, xyIndex[1], xyIndex[0]);
+				fillDataSet((minValue - fillDecrement));
 			}
 		}
-		if (dataPoint.getCurrentPointNumber() == 0)
-			writer.addHeader(roiHeader.toString());
-		writer.addToFile(correctedDataPointNumber,rgbLine.toString().trim());
-		if(roiTable != null)
-			roiTable.clear();
-		if(value < minValue)
-			minValue = value ;			
-		fillDecrement =(int) minValue /100;
-		if(isNormalise())
-		{//if normalise is requested plot the normalised value in map and save normalised value internally
-			//but write raw value to rgb files
-			value = value / normaliseValue;
-			
-			for(int i =0; i< detectorValues.length;i++ )
-				detectorValues[i][correctedDataPointNumber] = detectorValues[i][correctedDataPointNumber] / normaliseValue;
-		}
-		setPlottedSoFar(dataPoint.getCurrentPointNumber());
-		//yIndex,xIndex
-		dataSet.set(value, xyIndex[1], xyIndex[0]);
-		fillDataSet((minValue - fillDecrement));
-		}
 	}
-	
 
 	private void fillDataSet(double minValue2) {
-		for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++){
-			if(dataSet.getDouble(new int[]{rowsPlottedSoFar -1,xindex}) == lastFilledValue)
-					dataSet.set(minValue2,rowsPlottedSoFar -1, xindex);
+		for (int xindex = 0; xindex < numberOfXPoints; xindex++) {
+			if (dataSet.getDouble(new int[] { rowsPlottedSoFar - 1, xindex }) == lastFilledValue)
+				dataSet.set(minValue2, rowsPlottedSoFar - 1, xindex);
 		}
-		for(int yindex =rowsPlottedSoFar ; yindex < numberOfYPoints ; yindex++){
-			for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++){
-				dataSet.set(minValue2,yindex, xindex);
-			}			
+		for (int yindex = rowsPlottedSoFar; yindex < numberOfYPoints; yindex++) {
+			for (int xindex = 0; xindex < numberOfXPoints; xindex++) {
+				dataSet.set(minValue2, yindex, xindex);
+			}
 		}
 		lastFilledValue = minValue2;
 	}
 
-	public void plotSpectrum(int detNo, int x, int y) throws Exception
-	{
-		//always make sure the spectrum asked to plot is less than the last data point to prevent crashing of the server
-		if(lastDataPoint.getCurrentPointNumber() > (y*numberOfXPoints + x)){
-			IDataset slice = getSpectrum(detNo,x,  y);
-			if(slice != null)
-			{
+	public void plotSpectrum(int detNo, int x, int y) throws Exception {
+		// always make sure the spectrum asked to plot is less than the last data point to prevent crashing of the
+		// server
+		if (lastDataPoint.getCurrentPointNumber() > (y * numberOfXPoints + x)) {
+			IDataset slice = getSpectrum(detNo, x, y);
+			if (slice != null) {
 				try {
-					SDAPlotter.plot(MicroFocusNexusPlotter.MCA_PLOTTER,slice);
+					SDAPlotter.plot(MicroFocusNexusPlotter.MCA_PLOTTER, slice);
 				} catch (DeviceException e) {
-					logger.error("Unable to plot the spectrum for "+ x + " " + y, e);
-					throw new Exception("Unable to plot the spectrum for "+ x + " " + y,e);
-					
+					logger.error("Unable to plot the spectrum for " + x + " " + y, e);
+					throw new Exception("Unable to plot the spectrum for " + x + " " + y, e);
+
 				}
-			}
-			else
-				throw new Exception("Unable to plot the spectrum for "+ x + " " + y);
+			} else
+				throw new Exception("Unable to plot the spectrum for " + x + " " + y);
 		}
 		dataHolder = null;
 	}
 
-	public IDataset getSpectrum(int detNo, int x, int y){
+	public Double[] getXYPositions(int xIndex, int yIndex) {
+		return new Double[] { xValues[xIndex], yValues[yIndex] };
+	}
+
+	public IDataset getSpectrum(int detNo, int x, int y) {
 		IDataset slice = null;
 		try {
 			dataHolder = hdf5Loader.loadFile();
-			if(isXspressScan())
-			{
-				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ detectorName+"/MCAs");
-				slice = lazyDataset.getSlice(new int[]{y, x, detNo,0}, new int[]{y+1, x+1, detNo+1, spectrumLength}, new int[]{1,1,1,1});
-			}
-			else if(isXmapScan()) {
-				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ detectorName+"/fullSpectrum");
-				if(lazyDataset == null)
-				{
-					lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ detectorName+"/Element"+ detNo+"_fullSpectrum");
-					 slice = lazyDataset.getSlice(new int[]{y, x,0}, new int[]{y+1, x+1,  spectrumLength}, new int[]{1,1,1});
-				}
-				else 
-					 slice = lazyDataset.getSlice(new int[]{y, x, detNo,0}, new int[]{y+1, x+1, detNo+1, spectrumLength}, new int[]{1,1,1,1});
+			if (isXspressScan()) {
+				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
+				slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
+						spectrumLength }, new int[] { 1, 1, 1, 1 });
+			} else if (isXmapScan()) {
+				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/fullSpectrum");
+				if (lazyDataset == null) {
+					lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/Element" + detNo
+							+ "_fullSpectrum");
+					slice = lazyDataset.getSlice(new int[] { y, x, 0 }, new int[] { y + 1, x + 1, spectrumLength },
+							new int[] { 1, 1, 1 });
+				} else
+					slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
+							spectrumLength }, new int[] { 1, 1, 1, 1 });
 			}
 		} catch (ScanFileHolderException e) {
 			logger.error("Error slicing xmap data", e);
 		}
-		if(slice != null)
-		{
+		if (slice != null) {
 			ILazyDataset sqSlice = slice.squeeze();
-			return (IDataset)sqSlice;
+			return (IDataset) sqSlice;
 		}
 		return slice;
 	}
-	
-	public void displayPlot(String selectedElement)throws Exception
-	{
-		int fillDecrement =0;
+
+	public void displayPlot(String selectedElement) throws Exception {
+		int fillDecrement = 0;
 		this.setSelectedElement(selectedElement);
-		//is selected element in the Scaler list
-		for(Detector det : detectors){
-			if(det instanceof TfgScaler){
+		// is selected element in the Scaler list
+		for (Detector det : detectors) {
+			if (det instanceof TfgScaler) {
 				String[] s = det.getExtraNames();
 				for (int i = 0; i < s.length; i++) {
 					if (s[i].equals(selectedElement)) {
 						selectedElementIndex = i;
 						break;
 					}
-				selectedElementIndex = -1;
+					selectedElementIndex = -1;
 				}
 			}
 		}
-		
-		if(selectedElementIndex != -1){//the selected element is a scaler value
-			//displaying the map for the scaler
+
+		if (selectedElementIndex != -1) {// the selected element is a scaler value
+			// displaying the map for the scaler
 			createDataSet();
-			minValue =  Double.MAX_VALUE;
+			minValue = Double.MAX_VALUE;
 			logger.info("about to fill the data set");
-			
-			for(int i = 0; i < (rowsPlottedSoFar * numberOfXPoints); i++)
-			{
-				if(scalerValues[i][selectedElementIndex] != 0.0)
-				{
-					if(scalerValues[i][selectedElementIndex] < minValue )
-						minValue = scalerValues[i][selectedElementIndex] ;
-					dataSet.set(scalerValues[i][selectedElementIndex], i/numberOfXPoints , i%numberOfXPoints);
+
+			for (int i = 0; i < (rowsPlottedSoFar * numberOfXPoints); i++) {
+				if (scalerValues[i][selectedElementIndex] != 0.0) {
+					if (scalerValues[i][selectedElementIndex] < minValue)
+						minValue = scalerValues[i][selectedElementIndex];
+					dataSet.set(scalerValues[i][selectedElementIndex], i / numberOfXPoints, i % numberOfXPoints);
 				}
 			}
-			fillDecrement = (int)minValue /100;
-			if(plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
-				fillDataSet((minValue -fillDecrement));
+			fillDecrement = (int) minValue / 100;
+			if (plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
+				fillDataSet((minValue - fillDecrement));
 			SDAPlotter.imagePlot(plotName, dataSet);
-			//reset the selected element index
+			// reset the selected element index
 			selectedElementIndex = -1;
 			return;
 		}
-		
-		else if(isXspressScan()){
+
+		else if (isXspressScan()) {
 			minValue = Double.MAX_VALUE;
 			@SuppressWarnings("unused")
 			boolean mapFound = false;
 			Integer elementIndex = roiNameMap.get(selectedElement);
-			if(elementIndex != null){
-				for(int point = 0; point < (rowsPlottedSoFar * numberOfXPoints); point ++)
-				{
-					if(detectorValues[elementIndex][point ] != 0.0)
-					{
-						dataSet.set(detectorValues[elementIndex][point ], point/numberOfXPoints, point %numberOfXPoints);
-						if(detectorValues[elementIndex][point ] < minValue)
-							minValue = detectorValues[elementIndex][point ];
+			if (elementIndex != null) {
+				for (int point = 0; point < (rowsPlottedSoFar * numberOfXPoints); point++) {
+					if (detectorValues[elementIndex][point] != 0.0) {
+						dataSet.set(detectorValues[elementIndex][point], point / numberOfXPoints, point
+								% numberOfXPoints);
+						if (detectorValues[elementIndex][point] < minValue) {
+							minValue = detectorValues[elementIndex][point];
+						}
 					}
 				}
 			}
-				fillDecrement = (int) minValue/100;
-				if(plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
-					fillDataSet((minValue - fillDecrement));
-				SDAPlotter.imagePlot(plotName, dataSet);
+			fillDecrement = (int) minValue / 100;
+			if (plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints)) {
+				fillDataSet((minValue - fillDecrement));
+			}
+			SDAPlotter.imagePlot(plotName, dataSet);
 			return;
 		}
-		
-		else if(isXmapScan()){
+
+		else if (isXmapScan()) {
 			minValue = Double.MAX_VALUE;
 			Integer elementIndex = roiNameMap.get(selectedElement);
-			if(elementIndex != null){
-				for(int point = 0; point < (rowsPlottedSoFar * numberOfXPoints); point ++)
-				{
-					if(detectorValues[elementIndex][point ] != 0.0)
-					{
-						dataSet.set(detectorValues[elementIndex][point ], point/numberOfXPoints, point %numberOfXPoints);
-						if(detectorValues[elementIndex][point ] < minValue)
-							minValue = detectorValues[elementIndex][point ];
+			if (elementIndex != null) {
+				for (int point = 0; point < (rowsPlottedSoFar * numberOfXPoints); point++) {
+					if (detectorValues[elementIndex][point] != 0.0) {
+						dataSet.set(detectorValues[elementIndex][point], point / numberOfXPoints, point
+								% numberOfXPoints);
+						if (detectorValues[elementIndex][point] < minValue) {
+							minValue = detectorValues[elementIndex][point];
+						}
 					}
 				}
 			}
-			fillDecrement = (int)minValue/100;
-			if(plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
+			fillDecrement = (int) minValue / 100;
+			if (plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints)) {
 				fillDataSet((minValue - fillDecrement));
+			}
 			SDAPlotter.imagePlot(plotName, dataSet);
-			return;			
+			return;
 		}
-		
+
 		throw new Exception("unable to determine the detector for the selected element ");
-		//is it xspress or the vortex detector
 	}
-	
+
 	private boolean isXspressScan() {
-		for(Detector det : detectors){
-			if(det instanceof XspressDetector || det instanceof Xspress2BufferedDetector)
+		for (Detector det : detectors) {
+			if (det instanceof XspressDetector || det instanceof Xspress2BufferedDetector)
 				return true;
 		}
 		return false;
-			
+
 	}
 
 	private boolean isXmapScan() {
-		for(Detector det : detectors){
-			if(det instanceof XmapDetector || det instanceof XmapBufferedDetector)
+		for (Detector det : detectors) {
+			if (det instanceof XmapDetector || det instanceof XmapBufferedDetector)
 				return true;
 		}
 		return false;
 	}
 
-	public double[] getXY(int x, int y)
-	{
-		double [] xy = new double[3];
-		int pointNumber = findPointNumber(y, x);
-		xy[0]  = xValues[pointNumber];
-		xy[1] = yValues[pointNumber];
-		xy[2] = zValue;
- 		return xy;
-	}
-	private int findPointNumber(int y, int x) {
-		return (y*numberOfXPoints + x );
-	}
-	
-	private int[] getXYIndex(int dataPointNumber, double xValue)
-	{
+	private int[] getXYIndex(int dataPointNumber, double xValue) {
 		int xIndex = dataPointNumber % numberOfXPoints;
 		int yIndex = dataPointNumber / numberOfXPoints;
-		if(yIndex > 0)// first row is complete
+		if (yIndex > 0)// first row is complete
 			xIndex = findXIndexByValue(xValue);
-		return new int[]{xIndex, yIndex};
+		return new int[] { xIndex, yIndex };
 	}
 
 	private int findXIndexByValue(double xValue) {
-		for(int i =0; i< xValues.length; i++)
-		{
-			if(xValues[i] == xValue)
+		for (int i = 0; i < xValues.length; i++) {
+			if (xValues[i] == xValue)
 				return i;
 		}
 		return -1;
@@ -640,7 +631,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			string = string + ".rgb";
 		writer = new RandomLineFileWriter();
 		writer.createRandomLineFile(string);
-
 	}
 
 	private double getWindowedData(double[] data) {
@@ -666,18 +656,8 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		return detectorBeanFileName;
 	}
 
-	@Override
-	public void finalize() throws Throwable {
-		logger.info("finalize called on MFwriter");
-		try {
-			writer.close();
-		} finally {
-			super.finalize();
-		}
-		writer = null;
-		scalerValues = null;
-		detectorValues = null;
-		active = false;
+	public void closeWriter() throws Throwable {
+		writer.close();
 	}
 
 	public void setZValue(double zValue) {
