@@ -51,9 +51,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
@@ -366,6 +365,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 								wholeDataArray[j] = (double[]) singleElementSpectrum;
 							}
 							spectrumLength = wholeDataArray[j].length;
+							@SuppressWarnings("unchecked")
+							// FIXME needs a redesign to prevent this unchecked warning
 							List<VortexROI> roiList = elementRois[j];
 							// calculating window total manually instead of using xmap ROIs
 							for (VortexROI roi : roiList) {
