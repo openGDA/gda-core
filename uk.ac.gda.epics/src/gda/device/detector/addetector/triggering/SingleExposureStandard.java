@@ -33,7 +33,7 @@ public class SingleExposureStandard extends SimpleAcquire {
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		if (numImages != 1) {
-			throw new IllegalArgumentException("This single exposure triggering strategy expects to expose only 1 image");
+			throw new IllegalArgumentException("This single exposure triggering strategy expects to expose only 1 image, asked to expose " + numImages);
 		}
 		super.prepareForCollection(collectionTime, 1, scanInfo);
 		configureTriggerMode();
