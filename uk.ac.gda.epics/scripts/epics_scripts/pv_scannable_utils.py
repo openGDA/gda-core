@@ -42,3 +42,8 @@ def caget(pv):
     """
     return CAClient.get(pv)
 
+def caputStringAsWaveform(pv, val):
+    """
+    Usage: "caputStringAsWaveform BL13J-OP-ACOLL-01:AVERAGESIZE" "This is some text"
+    """
+    CAClient.putStringAsWaveform(pv, val)

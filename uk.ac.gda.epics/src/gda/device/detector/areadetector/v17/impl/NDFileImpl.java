@@ -67,7 +67,7 @@ public class NDFileImpl implements InitializingBean, NDFile {
 		}
 	}
 
-	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
+	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
 	private String basePVName;
 
@@ -206,15 +206,17 @@ public class NDFileImpl implements InitializingBean, NDFile {
 		}
 	}
 
+	protected String getInternalPath(String filepath){
+		return filePathConverter != null ? filePathConverter.converttoInternal(filepath)  : filepath;
+	}
 	/**
 	*
 	*/
 	@Override
 	public void setFilePath(String filepath) throws Exception {
 		try {
-			String pathToSend  = filePathConverter != null ? filePathConverter.converttoInternal(filepath)  : filepath;
 			Channel channel = config != null ? createChannel(config.getFilePath().getPv()) : getChannel(FilePath);
-			byte[] bytes = (pathToSend + '\0').getBytes();
+			byte[] bytes = (getInternalPath(filepath) + '\0').getBytes();
 			EPICS_CONTROLLER.caputWait(channel, bytes);
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot setFilePath", ex);

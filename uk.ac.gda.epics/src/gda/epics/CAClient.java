@@ -298,6 +298,19 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 		}
 	}
 	/*
+	 * Simple method to put a value as a String to a ByteArray PV. Inefficient but convenient for command line use
+	 */
+	static public void putStringAsWaveform(String pv, String value) throws CAException, InterruptedException, FactoryException{
+		CAClient caClient = new CAClient(pv);
+		try{
+			caClient.configure();
+			caClient.caput((value+'\0').getBytes());
+		} finally{
+			caClient.clearup();
+		}
+	}
+
+	/*
 	 * Simple method to put a value as a Double. Inefficient but convenient for command line use
 	 */
 	static public void put(String pv, Double value) throws CAException, InterruptedException, FactoryException{
@@ -1200,8 +1213,15 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @throws CAException
 	 */
 	public void caput(short[] values) throws CAException, InterruptedException {
-		for (int i = 0; i < chs.length; i++)
-			controller.caput(chs[i], values[i]);
+		if (pvName != null) {
+			// single channel waveform input
+			controller.caput(theChannel, values);
+		} else if (pvNames != null) {
+			for (int i = 0; i < chs.length; i++)
+				controller.caput(chs[i], values[i]);
+		} else {
+			logger.info("This client does not have any PV strings as destinations.");
+		}
 	}
 
 	/**
@@ -1211,8 +1231,15 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @throws CAException
 	 */
 	public void caput(float[] values) throws CAException, InterruptedException {
-		for (int i = 0; i < chs.length; i++)
-			controller.caput(chs[i], values[i]);
+		if (pvName != null) {
+			// single channel waveform input
+			controller.caput(theChannel, values);
+		} else if (pvNames != null) {
+			for (int i = 0; i < chs.length; i++)
+				controller.caput(chs[i], values[i]);
+		} else {
+			logger.info("This client does not have any PV strings as destinations.");
+		}
 	}
 
 	/**
@@ -1222,8 +1249,15 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @throws CAException
 	 */
 	public void caput(byte[] values) throws CAException, InterruptedException {
-		for (int i = 0; i < chs.length; i++)
-			controller.caput(chs[i], values[i]);
+		if (pvName != null) {
+			// single channel waveform input
+			controller.caput(theChannel, values);
+		} else if (pvNames != null) {
+			for (int i = 0; i < chs.length; i++)
+				controller.caput(chs[i], values[i]);
+		} else {
+			logger.info("This client does not have any PV strings as destinations.");
+		}
 	}
 
 	/**
@@ -1233,8 +1267,15 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @throws CAException
 	 */
 	public void caput(double[] values) throws CAException, InterruptedException {
-		for (int i = 0; i < chs.length; i++)
-			controller.caput(chs[i], values[i]);
+		if (pvName != null) {
+			// single channel waveform input
+			controller.caput(theChannel, values);
+		} else if (pvNames != null) {
+			for (int i = 0; i < chs.length; i++)
+				controller.caput(chs[i], values[i]);
+		} else {
+			logger.info("This client does not have any PV strings as destinations.");
+		}
 	}
 
 	/**
@@ -1244,8 +1285,15 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @throws CAException
 	 */
 	public void caput(String[] values) throws CAException, InterruptedException {
-		for (int i = 0; i < chs.length; i++)
-			controller.caput(chs[i], values[i]);
+		if (pvName != null) {
+			// single channel waveform input
+			controller.caput(theChannel, values);
+		} else if (pvNames != null) {
+			for (int i = 0; i < chs.length; i++)
+				controller.caput(chs[i], values[i]);
+		} else {
+			logger.info("This client does not have any PV strings as destinations.");
+		}
 	}
 
 	/**
