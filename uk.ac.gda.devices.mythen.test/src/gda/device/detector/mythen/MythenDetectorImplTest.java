@@ -62,6 +62,7 @@ public class MythenDetectorImplTest {
 		MythenClient mythenClient = new DummyMythenClient(18);
 
 		MythenDetectorImpl mythen = new MythenDetectorImpl();
+		mythen.configure();
 		mythen.setDetectorID("Mythen");
 		mythen.setMythenClient(mythenClient);
 		mythen.setDataConverter(dataConverter);
