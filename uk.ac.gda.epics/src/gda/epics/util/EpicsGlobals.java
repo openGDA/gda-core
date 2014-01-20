@@ -58,7 +58,7 @@ public final class EpicsGlobals {
 	private final static String DEBUG_LEVEL = "d2";
 
 	// set the TIMEOUT for EPICS buffer flush
-	private static double TIMEOUT = 30.0;
+	private static double TIMEOUT = 5;
 
 	// set the DELAY in millisceonds for EPICS channel calls
 	private static final long DELAY = 100;
