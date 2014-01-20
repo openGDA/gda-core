@@ -96,7 +96,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 
 			@Override
 			public void update(Object source, Object arg) {
-				logger.info("the status update from xmap is " + arg);
+				logger.debug("the status update from xmap is " + arg);
 				if(arg instanceof EpicsMonitorEvent){
 					EpicsMonitorEvent evt = (EpicsMonitorEvent) arg;					
 					isBusy = ((DBR_Enum)evt.epicsDbr).getEnumValue()[0] == 1;

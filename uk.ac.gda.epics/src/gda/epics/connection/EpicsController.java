@@ -2153,7 +2153,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
+//			logger.debug("set {} to {} ", ch.getName(), value);
 		} catch (IllegalStateException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
 			throw ex;

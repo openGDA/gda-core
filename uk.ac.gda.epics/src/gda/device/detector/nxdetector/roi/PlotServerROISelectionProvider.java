@@ -18,16 +18,19 @@
 
 package gda.device.detector.nxdetector.roi;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 import org.python.core.PyString;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.roi.PerimeterBoxROIList;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
 
 public class PlotServerROISelectionProvider implements IndexedRectangularROIProvider<Integer>{
@@ -62,7 +65,7 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 		return roiList;
 	}
 
-	private List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> getScisoftRoiListFromSDAPlotter() throws Exception {
+	public List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> getScisoftRoiListFromSDAPlotter() throws Exception {
 		GuiBean guiBean;
 		try {
 			guiBean = SDAPlotter.getGuiBean(viewName);
@@ -82,7 +85,13 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 					"No gui bean for view named ''{0}''. Available: {1}",
 					viewName, Arrays.toString(SDAPlotter.getGuiNames())));
 		}
-		List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> scisoftRoiList = (RectangularROIList) guiBean.get(GuiParameters.ROIDATALIST);
+		Serializable serializable = guiBean.get(GuiParameters.ROIDATALIST);
+		List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> scisoftRoiList;
+		if (serializable instanceof PerimeterBoxROIList) {
+			scisoftRoiList = new Vector<uk.ac.diamond.scisoft.analysis.roi.RectangularROI>((PerimeterBoxROIList) guiBean.get(GuiParameters.ROIDATALIST));
+		} else {
+			scisoftRoiList = (RectangularROIList) guiBean.get(GuiParameters.ROIDATALIST);
+		}
 		return scisoftRoiList;
 	}
 
