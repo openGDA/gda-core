@@ -62,6 +62,11 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	private boolean firstReadoutInScan;
 	
 	@Override
+	public String getName() {
+		return "hdfwriter"; // TODO: Multiple filewriters require different names.
+	}
+	
+	@Override
 	public void setNdFile(NDFile ndFile) {
 		throw new RuntimeException("Configure ndFileHDF5 instead of ndFile");
 	}
