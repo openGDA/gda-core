@@ -53,6 +53,10 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	
 	private boolean firstReadoutInScan;
 	
+	@Override
+	public String getName() {
+		return "hdfwriter"; // TODO: Multiple filewriters require different names.
+	}
 	
 	public NDParallelHDF getNdFilePHDF5() {
 		return ndFilePHDF5;

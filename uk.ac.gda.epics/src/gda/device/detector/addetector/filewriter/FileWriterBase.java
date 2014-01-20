@@ -346,11 +346,6 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		if( ndArrayPortVal != null && ndArrayPortVal.length()>0)
 			ndFile.getPluginBase().setNDArrayPort(ndArrayPortVal);
 	}
-	
-	@Override
-	public String getName() {
-		return "filewriter";
-	}
 
 	@Override
 	public boolean willRequireCallbacks() {
