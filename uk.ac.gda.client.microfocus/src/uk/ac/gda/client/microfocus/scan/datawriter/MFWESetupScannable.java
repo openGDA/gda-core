@@ -18,14 +18,13 @@
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
 
-import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 import gda.device.Detector;
 import gda.device.scannable.ScanDataListenerScannable;
 import gda.scan.IScanDataPoint;
 
 /**
-* Scannable to use MicrofocusWriterExtender 
-*/
+ * Scannable to use MicrofocusWriterExtender
+ */
 public class MFWESetupScannable extends ScanDataListenerScannable {
 	private MicroFocusWriterExtender mfd = null;
 	private String detectorBeanFileName = "";
@@ -86,12 +85,12 @@ public class MFWESetupScannable extends ScanDataListenerScannable {
 			return null;
 		// ok a candidate
 		MicroFocusWriterExtender ext = new MicroFocusWriterExtender(dims[0], dims[1], 1, 1);
-		ext.setPlotName(MapPlotView.ID);
 		ext.setDetectorBeanFileName(detectorBeanFileName);
 		ext.setDetectors(detectors);
 		ext.getWindowsfromBean();
-//		ext.setRoiFromBean();//commented due to merge issue from 8.22. This method can go back in but I (Chris C) first want to see what this new class is for. (Ask Paul G)
-//		ext.setSelectedElement(initialSelectedElement);
+		// ext.setRoiFromBean();//commented due to merge issue from 8.22. This method can go back in but I (Chris C)
+		// first want to see what this new class is for. (Ask Paul G)
+		// ext.setSelectedElement(initialSelectedElement);
 		ext.setEnergyValue(1.0);
 		ext.setZValue(0.);
 		return ext;

@@ -81,6 +81,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			xspressElements.updateElementsVisibility();
 			xspress.updateVisibility(parent);
 			xspressElements.updateROIAfterElementCompositeChange();
+			detector.getSashPlotFormComposite().getPlottingSystem().autoscaleAxes();
 		} finally {
 			GridUtils.endMultiLayout();
 		}

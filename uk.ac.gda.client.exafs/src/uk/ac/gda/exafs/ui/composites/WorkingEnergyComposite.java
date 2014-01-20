@@ -45,6 +45,7 @@ import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
+import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.exafs.ExafsActivator;
@@ -247,6 +248,9 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 					setWorkingEnergyUsingXas((XasScanParameters) params);
 				} else if (ob.isXes()) {
 					setWorkingEnergyUsingXes(ob, (XesScanParameters) params);
+				} else if (ob.isMicroFocus()) {
+					MicroFocusScanParameters mfParams = (MicroFocusScanParameters) params;
+					workingEnergy.setValue(mfParams.getEnergy());
 				} else {  //QEXAFS
 					double init = ((QEXAFSParameters) params).getInitialEnergy();
 					double fin = ((QEXAFSParameters) params).getFinalEnergy();

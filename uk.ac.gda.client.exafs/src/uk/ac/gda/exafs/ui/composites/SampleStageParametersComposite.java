@@ -81,7 +81,7 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 
 		try {
 			setMotorLimits("sc_MicroFocusSampleX", x);
-			setMotorLimits("sc_MicroFocusSampleX", y);
+//			setMotorLimits("sc_MicroFocusSampleY", y);
 			setMotorLimits("sc_sample_z", z);
 		} catch (Exception e) {
 			logger.warn("exception while setting hardware limits: " + e.getMessage(), e);
@@ -113,8 +113,8 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 	}
 
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
-		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerGdaLimit()");
-		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperGdaLimit()");
+		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerMotorLimit()");
+		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperMotorLimit()");
 		if (lowerLimit != null && !lowerLimit.isEmpty())
 			box.setMinimum(Double.parseDouble(lowerLimit));
 		if (upperLimit != null && !upperLimit.isEmpty())

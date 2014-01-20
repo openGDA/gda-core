@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,6 +24,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
+import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
 
 public class MicroFocusPerspective implements IPerspectiveFactory {
 
@@ -35,28 +36,24 @@ public class MicroFocusPerspective implements IPerspectiveFactory {
 	}
 
 	private void defineLayout(IPageLayout layout) {
-		String editorArea = layout.getEditorArea();
+		layout.getEditorArea();
 		
-		IFolderLayout rightfolder = layout.createFolder("right", IPageLayout.RIGHT, 0.6f, editorArea);
-		IFolderLayout leftFolder = layout.createFolder("left", IPageLayout.LEFT, 0.16f, editorArea);
-		IFolderLayout outputfolder = layout.createFolder("top", IPageLayout.TOP, 0.76f, editorArea);
+		IFolderLayout elementsFolder = layout.createFolder("elements", IPageLayout.TOP, 0.6f, IPageLayout.ID_EDITOR_AREA);
+		elementsFolder.addView(MicroFocusElementListView.ID);
 		
-		IFolderLayout detfolder = layout.createFolder("middle", IPageLayout.BOTTOM, 0.05f, IPageLayout.ID_EDITOR_AREA);
-		
-		outputfolder.addView(MapPlotView.ID);
-		
-		leftFolder.addView("uk.ac.gda.client.microfocus.SelectExafsView");
-		leftFolder.addView("uk.ac.gda.client.microfocus.XspressElementListView");
-		leftFolder.addView("uk.ac.gda.client.microfocus.VortexElementListView");
-		
-		detfolder.addView(CommandQueueViewFactory.ID);
-		detfolder.addView("gda.rcp.jythonterminalview");
+		IFolderLayout mapplotFolder = layout.createFolder("mapplot", IPageLayout.RIGHT, 0.15f, "elements");
+		mapplotFolder.addView(MapPlotView.ID);
 
-		detfolder.addView(CommandQueueViewFactory.ID);
-		rightfolder.addView("uk.ac.gda.beamline.i18.McaView");
+		IFolderLayout mcafolder = layout.createFolder("mca", IPageLayout.RIGHT, 0.5f, "mapplot");
+		mcafolder.addView("uk.ac.gda.beamline.i18.McaView");
 		
+		IFolderLayout leftFolder = layout.createFolder("bottomleft", IPageLayout.BOTTOM, 0.4f, IPageLayout.ID_EDITOR_AREA);
+		leftFolder.addView("uk.ac.gda.client.microfocus.SelectExafsView");
+		leftFolder.addView(CommandQueueViewFactory.ID);
+		
+		IFolderLayout bottomrightFolder = layout.createFolder("bottomright", IPageLayout.RIGHT, 0.3f, "bottomleft");
+		bottomrightFolder.addView("gda.rcp.jythonterminalview");
+
 		layout.setEditorAreaVisible(false);
 	}
-	
-
 }

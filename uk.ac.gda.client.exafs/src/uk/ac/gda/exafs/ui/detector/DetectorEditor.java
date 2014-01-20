@@ -28,7 +28,7 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public abstract class DetectorEditor extends RichBeanEditorPart {
 	
-	private Detector detector;
+	protected Detector detector;
 	private String serverCommand;
 	
 	public DetectorEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean, String serverCommand) {

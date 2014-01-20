@@ -16,15 +16,15 @@ def getNumberOfDetectors(detectorFileName):
         #must be Detector Parameters file
         print sys.exc_info()[0]
     return 0
+
+
 def showElementsList(detectorFileName): 
     regionsList=[]
     detectorBean=0
     try:
-        print detectorFileName
         detectorBean = BeansFactory.getBean(File(detectorFileName));
-        print detectorBean
         numberOfDetectorElements = detectorBean.getDetectorList().size()
-        print numberOfDetectorElements        
+        print "Number of detector elements:" , numberOfDetectorElements        
         for i in range(numberOfDetectorElements):
             regionsList.append(detectorBean.getDetector(i).getRegionList())
     except:
@@ -47,9 +47,9 @@ def showElementsList(detectorFileName):
             except:
                 elementsList.remove(reference)
         referenceList = elementsList
-    print "The selected elements are"
+    print "Selected elements:"
     for each in elementsList:
-        print each
+        print "\t",each
     return elementsList
        
 def getElementNamesfromIonChamber(detectorBean):

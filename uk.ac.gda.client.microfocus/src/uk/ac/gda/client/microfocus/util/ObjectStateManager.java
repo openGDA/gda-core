@@ -53,7 +53,7 @@ public class ObjectStateManager {
 		while(e.hasMoreElements())
 		{
 			Object s = e.nextElement();
-			logger.info("The object is " + s + " " + objectTable.get(s));
+			logger.debug("The object is " + s + " " + objectTable.get(s));
 		}
 	}
 	public static void setInactive(Object obj)

@@ -7,14 +7,11 @@ import time
 from microfocus_elements import showElementsList, getElementNamesfromIonChamber
 
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
-from gdascripts.messages import handle_messages
 from exafsscripts.exafs.scan import Scan
-from exafsscripts.exafs.config_fluoresence_detectors import XspressConfig, VortexConfig
 
 from gda.configuration.properties import LocalProperties
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, XasAsciiDataWriter, NexusDataWriter, XasAsciiNexusDataWriter
+from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, NexusDataWriter, XasAsciiNexusDataWriter
 from gda.device import Detector
-from gda.device.detector.xspress import ResGrades, XspressDetector
 from gda.device.scannable import ScannableUtils
 from gda.exafs.scan import BeanGroup
 from gda.factory import Finder
@@ -79,17 +76,10 @@ class Map(Scan):
         beanGroup.setOutput(outputBean)
         beanGroup.setValidate(validation)
         beanGroup.setScan(scanBean)
-        # TODO instead we need to setup data writer somewhere and give that to the scan. see xas_scan _setUpDataWriter
-        #XasAsciiDataWriter.setBeanGroup(beanGroup)
-        #handle_messages.simpleLog("XasAsciiDataWriter.setBeanGroup(beanGroup)")
-          
+
         detectorList = self.getDetectors(detectorBean, scanBean)
     
         self.setupForMap(beanGroup)
-        handle_messages.simpleLog("setupForMap")
-        
-        #dataWriter = self.finder.find("DataWriterFactory")
-
     
         scannablex = self.finder.find(scanBean.getXScannableName())
         scannabley = self.finder.find(scanBean.getYScannableName())
@@ -103,12 +93,11 @@ class Map(Scan):
         nx = ScannableUtils.getNumberSteps(scannablex,scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
         ny = ScannableUtils.getNumberSteps(scannabley,scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
     
-        print "number of x points=", str(nx)
-        print "number of y points=", str(ny)
+        self.log("Number x points: " + str(nx))
+        self.log("Number y points: " + str(ny))
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
         self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
-        self.mfd.setPlotName("MapPlot")
 
         for energy in energyList:
             
@@ -135,8 +124,7 @@ class Map(Scan):
             else:
                 self.mfd.setZValue(zScannablePos)
 
-            print scanBean.getXScannableName()
-            print scanBean.getYScannableName()
+            self.log("Using: " + scanBean.getXScannableName() + ", " + scanBean.getYScannableName() +", " + zScannable.getName())
 
             if scanBean.getXScannableName() == 'micosx':
                 xScannable=self.xScan
@@ -154,13 +142,12 @@ class Map(Scan):
                 yScannable = globals()[scanBean.getYScannableName()]
                 
             useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
-            print "using frames ", str(useFrames)
+            self.log("Using frames: " + str(useFrames))
             energyScannable = self.finder.find(scanBean.getEnergyScannableName())
-            print "energy is ", str(energy)
+            self.log("Energy: " + str(energy))
     
-            print detectorList
+            self.log("Detectors: " + str(detectorList))
             energyScannable.moveTo(energy) 
-            print zScannable
             if(zScannablePos != None):
                 zScannable.moveTo(zScannablePos)
             scanBean.setCollectionTime(scanBean.getCollectionTime())
@@ -172,7 +159,7 @@ class Map(Scan):
             if(detectorBean.getExperimentType() == "Fluorescence" and useFrames):
                 args+= detectorList
                 self.counterTimer01.clearFrameSets()
-                print "setting the collection time for frames as ", str(scanBean.getCollectionTime())
+                self.log("Frame collection time: " + str(scanBean.getCollectionTime()))
                 self.counterTimer01.addFrameSet(int(nx),1.0E-4,scanBean.getCollectionTime()*1000.0,0,7,-1,0)
             else:
                 for detector in detectorList:
@@ -184,12 +171,10 @@ class Map(Scan):
             self.redefineNexusMetadataForMaps(beanGroup)
             
             try:
-                print args
                 mapscan= ScannableCommands.createConcurrentScan(args)
                 sampleName = sampleBean.getName()
                 descriptions = sampleBean.getDescriptions()
                 mapscan = self._setUpDataWriter(mapscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
-                print mapscan.getScanDataPointQueueLength()
                 mapscan.getScanPlotSettings().setIgnore(1)
                 self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                 mapscan.runScan()
@@ -200,8 +185,8 @@ class Map(Scan):
                     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
                 else:
                     LocalProperties.set("gda.scan.useScanPlotSettings", "false")
-                handle_messages.simpleLog("map start time " + str(scanStart))
-                handle_messages.simpleLog("map end time " + str(scanEnd)) 
+                self.log("Map start time " + str(scanStart))
+                self.log("Map end time " + str(scanEnd))
                 self.finish()
                 
     # should merge with method in xas_scan but keeping here while developing to see what differences required
@@ -224,7 +209,7 @@ class Map(Scan):
         dataWriter.setOutputBean(outputBean);
         dataWriter.setSampleName(sampleName);
         dataWriter.setXmlFolderName(experimentFullPath)
-        #dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+        dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
@@ -233,31 +218,19 @@ class Map(Scan):
         if asciidatawriterconfig != None :
             dataWriter.setConfiguration(asciidatawriterconfig)
             
-            
         dataWriter.addDataWriterExtender(self.mfd)
         
         thisscan.setDataWriter(dataWriter)
         return thisscan
 
     def setupForMap(self, beanGroup):
-#         if beanGroup.getDetector().getExperimentType() == "Fluorescence":
-#             if (beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" ):
-#                 fullFileName = beanGroup.getScriptFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
-#                 bean = BeansFactory.getBean(File(fullFileName));
-#                 bean.setReadoutMode(XspressDetector.READOUT_MCA);
-#                 bean.setResGrade(ResGrades.NONE);
-#                 elements = bean.getDetectorList();
-#                 for element in elements: 
-#                     rois = element.getRegionList();
-#                     element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd())
-#                 BeansFactory.saveBean(File(fullFileName), bean)
-#             configFluoDetector(beanGroup)
-            
-        # TODO should this not simply use the detector preparer? This code comes from there.
+
+        self.log("Starting step map scan...")
+
         if beanGroup.getDetector().getExperimentType() == "Fluorescence":
             fluoresenceParameters = beanGroup.getDetector().getFluorescenceParameters()
             detType = fluoresenceParameters.getDetectorType()
-            xmlFileName = beanGroup.getScriptFolder() + fluoresenceParameters.getConfigFileName()
+            xmlFileName = beanGroup.getXmlFolder() + fluoresenceParameters.getConfigFileName()
             if detType == "Germanium":
                 self.xspressConfig.initialize()
                 xspressBean = self.xspressConfig.createBeanFromXML(xmlFileName)
@@ -265,9 +238,7 @@ class Map(Scan):
                 showDTRawValues = xspressBean.isShowDTRawValues()
                 saveRawSpectrum = xspressBean.isSaveRawSpectrum()
                 self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
-            #self._control_all_ionc(transmissionParameters.getIonChamberParameters())
 
-            
         scan = beanGroup.getScan()
     
         if (LocalProperties.get("gda.mode") == 'live'):
@@ -277,12 +248,11 @@ class Map(Scan):
             beam = command_server.getFromJythonNamespace("beam", None)
             detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
             trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-            print "setting collection time to" , str(collectionTime)        
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setCollectionTime(collectionTime)
             
-            if(not (beam == None) and self.beamEnabled==True):
-                self.finder.find("command_server").addDefault(beam);
+            #if(not (beam == None) and self.beamEnabled==True):
+            #    self.finder.find("command_server").addDefault(beam);
             
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setPauseBeforeLine(False)
@@ -292,7 +262,7 @@ class Map(Scan):
             beam.setPauseBeforeLine(True)
             
             if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
-                self.finder.find("command_server").addDefault(detectorFillingMonitor);
+                #self.finder.find("command_server").addDefault(detectorFillingMonitor);
                 detectorFillingMonitor.setPauseBeforePoint(True)
                 detectorFillingMonitor.setPauseBeforeLine(False)
                 detectorFillingMonitor.setCollectionTime(collectionTime)
@@ -301,11 +271,11 @@ class Map(Scan):
         outputBean=beanGroup.getOutput()
         sampleParameters = beanGroup.getSample()
         outputBean.setAsciiFileName(sampleParameters.getName())
-        print "Setting the ascii file name as " ,sampleParameters.getName()
+        self.log("Ascii file prefix: " ,sampleParameters.getName())
         att1 = sampleParameters.getAttenuatorParameter1()
         att2 = sampleParameters.getAttenuatorParameter2()
-        print att1.getSelectedPosition()
-        print att2.getSelectedPosition()
+        self.log("Moving: " + self.d7a.getName() + " to " + att1.getSelectedPosition())
+        self.log("Moving: " + self.d7b.getName() + " to " + att2.getSelectedPosition())
         self.d7a(att1.getSelectedPosition())
         self.d7b(att2.getSelectedPosition())
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
@@ -346,7 +316,7 @@ class Map(Scan):
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_thetacoarse", str(jython_mapper.sc_sample_thetacoarse()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_thetafine", str(jython_mapper.sc_sample_thetafine()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
     
-        #attenustors
+        # attenuators
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7A", str(jython_mapper.D7A()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7B", str(jython_mapper.D7B()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
     
@@ -369,4 +339,4 @@ class Map(Scan):
         detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
         self.finder.find("command_server").removeDefault(beam);
         self.finder.find("command_server").removeDefault(detectorFillingMonitor);
-        self.mfd.finalize()
+        self.mfd.closeWriter()
