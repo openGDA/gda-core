@@ -61,6 +61,21 @@
            id="uk.ac.gda.devices.bssc.perspective"
            name="BSSC Perspective">
      </perspective>
+     <perspective
+           class="uk.ac.gda.devices.bssc.perspectives.BioSAXSProgressPerspective"
+           id="uk.ac.gda.devices.bssc.biosaxsprogressperspective"
+           name="BioSAXS Progress">
+     </perspective>
+     <perspective
+           class="uk.ac.gda.devices.bssc.perspectives.BioSAXSResultPerspective"
+           id="uk.ac.gda.devices.bssc.biosaxsresultperspective"
+           name="BioSAXS Result">
+     </perspective>
+     <perspective
+           class="uk.ac.gda.devices.bssc.perspectives.BioSAXSSetupPerspective"
+           id="uk.ac.gda.devices.bssc.biosaxssetupperspective"
+           name="BioSAXS Setup">
+     </perspective>
   </extension>
   <extension
         point="org.eclipse.ui.views">
@@ -69,6 +84,37 @@
            id="uk.ac.gda.devices.bssc.ui.BSSCStatus"
            name="BioSAXS Robot Status">
      </view>
+     <view
+           class="uk.ac.gda.devices.bssc.Live3DPlotView"
+           id="uk.ac.gda.devices.bssc.3DPlotView"
+           name="3D Plot"
+           restorable="true">
+     </view>
+     <view
+           class="uk.ac.gda.devices.bssc.ui.BioSAXSProgressView"
+           id="uk.ac.gda.devices.bssc.biosaxsprogressview"
+           name="BioSAXS Progress View"
+           restorable="true">
+     </view>
+  </extension>
+  <extension
+        point="org.eclipse.ui.menus">
+     <menuContribution
+           allPopups="false"
+           locationURI="popup:uk.ac.gda.client.CommandQueueViewFactory?after=additions">
+           <command
+                 commandId="uk.ac.gda.devices.bssc.EditQueuedItem"
+                 label="Edit Queued Item">
+         </command>
+     </menuContribution>
+  </extension>
+  <extension
+        point="org.eclipse.ui.commands">
+     <command
+           defaultHandler="uk.ac.gda.devices.bssc.ui.handlers.EditQueuedItemHandler"
+           id="uk.ac.gda.devices.bssc.EditQueuedItem"
+           name="Edit Queued Item">
+     </command>
   </extension>
 
 </plugin>
