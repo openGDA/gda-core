@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CachedLazyPVFactory {
+
 	protected Map<String, PV<Double>> pvDoubles;
 	protected Map<String, ReadOnlyPV<Double>> pvReadOnlyDoubles;
 	protected Map<String, ReadOnlyPV<Double[]>> pvReadOnlyDoubleArrays;
@@ -32,6 +33,7 @@ public class CachedLazyPVFactory {
 	protected Map<String, PVValueCache<Integer>> pvValueCacheIntegers;
 	protected Map<String, PVValueCache<Double>> pvValueCacheDoubles;
 	protected Map<String, PV<String>> pvStrings;
+	protected Map<String, PV<Class<?>>> pvEnums;
 
 	private String deviceprefix;
 
@@ -153,4 +155,14 @@ public class CachedLazyPVFactory {
 		return pv;
 	}
 
+	public PV<String> getPVStringAsBytes(String suffix) {
+		if (pvStrings == null)
+			pvStrings = new HashMap<String, PV<String>>();
+		PV<String> pv = pvStrings.get(suffix);
+		if (pv == null) {
+			pv = LazyPVFactory.newStringFromWaveformPV(deviceprefix + suffix);
+			pvStrings.put(suffix, pv);
+		}
+		return pv;
+	}
 }
