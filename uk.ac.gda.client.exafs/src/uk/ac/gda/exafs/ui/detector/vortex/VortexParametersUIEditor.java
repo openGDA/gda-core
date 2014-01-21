@@ -40,14 +40,12 @@ import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 public class VortexParametersUIEditor extends DetectorEditor {
-	private String path;
 	private VortexParameters vortexParameters;
 	private Vortex vortex;
 	
-	public VortexParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean, "vortexConfig");
+	public VortexParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+		super(xmlPath, mappingURL, dirtyContainer, editingBean, "vortexConfig");
 		vortexParameters = (VortexParameters) editingBean;
-		this.path = path;
 	}
 
 	@Override

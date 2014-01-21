@@ -43,21 +43,20 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 public class XspressParametersUIEditor extends DetectorEditor {
 	private XspressParameters xspressParameters;
-	private String path;
+	private String xmlPath;
 	private Xspress xspress;
 	private Composite parent;
 	
-	public XspressParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean, "xspressConfig");
-		this.path = path;
+	public XspressParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+		super(xmlPath, mappingURL, dirtyContainer, editingBean, "xspressConfig");
+		this.xmlPath = xmlPath;
 		this.xspressParameters = (XspressParameters) editingBean;
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		super.createPartControl(parent);
 		this.parent = parent;
-		xspress = new Xspress(path, this.getSite(), parent, xspressParameters, dirtyContainer);
+		xspress = new Xspress(xmlPath, this.getSite(), parent, xspressParameters, dirtyContainer);
 	}
 
 	@Override
@@ -69,21 +68,22 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public void linkUI(final boolean isPageChange) {
-		GridUtils.startMultiLayout(parent);
+		super.linkUI(isPageChange);
+		//GridUtils.startMultiLayout(parent);
 		try {
-			super.linkUI(isPageChange);
-			xspress.getReadoutMode().updateOverrideMode();
-			boolean readoutRois = false;
-			if(xspress.getResolutionGrade().getResolutionGradeCombo().getValue().equals(XspressDetector.READOUT_ROIS))
-				readoutRois = true;
-			xspress.getResolutionGrade().updateResModeItems(readoutRois);
-			XspressElements xspressElements = xspress.getXspressElements();
-			xspressElements.updateElementsVisibility();
-			xspress.updateVisibility(parent);
-			xspressElements.updateROIAfterElementCompositeChange();
-			detector.getSashPlotFormComposite().getPlottingSystem().autoscaleAxes();
+			//super.linkUI(isPageChange);
+			//xspress.getReadoutMode().updateOverrideMode();
+			//boolean readoutRois = false;
+			//if(xspress.getResolutionGrade().getResolutionGradeCombo().getValue().equals(XspressDetector.READOUT_ROIS))
+			//	readoutRois = true;
+			//xspress.getResolutionGrade().updateResModeItems(readoutRois);
+			//XspressElements xspressElements = xspress.getXspressElements();
+			//xspressElements.updateElementsVisibility();
+			//xspress.updateVisibility(parent);
+			//xspressElements.updateROIAfterElementCompositeChange();
+			//detector.getSashPlotFormComposite().getPlottingSystem().autoscaleAxes();
 		} finally {
-			GridUtils.endMultiLayout();
+			//GridUtils.endMultiLayout();
 		}
 	}
 
