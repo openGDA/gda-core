@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import uk.ac.gda.devices.bssc.beans.LocationBean;
+import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB.SampleInfo;
 
 public interface BioSAXSISPyB {
 	
@@ -35,6 +36,14 @@ public interface BioSAXSISPyB {
 	 *  
 	 * @param visitname
 	 *            e.g. sm9999-9
+	 * @return proposalID
+	 */
+	public abstract long getProposalForVisit(String visitname) throws SQLException;
+
+	/**
+	 *  
+	 * @param visitname
+	 *            e.g. sm9999-9
 	 * @return sessionID
 	 */
 	public abstract long getSessionForVisit(String visitname) throws SQLException;
@@ -43,13 +52,16 @@ public interface BioSAXSISPyB {
 	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
 	 * 
 	 * @param sessionID
-	 * @return experimentID
+	 * @param experimentID
+	 * @return saxsDataCollectionID
 	 */
-	public abstract long createSaxsDataCollection(long sessionID) throws SQLException;
+	public abstract long createSaxsDataCollection(long sessionID, long experimentID) throws SQLException;
 
 	/**
 	 * @param blsessionId
 	 *            The ID of the visit
+	 * @param experimentId
+	 *            The ID of the experiment
 	 * @param plate
 	 *            does not seem to be in the database. it is 1,2,3 and you could create a SamplePlate for each per
 	 *            Experiment
@@ -70,13 +82,15 @@ public interface BioSAXSISPyB {
 	 *            "/entry1/detector/data"
 	 * @return bufferMeasurementId
 	 */
-	public abstract long createBufferMeasurement(long blsessionId, short plate, short row, short column, float storageTemperature,
+	public abstract long createBufferMeasurement(long blsessionId, long experimentId, short plate, short row, short column, float storageTemperature,
 			float exposureTemperature, int numFrames, double timePerFrame, double flow, double volume,
 			double energyInkeV, String viscosity, String fileName, String internalPath) throws SQLException;
 
 	/**
 	 * @param blsessionId
 	 *            The ID of the visit
+	 * @param experimentId
+	 *            The ID of the experiment
 	 * @param plate
 	 * @param row
 	 * @param column
@@ -94,10 +108,18 @@ public interface BioSAXSISPyB {
 	 * @param internalPath
 	 * @return sampleMeasurementId
 	 */
-	public abstract long createSampleMeasurement(long blsessionId, short plate, short row, short column, String name,
+	public abstract long createSampleMeasurement(long blsessionId, long experimentId, short plate, short row, short column, String name,
 			double concentration, float storageTemperature, float exposureTemperature, int numFrames,
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, 
 			String fileName, String internalPath) throws SQLException;
+
+	/**
+	 * Retrieve a dataCollectionId from SaxsDataCollection that matches the desired experimentId
+	 * @param experimentId
+	 * @return first dataCollectionId
+	 * @throws SQLException
+	 */
+	public long getDataCollectionForExperiment(long experimentId) throws SQLException;
 
 	/**
 	 * 
@@ -123,4 +145,71 @@ public interface BioSAXSISPyB {
 	 * @throws SQLException
 	 */
 	public List<Long> getSaxsDataCollectionsForSession(long blsessionId) throws SQLException;
+	
+	/**
+	 * @param proposalId
+	 * @param name
+	 * @param experimentType - TEMPLATE, HPLC, STATIC
+	 * @param comments
+	 * @return experimentId
+	 * @throws SQLException
+	 */
+	public long createExperiment(long proposalId, String name, String experimentType, String comments) throws SQLException;
+
+	/**
+	 * Call this method when data reduction is started so that its status can be recorded
+	 * @param dataCollectionId
+	 * @return SubtractionId
+	 * @throws SQLException
+	 */
+	public long createDataReductionStarted(long dataCollectionId) throws SQLException;
+
+	/**
+	 * @param subtractionId
+	 * @return whether data reduction is still running or not
+	 * @throws SQLException
+	 */
+	public boolean isDataReductionRunning(long subtractionId) throws SQLException;
+
+	/**
+	 * Clear the flag that indicates that the data reduction is running. Run this method when data reduction has completed but before results are put into the ISPyB database
+	 * @param subtractionId
+	 * @return success of clearing procedure
+	 * @throws SQLException
+	 */
+	public boolean clearDataReductionStarted(long subtractionId) throws SQLException;
+
+	/**
+	 * Checks whether the data reduction failed to complete at all
+	 * @param subtractionId
+	 * @return whether data reduction failed to complete
+	 * @throws SQLException
+	 */
+	public boolean isDataReductionFailedToComplete(long subtractionId) throws SQLException;
+
+	/**
+	 * Sets the state that the data reduction has failed
+	 * @param subtractionId
+	 * @throws SQLException
+	 */
+	public void setDataReductionFailedToComplete(long subtractionId) throws SQLException;
+
+	/**
+	 * The data reduction has returned some information, but it may not be complete.
+	 * @param dataCollectionId
+	 * @return whether data reduction failed (incomplete results) or not
+	 * @throws SQLException
+	 */
+	public boolean isDataReductionFailed(long dataCollectionId) throws SQLException;
+
+	/**
+	 * True when data reduction is not currently running and the process has resulted in complete data in the ISPyB database
+	 * @param dataCollectionId
+	 * @param subtractionId
+	 * @return data reduction has succeeded
+	 * @throws SQLException
+	 */
+	public boolean isDataReductionSuccessful(long dataCollectionId, long subtractionId) throws SQLException;
+
+	public List<SampleInfo> getSaxsSamples(long sessionId) throws SQLException;
 }

@@ -32,6 +32,7 @@ public class TitrationBean implements IRichBean {
 	double timePerFrame = 1;
 	int frames = 1;
 	float exposureTemperature = 22;
+	double molecularWeight;
 	
 	public LocationBean getLocation() {
 		return location;
@@ -86,6 +87,12 @@ public class TitrationBean implements IRichBean {
 	}
 	public void setExposureTemperature(float exposureTemperature) {
 		this.exposureTemperature = exposureTemperature;
+	}
+	public double getMolecularWeight() {
+		return molecularWeight;
+	}
+	public void setMolecularWeight(double molecularWeight) {
+		this.molecularWeight = molecularWeight;
 	}
 	public LocationBean getBufferLocation() {
 		return bufferLocation;

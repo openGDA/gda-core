@@ -1,60 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mapping>
 	<class name="uk.ac.gda.devices.bssc.beans.BSSCSessionBean">
-		<map-to xml="BSSCSessionBean"/>
+		<map-to xml="BSSCSessionBean" />
 		<field name="sampleStorageTemperature" type="float">
-			<bind-xml name="sampleStorageTemperature" node="element"/>
+			<bind-xml name="sampleStorageTemperature" node="element" />
 		</field>
 		<field name="measurements" type="uk.ac.gda.devices.bssc.beans.TitrationBean"
 			collection="collection" set-method="setMeasurements" get-method="getMeasurements">
-			<bind-xml name="measurement" node="element"/>
+			<bind-xml name="measurement" node="element" />
 		</field>
 	</class>
 
 	<class name="uk.ac.gda.devices.bssc.beans.TitrationBean">
-		<map-to xml="TitrationBean"/>
+		<map-to xml="TitrationBean" />
 		<field name="location" type="uk.ac.gda.devices.bssc.beans.LocationBean">
-			<bind-xml name="location" node="element"/>
-		</field>
-		<field name="bufferLocation" type="uk.ac.gda.devices.bssc.beans.LocationBean">
-			<bind-xml name="bufferLocation" node="element"/>
-		</field>
-		<field name="recouperateLocation" type="uk.ac.gda.devices.bssc.beans.LocationBean">
-			<bind-xml name="recouperateLocation" node="element"/>
+			<bind-xml name="location" node="element" />
 		</field>
 		<field name="sampleName" type="string">
-			<bind-xml name="sampleName" node="element"/>
-		</field>
-		<field name="yellowSample" type="boolean">
-			<bind-xml name="yellowSample" node="element"/>
+			<bind-xml name="sampleName" node="element" />
 		</field>
 		<field name="concentration" type="double">
-			<bind-xml name="concentration" node="element"/>
+			<bind-xml name="concentration" node="element" />
 		</field>
 		<field name="viscosity" type="string">
-			<bind-xml name="viscosity" node="element"/>
+			<bind-xml name="viscosity" node="element" />
+		</field>
+		<field name="molecularWeight" type="double">
+			<bind-xml name="molecularWeight" node="element" />
+		</field>
+		<field name="bufferLocation" type="uk.ac.gda.devices.bssc.beans.LocationBean">
+			<bind-xml name="bufferLocation" node="element" />
+		</field>
+		<field name="yellowSample" type="boolean">
+			<bind-xml name="yellowSample" node="element" />
+		</field>
+		<field name="recouperateLocation" type="uk.ac.gda.devices.bssc.beans.LocationBean">
+			<bind-xml name="recouperateLocation" node="element" />
 		</field>
 		<field name="timePerFrame" type="double">
-			<bind-xml name="timePerFrame" node="element"/>
+			<bind-xml name="timePerFrame" node="element" />
 		</field>
 		<field name="frames" type="integer">
-			<bind-xml name="frames" node="element"/>
-		</field>		
+			<bind-xml name="frames" node="element" />
+		</field>
 		<field name="exposureTemperature" type="float">
-			<bind-xml name="exposureTemperature" node="element"/>
+			<bind-xml name="exposureTemperature" node="element" />
 		</field>
 	</class>
-	
+
 	<class name="uk.ac.gda.devices.bssc.beans.LocationBean">
-		<map-to xml="LocationBean"/>
+		<map-to xml="LocationBean" />
 		<field name="plate" type="short">
-			<bind-xml name="plate" node="element"/>
+			<bind-xml name="plate" node="element" />
 		</field>
 		<field name="row" type="char">
-			<bind-xml name="row" node="element"/>
+			<bind-xml name="row" node="element" />
 		</field>
 		<field name="column" type="short">
-			<bind-xml name="column" node="element"/>
+			<bind-xml name="column" node="element" />
 		</field>
 	</class>
 </mapping>
