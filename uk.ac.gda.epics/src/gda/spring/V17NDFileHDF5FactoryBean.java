@@ -44,7 +44,6 @@ public class V17NDFileHDF5FactoryBean extends V17FactoryBeanBase<NDFileHDF5>{
 		NDFileHDF5Impl plugin = new NDFileHDF5Impl();
 		plugin.setFile(ndFileImpl);
 		plugin.setPvProvider(ndFileImpl.getPvProvider());
-		plugin.setLazyOpen(true);
 		plugin.afterPropertiesSet();
 		bean  = plugin;
 	}
