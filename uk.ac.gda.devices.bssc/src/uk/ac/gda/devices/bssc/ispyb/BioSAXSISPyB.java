@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import uk.ac.gda.devices.bssc.beans.LocationBean;
+import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB.SampleInfo;
 
 public interface BioSAXSISPyB {
 	
@@ -209,4 +210,6 @@ public interface BioSAXSISPyB {
 	 * @throws SQLException
 	 */
 	public boolean isDataReductionSuccessful(long dataCollectionId, long subtractionId) throws SQLException;
+
+	public List<SampleInfo> getSaxsSamples(long sessionId) throws SQLException;
 }
