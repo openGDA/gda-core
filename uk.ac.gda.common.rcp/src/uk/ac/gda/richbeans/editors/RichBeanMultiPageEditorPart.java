@@ -32,6 +32,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -263,6 +264,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 			xmlEditor      = createPage1();
 		} catch (Throwable th){
 			logger.error("Error creating pages for editor ",th);
+			Assert.isTrue(false); // this is how org.eclipse.ui objects handle this sort of problem
 		}
 	}
 	
