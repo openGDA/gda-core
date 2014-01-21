@@ -60,7 +60,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 
 	private double pcGateStartRBV;
 
-	private int mode=Zebra.PC_MODE_TIME;
+	private int mode=Zebra.PC_PULSE_SOURCE_TIME;
 
 	private double minAccDistance;
 
@@ -81,30 +81,25 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 			zebra.pcDisarm();
 			//if we want to check it is disarmed we will need to wait >2s as that is the zebra bus update period
 
-
 			//sources must be set first
-			zebra.setPCGateSource(0 );// Always position
-			zebra.setPCArmSource(0);// Soft
-			
-			zebra.setPCPulseSource(mode);// Position 
+			zebra.setPCArmSource(Zebra.PC_ARM_SOURCE_SOFT);
+			zebra.setPCGateSource(Zebra.PC_GATE_SOURCE_POSITION);
+			zebra.setPCPulseSource(mode);
 
 			//set motor before setting gates and pulse parameters
-			zebra.setPCEnc(zebraMotorInfoProvider.getPcEnc()); // enc1
-			zebra.setPCDir(step>0 ? 0:1 );
-			zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_SEC); //s
+			zebra.setPCCaptureBitField(pcCaptureBitField);
+			zebra.setPCEnc(zebraMotorInfoProvider.getPcEnc()); // Default is Zebra.PC_ENC_ENC1
+			zebra.setPCDir(step>0 ? Zebra.PC_DIR_POSITIVE : Zebra.PC_DIR_NEGATIVE);
+			zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS);
 			
 			zebra.setPCGateNumberOfGates(1);
 			
-			
-			zebra.setPCCaptureBitField(pcCaptureBitField);
-
-
 			switch(mode){
-			case Zebra.PC_MODE_POSITION:
+			case Zebra.PC_PULSE_SOURCE_POSITION:
 				if(true)
-					throw new IllegalStateException("PC_MODE_POSITION is not yet tested");
+					throw new IllegalStateException("PC_PULSE_SOURCE_POSITION is not yet tested");
 				break;
-			case Zebra.PC_MODE_TIME:
+			case Zebra.PC_PULSE_SOURCE_TIME:
 				double maxCollectionTimeFromDetectors = 0.;
 				double minCollectionTimeFromDetectors = Double.MAX_VALUE;
 				for( Detector det : detectors){
@@ -120,8 +115,6 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 					 */
 					throw new IllegalArgumentException("ZebraConstantVelocityMoveController cannot handle 2 collection times");
 				}
-
-				
 				/**
 				 * There are 2 modes of operation:
 				 * a)The exposure time of the detector and the distance between pulses are given. 
@@ -135,9 +128,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 				 * inactiveTime must be >= 0.
 				 * 
 				 * Note the first pulse is sent 1/2 exposure step before the start position. The position capture is delay to half way through the exposure = collectionTime/2
-				 * 
-				 * 
-				**/
+				 **/
 				boolean exposureStepDefined = zebraMotorInfoProvider.isExposureStepDefined();
 				double exposureStep = 0.;
 				if( exposureStepDefined){
@@ -157,6 +148,9 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 				}
 				
 				double firstPulsePos = start - (step>0 ? 1.0 : -1.0)*exposureStep/2;
+				// Note that we need to read back any values relating to a
+				// physical motor, as the readback will be quantised to the
+				// resolution of the motor.
 				double pcPulseStepRBVMS= zebra.getPCPulseStepRBV();
 				pcPulseStepRBV = pcPulseStepRBVMS/1000;
 				
@@ -164,15 +158,8 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 				minAccDistance = Math.max(.5, zebraMotorInfoProvider.distanceToAccToVelocity(requiredSpeed));
 				scannableMotor.asynchronousMoveTo(firstPulsePos - (step>0 ? 1.0 : -1.0)*minAccDistance);
 				zebra.setPCGateStart(firstPulsePos);
-
-				zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS); //ms
-				zebra.setPCPulseWidth(.1); //.01ms
-				pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
 				
-				/*
-				 * capture positions half way through collection time
-				 */
-				
+				// Capture positions half way through collection time
 				zebra.setPCPulseDelay(1000.*maxCollectionTimeFromDetectors/2.);
 				zebra.setPCPulseWidth(.01); //.01ms
 				pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
@@ -195,6 +182,10 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 				zebra.setPulseTimeUnit(1, Zebra.PC_TIMEUNIT_SEC);
 				zebra.setPulseDelay(1, (pcPulseStepRBVMS - 10)/2000); //10 is a hardcoded collection time in ms
 				*/
+				break;
+			case Zebra.PC_PULSE_SOURCE_EXTERNAL:
+				if(true)
+					throw new IllegalStateException("PC_PULSE_SOURCE_EXTERNAL is not yet tested");
 				break;
 			default:
 				throw new DeviceException("Unacceptable mode " + mode);
@@ -221,8 +212,8 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 	}
 
 	public void setMode(int mode) {
-		if(mode!= Zebra.PC_MODE_TIME)
-			throw new IllegalArgumentException("Only PC_MODE_TIME is supported at the moment");
+		if(mode!= Zebra.PC_PULSE_SOURCE_TIME)
+			throw new IllegalArgumentException("Only PC_PULSE_SOURCE_TIME is supported at the moment");
 		this.mode = mode;
 	}
 

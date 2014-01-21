@@ -22,11 +22,37 @@ import gda.epics.ReadOnlyPV;
 
 public interface Zebra {
 
-	final public static int PC_MODE_POSITION = 0;
-	final public static int PC_MODE_TIME = 1;
+	// PC Setup
+	final public static int PC_ENC_ENC1 = 0;
+	final public static int PC_ENC_ENC2 = 1;
+	final public static int PC_ENC_ENC3 = 2;
+	final public static int PC_ENC_ENC4 = 3;
+	final public static int PC_ENC_ENCSUM = 4;
+
+	final public static int PC_DIR_POSITIVE = 0;
+	final public static int PC_DIR_NEGATIVE = 1;
 
 	final public static int PC_TIMEUNIT_SEC = 1;
 	final public static int PC_TIMEUNIT_MS = 0;
+
+	// Arm
+	final public static int PC_ARM_SOURCE_SOFT = 0;
+	final public static int PC_ARM_SOURCE_EXTERNAL = 1;
+
+	// Gate
+	final public static int PC_GATE_SOURCE_POSITION = 0;
+	final public static int PC_GATE_SOURCE_TIME = 1;
+	final public static int PC_GATE_SOURCE_EXTERNAL = 2;
+
+	// Pulse
+	final public static int PC_PULSE_SOURCE_POSITION = 0;
+	final public static int PC_PULSE_SOURCE_TIME = 1;
+	final public static int PC_PULSE_SOURCE_EXTERNAL = 2;
+	
+	@Deprecated
+	final public static int PC_MODE_POSITION = PC_PULSE_SOURCE_POSITION;
+	@Deprecated
+	final public static int PC_MODE_TIME = PC_PULSE_SOURCE_TIME;
 
 	double getPCPulseDelay() throws Exception;
 
@@ -46,12 +72,20 @@ public interface Zebra {
 
 	void setPCPulseStep(double step) throws Exception;
 
+	/**
+	 * @param ordinal should be PC_PULSE_SOURCE_POSITION, PC_PULSE_SOURCE_TIME or PC_PULSE_SOURCE_EXTERNAL
+	 * @throws Exception
+	 */
 	void setPCPulseSource(int ordinal) throws Exception;
 
 	int getPCPulseSource() throws Exception, Exception;
 
 	int getPCGateSource() throws Exception, Exception;
 
+	/**
+	 * @param ordinal should be PC_GATE_SOURCE_POSITION, PC_GATE_SOURCE_TIME or PC_GATE_SOURCE_EXTERNAL
+	 * @throws Exception
+	 */
 	void setPCGateSource(int ordinal) throws Exception;
 
 	double getPCGateStart() throws Exception;
@@ -76,6 +110,10 @@ public interface Zebra {
 
 	int getPCArmSource() throws Exception;
 
+	/**
+	 * @param ordinal should be PC_ARM_SOURCE_SOFT or PC_ARM_SOURCE_EXTERNAL
+	 * @throws Exception
+	 */
 	void setPCArmSource(int ordinal) throws Exception;
 
 	boolean isPCArmed() throws Exception;
@@ -88,6 +126,10 @@ public interface Zebra {
 
 	int getPCCaptureBitField() throws Exception;
 
+	/**
+	 * @param val should be PC_ENC_ENC1, PC_ENC_ENC2, PC_ENC_ENC3, PC_ENC_ENC4 or PC_ENC_ENCSUM
+	 * @throws Exception
+	 */
 	void setPCEnc(int val) throws Exception;
 
 	int getPCEnc() throws Exception;
@@ -100,8 +142,9 @@ public interface Zebra {
 
 	int getPCNumberOfPointsCaptured() throws Exception;
 
-	/*
-	 * 0 - ms, 1-s
+	/**
+	 * @param i should be PC_TIMEUNIT_SEC or PC_TIMEUNIT_MS
+	 * @throws Exception
 	 */
 	void setPCTimeUnit(int i) throws Exception;
 
@@ -115,6 +158,10 @@ public interface Zebra {
 
 	ReadOnlyPV<Double[]> getPCTimePV();
 
+	/**
+	 * @param i should be PC_DIR_POSITIVE or PC_DIR_NEGATIVE
+	 * @throws Exception
+	 */
 	void setPCDir(int i)  throws Exception;
 	int getPCDir()  throws Exception;
 	
