@@ -216,5 +216,7 @@ public interface BioSAXSISPyB {
 	 */
 	public boolean isDataReductionSuccessful(long dataCollectionId, long subtractionId) throws SQLException;
 
-	public List<ISampleProgress> getSaxsSamples() throws SQLException;
+	public List<ISampleProgress> getBioSAXSSamples() throws SQLException;
+
+	public List<ISampleProgress> getBioSAXSSamples(String experimentID) throws SQLException;
 }
