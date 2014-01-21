@@ -28,7 +28,8 @@ Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  com.springsource.org.hamcrest.core;bundle-version="[1.1.0,2.0.0)",
  org.dawb.hdf5;bundle-version="1.2.0",
  org.apache.commons.math3;bundle-version="[3.2.0,3.3.0)",
- org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)"
+ org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)",
+ org.apache.commons.io;bundle-version="[2.4.0,2.5.0)"
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered
@@ -198,7 +199,6 @@ Import-Package: ncsa.hdf.hdf5lib,
  org.apache.commons.beanutils,
  org.apache.commons.collections,
  org.apache.commons.collections.map,
- org.apache.commons.io,
  org.apache.commons.lang,
  org.apache.commons.lang.exception,
  org.apache.commons.lang.math,

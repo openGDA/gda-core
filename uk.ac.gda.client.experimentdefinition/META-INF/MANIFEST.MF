@@ -13,7 +13,8 @@ Require-Bundle: uk.ac.gda.client;bundle-version="1.0.0",
  org.eclipse.ui.workbench;bundle-version="3.7.1",
  org.eclipse.core.expressions;bundle-version="3.4.300",
  com.springsource.org.apache.commons.collections;bundle-version="3.2.1",
- org.apache.commons.beanutils;bundle-version="1.8.3"
+ org.apache.commons.beanutils;bundle-version="1.8.3",
+ org.apache.commons.io;bundle-version="[2.4.0,2.5.0)"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
@@ -23,7 +24,6 @@ Export-Package: uk.ac.gda.beans.validation,
  uk.ac.gda.client.experimentdefinition.ui.handlers
 Bundle-Vendor: Diamond Light Source
 Import-Package: javax.mail;version="1.4.1",
- org.apache.commons.io,
  org.apache.commons.lang;version="2.4.0",
  org.eclipse.core.commands,
  org.eclipse.core.commands.common,
