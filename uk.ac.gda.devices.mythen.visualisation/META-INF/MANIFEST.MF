@@ -10,7 +10,6 @@ Require-Bundle: uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
  org.eclipse.core.runtime;bundle-version="3.5.0",
  uk.ac.gda.devices.mythen;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
- uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.analysis;bundle-version="1.0.0",
@@ -18,7 +17,8 @@ Require-Bundle: uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
  org.dawnsci.plotting.api;bundle-version="1.0.0",
  uk.ac.gda.client;bundle-version="8.36.0",
  uk.ac.diamond.scisoft.analysis.api;bundle-version="1.0.0",
- uk.ac.gda.swingclient
+ uk.ac.gda.swingclient,
+ org.apache.commons.io;bundle-version="[2.4.0,2.5.0)"
 Import-Package: org.slf4j;version="1.5.6",
  org.springframework.beans.factory;version="3.2.2.RELEASE",
  org.springframework.util;version="3.0.4"
