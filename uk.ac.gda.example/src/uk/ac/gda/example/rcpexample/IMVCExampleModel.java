@@ -22,8 +22,6 @@ import gda.device.DeviceException;
 
 import java.beans.PropertyChangeListener;
 
-import org.eclipse.core.databinding.observable.list.IObservableList;
-
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 
 public interface IMVCExampleModel {
