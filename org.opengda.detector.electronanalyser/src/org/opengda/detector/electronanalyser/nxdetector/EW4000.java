@@ -84,6 +84,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	@Override
 	public double getCollectionTime() throws DeviceException {
 		try {
+			// total time from all regions
 			return getCollectionStrategy().getAcquireTime();
 		} catch (Exception e) {
 			throw new DeviceException("Cannot get contained regions time.", e);
@@ -113,6 +114,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	@Override
 	public Object getPosition() throws DeviceException {
 		try {
+			// return a list of total intensities - one from each region
 			return collectionStrategy.getTotalIntensity();
 		} catch (Exception e) {
 			logger.error("getposition() failed with exception",e);
@@ -153,10 +155,13 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		collectionStrategy.setSequence(sequence);
 		collectionStrategy.createDataWriter(scannumber);
 		collectionStrategy.setScanDataPoint(0);
-		InterfaceProvider.getTerminalPrinter().print("=== Collect data starts at "+new Timestamp(new java.util.Date().getTime()).toString()+" ===");
+		print("=== Collect data starts at "+new Timestamp(new java.util.Date().getTime()).toString()+" ===");
 		collectData();
 		Sleep.sleep(1000);
-		InterfaceProvider.getTerminalPrinter().print("=== Collect data ends at "+new Timestamp(new java.util.Date().getTime()).toString()+" ===");
+		print("=== Collect data ends at "+new Timestamp(new java.util.Date().getTime()).toString()+" ===");
+	}
+	private void print(String message) {
+		InterfaceProvider.getTerminalPrinter().print(message);
 	}
 	@Override
 	public void stop() throws DeviceException {
@@ -200,7 +205,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 				FilenameUtils.getName(sequenceFilename));
 		try {
 			Resource resource = regionDefinitionResourceUtil.getResource(sequenceFilename);
-			resource.unload();
+			resource.unload(); // must remove exisiting resource first for new one to be loaded in
 			resource.load(Collections.emptyMap());
 			sequence = regionDefinitionResourceUtil.getSequence(resource);
 		} catch (Exception e) {
