@@ -100,7 +100,7 @@ public class NXDetectorDataFilenamesAppender implements NXDetectorDataAppender {
 
 	@Override
 	public String toString() {
-		String str = "NXDetectorDataDoubleAppender:";
+		String str = "NXDetectorDataFilenamesAppender:";
 		for (int i = 0; i < elementNames.size(); i++) {
 			String name = elementNames.get(i);
 			String value = elementValues.get(i);
