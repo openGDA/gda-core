@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.org.jscience;bundle-version="[2.0.2,3.0.0)",
  uk.ac.gda.api,
  uk.ac.gda.client.experimentdefinition;bundle-version="8.32.0",
- uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)"
+ uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
+ org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gda.data.scan.datawriter,
@@ -37,7 +38,6 @@ Export-Package: gda.data.scan.datawriter,
  uk.ac.gda.beans.xspress,
  uk.ac.gda.server.exafs
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
-Import-Package: org.apache.commons.beanutils,
- org.apache.commons.lang,
+Import-Package: org.apache.commons.lang,
  org.slf4j;version="[1.5.0,2.0.0)"
 Bundle-Vendor: Diamond Light Source
