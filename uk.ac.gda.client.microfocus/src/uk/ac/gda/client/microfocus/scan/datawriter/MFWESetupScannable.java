@@ -84,7 +84,7 @@ public class MFWESetupScannable extends ScanDataListenerScannable {
 		if (dims.length != 2)
 			return null;
 		// ok a candidate
-		MicroFocusWriterExtender ext = new MicroFocusWriterExtender(dims[0], dims[1], 1, 1, detectorBeanFileName, detectors);
+		MicroFocusWriterExtender ext = new MicroFocusWriterExtender(dims[0], dims[1], 1, 1, detectorBeanFileName,detectors);
 //		ext.setDetectorBeanFileName(detectorBeanFileName);
 //		ext.setDetectors(detectors);
 //		ext.getWindowsfromBean();
