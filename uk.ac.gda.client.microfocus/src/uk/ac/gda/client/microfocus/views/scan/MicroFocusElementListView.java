@@ -33,15 +33,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -100,25 +101,24 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		Composite xspressComposite = new Composite(parent, SWT.NONE);
 		xspressComposite.setLayout(new GridLayout(2, false));
 
+		Label lblCombo = new Label(xspressComposite, SWT.NONE);
+		lblCombo.setText("Detector Channel:");
+		GridDataFactory.swtDefaults().applyTo(lblCombo);
 		cmbChannelChoice = new Combo(xspressComposite, SWT.NONE);
-		cmbChannelChoice.setText("Detector Channel:");
 		cmbChannelChoice.setItems(new String[] { "0" });
 		cmbChannelChoice.select(0);
-
 		cmbChannelChoice.addSelectionListener(this);
+		GridDataFactory.swtDefaults().grab(true, false).applyTo(cmbChannelChoice);
 
 		elementList = new List(xspressComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
-		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1);
-		gridData.widthHint = 598;
-		gridData.heightHint = 377;
-		elementList.setLayoutData(gridData);
+		elementList.addSelectionListener(this);
+		elementList.setToolTipText(loadedDetectorFileName);
+		GridDataFactory.fillDefaults().grab(true, true).span(2, 1).hint(598, 377).applyTo(elementList);
 
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.getBaseDataDir());
-		elementList.addSelectionListener(this);
-		elementList.setToolTipText(loadedDetectorFileName);
 
-		this.setTitleToolTip(getTitle() + "Dectector Elements list");
+		this.setTitleToolTip("Choose detector channels and element ROIs to plot");
 
 		try {
 			// get an instance of the plotView we want to use
