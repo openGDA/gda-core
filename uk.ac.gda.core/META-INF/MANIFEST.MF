@@ -29,7 +29,8 @@ Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  org.dawb.hdf5;bundle-version="1.2.0",
  org.apache.commons.math3;bundle-version="[3.2.0,3.3.0)",
  org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)",
- org.apache.commons.io;bundle-version="[2.4.0,2.5.0)"
+ org.apache.commons.io;bundle-version="[2.4.0,2.5.0)",
+ org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered
@@ -196,7 +197,6 @@ Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: ncsa.hdf.hdf5lib,
  ncsa.hdf.hdf5lib.structs,
- org.apache.commons.beanutils,
  org.apache.commons.collections,
  org.apache.commons.collections.map,
  org.apache.commons.lang,

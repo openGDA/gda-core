@@ -15,7 +15,8 @@ Require-Bundle: uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.common.rcp;bundle-version="1.0.0",
  uk.ac.gda.client.experimentdefinition;bundle-version="1.0.0",
  org.eclipse.core.resources;bundle-version="3.6.0",
- org.eclipse.ui.forms;bundle-version="3.5.200"
+ org.eclipse.ui.forms;bundle-version="3.5.200",
+ org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
 Bundle-ClassPath: .,
  jars/gda-corba-example.jar
 Export-Package: gda.example.providers,
@@ -32,8 +33,7 @@ Export-Package: gda.example.providers,
  org.myls.scan,
  uk.ac.gda.example.device.collection,
  uk.ac.gda.example.mvcexample
-Import-Package: org.apache.commons.beanutils,
- org.eclipse.core.databinding,
+Import-Package: org.eclipse.core.databinding,
  org.eclipse.core.databinding.beans,
  org.eclipse.core.databinding.conversion,
  org.eclipse.core.databinding.observable,

@@ -102,15 +102,15 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.diamond.org.jscience;bundle-version="[2.0.2,3.0.0)",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
- uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)"
+ uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
+ org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
 Bundle-ClassPath: .,
  jars/gda-corba.jar
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.gda.libs
 Eclipse-BuddyPolicy: registered
-Import-Package: org.apache.commons.beanutils,
- org.apache.commons.lang,
+Import-Package: org.apache.commons.lang,
  org.slf4j;version="[1.5.0,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
  org.springframework.beans.factory.config;version="3.0.4",
