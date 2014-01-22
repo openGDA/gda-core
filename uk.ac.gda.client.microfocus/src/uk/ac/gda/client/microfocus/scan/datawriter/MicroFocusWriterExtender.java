@@ -180,7 +180,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			return numFilteredDetectors;
 
 		}
-		// assume it must be vortex then 
+		// assume it must be vortex then
 		VortexParameters vortexParameters = (VortexParameters) detectorBean;
 		int numFilteredDetectors = 0;
 		for (int element = 0; element < vortexParameters.getDetectorList().size(); element++)
@@ -368,8 +368,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				}
 			}
 
-			if (dataPoint.getCurrentPointNumber() == 0)
-				addToRgbFile(roiHeader.toString());
+			if (dataPoint.getCurrentPointNumber() == 0) addToRgbFile(roiHeader.toString());
 			addToRgbFile(rgbLine.toString().trim());
 
 			logger.debug("the calculated y x are " + (int) Math.abs(Math.round(((xy[0] - firstY) / yStepSize))) + " "
@@ -377,17 +376,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			logger.debug("the assumed y x are " + yIndex + " "
 					+ (int) Math.abs(Math.round((xy[1] - firstX) / xStepSize)));
 
-			if (isNormalise() && normaliseValue > 0.0) {// if normalise is requested plot the normalised value in map
-														// and save normalised value
-				// internally but write raw value to rgb files
-
-				for (int detChan = 0; detChan < numberOfSubDetectors; detChan++) {
-					for (int i = 0; i < detectorValuesCache.length; i++) {
-						detectorValuesCache[detChan][i][dataPoint.getCurrentPointNumber()] = detectorValuesCache[detChan][i][dataPoint
-								.getCurrentPointNumber()] / normaliseValue;
-					}
-				}
-			}
+			normaliseDetectorValues(dataPoint);
 
 			// keep a track of which line we are doing
 			if (((dataPoint.getCurrentPointNumber() + 1) / (yIndex + 1)) == numberOfXPoints) {
@@ -403,6 +392,23 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				lastTimePlotWasUpdate = now;
 			}
 			lastDataPoint = dataPoint;
+		}
+	}
+
+	/*
+	 * if normalise is requested plot the normalised value in map and save normalised value internally but write raw
+	 * value to rgb files
+	 * 
+	 * @param dataPoint
+	 */
+	private void normaliseDetectorValues(IScanDataPoint dataPoint) {
+		if (isNormalise() && normaliseValue > 0.0) {//
+			for (int detChan = 0; detChan < numberOfSubDetectors; detChan++) {
+				for (int i = 0; i < detectorValuesCache.length; i++) {
+					detectorValuesCache[detChan][i][dataPoint.getCurrentPointNumber()] = detectorValuesCache[detChan][i][dataPoint
+							.getCurrentPointNumber()] / normaliseValue;
+				}
+			}
 		}
 	}
 
@@ -520,17 +526,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		dataSetToDisplay.fill(Double.NaN);
 
 		// the selected element is a scaler value displaying the map for the scaler
-		if (selectedElementIndex != -1) {
+		if (selectedElementIndex == -1) {
+			int scalerIndex = selectedElement.equalsIgnoreCase("i0") ? 0 : 1;
 			for (int i = 0; i <= plottedSoFar; i++) {
-				dataSetToDisplay.set(scalerValuesCache[i][selectedElementIndex], i / numberOfXPoints, i
-						% numberOfXPoints);
+				dataSetToDisplay.set(scalerValuesCache[i][scalerIndex], i / numberOfXPoints, i % numberOfXPoints);
 			}
 			plotImage(dataSetToDisplay);
-			// reset the selected element index
-			selectedElementIndex = -1;
 			return;
 		} else if (isXspressScan() || isXmapScan()) {
-
 			for (int point = 0; point <= plottedSoFar; point++) {
 				dataSetToDisplay.set(detectorValuesCache[detectorChannel][selectedElementIndex][point], point
 						/ numberOfXPoints, point % numberOfXPoints);
@@ -542,22 +545,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private void setSelectedElementIndexFromString(String selectedElement) {
-		if (detectors != null) {
-			for (Detector det : detectors) {
-				if (det instanceof TfgScaler) {
-					String[] s = det.getExtraNames();
-					for (int i = 0; i < s.length; i++) {
-						if (s[i].equals(selectedElement)) {
-							selectedElementIndex = i;
-							break;
-						}
-						selectedElementIndex = 0;
-					}
-				}
-			}
-		} else {
-			selectedElementIndex = 0;
-		}
+		Integer elementKey = roiNameMap.get(selectedElement);
+		if (elementKey == null)
+			elementKey = -1;
+		selectedElementIndex = elementKey;
+		return;
 	}
 
 	private boolean isXspressScan() {
@@ -566,7 +558,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				return true;
 		}
 		return false;
-
 	}
 
 	private boolean isXmapScan() {

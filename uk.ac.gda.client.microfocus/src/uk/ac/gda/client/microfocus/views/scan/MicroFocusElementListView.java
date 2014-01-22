@@ -75,6 +75,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 	protected final IExperimentEditorManager controller = ExperimentFactory.getExperimentEditorManager();
 
+	private Combo cmbChannelChoice;
 	private List elementList;
 	private MicroFocusDisplayController displayController;
 	private FileDialog openDialog;
@@ -86,7 +87,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	private VortexParameters vortexBean;
 	private double pointX;
 	private double pointY;
-	private Combo cmbChannelChoice;
 
 	public MicroFocusElementListView() {
 		super();
@@ -146,6 +146,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 		if (beanObject instanceof XspressParameters) {
 			XspressParameters xspress = (XspressParameters) beanObject;
+			updateDetectorChannelCombo(xspress.getDetectorList().size());
 			java.util.List<XspressROI> regionList = xspress.getDetector(0).getRegionList();
 			for (int i = 0; i < regionList.size(); i++) {
 				elementList.add(regionList.get(i).getRoiName());
@@ -154,6 +155,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 		else if (beanObject instanceof VortexParameters) {
 			VortexParameters vortex = (VortexParameters) beanObject;
+			updateDetectorChannelCombo(vortex.getDetectorList().size());
 			java.util.List<RegionOfInterest> regionList = vortex.getDetector(0).getRegionList();
 			for (int i = 0; i < regionList.size(); i++) {
 				elementList.add(regionList.get(i).getRoiName());
@@ -164,6 +166,20 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		elementList.add("It");
 
 		loadedDetectorFileName = xmlfile;
+	}
+
+	private void updateDetectorChannelCombo(int size) {
+		String [] channels = new String[size];
+		for (int i = 0; i < size; i++){
+			channels[i] = Integer.toString(i);
+		}
+		int currentSelection = cmbChannelChoice.getSelectionIndex();
+		cmbChannelChoice.setItems(channels);
+		if (currentSelection < size){
+			cmbChannelChoice.select(currentSelection);
+		} else {
+			cmbChannelChoice.select(0);
+		}
 	}
 
 	@Override
@@ -428,3 +444,4 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		return new Double[] { pointX, pointY, displayController.getZ() };
 	}
 }
+

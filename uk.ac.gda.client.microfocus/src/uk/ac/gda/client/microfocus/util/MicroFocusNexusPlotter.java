@@ -51,6 +51,7 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 	private IRegion region;
 	private IRegion lastregion;
 	private int regionUID = 0; // so all regions have a unique name
+	private int serverPlotChannel;
 
 	public MicroFocusNexusPlotter() {
 		super();
@@ -66,6 +67,7 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 
 	public void plotMapFromServer(final String elementName, final int selectedChannel) {
 		this.dataProvider = null;
+		this.serverPlotChannel = selectedChannel;
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -132,7 +134,7 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 
 			if (dataProvider == null || !ObjectStateManager.isActive(dataProvider)) {
 				JythonServerFacade.getInstance().runCommand(
-						"map.getMFD().plotSpectrum(0," + xArrayIndex + "," + yArrayIndex + ")");
+						"map.getMFD().plotSpectrum(" + serverPlotChannel + "," + xArrayIndex + "," + yArrayIndex + ")");
 
 				// hack warning!
 				String xyValues = InterfaceProvider.getCommandRunner().evaluateCommand(
@@ -213,7 +215,7 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 			// server needs to show the spectrum
 			logger.info("Plotting spectrum for element 0," + l + "," + m);
 			JythonServerFacade.getInstance().evaluateCommand(
-					"map.getMFD().plotSpectrum(0," + l + "," + m + ")");
+					"map.getMFD().plotSpectrum(" +serverPlotChannel+ "," + l + "," + m + ")");
 		}
 
 	}
