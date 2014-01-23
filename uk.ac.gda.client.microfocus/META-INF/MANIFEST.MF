@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.5.1",
  org.dawnsci.plotting.jreality;bundle-version="1.0.0",
  org.dawnsci.plotting.api;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
- org.dawb.common.ui;bundle-version="1.3.0"
+ org.dawb.common.ui;bundle-version="1.3.0",
+ org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)"
 Export-Package: uk.ac.gda.client.microfocus.scan.datawriter,
  uk.ac.gda.client.microfocus.ui,
  uk.ac.gda.client.microfocus.ui.editors,
@@ -34,7 +35,6 @@ Export-Package: uk.ac.gda.client.microfocus.scan.datawriter,
  uk.ac.gda.microfocus.ui.describers
 Bundle-ActivationPolicy: lazy
 Import-Package: Jama,
- org.apache.commons.lang,
  org.eclipse.draw2d,
  org.eclipse.draw2d.geometry,
  org.slf4j;version="[1.5.0,2.0.0)"
