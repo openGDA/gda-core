@@ -22,7 +22,9 @@ import java.beans.PropertyChangeListener;
 
 public interface MvcExampleItem {
 	double getValue();
+	String getName();
 	public static final String VALUE_PROPERTY_NAME="value";
+	public static final String NAME_PROPERTY_NAME="name";
 	public void addPropertyChangeListener(PropertyChangeListener listener);
 	public void removePropertyChangeListener(PropertyChangeListener listener);
 	

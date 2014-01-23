@@ -34,7 +34,7 @@ public class MvcExampleViewPluginUnitTest {
 	public static void setUpBeforeClass() throws Exception {
 		model = new MyMvcExampleModel();
 		ObservableList items = model.getItems();
-		MyMvcExampleItem e = new MyMvcExampleItem();
+		MyMvcExampleItem e = new MyMvcExampleItem("Item", 0.);
 		items.add(e);
 
 		OSGIServiceRegister modelReg = new OSGIServiceRegister();
@@ -102,7 +102,7 @@ public class MvcExampleViewPluginUnitTest {
 	public void testItems() throws Exception {
 		ObservableList items = model.getItems();
 		for( int i=0; i<10; i++){
-			MyMvcExampleItem e = new MyMvcExampleItem();
+			MyMvcExampleItem e = new MyMvcExampleItem("ItemA"+i, 0.);
 			items.add(e);
 		}
 		delay(1000);
@@ -116,7 +116,7 @@ public class MvcExampleViewPluginUnitTest {
 		items.clear();
 		delay(1000);
 		for( int i=0; i<10; i++){
-			MyMvcExampleItem e = new MyMvcExampleItem();
+			MyMvcExampleItem e = new MyMvcExampleItem("ItemB"+i, 0.);
 			items.add(e);
 		}
 		delay(1000);
@@ -230,9 +230,23 @@ class MyMvcExampleItem extends ObservableModel implements MvcExampleItem {
 	public double getValue() {
 		return value;
 	}
+	
 
 	public void setValue(double newVal){
 		firePropertyChange(MvcExampleItem.VALUE_PROPERTY_NAME,
 				this.value, this.value = newVal);
+	}
+
+	String name;
+	@Override
+	public String getName() {
+		return name;
+	}
+
+
+	public MyMvcExampleItem(String name, double value) {
+		super();
+		this.value = value;
+		this.name = name;
 	}
 }

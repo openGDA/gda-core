@@ -27,8 +27,14 @@ import gda.observable.IObserver;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import oracle.net.aso.i;
 
 import org.eclipse.core.databinding.observable.list.WritableList;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -81,12 +87,35 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 		}
 		return wrapper;
 	}
-
 	WritableList items;
 	@Override
 	public WritableList getItems() {
 		if( items == null) {
-			items = new WritableList(new ArrayList<MvcExampleItem>(), MvcExampleItem.class);
+			ArrayList<MyMvcExampleItem> list = new ArrayList<MyMvcExampleItem>();
+			items = new WritableList(list, MvcExampleItem.class);
+			Timer timer = new Timer();
+			TimerTask task = new TimerTask() {
+				@Override
+				public void run() {
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							items.add(new MyMvcExampleItem( (new Date()).toString(), 0.));
+							for( int i=0; i < items.size(); i++) {
+								MyMvcExampleItem item = (MyMvcExampleItem) items.get(i);
+								double value = item.getValue();
+								if( value > 15) {
+									;
+								}else {
+									item.setValue(value+1);
+								}
+							}
+						}});
+				}
+			};
+			timer.scheduleAtFixedRate(task, 0, 1000);
+			
 		}
 		return items;
 	}
@@ -124,7 +153,7 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 
 
 
-};
+}
 
 
 
@@ -135,10 +164,24 @@ class MyMvcExampleItem extends ObservableModel implements MvcExampleItem {
 	public double getValue() {
 		return value;
 	}
+	
 
 	public void setValue(double newVal){
 		firePropertyChange(MvcExampleItem.VALUE_PROPERTY_NAME,
 				this.value, this.value = newVal);
+	}
+
+	String name;
+	@Override
+	public String getName() {
+		return name;
+	}
+
+
+	public MyMvcExampleItem(String name, double value) {
+		super();
+		this.value = value;
+		this.name = name;
 	}
 }
 
