@@ -22,15 +22,21 @@ import gda.device.Timer;
 import gda.device.XmapDetector;
 import gda.factory.Finder;
 
+import org.dawnsci.plotting.api.region.IROIListener;
+import org.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPartSite;
 
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.Detector;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detector.Plot;
+import uk.ac.gda.exafs.ui.detector.xspress.Xspress.RegionSynchronizer;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
@@ -44,9 +50,20 @@ public class Vortex extends Detector{
 	private VortexAcquire vortexAcquire;
 	private XmapDetector xmapDetector;
 	private VortexElements vortexElements;
+	private RegionSynchronizer regionSynchronizer;
 	
 	public Vortex(String path, IWorkbenchPartSite site, Composite parent, VortexParameters vortexParameters, DirtyContainer dirtyContainer) {
 		super("vortexConfig", site, parent, path);
+		
+		regionSynchronizer = new RegionSynchronizer(counts);
+		try {
+			sashPlotFormComposite = new SashFormPlotComposite(parent, site.getPart(), regionSynchronizer, createUpLoadAction(path));
+		} catch (Exception e) {
+		}
+		sashPlotFormComposite.getPlottingSystem().setRescale(true);
+		plot = new Plot(sashPlotFormComposite);
+		
+		sashPlotFormComposite.setWeights(new int[] { 35, 74 });
 		
 		Composite left = sashPlotFormComposite.getLeft();
 		
@@ -60,7 +77,6 @@ public class Vortex extends Detector{
 		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, site.getShell().getDisplay(), plot, new Counts(), dirtyContainer);
 		vortexAcquire.createAcquire(parent, left);
 		
-		sashPlotFormComposite.setWeights(new int[] { 35, 74 });
 		
 		vortexElements = new VortexElements(left, site.getShell(), dirtyContainer, sashPlotFormComposite, vortexParameters, counts);
 		
@@ -100,6 +116,52 @@ public class Vortex extends Detector{
 
 	public Label getAcquireFileLabel() {
 		return acquireFileLabel;
+	}
+	
+	public class RegionSynchronizer implements IROIListener {
+		protected Counts counts;
+		private double start;
+		private double end;
+		
+		public RegionSynchronizer(Counts counts){
+			this.counts = counts;
+		}
+
+		@Override
+		public void roiDragged(ROIEvent evt) {
+		}
+
+		public void setStart(double start) {
+			this.start = start;
+		}
+
+		public void setEnd(double end) {
+			this.end = end;
+		}
+
+		public double getStart() {
+			return start;
+		}
+
+		public double getEnd() {
+			return end;
+		}
+
+		@Override
+		public void roiChanged(ROIEvent evt) {
+			// TODO Auto-generated method stub
+			int start = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getPoint()[0];
+			int end = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getEndPoint()[0];
+			DetectorElementComposite detectorElementComposite = vortexElements.getDetectorListComposite().getDetectorElementComposite();
+			detectorElementComposite.getStart().setValue(start);
+			detectorElementComposite.getEnd().setValue(end);
+		}
+
+		@Override
+		public void roiSelected(ROIEvent evt) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 
 }

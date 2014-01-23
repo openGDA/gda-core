@@ -41,8 +41,8 @@ import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ui.detector.Counts;
+import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.Elements;
-import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.event.ValueAdapter;
@@ -53,14 +53,15 @@ public class XspressElements extends Elements{
 	private static final Logger logger = LoggerFactory.getLogger(XspressElements.class);
 	private BooleanWrapper showIndividualElements;
 	private Button applyToAllButton;
-	private Button applyToAllLabel;
+	private Button applyToAllCheckbox;
 	private ValueListener detectorElementCompositeValueListener;
 	private Composite middleComposite;
 	private Group detectorElementsGroup;
 	private int allElementsCount;
 	private int elementCount;
 	private int inWindowCounts;
-	
+	protected DetectorElementComposite detectorElementComposite;
+
 	public XspressElements(final Composite parent, Shell shell, DirtyContainer dirtyContainer, SashFormPlotComposite sashPlotFormComposite, XspressParameters xspressParameters, final Counts counts) {
 		super(shell, dirtyContainer, sashPlotFormComposite, counts);
 		Composite grid = new Composite(parent, SWT.BORDER);
@@ -76,22 +77,22 @@ public class XspressElements extends Elements{
 		middleComposite.setLayout(new GridLayout(2, false));
 		GridDataFactory.fillDefaults().applyTo(middleComposite);
 		
-		applyToAllLabel = new Button(middleComposite, SWT.CHECK);
-		applyToAllLabel.setText("Apply Changes To All Elements ");
-		applyToAllLabel.setEnabled(true);
-		applyToAllLabel.setSelection(true);
-		applyToAllLabel.addSelectionListener(new SelectionListener() {
+		applyToAllCheckbox = new Button(middleComposite, SWT.CHECK);
+		applyToAllCheckbox.setText("Apply Changes To All Elements ");
+		applyToAllCheckbox.setEnabled(true);
+		applyToAllCheckbox.setSelection(true);
+		applyToAllCheckbox.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (applyToAllLabel.getSelection()) {
+				if (applyToAllCheckbox.getSelection()) {
 					if (applyToAll(true)) {
 						if (detectorElementCompositeValueListener == null)
 							createApplyToAllObserver();
 					} 
 					else
-						applyToAllLabel.setSelection(false);
+						applyToAllCheckbox.setSelection(false);
 				}
-				applyToAllButton.setEnabled(!applyToAllLabel.getSelection());
+				applyToAllButton.setEnabled(!applyToAllCheckbox.getSelection());
 			}
 
 			@Override
@@ -121,9 +122,8 @@ public class XspressElements extends Elements{
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorElementsGroup);
 		
 		try {
-			IDetectorROICompositeFactory factory = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
 			List<DetectorElement> detectorList = xspressParameters.getDetectorList();
-			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class, factory,false);
+			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class,false);
 			XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListComposite.getDetectorList());
 			detectorListComposite.getDetectorElementComposite().setMinimumRegions(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
 			detectorListComposite.getDetectorElementComposite().setMaximumRegions(XspressParametersUIHelper.INSTANCE.getMaximumRegions());
@@ -145,7 +145,17 @@ public class XspressElements extends Elements{
 	public void setInWindowCounts(int inWindowCounts) {
 		this.inWindowCounts = inWindowCounts;
 	}
-
+	
+	public void updateWindow(int start, int end, int[][][] mcaData){
+		detectorElementComposite = getDetectorListComposite().getDetectorElementComposite();
+		detectorElementComposite.getStart().setValue(start);
+		detectorElementComposite.getEnd().setValue(end);
+		int selectedIndex = getDetectorListComposite().getDetectorList().getSelectedIndex();
+		int inWindowsCounts = counts.getInWindowsCounts(getShowIndividualElements().getValue(), start, end, selectedIndex, mcaData);
+		setInWindowCounts(inWindowsCounts);
+		getDetectorListComposite().getDetectorElementComposite().getCount().setValue(inWindowsCounts);
+	}
+	
 	public void addShowIndividualElementsListener(){
 		showIndividualElements.addValueListener(new ValueAdapter("editIndividualElements") {
 			@Override
@@ -168,7 +178,7 @@ public class XspressElements extends Elements{
 			
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if (applyToAllLabel.getSelection())
+				if (applyToAllCheckbox.getSelection())
 					applyToAll(false);
 			}
 			
@@ -189,7 +199,7 @@ public class XspressElements extends Elements{
 		else
 			detectorElementsGroup.setText("All Elements");
 		GridUtils.setVisibleAndLayout(middleComposite, currentEditIndividual);
-		GridUtils.setVisibleAndLayout(applyToAllLabel, currentEditIndividual);
+		GridUtils.setVisibleAndLayout(applyToAllCheckbox, currentEditIndividual);
 		GridUtils.setVisibleAndLayout(applyToAllButton, currentEditIndividual);
 		GridUtils.setVisibleAndLayout(detectorListComposite.getDetectorElementComposite().getName(), currentEditIndividual);
 		GridUtils.setVisibleAndLayout(detectorListComposite.getDetectorElementComposite().getExcluded(), currentEditIndividual);
@@ -203,8 +213,8 @@ public class XspressElements extends Elements{
 		return showIndividualElements;
 	}
 
-	public Button getApplyToAllLabel() {
-		return applyToAllLabel;
+	public Button getApplyToAllCheckbox() {
+		return applyToAllCheckbox;
 	}
 
 }

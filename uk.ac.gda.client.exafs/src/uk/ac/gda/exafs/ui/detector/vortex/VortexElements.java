@@ -107,9 +107,8 @@ public class VortexElements extends Elements{
 		else
 			detectorElementsLabel.setText(" Regions of Interest");
 		try {
-			IDetectorROICompositeFactory factory = VortexParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
 			createImportButton(grid, detectorList.size());
-			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class, factory,false);
+			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class,false);
 			//VortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(getDetectorList());
 			detectorListComposite.getDetectorElementComposite().setWindowsEditable(false);
 			detectorListComposite.getDetectorElementComposite().setMinimumRegions(VortexParametersUIHelper.INSTANCE.getMinimumRegions());

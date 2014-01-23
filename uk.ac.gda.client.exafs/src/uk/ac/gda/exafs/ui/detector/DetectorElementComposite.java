@@ -65,8 +65,7 @@ public class DetectorElementComposite extends Composite {
 	private DetectorROIComposite detectorROIComposite;
 
 	public DetectorElementComposite(final Composite parent, final int style, final boolean isMultipleElements,
-	final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory,
-	Boolean showAdvanced) {
+	final Class<? extends DetectorROI> regionClass, Boolean showAdvanced) {
 		super(parent, style);
 		GridLayout gridLayout = new GridLayout();
 		setLayout(gridLayout);
@@ -131,7 +130,7 @@ public class DetectorElementComposite extends Composite {
 		regionList = new VerticalListEditor(mainComposite, isMultipleElements ? SWT.BORDER : SWT.NONE);
 		regionList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		regionList.setEditorClass(regionClass);
-		detectorROIComposite = regionEditorFactory.createDetectorROIComposite(regionList, SWT.NONE);
+		detectorROIComposite = new XspressROIComposite(regionList, SWT.NONE);
 		regionList.setEditorUI(detectorROIComposite);
 		detectorROIComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		regionList.setTemplateName("ROI");

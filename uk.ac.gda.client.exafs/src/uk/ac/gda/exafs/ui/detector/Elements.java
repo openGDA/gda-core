@@ -66,7 +66,7 @@ public class Elements {
 		this.counts = counts;
 	}
 	
-	protected boolean applyToAll(boolean showMessage) {
+	public boolean applyToAll(boolean showMessage) {
 		if (showMessage) {
 			if (!MessageDialog.openConfirm(shell, "Confirm Apply To All",
 			"Do you want to apply currently selected elements regions of interest to all detecors?\n\nThis will write new regions for the elements automatically."))
@@ -143,10 +143,10 @@ public class Elements {
 	
 	protected DetectorListComposite createDetectorList(final Composite parent,
 	final Class<? extends IDetectorElement> editorClass, final int elementListSize,
-	final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory,
+	final Class<? extends DetectorROI> regionClass,
 	final Boolean showAdvanced) {
 		
-		detectorListComposite = new DetectorListComposite(parent, editorClass, elementListSize, regionClass, regionEditorFactory, showAdvanced);
+		detectorListComposite = new DetectorListComposite(parent, editorClass, elementListSize, regionClass, showAdvanced);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(detectorListComposite);
 		expansionListener = new ExpansionAdapter() {
 			@Override

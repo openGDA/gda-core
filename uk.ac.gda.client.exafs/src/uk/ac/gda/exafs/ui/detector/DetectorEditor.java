@@ -54,8 +54,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public void dispose() {
 //		if (detectorListComposite != null && !detectorListComposite.isDisposed())
 //			detectorListComposite.removeExpansionListener(expansionListener);
-		if (detector.getSashPlotFormComposite() != null)
-			detector.getSashPlotFormComposite().dispose();
+		if(detector!=null)
+			if (detector.getSashPlotFormComposite() != null)
+				detector.getSashPlotFormComposite().dispose();
 		//if (autoApplyToAllListener != null)
 		//	autoApplyToAll(false); // remove all auto-apply to all listeners
 		super.dispose();

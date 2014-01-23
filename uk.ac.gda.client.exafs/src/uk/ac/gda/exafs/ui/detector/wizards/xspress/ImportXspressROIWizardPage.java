@@ -112,8 +112,8 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 
 	@Override
 	protected void createSourceControls(Composite parent) {
-		IDetectorROICompositeFactory factory = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
-		detectorListComposite = new DetectorListComposite(parent,DetectorElement.class, elementListSize, XspressROI.class, factory,false);
+		//IDetectorROICompositeFactory factory = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
+		detectorListComposite = new DetectorListComposite(parent,DetectorElement.class, elementListSize, XspressROI.class, false);
 		GridListEditor detectorListGridEditor = detectorListComposite.getDetectorList();
 		XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
 		detectorListComposite.addExpansionListener(new ExpansionAdapter() {
@@ -161,7 +161,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			regionList = new VerticalListEditor(this, SWT.BORDER);
 			regionList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			regionList.setEditorClass(XspressROI.class);
-			DetectorROIComposite detectorROIComposite = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory().createDetectorROIComposite(regionList, SWT.NONE);
+			DetectorROIComposite detectorROIComposite = new XspressROIComposite(regionList, SWT.NONE);
 			detectorROIComposite.getFieldWidgetsForDetectorElementsComposite().getRoiEnd().setMaximum(maximum);
 			regionList.setEditorUI(detectorROIComposite);
 			detectorROIComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));

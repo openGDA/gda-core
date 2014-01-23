@@ -36,11 +36,12 @@ public class ReadoutMode {
 	private Composite parent;
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 	private ResolutionGrade resolutionGrade;
+	private Label readoutModeLabel;
 	
 	public ReadoutMode(Composite parent, ResolutionGrade resolutionGrade) {
 		this.parent = parent;
 		this.resolutionGrade = resolutionGrade;
-		Label readoutModeLabel = new Label(parent, SWT.NONE);
+		readoutModeLabel = new Label(parent, SWT.NONE);
 		readoutModeLabel.setText("Read out mode");
 		readoutModeLabel.setToolTipText("The type of data which will be written to file");
 		readoutModeLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
@@ -82,13 +83,12 @@ public class ReadoutMode {
 	}
 	
 	public void setVisibility(boolean visibility){
+			readoutModeLabel.setVisible(visibility);
 			readoutMode.setVisible(visibility);
 	}
 
 	public ComboWrapper getReadoutMode() {
 		return readoutMode;
 	}
-	
-	
 
 }

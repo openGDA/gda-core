@@ -29,6 +29,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.dawnsci.plotting.api.region.IROIListener;
+import org.dawnsci.plotting.api.region.IRegionListener;
+import org.dawnsci.plotting.api.region.ROIEvent;
+import org.dawnsci.plotting.api.region.RegionEvent;
 import org.dawnsci.plotting.jreality.util.PlotColorUtility;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
@@ -55,24 +59,12 @@ public class Detector {
 	private Action uploadAction;
 	protected Counts counts;
 	protected Plot plot;
-	protected RegionSynchronizer regionSynchronizer;
 	private IWorkbenchPartSite site;
 	
 	public Detector(String serverCommand, IWorkbenchPartSite site, Composite parent, String path) {
 		counts = new Counts();
 		this.site = site;
 		this.serverCommand = serverCommand;
-		regionSynchronizer = new RegionSynchronizer(counts);
-		try {
-			sashPlotFormComposite = new SashFormPlotComposite(parent, site.getPart(), regionSynchronizer, createUpLoadAction(path));
-		} catch (Exception e) {
-		}
-		sashPlotFormComposite.getPlottingSystem().setRescale(false);
-		double start = ((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getPoint()[0];
-		double end = ((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getEndPoint()[0];
-		regionSynchronizer.setStart(start);
-		regionSynchronizer.setEnd(end);
-		plot = new Plot(sashPlotFormComposite);
 	}
 
 	protected Action createUpLoadAction(final String path) {

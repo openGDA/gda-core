@@ -31,7 +31,6 @@ import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
-import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
@@ -61,30 +60,21 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		//if (!(Boolean) xspressElements.getShowIndividualElements().getValue() || xspressElements.getApplyToAllLabel().getSelection())
-		//	applyToAll(false);
 		super.doSave(monitor);
 	}
 
 	@Override
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
-		//GridUtils.startMultiLayout(parent);
-		try {
-			//super.linkUI(isPageChange);
-			//xspress.getReadoutMode().updateOverrideMode();
-			//boolean readoutRois = false;
-			//if(xspress.getResolutionGrade().getResolutionGradeCombo().getValue().equals(XspressDetector.READOUT_ROIS))
-			//	readoutRois = true;
-			//xspress.getResolutionGrade().updateResModeItems(readoutRois);
-			//XspressElements xspressElements = xspress.getXspressElements();
-			//xspressElements.updateElementsVisibility();
-			//xspress.updateVisibility(parent);
-			//xspressElements.updateROIAfterElementCompositeChange();
-			//detector.getSashPlotFormComposite().getPlottingSystem().autoscaleAxes();
-		} finally {
-			//GridUtils.endMultiLayout();
-		}
+		xspress.getReadoutMode().updateOverrideMode();
+		boolean readoutRois = false;
+		if(xspress.getResolutionGrade().getResolutionGradeCombo().getValue().equals(XspressDetector.READOUT_ROIS))
+			readoutRois = true;
+		xspress.getResolutionGrade().updateResModeItems(readoutRois);
+		XspressElements xspressElements = xspress.getXspressElements();
+		xspressElements.updateElementsVisibility();
+		xspress.updateVisibility(parent);
+		xspressElements.updateROIAfterElementCompositeChange();
 	}
 
 	@Override

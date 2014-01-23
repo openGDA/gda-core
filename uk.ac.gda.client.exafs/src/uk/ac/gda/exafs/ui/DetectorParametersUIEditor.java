@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-
 import gda.configuration.properties.LocalProperties;
 
 import java.io.File;
@@ -53,16 +52,16 @@ import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class DetectorParametersUIEditor extends RichBeanEditorPart {
-
-	private ComboWrapper          experimentType;
-	private ScrolledComposite     scrolledComposite;
-	private Composite             composite;
+	private ComboWrapper experimentType;
+	private ScrolledComposite scrolledComposite;
+	private Composite composite;
 	private TransmissionComposite transmissionComposite;
 	private FluorescenceComposite fluorescenceComposite;
 	private FluorescenceComposite xesParameters;
-	private SoftXRaysComposite    softXRaysParameters;
-	private StackLayout           stackLayout;
-	private Composite             stackComponent;
+	private SoftXRaysComposite softXRaysParameters;
+	private StackLayout stackLayout;
+	private Composite stackComponent;
+	
 	/**
 	 * @param path
 	 * @param mappingURL
@@ -82,98 +81,75 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite parent) {
-		
 		parent.setData(this);
-		
-		this.scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
-
-		this.composite = new Composite(scrolledComposite, SWT.NONE);
+		composite = new Composite(scrolledComposite, SWT.NONE);
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 3;
 		composite.setLayout(gridLayout);
 		composite.setLocation(0, 0);
-
-		final Label experimentTypeLabel = new Label(composite, SWT.NONE);
+		Label experimentTypeLabel = new Label(composite, SWT.NONE);
 		experimentTypeLabel.setText("Experiment Type");
-
 		experimentType = new ComboWrapper(composite, SWT.READ_ONLY);
 		String[] items;
-		
-		if (ScanObjectManager.isXESOnlyMode()){
+		if (ScanObjectManager.isXESOnlyMode())
 			items = new String[] {"XES"};
-		} else if (ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.DETECTORS_SOFT_XRAY)) {
+		else if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTORS_SOFT_XRAY))
 			items = new String[] {"Transmission", "Fluorescence", "Soft X-Rays"};
-		} else if (ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.DETECTORS_FLUO_ONLY)) {
+		else if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTORS_FLUO_ONLY))
 			items = new String[] {"Fluorescence"};
-		} else {
+		else
 			items = new String[] {"Transmission", "Fluorescence"};
-		}
 		experimentType.setItems(items);
-		final GridData gd_experimentType = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		GridData gd_experimentType = new GridData(SWT.FILL, SWT.CENTER, false, false);
 		experimentType.setLayoutData(gd_experimentType);
-
-		final Composite composite_1 = new Composite(composite, SWT.NONE);
+		Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		composite_1.setLayout(new GridLayout());
 		new Label(composite, SWT.NONE);
-
-		this.stackComponent = new Composite(composite, SWT.NONE);
-		this.stackLayout = new StackLayout();
+		stackComponent = new Composite(composite, SWT.NONE);
+		stackLayout = new StackLayout();
 		stackComponent.setLayout(stackLayout);
-		final GridData gd_stackComponent = new GridData(SWT.FILL, SWT.FILL, true, true);
+		GridData gd_stackComponent = new GridData(SWT.FILL, SWT.FILL, true, true);
 		stackComponent.setLayoutData(gd_stackComponent);
-
 		transmissionComposite = new TransmissionComposite(stackComponent, SWT.NONE, (DetectorParameters)editingBean);
 		transmissionComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
 		transmissionComposite.setEditorClass(TransmissionParameters.class);
-
-		if (LocalProperties.get("gda.factory.factoryName").equals("b16server") ||  LocalProperties.get("gda.factory.factoryName").equals("b16")) {
+		if (LocalProperties.get("gda.factory.factoryName").equals("b16server") ||  LocalProperties.get("gda.factory.factoryName").equals("b16"))
 			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, false, (DetectorParameters)editingBean);
-		} else {
+		else
 			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, true, (DetectorParameters)editingBean);			
-		}
-
 		fluorescenceComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
 		fluorescenceComposite.setEditorClass(FluorescenceParameters.class);
-
 		if (LocalProperties.get("gda.factory.factoryName").equals("b18")) {
 			softXRaysParameters = new SoftXRaysComposite(stackComponent, SWT.NONE);
 			softXRaysParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
 			softXRaysParameters.setEditorClass(SoftXRaysParameters.class);
 		}
-
 		if (LocalProperties.get("gda.factory.factoryName").equals("i20")) {
 			xesParameters = new FluorescenceComposite(stackComponent, SWT.NONE, false, (DetectorParameters)editingBean);
 			xesParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
 			xesParameters.setEditorClass(FluorescenceParameters.class);
 		}
-		
 		stackLayout.topControl = transmissionComposite;
 		scrolledComposite.setContent(composite);
 		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));	
-		
 		transmissionComposite.getIonChamberComposite().calculatePressure();
 		fluorescenceComposite.getIonChamberComposite().calculatePressure();
 	}
 	
 	@Override
 	public void linkUI(final boolean isPageChange) {
-		
 		experimentType.addValueListener(new ValueAdapter("experimentTypeListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateExperimentType();
 			}
 		});
-		
 		super.linkUI(isPageChange);
-		
 		initExperimentType();
-
 		if (fluorescenceComposite != null) {
 			if (path != null)
 				fluorescenceComposite.setCurrentFolder((new File(path)).getParentFile());
@@ -192,11 +168,9 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 	}
 	
 	private void initExperimentType() {
-		final DetectorParameters bean = (DetectorParameters) editingBean;
-
+		DetectorParameters bean = (DetectorParameters) editingBean;
 		int index = -1;
 		String expType = bean.getExperimentType();
-	
 		final List<String> items = Arrays.asList(experimentType.getItems());
 		if (expType == null) {
 			// as getExperimentType is optional, choose
@@ -211,16 +185,13 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 				expType = "XES";
 		}
 		index = items.indexOf(expType);
-		
-		if (index < 0) {
+		if (index < 0)
 			index = 0;
-		}
 		experimentType.select(index);
 		updateExperimentType();
 	}
 
 	private void updateExperimentType() {
-		
 		try {
 			int index = experimentType.getSelectionIndex();
 			String[] items = experimentType.getItems();
@@ -228,9 +199,7 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 				index = 0;
 				experimentType.select(index);
 			}
-			
 			String selection = items[index];
-			
 			final DetectorParameters bean = (DetectorParameters)editingBean;
 			Control control = null;
 			Object  val     = null;
@@ -246,7 +215,8 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 				if (getTransmissionParameters().getValue() == null)
 					getTransmissionParameters().setEditingBean(val);
 				transmissionComposite.setExperimentType("Transmission");
-			} else if ("Fluorescence".equals(selection)) {
+			} 
+			else if ("Fluorescence".equals(selection)) {
 				control = fluorescenceComposite;
 				val = getFluorescenceParameters().getValue();
 				if (val == null)
@@ -258,7 +228,8 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 				if (getFluorescenceParameters().getValue() == null)
 					getFluorescenceParameters().setEditingBean(val);
 				fluorescenceComposite.setExperimentType("Fluorescence");
-			} else if ("Soft X-Rays".equals(selection)) {
+			} 
+			else if ("Soft X-Rays".equals(selection)) {
 				control = softXRaysParameters;
 				val = getSoftXRaysParameters().getValue();
 				if (val == null)
@@ -269,7 +240,8 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 					bean.setSoftXRaysParameters((SoftXRaysParameters) val);
 				if (getSoftXRaysParameters().getValue() == null)
 					getSoftXRaysParameters().setEditingBean(val);
-			} else if ("XES".equals(selection)) {
+			} 
+			else if ("XES".equals(selection)) {
 				control = xesParameters;
 				val = getXesParameters().getValue();
 				if (val == null)
@@ -281,8 +253,6 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 				if (getXesParameters().getValue() == null)
 					getXesParameters().setEditingBean(val);
 			}
-		    
-	
 			stackLayout.topControl = control;
 			stackComponent.layout();
 			composite.layout();
@@ -296,37 +266,40 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 	@Override
 	public void setFocus() {
 	}
+	
 	/**
 	 * @return TransmissionComposite
 	 */ 
 	public TransmissionComposite getTransmissionParameters() {
 		return transmissionComposite;
 	}
+	
 	/**
 	 * @return FluorComposite
 	 */ 
 	public FluorescenceComposite getFluorescenceParameters() {
 		return fluorescenceComposite;
 	}
+	
 	/**
 	 * @return SoftXRaysComposite
 	 */ 
 	public SoftXRaysComposite getSoftXRaysParameters() {
 		return softXRaysParameters;
 	}
+	
 	/**
 	 * @return SoftXRaysComposite
 	 */ 
 	public FluorescenceComposite getXesParameters() {
 		return xesParameters;
 	}
+	
 	/**
 	 * @return ComboWrapper
 	 */
 	public ComboWrapper getExperimentType() {
 		return experimentType;
 	}
-
-}
-
 	
+}

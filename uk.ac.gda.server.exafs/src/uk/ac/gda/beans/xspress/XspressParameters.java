@@ -28,22 +28,19 @@ import org.apache.commons.beanutils.BeanUtils;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.IRichBean;
 
-/**
- *
- */
 public class XspressParameters implements Serializable,IRichBean {	
 	/**
 	 * The region type when the ROI returns the sum of counts in the region, so acts like a scaler.
 	 */
 	public static final String VIRTUALSCALER = "Virtual Scaler";
 
-	private String                detectorName;
-	private String                resGrade;
+	private String detectorName;
+	private String resGrade;
 	private String regionType = VIRTUALSCALER;
 	private List<DetectorElement> detectorList;
-	private ElementCountsData[]   data;
-	private String                readoutMode;
-	private boolean               editIndividualElements;
+	private ElementCountsData[] data;
+	private String readoutMode;
+	private boolean editIndividualElements;
 
 	static public final URL mappingURL = XspressParameters.class.getResource("XspressMapping.xml");
 
@@ -235,4 +232,5 @@ public class XspressParameters implements Serializable,IRichBean {
 	public void setSelectedRegionNumber(int selectedRegionNumber) {
 		this.selectedRegionNumber = selectedRegionNumber;
 	}
+	
 }

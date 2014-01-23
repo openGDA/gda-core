@@ -22,7 +22,10 @@ import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
 
 import java.awt.Color;
+import java.util.List;
 
+import org.dawnsci.plotting.api.region.IROIListener;
+import org.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -30,12 +33,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPartSite;
 
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
+import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 import uk.ac.gda.exafs.ui.detector.Detector;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detector.Plot;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
@@ -52,14 +59,26 @@ public class Xspress extends Detector{
 	private RegionType regionType;
 	private XspressPreferences xspressPreferences;
 	private XspressElements xspressElements;
+	private RegionSynchronizer regionSynchronizer;
+	private XspressParameters xspressParameters;
 	
 	public Xspress(String path, IWorkbenchPartSite site, Composite parent, XspressParameters xspressParameters, DirtyContainer dirtyContainer) {
 		super("xspressConfig", site, parent, path);
+		this.xspressParameters = xspressParameters;
+		regionSynchronizer = new RegionSynchronizer();
+		try {
+			sashPlotFormComposite = new SashFormPlotComposite(parent, site.getPart(), regionSynchronizer, createUpLoadAction(path));
+		} catch (Exception e) {
+		}
+		sashPlotFormComposite.getPlottingSystem().setRescale(true);
+		plot = new Plot(sashPlotFormComposite);
+		
+		sashPlotFormComposite.setWeights(new int[] { 30, 74 });
 		
 		Composite left = sashPlotFormComposite.getLeft();
 		
 		Composite topComposite = new Composite(left, SWT.NONE);
-		topComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		topComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		GridLayout gridLayout_1 = new GridLayout();
 		gridLayout_1.numColumns = 2;
 		topComposite.setLayout(gridLayout_1);
@@ -77,12 +96,8 @@ public class Xspress extends Detector{
 		
 		xspressElements = new XspressElements(left, site.getShell(), dirtyContainer, sashPlotFormComposite, xspressParameters, counts);
 		
-		regionSynchronizer.setDetectorElementComposite(xspressElements.getDetectorListComposite().getDetectorElementComposite());
-		
 		if(!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS) && !ScanObjectManager.isXESOnlyMode())
 			xspressPreferences = new XspressPreferences(left);
-		
-		sashPlotFormComposite.setWeights(new int[] { 30, 74 });
 		
 		xspressElements.configureUI(xspressAcquire.getMcaData(), xspressElements.getDetectorListComposite().getDetectorList().getSelectedIndex());
 		
@@ -91,14 +106,58 @@ public class Xspress extends Detector{
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
 				int[][][] mcaData = xspressAcquire.getMcaData();
-				plot.plot(evt.getSelectionIndex(), mcaData, false, null);
-				DetectorElementComposite detectorElementComposite = xspressElements.getDetectorListComposite().getDetectorElementComposite();
-				detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
-				detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
-				xspressElements.setAllElementsCount(counts.getTotalCounts(mcaData));
-				xspressElements.setElementCount(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
-				xspressElements.setInWindowCounts(counts.getInWindowsCounts(xspressElements.getShowIndividualElements().getValue(), (int)regionSynchronizer.getStart(), (int)regionSynchronizer.getEnd(), evt.getSelectionIndex(), mcaData));
+				if(mcaData!=null){
+					plot.plot(evt.getSelectionIndex(), mcaData, false, null);
+					DetectorElementComposite detectorElementComposite = xspressElements.getDetectorListComposite().getDetectorElementComposite();
+					detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
+					detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
+					xspressElements.setAllElementsCount(counts.getTotalCounts(mcaData));
+					xspressElements.setElementCount(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
+					int windowStart = getBeanDetectorList().get(evt.getSelectionIndex()).getWindowStart();
+					int windowEnd = getBeanDetectorList().get(evt.getSelectionIndex()).getWindowEnd();
+					RectangularROI rroi = (RectangularROI)sashPlotFormComposite.getRegionOnDisplay().getROI();
+					double[] point = rroi.getPoint();
+					point[0]=windowStart;
+					double[] endPoint = rroi.getEndPoint();
+					endPoint[0]=windowEnd;
+					rroi.setPoint(point);
+					rroi.setEndPoint(endPoint);
+					sashPlotFormComposite.getRegionOnDisplay().setROI(rroi);
+				}
 			}
+		});
+		
+		sashPlotFormComposite.getRegionOnDisplay().addROIListener(new IROIListener(){
+
+			@Override
+			public void roiDragged(ROIEvent evt) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void roiChanged(ROIEvent evt) {
+				int start = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getPoint()[0];
+				int end = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getEndPoint()[0];
+				int selectedIndex = xspressElements.getDetectorListComposite().getDetectorList().getSelectedIndex();
+				if(xspressElements.getApplyToAllCheckbox().getSelection())
+					for(int i=0;i<xspressElements.getDetectorListComposite().getDetectorList().getListSize();i++)
+						updateBean(i, start, end);
+				else
+					updateBean(selectedIndex, start, end);
+				int[][][] mcaData = xspressAcquire.getMcaData();
+				if(start>=0){
+					regionSynchronizer.setStart(start);
+					regionSynchronizer.setEnd(end);
+				}
+				xspressElements.updateWindow(start, end, mcaData);
+				
+			}
+
+			@Override
+			public void roiSelected(ROIEvent evt) {
+				// TODO Auto-generated method stub
+			}
+			
 		});
 		
 		xspressAcquire.addLoadListener(xspressElements.getDetectorListComposite().getDetectorList(), xspressElements.getDetectorListComposite().getDetectorElementComposite(), xspressParameters.getDetectorList().size());
@@ -117,6 +176,14 @@ public class Xspress extends Detector{
 		return uiReadoutMode.equals(XspressDetector.READOUT_ROIS) ? (String) resolutionGrade.getResolutionGradeCombo().getValue() : ResGrades.NONE;
 	}
 
+	private void updateBean(int index, int start, int end){
+		xspressParameters.getDetectorList().get(index).setWindow(start, end);
+	}
+	
+	private List<DetectorElement> getBeanDetectorList(){
+		return xspressParameters.getDetectorList();
+	}
+	
 	protected String getChannelName(int iChannel) {
 		String resGrade = getResGradeAllowingForReadoutMode();
 		if (resGrade.equals(ResGrades.ALLGRADES))
@@ -202,6 +269,50 @@ public class Xspress extends Detector{
 
 	public XspressElements getXspressElements() {
 		return xspressElements;
+	}
+	
+	public class RegionSynchronizer implements IROIListener {
+		private double start;
+		private double end;
+		
+		public RegionSynchronizer(){
+		}
+
+		@Override
+		public void roiDragged(ROIEvent evt) {
+		}
+
+		public void setStart(double start) {
+			this.start = start;
+		}
+
+		public void setEnd(double end) {
+			this.end = end;
+		}
+
+		public double getStart() {
+			return start;
+		}
+
+		public double getEnd() {
+			return end;
+		}
+
+		@Override
+		public void roiChanged(ROIEvent evt) {
+			// TODO Auto-generated method stub
+			int start = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getPoint()[0];
+			int end = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getEndPoint()[0];
+			DetectorElementComposite detectorElementComposite = xspressElements.getDetectorListComposite().getDetectorElementComposite();
+			detectorElementComposite.getStart().setValue(start);
+			detectorElementComposite.getEnd().setValue(end);
+		}
+
+		@Override
+		public void roiSelected(ROIEvent evt) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 }
