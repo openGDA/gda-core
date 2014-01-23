@@ -27,11 +27,11 @@ import org.eclipse.core.databinding.observable.list.IObservableList;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 
 public interface MvcExampleModel {
-	boolean isSelected();
-	void setSelected(boolean selected);
+	boolean isSelected() throws DeviceException;
+	void setSelected(boolean selected) throws DeviceException;
 	
-	double getPosition();
-	void setPosition(double position);
+	double getPosition() throws DeviceException;
+	void setPosition(double position) throws DeviceException;
 	
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener);
