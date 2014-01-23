@@ -20,7 +20,8 @@ Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  org.apache.commons.math3;bundle-version="[3.2.0,3.3.0)",
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
  org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)",
- org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
+ org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
+ org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)"
 Bundle-ClassPath: .,
  jars/gda-ncd-corba.jar
 Export-Package: uk.ac.gda.server.ncd,
@@ -37,5 +38,4 @@ Export-Package: uk.ac.gda.server.ncd,
  uk.ac.gda.server.ncd.subdetector.corba.impl
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Import-Package: Jama,
- org.apache.commons.lang,
  org.slf4j;version="[1.5.0,2.0.0)"
