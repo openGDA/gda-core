@@ -22,7 +22,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import uk.ac.gda.devices.bssc.ISampleProgress;
-import uk.ac.gda.devices.bssc.beans.LocationBean;
 
 public interface BioSAXSISPyB {
 
@@ -221,7 +220,7 @@ public interface BioSAXSISPyB {
 	 * @return list of progress statuses for samples in the ISpyB database
 	 * @throws SQLException
 	 */
-	public List<ISampleProgress> getBioSAXSSamples() throws SQLException;
+	public List<ISampleProgress> getBioSAXSSamples(long blSessionId) throws SQLException;
 
 	/**
 	 * Returns the progress status of samples in the ISpyB data base given an experiment id
@@ -229,5 +228,5 @@ public interface BioSAXSISPyB {
 	 * @return list of progress statues for the samples in the database for the given experiment id
 	 * @throws SQLException
 	 */
-	public List<ISampleProgress> getBioSAXSSamples(String experimentID) throws SQLException;
+	public List<ISampleProgress> getBioSAXSSamples(String experimentID, long blSessionId) throws SQLException;
 }
