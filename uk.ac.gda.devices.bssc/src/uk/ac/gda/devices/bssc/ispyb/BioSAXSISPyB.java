@@ -216,7 +216,18 @@ public interface BioSAXSISPyB {
 	 */
 	public boolean isDataReductionSuccessful(long dataCollectionId, long subtractionId) throws SQLException;
 
+	/**
+	 * Returns the progress status of all samples in the ISpyB database
+	 * @return list of progress statuses for samples in the ISpyB database
+	 * @throws SQLException
+	 */
 	public List<ISampleProgress> getBioSAXSSamples() throws SQLException;
 
+	/**
+	 * Returns the progress status of samples in the ISpyB data base given an experiment id
+	 * @param experimentID
+	 * @return list of progress statues for the samples in the database for the given experiment id
+	 * @throws SQLException
+	 */
 	public List<ISampleProgress> getBioSAXSSamples(String experimentID) throws SQLException;
 }
