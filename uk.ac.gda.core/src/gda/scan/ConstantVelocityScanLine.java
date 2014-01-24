@@ -23,6 +23,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
 import gda.device.scannable.ContinuouslyScannable;
+import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
 
 import org.slf4j.Logger;
@@ -42,9 +43,11 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 		stop = PositionConvertorFunctions.toDouble(args[2]);
 		step = PositionConvertorFunctions.toDouble(args[3]);
 		int argIndex=4;
+		// Check that any subsequent Scannables do not have target positions, i.e. that there
+		// positions will only be read.
 		boolean allowDetectorCollectionTime = false;
 		while(argIndex < args.length){
-			if( args[argIndex] instanceof ContinuouslyScannable || args[argIndex] instanceof PositionGrabbingAdapter){
+			if( args[argIndex] instanceof ContinuouslyScannableViaController){
 				argIndex++;
 				allowDetectorCollectionTime=false;
 				continue;
