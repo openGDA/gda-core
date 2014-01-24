@@ -53,6 +53,10 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 	private int regionUID = 0; // so all regions have a unique name
 	private int serverPlotChannel;
 
+	private Integer lastLCoordinatePlotted = null;
+
+	private Integer lastMCoordinatePlotted = null;
+
 	public MicroFocusNexusPlotter() {
 		super();
 	}
@@ -75,6 +79,7 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 					JythonServerFacade.getInstance().evaluateCommand(
 							"map.getMFD().displayPlot(\"" + elementName + "\"," + selectedChannel + ")");
 					createPointRegionListener();
+					updateSpectrum();
 				} catch (Exception e) {
 					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 				}
@@ -82,11 +87,25 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 		});
 	}
 
+	/**
+	 * For plotting I0 and It data which have no related channel/element.
+	 * @param dataset
+	 */
 	public void plotDataset(AbstractDataset dataset) {
 		try {
 			SDAPlotter.imagePlot(MapPlotView.NAME, dataset);
+			updateSpectrum();
 		} catch (Exception e) {
 			logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
+		}
+	}
+
+	/*
+	 * For use after the map has been updated 
+	 */
+	private void updateSpectrum() {
+		if (lastLCoordinatePlotted != null && lastMCoordinatePlotted != null){
+			plotSpectrum(lastLCoordinatePlotted, lastMCoordinatePlotted);
 		}
 	}
 
@@ -111,6 +130,7 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 				try {
 					SDAPlotter.imagePlot(MapPlotView.NAME, xDataset, yDataset, plotSet);
 					createPointRegionListener();
+					updateSpectrum();
 				} catch (Exception e) {
 					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 				}
@@ -157,7 +177,7 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 						.getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
 				mfElements.setLastXYSelection(selectedXDataValue, selectedYDataValue);
 
-				displayPlot(xArrayIndex, yArrayIndex);
+				plotSpectrum(xArrayIndex, yArrayIndex);
 			}
 
 			updateRegion();
@@ -182,7 +202,7 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 	/*
 	 * Display the MCA of the selected point. The x and y values are the data array indexes, not data values.
 	 */
-	private void displayPlot(final int l, final int m) {
+	private void plotSpectrum(final int l, final int m) {
 		if (dataProvider != null && ObjectStateManager.isActive(dataProvider)) {
 			double[] spectrum = null;
 			String detectorName = dataProvider.getDetectorName();
@@ -217,6 +237,8 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 			JythonServerFacade.getInstance().evaluateCommand(
 					"map.getMFD().plotSpectrum(" +serverPlotChannel+ "," + l + "," + m + ")");
 		}
+		lastLCoordinatePlotted = l;
+		lastMCoordinatePlotted = m;
 
 	}
 

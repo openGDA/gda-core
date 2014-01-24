@@ -102,13 +102,13 @@ public class MicroFocusDisplayController {
 			if (detectorProvider != null) {
 				plotter.plotDataset(detectorProvider.getI0data());
 			} else {
-				plotter.plotMapFromServer(selectedElement,selectedChannel);
+				plotter.plotMapFromServer("I0",0);
 			}
 		} else if (selectedElement.equals("It")) {
 			if (detectorProvider != null) {
 				plotter.plotDataset(detectorProvider.getItdata());
 			} else {
-				plotter.plotMapFromServer(selectedElement,selectedChannel);
+				plotter.plotMapFromServer("It",0);
 			}
 		} else if (ObjectStateManager.isActive(detectorProvider)) {
 			if (plotter != null) {
