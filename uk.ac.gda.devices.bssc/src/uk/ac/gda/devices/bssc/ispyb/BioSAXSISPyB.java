@@ -223,16 +223,48 @@ public interface BioSAXSISPyB {
 	public List<ISampleProgress> getBioSAXSMeasurements(long blSessionId) throws SQLException;
 	
 	/**
-	 * Updates a measurement with a status, status can be one of the following
+	 * Updates a measurement with a collection status, status can be one of the following
 	 * 1. NOT STARTED
 	 * 2. STARTED
 	 * 3. SUCCESSFUL
 	 * 4. NOT SUCCESSFUL
 	 * 
 	 * @param measurementId
-	 * @param status
+	 * @param collectionStatus
 	 * @throws SQLException
 	 */
-	public void setMeasurementCollectionStatus(long measurementId ,String status) throws SQLException;
+	public void setMeasurementCollectionStatus(long measurementId ,String collectionStatus) throws SQLException;
 
+	/**
+	 * Updates a measurement with a reduction status, status can be one of the following
+	 * 1. NOT STARTED
+	 * 2. STARTED
+	 * 3. SUCCESSFUL
+	 * 4. NOT SUCCESSFUL
+	 * 
+	 * @param measurementId
+	 * @param reductionStatus
+	 * @throws SQLException
+	 */
+	public void setMeasurementReductionStatus(long measurementId, String reductionStatus) throws SQLException;
+	
+	/**
+	 * Updates a measurement with an analysis status, status can be one of the following
+	 * 1. NOT STARTED
+	 * 2. STARTED
+	 * 3. SUCCESSFUL
+	 * 4. NOT SUCCESSFUL
+	 * 
+	 * @param measurementId
+	 * @param analysisStatus
+	 * @throws SQLException
+	 */
+	public void setMeasurementAnalysisStatus(long measurementId, String analysisStatus) throws SQLException;
+	
+	/**
+	 * Sets the start time for a measurement
+	 * @param startTime
+	 * @throws SQLException
+	 */
+	public void setMeasurementStartTime(long startTime) throws SQLException;
 }
