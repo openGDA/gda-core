@@ -783,7 +783,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			// Int array above is [element][grade (1, 2 or all 16)][mca channel]
 
 			getDataWrapper().setValue(ElementCountsData.getDataFor(data));
-			this.dirtyContainer.setDirty(true);
+			getSite().getShell().getDisplay().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					dirtyContainer.setDirty(true);
+				}
+			});
 			detectorData = getData(data);
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override

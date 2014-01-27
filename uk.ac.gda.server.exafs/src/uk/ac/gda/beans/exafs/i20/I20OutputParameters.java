@@ -26,6 +26,11 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  */
 public class I20OutputParameters extends OutputParameters {
 
+	private boolean vortexSaveRawSpectrum = false;
+	private boolean xspressOnlyShowFF = false;
+	private boolean xspressShowDTRawValues = false;
+	private boolean xspressSaveRawSpectrum = false;
+
 	static {
 		mappingURL = I20OutputParameters.class.getResource("I20SampleParametersMapping.xml");
 		schemaUrl = I20OutputParameters.class.getResource("I20SampleParametersMapping.xsd");
@@ -39,41 +44,37 @@ public class I20OutputParameters extends OutputParameters {
 		XMLHelpers.writeToXML(mappingURL, outputParams, filename);
 	}
 	
-	private boolean vortexSaveRawSpectrum = false;
-	private boolean xspressOnlyShowFF = false;
-	private boolean xspressShowDTRawValues = false;
-	private boolean xspressSaveRawSpectrum = false;
 
 	public boolean isVortexSaveRawSpectrum() {
 		return vortexSaveRawSpectrum;
 	}
 
-	public void setVortexSaveRawSpectrum(boolean vortex_saveRawSpectrum) {
-		this.vortexSaveRawSpectrum = vortex_saveRawSpectrum;
+	public void setVortexSaveRawSpectrum(boolean vortexSaveRawSpectrum) {
+		this.vortexSaveRawSpectrum = vortexSaveRawSpectrum;
 	}
 
 	public boolean isXspressOnlyShowFF() {
 		return xspressOnlyShowFF;
 	}
 
-	public void setXspressOnlyShowFF(boolean xspress_OnlyShowFF) {
-		this.xspressOnlyShowFF = xspress_OnlyShowFF;
+	public void setXspressOnlyShowFF(boolean xspressOnlyShowFF) {
+		this.xspressOnlyShowFF = xspressOnlyShowFF;
 	}
 
 	public boolean isXspressShowDTRawValues() {
 		return xspressShowDTRawValues;
 	}
 
-	public void setXspressShowDTRawValues(boolean xspress_ShowDTRawValues) {
-		this.xspressShowDTRawValues = xspress_ShowDTRawValues;
+	public void setXspressShowDTRawValues(boolean xspressShowDTRawValues) {
+		this.xspressShowDTRawValues = xspressShowDTRawValues;
 	}
 
 	public boolean isXspressSaveRawSpectrum() {
 		return xspressSaveRawSpectrum;
 	}
 
-	public void setXspressSaveRawSpectrum(boolean xspress_SaveRawSpectrum) {
-		this.xspressSaveRawSpectrum = xspress_SaveRawSpectrum;
+	public void setXspressSaveRawSpectrum(boolean xspressSaveRawSpectrum) {
+		this.xspressSaveRawSpectrum = xspressSaveRawSpectrum;
 	}
 
 	@Override

@@ -23,7 +23,6 @@ import java.io.Serializable;
 import org.apache.commons.beanutils.BeanUtils;
 
 public class CryostatSampleDetails implements Serializable {
-
 	private Double position = 0.0;
 	private Double finePosition = 0.0;
 	private String sample_name = "";
@@ -94,27 +93,32 @@ public class CryostatSampleDetails implements Serializable {
 		if (finePosition == null) {
 			if (other.finePosition != null)
 				return false;
-		} else if (!finePosition.equals(other.finePosition))
+		} 
+		else if (!finePosition.equals(other.finePosition))
 			return false;
 		if (numberOfRepetitions == null) {
 			if (other.numberOfRepetitions != null)
 				return false;
-		} else if (!numberOfRepetitions.equals(other.numberOfRepetitions))
+		} 
+		else if (!numberOfRepetitions.equals(other.numberOfRepetitions))
 			return false;
 		if (position == null) {
 			if (other.position != null)
 				return false;
-		} else if (!position.equals(other.position))
+		} 
+		else if (!position.equals(other.position))
 			return false;
 		if (sampleDescription == null) {
 			if (other.sampleDescription != null)
 				return false;
-		} else if (!sampleDescription.equals(other.sampleDescription))
+		} 
+		else if (!sampleDescription.equals(other.sampleDescription))
 			return false;
 		if (sample_name == null) {
 			if (other.sample_name != null)
 				return false;
-		} else if (!sample_name.equals(other.sample_name))
+		} 
+		else if (!sample_name.equals(other.sample_name))
 			return false;
 		return true;
 	}

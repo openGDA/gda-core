@@ -42,10 +42,8 @@ public class DetectorElementConverter {
 	public static DetectorElement toDetectorElement(CorbaDetectorElement cd) {
 		ArrayList<XspressROI> regionList = new ArrayList<XspressROI>();
 		for (CorbaXspressROI corbaRegion : cd.regions) {
-
 			regionList.add(new XspressROI(corbaRegion.regionName, corbaRegion.regionStart, corbaRegion.regionEnd));
 		}
-
 		DetectorElement d = new DetectorElement(cd.name, cd.number, cd.windowStart, cd.windowEnd,cd.excluded, regionList);
 		return d;
 	}

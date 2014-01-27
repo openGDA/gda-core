@@ -22,42 +22,26 @@ import java.io.Serializable;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-/**
- *
- */
 public class CustomParameter  implements Serializable {
 	private String deviceName;
 	private double value;
 
-	/**
-	 * @return the deviceName
-	 */
 	public String getDeviceName() {
 		return deviceName;
 	}
 
-	/**
-	 * @param deviceName
-	 *            the deviceName to set
-	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
 
-	/**
-	 * @return the value
-	 */
 	public double getValue() {
 		return value;
 	}
 
-	/**
-	 * @param value
-	 *            the value to set
-	 */
 	public void setValue(double value) {
 		this.value = value;
 	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -71,31 +55,22 @@ public class CustomParameter  implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		CustomParameter other = (CustomParameter) obj;
-		if (deviceName == null) {
-			if (other.deviceName != null) {
-				return false;
-			}
-		} else if (!deviceName.equals(other.deviceName)) {
+		if (deviceName == null && other.deviceName != null)
+			return false; 
+		else if (!deviceName.equals(other.deviceName))
 			return false;
-		}
-		if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value)) {
+		if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value))
 			return false;
-		}
 		return true;
 	}
-	/**
-	 *
-	 */
+
 	@Override
 	public String toString() {
 		try {
