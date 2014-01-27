@@ -52,6 +52,7 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	
 	public FlexibleFrameStrategy(ADBase base, double time, NDProcess ndProcess) throws CAException, InterruptedException, TimeoutException {
 		super(base, time);
+		setReadoutTime(-1);
 		proc = ndProcess;
 		epicsController = EpicsController.getInstance();
 		epicsController.setMonitor(epicsController.createChannel(((ADBaseImpl) getAdBase()).getBasePVName() + ADBase.ArrayCounter_RBV), this);
