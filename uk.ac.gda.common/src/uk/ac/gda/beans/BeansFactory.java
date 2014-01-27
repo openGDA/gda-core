@@ -87,7 +87,12 @@ public class BeansFactory {
 				return (IRichBean) beanOrFile;
 		}
 
-		String path = dir + beanOrFile;
+		String path;
+		if(dir != null){
+			path = dir + beanOrFile;
+		} else {
+			path = beanOrFile.toString();
+		}
 		if (!path.endsWith(".xml"))
 			path = path + ".xml";
 		return BeansFactory.getBean(new File(path));
