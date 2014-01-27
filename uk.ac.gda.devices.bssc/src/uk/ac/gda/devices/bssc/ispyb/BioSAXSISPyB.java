@@ -21,7 +21,7 @@ package uk.ac.gda.devices.bssc.ispyb;
 import java.sql.SQLException;
 import java.util.List;
 
-import uk.ac.gda.devices.bssc.ISampleProgress;
+import uk.ac.gda.devices.bssc.beans.ISampleProgress;
 
 public interface BioSAXSISPyB {
 

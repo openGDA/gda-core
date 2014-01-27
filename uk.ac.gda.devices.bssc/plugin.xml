@@ -85,12 +85,6 @@
            name="BioSAXS Robot Status">
      </view>
      <view
-           class="uk.ac.gda.devices.bssc.Live3DPlotView"
-           id="uk.ac.gda.devices.bssc.3DPlotView"
-           name="3D Plot"
-           restorable="true">
-     </view>
-     <view
            class="uk.ac.gda.devices.bssc.ui.BioSAXSProgressView"
            id="uk.ac.gda.devices.bssc.biosaxsprogressview"
            name="BioSAXS Progress View"
