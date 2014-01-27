@@ -228,8 +228,11 @@ public interface BioSAXSISPyB {
 	 * 2. STARTED
 	 * 3. SUCCESSFUL
 	 * 4. NOT SUCCESSFUL
+	 * 
+	 * @param measurementId
 	 * @param status
+	 * @throws SQLException
 	 */
-	public void updateMeasurementStatus(String status) throws SQLException;
+	public void setMeasurementCollectionStatus(long measurementId ,String status) throws SQLException;
 
 }
