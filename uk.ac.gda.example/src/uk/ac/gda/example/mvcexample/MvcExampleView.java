@@ -175,6 +175,18 @@ public class MvcExampleView extends ViewPart {
 		table.setLinesVisible(true);
 		viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
+		TableViewerColumn column0 = new TableViewerColumn(viewer, SWT.NONE);
+		column0.getColumn().setWidth(100);
+		column0.getColumn().setText(MvcExampleItem.NAME_PROPERTY_NAME);
+
+		IObservableSet knownElements0 = contentProvider.getKnownElements();
+
+		final IObservableMap values0 = BeanProperties.value(MvcExampleItem.class, MvcExampleItem.NAME_PROPERTY_NAME)
+				.observeDetail(knownElements0);
+
+		column0.setLabelProvider(new ObservableMapColumnLabelProvider(values0));
+
+		
 		TableViewerColumn column1 = new TableViewerColumn(viewer, SWT.NONE);
 		column1.getColumn().setWidth(100);
 		column1.getColumn().setText(MvcExampleItem.VALUE_PROPERTY_NAME);

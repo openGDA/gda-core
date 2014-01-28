@@ -20,6 +20,7 @@ package uk.ac.gda.client.observablemodels;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableStatus;
 import gda.observable.IObserver;
 
@@ -67,6 +68,15 @@ public class ScannableWrapper extends UIObservableModel implements IObserver {
 
 	private void updateLimits(Scannable scannable) {
 		try {
+			if( scannable instanceof ScannableMotionUnits) {
+				Double[] upperGdaLimits = ((ScannableMotionUnits)scannable).getUpperGdaLimits();
+				Double[] lowerGdaLimits = ((ScannableMotionUnits)scannable).getLowerGdaLimits();
+				if( (upperGdaLimits != null) && (upperGdaLimits.length==1) && (lowerGdaLimits != null) && (lowerGdaLimits.length==1)) {
+					upperLimit = upperGdaLimits[0];
+					lowerLimit = upperGdaLimits[0];
+					return;
+				}
+			}
 			Object lowerLimitObj = scannable.getAttribute(LOWER_LIMIT_ATTRIBUTE_NAME);
 			Object upperLimitObj = scannable.getAttribute(UPPER_LIMIT_ATTRIBUTE_NAME);
 			if (lowerLimitObj != null && upperLimitObj != null) {
@@ -74,7 +84,7 @@ public class ScannableWrapper extends UIObservableModel implements IObserver {
 				upperLimit = (double) upperLimitObj;
 			}
 		} catch (DeviceException e) {
-			// Fall through
+			logger.error("Error getting limits for " + scannable.getName(), e);
 		}
 	}
 
