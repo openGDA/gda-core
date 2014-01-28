@@ -234,6 +234,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 						int size = queue.getSummaryList().size();
 						if (size == 0) {
 							this.state = STATE.WAITING_START;
+							commandToBeProcessed = COMMAND.PAUSE;
 						}
 					} catch (Exception e) {
 						// should never be a timeout when pausing an empty queue
@@ -305,7 +306,11 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				notifyListeners();
 				notifyListenersNeeded = false;
 			}
-				
+
+			if ((this.state == STATE.WAITING_START && pauseWhenQueueEmpty != true)
+					|| (this.state == STATE.WAITING_QUEUE && pauseWhenQueueEmpty != true)
+					|| this.state == STATE.PROCESSING_ITEMS) {
+
 			while(running && ((cmdBeingProcessed = removeQueueHead()) != null)){
 
 				cmdBeingProcessed.addIObserver(this);
@@ -348,6 +353,8 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				 */
 				setState();
 				notifyListeners();
+				
+			}
 			}
 		}
 	}
