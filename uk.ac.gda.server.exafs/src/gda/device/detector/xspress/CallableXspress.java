@@ -63,9 +63,7 @@ public class CallableXspress extends Xspress2System implements XspressDetector, 
 		}
 
 		private void setReadingOut(boolean readingOut) {
-			synchronized (this.readingOut) {
-				this.readingOut.set(readingOut);
-				this.readingOut.notifyAll();
-			}
+			this.readingOut.set(readingOut);
+			this.readingOut.notifyAll();
 		}
 }

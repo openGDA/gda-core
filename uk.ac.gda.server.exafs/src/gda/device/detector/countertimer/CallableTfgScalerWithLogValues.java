@@ -61,9 +61,7 @@ public class CallableTfgScalerWithLogValues extends TfgScalerWithLogValues imple
 	}
 
 	private void setReadingOut(boolean readingOut) {
-		synchronized (this.readingOut) {
-			this.readingOut.set(readingOut);
-			this.readingOut.notifyAll();
-		}
+		this.readingOut.set(readingOut);
+		this.readingOut.notifyAll();
 	}
 }

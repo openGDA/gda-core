@@ -61,9 +61,7 @@ public class CallableTfgXspress2 extends TfgXspress2 implements PositionCallable
 	}
 
 	private void setReadingOut(boolean readingOut) {
-		synchronized (this.readingOut) {
-			this.readingOut.set(readingOut);
-			this.readingOut.notifyAll();
-		}
+		this.readingOut.set(readingOut);
+		this.readingOut.notifyAll();
 	}
 }
