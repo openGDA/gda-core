@@ -34,9 +34,11 @@ public interface ISampleProgress {
 	public void setExperimentId(String experimentId);
 	public void setSampleName(String sampleName);
 	public String getSampleName();
+	public String getCollectionStatus();
+	public String getReductionStatus();
+	public String getAnalysisStatus();
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener);
 	public void removePropertyChangeListener(PropertyChangeListener listener);
-	
-	
+	public long getCollectionStartTime();
 }
