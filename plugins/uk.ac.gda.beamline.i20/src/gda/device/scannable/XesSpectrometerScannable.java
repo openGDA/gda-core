@@ -83,9 +83,8 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public void stop() throws DeviceException {
-
 		stopCalled = true;
-
+		
 		xtal_x.stop();
 		det_x.stop();
 		det_y.stop();
@@ -133,7 +132,6 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-
 		String pos = position.toString();
 		double targetBragg = Double.parseDouble(pos);
 		double currentPosition = Double.parseDouble(getPosition().toString());
@@ -146,14 +144,12 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		numTrajPoints = null;
 
 		// test if it a 'large' movement, defined as more than 10 times the step size
-		if (Math.abs(currentPosition - targetBragg) > trajectoryStepSize /** 10 */
-		) {
+		if (Math.abs(currentPosition - targetBragg) > trajectoryStepSize){
 			isRunningTrajectoryMovement = true;
 
 			boolean positiveMove = true;
-			if (currentPosition > targetBragg) {
+			if (currentPosition > targetBragg)
 				positiveMove = false;
-			}
 
 			// create the trajectory points for the detector
 			numTrajPoints = (int) Math.round(Math.abs(currentPosition - targetBragg) / trajectoryStepSize);
@@ -163,20 +159,16 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 			double braggAtNode = currentPosition;
 			for (int node = 0; node <= numTrajPoints; node++) {
-				
 				Double[] nodeDetectorPositions = getXYTheta(radius, braggAtNode);
 				targetDetXArray[node] = nodeDetectorPositions[0];
-				if (targetDetXArray[node] == null) {
+				if (targetDetXArray[node] == null)
 					throw new DeviceException("Could not calculate target positions. Will not perform move");
-				}
 				targetDetYArray[node] = nodeDetectorPositions[1];
 				targetXtalThetaArray[node] = nodeDetectorPositions[2]*2;
-				
-				if (positiveMove) {
+				if (positiveMove)
 					braggAtNode += trajectoryStepSize;
-				} else {
+				else
 					braggAtNode -= trajectoryStepSize;
-				}
 			}
 			Double[] finalNodeDetectorPositions = getXYTheta(radius, targetBragg);
 			targetDetXArray[numTrajPoints+1] = finalNodeDetectorPositions[0];
@@ -245,15 +237,13 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 					int node = 0;
 					try {
 						for (; node < targetDetXArray.length; node++) {
-							if (stopCalled) {
+							if (stopCalled)
 								return;
-							}
 							det_x.waitWhileBusy();
 							det_y.waitWhileBusy();
 							det_rot.waitWhileBusy();
-							if (stopCalled) {
+							if (stopCalled)
 								return;
-							}
 							det_x.asynchronousMoveTo(targetDetXArray[node]);
 							det_y.asynchronousMoveTo(targetDetYArray[node]);
 							det_rot.asynchronousMoveTo(targetXtalThetaArray[node]);
@@ -293,11 +283,8 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	private void checkPositionValid(ScannableMotor scannable, double target) throws DeviceException {
 		Double min = scannable.getLowerMotorLimit();
 		Double max = scannable.getUpperMotorLimit();
-
-		if (min != null && max != null && (target > max || target < min)) {
-			throw new DeviceException("Move not valid. " + target + " outside of limits of " + scannable.getName()
-					+ " motor.");
-		}
+		if (min != null && max != null && (target > max || target < min))
+			throw new DeviceException("Move not valid. " + target + " outside of limits of " + scannable.getName()	+ " motor.");
 	}
 
 	@Override
@@ -324,7 +311,6 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		// In the Rowland condition: sin(2*(90-bragg)) = y/L
 		double derivedBragg = 90 - (0.5 * Math.toDegrees(Math.asin(yPosition / lPosition)));
 		return derivedBragg;
-
 	}
 
 	@Override

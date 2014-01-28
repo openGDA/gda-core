@@ -25,7 +25,6 @@ import gda.exafs.xes.XesUtils.XesMaterial;
 import gda.observable.IObserver;
 
 public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObserver {
-
 	private XesSpectrometerScannable xes;
 	private Scannable cut1Scannable;
 	private Scannable cut2Scannable;
@@ -46,9 +45,8 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (arg instanceof ScannableStatus) {
+		if (arg instanceof ScannableStatus)
 			notifyIObservers(this, new ScannableStatus(getName(), ((ScannableStatus) arg).getStatus()));
-		}
 	}
 
 	public int[] getCrystalCut() throws DeviceException {
@@ -74,11 +72,10 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		String stringPosition = position.toString();
 		double doublePosition = Double.parseDouble(stringPosition);
 		double bragg = XesUtils.getBragg(doublePosition, material, getCrystalCut());
-		if (bragg >= 60.0 && bragg <= 85.0){
+		if (bragg >= 60.0 && bragg <= 85.0)
 			xes.asynchronousMoveTo(bragg);
-		} else{
+		else
 			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be 60 to 85 deg.");
-		}
 	}
 
 	@Override
@@ -87,7 +84,6 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		double energy = XesUtils.getFluoEnergy(Double.parseDouble(xes.getPosition().toString()), material, getCrystalCut());
 		if(energy<100000){
 			String en = String.valueOf(energy);
-			
 			if(en.length()>8){
 				double enVal = Double.parseDouble(en.substring(0,7));
 				return enVal;
@@ -152,4 +148,5 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	public void setMaterial(Scannable material) {
 		this.materialScannable = material;
 	}
+	
 }
