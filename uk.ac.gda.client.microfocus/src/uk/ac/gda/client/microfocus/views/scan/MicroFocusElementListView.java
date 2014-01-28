@@ -60,8 +60,8 @@ import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
@@ -156,7 +156,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		else if (beanObject instanceof VortexParameters) {
 			VortexParameters vortex = (VortexParameters) beanObject;
 			updateDetectorChannelCombo(vortex.getDetectorList().size());
-			java.util.List<RegionOfInterest> regionList = vortex.getDetector(0).getRegionList();
+			java.util.List<VortexROI> regionList = vortex.getDetector(0).getRegionList();
 			for (int i = 0; i < regionList.size(); i++) {
 				elementList.add(regionList.get(i).getRoiName());
 			}

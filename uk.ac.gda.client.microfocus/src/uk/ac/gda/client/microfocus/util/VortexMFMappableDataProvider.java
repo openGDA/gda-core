@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
 
@@ -37,7 +36,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 	private static final Logger logger = LoggerFactory.getLogger(VortexMFMappableDataProvider.class);
 
 	private int numberOfdetectorElements;
-	private List<RegionOfInterest>[] elementRois;
+	private List<VortexROI>[] elementRois;
 	private HashMap<String, Integer> roiNameMap;
 	private MapCache mapCache;
 

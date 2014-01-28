@@ -24,7 +24,8 @@ import java.util.List;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.DetectorROI;
+
 
 /**
  * Holds in memory data from a map file, in the form which is useful for plotting in the Microfocus perpsective:
@@ -36,7 +37,7 @@ public class MapCache {
 	private HashMap<String, Integer> roiNameMap;
 	private ILazyDataset lazyDataset;
 
-	public MapCache(HashMap<String, Integer> roiNameMap, List<RegionOfInterest>[] elementRois, ILazyDataset lazyDataset) {
+	public MapCache(HashMap<String, Integer> roiNameMap, List<? extends DetectorROI>[] elementRois, ILazyDataset lazyDataset) {
 
 		this.roiNameMap = roiNameMap;
 		this.lazyDataset = lazyDataset;
@@ -75,7 +76,7 @@ public class MapCache {
 		return data;
 	}
 	
-	private void deriveMapData(List<RegionOfInterest>[] elementRois) {
+	private void deriveMapData(List<? extends DetectorROI>[] elementRois) {
 
 		int shape[] = lazyDataset.getShape();
 		int numY = shape[0];
@@ -90,8 +91,8 @@ public class MapCache {
 				double[][] buffer = getAllMCAForOnePoint(xIndex,yIndex);
 				
 				for (int chaIndex = 0; chaIndex < numberChannels; chaIndex++) {
-					List<RegionOfInterest> roiList = elementRois[chaIndex];
-					for (RegionOfInterest roi : roiList) {
+					List<? extends DetectorROI> roiList = elementRois[chaIndex];
+					for (DetectorROI roi : roiList) {
 						Integer elementIndex = roiNameMap.get(roi.getRoiName());
 						int windowStart = roi.getRoiStart();
 						int windowEnd = roi.getRoiEnd();
