@@ -348,7 +348,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 			thisPoint.setCurrentFilename(getDataWriter().getCurrentFileName());
 
 			// then notify IObservers of this scan (e.g. GUI panels)
-			getJythonServerNotifer().notifyServer(this, point);
+			getJythonServerNotifer().notifyServer(this, thisPoint);
 			// TODO might want to allow for PositionCallableProviders and add points to the ScanDataPointPipeline
 			// instead of simply calling notifyServer here
 
