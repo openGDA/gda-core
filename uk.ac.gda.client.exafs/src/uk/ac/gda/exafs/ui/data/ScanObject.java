@@ -428,16 +428,17 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		String line = br.readLine();
 		br.close();
-		String[] parts = line.split(" ");
-		
-		if (parts.length != 8) {
-			throw new Exception("File contents incorrect! "  + fileName);
+		if(line!=null){
+			String[] parts = line.split(" ");
+			if (parts.length != 8)
+				throw new Exception("File contents incorrect! "  + fileName);
+			setSampleFileName(parts[1]);
+			setScanFileName(parts[2]);
+			setDetectorFileName(parts[3]);
+			setOutputFileName(parts[4]);
+			setNumberRepetitions(Integer.parseInt(parts[6]));
 		}
-		
-		setSampleFileName(parts[1]);
-		setScanFileName(parts[2]);
-		setDetectorFileName(parts[3]);
-		setOutputFileName(parts[4]);
-		setNumberRepetitions(Integer.parseInt(parts[6]));
+		else
+			throw new Exception("Cannot parse editor file");
 	}
 }

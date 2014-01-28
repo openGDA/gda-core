@@ -53,7 +53,6 @@ import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
 public final class QEXAFSParametersComposite extends FieldBeanComposite {
-
 	private ScaleBox initialEnergy;
 	private ScaleBoxAndFixedExpression finalEnergy;
 	private ScaleBox speed;
@@ -61,9 +60,6 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 	private LabelWrapper totalTime;
 	private Label numberPoints;
 	private Label avgTimePerPoint;
-
-	private FieldComposite shouldValidate;
-
 	private NumberFormat formatter = new DecimalFormat("#0.00000");
 	private Length crystal = null;
 	private BooleanWrapper btnBothWays;
@@ -302,10 +298,6 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 
 	public FieldComposite getTime() {
 		return totalTime;
-	}
-
-	public FieldComposite getShouldValidate() {
-		return shouldValidate;
 	}
 
 	public BooleanWrapper getBothWays() {

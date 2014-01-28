@@ -58,49 +58,38 @@ import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
 
 public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite {
-
 	private final static Logger logger = LoggerFactory.getLogger(FluorescenceComposite.class);
-
 	private RadioWrapper detectorType;
 	private BooleanWrapper collectDiffractionImages;
 	private ScaleBox mythenEnergy;
 	private ScaleBox mythenTime;
 	private Link configure;
-
 	private SelectionAdapter configureAction;
-
 	private FileBox configFileName;
 	private File editorFolder;
 	private boolean checkTemplate = LocalProperties.check("gda.microfocus.checkInTemplate");
 	private boolean fileNameChangeRequired = false;
-	private boolean autoChangeFluorescenceFile = LocalProperties
-			.check("gda.microfocus.exafs.autoChangeFluorescenceFile");
+	private boolean autoChangeFluorescenceFile = LocalProperties.check("gda.microfocus.exafs.autoChangeFluorescenceFile");
 
 	public FluorescenceComposite(Composite parent, int style, boolean includeGermanium, DetectorParameters abean) {
-
 		super(parent, style, abean);
 		setLayout(new GridLayout());
-		final Composite top = new Composite(this, SWT.NONE);
+		Composite top = new Composite(this, SWT.NONE);
 		top.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		final GridLayout gridLayout = new GridLayout();
+		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
 		top.setLayout(gridLayout);
-
-		final Label detectorTypeLabel = new Label(top, SWT.NONE);
+		Label detectorTypeLabel = new Label(top, SWT.NONE);
 		detectorTypeLabel.setLayoutData(new GridData());
 		detectorTypeLabel.setText("Detector Type");
-		
-		final Composite confComp = new Composite(top, SWT.NONE);
+		Composite confComp = new Composite(top, SWT.NONE);
 		confComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(confComp);
-
-		
 		String[] items;
-		if (includeGermanium) {
+		if (includeGermanium)
 			items = new String[] { "Silicon", "Germanium" };
-		} else {
+		else
 			items = new String[] { "Silicon" };
-		}
 		this.detectorType = new RadioWrapper(confComp, SWT.NONE, items);
 		detectorType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		detectorType.addValueListener(new ValueAdapter("Detector Type Listener") {
@@ -129,27 +118,26 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 					return;
 				try {
 					configFileName.setError(false, null);
-					if (BeansFactory.isBean(file, XspressParameters.class)) {
+					if (BeansFactory.isBean(file, XspressParameters.class))
 						detectorType.setValue("Germanium");
-					} else if (BeansFactory.isBean(file, VortexParameters.class)) {
+					else if (BeansFactory.isBean(file, VortexParameters.class))
 						detectorType.setValue("Silicon");
-					} else {
+					else {
 						configFileName.setError(true, "File chosen is not of a detector type.");
 						detectorType.clear();
 					}
-					if (file.getParent().equals(editorFolder)) {
+					if (file.getParent().equals(editorFolder))
 						configFileName.setError(true, "Please choose a detector file in the same folder.");
-					}
 				} catch (Exception e1) {
 					logger.error("Cannot get bean type of '" + file.getName() + "'.", e1);
 				}
 			}
 		});
 
-		this.configure = new Link(confComp, SWT.NONE);
+		configure = new Link(confComp, SWT.NONE);
 		configure.setText("<a>Configure</a>");
 		configure.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		this.configureAction = new SelectionAdapter() {
+		configureAction = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Object value = detectorType.getValue();
@@ -160,55 +148,45 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 						final IFile xspressFile = dir.getFile(configFileName.getText());
 						IFile returnFromTemplate = null;
 						if (!xspressFile.exists()) {
-							if (checkTemplate) {
-								returnFromTemplate = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(
-										XspressParameters.class).doTemplateCopy(dir, configFileName.getText());
-							}
+							if (checkTemplate)
+								returnFromTemplate = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(XspressParameters.class).doTemplateCopy(dir, configFileName.getText());
 							if (returnFromTemplate == null) {
-								String newName = ExperimentBeanManager.INSTANCE
-										.getXmlCommandHandler(XspressParameters.class).doCopy(dir).getName();
+								String newName = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(XspressParameters.class).doCopy(dir).getName();
 								configFileName.setText(newName);
 							}
 						}
-						if (xspressFile.exists()) {
+						if (xspressFile.exists())
 							ExperimentFactory.getExperimentEditorManager().openEditor(xspressFile);
-						}
 					} catch (Exception e1) {
 						logger.error("Cannot open xspress parameters.", e1);
 					}
 				} else if (value.equals("Silicon")) {
 					try {
 						// NOTE Currently editing local file.
-						final IFolder dir = ExperimentFactory.getExperimentEditorManager().getSelectedFolder();
+						IFolder dir = ExperimentFactory.getExperimentEditorManager().getSelectedFolder();
 						IFile vortexFile = dir.getFile(configFileName.getText());
 						IFile returnFromTemplate = null;
 						if (!vortexFile.exists()) {
-							if (checkTemplate) {
-								returnFromTemplate = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(
-										VortexParameters.class).doTemplateCopy(dir, configFileName.getText());
-							}
+							if (checkTemplate)
+								returnFromTemplate = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(VortexParameters.class).doTemplateCopy(dir, configFileName.getText());
 							if (returnFromTemplate == null) {
-								String newName = ExperimentBeanManager.INSTANCE
-										.getXmlCommandHandler(VortexParameters.class).doCopy(dir).getName();
+								String newName = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(VortexParameters.class).doCopy(dir).getName();
 								configFileName.setText(newName);
 							}
 						}
 						vortexFile = dir.getFile(configFileName.getText());
-						if (vortexFile.exists()) {
+						if (vortexFile.exists())
 							ExperimentFactory.getExperimentEditorManager().openEditor(vortexFile);
-						}
 					} catch (Exception e1) {
 						logger.error("Cannot open vortex parameters.", e1);
 					}
 				}
-
 			}
 		};
 		configure.addSelectionListener(configureAction);	
 
 		try {
-			BeanUI.addBeanFieldValueListener(XasScanParameters.class, "Element", new ValueAdapter(
-					"FluorElementListener") {
+			BeanUI.addBeanFieldValueListener(XasScanParameters.class, "Element", new ValueAdapter("FluorElementListener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
 					setFileNameChangeRequired(true);
@@ -242,24 +220,19 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		}
 		
 		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_MYTHEN)) {
-
-			final Label collectDiffImagesLabel = new Label(top, SWT.NONE);
+			Label collectDiffImagesLabel = new Label(top, SWT.NONE);
 			collectDiffImagesLabel.setText("Diffraction Images");
-
-			final Composite diffractionComp = new Composite(top, SWT.NONE);
+			Composite diffractionComp = new Composite(top, SWT.NONE);
 			diffractionComp.setLayout(new GridLayout(5, true));
-
 			collectDiffractionImages = new BooleanWrapper(diffractionComp, SWT.NONE);
 			collectDiffractionImages.setToolTipText("Collect diffraction data at the start and end of scans");
 			collectDiffractionImages.setText("Collect");
-
 			final Label mythenEnergyLabel = new Label(diffractionComp, SWT.NONE);
 			mythenEnergyLabel.setText("     Energy");
 			mythenEnergy = new ScaleBox(diffractionComp, SWT.NONE);
 			mythenEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			mythenEnergy.setMaximum(20000.0);
 			mythenEnergy.setUnit("eV");
-
 			final Label mythenTimeLabel = new Label(diffractionComp, SWT.NONE);
 			mythenTimeLabel.setText("     Time");
 			mythenTime = new ScaleBox(diffractionComp, SWT.NONE);
@@ -281,9 +254,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 				}
 			});
 		}
-
-		if (!ExafsActivator.getDefault().getPreferenceStore()
-				.getDefaultBoolean(ExafsPreferenceConstants.HIDE_WORKING_ENERGY)) {
+		if (!ExafsActivator.getDefault().getPreferenceStore().getDefaultBoolean(ExafsPreferenceConstants.HIDE_WORKING_ENERGY)) {
 			createEdgeEnergy(top);
 			createIonChamberSection(abean);
 		}
@@ -291,9 +262,8 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 
 	@Override
 	public void dispose() {
-		if (configure != null && !configure.isDisposed()) {
+		if (configure != null && !configure.isDisposed())
 			configure.removeSelectionListener(this.configureAction);
-		}
 		super.dispose();
 	}
 
@@ -362,19 +332,22 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 						if (params instanceof XasScanParameters) {
 							element = BeanUI.getBeanField("Element", XasScanParameters.class).getValue().toString();
 							edge = BeanUI.getBeanField("Edge", XasScanParameters.class).getValue().toString();
-						} else {
+						} 
+						else {
 							element = BeanUI.getBeanField("Element", XanesScanParameters.class).getValue().toString();
 							edge = BeanUI.getBeanField("Edge", XanesScanParameters.class).getValue().toString();
 						}
 						if (value.equals("Silicon")) {
 							configFileName.setText("Vortex_Parameters" + element + "_" + edge + ".xml");
-						} else if (value.equals("Germanium")) {
+						} 
+						else if (value.equals("Germanium")) {
 							configFileName.setText("Xspress_Parameters" + element + "_" + edge + ".xml");
 						}
 					} else {
 						if (value.equals("Silicon")) {
 							configFileName.setText("Vortex_Parameters.xml");
-						} else if (value.equals("Germanium")) {
+						} 
+						else if (value.equals("Germanium")) {
 							configFileName.setText("Xspress_Parameters.xml");
 						}
 					}
@@ -383,18 +356,16 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			} catch (Exception ex) {
 				logger.error("Cannot auto change the Fluorescence file name.", ex);
 				setFileNameChangeRequired(true);
-				if (value.equals("Silicon")) {
+				if (value.equals("Silicon"))
 					configFileName.setText("Vortex_Parameters.xml");
-				} else if (value.equals("Germanium")) {
+				else if (value.equals("Germanium"))
 					configFileName.setText("Xspress_Parameters.xml");
-				}
 			}
 		} else {
-			if (value.equals("Silicon")) {
+			if (value.equals("Silicon"))
 				configFileName.setText("Vortex_Parameters.xml");
-			} else if (value.equals("Germanium")) {
+			else if (value.equals("Germanium"))
 				configFileName.setText("Xspress_Parameters.xml");
-			}
 		}
 	}
 

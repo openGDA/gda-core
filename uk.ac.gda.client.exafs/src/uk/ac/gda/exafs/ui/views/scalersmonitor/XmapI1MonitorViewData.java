@@ -61,19 +61,18 @@ public class XmapI1MonitorViewData {
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 		table.setItemCount(1);
-
 		TableLayout layout = new TableLayout();
-		final int columnWeight = Math.round(100 / titles.length);
+		int columnWeight = 100/titles.length;
 		for (String title : titles) {
 			layout.addColumnData(new ColumnWeightData(columnWeight, true));
 			TableColumn column1 = new TableColumn(table, SWT.CENTER);
 			column1.setText(title);
 			column1.setAlignment(SWT.CENTER);
 		}
-		for (int i = 0; i < titles.length; i++) {
+		for (int i = 0; i < titles.length; i++)
 			table.getItem(0).setText(i, "                   "); // this string helps set the default width of the column
-		}
 		table.setLayout(layout);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(table);
 	}
+	
 }

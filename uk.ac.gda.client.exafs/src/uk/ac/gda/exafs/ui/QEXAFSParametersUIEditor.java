@@ -154,10 +154,6 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 	public FieldComposite getTime() {
 		return beanComposite.getTime();
 	}
-
-	public FieldComposite getShouldValidate() {
-		return beanComposite.getShouldValidate();
-	}
 	
 	public BooleanWrapper getBothWays() {
 		return beanComposite.getBothWays();

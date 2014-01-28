@@ -55,7 +55,6 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 
-	private TextWrapper asciiFileName;
 	private VerticalListEditor signalList;
 	private VerticalListEditor metadataList;
 	private TextWrapper nexusDirectory;
@@ -470,10 +469,6 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	public VerticalListEditor getMetadataList() {
 		return metadataList;
 	}
-
-	public TextWrapper getAsciiFileName() {
-		return asciiFileName;
-	}	
 
 	public BooleanWrapper getVortexSaveRawSpectrum() {
 		return vortexSaveRawSpectrum;

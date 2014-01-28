@@ -56,16 +56,13 @@ import uk.ac.gda.richbeans.event.ValueListener;
  *
  */
 public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite {
-
 	private final static Logger logger = LoggerFactory.getLogger(SoftXRaysComposite.class);
-	
 	private RadioWrapper detectorType;
 	private Link configure;
 	private SelectionAdapter configureAction;
 	private FileBox configFileName;
 	private File editorFolder;
 	private Label configurationFileNameLabel;
-
 	private BooleanWrapper collectDiffractionImages;
 	private ScaleBox mythenEnergy;
 	private ScaleBox mythenTime;
@@ -80,17 +77,17 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 		super(parent, style, null);
 		setLayout(new GridLayout());
 
-		final Composite top = new Composite(this, SWT.NONE);
+		Composite top = new Composite(this, SWT.NONE);
 		top.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		final GridLayout gridLayout = new GridLayout();
+		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
 		top.setLayout(gridLayout);
 
-		final Label detectorTypeLabel = new Label(top, SWT.NONE);
+		Label detectorTypeLabel = new Label(top, SWT.NONE);
 		detectorTypeLabel.setLayoutData(new GridData());
 		detectorTypeLabel.setText("Detector Type");
 		String[] items = new String[] { "Silicon Soft X-Rays", "Gas Microstrip" };
-		this.detectorType = new RadioWrapper(top, SWT.NONE, items);
+		detectorType = new RadioWrapper(top, SWT.NONE, items);
         detectorType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
         if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_MYTHEN)) {
@@ -142,12 +139,12 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 			}
 		});
         
-		final Composite confComp = new Composite(detectorType, SWT.NONE);
+		Composite confComp = new Composite(detectorType, SWT.NONE);
 		confComp.setLayout(new GridLayout());
 
-		this.configure = new Link(confComp, SWT.NONE);
+		configure = new Link(confComp, SWT.NONE);
 		configure.setText("<a>Configure</a>");
-		this.configureAction = new SelectionAdapter() {
+		configureAction = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Object value = detectorType.getValue();
@@ -165,7 +162,6 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 						logger.error("Cannot open vortex parameters.", e1);
 					}
 				} 
-
 			}
 		};
 		configure.addSelectionListener(configureAction);
@@ -176,57 +172,48 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 		configFileName = new FileBox(top, SWT.NONE);
 		configFileName.setChoiceType(ChoiceType.NAME_ONLY);
 
-		final GridData gd_configFileName = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		GridData gd_configFileName = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		configFileName.setLayoutData(gd_configFileName);
 		configFileName.addValueListener(new ValueAdapter("Test detector file name") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				Object value = detectorType.getValue();
 				if (value.equals("Silicon Soft X-Rays")) {
-					final String name = (String) e.getValue();
-					final File file = new File(configFileName.getFolder(), name);
+					String name = (String) e.getValue();
+					File file = new File(configFileName.getFolder(), name);
 					if (!file.exists())
 						return;
 					try {
 						configFileName.setError(false, null);
-						if (BeansFactory.isBean(file, VortexParameters.class)) {
+						if (BeansFactory.isBean(file, VortexParameters.class))
 							detectorType.setValue("Silicon Soft X-Rays");
-						} else {
+						else {
 							configFileName.setError(true, "File chosen is not of a detector type.");
 							detectorType.clear();
 						}
-						if (file.getParent().equals(editorFolder)) {
+						if (file.getParent().equals(editorFolder))
 							configFileName.setError(true, "Please choose a detector file in the same folder.");
-						}
 					} catch (Exception e1) {
 						logger.error("Cannot get bean type of '" + file.getName() + "'.", e1);
 					}
 				}
 			}	
 		});
-
 		createEdgeEnergy(top);
-		
 		createDrainCurrentSection();
 	}
 
 	@Override
 	public void dispose() {
-		if (configure!=null && !configure.isDisposed()) {
+		if (configure!=null && !configure.isDisposed())
 			configure.removeSelectionListener(this.configureAction);
-		}
 		super.dispose();
 	}
 
-	/**
-	 * @return f
-	 */
 	public RadioWrapper getDetectorType() {
 		return detectorType;
 	}
-	/**
-	 * @return TextWrapper
-	 */
+
 	public FileBox getConfigFileName() {
 		return configFileName;
 	}
@@ -239,10 +226,7 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 		this.editorFolder = editorFolder;
         configFileName.setFolder(editorFolder);
 	}
-	
-	/**
-	 * 
-	 */
+
 	public void updateFileName() {
 		final Object fileNameValue = configFileName.getText();
 		if (fileNameValue==null||"".equals(fileNameValue)) {
@@ -268,11 +252,10 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 			configFileName.setText("");
 			return;
 		}
-		if (value.equals("Silicon Soft X-Rays")) {
+		if (value.equals("Silicon Soft X-Rays"))
 			configFileName.setText("Vortex_Parameters.xml");
-		} else {
+		else
 			configFileName.setText("");	
-		} 
 	}
 	
 	public ScaleBox getMythenEnergy() {
@@ -282,4 +265,5 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 	public ScaleBox getMythenTime() {
 		return mythenTime;
 	}
+	
 }

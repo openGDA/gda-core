@@ -24,8 +24,6 @@ public class Counts {
 		// use last value or store new value;
 		if (currentEditIndividual == null)
 			currentEditIndividual = calculateSingleElement;
-		else
-			calculateSingleElement = currentEditIndividual;
 		int start = (Integer) detectorElementComposite.getStart().getValue();
 		int end = (Integer) detectorElementComposite.getEnd().getValue();
 		return getInWindowsCounts(currentEditIndividual, start, end, currentSelectedElementIndex, detectorData);

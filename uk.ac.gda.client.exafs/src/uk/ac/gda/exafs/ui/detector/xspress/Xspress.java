@@ -150,7 +150,6 @@ public class Xspress extends Detector{
 					regionSynchronizer.setEnd(end);
 				}
 				xspressElements.updateWindow(start, end, mcaData);
-				
 			}
 
 			@Override
@@ -164,7 +163,6 @@ public class Xspress extends Detector{
 		
 		if(readoutMode.isModeOveride()) {
 			GridUtils.setVisibleAndLayout(readoutMode.getReadoutMode(), false);
-			GridUtils.setVisibleAndLayout(resolutionGrade.getResGradeLabel(), false);
 			GridUtils.setVisibleAndLayout(resolutionGrade.getResolutionGradeCombo(), false);
 			GridUtils.setVisibleAndLayout(lblRegionBins, false);
 			GridUtils.setVisibleAndLayout(regionType.getRegionType(), false);
@@ -233,13 +231,11 @@ public class Xspress extends Detector{
 		GridUtils.startMultiLayout(composite.getParent());
 		try {
 			if(readoutMode.getReadoutMode().getSelectionIndex() == 2 && !readoutMode.isModeOveride()) {
-				GridUtils.setVisibleAndLayout(resolutionGrade.getResGradeLabel(), true);
 				GridUtils.setVisibleAndLayout(resolutionGrade.getResolutionGradeCombo(), true);
 				GridUtils.setVisibleAndLayout(lblRegionBins, true);
 				GridUtils.setVisibleAndLayout(regionType.getRegionType(), true);
 			} 
 			else {
-				GridUtils.setVisibleAndLayout(resolutionGrade.getResGradeLabel(), false);
 				GridUtils.setVisibleAndLayout(resolutionGrade.getResolutionGradeCombo(), false);
 				GridUtils.setVisibleAndLayout(lblRegionBins, false);
 				GridUtils.setVisibleAndLayout(regionType.getRegionType(), false);

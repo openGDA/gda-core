@@ -289,33 +289,28 @@ public final class XesScanParametersComposite extends Composite {
 		scanFileName.addValueListener(new ValueAdapter("Test Eo scan file name") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				final String name = (String) e.getValue();
-				final File file = new File(scanFileName.getFolder(), name);
+				String name = (String) e.getValue();
+				File file = new File(scanFileName.getFolder(), name);
 				if (!file.exists())
 					return;
 				try {
-					if (BeansFactory.isBean(file, XasScanParameters.class)
-							&& scanType.getValue().equals(XesScanParameters.FIXED_XES_SCAN_XAS)) {
+					if (BeansFactory.isBean(file, XasScanParameters.class) && scanType.getValue().equals(XesScanParameters.FIXED_XES_SCAN_XAS))
 						scanFileName.setError(false, null);
-					} else if (BeansFactory.isBean(file, XanesScanParameters.class)
-							&& scanType.getValue().equals(XesScanParameters.FIXED_XES_SCAN_XANES)) {
+					else if (BeansFactory.isBean(file, XanesScanParameters.class) && scanType.getValue().equals(XesScanParameters.FIXED_XES_SCAN_XANES))
 						scanFileName.setError(false, null);
-					} else {
-						final String fileType = scanType.getValue().equals(XesScanParameters.FIXED_XES_SCAN_XAS) ? "XAS"
-								: "XANES";
-						scanFileName.setError(true, "File chosen is not of a scan type. It must be a " + fileType
-								+ " file.");
+					else {
+						String fileType = scanType.getValue().equals(XesScanParameters.FIXED_XES_SCAN_XAS) ? "XAS" : "XANES";
+						scanFileName.setError(true, "File chosen is not of a scan type. It must be a " + fileType + " file.");
 					}
-					if (file.getParent().equals(editorFolder)) {
+					if (file.getParent().equals(editorFolder))
 						scanFileName.setError(true, "Please choose a detector file in the same folder.");
-					}
 				} catch (Exception e1) {
 					logger.error("Cannot get bean type of '" + file.getName() + "'.", e1);
 				}
 			}
 		});
 
-		final Link openFile = new Link(scanFileComposite, SWT.NONE);
+		Link openFile = new Link(scanFileComposite, SWT.NONE);
 		openFile.setText("    <a>Open</a>");
 		openFile.setToolTipText("Open monochromator scan file.");
 		openFile.addSelectionListener(new SelectionAdapter() {
@@ -830,4 +825,5 @@ public final class XesScanParametersComposite extends Composite {
 		editorFolder = EclipseUtils.getFile(editing).getParentFile();
 		scanFileName.setFolder(editorFolder);
 	}
+	
 }

@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.eclipse.swt.widgets.Composite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
@@ -44,14 +42,10 @@ import uk.ac.gda.ui.components.QueuedCommandWidget;
  * Please set the scriptName and the editor before using the widget.
  */
 public final class EstimatePointsWidget extends QueuedCommandWidget {
-
-	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory.getLogger(EstimatePointsWidget.class);
-
 	private String             scriptName;
 	private RichBeanEditorPart editorPart;
-
 	private boolean timeMode = false;
+	
 	/**
 	 * @param parent
 	 * @param style
@@ -66,19 +60,15 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 	 */
 	@Override
 	protected String runCommand() throws Exception {
-		
-		final String command = getCommandLine();
-		
-		if (ClientManager.isTestingMode()) return "Test";
-		
+		String command = getCommandLine();
+		if (ClientManager.isTestingMode()) 
+			return "Test";
 		// Run command and block.
-        final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
-		
-        final Map<String, Serializable> jythonObjects = getBean();
+        JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
+        Map<String, Serializable> jythonObjects = getBean();
         if (jythonObjects.isEmpty()) throw new Exception("Cannot determine editing bean.");
-        for (Map.Entry<String, Serializable> pair : jythonObjects.entrySet()) {
+        for (Map.Entry<String, Serializable> pair : jythonObjects.entrySet())
 			jythonServerFacade.placeInJythonNamespace(pair.getKey(), pair.getValue());
-		}
 		return jythonServerFacade.evaluateCommand(command);
 	}
 
@@ -88,7 +78,8 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 	 */
 	@SuppressWarnings("unchecked")
 	private Map<String, Serializable> getBean() {
-		if (!checkActive(this)) return Collections.EMPTY_MAP;
+		if (!checkActive(this)) 
+			return Collections.EMPTY_MAP;
 
 		final Map<String, Serializable> bean = new HashMap<String, Serializable>(1);
 		final File file = EclipseUtils.getFile(editorPart.getEditorInput());
@@ -109,50 +100,39 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 
 	private String getCommandLine() {
 		final File file = EclipseUtils.getFile(editorPart.getEditorInput());
-		if (timeMode) {
+		if (timeMode)
 			return scriptName+" "+getFileKey(file.getName())+" 1 True";
-		}
 		return scriptName+" "+getFileKey(file.getName());
 	}
 
 	@Override
 	public void setLabelText(final String status) {
 		if (timeMode) {
-			final int  timeInSeconds = Integer.parseInt(status);
-			final long ms            = timeInSeconds*1000;
-			final Date       date    = new Date(ms);
-			final DateFormat format = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.UK);
+			Date date  = getDate(Integer.parseInt(status));
+			DateFormat format = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.UK);
 			format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("GMT")));
 			label.setText(format.format(date));
-		} else {
+		} 
+		else
 			super.setLabelText(status);
-		}
 	}
 
-	/**
-	 * @return Returns the scriptName.
-	 */
+	private Date getDate(long seconds) { 
+		return new Date(seconds * 1000); 
+	}
+	
 	public String getScriptName() {
 		return scriptName;
 	}
 
-	/**
-	 * @param scriptName The scriptName to set.
-	 */
 	public void setScriptName(String scriptName) {
 		this.scriptName = scriptName;
 	}
 
-	/**
-	 * @return Returns the editor.
-	 */
 	public RichBeanEditorPart getEditor() {
 		return editorPart;
 	}
 
-	/**
-	 * @param editor The editor to set.
-	 */
 	public void setEditor(RichBeanEditorPart editor) {
 		this.editorPart = editor;
 	}
@@ -161,9 +141,6 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 		return fileName.substring(0,fileName.indexOf("."));
 	}
 
-	/**
-	 * @param b
-	 */
 	public void setTimeMode(boolean b) {
 		this.timeMode = b;
 	}

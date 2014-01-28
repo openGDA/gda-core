@@ -53,8 +53,6 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public class OutputParametersUIEditor extends RichBeanEditorPart {
-
-	private TextWrapper asciiFileName;
 	private VerticalListEditor signalList;
 	private VerticalListEditor metadataList;
 	private TextWrapper nexusDirectory;
@@ -396,8 +394,5 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 	public VerticalListEditor getMetadataList() {
 		return metadataList;
 	}
-
-	public TextWrapper getAsciiFileName() {
-		return asciiFileName;
-	}
+	
 }

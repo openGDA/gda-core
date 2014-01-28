@@ -41,15 +41,13 @@ import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 public final class ScanObjectManager extends ExperimentObjectManager implements IExperimentObjectManager, IObserver {
-
 	private static IScanParameters currentScan;
 	private static IDetectorParameters currentDetectorParameters;
 	private static LoggingScriptController messageController;
 	private static final Logger logger = LoggerFactory.getLogger(ScanObjectManager.class);
 	
 	public ScanObjectManager() {
-		String controllers = GDAClientActivator.getDefault().getPreferenceStore()
-				.getString(PreferenceConstants.GDA_LOGGINGSCRIPTCONTROLLERS);
+		String controllers = GDAClientActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.GDA_LOGGINGSCRIPTCONTROLLERS);
 		String[] controllerNames = controllers.split(",");
 
 		for (String name : controllerNames) {
@@ -77,9 +75,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	 *         Equinox environment.
 	 */
 	public static boolean isXESOnlyMode() {
-
-		return ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.XES_MODE_ENABLED);
+		return ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.XES_MODE_ENABLED);
 	}
 
 	public static void setXESOnlyMode(boolean onlyXESScans) {
@@ -118,13 +114,11 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 		} 
 	}
 
-
 	@Override
 	protected IExperimentObject createNewExperimentObject(String line) {
 		final String[] items = line.split(" ");
-		if (items.length > 5) {
+		if (items.length > 5)
 			return createNewScanObject(items[0], items[1], items[2], items[3], items[4], Integer.parseInt(items[5]));
-		}
 		return createNewScanObject(items[0], items[1], items[2], items[3], items[4], 1);
 	}
 
@@ -137,28 +131,22 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	@Override
 	public IExperimentObject createCopyOfExperiment(IExperimentObject original) throws CoreException {
 		ScanObject origAsScanObj = (ScanObject) original;
-
-		final String name = getUniqueName(original.getRunName());
+		String name = getUniqueName(original.getRunName());
 		IFile scanFile = createCopy(origAsScanObj.getScanFile());
 		IFile sampleFile = createCopy(origAsScanObj.getSampleFile());
 		IFile detFile = createCopy(origAsScanObj.getDetectorFile());
 		IFile outFile = createCopy(origAsScanObj.getOutputFile());
-		return createNewScanObject(name, sampleFile.getName(), scanFile.getName(), detFile.getName(),
-				outFile.getName(), original.getNumberRepetitions());
-
+		return createNewScanObject(name, sampleFile.getName(), scanFile.getName(), detFile.getName(), outFile.getName(), original.getNumberRepetitions());
 	}
 
 	@Override
 	public IExperimentObject cloneExperiment(IExperimentObject original) {
 		ScanObject origAsScanObj = (ScanObject) original;
-		return createNewScanObject(original.getRunName(), origAsScanObj.getSampleFileName(),
-				origAsScanObj.getScanFileName(), origAsScanObj.getDetectorFileName(),
-				origAsScanObj.getOutputFileName(), original.getNumberRepetitions());
+		return createNewScanObject(original.getRunName(), origAsScanObj.getSampleFileName(),origAsScanObj.getScanFileName(), origAsScanObj.getDetectorFileName(), origAsScanObj.getOutputFileName(), original.getNumberRepetitions());
 
 	}
 
-	private ScanObject createNewScanObject(String runName, String sampleFileName, String scanFileName,
-			String detFileName, String outputFileName, int numRepetitions) {
+	private ScanObject createNewScanObject(String runName, String sampleFileName, String scanFileName, String detFileName, String outputFileName, int numRepetitions) {
 		ScanObject newScan = new ScanObject();
 		newScan.setRunName(runName);
 		newScan.setMultiScanName(this.getName());
@@ -175,4 +163,5 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	public String[] getOrderedColumnBeanTypes() {
 		return new String[]{"Scan","Detector","Sample","Output"};
 	}
+	
 }

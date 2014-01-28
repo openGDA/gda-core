@@ -82,8 +82,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public void dispose() {
-		if (vortex.getCountType() != null)
-			vortex.getCountType().dispose();
 		vortex.getVortexElements().getSaveRawSpectrum().dispose();
 		vortex.getAcquireFileLabel().dispose();
 		super.dispose();
@@ -95,10 +93,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	
 	public ScaleBox getCollectionTime() {
 		return vortex.getVortexAcquire().getAcquireTime();
-	}
-	
-	public ComboWrapper getCountType() {
-		return vortex.getCountType();
 	}
 	
 	public BooleanWrapper getSaveRawSpectrum() {

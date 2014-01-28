@@ -29,7 +29,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
 
 public class ResolutionGrade{
@@ -45,7 +44,6 @@ public class ResolutionGrade{
 		RES_NO_16.put("Sum all grades", ResGrades.NONE);
 		RES_NO_16.put("Threshold", ResGrades.THRESHOLD);
 	}
-	private Label resGradeLabel;
 	
 	public ResolutionGrade(Composite parent) {
 		createResolutionGrade(parent);
@@ -77,10 +75,6 @@ public class ResolutionGrade{
 
 	public ComboAndNumberWrapper getResolutionGradeCombo() {
 		return resolutionGradeCombo;
-	}
-
-	public Label getResGradeLabel() {
-		return resGradeLabel;
 	}
 
 }

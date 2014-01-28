@@ -39,25 +39,17 @@ import uk.ac.gda.exafs.ui.AlignmentPerspective;
 import uk.ac.gda.exafs.ui.PlottingPerspective;
 import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 
-/**
- * This class is here because Sofia requested action exist to switch between perspective groups.
- */
-public class DataCollectionModeHandler extends AbstractHandler implements IWorkbenchWindowActionDelegate,
-		IEditorActionDelegate {
-
+public class DataCollectionModeHandler extends AbstractHandler implements IWorkbenchWindowActionDelegate, IEditorActionDelegate {
 	private static final Logger logger = LoggerFactory.getLogger(DataCollectionModeHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-
 		return doDataCollectionMode();
 	}
 
 	public static boolean doDataCollectionMode() {
-
 		IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		IPerspectiveDescriptor[] descriptors = win.getActivePage().getSortedPerspectives();
-
 		try {
 			PlatformUI.getWorkbench().showPerspective(JythonPerspective.ID, win);
 			PlatformUI.getWorkbench().showPerspective(DataBrowsingPerspective.ID, win);
@@ -67,13 +59,12 @@ public class DataCollectionModeHandler extends AbstractHandler implements IWorkb
 			logger.error("Cannot open " + AlignmentPerspective.ID, e);
 			return Boolean.FALSE;
 		}
-
-		for (IPerspectiveDescriptor desc : descriptors) {
-			if (!(desc.getId().equals(JythonPerspective.ID) || desc.getId().equals(DataBrowsingPerspective.ID) || desc
-					.getId().equals(PlottingPerspective.ID) | desc.getId().equals(ExperimentPerspective.ID))) {
+		for (IPerspectiveDescriptor desc : descriptors)
+			if (!(desc.getId().equals(JythonPerspective.ID) || 
+			desc.getId().equals(DataBrowsingPerspective.ID) || 
+			desc.getId().equals(PlottingPerspective.ID) ||
+			desc.getId().equals(ExperimentPerspective.ID)))
 				win.getActivePage().closePerspective(desc, true, true);
-			}
-		}
 
 		return Boolean.TRUE;
 	}

@@ -45,14 +45,8 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.exafs.ui.XanesScanParametersUIEditor;
 import uk.ac.gda.richbeans.components.scalebox.ValueResult;
 
-/**
- * @author fcp94556
- */
-public class RegionComposite extends Composite {
 
-	private ValueResult time;
-	private ValueResult step;
-	private ValueResult energy;
+public class RegionComposite extends Composite {
 	private TableViewer viewer;
 	private ArrayList<XanesRegionParameters> regions;
 	private List<Region> beanRegions;
@@ -91,7 +85,7 @@ public class RegionComposite extends Composite {
 		
 		createColumns(viewer);
 
-		final Table table = viewer.getTable();
+		Table table = viewer.getTable();
 
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
@@ -149,27 +143,6 @@ public class RegionComposite extends Composite {
 	@Override
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
-	}
-
-	/**
-	 * @return ScaleBox
-	 */
-	public ValueResult getEnergy() {
-		return energy;
-	}
-
-	/**
-	 * @return ScaleBox
-	 */
-	public ValueResult getStep() {
-		return step;
-	}
-
-	/**
-	 * @return ScaleBox
-	 */
-	public ValueResult getTime() {
-		return time;
 	}
 
 	// This will create the columns for the table

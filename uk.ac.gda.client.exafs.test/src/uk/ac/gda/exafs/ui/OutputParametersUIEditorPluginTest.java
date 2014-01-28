@@ -46,20 +46,15 @@ public class OutputParametersUIEditorPluginTest {
 	
 	private OutputParametersEditor   editor;
 	private OutputParametersUIEditor uiEd;
-	/**
-	 * @throws Throwable
-	 */
+
 	@Before
 	public void setUp() throws Throwable {
 		ClientManager.setTestingMode(true);
-		
-		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		
-		final File xml = new File(PackageUtils.getTestPath(OutputParametersUIEditorPluginTest.class)+"/Output_Parameters.xml");	
-		final FileStoreEditorInput fileInput = new FileStoreEditorInput(EFS.getLocalFileSystem().fromLocalFile(xml));
-	
-		this.editor = (OutputParametersEditor)window.getActivePage().openEditor(fileInput, OutputDescriber.ID);
-		this.uiEd = (OutputParametersUIEditor)editor.getRichBeanEditor();
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		File xml = new File(PackageUtils.getTestPath(OutputParametersUIEditorPluginTest.class)+"/Output_Parameters.xml");	
+		FileStoreEditorInput fileInput = new FileStoreEditorInput(EFS.getLocalFileSystem().fromLocalFile(xml));
+		editor = (OutputParametersEditor)window.getActivePage().openEditor(fileInput, OutputDescriber.ID);
+		uiEd = (OutputParametersUIEditor)editor.getRichBeanEditor();
 	}
 	
 	/**
@@ -68,14 +63,10 @@ public class OutputParametersUIEditorPluginTest {
 	 */ 
 	@Test
 	public final void testAFewValues() throws Throwable {
-		if (!uiEd.getAsciiFileName().getValue().equals("FeKedge")) {
-	    	throw new Exception("The asciiFileName was "+uiEd.getAsciiFileName().getValue()+" and not FeKedge");
-	    }
-	    if (!uiEd.getAsciiDirectory().getValue().equals("ascii")) {
+	    if (!uiEd.getAsciiDirectory().getValue().equals("ascii"))
 	    	throw new Exception("The asciiDirectory was "+uiEd.getAsciiDirectory().getValue()+" and not ascii");
-	    }
-	    if (!uiEd.getNexusDirectory().getValue().equals("nexus")) {
+	    if (!uiEd.getNexusDirectory().getValue().equals("nexus"))
 	    	throw new Exception("The nexusDirectory was "+uiEd.getNexusDirectory().getValue()+" and not nexus");
-	    }
 	}
+	
 }

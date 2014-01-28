@@ -36,17 +36,13 @@ import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.Detector;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.Plot;
-import uk.ac.gda.exafs.ui.detector.xspress.Xspress.RegionSynchronizer;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 public class Vortex extends Detector{
 	public Label acquireFileLabel;
-	private VortexParameters vortexParameters;
-	private ComboWrapper countType;
 	private VortexAcquire vortexAcquire;
 	private XmapDetector xmapDetector;
 	private VortexElements vortexElements;
@@ -100,10 +96,6 @@ public class Vortex extends Detector{
 				vortexElements.configureUI(vortexAcquire.getMcaData(), evt.getSelectionIndex());
 			}
 		});
-	}
-
-	public ComboWrapper getCountType() {
-		return countType;
 	}
 
 	public VortexAcquire getVortexAcquire() {
