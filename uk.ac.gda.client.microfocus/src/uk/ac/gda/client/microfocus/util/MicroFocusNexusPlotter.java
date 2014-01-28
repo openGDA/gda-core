@@ -22,12 +22,8 @@ import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
 import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.region.IROIListener;
-import org.dawnsci.plotting.api.region.IRegion;
-import org.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.dawnsci.plotting.api.region.IRegionListener;
-import org.dawnsci.plotting.api.region.ROIEvent;
-import org.dawnsci.plotting.api.region.RegionEvent;
+import org.dawnsci.plotting.api.axis.ClickEvent;
+import org.dawnsci.plotting.api.axis.IClickListener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -36,24 +32,99 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.roi.PointROI;
+import uk.ac.gda.client.microfocus.views.ExafsSelectionView;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
 
-public class MicroFocusNexusPlotter extends IROIListener.Stub {
+public class MicroFocusNexusPlotter {
 
 	public static final String MCA_PLOTTER = "MCA Plot";
 
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusNexusPlotter.class);
 
-	private boolean createdListener = false;
 	private MicroFocusMappableDataProvider dataProvider;
-	private IRegion region;
-	private IRegion lastregion;
-	private int regionUID = 0; // so all regions have a unique name
+	private int serverPlotChannel;
+
+	private Integer lastLCoordinatePlotted = null;
+
+	private Integer lastMCoordinatePlotted = null;
+
+	private IClickListener mouseClickListener;
 
 	public MicroFocusNexusPlotter() {
 		super();
+	}
+
+	private void createClickListener() throws PartInitException {
+
+		if (mouseClickListener == null) {
+			mouseClickListener = new IClickListener() {
+
+				@Override
+				public void clickPerformed(ClickEvent evt) {
+
+					// do conversion this way to always cast down
+					int xArrayIndex = (int) evt.getxValue();
+					int yArrayIndex = (int) evt.getyValue();
+
+					// is it a ctrl-left click?
+					if (evt.isControlDown()) {
+
+						double[] dataXYValues = getDataXYValues(xArrayIndex, yArrayIndex);
+
+						MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench()
+								.getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
+						mfElements.setLastXYSelection(dataXYValues[0], dataXYValues[1]);
+						Double[] xyz = mfElements.getLastXYZSelection();
+
+						ExafsSelectionView selectionView = (ExafsSelectionView) PlatformUI.getWorkbench()
+								.getActiveWorkbenchWindow().getActivePage().findView(ExafsSelectionView.ID);
+						selectionView.setSelectedPoint(xyz);
+					
+						plotSpectrum(xArrayIndex, yArrayIndex);
+					}
+				}
+
+				@Override
+				public void doubleClickPerformed(ClickEvent evt) {
+					// ignore these events
+				}
+
+			};
+
+			IPlottingSystem system = getMapPlotPlottingSystem();
+			system.addClickListener(mouseClickListener);
+
+			// todo lock histogram
+//			 system.get
+		}
+	}
+
+	private IPlottingSystem getMapPlotPlottingSystem() throws PartInitException {
+		IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.showView(MapPlotView.ID);
+		return (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
+	}
+
+	private double[] getDataXYValues(int xPixel, int yPixel) {
+		if (dataProvider == null || !ObjectStateManager.isActive(dataProvider)) {
+
+			// hack warning!
+			String xyValues = InterfaceProvider.getCommandRunner().evaluateCommand(
+					"map.getMFD().getXYPositions(" + xPixel + "," + yPixel + ")");
+			String[] parts = xyValues.split("[\\[\\],]");
+			Double x = Double.parseDouble(parts[2]);
+			Double y = Double.parseDouble(parts[3]);
+
+			return new double[] { x, y };
+		}
+		Double[] xData = dataProvider.getXarray();
+		Double x = xData[xPixel];
+
+		Double[] yData = dataProvider.getYarray();
+		Double y = yData[yPixel];
+
+		return new double[] { x, y };
 	}
 
 	public MicroFocusMappableDataProvider getDataProvider() {
@@ -64,15 +135,17 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 		this.dataProvider = dataProvider;
 	}
 
-	public void plotMapFromServer(final String elementName) {
+	public void plotMapFromServer(final String elementName, final int selectedChannel) {
 		this.dataProvider = null;
+		this.serverPlotChannel = selectedChannel;
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					JythonServerFacade.getInstance().evaluateCommand(
-							"map.getMFD().displayPlot(\"" + elementName + "\")");
-					createPointRegionListener();
+							"map.getMFD().displayPlot(\"" + elementName + "\"," + selectedChannel + ")");
+					updateSpectrum();
+					createClickListener();
 				} catch (Exception e) {
 					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 				}
@@ -80,17 +153,35 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 		});
 	}
 
+	/**
+	 * For plotting I0 and It data which have no related channel/element.
+	 * 
+	 * @param dataset
+	 */
 	public void plotDataset(AbstractDataset dataset) {
 		try {
 			SDAPlotter.imagePlot(MapPlotView.NAME, dataset);
+			updateSpectrum();
+			createClickListener();
 		} catch (Exception e) {
 			logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 		}
 	}
 
-	public void plotElement(final String elementName) {
+	/*
+	 * For use after the map has been updated
+	 */
+	private void updateSpectrum() {
+		if (lastLCoordinatePlotted != null && lastMCoordinatePlotted != null) {
+			plotSpectrum(lastLCoordinatePlotted, lastMCoordinatePlotted);
+		}
+	}
+
+	public void plotElement(final String elementName, Integer selectedChannel) {
 		ObjectStateManager.setActive(dataProvider);
+
 		dataProvider.setSelectedElement(elementName);
+		dataProvider.setSelectedChannel(selectedChannel);
 
 		double[][] mapData = dataProvider.constructMappableData();
 		final AbstractDataset plotSet = AbstractDataset.array(mapData);
@@ -106,7 +197,8 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 			public void run() {
 				try {
 					SDAPlotter.imagePlot(MapPlotView.NAME, xDataset, yDataset, plotSet);
-					createPointRegionListener();
+					updateSpectrum();
+					createClickListener();
 				} catch (Exception e) {
 					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 				}
@@ -114,146 +206,45 @@ public class MicroFocusNexusPlotter extends IROIListener.Stub {
 		});
 	}
 
-	private void createPointRegionListener() throws Exception {
-		registerRegionListener();
-		updateRegion();
-	}
-
-	@Override
-	public void update(ROIEvent evt) {
-		try {
-			// the ROI is not in the data values, but the pixel index number
-			PointROI selectedPixel = (PointROI) evt.getROI();
-			// cast to int to round down, not round to nearest int
-			int xArrayIndex = (int) selectedPixel.getPointX();
-			int yArrayIndex = (int) selectedPixel.getPointY();
-
-			if (dataProvider == null || !ObjectStateManager.isActive(dataProvider)) {
-				JythonServerFacade.getInstance().runCommand(
-						"map.getMFD().plotSpectrum(0," + xArrayIndex + "," + yArrayIndex + ")");
-				
-				// hack warning!
-				String xyValues = InterfaceProvider.getCommandRunner().evaluateCommand("map.getMFD().getXYPositions(" + xArrayIndex + "," + yArrayIndex + ")");
-				String[] parts = xyValues.split("[\\[\\],]");
-				Double x = Double.parseDouble(parts[2]);
-				Double y = Double.parseDouble(parts[3]);
-				
-				MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
-				mfElements.setLastXYSelection(x, y);
-			} else {
-				Double[] xData = dataProvider.getXarray();
-				Double selectedXDataValue = xData[xArrayIndex];
-
-				Double[] yData = dataProvider.getYarray();
-				Double selectedYDataValue = yData[yArrayIndex];
-
-				MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
-				mfElements.setLastXYSelection(selectedXDataValue, selectedYDataValue);
-
-				displayPlot(xArrayIndex, yArrayIndex);
-			}
-
-			updateRegion();
-
-		} catch (Throwable ne) {
-			logger.debug(ne.getMessage());
-		}
-	}
-
-	private void updateRegion() throws PartInitException, Exception {
-		IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-				.showView(MapPlotView.ID);
-		IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
-		if (lastregion != null) {
-			system.removeRegion(lastregion);
-		}
-		lastregion = region;
-		regionUID++;
-		region = system.createRegion("Select pixel " + regionUID, IRegion.RegionType.POINT);
-	}
-
 	/*
-	 * Display the MCA of the selected point. The x and y values are the data array indexes, not data values.
+	 * Display the MCA of the selected point. The x(l) and y(m) values are the data array indexes, not data values.
 	 */
-	private void displayPlot(final int l, final int m) {
+	private void plotSpectrum(final int l, final int m) {
 		if (dataProvider != null && ObjectStateManager.isActive(dataProvider)) {
 			double[] spectrum = null;
 			String detectorName = dataProvider.getDetectorName();
 			if (detectorName.equals("xmapMca")) {
-				spectrum = dataProvider.getSpectrum(0, l, m);
+				spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), l, m);
 			} else {
-				spectrum = dataProvider.getSpectrum(0, m, l);
+				spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), m, l);
 			}
 
 			if (spectrum != null) {
 				final AbstractDataset yaxis = AbstractDataset.array(spectrum);
 
-				logger.info("Plotting spectrum for element 0," + l + "," + m);
+				logger.info("Plotting spectrum for channel " + dataProvider.getSelectedChannel() + ", pixel " + l + ","
+						+ m);
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						try {
 							SDAPlotter.plot(MCA_PLOTTER, yaxis);
 						} catch (Exception e) {
-							logger.error("Unable to plot the spectrum for " + l + " " + m, e);
+							logger.error("Unable to plot the spectrum for " + dataProvider.getSelectedChannel() + " "
+									+ l + " " + m, e);
 						}
 					}
 				});
 			} else {
-				logger.info("No Spectrum available for index " + l + "," + m);
+				logger.info("No Spectrum available for index " + dataProvider.getSelectedChannel() + " " + l + "," + m);
 			}
 		} else {
 			// server needs to show the spectrum
 			logger.info("Plotting spectrum for element 0," + l + "," + m);
-			JythonServerFacade.getInstance().evaluateCommand("map.getMFD().plotSpectrum(0," + l + "," + m + ")");
+			JythonServerFacade.getInstance().evaluateCommand(
+					"map.getMFD().plotSpectrum(" + serverPlotChannel + "," + l + "," + m + ")");
 		}
-
+		lastLCoordinatePlotted = l;
+		lastMCoordinatePlotted = m;
 	}
-
-	private void registerRegionListener() throws Exception {
-		if (!createdListener) {
-			IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView(MapPlotView.ID);
-
-			IPlottingSystem system = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
-			system.addRegionListener(new IRegionListener.Stub() {
-				@Override
-				public void regionCreated(RegionEvent evt) {
-					if (evt.getRegion().getRegionType() != RegionType.POINT)
-						return;
-					evt.getRegion().addROIListener(MicroFocusNexusPlotter.this);
-				}
-
-				@Override
-				public void regionsRemoved(RegionEvent evt) {
-					// classcast exception inside evt.getRegion(), so just skip this code
-					// if (evt.getRegion().getRegionType() != RegionType.POINT)
-					// return;
-					// evt.getRegion().removeROIListener(MicroFocusNexusPlotter.this);
-				}
-			});
-
-			createdListener = true;
-		}
-	}
-
-	@Override
-	public void roiDragged(ROIEvent evt) {
-		// Do nothing
-	}
-
-	@Override
-	public void roiChanged(ROIEvent evt) {
-		update(evt);
-
-	}
-
-	@Override
-	public void roiSelected(ROIEvent evt) {
-		update(evt);
-
-	}
-
 }

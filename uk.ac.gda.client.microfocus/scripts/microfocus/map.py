@@ -97,27 +97,12 @@ class Map(Scan):
         self.log("Number y points: " + str(ny))
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
-        self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
+        self.detectorBeanFileName = experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
+        self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize(),self.detectorBeanFileName, array(detectorList, Detector))
 
         for energy in energyList:
             
             zScannable = self.finder.find(scanBean.getZScannableName())
-            if(detectorBean.getExperimentType() == "Transmission"):
-                elements =getElementNamesfromIonChamber(detectorBean)
-                self.mfd.setRoiNames(array(elements, String))
-                self.mfd.setSelectedElement("I0")
-                self.mfd.setDetectors(array(detectorList, Detector))
-            else:
-                self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
-                elements = showElementsList(self.detectorBeanFileName)
-                selectedElement = elements[0]
-                self.mfd.setRoiNames(array(elements, String))
-                self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
-                bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
-                detector = self.finder.find(bean.getDetectorName())   
-                self.mfd.setDetectors(array(detectorList, Detector))     
-                self.mfd.setSelectedElement(selectedElement)
-                self.mfd.getWindowsfromBean()
             self.mfd.setEnergyValue(energy)
             if(zScannablePos == None):
                 self.mfd.setZValue(zScannable.getPosition())
@@ -209,6 +194,8 @@ class Map(Scan):
         dataWriter.setOutputBean(outputBean);
         dataWriter.setSampleName(sampleName);
         dataWriter.setXmlFolderName(experimentFullPath)
+        
+        # add the detector configuration file to the metadata
         dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
@@ -250,9 +237,6 @@ class Map(Scan):
             trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setCollectionTime(collectionTime)
-            
-            #if(not (beam == None) and self.beamEnabled==True):
-            #    self.finder.find("command_server").addDefault(beam);
             
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setPauseBeforeLine(False)

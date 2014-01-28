@@ -42,7 +42,7 @@ class RasterMap(Map):
         
         self.raster_xspress=raster_xspress
         self.mfd = None
-        self.detectorBeanFileName=""
+#         self.detectorBeanFileName=""
         self.rcpController = rcpController
         
         self.beamEnabled = True
@@ -112,37 +112,19 @@ class RasterMap(Map):
         self.log("Number y points: " + str(ny))
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
-        self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
+        self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
+        self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize(),self.detectorBeanFileName, array(detectorList, Detector))
         for energy in energyList:
-            self.log("Detectors: " + str(detectorList))
-            if(detectorBean.getExperimentType() == "Transmission"):
-                self.mfd.setSelectedElement("I0")
-                self.mfd.setDetectors(array(detectorList, Detector))
-            else:   
-                detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
-                if(folderName != None):
-                    self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
-                else:
-                    self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
-                self.log("Detector configuration file: " + str( self.detectorBeanFileName))
-                elements = showElementsList(self.detectorBeanFileName)
-                selectedElement = elements[0]
-                self.mfd.setRoiNames(array(elements, String))
-                self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
-                bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
-                detector = self.finder.find(bean.getDetectorName())   
-                detectorList=[]
-                detectorList.append(self.finder.find("counterTimer01"))
-                detectorList.append(detector)  
-                self.mfd.setDetectors(array(detectorList, Detector))     
-                self.mfd.setSelectedElement(selectedElement)
-                self.mfd.getWindowsfromBean()
             self.mfd.setEnergyValue(energy)
-            self.mfd.setZValue(zScannablePos)
+            zScannable = self.finder.find(scanBean.getZScannableName())
+            if(zScannablePos == None):
+                self.mfd.setZValue(zScannable.getPosition())
+            else:
+                self.mfd.setZValue(zScannablePos)
+
             yScannable = self.finder.find(scanBean.getYScannableName())
             
             energyScannable = self.finder.find(scanBean.getEnergyScannableName())
-            zScannable = self.finder.find(scanBean.getZScannableName())
             self.log("Energy: " + str(energy))
             energyScannable.moveTo(energy) 
             zScannable.moveTo(zScannablePos)

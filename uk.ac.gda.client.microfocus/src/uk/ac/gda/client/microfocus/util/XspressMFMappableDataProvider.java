@@ -30,6 +30,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 
@@ -179,7 +180,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void loadBean(Object xspressBean) {
+	public void loadBean(IRichBean xspressBean) {
 		if (xspressBean != null) {
 			detectorName = ((XspressParameters) xspressBean).getDetectorName();
 			numberOfdetectorElements = ((XspressParameters) xspressBean).getDetectorList().size();

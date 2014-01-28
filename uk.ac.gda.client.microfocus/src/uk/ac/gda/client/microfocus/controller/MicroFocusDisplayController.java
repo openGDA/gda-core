@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.client.microfocus.util.MicroFocusMappableDataProvider;
 import uk.ac.gda.client.microfocus.util.MicroFocusMappableDataProviderFactory;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
@@ -83,7 +84,7 @@ public class MicroFocusDisplayController {
 			currentDetectorProvider = null;
 	}
 
-	public void displayMap(String selectedElement) {
+	public void displayMap(String selectedElement, Integer selectedChannel) {
 		// check whether map scan is running
 		String mfd = JythonServerFacade.getInstance().evaluateCommand("map.getMFD()");
 		String active = null;
@@ -99,29 +100,28 @@ public class MicroFocusDisplayController {
 
 		if (selectedElement.equals("I0")) {
 			if (detectorProvider != null) {
-				plotter.plotMapFromServer(selectedElement);
 				plotter.plotDataset(detectorProvider.getI0data());
 			} else {
-				plotter.plotMapFromServer(selectedElement);
+				plotter.plotMapFromServer("I0",0);
 			}
 		} else if (selectedElement.equals("It")) {
 			if (detectorProvider != null) {
 				plotter.plotDataset(detectorProvider.getItdata());
 			} else {
-				plotter.plotMapFromServer(selectedElement);
+				plotter.plotMapFromServer("It",0);
 			}
 		} else if (ObjectStateManager.isActive(detectorProvider)) {
 			if (plotter != null) {
 				setDataProviderForElement(selectedElement);
 				plotter.setDataProvider(currentDetectorProvider);
-				plotter.plotElement(selectedElement);
+				plotter.plotElement(selectedElement, selectedChannel);
 			}
 		} else {
-			plotter.plotMapFromServer(selectedElement);
+			plotter.plotMapFromServer(selectedElement,selectedChannel);
 		}
 	}
 
-	public void displayMap(String selectedElement, String filePath, Object bean) {
+	public void displayMap(String selectedElement, String filePath, IRichBean bean, Integer channelToDisplay) {
 		if (plotter == null)
 			plotter = new MicroFocusNexusPlotter();
 		detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(bean);
@@ -139,12 +139,16 @@ public class MicroFocusDisplayController {
 		// (Need to refactor so there is a single, distributed object which controls the map plotting instead of having
 		// two competing methods)
 		JythonServerFacade.getInstance().runCommand("map.getMFD().setActive(False)");
-		displayMap(selectedElement);
-
+		displayMap(selectedElement,channelToDisplay);
+		
 		logger.debug("displayed map for " + selectedElement + " using " + currentDetectorProvider.getClass());
 	}
 
-	public void displayMap(String selectedElement, String filePath) {
+	public void displayMap(String selectedElement, String filePath, Integer channelToDisplay) {
+		if (plotter == null)
+			plotter = new MicroFocusNexusPlotter();
+
+
 		if (detectorProvider == null) {
 			detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(detectorFile);
 			ObjectStateManager.register(detectorProvider);
@@ -157,7 +161,7 @@ public class MicroFocusDisplayController {
 		detectorProvider.loadBean();
 		detectorProvider.loadData(filePath);
 		ObjectStateManager.setActive(detectorProvider);
-		displayMap(selectedElement);
+		displayMap(selectedElement,channelToDisplay);
 
 		logger.debug("displayed map for " + selectedElement + " using " + currentDetectorProvider.getClass());
 	}

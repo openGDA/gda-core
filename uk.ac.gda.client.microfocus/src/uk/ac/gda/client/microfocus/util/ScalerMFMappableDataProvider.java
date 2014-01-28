@@ -31,54 +31,51 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
 
-	public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider {
-		
-		public ScalerMFMappableDataProvider() {
-			super();			
-		}
+public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider {
 
-		private static final Logger logger = LoggerFactory.getLogger(ScalerMFMappableDataProvider.class);
-		private String[] elementNames;
-		private List<IonChamberParameters> ionChambersList;
-		private int numberOfIonChambers;
-		private Hashtable<String, double[]> detectorData;
-		
-		
+	public ScalerMFMappableDataProvider() {
+		super();
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(ScalerMFMappableDataProvider.class);
+	private String[] elementNames;
+	private List<IonChamberParameters> ionChambersList;
+	private int numberOfIonChambers;
+	private Hashtable<String, double[]> detectorData;
+
 	@Override
-	public void loadData(String fileName)
-	{
+	public void loadData(String fileName) {
 		super.loadData(fileName);
 		detectorData = new Hashtable<String, double[]>(numberOfIonChambers);
 	}
+
 	@Override
-	public double[][] constructMappableData() 
-	{
-		
+	public double[][] constructMappableData() {
+
 		double[][] mapData = new double[yAxisLengthFromFile][xAxisLengthFromFile];
-		//HashMap<String, Serializable> map = mainTree.getAttributes();
-		
-		double[] data=null;
-		if(!detectorData.containsKey(selectedElement)){
-			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ detectorName+ "/"+selectedElement);
-			if(lazyDataset == null)
-				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/"+ trajectoryCounterTimerName+ "/"+selectedElement);
-			IDataset slice = lazyDataset.getSlice(new int[]{0, 0}, new int[]{yAxisLengthFromFile, xAxisLengthFromFile}, new int[]{1,1});
+		// HashMap<String, Serializable> map = mainTree.getAttributes();
+
+		double[] data = null;
+		if (!detectorData.containsKey(selectedElement)) {
+			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/" + selectedElement);
+			if (lazyDataset == null)
+				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + trajectoryCounterTimerName + "/"
+						+ selectedElement);
+			IDataset slice = lazyDataset.getSlice(new int[] { 0, 0 }, new int[] { yAxisLengthFromFile,
+					xAxisLengthFromFile }, new int[] { 1, 1 });
 			ILazyDataset sqSlice = slice.squeeze();
-			data = (double[])((AbstractDataset)sqSlice).getBuffer();
+			data = (double[]) ((AbstractDataset) sqSlice).getBuffer();
 			detectorData.put(selectedElement, data);
-		}
-		else
-		{
+		} else {
 			data = detectorData.get(selectedElement);
 		}
 		int dataCounter = 0;
-		for( int i =0 ; i< yarray.length; i++)
-		{
-			for (int j =0; j< xarray.length; j++)
-			{
+		for (int i = 0; i < yarray.length; i++) {
+			for (int j = 0; j < xarray.length; j++) {
 				mapData[i][j] = data[dataCounter++];
 			}
 		}
@@ -86,66 +83,59 @@ import uk.ac.gda.beans.exafs.IonChamberParameters;
 	}
 
 	@Override
-	public void loadBean() 
-	{
+	public void loadBean() {
 		Object detectorBean = null;
 		try {
-			
-			if(beanFile == null)
-			{
+
+			if (beanFile == null) {
 				detectorBean = BeansFactory.getBean(new File(LocalProperties.getConfigDir()
-					+ "/templates/Detector_Parameters.xml"));
-			}
-			else
+						+ "/templates/Detector_Parameters.xml"));
+			} else
 				detectorBean = BeansFactory.getBean(new File(beanFile));
 		} catch (Exception e) {
 			logger.error("Unable to load bean file in  ScalerMappableDataprovider", e);
 		}
-		if(detectorBean != null && ((DetectorParameters)detectorBean).getTransmissionParameters() != null)
-		{
-			ionChambersList = ((DetectorParameters)detectorBean).getTransmissionParameters().getIonChamberParameters();
+		if (detectorBean != null && ((DetectorParameters) detectorBean).getTransmissionParameters() != null) {
+			ionChambersList = ((DetectorParameters) detectorBean).getTransmissionParameters().getIonChamberParameters();
 			setDetectorName(ionChambersList.get(0).getDeviceName());
 			numberOfIonChambers = ionChambersList.size();
 			setElementNames();
 		}
 	}
-	
-	private void setElementNames() 
-	{
+
+	private void setElementNames() {
 		elementNames = new String[numberOfIonChambers];
-		int i =0;
-		for (IonChamberParameters ion : ionChambersList)
-		{
+		int i = 0;
+		for (IonChamberParameters ion : ionChambersList) {
 			elementNames[i] = ion.getName();
 			i++;
 		}
 	}
-	
-	public List<IonChamberParameters> getIonChambers()
-	{
+
+	public List<IonChamberParameters> getIonChambers() {
 		return ionChambersList;
 	}
+
 	@Override
 	public double[] getSpectrum(int detectorNo, int y, int x) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public boolean hasPlotData(String elementName) {
-		for(String s : elementNames)
-			if(elementName.equals(s))
+		for (String s : elementNames)
+			if (elementName.equals(s))
 				return true;
 		return false;
 	}
-	
-	public String[] getElementNames()
-	{
+
+	public String[] getElementNames() {
 		return elementNames;
 	}
+
 	@Override
-	public void loadBean(Object bean) {
-		// TODO Auto-generated method stub
-		
+	public void loadBean(IRichBean bean) {
 	}
 
 }

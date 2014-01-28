@@ -75,20 +75,9 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            categoryId="uk.ac.gda.client.microfocus.filesoperations.category"
             description="Load Command"
             id="uk.ac.gda.client.microfocus.LoadFileCommand"
             name="Load File">
-      </command>
-      <category
-            id="uk.ac.gda.client.microfocus.filesoperations.category"
-            name="File Operations">
-      </category>
-      <command
-            categoryId="uk.ac.gda.client.microfocus.filesoperations.category"
-            description="Refresh Element List"
-            id="uk.ac.gda.client.microfocus.RefreshListCommand"
-            name="Refresh">
       </command>
       <command
             id="uk.ac.gda.client.microfocus.AddExafsScanCommand"
@@ -103,38 +92,17 @@
             id="uk.ac.gda.client.microfocus.UpdateExafsScanCommand"
             name="UpdateMultiScan">
       </command>
-      <command
-            description="Option to load files for scanning or viewing"
-            id="uk.ac.gda.client.microfocus.SelectScanOrViewCommand"
-            name="Load File for Scan/View">
-      </command>
-      <command
-            id="uk.ac.gda.client.microfocus.addpointtoexafsselectionviewhandler"
-            name="Add Selected Point to Exafs Selection View">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="toolbar:uk.ac.gda.client.microfocus.ElementListView?after=additions">
          <command
-               commandId="uk.ac.gda.client.microfocus.RefreshListCommand"
-               icon="icons/page_refresh.png"
-               id="uk.ac.gda.client.microfocus.toolbars.VortexElementListRefreshView"
-               style="push">
-         </command>
-         <command
                commandId="uk.ac.gda.client.microfocus.LoadFileCommand"
                icon="icons/folder_image.png"
                id="uk.ac.gda.client.microfocus.toolbars.VortexElementListLoadView"
                style="push"
                tooltip="load">
-         </command>
-         <command
-               commandId="uk.ac.gda.client.microfocus.SelectScanOrViewCommand"
-               id="uk.ac.gda.client.microfocus.toolbars.VortexElementListOptionView"
-               label="scan"
-               style="toggle">
          </command>
       </menuContribution>
       <menuContribution
@@ -161,15 +129,6 @@
                style="push">
          </command>
       </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:uk.ac.gda.beamline.i18.MapView">
-         <command
-               commandId="uk.ac.gda.client.microfocus.addpointtoexafsselectionviewhandler"
-               icon="icons/chart_line_add.png"
-               style="push">
-         </command>
-      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -188,14 +147,6 @@
       <handler
             class="uk.ac.gda.client.microfocus.ui.commands.UpdateExafsScanCommandHandler"
             commandId="uk.ac.gda.client.microfocus.UpdateExafsScanCommand">
-      </handler>
-      <handler
-            class="uk.ac.gda.client.microfocus.ui.commands.SelectScanOrViewCommandHandler"
-            commandId="uk.ac.gda.client.microfocus.SelectScanOrViewCommand">
-      </handler>
-      <handler
-            class="uk.ac.gda.client.microfocus.ui.commands.AddPointToExafsSelectionViewHandler"
-            commandId="uk.ac.gda.client.microfocus.addpointtoexafsselectionviewhandler">
       </handler>
    </extension>
 

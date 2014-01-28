@@ -117,52 +117,54 @@ class RasterMapReturnWrite(Map):
         nx = ScannableUtils.getNumberSteps(finder.find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
         ny = ScannableUtils.getNumberSteps(finder.find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
         
-        print "number of x points is ", str(nx)
-        print "number of y points is ", str(ny)
+        self.log("Number x points: " + str(nx))
+        self.log("Number y points: " + str(ny))
        
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
         
         for energy in energyList:
-            self.mfd = TwoWayMicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
-            globals()["microfocusScanWriter"] = self.mfd # TODO I think this can be removed but check
-            print " the detector is " 
-            print detectorList
-            if(detectorBean.getExperimentType() == "Transmission"):
-                self.mfd.setSelectedElement("I0")
-                self.mfd.setDetectors(array(detectorList, Detector))
-            else:   
-                detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
-                #should get the bean file name from detector parametrs
-                if(folderName != None):
-                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
-                else:
-                    self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
-                print self.detectorBeanFileName
-                elements = showElementsList(self.detectorBeanFileName)
-                ##this should be the element selected in the gui
-                selectedElement = elements[0]
-                self.mfd.setRoiNames(array(elements, String))
-    
-                self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
-                bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
-                detector = finder.find(bean.getDetectorName())
-                detectorList=[]
-                detectorList.append(self.counterTimer01)
-                detectorList.append(detector)  
-                self.mfd.setDetectors(array(detectorList, Detector))
-                self.mfd.setSelectedElement(selectedElement)
-                self.mfd.getWindowsfromBean()
+            self.detectorBeanFileName = xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
+            self.mfd = TwoWayMicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize(),self.detectorBeanFileName, array(detectorList, Detector))
+#             globals()["microfocusScanWriter"] = self.mfd # TODO I think this can be removed but check
+#             print " the detector is " 
+#             print detectorList
+#             if(detectorBean.getExperimentType() == "Transmission"):
+#                 self.mfd.setSelectedElement("I0")
+#                 self.mfd.setDetectors(array(detectorList, Detector))
+#             else:   
+            detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
+            #should get the bean file name from detector parametrs
+#             if(folderName != None):
+#                 self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
+#             else:
+#                 self.detectorBeanFileName =xmlFolderName+detectorBean.getFluorescenceParameters().getConfigFileName()
+#             print self.detectorBeanFileName
+#             elements = showElementsList(self.detectorBeanFileName)
+            ##this should be the element selected in the gui
+#             selectedElement = elements[0]
+#             self.mfd.setRoiNames(array(elements, String))
+
+#             self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
+#             bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
+#             detector = finder.find(bean.getDetectorName())
+#             detectorList=[]
+#             detectorList.append(self.counterTimer01)
+#             detectorList.append(detector)  
+#             self.mfd.setDetectors(array(detectorList, Detector))
+#             self.mfd.setSelectedElement(selectedElement)
+#             self.mfd.getWindowsfromBean()
             self.mfd.setEnergyValue(energy)
-            self.mfd.setZValue(zScannablePos)
+            if(zScannablePos == None):
+                self.mfd.setZValue(zScannable.getPosition())
+            else:
+                self.mfd.setZValue(zScannablePos)
             
             yScannable = finder.find(scanBean.getYScannableName())
             energyScannable = finder.find(scanBean.getEnergyScannableName())
             zScannable = finder.find(scanBean.getZScannableName())
-            print "energy is ", str(energy)
-            print "energy scannable is " 
-            print energyScannable  
-            print detectorList
+            self.log("Energy: " + str(energy))
+            self.log("Detectors: " + str(detectorList))
             energyScannable.moveTo(energy) 
             zScannable.moveTo(zScannablePos)
     
@@ -194,27 +196,29 @@ class RasterMapReturnWrite(Map):
                     self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                     xmapRasterscan.runScan()
     
-            except (Exception, java.lang.Exception), scan_exception:
-                print "Handling exception raised during scan"
+#             except (Exception, java.lang.Exception), scan_exception:
+#                 print "Handling exception raised during scan"
+#                 if(origScanPlotSettings):
+#                     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
+#                 else:
+#                     LocalProperties.set("gda.scan.useScanPlotSettings", "false")
+#                 try:
+#                     self.finish()
+#                 except (Exception, java.lang.Exception), e:
+#                     print "Exception while calling finish() during cleanup. Catching this inorder to reraise the *original* Exception"
+#                     print "Caught exception:", e
+#                     print "Raising original exception"
+#                 raise scan_exception
+            
+            finally:
+                scanEnd = time.asctime()
                 if(origScanPlotSettings):
                     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
                 else:
                     LocalProperties.set("gda.scan.useScanPlotSettings", "false")
-                try:
-                    self.finish()
-                except (Exception, java.lang.Exception), e:
-                    print "Exception while calling finish() during cleanup. Catching this inorder to reraise the *original* Exception"
-                    print "Caught exception:", e
-                    print "Raising original exception"
-                raise scan_exception
-            scanEnd = time.asctime()
-            if(origScanPlotSettings):
-                LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-            else:
-                LocalProperties.set("gda.scan.useScanPlotSettings", "false")
-            print "map start time " + str(scanStart)
-            print "map end time " + str(scanEnd)
-            self.finish()
+                self.log("Map start time " + str(scanStart))
+                self.log("Map end time " + str(scanEnd))
+                self.finish()
         
     def setup(self, beanGroup):
         rasterscan = beanGroup.getScan()
