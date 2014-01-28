@@ -307,10 +307,6 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				notifyListenersNeeded = false;
 			}
 
-			if ((this.state == STATE.WAITING_START && pauseWhenQueueEmpty != true)
-					|| (this.state == STATE.WAITING_QUEUE && pauseWhenQueueEmpty != true)
-					|| this.state == STATE.PROCESSING_ITEMS) {
-
 			while(running && ((cmdBeingProcessed = removeQueueHead()) != null)){
 
 				cmdBeingProcessed.addIObserver(this);
@@ -354,7 +350,6 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				setState();
 				notifyListeners();
 				
-			}
 			}
 		}
 	}
