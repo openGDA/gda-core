@@ -43,6 +43,15 @@ public class DummyP2RBidiAsciiCommunicator implements BidiAsciiCommunicator {
 		if(string.equals("MS")){
 			return string;
 		}
+		if(string.equals("AB")){
+			return string;
+		}
+		if(string.equals("SS")){
+			return string;
+		}
+		if(string.startsWith("SD")){
+			return string;
+		}
 		return "ERROR";
 
 	}
