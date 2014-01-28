@@ -32,7 +32,11 @@ public interface ISampleProgress {
 	public void setBlSessionId(long blSessionId);
 	public String getExperimentId();
 	public void setExperimentId(String experimentId);
+	public void setSampleName(String sampleName);
+	public String getSampleName();
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener);
 	public void removePropertyChangeListener(PropertyChangeListener listener);
+	
+	
 }
