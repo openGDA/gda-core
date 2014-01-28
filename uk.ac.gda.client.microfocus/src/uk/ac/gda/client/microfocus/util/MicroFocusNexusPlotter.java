@@ -67,8 +67,8 @@ public class MicroFocusNexusPlotter {
 					int xArrayIndex = (int) evt.getxValue();
 					int yArrayIndex = (int) evt.getyValue();
 
-					// is it a shift-left click?
-					if (evt.isShiftDown()) {
+					// is it a ctrl-left click?
+					if (evt.isControlDown()) {
 
 						double[] dataXYValues = getDataXYValues(xArrayIndex, yArrayIndex);
 
@@ -80,9 +80,7 @@ public class MicroFocusNexusPlotter {
 						ExafsSelectionView selectionView = (ExafsSelectionView) PlatformUI.getWorkbench()
 								.getActiveWorkbenchWindow().getActivePage().findView(ExafsSelectionView.ID);
 						selectionView.setSelectedPoint(xyz);
-					}
-					// is it a ctrl-left click?
-					else if (evt.isControlDown()) {
+					
 						plotSpectrum(xArrayIndex, yArrayIndex);
 					}
 				}
