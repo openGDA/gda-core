@@ -18,48 +18,60 @@
 
 package uk.ac.gda.beans.exafs.i20;
 
+import java.net.URL;
 import uk.ac.gda.beans.exafs.OutputParameters;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * So I20 can have the fluo detector output parameters in a different place to everyone else.
  */
 public class I20OutputParameters extends OutputParameters {
-	
 	private boolean vortexSaveRawSpectrum = false;
 	private boolean xspressOnlyShowFF = false;
 	private boolean xspressShowDTRawValues = false;
 	private boolean xspressSaveRawSpectrum = false;
 
+	public static final URL mappingURL = OutputParameters.class.getResource("I20SampleParametersMapping.xml");
+	public static final URL schemaUrl = OutputParameters.class.getResource("I20SampleParametersMapping.xsd");
+
+	public static I20OutputParameters createFromXML(String filename) throws Exception {
+		return (I20OutputParameters) XMLHelpers.createFromXML(mappingURL, I20OutputParameters.class, schemaUrl, filename);
+	}
+
+	public static void writeToXML(I20OutputParameters outputParams, String filename) throws Exception {
+		XMLHelpers.writeToXML(mappingURL, outputParams, filename);
+	}
+
 	public boolean isVortexSaveRawSpectrum() {
 		return vortexSaveRawSpectrum;
 	}
 
-	public void setVortexSaveRawSpectrum(boolean vortex_saveRawSpectrum) {
-		this.vortexSaveRawSpectrum = vortex_saveRawSpectrum;
+	public void setVortexSaveRawSpectrum(boolean vortexSaveRawSpectrum) {
+		this.vortexSaveRawSpectrum = vortexSaveRawSpectrum;
 	}
 
 	public boolean isXspressOnlyShowFF() {
 		return xspressOnlyShowFF;
 	}
 
-	public void setXspressOnlyShowFF(boolean xspress_OnlyShowFF) {
-		this.xspressOnlyShowFF = xspress_OnlyShowFF;
+	public void setXspressOnlyShowFF(boolean xspressOnlyShowFF) {
+		this.xspressOnlyShowFF = xspressOnlyShowFF;
 	}
 
 	public boolean isXspressShowDTRawValues() {
 		return xspressShowDTRawValues;
 	}
 
-	public void setXspressShowDTRawValues(boolean xspress_ShowDTRawValues) {
-		this.xspressShowDTRawValues = xspress_ShowDTRawValues;
+	public void setXspressShowDTRawValues(boolean xspressShowDTRawValues) {
+		this.xspressShowDTRawValues = xspressShowDTRawValues;
 	}
 
 	public boolean isXspressSaveRawSpectrum() {
 		return xspressSaveRawSpectrum;
 	}
 
-	public void setXspressSaveRawSpectrum(boolean xspress_SaveRawSpectrum) {
-		this.xspressSaveRawSpectrum = xspress_SaveRawSpectrum;
+	public void setXspressSaveRawSpectrum(boolean xspressSaveRawSpectrum) {
+		this.xspressSaveRawSpectrum = xspressSaveRawSpectrum;
 	}
 
 	@Override

@@ -26,33 +26,35 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class I20SampleParameters implements Serializable, ISampleParameters {
-
 	public static final String[] SAMPLE_ENV = new String[] { "None", "Room Temperature", "Cryostat" };
-
 	public static final String[] SAMPLE_ENV_XES = new String[] { "None", "Room Temperature" };
-
 	static public final URL mappingURL = I20SampleParameters.class.getResource("I20SampleParametersMapping.xml");
-
 	static public final URL schemaURL = I20SampleParameters.class.getResource("I20SampleParametersMapping.xsd");
-
 	public static final String SAMPLE_WHEEL_NAME = "filterwheel";
-
 	private List<String> descriptions;
 	private String name; // use as file prefix
 	private String sampleWheelPosition;
 	private Boolean useSampleWheel = false;
 	private String sampleEnvironment = "None";
-
 	private List<SampleStagePosition> roomTemperatureParameters;
 	private CryostatParameters cryostatParameters;
 	private FurnaceParameters furnaceParameters;
 	private MicroreactorParameters microreactorParameters;
 	private List<CustomXYZParameter> customXYZParameters;
 	private List<CustomParameter> customParameters;
-
 	private boolean shouldValidate = true;
+	
+	public static I20SampleParameters createFromXML(String filename) throws Exception {
+		return (I20SampleParameters) XMLHelpers.createFromXML(mappingURL, I20SampleParameters.class, schemaURL,
+				filename);
+	}
+
+	public static void writeToXML(I20SampleParameters sampleParameters, String filename) throws Exception {
+		XMLHelpers.writeToXML(mappingURL, sampleParameters, filename);
+	}
 
 	/**
 	 * Method required to use with BeanUI. Called using reflection.
@@ -85,9 +87,8 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		// Castor's implementation for string lists is different to other lists
 		// and the set can pass in an unmodifiable list.
 		this.descriptions.clear();
-		if (descriptions == null) {
+		if (descriptions == null)
 			return;
-		}
 		this.descriptions.addAll(descriptions);
 	}
 
@@ -240,75 +241,80 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		if (cryostatParameters == null) {
 			if (other.cryostatParameters != null)
 				return false;
-		} else if (!cryostatParameters.equals(other.cryostatParameters))
+		} 
+		else if (!cryostatParameters.equals(other.cryostatParameters))
 			return false;
 		if (customParameters == null) {
 			if (other.customParameters != null)
 				return false;
-		} else if (!customParameters.equals(other.customParameters))
+		} 
+		else if (!customParameters.equals(other.customParameters))
 			return false;
 		if (customXYZParameters == null) {
 			if (other.customXYZParameters != null)
 				return false;
-		} else if (!customXYZParameters.equals(other.customXYZParameters))
+		} 
+		else if (!customXYZParameters.equals(other.customXYZParameters))
 			return false;
 		if (descriptions == null) {
 			if (other.descriptions != null)
 				return false;
-		} else if (!descriptions.equals(other.descriptions))
+		} 
+		else if (!descriptions.equals(other.descriptions))
 			return false;
 		if (furnaceParameters == null) {
 			if (other.furnaceParameters != null)
 				return false;
-		} else if (!furnaceParameters.equals(other.furnaceParameters))
+		} 
+		else if (!furnaceParameters.equals(other.furnaceParameters))
 			return false;
 		if (microreactorParameters == null) {
 			if (other.microreactorParameters != null)
 				return false;
-		} else if (!microreactorParameters.equals(other.microreactorParameters))
+		} 
+		else if (!microreactorParameters.equals(other.microreactorParameters))
 			return false;
 		if (name == null) {
 			if (other.name != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} 
+		else if (!name.equals(other.name))
 			return false;
 		if (roomTemperatureParameters == null) {
 			if (other.roomTemperatureParameters != null)
 				return false;
-		} else if (!listEquals(roomTemperatureParameters, other.roomTemperatureParameters))
+		} 
+		else if (!listEquals(roomTemperatureParameters, other.roomTemperatureParameters))
 			return false;
 		if (sampleEnvironment == null) {
 			if (other.sampleEnvironment != null)
 				return false;
-		} else if (!sampleEnvironment.equals(other.sampleEnvironment))
+		} 
+		else if (!sampleEnvironment.equals(other.sampleEnvironment))
 			return false;
 		if (sampleWheelPosition == null) {
 			if (other.sampleWheelPosition != null)
 				return false;
-		} else if (!sampleWheelPosition.equals(other.sampleWheelPosition))
+		} 
+		else if (!sampleWheelPosition.equals(other.sampleWheelPosition))
 			return false;
 		if (shouldValidate != other.shouldValidate)
 			return false;
 		if (useSampleWheel == null) {
 			if (other.useSampleWheel != null)
 				return false;
-		} else if (!useSampleWheel.equals(other.useSampleWheel))
+		} 
+		else if (!useSampleWheel.equals(other.useSampleWheel))
 			return false;
 		return true;
 	}
 
 	private boolean listEquals(List<?> list1, List<?> list2) {
-
-		if (list1.size() != list2.size()) {
+		if (list1.size() != list2.size())
 			return false;
-		}
-
-		for (int element = 0; element < list1.size(); element++) {
-			if (!list1.get(element).equals(list2.get(element))) {
+		for (int element = 0; element < list1.size(); element++)
+			if (!list1.get(element).equals(list2.get(element)))
 				return false;
-			}
-		}
-
 		return true;
 	}
 

@@ -22,9 +22,6 @@ import java.io.Serializable;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-/**
- * 
- */
 public class FurnaceParameters  implements Serializable{
 	private Double x = 0.;
 	private Double y = 0.;
@@ -33,95 +30,54 @@ public class FurnaceParameters  implements Serializable{
 	private Double tolerance = 0.;
 	private Double time = 0.;
 
-	/**
-	 * @return the x
-	 */
 	public Double getX() {
 		return x;
 	}
 
-	/**
-	 * @param x
-	 *            the x to set
-	 */
 	public void setX(Double x) {
 		this.x = x;
 	}
 
-	/**
-	 * @return the y
-	 */
 	public Double getY() {
 		return y;
 	}
 
-	/**
-	 * @param y
-	 *            the y to set
-	 */
 	public void setY(Double y) {
 		this.y = y;
 	}
 
-	/**
-	 * @return the z
-	 */
 	public Double getZ() {
 		return z;
 	}
 
-	/**
-	 * @param z
-	 *            the z to set
-	 */
 	public void setZ(Double z) {
 		this.z = z;
 	}
 
-	/**
-	 * @return the temperature
-	 */
 	public String getTemperature() {
 		return temperature;
 	}
 
-	/**
-	 * @param temperature
-	 *            the temperature to set
-	 */
 	public void setTemperature(String temperature) {
 		this.temperature = temperature;
 	}
 
-	/**
-	 * @return the tolerance
-	 */
 	public double getTolerance() {
 		return tolerance;
 	}
 
-	/**
-	 * @param tolerance
-	 *            the tolerance to set
-	 */
 	public void setTolerance(double tolerance) {
 		this.tolerance = tolerance;
 	}
 
-	/**
-	 * @return the time
-	 */
 	public double getTime() {
 		return time;
 	}
 
-	/**
-	 * @param time
-	 *            the time to set
-	 */
 	public void setTime(double time) {
 		this.time = time;
 	}
+	
 	@Override
 	public String toString() {
 		try {

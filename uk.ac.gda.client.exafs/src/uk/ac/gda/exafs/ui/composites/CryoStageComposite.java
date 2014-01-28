@@ -35,9 +35,6 @@ import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.RangeBox;
 
-/**
- *
- */
 public class CryoStageComposite extends FieldBeanComposite {
 
 	private static final Logger logger = LoggerFactory.getLogger(XYThetaStageComposite.class);

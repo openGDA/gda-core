@@ -54,7 +54,7 @@
 		<field name="tolerance" type="double">
 			<bind-xml name="tolerance" node="element" />
 		</field>
-		<field name="waitTime" type="double">
+		<field name="waitTime" type="integer">
 			<bind-xml name="waitTime" node="element" />
 		</field>
 		<field name="temperature" type="string">

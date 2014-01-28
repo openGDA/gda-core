@@ -3,7 +3,7 @@
 #
 from gda.configuration.properties import LocalProperties
 from gda.jython import ScriptBase
-from uk.ac.gda.beans.exafs.i20 import CryostatParameters
+from uk.ac.gda.beans.exafs.i20 import CryostatParameters, CryostatProperties
 from uk.ac.gda.doe import DOEUtils
 from org.slf4j import LoggerFactory
 
@@ -95,7 +95,6 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
     def getNumberOfRepeats(self):
         if self.sampleBean == None:
             raise UnboundLocalError("Sample bean has not been defined!")
-        
         num_repeats = 0
         for i in range(0,len(self.sampleBean)):
             num_repeats += self.sampleBean.get(i).getNumberOfRepetitions()
@@ -121,40 +120,29 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
         samplename = self.sampleBean.get(i).getSample_name()
         sampledescription = self.sampleBean.get(i).getSample_description()
         sample_repeats = self.sampleBean.get(i).getNumberOfRepetitions()
-        print "********"
         self.log("Running sample:",samplename) 
-        
         if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or self.sample_roll == None or self.sample_pitch == None:
             raise DeviceException("I20 scan script - could not find all sample stage motors!")
-        
         self.log( "Moving sample stage to",x,y,z,rotation,roll,pitch,"...")
         self.sample_x.asynchronousMoveTo(x)
         self.sample_y.asynchronousMoveTo(y)
         self.sample_z.asynchronousMoveTo(z)
         self.sample_rot.asynchronousMoveTo(rotation)
-#         self.sample_roll.asynchronousMoveTo(roll)
-#         self.sample_pitch.asynchronousMoveTo(pitch)
         self.sample_x.waitWhileBusy()
         self.sample_y.waitWhileBusy()
         self.sample_z.waitWhileBusy()
         self.sample_rot.waitWhileBusy()
-#         self.sample_roll.waitWhileBusy()
-#         self.sample_pitch.waitWhileBusy()
         self.log( "Sample stage move complete.")
         ScriptBase.checkForPauses()
-        
         self.samplename = samplename
         self.descriptions = [sampledescription]
-        
         # only increment if all successful
         self.increment += 1
         return
 
     def _determineSample(self):
-        
         if self.increment == 0:
             return 0
-        
         repeatsSoFar = 0
         for i in range(0,len(self.sampleBean)):
             repeatsSoFar += self.sampleBean.get(i).getNumberOfRepetitions()
@@ -162,7 +150,6 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
                 return i
         return len(self.sampleBean) - 1
         
-
         
 class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
 
@@ -183,44 +170,34 @@ class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
         return self.descriptions
     
     def moveToNext(self):
-
-            i = self._determineSample()
-        
-            x = self.sampleBean.get(i).getSample_x()
-            y = self.sampleBean.get(i).getSample_y()
-            z = self.sampleBean.get(i).getSample_z()
-            rotation = self.sampleBean.get(i).getSample_rotation()
-            finerotation = self.sampleBean.get(i).getSample_finerotation()
-            samplename = self.sampleBean.get(i).getSample_name()
-            sampledescription = self.sampleBean.get(i).getSample_description()
-            sample_repeats = self.sampleBean.get(i).getNumberOfRepetitions()
-            print "********"
-            self.log("Running sample:",samplename) # +1 as the user will think the first sample is 1 not 0
-            
-            if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or self.sample_fine_rot == None:
-                raise DeviceException("I20 scan script - could not find all sample stage motors!")
-            
-            self.log( "Moving sample stage to",x,y,z,rotation,finerotation,"...")
-            self.sample_x.asynchronousMoveTo(x)
-            self.sample_y.asynchronousMoveTo(y)
-            self.sample_z.asynchronousMoveTo(z)
-            self.sample_rot.asynchronousMoveTo(rotation)
-            #self.sample_fine_rot.asynchronousMoveTo(finerotation)
-            self.sample_x.waitWhileBusy()
-            self.sample_y.waitWhileBusy()
-            self.sample_z.waitWhileBusy()
-            self.sample_rot.waitWhileBusy()
-            #self.sample_fine_rot.waitWhileBusy()
-            self.log( "Sample stage move complete.\n")
-            ScriptBase.checkForPauses()
-            
-            self.samplename = samplename
-            self.descriptions = [sampledescription]
-            
-            # only increment if all successful
-            self.increment += 1
-            return
-
+        i = self._determineSample()
+        x = self.sampleBean.get(i).getSample_x()
+        y = self.sampleBean.get(i).getSample_y()
+        z = self.sampleBean.get(i).getSample_z()
+        rotation = self.sampleBean.get(i).getSample_rotation()
+        finerotation = self.sampleBean.get(i).getSample_finerotation()
+        samplename = self.sampleBean.get(i).getSample_name()
+        sampledescription = self.sampleBean.get(i).getSample_description()
+        sample_repeats = self.sampleBean.get(i).getNumberOfRepetitions()
+        self.log("Running sample:",samplename) # +1 as the user will think the first sample is 1 not 0
+        if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or self.sample_fine_rot == None:
+            raise DeviceException("I20 scan script - could not find all sample stage motors!")
+        self.log( "Moving sample stage to",x,y,z,rotation,finerotation,"...")
+        self.sample_x.asynchronousMoveTo(x)
+        self.sample_y.asynchronousMoveTo(y)
+        self.sample_z.asynchronousMoveTo(z)
+        self.sample_rot.asynchronousMoveTo(rotation)
+        self.sample_x.waitWhileBusy()
+        self.sample_y.waitWhileBusy()
+        self.sample_z.waitWhileBusy()
+        self.sample_rot.waitWhileBusy()
+        self.log( "Sample stage move complete.\n")
+        ScriptBase.checkForPauses()
+        self.samplename = samplename
+        self.descriptions = [sampledescription]
+        # only increment if all successful
+        self.increment += 1
+        return
 
 
 class XASXANES_Cryostat_Iterator(SampleIterator):
@@ -231,42 +208,49 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
         self.cryostat = cryostat
         self.cryostick_pos = cryostick_pos
     
-    def setSampleBean(self, sampleBean):
-        self.params = sampleBean.getCryostatParameters()
+    def setParameters(self, controlMode, heaterRange, waitTime, manualOutput, p, i, d, tolerance, cryostatParameters):
+        self.controlMode = controlMode
+        self.heaterRange = heaterRange
+        self.waitTime = waitTime
+        self.manualOutput = manualOutput
+        self.p = p
+        self.i = i
+        self.d = d
+        self.tolerance = tolerance
+        self.cryostatParameters = cryostatParameters
+    
+    def determineLoopSampleFirst(self):
+        self.loopSampleFirst = self.cryostatParameters.getLoopChoice() == CryostatProperties.LOOP_OPTION[0]
+    
+    def determineTemperaturesArray(self):
+        self.temperatures_array = [self.cryostatParameters.getTemperature()]
         
-        self.loopSampleFirst = self.params.getLoopChoice() == CryostatParameters.LOOP_OPTION[0]
-        
-        self.temperatures_array = [self.params.getTemperature()]
-        if DOEUtils.isRange(self.params.getTemperature(),None):
-            self.temperatures_array = DOEUtils.expand(self.params.getTemperature(),None)
-        elif DOEUtils.isList(self.params.getTemperature(),None):
-            self.temperatures_array = self.params.getTemperature().split(",")
+    def determineTemperatureNum(self):
         self.temperatures_num = len(self.temperatures_array)
-        
+    
+    def setSampleBean(self, sampleBean):
+        if DOEUtils.isRange(self.cryostatParameters.getTemperature(),None):
+            self.temperatures_array = DOEUtils.expand(self.cryostatParameters.getTemperature(),None)
+        elif DOEUtils.isList(self.cryostatParameters.getTemperature(),None):
+            self.temperatures_array = self.cryostatParameters.getTemperature().split(",")
         self._determineSamplesArray()
-        print self.samples_array
         self.samples_num = len(self.samples_array)
         
     def _determineSamplesArray(self):
         self.samples_array = []
-        for i in range(0,len(self.params.getSamples())):
-            for j in range(0,self.params.getSamples().get(i).getNumberOfRepetitions()):
-                self.samples_array += [self.params.getSamples().get(i)]
+        for i in range(0,len(self.cryostatParameters.getSamples())):
+            for j in range(0,self.cryostatParameters.getSamples().get(i).getNumberOfRepetitions()):
+                self.samples_array += [self.cryostatParameters.getSamples().get(i)]
 
     def getNumberOfRepeats(self):
-        if self.params == None:
+        if self.cryostatParameters == None:
             raise UnboundLocalError("Sample bean has not been defined!")
-        
         return self.temperatures_num * self.samples_num
     
     def resetIterator(self):
         self.sample_increment = 0
         self.temp_increment = 0
     
-    def _configureCryostat(self, cryoStatParameters):
-        if LocalProperties.get("gda.mode") != 'dummy':
-            self.cryostat.setupFromBean(cryoStatParameters)
-
     def getNextSampleName(self):
         return self.samplename
         
@@ -274,38 +258,29 @@ class XASXANES_Cryostat_Iterator(SampleIterator):
         return self.descriptions
 
     def moveToNext(self):
-        
-        self._configureCryostat(self.params)
-        
+        self.cryostat.setup(self.controlMode, self.heaterRange, self.waitTime, self.manualOutput, self.p, self.i, self.d, self.tolerance)
         y = self.samples_array[self.sample_increment].getPosition()
         name = self.samples_array[self.sample_increment].getSample_name()
         desc = self.samples_array[self.sample_increment].getSampleDescription()
         sample_repeats = self.samples_array[self.sample_increment].getNumberOfRepetitions()
-        
-        print "**********"
         self.log( "Using sample",name,"in next iteration.")
-        
         self.cryostat.setTempSelect(1)
-        
         self.log( "Moving cryostick_pos to ",self.cryostick_pos)
         self.cryostick_pos.asynchronousMoveTo(y)
         self.samplename = name
         self.descriptions = [desc]
-
         temp = self.temperatures_array[self.temp_increment]
         self.log( "Setting cryostat to",str(temp),"K...")
         self.cryostat.asynchronousMoveTo(temp)
-        
         self.log("Waiting for cryostick_pos to move")
         self.cryostick_pos.waitWhileBusy()
         self.log("cryostick_pos move complete.")
         ScriptBase.checkForPauses()
-        
         self.log("Waiting for Cryostat to set temperature")
         self.cryostat.waitWhileBusy()
         self.log( "Cryostat temperature change complete.")
         ScriptBase.checkForPauses()
-            
+        
         # loop over sampleBean then temperature
         if self.loopSampleFirst:
             if self.sample_increment < self.samples_num -1:

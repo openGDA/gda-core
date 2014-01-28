@@ -22,9 +22,6 @@ import java.io.Serializable;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-/**
- *
- */
 public class CustomXYZParameter  implements Serializable {
 	private String deviceName;
 	private double value;
@@ -32,74 +29,42 @@ public class CustomXYZParameter  implements Serializable {
 	private double y;
 	private double z;
 
-	/**
-	 * @return the deviceName
-	 */
 	public String getDeviceName() {
 		return deviceName;
 	}
 
-	/**
-	 * @param deviceName
-	 *            the deviceName to set
-	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
 
-	/**
-	 * @return the value
-	 */
 	public double getValue() {
 		return value;
 	}
 
-	/**
-	 * @param value
-	 *            the value to set
-	 */
 	public void setValue(double value) {
 		this.value = value;
 	}
 
-	/**
-	 * @return Returns the x.
-	 */
 	public double getX() {
 		return x;
 	}
 
-	/**
-	 * @param x The x to set.
-	 */
 	public void setX(double x) {
 		this.x = x;
 	}
 
-	/**
-	 * @return Returns the y.
-	 */
 	public double getY() {
 		return y;
 	}
 
-	/**
-	 * @param y The y to set.
-	 */
 	public void setY(double y) {
 		this.y = y;
 	}
 
-	/**
-	 * @return Returns the z.
-	 */
 	public double getZ() {
 		return z;
 	}
 
-	/**
-	 * @param z The z to set.
-	 */
 	public void setZ(double z) {
 		this.z = z;
 	}
@@ -123,41 +88,28 @@ public class CustomXYZParameter  implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		CustomXYZParameter other = (CustomXYZParameter) obj;
-		if (deviceName == null) {
-			if (other.deviceName != null) {
-				return false;
-			}
-		} else if (!deviceName.equals(other.deviceName)) {
+		if (deviceName == null && other.deviceName != null)
 			return false;
-		}
-		if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value)) {
+		else if (!deviceName.equals(other.deviceName))
 			return false;
-		}
-		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x)) {
+		if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value))
 			return false;
-		}
-		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y)) {
+		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
 			return false;
-		}
-		if (Double.doubleToLongBits(z) != Double.doubleToLongBits(other.z)) {
+		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
 			return false;
-		}
+		if (Double.doubleToLongBits(z) != Double.doubleToLongBits(other.z))
+			return false;
 		return true;
 	}
-	
-	/**
-	 *
-	 */
+
 	@Override
 	public String toString() {
 		try {
@@ -166,6 +118,5 @@ public class CustomXYZParameter  implements Serializable {
 			return e.getMessage();
 		}
 	}
-
 
 }

@@ -19,14 +19,10 @@
 package uk.ac.gda.exafs.ui.detector.xspress;
 
 import gda.configuration.properties.LocalProperties;
-import gda.device.detector.xspress.XspressDetector;
-
 import java.io.File;
 import java.net.URL;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
-
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
@@ -44,7 +40,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private XspressParameters xspressParameters;
 	private String xmlPath;
 	private Xspress xspress;
-	private Composite parent;
 	
 	public XspressParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(xmlPath, mappingURL, dirtyContainer, editingBean, "xspressConfig");
@@ -54,27 +49,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		this.parent = parent;
 		xspress = new Xspress(xmlPath, this.getSite(), parent, xspressParameters, dirtyContainer);
 	}
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		super.doSave(monitor);
-	}
-
-	@Override
-	public void linkUI(final boolean isPageChange) {
-		super.linkUI(isPageChange);
-		xspress.getReadoutMode().updateOverrideMode();
-		boolean readoutRois = false;
-		if(xspress.getResolutionGrade().getResolutionGradeCombo().getValue().equals(XspressDetector.READOUT_ROIS))
-			readoutRois = true;
-		xspress.getResolutionGrade().updateResModeItems(readoutRois);
-		XspressElements xspressElements = xspress.getXspressElements();
-		xspressElements.updateElementsVisibility();
-		xspress.updateVisibility(parent);
-		xspressElements.updateROIAfterElementCompositeChange();
 	}
 
 	@Override

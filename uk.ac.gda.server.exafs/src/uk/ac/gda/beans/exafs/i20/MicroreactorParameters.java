@@ -26,7 +26,6 @@ import org.apache.commons.lang.ArrayUtils;
 import uk.ac.gda.beans.IRichBean;
 
 public class MicroreactorParameters implements IRichBean {
-	
 	private int gas0Rate = 0;
 	private int gas1Rate = 0;
 	private int gas2Rate = 0;
@@ -35,9 +34,7 @@ public class MicroreactorParameters implements IRichBean {
 	private int gas5Rate = 0;
 	private int gas6Rate = 0;
 	private int gas7Rate = 0;
-	
 	private int temperature = 150;
-	
 	private String masses = "2,32"; // comma separated masses
 
 	@Override
@@ -133,7 +130,6 @@ public class MicroreactorParameters implements IRichBean {
 			}
 		}
 		Arrays.sort(values);
-		
 		return values;
 	}
 

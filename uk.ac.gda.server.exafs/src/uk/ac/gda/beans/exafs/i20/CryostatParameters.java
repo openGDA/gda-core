@@ -24,27 +24,14 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-/**
- * Class to represent changeable parameters for a cryostat device.
- */
 public class CryostatParameters implements Serializable {
-
-	public static final String[] LOOP_OPTION = new String[] { "Loop over sample, then temperature",
-			"Loop over temperature, then sample" };
-	public static final String[] CONTROL_MODE = new String[] { "None", "Manual PID", "Zone control", "Open Loop",
-			"Auto-tune PID" };
-	public static final String[] HEATER_RANGE = new String[] { "4mW", "40mW", "400mW", "4W", "40W" };
-
 	private String loopChoice;
-
 	private Double tolerance; // temperature deadband (GDA-level concept, this is not in EPICS)
-	private Double waitTime; // timeout while waiting for heat to reach desired value
-	private String temperature = ""; // desired temp
-
+	private Integer waitTime = 0; // timeout while waiting for heat to reach desired value
+	private String desiredTemperature = "";
 	private String controlMode = "";
 	private String heaterRange = "";
 	private Double p, i, d, manualOutput;
-
 	private List<CryostatSampleDetails> samples = new ArrayList<CryostatSampleDetails>();
 
 	@Override
@@ -72,20 +59,20 @@ public class CryostatParameters implements Serializable {
 		this.tolerance = tolerance;
 	}
 
-	public Double getWaitTime() {
+	public Integer getWaitTime() {
 		return waitTime;
 	}
 
-	public void setWaitTime(Double waitTime) {
+	public void setWaitTime(Integer waitTime) {
 		this.waitTime = waitTime;
 	}
 
 	public String getTemperature() {
-		return temperature;
+		return desiredTemperature;
 	}
 
 	public void setTemperature(String temperature) {
-		this.temperature = temperature;
+		this.desiredTemperature = temperature;
 	}
 
 	public String getControlMode() {
@@ -160,7 +147,7 @@ public class CryostatParameters implements Serializable {
 		result = prime * result + ((manualOutput == null) ? 0 : manualOutput.hashCode());
 		result = prime * result + ((p == null) ? 0 : p.hashCode());
 		result = prime * result + ((samples == null) ? 0 : samples.hashCode());
-		result = prime * result + ((temperature == null) ? 0 : temperature.hashCode());
+		result = prime * result + ((desiredTemperature == null) ? 0 : desiredTemperature.hashCode());
 		result = prime * result + ((tolerance == null) ? 0 : tolerance.hashCode());
 		result = prime * result + ((waitTime == null) ? 0 : waitTime.hashCode());
 		return result;
@@ -215,10 +202,10 @@ public class CryostatParameters implements Serializable {
 				return false;
 		} else if (!samples.equals(other.samples))
 			return false;
-		if (temperature == null) {
-			if (other.temperature != null)
+		if (desiredTemperature == null) {
+			if (other.desiredTemperature != null)
 				return false;
-		} else if (!temperature.equals(other.temperature))
+		} else if (!desiredTemperature.equals(other.desiredTemperature))
 			return false;
 		if (tolerance == null) {
 			if (other.tolerance != null)

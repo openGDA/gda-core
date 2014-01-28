@@ -42,6 +42,19 @@ class I20SamplePreparer:
         #XAS/XANES cryostat
         elif experiment_type != 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
             iterator = XASXANES_Cryostat_Iterator(self.cryostat, self.cryostick_pos)
+            cryostatParameters = sampleBean.getCryostatParameters()
+            controlMode = cryostatParameters.getControlMode()
+            heaterRange = cryostatParameters.getHeaterRange()
+            waitTime = cryostatParameters.getWaitTime()
+            manualOutput = cryostatParameters.getManualOutput()
+            p = cryostatParameters.getP()
+            i = cryostatParameters.getI()
+            d = cryostatParameters.getD()
+            tolerance = cryostatParameters.getTolerance()
+            iterator.setParameters(controlMode, heaterRange, waitTime, manualOutput, p, i, d, tolerance, cryostatParameters);
+            iterator.determineLoopSampleFirst()
+            iterator.determineTemperaturesArray()
+            iterator.determineTemperatureNum()
             iterator.setSampleBean(sampleBean)
         else :
             iterator = I20_SingleSample_Iterator()

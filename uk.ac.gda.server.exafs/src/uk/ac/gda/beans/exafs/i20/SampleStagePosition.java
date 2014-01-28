@@ -23,7 +23,6 @@ import java.io.Serializable;
 import org.apache.commons.beanutils.BeanUtils;
 
 public class SampleStagePosition implements Serializable{
-
 	private Double sample_x = 0.;
 	private Double sample_y = 0.;
 	private Double sample_z = 0.;
@@ -144,52 +143,62 @@ public class SampleStagePosition implements Serializable{
 		if (numberOfRepetitions == null) {
 			if (other.numberOfRepetitions != null)
 				return false;
-		} else if (!numberOfRepetitions.equals(other.numberOfRepetitions))
+		} 
+		else if (!numberOfRepetitions.equals(other.numberOfRepetitions))
 			return false;
 		if (sample_description == null) {
 			if (other.sample_description != null)
 				return false;
-		} else if (!sample_description.equals(other.sample_description))
+		} 
+		else if (!sample_description.equals(other.sample_description))
 			return false;
 		if (sample_finerotation == null) {
 			if (other.sample_finerotation != null)
 				return false;
-		} else if (!sample_finerotation.equals(other.sample_finerotation))
+		} 
+		else if (!sample_finerotation.equals(other.sample_finerotation))
 			return false;
 		if (sample_name == null) {
 			if (other.sample_name != null)
 				return false;
-		} else if (!sample_name.equals(other.sample_name))
+		} 
+		else if (!sample_name.equals(other.sample_name))
 			return false;
 		if (sample_pitch == null) {
 			if (other.sample_pitch != null)
 				return false;
-		} else if (!sample_pitch.equals(other.sample_pitch))
+		}
+		else if (!sample_pitch.equals(other.sample_pitch))
 			return false;
 		if (sample_roll == null) {
 			if (other.sample_roll != null)
 				return false;
-		} else if (!sample_roll.equals(other.sample_roll))
+		} 
+		else if (!sample_roll.equals(other.sample_roll))
 			return false;
 		if (sample_rotation == null) {
 			if (other.sample_rotation != null)
 				return false;
-		} else if (!sample_rotation.equals(other.sample_rotation))
+		} 
+		else if (!sample_rotation.equals(other.sample_rotation))
 			return false;
 		if (sample_x == null) {
 			if (other.sample_x != null)
 				return false;
-		} else if (!sample_x.equals(other.sample_x))
+		} 
+		else if (!sample_x.equals(other.sample_x))
 			return false;
 		if (sample_y == null) {
 			if (other.sample_y != null)
 				return false;
-		} else if (!sample_y.equals(other.sample_y))
+		} 
+		else if (!sample_y.equals(other.sample_y))
 			return false;
 		if (sample_z == null) {
 			if (other.sample_z != null)
 				return false;
-		} else if (!sample_z.equals(other.sample_z))
+		} 
+		else if (!sample_z.equals(other.sample_z))
 			return false;
 		return true;
 	}
