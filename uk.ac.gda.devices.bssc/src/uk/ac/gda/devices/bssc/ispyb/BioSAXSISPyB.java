@@ -21,19 +21,11 @@ package uk.ac.gda.devices.bssc.ispyb;
 import java.sql.SQLException;
 import java.util.List;
 
-import uk.ac.gda.devices.bssc.beans.LocationBean;
-import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB.SampleInfo;
+import uk.ac.gda.devices.bssc.beans.ISampleProgress;
 
 public interface BioSAXSISPyB {
-	
-	public class SampleInfo {
-		public LocationBean location;
-		public String name;
-		public String sampleFileName, bufferBeforeFileName, bufferAfterFileName;
-	}
-	
+
 	/**
-	 *  
 	 * @param visitname
 	 *            e.g. sm9999-9
 	 * @return proposalID
@@ -41,7 +33,6 @@ public interface BioSAXSISPyB {
 	public abstract long getProposalForVisit(String visitname) throws SQLException;
 
 	/**
-	 *  
 	 * @param visitname
 	 *            e.g. sm9999-9
 	 * @return sessionID
@@ -82,9 +73,10 @@ public interface BioSAXSISPyB {
 	 *            "/entry1/detector/data"
 	 * @return bufferMeasurementId
 	 */
-	public abstract long createBufferMeasurement(long blsessionId, long experimentId, short plate, short row, short column, float storageTemperature,
-			float exposureTemperature, int numFrames, double timePerFrame, double flow, double volume,
-			double energyInkeV, String viscosity, String fileName, String internalPath) throws SQLException;
+	public abstract long createBufferMeasurement(long blsessionId, long experimentId, short plate, short row,
+			short column, float storageTemperature, float exposureTemperature, int numFrames, double timePerFrame,
+			double flow, double volume, double energyInkeV, String viscosity, String fileName, String internalPath)
+			throws SQLException;
 
 	/**
 	 * @param blsessionId
@@ -108,13 +100,14 @@ public interface BioSAXSISPyB {
 	 * @param internalPath
 	 * @return sampleMeasurementId
 	 */
-	public abstract long createSampleMeasurement(long blsessionId, long experimentId, short plate, short row, short column, String name,
-			double concentration, float storageTemperature, float exposureTemperature, int numFrames,
-			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, 
+	public abstract long createSampleMeasurement(long blsessionId, long experimentId, short plate, short row,
+			short column, String name, double concentration, float storageTemperature, float exposureTemperature,
+			int numFrames, double timePerFrame, double flow, double volume, double energyInkeV, String viscosity,
 			String fileName, String internalPath) throws SQLException;
 
 	/**
 	 * Retrieve a dataCollectionId from SaxsDataCollection that matches the desired experimentId
+	 * 
 	 * @param experimentId
 	 * @return first dataCollectionId
 	 * @throws SQLException
@@ -122,9 +115,10 @@ public interface BioSAXSISPyB {
 	public long getDataCollectionForExperiment(long experimentId) throws SQLException;
 
 	/**
-	 * 
-	 * @param saxsDataCollectionId from that call
-	 * @param measurementId can be buffer or sample measurement
+	 * @param saxsDataCollectionId
+	 *            from that call
+	 * @param measurementId
+	 *            can be buffer or sample measurement
 	 * @return measurementToSaxsCollectionId
 	 * @throws SQLException
 	 */
@@ -134,7 +128,7 @@ public interface BioSAXSISPyB {
 	 * Method to close the database connection once it's no longer needed.
 	 */
 	public abstract void disconnect() throws SQLException;
-	
+
 	public List<SampleInfo> getSaxsDataCollectionInfo(long saxsDataCollectionId) throws SQLException;
 
 	/**
@@ -145,19 +139,22 @@ public interface BioSAXSISPyB {
 	 * @throws SQLException
 	 */
 	public List<Long> getSaxsDataCollectionsForSession(long blsessionId) throws SQLException;
-	
+
 	/**
 	 * @param proposalId
 	 * @param name
-	 * @param experimentType - TEMPLATE, HPLC, STATIC
+	 * @param experimentType
+	 *            - TEMPLATE, HPLC, STATIC
 	 * @param comments
 	 * @return experimentId
 	 * @throws SQLException
 	 */
-	public long createExperiment(long proposalId, String name, String experimentType, String comments) throws SQLException;
+	public long createExperiment(long proposalId, String name, String experimentType, String comments)
+			throws SQLException;
 
 	/**
 	 * Call this method when data reduction is started so that its status can be recorded
+	 * 
 	 * @param dataCollectionId
 	 * @return SubtractionId
 	 * @throws SQLException
@@ -172,7 +169,9 @@ public interface BioSAXSISPyB {
 	public boolean isDataReductionRunning(long subtractionId) throws SQLException;
 
 	/**
-	 * Clear the flag that indicates that the data reduction is running. Run this method when data reduction has completed but before results are put into the ISPyB database
+	 * Clear the flag that indicates that the data reduction is running. Run this method when data reduction has
+	 * completed but before results are put into the ISPyB database
+	 * 
 	 * @param subtractionId
 	 * @return success of clearing procedure
 	 * @throws SQLException
@@ -181,6 +180,7 @@ public interface BioSAXSISPyB {
 
 	/**
 	 * Checks whether the data reduction failed to complete at all
+	 * 
 	 * @param subtractionId
 	 * @return whether data reduction failed to complete
 	 * @throws SQLException
@@ -189,6 +189,7 @@ public interface BioSAXSISPyB {
 
 	/**
 	 * Sets the state that the data reduction has failed
+	 * 
 	 * @param subtractionId
 	 * @throws SQLException
 	 */
@@ -196,6 +197,7 @@ public interface BioSAXSISPyB {
 
 	/**
 	 * The data reduction has returned some information, but it may not be complete.
+	 * 
 	 * @param dataCollectionId
 	 * @return whether data reduction failed (incomplete results) or not
 	 * @throws SQLException
@@ -203,7 +205,9 @@ public interface BioSAXSISPyB {
 	public boolean isDataReductionFailed(long dataCollectionId) throws SQLException;
 
 	/**
-	 * True when data reduction is not currently running and the process has resulted in complete data in the ISPyB database
+	 * True when data reduction is not currently running and the process has resulted in complete data in the ISPyB
+	 * database
+	 * 
 	 * @param dataCollectionId
 	 * @param subtractionId
 	 * @return data reduction has succeeded
@@ -211,5 +215,56 @@ public interface BioSAXSISPyB {
 	 */
 	public boolean isDataReductionSuccessful(long dataCollectionId, long subtractionId) throws SQLException;
 
-	public List<SampleInfo> getSaxsSamples(long sessionId) throws SQLException;
+	/**
+	 * Returns the measurements from ISpyB for a session id
+	 * @return list of progress statuses for samples in the ISpyB database
+	 * @throws SQLException
+	 */
+	public List<ISampleProgress> getBioSAXSMeasurements(long blSessionId) throws SQLException;
+	
+	/**
+	 * Updates a measurement with a collection status, status can be one of the following
+	 * 1. NOT STARTED
+	 * 2. STARTED
+	 * 3. SUCCESSFUL
+	 * 4. NOT SUCCESSFUL
+	 * 
+	 * @param measurementId
+	 * @param collectionStatus
+	 * @throws SQLException
+	 */
+	public void setMeasurementCollectionStatus(long measurementId ,String collectionStatus) throws SQLException;
+
+	/**
+	 * Updates a measurement with a reduction status, status can be one of the following
+	 * 1. NOT STARTED
+	 * 2. STARTED
+	 * 3. SUCCESSFUL
+	 * 4. NOT SUCCESSFUL
+	 * 
+	 * @param measurementId
+	 * @param reductionStatus
+	 * @throws SQLException
+	 */
+	public void setMeasurementReductionStatus(long measurementId, String reductionStatus) throws SQLException;
+	
+	/**
+	 * Updates a measurement with an analysis status, status can be one of the following
+	 * 1. NOT STARTED
+	 * 2. STARTED
+	 * 3. SUCCESSFUL
+	 * 4. NOT SUCCESSFUL
+	 * 
+	 * @param measurementId
+	 * @param analysisStatus
+	 * @throws SQLException
+	 */
+	public void setMeasurementAnalysisStatus(long measurementId, String analysisStatus) throws SQLException;
+	
+	/**
+	 * Sets the start time for a measurement
+	 * @param startTime
+	 * @throws SQLException
+	 */
+	public void setMeasurementStartTime(long startTime) throws SQLException;
 }
