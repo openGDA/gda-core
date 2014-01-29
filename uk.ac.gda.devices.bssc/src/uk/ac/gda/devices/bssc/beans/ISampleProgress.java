@@ -21,10 +21,22 @@ package uk.ac.gda.devices.bssc.beans;
 import java.beans.PropertyChangeListener;
 
 public interface ISampleProgress {
+	public static final String SAMPLE_NAME = "sampleName";
+	public static final String COLLECTION_START_TIME = "collectionStartTime";
+	public static final String COLLECTION_STATUS = "collectionStatus";
+	public static final String REDUCTION_STATUS = "reductionStatus";
+	public static final String ANALYSIS_STATUS = "analysisStatus";
 	public static final String COLLECTION_PROGRESS="collectionProgress";
 	public static final String REDUCTION_PROGRESS="reductionProgress";
 	public static final String ANALYSIS_PROGRESS="analysisProgress";
-	
+
+	public String getCollectionStatus();
+	public void setSampleName(String sampleName);
+	public String getSampleName();
+	public void setCollectionStartTime(long collectionStartTime);
+	public long getCollectionStartTime();
+	public String getReductionStatus();
+	public String getAnalysisStatus();
 	public double getCollectionProgress();
 	public double getReductionProgress();
 	public double getAnalysisProgress();
@@ -32,13 +44,7 @@ public interface ISampleProgress {
 	public void setBlSessionId(long blSessionId);
 	public String getExperimentId();
 	public void setExperimentId(String experimentId);
-	public void setSampleName(String sampleName);
-	public String getSampleName();
-	public String getCollectionStatus();
-	public String getReductionStatus();
-	public String getAnalysisStatus();
-	
+
 	public void addPropertyChangeListener(PropertyChangeListener listener);
 	public void removePropertyChangeListener(PropertyChangeListener listener);
-	public long getCollectionStartTime();
 }
