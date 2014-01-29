@@ -28,13 +28,6 @@ public interface BioSAXSISPyB {
 	/**
 	 * @param visitname
 	 *            e.g. sm9999-9
-	 * @return proposalID
-	 */
-	public abstract long getProposalForVisit(String visitname) throws SQLException;
-
-	/**
-	 * @param visitname
-	 *            e.g. sm9999-9
 	 * @return sessionID
 	 */
 	public abstract long getSessionForVisit(String visitname) throws SQLException;
@@ -42,11 +35,10 @@ public interface BioSAXSISPyB {
 	/**
 	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
 	 * 
-	 * @param sessionID
 	 * @param experimentID
 	 * @return saxsDataCollectionID
 	 */
-	public abstract long createSaxsDataCollection(long sessionID, long experimentID) throws SQLException;
+	public abstract long createSaxsDataCollection(long experimentID) throws SQLException;
 
 	/**
 	 * @param blsessionId
@@ -76,10 +68,9 @@ public interface BioSAXSISPyB {
 	 *            "/entry1/detector/data"
 	 * @return bufferMeasurementId
 	 */
-	public abstract long createBufferMeasurement(long blsessionId, long dataCollectionId, long specimenId,
-			boolean beforeSample, short plate, short row, short column, float exposureTemperature, int numFrames,
-			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, String fileName,
-			String internalPath) throws SQLException;
+	public abstract long createBufferMeasurement(long dataCollectionId, long specimenId,
+			short plate, short row, short column, float exposureTemperature, int numFrames,
+			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity) throws SQLException;
 
 	/**
 	 * @param blsessionId
@@ -102,9 +93,9 @@ public interface BioSAXSISPyB {
 	 * @param internalPath
 	 * @return sampleMeasurementId
 	 */
-	public abstract long createSampleMeasurement(long blsessionId, long dataCollectionId, long specimenId, short plate,
+	public long createSampleMeasurement(long dataCollectionId, long specimenId, short plate,
 			short row, short column, float exposureTemperature, int numFrames, double timePerFrame,
-			double flow, double volume, double energyInkeV, String viscosity, String fileName, String internalPath)
+			double flow, double volume, double energyInkeV, String viscosity)
 			throws SQLException;
 
 	/**
@@ -125,45 +116,20 @@ public interface BioSAXSISPyB {
 	 * @param normalization
 	 * @return runId
 	 */
-	public abstract long measurementStarted(long measurementId, double timePerFrame, float storageTemperature,
+	public abstract long createRun(long measurementId, double timePerFrame, float storageTemperature,
 			float exposureTemperature, double energy, int frameCount, double transmission, double beamCenterX,
 			double beamCenterY, double pixelSizeX, double pixelSizeY, double radiationRelative,
-			double radiationAbsolute, double normalization);
+			double radiationAbsolute, double normalization, String filename, String internalPath);
 
-	/**
-	 * Retrieve a dataCollectionId from SaxsDataCollection that matches the desired experimentId
-	 * 
-	 * @param experimentId
-	 * @return first dataCollectionId
-	 * @throws SQLException
-	 */
-	public long getDataCollectionForExperiment(long experimentId) throws SQLException;
-
-	/**
-	 * @param saxsDataCollectionId
-	 *            from that call
-	 * @param measurementId
-	 *            can be buffer or sample measurement
-	 * @return measurementToSaxsCollectionId
-	 * @throws SQLException
-	 */
-	public long createMeasurementToDataCollection(long saxsDataCollectionId, long measurementId) throws SQLException;
-
-	/**
-	 * Update ISPyB to indicate that a measurement completed successfully, implemented as runId being updated with a
-	 * number (i.e. universal time)
-	 * 
-	 * @param measurementId
-	 */
-	public void measurementDone(long measurementId);
-
+	//FIXME how to re re-use the runs between datacollections?
+	
 	/**
 	 * Update ISpyB to indicate that a measurement did not complete succesfully, implemented as runId being updated
 	 * with a failure text (timeEnd is a VARCHAR)
 	 * 
 	 * @param measurementId
 	 */
-	public void measurementFailed(long measurementId);
+	public void setMeasurementFailed(long measurementId, String message);
 
 	/**
 	 * check ISpyB to determine whether the measurement has finished
@@ -171,21 +137,7 @@ public interface BioSAXSISPyB {
 	 * @param measurementId
 	 * @return true when done or successful
 	 */
-	public boolean isMeasurementDone(long measurementId);
-	
-	/**
-	 * Check ISpyB to determine whether the measurement was completed and successful
-	 * @param measurementId
-	 * @return true if measurement was completed and successful
-	 */
-	public boolean isMeasurementSuccessful(long measurementId);
-	
-	/**
-	 * Check ISpyB to determine whether the measurement was started but did not complete successfully
-	 * @param measurementId
-	 * @return true if the measurement was started but did not complete successfully
-	 */
-	public boolean isMeasurementFailed(long measurementId);
+	public Status getMesurementStatus(long measurementId);
 	
 	/**
 	 * Method to close the database connection once it's no longer needed.
@@ -197,7 +149,7 @@ public interface BioSAXSISPyB {
 	 * @return list of samples measured
 	 * @throws SQLException
 	 */
-	public List<SampleInfo> getSaxsDataCollectionInfo(long saxsDataCollectionId) throws SQLException;
+	public List<SampleInfo> getExperimentInfo(long experimentId) throws SQLException;
 
 	/**
 	 * retrieve all data collection ids for a session (visit)
@@ -206,10 +158,12 @@ public interface BioSAXSISPyB {
 	 * @return all ids
 	 * @throws SQLException
 	 */
-	public List<Long> getSaxsDataCollectionsForSession(long blsessionId) throws SQLException;
+	public List<Long> getExperimentsForSession(long blsessionId) throws SQLException;
 
+	public List<Long> getDataCollectionsForExperiments(long experiemnt) throws SQLException;
+	
 	/**
-	 * @param proposalId
+	 * @param sessionId
 	 * @param name
 	 * @param experimentType
 	 *            - TEMPLATE, HPLC, STATIC
@@ -217,7 +171,7 @@ public interface BioSAXSISPyB {
 	 * @return experimentId
 	 * @throws SQLException
 	 */
-	public long createExperiment(long proposalId, String name, String experimentType, String comments)
+	public long createExperiment(long sessionId, String name, String experimentType, String comments)
 			throws SQLException;
 
 	/**
@@ -227,33 +181,7 @@ public interface BioSAXSISPyB {
 	 * @return SubtractionId
 	 * @throws SQLException
 	 */
-	public long createDataReductionStarted(long dataCollectionId) throws SQLException;
-
-	/**
-	 * @param subtractionId
-	 * @return whether data reduction is still running or not
-	 * @throws SQLException
-	 */
-	public boolean isDataReductionRunning(long subtractionId) throws SQLException;
-
-	/**
-	 * Clear the flag that indicates that the data reduction is running. Run this method when data reduction has
-	 * completed but before results are put into the ISPyB database
-	 * 
-	 * @param subtractionId
-	 * @return success of clearing procedure
-	 * @throws SQLException
-	 */
-	public boolean clearDataReductionStarted(long subtractionId) throws SQLException;
-
-	/**
-	 * Checks whether the data reduction failed to complete at all
-	 * 
-	 * @param subtractionId
-	 * @return whether data reduction failed to complete
-	 * @throws SQLException
-	 */
-	public boolean isDataReductionFailedToComplete(long subtractionId) throws SQLException;
+	public long createDataReduction(long dataCollectionId) throws SQLException;
 
 	/**
 	 * Sets the state that the data reduction has failed
@@ -261,16 +189,7 @@ public interface BioSAXSISPyB {
 	 * @param subtractionId
 	 * @throws SQLException
 	 */
-	public void setDataReductionFailedToComplete(long subtractionId) throws SQLException;
-
-	/**
-	 * The data reduction has returned some information, but it may not be complete.
-	 * 
-	 * @param dataCollectionId
-	 * @return whether data reduction failed (incomplete results) or not
-	 * @throws SQLException
-	 */
-	public boolean isDataReductionFailed(long dataCollectionId) throws SQLException;
+	public void setDataReductionStatus(long dataCollectionId, Status status, String resultsFilename) throws SQLException;
 
 	/**
 	 * True when data reduction is not currently running and the process has resulted in complete data in the ISPyB
@@ -281,7 +200,7 @@ public interface BioSAXSISPyB {
 	 * @return data reduction has succeeded
 	 * @throws SQLException
 	 */
-	public boolean isDataReductionSuccessful(long dataCollectionId, long subtractionId) throws SQLException;
+	public Status getDataReductionStatus(long dataCollectionId) throws SQLException;
 
 	/**
 	 * Returns the measurements from ISpyB for a session id
@@ -291,25 +210,6 @@ public interface BioSAXSISPyB {
 	 */
 	public List<ISampleProgress> getBioSAXSMeasurements(long blSessionId) throws SQLException;
 
-	/**
-	 * Updates a measurement with a collection status, status can be one of the following 1. NOT STARTED 2. STARTED 3.
-	 * SUCCESSFUL 4. NOT SUCCESSFUL
-	 * 
-	 * @param measurementId
-	 * @param collectionStatus
-	 * @throws SQLException
-	 */
-	public void setMeasurementCollectionStatus(long measurementId, String collectionStatus) throws SQLException;
-
-	/**
-	 * Updates a measurement with a reduction status, status can be one of the following 1. NOT STARTED 2. STARTED 3.
-	 * SUCCESSFUL 4. NOT SUCCESSFUL
-	 * 
-	 * @param measurementId
-	 * @param reductionStatus
-	 * @throws SQLException
-	 */
-	public void setMeasurementReductionStatus(long measurementId, String reductionStatus) throws SQLException;
 
 	/**
 	 * Updates a measurement with an analysis status, status can be one of the following 1. NOT STARTED 2. STARTED 3.
@@ -319,15 +219,5 @@ public interface BioSAXSISPyB {
 	 * @param analysisStatus
 	 * @throws SQLException
 	 */
-	public void setMeasurementAnalysisStatus(long measurementId, String analysisStatus) throws SQLException;
-
-	/**
-	 * Sets the start time for a measurement
-	 * 
-	 * @param startTime
-	 * @throws SQLException
-	 */
-	public void setMeasurementStartTime(long startTime) throws SQLException;
-
-	public abstract long createSpecimenForMeasurement();
+	public void setAnalysisStatus(long dataCollectionId, Status analysisStatus) throws SQLException;
 }
