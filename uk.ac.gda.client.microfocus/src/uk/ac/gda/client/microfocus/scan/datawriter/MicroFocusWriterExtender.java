@@ -221,7 +221,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		if ((lastDataPoint == null || (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(
 				dataPoint.getCurrentFilename())))
 				&& (xValues != null || yValues != null)) {
-			double valueToDisplay = 0.0;
+//			double valueToDisplay = 0.0;
 			Hashtable<String, Double> rgbLineData = null;
 			StringBuffer rgbLine = new StringBuffer();
 			int xindex = dataPoint.getCurrentPointNumber() % numberOfXPoints;
@@ -229,32 +229,46 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			rgbLine.append(yindex + " " + xindex + " ");
 			NXDetectorData d = null;
 			Vector<Object> detectorsData = dataPoint.getDetectorData();
+			if (detectorsData.size() != detFromDP.size()){
+				logger.error("Inconsistency in ScanDataPoint. There are " + detFromDP.size() + " detectors and " + detectorsData.size() + " data parts");
+			}
 			for (int detDataIndex = 0; detDataIndex < detectorsData.size(); detDataIndex++) {
-				Object obj = detectorsData.get(detDataIndex);
-				if (obj instanceof double[] && (detFromDP.get(detDataIndex) instanceof TfgScaler)) {
-					double[] scalerData = (double[]) obj;
-					if (selectedElementIndex == -1) {
-						String[] s = detFromDP.get(detDataIndex).getExtraNames();
-						for (int i = 0; i < s.length; i++) {
-							if (s[i].equals(selectedElement)) {
-								selectedElementIndex = i;
-								break;
-							}
-							selectedElementIndex = -1;
-						}
+				Object dataObj = detectorsData.get(detDataIndex);
+				Detector detector = detFromDP.get(detDataIndex);
+				// if the ionchambers
+				if (dataObj instanceof double[] && ( detector instanceof TfgScaler)) {
+					double[] scalerData = (double[]) dataObj;
+					if (scalerData.length != detector.getExtraNames().length) {
+						logger.error("Inconsistency in ScanDataPoint. There are " + scalerData.length
+								+ " parts in the data and " + detector.getExtraNames().length + " extra names for "
+								+ detector.getName());
 					}
-					if (selectedElementIndex != -1)
-						valueToDisplay = scalerData[selectedElementIndex];
-					if (normaliseElementIndex != -1)
-						normaliseValue = scalerData[normaliseElementIndex];
+//					// if TfgScaler data chosen to be plotted
+//					if (selectedElementIndex == -1) {
+//						int selectedScalerElement = ArrayUtils.indexOf(detector.getExtraNames(), selectedElement);
+//						if (selectedScalerElement != -1)
+//							valueToDisplay = scalerData[selectedScalerElement];
+////						String[] s = detector.getExtraNames();
+////						for (int i = 0; i < s.length; i++) {
+////							if (s[i].equals(selectedElement)) {
+////								selectedElementIndex = i;
+////								break;
+////							}
+////							selectedElementIndex = -1;
+////						}
+//					}
 					for (double i : scalerData) {
 						rgbLine.append(i);
 						rgbLine.append("	");
 					}
+//					if (selectedElementIndex != -1 && selectedElementIndex < scalerData.length)
+//						valueToDisplay = scalerData[selectedElementIndex];
+					if (normaliseElementIndex != -1 && normaliseElementIndex < scalerData.length)
+						normaliseValue = scalerData[normaliseElementIndex];
 					scalerValuesCache[dataPoint.getCurrentPointNumber()] = scalerData;
 					logger.debug("The rgb Line with scaler values is " + rgbLine.toString());
 
-				} else if (obj instanceof NXDetectorData) {
+				} else if (dataObj instanceof NXDetectorData) {  // then this must be a fluorescence detector
 					// make the roiHeader once
 					if (rgbLineData == null) {
 						rgbLineData = new Hashtable<String, Double>(roiNames.length);
@@ -265,9 +279,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						}
 					}
 					if (isXspressScan()
-							&& ((detFromDP.get(detDataIndex) instanceof XspressDetector) || (detFromDP
-									.get(detDataIndex) instanceof BufferedDetector))) {
-						d = ((NXDetectorData) obj);
+							&& (detector instanceof XspressDetector) || detector instanceof BufferedDetector) {
+						d = ((NXDetectorData) dataObj);
 						double[][] dataArray = (double[][]) d.getData(detectorName, "MCAs", "SDS").getBuffer();
 						// assuming all detector elements have the same number of roi
 						spectrumLength = dataArray[0].length;
@@ -284,17 +297,17 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 									double rgbElementSum = rgbLineData.get(key);
 									rgbLineData.put(key, rgbElementSum + windowTotal);
 									detectorValuesCache[i][roiNameMap.get(key)][dataPoint.getCurrentPointNumber()] = windowTotal;
-									if (roi.getRoiName().equals(selectedElement) && i == selectedChannel) {
-										valueToDisplay = windowTotal;
-									}
+//									if (roi.getRoiName().equals(selectedElement) && i == selectedChannel) {
+//										valueToDisplay = windowTotal;
+//									}
 								}
 							}
 						}
-						logger.debug("the value for the selected element " + selectedElement + " is " + valueToDisplay);
+//						logger.debug("the value for the selected element " + selectedElement + " is " + valueToDisplay);
 
 					} else if (isXmapScan()
-							&& ((detFromDP.get(detDataIndex) instanceof XmapDetector) || (detFromDP.get(detDataIndex) instanceof BufferedDetector))) {
-						d = ((NXDetectorData) obj);
+							&& (detector instanceof XmapDetector) || (detector instanceof BufferedDetector)) {
+						d = ((NXDetectorData) dataObj);
 						double wholeDataArray[][] = new double[numberOfSubDetectors][];
 						Object wholeDataArrayObject;
 						try {
@@ -345,16 +358,16 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 									double windowTotal = getWindowedData(wholeDataArray[j], roi.getRoiStart(),
 											roi.getRoiEnd());
 									detectorValuesCache[j][roiNameMap.get(key)][dataPoint.getCurrentPointNumber()] = windowTotal;
-									if (roi.getRoiName().equals(selectedElement) && j == selectedChannel) {
-										valueToDisplay = windowTotal;
-									}
+//									if (roi.getRoiName().equals(selectedElement) && j == selectedChannel) {
+//										valueToDisplay = windowTotal;
+//									}
 								}
 							}
 						}
 					}
 					logger.debug("The y value is " + xy[0]);
 					logger.debug("the x value is " + xy[1]);
-					logger.debug("the data to plot is " + valueToDisplay);
+//					logger.debug("the data to plot is " + valueToDisplay);
 				}
 			}
 
@@ -370,11 +383,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 			if (dataPoint.getCurrentPointNumber() == 0) addToRgbFile(roiHeader.toString());
 			addToRgbFile(rgbLine.toString().trim());
-
-			logger.debug("the calculated y x are " + (int) Math.abs(Math.round(((xy[0] - firstY) / yStepSize))) + " "
-					+ (int) Math.abs(Math.round((xy[1] - firstX) / xStepSize)));
-			logger.debug("the assumed y x are " + yIndex + " "
-					+ (int) Math.abs(Math.round((xy[1] - firstX) / xStepSize)));
 
 			normaliseDetectorValues(dataPoint);
 
@@ -529,7 +537,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		if (selectedElementIndex == -1) {
 			int scalerIndex = selectedElement.equalsIgnoreCase("i0") ? 0 : 1;
 			for (int i = 0; i <= plottedSoFar; i++) {
-				dataSetToDisplay.set(scalerValuesCache[i][scalerIndex], i / numberOfXPoints, i % numberOfXPoints);
+				dataSetToDisplay.setAbs(i,scalerValuesCache[i][scalerIndex]);
+//				dataSetToDisplay.set(scalerValuesCache[i][scalerIndex], i / numberOfXPoints, i % numberOfXPoints);
 			}
 			plotImage(dataSetToDisplay);
 			return;
