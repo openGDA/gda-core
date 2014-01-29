@@ -42,6 +42,7 @@ public class BioSAXSProgressController {
 		this.bioSAXSProgressModel = bioSAXSProgressModel;
 		new BioSAXSDBFactory().setJdbcURL("jdbc:oracle:thin:@duoserv12.diamond.ac.uk:1521:ispyb");
 		bioSAXSISPyB = BioSAXSDBFactory.makeAPI();
+		pollISpyB();
 	}
 
 	public void pollISpyB() {
