@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -20,20 +20,6 @@ package uk.ac.gda.client;
 
 import gda.commandqueue.QueuedCommandSummary;
 
-class NumberedQueueEntry implements QueueEntry{
-
-	public int index;
-	public QueuedCommandSummary entry;
-
-	@Override
-	public String toString() {
-		return String.format("%s(%d, %s)", getClass().getSimpleName(), index, entry);
-	}
-
-	@Override
-	public QueuedCommandSummary getQueueCommandSummary() {
-		return entry;
-	}
-
+public interface QueueEntry {
+	QueuedCommandSummary getQueueCommandSummary();
 }
-
