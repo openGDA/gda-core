@@ -30,10 +30,6 @@
          version="0.0.0"/>
 
    <includes
-         id="org.python.pydev.feature"
-         version="0.0.0"/>
-
-   <includes
          id="uk.ac.gda.xmleditor.feature"
          version="0.0.0"/>
 
