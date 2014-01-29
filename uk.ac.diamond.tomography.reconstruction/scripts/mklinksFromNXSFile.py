@@ -254,20 +254,20 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 
 	#e.g. /dls/i13/data/2012/mt5811-1/564/pco1/pco1564-00002.tif
 	#Note that src_proj_split contains some empty strings, i.e.''
-	makeLinks_arg={}
-	makeLinks_arg['beamlineID']=src_proj_split[2]
-	makeLinks_arg['year']=int(src_proj_split[4])
-	makeLinks_arg['visit']=src_proj_split[5]
+	#makeLinks_arg={}
+	#makeLinks_arg['beamlineID']=src_proj_split[2]
+	#makeLinks_arg['year']=int(src_proj_split[4])
+	#makeLinks_arg['visit']=src_proj_split[5]
 	#makeLinks_arg['scanNumber']=int(src_proj_split[6])
-	makeLinks_arg['scanNumber']=src_proj_split[6]
-	makeLinks_arg['detector']=src_proj_split[7]
+	#makeLinks_arg['scanNumber']=src_proj_split[6]
+	#makeLinks_arg['detector']=src_proj_split[7]
 	
-	makeLinks_arg['firstImage']=proj_idx[0]
-	makeLinks_arg['lastImage']=proj_idx[len(proj_idx)-1]
+	#makeLinks_arg['firstImage']=proj_idx[0]
+	#makeLinks_arg['lastImage']=proj_idx[len(proj_idx)-1]
 
 	detectorName=src_proj_split[7]
-	makeLinks_outdir=head+os.sep+proj_dir
-	print "makeLinks_outdir=%s"%makeLinks_outdir
+	#makeLinks_outdir=head+os.sep+proj_dir
+	#print "makeLinks_outdir=%s"%makeLinks_outdir
 
 
 	proj_idx_decimated=decimate(proj_idx, decimationRate)
