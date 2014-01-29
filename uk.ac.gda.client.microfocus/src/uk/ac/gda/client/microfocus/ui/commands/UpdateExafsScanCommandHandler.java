@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.microfocus.ui.commands;
 
-
 import java.io.File;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -48,7 +47,6 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 	private final static Logger logger = LoggerFactory.getLogger(UpdateExafsScanCommandHandler.class);
 	protected final IExperimentEditorManager controller = ExperimentFactory.getExperimentEditorManager();
 
-	@SuppressWarnings("null")
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		if (HandlerUtil.getActivePart(event).getClass().equals(ExafsSelectionView.class)) {
@@ -57,21 +55,23 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 
 			if (isValid(selectedScans)) {
 				File project = controller.getProjectFolder();
-				String folder = selectedScans[0].substring(selectedScans[0].indexOf(")") + 1, selectedScans[0]
-						.indexOf(File.separator));
+				String folder = selectedScans[0].substring(selectedScans[0].indexOf(")") + 1,
+						selectedScans[0].indexOf(File.separator));
 				IExperimentObjectManager newScanManager = null;
 				try {
-					newScanManager = ExperimentProjectNature.createNewEmptyScan(controller.getIFolder(folder), exafsView
-							.getNewMultiScanName(), null);
+					newScanManager = ExperimentProjectNature.createNewEmptyScan(controller.getIFolder(folder),
+							exafsView.getNewMultiScanName(), null);
 				} catch (Exception e) {
 					logger.error("Unable to create a new MultiScan: " + e.getMessage());
 					return null;
 				}
-				if (newScanManager == null ){
+
+				if (newScanManager == null) {
 					logger.error("Unable to create a new MultiScan");
 					return null;
 				}
-				// create a new mulktiscan
+				
+				// create a new multiscan
 				for (String sScan : selectedScans) {// TODO need to change it to more eclipse way add a seperate class
 					// to provide the content
 					String xyz = sScan.substring(sScan.indexOf("(") + 1, sScan.indexOf(")"));
@@ -82,7 +82,7 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 								.getManager(controller.getIFile(scanFile));
 						List<IExperimentObject> scanList = scManager.getExperimentList();
 						for (IExperimentObject exptScan : scanList) {
-							ScanObject scan = (ScanObject)exptScan;
+							ScanObject scan = (ScanObject) exptScan;
 							I18SampleParameters samPam = (I18SampleParameters) scan.getSampleParameters();
 							SampleStageParameters sstagePam = samPam.getSampleStageParameters();
 							StringTokenizer tokens = new StringTokenizer(xyz, ",");
@@ -104,10 +104,8 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 							XMLHelpers.writeToXML(I18SampleParameters.mappingURL, samPam, newSampleFile);
 							ScanObject newScan = (ScanObject) scManager.createCopyOfExperiment(scan);
 							newScan.setSampleFileName(newSampleFileName);
-							if (newScanManager != null){
-								newScan.setRunName(scan.getRunName() + "[" + xyz + "]");
-								newScanManager.addExperiment(newScan);
-							}
+							newScan.setRunName(scan.getRunName() + "[" + xyz + "]");
+							newScanManager.addExperiment(newScan);
 						}
 						newScanManager.write();
 					} catch (Exception e) {
@@ -127,8 +125,8 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 	}
 
 	private boolean isValid(String[] selectedScans) {
-		String toMatch = selectedScans[0].substring(selectedScans[0].indexOf(")") + 1, selectedScans[0]
-				.indexOf(File.separator));
+		String toMatch = selectedScans[0].substring(selectedScans[0].indexOf(")") + 1,
+				selectedScans[0].indexOf(File.separator));
 		for (String selection : selectedScans) {
 			if (!selection.substring(selection.indexOf(")") + 1, selection.indexOf(File.separator)).equals(toMatch))
 				return false;

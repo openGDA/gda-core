@@ -53,7 +53,8 @@ public class MicroFocusPerspective implements IPerspectiveFactory {
 		
 		IFolderLayout bottomrightFolder = layout.createFolder("bottomright", IPageLayout.RIGHT, 0.3f, "bottomleft");
 		bottomrightFolder.addView("gda.rcp.jythonterminalview");
-
+		bottomrightFolder.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawnsci.rcp.histogram.histogram_tool_page");
+		
 		layout.setEditorAreaVisible(false);
 	}
 }

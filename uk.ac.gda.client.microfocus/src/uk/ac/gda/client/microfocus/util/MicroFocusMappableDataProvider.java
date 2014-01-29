@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.INexusTree;
 
 import java.util.ArrayList;
@@ -33,18 +32,11 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.gda.beans.IRichBean;
 
 public abstract class MicroFocusMappableDataProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusMappableDataProvider.class);
-
-	public abstract boolean hasPlotData(String elementName);
-
-	public abstract double[][] constructMappableData();
-
-	public abstract void loadBean();
-
-	public abstract double[] getSpectrum(int detectorNo, int y, int x);
 
 	protected INexusTree mainTree;
 	protected String xScannableName;
@@ -58,31 +50,30 @@ public abstract class MicroFocusMappableDataProvider {
 	protected Double[] xarray;
 	protected Double[] yarray;
 	protected String selectedElement;
+	protected Integer selectedChannel;
 	protected String yScannableName;
 	protected double zValue;
 	protected String zScannableName = "sc_sample_z";
 	protected String detectorName;
 	protected INexusTree detectorNode;
 	protected String beanFile;
-
 	private AbstractDataset i0data;
 	private AbstractDataset itdata;
 
 	public MicroFocusMappableDataProvider() {
 		super();
-		try {
-			if (LocalProperties.get("gda.factory.factoryName").equals("b16server")
-					|| LocalProperties.get("gda.factory.factoryName").equals("b16")) {
-
-				zScannableName = "z";
-			}
-		} catch (Exception e) {
-			logger.warn("Error finding the Local Propertues for Z scannable name", e);
-		}
 	}
 
-	public abstract void loadBean(Object bean);
+	public abstract boolean hasPlotData(String elementName);
 
+	public abstract double[][] constructMappableData();
+
+	public abstract void loadBean();
+
+	public abstract double[] getSpectrum(int detectorNo, int y, int x);
+	
+	public abstract void loadBean(IRichBean bean);
+	
 	/**
 	 * Load a MicroFocus Nexus file and read in the x and y axis values
 	 */
@@ -303,6 +294,14 @@ public abstract class MicroFocusMappableDataProvider {
 
 	public void setSelectedElement(String selectedElement) {
 		this.selectedElement = selectedElement;
+	}
+
+	public Integer getSelectedChannel() {
+		return selectedChannel;
+	}
+
+	public void setSelectedChannel(Integer selectedChannel) {
+		this.selectedChannel = selectedChannel;
 	}
 
 	public String getDetectorName() {
