@@ -55,7 +55,6 @@
 	<xsd:element name="BSSCSessionBean">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="sampleStorageTemperature" type="xsd:float" minOccurs="0" maxOccurs="1"/>
 				<xsd:element name="measurement" type="TitrationBean" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 		</xsd:complexType>
