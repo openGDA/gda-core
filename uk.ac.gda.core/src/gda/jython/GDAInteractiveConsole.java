@@ -19,8 +19,6 @@
 
 package gda.jython;
 
-import gda.configuration.properties.LocalProperties;
-
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyJavaType;
@@ -60,12 +58,7 @@ public class GDAInteractiveConsole extends InteractiveConsole {
         PyObject currentBuiltins = Py.getSystemState().getBuiltins();
         currentBuiltins.__setitem__("_", Py.None);
         if (o instanceof PyUnicode) {
-			if (LocalProperties.check(GDAJythonInterpreter.USE_WRITERS_PROPERTY, true)) {
-				Py.println(o);
-			} else {
-				final PyUnicode u = (PyUnicode) o;
-				Py.println(u.__str__());
-			}
+			Py.println(o);
 		} else {
 			Py.println(o.__repr__());
 		}

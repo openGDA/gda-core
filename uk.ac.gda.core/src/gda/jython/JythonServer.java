@@ -55,12 +55,10 @@ import gda.util.exceptionUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -741,43 +739,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	@Override
 	public void resumeCurrentScript(String JSFIdentifier) {
 		ScriptBase.setPaused(false);
-	}
-
-	private final OutputStream terminalOutputStream = new OutputStream() {
-
-		@Override
-		public void write(byte[] input) {
-			updateIObservers(input);
-			if (runningLocalStation) {
-				try {
-					bufferedLocalStationOutput += new String(input, "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					// This seems highly improbable, but we have to catch the exception
-					logger.error("UTF-8 is unsupported on current platform", e);
-				}
-			}
-		}
-
-		@Override
-		public void write(int input) {
-			String str = Integer.toBinaryString(input);
-			byte[] byte_array = str.getBytes();
-			write(byte_array);
-		}
-
-		@Override
-		public void write(byte[] b, int off, int len) {
-			byte[] input = b;
-			if (off != 0 || len != b.length) {
-				// create the truncated byte array
-				input = Arrays.copyOfRange(b, off, off + len);
-			}
-			write(input);
-		}
-	};
-
-	public OutputStream getTerminalOutputStream() {
-		return terminalOutputStream;
 	}
 
 	private final Writer terminalWriter = new Writer() {
