@@ -90,7 +90,7 @@ public class NexusGroupData implements Serializable {
 
 	public NexusGroupData(Integer i) {
 		super();
-		Integer[] idata = new Integer[]{i};
+		int[] idata = new int[]{i};
 		dimensions = new int[]{idata.length};
 		data = idata;
 		type = NexusFile.NX_INT32;
