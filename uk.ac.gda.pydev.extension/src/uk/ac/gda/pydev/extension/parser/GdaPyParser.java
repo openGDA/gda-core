@@ -50,13 +50,9 @@ public class GdaPyParser extends PyParser {
      * @param resource the resource that should have the error added
      * @param doc the document with the resource contents
      * @return the error description (or null)
-     * 
-     * @throws BadLocationException
-     * @throws CoreException
      */
-    public static ErrorDescription createParserErrorMarkers(Throwable error, IAdaptable resource, IDocument doc)
-            throws BadLocationException, CoreException {
-        ErrorDescription errDesc;
+    public static ErrorDescription createParserErrorMarkers(Throwable error, IAdaptable resource, IDocument doc) {
+        ErrorDescription errDesc = null;
         if(resource == null){
             return null;
         }
@@ -65,9 +61,25 @@ public class GdaPyParser extends PyParser {
             return null;
         }
     
-        errDesc = createErrorDesc(error, doc);
-        
-        createErrorMarkers(errDesc, fileAdapter);
+        try {
+			errDesc = createErrorDesc(error, doc);
+		} catch (BadLocationException e) {
+			// FIXME
+			Log.log(e);
+		}
+
+        if (errDesc != null) {
+	        try {
+				createErrorMarkers(errDesc, fileAdapter);
+			} catch (CoreException e) {
+				// FIXME
+				Log.log(e);
+			}
+        }
+        if (errDesc != null) {
+            // FIXME check if this is correct procedure (maybe return new ErrorDescription instead of null) 
+        }
+
         return errDesc;
     }
 
@@ -85,6 +97,7 @@ public class GdaPyParser extends PyParser {
 
     /**
      * Creates the error description for a given error in the parse.
+     * @throws BadLocationException 
      */
     public static ErrorDescription createErrorDesc(Throwable error, IDocument doc) throws BadLocationException {
         int errorStart = -1;
