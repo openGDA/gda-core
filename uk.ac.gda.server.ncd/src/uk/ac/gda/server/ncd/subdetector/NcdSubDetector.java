@@ -78,6 +78,11 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 					if (property instanceof List) { // I get doubles I put in back in lists...
 						property = ((List) property).get(0);
 					}
+					try {
+						property = Double.parseDouble(property.toString());
+					} catch (Exception e) {
+						// was worth a try (literally)
+					}
 					attributeMap.put(name, property);
 				} catch (Exception e) {
 					logger.info("Error restoring attribute "+name+" for detector "+getName());

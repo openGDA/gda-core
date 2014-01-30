@@ -1,11 +1,17 @@
 import sys
+import java.io.FileOutputStream as FileOutputStream
+import java.io.FileInputStream as FileInputStream
+import java.io.ObjectOutputStream as ObjectOutputStream
+import java.io.ObjectInputStream as ObjectInputStream
+import os.path
+import gda.configuration.properties.LocalProperties as lp
+
 from gda.data.scan.datawriter import DataWriterExtenderBase
 from gda.device.scannable.scannablegroup import ScannableGroup
 from gda.data.scan.datawriter import DataWriterFactory
 from gda.factory import Finder
 import gda.jython.commands.ScannableCommands.scan
 from gda.analysis import DataSet
-from uk.ac.diamond.scisoft.analysis import SDAPlotter as RCPPlotter
 from uk.ac.diamond.scisoft.analysis.roi import GridROI
 from uk.ac.diamond.scisoft.analysis.plotserver import GuiParameters
 from gdascripts.messages import handle_messages
@@ -14,6 +20,7 @@ from uk.ac.gda.server.ncd.subdetector import LastImageProvider
 import scisoftpy as dnp
 from uk.ac.diamond.scisoft.analysis.io import Metadata
 from uk.ac.diamond.scisoft.analysis.roi import GridPreferences
+from uk.ac.diamond.scisoft.analysis import SDAPlotter as RCPPlotter
 
 class Grid(DataWriterExtenderBase):
 	
@@ -33,7 +40,13 @@ class Grid(DataWriterExtenderBase):
 		extenders=[ex for ex in extenders if not "iAmAGridThingy" in dir(ex)]
 		extenders.append(self)
 		dwf.setDataWriterExtenders(extenders)
-		self.gridpreferences=GridPreferences()
+		self.gridpreferencesStorage = lp.get("gda.var") + "mappingGridPreferences"
+		try:
+			self.loadPreferences()
+		except Exception, e:
+			#print e
+			print "Using default grid preferences"
+			self.gridpreferences=GridPreferences()
 	
 	def snap(self):
 		try:
@@ -48,20 +61,24 @@ class Grid(DataWriterExtenderBase):
 				yres = self.getResolutionY()
 				xa = dnp.array([(x-xbs)/xres for x in range(xs)])
 				ya = dnp.array([(y-ybs)/yres for y in range(ys)])
-				xa.setName("mm")
-				ya.setName("mm")
-				RCPPlotter.imagePlot(self.cameraPanel, xa, ya, image)
+				xa._jdataset().setName("mm")
+				ya._jdataset().setName("mm")
+
+				dnp.plot.image(image, x=xa, y=ya, name=self.cameraPanel)
 			else:
-				RCPPlotter.imagePlot(self.cameraPanel, image)
-		except:
+				dnp.plot.image(image, name=self.cameraPanel)
+		except Exception, e:
 			print "  gridscan: error getting camera image"
+			print e.message
 		
-	def scan(self):
-		beanbag=RCPPlotter.getGuiBean(self.cameraPanel)
-		if beanbag == None:
-			print "No Bean found on "+self.camerPanel+" (that is strange)"
-			return
-		roi=beanbag[GuiParameters.ROIDATA]
+	def scan(self, roi=None):
+		if roi is None:
+			beanbag=dnp.plot.getbean(name=self.cameraPanel)
+			if beanbag == None:
+				print "No Bean found on "+self.cameraPanel+" (that is strange)"
+				return
+			roi=beanbag[GuiParameters.ROIDATA]._jroi()
+			
 		if not isinstance(roi, GridROI):
 			print "no Grid ROI selected"
 			return
@@ -93,6 +110,32 @@ class Grid(DataWriterExtenderBase):
 			self.scanrunning = False
 			handle_messages.log(None, "Error in grid_scan.scan", type, exception, traceback, False)		
 
+	def scanAll(self):
+		beanbag=dnp.plot.getbean(name=self.cameraPanel)
+		if beanbag == None:
+			print "No Bean found on "+self.cameraPanel+" (that is strange)"
+			return
+		#cur = beanbag[GuiParameters.ROIDATA]._jroi()
+		roiDataList = beanbag[GuiParameters.ROIDATALIST]
+		if not roiDataList:
+			print "No ROIs found"
+			return
+		
+		roiList = [g._jroi() for g in roiDataList]
+		gRoiList = []
+		for roi in roiList:
+			if isinstance(roi, GridROI):
+				gRoiList.append(roi)
+		
+		if gRoiList:
+			print "Scanning %d grid(s)\n" % len(gRoiList)
+			for roi in gRoiList:
+				self.scan(roi)
+				print
+			print "Completed scanning"
+		else:
+			print "no Grid ROIs"
+			
 	def getSaxsDetector(self):
 		for det in self.ncddetectors.getDetectors():
 			if det.getDetectorType() == "SAXS":
@@ -103,8 +146,9 @@ class Grid(DataWriterExtenderBase):
 		return self.getSaxsDetector().getName()
 
 	def addData(self, parent, dataPoint):
+		if not self.scanrunning:
+			return
 		try:
-			if self.scanrunning:
 				pno=dataPoint.getCurrentPointNumber()
 				index=dataPoint.getDetectorNames().indexOf(self.ncddetectors.getName())
 				tree=dataPoint.getDetectorData().get(index).getNexusTree()
@@ -133,8 +177,10 @@ class Grid(DataWriterExtenderBase):
 		return self.gridpreferences.getBeamlinePosY()
 	def setBeamCentreX(self, x):
 		self.gridpreferences.setBeamlinePosX(x)
+		self.updatePreferences()
 	def setBeamCentreY(self, y):
 		self.gridpreferences.setBeamlinePosY(y)
+		self.updatePreferences()
 		
 	def getResolutionX(self):
 		return self.gridpreferences.getResolutionX()
@@ -142,5 +188,28 @@ class Grid(DataWriterExtenderBase):
 		return self.gridpreferences.getResolutionY()
 	def setResolutionX(self, x):
 		self.gridpreferences.setResolutionX(x)
+		self.updatePreferences()
 	def setResolutionY(self, y):
 		self.gridpreferences.setResolutionY(y)
+		self.updatePreferences()
+	
+	def updatePreferences(self):
+		self.savePreferences()
+		self.snap()
+	
+	def loadPreferences(self):
+		if not os.path.isfile(self.gridpreferencesStorage):
+			raise Exception("No preferences saved")
+			
+		fileIn = FileInputStream(self.gridpreferencesStorage)
+		objIn = ObjectInputStream(fileIn)
+		self.gridpreferences = objIn.readObject()
+		objIn.close()
+		fileIn.close()
+			
+	def savePreferences(self):
+		fileOut = FileOutputStream(self.gridpreferencesStorage)
+		objOut = ObjectOutputStream(fileOut)
+		objOut.writeObject(self.gridpreferences)
+		objOut.close()
+		fileOut.close()

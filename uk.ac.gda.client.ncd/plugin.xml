@@ -259,9 +259,9 @@
                tool_id="org.dawb.workbench.plotting.tools.gridTool">
          </tool_page_action>
          <tool_page_action
-               command_id="uk.ac.gda.client.ncd.gridstartscan"
-               id="uk.ac.gda.client.ncd.gridtool.gridstartscan"
-               label="Start Scan"
+               command_id="uk.ac.gda.client.ncd.gridstartscanall"
+               id="uk.ac.gda.client.ncd.gridtool.gridstartscanall"
+               label="Scan All"
                tool_id="org.dawb.workbench.plotting.tools.gridTool">
          </tool_page_action>
       </extension>
@@ -276,6 +276,11 @@
                defaultHandler="gda.rcp.ncd.sideplot.GridStartScan"
                id="uk.ac.gda.client.ncd.gridstartscan"
                name="Start Scan">
+         </command>
+         <command
+               defaultHandler="gda.rcp.ncd.sideplot.GridStartScanAll"
+               id="uk.ac.gda.client.ncd.gridstartscanall"
+               name="Scan All">
          </command>
       </extension>
 </plugin>
