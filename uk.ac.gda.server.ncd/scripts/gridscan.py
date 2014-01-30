@@ -63,18 +63,22 @@ class Grid(DataWriterExtenderBase):
 				ya = dnp.array([(y-ybs)/yres for y in range(ys)])
 				xa._jdataset().setName("mm")
 				ya._jdataset().setName("mm")
+
 				dnp.plot.image(image, x=xa, y=ya, name=self.cameraPanel)
 			else:
 				dnp.plot.image(image, name=self.cameraPanel)
-		except:
+		except Exception, e:
 			print "  gridscan: error getting camera image"
+			print e.message
 		
-	def scan(self):
-		beanbag=dnp.plot.getbean(name=self.cameraPanel)
-		if beanbag == None:
-			print "No Bean found on "+self.camerPanel+" (that is strange)"
-			return
-		roi=beanbag[GuiParameters.ROIDATA]._jroi()
+	def scan(self, roi=None):
+		if roi is None:
+			beanbag=dnp.plot.getbean(name=self.cameraPanel)
+			if beanbag == None:
+				print "No Bean found on "+self.cameraPanel+" (that is strange)"
+				return
+			roi=beanbag[GuiParameters.ROIDATA]._jroi()
+			
 		if not isinstance(roi, GridROI):
 			print "no Grid ROI selected"
 			return
@@ -106,6 +110,32 @@ class Grid(DataWriterExtenderBase):
 			self.scanrunning = False
 			handle_messages.log(None, "Error in grid_scan.scan", type, exception, traceback, False)		
 
+	def scanAll(self):
+		beanbag=dnp.plot.getbean(name=self.cameraPanel)
+		if beanbag == None:
+			print "No Bean found on "+self.cameraPanel+" (that is strange)"
+			return
+		#cur = beanbag[GuiParameters.ROIDATA]._jroi()
+		roiDataList = beanbag[GuiParameters.ROIDATALIST]
+		if not roiDataList:
+			print "No ROIs found"
+			return
+		
+		roiList = [g._jroi() for g in roiDataList]
+		gRoiList = []
+		for roi in roiList:
+			if isinstance(roi, GridROI):
+				gRoiList.append(roi)
+		
+		if gRoiList:
+			print "Scanning %d grid(s)\n" % len(gRoiList)
+			for roi in gRoiList:
+				self.scan(roi)
+				print
+			print "Completed scanning"
+		else:
+			print "no Grid ROIs"
+			
 	def getSaxsDetector(self):
 		for det in self.ncddetectors.getDetectors():
 			if det.getDetectorType() == "SAXS":
