@@ -18,13 +18,28 @@
 
 package gda.device.zebra.controller.impl;
 
+import gda.device.zebra.controller.SoftInputChangedEvent;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.CachedLazyPVFactory;
+import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
+import gda.observable.IObserver;
+import gda.observable.Observable;
+import gda.observable.ObservableComponent;
+import gda.observable.Observer;
+
+import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 
 public class ZebraImpl implements Zebra, InitializingBean {
+
+	private static final Logger logger = LoggerFactory.getLogger(ZebraImpl.class);
 
 	final public static String connected = "CONNECTED";
 	final public static String store = "STORE";
@@ -79,6 +94,8 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	final public static String PCTimeUnit = "PC_TSPRE";
 	private static final String PCPulseMax = "PC_PULSE_MAX";	
 	
+	private static final String SYS_SOFT_IN_PV = "SOFT_IN";
+
 	String zebraPrefix;
 
 	CachedLazyPVFactory dev;
@@ -288,7 +305,8 @@ public class ZebraImpl implements Zebra, InitializingBean {
 		if (zebraPrefix == null || zebraPrefix.isEmpty())
 			throw new Exception("zebraPrefix is not set");
 		dev = new CachedLazyPVFactory(zebraPrefix);
-
+		
+		startMonitoringSoftInputs();
 	}
 
 	@Override
@@ -347,4 +365,101 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	public void setOutTTL(int outId, int val) throws Exception {
 		dev.getIntegerPVValueCache("OUT"+outId+"_TTL").putWait(val);
 	}	
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	final ObservableComponent obsComp = new ObservableComponent();
+
+	@Override
+	public void addIObserver(IObserver observer) {
+		obsComp.addIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		obsComp.deleteIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObservers() {
+		obsComp.deleteIObservers();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	int lastSoftInputsValue;
+
+	private final Lock softInputsLock = new ReentrantLock();
+
+	private void startMonitoringSoftInputs() {
+		
+		final PV<Integer> pv = dev.getPVInteger(SYS_SOFT_IN_PV);
+		
+		
+		try {
+			lastSoftInputsValue = pv.get();
+			
+			pv.addObserver(new Observer<Integer>() {
+				@Override
+				public void update(Observable<Integer> source, Integer arg) {
+					
+					softInputsLock.lock();
+					
+					try {
+						
+						final int newValue = arg;
+						
+						for (int input=1; input<=4; input++) {
+							
+							final boolean wasSetBefore = isSoftInputSet(lastSoftInputsValue, input);
+							final boolean isSetNow = isSoftInputSet(newValue, input);
+							
+							if (wasSetBefore != isSetNow) {
+								final SoftInputChangedEvent ev = new SoftInputChangedEvent(input, isSetNow);
+								obsComp.notifyIObservers(this, ev);
+							}
+						}
+						
+						lastSoftInputsValue = newValue;
+					}
+					
+					finally {
+						softInputsLock.unlock();
+					}
+				}
+			});
+			logger.info("Now monitoring soft inputs");
+		}
+		
+		catch (Exception e) {
+			logger.error("Could not start monitoring soft inputs", e);
+		}
+	}
+
+	@Override
+	public boolean isSoftInputSet(int inputNumber) throws IOException {
+		final PV<Integer> pv = dev.getPVInteger(SYS_SOFT_IN_PV);
+		final int softInputPvValue = pv.get();
+		return isSoftInputSet(softInputPvValue, inputNumber);
+	}
+
+	@Override
+	public void setSoftInput(int inputNumber, boolean set) throws IOException {
+		
+		final PV<Integer> pv = dev.getPVInteger(SYS_SOFT_IN_PV);
+		
+		final int oldValue = pv.get();
+		
+		final int bit = 1<<(inputNumber-1);
+		final int newValue = set ? (oldValue | bit) : (oldValue & ~bit);
+		
+		pv.putWait(newValue);
+	}
+
+	private static boolean isSoftInputSet(int softInputPvValue, int inputNumber) {
+		return ((softInputPvValue & (1<<(inputNumber-1))) > 0);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }

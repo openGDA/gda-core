@@ -19,8 +19,11 @@
 package gda.device.zebra.controller;
 
 import gda.epics.ReadOnlyPV;
+import gda.observable.IObservable;
 
-public interface Zebra {
+import java.io.IOException;
+
+public interface Zebra extends IObservable {
 
 	// PC Setup
 	final public static int PC_ENC_ENC1 = 0;
@@ -172,5 +175,15 @@ public interface Zebra {
 	
 	void setOutTTL(int outId, int val) throws Exception;
 	
+
+	/**
+	 * Returns whether a soft input is set.
+	 */
+	public boolean isSoftInputSet(int inputNumber) throws IOException;
+
+	/**
+	 * Sets a soft input.
+	 */
+	public void setSoftInput(int inputNumber, boolean set) throws IOException;
 
 }
