@@ -48,13 +48,13 @@ public class DetectorListComposite extends Composite {
 		// Important: the constructor GridListEditor(this, SWT.NONE, elementListSize) is only
 		// valid when the square root of elementListSize gives an integer. Code replaced to use
 		// the constructor GridListEditor(this, SWT.NONE, columns, rows)
-		
+
 		double elementListSizeSquareRoot = Math.sqrt(elementListSize);
 		// Squared table of Detector Elements
 		if (Double.compare(elementListSizeSquareRoot, (int) elementListSizeSquareRoot) == 0) {
 			this.detectorList = new GridListEditor(this, SWT.NONE, (int) elementListSizeSquareRoot,
 					(int) elementListSizeSquareRoot);
-		// Table with two rows in the case of even number of detectors
+			// Table with two rows in the case of even number of detectors
 		} else if ((elementListSize % 2) == 0) {
 			this.detectorList = new GridListEditor(this, SWT.NONE, elementListSize / 2, 2);
 		} else {
