@@ -37,25 +37,12 @@ public class GridScanPerspective implements IPerspectiveFactory {
 		layout.addView("uk.ac.gda.arpes.ui.view.samplemetadata", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.BOTTOM, 0.65f, "uk.ac.gda.arpes.ui.view.samplemetadata");
 		layout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.gridTool", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
-//		layout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
-//		layout.addView("gda.rcp.views.baton.BatonView", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
-		{
+
+		{//Acquisition Buttons and Baton Manager
 			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.81f, "uk.ac.gda.client.ncd.gridcameraview");
 			folderLayout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView");
 			folderLayout.addView("gda.rcp.views.baton.BatonView");
 		}
-//		{
-//			IFolderLayout folderLayout = layout.createFolder("folder_2", IPageLayout.TOP, 0.3f, "uk.ac.gda.client.ncd.gridcameraview");
-//			folderLayout.addView("uk.ac.gda.arpes.ui.view.samplemetadata");
-//			folderLayout.addView("uk.ac.gda.rcp.views.dashboardView");
-//			//		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.ncd.gridcameraview");
-//		}
-//		layout.addView("gda.rcp.jythonterminalview", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
-//		{
-//			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.5f, "gda.rcp.jythonterminalview");
-//			folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.gridTool");
-//			folderLayout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView");
-//			folderLayout.addView("gda.rcp.views.baton.BatonView");
-//		}
+
 	}
 }
