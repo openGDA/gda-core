@@ -362,7 +362,8 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 	@Override
 	public void pageChanged(PageChangedEvent event) {
 		if (event.getSelectedPage()==this) { // Just selected this page
-			update(plotWindow.getMainPlotter());
+			logger.error("PlotWindow does not support DataSetPlotter anymore");
+//			update(plotWindow.getMainPlotter());
 		}
 	}
 

@@ -49,7 +49,7 @@ public class AsciiEditorPluginTest {
 		final AsciiEditor editor = createAsciiEditor();
 		final DataSetPlotEditor dataEd = (DataSetPlotEditor) editor.getActiveEditor();
 		final DoubleDataset energy1 = (DoubleDataset) dataEd.setDatasetSelected("Energy", true);
-		final DoubleDataset energy2 = (DoubleDataset) editor.getPlotWindow().getMainPlotter().getCurrentDataSet();
+		final DoubleDataset energy2 = (DoubleDataset) editor.getPlotWindow().getPlottingSystem().getData("Energy");
 
 		if (!energy1.equals(energy2))
 			throw new Exception("Dataset changed by plotting it!");

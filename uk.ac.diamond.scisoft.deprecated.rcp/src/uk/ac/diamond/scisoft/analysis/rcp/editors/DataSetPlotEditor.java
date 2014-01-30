@@ -331,7 +331,8 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 		try {
 			doingUpdate = true;
 			if (selections==null||selections.length<1) {
-				plotWindow.getMainPlotter().hideAllPlots();
+				plotWindow.getPlottingSystem().reset();
+//				plotWindow.getMainPlotter().hideAllPlots();
 				return;
 			}
 			
