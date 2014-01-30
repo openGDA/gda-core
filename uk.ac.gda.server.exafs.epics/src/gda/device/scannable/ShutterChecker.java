@@ -37,9 +37,7 @@ import org.slf4j.LoggerFactory;
  * Zero-in, zero-out scannable intended to be used a default scannable to confirm that the EH shutter is open.
  */
 public class ShutterChecker extends ScannableBase {
-
 	private static final Logger logger = LoggerFactory.getLogger(ShutterChecker.class);
-
 	private String[] ehDetectorNames = new String[] {};
 	private String pssPVName;
 	private EnumPositioner shutter;
@@ -63,6 +61,7 @@ public class ShutterChecker extends ScannableBase {
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
+		// do nothing
 	}
 
 	@Override
@@ -80,7 +79,7 @@ public class ShutterChecker extends ScannableBase {
 				position = (String) shutter.getPosition();
 			}
 			if (!first)
-				updateUser("Experimental shutter re-opened, so continuing scan...");
+				updateUser("Experimental shutter re-opened, so continuing scan...");	
 		} catch (InterruptedException e) {
 			logger.error("Interrupted exception while checking shutter is open. Will rethrow as a DeviceException", e);
 			throw new DeviceException("Interrupted exception while checking shutter is open.", e);
@@ -95,6 +94,7 @@ public class ShutterChecker extends ScannableBase {
 	}
 
 	private void checkShutterIsOpen() throws DeviceException {
+		// check if shutter open
 		String position = (String) shutter.getPosition();
 		if (!position.equals(ValveBase.OPEN)) {
 			logger.debug(getName() + " has position: " + position + " at start of scan, so will open shutter once PSS OK.");
@@ -106,8 +106,11 @@ public class ShutterChecker extends ScannableBase {
 				while (state != 0) {
 					ScanBase.checkForInterrupts();
 					// check timeout
-					if (attempts > 120)
-						throw new DeviceException("Time out while waiting for the hutch to be searched!\nSearch the hutch, open shutter " + shutter.getName() + ", and restart the scan.");
+					if (attempts > 120) {
+						throw new DeviceException(
+								"Time out while waiting for the hutch to be searched!\nSearch the hutch, open shutter "
+										+ shutter.getName() + ", and restart the scan.");
+					}
 					if (attempts == 0)
 						updateUser("Experimental shutter closed and hutch not searched. Waiting for search to complete...");
 					Thread.sleep(1000);
@@ -123,7 +126,7 @@ public class ShutterChecker extends ScannableBase {
 				shutter.moveTo(ValveBase.OPEN);
 				Thread.sleep(100);
 				position = (String) shutter.getPosition();
-				if (!position.equals(ValveBase.OPEN))
+				if (!position.equals(ValveBase.OPEN)) {
 					throw new DeviceException(
 							getName()
 									+ " failed to successfully open shutter "
@@ -131,6 +134,7 @@ public class ShutterChecker extends ScannableBase {
 									+ ". Aborting scan.\nYou need to check if the shutter is operating properly within GDA."
 									+ "\nIf you do not want the shutter to open as you are testing, then run the jython command: remove_default "
 									+ shutter.getName());
+				}
 				updateUser("Shutter " + shutter.getName() + " now open.");
 			} catch (IOException e) {
 				logger.error("IOException while checking shutter is open. Will rethrow as a DeviceException.", e);
@@ -145,17 +149,10 @@ public class ShutterChecker extends ScannableBase {
 	}
 
 	private boolean isEHDetector() {
-		if (ehDetectorNames == null || ehDetectorNames.length == 0){
-			return true;
-		}
-		
-		String[] detectorNames = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation()
-				.getDetectorNames();
-		for (String name : detectorNames) {
-			if (ArrayUtils.contains(ehDetectorNames, name)) {
+		String[] detectorNames = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDetectorNames();
+		for (String name : detectorNames)
+			if (ArrayUtils.contains(ehDetectorNames, name))
 				return true;
-			}
-		}
 		return false;
 	}
 
@@ -184,14 +181,6 @@ public class ShutterChecker extends ScannableBase {
 
 	public void setShutter(EnumPositioner shutter) {
 		this.shutter = shutter;
-	}
-
-	public String[] getEhDetectorNames() {
-		return ehDetectorNames;
-	}
-
-	public void setEhDetectorNames(String[] ehDetectorNames) {
-		this.ehDetectorNames = ehDetectorNames;
 	}
 
 }
