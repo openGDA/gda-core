@@ -21,7 +21,8 @@ package uk.ac.gda.devices.bssc.ispyb;
 import java.sql.SQLException;
 import java.util.List;
 
-import uk.ac.gda.devices.bssc.beans.ISampleProgress;
+import uk.ac.gda.devices.bssc.beans.ISAXSDataCollection;
+import uk.ac.gda.devices.bssc.beans.ISpyBStatus;
 
 public interface BioSAXSISPyB {
 
@@ -36,19 +37,6 @@ public interface BioSAXSISPyB {
 	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
 	 * 
 	 * @param experimentID
-	 * @return saxsDataCollectionID
-	 */
-	public abstract long createSaxsDataCollection(long experimentID) throws SQLException;
-
-	/**
-	 * @param blsessionId
-	 *            The ID of the visit
-	 * @param dataCollectionId
-	 *            The ID of the data collection
-	 * @param specimenId
-	 *            The ID of the specimen
-	 * @param beforeSample
-	 *            Boolean value indicating if the buffer measurement is taken before or after the sample
 	 * @param plate
 	 *            does not seem to be in the database. it is 1,2,3 and you could create a SamplePlate for each per
 	 *            Experiment
@@ -62,23 +50,45 @@ public interface BioSAXSISPyB {
 	 * @param volume
 	 * @param energyInkeV
 	 * @param viscosity
-	 * @param fileName
-	 *            "/dls/i22/data/2013/sm999-9/i22-9999.nxs"
-	 * @param internalPath
+	 * @return saxsDataCollectionID
+	 */
+	public long createSaxsDataCollection(long experimentID, short plate, short row, short column,
+			String sampleName, short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature,
+			int numFrames, double timePerFrame, double flow, double volume, double energyInkeV, String viscosity)
+			throws SQLException;
+
+	/**
+	 * // * @param blsessionId The ID of the visit
+	 * 
+	 * @param dataCollectionId
+	 *            The ID of the data collection // * @param specimenId // * The ID of the specimen // * @param
+	 *            beforeSample Boolean value indicating if the buffer measurement is taken before or after the sample
+	 * @param plate
+	 *            does not seem to be in the database. it is 1,2,3 and you could create a SamplePlate for each per
+	 *            Experiment
+	 * @param row
+	 *            i have row as char, i don't mind which way
+	 * @param column
+	 * @param exposureTemperature
+	 * @param numFrames
+	 * @param timePerFrame
+	 * @param flow
+	 * @param volume
+	 * @param energyInkeV
+	 * @param viscosity
+	 *            // * @param fileName "/dls/i22/data/2013/sm999-9/i22-9999.nxs" // * @param internalPath
 	 *            "/entry1/detector/data"
 	 * @return bufferMeasurementId
 	 */
-	public abstract long createBufferMeasurement(long dataCollectionId, long specimenId,
-			short plate, short row, short column, float exposureTemperature, int numFrames,
-			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity) throws SQLException;
+	public abstract long createBufferMeasurement(long dataCollectionId, short plate, short row, short column,
+			float exposureTemperature, int numFrames, double timePerFrame, double flow, double volume,
+			double energyInkeV, String viscosity) throws SQLException;
 
 	/**
-	 * @param blsessionId
-	 *            The ID of the visit
+	 * // * @param blsessionId The ID of the visit
+	 * 
 	 * @param dataCollectionId
 	 *            The ID of the data collection
-	 * @param specimenId
-	 *            The ID of the specimen
 	 * @param plate
 	 * @param row
 	 * @param column
@@ -89,18 +99,28 @@ public interface BioSAXSISPyB {
 	 * @param volume
 	 * @param energyInkeV
 	 * @param viscosity
-	 * @param fileName
-	 * @param internalPath
+	 *            // * @param fileName // * @param internalPath
 	 * @return sampleMeasurementId
 	 */
-	public long createSampleMeasurement(long dataCollectionId, long specimenId, short plate,
-			short row, short column, float exposureTemperature, int numFrames, double timePerFrame,
-			double flow, double volume, double energyInkeV, String viscosity)
-			throws SQLException;
+	public long createSampleMeasurement(long dataCollectionId, short plate, short row, short column,
+			float exposureTemperature, int numFrames, double timePerFrame, double flow, double volume,
+			double energyInkeV, String viscosity) throws SQLException;
+
+	/**
+	 * @param saxsDataCollectionId
+	 *            from that call
+	 * @param measurementId
+	 *            can be buffer or sample measurement
+	 * @return measurementToSaxsCollectionId
+	 * @throws SQLException
+	 */
+	public long createMeasurementToDataCollection(long saxsDataCollectionId, long measurementId) throws SQLException;
 
 	/**
 	 * Creates a run, updates measurement.runId, returns runId.
-	 * @param measurementId
+	 * 
+	 * @param dataCollection1Id
+	 * @param dataCollection2Id
 	 * @param timePerFrame
 	 * @param storageTemperature
 	 * @param exposureTemperature
@@ -116,36 +136,64 @@ public interface BioSAXSISPyB {
 	 * @param normalization
 	 * @return runId
 	 */
-	public abstract long createRun(long measurementId, double timePerFrame, float storageTemperature,
+	public long createBufferRun(long dataCollection1Id, long dataCollection2Id, double timePerFrame, float storageTemperature,
 			float exposureTemperature, double energy, int frameCount, double transmission, double beamCenterX,
 			double beamCenterY, double pixelSizeX, double pixelSizeY, double radiationRelative,
 			double radiationAbsolute, double normalization, String filename, String internalPath);
 
-	//FIXME how to re re-use the runs between datacollections?
-	
 	/**
-	 * Update ISpyB to indicate that a measurement did not complete succesfully, implemented as runId being updated
-	 * with a failure text (timeEnd is a VARCHAR)
 	 * 
-	 * @param measurementId
+	 * @param dataCollectionId
+	 * @param timePerFrame
+	 * @param storageTemperature
+	 * @param exposureTemperature
+	 * @param energy
+	 * @param frameCount
+	 * @param transmission
+	 * @param beamCenterX
+	 * @param beamCenterY
+	 * @param pixelSizeX
+	 * @param pixelSizeY
+	 * @param radiationRelative
+	 * @param radiationAbsolute
+	 * @param normalization
+	 * @param filename
+	 * @param internalPath
+	 * @return runId
 	 */
-	public void setMeasurementFailed(long measurementId, String message);
+	public long createSampleRun(long dataCollectionId, double timePerFrame, float storageTemperature,
+			float exposureTemperature, double energy, int frameCount, double transmission, double beamCenterX,
+			double beamCenterY, double pixelSizeX, double pixelSizeY, double radiationRelative,
+			double radiationAbsolute, double normalization, String filename, String internalPath);
+	
+	// FIXME how to re re-use the runs between datacollections?
 
 	/**
-	 * check ISpyB to determine whether the measurement has finished
+	 * Update ISpyB to update the measurement status
+	 * 
+	 * @param saxsDataCollectionId
+	 *            - the data collection id
+	 * @param measurementId
+	 * @param status
+	 */
+	public void setMeasurementStatus(long saxsDataCollectionId, long measurementId, ISpyBStatus status);
+
+	/**
+	 * Query ISpyB for the measurement status
 	 * 
 	 * @param measurementId
-	 * @return true when done or successful
+	 * @return ISpyStaus
 	 */
-	public Status getMesurementStatus(long measurementId);
-	
+	public ISpyBStatus getMeasurementStatus(long measurementId);
+
 	/**
 	 * Method to close the database connection once it's no longer needed.
 	 */
 	public abstract void disconnect() throws SQLException;
 
 	/**
-	 * @param saxsDataCollectionId
+	 * // * @param saxsDataCollectionId
+	 * 
 	 * @return list of samples measured
 	 * @throws SQLException
 	 */
@@ -160,8 +208,8 @@ public interface BioSAXSISPyB {
 	 */
 	public List<Long> getExperimentsForSession(long blsessionId) throws SQLException;
 
-	public List<Long> getDataCollectionsForExperiments(long experiemnt) throws SQLException;
-	
+	public List<Long> getDataCollectionsForExperiments(long experiment) throws SQLException;
+
 	/**
 	 * @param sessionId
 	 * @param name
@@ -175,6 +223,15 @@ public interface BioSAXSISPyB {
 			throws SQLException;
 
 	/**
+	 * Returns the status of the data collection for the sample/data collection
+	 * 
+	 * @param dataCollectionId
+	 * @return ProgressStatus
+	 * @throws SQLException
+	 */
+	public ISpyBStatus getDataCollectionStatus(long dataCollectionId) throws SQLException;
+
+	/**
 	 * Call this method when data reduction is started so that its status can be recorded
 	 * 
 	 * @param dataCollectionId
@@ -184,23 +241,24 @@ public interface BioSAXSISPyB {
 	public long createDataReduction(long dataCollectionId) throws SQLException;
 
 	/**
-	 * Sets the state that the data reduction has failed
-	 * 
-	 * @param subtractionId
-	 * @throws SQLException
-	 */
-	public void setDataReductionStatus(long dataCollectionId, Status status, String resultsFilename) throws SQLException;
-
-	/**
-	 * True when data reduction is not currently running and the process has resulted in complete data in the ISPyB
-	 * database
+	 * Sets the data reduction status of the data collection
 	 * 
 	 * @param dataCollectionId
-	 * @param subtractionId
-	 * @return data reduction has succeeded
+	 * @param status
+	 * @param resultsFilename
 	 * @throws SQLException
 	 */
-	public Status getDataReductionStatus(long dataCollectionId) throws SQLException;
+	public void setDataReductionStatus(long dataCollectionId, ISpyBStatus status, String resultsFilename)
+			throws SQLException;
+
+	/**
+	 * Returns the status of the data reduction for a sample/data collection
+	 * 
+	 * @param dataCollectionId
+	 * @return ProgressStatus
+	 * @throws SQLException
+	 */
+	public ISpyBStatus getDataReductionStatus(long dataCollectionId) throws SQLException;
 
 	/**
 	 * Returns the measurements from ISpyB for a session id
@@ -208,16 +266,43 @@ public interface BioSAXSISPyB {
 	 * @return list of progress statuses for samples in the ISpyB database
 	 * @throws SQLException
 	 */
-	public List<ISampleProgress> getBioSAXSMeasurements(long blSessionId) throws SQLException;
-
+	public List<ISAXSDataCollection> getBioSAXSMeasurements(long blSessionId) throws SQLException;
 
 	/**
-	 * Updates a measurement with an analysis status, status can be one of the following 1. NOT STARTED 2. STARTED 3.
-	 * SUCCESSFUL 4. NOT SUCCESSFUL
+	 * Updates a measurement with an analysis status, status can be one of the following 1. NOT STARTED 2. RUNNING 3.
+	 * COMPLETE 4. FAILED // * @param measurementId
 	 * 
-	 * @param measurementId
 	 * @param analysisStatus
 	 * @throws SQLException
 	 */
-	public void setAnalysisStatus(long dataCollectionId, Status analysisStatus) throws SQLException;
+	public void setAnalysisStatus(long dataCollectionId, ISpyBStatus analysisStatus) throws SQLException;
+
+	/**
+	 * Call this method when data analysis is started so that its status can be recorded
+	 * 
+	 * @param dataCollectionId
+	 * @return AnalysisId
+	 * @throws SQLException
+	 */
+	public long createDataAnalysis(long dataCollectionId) throws SQLException;
+
+	/**
+	 * Sets the data analysis status of the data collection
+	 * 
+	 * @param dataCollectionId
+	 * @param status
+	 * @param resultsFilename
+	 * @throws SQLException
+	 */
+	public void setDataAnalysisStatus(long dataCollectionId, ISpyBStatus status, String resultsFilename)
+			throws SQLException;
+
+	/**
+	 * Returns the status of the data analysis for a sample/data collection
+	 * 
+	 * @param dataCollectionId
+	 * @return ProgressStatus
+	 * @throws SQLException
+	 */
+	public Object getDataAnalysisStatus(long dataCollectionId) throws SQLException;
 }
