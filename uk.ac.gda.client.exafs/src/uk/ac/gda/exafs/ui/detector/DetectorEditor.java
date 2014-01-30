@@ -273,10 +273,10 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			if (detectorData != null) {
 				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
 			}
-			plot(0,false);
+			plot(0, false);
 			setEnabled(true);
 		} else {
-			plot(-1,false);
+			plot(-1, false);
 			setEnabled(false);
 		}
 	}
@@ -324,7 +324,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 		};
 
-		
 		expansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
@@ -356,7 +355,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
-				plot(evt.getSelectionIndex(),false);
+				plot(evt.getSelectionIndex(), false);
 				if (bean instanceof XspressParameters) {
 					XspressParameters xspress = (XspressParameters) bean;
 					getDetectorElementComposite().getRegionList().setSelectedIndex(xspress.getSelectedRegionNumber());
@@ -380,8 +379,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 		return detectorListComposite;
 	}
-	
-	private void setRegionEditableFromPreference(){
+
+	private void setRegionEditableFromPreference() {
 		sashPlotForm.getRegionOnDisplay().setMobile(
 				ExafsActivator.getDefault().getPreferenceStore()
 						.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
@@ -440,11 +439,11 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected void upload() throws Exception {
-		
+
 		// the bean from the enclosing scan (may be null if no scan selected)
 		IExperimentObject experimentObject = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 		final IOutputParameters outputBean;
-		if (experimentObject != null && experimentObject instanceof ScanObject){
+		if (experimentObject != null && experimentObject instanceof ScanObject) {
 			outputBean = ((ScanObject) experimentObject).getOutputParameters();
 		} else {
 			outputBean = null;
@@ -472,10 +471,11 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 					data.put("XMLFileNameToLoad", path);
 					data.put("OutputParametersToLoad", outputBean);
 					monitor.worked(10);
-					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command 
+					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
 							+ "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
 					monitor.worked(50);
-					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(command + ".getConfigureResult()");
+					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(
+							command + ".getConfigureResult()");
 					sashPlotForm.appendStatus(configureResult, logger);
 				} catch (Exception e) {
 					logger.error("Internal error cannot get data from detector.", e);
@@ -625,7 +625,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	private void updateUIAfterDetectorElementCompositeChange() {
-		if (updatingAfterROIDrag == null){
+		if (updatingAfterROIDrag == null) {
 			try {
 				updatingAfterROIDrag = false;
 				calculateAndPlotCountTotals(null);
@@ -741,7 +741,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	private String plotTitle = "Saved Data";
-	
+
 	protected void plot(final int ielement, boolean updateTitle) {
 		final List<AbstractDataset> data = unpackDataSets(ielement);
 
@@ -750,10 +750,10 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
 			plotTitle = "Acquire at " + dt.format(now);
 		}
-		
+
 		for (int i = 0; i < data.size(); i++) {
 			String name = getChannelName(ielement);
-			if (data.size() > 1){
+			if (data.size() > 1) {
 				name += " " + i;
 			}
 			name += " " + plotTitle;
