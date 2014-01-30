@@ -22,7 +22,6 @@ import static gda.jython.InterfaceProvider.getTerminalPrinter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
-import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
 
@@ -32,19 +31,26 @@ import org.slf4j.LoggerFactory;
 public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractContinuousScanLine.class);
-	private Double start;
-	private Double stop;
-	private Double step;
+	protected Double start;
+	protected Double stop;
+	protected Double step;
 	
 
 	public ConstantVelocityScanLine(Object[] args) throws IllegalArgumentException {
 		super(args);
+		parseArgsAgain(args);
+	}
+
+	protected void parseArgsAgain(Object[] args) {
 		start = PositionConvertorFunctions.toDouble(args[1]);
 		stop = PositionConvertorFunctions.toDouble(args[2]);
 		step = PositionConvertorFunctions.toDouble(args[3]);
-		int argIndex=4;
-		// Check that any subsequent Scannables do not have target positions, i.e. that there
-		// positions will only be read.
+		checkRemainingArgs(args, 4);
+	}
+
+	// Check that any subsequent Scannables do not have target positions, i.e. that their
+	// positions will only be read. 
+	protected static void checkRemainingArgs(Object[] args, int argIndex) {
 		boolean allowDetectorCollectionTime = false;
 		while(argIndex < args.length){
 			if( args[argIndex] instanceof ContinuouslyScannableViaController){

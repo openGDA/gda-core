@@ -27,6 +27,7 @@ import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
+import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.detector.hardwaretriggerable.DummyHardwareTriggerableAreaDetector;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
@@ -42,13 +43,38 @@ import org.mockito.InOrder;
  */
 public class ConstantVelocityScanLineTest {
 
-	class TerminalPrinter implements ITerminalPrinter {
+	public static class TerminalPrinter implements ITerminalPrinter {
 		@Override
 		public synchronized void print(String text) {
 			System.out.print(text);
 		}
 	}
 	
+	public static ContinuouslyScannableViaController createMockScannableViaController(String name, ContinuousMoveController controller) throws DeviceException {
+		ContinuouslyScannableViaController scn = mock(ContinuouslyScannableViaController.class, name);
+		when(scn.getName()).thenReturn(name);
+		when(scn.getInputNames()).thenReturn(new String[]{name});
+		when(scn.getExtraNames()).thenReturn(new String[]{});
+		when(scn.getOutputFormat()).thenReturn(new String[]{"%.2f"});
+		when(scn.getLevel()).thenReturn(5);
+		when(scn.getPosition()).thenReturn(new Double[]{1.1});
+		when(scn.isBusy()).thenReturn(true);
+		// whcn.checkPositionValid(anyObject()) == null).thenReturn(true);
+		when(scn.toFormattedString()).thenReturn(name + " : " + 1.1);
+		when(scn.getContinuousMoveController()).thenReturn(controller);
+		return scn;
+	}
+
+	public static  HardwareTriggerableDetector createMockDetector(String name) throws DeviceException {
+		HardwareTriggerableDetector det = mock(HardwareTriggerableDetector.class);
+		when(det.getName()).thenReturn(name);
+		when(det.getInputNames()).thenReturn(new String[]{name});
+		when(det.getOutputFormat()).thenReturn(new String[]{"%s"});
+		when(det.readout()).thenReturn(name + "readout");
+		when(det.getCollectionTime()).thenReturn(1.);
+		when(det.getLevel()).thenReturn(100);
+		return det;
+	}
 	
 	private ContinuouslyScannableViaController mockscn;
 	private ConstantVelocityMoveController mockedController;
@@ -68,19 +94,7 @@ public class ConstantVelocityScanLineTest {
 		mockedController = mock(ConstantVelocityMoveController.class);
 		when(mockedController.getName()).thenReturn("mockedController");
 		
-		
-		mockscn = mock(ContinuouslyScannableViaController.class);
-		when(mockscn.getName()).thenReturn("scn");
-		when(mockscn.getInputNames()).thenReturn(new String[]{"scn"});
-		when(mockscn.getExtraNames()).thenReturn(new String[]{});
-		when(mockscn.getOutputFormat()).thenReturn(new String[]{"%.2f"});
-		when(mockscn.getLevel()).thenReturn(5);
-		when(mockscn.getPosition()).thenReturn(new Double[]{1.1});
-		when(mockscn.isBusy()).thenReturn(true);
-		// when(scn.checkPositionValid(anyObject()) == null).thenReturn(true);
-		when(mockscn.toFormattedString()).thenReturn("scn" + " : " + 1.1);
-		
-		when(mockscn.getContinuousMoveController()).thenReturn(mockedController);
+		mockscn = createMockScannableViaController("scn", mockedController);
 		
 		mockeddet1 = createMockDetector("mockeddet1");
 		when(mockeddet1.getHardwareTriggerProvider()).thenReturn(mockedController);
@@ -94,17 +108,6 @@ public class ConstantVelocityScanLineTest {
 		
 	}
 
-	private HardwareTriggerableDetector createMockDetector(String name) throws DeviceException {
-		HardwareTriggerableDetector det = mock(HardwareTriggerableDetector.class);
-		when(det.getName()).thenReturn(name);
-		when(det.getInputNames()).thenReturn(new String[]{name});
-		when(det.getOutputFormat()).thenReturn(new String[]{"%s"});
-		when(det.readout()).thenReturn(name + "readout");
-		when(det.getCollectionTime()).thenReturn(1.);
-		when(det.getLevel()).thenReturn(100);
-		return det;
-	}
-	
 	@Test
 	public void singleLineScanMockScannablesAndTwoMockDetectors() throws InterruptedException, Exception {
 		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectors", true);
