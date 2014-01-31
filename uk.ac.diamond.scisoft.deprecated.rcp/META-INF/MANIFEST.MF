@@ -29,14 +29,26 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: uk.ac.diamond.scisoft.analysis.rcp,
  uk.ac.diamond.scisoft.analysis.rcp.editors,
+ uk.ac.diamond.scisoft.analysis.rcp.histogram,
  uk.ac.diamond.scisoft.analysis.rcp.nexus,
+ uk.ac.diamond.scisoft.analysis.rcp.plotting,
+ uk.ac.diamond.scisoft.analysis.rcp.plotting.fitting,
+ uk.ac.diamond.scisoft.analysis.rcp.plotting.roi,
+ uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot,
  uk.ac.diamond.scisoft.analysis.rcp.results.navigator,
  uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions,
  uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search,
  uk.ac.diamond.scisoft.analysis.rcp.results.navigator.util,
  uk.ac.diamond.scisoft.analysis.rcp.util,
  uk.ac.diamond.scisoft.analysis.rcp.views,
- uk.ac.diamond.scisoft.analysis.rcp.views.nexus
-Import-Package: org.nfunk.jep,
+ uk.ac.diamond.scisoft.analysis.rcp.views.nexus,
+ uk.ac.diamond.scisoft.analysis.rcp.views.plot,
+ uk.ac.diamond.scisoft.analysis.rcp.volimage
+Import-Package: javax.vecmath,
+ org.apache.commons.lang;version="2.6.0",
+ org.dawnsci.plotting.roi,
+ org.dawnsci.plotting.services.util,
+ org.eclipse.draw2d,
+ org.nfunk.jep,
  org.slf4j;version="[1.5.0,2.0.0)"
 Bundle-Vendor: Diamond Light Source

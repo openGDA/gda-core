@@ -20,6 +20,8 @@ import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
@@ -27,6 +29,8 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.ui.event.PartAdapter;
 
 public class EditorUtils {
+
+	private static final Logger logger = LoggerFactory.getLogger(EditorUtils.class);
 
 	public static void addSidePlotActivator(final IWorkbenchPart part,
 			                                final AbstractPlotWindow     window,
@@ -51,16 +55,17 @@ public class EditorUtils {
 								// Select the respective side plots
 								final IWorkbenchPage activePage = EclipseUtils.getActivePage();
 								if (activePage!=null) {
-									final ISidePlotView side = window.getPlotUI().getSidePlotView();
-									if (side instanceof IWorkbenchPart) {
-										part.getSite().getShell().getDisplay().asyncExec(new Runnable() {
-											@Override
-											public void run() {
-												IWorkbenchPart part = (IWorkbenchPart)side;
-												activePage.bringToTop(part);
-											}
-										});
-									}
+									logger.error("The AbstractPlotWindow does not support side plots anymore");
+//									final ISidePlotView side = window.getPlotUI().getSidePlotView();
+//									if (side instanceof IWorkbenchPart) {
+//										part.getSite().getShell().getDisplay().asyncExec(new Runnable() {
+//											@Override
+//											public void run() {
+//												IWorkbenchPart part = (IWorkbenchPart)side;
+//												activePage.bringToTop(part);
+//											}
+//										});
+//									}
 								}
 							} catch (Exception ignored) {
 								// We do our best to activate and ignore exceptions.

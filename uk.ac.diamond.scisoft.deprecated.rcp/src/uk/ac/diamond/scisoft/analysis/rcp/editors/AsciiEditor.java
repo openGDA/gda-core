@@ -122,7 +122,9 @@ public class AsciiEditor extends MultiPageEditorPart implements IDataSetPlotView
 
 
 	public ISidePlot getSidePlot() {
-		return getPlotWindow().getPlotUI().getSidePlotView().getActivePlot();
+		logger.error("The AbstractPlotWindow does not support side plots anymore");
+		return null;
+//		return getPlotWindow().getPlotUI().getSidePlotView().getActivePlot();
 	}
 
 	/**
@@ -140,8 +142,9 @@ public class AsciiEditor extends MultiPageEditorPart implements IDataSetPlotView
 				// Select the respective side plots
 				final IWorkbenchPage activePage = EclipseUtils.getActivePage();
 				if (activePage!=null) {
-					final ISidePlotView side = getPlotWindow().getPlotUI().getSidePlotView();
-					side.switchSidePlot(getPlotWindow().getPlotUI(), index);
+					logger.error("The AbstractPlotWindow does not support side plots anymore");
+//					final ISidePlotView side = getPlotWindow().getPlotUI().getSidePlotView();
+//					side.switchSidePlot(getPlotWindow().getPlotUI(), index);
 				}
 			}
 		});

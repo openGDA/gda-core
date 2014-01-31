@@ -71,9 +71,9 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PydevConsoleAction;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotServerConnection;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
@@ -265,7 +265,8 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 			@Override
 			public void run() {
 				if (plotWindow!=null) {
-					ui.getSidePlotView().switchSidePlot(plotWindow.getPlotUI(), 0); // Start them off with the first one.
+					logger.error("The AbstractPlotWindow does not support side plots anymore");
+//					ui.getSidePlotView().switchSidePlot(plotWindow.getPlotUI(), 0); // Start them off with the first one.
 				}
 			}
 		});
