@@ -23,9 +23,8 @@ import gda.device.zebra.controller.Zebra;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
-import gda.observable.IObserver;
 import gda.observable.Observable;
-import gda.observable.ObservableComponent;
+import gda.observable.ObservableUtil;
 import gda.observable.Observer;
 
 import java.io.IOException;
@@ -368,24 +367,12 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	final ObservableComponent obsComp = new ObservableComponent();
+	private final ObservableUtil<SoftInputChangedEvent> softInputObservable = new ObservableUtil<SoftInputChangedEvent>();
 
 	@Override
-	public void addIObserver(IObserver observer) {
-		obsComp.addIObserver(observer);
+	public Observable<SoftInputChangedEvent> getSoftInputObservable() {
+		return softInputObservable;
 	}
-
-	@Override
-	public void deleteIObserver(IObserver observer) {
-		obsComp.deleteIObserver(observer);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		obsComp.deleteIObservers();
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	int lastSoftInputsValue;
 
@@ -416,7 +403,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 							
 							if (wasSetBefore != isSetNow) {
 								final SoftInputChangedEvent ev = new SoftInputChangedEvent(input, isSetNow);
-								obsComp.notifyIObservers(this, ev);
+								softInputObservable.notifyIObservers(softInputObservable, ev);
 							}
 						}
 						
