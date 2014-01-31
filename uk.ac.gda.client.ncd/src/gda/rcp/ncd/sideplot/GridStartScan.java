@@ -28,11 +28,7 @@ public class GridStartScan extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		String errorMessage = "Unable to scan - has grid been deleted?";
-		String jythonCommand = 
-				"try:\n\tncdgridscan.scan()\nexcept AttributeError, e:\n\tif e.message == \"'NoneType' object has no attribute \'_jroi'\":\n\t\tprint '"
-				+ errorMessage
-				+ "'\n\telse:\n\t\tprint e.message";
+		String jythonCommand = "ncdgridscan.scan()";
 		JythonServerFacade.getInstance().runCommand(jythonCommand);
 		return true;
 	}
