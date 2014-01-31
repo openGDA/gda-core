@@ -147,7 +147,7 @@ public interface BioSAXSISPyB {
 			double radiationAbsolute, double normalization, String filename, String internalPath);
 
 	/**
-	 * Creates a smaple run
+	 * Creates a sample run
 	 * 
 	 * @param dataCollectionId
 	 * @param timePerFrame
