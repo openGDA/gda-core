@@ -18,14 +18,24 @@
 
 package uk.ac.diamond.tomography.reconstruction.views;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.accessibility.AccessibleAdapter;
 import org.eclipse.swt.accessibility.AccessibleEvent;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -47,14 +57,22 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.dialogs.PatternFilter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.events.IHyperlinkListener;
+import org.eclipse.ui.forms.widgets.ImageHyperlink;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.progress.WorkbenchJob;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.tomography.reconstruction.Activator;
+import uk.ac.diamond.tomography.reconstruction.INexusPathProvider;
 import uk.ac.diamond.tomography.reconstruction.ImageConstants;
+import uk.ac.diamond.tomography.reconstruction.NexusFilter;
+import uk.ac.diamond.tomography.reconstruction.ui.NexusFilterAction;
+import uk.ac.diamond.tomography.reconstruction.ui.NexusSortAction;
 
 public class NexusNavigator extends CommonNavigator {
 
@@ -66,24 +84,39 @@ public class NexusNavigator extends CommonNavigator {
 
 	private static final long SOFT_MAX_EXPAND_TIME = 200;
 
-	private static final Logger logger = LoggerFactory.getLogger(NexusNavigator.class);
+	private final Image sortIcon = Activator.getImage("sort-alphabet.png");
+
+	private final Image addFilterIcon = Activator.getImage("funnel--arrow.png");
+
+	private final Image filterIcon = Activator.getImage("funnel.png");
+
 	private Text filterText;
 
-	/**
-	 * Convenience method to return the text of the filter control. If the text widget is not created, then null is
-	 * returned.
-	 * 
-	 * @return String in the text, or null if the text does not exist
-	 */
-	protected String getFilterString() {
-		return filterText != null ? filterText.getText() : null;
-	}
+	private NexusSortPathProvider sortPathProvider = new NexusSortPathProvider();
+
+	private NexusFilterPathProvider filterPathProvider = new NexusFilterPathProvider();
 
 	private PatternFilter patternFilter = new PatternFilter();
 
 	private WorkbenchJob refreshJob;
 
 	private Control clearButtonControl;
+
+	/**
+	 * Convenience method to return the text of the filter control. If the text widget is not created, then null is
+	 * returned.
+	 *
+	 * @return String in the text, or null if the text does not exist
+	 */
+	protected String getFilterString() {
+		return filterText != null ? filterText.getText() : null;
+	}
+
+	@Override
+	protected void handleDoubleClick(DoubleClickEvent anEvent) {
+		// TODO Auto-generated method stub
+		super.handleDoubleClick(anEvent);
+	}
 
 	protected WorkbenchJob doCreateRefreshJob() {
 		return new WorkbenchJob("Refresh Filter") {//$NON-NLS-1$
@@ -155,7 +188,7 @@ public class NexusNavigator extends CommonNavigator {
 
 			/**
 			 * Returns true if the job should be canceled (because of timeout or actual cancellation).
-			 * 
+			 *
 			 * @param items
 			 * @param monitor
 			 * @param cancelTime
@@ -193,11 +226,6 @@ public class NexusNavigator extends CommonNavigator {
 
 	protected void setupFilterText() {
 		filterText.getAccessible().addAccessibleListener(new AccessibleAdapter() {
-			/*
-			 * (non-Javadoc)
-			 * @see
-			 * org.eclipse.swt.accessibility.AccessibleListener#getName(org.eclipse.swt.accessibility.AccessibleEvent)
-			 */
 			@Override
 			public void getName(AccessibleEvent e) {
 				String filterTextString = filterText.getText();
@@ -212,10 +240,6 @@ public class NexusNavigator extends CommonNavigator {
 		});
 
 		filterText.addFocusListener(new FocusAdapter() {
-			/*
-			 * (non-Javadoc)
-			 * @see org.eclipse.swt.events.FocusAdapter#focusLost(org.eclipse.swt.events.FocusEvent)
-			 */
 			@Override
 			public void focusLost(FocusEvent e) {
 				if (filterText.getText().equals(INITIAL_TEXT)) {
@@ -320,7 +344,7 @@ public class NexusNavigator extends CommonNavigator {
 
 	/**
 	 * Set the text in the filter control.
-	 * 
+	 *
 	 * @param string
 	 */
 	protected void setFilterText(String string) {
@@ -343,7 +367,7 @@ public class NexusNavigator extends CommonNavigator {
 
 	/**
 	 * Create the button that clears the text.
-	 * 
+	 *
 	 * @param parent
 	 *            parent <code>Composite</code> of toolbar button
 	 */
@@ -413,17 +437,55 @@ public class NexusNavigator extends CommonNavigator {
 		Composite txtComposite = new Composite(projExplorerComposite, SWT.None);
 		txtComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtComposite.setBackground(ColorConstants.white);
-		layout = new GridLayout(2, false);
-		layout.marginHeight = 1;
-		layout.marginWidth = 1;
-		layout.horizontalSpacing = 1;
-		layout.verticalSpacing = 1;
-		txtComposite.setLayout(new GridLayout(2, false));
+		txtComposite.setLayout(new GridLayout(4, false));
 
 		filterText = new Text(txtComposite, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL);
 		filterText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
 		createClearButton(txtComposite);
+
+// WIP - The Filtering is not fully implemented
+//		final ImageHyperlink filterButton = new ImageHyperlink(txtComposite, SWT.LEFT);
+//		filterButton.setImage(filterIcon);
+//		filterButton.setToolTipText("Select Active Filters");
+//		filterButton.setBackground(ColorConstants.white);
+//		final NexusFilterAction filterAction = new NexusFilterAction(filterPathProvider);
+//		filterButton.addHyperlinkListener(new IHyperlinkListener() {
+//			@Override
+//			public void linkActivated(HyperlinkEvent e) {
+//				filterAction.getMenu(filterButton).setVisible(true);
+//			}
+//
+//			@Override
+//			public void linkEntered(HyperlinkEvent e) {
+//				filterButton.setImage(addFilterIcon);
+//			}
+//
+//			@Override
+//			public void linkExited(HyperlinkEvent e) {
+//				filterButton.setImage(filterIcon);
+//			}
+//		});
+
+		final ImageHyperlink sortButton = new ImageHyperlink(txtComposite, SWT.LEFT);
+		sortButton.setImage(sortIcon);
+		sortButton.setToolTipText("Sort");
+		sortButton.setBackground(ColorConstants.white);
+
+		final NexusSortAction sortAction = new NexusSortAction(sortPathProvider);
+		sortButton.addHyperlinkListener(new IHyperlinkListener() {
+			@Override
+			public void linkActivated(HyperlinkEvent e) {
+				sortAction.getMenu(sortButton).setVisible(true);
+			}
+
+			@Override
+			public void linkEntered(HyperlinkEvent e) {
+			}
+
+			@Override
+			public void linkExited(HyperlinkEvent e) {
+			}
+		});
 
 		Composite navigatorComposite = new Composite(projExplorerComposite, SWT.None);
 		navigatorComposite.setLayout(new FillLayout());
@@ -436,7 +498,203 @@ public class NexusNavigator extends CommonNavigator {
 	}
 
 	@Override
+	public void saveState(IMemento aMemento) {
+		sortPathProvider.saveSortHistory();
+		filterPathProvider.saveFilterHistory();
+		super.saveState(aMemento);
+	}
+
+	@Override
+	public void init(IViewSite site) throws PartInitException {
+		sortPathProvider.restoreSortHistory();
+		filterPathProvider.restoreFilterHistory();
+		super.init(site);
+	}
+
+	@Override
 	public void dispose() {
+		sortIcon.dispose();
+		filterIcon.dispose();
+		addFilterIcon.dispose();
 		super.dispose();
 	}
+
+	public INexusPathProvider getSortPathProvider() {
+		return sortPathProvider;
+	}
+
+	/*
+	 * Manages the nexus paths related to the filter
+	 */
+	private class NexusFilterPathProvider implements INexusPathProvider {
+		private String filterPath;
+		private static final String NEXUS_FILTER_HISTORY_KEY = "NEXUS_FILTER_HISTORY";
+		private Queue<String> nexusPathHistoryQueue = new LinkedList<String>();
+		private int queueLength = 6;
+		private NexusFilter lastSetFilter;
+
+		@Override
+		public void setNexusPath(String path) {
+			if (path == null)
+				return;
+			filterPath = path;
+			addToHistory(path);
+
+			IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+			prefs.put(Activator.PREF_NEXUS_FILTER_PATH, path);
+
+			updateViewerFilters(path);
+		}
+
+		private void addToHistory(String path) {
+			if (path.isEmpty())
+				return;
+			if (!nexusPathHistoryQueue.contains(path)) {
+				if (nexusPathHistoryQueue.size() == queueLength) {
+					nexusPathHistoryQueue.remove();
+				}
+				nexusPathHistoryQueue.add(path);
+			}
+		}
+
+		@Override
+		public String getNexusPath() {
+			return filterPath;
+		}
+
+		@Override
+		public String[] getNexusPathHistory() {
+			String[] history = nexusPathHistoryQueue.toArray(new String[nexusPathHistoryQueue.size()]);
+			return history;
+		}
+
+		@Override
+		public String getSuggestedPath() {
+			return getFilterString();
+		}
+
+		public void saveFilterHistory() {
+			Activator.getDefault().getDialogSettings().put(NEXUS_FILTER_HISTORY_KEY, getNexusPathHistory());
+		}
+
+		public void restoreFilterHistory() {
+			String[] array = Activator.getDefault().getDialogSettings().getArray(NEXUS_FILTER_HISTORY_KEY);
+			if (array != null) {
+				for (int i = 0; i < array.length; i++) {
+					nexusPathHistoryQueue.add(array[i]);
+				}
+			}
+
+			IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+			filterPath = prefs.get(Activator.PREF_NEXUS_FILTER_PATH, "");
+		}
+
+		private void updateViewerFilters(String path) {
+			if (path.isEmpty()) {
+				if (lastSetFilter != null) {
+					getCommonViewer().removeFilter(lastSetFilter);
+					lastSetFilter = null;
+				}
+			} else {
+				NexusFilter nexusFilter = new NexusFilter(path, false);
+				if (lastSetFilter == null) {
+					getCommonViewer().addFilter(nexusFilter);
+				} else {
+					if (!nexusFilter.equals(lastSetFilter)) {
+						ViewerFilter[] filters = getCommonViewer().getFilters();
+						ArrayList<ViewerFilter> installedFilters = new ArrayList<ViewerFilter>(Arrays.asList(filters));
+						installedFilters.add(nexusFilter);
+						installedFilters.remove(lastSetFilter);
+						getCommonViewer().setFilters(
+								installedFilters.toArray(new ViewerFilter[installedFilters.size()]));
+					}
+				}
+				lastSetFilter = nexusFilter;
+			}
+		}
+	}
+
+	/*
+	 * Manages the nexus path that is currently being used to sort files in this view
+	 */
+	private class NexusSortPathProvider implements INexusPathProvider {
+		private static final String NEXUS_SORT_HISTORY_KEY = "NEXUS_SORT_HISTORY";
+		private Queue<String> nexusPathHistoryQueue = new LinkedList<String>();
+		private int queueLength = 6;
+		private String sortPath;
+
+		@Override
+		public void setNexusPath(String path) {
+			if (path == null)
+				return;
+
+			sortPath = path;
+			addToSortHistory(path);
+
+			IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+			prefs.put(Activator.PREF_NEXUS_SORT_PATH, path);
+
+			BusyIndicator.showWhile(getCommonViewer().getControl().getShell().getDisplay(), new Runnable() {
+
+				@Override
+				public void run() {
+					getCommonViewer().refresh(false);
+				}
+			});
+		}
+
+		@Override
+		public String getNexusPath() {
+			return sortPath;
+		}
+
+
+		@Override
+		public String[] getNexusPathHistory() {
+			String[] history = nexusPathHistoryQueue.toArray(new String[nexusPathHistoryQueue.size()]);
+			return history;
+		}
+
+		/*
+		 * Add the path to the sort history this view maintains
+		 */
+		private void addToSortHistory(String path) {
+			if (path.isEmpty())
+				return;
+			if (!nexusPathHistoryQueue.contains(path)) {
+				if (nexusPathHistoryQueue.size() == queueLength) {
+					nexusPathHistoryQueue.remove();
+				}
+				nexusPathHistoryQueue.add(path);
+			}
+		}
+
+		/**
+		 * Save this history with dialog settings
+		 */
+		public void saveSortHistory() {
+			Activator.getDefault().getDialogSettings().put(NEXUS_SORT_HISTORY_KEY, getNexusPathHistory());
+		}
+
+		/**
+		 * Restore saved history
+		 */
+		public void restoreSortHistory() {
+			String[] array = Activator.getDefault().getDialogSettings().getArray(NEXUS_SORT_HISTORY_KEY);
+			if (array != null) {
+				for (int i = 0; i < array.length; i++) {
+					nexusPathHistoryQueue.add(array[i]);
+				}
+			}
+
+			IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+			sortPath = prefs.get(Activator.PREF_NEXUS_SORT_PATH, "");
+		}
+
+		@Override
+		public String getSuggestedPath() {
+			return getFilterString();
+		}
+	}
+
 }

@@ -19,6 +19,7 @@ package uk.ac.diamond.tomography.reconstruction;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,8 +27,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -37,9 +40,12 @@ import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +72,10 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREF_VERY_FINE_TOTAL_STEPS = "pref_very_fine_total_steps";
 
 	public static final String PREF_VERY_FINE_STEP_SIZE = "pref_very_fine_step_size";
+	
+	public static final String PREF_NEXUS_SORT_PATH = "pref_nexus_sort_path";
+	
+	public static final String PREF_NEXUS_FILTER_PATH = "pref_nexus_filter_path";
 
 	private EditingDomain reconResultsEditingDomain;
 	// The plug-in ID
@@ -131,6 +141,8 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(Activator.class);
+
+
 
 	public IProject getTomoFilesProject() {
 		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_TOMOGRAPHY_SETTINGS);
@@ -238,6 +250,18 @@ public class Activator extends AbstractUIPlugin {
 
 		return reconResultsRes;
 
+	}
+
+	/**
+	 * Get an image from the 'icons' directory
+	 * @param string path to icon relative to 'icons/' folder
+	 * @return the Image if found else <code>null</code>
+	 */
+	public static Image getImage(String string) {
+	    Bundle bundle = FrameworkUtil.getBundle(Activator.class);
+	    URL url = FileLocator.find(bundle, new Path("icons/" + string), null);
+	    ImageDescriptor image = ImageDescriptor.createFromURL(url);
+	    return image.createImage();
 	}
 
 }
