@@ -3,12 +3,13 @@ from gda.epics import CAClient
 class PvManager(object):
 
 	def __init__(self, pvnames=[], pvroot = ""):
+		self.pvnames_at_init = pvnames
 		self.pvroot = pvroot
 		self.clients = {}
 		# dict
 		if type(pvnames) is dict:
 			for key, pvname in pvnames.iteritems():
-				self.clients[key] = CAClient(pvroot+pvname)
+				self.clients[key] = self._newCAClient(pvname)
 		# list
 		else:
 			try:
@@ -17,17 +18,23 @@ class PvManager(object):
 				pvnames = (pvnames,)
 			
 			for pvname in pvnames:
-				self.clients[pvname] = CAClient(pvroot+pvname)
+				self.clients[pvname] = self._newCAClient(pvname)
+
+	def __repr__(self):
+		return "%s(pvnames=%r, pvroot=%r)" % (self.__class__.__name__, self.pvnames_at_init, self.pvroot)
 
 	def __getitem__(self, key):
 		try:
 			return self.clients[key]
 		except KeyError:
 			pvname = key
-			self.clients[pvname] = CAClient(self.pvroot + pvname)
+			self.clients[pvname] = self._newCAClient(pvname)
 			self.clients[pvname].configure()
 			return self.clients[pvname]
 	
+	def _newCAClient(self, pvname):
+		return CAClient(self.pvroot + pvname)
+
 	def configure(self):
 		for client in self.clients.values(): client.configure()
 	
@@ -48,6 +55,13 @@ class PvManager(object):
 		else:
 			raise Exception("caget can only be used if only one pv has been configured. Use: pvs['key'].caget(val) instead")
 
+from mock import Mock
+
+class PvManagerWithMockCAClients(PvManager):
+	def _newCAClient(self, pvname):
+		mock = Mock()
+		mock.pvName = self.pvroot + pvname
+		return mock
 
 
 #class ManagedCAClient(CAClient):
