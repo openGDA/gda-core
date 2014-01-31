@@ -443,28 +443,28 @@ public class NexusNavigator extends CommonNavigator {
 		filterText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		createClearButton(txtComposite);
 
-		final ImageHyperlink filterButton = new ImageHyperlink(txtComposite, SWT.LEFT);
-		filterButton.setImage(filterIcon);
-		filterButton.setToolTipText("Select Active Filters");
-		filterButton.setBackground(ColorConstants.white);
-
-		final NexusFilterAction filterAction = new NexusFilterAction(filterPathProvider);
-		filterButton.addHyperlinkListener(new IHyperlinkListener() {
-			@Override
-			public void linkActivated(HyperlinkEvent e) {
-				filterAction.getMenu(filterButton).setVisible(true);
-			}
-
-			@Override
-			public void linkEntered(HyperlinkEvent e) {
-				filterButton.setImage(addFilterIcon);
-			}
-
-			@Override
-			public void linkExited(HyperlinkEvent e) {
-				filterButton.setImage(filterIcon);
-			}
-		});
+// WIP - The Filtering is not fully implemented
+//		final ImageHyperlink filterButton = new ImageHyperlink(txtComposite, SWT.LEFT);
+//		filterButton.setImage(filterIcon);
+//		filterButton.setToolTipText("Select Active Filters");
+//		filterButton.setBackground(ColorConstants.white);
+//		final NexusFilterAction filterAction = new NexusFilterAction(filterPathProvider);
+//		filterButton.addHyperlinkListener(new IHyperlinkListener() {
+//			@Override
+//			public void linkActivated(HyperlinkEvent e) {
+//				filterAction.getMenu(filterButton).setVisible(true);
+//			}
+//
+//			@Override
+//			public void linkEntered(HyperlinkEvent e) {
+//				filterButton.setImage(addFilterIcon);
+//			}
+//
+//			@Override
+//			public void linkExited(HyperlinkEvent e) {
+//				filterButton.setImage(filterIcon);
+//			}
+//		});
 
 		final ImageHyperlink sortButton = new ImageHyperlink(txtComposite, SWT.LEFT);
 		sortButton.setImage(sortIcon);

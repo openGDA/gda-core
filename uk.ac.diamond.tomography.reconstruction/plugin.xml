@@ -183,14 +183,14 @@
             </parentExpression>
          </commonSorter>
       </navigatorContent>      
-      <commonFilter
+      <!-- WIP - The Filtering is not fully implemented <commonFilter
             description="Filters NeXus files based on NeXus paths"
             id="uk.ac.diamond.tomography.reconstruction.filters.NexusPathFilter"
             name="Nexus Path Filter">
-      </commonFilter>
       
             
             
+      </commonFilter> -->
   </extension>
   
    <extension
