@@ -117,12 +117,14 @@ public class TestHelpers {
 				+ "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %ex - %m%n</pattern></layout></appender>"
 				+ "<appender name='DebugCONSOLE' class='ch.qos.logback.core.ConsoleAppender'>";
 
+		String level = "INFO";
 		if (consoleLogLevel != null && !consoleLogLevel.isEmpty()) {
 			f += "<filter class='ch.qos.logback.classic.filter.ThresholdFilter'>" + "<level>" + consoleLogLevel
 					+ "</level>" + "</filter>";
+			level = consoleLogLevel;
 		}
 		f += "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %ex - %m%n</pattern></layout></appender>"
-				+ "<logger name='gda'><level value='INFO'/></logger>"
+				+ "<logger name='gda'><level value='" + level + "'/></logger>"
 				+ "<logger name='gda.data.metadata.GDAMetadataProvider'><level value='ERROR'/></logger>"  // suppress "WARN  gda.data.metadata.GDAMetadataProvider  - setInstanceForTesting called"
 				+ "<logger name='gda.jython.InterfaceProvider'><level value='ERROR'/></logger>"  // suppress "WARN  gda.jython.InterfaceProvider  - setXxYyZzForTesting called"
 				+ "<root><level value='ALL'/><appender-ref ref='DebugFILE'/><appender-ref ref='DebugCONSOLE'/></root></configuration>";
