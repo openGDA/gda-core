@@ -34,7 +34,9 @@ public interface BioSAXSISPyB {
 	public abstract long getSessionForVisit(String visitname) throws SQLException;
 
 	/**
-	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
+	 * This method creates a SAXSDATACOLLECTION which corresponds to one row on the experiement spreadsheet This method
+	 * should also create the measurements (Buffer Before, Sample, Buffer After) and associate the measurements with a
+	 * data collection
 	 * 
 	 * @param experimentID
 	 * @param plate
@@ -52,13 +54,12 @@ public interface BioSAXSISPyB {
 	 * @param viscosity
 	 * @return saxsDataCollectionID
 	 */
-	public long createSaxsDataCollection(long experimentID, short plate, short row, short column,
-			String sampleName, short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature,
-			int numFrames, double timePerFrame, double flow, double volume, double energyInkeV, String viscosity)
-			throws SQLException;
+	public long createSaxsDataCollection(long experimentID, short plate, short row, short column, String sampleName,
+			short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
+			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity) throws SQLException;
 
 	/**
-	 * // * @param blsessionId The ID of the visit
+	 * Create a buffer measurement
 	 * 
 	 * @param dataCollectionId
 	 *            The ID of the data collection // * @param specimenId // * The ID of the specimen // * @param
@@ -85,7 +86,7 @@ public interface BioSAXSISPyB {
 			double energyInkeV, String viscosity) throws SQLException;
 
 	/**
-	 * // * @param blsessionId The ID of the visit
+	 * Create a sample measurement // * @param blsessionId The ID of the visit
 	 * 
 	 * @param dataCollectionId
 	 *            The ID of the data collection
@@ -107,6 +108,8 @@ public interface BioSAXSISPyB {
 			double energyInkeV, String viscosity) throws SQLException;
 
 	/**
+	 * Create a measurement and associate it with a data collection
+	 * 
 	 * @param saxsDataCollectionId
 	 *            from that call
 	 * @param measurementId
@@ -117,10 +120,12 @@ public interface BioSAXSISPyB {
 	public long createMeasurementToDataCollection(long saxsDataCollectionId, long measurementId) throws SQLException;
 
 	/**
-	 * Creates a run, updates measurement.runId, returns runId.
+	 * Creates a buffer run, updates measurement.runId, returns runId.
 	 * 
-	 * @param dataCollection1Id
-	 * @param dataCollection2Id
+	 * @param previousDataCollectionId
+	 *            - id of previous data collection, buffer after measurement of this collection will be used as the buffer
+	 *            before measurement of the current collection
+	 * @param currentDataCollectionId - id of current data collection
 	 * @param timePerFrame
 	 * @param storageTemperature
 	 * @param exposureTemperature
@@ -136,12 +141,13 @@ public interface BioSAXSISPyB {
 	 * @param normalization
 	 * @return runId
 	 */
-	public long createBufferRun(long dataCollection1Id, long dataCollection2Id, double timePerFrame, float storageTemperature,
-			float exposureTemperature, double energy, int frameCount, double transmission, double beamCenterX,
-			double beamCenterY, double pixelSizeX, double pixelSizeY, double radiationRelative,
+	public long createBufferRun(long previousDataCollectionId, long currentDataCollectionId, double timePerFrame,
+			float storageTemperature, float exposureTemperature, double energy, int frameCount, double transmission,
+			double beamCenterX, double beamCenterY, double pixelSizeX, double pixelSizeY, double radiationRelative,
 			double radiationAbsolute, double normalization, String filename, String internalPath);
 
 	/**
+	 * Creates a smaple run
 	 * 
 	 * @param dataCollectionId
 	 * @param timePerFrame
@@ -165,7 +171,7 @@ public interface BioSAXSISPyB {
 			float exposureTemperature, double energy, int frameCount, double transmission, double beamCenterX,
 			double beamCenterY, double pixelSizeX, double pixelSizeY, double radiationRelative,
 			double radiationAbsolute, double normalization, String filename, String internalPath);
-	
+
 	// FIXME how to re re-use the runs between datacollections?
 
 	/**
@@ -190,6 +196,13 @@ public interface BioSAXSISPyB {
 	 * Method to close the database connection once it's no longer needed.
 	 */
 	public abstract void disconnect() throws SQLException;
+
+	/**
+	 * @param saxsDataCollectionId
+	 * @return list of samples measured
+	 * @throws SQLException
+	 */
+	public List<SampleInfo> getSaxsDataCollectionInfo(long saxsDataCollectionId) throws SQLException;
 
 	/**
 	 * // * @param saxsDataCollectionId
@@ -221,6 +234,14 @@ public interface BioSAXSISPyB {
 	 */
 	public long createExperiment(long sessionId, String name, String experimentType, String comments)
 			throws SQLException;
+
+	/**
+	 * Sets the status of a data collection
+	 * 
+	 * @param saxsDataCollectionId
+	 * @param status
+	 */
+	public void setCollectionStatus(long saxsDataCollectionId, ISpyBStatus status);
 
 	/**
 	 * Returns the status of the data collection for the sample/data collection
@@ -304,5 +325,13 @@ public interface BioSAXSISPyB {
 	 * @return ProgressStatus
 	 * @throws SQLException
 	 */
-	public Object getDataAnalysisStatus(long dataCollectionId) throws SQLException;
+	public ISpyBStatus getDataAnalysisStatus(long dataCollectionId) throws SQLException;
+
+	/**
+	 * Return the id of the data collection run previously to the collection with id dataCollectionId
+	 * 
+	 * @param dataCollectionId
+	 * @return id of the collection which was run before data collection with id dataCollectionId
+	 */
+	public int getPreviousCollectionId(long dataCollectionId);
 }
