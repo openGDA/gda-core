@@ -85,6 +85,11 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		exposureTime = maxExposureTime;
 	}
 
+	public MultipleExposureSoftwareTriggerAutoMode(ADBase adBase) {
+		super(adBase);
+		exposureTime = this.maxExposureTime;
+	}
+
 	public NDProcess getNdProcess() {
 		return ndProcess;
 	}
