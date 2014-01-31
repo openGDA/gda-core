@@ -124,6 +124,7 @@
                     pattern="uk.ac.diamond.tomography.reconstruction.filters.*">
               </contentExtension>
               <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
+              <contentExtension pattern="uk.ac.diamond.tomography.reconstruction.*"/>
               <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
           </includes>
        </viewerContentBinding>
@@ -163,10 +164,35 @@
             </and>
          </filterExpression>
       </commonFilter>
+      <navigatorContent
+            id="uk.ac.diamond.tomography.reconstruction.nexusNavigatorSortContent"
+            name="name"
+            sortOnly="true">
+         <commonSorter
+               class="uk.ac.diamond.tomography.reconstruction.NexusSorter"
+               id="uk.ac.diamond.tomography.reconstruction.sort.NexusSorter">
+            <parentExpression>
+               <or>
+                  <adapt
+                        type="org.eclipse.core.resources.IProject">
+                  </adapt>
+                  <adapt
+                        type="org.eclipse.core.resources.IFolder">
+                  </adapt>
+               </or>
+            </parentExpression>
+         </commonSorter>
+      </navigatorContent>      
+      <commonFilter
+            description="Filters NeXus files based on NeXus paths"
+            id="uk.ac.diamond.tomography.reconstruction.filters.NexusPathFilter"
+            name="Nexus Path Filter">
+      </commonFilter>
       
             
             
   </extension>
+  
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
