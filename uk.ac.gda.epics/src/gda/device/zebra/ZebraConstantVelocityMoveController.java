@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController2, 
-PositionCallableProvider<Double>, ContinuouslyScannableViaController, InitializingBean {
+						PositionCallableProvider<Double>, ContinuouslyScannableViaController, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveController.class);
 
 	short pcCaptureBitField = 1;
@@ -64,6 +64,7 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 
 	private double minAccDistance;
 
+	private boolean pcPulseTriggerNotGate = true;
 
 	public ZebraConstantVelocityMoveController() {
 		super();
@@ -161,7 +162,12 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 				
 				// Capture positions half way through collection time
 				zebra.setPCPulseDelay(1000.*maxCollectionTimeFromDetectors/2.);
-				zebra.setPCPulseWidth(.01); //.01ms
+				
+				if ( isPcPulseTriggerNotGate() ) {
+					zebra.setPCPulseWidth(.01); //.01ms
+				} else {
+					zebra.setPCPulseWidth(maxCollectionTimeFromDetectors);
+				}
 				pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
 				pcPulseDelayRBV = zebra.getPCPulseDelayRBV()/1000.;
 
@@ -216,6 +222,15 @@ PositionCallableProvider<Double>, ContinuouslyScannableViaController, Initializi
 			throw new IllegalArgumentException("Only PC_PULSE_SOURCE_TIME is supported at the moment");
 		this.mode = mode;
 	}
+
+	public boolean isPcPulseTriggerNotGate() {
+		return pcPulseTriggerNotGate;
+	}
+
+	public void setPcPulseTriggerNotGate(boolean pcPulseTriggerNotGate) {
+		this.pcPulseTriggerNotGate = pcPulseTriggerNotGate;
+	}
+
 
 	public class ExecuteMoveTask implements Callable<Void> {
 		@Override
