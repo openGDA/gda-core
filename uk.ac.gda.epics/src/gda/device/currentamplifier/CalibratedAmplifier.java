@@ -80,7 +80,7 @@ public class CalibratedAmplifier extends EpicsScannable {
 	}
 	
 	@Override
-	public Object getPosition() throws DeviceException {
+	public synchronized Object getPosition() throws DeviceException {
 		double value;
 		short lastStepDirection = 0;
 		do {
