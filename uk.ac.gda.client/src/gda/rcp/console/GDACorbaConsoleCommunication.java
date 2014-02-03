@@ -117,7 +117,7 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 	}
 
 	@Override
-	public ICompletionProposal[] getCompletions(String text, String othertext, int offset) throws Exception {
+	public ICompletionProposal[] getCompletions(String text, String othertext, int offset, boolean showForTabCompletion) throws Exception {
 
 		String savedNewData = newData;
 		newData = "";
