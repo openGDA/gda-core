@@ -43,7 +43,6 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.ADController;
@@ -51,7 +50,7 @@ import uk.ac.gda.epics.adviewer.Activator;
 import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.Histogram;
 
-public class HistogramView extends ViewPart implements InitializingBean{
+public class HistogramView extends ViewPart{
 	public static final String UK_AC_GDA_EPICS_ADVIEWER_COMMANDS_SET_EXPOSURE = "uk.ac.gda.epics.adviewer.commands.setExposure";
 
 	private static final Logger logger = LoggerFactory.getLogger(HistogramView.class);
@@ -83,12 +82,6 @@ public class HistogramView extends ViewPart implements InitializingBean{
 	public HistogramView(){
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if( config == null)
-			throw new Exception("Config is null");
-		
-	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -99,7 +92,7 @@ public class HistogramView extends ViewPart implements InitializingBean{
 				if( StringUtils.isEmpty(serviceName))
 					throw new RuntimeException("No secondary id given");
 				config = (ADController)Activator.getNamedService(ADController.class, serviceName);
-
+				name = serviceName + " Profile";
 			}
 			parent.setLayout(new FillLayout());
 

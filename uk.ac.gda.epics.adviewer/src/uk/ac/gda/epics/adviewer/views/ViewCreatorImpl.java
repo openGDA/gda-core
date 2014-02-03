@@ -42,7 +42,6 @@ public class ViewCreatorImpl implements ViewCreator, InitializingBean {
 	@Override
 	public Object createLiveView(IConfigurationElement configurationElement) throws Exception {
 		MJPegView mjPegView = new MJPegView(adController, configurationElement);
-		mjPegView.afterPropertiesSet();
 		return mjPegView;
 	}
 
@@ -56,7 +55,6 @@ public class ViewCreatorImpl implements ViewCreator, InitializingBean {
 	@Override
 	public Object createProfileView(IConfigurationElement configurationElement) throws Exception {
 		HistogramView histogramView = new HistogramView(adController, configurationElement);
-		histogramView.afterPropertiesSet();
 		return histogramView;
 	}
 }

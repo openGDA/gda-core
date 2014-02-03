@@ -34,12 +34,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.ADController;
+import uk.ac.gda.epics.adviewer.Activator;
 import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
-public class MJPegView extends ViewPart implements InitializingBean {
+public class MJPegView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(MJPegView.class);
 
 	private MJPeg mJPeg;
@@ -68,15 +69,22 @@ public class MJPegView extends ViewPart implements InitializingBean {
 		}
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if (config == null)
-			throw new Exception("Config is null");
 
+
+	public MJPegView() {
+		super();
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
+		if( config== null){
+			String serviceName = getViewSite().getSecondaryId();
+			if( StringUtils.isEmpty(serviceName))
+				throw new RuntimeException("No secondary id given");
+			config = (ADController)Activator.getNamedService(ADController.class, serviceName);
+			name = serviceName + " MJPeg";
+
+		}
 
 		parent.setLayout(new FillLayout());
 
@@ -102,6 +110,7 @@ public class MJPegView extends ViewPart implements InitializingBean {
 	}
 
 	
+	@SuppressWarnings("unused")
 	protected MJPeg createPartControlEx(Composite parent) throws Exception {
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout(1, false));

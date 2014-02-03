@@ -84,6 +84,15 @@
             name="Histogram"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            category="uk.ac.gda.epics.adviewer.view.category"
+            class="uk.ac.gda.epics.adviewer.views.MJPegView"
+            icon="icons/AreaDetectorLiveView.gif"
+            id="uk.ac.gda.epics.adviewer.mjpegview"
+            name="MJPegView"
+            restorable="true">
+      </view>
    </extension>
    <extension
          id="uk.ac.gda.epics.adviewer.disableviews"
