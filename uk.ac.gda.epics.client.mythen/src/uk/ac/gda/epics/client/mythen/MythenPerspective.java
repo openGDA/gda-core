@@ -1,6 +1,7 @@
 package uk.ac.gda.epics.client.mythen;
 
 import gda.rcp.views.JythonTerminalView;
+
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.ui.IFolderLayout;
@@ -15,8 +16,8 @@ import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
 import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.client.liveplot.LivePlotView;
+import uk.ac.gda.client.scripting.JythonPerspective;
 import uk.ac.gda.epics.client.mythen.views.MythenView;
-import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 
 public class MythenPerspective implements IPerspectiveFactory {
 	
