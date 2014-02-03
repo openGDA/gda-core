@@ -33,5 +33,7 @@ public class DeprecatedPreferenceInitializer extends AbstractPreferenceInitializ
 		store.setDefault(DeprecatedPreferenceConstants.SHOW_SHAPE, false);
 		store.setDefault(DeprecatedPreferenceConstants.DATA_FORMAT, "#0.00");
 		store.setDefault(DeprecatedPreferenceConstants.PLAY_SPEED, 1500);
+
+		store.setDefault(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM, 1);
 	}
 }

@@ -61,7 +61,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
@@ -138,7 +138,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 		buildToolActions(bars.getToolBarManager(), 
 				         plotter, parent.getShell());								 
 		
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			try {
 				 histogramView = (HistogramView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView",
 						this.id, IWorkbenchPage.VIEW_CREATE);
@@ -156,7 +156,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}
-		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+		}else if (getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			try {
 				dataWindowView = (DataWindowView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView",
 						this.id, IWorkbenchPage.VIEW_CREATE);
@@ -471,13 +471,13 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 	 */
 	@Override
 	public void deactivate(boolean leaveSidePlotOpen) {
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			histogramView.deleteIObserver(dataWindowView);
 			IWorkbenchPage aPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			if (aPage != null)
 				aPage.hideView(dataWindowView);
 			plotWindow.deleteIObserver(histogramView);
-		} else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+		} else if (getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			
 		}
 	
@@ -523,8 +523,8 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 
 	private int getDefaultPlottingSystemChoice() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
-				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
-				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+		return preferenceStore.isDefault(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 }

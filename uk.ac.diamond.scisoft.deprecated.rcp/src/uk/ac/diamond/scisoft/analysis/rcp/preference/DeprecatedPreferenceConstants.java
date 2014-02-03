@@ -26,4 +26,10 @@ public class DeprecatedPreferenceConstants {
 	public static final String DATA_FORMAT            = "data.format.editor.view";
 	public static final String PLAY_SPEED             = "data.format.slice.play.speed";
 
+	public static final int PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM = 0;
+	public static final int PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM = 1;
+	/**
+	 * 0 if DatasetPlotter is chosen or 1 if AbstractPlottingSystem
+	 */
+	public static final String PLOT_VIEW_PLOTTING_SYSTEM = "plotView.plottingsystem";
 }

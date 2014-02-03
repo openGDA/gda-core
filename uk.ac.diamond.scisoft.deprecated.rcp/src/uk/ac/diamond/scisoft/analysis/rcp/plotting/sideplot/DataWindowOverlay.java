@@ -36,7 +36,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 
 /**
@@ -135,7 +135,7 @@ public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 	 * @param ySize
 	 */
 	public void setSelectPosition(int startX, int startY, int width, int height, int xSize, int ySize) {
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 			if (selectPrimID == -1) 
 				selectPrimID = provider.registerPrimitive(PrimitiveType.BOX);
 		
@@ -143,7 +143,7 @@ public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 		selectStartY = startY / yScale;
 		selectEndX = selectStartX + (width / xScale);
 		selectEndY = selectStartY + (height / yScale);
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			if (!allowUndersampling)
 				clampToMax();
 			else
@@ -349,8 +349,8 @@ public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 
 	private int getDefaultPlottingSystemChoice() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
-				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
-				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+		return preferenceStore.isDefault(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 }
