@@ -23,37 +23,36 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.IParameter;
 import org.eclipse.core.commands.Parameterization;
 import org.eclipse.core.commands.ParameterizedCommand;
+import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.ui.IWorkbenchSite;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandImageService;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.epics.adviewer.ADController;
-import uk.ac.gda.epics.adviewer.Ids;
-
 public class ADActionUtils {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ADActionUtils.class);
 	
-	public IAction addAction(String name, final String commandId, final ADController config, final IWorkbenchSite site){
+	public IAction addAction(String name, final String commandId, final String commandParameterName, final String commandParameterValue) throws NotDefinedException{
 		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
 			@Override
 			public void run() {
 				try{
-					ICommandService cs = (ICommandService) site.getService(
-							ICommandService.class);
+					ICommandService cs = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
 					Command command = cs.getCommand(commandId);
-					IParameter parameter = command.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
-					String name = config.getServiceName();
-					Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter,
-							name	) };
+					
+					IParameter parameter = command.getParameter(commandParameterName);
+					Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter, commandParameterValue) };
 					ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
-					ExecutionEvent executionEvent = ((IHandlerService) site.getService(
-							IHandlerService.class)).createExecutionEvent(cmd, null);
+					
+					ExecutionEvent executionEvent = ((IHandlerService) PlatformUI.getWorkbench().getService(IHandlerService.class)).createExecutionEvent(cmd, null);
 					command.executeWithChecks(executionEvent);
 				}
 				catch(Exception e){
@@ -61,10 +60,37 @@ public class ADActionUtils {
 				}
 			}
 		};
-		action.setToolTipText("Set Exposure");
-		ICommandImageService service = (ICommandImageService) site.getService(ICommandImageService.class);
-		action.setImageDescriptor(service.getImageDescriptor(Ids.COMMANDS_SET_EXPOSURE));
+		ICommandService cs = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+		Command command = cs.getCommand(commandId);
+		action.setToolTipText(command.getDescription());
+		ICommandImageService service = (ICommandImageService) PlatformUI.getWorkbench().getService(ICommandImageService.class);
+		action.setImageDescriptor(service.getImageDescriptor(commandId));
 		return action;
 	}
 	
+	public IAction createShowViewAction(String name, final String viewId, final String secondaryId, String description,
+			ImageDescriptor imageDesc){
+		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
+			@Override
+			public void run() {
+				try{
+					IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					if (window != null) {
+						IWorkbenchPage page = window.getActivePage();
+						if (page != null) {
+							page.showView(viewId, secondaryId, IWorkbenchPage.VIEW_CREATE);
+							page.showView(viewId, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
+						}
+					}
+				}
+				catch(Exception e){
+					logger.error("Error running Set Exposure command", e);
+				}
+			}
+		};
+		action.setToolTipText(description);
+		action.setImageDescriptor(imageDesc);
+		return action;
+		
+	}
 }

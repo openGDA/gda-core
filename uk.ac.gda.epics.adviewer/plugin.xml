@@ -30,6 +30,10 @@
                optional="false">
          </commandParameter>
       </command>
+      <command
+            id="uk.ac.gda.epics.adviewer.showLiveView"
+            name="showLiveView">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.commandImages">
@@ -44,6 +48,10 @@
       <image
             commandId="uk.ac.gda.epics.adviewer.command.zoomToFit"
             icon="icons/arrow_out.png">
+      </image>
+      <image
+            commandId="uk.ac.gda.epics.adviewer.showLiveView"
+            icon="icons/AreaDetectorLiveView.gif">
       </image>
    </extension>
    <extension

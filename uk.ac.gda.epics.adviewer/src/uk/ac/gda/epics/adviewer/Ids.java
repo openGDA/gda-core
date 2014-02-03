@@ -23,5 +23,6 @@ public class Ids {
 	public static final String COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME = "uk.ac.gda.epics.adviewer.commandParameters.adcontrollerServiceName";
 	public static final String COMMANDS_SET_EXPOSURE="uk.ac.gda.epics.adviewer.commands.setExposure";
 	public static final String COMMANDS_SET_LIVEVIEW_SCALE="uk.ac.gda.epics.adviewer.commands.setLiveViewScale";
+	public static final String COMMANDS_SHOW_LIVEVIEW="uk.ac.gda.epics.adviewer.showLiveView";
 
 }
