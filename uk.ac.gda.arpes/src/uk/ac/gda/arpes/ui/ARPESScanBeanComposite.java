@@ -114,6 +114,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			public void widgetSelected(SelectionEvent e) {
 				super.widgetSelected(e);
 				try {
+					IProgressMonitor monitor = new NullProgressMonitor();
+					editor.doSave(monitor);
+					if (monitor.isCanceled()) {
+						return;
+					}
 					Display display = Display.getCurrent();
 					Clipboard clipboard = new org.eclipse.swt.dnd.Clipboard(display);
 					String[] data = { getOurJythonCommand(editor) };
