@@ -22,6 +22,7 @@ package gda.rcp.views;
 public class OpenViewOption {
 	final String label;
 	final String viewId;
+	String secondaryId;
 	public String getLabel() {
 		return label;
 	}
@@ -32,6 +33,12 @@ public class OpenViewOption {
 		super();
 		this.label = label;
 		this.viewId = viewId;
+	}
+	public String getSecondaryId() {
+		return secondaryId;
+	}
+	public void setSecondaryId(String secondaryId) {
+		this.secondaryId = secondaryId;
 	}
 
 }
