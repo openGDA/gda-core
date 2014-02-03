@@ -110,7 +110,8 @@ public class GDAConsoleFactory implements IConsoleFactory {
 
         int port = Integer.parseInt(launch.getAttribute(PydevIProcessFactory.INTERACTIVE_LAUNCH_PORT));
 
-        PydevConsoleCommunication protocol = new PydevConsoleCommunication(port, interactiveLaunch.process, interactiveLaunch.clientPort);
+        PydevConsoleCommunication protocol = new PydevConsoleCommunication(port, interactiveLaunch.process, interactiveLaunch.clientPort,
+        		interactiveLaunch.cmdLine, interactiveLaunch.env);
 		return protocol;
 	}
 }
