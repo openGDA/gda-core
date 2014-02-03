@@ -24,7 +24,7 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
+import uk.ac.gda.client.scripting.JythonPerspective;
 
 /**
  * Area detector perspective
