@@ -227,7 +227,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	@Override
-	public void configureScanNumber(Long _scanNumber) throws Exception {
+	public synchronized void configureScanNumber(Long _scanNumber) throws Exception {
 		if (!fileNumberConfigured) {
 			if (_scanNumber != null) {
 				// the scan or other datawriter has set the id
