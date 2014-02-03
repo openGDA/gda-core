@@ -35,9 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.experimentdefinition.components.ExperimentPerspective;
+import uk.ac.gda.client.scripting.JythonPerspective;
 import uk.ac.gda.exafs.ui.AlignmentPerspective;
 import uk.ac.gda.exafs.ui.PlottingPerspective;
-import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 
 public class DataCollectionModeHandler extends AbstractHandler implements IWorkbenchWindowActionDelegate, IEditorActionDelegate {
 	private static final Logger logger = LoggerFactory.getLogger(DataCollectionModeHandler.class);

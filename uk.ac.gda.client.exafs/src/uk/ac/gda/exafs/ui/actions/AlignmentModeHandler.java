@@ -35,8 +35,8 @@ import org.eclipse.ui.WorkbenchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.scripting.JythonPerspective;
 import uk.ac.gda.exafs.ui.AlignmentPerspective;
-import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 
 /**
  * This class is here because Sofia requested action exist to switch between perspective groups.
