@@ -75,6 +75,28 @@
             id="uk.ac.gda.epics.adviewer.view.category"
             name="EPICS AreaDetector">
       </category>
+      <view
+            allowMultiple="true"
+            category="uk.ac.gda.epics.adviewer.view.category"
+            class="uk.ac.gda.epics.adviewer.views.HistogramView"
+            icon="icons/AreaDetectorProfileView.gif"
+            id="uk.ac.gda.epics.adviewer.histogramview"
+            name="Histogram"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         id="uk.ac.gda.epics.adviewer.disableviews"
+         name="Hidden Views"
+         point="org.eclipse.ui.activities">
+      <activityPatternBinding
+            activityId="uk.ac.gda.epics.adviewer.disableviews"
+            pattern="uk.ac.gda.epics.adviewer.*">
+      </activityPatternBinding>
+      <activity
+            id="uk.ac.gda.epics.adviewer.disableviews"
+            name="Hide View">
+      </activity>
    </extension>
 
 </plugin>

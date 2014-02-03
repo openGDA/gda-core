@@ -19,24 +19,41 @@
 package uk.ac.gda.epics.adviewer.views;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Vector;
 
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.IParameter;
+import org.eclipse.core.commands.Parameterization;
+import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.commands.ICommandImageService;
+import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.ADController;
+import uk.ac.gda.epics.adviewer.Activator;
+import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.Histogram;
 
 public class HistogramView extends ViewPart implements InitializingBean{
+	public static final String UK_AC_GDA_EPICS_ADVIEWER_COMMANDS_SET_EXPOSURE = "uk.ac.gda.epics.adviewer.commands.setExposure";
+
 	private static final Logger logger = LoggerFactory.getLogger(HistogramView.class);
 
 	private Histogram histogram;
@@ -63,6 +80,9 @@ public class HistogramView extends ViewPart implements InitializingBean{
 		}
 	}
 
+	public HistogramView(){
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( config == null)
@@ -74,6 +94,13 @@ public class HistogramView extends ViewPart implements InitializingBean{
 	public void createPartControl(Composite parent) {
 
 		try {
+			if( config== null){
+				String serviceName = getViewSite().getSecondaryId();
+				if( StringUtils.isEmpty(serviceName))
+					throw new RuntimeException("No secondary id given");
+				config = (ADController)Activator.getNamedService(ADController.class, serviceName);
+
+			}
 			parent.setLayout(new FillLayout());
 
 			histogram = new Histogram(this, parent, SWT.NONE);
@@ -81,23 +108,39 @@ public class HistogramView extends ViewPart implements InitializingBean{
 			histogram.start();
 			histogram.startStats();
 			histogram.showLeft(true);
-/*			List<IAction> actions = new Vector<IAction>();			
+			List<IAction> actions = new Vector<IAction>();			
 			{
-				IAction action = new Action("", IAction.AS_CHECK_BOX) {
+				IAction action = new Action("Set Exposure", IAction.AS_PUSH_BUTTON) {
 					@Override
 					public void run() {
-						histogram.showLeft(!histogram.getShowLeft());
-						this.setChecked(histogram.getShowLeft());
+						
+						try{
+							ICommandService cs = (ICommandService) getSite().getService(
+									ICommandService.class);
+							Command command = cs.getCommand(Ids.COMMANDS_SET_EXPOSURE);
+							
+							IParameter parameter = command.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
+							String name = config.getServiceName();
+							Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter,
+									name	) };
+							ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
+							ExecutionEvent executionEvent = ((IHandlerService) getSite().getService(
+									IHandlerService.class)).createExecutionEvent(cmd, null);
+							command.executeWithChecks(executionEvent);
+						}
+						catch(Exception e){
+							logger.error("Error running Set Exposure command", e);
+						}
 					}
 				};
-				action.setChecked(histogram.getShowLeft());
-				action.setToolTipText("Show/Hide Left Panel");
-				action.setImageDescriptor(Activator.getImageDescriptor("icons/show_left.png"));
+				action.setToolTipText("Set Exposure");
+				ICommandImageService service = (ICommandImageService) getSite().getService(ICommandImageService.class);
+				action.setImageDescriptor(service.getImageDescriptor(Ids.COMMANDS_SET_EXPOSURE));
 				actions.add(action);
 			}	
 			for (IAction iAction : actions) {
 				getViewSite().getActionBars().getToolBarManager().add(iAction);
-			}*/
+			}
 			
 		} catch (Exception e) {
 			logger.error("Error starting  areaDetectorProfileComposite", e);
