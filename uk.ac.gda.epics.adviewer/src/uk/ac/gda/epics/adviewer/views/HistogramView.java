@@ -103,33 +103,9 @@ public class HistogramView extends ViewPart{
 			histogram.showLeft(true);
 			List<IAction> actions = new Vector<IAction>();			
 			{
-				IAction action = new Action("Set Exposure", IAction.AS_PUSH_BUTTON) {
-					@Override
-					public void run() {
-						
-						try{
-							ICommandService cs = (ICommandService) getSite().getService(
-									ICommandService.class);
-							Command command = cs.getCommand(Ids.COMMANDS_SET_EXPOSURE);
-							
-							IParameter parameter = command.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
-							String name = config.getServiceName();
-							Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter,
-									name	) };
-							ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
-							ExecutionEvent executionEvent = ((IHandlerService) getSite().getService(
-									IHandlerService.class)).createExecutionEvent(cmd, null);
-							command.executeWithChecks(executionEvent);
-						}
-						catch(Exception e){
-							logger.error("Error running Set Exposure command", e);
-						}
-					}
-				};
-				action.setToolTipText("Set Exposure");
-				ICommandImageService service = (ICommandImageService) getSite().getService(ICommandImageService.class);
-				action.setImageDescriptor(service.getImageDescriptor(Ids.COMMANDS_SET_EXPOSURE));
-				actions.add(action);
+				actions.add(addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE));
+				actions.add(addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE));
+				actions.add(addAction("Show Live View", "org.eclipse.ui.views.showView"));
 			}	
 			for (IAction iAction : actions) {
 				getViewSite().getActionBars().getToolBarManager().add(iAction);
@@ -144,6 +120,36 @@ public class HistogramView extends ViewPart{
 		setPartName(name );
 	}
 
+	private IAction addAction(String name, final String commandId){
+		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
+			@Override
+			public void run() {
+				
+				try{
+					ICommandService cs = (ICommandService) getSite().getService(
+							ICommandService.class);
+					Command command = cs.getCommand(commandId);
+					
+					IParameter parameter = command.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
+					String name = config.getServiceName();
+					Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter,
+							name	) };
+					ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
+					ExecutionEvent executionEvent = ((IHandlerService) getSite().getService(
+							IHandlerService.class)).createExecutionEvent(cmd, null);
+					command.executeWithChecks(executionEvent);
+				}
+				catch(Exception e){
+					logger.error("Error running Set Exposure command", e);
+				}
+			}
+		};
+		action.setToolTipText("Set Exposure");
+		ICommandImageService service = (ICommandImageService) getSite().getService(ICommandImageService.class);
+		action.setImageDescriptor(service.getImageDescriptor(Ids.COMMANDS_SET_EXPOSURE));
+		return action;
+	}
+	
 	@Override
 	public void setFocus() {
 		histogram.setFocus();
