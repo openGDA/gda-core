@@ -58,8 +58,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 //import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
@@ -138,7 +138,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 
 	public void initHistogramView(String id) {
 		
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			try {
 				 histogramView = (HistogramView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView",
 						id, IWorkbenchPage.VIEW_CREATE);
@@ -148,7 +148,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 				logger.error("Failed to initialized histogram View");
 				e.printStackTrace();
 			}
-		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+		}else if (getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			try {
 				dataWindowView = (DataWindowView) page.showView(DataWindowView.ID,
 						id, IWorkbenchPage.VIEW_CREATE);
@@ -456,7 +456,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 			
 			if (xAxisValues != null) {
 				// set the xlabel and ylabel only in datasetplotter mode
-				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+				if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 					if (xAxisValues.getName() != null && xAxisValues.getName().length() > 0)
 						mainPlotter.setXAxisLabel(xAxisValues.getName());
 					else
@@ -465,10 +465,10 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 				xAxis.setValues(xAxisValues);
 				mainPlotter.setXAxisValues(xAxis, 1);
 			} else 
-				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+				if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 					mainPlotter.setXAxisLabel("X-Axis");
 			if (yAxisValues != null) {
-				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+				if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 					if (yAxisValues.getName() != null && yAxisValues.getName().length() > 0)
 						mainPlotter.setYAxisLabel(yAxisValues.getName());
 					else
@@ -477,7 +477,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 				yAxis.setValues(yAxisValues);
 				mainPlotter.setYAxisValues(yAxis);
 			} else 
-				if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+				if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 					mainPlotter.setYAxisLabel("Y-Axis");
 			
 			mainPlotter.setYTickLabelFormat(TickFormatting.roundAndChopMode);
@@ -541,7 +541,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 	@Override
 	public void deactivate(boolean leaveSidePlotOpen) {
 //		histoUpdate = null;
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			plotWindow.deleteIObserver(histogramView);
 			page.hideView(histogramView);
 		} else {
@@ -569,8 +569,8 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 
 	private int getDefaultPlottingSystemChoice() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
-				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
-				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+		return preferenceStore.isDefault(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 }

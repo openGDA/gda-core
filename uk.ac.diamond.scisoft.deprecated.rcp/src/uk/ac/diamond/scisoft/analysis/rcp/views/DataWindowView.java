@@ -78,7 +78,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.DataWindowOverlay;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
@@ -181,11 +181,11 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		gridLayout.verticalSpacing = 2;
 		topComposite.setLayout(gridLayout);
 		
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			plotter = new DataSetPlotter(PlottingMode.ONED,topComposite,false);
 			plotComp = plotter.getComposite();
 		}
-		else if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+		else if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			createPlottingSystem(topComposite);
 			plotComp = plottingSystem.getPlotComposite();
 		}
@@ -399,19 +399,19 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		ccYsampling.setEnabled(false);
 		ccXsampling.addSelectionListener(this);
 		ccYsampling.addSelectionListener(this);
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			plotter.setMode(PlottingMode.TWOD);
 			plotter.setAxisModes(AxisMode.CUSTOM, AxisMode.CUSTOM, AxisMode.LINEAR);
 			overlay = new DataWindowOverlay(1,1,this);
 			plotter.registerOverlay(overlay);
-		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+		}else if (getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			overlay = new DataWindowOverlay(1,1,this);
 		}
 
 		xAxis = new AxisValues();
 		yAxis = new AxisValues();
 		
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			this.registeredTraces = new HashMap<String,Collection<ITrace>>(7);
 		}
 	}
@@ -471,7 +471,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			} else {
 				yAxis.setValues(inYAxis.subset(0, ySize, ySamplingRate).toDataset());
 			}
-			if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 				overlay.removePrimitives();
 				overlay.setScaling(xSamplingRate,ySamplingRate);
 				plotter.setXAxisValues(xAxis, 1);
@@ -508,7 +508,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 						spnStartY.setSelection(0);
 					}
 				});
-			}else if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			}else if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 				if(newData instanceof AbstractDataset){
 					createPlot((AbstractDataset)newData, inXAxis, inYAxis);
 				}else
@@ -625,7 +625,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 								 final int startY, 
 								 final int width, 
 								 final int height) {
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			plotter.getComposite().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -635,7 +635,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 					spnEndY.setSelection(height);
 				}
 			});
-		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+		}else if (getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -651,7 +651,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			HistogramUpdate update = (HistogramUpdate) changeCode;
 			plotter.applyColourCast(update.getRedMapFunction(), update
 					.getGreenMapFunction(),
@@ -662,7 +662,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 					update.getMinValue(), update.getMaxValue());
 	
 			plotter.refresh(false);		
-		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+		}else if (getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			logger.debug("Update in DataWindowView");
 		}
 		
@@ -736,7 +736,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 										  height,
 										  xSize,
 										  ySize);
-				if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+				if (getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 					IRegion region = plottingSystem.getRegion("Surface slice");
 					RectangularROI roi = new RectangularROI(startPosX, startPosY, width, height, 0);
 					if(region!=null)
@@ -776,10 +776,10 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			ccYsampling.removeSelectionListener(this);
 		
 		deleteIObservers();
-		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			if (plotter != null)
 				plotter.cleanUp();
-		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+		}else if (getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			if(plottingSystem !=null){
 				if (image != null)
 					image.removePaletteListener(paletteListener);
@@ -944,9 +944,9 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 
 	private int getDefaultPlottingSystemChoice() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
-				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
-				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+		return preferenceStore.isDefault(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(DeprecatedPreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 }
  
