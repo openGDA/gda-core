@@ -30,11 +30,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -42,6 +44,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -68,7 +71,7 @@ import uk.ac.gda.richbeans.event.ValueListener;
 
 public final class ARPESScanBeanComposite extends Composite implements ValueListener {
 	private static final Logger logger = LoggerFactory.getLogger(ARPESScanBeanComposite.class);
-	
+
 	private final ComboWrapper lensMode;
 	private final ComboWrapper passEnergy;
 	private final NumberBox startEnergy;
@@ -80,26 +83,57 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final ScaleBox centreEnergy;
 	private final ScaleBox energyWidth;
 	private final BooleanWrapper configureOnly;
-
+	boolean wedidit = false;
 	private AnalyserCapabilties capabilities;
 
 	public ARPESScanBeanComposite(final Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
 
-		capabilities = (AnalyserCapabilties) Finder.getInstance().listAllLocalObjects(AnalyserCapabilties.class.getCanonicalName()).get(0);
-		
+		capabilities = (AnalyserCapabilties) Finder.getInstance()
+				.listAllLocalObjects(AnalyserCapabilties.class.getCanonicalName()).get(0);
+
 		Label label = new Label(this, SWT.NONE);
 		label.setText("Drop file here!");
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		
+
 		setDropTarget(parent, parent.getShell(), editor);
-		
-		Button btnQueueExperiment = new Button(this, SWT.NONE);
-		GridData layoutData = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
-		btnQueueExperiment.setLayoutData(layoutData);
+
+		Composite btnComp = new Composite(this, SWT.NONE);
+		btnComp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+
+		btnComp.setLayout(new GridLayout(2, false));
+
+		Button btnClipboard = new Button(btnComp, SWT.NONE);
+		btnClipboard.setText("Jython to Clipboard");
+		btnClipboard
+				.setToolTipText("save file and copy Jython instructions to clip board to use this defintion in scripts");
+		btnClipboard.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				try {
+					IProgressMonitor monitor = new NullProgressMonitor();
+					editor.doSave(monitor);
+					if (monitor.isCanceled()) {
+						return;
+					}
+					Display display = Display.getCurrent();
+					Clipboard clipboard = new org.eclipse.swt.dnd.Clipboard(display);
+					String[] data = { getOurJythonCommand(editor) };
+					clipboard.setContents(data, new Transfer[] { TextTransfer.getInstance() });
+					clipboard.dispose();
+				} catch (Exception e1) {
+					logger.error("Error sending command to the clipboard", e1);
+				}
+			}
+		});
+
+		Button btnQueueExperiment = new Button(btnComp, SWT.NONE);
 		btnQueueExperiment.setText("Queue Experiment");
-		btnQueueExperiment.setToolTipText("save file and queue for execution (will start immediately if queue running");
+		btnQueueExperiment
+				.setToolTipText("save file and queue for execution (will start immediately if queue running)");
 		btnQueueExperiment.addSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -108,11 +142,13 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				try {
 					IProgressMonitor monitor = new NullProgressMonitor();
 					editor.doSave(monitor);
-					if (monitor.isCanceled())
+					if (monitor.isCanceled()) {
 						return;
+					}
 					Queue queue = CommandQueueViewFactory.getQueue();
 					if (queue != null) {
-						queue.addToTail(new JythonCommandCommandProvider(String.format("import arpes; arpes.APRESRun(\"%s\").run()", editor.getPath()), editor.getTitle(), editor.getPath()));
+						queue.addToTail(new JythonCommandCommandProvider(getOurJythonCommand(editor),
+								editor.getTitle(), editor.getPath()));
 					} else {
 						logger.warn("No queue received from CommandQueueViewFactory");
 					}
@@ -132,11 +168,12 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		Comparator<String> passEComparator = new Comparator<String>() {
 			@Override
 			public int compare(String o1, String o2) {
-				return Integer.valueOf(o1.substring(0, o1.lastIndexOf(" "))).compareTo(Integer.valueOf(o2.substring(0, o2.lastIndexOf(" "))));
+				return Integer.valueOf(o1.substring(0, o1.lastIndexOf(" "))).compareTo(
+						Integer.valueOf(o2.substring(0, o2.lastIndexOf(" "))));
 			}
 		};
-		Map<String, Short> passMap = 	new TreeMap<String, Short>(passEComparator);
-		for (short s: capabilities.getPassEnergies()) {
+		Map<String, Short> passMap = new TreeMap<String, Short>(passEComparator);
+		for (short s : capabilities.getPassEnergies()) {
 			passMap.put(String.format("%d eV", s), s);
 		}
 		label = new Label(this, SWT.NONE);
@@ -150,11 +187,12 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("sweptMode");
-		this.sweptMode = new RadioWrapper(this, SWT.NONE, new String[] { "fixed", "swept"}) {
+		this.sweptMode = new RadioWrapper(this, SWT.NONE, new String[] { "fixed", "swept" }) {
 			@Override
 			public void setValue(Object value) {
 				super.setValue((Boolean) value ? "swept" : "fixed");
 			}
+
 			@Override
 			public Object getValue() {
 				return super.getValue().equals("swept");
@@ -162,7 +200,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		};
 		sweptMode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		sweptMode.addValueListener(this);
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("startEnergy");
@@ -171,7 +209,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		startEnergy.setUnit("eV");
 		startEnergy.setDecimalPlaces(3);
 		startEnergy.addValueListener(this);
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("centreEnergy");
@@ -182,7 +220,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		centreEnergy.setFieldName("centreEnergy");
 		centreEnergy.on();
 		centreEnergy.addValueListener(this);
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("endEnergy");
@@ -191,7 +229,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		endEnergy.setUnit("eV");
 		endEnergy.setDecimalPlaces(3);
 		endEnergy.addValueListener(this);
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("stepEnergy");
@@ -203,7 +241,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		stepEnergy.setMinimum(0.0001);
 		stepEnergy.setMinimumValid(true);
 		stepEnergy.addValueListener(this);
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("energyWidth");
@@ -215,7 +253,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		energyWidth.on();
 		energyWidth.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		energyWidth.addValueListener(this);
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("timePerStep");
@@ -223,22 +261,26 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		timePerStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		timePerStep.setUnit("s");
 		timePerStep.addValueListener(this);
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("iterations");
 		this.iterations = new IntegerBox(this, SWT.NONE);
 		iterations.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		iterations.addValueListener(this);
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("configureOnly");
 		this.configureOnly = new BooleanWrapper(this, SWT.NONE);
 		configureOnly.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-//		configureOnly.addValueListener(this);
+		// configureOnly.addValueListener(this);
 		configureOnly.setToolTipText("Do not run experiment, just set up analyser accordingly.");
-		
+
+	}
+
+	protected String getOurJythonCommand(final RichBeanEditorPart editor) {
+		return String.format("import arpes; arpes.APRESRun(\"%s\").run()", editor.getPath());
 	}
 
 	public FieldComposite getLensMode() {
@@ -277,32 +319,36 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return sweptMode;
 	}
 
-	boolean wedidit = false;
-	
 	private boolean isSwept() {
 		return (Boolean) sweptMode.getValue();
 	}
-	
+
 	@Override
 	public void valueChangePerformed(ValueEvent e) {
-	
-		if (Double.isNaN(e.getDoubleValue())) 
-			return; 
-		
-		if (wedidit) return;
-		
+
+		if (Double.isNaN(e.getDoubleValue())) {
+			return;
+		}
+
+		if (wedidit) {
+			return;
+		}
+
 		wedidit = true;
-		
+
 		try {
 			if (e.getFieldName().equals("sweptMode")) {
 				stepEnergy.setMinimum(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
 				if (!isSwept()) {
 					stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
 					stepEnergy.setEditable(false);
-					energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
+					energyWidth
+							.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
 					energyWidth.setActive(false);
-					startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - ((Number) energyWidth.getValue()).doubleValue()/2.0);
-					endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + ((Number) energyWidth.getValue()).doubleValue()/2.0);
+					startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+							- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+					endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+							+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
 
 				} else {
 					stepEnergy.setEditable(true);
@@ -310,54 +356,55 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				}
 			}
 
-			if (e.getFieldName().equals("passEnergy") || (e.getFieldName().equals("sweptMode") && (Boolean) e.getValue())) {
+			if (e.getFieldName().equals("passEnergy")
+					|| (e.getFieldName().equals("sweptMode") && (Boolean) e.getValue())) {
 				stepEnergy.setMinimum(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
 				if (!isSwept()) {
 					stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
 
 					double width = capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue());
 					energyWidth.setValue(width);
-					startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - width/2.0);
-					endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + width/2.0);
+					startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - width / 2.0);
+					endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + width / 2.0);
 				}
 			}
-		
+
 			if (isSwept()) {
 				if (e.getFieldName().equals("startEnergy")) {
-					centreEnergy.setValue((((Number) endEnergy.getValue()).doubleValue() + e.getDoubleValue())/2.0);
+					centreEnergy.setValue((((Number) endEnergy.getValue()).doubleValue() + e.getDoubleValue()) / 2.0);
 					energyWidth.setValue(((Number) endEnergy.getValue()).doubleValue() - e.getDoubleValue());
 				}
-				
+
 				if (e.getFieldName().equals("endEnergy")) {
-					centreEnergy.setValue((((Number) startEnergy.getValue()).doubleValue() + e.getDoubleValue())/2.0);
-					energyWidth.setValue(-1 *((Number) startEnergy.getValue()).doubleValue() + e.getDoubleValue());
+					centreEnergy.setValue((((Number) startEnergy.getValue()).doubleValue() + e.getDoubleValue()) / 2.0);
+					energyWidth.setValue(-1 * ((Number) startEnergy.getValue()).doubleValue() + e.getDoubleValue());
 				}
-				
+
 				if (e.getFieldName().equals("energyWidth")) {
-					startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - e.getDoubleValue()/2.0);
-					endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + e.getDoubleValue()/2.0);
+					startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - e.getDoubleValue() / 2.0);
+					endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + e.getDoubleValue() / 2.0);
 				}
 			} else {
 				if (e.getFieldName().equals("startEnergy")) {
-					centreEnergy.setValue(((Number) energyWidth.getValue()).doubleValue()/2.0 + e.getDoubleValue());
+					centreEnergy.setValue(((Number) energyWidth.getValue()).doubleValue() / 2.0 + e.getDoubleValue());
 					endEnergy.setValue(((Number) energyWidth.getValue()).doubleValue() + e.getDoubleValue());
 				}
-				
+
 				if (e.getFieldName().equals("endEnergy")) {
-					centreEnergy.setValue(e.getDoubleValue() - ((Number) energyWidth.getValue()).doubleValue()/2.0);
+					centreEnergy.setValue(e.getDoubleValue() - ((Number) energyWidth.getValue()).doubleValue() / 2.0);
 					startEnergy.setValue(e.getDoubleValue() - ((Number) energyWidth.getValue()).doubleValue());
 				}
-				
+
 				if (e.getFieldName().equals("energyWidth")) {
 					// not allowed
 				}
 			}
 
 			if (e.getFieldName().equals("centreEnergy")) {
-				startEnergy.setValue(e.getDoubleValue() - ((Number) energyWidth.getValue()).doubleValue()/2.0);
-				endEnergy.setValue(e.getDoubleValue() + ((Number) energyWidth.getValue()).doubleValue()/2.0);
+				startEnergy.setValue(e.getDoubleValue() - ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+				endEnergy.setValue(e.getDoubleValue() + ((Number) energyWidth.getValue()).doubleValue() / 2.0);
 			}
-				
+
 		} finally {
 			wedidit = false;
 		}
@@ -372,40 +419,48 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		wedidit = true;
 		try {
 			stepEnergy.setMinimum(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
-			centreEnergy.setValue((((Number) endEnergy.getValue()).doubleValue() + ((Number) startEnergy.getValue()).doubleValue())/2.0);
+			centreEnergy.setValue((((Number) endEnergy.getValue()).doubleValue() + ((Number) startEnergy.getValue())
+					.doubleValue()) / 2.0);
 			if (!isSwept()) {
 				stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
 				stepEnergy.setEditable(false);
 				energyWidth.setActive(false);
 				energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
-				startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - ((Number) energyWidth.getValue()).doubleValue()/2.0);
-				endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + ((Number) energyWidth.getValue()).doubleValue()/2.0);
+				startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+						- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+				endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+						+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
 
 			} else {
 				stepEnergy.setEditable(true);
 				energyWidth.setActive(true);
-				energyWidth.setValue(((Number) endEnergy.getValue()).doubleValue() - ((Number) startEnergy.getValue()).doubleValue());
+				energyWidth.setValue(((Number) endEnergy.getValue()).doubleValue()
+						- ((Number) startEnergy.getValue()).doubleValue());
 			}
 		} finally {
 			wedidit = false;
 		}
 	}
-	
-	public static void setDropTarget (final Composite parent, final Shell shell, final RichBeanEditorPart editor) {
+
+	public static void setDropTarget(final Composite parent, final Shell shell, final RichBeanEditorPart editor) {
 		int operations = DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK;
 		DropTarget target = new DropTarget(parent, operations);
-		target.setTransfer(new Transfer[] {FileTransfer.getInstance()});
-		target.addDropListener (new DropTargetAdapter() {
+		target.setTransfer(new Transfer[] { FileTransfer.getInstance() });
+		target.addDropListener(new DropTargetAdapter() {
 			@Override
 			public void dragEnter(DropTargetEvent e) {
-				if (e.detail == DND.DROP_NONE)
+				if (e.detail == DND.DROP_NONE) {
 					e.detail = DND.DROP_LINK;
+				}
 			}
+
 			@Override
 			public void dragOperationChanged(DropTargetEvent e) {
-				if (e.detail == DND.DROP_NONE)
+				if (e.detail == DND.DROP_NONE) {
 					e.detail = DND.DROP_LINK;
+				}
 			}
+
 			@Override
 			public void drop(DropTargetEvent event) {
 				if (event.data == null) {
@@ -414,28 +469,33 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				}
 				String[] filenames = (String[]) event.data;
 				if (filenames.length > 1) {
-					MessageDialog.openError(shell, "too many files", "Please drop one file only in here.\nI cannot copy settings from multiple sources.");
+					MessageDialog.openError(shell, "too many files",
+							"Please drop one file only in here.\nI cannot copy settings from multiple sources.");
 					return;
 				}
 				ARPESScanBean bean;
 				try {
 					bean = ScanBeanFromNeXusFile.read(filenames[0]);
 					((ARPESScanBeanUIEditor) editor).replaceBean(bean);
-					((DirtyContainer) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor()).setDirty(true);
+					((DirtyContainer) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+							.getActiveEditor()).setDirty(true);
 				} catch (Exception e) {
 					logger.error("error converting nexus file to bean", e);
 					// TODO better messages for frequent cases (no analyser in file)
-					MessageDialog.openError(shell, "error reading nexus file for settings", "Analyser settings from that file could not be read.");
+					MessageDialog.openError(shell, "error reading nexus file for settings",
+							"Analyser settings from that file could not be read.");
 					return;
 				}
 				// TODO message for non-analyser parameters (exit slit, entrance slit, photon energy)
 				// TODO deal with multi-dim files
 
-				MessageDialog dialog = new MessageDialog(shell, "Save imported settings", null, "We would suggest saving this experiment under a new name now.", 
-						MessageDialog.QUESTION, new String[] { "Save as...", "Keep existing name and don't save yet" }, 0);
+				MessageDialog dialog = new MessageDialog(shell, "Save imported settings", null,
+						"We would suggest saving this experiment under a new name now.", MessageDialog.QUESTION,
+						new String[] { "Save as...", "Keep existing name and don't save yet" }, 0);
 				int result = dialog.open();
-				if (result == 0)	
+				if (result == 0) {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().doSaveAs();
+				}
 			}
 		});
 	}
