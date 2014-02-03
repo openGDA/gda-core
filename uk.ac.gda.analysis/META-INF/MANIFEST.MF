@@ -73,5 +73,5 @@ Import-Package: ncsa.hdf.hdf5lib,
  ncsa.hdf.hdf5lib.structs,
  ncsa.hdf.object,
  ncsa.hdf.object.h5,
- org.slf4j;version="[1.5.0,2.0.0)",
+ org.slf4j;version="[1.7.5,1.7.6)",
  org.springframework.beans.factory;version="3.0.4"
