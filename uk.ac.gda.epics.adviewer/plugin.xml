@@ -4,6 +4,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
+            description="Sets the exposure"
             id="uk.ac.gda.epics.adviewer.commands.setExposure"
             name="SetExposure">
          <commandParameter
@@ -13,6 +14,7 @@
          </commandParameter>
       </command>
       <command
+            description="Set MJPeg Scale"
             id="uk.ac.gda.epics.adviewer.commands.setLiveViewScale"
             name="SetLiveViewScale">
          <commandParameter
@@ -22,6 +24,7 @@
          </commandParameter>
       </command>
       <command
+            description="Zoom to fit view"
             id="uk.ac.gda.epics.adviewer.command.zoomToFit"
             name="ZoomToFit">
          <commandParameter

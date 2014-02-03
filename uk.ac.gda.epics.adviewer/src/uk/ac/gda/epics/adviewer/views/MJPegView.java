@@ -19,9 +19,19 @@
 package uk.ac.gda.epics.adviewer.views;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Vector;
 
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.IParameter;
+import org.eclipse.core.commands.Parameterization;
+import org.eclipse.core.commands.ParameterizedCommand;
+import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -31,6 +41,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandImageService;
+import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +51,7 @@ import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.Activator;
+import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
 public class MJPegView extends ViewPart {
@@ -100,7 +114,11 @@ public class MJPegView extends ViewPart {
 		}
 		setPartName(name);
 
-		createActions();
+		try {
+			createActions();
+		} catch (Exception e) {
+			logger.error("Error creating actions", e);
+		}
 		createMenu();
 		createToolbar();
 		createContextMenu();
@@ -135,26 +153,47 @@ public class MJPegView extends ViewPart {
 
 	protected void createMenu() {
 	}
-
-	protected void createActions() {
-/*		List<IAction> actions = new Vector<IAction>();			
-		{
-			IAction action = new Action("", IAction.AS_CHECK_BOX) {
-				@Override
-				public void run() {
-					mJPeg.showLeft(!mJPeg.getShowLeft());
-					this.setChecked(mJPeg.getShowLeft());
+	public static IAction addAction(String name, final String commandId, final String serviceName) throws NotDefinedException{
+		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
+			@Override
+			public void run() {
+				
+				try{
+					ICommandService cs = (ICommandService) PlatformUI.getWorkbench().getService(
+							ICommandService.class);
+					Command command = cs.getCommand(commandId);
+					
+					IParameter parameter = command.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
+					Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter,
+							serviceName	) };
+					ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
+					ExecutionEvent executionEvent = ((IHandlerService)  PlatformUI.getWorkbench().getService(
+							IHandlerService.class)).createExecutionEvent(cmd, null);
+					command.executeWithChecks(executionEvent);
 				}
-			};
-			action.setChecked(mJPeg.getShowLeft());
-			action.setToolTipText("Show/Hide Left Panel");
-			action.setImageDescriptor(Activator.getImageDescriptor("icons/show_left.png"));
-			actions.add(action);
+				catch(Exception e){
+					logger.error("Error running Set Exposure command", e);
+				}
+			}
+		};
+		
+		ICommandService cs = (ICommandService)  PlatformUI.getWorkbench().getService(ICommandService.class);
+		Command command = cs.getCommand(commandId);
+		action.setToolTipText(command.getDescription());
+		ICommandImageService service = (ICommandImageService)  PlatformUI.getWorkbench().getService(ICommandImageService.class);
+		action.setImageDescriptor(service.getImageDescriptor(commandId));
+		return action;
+	}
+	protected void createActions() throws NotDefinedException {
+		List<IAction> actions = new Vector<IAction>();			
+		{
+			actions.add(addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, config.getServiceName()));
+			actions.add(addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE, config.getServiceName()));
+			actions.add(addAction("Show Live View", "org.eclipse.ui.views.showView", config.getServiceName()));
 		}	
 		for (IAction iAction : actions) {
 			getViewSite().getActionBars().getToolBarManager().add(iAction);
-		}*/
-		
+		}
 	}
 
 	@Override
