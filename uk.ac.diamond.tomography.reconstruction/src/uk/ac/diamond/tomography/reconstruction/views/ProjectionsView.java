@@ -301,7 +301,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 									IImageTrace imageTrace = (IImageTrace) trace;
 									final IPaletteService service = (IPaletteService) PlatformUI.getWorkbench()
 											.getService(IPaletteService.class);
-									imageTrace.setPaletteData(service.getPaletteData(""));
+									imageTrace.setPaletteData(service.getDirectPaletteData(""));
 								}
 							}
 						}
