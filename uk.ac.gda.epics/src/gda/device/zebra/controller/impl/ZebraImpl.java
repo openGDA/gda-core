@@ -21,10 +21,11 @@ package gda.device.zebra.controller.impl;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.ReadOnlyPV;
+import gda.factory.Findable;
 
 import org.springframework.beans.factory.InitializingBean;
 
-public class ZebraImpl implements Zebra, InitializingBean {
+public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	final public static String connected = "CONNECTED";
 	final public static String store = "STORE";
@@ -285,6 +286,8 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		if( name == null || name.isEmpty())
+			throw new Exception("name is not set");
 		if (zebraPrefix == null || zebraPrefix.isEmpty())
 			throw new Exception("zebraPrefix is not set");
 		dev = new CachedLazyPVFactory(zebraPrefix);
@@ -346,5 +349,31 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	@Override
 	public void setOutTTL(int outId, int val) throws Exception {
 		dev.getIntegerPVValueCache("OUT"+outId+"_TTL").putWait(val);
+	}
+	
+	public void setValue(String beforeUnderscore, int beforeUnderscoreId, String afterUnderscore, int afterUnderscoreId,int val) throws Exception {
+		String pvSuffix = beforeUnderscore;
+		if (beforeUnderscoreId > 0) {
+			pvSuffix += beforeUnderscoreId;
+		}
+		pvSuffix += "_";
+		pvSuffix += afterUnderscore;
+		if (afterUnderscoreId > 0) {
+			pvSuffix += afterUnderscoreId;
+		}
+		dev.getIntegerPVValueCache(pvSuffix).putWait(val);
+	}
+
+
+	String name;
+	@Override
+	public void setName(String name) {
+		this.name=name;
+		
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}	
 }

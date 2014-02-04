@@ -76,7 +76,7 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 
 
 		getAdBase().setAcquireTime(collectionTime);
-
+		getAdBase().setAcquirePeriod(0.); //required for new IOC otherwise it remains at current value
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
 		getAdBase().setImageModeWait(ImageMode.SINGLE);

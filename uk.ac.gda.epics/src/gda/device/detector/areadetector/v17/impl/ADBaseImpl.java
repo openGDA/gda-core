@@ -1315,13 +1315,19 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	@Override
 	public void startAcquiringSynchronously() throws Exception {
+		int countBefore = getArrayCounter_RBV();
 		startAcquiring();
 		while (getStatus() != Detector.IDLE && getStatus() != Detector.FAULT) {
+			if( getAcquireState()==0)
+				throw new Exception("Camera is not acquiring but putListener has not been called");
 			Sleep.sleep(100);
 		}
 		if (getStatus() == Detector.FAULT) {
 			logger.debug("detector in a fault state");
 		}
+		int countAfter = getArrayCounter_RBV();
+		if( countAfter==countBefore)
+			throw new Exception("Acquire completed but counter did not increment");
 	}
 
 	@Override
