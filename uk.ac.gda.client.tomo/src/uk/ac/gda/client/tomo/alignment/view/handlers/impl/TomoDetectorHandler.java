@@ -228,10 +228,13 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		logger.info("Stopping acquire");
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.subTask(String.format(lbl_CAPTURING_IMAGE_AT_EXPOSURE_TIME, acqTime));
-
-		String fullFileName = getCamera().demandRaw(acqTime, getImageFilePath(), demandRawFileName, false,
-				isFlatFieldRequired, false);
-		progress.done();
+		String fullFileName="Unknown";
+		try{
+			fullFileName = getCamera().demandRaw(acqTime, getImageFilePath(), demandRawFileName, false,
+					isFlatFieldRequired, false);
+		} finally{
+			progress.done();
+		}
 		logger.info("Demand raw captured full file name");
 		return fullFileName;
 	}
