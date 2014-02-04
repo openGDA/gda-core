@@ -18,6 +18,7 @@
 
 package gda.rcp.client;
 
+import gda.configuration.properties.LocalProperties;
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
@@ -93,6 +94,8 @@ public class ReducedGUIStartup implements IStartup {
 	}
 
 	private boolean checkRunFullGUI() {
+		
+		// Override any baton behaviour if member of local staff and *do* run full gui.
 		try {
 			if (AuthoriserProvider.getAuthoriser().isLocalStaff(UserAuthentication.getUsername())) {
 				return true;
@@ -103,13 +106,19 @@ public class ReducedGUIStartup implements IStartup {
 							+ e.getMessage());
 		}
 
-		// return false if not beamline staff and the baton is held by someone on a different visit
-		IBatonStateProvider batonStateProvider = InterfaceProvider.getBatonStateProvider();
-		if (batonStateProvider.isBatonHeld()
-				&& !(batonStateProvider.getBatonHolder().getVisitID().equals(batonStateProvider.getMyDetails().getVisitID()))) {
-			logger.warn("Baton held by a user on a different visit. A reduced GUI will be run.");
-			return false;
+		// If baton management is enabled and the baton is held by someone on a different visit then *do not* run full gui.
+		if (LocalProperties.isBatonManagementEnabled()){
+
+			// return false if not beamline staff and the baton is held by someone on a different visit
+			IBatonStateProvider batonStateProvider = InterfaceProvider.getBatonStateProvider();
+			if (batonStateProvider.isBatonHeld()
+					&& !(batonStateProvider.getBatonHolder().getVisitID().equals(batonStateProvider.getMyDetails()
+							.getVisitID()))) {
+				logger.warn("Baton held by a user on a different visit. A reduced GUI will be run.");
+				return false;
+			}
 		}
+
 		return true;
 	}
 

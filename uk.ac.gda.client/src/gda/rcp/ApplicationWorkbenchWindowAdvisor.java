@@ -61,9 +61,12 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShowProgressIndicator(true);
 		configurer.setShowPerspectiveBar(usePerspectiveBar);
 		final String prefix = LocalProperties.get(LocalProperties.GDA_GUI_TITLEBAR_PREFIX);
+		final String suffix = LocalProperties.get(LocalProperties.GDA_GUI_TITLEBAR_SUFFIX);
 		String title;
 		if (prefix != null) {
 			title = prefix + " - GDA - " + gda.util.Version.getRelease();
+		} else if (suffix != null){
+			title = "GDA " + gda.util.Version.getRelease() + " " + suffix;
 		} else {
 			String beamLineName = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 			title = String.format("Data Acquisition Client - Beamline %s - %s", beamLineName == null ? "Unknown"

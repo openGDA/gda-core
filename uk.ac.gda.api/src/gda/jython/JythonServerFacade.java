@@ -486,6 +486,13 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				}
 			}
 
+			else if (data instanceof TerminalOutput) {
+				final TerminalOutput output = (TerminalOutput) data;
+				for (Terminal terminal : myTerminals) {
+					terminal.write(output.getOutput());
+				}
+			}
+
 			// pass data from a scan to all relevant guiPanels
 			else if (data instanceof IScanDataPoint) {
 

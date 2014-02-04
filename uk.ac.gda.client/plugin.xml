@@ -1020,4 +1020,10 @@
        priority="high">
      </content-type>
   </extension>
+  <extension
+        point="org.eclipse.help.contexts">
+     <contexts
+           file="help_contexts.xml">
+     </contexts>
+  </extension>
 </plugin>

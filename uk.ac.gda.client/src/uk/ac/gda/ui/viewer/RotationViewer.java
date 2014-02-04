@@ -387,6 +387,12 @@ public class RotationViewer {
 		return target;
 	}
 	
+	private Composite composite;
+	
+	public Composite getComposite() {
+		return composite;
+	}
+	
 	/**
 	 * Create widgets
 	 * @param parent composite
@@ -440,15 +446,13 @@ public class RotationViewer {
 		data.widthHint = 60;
 		data.horizontalAlignment = GridData.CENTER;	
 		
-		if (showFixedSteps){
+		if (showFixedSteps || showResetToZero) {
 			Composite buttonGroup = new Composite(otherControls, SWT.NONE);
 			GridLayoutFactory.swtDefaults().numColumns(2).margins(1,1).spacing(2,2).applyTo(buttonGroup);
 			
 			if (DEBUG_LAYOUT) {
 				buttonGroup.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
 			}
-			
-			DecimalFormat df = new DecimalFormat("###");
 			
 			if (showResetToZero) {
 				GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -483,10 +487,17 @@ public class RotationViewer {
 				});
 			}
 			
-			minusLittleButton  = createButton(buttonGroup, "-"+df.format(littleStep), null, data);
-			plusLittleButton = createButton(buttonGroup, "+"+df.format(littleStep), null, data);
-			minusBigButton  = createButton(buttonGroup, "-"+df.format(bigStep), null, data);
-			plusBigButton  = createButton(buttonGroup, "+"+df.format(bigStep), null, data);
+			if (showFixedSteps) {
+				
+				DecimalFormat df = new DecimalFormat("###");
+				
+				minusLittleButton  = createButton(buttonGroup, "-"+df.format(littleStep), null, data);
+				plusLittleButton = createButton(buttonGroup, "+"+df.format(littleStep), null, data);
+				minusBigButton  = createButton(buttonGroup, "-"+df.format(bigStep), null, data);
+				plusBigButton  = createButton(buttonGroup, "+"+df.format(bigStep), null, data);
+			}
+			
+			composite = rotationGroup;
 		}
 		
 		Composite inOutButtonsComp = new Composite(otherControls, SWT.NONE);

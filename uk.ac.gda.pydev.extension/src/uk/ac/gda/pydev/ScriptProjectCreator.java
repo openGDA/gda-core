@@ -43,12 +43,12 @@ import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimpleJythonRunner;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
@@ -57,8 +57,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.common.rcp.util.BundleUtils;
 import uk.ac.gda.jython.PydevConstants;
 import uk.ac.gda.pydev.extension.Activator;
-import uk.ac.gda.pydev.extension.builder.ConfigurationXMLNature;
-import uk.ac.gda.pydev.extension.builder.ExtendedSyntaxNature;
 import uk.ac.gda.pydev.ui.preferences.PreferenceConstants;
 import uk.ac.gda.ui.utils.ProjectUtils;
 
@@ -131,7 +129,7 @@ public class ScriptProjectCreator implements IStartup {
 			// gets the info for the python side
 			String encoding=null;
 			Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
-					REF.getFileAbsolutePath(script), executable, null, null, null, monitor, encoding);
+					FileUtils.getFileAbsolutePath(script), executable, null, null, null, monitor, encoding);
 
 			InterpreterInfo info = null;
 			try {
@@ -155,7 +153,7 @@ public class ScriptProjectCreator implements IStartup {
 			if (preferenceStore.getBoolean(PreferenceConstants.GDA_PYDEV_ADD_DEFAULT_JAVA_JARS)) {
 				List<File> jars = JavaVmLocationFinder.findDefaultJavaJars();
 				for (File jar : jars) {
-					info.libs.add(REF.getFileAbsolutePath(jar));
+					info.libs.add(FileUtils.getFileAbsolutePath(jar));
 				}
 			}
 

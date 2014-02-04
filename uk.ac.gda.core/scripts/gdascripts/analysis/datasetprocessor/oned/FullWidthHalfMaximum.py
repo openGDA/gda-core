@@ -49,11 +49,14 @@ class FullWidthHalfMaximum(XYDataSetFunction):
 	def baseline(self,xdataset, ydataset, smoothness):
 		'''find the baseline y value for a peak in y dataset'''
 		ymaxindex=ydataset.argMax()
-		result=dnp.derivative(xdataset, ydataset, smoothness)
+		if smoothness > 1:
+			wnd = dnp.ones(smoothness, dtype=dnp.float64)/smoothness
+			ydataset = dnp.convolve(ydataset, wnd, 'same')
+ 		result=dnp.gradient(ydataset, xdataset)
 		leftresult=result[:ymaxindex]
 		rightresult=result[ymaxindex+1:]
-		leftminderivativeindex=dnp.abs(leftresult).argMin()
-		rightminderivativeindex=dnp.abs(rightresult).argMin()
+		leftminderivativeindex=dnp.abs(leftresult).argmin()
+		rightminderivativeindex=dnp.abs(rightresult).argmin()
 		leftbasey=ydataset.getElementDoubleAbs(leftminderivativeindex)
 		rightbasey=ydataset.getElementDoubleAbs(rightminderivativeindex+1+leftresult.shape[0])
 		basey=(leftbasey+rightbasey)/2
@@ -78,9 +81,13 @@ class FullWidthHalfMaximum(XYDataSetFunction):
 			yslices.append(ydataset[startindex:index])
 			xslices.append(xdataset[startindex:index])
 			startindex=index+1
+		if smoothness > 1:
+			wnd = dnp.ones(smoothness, dtype=dnp.float64)/smoothness
 		for xset, yset in xslices, yslices:
-			result=dnp.derivative(xset, yset, smoothness)
-			minimumderivativeindex=dnp.abs(result).argMin()
+			if smoothness > 1:
+				yset = dnp.convolve(yset, wnd, 'same')
+	 		result=dnp.gradient(yset, xset)
+			minimumderivativeindex=dnp.abs(result).argmin()
 			bases.append((xset[minimumderivativeindex],yset[minimumderivativeindex]))
 		return bases
 

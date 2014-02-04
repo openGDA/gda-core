@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.gda.example.feature"
       label="Example_feature"
-      version="8.34.0.qualifier"
+      version="8.36.0.qualifier"
       provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
@@ -43,7 +43,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.springsource.org.apache.commons.lang"
+         id="org.apache.commons.lang"
          download-size="0"
          install-size="0"
          version="0.0.0"

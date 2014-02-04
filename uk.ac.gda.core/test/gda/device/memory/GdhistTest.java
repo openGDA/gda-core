@@ -416,9 +416,9 @@ public class GdhistTest {
 	public void testGetMemorySize() {
 		try {
 			memory.setSizeCommand("gdhist get-mem-size");
-			assertEquals(dummyDAServer.memorySize, memory.getMemorySize());
+			assertEquals(dummyDAServer.getMemorySize(), memory.getMemorySize());
 			memory.close();
-			assertEquals(dummyDAServer.memorySize, memory.getMemorySize());
+			assertEquals(dummyDAServer.getMemorySize(), memory.getMemorySize());
 		} catch (DeviceException e) {
 			fail("DeviceException should not happen "  + e.getMessage());
 		}

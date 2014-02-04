@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Client
 Bundle-SymbolicName: uk.ac.gda.common.client
-Bundle-Version: 8.34.0.qualifier
+Bundle-Version: 8.36.0.qualifier
 Bundle-Activator: uk.ac.gda.common.client.Activator
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.common;bundle-version="1.0.0",
@@ -10,7 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.diamond.org.jfree;bundle-version="1.0.0",
  uk.ac.diamond.org.jfree.chart;bundle-version="1.0.0",
- org.junit4;bundle-version="4.8.1",
  uk.ac.diamond.jama;bundle-version="1.0.1",
  org.eclipse.ui.ide;bundle-version="3.7.0",
  org.eclipse.ui;bundle-version="3.7.0",

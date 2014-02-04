@@ -18,8 +18,8 @@
 
 package gda.device.detector;
 
+import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 
 	private int filepathOutputFieldIndex = 0;
 
-	public NXDetectorDataWithFilepathForSrs(Scannable adDetector) {
+	public NXDetectorDataWithFilepathForSrs(Detector adDetector) {
 		super(adDetector);
 	}
 	public NXDetectorDataWithFilepathForSrs() {
@@ -97,11 +97,16 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 				tmpoutputFormats.add("%s");
 			}
 		}
+		int pathsHandled = (filepath!=null ? 1: 0 ) + filepaths.size();
+		
 		//miss out justDoubles entry that represents the filepath
-		Double[] extraDoubles = Arrays.copyOfRange(justTheDoubles, filepathOutputFieldIndex+1, justTheDoubles.length);
-		for (int i = 0; i < extraDoubles.length; i++) {
-			positions.add(extraDoubles[i]);
-			tmpoutputFormats.add((i < outputFormat.length) ? outputFormat[i] : "%.2f");
+		if (justTheDoubles.length > 0) {
+			Double[] extraDoubles = Arrays.copyOfRange(justTheDoubles, filepathOutputFieldIndex + pathsHandled,
+					justTheDoubles.length); //to be tested
+			for (int i = 0; i < extraDoubles.length; i++) {
+				positions.add(extraDoubles[i]);
+				tmpoutputFormats.add((i < outputFormat.length) ? outputFormat[i] : "%.2f");
+			}
 		}
 
 		StringBuilder output = new StringBuilder();

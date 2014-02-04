@@ -25,7 +25,6 @@ import java.util.Vector;
 
 import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.HDF5Constants;
-import ncsa.hdf.hdf5lib.structs.H5G_info_t;
 
 import org.nexusformat.NXlink;
 import org.nexusformat.NexusException;
@@ -65,12 +64,10 @@ public class NXLinkCreator {
 						String [] parts = path.split("/");
 						String [] pathParts = new String [parts.length];
 						String [] classParts = new String [parts.length];
-						String pathNoClass = "";
 						for( int i=0; i<parts.length; i++){
 							String [] subParts = parts[i].split(":");
 							pathParts[i] = subParts[0];
 							classParts[i] = subParts[1];
-							pathNoClass += "/" + pathParts[i];
 						}
 						
 						String pathToGroup = "";
@@ -87,16 +84,9 @@ public class NXLinkCreator {
 						fid = H5.H5Fopen(filename, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
 						
 						int gid = -1;
-						int nelems = 0;
 						gid = H5.H5Gopen(fid, pathToGroup, HDF5Constants.H5P_DEFAULT);
-						H5G_info_t info = H5.H5Gget_info(gid);
-						nelems = (int) info.nlinks;
-						//System.out.println("INFO nelems: " + nelems);
 						
-						String oname = groupName;
 						String[] linkName = new String[2]; // file name and file path
-						int t = H5.H5Lget_val(gid, oname, linkName, HDF5Constants.H5P_DEFAULT);
-						//System.out.println("  -> " + linkName[0] + " in " + linkName[1]);
 						
 						linkInfo = "nxfile://";
 						linkInfo += linkName[1] + "#" + linkName[0];

@@ -574,13 +574,6 @@
 			<bind-xml name="timeChannelRequired" node="element" />
 		</field>
 	</class>
-	<class extends="gda.device.detector.countertimer.CounterTimerBase"
-		identity="name" name="gda.device.detector.countertimer.TfgXmap">
-		<map-to xml="TfgXmap" />
-		<field name="xmapName" type="string">
-			<bind-xml name="xmapName" node="element" />
-		</field>
-	</class>
 	<!-- TfgEncoderCounter -->
 	<class extends="gda.device.detector.countertimer.CounterTimerBase"
 		identity="name" name="gda.device.detector.countertimer.TfgEncoderCounter">

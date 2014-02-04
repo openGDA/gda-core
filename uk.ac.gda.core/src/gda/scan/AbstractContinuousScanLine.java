@@ -311,22 +311,25 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		
 	}
 	
-	class ScanPositionRecorder {
+	class LocalScanPositionRecorder implements ScanPositionRecorder{
 		
 		LinkedList<Map<Scannable, RealVector>> points = 
 			new LinkedList<Map<Scannable, RealVector>>();
 
-		void startNewPoint() {
+		@Override
+		public void startNewPoint() {
 			points.add(new HashMap<Scannable, RealVector>());
 		}
 		
-		void addPositionToCurrentPoint(Scannable scannable, Object demandPosition) {
+		@Override
+		public void addPositionToCurrentPoint(Scannable scannable, Object demandPosition) {
 			double[] doublePosition = ArrayUtils.toPrimitive(PositionConvertorFunctions.toDoubleArray(demandPosition));
 			RealVector positionVector = MatrixUtils.createRealVector(doublePosition);
 			points.getLast().put(scannable, positionVector);
 		}
 		
-		List<Map<Scannable, RealVector>> getPoints() {
+		@Override
+		public List<Map<Scannable, RealVector>> getPoints() {
 			return points;
 		}
 
@@ -340,7 +343,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
 	protected Vector<HardwareTriggeredDetector> detectors = new Vector<HardwareTriggeredDetector>();
 
-	private Vector<ContinuouslyScannableViaController> scannablesToMove = new Vector<ContinuouslyScannableViaController>();
+	protected Vector<ContinuouslyScannableViaController> scannablesToMove = new Vector<ContinuouslyScannableViaController>();
 
 	ScanPositionRecorder scanPositionRecorder;
 
@@ -490,7 +493,6 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		}
 	}
 	
-	@SuppressWarnings("rawtypes")
 	@Override
 	public void doCollection() throws Exception {
 
@@ -503,9 +505,9 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			// TODO: Check the controller is not moving
 
 			if (detectorsIntegrateBetweenTriggers) {
-				scanPositionRecorder = new ScanPositionRecorder();
+				scanPositionRecorder = new LocalScanPositionRecorder();
 				for (ContinuouslyScannableViaController scn : scannablesToMove) {
-					((PositionGrabbingAdapter) scn).setRecorder(scanPositionRecorder);
+					((ScanPositionRecordable) scn).setRecorder(scanPositionRecorder);
 				}
 			}
 			
@@ -531,6 +533,9 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			getController().startMove();
 
 			// 6. Wait for completion (Scannables obtain their status from the controller)
+			while(getController().isMoving()){
+				getScanDataPointPipeline().checkForException();
+			}
 			getController().waitWhileMoving();
 			for (HardwareTriggeredDetector det : detectors) {
 				det.waitWhileBusy();

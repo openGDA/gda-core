@@ -145,12 +145,19 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 	}
 
 	boolean abortedRequested=false;
+	Object abortRequestedLock = new Object();
 	@Override
 	public void abort() {
-		logger.info("Abort called in Command Queue job, so calling InterfaceProvider.getCurrentScanController().haltCurrentScan() and InterfaceProvider.getScriptController().haltCurrentScript()");
-		InterfaceProvider.getCurrentScanController().haltCurrentScan();
-		InterfaceProvider.getScriptController().haltCurrentScript();
-		abortedRequested = true;
+		synchronized (abortRequestedLock) {
+			if(!abortedRequested){
+				logger.info("Aborting command :" + getDescription());
+				InterfaceProvider.getCurrentScanController().haltCurrentScan();
+				InterfaceProvider.getScriptController().haltCurrentScript();
+				abortedRequested = true;
+			} else {
+				logger.info("Abort ignored in command :" + getDescription());
+			}
+		}
 	}
 
 	@Override

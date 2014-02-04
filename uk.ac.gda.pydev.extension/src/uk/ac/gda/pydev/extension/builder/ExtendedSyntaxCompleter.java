@@ -28,10 +28,11 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
-import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 
 /**
  * TODO
@@ -75,6 +76,12 @@ public class ExtendedSyntaxCompleter implements IPyDevCompletionParticipant, IPy
 	@Override
 	public Collection<ICompletionProposal> computeConsoleCompletions(ActivationTokenAndQual arg0,
 			List<IPythonNature> arg1, IScriptConsoleViewer arg2, int arg3) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<IToken> getCompletionsForType(ICompletionState arg0) throws CompletionRecursionException {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -125,7 +125,8 @@ PositionCallableProvider<double[]> {
 	}
 
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		double[][] frame = readData(startFrame, finalFrame);
+//		@SuppressWarnings("unused")
+//		double[][] frame = readData(startFrame, finalFrame);
 		return readData(startFrame, finalFrame);
 	}
 	
@@ -336,4 +337,5 @@ PositionCallableProvider<double[]> {
 	public void setTtlSocket(int ttlSocket) {
 		this.ttlSocket = ttlSocket;
 	}
+
 }

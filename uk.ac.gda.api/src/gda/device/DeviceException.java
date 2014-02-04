@@ -25,6 +25,11 @@ import java.io.Serializable;
  * An Exception class specifically for {@link Device}s.
  */
 public class DeviceException extends Exception implements Serializable {
+	
+	private String deviceName;
+	private transient Device device;
+
+	
 	/**
 	 * Constructs a device exception.
 	 * 
@@ -60,4 +65,73 @@ public class DeviceException extends Exception implements Serializable {
 	public DeviceException(Throwable cause) {
 		super(cause);
 	}
+	
+	/**
+	 * Constructs a DeviceException with a name of the Device which was the cause of the exception.
+	 * 
+	 * @param deviceName
+	 * @param message
+	 */
+	public DeviceException(String deviceName, String message) {
+		this(message);
+		this.deviceName = deviceName;
+	}
+
+	/**
+	 * Constructs a DeviceException with a name of the Device which was the cause of the exception.
+	 * 
+	 * @param deviceName
+	 * @param message
+	 * @param cause
+	 */
+	public DeviceException(String deviceName, String message, Throwable cause) {
+		this(message, cause);
+		this.deviceName = deviceName;
+	}
+	
+	/**
+	 * Constructs a DeviceException with the Device which was the cause of the exception.
+	 * <p>
+	 * The object reference will be lost if this exception is serialized, but the name will be kept.
+	 * 
+	 * @param device
+	 * @param message
+	 */
+	public DeviceException(Device device, String message) {
+		this(device.getName(),message);
+		this.device = device;
+	}
+
+	/**
+	 * Constructs a DeviceException with a name of the Device which was the cause of the exception.
+	 * <p>
+	 * The object reference will be lost if this exception is serialized, but the name will be kept.
+	 * 
+	 * @param device
+	 * @param message
+	 * @param cause
+	 */
+	public DeviceException(Device device, String message, Throwable cause) {
+		this(device.getName(),message, cause);
+		this.device = device;
+	}
+
+	/**
+	 * May be not necessarily have been set.
+	 * 
+	 * @return - the Device reference
+	 */
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	/**
+	 * Will be null if the exception has been sent over CORBA - use getDeviceName() instead.
+	 * 
+	 * @return - the Device reference
+	 */
+	public Device getDevice() {
+		return device;
+	}
+
 }

@@ -56,5 +56,4 @@ public class NXSubEntryWriter extends DataWriterExtenderBase{
 
 	}
 
-};
-
+}

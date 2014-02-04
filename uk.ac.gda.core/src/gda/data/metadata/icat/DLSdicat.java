@@ -70,11 +70,6 @@ public class DLSdicat extends IcatBase {
 	 */
 	private static final String TITLE_QUERY = "TITLE";
 	
-	public DLSdicat() {
-		if (System.getProperty("user.timezone") == null) 
-			System.setProperty("user.timezone", "GMT");
-	}
-	
 	@Override
 	protected String getVisitIDAccessName() {
 		return VISIT_QUERY;
@@ -239,8 +234,24 @@ public class DLSdicat extends IcatBase {
 	private Connection connectToDatabase() throws Exception {
 		Connection connection = null;
 		Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
-		connection = DriverManager.getConnection(LocalProperties.get(URL_PROP), LocalProperties.get(USER_PROP),
-				LocalProperties.get(PASSWORD_PROP));
+		
+		java.util.Properties info = new java.util.Properties();
+		
+		final String username = LocalProperties.get(USER_PROP);
+		if (username == null) {
+			throw new RuntimeException("DiCAT username not set. Have you set the " + USER_PROP + " property?");
+		}
+		
+		final String password = LocalProperties.get(PASSWORD_PROP);
+		if (password == null) {
+			throw new RuntimeException("DiCAT password not set. Have you set the " + PASSWORD_PROP + " property?");
+		}
+		
+		info.put ("user", username);
+		info.put ("password", password);
+		info.put ("oracle.jdbc.timezoneAsRegion", "false");
+
+		connection = DriverManager.getConnection(LocalProperties.get(URL_PROP), info);
 		return connection;
 	}
 

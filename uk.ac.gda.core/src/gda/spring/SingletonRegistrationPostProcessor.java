@@ -20,9 +20,7 @@
 package gda.spring;
 
 import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.GdaMetadata;
 import gda.data.metadata.Metadata;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -34,9 +32,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * A Spring {@link BeanFactoryPostProcessor} that registers singleton objects.
  */
 public class SingletonRegistrationPostProcessor implements BeanFactoryPostProcessor {
-
 	private Logger logger = LoggerFactory.getLogger(SingletonRegistrationPostProcessor.class);
-	
 	private BeanFactory beanFactory;
 	
 	@Override

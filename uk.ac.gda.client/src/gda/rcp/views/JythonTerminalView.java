@@ -25,10 +25,12 @@ import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.jython.Terminal;
 import gda.jython.gui.JythonGuiConstants;
+import gda.rcp.GDAClientActivator;
 import gda.rcp.util.ScanDataPointFormatterUtils;
 import gda.rcp.views.dashboard.DashboardView;
 import gda.rcp.views.dashboard.SimpleScannableObject;
 import gda.scan.IScanDataPoint;
+import gda.scan.ScanCompletedEvent;
 import gda.scan.ScanDataPointFormatter;
 import gda.util.PropertyUtils;
 
@@ -71,11 +73,13 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.actions.TextViewerAction;
+import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.ClientManager;
+import uk.ac.gda.client.HelpHandler;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -142,6 +146,10 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 
 	private AutoCompleter autoCompleter;
 
+	private HelpHandler helpHandler;
+
+	private Composite root;
+
 
 	/***/
 	public JythonTerminalView() {
@@ -161,6 +169,10 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 			jsf.addIObserver(this);
 		}
 
+		Object namedService = GDAClientActivator.getNamedService(HelpHandler.class, null);
+		if( namedService != null)
+			helpHandler = (HelpHandler)namedService;
+		
 		fetchOldHistory();
 
 		// start the thread to update the output area from the buffer
@@ -175,7 +187,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		int tabSize = 4;
 
 		{
-			Composite root = new Composite(parent, SWT.NONE);
+			root = new Composite(parent, SWT.NONE);
 			root.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 			GridLayout gl = new GridLayout();
 			gl.horizontalSpacing = 0;
@@ -262,6 +274,12 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 				autoCompleter = new AutoCompleter(txtInput);
 			}
 		}
+		setHelpContextIDS();
+	}
+
+	private void setHelpContextIDS() {
+		IWorkbenchHelpSystem helpSystem = getSite().getWorkbenchWindow().getWorkbench().getHelpSystem();
+		helpSystem.setHelp(root, "uk.ac.gda.client.jython_console");
 	}
 
 	/**
@@ -307,6 +325,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 	private TextViewerAction selectAllAction;
 	private TextViewerWordWrapToggleAction wordWrapAction;
 
+
 	private void fillContextMenuForOutputBox(IMenuManager menuMgr) {
 		copyAction = new TextViewerAction(outputTextViewer, ITextOperationTarget.COPY);
 		copyAction.setText("&Copy");
@@ -341,6 +360,16 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 			}
 			// always print the point to the terminal
 			appendOutput(sdpt.toFormattedString(scanDataPointFormatter) + "\n");
+		} else if (theObserved instanceof JythonServerFacade && changeCode instanceof ScanCompletedEvent) {
+			// BEEP to info users scan completed.
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					logger.debug("======= make system beep =======");
+					PlatformUI.getWorkbench().getDisplay().beep();
+				}
+			});
 		} else if (changeCode instanceof String) {
 			String message = (String) changeCode;
 
@@ -378,6 +407,11 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 			logger.warn("UnsupportedEncodingException while converting to UTF-8 in Jython Console: " + e.getMessage(),
 					e);
 		}
+		write(output);
+	}
+
+	@Override
+	public void write(String output) {
 		appendOutput(output);
 	}
 
@@ -609,15 +643,15 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 	private void txtInput_ActionPerformed() {
 		// first intercept to see if there's any command which this panel is
 		// interested in rather than passing to the interpreter.
-		String[] parts = txtInput.getText().split(" ");
+		String inputText = txtInput.getText();
+		String[] parts = inputText.split(" ");
 		if (parts.length < 1) {
 			return;
 		}
-
 		// if its a watch
 		if (parts[0].toLowerCase().compareTo("watch") == 0) {
 			// print out what was typed
-			appendOutput(this.txtPrompt.getText() + txtInput.getText() + "\n");
+			appendOutput(this.txtPrompt.getText() + inputText + "\n");
 			
 			try {
 				DashboardView dashboard = (DashboardView)PlatformUI.
@@ -628,12 +662,30 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 						dashboard.addServerObject(new SimpleScannableObject(parts[i]));
 					}
 				}
-				addCommandToHistory(txtInput.getText());
+				addCommandToHistory(inputText);
 			} catch (PartInitException e) {
-				// TODO Auto-generated catch block
 				logger.error("Failed to get DashboardView", e);
 			}
 			txtInput.setText("");
+		}
+		else if ((helpHandler != null) && (parts[0].toLowerCase().compareTo("help") == 0)) {
+			boolean handled = false;
+			StringBuffer buf = new StringBuffer();
+			try {
+				handled = helpHandler.handle(inputText, buf);
+			} catch (Exception e) {
+				logger.error("Error handling " + inputText, e);
+			}
+			if( handled){
+				appendOutput(this.txtPrompt.getText() + inputText + "\n");
+				if( buf.length()>0){
+					appendOutput(buf.toString() + "\n");
+				}
+				addCommandToHistory(inputText);
+				txtInput.setText("");
+			} else {
+				uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName()).start();
+			}
 		}
 		// if its the history command
 		else if (parts[0].toLowerCase().compareTo("history") == 0) {
@@ -653,7 +705,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		}
 		// repeat old commands
 		else if (parts[0].startsWith("!")) {
-			String stringToMatch = txtInput.getText().substring(1);
+			String stringToMatch = inputText.substring(1);
 
 			// if stringToMatch is a number, then use that command
 			if (stringIsAnInteger(stringToMatch)) {
@@ -688,14 +740,14 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		else if (parts[0].toLowerCase().compareTo("record") == 0) {
 			if (parts[1].toLowerCase().compareTo("on") == 0) {
 				startNewOutputFile();
-				appendOutput(this.txtPrompt.getText() + txtInput.getText() + "\n");
-				addCommandToHistory(txtInput.getText());
+				appendOutput(this.txtPrompt.getText() + inputText + "\n");
+				addCommandToHistory(inputText);
 			}
 
 			else if (parts[1].toLowerCase().compareTo("off") == 0) {
 				// print out what was typed
-				appendOutput(this.txtPrompt.getText() + txtInput.getText() + "\n");
-				addCommandToHistory(txtInput.getText());
+				appendOutput(this.txtPrompt.getText() + inputText + "\n");
+				addCommandToHistory(inputText);
 				closeOutputFile();
 			}
 			txtInput.setText("");
@@ -1112,4 +1164,6 @@ class SimpleOutputUpdater implements Runnable {
 			}
 		}
 	}
+	
+	
 }

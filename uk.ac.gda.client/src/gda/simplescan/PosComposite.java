@@ -107,7 +107,7 @@ public class PosComposite extends Composite {
 
 		Label lblTo = new Label(composite_2, SWT.NONE);
 		lblTo.setText("Go to");
-		new Label(composite_2, SWT.NONE);
+		createEmptyLabel(composite_2);
 		textTo = new ScaleBox(composite_2, SWT.NONE);
 
 		textTo.getControl().addKeyListener(new KeyAdapter() {
@@ -125,25 +125,25 @@ public class PosComposite extends Composite {
 			}
 		});
 		textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		new Label(textTo, SWT.NONE);
-		new Label(composite_2, SWT.NONE);
-
-		final Button btnStop = new Button(composite_2, SWT.NONE);
-		GridData gd_btnStop = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_btnStop.widthHint = 55;
-		btnStop.setLayoutData(gd_btnStop);
-		btnStop.addSelectionListener(new SelectionAdapter() {
+		createEmptyLabel(textTo);
+		createEmptyLabel(composite_2);
+		
+		Button btnGo = new Button(composite_2, SWT.NONE);
+		btnGo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnGo.setText("Go");
+		
+		btnGo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				performStop();
+				performPos();
 			}
 		});
-		btnStop.setText("Stop");
-		btnStop.setEnabled(false);
+		btnGo.setEnabled(true);
 		
-				Label lblReadback = new Label(composite_2, SWT.NONE);
-				lblReadback.setText("Readback");
-		new Label(composite_2, SWT.NONE);
+		
+		Label lblReadback = new Label(composite_2, SWT.NONE);
+		lblReadback.setText("Readback");
+		createEmptyLabel(composite_2);
 
 		Composite incrementNuggeComp = new Composite(composite_2, SWT.NONE);
 		GridData gd_incrementNuggeComp = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -184,28 +184,40 @@ public class PosComposite extends Composite {
 		});
 		btnIncrement.setText("+");
 		btnIncrement.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
-		new Label(composite_2, SWT.NONE);
+		createEmptyLabel(composite_2);
+		
+		final Button btnStop = new Button(composite_2, SWT.NONE);
+		GridData gd_btnStop = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnStop.widthHint = 55;
+		btnStop.setLayoutData(gd_btnStop);
+		btnStop.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				performStop();
+			}
+		});
+		btnStop.setText("Stop");
+		btnStop.setEnabled(false);
 
+		Label lblIncrement = new Label(composite_2, SWT.NONE);
+		lblIncrement.setText("Increment");
+		createEmptyLabel(composite_2);
+
+		incrementVal = new Text(composite_2, SWT.BORDER);
+		incrementVal.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		incrementVal.setText("1");
+		createEmptyLabel(composite_2);
+
+		updateScannables();
+		
 		final Label lblStatus = new Label(composite_2, SWT.NONE);
 		GridData gd_lblStatus = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_lblStatus.widthHint = 55;
 		lblStatus.setLayoutData(gd_lblStatus);
 		lblStatus.setText("     Idle     ");
-
-		Label lblIncrement = new Label(composite_2, SWT.NONE);
-		lblIncrement.setText("Increment");
-		new Label(composite_2, SWT.NONE);
-
-		incrementVal = new Text(composite_2, SWT.BORDER);
-		incrementVal.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		incrementVal.setText("1");
-		new Label(composite_2, SWT.NONE);
-
-		updateScannables();
-
+		
 		try {
 			setMotorLimits(bean.getScannableName(), textTo);
-			new Label(composite_2, SWT.NONE);
 		} catch (Exception e2) {
 		}
 		updateReadback();
@@ -248,6 +260,8 @@ public class PosComposite extends Composite {
 						public void run() {
 							updateReadback();
 							lblStatus.setText(" Moving  ");
+							btnDecrement.setEnabled(false);
+							btnIncrement.setEnabled(false);
 							btnStop.setEnabled(true);
 						}
 					});
@@ -257,6 +271,8 @@ public class PosComposite extends Composite {
 					public void run() {
 						updateReadback();
 						lblStatus.setText("     Idle     ");
+						btnDecrement.setEnabled(true);
+						btnIncrement.setEnabled(true);
 						btnStop.setEnabled(false);
 					}
 				});
@@ -280,10 +296,7 @@ public class PosComposite extends Composite {
 	private void performIncrement() {
 		scannable = scannableName.getItem(scannableName.getSelectionIndex());
 		double increment = Double.parseDouble(incrementVal.getText());
-		double scannablePos = Double.parseDouble(JythonServerFacade.getInstance().evaluateCommand(
-				bean.getScannableName() + "()"));
-		double demand = scannablePos + increment;
-		String command = scannable + "(" + demand + ")";
+		String command = scannable + "(" + scannable + "()+"+ increment + ")";
 		JythonServerFacade.getInstance().runCommand(command);
 		try {
 			Thread.sleep(100);
@@ -295,10 +308,7 @@ public class PosComposite extends Composite {
 	private void performDecrement() {
 		scannable = scannableName.getItem(scannableName.getSelectionIndex());
 		double decrement = Double.parseDouble(incrementVal.getText());
-		double scannablePos = Double.parseDouble(JythonServerFacade.getInstance().evaluateCommand(
-				bean.getScannableName() + "()"));
-		double demand = scannablePos - decrement;
-		String command = scannable + "(" + demand + ")";
+		String command = scannable + "(" + scannable + "()+-"+ decrement + ")";
 		JythonServerFacade.getInstance().runCommand(command);
 		try {
 			Thread.sleep(100);
@@ -348,9 +358,9 @@ public class PosComposite extends Composite {
 	}
 
 	public void updateReadback() {
-		double scannablePos = Double.parseDouble(JythonServerFacade.getInstance().evaluateCommand(
-				bean.getScannableName() + "()"));
-		lblReadbackVal.setText(String.valueOf(scannablePos));
+		String command = "java.lang.String.format("+ bean.getScannableName()+".getOutputFormat()[0],"+ bean.getScannableName()+"())";
+		String formattedPos = JythonServerFacade.getInstance().evaluateCommand(command);
+		lblReadbackVal.setText(formattedPos);
 	}
 
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
@@ -374,4 +384,10 @@ public class PosComposite extends Composite {
 	public void setBean(SimpleScan bean) {
 		this.bean = bean;
 	}
+	
+	@SuppressWarnings("unused")
+	private void createEmptyLabel(Composite composite){
+		new Label(composite, SWT.NONE);
+	}
+	
 }

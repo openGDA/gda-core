@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GDA specific PyDev Extension
 Bundle-SymbolicName: uk.ac.gda.pydev.extension;singleton:=true
-Bundle-Version: 8.34.0.qualifier
+Bundle-Version: 8.36.0.qualifier
 Bundle-Activator: uk.ac.gda.pydev.extension.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -14,25 +14,29 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.navigator;bundle-version="3.4.1",
  org.eclipse.ui.editors;bundle-version="3.5.0",
  org.eclipse.jface.text,
- org.python.pydev;bundle-version="[2.6.0.2012080908,2.7.0)",
- org.python.pydev.ast;bundle-version="[2.6.0.2012080908,2.7.0)",
- org.python.pydev.core;bundle-version="[2.6.0.2012080908,2.7.0)",
- org.python.pydev.customizations;bundle-version="[2.6.0.2012080908,2.7.0)",
- org.python.pydev.debug;bundle-version="[2.6.0.2012080908,2.7.0)",
- org.python.pydev.help;bundle-version="[2.6.0.2012080908,2.7.0)",
- org.python.pydev.jython;bundle-version="[2.6.0.2012080908,2.7.0)",
- org.python.pydev.parser;bundle-version="[2.6.0.2012080908,2.7.0)",
- org.python.pydev.refactoring;bundle-version="[2.6.0.2012080908,2.7.0)",
- com.python.pydev;bundle-version="[2.6.0.2012080908,2.7.0)",
- com.python.pydev.analysis;bundle-version="[2.6.0.2012080908,2.7.0)",
- com.python.pydev.codecompletion;bundle-version="[2.6.0.2012080908,2.7.0)",
- com.python.pydev.debug;bundle-version="[2.6.0.2012080908,2.7.0)",
- com.python.pydev.fastparser;bundle-version="[2.6.0.2012080908,2.7.0)",
- com.python.pydev.refactoring;bundle-version="[2.6.0.2012080908,2.7.0)",
+ org.python.pydev;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.ast;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.core;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.customizations;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.debug;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.help;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.jython;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.parser;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.refactoring;bundle-version="[3.3.3,3.4.0)",
+ com.python.pydev;bundle-version="[3.3.3,3.4.0)",
+ com.python.pydev.analysis;bundle-version="[3.3.3,3.4.0)",
+ com.python.pydev.codecompletion;bundle-version="[3.3.3,3.4.0)",
+ com.python.pydev.debug;bundle-version="[3.3.3,3.4.0)",
+ com.python.pydev.fastparser;bundle-version="[3.3.3,3.4.0)",
+ com.python.pydev.refactoring;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.shared_interactive_console;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.shared_core;bundle-version="[3.3.3,3.4.0)",
+ org.python.pydev.shared_ui;bundle-version="[3.3.3,3.4.0)",
  uk.ac.gda.common.client,
  uk.ac.gda.common.rcp,
  uk.ac.gda.common,
- uk.ac.gda.core
+ uk.ac.gda.core,
+ org.eclipse.ui.navigator.resources;bundle-version="3.4.400"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: gda.jython,

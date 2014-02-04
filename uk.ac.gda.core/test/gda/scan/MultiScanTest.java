@@ -26,13 +26,13 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
 import gda.device.continuouscontroller.ContinuousMoveController;
-import gda.device.detector.DetectorBase;
 import gda.device.detector.HardwareTriggeredNXDetector;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.NXPluginBase;
 import gda.device.motor.TotalDummyMotor;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
@@ -57,9 +57,8 @@ import org.slf4j.LoggerFactory;
 public class MultiScanTest {
 
 	
-	@SuppressWarnings("rawtypes")
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 	}
 	
 	
@@ -107,7 +106,7 @@ public class MultiScanTest {
 		htd.setName("htd");
 		htd.setHardwareTriggerProvider(cmc);
 		htd.setCollectionStrategy(new MyCSP());
-		htd.setAdditionalPluginList(Arrays.asList(new NXPlugin[]{new MyNXPlugin()}));
+		htd.setAdditionalPluginList(Arrays.asList(new NXPluginBase[]{new MyNXPlugin()}));
 		htd.afterPropertiesSet();
 		htd.configure();
 		
@@ -243,43 +242,33 @@ class MyCMC extends ScannableBase implements ConstantVelocityMoveController{
 	}
 	@Override
 	public boolean isBusy() throws DeviceException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {
 		logger.info("prepareForMove");
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void startMove() throws DeviceException {
 		logger.info("startMove");
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public boolean isMoving() throws DeviceException {
 		logger.info("isMoving");
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void waitWhileMoving() throws DeviceException, InterruptedException {
 		logger.info("waitWhileMoving");
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void stopAndReset() throws DeviceException, InterruptedException {
 		logger.info("stopAndReset");
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -304,54 +293,40 @@ class MyCMC extends ScannableBase implements ConstantVelocityMoveController{
 }
 
 
-class MyCSP implements NXCollectionStrategyPlugin{
+class MyCSP implements NXCollectionStrategyPlugin, NXPlugin {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean willRequireCallbacks() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void prepareForLine() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void completeLine() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void completeCollection() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void stop() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -378,65 +353,54 @@ class MyCSP implements NXCollectionStrategyPlugin{
 
 	@Override
 	public double getAcquireTime() throws Exception {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public double getAcquirePeriod() throws Exception {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void collectData() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public int getStatus() throws Exception {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void waitWhileBusy() throws InterruptedException, Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void setGenerateCallbacks(boolean b) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public boolean isGenerateCallbacks() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 	
+	@Override
+	public boolean requiresAsynchronousPlugins() {
+		return true;
+	}	
 }
 
 class MyNXPlugin implements NXPlugin{
@@ -462,44 +426,31 @@ class MyNXPlugin implements NXPlugin{
 
 	@Override
 	public boolean willRequireCallbacks() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void prepareForLine() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void completeLine() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void completeCollection() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void stop() throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -511,5 +462,4 @@ class MyNXPlugin implements NXPlugin{
 	public List<String> getInputStreamFormats() {
 		return Collections.emptyList();
 	}
-	
 }

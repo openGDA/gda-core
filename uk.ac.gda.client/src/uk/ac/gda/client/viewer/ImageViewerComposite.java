@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
 import org.dawnsci.plotting.jreality.tool.ImagePositionListener;
+import org.dawnsci.plotting.services.util.GlobalColourMaps;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
@@ -66,8 +67,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
 
 /**
  * Composite to preview images. The composite is self contained with zoom and panning options similar to the QT viewer

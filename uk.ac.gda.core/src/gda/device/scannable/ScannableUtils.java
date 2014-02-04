@@ -498,28 +498,37 @@ public abstract class ScannableUtils {
 		// the expected size of the start, stop and step objects
 		int numArgs = theScannable.getInputNames().length;
 
-		// if there is a mismatch to the position object and the Scannable, throw an error
-		if (numArgs == 1 && (start.getClass().isArray() || start instanceof PySequence)) {
-			throw new Exception("Position arguments do not match size of Pseudo Device: " + theScannable.getName()
-					+ ". Check size of inputNames and outputFormat arrays for this object.");
+		int numArrayParam = 0;
+		
+		if (start.getClass().isArray()) {
+			numArrayParam = ((Object[]) start).length;
+		} else if (start instanceof PySequence) {
+			numArrayParam = ((PySequence) start).__len__();
 		}
 
 		// if position objects are a single value, or if no inputNames
-		if (numArgs <= 1) {
+		if (numArgs <= 1 && numArrayParam == 0) {
 			Double startValue = Double.valueOf(start.toString());
 			Double stopValue = Double.valueOf(stop.toString());
 			Double stepValue = Math.abs(Double.valueOf(step.toString()));
+			if (stepValue == 0)
+				throw new Exception("Step size is zero so number of points cannot be calculated");
 			int numSteps = getNumberSteps(startValue, stopValue, stepValue);
-			if (numSteps == 0)
-				throw new Exception("step size is zero so number of points cannot be calculated");
 			return numSteps;
 		}
+		
+		// if there is a mismatch to the position object and the Scannable, throw an error
+		if (numArgs != numArrayParam) {
+			throw new Exception("Position arguments do not match size of Pseudo Device: " + theScannable.getName()
+					+ ". Check size of inputNames array for this object.");
+		}
+
 
 		// ELSE position objects are an array
 		int maxSteps = 0;
 		int minSteps = java.lang.Integer.MAX_VALUE;
 		// Loop through each field
-		for (int i = 0; i < theScannable.getInputNames().length; i++) {
+		for (int i = 0; i < numArgs; i++) {
 			Double startValue = getDouble(start, i);
 			Double stopValue = getDouble(stop, i);
 			Double stepValue = getDouble(step, i);
@@ -707,13 +716,13 @@ public abstract class ScannableUtils {
 	}
 
 	/**
-	 * Converts a Jython PyObject into its Java equivilent if that is possible. This only works on the sorts of objects
+	 * Converts a Jython PyObject into its Java equivalent if that is possible. This only works on the sorts of objects
 	 * dealt with in the Jython environment i.e. Strings, integers, floats (doubles) and arrays of these.
 	 * <P>
 	 * If this fails or cannot work for any reason then null is returned.
 	 * 
 	 * @param object
-	 * @return Java equivilent object
+	 * @return Java equivalent object
 	 */
 	public static Object convertToJava(PyObject object) {
 

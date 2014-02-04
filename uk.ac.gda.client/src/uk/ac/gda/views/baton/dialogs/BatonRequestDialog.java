@@ -19,6 +19,7 @@
 package uk.ac.gda.views.baton.dialogs;
 
 import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.BatonRequested;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.rcp.GDAClientActivator;
 
@@ -48,6 +49,11 @@ public class BatonRequestDialog extends Dialog {
 	
 	private static final Logger logger = LoggerFactory.getLogger(BatonRequestDialog.class);
 	
+	public static void doPassBaton(Shell shell, final BatonRequested request) {
+		final boolean keepBaton = GDAClientActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.KEEP_BATON);
+		BatonRequestDialog.openPassBatonForm(shell, request.getRequester(), keepBaton);
+	}
+
 	private Label lblARequestFor;
 	private ClientDetails request;
 	private boolean open = true;

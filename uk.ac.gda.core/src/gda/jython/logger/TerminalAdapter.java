@@ -39,7 +39,12 @@ class TerminalAdapter implements Terminal{
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		logger.log(msg);
+		write(msg);
+	}
+
+	@Override
+	public void write(String output) {
+		logger.log(output);
 	}
 
 	@Override

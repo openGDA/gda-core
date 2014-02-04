@@ -42,6 +42,7 @@ import gda.util.OSCommandRunner;
 import gda.util.ScannableLevelComparator;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +51,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import org.python.core.PyException;
 import org.slf4j.Logger;
@@ -62,7 +64,27 @@ import uk.ac.gda.util.ThreadManager;
  */
 public abstract class ScanBase implements Scan {
 
+	/**
+	 * Name of property to control the clearing of interrupted flag in ScanBase at end of a scan.
+	 * If not set or is False then 
+	 *  - checkForInterrupts does nothing if the ScanStatus is IDLE
+	 *  - checkForInterrupts sets ScanStatus to IDLE if interrupted flag is true 
+	 *  
+	 *  If set to True then:
+	 *   - in runScan interrupted is set to false
+	 *   
+	 *  The intention is to test the behaviour and then switch to it if OK
+	 */
+	@Deprecated
+	private static final String GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END = "gda.scan.clearInterruptAtScanEnd";
+	
+	private static boolean clearInterruptedAtScanEnd() {
+		return LocalProperties.check(GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END,true);
+	}
+	
+
 	public static final String GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST = "gda.scanbase.firstScanNumber";
+	public static final String GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL= "gda.scanbase.printTimestamp";
 
 	static public volatile boolean explicitlyHalted = false;
 
@@ -173,6 +195,7 @@ public abstract class ScanBase implements Scan {
 	private Long _scanNumber=null;
 	
 	protected boolean callCollectDataOnDetectors = true;
+
 	
 	@Override
 	public Long getScanNumber() {
@@ -221,16 +244,24 @@ public abstract class ScanBase implements Scan {
 	 * @throws InterruptedException
 	 */
 	public static void checkForInterrupts() throws InterruptedException {
-		
-		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
-			//do not reset as if the scan thread detects this and so goes idle other threads related to the scan will not get the interruption
-			//we should clear the interruption at the start of the scan instead
-//			paused = false;
-//			interrupted = false; 
+
+		if (!clearInterruptedAtScanEnd() && InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
 			return;
 		}
 
-		
+		checkForInterruptsIgnoreIdle();
+	}
+	
+	/*
+	 * Should only be called by Scan objects, as they should be aborted if the flag is set irrespective of the Command
+	 * Server status.
+	 * 
+	 * The use of this function is not recommended as it has the side effect of changing scan status to idle. If all you want to
+	 * is to check if the scan has been interrupted then simply call isInterrupted
+	 * 
+	 * @throws InterruptedException
+	 */
+	final protected static void checkForInterruptsIgnoreIdle() throws InterruptedException {
 		try {
 			if (paused & !interrupted) {
 				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.PAUSED);
@@ -242,19 +273,9 @@ public abstract class ScanBase implements Scan {
 		} catch (InterruptedException ex) {
 			interrupted = true;
 		}
-
-		checkForInterruptsIgnoreIdle();
-	}
-	
-	/*
-	 * Should only be called by Scan objects, as they should be aborted if the flag is set irrespective of the Command
-	 * Server status.
-	 * 
-	 * @throws InterruptedException
-	 */
-	protected static void checkForInterruptsIgnoreIdle() throws InterruptedException {
 		if (interrupted) {
-			InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
+			if (!clearInterruptedAtScanEnd())
+				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
 			throw new InterruptedException();
 		}
 	}
@@ -362,6 +383,7 @@ public abstract class ScanBase implements Scan {
 	public static void waitForScanEnd() throws InterruptedException {
 		try {
 			while (InterfaceProvider.getScanStatusHolder().getScanStatus() != Jython.IDLE) {
+				checkForInterrupts();
 				Thread.sleep(1000);
 			}
 			checkForInterrupts();
@@ -478,9 +500,11 @@ public abstract class ScanBase implements Scan {
 	
 	/**
 	 * Blocks while detectors are readout and point is added to pipeline (for the previous point).
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
 	 */
-	@SuppressWarnings("unused") // subclasses may throw Exceptions
-	public void waitForDetectorReadoutAndPublishCompletion() throws Exception {
+	@SuppressWarnings("unused")
+	public void waitForDetectorReadoutAndPublishCompletion() throws InterruptedException, ExecutionException {
 		// Do nothing as readoutDetectorsAndPublish blocks until complete.
 	}
 	
@@ -573,24 +597,22 @@ public abstract class ScanBase implements Scan {
 				for (Scannable scannable : allDetectors) {
 					scannable.stop();
 				}
-			} finally  {
+			} finally {
 				// disengage with the data handler, in case this scan is
 				// restarted
 				try {
-					final int SECONDS_TO_WAIT = 10;
-					report("Allowing up to " + SECONDS_TO_WAIT + "s for collected points to be written");
-
 					if (scanDataPointPipeline != null) {
+						final int SECONDS_TO_WAIT = 10;
+						report("Scan interrupted, so allow up to " + SECONDS_TO_WAIT + "s for collected points to be written to file");
 						scanDataPointPipeline.shutdown(SECONDS_TO_WAIT * 1000);
 					}
 				} catch (DeviceException e) {
-					report(e.getMessage());  // The pipeline did not shutdown in the time provided and was harshly shutdown. No need to raise this.
+					report(e.getMessage()); // The pipeline did not shutdown in the time provided and was harshly shutdown. No need to raise this.
 				} catch (InterruptedException e) {
 					// TODO endScan should throw InteruptedException
 					throw new DeviceException("Problem shutting down scan pipeline while completing and interurupted scan.", e);
 				}
 			}
-
 
 		} else { // NOTE: Code will come through here even if there has been an exception in the run method.
 			if (getChild() == null) {
@@ -600,20 +622,19 @@ public abstract class ScanBase implements Scan {
 				} catch (Exception e) {
 					throw new DeviceException(e);
 				}
-				// call the atEnd method of all the scannables
-
 				callScannablesAtScanLineEnd();
 			}
 
 			// if a standalone scan, or the top-level scan in a nest of scans
 			if (!isChild() ) { // FIXME: Move all !isChild() logic up into runScan
-
 				callScannablesAtScanEnd();
 
 				callDetectorsEndCollection();
 
+
 				shutdownScandataPipieline();
 				signalScanComplete();
+
 			}
 		}
 		if (!isChild()) {  // FIXME: Move all !isChild() logic up into runScan
@@ -647,6 +668,11 @@ public abstract class ScanBase implements Scan {
 		}
 
 		getTerminalPrinter().print("Scan complete.");
+		if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
+			java.util.Date date= new java.util.Date();
+			getTerminalPrinter().print("=== Scan ended at "+new Timestamp(date.getTime()).toString()+" ===");
+		}
+		getJythonServerNotifer().notifyServer(this, new ScanCompletedEvent());
 	}
 
 	protected void shutdownScandataPipieline() throws DeviceException {
@@ -1136,9 +1162,15 @@ public abstract class ScanBase implements Scan {
 	
 	@Override
 	public void runScan() throws InterruptedException, Exception {
+		boolean scanWasInterrupted=false;
 		if (getScanStatusHolder().getScanStatus() != Jython.IDLE) {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
 		}
+		if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
+			java.util.Date date= new java.util.Date();
+			getTerminalPrinter().print("=== Scan started at "+new Timestamp(date.getTime()).toString()+" ===");
+		}
+
 		try {
 			// check if a scan or script is currently running.
 			if (this.isChild()) {
@@ -1149,6 +1181,7 @@ public abstract class ScanBase implements Scan {
 			run();
 		} finally {
 			
+			scanWasInterrupted = isInterrupted();
 			// Leaving interrupted true (if it is) allows jython scripts running
 			// Scans to checkForInterrupts and so end 'for' loops sensibly.
 			// (It is set to false at the start of a scan anyway).
@@ -1159,13 +1192,22 @@ public abstract class ScanBase implements Scan {
 			// nb moved this until after batonTaken is false as we use the flag
 			// to check for scan end.
 			getScanStatusHolder().setScanStatus(Jython.IDLE);
+
+			if( clearInterruptedAtScanEnd())
+				setInterrupted(false);
+		
 		}
 
-		if (interrupted) {
+		if (scanWasInterrupted) {
 			logger.info("Scan interupted ScanBase.interupted flag");
+			if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
+				java.util.Date date= new java.util.Date();
+				getTerminalPrinter().print("=== Scan interrupted at "+new Timestamp(date.getTime()).toString()+" ===");
+			}
 			throw new InterruptedException("Scan interrupted");
 		}
 	}
+
 
 	@Override
 	public void setChild(Scan child) {
@@ -1336,7 +1378,7 @@ public abstract class ScanBase implements Scan {
 		if (interrupted == ScanBase.interrupted) 
 			return;
 		
-		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+		if (!clearInterruptedAtScanEnd() && (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE)) {
 			String msg = MessageFormat.format("interrupted flag set from {0} to {1} by thread :''{2}'' while idle -- ignored",
 					ScanBase.interrupted, interrupted, Thread.currentThread().getName());
 			logger.info(msg);

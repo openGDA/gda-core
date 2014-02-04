@@ -51,6 +51,15 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 	 */
 	public void acquireDarkCurrent() throws Exception {
 		darkCurrent = null;
+		
+		
+		if (isBusy()){
+			logger.info(getName() + " acquiring dark current. Waiting until last collection is complete first.");
+			waitWhileBusy();
+		} else {
+			logger.info(getName() + " acquiring dark current.");
+		}
+		
 
 		clearFrameSets();
 

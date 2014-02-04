@@ -127,6 +127,9 @@ public class PreferenceConstants {
 	 */
 	public static final String GDA_COMMAND_QUEUE_DISABLE_JYTHON_CONTROLS = "gda.commandqueue.disablejythoncontrols";
 
+	/**
+	 * org.dawb.workbench.editor.H5Editor gives the Data tab but it does not load external files
+	 */
 	public static final String GDA_DEFAULT_NXS_HDF5_EDITOR_ID = "gda.default.nxs_hdf5.editor.id";
 
 }

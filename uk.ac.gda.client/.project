@@ -3,6 +3,9 @@
 	<name>uk.ac.gda.client</name>
 	<comment></comment>
 	<projects>
+		<project>uk.ac.diamond.scisoft.analysis</project>
+		<project>uk.ac.diamond.scisoft.analysis.api</project>
+		<project>uk.ac.diamond.scisoft.analysis.plotserver</project>
 		<project>uk.ac.gda.client.test</project>
 	</projects>
 	<buildSpec>

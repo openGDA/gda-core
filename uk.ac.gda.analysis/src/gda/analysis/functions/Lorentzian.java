@@ -72,11 +72,20 @@ public class Lorentzian extends uk.ac.diamond.scisoft.analysis.fitting.functions
 		super(minPeakPosition, maxPeakPosition, maxHeight, maxHalfWidth);
 	}
 
-	@Override
 	public Lorentzian createPeakFunction(double minPosition, double maxPosition, double maxArea, double maxFWHM) {
 		double maxHalfWidth = maxFWHM / 2;
 		double maxHeight = 2 * maxArea / maxHalfWidth; // triangular approximation of the max height of the peak.
 		return new Lorentzian(minPosition, maxPosition, maxHeight, maxHalfWidth);
+	}
+
+	@Override
+	public DataSet makeDataSet(DoubleDataset... values) {
+		return DataSet.convertToDataSet(calculateValues(values));
+	}
+
+	@Override
+	public void disp() {
+		TerminalPrinter.print(toString());
 	}
 
 	@Override
@@ -85,12 +94,12 @@ public class Lorentzian extends uk.ac.diamond.scisoft.analysis.fitting.functions
 	}
 
 	@Override
-	public DataSet makeDataSet(DoubleDataset... values) {
-		return DataSet.convertToDataSet(makeSerialDataset(values));
+	public String getParameterName(int index) {
+		return getParameter(index).getName();
 	}
 
 	@Override
-	public void disp() {
-		TerminalPrinter.print(toString());
+	public void setParameterName(String name, int index) {
+		getParameter(index).setName(name);
 	}
 }

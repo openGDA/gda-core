@@ -189,7 +189,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 	public void update(final Object source, final Object arg) {
 
 		try {
-			if (arg instanceof ScriptControllerLogResults && updateViewLock.tryLock(100, TimeUnit.MILLISECONDS)) {
+			if (arg instanceof ScriptControllerLogResults && updateViewLock.tryLock(10, TimeUnit.MILLISECONDS)) {
 				final ScriptControllerLogResults temp = (ScriptControllerLogResults) arg;
 				try {
 					addToKnowScripts(temp.getScriptName());

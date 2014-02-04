@@ -43,15 +43,19 @@ public interface ContinuouslyScannable extends ScannableMotionUnits {
 
 	/**
 	 * Prepare hardware for the continuous move. This assumes that continuous parameters have been supplied.
-	 * <p>
+
+	 * @throws DeviceException
+	 */
+	public void prepareForContinuousMove() throws DeviceException;
+
+	/**
 	 * The actual hardware might not be able to return exactly the numbner of points requested. This method returns the
 	 * actaul number the scan should expect.
 	 * 
 	 * @return int - the number of data points which would be actually returned based on the given ContinuousParameters
-	 * @throws DeviceException
 	 */
-	public int prepareForContinuousMove() throws DeviceException;
-
+	public int getNumberOfDataPoints();
+	
 	/**
 	 * Perform the move based on the supplied continuous parameters.
 	 * 

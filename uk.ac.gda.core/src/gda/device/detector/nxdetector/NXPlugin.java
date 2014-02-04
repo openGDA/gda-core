@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,33 +18,9 @@
 
 package gda.device.detector.nxdetector;
 
-import java.util.List;
-
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.scannable.PositionInputStream;
-import gda.scan.ScanInformation;
 
-
-public interface NXPlugin extends PositionInputStream<NXDetectorDataAppender> {
-	
-	String getName(); // For naming within the context of the ADDetecoctor instance. e.g. from Jython: pilatus.roi1
-	
-	boolean willRequireCallbacks();
-
-	void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception;
-	
-	void prepareForLine() throws Exception;
-
-	void completeLine() throws Exception;
-
-	void completeCollection() throws Exception;
-	
-	void atCommandFailure() throws Exception;
-
-	void stop() throws Exception;
-	
-	List<String> getInputStreamNames();
-
-	List<String> getInputStreamFormats();
+public interface NXPlugin extends NXPluginBase, PositionInputStream<NXDetectorDataAppender>  {
 
 }

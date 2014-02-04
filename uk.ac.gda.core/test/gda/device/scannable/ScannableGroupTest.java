@@ -238,6 +238,30 @@ public class ScannableGroupTest extends TestCase {
 	 * @throws Exception
 	 */
 	@Test
+	public void testInputAndExtraOrder() throws Exception {
+		
+		Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"}, 
+				new String[] {"%1.1g","%2.2g","%3.3f"},5,new Double[]{10.,20.,3.});
+		Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input3"}, new String[0], new String[] {"%4.4g"},5,10.);
+		Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra2"}, new String[] {"%5.5g"},5,.901);
+		
+		ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1,s2,s3});
+		
+		String[] inputNames = group.getInputNames();
+		String[] extraNames = group.getExtraNames();
+		String[] outputFormat = group.getOutputFormat();
+		Object[] position = (Object[]) group.getPosition();
+
+		assertArraysEqual(new String[] {"input1", "input2","input3"}, inputNames);
+		assertArraysEqual(new String[] {"extra1", "extra2"}, extraNames);
+		// GDA-5794 from here
+		assertArraysEqual(new Object[] {10., 20., 10., 3., .901}, position);
+		assertArraysEqual(new String[] {"%1.1g", "%2.2g","%4.4g","%3.3f","%5.5g"}, outputFormat);
+	}
+	/**
+	 * @throws Exception
+	 */
+	@Test
 	public void testIsPositionValid() throws Exception {
 		
 		Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"}, new String[] {"%5.5g","%5.5g","%1d"},5,new Double[]{10.,20.});

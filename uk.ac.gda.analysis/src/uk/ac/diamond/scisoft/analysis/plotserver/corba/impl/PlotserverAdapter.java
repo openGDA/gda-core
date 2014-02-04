@@ -26,9 +26,9 @@ import gda.device.corba.impl.DeviceAdapter;
 import gda.factory.corba.util.NetService;
 import gda.observable.IObserver;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
@@ -230,10 +230,15 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 
 	@Override
 	public String[] getGuiNames() throws Exception {
-		String[] guiNames=null;
+		
+		final List<String> guiNames = new ArrayList<String>();
+		
 		if(delegate != null){
 			try {
-				guiNames = delegate.getGuiNames();
+				final String[] delegateGuiNames = delegate.getGuiNames();
+				if (delegateGuiNames != null) {
+					guiNames.addAll(Arrays.asList(delegateGuiNames));
+				}
 			} catch (Exception e) {
 				throw new DeviceException(e.getMessage());
 			}
@@ -244,15 +249,10 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 			try {
 				org.omg.CORBA.Any any = corbaPlotServer.getGuiNames();
 				String [] otherNames = (String[]) any.extract_Value();
-				if( otherNames != null && otherNames.length>0){
-					if( guiNames != null && guiNames.length>0){
-						List<String> asList = new Vector<String>(Arrays.asList(guiNames));
-						asList.addAll(Arrays.asList(otherNames));
-						return asList.toArray(new String[0]);
-					}
-					return otherNames;
+				if (otherNames != null) {
+					guiNames.addAll(Arrays.asList(otherNames));
 				}
-				return guiNames;
+				return guiNames.toArray(new String[guiNames.size()]);
 			} catch (COMM_FAILURE cf) {
 				corbaPlotServer = CorbaPlotServerHelper.narrow(netService
 						.reconnect(name));

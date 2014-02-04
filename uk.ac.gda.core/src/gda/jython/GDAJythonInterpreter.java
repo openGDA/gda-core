@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
@@ -41,7 +41,6 @@ import org.python.core.PyException;
 import org.python.core.PyModule;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
-import org.python.core.PyReflectedFunction;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.core.PyUnicode;
@@ -62,6 +61,7 @@ import org.springframework.util.StringUtils;
  */
 public class GDAJythonInterpreter extends ObservableComponent {
 	private static final Logger logger = LoggerFactory.getLogger(GDAJythonInterpreter.class);
+
 	// the Jython interpreter
 	private InteractiveConsole interp;
 
@@ -245,12 +245,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	/**
 	 * Set up the Jython interpreter and run Jython scripts to connect to the ObjectServer. This must be run once by the
 	 * calling program after the interpreter instance has been created.
-	 * 
-	 * @param output
-	 *            OutputStream
-	 * @throws Exception
 	 */
-	protected void initialise(OutputStream output) throws Exception {
+	protected void initialise(JythonServer jythonServer) throws Exception {
 		if (!configured) {
 			try {
 				String translatorClassName = LocalProperties.get("gda.jython.translator.class", "GeneralTranslator");
@@ -269,6 +265,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 						if (!scriptDir.exists()){
 							throw new FactoryException("Configured Jython script location " + scriptFolderName + " does not exist.");
 						}
+						logger.info("Adding " + scriptDir + " to the Command Server Jython path");
+						
 						if (!sys.path.contains(scriptFolderName)) {
 							removeAllJythonClassFiles(new File(path));
 							sys.path.append(scriptFolderName);
@@ -278,8 +276,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				fakeSysExecutable(sys);
 
 				// set the console output
-				interp.setOut(output);
-				interp.setErr(output);
+				final Writer terminalWriter = jythonServer.getTerminalWriter();
+				interp.setOut(terminalWriter);
+				interp.setErr(terminalWriter);
 
 				// dynamic configuration using Castor
 				logger.info("performing standard Jython interpreter imports...");
@@ -291,7 +290,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				// give Jython the reference to this wrapper object
 				this.interp.set("GDAJythonInterpreter", this);
 				
-				this.interp.set("command_server", output);
+				this.interp.set("command_server", jythonServer);
 				this.interp.runsource("import gda.jython");
 
 				// site import
@@ -342,13 +341,6 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				// persistence
 				this.interp.runsource("from gda.util.persistence import LocalParameters");
 				this.interp.runsource("from gda.util.persistence import LocalObjectShelfManager");
-
-				// plotting
-				this.interp.runsource("from gda.analysis import *");
-				
-				//the following import fails on b18. don't know why
-				//this.interp.runsource("from gda.analysis.utils import *");
-				// not there in 8.2 this.interp.runsource("from gda.analysis.functions import *");
 
 				// import other interfaces to use with list command
 				this.interp.runsource("from gda.device import ScannableMotion");

@@ -24,12 +24,13 @@ import java.util.Random;
 import gda.device.Detector;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
+import gda.device.detector.DetectorBase;
 
 /**
  * Should set in the XML this class to be always local. There is no corba implementation for it.
  */
-public class DummyXmapController extends DeviceBase implements XmapController {
-	private int numberOfMca = 4;
+public class DummyXmapController extends DetectorBase implements XmapController {
+	private int numberOfElements = 4;
 	private int numberOfBins = 1024;
 	private double acquisitionTime;
 	private double readRate = 1.0;
@@ -38,9 +39,6 @@ public class DummyXmapController extends DeviceBase implements XmapController {
 	private int actualNumberOfROIs;
 	private Long acquisitionStartedTimeMillis = null;
 
-	/**
-	 * 
-	 */
 	public DummyXmapController() {
 	}
 
@@ -50,8 +48,8 @@ public class DummyXmapController extends DeviceBase implements XmapController {
 	}
 
 	@Override
-	public void setNumberOfMca(int numberOfMca) {
-		this.numberOfMca = numberOfMca;
+	public void setNumberOfElements(int numberOfMca) {
+		this.numberOfElements = numberOfMca;
 	}
 
 	@Override
@@ -62,7 +60,6 @@ public class DummyXmapController extends DeviceBase implements XmapController {
 	@Override
 	public double getAcquisitionTime() throws DeviceException {
 		return this.acquisitionTime;
-
 	}
 
 	@Override
@@ -82,8 +79,8 @@ public class DummyXmapController extends DeviceBase implements XmapController {
 	}
 
 	@Override
-	public int getNumberOfMca() throws DeviceException {
-		return numberOfMca;
+	public int getNumberOfElements() throws DeviceException {
+		return numberOfElements;
 	}
 
 	@Override
@@ -121,31 +118,26 @@ public class DummyXmapController extends DeviceBase implements XmapController {
 	@Override
 	public void setReadRate(double readRate) throws DeviceException {
 		this.readRate = readRate;
-
 	}
 
 	@Override
 	public void setReadRate(String readRate) throws DeviceException {
 		// Do nothing
-
 	}
 
 	@Override
 	public void setStatusRate(double statusRate) throws DeviceException {
 		this.statusRate = statusRate;
-
 	}
 
 	@Override
 	public void setStatusRate(String statusRate) throws DeviceException {
 		// Do nothing
-
 	}
 
 	@Override
 	public void start() throws DeviceException {
 		startDummyAcquisition();
-
 	}
 
 	@Override
@@ -155,10 +147,9 @@ public class DummyXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public int[][] getData() throws DeviceException {
-		int[][] data = new int[numberOfMca][numberOfBins];
-		for (int i = 0; i < numberOfMca; i++) {
+		int[][] data = new int[numberOfElements][numberOfBins];
+		for (int i = 0; i < numberOfElements; i++)
 			data[i] = getData(i);
-		}
 		return data;
 	}
 
@@ -169,41 +160,33 @@ public class DummyXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public double[] getROICounts(int roiIndex) throws DeviceException {
-		double[] roiCounts = new double[numberOfMca];
+		double[] roiCounts = new double[numberOfElements];
 		Random generator = new Random();
-		for (int k = 0; k < numberOfMca; k++) {
+		for (int k = 0; k < numberOfElements; k++)
 			roiCounts[k] = generator.nextInt(new Double(realTime).intValue() * 10000);
-		}
 		return roiCounts;
 	}
 
 	@Override
 	public double[] getROIs(int mcaNumber) throws DeviceException {
 		double[] roiSum = new double[actualNumberOfROIs];
-
 		Random generator = new Random();
-		for (int k = 0; k < actualNumberOfROIs; k++) {
+		for (int k = 0; k < actualNumberOfROIs; k++)
 			roiSum[k] = generator.nextInt(new Double(realTime).intValue() * 10000);
-		}
 		return roiSum;
 	}
 	
 	@Override
 	public double[] getROIsSum() throws DeviceException {
 		double[] roiSum = new double[actualNumberOfROIs];
-
 		Random generator = new Random();
-		for (int k = 0; k < actualNumberOfROIs; k++) {
+		for (int k = 0; k < actualNumberOfROIs; k++)
 			roiSum[k] = generator.nextInt(new Double(realTime).intValue() * 10000);
-		}
 		return roiSum;
-
 	}
 
 	@Override
 	public void setNthROI(double[][] rois, int roiIndex) throws DeviceException {
-//		actualNumberOfROIs = roiIndex + 1;
-		return;
 	}
 
 	@Override
@@ -214,24 +197,18 @@ public class DummyXmapController extends DeviceBase implements XmapController {
 	@Override
 	public void setROI(double[][] rois, int mcaIndex) throws DeviceException {
 		actualNumberOfROIs += rois.length;
-		return;
-
 	}
 
 	@Override
 	public void setROIs(double[][] rois) throws DeviceException {
 		actualNumberOfROIs = 0;
-		for (int i = 0; i < numberOfMca; i++) {
+		for (int i = 0; i < numberOfElements; i++)
 			setROI(rois, i);
-		}
-
 	}
 
 	@Override
 	public void deleteROIs(int mcaIndex) throws DeviceException {
 		actualNumberOfROIs = 0;
-		return;
-		
 	}
 
 	@Override
@@ -268,4 +245,21 @@ public class DummyXmapController extends DeviceBase implements XmapController {
 		return getROIs(mcaNumber);
 	}
 
+	@Override
+	public void collectData() throws DeviceException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Object readout() throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean createsOwnFiles() throws DeviceException {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

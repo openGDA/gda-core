@@ -154,6 +154,20 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		INexusTree detTree = getDetTree(detName);
 		return addData(detTree,dataName,new int[] { 1 },NexusFile.NX_INT32,new int[]{dataValues},units,null);
 	}
+	public INexusTree addData(String detName, final String dataName, long dataValues, String units) {
+		INexusTree detTree = getDetTree(detName);
+		return addData(detTree,dataName,new int[] { 1 },NexusFile.NX_UINT32,new long[]{dataValues},units,null);
+	}
+
+	public INexusTree addData(String detName, final String dataName, int []dataValues, String units) {
+		INexusTree detTree = getDetTree(detName);
+		return addData(detTree,dataName,new int[] { dataValues.length },NexusFile.NX_INT32,dataValues,units,null);
+	}
+	public INexusTree addData(String detName, final String dataName, double []dataValues, String units) {
+		INexusTree detTree = getDetTree(detName);
+		return addData(detTree,dataName,new int[] { dataValues.length },NexusFile.NX_FLOAT64,dataValues,units,null);
+	}
+	
 	/**
 	 * 
 	 * @param parent
@@ -174,16 +188,14 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 			data.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, data, new NexusGroupData(units)));
 		}
 		if( signalVal != null){
-			Integer[] signalValArray = {signalVal};
-			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data, 
-					new NexusGroupData(new int[] {signalValArray.length}, NexusFile.NX_INT32, signalValArray)));
+			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data, new NexusGroupData(signalVal)));
 		}
 		parent.addChildNode(data);	
 		return data;
 	}
 
-	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal) {
-		addData(detName, dataName, data_sds, units, signalVal, null);
+	public INexusTree addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal) {
+		return addData(detName, dataName, data_sds, units, signalVal, null);
 	}
 	/**
 	 * Adds the specified data to the named detector
@@ -192,11 +204,11 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param units  - if not null a units attribute is added
 	 * @param signalVal - if not null a signal attribute is added
 	 */
-	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
-		addData(detName, dataName, data_sds, units, signalVal, interpretation, data_sds.isDetectorEntryData);
+	public INexusTree addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
+		return addData(detName, dataName, data_sds, units, signalVal, interpretation, data_sds.isDetectorEntryData);
 	}
 	
-	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation, boolean isPointDependent) {
+	public INexusTree addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation, boolean isPointDependent) {
 		INexusTree detTree = getDetTree(detName);
 		NexusTreeNode data = new NexusTreeNode(dataName, NexusExtractor.SDSClassName, null, data_sds);
 		data.setIsPointDependent(data_sds.isDetectorEntryData || isPointDependent);
@@ -204,15 +216,14 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 			data.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, data, new NexusGroupData(units)));
 		}
 		if (signalVal != null) {
-			Integer[] signalValArray = {signalVal};
-			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data, 
-					new NexusGroupData(new int[] {signalValArray.length}, NexusFile.NX_INT32, signalValArray)));
+			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data, new NexusGroupData(signalVal)));
 		}
 		if (interpretation != null) {
 			data.addChildNode(new NexusTreeNode("interpretation",NexusExtractor.AttrClassName, data, 
 					new NexusGroupData(interpretation)));
 		}
-		detTree.addChildNode(data);			
+		detTree.addChildNode(data);
+		return data;
 	}
 	
 	
@@ -223,9 +234,9 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param units  - if not null a units attribute is added
 	 * @param signalVal - if not null a signal attribute is added
 	 */
-	public void addData(String detName, NexusGroupData data_sds, String units, Integer signalVal) {
+	public INexusTree addData(String detName, NexusGroupData data_sds, String units, Integer signalVal) {
 		data_sds.isDetectorEntryData = true;
-		addData(detName, "data", data_sds, units, signalVal, null);
+		return addData(detName, "data", data_sds, units, signalVal, null);
 	}
 	
 	/**
@@ -235,9 +246,9 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param units  - if not null a units attribute is added
 	 * @param signalVal - if not null a signal attribute is added
 	 */
-	public void addData(String detName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
+	public INexusTree addData(String detName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
 		data_sds.isDetectorEntryData = true;
-		addData(detName, "data", data_sds, units, signalVal, interpretation);
+		return addData(detName, "data", data_sds, units, signalVal, interpretation);
 	}
 	
 	/**
@@ -321,10 +332,10 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param linknodename
 	 * @param fileName - must be plain full path file name.
 	 */
-	public void addScanFileLink(String detName, String linknodename, String fileName, boolean isPointDependent, boolean isDetectorEntryData) {
+	public void addExternalFileLink(String detName, String linknodename, String fileName, boolean isPointDependent, boolean isDetectorEntryData) {
 		INexusTree detTree = getDetTree(detName);
 //		NexusGroupData dummy_sds = new NexusGroupData("dummy");
-		NexusGroupData groupData = new NexusGroupData("nxfile://" + fileName + "#entry/instrument/detector/data");
+		NexusGroupData groupData = new NexusGroupData( fileName );
 		NexusTreeNode link = new NexusTreeNode(linknodename, NexusExtractor.ExternalSDSLink, null, groupData);
 		link.setIsPointDependent(isPointDependent);
 		groupData.isDetectorEntryData=isDetectorEntryData;
@@ -351,11 +362,9 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		NexusGroupData axis_sds = new NexusGroupData(dimensions, type, axisValues);
 		axis_sds.isDetectorEntryData = true;
 		NexusTreeNode axis = new NexusTreeNode(name,NexusExtractor.SDSClassName, tree, axis_sds);
-		Integer[] axisVal = {axisValue};
-		axis.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, axis,new NexusGroupData(new int[] {axisVal.length}, NexusFile.NX_INT32, axisVal)));
-		Integer[] primaryVal = {primaryValue};
-		axis.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, axis,new NexusGroupData(new int[] {primaryVal.length}, NexusFile.NX_INT32, primaryVal)));
-		axis.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
+		axis.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, axis,new NexusGroupData(axisValue)));
+		axis.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, axis,new NexusGroupData(primaryValue)));
+		axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
 		axis.setIsPointDependent(isPointDependent);
 		detTree.addChildNode(axis);
 	}
@@ -378,11 +387,9 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 		axis_sds.isDetectorEntryData = true;
 		NexusTreeNode axis = new NexusTreeNode(name,NexusExtractor.SDSClassName, tree, axis_sds);
-		Integer[] axisVal = {axisValue};
-		axis.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, axis,new NexusGroupData(new int[] {axisVal.length}, NexusFile.NX_INT32, axisVal)));
-		Integer[] primaryVal = {primaryValue};
-		axis.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, axis,new NexusGroupData(new int[] {primaryVal.length}, NexusFile.NX_INT32, primaryVal)));
-		axis.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
+		axis.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, axis,new NexusGroupData(axisValue)));
+		axis.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, axis,new NexusGroupData(primaryValue)));
+		axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
 		axis.setIsPointDependent(isPointDependent);
 		detTree.addChildNode(axis);
 	}
@@ -401,7 +408,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		INexusTree detTree = getDetTree(detName);
 
 		NexusTreeNode axis = new NexusTreeNode(name,NexusExtractor.SDSClassName, tree, new NexusGroupData(dimensions, type, axisValues));
-		axis.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
+		axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
 		axis.setIsPointDependent(isPointDependent);
 		detTree.addChildNode(axis);
 	}

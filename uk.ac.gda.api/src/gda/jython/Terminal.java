@@ -32,4 +32,7 @@ public interface Terminal extends IObserver {
 	 * @param output
 	 */
 	public void write(byte[] output);
+
+	public void write(String output);
+
 }

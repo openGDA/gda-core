@@ -23,6 +23,7 @@ import gda.factory.Findable;
 import java.util.Map;
 import java.util.Set;
 
+import org.python.core.PyString;
 import org.springframework.beans.factory.InitializingBean;
 
 /** 
@@ -66,5 +67,14 @@ public class FindableObjectHolder implements InitializingBean, Findable{
 	public Set<String> keySet() {
 		return map.keySet();
 	}
+	
+	
+	final Object __getattr__(String name) {
+		return map.get(name);
+	}
+	
+	public Object __getattr__(PyString name) {
+		return map.get(name.internedString());
+	}	
 
 }

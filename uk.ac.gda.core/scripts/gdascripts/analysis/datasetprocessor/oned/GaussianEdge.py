@@ -1,7 +1,6 @@
 from XYDataSetProcessor import XYDataSetFunction
 from gda.analysis.functions import Gaussian
 from gda.analysis.utils import GeneticAlg
-from uk.ac.diamond.scisoft.analysis import SDAPlotter
 import scisoftpy as np
 
 from gda.analysis import DataSetFunctionFitter
@@ -39,5 +38,5 @@ class GaussianEdge(XYDataSetFunction):
 		area = ans[2].getValue()
 		slope = area / fwhm
 		if self.plotPanel != None:
-			SDAPlotter.plot(self.plotPanel, np.array(xDataSet),  [np.array(res[best][2]), np.array(Gaussian([pos, fwhm, area]).makeDataSet([xDataSet]))])
+			np.plot.line(xDataSet, [res[best][2], np.array(Gaussian([pos, fwhm, area]).makeDataSet([xDataSet]))], name=self.plotPanel)
 		return pos, slope, fwhm

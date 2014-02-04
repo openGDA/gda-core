@@ -65,7 +65,7 @@ public class GradientDescent implements IOptimizer {
 		double[] params = function.getParameterValues();
 
 		// find out the first Value
-		double minval = function.residual(true, Objective, coords);
+		double minval = function.residual(true, Objective, null, coords);
 
 		// set up all the random values
 		// Random rand = new Random();
@@ -101,13 +101,13 @@ public class GradientDescent implements IOptimizer {
 
 				// get a value
 				function.setParameterValues(pvals);
-				double start = function.residual(true, Objective, coords);
+				double start = function.residual(true, Objective, null, coords);
 
 				pvals[i] = pvals[i] + 2 * delta;
 
 				// get a value
 				function.setParameterValues(pvals);
-				double end = function.residual(true, Objective, coords);
+				double end = function.residual(true, Objective, null, coords);
 
 				pvals[i] = pvals[i] - delta;
 
@@ -124,7 +124,7 @@ public class GradientDescent implements IOptimizer {
 			}
 
 			function.setParameterValues(tmpvals);
-			double newval = function.residual(true, Objective, coords);
+			double newval = function.residual(true, Objective, null, coords);
 
 			if (newval < minval) {
 				Distance *= 1.1;

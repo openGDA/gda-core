@@ -23,6 +23,8 @@ import gda.scan.AxisSpecProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanPlotSettings;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import org.slf4j.Logger;
@@ -72,15 +74,14 @@ public class Config {
 				return false;
 			}
 		}
-		Vector<String> positionHeader = point.getPositionHeader();
-		Vector<String> detectorHeader = point.getDetectorHeader();
-		for (String s : namesOfVisibleLinesInPreviousScan) {
-			if (!positionHeader.contains(s) && !detectorHeader.contains(s))
+		Set<String> previousScan = new HashSet<String>(namesOfVisibleLinesInPreviousScan);
+		previousScan.addAll(namesOfInVisibleLinesInPreviousScan);
+		Set<String> currentScan = new HashSet<String>(point.getPositionHeader());
+		currentScan.addAll(point.getDetectorHeader());
+		for (String scanName : previousScan) {
+			if (!currentScan.contains(scanName)) {
 				return false;
-		}
-		for (String s : namesOfInVisibleLinesInPreviousScan) {
-			if (!positionHeader.contains(s) && !detectorHeader.contains(s))
-				return false;
+			}
 		}
 		return true;
 	}
@@ -96,7 +97,6 @@ public class Config {
 		if (scanPlotSettings != null) {
 			xAxisHeader = scanPlotSettings.getXAxisName();
 			yAxesMap = scanPlotSettings.getAxisSpecProvider();
-
 		}
 
 		xAxisIndex = 0;
@@ -164,15 +164,21 @@ public class Config {
 			}
 		}
 
+		// scanPlotSettings may be null at this point
+		int unlistedBehaviour = ScanPlotSettings.PLOT; // default default is to plot every line
+		if (scanPlotSettings != null){
+			unlistedBehaviour = scanPlotSettings.getUnlistedColumnBehaviour();
+		}
+		
 		initialDataAsDoubles = point.getAllValuesAsDoubles();
 		if (initialDataAsDoubles[xAxisIndex] != null) {
 			for (int j = 0; j < numberOfScannables; j++, index++) {
 				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, yAxesMap, point
-						.getPositionHeader().get(j), index, xAxisIndex);
+						.getPositionHeader().get(j), index, xAxisIndex, unlistedBehaviour);
 			}
 			for (int j = 0; j < point.getDetectorHeader().size(); j++, index++) {
 				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, yAxesMap, point
-						.getDetectorHeader().get(j), index, xAxisIndex);
+						.getDetectorHeader().get(j), index, xAxisIndex, unlistedBehaviour);
 			}
 		} else {
 			logger.warn("xAxis is not plottable for scan " + point.getUniqueName());
@@ -180,23 +186,26 @@ public class Config {
 		}
 		id = point.getUniqueName();
 	}
-
+	
+	// FIXME this logic lifted from from ScanDataPointPlotConfig to handle correct behaviour of 'unlisted' columns, but
+	// there seems to be some duplication here which needs resolving
 	private void addIfWanted(Vector<ConfigLine> linesToAdd, Double val, Vector<String> yAxesShown,
-			Vector<String> yAxesNotShown, AxisSpecProvider axisSpecProvider, String name, int index, int xAxisIndex) {
+			Vector<String> yAxesNotShown, AxisSpecProvider axisSpecProvider, String name, int index, int xAxisIndex,
+			int defaultBehaviour) {
 		// do not add a line if we are unable to convert the string representation to a double
 		if (val == null)
 			return;
 		if (index != xAxisIndex) {
+			AxisSpec yaxisSpec = axisSpecProvider != null ? axisSpecProvider.getAxisSpec(name) : null;
 			if (yAxesShown == null || yAxesShown.contains(name)) {
-				AxisSpec yaxisSpec = axisSpecProvider != null ? axisSpecProvider.getAxisSpec(name):null;
 				linesToAdd.add(new ConfigLine(index, name, true, yaxisSpec));
-			} else {
-				if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
-					AxisSpec yaxisSpec = axisSpecProvider != null ? axisSpecProvider.getAxisSpec(name):null;
-					linesToAdd.add(new ConfigLine(index, name, false, yaxisSpec));
-				}
+			} else if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
+				linesToAdd.add(new ConfigLine(index, name, false, yaxisSpec));
+			} else if (defaultBehaviour == ScanPlotSettings.PLOT) {
+				linesToAdd.add(new ConfigLine(index, name, true, yaxisSpec));
+			} else if (defaultBehaviour == ScanPlotSettings.PLOT_NOT_VISIBLE) {
+				linesToAdd.add(new ConfigLine(index, name, false, yaxisSpec));
 			}
 		}
-
 	}
 }

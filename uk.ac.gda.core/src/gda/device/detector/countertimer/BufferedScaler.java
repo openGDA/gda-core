@@ -35,16 +35,13 @@ import org.slf4j.LoggerFactory;
  * Assumes that the TTL signal driving the TFG time-frames is connected to TFG socket TTL INPUT 0.
  */
 public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDetector {
-
 	private static final Logger logger = LoggerFactory.getLogger(BufferedScaler.class);
-
 	private ContinuousParameters parameters;
 	private boolean continuousMode;
 	private double overrunTime = 0.1;
 	private DAServer daserver;
 	private int ttlSocket = 0; // the TTL Trig In socket [0-3] default is 0
 	private Boolean returnCountRates = false;
-
 	private double[][] framesRead;
 	
 	public BufferedScaler(){
@@ -181,17 +178,18 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		}
 
 		// tfg setup-trig
-		switchOnExtTrigger();						
+		switchOnExtTrigger();
+		
 		//Send as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("tfg setup-groups ext-start cycles 1"+"\n");
 		buffer.append(parameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 " + (ttlSocket + 8)+"\n");
 		buffer.append("-1 0 0 0 0 0 0");
 		daserver.sendCommand(buffer.toString());
+		daserver.sendCommand("tfg arm");
 		/*daserver.sendCommand("tfg setup-groups ext-start cycles 1");
 		daserver.sendCommand(parameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 " + ttlSocket + 8);
 		daserver.sendCommand("-1 0 0 0 0 0 0");*/
-		daserver.sendCommand("tfg arm");
 	}
 
 	@Override
@@ -228,26 +226,22 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	 * @throws DeviceException 
 	 */
 	private void switchOnExtTrigger() throws DeviceException {
-		daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
+		Object test = daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
+		System.out.println(test);
 	}
 
 	@Override
 	public int getNumberFrames() throws DeviceException {
-		if (!continuousMode){ 
+		if (!continuousMode)
 			return 0;
-		}
-		
 		String[] cmds = new String[]{"status show-armed","progress","status","full","lap","frame"};
 		HashMap <String,String> currentVals = new HashMap<String,String>();
 		for (String cmd : cmds){
 			currentVals.put(cmd, daserver.sendCommand("tfg read " + cmd).toString());
 			logger.info("tfg read "+ cmd + ": " + currentVals.get(cmd));
 		}
-		
-		if (currentVals.isEmpty()){
+		if (currentVals.isEmpty())
 			return 0;
-		}
-		
 		
 		// else either scan not started (return -1) or has finished (return continuousParameters.getNumberDataPoints())
 		
@@ -260,13 +254,13 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		if (!currentVals.get("frame").equals("0")){
 			String numFrames = currentVals.get("frame");
 			try{
-			return extractCurrentFrame(Integer.parseInt(numFrames));
+				return extractCurrentFrame(Integer.parseInt(numFrames));
 			}
 			catch(NumberFormatException e){
 				throw new DeviceException(numFrames);
 			}
 		}
-
+		
 		return parameters.getNumberDataPoints();
 	}
 	
@@ -307,17 +301,15 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	}
 
 	public void setReturnCountRates(Boolean returnCountRates) {
-		
 		if (!timeChannelRequired && returnCountRates){
 			timeChannelRequired = true;
-			this.extraNames = (String[]) ArrayUtils.addAll(new String[]{"time"}, this.extraNames);
-			this.outputFormat = (String[]) ArrayUtils.addAll(new String[]{this.outputFormat[0]}, this.outputFormat);
+			extraNames = (String[]) ArrayUtils.addAll(new String[]{"time"}, this.extraNames);
+			outputFormat = (String[]) ArrayUtils.addAll(new String[]{this.outputFormat[0]}, this.outputFormat);
 		} else if (timeChannelRequired && this.returnCountRates && !returnCountRates){
 			timeChannelRequired = false;
-			this.extraNames = (String[]) ArrayUtils.remove(this.extraNames, 0);
-			this.outputFormat = (String[]) ArrayUtils.remove(this.outputFormat, 0);
+			extraNames = (String[]) ArrayUtils.remove(this.extraNames, 0);
+			outputFormat = (String[]) ArrayUtils.remove(this.outputFormat, 0);
 		}
-		
 		this.returnCountRates = returnCountRates;
 	}
 
@@ -331,21 +323,12 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		return 99999;
 	}
 
-//	public double getDeadTimeInSeconds() {
-//		return deadTimeInSeconds;
-//	}
-//
-//	/**
-//	 * Set the deadtime this system should use after recieving a TTL pulse to trigger the next frame.
-//	 * William Helsby has recommended that this time should be >= 5* the cable delay (at 5ns/m)
-//	 * e.g. for a 20m cable, signal will take 100ns so should have a >500ns deadtime to be safe.
-//	 * <p>
-//	 * default is 500ns.
-//	 * 
-//	 * @param deadTimeInSeconds
-//	 */
-//	public void setDeadTimeInSeconds(double deadTimeInSeconds) {
-//		this.deadTimeInSeconds = deadTimeInSeconds;
-//	}
+	public int getTtlSocket() {
+		return ttlSocket;
+	}
 
+	public void setTtlSocket(int ttlSocket) {
+		this.ttlSocket = ttlSocket;
+	}
+	
 }

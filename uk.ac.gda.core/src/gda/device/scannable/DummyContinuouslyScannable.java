@@ -151,14 +151,18 @@ public class DummyContinuouslyScannable extends ScannableMotionUnitsBase impleme
 	}
 
 	@Override
-	public int prepareForContinuousMove() throws DeviceException {
+	public void prepareForContinuousMove() throws DeviceException {
 		currentPosition = continuousParameters.getStartPosition();
-		return continuousParameters.getNumberDataPoints();
 	}
 
 	@Override
 	public double calculateEnergy(int frameIndex) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public int getNumberOfDataPoints() {
+		return continuousParameters.getNumberDataPoints();
 	}
 }

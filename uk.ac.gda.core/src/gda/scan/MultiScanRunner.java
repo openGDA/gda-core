@@ -42,10 +42,9 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 		super();
 		this.scans = scans;
 	}
+	
 	@Override
-	public
-	void run(){
-		
+	public void runScan() throws InterruptedException, Exception {
 		try{
 			
 			for (MultiScanItem item : scans) {
@@ -89,16 +88,29 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 				scan.callDetectorsEndCollection();
 			}
 			
-			lastscan.shutdownScandataPipieline();
-			lastscan.signalScanComplete();
 
+		} catch (Exception e){
+			logger.error("Error running multiScan",e);
+			throw e;
+		}	finally {
+			if( lastscan != null){
+				lastscan.shutdownScandataPipieline();
+				lastscan.signalScanComplete();
+			}
 			getScanStatusHolder().setScanStatus(Jython.IDLE);
-
-
-		}	catch( Exception e){
-			logger.error("Error executing scans",e);
 		}
-		//need to handle scan.interrupted as in ScanBase runScan
+		
+
+	}
+	@Override
+	public
+	void run(){
+		try {
+			logger.error("Do not use run method of MultiScanRunner - use execute instead as it can throw exceptions");
+			runScan();
+		} catch (Exception e) {
+			logger.error("Error running scans", e);
+		}
 	
 	}
 	@Override
@@ -113,11 +125,6 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 	}
 	@Override
 	public void resume() {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void runScan() throws InterruptedException, Exception {
 		// TODO Auto-generated method stub
 		
 	}

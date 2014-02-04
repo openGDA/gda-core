@@ -86,6 +86,8 @@ import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionGroup;
 import org.jfree.data.Range;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -794,10 +796,13 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			boolean additionalYAxes = false;
 			for (LiveData sd : scans) {
 				if (sd != null  && sd.number > 1 ) {//do not show lines with only 1 point as the datasetplotter throws exceptions
+					LiveDataArchive archive = sd.archive;
+					if( archive == null)
+						continue;
 					if (sd.isVisible()) {
 						
-						xys.add( new LineData(sd.archive.getAppearance(), sd.archive.getxAxis().toDataset(),sd.archive.getyVals(), sd.yAxisSpec ));
-						AbstractDataset y = sd.archive.getyVals();
+						xys.add( new LineData(archive.getAppearance(), archive.getxAxis().toDataset(),archive.getyVals(), sd.yAxisSpec ));
+						AbstractDataset y = archive.getyVals();
 						if (y.getName()==null || "".equals(y.getName())) {
 							y.setName(sd.name);
 						}
@@ -823,7 +828,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 						}
 					} else {
 						try {
-						    invis.add(sd.archive.getyVals().getName());
+							invis.add(archive.getyVals().getName());
 						} catch (NullPointerException npe) {
 							continue;
 						}
@@ -1171,12 +1176,23 @@ class LiveData {
 	}
 
 	private void resetArchive(int which) {
-		
-		Plot1DAppearance appearance = new Plot1DAppearance(LivePlotComposite.getColour(which),
+		Color color = getLineColor(this.yLabel, which);
+		Plot1DAppearance appearance = new Plot1DAppearance(color,
 				LivePlotComposite.getStyle(which), LivePlotComposite.getLineWidth(), name);
 		archive = new LiveDataArchive(appearance, new DoubleDataset(1), new AxisValues());
 		archiveFilename=null;
-
+	}
+	
+	private Color getLineColor(String lineLabel, int lineNumber) {
+		BundleContext context = GDAClientActivator.getBundleContext();
+		ServiceReference<IPlotLineColorService> serviceRef = context.getServiceReference(IPlotLineColorService.class);
+		if (serviceRef != null) {
+			String colorValue = (String) serviceRef.getProperty(lineLabel);
+			if (colorValue != null) {
+				return Color.decode(colorValue);
+			}
+		}
+		return LivePlotComposite.getColour(lineNumber);
 	}
 
 	private static String  getArchivePath(String archiveFolder, String filename){

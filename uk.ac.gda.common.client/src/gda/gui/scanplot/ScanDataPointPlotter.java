@@ -72,13 +72,13 @@ public class ScanDataPointPlotter {
 			Vector<String> namesOfInVisibleLinesInPreviousScan = legendPanel.getNamesOfLinesInPreviousScan(false);
 			config = new Config(config, point, namesOfVisibleLinesInPreviousScan, namesOfInVisibleLinesInPreviousScan);
 			newConfig = true;
-			if (config.scanPlotSettings != null && config.scanPlotSettings.getXAxisName().isEmpty())
+			if (config.scanPlotSettings != null && config.scanPlotSettings.getXAxisName() != null && config.scanPlotSettings.getXAxisName().isEmpty())
 				logger.warn("Unable to find value for XAxis. Data will not be plotted");
 			if( config.linesToAdd != null && config.linesToAdd.size()==0){
 				logger.warn("Unable to find values to plot.");
 			}
 		}
-		if (config.scanPlotSettings != null && config.scanPlotSettings.getXAxisName().isEmpty())
+		if (config.scanPlotSettings != null && config.scanPlotSettings.getXAxisName() != null && config.scanPlotSettings.getXAxisName().isEmpty())
 			return;
 		if( config.linesToAdd != null && config.linesToAdd.size()==0){
 			return;

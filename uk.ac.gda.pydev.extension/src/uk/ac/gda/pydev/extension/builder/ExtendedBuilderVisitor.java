@@ -22,7 +22,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
-import org.python.pydev.core.callbacks.ICallback0;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 
 public class ExtendedBuilderVisitor extends PyDevBuilderVisitor {
 

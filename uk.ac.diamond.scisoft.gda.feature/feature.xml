@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.diamond.scisoft.gda.feature"
       label="scisoft gda"
-      version="8.34.0.qualifier"
+      version="8.36.0.qualifier"
       provider-name="Diamond Light Source">
 
    <description url="http://www.opengda.org/">
@@ -25,6 +25,10 @@
          id="org.dawnsci.plotting.feature"
          version="0.0.0"/>
 
+   <includes
+         id="org.dawnsci.common.services.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.diamond.scisoft.analysis.rcp.contributions"
          download-size="0"
@@ -40,7 +44,28 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.dawnsci.rcp.histogram"
+         id="org.dawnsci.plotting.histogram"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.dawb.workbench.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.nebula.widgets.formattedtext"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.monte.media"
          download-size="0"
          install-size="0"
          version="0.0.0"

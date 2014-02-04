@@ -36,16 +36,16 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.osgi.framework.Bundle;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
-import org.python.pydev.dltk.console.IScriptConsoleCommunication;
-import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
-import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
+import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
+import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
+import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication, Terminal {
 
@@ -117,7 +117,7 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 	}
 
 	@Override
-	public ICompletionProposal[] getCompletions(String text, String othertext, int offset) throws Exception {
+	public ICompletionProposal[] getCompletions(String text, String othertext, int offset, boolean showForTabCompletion) throws Exception {
 
 		String savedNewData = newData;
 		newData = "";
@@ -211,14 +211,19 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 	@Override
 	public void write(byte[] output) {
 		try {
-			newData += new String(output, "UTF-8");
+			write(new String(output, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void execInterpreter(String command, org.python.pydev.core.callbacks.ICallback<Object, InterpreterResponse> arg1,
+	public void write(String output) {
+		newData += output;
+	}
+
+	@Override
+	public void execInterpreter(String command, ICallback<Object, InterpreterResponse> arg1,
 			ICallback<Object, Tuple<String, String>> arg2) {
 
 		/*

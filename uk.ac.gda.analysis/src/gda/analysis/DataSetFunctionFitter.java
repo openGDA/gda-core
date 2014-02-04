@@ -40,7 +40,7 @@ public class DataSetFunctionFitter {
 
 		FunctionOutput result = new FunctionOutput(comp);
 
-		result.setChiSquared(comp.residual(true, yAxis, coords));
+		result.setChiSquared(comp.residual(true, yAxis, null, coords));
 
 		result.setAreaUnderFit((Double) comp.makeDataSet(xAxis).sum()
 				* ((xAxis.max().doubleValue() - xAxis.min().doubleValue()) / xAxis.getSize()));

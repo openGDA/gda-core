@@ -88,7 +88,11 @@ public class Application implements IApplication {
 			
 			authenticateUser(display);
 
-
+			//Add the common dawn services
+			org.dawnsci.persistence.Activator.getContext();
+			org.dawnsci.jexl.Activator.getContext();
+			org.dawnsci.conversion.Activator.getContext();
+			
 			if(!localObjectsOnly ){
 				//get access to distributed metadata object needed for identifying Visit
 				ObjectFactory objectFactory = new ObjectFactory();
@@ -431,7 +435,7 @@ public class Application implements IApplication {
 					throw new Exception("Workspace has already been set when trying to set visit based workspace location.");
 				}
 				
-				logger.warn("Not using visit based workspace " + url + " because instance location has been set with -data command line argument to " + instanceLocation.getURL());
+				logger.info("Workspace instance location has been set with -data command line argument to " + instanceLocation.getURL());
 				// for correct reporting further on
 				url = instanceLocation.getURL();
 			}

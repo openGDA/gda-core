@@ -20,9 +20,6 @@ package gda.simplescan;
 
 import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
-/**
- *
- */
 public final class SimpleScanDescriber extends XMLBeanContentDescriber {
 
 	@Override

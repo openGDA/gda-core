@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.gda.client.synoptic.feature"
       label="GDA Synoptic feature"
-      version="8.34.0.qualifier"
+      version="8.36.0.qualifier"
       provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
@@ -31,7 +31,7 @@
 
    <includes
          id="org.python.pydev.feature"
-         version="0.0.0"/>
+         version="3.3.3.201401272249"/>
 
    <includes
          id="org.dawnsci.plotting.feature"
@@ -255,7 +255,7 @@
          unpack="false"/>
 
    <plugin
-         id="uk.ac.diamond.guava"
+         id="com.google.guava"
          download-size="0"
          install-size="0"
          version="0.0.0"
