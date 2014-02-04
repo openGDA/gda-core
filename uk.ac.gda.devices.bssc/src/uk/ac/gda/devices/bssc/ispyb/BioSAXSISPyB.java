@@ -59,6 +59,32 @@ public interface BioSAXSISPyB {
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity) throws SQLException;
 
 	/**
+	 * This method creates a SAXSDATACOLLECTION which corresponds to one row on the experiement spreadsheet. This method
+	 * should use the Buffer After measurement of the @previousDataCollectionId as the Buffer Before for this experiment, then
+	 * creates the remaining measurements (Sample, Buffer After) and associates all three measurements with this data collection.
+	 * 
+	 * @param experimentID
+	 * @param plate
+	 *            does not seem to be in the database. it is 1,2,3 and you could create a SamplePlate for each per
+	 *            Experiment
+	 * @param row
+	 *            i have row as char, i don't mind which way
+	 * @param column
+	 * @param exposureTemperature
+	 * @param numFrames
+	 * @param timePerFrame
+	 * @param flow
+	 * @param volume
+	 * @param energyInkeV
+	 * @param viscosity
+	 * @param previousDataCollectionId
+	 * @return saxsDataCollectionID
+	 */
+	public long createSaxsDataCollectionUsingPreviousBuffer(long experimentID, short plate, short row, short column, String sampleName,
+			short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
+			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, long previousDataCollectionId) throws SQLException;
+	
+	/**
 	 * Create a buffer measurement
 	 * 
 	 * @param dataCollectionId
@@ -122,9 +148,6 @@ public interface BioSAXSISPyB {
 	/**
 	 * Creates a buffer run, updates measurement.runId, returns runId.
 	 * 
-	 * @param previousDataCollectionId
-	 *            - id of previous data collection, buffer after measurement of this collection will be used as the buffer
-	 *            before measurement of the current collection
 	 * @param currentDataCollectionId - id of current data collection
 	 * @param timePerFrame
 	 * @param storageTemperature
@@ -141,7 +164,7 @@ public interface BioSAXSISPyB {
 	 * @param normalization
 	 * @return runId
 	 */
-	public long createBufferRun(long previousDataCollectionId, long currentDataCollectionId, double timePerFrame,
+	public long createBufferRun(long currentDataCollectionId, double timePerFrame,
 			float storageTemperature, float exposureTemperature, double energy, int frameCount, double transmission,
 			double beamCenterX, double beamCenterY, double pixelSizeX, double pixelSizeY, double radiationRelative,
 			double radiationAbsolute, double normalization, String filename, String internalPath);
