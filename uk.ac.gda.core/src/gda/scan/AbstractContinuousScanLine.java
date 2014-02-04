@@ -535,6 +535,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			// 6. Wait for completion (Scannables obtain their status from the controller)
 			while(getController().isMoving()){
 				getScanDataPointPipeline().checkForException();
+				Thread.sleep(50);
 			}
 			getController().waitWhileMoving();
 			for (HardwareTriggeredDetector det : detectors) {
