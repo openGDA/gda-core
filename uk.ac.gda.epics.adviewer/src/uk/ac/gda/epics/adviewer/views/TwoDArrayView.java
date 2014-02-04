@@ -43,16 +43,11 @@ import uk.ac.gda.epics.adviewer.composites.tomove.PlottingSystemIRegionPlotServe
 
 public class TwoDArrayView extends ViewPart implements InitializingBean{
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArrayView.class);
-
 	private TwoDArray twoDArray;
-	ADController config;
-
+	private ADController config;
 	private IPartListener2 partListener;
-
 	private PlottingSystemIRegionPlotServerConnector plotServerConnector;
-
 	private String name;
-
 	private Image image;
 	
 	public TwoDArrayView(ADController config, IConfigurationElement configurationElement) {

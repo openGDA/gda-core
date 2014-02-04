@@ -45,14 +45,10 @@ import uk.ac.gda.epics.adviewer.composites.Histogram;
 
 public class HistogramView extends ViewPart{
 	public static final String UK_AC_GDA_EPICS_ADVIEWER_COMMANDS_SET_EXPOSURE = "uk.ac.gda.epics.adviewer.commands.setExposure";
-
 	private static final Logger logger = LoggerFactory.getLogger(HistogramView.class);
-
 	private Histogram histogram;
-	ADController config;
-
+	private ADController config;
 	private String name;
-
 	private Image image;
 	
 	public HistogramView(ADController config, IConfigurationElement configurationElement) {

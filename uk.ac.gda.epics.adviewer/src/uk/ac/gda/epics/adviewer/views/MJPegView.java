@@ -56,14 +56,10 @@ import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
 public class MJPegView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(MJPegView.class);
-
 	private MJPeg mJPeg;
 	private ADController config;
-
 	private String name="";
-
 	private Image image=null;
-
 
 	public MJPegView(ADController config, IConfigurationElement configurationElement) {
 		this.config = config;
@@ -77,13 +73,10 @@ public class MJPegView extends ViewPart {
 				ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(iconURL);
 				image = imageDescriptor.createImage();
 			}
-			
 		}catch (Exception e){
 			logger.warn("Unable to get image for view",e);
 		}
 	}
-
-
 
 	public MJPegView() {
 		super();
@@ -97,7 +90,6 @@ public class MJPegView extends ViewPart {
 				throw new RuntimeException("No secondary id given");
 			config = (ADController)Activator.getNamedService(ADController.class, serviceName);
 			name = serviceName + " MJPeg";
-
 		}
 
 		parent.setLayout(new FillLayout());
@@ -107,7 +99,6 @@ public class MJPegView extends ViewPart {
 		} catch (Exception e) {
 			logger.error("Error creating MJPEGView", e);
 		}
-		
 		
 		if( image != null) {
 			setTitleImage(image);
@@ -123,20 +114,15 @@ public class MJPegView extends ViewPart {
 		createToolbar();
 		createContextMenu();
 		hookGlobalActions();
-
-		
 	}
-
 	
-	@SuppressWarnings("unused")
-	protected MJPeg createPartControlEx(Composite parent) throws Exception {
+	protected MJPeg createPartControlEx(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout(1, false));
 		Composite composite_2 = new Composite(composite, SWT.NONE);
 		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		mJPeg = new MJPeg(composite_2, SWT.NONE);		
-		
 		mJPeg.setADController(config);
 		mJPeg.showLeft(true);
 		return mJPeg;
@@ -153,49 +139,20 @@ public class MJPegView extends ViewPart {
 
 	protected void createMenu() {
 	}
-	public static IAction addAction(String name, final String commandId, final String serviceName) throws NotDefinedException{
-		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
-			@Override
-			public void run() {
-				
-				try{
-					ICommandService cs = (ICommandService) PlatformUI.getWorkbench().getService(
-							ICommandService.class);
-					Command command = cs.getCommand(commandId);
-					
-					IParameter parameter = command.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
-					Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter,
-							serviceName	) };
-					ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
-					ExecutionEvent executionEvent = ((IHandlerService)  PlatformUI.getWorkbench().getService(
-							IHandlerService.class)).createExecutionEvent(cmd, null);
-					command.executeWithChecks(executionEvent);
-				}
-				catch(Exception e){
-					logger.error("Error running Set Exposure command", e);
-				}
-			}
-		};
-		
-		ICommandService cs = (ICommandService)  PlatformUI.getWorkbench().getService(ICommandService.class);
-		Command command = cs.getCommand(commandId);
-		action.setToolTipText(command.getDescription());
-		ICommandImageService service = (ICommandImageService)  PlatformUI.getWorkbench().getService(ICommandImageService.class);
-		action.setImageDescriptor(service.getImageDescriptor(commandId));
-		return action;
-	}
+	
 	protected void createActions() throws NotDefinedException {
+		ADActionUtils actionUtils = new ADActionUtils();
 		List<IAction> actions = new Vector<IAction>();			
 		{
-			actions.add(addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, config.getServiceName()));
-			actions.add(addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE, config.getServiceName()));
-			actions.add(addAction("Show Live View", "org.eclipse.ui.views.showView", config.getServiceName()));
+			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
+			actions.add(actionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
+			actions.add(actionUtils.addAction("Show Live View", "org.eclipse.ui.views.showView", Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
 		}	
 		for (IAction iAction : actions) {
 			getViewSite().getActionBars().getToolBarManager().add(iAction);
 		}
 	}
-
+	
 	@Override
 	public void setFocus() {
 		mJPeg.setFocus();
