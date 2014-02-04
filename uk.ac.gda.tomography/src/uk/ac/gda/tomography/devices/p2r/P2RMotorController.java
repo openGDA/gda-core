@@ -21,6 +21,7 @@ package uk.ac.gda.tomography.devices.p2r;
 import gda.device.DeviceException;
 import gda.device.motor.simplemotor.SimpleMotorController;
 import gda.io.BidiAsciiCommunicator;
+import gda.scan.ScanBase;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -58,7 +59,13 @@ public class P2RMotorController implements SimpleMotorController, InitializingBe
 			throw new DeviceException("Error sending moveTo command '" + msg + "' reply = '" + reply + "'");
 		}
 	}
-
+	/**
+	 * Send ST
+	 * Get
+	 * 
+	 * [T|F],Displacement(0), Rotation(1), Force(2), Speed of displacement(3), Speed of rotation(4)
+	 * @throws DeviceException
+	 */
 	void updateStatus() throws DeviceException {
 		String reply = bidiAsciiCommunicator.send("ST");
 		boolean busy;
@@ -124,9 +131,13 @@ public class P2RMotorController implements SimpleMotorController, InitializingBe
 	}
 
 	@Override
-	public void setSpeed(double speed) throws DeviceException {
+	public void setSpeed(double speed) throws DeviceException, InterruptedException {
 		sendAndCheckReply(String.format("S%s%f", prefix, speed));
 		sendAndCheckReply(String.format("SS"));
+		while (isBusy()) {
+			ScanBase.checkForInterrupts();
+			Thread.sleep(50);
+		}
 	}
 
 	@Override
