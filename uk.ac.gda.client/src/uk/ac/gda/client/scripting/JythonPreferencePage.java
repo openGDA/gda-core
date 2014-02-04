@@ -24,7 +24,7 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import uk.ac.gda.pydev.extension.Activator;
+import uk.ac.gda.client.Activator;
 
 public class JythonPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 

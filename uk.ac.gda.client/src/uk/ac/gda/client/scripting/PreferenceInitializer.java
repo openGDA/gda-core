@@ -28,7 +28,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import uk.ac.gda.pydev.extension.Activator;
+import uk.ac.gda.client.Activator;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 

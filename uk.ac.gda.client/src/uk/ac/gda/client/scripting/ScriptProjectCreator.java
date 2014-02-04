@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.common.rcp.util.BundleUtils;
 import uk.ac.gda.jython.PydevConstants;
-import uk.ac.gda.pydev.extension.Activator;
+import uk.ac.gda.client.Activator;
 import uk.ac.gda.ui.utils.ProjectUtils;
 
 /**
