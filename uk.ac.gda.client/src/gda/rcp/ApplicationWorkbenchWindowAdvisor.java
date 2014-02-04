@@ -29,6 +29,8 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
+import org.eclipse.wb.swt.SWTResourceManager;
+
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 	public ApplicationWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
@@ -85,5 +87,11 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 			shell.setMaximized(true);
 		}
 		super.postWindowOpen();
+	}
+	
+	@Override
+	public boolean preWindowShellClose() {
+		SWTResourceManager.disposeColors();
+		return super.preWindowShellClose();
 	}
 }
