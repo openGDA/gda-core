@@ -451,7 +451,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 			tomoAlignmentView.getLeftPanelComposite().deSelectSaturationButton();
 			tomoAlignmentView.disableCameraControls();
 
-			tomoAlignmentView.getLeftPanelComposite().startStreaming();
+			tomoAlignmentView.getLeftPanelComposite().stopStream(); 
 			final double steppedAcqTime = tomoAlignmentView.getLeftPanelComposite().getSampleExposureTime();
 
 			ACTIVE_WORKBENCH_WINDOW.run(true, true, new IRunnableWithProgress() {
@@ -919,6 +919,11 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 			try {
 				final String rawFileName = staticSingleEnum.getFileName(tomoAlignmentView.getTomoAlignmentController());
+				if( rawFileName==null || rawFileName.length()==0)
+					throw new Exception("rawFileName is empty");
+				if(!(new File(rawFileName)).exists()){
+					throw new Exception("rawFileName does not exist '" + rawFileName +"'");
+				}
 				switchOnSaturation(rawFileName);
 			} catch (Exception e) {
 				logger.error("saturation", e);
