@@ -32,7 +32,9 @@ Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)",
  org.apache.commons.io;bundle-version="[2.4.0,2.5.0)",
  org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
- org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)"
+ org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
+ com.springsource.org.apache.mina.core;bundle-version="2.0.0",
+ com.springsource.org.apache.sshd;bundle-version="0.2.0"
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered
