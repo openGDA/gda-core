@@ -16,10 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.pydev.actions;
+package uk.ac.gda.client.scripting;
 
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
+import gda.jython.gui.JythonGuiConstants;
 
 import java.io.File;
 
@@ -31,7 +32,7 @@ import org.eclipse.ui.IEditorPart;
 
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
-public class ReloadScriptActionDelegate implements IEditorActionDelegate {
+public class RunScriptActionDelegate implements IEditorActionDelegate {
 
 	private IEditorPart ePart;
 	@Override
@@ -44,18 +45,16 @@ public class ReloadScriptActionDelegate implements IEditorActionDelegate {
 	@Override
 	public void run(IAction action) {
 		ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
+
 		if (ePart != null){
-			final IEditorInput input = ePart.getEditorInput();
-			
+			IEditorInput input = ePart.getEditorInput();
 			final File fileToRun = EclipseUtils.getFile(input);
-			final String name = fileToRun.getName();
-			final String module = name.substring(0, name.indexOf('.'));
-			commandRunner.evaluateCommand("reload(" + module + ")");
-			
+			commandRunner.runScript(fileToRun, JythonGuiConstants.TERMINALNAME);
 		}
 	}
 
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
 	}
+
 }

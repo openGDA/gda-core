@@ -44,6 +44,12 @@
             id="uk.ac.gda.exafs.ui.dataexplorationperspective"
             name="Data">
       </perspective>
+      <perspective
+            class="uk.ac.gda.client.scripting.JythonPerspective"
+            icon="icons/script.png"
+            id="uk.ac.gda.client.scripting.JythonPerspective"
+            name="Scripts">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -145,6 +151,14 @@
             class="gda.simplescan.SimpleScanView"
             id="uk.ac.gda.client.simplescanview"
             name="Simple Scan"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.general.category"
+            class="org.eclipse.ui.navigator.CommonNavigator"
+            icon="icons/filenav_nav.gif"
+            id="uk.ac.gda.client.navigator"
+            name="Navigator"
             restorable="true">
       </view>
    </extension>
@@ -882,6 +896,9 @@
       <startup
             class="gda.rcp.client.ReducedGUIStartup">
       </startup>
+      <startup
+            class="uk.ac.gda.client.scripting.ScriptProjectCreator">
+      </startup>
    </extension>
    <extension
          point="org.eclipse.ui.contexts">
@@ -894,6 +911,9 @@
          point="org.eclipse.core.runtime.preferences">
       <initializer
             class="uk.ac.gda.preferences.PreferenceInitializer">
+      </initializer>
+      <initializer
+            class="uk.ac.gda.client.scripting.PreferenceInitializer">
       </initializer>
    </extension>
    <extension
@@ -1025,5 +1045,125 @@
      <contexts
            file="help_contexts.xml">
      </contexts>
+  </extension>
+  <extension
+        point="org.eclipse.ui.preferencePages">
+     <page
+           category="uk.ac.gda.client.preferences.gdaroot"
+           class="uk.ac.gda.client.scripting.JythonPreferencePage"
+           id="uk.ac.gda.pydev.preferences.jythonPreferences"
+           name="Scripts">
+     </page>
+  </extension>
+  <extension
+        point="org.eclipse.ui.commands">
+     <command
+           defaultHandler="uk.ac.gda.client.scripting.PreferencesHandler"
+           id="uk.ac.gda.pydev.extension.preferences"
+           name="Scripting Preferences">
+     </command>
+  </extension>
+  <extension
+        point="org.eclipse.ui.menus">
+     <menuContribution
+           locationURI="menu:org.python.pydev.navigator.view?after=additions">
+        <command
+              commandId="uk.ac.gda.pydev.extension.preferences"
+              label="Preferences..."
+              style="push"
+              tooltip="Open preferences.">
+        </command>
+     </menuContribution>
+     <menuContribution
+           locationURI="popup:org.python.pydev.navigator.view?after=additions">
+        <command
+              commandId="uk.ac.gda.pydev.extension.preferences"
+              label="Preferences..."
+              style="push"
+              tooltip="Open preferences.">
+        </command>
+     </menuContribution>
+     <menuContribution
+           locationURI="menu:org.eclipse.ui.navigator.ProjectExplorer?after=additions">
+        <command
+              commandId="uk.ac.gda.pydev.extension.preferences"
+              label="Preferences..."
+              style="push"
+              tooltip="Open preferences.">
+        </command>
+     </menuContribution>
+     <menuContribution
+           locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer?after=additions">
+        <command
+              commandId="uk.ac.gda.pydev.extension.preferences"
+              label="Preferences..."
+              style="push"
+              tooltip="Open preferences.">
+        </command>
+     </menuContribution>
+     <menuContribution
+           locationURI="toolbar:org.eclipse.ui.navigator.ProjectExplorer">
+        <separator
+              name="uk.ac.gda.pydev.extension.separator1"
+              visible="true">
+        </separator>
+        <command
+              commandId="uk.ac.gda.pydev.extension.preferences"
+              icon="icons/application_view_list.png"
+              label="Preferences..."
+              style="push"
+              tooltip="Open preferences.">
+        </command>
+     </menuContribution>
+  </extension>
+  <extension
+        name="Scripting Editor Actions"
+        point="org.eclipse.ui.editorActions">
+     <editorContribution
+           id="uk.ac.gda.pydev.editorContributions"
+           targetID="org.python.pydev.editor.PythonEditor">
+        <action
+              class="uk.ac.gda.client.scripting.ReloadScriptActionDelegate"
+              icon="icons/script_lightning.png"
+              id="uk.ac.gda.pydev.reloadScript"
+              label="Reload"
+              style="push"
+              toolbarPath="Normal/additions"
+              tooltip="Reloads the script in the GDA Server.">
+        </action>
+        <action
+              class="uk.ac.gda.client.scripting.RunScriptActionDelegate"
+              icon="icons/script_go.png"
+              id="uk.ac.gda.pydev.runScript"
+              label="Run"
+              mode="FORCE_TEXT"
+              style="push"
+              toolbarPath="Normal/additions"
+              tooltip="Runs the script directly in the GDA Server.">
+        </action>
+     </editorContribution>
+  </extension>
+  <extension
+        name="Navigator content for scripting"
+        point="org.eclipse.ui.navigator.viewer">
+     <viewerContentBinding
+           viewerId="uk.ac.gda.client.navigator">
+        <includes>
+           <contentExtension
+                 pattern="org.eclipse.ui.navigator.resourceContent">
+           </contentExtension>
+           <contentExtension
+                 pattern="org.eclipse.ui.navigator.resources.filters.*">
+           </contentExtension>
+        </includes>
+     </viewerContentBinding>
+     <viewerActionBinding
+           viewerId="uk.ac.gda.client.navigator">
+        <includes>
+           <actionExtension
+                 pattern="org.eclipse.ui.navigator.resources.*">
+           </actionExtension>
+        </includes>
+     </viewerActionBinding>
   </extension>
 </plugin>

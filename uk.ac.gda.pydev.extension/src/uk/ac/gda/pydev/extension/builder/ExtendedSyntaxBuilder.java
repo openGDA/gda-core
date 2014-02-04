@@ -35,11 +35,11 @@ import org.python.pydev.builder.PyDevBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.scripting.PreferenceConstants;
 import uk.ac.gda.common.rcp.util.IFileUtils;
 import uk.ac.gda.jython.ExtendedJythonMarkers;
 import uk.ac.gda.jython.ExtendedJythonSyntax;
 import uk.ac.gda.pydev.extension.Activator;
-import uk.ac.gda.pydev.ui.preferences.PreferenceConstants;
 
 /**
  * Class intercepts the builds and removes markers marking the extended Jython syntax.

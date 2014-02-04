@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.pydev.ui.preferences;
+package uk.ac.gda.client.scripting;
 
 public class PreferenceConstants {
 	

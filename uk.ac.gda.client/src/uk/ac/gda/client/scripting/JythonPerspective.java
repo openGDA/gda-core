@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.pydev.extension.ui.perspective;
+package uk.ac.gda.client.scripting;
 
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.search.ui.NewSearchUI;
@@ -34,7 +34,7 @@ public class JythonPerspective implements IPerspectiveFactory {
 	/**
 	 * Do not change. Referenced in plugin.xml files and beam line .ini files which do not refactor.
 	 */
-	public static final String ID = "uk.ac.gda.pydev.extension.ui.JythonPerspective";
+	public static final String ID = "uk.ac.gda.client.scripting.JythonPerspective";
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {

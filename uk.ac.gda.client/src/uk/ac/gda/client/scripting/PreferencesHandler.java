@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.pydev.actions;
+package uk.ac.gda.client.scripting;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -25,8 +25,6 @@ import org.eclipse.core.commands.IHandler;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
-
-import uk.ac.gda.pydev.ui.preferences.JythonPreferencePage;
 
 public class PreferencesHandler extends AbstractHandler implements IHandler {
 
