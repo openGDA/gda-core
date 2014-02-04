@@ -47,11 +47,9 @@ public class ADActionUtils {
 				try{
 					ICommandService cs = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
 					Command command = cs.getCommand(commandId);
-					
 					IParameter parameter = command.getParameter(commandParameterName);
 					Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter, commandParameterValue) };
 					ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
-					
 					ExecutionEvent executionEvent = ((IHandlerService) PlatformUI.getWorkbench().getService(IHandlerService.class)).createExecutionEvent(cmd, null);
 					command.executeWithChecks(executionEvent);
 				}
@@ -68,8 +66,7 @@ public class ADActionUtils {
 		return action;
 	}
 	
-	public IAction createShowViewAction(String name, final String viewId, final String secondaryId, String description,
-			ImageDescriptor imageDesc){
+	public IAction addShowViewAction(String name, final String viewId, final String secondaryId, String description){
 		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
 			@Override
 			public void run() {
@@ -89,8 +86,15 @@ public class ADActionUtils {
 			}
 		};
 		action.setToolTipText(description);
-		action.setImageDescriptor(imageDesc);
+		ICommandImageService service = (ICommandImageService) PlatformUI.getWorkbench().getService(ICommandImageService.class);
+		ImageDescriptor imageDesc = service.getImageDescriptor(viewId);
+		if(imageDesc!=null)
+			action.setImageDescriptor(imageDesc);
+		else{
+			System.out.println("Cannot get image descriptor");
+			imageDesc = service.getImageDescriptor(viewId);
+		}
 		return action;
-		
 	}
+	
 }

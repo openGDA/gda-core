@@ -37,6 +37,16 @@
             id="uk.ac.gda.epics.adviewer.showLiveView"
             name="showLiveView">
       </command>
+      <command
+            description="Show raw image"
+            id="uk.ac.gda.epics.adviewer.rawimageview"
+            name="showRawImageView">
+      </command>
+      <command
+            description="Shows the histogram view for this camera"
+            id="uk.ac.gda.epics.adviewer.histogramview"
+            name="showHistogramView">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.commandImages">
@@ -53,8 +63,16 @@
             icon="icons/arrow_out.png">
       </image>
       <image
+            commandId="uk.ac.gda.epics.adviewer.rawimageview"
+            icon="icons/AreaDetectorImageView.gif">
+      </image>
+      <image
             commandId="uk.ac.gda.epics.adviewer.showLiveView"
             icon="icons/AreaDetectorLiveView.gif">
+      </image>
+      <image
+            commandId="uk.ac.gda.epics.adviewer.histogramview"
+            icon="icons/AreaDetectorProfileView.gif">
       </image>
    </extension>
    <extension
@@ -100,8 +118,17 @@
             category="uk.ac.gda.epics.adviewer.view.category"
             class="uk.ac.gda.epics.adviewer.views.MJPegView"
             icon="icons/AreaDetectorLiveView.gif"
-            id="uk.ac.gda.epics.adviewer.mjpegview"
-            name="MJPegView"
+            id="uk.ac.gda.epics.adviewer.showLiveView"
+            name="Live View"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            category="uk.ac.gda.epics.adviewer.view.category"
+            class="uk.ac.gda.epics.adviewer.views.TwoDArrayViewCreator"
+            icon="icons/AreaDetectorImageView.gif"
+            id="uk.ac.gda.epics.adviewer.rawimageview"
+            name="Raw Image View"
             restorable="true">
       </view>
    </extension>

@@ -22,15 +22,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.Vector;
 
-import org.eclipse.core.commands.Command;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.IParameter;
-import org.eclipse.core.commands.Parameterization;
-import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -41,9 +35,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandImageService;
-import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,9 +135,11 @@ public class MJPegView extends ViewPart {
 		ADActionUtils actionUtils = new ADActionUtils();
 		List<IAction> actions = new Vector<IAction>();			
 		{
+			actions.add(actionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
 			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
-			actions.add(actionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
-			actions.add(actionUtils.addAction("Show Live View", "org.eclipse.ui.views.showView", Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
+			actions.add(actionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
+			actions.add( actionUtils.addShowViewAction("Show Histogram", Ids.COMMANDS_SHOW_HISTOGRAM_VIEW, config.getServiceName(), "Show Histogram view for selected camera"));
+			actions.add( actionUtils.addShowViewAction("Show Raw Image", Ids.COMMANDS_SHOW_RAW_IMAGE_VIEW, config.getServiceName(), "Show Raw Image view for selected camera"));
 		}	
 		for (IAction iAction : actions) {
 			getViewSite().getActionBars().getToolBarManager().add(iAction);

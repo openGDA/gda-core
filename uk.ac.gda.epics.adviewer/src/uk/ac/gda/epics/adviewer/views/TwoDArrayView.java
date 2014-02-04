@@ -21,10 +21,14 @@ package uk.ac.gda.epics.adviewer.views;
 import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Vector;
 
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -36,10 +40,13 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.ADController;
+import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.TwoDArray;
 import uk.ac.gda.epics.adviewer.composites.tomove.PlottingSystemIRegionPlotServerConnector;
+import uk.ac.gda.epics.adviewer.Activator;
 
 public class TwoDArrayView extends ViewPart implements InitializingBean{
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArrayView.class);
@@ -76,6 +83,14 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 	@Override
 	public void createPartControl(Composite parent) {
 
+		if( config== null){
+			String serviceName = getViewSite().getSecondaryId();
+			if( StringUtils.isEmpty(serviceName))
+				throw new RuntimeException("No secondary id given");
+			config = (ADController)Activator.getNamedService(ADController.class, serviceName);
+			name = serviceName + " MJPeg";
+		}
+		
 		parent.setLayout(new FillLayout());
 		try {
 			twoDArray = new TwoDArray(this, parent, SWT.NONE);
@@ -133,29 +148,20 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 			setTitleImage(image);
 		}
 		setPartName(name ); 
-
 	}
-
-	protected void createActions() {
-/*		List<IAction> actions = new Vector<IAction>();			
+	
+	protected void createActions() throws NotDefinedException {
+		ADActionUtils actionUtils = new ADActionUtils();
+		List<IAction> actions = new Vector<IAction>();
 		{
-			IAction action = new Action("", IAction.AS_CHECK_BOX) {
-				@Override
-				public void run() {
-					twoDArray.showLeft(!twoDArray.getShowLeft());
-					this.setChecked(twoDArray.getShowLeft());
-				}
-			};
-			action.setChecked(twoDArray.getShowLeft());
-			action.setToolTipText("Show/Hide Left Panel");
-			action.setImageDescriptor(Activator.getImageDescriptor("icons/show_left.png"));
-			actions.add(action);
+			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
+			actions.add(actionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
 		}	
 		for (IAction iAction : actions) {
 			getViewSite().getActionBars().getToolBarManager().add(iAction);
-		}*/
-		
+		}
 	}
+	
 	@Override
 	public void setFocus() {
 		twoDArray.setFocus();
@@ -186,7 +192,5 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 		}
 		return super.getAdapter(clazz);
 	}
-	
-	
 	
 }

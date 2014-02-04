@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.IAction;
@@ -71,10 +72,8 @@ public class HistogramView extends ViewPart{
 	public HistogramView(){
 	}
 
-
 	@Override
 	public void createPartControl(Composite parent) {
-
 		try {
 			if( config== null){
 				String serviceName = getViewSite().getSecondaryId();
@@ -90,20 +89,8 @@ public class HistogramView extends ViewPart{
 			histogram.start();
 			histogram.startStats();
 			histogram.showLeft(true);
-			List<IAction> actions = new Vector<IAction>();
-			ADActionUtils actionUtils = new ADActionUtils();
-			{
-				actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
-				actions.add(actionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
-
-				ICommandImageService service = (ICommandImageService) PlatformUI.getWorkbench().getService(ICommandImageService.class);
-				ImageDescriptor imageDescriptor2 = service.getImageDescriptor(Ids.COMMANDS_SHOW_LIVEVIEW);
-				
-				actions.add( actionUtils.createShowViewAction("Show MJpeg", "uk.ac.gda.epics.adviewer.mjpegview", config.getServiceName(), "Show MJPEG view for selected camera", imageDescriptor2));
-			}	
-			for (IAction iAction : actions) {
-				getViewSite().getActionBars().getToolBarManager().add(iAction);
-			}
+			
+			createActions();
 			
 		} catch (Exception e) {
 			logger.error("Error starting  areaDetectorProfileComposite", e);
@@ -113,8 +100,18 @@ public class HistogramView extends ViewPart{
 		}
 		setPartName(name );
 	}
-
 	
+	protected void createActions() throws NotDefinedException {
+		ADActionUtils actionUtils = new ADActionUtils();
+		List<IAction> actions = new Vector<IAction>();
+		{
+			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
+			actions.add( actionUtils.addShowViewAction("Show Live", "uk.ac.gda.epics.adviewer.showLiveView", config.getServiceName(), "Show MJPEG view for selected camera"));
+		}	
+		for (IAction iAction : actions) {
+			getViewSite().getActionBars().getToolBarManager().add(iAction);
+		}
+	}
 	
 	@Override
 	public void setFocus() {
@@ -138,7 +135,4 @@ public class HistogramView extends ViewPart{
 		return super.getAdapter(clazz);
 	}
 
-
-	
-	
 }
