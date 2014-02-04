@@ -20,8 +20,6 @@ package uk.ac.gda.devices.bssc.beans;
 
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
-import gda.observable.Observable;
-import gda.observable.Observer;
 
 import java.sql.SQLException;
 
@@ -32,35 +30,29 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.devices.bssc.ispyb.BioSAXSDBFactory;
 import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB;
 
-public class BioSAXSProgressController implements Observer<Object> {
+public class BioSAXSProgressController {
 	private static final Logger logger = LoggerFactory.getLogger(BioSAXSProgressController.class);
 	private BioSAXSISPyB bioSAXSISPyB;
-	private BioSAXSProgressModel bioSAXSProgressModel;
+	private IProgressModel bioSAXSProgressModel;
 	private String visit;
 	private long blSessionId;
 
-	public BioSAXSProgressController(BioSAXSProgressModel bioSAXSProgressModel) {
-		this.bioSAXSProgressModel = bioSAXSProgressModel;
-		new BioSAXSDBFactory().setJdbcURL("jdbc:oracle:thin:@duoserv12.diamond.ac.uk:1521:ispyb");
-		bioSAXSISPyB = BioSAXSDBFactory.makeAPI();
-		try {
-			bioSAXSISPyB.addObserver(this);
-		} catch (Exception e) {
-			logger.error("Exception adding observer to BioSAXSIspyB", e);
-		}
+	public BioSAXSProgressController(IProgressModel model) {
+		bioSAXSProgressModel = model;
+	}
+
+	public void setISpyBAPI(BioSAXSISPyB bioSAXSISPyB) {
+		this.bioSAXSISPyB = bioSAXSISPyB;
 		try {
 			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
 			blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
 		} catch (DeviceException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("DeviceEXception getting visit", e);
 		} catch (SQLException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("SQLEXception getting session id", e);
 		}
-
-		pollISpyB();
 	}
 
 	public void pollISpyB() {
@@ -76,7 +68,7 @@ public class BioSAXSProgressController implements Observer<Object> {
 					return Status.OK_STATUS;
 				} finally {
 					// start job again after specified time has elapsed
-					schedule(10000);
+					schedule(90000);
 				}
 			}
 		};
@@ -93,25 +85,11 @@ public class BioSAXSProgressController implements Observer<Object> {
 		pollingJob.schedule();
 	}
 
-	private void loadModelFromISPyB() {
+	public void loadModelFromISPyB() {
 		try {
 			bioSAXSProgressModel.addItems(bioSAXSISPyB.getBioSAXSMeasurements(blSessionId));
 		} catch (SQLException e) {
 			logger.error("SQL EXception getting data collections from ISpyB", e);
 		}
-	}
-
-	public void updateModelFromISpyB(long dataCollectionId) {
-		try {
-			ISAXSDataCollection collection = bioSAXSISPyB.getDataCollection(blSessionId, dataCollectionId);
-//			bioSAXSProgressModel.set(((Long) dataCollectionId).intValue(), collection);
-		} catch (SQLException e) {
-			logger.error("SQL EXception getting data collection from ISpyB", e);
-		}
-	}
-
-	@Override
-	public void update(Observable<Object> source, Object arg) {
-		bioSAXSProgressModel.updateItem(source, arg);
 	}
 }

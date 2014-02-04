@@ -22,7 +22,6 @@ import java.beans.PropertyChangeListener;
 
 public interface ISAXSDataCollection {
 	public static final String SAMPLE_NAME = "sampleName";
-	public static final String COLLECTION_START_TIME = "collectionStartTime";
 	public static final String COLLECTION_STATUS = "collectionStatus";
 	public static final String REDUCTION_STATUS = "reductionStatus";
 	public static final String ANALYSIS_STATUS = "analysisStatus";
@@ -33,10 +32,6 @@ public interface ISAXSDataCollection {
 	public void setSampleName(String sampleName);
 
 	public String getSampleName();
-
-	public void setCollectionStartTime(long collectionStartTime);
-
-	public long getCollectionStartTime();
 	
 	public ISpyBStatus getCollectionStatus();
 
