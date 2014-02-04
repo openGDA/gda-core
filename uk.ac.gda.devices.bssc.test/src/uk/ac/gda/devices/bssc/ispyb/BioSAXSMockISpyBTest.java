@@ -130,19 +130,37 @@ public class BioSAXSMockISpyBTest {
 			assertEquals(100, dataCollection.getCollectionProgress());
 			assertEquals(bufferAfterFile, status.getFileName());
 
-			bioSAXSISPyB.setDataReductionStatus(dataCollectionId,
-					ISpyBStatus.NOT_STARTED, "");
+			status = ISpyBStatus.NOT_STARTED;
 			String reductionFileName = "/dls/b21/data/2013/sm999-9/b21-9993.nxs";
 			bioSAXSISPyB.setDataReductionStatus(dataCollectionId, status,
 					reductionFileName);
 			bioSAXSISPyB.createDataReduction(dataCollectionId);
-			
+			status = ISpyBStatus.RUNNING;
+			bioSAXSISPyB.setDataReductionStatus(dataCollectionId, status,
+					reductionFileName);
+			assertEquals(status,
+					bioSAXSISPyB.getDataReductionStatus(dataCollectionId));
+			status = ISpyBStatus.COMPLETE;
+			bioSAXSISPyB.setDataReductionStatus(dataCollectionId, status,
+					reductionFileName);
+			assertEquals(status,
+					bioSAXSISPyB.getDataReductionStatus(dataCollectionId));
 
-			bioSAXSISPyB.setDataAnalysisStatus(dataCollectionId,
-					ISpyBStatus.NOT_STARTED, "");
+			status = ISpyBStatus.NOT_STARTED;
 			String analysisFileName = "/dls/b21/data/2013/sm999-9/b21-9994.nxs";
 			bioSAXSISPyB.setDataAnalysisStatus(dataCollectionId, status,
 					analysisFileName);
+			bioSAXSISPyB.createDataAnalysis(dataCollectionId);
+			status = ISpyBStatus.RUNNING;
+			bioSAXSISPyB.setDataAnalysisStatus(dataCollectionId, status,
+					analysisFileName);
+			assertEquals(status,
+					bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId));
+			status = ISpyBStatus.COMPLETE;
+			bioSAXSISPyB.setDataReductionStatus(dataCollectionId, status,
+					analysisFileName);
+			assertEquals(status,
+					bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId));
 		}
 	}
 
@@ -291,7 +309,7 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 		long dataAnalysisId = 0;
 		return dataAnalysisId;
 	}
-	
+
 	@Override
 	public void setDataReductionStatus(long saxsDataCollectionId,
 			ISpyBStatus status, String resultsFilename) throws SQLException {
