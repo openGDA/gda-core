@@ -21,7 +21,7 @@ package gda.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.Layout;
 
@@ -42,7 +42,7 @@ import ch.qos.logback.core.Layout;
 		 * Please see the manual at http://logback.qos.ch/manual/index.html for more information.
 		 * 
 		 */
-		public class ElogAppender extends AppenderBase<LoggingEvent> {
+		public class ElogAppender extends AppenderBase<ILoggingEvent> {
 			String
 			visit="",
 			logID="",
@@ -51,7 +51,7 @@ import ch.qos.logback.core.Layout;
 			
 			static final Logger logger = LoggerFactory.getLogger("gda.util.ElogAppender");
 			@Override
-			protected void append(LoggingEvent eventObject) {
+			protected void append(ILoggingEvent eventObject) {
 //				if(!eventObject.getCallerData()[0].getClassName().equals("gda.util.ElogEntry")){
 //					return;
 //				}
@@ -138,13 +138,9 @@ import ch.qos.logback.core.Layout;
 				 return userID;
 			}
 			
-			@Override
-			public Layout<LoggingEvent> getLayout() {
-				return layout;
-			}
-
-			@Override
-			public void setLayout(Layout<LoggingEvent> layout) {
+			private Layout<ILoggingEvent> layout;
+			
+			public void setLayout(Layout<ILoggingEvent> layout) {
 				this.layout = layout;
 			}
 }
