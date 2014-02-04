@@ -224,6 +224,7 @@ public class TomoPlotComposite extends Composite {
 		// FIXME - DAWN API Changed and cannot map to old API.
 		// plottingSystem.createPlotPart(plotComposite, "", null, PlotType.PT1D_MULTI, null);
 		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.XY_STACKED, null);
+		plottingSystem.setShowLegend(true);//false);
 		lineListeners = new ArrayList<TomoPlotComposite.PlottingSystemActionListener>();
 		//
 
@@ -406,14 +407,18 @@ public class TomoPlotComposite extends Composite {
 			final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
 
 			if (rawImgDs != null) {
-				rawDataSlice = rawImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, 4008 }, new int[] { 1, 1 });
+				int[] shape = rawImgDs.getShape();
+				rawDataSlice = rawImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, shape[1] }, new int[] { 1, 1 });
 				rawDataSlice.squeeze();
+				rawDataSlice.setName("raw");
 				plotDataSets.add(rawDataSlice);
 			}
 			if (darkImgDs != null) {
-				AbstractDataset darkDataSlice = darkImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, 4008 },
+				int[] shape = rawImgDs.getShape();
+				AbstractDataset darkDataSlice = darkImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y,  shape[1]  },
 						new int[] { 1, 1 });
 				darkDataSlice.squeeze();
+				darkDataSlice.setName("dark");
 				plotDataSets.add(darkDataSlice);
 			}
 
