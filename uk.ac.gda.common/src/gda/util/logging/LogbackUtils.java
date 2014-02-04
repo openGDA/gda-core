@@ -31,7 +31,7 @@ import ch.qos.logback.classic.BasicConfigurator;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
 
@@ -168,9 +168,9 @@ public class LogbackUtils {
 	 * 
 	 * @return a list of the logger's appenders
 	 */
-	public static List<Appender<LoggingEvent>> getAppendersForLogger(Logger logger) {
-		List<Appender<LoggingEvent>> appenders = new LinkedList<Appender<LoggingEvent>>();
-		Iterator<Appender<LoggingEvent>> iterator = logger.iteratorForAppenders();
+	public static List<Appender<ILoggingEvent>> getAppendersForLogger(Logger logger) {
+		List<Appender<ILoggingEvent>> appenders = new LinkedList<Appender<ILoggingEvent>>();
+		Iterator<Appender<ILoggingEvent>> iterator = logger.iteratorForAppenders();
 		while (iterator.hasNext()) {
 			appenders.add(iterator.next());
 		}
@@ -185,9 +185,9 @@ public class LogbackUtils {
 		List<Logger> loggers = loggerContext.getLoggerList();
 		for (Logger logger : loggers) {
 			System.out.printf("    %s level=%s effective=%s\n", logger, logger.getLevel(), logger.getEffectiveLevel());
-			Iterator<Appender<LoggingEvent>> it = logger.iteratorForAppenders();
+			Iterator<Appender<ILoggingEvent>> it = logger.iteratorForAppenders();
 			while (it.hasNext()) {
-				Appender<LoggingEvent> appender = it.next();
+				Appender<ILoggingEvent> appender = it.next();
 				System.out.println("        " + appender);
 			}
 		}

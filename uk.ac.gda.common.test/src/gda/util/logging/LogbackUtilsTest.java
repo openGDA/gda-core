@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 import junit.framework.TestCase;
@@ -73,7 +73,7 @@ public class LogbackUtilsTest extends TestCase {
 		
 		// Except for the root logger, none of the loggers should have any appenders, or a level
 		for (Logger logger : loggerContext.getLoggerList()) {
-			final List<Appender<LoggingEvent>> appenders = LogbackUtils.getAppendersForLogger(logger);
+			final List<Appender<ILoggingEvent>> appenders = LogbackUtils.getAppendersForLogger(logger);
 			if (logger.getName().equals(ROOT_LOGGER_NAME)) {
 				assertEquals(Level.DEBUG, logger.getLevel());
 				assertEquals(1, appenders.size());
