@@ -24,14 +24,15 @@ import gda.device.DeviceException;
 
 import java.io.File;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +40,7 @@ import org.slf4j.LoggerFactory;
  * Used to send ELog entries consisting of text and images to an ELog server.
  */
 public class ElogEntry {
-	
 	static final String defaultURL = "http://rdb.pri.diamond.ac.uk/devl/php/elog/cs_logentryext_bl.php";
-	
 	/**
 	 * logger that can be used for logging messages to go into eLog - needs to be selected in the logger config
 	 */
@@ -76,65 +75,51 @@ public class ElogEntry {
 			String[] fileLocations) throws ELogEntryException {
 		String targetURL = defaultURL;
 		try {
-
-			File targetFile = null;
-			Part[] parts = new Part[6];
-
 			String entryType = "41";// entry type is always a log (41)
-
 			String titleForPost = visit == null ? title : "Visit: " + visit + " - " + title;
 			
-			parts[0] = new StringPart("txtTITLE", titleForPost);
-			parts[1] = new StringPart("txtCONTENT", content);
-			parts[2] = new StringPart("txtLOGBOOKID", logID);
-			parts[3] = new StringPart("txtGROUPID", groupID);
-			parts[4] = new StringPart("txtENTRYTYPEID", entryType);
-			parts[5] = new StringPart("txtUSERID", userID);
-
-			Part[] tempParts;
-			
+			MultipartEntityBuilder request = MultipartEntityBuilder.create()
+					.addTextBody("txtTITLE", titleForPost)
+					.addTextBody("txtCONTENT", content)
+					.addTextBody("txtLOGBOOKID", logID)
+					.addTextBody("txtGROUPID", groupID)
+					.addTextBody("txtENTRYTYPEID", entryType)
+					.addTextBody("txtUSERID", userID);
 			
 			if(fileLocations != null){
-				FilePart filePart = null;
-
 				for (int i = 1; i < fileLocations.length + 1; i++) {
-					targetFile = new File(fileLocations[i - 1]);
-					filePart = new FilePart(targetFile.getName(), targetFile);
-					filePart.setContentType("image/png");
-					filePart.setName("userfile" + i);
-
-					tempParts = new Part[parts.length + 1];
-					System.arraycopy(parts, 0, tempParts, 0, parts.length);
-					tempParts[tempParts.length - 1] = filePart;
-					parts = tempParts;
+					File targetFile = new File(fileLocations[i - 1]);
+					request = request.addBinaryBody("userfile" + i,
+							targetFile,
+							ContentType.create("image/png"),
+							targetFile.getName());
 				}
 			}
 			
-			PostMethod filePost = null;
-
+			HttpEntity entity = request.build();
 			targetURL  = LocalProperties.get("gda.elog.targeturl", defaultURL);
-			filePost = new PostMethod(targetURL);
-			filePost.setRequestEntity(new MultipartRequestEntity(parts, filePost.getParams()));
-
-			HttpClient client = new HttpClient();
-
-			HttpConnectionManagerParams params = client.getHttpConnectionManager().getParams();
-			params.setConnectionTimeout(5000);
-
-			int status = client.executeMethod(filePost);
-
-			String responseBody = filePost.getResponseBodyAsString();
-			if (!responseBody.contains("New Log Entry ID")) {
-				throw new ELogEntryException("Upload failed, status=" + HttpStatus.getStatusText(status)
-						+ " response="+filePost.getResponseBodyAsString()
+			HttpPost httpPost = new HttpPost(targetURL);
+			httpPost.setEntity(entity);
+			CloseableHttpClient httpClient = HttpClients.createDefault();
+			CloseableHttpResponse response = httpClient.execute(httpPost);
+			
+			try {
+				String responseString = EntityUtils.toString(response.getEntity());
+				System.out.println(responseString);
+				if (!responseString.contains("New Log Entry ID")) {
+					throw new ELogEntryException("Upload failed, status=" + response.getStatusLine().getStatusCode()
+						+ " response="+responseString
 						+ " targetURL = " + targetURL
 						+ " titleForPost = " + titleForPost
 						+ " logID = " + logID
 						+ " groupID = " + groupID
 						+ " entryType = " + entryType
 						+ " userID = " + userID);
+				}
+			} finally {
+				response.close();
+				httpClient.close();
 			}
-			filePost.releaseConnection();
 		} catch (ELogEntryException e) {
 			throw e;
 		} catch (Exception e) {
