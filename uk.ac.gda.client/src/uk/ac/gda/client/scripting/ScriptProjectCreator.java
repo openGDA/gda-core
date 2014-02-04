@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.pydev;
+package uk.ac.gda.client.scripting;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
@@ -57,7 +57,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.common.rcp.util.BundleUtils;
 import uk.ac.gda.jython.PydevConstants;
 import uk.ac.gda.pydev.extension.Activator;
-import uk.ac.gda.pydev.ui.preferences.PreferenceConstants;
 import uk.ac.gda.ui.utils.ProjectUtils;
 
 /**

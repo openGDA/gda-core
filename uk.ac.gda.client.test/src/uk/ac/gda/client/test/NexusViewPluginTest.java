@@ -57,7 +57,7 @@ public class NexusViewPluginTest implements IScanDataPointProvider {
 		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		
 		// Open scripts perspective
-		final IPerspectiveDescriptor scripts = PlatformUI.getWorkbench().getPerspectiveRegistry().findPerspectiveWithId("uk.ac.gda.pydev.extension.ui.JythonPerspective");
+		final IPerspectiveDescriptor scripts = PlatformUI.getWorkbench().getPerspectiveRegistry().findPerspectiveWithId("uk.ac.gda.client.scripting.JythonPerspective");
 		window.getActivePage().setPerspective(scripts);
 		EclipseUtils.delay(500);
 		

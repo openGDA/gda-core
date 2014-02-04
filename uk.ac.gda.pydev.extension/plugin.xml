@@ -6,7 +6,7 @@
       <perspective
             class="uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective"
             icon="icons/script.png"
-            id="uk.ac.gda.pydev.extension.ui.JythonPerspective"
+            id="uk.ac.gda.client.scripting.JythonPerspective"
             name="Scripts">
       </perspective>
    </extension>

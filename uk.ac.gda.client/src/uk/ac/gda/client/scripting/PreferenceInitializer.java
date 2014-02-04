@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.pydev.ui.preferences;
+package uk.ac.gda.client.scripting;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,7 +28,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import uk.ac.gda.pydev.ScriptProjectCreator;
 import uk.ac.gda.pydev.extension.Activator;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
