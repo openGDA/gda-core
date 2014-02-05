@@ -413,6 +413,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				// need to sort by level!
 				principleScanObject.scannable.atLevelStart();
 				principleScanObject.scannable.atLevelMoveStart();
+				checkForInterrupts();
 				stepId = principleScanObject.moveToStart();
 				checkAllMovesComplete();
 				runChildScan();
@@ -437,6 +438,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					ScanObject principleScanObject = this.allScanObjects.get(0);
 					principleScanObject.scannable.atLevelStart();
 					principleScanObject.scannable.atLevelMoveStart();
+					checkForInterrupts();
 					stepId = principleScanObject.moveStep();
 					checkAllMovesComplete();
 					runChildScan();

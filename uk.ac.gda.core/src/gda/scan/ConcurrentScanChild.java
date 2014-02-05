@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -95,104 +95,65 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	public void setChild(IConcurrentScanChild child) {
 		super.setChild(child);
 	}	
-	/**
-	 * @return Returns the scannableLevels.
-	 */
+
 	@Override
 	public TreeMap<Integer, Scannable[]> getScannableLevels() {
 		return scannableLevels;
 	}
 
-	/**
-	 * @param scannableLevels The scannableLevels to set.
-	 */
 	@Override
 	public void setScannableLevels(TreeMap<Integer, Scannable[]> scannableLevels) {
 		this.scannableLevels = scannableLevels;
 	}
 
-	/**
-	 * @return Returns the allScanObjects.
-	 */
 	@Override
 	public Vector<ScanObject> getAllScanObjects() {
 		return allScanObjects;
 	}
 
-	/**
-	 * @param allScanObjects The allScanObjects to set.
-	 */
 	@Override
 	public void setAllScanObjects(Vector<ScanObject> allScanObjects) {
 		this.allScanObjects = allScanObjects;
 	}
 
-
-	/**
-	 * @return Returns the allChildScans.
-	 */
 	@Override
 	public Vector<IConcurrentScanChild> getAllChildScans() {
 		return allChildScans;
 	}
 
-	/**
-	 * @param allChildScans The allChildScans to set.
-	 */
 	@Override
 	public void setAllChildScans(Vector<IConcurrentScanChild> allChildScans) {
 		this.allChildScans = allChildScans;
 	}
 	
-	/**
-	 * @return Returns the insideMultiScan.
-	 */
 	public static boolean isInsideMultiScan() {
 		return insideMultiScan;
 	}
 
-	/**
-	 * @param insideMultiScan The insideMultiScan to set.
-	 */
 	public static void setInsideMultiScan(boolean insideMultiScan) {
 		ScanBase.insideMultiScan = insideMultiScan;
 	}
 
-	/**
-	 * @return Returns the allScannables.
-	 */
 	@Override
 	public Vector<Scannable> getAllScannables() {
 		return allScannables;
 	}
 
-	/**
-	 * @param allScannables The allScannables to set.
-	 */
 	@Override
 	public void setAllScannables(Vector<Scannable> allScannables) {
 		this.allScannables = allScannables;
 	}
 
-	/**
-	 * @return Returns the allDetectors.
-	 */
 	@Override
 	public Vector<Detector> getAllDetectors() {
 		return allDetectors;
 	}
 
-	/**
-	 * @param allDetectors The allDetectors to set.
-	 */
 	@Override
 	public void setAllDetectors(Vector<Detector> allDetectors) {
 		this.allDetectors = allDetectors;
 	}
 
-	/**
-	 * @return Returns the command.
-	 */
 	@Override
 	public String getCommand() {
 		return command;
@@ -217,8 +178,6 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 		TotalNumberOfPoints = totalNumberOfPoints;
 	}
 
-
-	
 	/**
 	 * Moves to the next step unless start is true, then moves to the start of the current (possibly child) scan.
 	 * @throws Exception
@@ -246,10 +205,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			
 			// trigger at level start on all Scannables
 			for (Scannable scannable : scannablesAtThisLevel) {
-				// TODO: Write isScannablePartOfThisScanLine()
-//				if (isScannablePartOfThisScanLine(scannable)){
 				scannable.atLevelStart();
-//				}
 			}
 			
 			// trigger at level move start on all Scannables
@@ -278,8 +234,10 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					ScanObject scanObject = isScannableToBeMoved(device);
 					if (scanObject != null) {
 						if (start) {
+							checkForInterrupts();
 							scanObject.moveToStart();
 						} else {
+							checkForInterrupts();
 							scanObject.moveStep();
 						}
 					}
@@ -341,29 +299,6 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 		return null;
 	}
 	
-//	private boolean isScannablePartOfThisScanLine(Scannable scannable) {
-//		// If it will be moved as part of any parents scan, then it is not.
-//		List<ConcurrentScanChild> ancestors = findAncestors();
-//		for (ConcurrentScanChild ancestor : ancestors) {
-//			if (ancestor.isScannableActuallyToBeMoved(scannable)) {
-//				return false;
-//			}
-//		}
-//		return true;
-//	}
-//	
-//	private List<ConcurrentScanChild> findAncestors() {
-	// TODO: Only gets one ancestor for some reason! RobW
-//		List<ConcurrentScanChild> ancestors = new ArrayList<ConcurrentScanChild>();
-//		ConcurrentScanChild nextParent = (ConcurrentScanChild) getParent();
-//		while (nextParent != null) {
-//			ancestors.add(nextParent);
-//			nextParent = (ConcurrentScanChild) nextParent.getParent();
-//		}
-//		
-//		return ancestors;
-//	}
-	
 	final protected boolean isScannableActuallyToBeMoved(Scannable scannable) {
 		ScanObject scannableToBeMoved = isScannableToBeMoved(scannable);
 		return (scannableToBeMoved) == null ? false : scannableToBeMoved.hasStart();
@@ -374,7 +309,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 */
 	protected void checkAllMovesComplete() throws Exception {
 		for (ScanObject scanObject : allScanObjects) {
-			checkForInterruptsIgnoreIdle();
+			checkForInterrupts();
 			// only check those objects which we have moved are no longer busy
 			if (scanObject.hasStart()) {
 				scanObject.scannable.waitWhileBusy();
@@ -507,7 +442,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 							if (Thread.interrupted()) {
 								throw new InterruptedException(); // can't trust devices to look for these
 							}
-							checkForInterruptsIgnoreIdle(); // checks only ScanBase.interupted and may pause
+							checkForInterrupts(); // checks only ScanBase.interupted and may pause
 							Object data = readoutTasks.get(i).get();
 							point.addDetectorData(data, ScannableUtils.getExtraNamesFormats(detectors.get(i)));
 						}
@@ -515,9 +450,9 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					}
 
 					// Put point onto pipeline
-					checkForInterruptsIgnoreIdle();
+					checkForInterrupts();
 					scanDataPointPipeline.put(point); // may block
-					checkForInterruptsIgnoreIdle();
+					checkForInterrupts();
 					
 					// The main scan thread cannot call atPointEnd (and subsequently atPointStart) in the correct order
 					// with respect to readout so call these here instead.

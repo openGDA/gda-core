@@ -221,7 +221,9 @@ public class CentroidScan extends ScanBase implements Scan {
 	 * @throws Exception
 	 */
 	private void moveToCentroids() throws Exception {
+		checkForInterrupts();
 		for (ScanObject j : this.concurrentScan.allScanObjects) {
+			checkForInterrupts();
 			j.moveToStart();
 		}
 		// pause here until all the movement has finished

@@ -37,7 +37,6 @@ public class ExplicitScanObject extends ScanObject {
 
 	@Override
 	ScanStepId moveToStart() throws Exception {
-		ScanBase.checkForInterrupts();
 		Object pos = points.get(0);
 		logger.debug("Moving " + scannable.getName() + " to " + pos);
 		scannable.asynchronousMoveTo(pos);
@@ -49,7 +48,6 @@ public class ExplicitScanObject extends ScanObject {
 	ScanStepId moveStep() throws Exception {
 		Object pos = null;
 		if (lastPoint != points.size()) {
-			ScanBase.checkForInterrupts();
 			pos = points.get(lastPoint + 1);
 			logger.debug("Moving " + scannable.getName() + " to " + pos);
 			scannable.asynchronousMoveTo(pos);
