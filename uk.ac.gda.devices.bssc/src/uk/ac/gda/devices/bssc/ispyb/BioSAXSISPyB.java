@@ -83,67 +83,6 @@ public interface BioSAXSISPyB {
 	public long createSaxsDataCollectionUsingPreviousBuffer(long experimentID, short plate, short row, short column, String sampleName,
 			short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, long previousDataCollectionId) throws SQLException;
-	
-	/**
-	 * Create a buffer measurement
-	 * 
-	 * @param dataCollectionId
-	 *            The ID of the data collection // * @param specimenId // * The ID of the specimen // * @param
-	 *            beforeSample Boolean value indicating if the buffer measurement is taken before or after the sample
-	 * @param plate
-	 *            does not seem to be in the database. it is 1,2,3 and you could create a SamplePlate for each per
-	 *            Experiment
-	 * @param row
-	 *            i have row as char, i don't mind which way
-	 * @param column
-	 * @param exposureTemperature
-	 * @param numFrames
-	 * @param timePerFrame
-	 * @param flow
-	 * @param volume
-	 * @param energyInkeV
-	 * @param viscosity
-	 *            // * @param fileName "/dls/i22/data/2013/sm999-9/i22-9999.nxs" // * @param internalPath
-	 *            "/entry1/detector/data"
-	 * @return bufferMeasurementId
-	 */
-	public abstract long createBufferMeasurement(long dataCollectionId, short plate, short row, short column,
-			float exposureTemperature, int numFrames, double timePerFrame, double flow, double volume,
-			double energyInkeV, String viscosity) throws SQLException;
-
-	/**
-	 * Create a sample measurement // * @param blsessionId The ID of the visit
-	 * 
-	 * @param dataCollectionId
-	 *            The ID of the data collection
-	 * @param plate
-	 * @param row
-	 * @param column
-	 * @param exposureTemperature
-	 * @param numFrames
-	 * @param timePerFrame
-	 * @param flow
-	 * @param volume
-	 * @param energyInkeV
-	 * @param viscosity
-	 *            // * @param fileName // * @param internalPath
-	 * @return sampleMeasurementId
-	 */
-	public long createSampleMeasurement(long dataCollectionId, short plate, short row, short column,
-			float exposureTemperature, int numFrames, double timePerFrame, double flow, double volume,
-			double energyInkeV, String viscosity) throws SQLException;
-
-	/**
-	 * Create a measurement and associate it with a data collection
-	 * 
-	 * @param saxsDataCollectionId
-	 *            from that call
-	 * @param measurementId
-	 *            can be buffer or sample measurement
-	 * @return measurementToSaxsCollectionId
-	 * @throws SQLException
-	 */
-	public long createMeasurementToDataCollection(long saxsDataCollectionId, long measurementId) throws SQLException;
 
 	/**
 	 * Creates a buffer run, updates measurement.runId, returns runId.
@@ -195,26 +134,6 @@ public interface BioSAXSISPyB {
 			double beamCenterY, double pixelSizeX, double pixelSizeY, double radiationRelative,
 			double radiationAbsolute, double normalization, String filename, String internalPath);
 
-	// FIXME how to re re-use the runs between datacollections?
-
-	/**
-	 * Update ISpyB to update the measurement status
-	 * 
-	 * @param saxsDataCollectionId
-	 *            - the data collection id
-	 * @param measurementId
-	 * @param status
-	 */
-	public void setMeasurementStatus(long saxsDataCollectionId, long measurementId, ISpyBStatus status);
-
-	/**
-	 * Query ISpyB for the measurement status
-	 * 
-	 * @param measurementId
-	 * @return ISpyStaus
-	 */
-	public ISpyBStatus getMeasurementStatus(long measurementId);
-
 	/**
 	 * Method to close the database connection once it's no longer needed.
 	 */
@@ -264,7 +183,7 @@ public interface BioSAXSISPyB {
 	 * @param saxsDataCollectionId
 	 * @param status
 	 */
-	public void setCollectionStatus(long saxsDataCollectionId, ISpyBStatus status);
+	public void setDataCollectionStatus(long saxsDataCollectionId, ISpyBStatus status);
 
 	/**
 	 * Returns the status of the data collection for the sample/data collection
