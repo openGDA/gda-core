@@ -24,7 +24,7 @@ import uk.ac.gda.devices.bssc.beans.ISAXSDataCollection;
 import uk.ac.gda.devices.bssc.beans.ISpyBStatus;
 
 public class BioSAXSMockISpyBTest {
-	private static IProgressModel model;
+	public static IProgressModel model;
 	private static BioSAXSProgressController controller;
 	private static BioSAXSISPyB bioSAXSISPyB;
 	public static final int MODEL_SIZE = 7;
@@ -40,16 +40,11 @@ public class BioSAXSMockISpyBTest {
 		realm.exec(new Runnable() {
 			@Override
 			public void run() {
-//				model = new BioSAXSProgressModel();
-//				OSGIServiceRegister modelReg = new OSGIServiceRegister();
-//				modelReg.setClass(IProgressModel.class);
-//				modelReg.setService(model);
-//
-//				controller = new BioSAXSProgressController(model);
-//				bioSAXSISPyB = new MyBioSAXSISPy();
-//				controller.setISpyBAPI(bioSAXSISPyB);
-				
-				model = (IProgressModel) GDAClientActivator.getNamedService(IProgressModel.class, null);
+				controller = new BioSAXSProgressController();
+				bioSAXSISPyB = new MyBioSAXSISPy();
+				controller.setISpyBAPI(bioSAXSISPyB);
+
+				model = new BioSAXSProgressModel(controller);
 
 				// modelReg.afterPropertiesSet();
 				visit = "nt20-12";
@@ -61,90 +56,88 @@ public class BioSAXSMockISpyBTest {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
+				
+				List<ISAXSDataCollection> saxsDataCollections = controller
+						.loadModelFromISPyB();
+				model.addItems(saxsDataCollections);
 			}
 		});
 	}
 
 	@Test
 	public void testInitSAXSDataCollections() {
-		controller.loadModelFromISPyB();
 		assertEquals(MODEL_SIZE, model.getItems().size());
 	}
 
 	@Test
 	public void testRunSAXSDataCollections() throws Exception {
-		ObservableList items = (ObservableList) model.getItems();
+		for (long dataCollectionId = 0; dataCollectionId < model.getItems()
+				.size(); dataCollectionId++) {
+			int dataCollectionIdIntValue = ((Long) dataCollectionId).intValue();
+			ISAXSDataCollection dataCollection = (ISAXSDataCollection) model
+					.getItems().get(dataCollectionIdIntValue);
 
-		for (long dataCollectionId = 0; dataCollectionId < items.size(); dataCollectionId++) {
-			ISAXSDataCollection dataCollection = (ISAXSDataCollection) items
-					.get(((Long) dataCollectionId).intValue());
-
-			ISpyBStatus status = bioSAXSISPyB
+			ISpyBStatus modelCollectionStatus = bioSAXSISPyB
 					.getDataCollectionStatus(dataCollectionId);
-//			assertEquals(ISpyBStatus.NOT_STARTED, status);
+			// assertEquals(ISpyBStatus.NOT_STARTED, modelCollectionStatus);
 
 			String bufferBeforeFile = "/dls/b21/data/2013/sm999-9/b21-9990.nxs";
 			String bufferBeforePath = "/entry1/detector/data";
-			long bufferBeforeRun = bioSAXSISPyB.createBufferRun(-1,
+			long bufferBeforeRun = bioSAXSISPyB.createBufferRun(
 					dataCollectionId, 1.0, 20.0f, 20.0f, 10.0, 10, 1.0, 1.0,
 					1.0, 1.0, 1.0, 1.0, 1.0, 1.0, bufferBeforeFile,
 					bufferBeforePath);
-			status = bioSAXSISPyB.getDataCollectionStatus(dataCollectionId);
-			assertEquals(ISpyBStatus.RUNNING, status);
-			assertEquals(33, status.getProgress(), 0.0);
-			assertEquals(bufferBeforeFile, status.getFileName());
+
+			// assert here model is updated
+			ISAXSDataCollection modelDataCollection = (ISAXSDataCollection) model
+					.getItems().get(dataCollectionIdIntValue);
+
+			modelCollectionStatus = modelDataCollection.getCollectionStatus();
+			assertEquals(ISpyBStatus.RUNNING,
+					modelDataCollection.getCollectionStatus());
+			assertEquals(33, modelCollectionStatus.getProgress(), 0.0);
+			assertEquals(bufferBeforeFile, modelCollectionStatus.getFileName());
 
 			String sampleFile = "/dls/b21/data/2013/sm999-9/b21-9991.nxs";
 			String samplePath = "/entry1/detector/data";
 			long sampleRun = bioSAXSISPyB.createSampleRun(dataCollectionId,
 					1.0, 20.0f, 20.0f, 10.0, 10, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 					1.0, 1.0, sampleFile, samplePath);
-			status = bioSAXSISPyB.getDataCollectionStatus(dataCollectionId);
-			assertEquals(ISpyBStatus.RUNNING, status);
-			assertEquals(66, status.getProgress(), 0.0);
-			assertEquals(sampleFile, status.getFileName());
+
+			assertEquals(ISpyBStatus.RUNNING, modelCollectionStatus);
+			assertEquals(66, modelCollectionStatus.getProgress(), 0.0);
+			assertEquals(sampleFile, modelCollectionStatus.getFileName());
 
 			String bufferAfterFile = "/dls/b21/data/2013/sm999-9/b21-9992.nxs";
 			String bufferAfterPath = "/entry1/detector/data";
-			long bufferAfterRun = bioSAXSISPyB.createBufferRun(-1,
+			long bufferAfterRun = bioSAXSISPyB.createBufferRun(
 					dataCollectionId, 1.0, 20.0f, 20.0f, 10.0, 10, 1.0, 1.0,
 					1.0, 1.0, 1.0, 1.0, 1.0, 1.0, bufferAfterFile,
 					bufferAfterPath);
-			status = bioSAXSISPyB.getDataCollectionStatus(dataCollectionId);
-//			assertEquals(ISpyBStatus.COMPLETE, status);
-//			assertEquals(100, status.getProgress(), 0.0);
-//			assertEquals(bufferAfterFile, status.getFileName());
+			modelCollectionStatus = bioSAXSISPyB
+					.getDataCollectionStatus(dataCollectionId);
+			// assertEquals(ISpyBStatus.COMPLETE, status);
+			// assertEquals(100, status.getProgress(), 0.0);
+			// assertEquals(bufferAfterFile, status.getFileName());
 
-			status = ISpyBStatus.NOT_STARTED;
-			String reductionFileName = "/dls/b21/data/2013/sm999-9/b21-9993.nxs";
-			bioSAXSISPyB.setDataReductionStatus(dataCollectionId, status,
-					reductionFileName);
+			ISpyBStatus modelReductionStatus = bioSAXSISPyB
+					.getDataReductionStatus(dataCollectionId);
+
 			bioSAXSISPyB.createDataReduction(dataCollectionId);
-			status = ISpyBStatus.RUNNING;
-			bioSAXSISPyB.setDataReductionStatus(dataCollectionId, status,
-					reductionFileName);
-			assertEquals(status,
-					bioSAXSISPyB.getDataReductionStatus(dataCollectionId));
-			status = ISpyBStatus.COMPLETE;
-			bioSAXSISPyB.setDataReductionStatus(dataCollectionId, status,
-					reductionFileName);
-			assertEquals(status,
-					bioSAXSISPyB.getDataReductionStatus(dataCollectionId));
+			modelReductionStatus = bioSAXSISPyB
+					.getDataReductionStatus(dataCollectionId);
 
-			status = ISpyBStatus.NOT_STARTED;
-			String analysisFileName = "/dls/b21/data/2013/sm999-9/b21-9994.nxs";
-			bioSAXSISPyB.setDataAnalysisStatus(dataCollectionId, status,
-					analysisFileName);
+			assertEquals(ISpyBStatus.COMPLETE, modelReductionStatus);
+			assertEquals(100, modelReductionStatus.getProgress(), 0.0);
+			assertEquals("", modelReductionStatus.getFileName());
+
+			ISpyBStatus modelAnalysisStatus = bioSAXSISPyB
+					.getDataAnalysisStatus(dataCollectionId);
+
 			bioSAXSISPyB.createDataAnalysis(dataCollectionId);
-			status = ISpyBStatus.RUNNING;
-			bioSAXSISPyB.setDataAnalysisStatus(dataCollectionId, status,
-					analysisFileName);
-			assertEquals(status,
-					bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId));
-			status = ISpyBStatus.COMPLETE;
-			bioSAXSISPyB.setDataAnalysisStatus(dataCollectionId, status,
-					analysisFileName);
-			assertEquals(status,
+			modelAnalysisStatus = bioSAXSISPyB
+					.getDataAnalysisStatus(dataCollectionId);
+			assertEquals(modelAnalysisStatus,
 					bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId));
 		}
 	}
@@ -185,67 +178,37 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 			double energyInkeV, String viscosity) throws SQLException {
 		long dataCollectionId = 0;
 
-		long beforeBufferId = createBufferMeasurement(dataCollectionId,
-				bufferPlate, bufferRow, bufferColumn, exposureTemperature,
-				numFrames, timePerFrame, flow, volume, energyInkeV, viscosity);
-		createMeasurementToDataCollection(dataCollectionId, beforeBufferId);
-
-		long sampleId = createSampleMeasurement(dataCollectionId, plate, row,
-				column, exposureTemperature, numFrames, energyInkeV,
-				energyInkeV, energyInkeV, energyInkeV, viscosity);
-		createMeasurementToDataCollection(dataCollectionId, sampleId);
-
-		long bufferAfterId = createBufferMeasurement(dataCollectionId,
-				bufferPlate, bufferRow, bufferColumn, exposureTemperature,
-				numFrames, timePerFrame, flow, volume, energyInkeV, viscosity);
-		createMeasurementToDataCollection(dataCollectionId, bufferAfterId);
-
 		return dataCollectionId;
 	}
 
 	@Override
-	public long createBufferMeasurement(long dataCollectionId, short plate,
-			short row, short column, float exposureTemperature, int numFrames,
-			double timePerFrame, double flow, double volume,
-			double energyInkeV, String viscosity) throws SQLException {
-		long bufferBeforeMeasurementId = 0;
+	public long createBufferRun(long currentDataCollectionId,
+			double timePerFrame, float storageTemperature,
+			float exposureTemperature, double energy, int frameCount,
+			double transmission, double beamCenterX, double beamCenterY,
+			double pixelSizeX, double pixelSizeY, double radiationRelative,
+			double radiationAbsolute, double normalization, String filename,
+			String internalPath) {
 
-		return bufferBeforeMeasurementId;
-	}
-
-	@Override
-	public long createSampleMeasurement(long dataCollectionId, short plate,
-			short row, short column, float exposureTemperature, int numFrames,
-			double timePerFrame, double flow, double volume,
-			double energyInkeV, String viscosity) throws SQLException {
-		long sampleMeasurementId = 0;
-
-		return sampleMeasurementId;
-	}
-
-	@Override
-	public long createMeasurementToDataCollection(long saxsDataCollectionId,
-			long measurementId) throws SQLException {
-		long bufferAfterMeasurementId = 0;
-
-		return bufferAfterMeasurementId;
-	}
-
-	@Override
-	public long createBufferRun(long previousDataCollectionId,
-			long currentDataCollectionId, double timePerFrame,
-			float storageTemperature, float exposureTemperature, double energy,
-			int frameCount, double transmission, double beamCenterX,
-			double beamCenterY, double pixelSizeX, double pixelSizeY,
-			double radiationRelative, double radiationAbsolute,
-			double normalization, String filename, String internalPath) {
-		
 		ISpyBStatus status = ISpyBStatus.RUNNING;
 		status.setProgress(33);
 		status.setFileName(filename);
 		setDataCollectionStatus(currentDataCollectionId, status);
-		
+
+		// Mock the model receiving a notification update that database has
+		// been updated
+		updateModel(currentDataCollectionId);
+
 		return currentDataCollectionId;
+	}
+
+	private void updateModel(long currentDataCollectionId) {
+		int dataCollectionId = ((Long) currentDataCollectionId).intValue();
+		ISAXSDataCollection dataCollectionUpdated = isPyBSAXSDataCollections
+				.get(dataCollectionId);
+		ISAXSDataCollection modelCollectionToUpdate = (ISAXSDataCollection) BioSAXSMockISpyBTest.model
+				.getItems().get(dataCollectionId);
+		modelCollectionToUpdate = dataCollectionUpdated;
 	}
 
 	@Override
@@ -255,26 +218,16 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 			double beamCenterY, double pixelSizeX, double pixelSizeY,
 			double radiationRelative, double radiationAbsolute,
 			double normalization, String filename, String internalPath) {
-		
+
 		ISpyBStatus status = ISpyBStatus.RUNNING;
 		status.setProgress(66);
 		status.setFileName(filename);
 		setDataCollectionStatus(dataCollectionId, status);
-		
+
+		// Mock the model receiving a notification update that database has
+		// been updated
+		updateModel(dataCollectionId);
 		return dataCollectionId;
-	}
-
-	@Override
-	public void setMeasurementStatus(long dataCollectionId, long measurementId,
-			ISpyBStatus status) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public ISpyBStatus getMeasurementStatus(long measurementId) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -283,7 +236,8 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 		// Mock up setting database object here
 		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
 
-		isPyBSAXSDataCollections.get(dataCollectionId).setCollectionStatus(status);
+		isPyBSAXSDataCollections.get(dataCollectionId).setCollectionStatus(
+				status);
 	}
 
 	@Override
@@ -292,14 +246,20 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 		// Mock up getting item from the database here
 		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
 
-		return isPyBSAXSDataCollections.get(dataCollectionId).getCollectionStatus();
+		return isPyBSAXSDataCollections.get(dataCollectionId)
+				.getCollectionStatus();
 	}
 
 	@Override
 	public long createDataReduction(long dataCollectionId) throws SQLException {
 		// Mock up creating a data reduction data base object here
 		long dataReductionId = 0;
+		ISpyBStatus status = ISpyBStatus.COMPLETE;
+		status.setProgress(100);
+		status.setFileName("");
+		setDataReductionStatus(dataCollectionId, status, "");
 
+		updateModel(dataReductionId);
 		return dataReductionId;
 	}
 
@@ -307,7 +267,12 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 	public long createDataAnalysis(long dataCollectionId) throws SQLException {
 		// Mock up creating a data reduction data base object here
 		long dataAnalysisId = 0;
+		ISpyBStatus status = ISpyBStatus.COMPLETE;
+		status.setProgress(100);
+		status.setFileName("");
+		setDataAnalysisStatus(dataCollectionId, status, "");
 
+		updateModel(dataCollectionId);
 		return dataAnalysisId;
 	}
 
@@ -316,7 +281,8 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 			ISpyBStatus status, String resultsFilename) throws SQLException {
 		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
 
-		isPyBSAXSDataCollections.get(dataCollectionId).setReductionStatus(status);
+		isPyBSAXSDataCollections.get(dataCollectionId).setReductionStatus(
+				status);
 	}
 
 	@Override
@@ -324,7 +290,8 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 			throws SQLException {
 		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
 
-		return isPyBSAXSDataCollections.get(dataCollectionId).getReductionStatus();
+		return isPyBSAXSDataCollections.get(dataCollectionId)
+				.getReductionStatus();
 	}
 
 	@Override
@@ -332,7 +299,8 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 			ISpyBStatus status, String resultsFilename) throws SQLException {
 		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
 
-		isPyBSAXSDataCollections.get(dataCollectionId).setAnalysisStatus(status);
+		isPyBSAXSDataCollections.get(dataCollectionId)
+				.setAnalysisStatus(status);
 	}
 
 	@Override
@@ -340,7 +308,8 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 			throws SQLException {
 		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
 
-		return isPyBSAXSDataCollections.get(dataCollectionId).getAnalysisStatus();
+		return isPyBSAXSDataCollections.get(dataCollectionId)
+				.getAnalysisStatus();
 	}
 
 	@Override
@@ -410,10 +379,27 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 	}
 
 	@Override
-	public ISAXSDataCollection getDataCollection(long blSessionId,
-			long dataCollectionId) throws SQLException {
+	public long createSaxsDataCollectionUsingPreviousBuffer(long experimentID,
+			short plate, short row, short column, String sampleName,
+			short bufferPlate, short bufferRow, short bufferColumn,
+			float exposureTemperature, int numFrames, double timePerFrame,
+			double flow, double volume, double energyInkeV, String viscosity,
+			long previousDataCollectionId) throws SQLException {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
+	}
+
+	@Override
+	public void setAnalysisStatus(long dataCollectionId,
+			ISpyBStatus analysisStatus) throws SQLException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public int getPreviousCollectionId(long dataCollectionId) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }
 
