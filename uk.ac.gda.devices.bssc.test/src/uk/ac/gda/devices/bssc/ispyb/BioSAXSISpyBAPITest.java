@@ -23,7 +23,7 @@ import uk.ac.gda.devices.bssc.beans.IProgressModel;
 import uk.ac.gda.devices.bssc.beans.ISAXSDataCollection;
 import uk.ac.gda.devices.bssc.beans.ISpyBStatus;
 
-public class BioSAXSMockISpyBTest {
+public class BioSAXSISpyBAPITest {
 	public static IProgressModel model;
 	private static BioSAXSProgressController controller;
 	private static BioSAXSISPyB bioSAXSISPyB;
@@ -56,7 +56,7 @@ public class BioSAXSMockISpyBTest {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-				
+
 				List<ISAXSDataCollection> saxsDataCollections = controller
 						.loadModelFromISPyB();
 				model.addItems(saxsDataCollections);
@@ -206,7 +206,7 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 		int dataCollectionId = ((Long) currentDataCollectionId).intValue();
 		ISAXSDataCollection dataCollectionUpdated = isPyBSAXSDataCollections
 				.get(dataCollectionId);
-		ISAXSDataCollection modelCollectionToUpdate = (ISAXSDataCollection) BioSAXSMockISpyBTest.model
+		ISAXSDataCollection modelCollectionToUpdate = (ISAXSDataCollection) BioSAXSISpyBAPITest.model
 				.getItems().get(dataCollectionId);
 		modelCollectionToUpdate = dataCollectionUpdated;
 	}
@@ -356,7 +356,7 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 	@Override
 	public List<ISAXSDataCollection> getSAXSDataCollections(long blSessionId)
 			throws SQLException {
-		for (int i = 0; i < BioSAXSMockISpyBTest.MODEL_SIZE; i++) {
+		for (int i = 0; i < BioSAXSISpyBAPITest.MODEL_SIZE; i++) {
 			ISAXSDataCollection bioSaxsDataCollection = new BioSAXSDataCollection();
 			bioSaxsDataCollection.setExperimentId(String.valueOf(i));
 			bioSaxsDataCollection.setSampleName("Sample " + i);
