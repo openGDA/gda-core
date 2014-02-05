@@ -323,8 +323,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 			try {
 				value = controller.cagetInt(jobChannel);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+				logger.error("Interrupted on get Job from Epics", e);
 			}
 		} catch (TimeoutException e) {
 			logger.error("Timeout on get Job from EPICS", e);
