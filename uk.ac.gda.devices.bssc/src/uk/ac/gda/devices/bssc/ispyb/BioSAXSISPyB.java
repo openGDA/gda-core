@@ -229,7 +229,7 @@ public interface BioSAXSISPyB {
 	 * @return list of progress statuses for samples in the ISpyB database
 	 * @throws SQLException
 	 */
-	public List<ISAXSDataCollection> getBioSAXSMeasurements(long blSessionId) throws SQLException;
+	public List<ISAXSDataCollection> getSAXSDataCollections(long blSessionId) throws SQLException;
 
 	/**
 	 * Updates a measurement with an analysis status, status can be one of the following 1. NOT STARTED 2. RUNNING 3.

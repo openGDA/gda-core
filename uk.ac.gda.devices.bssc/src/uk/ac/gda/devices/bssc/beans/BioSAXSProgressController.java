@@ -20,27 +20,34 @@ package uk.ac.gda.devices.bssc.beans;
 
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB;
 
-public class BioSAXSProgressController {
+public class BioSAXSProgressController implements IObservable{
 	private static final Logger logger = LoggerFactory.getLogger(BioSAXSProgressController.class);
 	private BioSAXSISPyB bioSAXSISPyB;
 	private IProgressModel bioSAXSProgressModel;
 	private String visit;
 	private long blSessionId;
+	
+	ObservableComponent obsComp = new ObservableComponent();
+	private boolean stopPolling;
 
-	public BioSAXSProgressController(IProgressModel model) {
-		bioSAXSProgressModel = model;
+	public BioSAXSProgressController() {
 	}
 
 	public void setISpyBAPI(BioSAXSISPyB bioSAXSISPyB) {
@@ -55,7 +62,10 @@ public class BioSAXSProgressController {
 		}
 	}
 
-	public void pollISpyB() {
+	public void startPolling() {
+		if( bioSAXSProgressModel == null)
+			throw new RuntimeException("Model is null");
+		stopPolling = false;
 		final Job pollingJob = new Job("Polling ISpyB") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -66,30 +76,76 @@ public class BioSAXSProgressController {
 						return Status.CANCEL_STATUS;
 
 					return Status.OK_STATUS;
-				} finally {
+				} 
+				catch(Exception e){
+					logger.error("Error polling ispyb", e);
+					return Status.OK_STATUS;
+				}
+				finally {
 					// start job again after specified time has elapsed
-					schedule(90000);
+					if(!stopPolling)
+						schedule(90000);
 				}
 			}
 		};
-		// job.addJobChangeListener(new JobChangeAdapter() {
-		// @Override
-		// public void done(IJobChangeEvent event) {
-		// if (event.getResult().isOK())
-		// System.out.println("Job completed successfully");
-		// else
-		// System.out.println("Job did not complete successfully");
-		// }
-		// });
-		// start as soon as possible
-		pollingJob.schedule();
+/*		 job.addJobChangeListener(new JobChangeAdapter() {
+		 @Override
+		 public void done(IJobChangeEvent event) {
+		 if (event.getResult().isOK())
+		 System.out.println("Job completed successfully");
+		 else
+		 System.out.println("Job did not complete successfully");
+		 }
+		 });
+		 start as soon as possible
+*/		pollingJob.schedule();
 	}
 
 	public void loadModelFromISPyB() {
 		try {
-			bioSAXSProgressModel.addItems(bioSAXSISPyB.getBioSAXSMeasurements(blSessionId));
+			final List<ISAXSDataCollection> saxsDataCollections = bioSAXSISPyB.getSAXSDataCollections(blSessionId);
+			Display.getDefault().asyncExec(new Runnable(){
+
+				@Override
+				public void run() {
+					bioSAXSProgressModel.clearItems();
+					bioSAXSProgressModel.addItems(saxsDataCollections);
+				}});
 		} catch (SQLException e) {
 			logger.error("SQL EXception getting data collections from ISpyB", e);
 		}
 	}
+
+	@Override
+	public void addIObserver(IObserver anIObserver) {
+		obsComp.addIObserver(anIObserver);
+		if (obsComp.IsBeingObserved()){
+			startPolling();
+		}
+	}
+
+	@Override
+	public void deleteIObserver(IObserver anIObserver) {
+		obsComp.deleteIObserver(anIObserver);
+		if (!obsComp.IsBeingObserved()){
+			stopPolling = true;
+		}
+	}
+
+
+	@Override
+	public void deleteIObservers() {
+		obsComp.deleteIObservers();
+		if (!obsComp.IsBeingObserved()){
+			stopPolling = true;
+		}
+	}
+
+	public void setModel(BioSAXSProgressModel model) {
+		bioSAXSProgressModel = model;
+		
+	}
+	
+	
+	
 }
