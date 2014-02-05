@@ -342,7 +342,9 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 				// does this scan (is a heirarchy of nested scans) operate this
 				// scannable?
 				ScanObject scanObject = isScannableToBeMoved(scannable);
+				
 				if (scanObject != null) {
+					checkForInterrupts();
 					scanObject.moveToStart();
 				}
 			}
@@ -401,6 +403,7 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 				// scannable?
 				ScanObject scanObject = isScannableToBeMoved(scannable);
 				if (scanObject != null) {
+					checkForInterrupts();
 					scanObject.moveStep();
 				}
 			}
