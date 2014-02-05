@@ -20,6 +20,8 @@ package uk.ac.gda.devices.bssc.beans;
 
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
+import gda.observable.Observable;
+import gda.observable.Observer;
 
 import java.sql.SQLException;
 
@@ -33,15 +35,31 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.devices.bssc.ispyb.BioSAXSDBFactory;
 import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB;
 
-public class BioSAXSProgressController {
+public class BioSAXSProgressController implements Observer<Object> {
 	private static final Logger logger = LoggerFactory.getLogger(BioSAXSProgressController.class);
 	private BioSAXSISPyB bioSAXSISPyB;
 	private BioSAXSProgressModel bioSAXSProgressModel;
-	
+	private String visit;
+	private long blSessionId;
+
 	public BioSAXSProgressController(BioSAXSProgressModel bioSAXSProgressModel) {
 		this.bioSAXSProgressModel = bioSAXSProgressModel;
 		new BioSAXSDBFactory().setJdbcURL("jdbc:oracle:thin:@duoserv12.diamond.ac.uk:1521:ispyb");
 		bioSAXSISPyB = BioSAXSDBFactory.makeAPI();
+		try {
+			bioSAXSISPyB.addObserver(this);
+		} catch (Exception e) {
+			logger.error("Exception adding observer to BioSAXSIspyB", e);
+		}
+		try {
+			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
+			blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
+		} catch (DeviceException e) {
+			logger.error("TODO put description of error here", e);
+		} catch (SQLException e) {
+			logger.error("TODO put description of error here", e);
+		}
+
 		pollISpyB();
 	}
 
@@ -50,7 +68,7 @@ public class BioSAXSProgressController {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					bioSAXSProgressModel.clearItems();
+					// bioSAXSProgressModel.clearItems();
 					loadModelFromISPyB();
 					if (monitor.isCanceled())
 						return Status.CANCEL_STATUS;
@@ -58,7 +76,7 @@ public class BioSAXSProgressController {
 					return Status.OK_STATUS;
 				} finally {
 					// start job again after specified time has elapsed
-					schedule(90000);
+					schedule(10000);
 				}
 			}
 		};
@@ -71,22 +89,29 @@ public class BioSAXSProgressController {
 		// System.out.println("Job did not complete successfully");
 		// }
 		// });
-		pollingJob.schedule(); // start as soon as possible
+		// start as soon as possible
+		pollingJob.schedule();
 	}
 
 	private void loadModelFromISPyB() {
-		String visit;
-
 		try {
-			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-			long blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
 			bioSAXSProgressModel.addItems(bioSAXSISPyB.getBioSAXSMeasurements(blSessionId));
+		} catch (SQLException e) {
+			logger.error("SQL EXception getting data collections from ISpyB", e);
 		}
-		catch (DeviceException e) {
-			logger.error("Device Exception retrieving visit from GDAMetaDataProvider" + e);
+	}
+
+	public void updateModelFromISpyB(long dataCollectionId) {
+		try {
+			ISAXSDataCollection collection = bioSAXSISPyB.getDataCollection(blSessionId, dataCollectionId);
+//			bioSAXSProgressModel.set(((Long) dataCollectionId).intValue(), collection);
+		} catch (SQLException e) {
+			logger.error("SQL EXception getting data collection from ISpyB", e);
 		}
-		catch (SQLException e) {
-			logger.error("SQL Exception getting samples from ISPyB", e);
-		} 
+	}
+
+	@Override
+	public void update(Observable<Object> source, Object arg) {
+		bioSAXSProgressModel.updateItem(source, arg);
 	}
 }

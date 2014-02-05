@@ -30,8 +30,6 @@ public interface ISAXSDataCollection {
 	public static final String REDUCTION_PROGRESS = "reductionProgress";
 	public static final String ANALYSIS_PROGRESS = "analysisProgress";
 
-	public String getCollectionStatus();
-
 	public void setSampleName(String sampleName);
 
 	public String getSampleName();
@@ -39,16 +37,18 @@ public interface ISAXSDataCollection {
 	public void setCollectionStartTime(long collectionStartTime);
 
 	public long getCollectionStartTime();
+	
+	public ISpyBStatus getCollectionStatus();
 
-	public String getReductionStatus();
+	public ISpyBStatus getReductionStatus();
 
-	public String getAnalysisStatus();
+	public ISpyBStatus getAnalysisStatus();
 
-	public void setCollectionStatus(String collectionStatus);
+	public void setCollectionStatus(ISpyBStatus collectionStatus);
 
-	public void setReductionStatus(String reductionStatus);
+	public void setReductionStatus(ISpyBStatus reductionStatus);
 
-	public void setAnalysisStatus(String analysisStatus);
+	public void setAnalysisStatus(ISpyBStatus analysisStatus);
 
 	public void setCollectionProgress(double collectionProgress);
 
@@ -75,6 +75,8 @@ public interface ISAXSDataCollection {
 	public void removePropertyChangeListener(PropertyChangeListener listener);
 
 	public void setId(long saxsDataCollectionId);
+	
+	public long getId();
 
 	public void setBufferBeforeMeasurementId(long bufferBeforeMeasurementId);
 
