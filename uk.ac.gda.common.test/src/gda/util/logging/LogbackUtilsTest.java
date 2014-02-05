@@ -32,7 +32,7 @@ import junit.framework.TestCase;
 
 public class LogbackUtilsTest extends TestCase {
 	
-	private static final String ROOT_LOGGER_NAME = "root";
+	private static final String ROOT_LOGGER_NAME = "ROOT";
 	
 	public void testReset() {
 		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
