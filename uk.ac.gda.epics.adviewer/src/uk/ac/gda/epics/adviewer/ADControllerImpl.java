@@ -38,7 +38,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.gda.epics.adviewer.views.ADViewerCompositeFactory;
 
 public class ADControllerImpl implements ADController, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ADControllerImpl.class);

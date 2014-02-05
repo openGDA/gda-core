@@ -73,6 +73,7 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 		initializeConfig();
 	}
 
+	//initializeConfig is only called from setDeviceName. I don't understand this. CC
 	private void initializeConfig() throws FactoryException {
 		if (deviceName != null) {
 			try {

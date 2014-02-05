@@ -78,7 +78,7 @@ public class Histogram extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(Histogram.class);
 
-	private ADController config;
+	private ADController adController;
 
 	private IPlottingSystem plottingSystem;
 
@@ -273,7 +273,7 @@ public class Histogram extends Composite {
 	}
 	
 	public void setADController(ADController config) {
-		this.config = config;
+		this.adController = config;
 
 		try {
 			createOrUpdateROI();
@@ -313,7 +313,7 @@ public class Histogram extends Composite {
 						Command command = cs.getCommand(Ids.COMMANDS_SET_LIVEVIEW_SCALE);
 						IParameter parameter = command
 								.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
-						String name = Histogram.this.config.getServiceName();
+						String name = Histogram.this.adController.getServiceName();
 						Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter,
 								name	) };
 						ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
@@ -364,8 +364,8 @@ public class Histogram extends Composite {
 			}
 		});
 
-		minCallbackTimeComposite.setPluginBase(config.getImageNDStats().getPluginBase());
 		try {
+			minCallbackTimeComposite.setPluginBase(config.getImageNDStats().getPluginBase());
 			minCallbackTimeComposite.setMinTimeObservable(config.getImageNDStats().getPluginBase()
 					.createMinCallbackTimeObservable());
 			minCallbackTimeComposite.setMinCallbackTime(config.getHistogramMinCallbackTime());
@@ -457,7 +457,7 @@ public class Histogram extends Composite {
 										return Status.OK_STATUS;
 									double[] histogram_RBV;
 									try {
-										histogram_RBV = Histogram.this.config.getImageNDStats().getHistogram_RBV(histSize);
+										histogram_RBV = Histogram.this.adController.getImageNDStats().getHistogram_RBV(histSize);
 									} catch (Exception e) {
 										logger.error("Error getting histogram", e);
 										return Status.OK_STATUS;
@@ -538,20 +538,20 @@ public class Histogram extends Composite {
 	}
 
 	public void startStats() throws Exception {
-		config.getImageNDStats().getPluginBase().enableCallbacks();
-		config.getImageNDStats().setComputeStatistics(1);
+		adController.getImageNDStats().getPluginBase().enableCallbacks();
+		adController.getImageNDStats().setComputeStatistics(1);
 	}
 
 	public void stopStats() throws Exception {
-		config.getImageNDStats().setComputeStatistics(0);
+		adController.getImageNDStats().setComputeStatistics(0);
 	}
 
 	private double getMPEGProcOffset() throws Exception {
-		return config.getLiveViewNDProc().getOffset();
+		return adController.getLiveViewNDProc().getOffset();
 	}
 
 	private double getMPEGProcScale() throws Exception {
-		return config.getLiveViewNDProc().getScale();
+		return adController.getLiveViewNDProc().getScale();
 	}
 
 	protected void updateROIInGuiThread() {
@@ -613,9 +613,9 @@ public class Histogram extends Composite {
 					double max = min + roi.getLengths()[0];
 					double offset = -min;
 					double scale = 255.0 / (max - min);
-					Histogram.this.config.getLiveViewNDProc().setScale(scale);
-					Histogram.this.config.getLiveViewNDProc().setOffset(offset);
-					Histogram.this.config.getLiveViewNDProc().setEnableOffsetScale(1);
+					Histogram.this.adController.getLiveViewNDProc().setScale(scale);
+					Histogram.this.adController.getLiveViewNDProc().setOffset(offset);
+					Histogram.this.adController.getLiveViewNDProc().setEnableOffsetScale(1);
 				}
 
 				@Override
@@ -631,8 +631,8 @@ public class Histogram extends Composite {
 				public void roiSelected(ROIEvent evt) {
 				}
 			});
-			mpegProcOffsetObservable = Histogram.this.config.getLiveViewNDProc().createOffsetObservable();
-			mpegProcScaleObservable = Histogram.this.config.getLiveViewNDProc().createScaleObservable();
+			mpegProcOffsetObservable = Histogram.this.adController.getLiveViewNDProc().createOffsetObservable();
+			mpegProcScaleObservable = Histogram.this.adController.getLiveViewNDProc().createScaleObservable();
 			mpegProcObserver = new Observer<Double>() {
 
 				@Override
@@ -653,7 +653,7 @@ public class Histogram extends Composite {
 	}
 
 	public void stop() throws Exception {
-		config.getImageNDStats().setComputeHistogram(0);
+		adController.getImageNDStats().setComputeHistogram(0);
 	}
 
 	Job updateHistogramJob;
@@ -670,18 +670,18 @@ public class Histogram extends Composite {
 	private IPositionListener plottingSystemPositionListener;
 
 	boolean isComputingHistogram() throws Exception {
-		NDStats imageNDStats = config.getImageNDStats();
+		NDStats imageNDStats = adController.getImageNDStats();
 		return imageNDStats.getPluginBase().isCallbacksEnabled_RBV() && imageNDStats.getComputeHistogram_RBV() == 1;
 	}
 
 	boolean isComputingStats() throws Exception {
-		NDStats imageNDStats = config.getImageNDStats();
+		NDStats imageNDStats = adController.getImageNDStats();
 		return imageNDStats.getPluginBase().isCallbacksEnabled_RBV() && imageNDStats.getComputeStatistics_RBV() == 1;
 	}
 
 	public void start() throws Exception {
-		config.getImageNDStats().getPluginBase().enableCallbacks();
-		config.getImageNDStats().setComputeHistogram(1);
+		adController.getImageNDStats().getPluginBase().enableCallbacks();
+		adController.getImageNDStats().setComputeHistogram(1);
 	}
 
 	/**
@@ -691,16 +691,16 @@ public class Histogram extends Composite {
 		return plottingSystem;
 	}
 
-	public int getHistSize() {
-		return config.getImageHistSize();
+	public int getHistSize() throws Exception {
+		return adController.getImageHistSize();
 	}
 
-	public int getImageMin() {
-		return config.getImageMin();
+	public int getImageMin() throws Exception {
+		return adController.getImageMin();
 	}
 
-	public int getImageMax() {
-		return config.getImageMax();
+	public int getImageMax() throws Exception {
+		return adController.getImageMax();
 	}
 
 }

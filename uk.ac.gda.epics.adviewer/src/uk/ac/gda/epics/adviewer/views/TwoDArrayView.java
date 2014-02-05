@@ -43,6 +43,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.ADController;
+import uk.ac.gda.epics.adviewer.ADControllerFactory;
 import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.TwoDArray;
 import uk.ac.gda.epics.adviewer.composites.tomove.PlottingSystemIRegionPlotServerConnector;
@@ -51,19 +52,19 @@ import uk.ac.gda.epics.adviewer.Activator;
 public class TwoDArrayView extends ViewPart implements InitializingBean{
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArrayView.class);
 	private TwoDArray twoDArray;
-	private ADController config;
+	private ADController adController;
 	private IPartListener2 partListener;
 	private PlottingSystemIRegionPlotServerConnector plotServerConnector;
 	private String name;
 	private Image image;
 	
-	public TwoDArrayView(ADController config, IConfigurationElement configurationElement) {
-		this.config = config;
+	public TwoDArrayView(ADController adController, IConfigurationElement configurationElement) {
+		this.adController = adController;
 		name = configurationElement.getAttribute("name");
 		try{
 			String icon = configurationElement.getAttribute("icon");
 			if( icon.isEmpty()){
-				image = config.getTwoDarrayViewImageDescriptor().createImage();
+				image = adController.getTwoDarrayViewImageDescriptor().createImage();
 			} else {
 				URL iconURL = Platform.getBundle(configurationElement.getContributor().getName()).getResource(icon);
 				ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(iconURL);
@@ -74,27 +75,36 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 		}
 	}
 
+	public TwoDArrayView() {
+		super();
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if( config == null)
+		if( adController == null)
 			throw new Exception("Config is null");
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 
-		if( config== null){
+		if( adController== null){
 			String serviceName = getViewSite().getSecondaryId();
 			if( StringUtils.isEmpty(serviceName))
 				throw new RuntimeException("No secondary id given");
-			config = (ADController)Activator.getNamedService(ADController.class, serviceName);
+			try {
+				adController = ADControllerFactory.getInstance().getADController(serviceName);
+			} catch (Exception e) {
+				logger.error("Error getting ADController",e);
+				throw new RuntimeException("Error getting ADController see log for details");
+			}
 			name = serviceName + " MJPeg";
 		}
 		
 		parent.setLayout(new FillLayout());
 		try {
 			twoDArray = new TwoDArray(this, parent, SWT.NONE);
-			twoDArray.setADController(config);
+			twoDArray.setADController(adController);
 			twoDArray.showLeft(true);
 			partListener = new IPartListener2() {
 				
@@ -136,8 +146,8 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 			};
 			getSite().getWorkbenchWindow().getPartService().addPartListener(partListener);
 			
-			if( config.isConnectToPlotServer()){
-				plotServerConnector = new PlottingSystemIRegionPlotServerConnector(this.twoDArray.getPlottingSystem(), PlotServerROISelectionProvider.getGuiName(config.getDetectorName()));
+			if( adController.isConnectToPlotServer()){
+				plotServerConnector = new PlottingSystemIRegionPlotServerConnector(this.twoDArray.getPlottingSystem(), PlotServerROISelectionProvider.getGuiName(adController.getDetectorName()));
 			}
 			twoDArray.restore(name);
 			createActions();		
@@ -149,13 +159,15 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 		}
 		setPartName(name ); 
 	}
+
+
 	
 	protected void createActions() throws NotDefinedException {
 		ADActionUtils actionUtils = new ADActionUtils();
 		List<IAction> actions = new Vector<IAction>();
 		{
-			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
-			actions.add(actionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
+			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add(actionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
 		}	
 		for (IAction iAction : actions) {
 			getViewSite().getActionBars().getToolBarManager().add(iAction);

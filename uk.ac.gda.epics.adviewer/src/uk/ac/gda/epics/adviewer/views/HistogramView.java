@@ -32,15 +32,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandImageService;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.ADController;
-import uk.ac.gda.epics.adviewer.Activator;
+import uk.ac.gda.epics.adviewer.ADControllerFactory;
 import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.Histogram;
 
@@ -48,17 +46,17 @@ public class HistogramView extends ViewPart{
 	public static final String UK_AC_GDA_EPICS_ADVIEWER_COMMANDS_SET_EXPOSURE = "uk.ac.gda.epics.adviewer.commands.setExposure";
 	private static final Logger logger = LoggerFactory.getLogger(HistogramView.class);
 	private Histogram histogram;
-	private ADController config;
+	private ADController adController;
 	private String name;
 	private Image image;
 	
-	public HistogramView(ADController config, IConfigurationElement configurationElement) {
-		this.config = config;
+	public HistogramView(ADController adController, IConfigurationElement configurationElement) {
+		this.adController = adController;
 		name = configurationElement.getAttribute("name");
 		try{
 			String icon = configurationElement.getAttribute("icon");
 			if( icon.isEmpty()){
-				image = config.getTwoDarrayViewImageDescriptor().createImage();
+				image = adController.getTwoDarrayViewImageDescriptor().createImage();
 			} else {
 				URL iconURL = Platform.getBundle(configurationElement.getContributor().getName()).getResource(icon);
 				ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(iconURL);
@@ -75,17 +73,22 @@ public class HistogramView extends ViewPart{
 	@Override
 	public void createPartControl(Composite parent) {
 		try {
-			if( config== null){
+			if( adController== null){
 				String serviceName = getViewSite().getSecondaryId();
 				if( StringUtils.isEmpty(serviceName))
 					throw new RuntimeException("No secondary id given");
-				config = (ADController)Activator.getNamedService(ADController.class, serviceName);
-				name = serviceName + " Profile";
+				try {
+					adController = ADControllerFactory.getInstance().getADController(serviceName);
+				} catch (Exception e) {
+					logger.error("Error getting ADController",e);
+					throw new RuntimeException("Error getting ADController see log for details");
+				}
+				name = serviceName + " Histogram";
 			}
 			parent.setLayout(new FillLayout());
 
 			histogram = new Histogram(this, parent, SWT.NONE);
-			histogram.setADController(config);
+			histogram.setADController(adController);
 			histogram.start();
 			histogram.startStats();
 			histogram.showLeft(true);
@@ -105,8 +108,8 @@ public class HistogramView extends ViewPart{
 		ADActionUtils actionUtils = new ADActionUtils();
 		List<IAction> actions = new Vector<IAction>();
 		{
-			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
-			actions.add( actionUtils.addShowViewAction("Show Live", "uk.ac.gda.epics.adviewer.showLiveView", config.getServiceName(), "Show MJPEG view for selected camera"));
+			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add( actionUtils.addShowViewAction("Show Live", "uk.ac.gda.epics.adviewer.showLiveView", adController.getServiceName(), "Show MJPEG view for selected camera"));
 		}	
 		for (IAction iAction : actions) {
 			getViewSite().getActionBars().getToolBarManager().add(iAction);

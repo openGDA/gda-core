@@ -32,17 +32,21 @@ public interface ADController {
 	//unique name used to identify this object - also used to name the service 
 	public abstract String getServiceName();
 	
+	/**
+	 * 
+	 * @return name used if the config is connected to the plot server -
+	 */
 	public abstract String getDetectorName();
 
-	public abstract NDStats getImageNDStats();
+	public abstract NDStats getImageNDStats() throws Exception;
 
 	public abstract NDProcess getLiveViewNDProc();
 
-	public abstract int getImageHistSize();
+	public abstract int getImageHistSize() throws Exception;
 
-	public abstract int getImageMin();
+	public abstract int getImageMin() throws Exception;
 
-	public abstract int getImageMax();
+	public abstract int getImageMax() throws Exception;
 
 	public abstract NDArray getImageNDArray();
 	
@@ -50,9 +54,15 @@ public interface ADController {
 
 	public abstract ImageData getImageData() throws Exception;
 
+	/**
+	 * Sets exposure time and puts camera into continuous mode
+	 * 
+	 * @param d
+	 * @throws Exception
+	 */
 	public abstract void setExposure(double d) throws Exception;
 
-	public abstract ADBase getAdBase();
+	public abstract ADBase getAdBase() throws Exception;
 
 	public abstract void setLiveViewRange(double d, double e) throws Exception;
 
@@ -81,10 +91,17 @@ public interface ADController {
 
 	public abstract void stopFfmpegStream() throws Exception;
 
+	
+	//ImageDescriptor  - return null for standard icon
+	@Deprecated
 	public abstract ImageDescriptor getTwoDarrayViewImageDescriptor();
 
+	//ImageDescriptor  - return null for standard icon
+	@Deprecated
 	public abstract ImageDescriptor getLiveViewImageDescriptor();
 
+	//ImageDescriptor  - return null for standard icon
+	@Deprecated
 	public abstract ImageDescriptor getHistogramViewImageDescriptor();
 	
 	//height of the array passed to the mjpeg plugin

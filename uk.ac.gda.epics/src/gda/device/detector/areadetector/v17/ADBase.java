@@ -25,7 +25,7 @@ import gda.observable.Observable;
 import java.util.concurrent.TimeoutException;
 
 /**
- *
+ * ADBase represents the AreaDetector driver - commonly the first tab in edm
  */
 public interface ADBase  {
 

@@ -11,6 +11,8 @@ import uk.ac.gda.common.rcp.NamedServiceProvider;
  */
 public class Activator extends AbstractUIPlugin {
 
+	public static final String SERVICE_NAME = "SERVICE_NAME";
+
 	// The plug-in ID
 	public static final String PLUGIN_ID = "uk.ac.gda.epics.adviewer"; //$NON-NLS-1$
 
@@ -77,7 +79,7 @@ public class Activator extends AbstractUIPlugin {
 		if(namedServiceProvider == null){
 			namedServiceProvider = new NamedServiceProvider(bundleContext);
 		}
-		return namedServiceProvider.getNamedService(clzz, "SERVICE_NAME", name);
+		return namedServiceProvider.getNamedService(clzz, SERVICE_NAME, name);
 		
 	}
 }

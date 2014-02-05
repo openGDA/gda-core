@@ -130,334 +130,136 @@ public interface NDStats {
 
 	NDPluginBase getPluginBase();
 
-	/**
-	 *
-	 */
 	short getComputeStatistics() throws Exception;
 
-	/**
-	 *
-	 */
 	void setComputeStatistics(int computestatistics) throws Exception;
 
-	/**
-	 *
-	 */
 	short getComputeStatistics_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getBgdWidth() throws Exception;
 
-	/**
-	 *
-	 */
 	void setBgdWidth(int bgdwidth) throws Exception;
 
-	/**
-	 *
-	 */
 	int getBgdWidth_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getMinValue_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getMaxValue_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getMeanValue_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getSigma_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getTotal_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getNet_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	short getComputeCentroid() throws Exception;
 
-	/**
-	 *
-	 */
 	void setComputeCentroid(int computecentroid) throws Exception;
 
-	/**
-	 *
-	 */
 	short getComputeCentroid_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getCentroidThreshold() throws Exception;
 
-	/**
-	 *
-	 */
 	void setCentroidThreshold(double centroidthreshold) throws Exception;
 
-	/**
-	 *
-	 */
 	double getCentroidThreshold_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getCentroidX_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getCentroidY_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getSigmaX_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getSigmaY_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getSigmaXY_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	short getComputeProfiles() throws Exception;
 
-	/**
-	 *
-	 */
 	void setComputeProfiles(int computeprofiles) throws Exception;
 
-	/**
-	 *
-	 */
 	short getComputeProfiles_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getProfileSizeX_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getProfileSizeY_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getCursorX() throws Exception;
 
-	/**
-	 *
-	 */
 	void setCursorX(int cursorx) throws Exception;
 
-	/**
-	 *
-	 */
 	int getCursorX_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getCursorY() throws Exception;
 
-	/**
-	 *
-	 */
 	void setCursorY(int cursory) throws Exception;
 
-	/**
-	 *
-	 */
 	int getCursorY_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double[] getProfileAverageX_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double[] getProfileAverageY_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double[] getProfileThresholdX_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double[] getProfileThresholdY_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double[] getProfileCentroidX_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double[] getProfileCentroidY_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double[] getProfileCursorX_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double[] getProfileCursorY_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	short getComputeHistogram() throws Exception;
 
-	/**
-	 *
-	 */
 	void setComputeHistogram(int computehistogram) throws Exception;
 
-	/**
-	 *
-	 */
 	short getComputeHistogram_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getHistSize() throws Exception;
 
-	/**
-	 *
-	 */
 	void setHistSize(int histsize) throws Exception;
 
-	/**
-	 *
-	 */
 	int getHistSize_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getHistMin() throws Exception;
 
-	/**
-	 *
-	 */
 	void setHistMin(double histmin) throws Exception;
 
-	/**
-	 *
-	 */
 	double getHistMin_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getHistMax() throws Exception;
 
-	/**
-	 *
-	 */
 	void setHistMax(double histmax) throws Exception;
 
-	/**
-	 *
-	 */
 	double getHistMax_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getHistEntropy_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double[] getHistogram_RBV() throws Exception;
-	
-	/**
-	 * 
-	 */
+
 	double[] getHistogram_RBV(int numberOfElements) throws Exception;
 
-	/**
-	 *
-	 */
 	int getMaxSizeX() throws Exception;
 
-	/**
-	 *
-	 */
 	void setMaxSizeX(int maxsizex) throws Exception;
 
-	/**
-	 *
-	 */
 	double getSetXHOPR() throws Exception;
 
-	/**
-	 *
-	 */
 	void setSetXHOPR(double setxhopr) throws Exception;
 
-	/**
-	 *
-	 */
 	int getMaxSizeY() throws Exception;
 
-	/**
-	 *
-	 */
 	void setMaxSizeY(int maxsizey) throws Exception;
 
-	/**
-	 *
-	 */
 	double getSetYHOPR() throws Exception;
 
-	/**
-	 *
-	 */
 	void setSetYHOPR(double setyhopr) throws Exception;
 
-	/**
-	 * @throws Exception
-	 */
 	void reset() throws Exception;
 
 	Observable<String> createComputeHistogramObservable() throws Exception;

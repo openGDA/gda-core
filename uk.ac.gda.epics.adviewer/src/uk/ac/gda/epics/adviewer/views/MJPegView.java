@@ -41,24 +41,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.ADController;
-import uk.ac.gda.epics.adviewer.Activator;
+import uk.ac.gda.epics.adviewer.ADControllerFactory;
 import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
 public class MJPegView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(MJPegView.class);
 	private MJPeg mJPeg;
-	private ADController config;
+	private ADController adController;
 	private String name="";
 	private Image image=null;
 
-	public MJPegView(ADController config, IConfigurationElement configurationElement) {
-		this.config = config;
+	public MJPegView(ADController adController, IConfigurationElement configurationElement) {
+		this.adController = adController;
 		try{
 			name = configurationElement.getAttribute("name");
 			String icon = configurationElement.getAttribute("icon");
 			if( icon.isEmpty()){
-				image = config.getTwoDarrayViewImageDescriptor().createImage();
+				image = adController.getTwoDarrayViewImageDescriptor().createImage();
 			} else {
 				URL iconURL = Platform.getBundle(configurationElement.getContributor().getName()).getResource(icon);
 				ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(iconURL);
@@ -75,11 +75,17 @@ public class MJPegView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		if( config== null){
+		if( adController== null){
 			String serviceName = getViewSite().getSecondaryId();
 			if( StringUtils.isEmpty(serviceName))
 				throw new RuntimeException("No secondary id given");
-			config = (ADController)Activator.getNamedService(ADController.class, serviceName);
+			try {
+				adController = ADControllerFactory.getInstance().getADController(serviceName);
+			} catch (Exception e) {
+				logger.error("Error getting ADController",e);
+				throw new RuntimeException("Error getting ADController see log for details");
+			}
+
 			name = serviceName + " MJPeg";
 		}
 
@@ -114,7 +120,7 @@ public class MJPegView extends ViewPart {
 		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		mJPeg = new MJPeg(composite_2, SWT.NONE);		
-		mJPeg.setADController(config);
+		mJPeg.setADController(adController);
 		mJPeg.showLeft(true);
 		return mJPeg;
 	}
@@ -135,11 +141,11 @@ public class MJPegView extends ViewPart {
 		ADActionUtils actionUtils = new ADActionUtils();
 		List<IAction> actions = new Vector<IAction>();			
 		{
-			actions.add(actionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
-			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
-			actions.add(actionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, config.getServiceName()));
-			actions.add( actionUtils.addShowViewAction("Show Histogram", Ids.COMMANDS_SHOW_HISTOGRAM_VIEW, config.getServiceName(), "Show Histogram view for selected camera"));
-			actions.add( actionUtils.addShowViewAction("Show Raw Image", Ids.COMMANDS_SHOW_RAW_IMAGE_VIEW, config.getServiceName(), "Show Raw Image view for selected camera"));
+			actions.add(actionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add(actionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add( actionUtils.addShowViewAction("Show Histogram", Ids.COMMANDS_SHOW_HISTOGRAM_VIEW, adController.getServiceName(), "Show Histogram view for selected camera"));
+			actions.add( actionUtils.addShowViewAction("Show Raw Image", Ids.COMMANDS_SHOW_RAW_IMAGE_VIEW, adController.getServiceName(), "Show Raw Image view for selected camera"));
 		}	
 		for (IAction iAction : actions) {
 			getViewSite().getActionBars().getToolBarManager().add(iAction);

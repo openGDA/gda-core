@@ -125,7 +125,7 @@
       <view
             allowMultiple="true"
             category="uk.ac.gda.epics.adviewer.view.category"
-            class="uk.ac.gda.epics.adviewer.views.TwoDArrayViewCreator"
+            class="uk.ac.gda.epics.adviewer.views.TwoDArrayView"
             icon="icons/AreaDetectorImageView.gif"
             id="uk.ac.gda.epics.adviewer.rawimageview"
             name="Raw Image View"

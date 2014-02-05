@@ -132,6 +132,38 @@ public class TwoDArray extends Composite {
 
 	private Button middle;
 	
+	UpdateArrayJob updateArrayJob;
+
+	private IOCStatus statusComposite;
+
+	private MinCallbackTimeComposite minCallbackTimeComposite;
+
+	private boolean viewIsVisible;
+	private Integer arrayCounter;
+	private Button btnAutoscale;
+
+	private Composite left;
+
+	private Observable<Double> minCallbackTimeObservable;
+
+	private NDPluginBase imageNDROIPluginBase;
+
+	private Observer<Double> minCallbackTimeObserver;
+	AbstractDataset ads = null;
+	private Group grpStores;
+	private Button btnA;
+	private Button btnB;
+	private ComboViewer comboShow;
+	private Group grpShow;
+
+	ShowOption showOptionDefault = new ShowOption("I", OptionIndex.I);
+	ShowOption showOption = showOptionDefault;
+
+	// id used in DataBinding
+	static final String showOptionName = "showOption";
+	private Composite composite;
+	private Button btnSnapshot;
+	
 	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) throws Exception {
 		super(parent, style);
 
@@ -340,7 +372,6 @@ public class TwoDArray extends Composite {
 		layout(false);
 	}
 
-
 	/**
 	 * @return true if left is hidden
 	 */
@@ -466,7 +497,6 @@ public class TwoDArray extends Composite {
 				logger.error("Error configuring the ROI", e1);
 			}
 		}
-
 	}
 
 	public void stop() throws Exception {
@@ -477,40 +507,7 @@ public class TwoDArray extends Composite {
 			arrayArrayCounterObservable = null;
 		}
 		setStarted(false);
-
 	}
-
-	UpdateArrayJob updateArrayJob;
-
-	private IOCStatus statusComposite;
-
-	private MinCallbackTimeComposite minCallbackTimeComposite;
-
-	private boolean viewIsVisible;
-	private Integer arrayCounter;
-	private Button btnAutoscale;
-
-	private Composite left;
-
-	private Observable<Double> minCallbackTimeObservable;
-
-	private NDPluginBase imageNDROIPluginBase;
-
-	private Observer<Double> minCallbackTimeObserver;
-	AbstractDataset ads = null;
-	private Group grpStores;
-	private Button btnA;
-	private Button btnB;
-	private ComboViewer comboShow;
-	private Group grpShow;
-
-	ShowOption showOptionDefault = new ShowOption("I", OptionIndex.I);
-	ShowOption showOption = showOptionDefault;
-
-	// id used in DataBinding
-	static final String showOptionName = "showOption";
-	private Composite composite;
-	private Button btnSnapshot;
 
 	public ShowOption getShowOption() {
 		return showOption;
@@ -567,15 +564,15 @@ public class TwoDArray extends Composite {
 		return plottingSystem;
 	}
 
-	public int getHistSize() {
+	public int getHistSize() throws Exception {
 		return config.getImageHistSize();
 	}
 
-	public int getImageMin() {
+	public int getImageMin() throws Exception {
 		return config.getImageMin();
 	}
 
-	public int getImageMax() {
+	public int getImageMax() throws Exception {
 		return config.getImageMax();
 	}
 
@@ -697,9 +694,7 @@ public class TwoDArray extends Composite {
 							} catch (DataBeanException e) {
 								logger.error("Error updating snapshot view", e);
 							}
-
 						}
-
 					});
 
 					/*
