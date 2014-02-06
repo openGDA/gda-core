@@ -1072,7 +1072,7 @@ public abstract class ScanBase implements Scan {
 	}
 
 	@Override
-	public void run() throws Exception {
+	public final void run() throws Exception {
 		// lineScanNeedsDoing = false;
 		logger.debug("ScanBase.run() for scan: '" + getName() + "'");
 		do {
