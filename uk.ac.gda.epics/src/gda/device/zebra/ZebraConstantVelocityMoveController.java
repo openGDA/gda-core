@@ -64,7 +64,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	private double minAccDistance;
 
-	private boolean pcPulseTriggerNotGate = true;
+	private boolean pcPulseGateNotTrigger = false;
 
 	public ZebraConstantVelocityMoveController() {
 		super();
@@ -163,15 +163,19 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				// Capture positions half way through collection time
 				zebra.setPCPulseDelay(1000.*maxCollectionTimeFromDetectors/2.);
 				
-				if ( isPcPulseTriggerNotGate() ) {
+				if ( !isPcPulseGateNotTrigger() ) {
 					zebra.setPCPulseWidth(.01); //.01ms
 				} else {
-					zebra.setPCPulseWidth(maxCollectionTimeFromDetectors);
+					zebra.setPCPulseWidth(1000.*maxCollectionTimeFromDetectors); // in ms
+					logger.warn("isPcPulseGateNotTrigger=true, maxCollectionTimeFromDetectors="+maxCollectionTimeFromDetectors);
 				}
 				pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
 				pcPulseDelayRBV = zebra.getPCPulseDelayRBV()/1000.;
 
 				double gateWidthTime = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
+				// TODO: It appears that the above can now be simplified to pcPulseStepRBV*getNumberTriggers (as below) but this
+				//       needs to be tested before being deployed to Trigger detectors.
+				if ( isPcPulseGateNotTrigger() ) gateWidthTime = pcPulseStepRBV*getNumberTriggers();
 				requiredSpeed = (Math.abs(step)/pcPulseStepRBV);
 				zebra.setPCGateWidth((gateWidthTime * requiredSpeed)+minAccDistance);
 				
@@ -223,14 +227,13 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		this.mode = mode;
 	}
 
-	public boolean isPcPulseTriggerNotGate() {
-		return pcPulseTriggerNotGate;
+	public boolean isPcPulseGateNotTrigger() {
+		return pcPulseGateNotTrigger;
 	}
 
-	public void setPcPulseTriggerNotGate(boolean pcPulseTriggerNotGate) {
-		this.pcPulseTriggerNotGate = pcPulseTriggerNotGate;
+	public void setPcPulseGateNotTrigger(boolean pcPulseGateNotTrigger) {
+		this.pcPulseGateNotTrigger = pcPulseGateNotTrigger;
 	}
-
 
 	public class ExecuteMoveTask implements Callable<Void> {
 		@Override
