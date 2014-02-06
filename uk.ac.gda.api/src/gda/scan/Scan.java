@@ -22,14 +22,101 @@ package gda.scan;
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
+import gda.jython.Jython;
 
 import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.Vector;
 
 /**
  * Interface for all scans
  */
 public interface Scan extends Serializable {
+	
+	public enum ScanStatus {
+		
+		// Before runScan()
+		NOTSTARTED {
+			@Override
+			public Set<ScanStatus> possibleFollowUps() {
+				return EnumSet.of(RUNNING);
+			}
+		},
+
+		// Entered from runScan
+		RUNNING {
+			@Override
+			public Set<ScanStatus> possibleFollowUps() {
+				return EnumSet.of(PAUSED, FINISHING_EARLY, TIDYING_UP_AFTER_STOP, TIDYING_UP_AFTER_FAILURE, COMPLETED_OKAY);
+			}
+		},
+		
+		// When the scan code has noticed the request from a static somewhere
+		PAUSED {
+			@Override
+			public Set<ScanStatus> possibleFollowUps() {
+				return EnumSet.of(RUNNING);
+			}
+		},  
+		FINISHING_EARLY {
+			@Override
+			public Set<ScanStatus> possibleFollowUps() {
+				return EnumSet.of(COMPLETED_EARLY);
+			}
+		},  // When a bit of the code has noticed the request from a static somewhere
+		
+		TIDYING_UP_AFTER_STOP {
+			@Override
+			public Set<ScanStatus> possibleFollowUps() {
+				return EnumSet.of(COMPLETED_AFTER_STOP);
+			}
+		},
+		TIDYING_UP_AFTER_FAILURE {
+			@Override
+			public Set<ScanStatus> possibleFollowUps() {
+				return EnumSet.of(COMPLETED_AFTER_FAILURE);
+			}
+		},
+		
+		COMPLETED_OKAY,
+		
+		COMPLETED_EARLY,
+		
+		COMPLETED_AFTER_STOP,
+		
+		COMPLETED_AFTER_FAILURE;
+		
+		public Set<ScanStatus> possibleFollowUps() {
+			return EnumSet.noneOf(ScanStatus.class);
+		}
+		
+		public boolean isComplete() {
+			return (EnumSet.of(COMPLETED_OKAY, COMPLETED_EARLY, COMPLETED_AFTER_STOP, COMPLETED_AFTER_FAILURE).contains(this));
+		}
+
+		public boolean isRunning() {
+			return EnumSet.of(RUNNING, FINISHING_EARLY, TIDYING_UP_AFTER_STOP, TIDYING_UP_AFTER_FAILURE ).contains(this);
+		}
+
+		public boolean isAborting() {
+			return EnumSet.of(TIDYING_UP_AFTER_STOP, TIDYING_UP_AFTER_FAILURE).contains(this);
+		}
+		
+		public int asJython() {
+			if (this == PAUSED) {
+				return Jython.PAUSED;
+			} else if (isComplete() || EnumSet.of(NOTSTARTED).contains(this)) {
+				return Jython.IDLE;
+			} else if (isRunning()) {
+				return Jython.RUNNING;
+			} else {
+				throw new AssertionError("No mapping from " + this.name());
+			}
+		}
+		
+	}
+	
 	/**
 	 * Name of the thread which all scans run within when started by their runScan method.
 	 */
