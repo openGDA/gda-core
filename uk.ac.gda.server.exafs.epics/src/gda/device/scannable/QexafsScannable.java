@@ -224,11 +224,11 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		try {
 			braggAngleOf = BraggAngle.braggAngleOf(valueOf, getTwoD());
 		} catch (TimeoutException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Timeout error: failed to get 2D lattice spacing value from channel " +getXtalSwitchPV(), e);
 		} catch (CAException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Channel error: channel failure occurred while getting 2D lattice spacing value from channel " +getXtalSwitchPV(), e);
 		} catch (InterruptedException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Interrupt error: the process thread was interrupted for channel " +getXtalSwitchPV()+ "while getting 2D lattice spacing", e);
 		}
 		return radToDeg(braggAngleOf);
 	}
@@ -606,13 +606,10 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		try {
 			return controller.cagetInt(this.numPulsesChnl);
 		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
 			logger.error(erorMessage, e);
 		} catch (CAException e) {
-			// TODO Auto-generated catch block
 			logger.error(erorMessage, e);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			logger.error(erorMessage, e);
 		}
 		return 0;
