@@ -146,7 +146,7 @@ public class TomographyResourceUtil {
 		try {
 			resource.load(rSet.getLoadOptions());
 		} catch (IOException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Exception loading in options", e);
 		}
 	}
 
