@@ -51,5 +51,5 @@ Import-Package: javax.vecmath,
  org.dawnsci.plotting.services.util,
  org.eclipse.draw2d,
  org.nfunk.jep,
- org.slf4j;version="[1.7.5,1.7.6)"
+ org.slf4j;version="[1.7.6,1.7.7)"
 Bundle-Vendor: Diamond Light Source
