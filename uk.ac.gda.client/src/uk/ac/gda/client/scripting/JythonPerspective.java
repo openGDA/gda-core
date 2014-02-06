@@ -35,6 +35,7 @@ public class JythonPerspective implements IPerspectiveFactory {
 	 * Do not change. Referenced in plugin.xml files and beam line .ini files which do not refactor.
 	 */
 	public static final String ID = "uk.ac.gda.client.scripting.JythonPerspective";
+	public static final String GDA_NAVIGATOR_ID = "uk.ac.gda.client.navigator";
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
@@ -46,7 +47,7 @@ public class JythonPerspective implements IPerspectiveFactory {
 		String editorArea = layout.getEditorArea();
 		IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float)0.2, editorArea); //$NON-NLS-1$
         topLeft.addView(IPageLayout.ID_PROJECT_EXPLORER);
-        topLeft.addPlaceholder("uk.ac.gda.pydev.extension.gda.navigator");
+        topLeft.addPlaceholder(GDA_NAVIGATOR_ID);
         
         IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.7, editorArea); //$NON-NLS-1$
         outputfolder.addView("gda.rcp.jythonterminalview");
@@ -73,7 +74,7 @@ public class JythonPerspective implements IPerspectiveFactory {
         layout.addShowViewShortcut(IConsoleConstants.ID_CONSOLE_VIEW);
         layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
         layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
-        layout.addShowViewShortcut("uk.ac.gda.pydev.extension.gda.navigator");
+        layout.addShowViewShortcut(GDA_NAVIGATOR_ID);
         layout.addShowViewShortcut("org.eclipse.pde.runtime.LogView");
         layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
         layout.addShowViewShortcut("org.python.pydev.views.PyRefactorView");
