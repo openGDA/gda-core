@@ -193,14 +193,12 @@ public class CentroidScan extends ScanBase implements Scan {
 			if (!(e instanceof InterruptedException)) {
 				this.moveToCentroids();
 			}
-			interrupted = true;
 			throw e;
 		}
-
 	}
 
 	@Override
-	protected void endScan() throws DeviceException {
+	protected void endScan() throws DeviceException, InterruptedException {
 		if (!concurrentScan.returnScannablesToOrginalPositions) {
 			try {
 				this.moveToCentroids();

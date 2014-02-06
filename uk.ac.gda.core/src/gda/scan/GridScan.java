@@ -283,22 +283,47 @@ public class GridScan extends ScanBase implements Scan {
 			// add half a step to round to neartest integer
 			numberSteps = (int) ((difference / step) + 0.5);
 		}
-		try {
-			double time = Double.parseDouble(this.time.toString());
-			for (Detector detector : allDetectors) {
-				detector.setCollectionTime(time);
-			}
 
-			// make first step
-			logger.debug("Started a scan over " + theScannable.getName() + "\n");
+		double time = Double.parseDouble(this.time.toString());
+		for (Detector detector : allDetectors) {
+			detector.setCollectionTime(time);
+		}
+
+		// make first step
+		logger.debug("Started a scan over " + theScannable.getName() + "\n");
+		checkForInterrupts();
+
+		moveToStart();
+		if (this.childScan != null) {
 			checkForInterrupts();
+			// The following line is required to ensure that for nested
+			// scans
+			// the addData is called by the outer scan first in order to
+			// setup
+			// the required columns and headers.
+			ScanDataPoint point = new ScanDataPoint();
+			point.setUniqueName(name);
+			point.setHasChild(hasChild());
+			getDataWriter().addData(point);
+			runChildScan();
+		} else {
+			checkForInterrupts();
+			// then collect data
+			currentPointCount++;
+			collectData();
+		}
 
-			moveToStart();
+		// make subsequent steps
+		for (int i = 1; i <= numberSteps; ++i) {
+			checkForInterrupts();
+			moveStepIncrement(i);
+
 			if (this.childScan != null) {
 				checkForInterrupts();
-				// The following line is required to ensure that for nested
-				// scans
-				// the addData is called by the outer scan first in order to
+				// The following line is required to ensure that for
+				// nested scans
+				// the addData is called by the outer scan first in
+				// order to
 				// setup
 				// the required columns and headers.
 				ScanDataPoint point = new ScanDataPoint();
@@ -308,43 +333,10 @@ public class GridScan extends ScanBase implements Scan {
 				runChildScan();
 			} else {
 				checkForInterrupts();
-				// then collect data
 				currentPointCount++;
 				collectData();
 			}
-
-			// make subsequent steps
-			for (int i = 1; i <= numberSteps; ++i) {
-				checkForInterrupts();
-				moveStepIncrement(i);
-
-				if (this.childScan != null) {
-					checkForInterrupts();
-					// The following line is required to ensure that for
-					// nested scans
-					// the addData is called by the outer scan first in
-					// order to
-					// setup
-					// the required columns and headers.
-					ScanDataPoint point = new ScanDataPoint();
-					point.setUniqueName(name);
-					point.setHasChild(hasChild());
-					getDataWriter().addData(point);
-					runChildScan();
-				} else {
-					checkForInterrupts();
-					currentPointCount++;
-					collectData();
-				}
-			}
 		}
-		// if anything typed in which cannot convert to a number,
-		// skip the rest of the scan
-		catch (Exception e) {
-			interrupted = true;
-			throw e;
-		}
-
 		resetUnits();
 	}
 

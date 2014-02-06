@@ -28,124 +28,153 @@ public class PassthroughScanAdapter implements Scan{
 	
 	private final Scan delegate;
 
+	public PassthroughScanAdapter(Scan delegate) {
+		this.delegate = delegate;
+	}
+	
+	@Override
 	public void pause() {
 		delegate.pause();
 	}
 
+	@Override
 	public void resume() {
 		delegate.resume();
 	}
 
+	@Override
 	public void run() throws Exception {
 		delegate.run();
 	}
 
+	@Override
 	public void runScan() throws InterruptedException, Exception {
 		delegate.runScan();
 	}
 
+	@Override
 	public void doCollection() throws Exception {
 		delegate.doCollection();
 	}
 
+	@Override
 	public void prepareForCollection() throws Exception {
 		delegate.prepareForCollection();
 	}
 
+	@Override
 	public Vector<Scannable> getScannables() {
 		return delegate.getScannables();
 	}
 
+	@Override
 	public void setScannables(Vector<Scannable> allScannables) {
 		delegate.setScannables(allScannables);
 	}
 
+	@Override
 	public Vector<Detector> getDetectors() {
 		return delegate.getDetectors();
 	}
 
+	@Override
 	public void setDetectors(Vector<Detector> allDetectors) {
 		delegate.setDetectors(allDetectors);
 	}
 
+	@Override
 	public boolean isChild() {
 		return delegate.isChild();
 	}
 
+	@Override
 	public void setIsChild(boolean child) {
 		delegate.setIsChild(child);
 	}
 
+	@Override
 	public DataWriter getDataWriter() {
 		return delegate.getDataWriter();
 	}
 
+	@Override
 	public void setDataWriter(DataWriter dh) {
 		delegate.setDataWriter(dh);
 	}
 
+	@Override
 	public void setScanDataPointPipeline(ScanDataPointPipeline scanDataPointPipeline) {
 		delegate.setScanDataPointPipeline(scanDataPointPipeline);
 	}
 
+	@Override
 	public ScanDataPointPipeline getScanDataPointPipeline() {
 		return delegate.getScanDataPointPipeline();
 	}
 
+	@Override
 	public String getName() {
 		return delegate.getName();
 	}
 
+	@Override
 	public Scan getParent() {
 		return delegate.getParent();
 	}
 
+	@Override
 	public void setParent(Scan parent) {
 		delegate.setParent(parent);
 	}
 
+	@Override
 	public Scan getChild() {
 		return delegate.getChild();
 	}
 
+	@Override
 	public void setChild(Scan child) {
 		delegate.setChild(child);
 	}
 
+	@Override
 	public IScanStepId getStepId() {
 		return delegate.getStepId();
 	}
 
+	@Override
 	public void setStepId(IScanStepId IScanStepId) {
 		delegate.setStepId(IScanStepId);
 	}
 
+	@Override
 	public void setScanPlotSettings(ScanPlotSettings scanPlotSettings) {
 		delegate.setScanPlotSettings(scanPlotSettings);
 	}
 
+	@Override
 	public ScanPlotSettings getScanPlotSettings() {
 		return delegate.getScanPlotSettings();
 	}
 
+	@Override
 	public int getDimension() {
 		return delegate.getDimension();
 	}
 
+	@Override
 	public int getTotalNumberOfPoints() {
 		return delegate.getTotalNumberOfPoints();
 	}
 
+	@Override
 	public Long getScanNumber() {
 		return delegate.getScanNumber();
 	}
 
+	@Override
 	public ScanStatus getStatus() {
 		return delegate.getStatus();
-	}
-
-	public PassthroughScanAdapter(Scan delegate) {
-		this.delegate = delegate;
 	}
 
 }

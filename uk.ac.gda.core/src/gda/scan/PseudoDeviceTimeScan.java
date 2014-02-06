@@ -88,40 +88,31 @@ public class PseudoDeviceTimeScan extends ScanBase implements Scan {
 
 	@Override
 	public void doCollection() throws Exception {
-		try {
-			// work out the time now
-			Date startTime = new Date();
+		// work out the time now
+		Date startTime = new Date();
 
-			// report start time to user
-			logger.info("Starting scan at " + df.format(startTime));
+		// report start time to user
+		logger.info("Starting scan at " + df.format(startTime));
 
-			// reset relativeTimePD
-			relativeTimePD.moveTo(0.0);
+		// reset relativeTimePD
+		relativeTimePD.moveTo(0.0);
 
-			// loop
-			for (long i = 0; i < numberPoints; ++i) {
-				checkForInterrupts();
-				collectData();
-				checkForInterrupts();
-				// wait until time for next iteration to start
-				// this is based on the fixed point when the scan started, so
-				// the
-				// time to readout the scannables will not extend the total time
-				if (collectIntervalMilliSeconds > 0) {
-					long targetTime = startTime.getTime() + ((i + 1) * collectIntervalMilliSeconds);
-					waitUntil(targetTime);
-				}
-
-				relativeTimePD.moveTo((Double) relativeTimePD.getPosition() + collectIntervalSeconds);
-				checkForInterrupts();
+		// loop
+		for (long i = 0; i < numberPoints; ++i) {
+			checkForInterrupts();
+			collectData();
+			checkForInterrupts();
+			// wait until time for next iteration to start
+			// this is based on the fixed point when the scan started, so
+			// the
+			// time to readout the scannables will not extend the total time
+			if (collectIntervalMilliSeconds > 0) {
+				long targetTime = startTime.getTime() + ((i + 1) * collectIntervalMilliSeconds);
+				waitUntil(targetTime);
 			}
-		} catch (Exception ex1) {
-			interrupted = true;
 
-			// pass on any InterruptedExceptions
-			if (ex1 instanceof InterruptedException) {
-				throw (InterruptedException) ex1;
-			}
+			relativeTimePD.moveTo((Double) relativeTimePD.getPosition() + collectIntervalSeconds);
+			checkForInterrupts();
 		}
 	}
 

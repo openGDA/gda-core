@@ -87,49 +87,36 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 	 */
 	@Override
 	public void doCollection() throws InterruptedException, DeviceException {
-		try {
-			if (!relativeTimeAdded) {
-				relativeTimeAdded = true;
-				allScannables.add(relativeTime);
-			}
+		if (!relativeTimeAdded) {
+			relativeTimeAdded = true;
+			allScannables.add(relativeTime);
+		}
 
-			Date startTime = new Date();
-			// long maxTime = (long) (startTime.getTime() + (totalTime *
-			// 1000));
-			logger.debug("AsynchronousTimeScan: Starting scan at " + df.format(startTime) + "\n");
+		Date startTime = new Date();
+		// long maxTime = (long) (startTime.getTime() + (totalTime *
+		// 1000));
+		logger.debug("AsynchronousTimeScan: Starting scan at " + df.format(startTime) + "\n");
 
+		checkForInterrupts();
+
+		Date rightNow = new Date();
+		logger.debug("Collecting data at " + df.format(rightNow) + "\n");
+
+		// start data Collection
+		for (Detector detector : asynchronousDetectors) {
 			checkForInterrupts();
 
-			Date rightNow = new Date();
-			logger.debug("Collecting data at " + df.format(rightNow) + "\n");
-
-			// start data Collection
-			for (Detector detector : asynchronousDetectors) {
-				checkForInterrupts();
-
-				// start the counting
-				((AsynchronousDetector) detector).countAsync(totalTime);
-			}
-			checkForInterrupts();
-		} catch (Exception ex1) {
-			interrupted = true;
-			if (ex1 instanceof InterruptedException) {
-				throw (InterruptedException) ex1;
-			}
+			// start the counting
+			((AsynchronousDetector) detector).countAsync(totalTime);
 		}
-		// at end of scan remove all the observers of the detectors which were
-		// registered through this scan
-		finally {
-			endScan();
-		}
+		checkForInterrupts();
 	}
 
 	@Override
-	public void endScan() throws DeviceException {
+	public void endScan() throws DeviceException, InterruptedException {
 		for (Detector det : asynchronousDetectors)
 			det.endCollection();
 		super.endScan();
-
 	}
 
 	/**
