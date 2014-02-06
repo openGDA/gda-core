@@ -1013,8 +1013,7 @@ public class HmEditor extends MultiPageEditorPart implements IEditingDomainProvi
 					int addPage = addPage(xmlEditor, new FileEditorInput(textFile));
 					setPageText(addPage, "Advanced");
 				} catch (PartInitException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
+					logger.error("Unable to add XML Editor page", e);
 				}
 			}
 		}
