@@ -1038,8 +1038,12 @@ where task can be:
 					"-Dgda.install.git.loc=" + self.gda_install_git_loc,
 					"-Dgda.config=" + self.options.gda_config,
 				)
+		
+		swingclient_bin_path = os.path.join(self.gda_install_git_loc, "gda-legacy.git", "uk.ac.gda.swingclient", "bin")
+		class_path = self.gda_class_path + os.pathsep + swingclient_bin_path
+		
 		vmargs = self.addOptionalVMArgs(vmargs)
-		return self.stop_start_java(self.gda_class_path, class_name , vmargs=vmargs, debug_opts=debug_opts)
+		return self.stop_start_java(class_path, class_name , vmargs=vmargs, debug_opts=debug_opts)
 
 	def log_server(self, debug_opts=None):
 		class_name="gda.util.LogServer"
