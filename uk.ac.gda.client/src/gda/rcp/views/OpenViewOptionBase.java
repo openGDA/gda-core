@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2014 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,21 +18,22 @@
 
 package gda.rcp.views;
 
-public class OpenViewOption extends OpenViewOptionBase {
 
-	public OpenViewOption(String label, String viewId) {
-		super(label, viewId);
+public abstract class OpenViewOptionBase {
+	final String label;
+	final String viewId;
+	public String getLabel() {
+		return label;
 	}
-
-	String secondaryId;
-
-	@Override
-	public String getSecondaryId() {
-		return secondaryId;
+	public String getViewId() {
+		return viewId;
 	}
-
-	public void setSecondaryId(String secondaryId) {
-		this.secondaryId = secondaryId;
+	public OpenViewOptionBase(String label, String viewId) {
+		super();
+		this.label = label;
+		this.viewId = viewId;
 	}
+	
+	abstract public String getSecondaryId();
 
 }
