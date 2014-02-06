@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB;
+import uk.ac.gda.devices.bssc.ispyb.ISAXSDataCollection;
 
 public class BioSAXSProgressController implements IObservable{
 	private static final Logger logger = LoggerFactory.getLogger(BioSAXSProgressController.class);

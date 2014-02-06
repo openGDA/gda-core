@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.bssc.beans;
+package uk.ac.gda.devices.bssc.ispyb;
 
 public enum ISpyBStatus {
 	NOT_STARTED, RUNNING, COMPLETE, FAILED;

@@ -20,8 +20,6 @@ import uk.ac.gda.devices.bssc.beans.BioSAXSDataCollection;
 import uk.ac.gda.devices.bssc.beans.BioSAXSProgressController;
 import uk.ac.gda.devices.bssc.beans.BioSAXSProgressModel;
 import uk.ac.gda.devices.bssc.beans.IProgressModel;
-import uk.ac.gda.devices.bssc.beans.ISAXSDataCollection;
-import uk.ac.gda.devices.bssc.beans.ISpyBStatus;
 
 public class BioSAXSISpyBAPITest {
 	public static IProgressModel model;
