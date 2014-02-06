@@ -57,9 +57,9 @@ public class BioSAXSISpyBAPITest {
 					e.printStackTrace();
 				}
 
-				List<ISAXSDataCollection> saxsDataCollections = controller
+				List<ISAXSDataCollection> ispyBSAXSDataCollections = controller
 						.loadModelFromISPyB();
-				model.addItems(saxsDataCollections);
+				model.addItems(ispyBSAXSDataCollections);
 			}
 		});
 	}
@@ -204,8 +204,13 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 
 	private void updateModel(long currentDataCollectionId) {
 		int dataCollectionId = ((Long) currentDataCollectionId).intValue();
+		
+		
 		ISAXSDataCollection dataCollectionUpdated = isPyBSAXSDataCollections
 				.get(dataCollectionId);
+		
+		// here we would get the data collection from ISPyB using the controller and update the model
+		
 		ISAXSDataCollection modelCollectionToUpdate = (ISAXSDataCollection) BioSAXSISpyBAPITest.model
 				.getItems().get(dataCollectionId);
 		modelCollectionToUpdate = dataCollectionUpdated;
