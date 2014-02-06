@@ -10,11 +10,7 @@ package gda.util;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.util.logging.LogbackUtils;
 import gda.util.logging.LoggingUtils;
-
-import java.net.ServerSocket;
-import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +53,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
  * 	is an xml configuration file fed to {@link JoranConfigurator}
  * .
  */
-public class LogServer implements Runnable, Configurable, BeanNameAware {
+public class LogServer implements Configurable, BeanNameAware {
 
 	static Logger logger = LoggerFactory.getLogger(LogServer.class);
 
@@ -161,34 +157,10 @@ public class LogServer implements Runnable, Configurable, BeanNameAware {
 	}
 
 	void configureAndStartLogServer() throws JoranException {
-		
-		LogbackUtils.resetLogging(lc);
-		LogbackUtils.configureLogging(lc, configFile);
-		
-		uk.ac.gda.util.ThreadManager.getThread(this).start();
+		SimpleSocketServer.configureLC(lc, configFile);
+		socketServer.start();
 	}
 
-	@Override
-	public void run() {
-		try {
-			logger.info("Listening on port {}", port);
-			
-			@SuppressWarnings("resource") // suppressed because once the socket has been created, we go into an infinite loop
-			ServerSocket serverSocket = new ServerSocket(port);
-			
-			while (true) {
-				logger.info("Waiting to accept a new client.");
-				Socket socket = serverSocket.accept();
-				logger.info("Connected to client at {}", socket.getInetAddress());
-				logger.info("Starting new socket node.");
-				LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-				uk.ac.gda.util.ThreadManager.getThread(new SocketNode(socketServer, socket, lc)).start();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	private String name;
 	
 	@Override
