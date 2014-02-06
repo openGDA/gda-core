@@ -104,8 +104,7 @@ public class LogServer implements Runnable, Configurable, BeanNameAware {
 		}
 
 		if (logServer != null) {
-			logServer.configureLogging();
-			uk.ac.gda.util.ThreadManager.getThread(logServer).start();
+			logServer.configureAndStartLogServer();
 		}
 	}
 
@@ -161,9 +160,12 @@ public class LogServer implements Runnable, Configurable, BeanNameAware {
 		this.configFile = configFile;
 	}
 
-	void configureLogging() throws JoranException {
+	void configureAndStartLogServer() throws JoranException {
+		
 		LogbackUtils.resetLogging(lc);
 		LogbackUtils.configureLogging(lc, configFile);
+		
+		uk.ac.gda.util.ThreadManager.getThread(this).start();
 	}
 
 	@Override
@@ -200,13 +202,12 @@ public class LogServer implements Runnable, Configurable, BeanNameAware {
 	@Override
 	public void configure() throws FactoryException {
 		try {
-			configureLogging();
+			configureAndStartLogServer();
 		} catch (JoranException e) {
 			String msg = "Unable to configure LogServer " + name;
 			logger.error(msg, e);
 			throw new FactoryException(msg, e);
 		}
-		new Thread(this, "LogServer " + name).start();
 	}
 
 }
