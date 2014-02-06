@@ -1005,11 +1005,7 @@ public abstract class ScanBase implements Scan {
 	}
 
 	protected void prepareScanForCollection() throws Exception {
-		// ignore the baton if the scan is a nested scan inside another
-		// scan object
-		if (getScanStatusHolder().getScanStatus() == Jython.RUNNING && !isChild() && !isLineScanNeedsDoing()) {
-			waitForScanEnd();
-		}
+
 		prepareScanNumber();
 		prepareStaticVariables();
 
