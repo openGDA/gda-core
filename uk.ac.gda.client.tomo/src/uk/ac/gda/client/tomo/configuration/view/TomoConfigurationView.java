@@ -340,10 +340,9 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 								TomoParametersPackage.eINSTANCE.getParameters_ConfigurationSet(),
 								alignmentConfiguration, newIndex));
 					} catch (IOException e) {
-						logger.error("TODO put description of error here", e);
+						logger.error("Error when attempting to add" +data+ "to the table", e);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						logger.error("TODO put description of error here", e);
+						logger.error("Error when attempting to add" +data+ "to the table", e);
 					}
 					refreshTable();
 				}
@@ -622,7 +621,6 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 				} catch (IOException ie) {
 					logger.error("Problem removing configuration", ie);
 				} catch (Exception ex) {
-					// TODO Auto-generated catch block
 					logger.error("Problem removing configuration", ex);
 				}
 
@@ -1076,7 +1074,6 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 					} catch (IOException e) {
 						logger.error("Error setting description", e);
 					} catch (Exception ex) {
-						// TODO Auto-generated catch block
 						logger.error("Error setting description", ex);
 					}
 				} else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
@@ -1132,7 +1129,6 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 						} catch (IOException e) {
 							logger.error("Error setting description", e);
 						} catch (Exception ex) {
-							// TODO Auto-generated catch block
 							logger.error("Error setting description", ex);
 						}
 					} catch (NumberFormatException ex) {
@@ -1478,7 +1474,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 		try {
 			tomoConfigViewController.reset();
 		} catch (Exception e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Error occurred while attempting to reset the detector doing the tomography alignment", e);
 		}
 	}
 
