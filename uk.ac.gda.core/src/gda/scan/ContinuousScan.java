@@ -242,7 +242,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 	}
 
 	@Override
-	protected void endScan() throws DeviceException {
+	protected void endScan() throws DeviceException, InterruptedException {
 		try {
 			qscanAxis.continuousMoveComplete();
 		} finally {

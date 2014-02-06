@@ -583,7 +583,7 @@ public abstract class ScanBase implements Scan {
 	 * 
 	 * @throws DeviceException
 	 */
-	protected void endScan() throws DeviceException {
+	protected void endScan() throws DeviceException, InterruptedException {
 
 		// if the interrupt was set
 		if (interrupted) {

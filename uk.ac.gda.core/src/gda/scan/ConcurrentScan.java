@@ -498,7 +498,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 	}
 
 	@Override
-	protected void endScan() throws DeviceException {
+	protected void endScan() throws DeviceException, InterruptedException {
 		if (!isChild && isReturnScannablesToOrginalPositions()) {
 			// return all scannables to original positions
 			try {
