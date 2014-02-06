@@ -149,6 +149,14 @@ public class BioSAXSProgressController implements IObservable{
 		bioSAXSProgressModel = model;
 		
 	}
+
+	public void disconnectFromISpyB() {
+		try {
+			bioSAXSISPyB.disconnect();
+		} catch (SQLException e) {
+			logger.error("Error disconnecting from ISpyB", e);
+		}
+	}
 	
 	
 	
