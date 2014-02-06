@@ -57,9 +57,9 @@ public class BioSAXSISpyBAPITest {
 					e.printStackTrace();
 				}
 
-				List<ISAXSDataCollection> ispyBSAXSDataCollections = controller
+				List<ISAXSDataCollection> iSpyBSAXSDataCollections = controller
 						.loadModelFromISPyB();
-				model.addItems(ispyBSAXSDataCollections);
+				model.addItems(iSpyBSAXSDataCollections);
 			}
 		});
 	}
