@@ -46,7 +46,7 @@ public class HRPDPerspective implements IPerspectiveFactory {
 	private static final String DETECTOR_PLOT_FOLDER = "detectorPlotFolder";
 	//the following two ID recorded here as they use generic PartView Classes
 	private static final String MAC_PLOT_VIEW_ID = "uk.ac.gda.client.hrpd.views.MACPlotView";
-	private static final String GDA_NAVIGATOR_VIEW_ID = "uk.ac.gda.pydev.extension.gda.navigator";
+	private static final String GDA_NAVIGATOR_VIEW_ID = "uk.ac.gda.client.navigator";
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setFixed(false);
@@ -97,7 +97,7 @@ public class HRPDPerspective implements IPerspectiveFactory {
         layout.addShowViewShortcut(IConsoleConstants.ID_CONSOLE_VIEW);
         layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
         layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
-        layout.addShowViewShortcut("uk.ac.gda.pydev.extension.gda.navigator");
+        layout.addShowViewShortcut(GDA_NAVIGATOR_VIEW_ID);
         layout.addShowViewShortcut("org.eclipse.pde.runtime.LogView");
         layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
         layout.addShowViewShortcut("org.python.pydev.views.PyRefactorView");
