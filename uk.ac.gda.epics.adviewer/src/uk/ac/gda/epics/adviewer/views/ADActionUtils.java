@@ -40,7 +40,7 @@ public class ADActionUtils {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ADActionUtils.class);
 	
-	public IAction addAction(String name, final String commandId, final String commandParameterName, final String commandParameterValue) throws NotDefinedException{
+	static public IAction addAction(String name, final String commandId, final String commandParameterName, final String commandParameterValue) throws NotDefinedException{
 		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
 			@Override
 			public void run() {
@@ -66,7 +66,7 @@ public class ADActionUtils {
 		return action;
 	}
 	
-	public IAction addShowViewAction(String name, final String viewId, final String secondaryId, String description){
+	static public IAction addShowViewAction(String name, final String viewId, final String secondaryId, String description){
 		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
 			@Override
 			public void run() {

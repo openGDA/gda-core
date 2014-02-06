@@ -75,42 +75,41 @@ public class MJPegView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		if( adController== null){
-			String serviceName = getViewSite().getSecondaryId();
-			if( StringUtils.isEmpty(serviceName))
-				throw new RuntimeException("No secondary id given");
-			try {
-				adController = ADControllerFactory.getInstance().getADController(serviceName);
-			} catch (Exception e) {
-				logger.error("Error getting ADController",e);
-				throw new RuntimeException("Error getting ADController see log for details");
-			}
-
-			name = serviceName + " MJPeg";
-		}
-
-		parent.setLayout(new FillLayout());
 
 		try {
+			if( adController== null){
+				String serviceName = getViewSite().getSecondaryId();
+				if( StringUtils.isEmpty(serviceName))
+					throw new RuntimeException("No secondary id given");
+				try {
+					adController = ADControllerFactory.getInstance().getADController(serviceName);
+				} catch (Exception e) {
+					logger.error("Error getting ADController",e);
+					throw new RuntimeException("Error getting ADController see log for details");
+				}
+				name = adController.getDetectorName() + " MPeg";
+			}
+
+			parent.setLayout(new FillLayout());
+
 			mJPeg=createPartControlEx(parent);
+
+			createActions();
+			createMenu();
+			createToolbar();
+			createContextMenu();
+			hookGlobalActions();
+		
+			if( image != null) {
+				setTitleImage(image);
+			}
+			setPartName(name);
+		
 		} catch (Exception e) {
 			logger.error("Error creating MJPEGView", e);
 		}
 		
-		if( image != null) {
-			setTitleImage(image);
-		}
-		setPartName(name);
 
-		try {
-			createActions();
-		} catch (Exception e) {
-			logger.error("Error creating actions", e);
-		}
-		createMenu();
-		createToolbar();
-		createContextMenu();
-		hookGlobalActions();
 	}
 	
 	protected MJPeg createPartControlEx(Composite parent) {
@@ -138,14 +137,13 @@ public class MJPegView extends ViewPart {
 	}
 	
 	protected void createActions() throws NotDefinedException {
-		ADActionUtils actionUtils = new ADActionUtils();
 		List<IAction> actions = new Vector<IAction>();			
 		{
-			actions.add(actionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add(actionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add( actionUtils.addShowViewAction("Show Histogram", Ids.COMMANDS_SHOW_HISTOGRAM_VIEW, adController.getServiceName(), "Show Histogram view for selected camera"));
-			actions.add( actionUtils.addShowViewAction("Show Raw Image", Ids.COMMANDS_SHOW_RAW_IMAGE_VIEW, adController.getServiceName(), "Show Raw Image view for selected camera"));
+			actions.add(ADActionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add(ADActionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add( ADActionUtils.addShowViewAction("Show Histogram", Ids.COMMANDS_SHOW_HISTOGRAM_VIEW, adController.getServiceName(), "Show Histogram view for selected camera"));
+			actions.add( ADActionUtils.addShowViewAction("Show Raw Image", Ids.COMMANDS_SHOW_RAW_IMAGE_VIEW, adController.getServiceName(), "Show Raw Image view for selected camera"));
 		}	
 		for (IAction iAction : actions) {
 			getViewSite().getActionBars().getToolBarManager().add(iAction);

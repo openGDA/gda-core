@@ -30,6 +30,16 @@ abstract public  class  V17FactoryBeanBase <T> implements FactoryBean<T>, Initia
 	protected String name;
 	protected T bean;
 
+	private String prefix;
+	
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
 	@Override
 	public void setBeanName(String name) {
 		this.name = name;

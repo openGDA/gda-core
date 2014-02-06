@@ -28,23 +28,13 @@ import gda.device.detector.areadetector.v17.impl.SimplePVProvider;
  */
 abstract public  class  V17PluginFactoryBeanBase <T> extends V17FactoryBeanBase<T>{
 
-	private String prefix;
-	
-	public String getPrefix() {
-		return prefix;
-	}
-
-	public void setPrefix(String prefix) {
-		this.prefix = prefix;
-	}
-
 	abstract protected T createObject(NDPluginBase pluginBase, IPVProvider pvProvider) throws Exception;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		NDPluginBaseImpl pluginBase = new NDPluginBaseImpl();
 		SimplePVProvider simplePVProvider = new SimplePVProvider();
-		simplePVProvider.setPrefix(prefix);
+		simplePVProvider.setPrefix(getPrefix());
 		simplePVProvider.afterPropertiesSet();
 		pluginBase.setPvProvider(simplePVProvider);
 		pluginBase.afterPropertiesSet();

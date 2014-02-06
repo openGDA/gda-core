@@ -47,9 +47,8 @@ import uk.ac.gda.epics.adviewer.ADControllerFactory;
 import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.TwoDArray;
 import uk.ac.gda.epics.adviewer.composites.tomove.PlottingSystemIRegionPlotServerConnector;
-import uk.ac.gda.epics.adviewer.Activator;
 
-public class TwoDArrayView extends ViewPart implements InitializingBean{
+public class TwoDArrayView extends ViewPart implements InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArrayView.class);
 	private TwoDArray twoDArray;
 	private ADController adController;
@@ -57,21 +56,21 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 	private PlottingSystemIRegionPlotServerConnector plotServerConnector;
 	private String name;
 	private Image image;
-	
+
 	public TwoDArrayView(ADController adController, IConfigurationElement configurationElement) {
 		this.adController = adController;
 		name = configurationElement.getAttribute("name");
-		try{
+		try {
 			String icon = configurationElement.getAttribute("icon");
-			if( icon.isEmpty()){
+			if (icon.isEmpty()) {
 				image = adController.getTwoDarrayViewImageDescriptor().createImage();
 			} else {
 				URL iconURL = Platform.getBundle(configurationElement.getContributor().getName()).getResource(icon);
 				ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(iconURL);
 				image = imageDescriptor.createImage();
 			}
-		}catch (Exception e){
-			logger.warn("Unable to get image for view",e);
+		} catch (Exception e) {
+			logger.warn("Unable to get image for view", e);
 		}
 	}
 
@@ -81,99 +80,102 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if( adController == null)
+		if (adController == null)
 			throw new Exception("Config is null");
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 
-		if( adController== null){
-			String serviceName = getViewSite().getSecondaryId();
-			if( StringUtils.isEmpty(serviceName))
-				throw new RuntimeException("No secondary id given");
-			try {
-				adController = ADControllerFactory.getInstance().getADController(serviceName);
-			} catch (Exception e) {
-				logger.error("Error getting ADController",e);
-				throw new RuntimeException("Error getting ADController see log for details");
-			}
-			name = serviceName + " MJPeg";
-		}
-		
-		parent.setLayout(new FillLayout());
 		try {
-			twoDArray = new TwoDArray(this, parent, SWT.NONE);
-			twoDArray.setADController(adController);
-			twoDArray.showLeft(true);
-			partListener = new IPartListener2() {
-				
-				@Override
-				public void partVisible(IWorkbenchPartReference partRef) {
-					if( partRef.getPart(false) ==  TwoDArrayView.this)
-						twoDArray.setViewIsVisible(true);
+			if (adController == null) {
+				String serviceName = getViewSite().getSecondaryId();
+				if (StringUtils.isEmpty(serviceName))
+					throw new RuntimeException("No secondary id given");
+				try {
+					adController = ADControllerFactory.getInstance().getADController(serviceName);
+				} catch (Exception e) {
+					logger.error("Error getting ADController", e);
+					throw new RuntimeException("Error getting ADController see log for details");
 				}
-				
-				@Override
-				public void partOpened(IWorkbenchPartReference partRef) {
+				name = adController.getDetectorName() + " Array";
+
+				parent.setLayout(new FillLayout());
+
+				twoDArray = new TwoDArray(this, parent, SWT.NONE);
+				twoDArray.setADController(adController);
+				twoDArray.showLeft(true);
+				partListener = new IPartListener2() {
+
+					@Override
+					public void partVisible(IWorkbenchPartReference partRef) {
+						if (partRef.getPart(false) == TwoDArrayView.this)
+							twoDArray.setViewIsVisible(true);
+					}
+
+					@Override
+					public void partOpened(IWorkbenchPartReference partRef) {
+					}
+
+					@Override
+					public void partInputChanged(IWorkbenchPartReference partRef) {
+					}
+
+					@Override
+					public void partHidden(IWorkbenchPartReference partRef) {
+						if (partRef.getPart(false) == TwoDArrayView.this)
+							twoDArray.setViewIsVisible(false);
+					}
+
+					@Override
+					public void partDeactivated(IWorkbenchPartReference partRef) {
+					}
+
+					@Override
+					public void partClosed(IWorkbenchPartReference partRef) {
+					}
+
+					@Override
+					public void partBroughtToTop(IWorkbenchPartReference partRef) {
+					}
+
+					@Override
+					public void partActivated(IWorkbenchPartReference partRef) {
+					}
+				};
+				getSite().getWorkbenchWindow().getPartService().addPartListener(partListener);
+
+				if (adController.isConnectToPlotServer()) {
+					plotServerConnector = new PlottingSystemIRegionPlotServerConnector(
+							this.twoDArray.getPlottingSystem(), PlotServerROISelectionProvider.getGuiName(adController
+									.getDetectorName()));
 				}
-				
-				@Override
-				public void partInputChanged(IWorkbenchPartReference partRef) {
-				}
-				
-				@Override
-				public void partHidden(IWorkbenchPartReference partRef) {
-					if( partRef.getPart(false) ==  TwoDArrayView.this)
-						twoDArray.setViewIsVisible(false);
-				}
-				
-				@Override
-				public void partDeactivated(IWorkbenchPartReference partRef) {
-				}
-				
-				@Override
-				public void partClosed(IWorkbenchPartReference partRef) {
-				}
-				
-				@Override
-				public void partBroughtToTop(IWorkbenchPartReference partRef) {
-				}
-				
-				@Override
-				public void partActivated(IWorkbenchPartReference partRef) {
-				}
-			};
-			getSite().getWorkbenchWindow().getPartService().addPartListener(partListener);
-			
-			if( adController.isConnectToPlotServer()){
-				plotServerConnector = new PlottingSystemIRegionPlotServerConnector(this.twoDArray.getPlottingSystem(), PlotServerROISelectionProvider.getGuiName(adController.getDetectorName()));
+				twoDArray.restore(name);
+				createActions();
 			}
-			twoDArray.restore(name);
-			createActions();		
+			if (image != null) {
+				setTitleImage(image);
+			}
+			setPartName(name);
+
 		} catch (Exception e) {
 			logger.error("Error configuring twoDArray composite", e);
 		}
-		if( image != null) {
-			setTitleImage(image);
-		}
-		setPartName(name ); 
 	}
 
-
-	
 	protected void createActions() throws NotDefinedException {
-		ADActionUtils actionUtils = new ADActionUtils();
 		List<IAction> actions = new Vector<IAction>();
 		{
-			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add(actionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-		}	
+			actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE,
+					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add(ADActionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE,
+					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+		}
 		for (IAction iAction : actions) {
 			getViewSite().getActionBars().getToolBarManager().add(iAction);
 		}
 	}
-	
+
 	@Override
 	public void setFocus() {
 		twoDArray.setFocus();
@@ -182,15 +184,15 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 	@Override
 	public void dispose() {
 		twoDArray.save(name);
-		if( image != null){
+		if (image != null) {
 			image.dispose();
-			image=null;
+			image = null;
 		}
-		if( partListener != null){
+		if (partListener != null) {
 			getSite().getWorkbenchWindow().getPartService().removePartListener(partListener);
 			partListener = null;
 		}
-		if( plotServerConnector != null){
+		if (plotServerConnector != null) {
 			plotServerConnector.disconnect();
 			plotServerConnector = null;
 		}
@@ -204,5 +206,5 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 		}
 		return super.getAdapter(clazz);
 	}
-	
+
 }

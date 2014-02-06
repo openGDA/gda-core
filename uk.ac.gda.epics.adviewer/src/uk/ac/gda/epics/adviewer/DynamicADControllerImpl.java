@@ -19,254 +19,108 @@
 package uk.ac.gda.epics.adviewer;
 
 import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
-import gda.device.detector.areadetector.v17.impl.NDStatsImpl;
-import gda.spring.V17ADBaseFactoryBean;
-import gda.spring.V17NDStatsFactoryBean;
+import gda.spring.V17FactoryBeanBase;
 
-import org.eclipse.jface.resource.ImageDescriptor;
+public class DynamicADControllerImpl extends ADControllerBase {
 
-//<bean id="epgADController"
-//class="uk.ac.gda.epics.adviewer.ADControllerImpl">
-//<property name="serviceName" value="epg"/>
-//<property name="imageNDStats" ref="epg_stat" />
-//<property name="liveViewNDProc" ref="epg_proc" />
-//<property name="imageNDArray" ref="epg_arr" />
-//<property name="imageHistSize" value="256" />
-//<property name="imageMin" value="0" />
-//<property name="imageMax" value="256" />
-//<property name="detectorName" value="epg" />
-//<property name="adBase" ref="epg_cam_base" />
-//<property name="ffmpegStream" ref="epg_ffmpeg" />
-//<property name="ffmpegImageOutHeightMax" value="1200" />
-//<property name="ffmpegImageOutWidthMax" value="1600" />
-//<property name="cameraImageWidthMax" value="1388" />
-//<property name="cameraImageHeightMax" value="1032" />
-//<property name="imageNDROI" ref="epg_roi"/>
-//</bean>
-
-public class DynamicADControllerImpl implements ADController {
-
-	private NDStatsImpl ndStats;
 	final private String pvPrefix;
 	final private String statSuffix;
-	private String serviceName;
-	private ADBase adBase;
 	final private String camSuffix;
-	int imageHistSize=256;
-//	int imageMin=0;
-	int imageMax=256;
-	int ffmpegImageOutHeightMax=1200;
-	int ffmpegImageOutWidthMax=1600;
-	int cameraImageWidthMax=1388;
-	int cameraImageHeightMax=1032;
+	final private String arraySuffix;
+	final private String mpgSuffix;
+	final private String imageROISuffix;
+	final private String procSuffix;
+	final static int imageMin=0;
+	final static int imageMax=65535; //TODO allow the user to change this as it is not appropriate for most cameras
+
+	final static int cameraImageWidthMax=1388;
+	final static int cameraImageHeightMax=1032;
+
+	private ADBase adBase;
+	private NDStats ndStats;
+	private NDArray imageNDArray;
+	private FfmpegStream ffmpegStream;
+	private NDROI nDROI;
+	private NDProcess ndProc;
+
 	
-	public DynamicADControllerImpl(String serviceName, String pvPrefix, String camSuffix, String statSuffix) {
-		super();
+	public DynamicADControllerImpl(String serviceName, String detectorName, String pvPrefix, String camSuffix, String statSuffix,
+			String arraySuffix, String mpgSuffix, String imageROISuffix, String procSuffix) throws Exception {
 		this.pvPrefix = pvPrefix;
 		this.statSuffix = statSuffix;
-		this.serviceName = serviceName;
 		this.camSuffix = camSuffix;
-	}
-
-	@Override
-	public String getServiceName() {
-		return serviceName;
+		this.arraySuffix = arraySuffix;
+		this.mpgSuffix = mpgSuffix;
+		this.imageROISuffix = imageROISuffix;
+		this.procSuffix = procSuffix;
+		this.detectorName = detectorName;
+		setServiceName(serviceName);
+		super.afterPropertiesSet();
 	}
 
 	@Override
 	public String getDetectorName() {
-		return "undefined";
+		return detectorName;
 	}
 
 	@Override
 	public NDStats getImageNDStats() throws Exception {
 		if( ndStats == null){
-			V17NDStatsFactoryBean factoryBean = new gda.spring.V17NDStatsFactoryBean();
-			factoryBean.setPrefix(pvPrefix+statSuffix);
-//			factoryBean.setBeanName(name+"STAT");
-			factoryBean.afterPropertiesSet();
-			ndStats = (NDStatsImpl)factoryBean.getObject();
+			ndStats = getFromFactory(new gda.spring.V17NDStatsFactoryBean(), statSuffix);
 		}
 		return ndStats;
 	}
 
 	@Override
-	public NDProcess getLiveViewNDProc() {
-		// TODO Auto-generated method stub
-		return null;
+	public NDProcess getLiveViewNDProc() throws Exception {
+		if( ndProc == null){
+			ndProc = getFromFactory(new gda.spring.V17NDProcessFactoryBean(), procSuffix);
+		}
+		return ndProc;
 	}
 
 	@Override
-	public int getImageHistSize() throws Exception {
-		int histSize = getImageNDStats().getHistSize();
-		if(histSize==0)
-			return imageHistSize;
-		return getImageNDStats().getHistSize();
+	public NDArray getImageNDArray() throws Exception {
+		if( imageNDArray == null){
+			imageNDArray = getFromFactory(new gda.spring.V17NDArrayFactoryBean(), arraySuffix);
+		}
+		return imageNDArray;
 	}
-
-	@Override
-	public int getImageMin() throws Exception {
-		return (int) getImageNDStats().getHistMin();
-	}
-
-	@Override
-	public int getImageMax() throws Exception {
-		double histMax = getImageNDStats().getHistMax();
-		if(histMax==0)
-			return imageMax;
-		return (int)histMax;
-	}
-
-	@Override
-	public NDArray getImageNDArray() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getImageNDArrayPortInput() throws Exception {
-		return getAdBase().getPortName_RBV();
-	}
-
-	@Override
-	public ImageData getImageData() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setExposure(double d) throws Exception {
-		getAdBase().setAcquireTime(d);
-		getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
-		getAdBase().startAcquiring();
-	}
-
+	
+	
 	@Override
 	public ADBase getAdBase() throws Exception {
 		if( adBase == null){
-			V17ADBaseFactoryBean factoryBean = new gda.spring.V17ADBaseFactoryBean();
-			factoryBean.setPrefix(pvPrefix+camSuffix);
-//			factoryBean.setBeanName(name+"STAT");
-			factoryBean.afterPropertiesSet();
-			adBase = factoryBean.getObject();
+			adBase = getFromFactory(new gda.spring.V17ADBaseFactoryBean(), camSuffix);
 		}
 		return adBase;
-
 	}
-
+	
 	@Override
-	public void setLiveViewRange(double d, double e) throws Exception {
-		// TODO Auto-generated method stub
-
+	public FfmpegStream getFfmpegStream() throws Exception {
+		if( ffmpegStream == null){
+			ffmpegStream = getFromFactory(new gda.spring.V17FfmpegStreamFactoryBean(), mpgSuffix);
+		}
+		return ffmpegStream;
 	}
-
 	@Override
-	public FfmpegStream getFfmpegStream() {
-		// TODO Auto-generated method stub
-		return null;
+	public NDROI getImageNDROI() throws Exception {
+		if( nDROI == null){
+			nDROI = getFromFactory(new gda.spring.V17NDROIFactoryBean(), imageROISuffix);
+		}
+		return nDROI;
 	}
 
-	@Override
-	public int getFfmpegImageOutWidthMax() {
-		return ffmpegImageOutWidthMax;
+	private <T> T getFromFactory(V17FactoryBeanBase<T> factory, String suffix) throws Exception {
+		factory.setPrefix(pvPrefix+suffix);
+		factory.afterPropertiesSet();
+		return factory.getObject();
 	}
 
-	@Override
-	public int getFfmpegImageOutHeightMax() {
-		return ffmpegImageOutHeightMax;
-	}
-
-	@Override
-	public int getCameraImageWidthMax() {
-		return cameraImageWidthMax;
-	}
-
-	@Override
-	public int getCameraImageHeightMax() {
-		return cameraImageHeightMax;
-	}
-
-	@Override
-	public void startFfmpegStream() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stopFfmpegStream() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public ImageDescriptor getTwoDarrayViewImageDescriptor() {
-		return null;
-	}
-
-	@Override
-	public ImageDescriptor getLiveViewImageDescriptor() {
-		return null;
-	}
-
-	@Override
-	public ImageDescriptor getHistogramViewImageDescriptor() {
-		return null;
-	}
-
-	@Override
-	public int getFfmpegImageInHeight() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getFfmpegImageInWidth() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getFfmpegImageInOffsetX() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getFfmpegImageInOffsetY() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getHistogramMinCallbackTime() {
-		return 1;
-	}
-
-	@Override
-	public double getArrayMinCallbackTime() {
-		return 1;
-	}
-
-	@Override
-	public NDROI getImageNDROI() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void stopExposure() throws Exception {
-		getAdBase().stopAcquiring();
-	}
-
-	@Override
-	public boolean isConnectToPlotServer() {
-		return false;
-	}
 
 }

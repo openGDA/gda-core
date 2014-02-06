@@ -568,11 +568,11 @@ public class TwoDArray extends Composite {
 		return config.getImageHistSize();
 	}
 
-	public int getImageMin() throws Exception {
+	public double getImageMin() throws Exception {
 		return config.getImageMin();
 	}
 
-	public int getImageMax() throws Exception {
+	public double getImageMax() throws Exception {
 		return config.getImageMax();
 	}
 

@@ -29,30 +29,37 @@ import org.eclipse.jface.resource.ImageDescriptor;
 
 public interface ADController {
 
-	//unique name used to identify this object - also used to name the service 
-	public abstract String getServiceName();
-	
+	// unique name used to identify this object - also used to name the service
+	public String getServiceName();
+
 	/**
-	 * 
 	 * @return name used if the config is connected to the plot server -
 	 */
-	public abstract String getDetectorName();
+	public String getDetectorName();
 
-	public abstract NDStats getImageNDStats() throws Exception;
+	public NDStats getImageNDStats() throws Exception;
 
-	public abstract NDProcess getLiveViewNDProc();
+	public NDProcess getLiveViewNDProc() throws Exception;
 
-	public abstract int getImageHistSize() throws Exception;
+	public int getImageHistSize() throws Exception;
 
-	public abstract int getImageMin() throws Exception;
+	/**
+	 * @return Min expected pixel value - should normally be zero
+	 * @throws Exception
+	 */
+	public double getImageMin() throws Exception;
 
-	public abstract int getImageMax() throws Exception;
+	/**
+	 * @return Max expected pixel value
+	 * @throws Exception
+	 */
+	public double getImageMax() throws Exception;
 
-	public abstract NDArray getImageNDArray();
-	
-	public abstract String getImageNDArrayPortInput() throws Exception;
+	public NDArray getImageNDArray() throws Exception;
 
-	public abstract ImageData getImageData() throws Exception;
+	public String getImageNDArrayPortInput() throws Exception;
+
+	public ImageData getImageData() throws Exception;
 
 	/**
 	 * Sets exposure time and puts camera into continuous mode
@@ -60,74 +67,61 @@ public interface ADController {
 	 * @param d
 	 * @throws Exception
 	 */
-	public abstract void setExposure(double d) throws Exception;
+	public void setExposure(double d) throws Exception;
 
-	public abstract ADBase getAdBase() throws Exception;
+	public ADBase getAdBase() throws Exception;
 
-	public abstract void setLiveViewRange(double d, double e) throws Exception;
+	public void setLiveViewRange(double d, double e) throws Exception;
 
-	public abstract FfmpegStream getFfmpegStream();
+	public FfmpegStream getFfmpegStream() throws Exception;
 
-	public abstract int getFfmpegImageOutWidthMax();
+	public int getFfmpegImageOutWidthMax();
 
-	public abstract int getFfmpegImageOutHeightMax();
-
-	/**
-	 * 
-	 * @return The maximum width of an image that the camera driver can deliver. The actual image width could be
-	 * smaller due to setting a region of interest or binning.
-	 */
-	public abstract int getCameraImageWidthMax();
-
-	/**
-	 * 
-	 * @return The maximum height of an image that the camera driver can deliver. The actual image width could be
-	 * smaller due to setting a region of interest or binning.
-	 */
-	public abstract int getCameraImageHeightMax();
-	
-	public abstract void startFfmpegStream() throws Exception;
+	public int getFfmpegImageOutHeightMax();
 
 
-	public abstract void stopFfmpegStream() throws Exception;
+	public void startFfmpegStream() throws Exception;
 
-	
-	//ImageDescriptor  - return null for standard icon
+	public void stopFfmpegStream() throws Exception;
+
+	// ImageDescriptor - return null for standard icon
 	@Deprecated
-	public abstract ImageDescriptor getTwoDarrayViewImageDescriptor();
+	public ImageDescriptor getTwoDarrayViewImageDescriptor();
 
-	//ImageDescriptor  - return null for standard icon
+	// ImageDescriptor - return null for standard icon
 	@Deprecated
-	public abstract ImageDescriptor getLiveViewImageDescriptor();
+	public ImageDescriptor getLiveViewImageDescriptor();
 
-	//ImageDescriptor  - return null for standard icon
+	// ImageDescriptor - return null for standard icon
 	@Deprecated
-	public abstract ImageDescriptor getHistogramViewImageDescriptor();
-	
-	//height of the array passed to the mjpeg plugin
-	public abstract int getFfmpegImageInHeight() throws Exception;
+	public ImageDescriptor getHistogramViewImageDescriptor();
 
-	//width of the array passed to the mjpeg plugin
-	public abstract int getFfmpegImageInWidth() throws Exception;
+	// height of the array passed to the mjpeg plugin
+	public int getFfmpegImageInHeight() throws Exception;
 
-	//due to use of a ROI the image arriving at the ffmpeg plugin may be offset in x and Y from the camera 0,0 position 
-	public abstract int getFfmpegImageInOffsetX() throws Exception;
-	
-	//due to use of a ROI the image arriving at the ffmpeg plugin may be offset in x and Y from the camera 0,0 position 
-	public abstract int getFfmpegImageInOffsetY() throws Exception;
+	// width of the array passed to the mjpeg plugin
+	public int getFfmpegImageInWidth() throws Exception;
 
-	public abstract double getHistogramMinCallbackTime();
-	
-	public abstract double getArrayMinCallbackTime();
+/*	// due to use of a ROI the image arriving at the ffmpeg plugin may be offset in x and Y from the camera 0,0 position
+	@Deprecated
+	public int getFfmpegImageInOffsetX() throws Exception;
 
+	// due to use of a ROI the image arriving at the ffmpeg plugin may be offset in x and Y from the camera 0,0 position
+	public int getFfmpegImageInOffsetY() throws Exception;
 
-	//NDROI for the ROI plugin that controls the ImageArray
-	public abstract NDROI getImageNDROI();
+*/	public double getHistogramMinCallbackTime();
+
+	public double getArrayMinCallbackTime();
+
+	// NDROI for the ROI plugin that controls the ImageArray
+	public NDROI getImageNDROI()  throws Exception;
 
 	// stops the continuous exposure
-	public abstract void stopExposure() throws Exception;
+	public void stopExposure() throws Exception;
 
 	// return true is the regions of interest are linked to the plotserver
-	public abstract boolean isConnectToPlotServer();
+	public boolean isConnectToPlotServer();
 
+	public String getSetExposureTimeCmd();
+	
 }

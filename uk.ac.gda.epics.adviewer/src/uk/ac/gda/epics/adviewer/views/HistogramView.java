@@ -83,7 +83,8 @@ public class HistogramView extends ViewPart{
 					logger.error("Error getting ADController",e);
 					throw new RuntimeException("Error getting ADController see log for details");
 				}
-				name = serviceName + " Histogram";
+				name = adController.getDetectorName() + " Stats";
+				
 			}
 			parent.setLayout(new FillLayout());
 
@@ -94,22 +95,22 @@ public class HistogramView extends ViewPart{
 			histogram.showLeft(true);
 			
 			createActions();
+
+			if( image != null) {
+				setTitleImage(image);
+			}
+			setPartName(name );
 			
 		} catch (Exception e) {
-			logger.error("Error starting  areaDetectorProfileComposite", e);
+			logger.error("Error starting  histogram view", e);
 		}
-		if( image != null) {
-			setTitleImage(image);
-		}
-		setPartName(name );
 	}
 	
 	protected void createActions() throws NotDefinedException {
-		ADActionUtils actionUtils = new ADActionUtils();
 		List<IAction> actions = new Vector<IAction>();
 		{
-			actions.add(actionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add( actionUtils.addShowViewAction("Show Live", "uk.ac.gda.epics.adviewer.showLiveView", adController.getServiceName(), "Show MJPEG view for selected camera"));
+			actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add( ADActionUtils.addShowViewAction("Show Live", "uk.ac.gda.epics.adviewer.showLiveView", adController.getServiceName(), "Show MJPEG view for selected camera"));
 		}	
 		for (IAction iAction : actions) {
 			getViewSite().getActionBars().getToolBarManager().add(iAction);

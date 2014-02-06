@@ -316,5 +316,7 @@ public interface NDPluginBase {
 	
 	public void checkDroppedFrames() throws Exception;
 	
+	
+
 
 }

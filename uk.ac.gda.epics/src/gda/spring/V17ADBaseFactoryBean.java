@@ -26,22 +26,11 @@ import gda.device.detector.areadetector.v17.impl.SimplePVProvider;
  */
 public class V17ADBaseFactoryBean extends V17FactoryBeanBase<ADBase>{
 
-	private String prefix;
-	
-	public String getPrefix() {
-		return prefix;
-	}
-
-	public void setPrefix(String prefix) {
-		this.prefix = prefix;
-	}
-
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		ADBaseImpl plugin = new ADBaseImpl();
 		SimplePVProvider simplePVProvider = new SimplePVProvider();
-		simplePVProvider.setPrefix(prefix);
+		simplePVProvider.setPrefix(getPrefix());
 		simplePVProvider.afterPropertiesSet();		
 		plugin.setPvProvider(simplePVProvider);
 		plugin.afterPropertiesSet();

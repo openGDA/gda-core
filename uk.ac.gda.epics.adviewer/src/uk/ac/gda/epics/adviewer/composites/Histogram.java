@@ -96,8 +96,8 @@ public class Histogram extends Composite {
 	 * To prevent cycles of Gui updates Epics, Epics update GUI, Gui updates EPICS... only update the GUI if the values
 	 * from EPICS do not match those used to last update the GUI
 	 */
-	long current_mpegROIMin = Long.MIN_VALUE;
-	long current_mpegROIMax = Long.MAX_VALUE;
+	double current_mpegROIMin = -Double.MAX_VALUE;
+	double current_mpegROIMax = Double.MAX_VALUE;
 	private RectangularROI current_mpegROI;
 
 	private boolean grabOnceStats;
@@ -407,8 +407,8 @@ public class Histogram extends Composite {
 		}
 		try {
 			final int histSize = getHistSize();
-			int histMin = getImageMin();
-			int histMax = getImageMax();
+			double histMin = getImageMin();
+			double histMax = getImageMax();
 			config.getImageNDStats().setHistSize(histSize);
 			config.getImageNDStats().setHistMin(histMin);
 			config.getImageNDStats().setHistMax(histMax);
@@ -571,8 +571,8 @@ public class Histogram extends Composite {
 		double scale = Histogram.this.getMPEGProcScale();
 		double offset = Histogram.this.getMPEGProcOffset();
 		RectangularROI roi;
-		long min = (long) -offset;
-		long max = (long) (255.0 / scale + min);
+		double min =  -offset;
+		double max = (255.0 / scale + min);
 
 		if (min < getImageMin())
 			min = getImageMin(); // The lowest intensity is 0
@@ -695,11 +695,11 @@ public class Histogram extends Composite {
 		return adController.getImageHistSize();
 	}
 
-	public int getImageMin() throws Exception {
+	public double getImageMin() throws Exception {
 		return adController.getImageMin();
 	}
 
-	public int getImageMax() throws Exception {
+	public double getImageMax() throws Exception {
 		return adController.getImageMax();
 	}
 
