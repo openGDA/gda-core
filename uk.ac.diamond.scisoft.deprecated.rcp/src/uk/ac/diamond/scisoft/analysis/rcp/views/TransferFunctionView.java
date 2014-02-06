@@ -22,13 +22,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
+import org.dawnsci.plotting.api.histogram.functions.GlobalColourMaps;
+import org.dawnsci.plotting.api.histogram.functions.UserCustomFunction;
 import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
 import org.dawnsci.plotting.jreality.overlay.Overlay1DProvider;
 import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
 import org.dawnsci.plotting.jreality.overlay.OverlayType;
 import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
-import org.dawnsci.plotting.services.util.GlobalColourMaps;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -36,8 +38,6 @@ import org.eclipse.ui.PartInitException;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
-import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.UserCustomFunction;
 import uk.ac.diamond.scisoft.analysis.rcp.volimage.CommandClient;
 
 

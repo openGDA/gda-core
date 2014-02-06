@@ -20,9 +20,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawb.common.ui.plot.region.RegionService;
 import org.dawb.common.ui.plot.roi.data.IRowData;
 import org.dawb.common.ui.plot.roi.data.ROIData;
+import org.dawnsci.plotting.api.region.IRegionService;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DProvider;
 import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
@@ -49,6 +49,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Downsample;
 import uk.ac.diamond.scisoft.analysis.dataset.function.DownsampleMode;
+import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
@@ -831,7 +832,8 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	 * @param roi
 	 */
 	protected void setROIName(String prefix, IROI roi) {
-		String stub = RegionService.forROI(roi).getName();
+		final IRegionService rservice = (IRegionService)Activator.getService(IRegionService.class);
+		String stub = rservice.forROI(roi).getName();
 		if (prefix != null)
 			stub = prefix + stub;
 

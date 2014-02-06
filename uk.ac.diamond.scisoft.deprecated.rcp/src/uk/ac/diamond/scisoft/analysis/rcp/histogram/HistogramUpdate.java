@@ -16,9 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.histogram;
 
+import org.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
 import org.eclipse.jface.viewers.ISelection;
-
-import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
 
 /**
  *

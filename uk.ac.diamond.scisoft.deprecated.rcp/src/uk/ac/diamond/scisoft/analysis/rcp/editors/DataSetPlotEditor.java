@@ -20,6 +20,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawb.common.ui.util.EclipseUtils;
+import org.dawb.common.ui.util.GridUtils;
+import org.dawb.common.ui.widgets.ActionBarWrapper;
 import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
 import org.eclipse.core.commands.ExecutionException;
@@ -71,18 +74,15 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PydevConsoleAction;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotServerConnection;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.ExpressionObject;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.IDataSetPlotViewProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.SliceComponent;
-import uk.ac.gda.common.rcp.util.ActionBarWrapper;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.common.rcp.util.GridUtils;
 
 
 /**

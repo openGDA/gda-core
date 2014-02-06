@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -29,10 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlot;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.IDataSetPlotViewProvider;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class AsciiEditor extends MultiPageEditorPart implements IDataSetPlotViewProvider {
 

@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -24,9 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.ui.event.PartAdapter;
 
 public class EditorUtils {
 

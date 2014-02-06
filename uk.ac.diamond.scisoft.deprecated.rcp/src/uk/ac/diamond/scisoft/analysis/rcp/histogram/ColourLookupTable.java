@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.histogram;
 
+import org.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
 import org.dawnsci.plotting.jreality.core.ScaleType;
 import org.dawnsci.plotting.jreality.data.ColourImageData;
 import org.dawnsci.plotting.jreality.util.ScalingUtility;
@@ -25,7 +26,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
-import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
 
 
 
