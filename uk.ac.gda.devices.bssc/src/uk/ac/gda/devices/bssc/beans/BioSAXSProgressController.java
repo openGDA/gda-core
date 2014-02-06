@@ -43,6 +43,7 @@ public class BioSAXSProgressController implements IObservable{
 	private IProgressModel bioSAXSProgressModel;
 	private String visit;
 	private long blSessionId;
+	private List<ISAXSDataCollection> saxsDataCollections = null;
 	
 	ObservableComponent obsComp = new ObservableComponent();
 	private boolean stopPolling;
@@ -54,7 +55,7 @@ public class BioSAXSProgressController implements IObservable{
 		this.bioSAXSISPyB = bioSAXSISPyB;
 		try {
 			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-			blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
+			blSessionId = bioSAXSISPyB.getSessionForVisit(/*visit*/"cm4977-1");
 		} catch (DeviceException e) {
 			logger.error("DeviceEXception getting visit", e);
 		} catch (SQLException e) {
@@ -71,7 +72,13 @@ public class BioSAXSProgressController implements IObservable{
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					// bioSAXSProgressModel.clearItems();
-					loadModelFromISPyB();
+					saxsDataCollections = loadModelFromISPyB();
+					Display.getDefault().asyncExec(new Runnable(){
+						@Override
+						public void run() {
+							bioSAXSProgressModel.clearItems();
+							bioSAXSProgressModel.addItems(saxsDataCollections);
+						}});
 					if (monitor.isCanceled())
 						return Status.CANCEL_STATUS;
 
@@ -101,19 +108,16 @@ public class BioSAXSProgressController implements IObservable{
 */		pollingJob.schedule();
 	}
 
-	public void loadModelFromISPyB() {
+	public List<ISAXSDataCollection> loadModelFromISPyB() {
+		List<ISAXSDataCollection> saxsDataCollections = null;
+		
 		try {
-			final List<ISAXSDataCollection> saxsDataCollections = bioSAXSISPyB.getSAXSDataCollections(blSessionId);
-			Display.getDefault().asyncExec(new Runnable(){
-
-				@Override
-				public void run() {
-					bioSAXSProgressModel.clearItems();
-					bioSAXSProgressModel.addItems(saxsDataCollections);
-				}});
+			saxsDataCollections = bioSAXSISPyB.getSAXSDataCollections(blSessionId);
 		} catch (SQLException e) {
 			logger.error("SQL EXception getting data collections from ISpyB", e);
 		}
+		
+		return saxsDataCollections;
 	}
 
 	@Override
