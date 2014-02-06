@@ -26,7 +26,7 @@ import java.util.List;
 
 import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
 import org.dawnsci.plotting.jreality.tool.ImagePositionListener;
-import org.dawnsci.plotting.services.util.GlobalColourMaps;
+import org.dawnsci.plotting.api.histogram.functions.GlobalColourMaps;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;

@@ -104,6 +104,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.dawb.common.ui.plot,
  org.dawnsci.plotting.api,
  org.dawnsci.plotting.api.axis,
+ org.dawnsci.plotting.api.histogram.functions,
  org.dawnsci.plotting.api.tool,
  org.dawnsci.plotting.api.trace,
  org.eclipse.ui.forms.events,
