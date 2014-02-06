@@ -214,7 +214,7 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="uk.ac.gda.pydev.extension.ui.JythonPerspective">
+            targetID="uk.ac.gda.client.scripting.JythonPerspective">
           <view id="gda.rcp.ncd.views.NCDStatus"
                minimized="false"
                relationship="bottom"
