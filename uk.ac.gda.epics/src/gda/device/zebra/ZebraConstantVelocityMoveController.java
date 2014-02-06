@@ -131,7 +131,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				 * Note the first pulse is sent 1/2 exposure step before the start position. The position capture is delay to half way through the exposure = collectionTime/2
 				 **/
 				boolean exposureStepDefined = zebraMotorInfoProvider.isExposureStepDefined();
-				double exposureStep = 0.;
+				double exposureStep, pcPulseStepMS;
 				if( exposureStepDefined){
 					// case B - The exposure time of the detector, the distance between pulses are given AND so is the size of the step of the motor to move during exposure. 
 					exposureStep = zebraMotorInfoProvider.getExposureStep();
@@ -139,27 +139,33 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 					double triggerPeriodFromSpeed = step/requiredSpeed;
 					if( triggerPeriodFromSpeed < triggerPeriod )
 						throw new IllegalArgumentException("ZebraConstantVelocityMoveController exposureStep, step and collectionTime do not give enough readout time for detectors. Increase collectionTime or reduce exposureStep");
-					zebra.setPCPulseStep(triggerPeriodFromSpeed*1000); // in  ms
+					pcPulseStepMS = triggerPeriodFromSpeed*1000;
 				} 
 				else {
 					// case A - The exposure time of the detector and the distance between pulses are given. 
 					requiredSpeed = (Math.abs(step)/triggerPeriod);
 					exposureStep = maxCollectionTimeFromDetectors*requiredSpeed;
-					zebra.setPCPulseStep(triggerPeriod*1000); // in  ms
+					pcPulseStepMS = triggerPeriod*1000;
 				}
+				zebra.setPCPulseStep(pcPulseStepMS);
+				
+				logger.info("pcPulseStepMS="+pcPulseStepMS+" exposureStep="+exposureStep+" requiredSpeed="+requiredSpeed);
 				
 				double firstPulsePos = start - (step>0 ? 1.0 : -1.0)*exposureStep/2;
-				// Note that we need to read back any values relating to a
-				// physical motor, as the readback will be quantised to the
-				// resolution of the motor.
+				// Note that we need to read back values relating to time, so that the we calculate values based on the actual
+				// values in use rather than the values we asked for.
 				double pcPulseStepRBVMS= zebra.getPCPulseStepRBV();
 				pcPulseStepRBV = pcPulseStepRBVMS/1000;
+				
+				logger.info("pcPulseStepRBVMS="+pcPulseStepRBVMS+" pcPulseStepRBV="+pcPulseStepRBV+" firstPulsePos="+firstPulsePos);
 				
 				//Use at least .5 degrees otherwise we may get error due to encoder noise
 				minAccDistance = Math.max(.5, zebraMotorInfoProvider.distanceToAccToVelocity(requiredSpeed));
 				scannableMotor.asynchronousMoveTo(firstPulsePos - (step>0 ? 1.0 : -1.0)*minAccDistance);
 				zebra.setPCGateStart(firstPulsePos);
 				
+				logger.info("minAccDistance="+minAccDistance);
+
 				// Capture positions half way through collection time
 				zebra.setPCPulseDelay(1000.*maxCollectionTimeFromDetectors/2.);
 				
@@ -167,7 +173,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 					zebra.setPCPulseWidth(.01); //.01ms
 				} else {
 					zebra.setPCPulseWidth(1000.*maxCollectionTimeFromDetectors); // in ms
-					logger.warn("isPcPulseGateNotTrigger=true, maxCollectionTimeFromDetectors="+maxCollectionTimeFromDetectors);
+					logger.info("isPcPulseGateNotTrigger=true, maxCollectionTimeFromDetectors="+maxCollectionTimeFromDetectors);
 				}
 				pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
 				pcPulseDelayRBV = zebra.getPCPulseDelayRBV()/1000.;
@@ -176,9 +182,17 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				// TODO: It appears that the above can now be simplified to pcPulseStepRBV*getNumberTriggers (as below) but this
 				//       needs to be tested before being deployed to Trigger detectors.
 				if ( isPcPulseGateNotTrigger() ) gateWidthTime = pcPulseStepRBV*getNumberTriggers();
+				// How about: gateWidthTime = pcPulseStepRBV*(getNumberTriggers()-1) + min (pcPulseDelayRBV + pcPulseWidthRBV, pcPulseStepRBV);
+				
+				// Why do we recalculate requiredSpeed here? We have already used it for calculating other things above and this
+				// can result in motors running faster than we assumed they would move.
 				requiredSpeed = (Math.abs(step)/pcPulseStepRBV);
 				zebra.setPCGateWidth((gateWidthTime * requiredSpeed)+minAccDistance);
 				
+				logger.info("New requiredSpeed="+requiredSpeed);
+				
+				// Note that we need to read back any values relating to a physical motor, as the readback will be quantised to the
+				// resolution of the motor.
 				pcGateWidthRBV = zebra.getPCGateWidthRBV();
 				pcGateStartRBV = zebra.getPCGateStartRBV();
 				
