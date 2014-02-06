@@ -177,9 +177,9 @@ public class AlignmentConfigSaveDialog extends Dialog {
 					}
 				});
 			} catch (InvocationTargetException e1) {
-				logger.error("TODO put description of error here", e1);
+				logger.error("Unable to load image into viewer", e1);
 			} catch (InterruptedException e1) {
-				logger.error("TODO put description of error here", e1);
+				logger.error("Process to load image into viewer interrupted, unable to load image into viewer", e1);
 			}
 		}
 	};
@@ -305,7 +305,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 
 								leftWindowViewer.loadMainImage(image.scaledTo(dim.width, dim.height));
 							} catch (Exception e) {
-								logger.error("TODO put description of error here", e);
+								logger.error("Problem loading image into left window viewer", e);
 							}
 						} else if (viewerButtonSelected.equals(ImageLocationRelTheta.THETA_PLUS_90)) {
 							try {
@@ -313,7 +313,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 								Dimension dim = getScaleValue(image.width, image.height, bounds.width, bounds.height);
 								rightWindowViewer.loadMainImage(image.scaledTo(dim.width, dim.height));
 							} catch (Exception e) {
-								logger.error("TODO put description of error here", e);
+								logger.error("Problem loading image into right window viewer", e);
 							}
 						}
 					}
@@ -337,7 +337,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 					try {
 						coarseRotation.moveSliderTo(tomoAlignmentViewController.getRotationMotorDeg());
 					} catch (DeviceException de) {
-						logger.error("TODO put description of error here", de);
+						logger.error("Sample Stage Motor Error: unable to get the rotation motor position ", e);
 					}
 				}
 			}
@@ -403,9 +403,9 @@ public class AlignmentConfigSaveDialog extends Dialog {
 				}
 			});
 		} catch (InvocationTargetException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Problem occured rotating the sample stage to a position", e);
 		} catch (InterruptedException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Process to rotate the sample stage to a position interrupted", e);
 		}
 	}
 
@@ -426,9 +426,9 @@ public class AlignmentConfigSaveDialog extends Dialog {
 				}
 			});
 		} catch (InvocationTargetException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Problem occured in rotating the sample stage by a given amount", e);
 		} catch (InterruptedException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Process to rotate the sample stage by a given amount  interrupted", e);
 		}
 	}
 
@@ -476,9 +476,9 @@ public class AlignmentConfigSaveDialog extends Dialog {
 					}
 				});
 			} catch (InvocationTargetException e) {
-				logger.error("TODO put description of error here", e);
+				logger.error("Problem occured in rotating the sample stage by a given amount", e);
 			} catch (InterruptedException e) {
-				logger.error("TODO put description of error here", e);
+				logger.error("Process to rotate the sample stage by a given amount  interrupted", e);
 			}
 
 		}
