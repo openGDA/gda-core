@@ -72,9 +72,13 @@ class Grid(DataWriterExtenderBase):
 	def scan(self):
 		beanbag=dnp.plot.getbean(name=self.cameraPanel)
 		if beanbag == None:
-			print "No Bean found on "+self.camerPanel+" (that is strange)"
+			print "No Bean found on "+self.cameraPanel+" (that is strange)"
 			return
-		roi=beanbag[GuiParameters.ROIDATA]._jroi()
+		try:
+			roi=beanbag[GuiParameters.ROIDATA]._jroi()
+		except AttributeError:
+			print "No ROI selected - has grid been deleted?"
+			return
 		if not isinstance(roi, GridROI):
 			print "no Grid ROI selected"
 			return
