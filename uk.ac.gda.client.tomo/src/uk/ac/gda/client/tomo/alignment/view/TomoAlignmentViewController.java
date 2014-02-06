@@ -618,7 +618,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 					try {
 						resetCameraDistance();
 					} catch (Exception ex) {
-						logger.error("TODO put description of error here", e);
+						logger.error("Problem resetting the camera's motion position", e);
 						throw new InvocationTargetException(e, "Unable to get camera position");
 					}
 					throw new InvocationTargetException(e, "Unable to move to requested camera position");
@@ -1785,7 +1785,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							try {
 								tomoAlignmentView.getTomoControlComposite().switchOff(selectedCentring);
 							} catch (Exception e) {
-								logger.error("TODO put description of error here", e);
+								logger.error("Problem switching off centring", e);
 								tomoAlignmentView.loadErrorInDisplay("Problem switching off centring", e.getMessage());
 							}
 							monitor.done();
@@ -1823,7 +1823,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							try {
 								tomoAlignmentView.getTomoControlComposite().switchOff(selectedCentring);
 							} catch (Exception e) {
-								logger.error("TODO put description of error here", e);
+								logger.error("Problem switching off centring", e);
 								tomoAlignmentView.loadErrorInDisplay("Problem switching off centring", e.getMessage());
 							}
 						}
@@ -1845,7 +1845,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							try {
 								tomoAlignmentView.getTomoControlComposite().switchOff(selectedCentring);
 							} catch (Exception e) {
-								logger.error("TODO put description of error here", e);
+								logger.error("Problem switching off centring", e);
 								tomoAlignmentView.loadErrorInDisplay("Problem switching off centring", e.getMessage());
 							}
 							monitor.done();
@@ -1872,7 +1872,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 		try {
 			tomoAlignmentView.getTomoControlComposite().switchOff(selectedCentring);
 		} catch (Exception e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Problem switching off centring", e);
 		}
 	}
 
