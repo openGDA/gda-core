@@ -330,9 +330,9 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 				workspaceModifyOperation.run(new NullProgressMonitor());
 
 			} catch (InvocationTargetException e) {
-				logger.error("TODO put description of error here", e);
+				logger.error("Error while attempting to create default Setting File", e);
 			} catch (InterruptedException e) {
-				logger.error("TODO put description of error here", e);
+				logger.error("Process to create Setting File interrupted", e);
 			}
 		}
 	}
