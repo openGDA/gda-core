@@ -28,7 +28,8 @@ public class GridStartScan extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		JythonServerFacade.getInstance().runCommand("ncdgridscan.scan()");
+		String jythonCommand = "ncdgridscan.scan()";
+		JythonServerFacade.getInstance().runCommand(jythonCommand);
 		return true;
 	}
 }
