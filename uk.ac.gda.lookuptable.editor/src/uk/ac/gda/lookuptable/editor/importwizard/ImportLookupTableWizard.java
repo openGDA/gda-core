@@ -73,9 +73,10 @@ public class ImportLookupTableWizard extends Wizard implements IImportWizard {
 		IResource fileToBeReplaced = lookupTableImportPage.getFileToBeReplaced();
 		IPath fileToBeReplacedPath = fileToBeReplaced.getFullPath();
 		IPath newPath = new Path(fileToBeReplacedPath.toString() + "_backup");
-
+		String operation_name = "";
+		operation_name = "create backup";
 		MoveResourcesOperation moveResourcesOperation = new MoveResourcesOperation(fileToBeReplaced, newPath,
-				"create backup");
+				operation_name);
 		try {
 			moveResourcesOperation.execute(new NullProgressMonitor(), null);
 
@@ -92,16 +93,16 @@ public class ImportLookupTableWizard extends Wizard implements IImportWizard {
 			importFileOperation.setCreateContainerStructure(false);
 			importFileOperation.run(new NullProgressMonitor());
 			String lastSegment = new Path(replacingFileFullLocation).lastSegment();
-
+			operation_name = "new file rename";
 			moveResourcesOperation = new MoveResourcesOperation(parent.getFile(new Path(lastSegment)),
-					fileToBeReplacedPath, "new file rename");
+					fileToBeReplacedPath, operation_name);
 			moveResourcesOperation.execute(new NullProgressMonitor(), null);
 		} catch (ExecutionException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Unable to perform the following operation on the file " +operation_name, e);
 		} catch (InvocationTargetException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Problem running process to import file", e);
 		} catch (InterruptedException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("File import cancelled", e);
 		}
 
 		return true;
