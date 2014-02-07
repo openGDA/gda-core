@@ -316,7 +316,7 @@ public class ReconResultsView extends ViewPart {
 											logger.debug("No reconstruction files in the folder");
 										}
 									} catch (CoreException e) {
-										logger.error("TODO put description of error here", e);
+										logger.error("Error returning list of reconstruction files and folders", e);
 									}
 
 								} catch (WorkbenchException e) {
