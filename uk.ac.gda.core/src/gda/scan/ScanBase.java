@@ -1059,19 +1059,10 @@ public abstract class ScanBase implements Scan {
 		}
 	}
 	
+	// TODO: The scan status needs to get the status from the current running scan
 	protected synchronized void prepareStaticVariables() {
-		try {
-			// to prevent other scans from starting
-			getScanStatusHolder().setScanStatus(Jython.RUNNING);
-			getCurrentScanInformationHolder().setCurrentScan(this);
-			// cannot have had any interrupts already, so reset values just
-			// in case of GUI logic error
-			ScanBase.interrupted = false;
-			ScanBase.paused = false;
-			
-		} catch (Exception ex) {
-			logger.error("Error starting scan", ex);
-		}
+		getCurrentScanInformationHolder().setCurrentScan(this);
+		ScanBase.paused = false;
 	}
 
 	private void removeDuplicateScannables() {
@@ -1270,9 +1261,6 @@ public abstract class ScanBase implements Scan {
 		this.lineScanNeedsDoing = lineScanNeedsDoing;
 	}
 
-	/**
-	 * @param numberOfChildScans
-	 */
 	public void setNumberOfChildScans(int numberOfChildScans) {
 		this.numberOfChildScans = numberOfChildScans;
 	}

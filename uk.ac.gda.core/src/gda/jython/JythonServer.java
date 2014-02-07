@@ -431,25 +431,19 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		// This method is not called directly as run() in the Runnable interface
 		// does not throw any exceptions.
 
-		// refuse to start a new script if the interrupt flag is set
-		if (ScriptBase.isInterrupted()) {
-			if (getScriptStatus(null) != Jython.RUNNING) {
-				// should never get here, so clear flag and continue to allow users to run new scripts
-				ScriptBase.setInterrupted(false);
-			} else {
-				throw new InterruptedException(
-						"Script interrupt flag set to True and Jython Server is running a script, so cannot start a new script");
-			}
-		}
 		// make a note of current script status - only clear flags at the end if this method call was the one which
 		// changed the script state
+
+		if (Thread.interrupted()) {
+			throw new InterruptedException();
+		}
+
 		boolean wasAlreadyRunning = (getScriptStatus(null) == Jython.RUNNING);
 		try {
 			setScriptStatus(Jython.RUNNING, null);
 			this.interp.runcode(JythonServerFacade.slurp(new File(scriptFullPath)));
 		} finally {
 			if (!wasAlreadyRunning) {
-				ScriptBase.setInterrupted(false);
 				setScriptStatus(Jython.IDLE, null);
 			}
 		}
@@ -685,9 +679,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 						}
 					}
 					
-					ScriptBase.setInterrupted(true);
-					ScanBase.setInterrupted(true);
-					
 					interruptThreads();
 					interp.getInterp().interrupt(Py.getThreadState());
 				} finally {
@@ -702,18 +693,16 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		}).start();
 	}
 
+	// TODO GDA-5863 need to be renamed as this stops all threads
 	@Override
 	public void haltCurrentScript(String JSFIdentifier) {
 		logger.info("Halting current script");
 		uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
 			@Override
 			public void run() {
-				// first stop current scan
-				ScanBase.setInterrupted(true);
+//				// first stop current scan
 				ScanBase.setPaused(false);
-
-				// then stop current scripts
-				ScriptBase.setInterrupted(true);
+//				// then stop current scripts
 				ScriptBase.setPaused(false);
 
 				interruptThreads();
@@ -1334,9 +1323,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				// write the command to file
 				buf.write(cmd);
 				buf.close();
-				// clear the flag before starting again - analoguous to the ScanBase flag being cleared at the start of
-				// every new scan
-				ScriptBase.setInterrupted(false);
 				// then run the file
 				this.interpreter.runscript(out);
 			} catch (IOException e) {

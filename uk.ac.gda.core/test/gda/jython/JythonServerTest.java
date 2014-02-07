@@ -28,7 +28,6 @@ import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,8 +71,6 @@ public class JythonServerTest {
 		jythonServer = null;
 		pathsList = null;
 		pathsArray = null;
-		ScriptBase.setInterrupted(false);
-		ScanBase.setInterrupted(false);
 	}
 	
 	@Test

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,7 +24,6 @@ import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
-import gda.scan.ScanBase;
 import gda.util.LibGdaCommon;
 
 import java.io.File;
@@ -168,8 +167,6 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 
 	@Override
 	public void panicStop() {
-		ScriptBase.setInterrupted(true);
-		ScanBase.setInterrupted(true);
 		scanStatus = Jython.IDLE;
 		scriptStatus = Jython.IDLE;
 	}

@@ -88,33 +88,26 @@ public abstract class ScriptBase {
 	 * @throws InterruptedException
 	 */
 	public static void checkForPauses() throws InterruptedException {
-		try {
-			if (paused) {
-				JythonServerFacade.getInstance().setScriptStatus(Jython.PAUSED);
-				while (paused) {
-					Thread.sleep(250);
-					if (interrupted) {
-						interrupted = false;
-						logger.info("Interrupted flag was set true while paused in checkForPauses; clearing flag and throwing an InterruptedException into thread: {}", Thread.currentThread().getName());
-						JythonServerFacade.getInstance().setScriptStatus(Jython.IDLE);
-						throw new InterruptedException("Interupted flag was found to be true while paused.");
-					}
-				}
-				JythonServerFacade.getInstance().setScriptStatus(Jython.RUNNING);
+		// TODO: GDA-5776 Script status is only changed if this method is called.
+		checkForInterruption();
+		if (paused ) {
+			JythonServerFacade.getInstance().setScriptStatus(Jython.PAUSED);
+			while (paused) {
+				Thread.sleep(250);
+				checkForInterruption();
 			}
-			if (interrupted) {
-				interrupted = false;
-				JythonServerFacade.getInstance().setScriptStatus(Jython.IDLE);
-				logger.info("Interrupted flag was set while checkingForPauses; clearing flag and throwing an InterruptedException into thread: {}", Thread.currentThread().getName());
-				throw new InterruptedException("ScriptBase.interrupted flag was found to be true");
-			}
+			JythonServerFacade.getInstance().setScriptStatus(Jython.RUNNING);
 		}
-		// Rethrow the exception if script stop is attempted.
-		// This would then be caught in the main part of the script,
-		// stopping it.
-		catch (InterruptedException ex) {
-			throw ex;
-		}
+
+		checkForInterruption();
 	}
 
+	private static void checkForInterruption() throws InterruptedException {
+		if (Thread.interrupted()) { // clears as read
+			logger.info("Raising InterruptedException as thread was interrupted:", Thread.currentThread()
+					.getName());
+			logger.warn("GDA-5776 - *not* calling setScriptStatus(Jython.IDLE");
+			throw new InterruptedException();
+		}
+	}
 }
