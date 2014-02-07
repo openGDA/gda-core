@@ -35,7 +35,6 @@ import gda.epics.interfaces.ADBaseType;
 import gda.factory.FactoryException;
 import gda.observable.Observable;
 import gda.observable.Predicate;
-import gda.scan.ScanBase;
 import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -2369,7 +2368,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			try{
 				while (status == Detector.BUSY) {
 					statusMonitor.wait(1000);
-					ScanBase.checkForInterrupts();
 				}
 			}  finally{
 				//if interrupted clear the status state as the IOC may have crashed

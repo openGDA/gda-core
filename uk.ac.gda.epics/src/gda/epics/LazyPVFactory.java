@@ -440,7 +440,7 @@ public class LazyPVFactory {
 
 		@Override
 		public T waitForValue(Predicate<T> predicate, double timeoutS) throws IOException, IllegalStateException,
-				java.util.concurrent.TimeoutException {
+				java.util.concurrent.TimeoutException, InterruptedException {
 			logger.debug("'{}' waiting for value '{}'", pvName, predicate.toString());
 			if (!isValueMonitoring()) {
 				this.setValueMonitoring(true);
@@ -453,11 +453,7 @@ public class LazyPVFactory {
 				if (timeoutS <= 0) {
 					// wait indefinitely
 					while (!predicate.apply(lastMonitoredValue)) {
-						try {
-							lastMonitoredValueMonitor.wait();
-						} catch (InterruptedException e) {
-							throw new InterruptedIOException();
-						}
+						lastMonitoredValueMonitor.wait();
 					}
 				} else {
 					// wait for timeoutS seconds
@@ -471,11 +467,7 @@ public class LazyPVFactory {
 							throw new java.util.concurrent.TimeoutException(format(msg, predicate.toString(),
 									getPvName(), timeoutS));
 						}
-						try {
-							lastMonitoredValueMonitor.wait(remaining);
-						} catch (InterruptedException e) {
-							throw new InterruptedIOException();
-						}
+						lastMonitoredValueMonitor.wait(remaining);
 					}
 				}
 
@@ -1000,7 +992,7 @@ public class LazyPVFactory {
 		}
 
 		@Override
-		public T waitForValue(Predicate<T> predicate, double timeoutS) throws IOException, IllegalStateException, java.util.concurrent.TimeoutException {
+		public T waitForValue(Predicate<T> predicate, double timeoutS) throws IOException, IllegalStateException, java.util.concurrent.TimeoutException, InterruptedException {
 			N innerValue = getPV().waitForValue(newInnerPredicate(predicate), timeoutS);
 			return innerToOuter(innerValue);
 		}

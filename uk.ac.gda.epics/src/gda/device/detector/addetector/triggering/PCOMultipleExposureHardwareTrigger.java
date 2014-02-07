@@ -26,7 +26,6 @@ import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
-import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
 /*
@@ -197,7 +196,6 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		while (!adDriverPco.getArmModePV().get()) {// this is not working as armMode does not reflect true state of arm
 													// - check with oscilloscope
 			Thread.sleep(50);
-			ScanBase.checkForInterrupts();
 		}
 
 		Thread.sleep(2000); // without this the first trigger seems to be ignored		
@@ -259,7 +257,6 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 	@Override
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
 			while (isBusy()) {
-				ScanBase.checkForInterrupts();
 				Thread.sleep(50);
 			}
 		collectingData = false;

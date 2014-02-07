@@ -274,50 +274,45 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 
 	@Override
 	public void doCollection() throws Exception {
-		try {
-			if (!this.isChild) {
-				logger.info("Starting scan.");
-			}
-			// Set detector count times
-			double time = Double.parseDouble(this.time.toString());
-			for (Detector detector : allDetectors) {
-				detector.setCollectionTime(time);
-			}
+		if (!this.isChild) {
+			logger.info("Starting scan.");
+		}
+		// Set detector count times
+		double time = Double.parseDouble(this.time.toString());
+		for (Detector detector : allDetectors) {
+			detector.setCollectionTime(time);
+		}
 
-			// move to initial movements
-			moveToStarts();
+		// move to initial movements
+		moveToStarts();
+		// then collect data
+		if (childScan != null) {
+			// The following line is required to ensure that for nested scans
+			// the addData is called by the outer scan first in order to setup
+			// the required columns and headers.
+			ScanDataPoint point = new ScanDataPoint();
+			point.setUniqueName(name);
+			point.addScannablesAndDetectors(allScannables, allDetectors);
+			point.setHasChild(hasChild());
+			getDataWriter().addData(point);
+			runChildScan();
+		} else {
+			// first need to read and store flux value here if required
+			if (monitorFlux) {
+				this.measureFluxValue();
+			}
+			collectData();
+		}
+		// loop through the number of steps
+		for (int step = 0; step < numberSteps; step++) {
+			// make all these increments
+			moveBySteps();
 			// then collect data
 			if (childScan != null) {
-				// The following line is required to ensure that for nested scans
-				// the addData is called by the outer scan first in order to setup
-				// the required columns and headers.
-				ScanDataPoint point = new ScanDataPoint();
-				point.setUniqueName(name);
-				point.addScannablesAndDetectors(allScannables, allDetectors);
-				point.setHasChild(hasChild());
-				getDataWriter().addData(point);
 				runChildScan();
 			} else {
-				// first need to read and store flux value here if required
-				if (monitorFlux) {
-					this.measureFluxValue();
-				}
 				collectData();
 			}
-			// loop through the number of steps
-			for (int step = 0; step < numberSteps; step++) {
-				// make all these increments
-				moveBySteps();
-				// then collect data
-				if (childScan != null) {
-					runChildScan();
-				} else {
-					collectData();
-				}
-			}
-		} catch (Exception ex1) {
-			interrupted = true;
-			throw ex1;
 		}
 	}
 
@@ -344,7 +339,7 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 				ScanObject scanObject = isScannableToBeMoved(scannable);
 				
 				if (scanObject != null) {
-					checkForInterrupts();
+					checkThreadInterrupted();
 					scanObject.moveToStart();
 				}
 			}
@@ -376,7 +371,6 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 	 */
 	private void checkAllMovesComplete() throws InterruptedException, DeviceException {
 		for (ScanObject scanObject : allScanObjects) {
-			checkForInterrupts();
 			// only check those objects which we have moved are no longer busy
 			while (scanObject.hasStart() && scanObject.scannable.isBusy()) {
 				Thread.sleep(100);
@@ -403,7 +397,7 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 				// scannable?
 				ScanObject scanObject = isScannableToBeMoved(scannable);
 				if (scanObject != null) {
-					checkForInterrupts();
+					checkThreadInterrupted();
 					scanObject.moveStep();
 				}
 			}

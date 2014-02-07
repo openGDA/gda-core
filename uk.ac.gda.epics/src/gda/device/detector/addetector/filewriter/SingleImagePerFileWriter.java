@@ -28,7 +28,6 @@ import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
 import gda.device.detectorfilemonitor.HighestExitingFileMonitorSettings;
 import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
-import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
 import java.io.File;
@@ -339,9 +338,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 					numChecks++;
 					Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
 					checkErrorStatus();
-					// checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
-					if (ScanBase.isInterrupted())
-						throw new Exception("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						throw new InterruptedException("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
+					}
 					if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
 						InterfaceProvider.getTerminalPrinter().print(
 								"Waiting for file '" + fullFilePath + "' to be created");

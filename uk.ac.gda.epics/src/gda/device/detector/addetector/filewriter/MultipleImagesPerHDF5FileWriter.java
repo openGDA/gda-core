@@ -29,7 +29,6 @@ import gda.device.detector.nxdata.NXDetectorDataFileLinkAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.jython.InterfaceProvider;
-import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 import gov.aps.jca.TimeoutException;
 
@@ -317,7 +316,6 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	
 	private void endRecording() throws Exception {
 		while (getNdFileHDF5().getFile().getCapture_RBV() != 0) {
-			ScanBase.checkForInterrupts();
 			Thread.sleep(1000);
 		}
 		getNdFileHDF5().stopCapture();
@@ -385,7 +383,6 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 					String filename = "";
 					do{
 						Thread.sleep(1000);
-						ScanBase.checkForInterrupts();
 						filename=getFullFileName();
 					}
 					while(!StringUtils.hasLength(filename));

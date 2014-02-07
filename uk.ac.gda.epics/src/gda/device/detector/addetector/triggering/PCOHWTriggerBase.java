@@ -23,7 +23,6 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
-import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
@@ -86,7 +85,6 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 		// the callback is coming back before the camera is ready as seen by the BUSY out is still high
 		while (!adDriverPco.getArmModePV().get()) {//this is not working as armMode does not reflect true state of arm - check with oscilloscope
 			Thread.sleep(50);
-			ScanBase.checkForInterrupts();
 		}
 		this.collectionTime = collectionTime;
 		Thread.sleep(2000); //without this the first trigger seems to be ignored
@@ -135,7 +133,6 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 			while (cameraUsage > cameraUsageLowerLimit) {
 				logger.info("Waiting for camera usage to go below " + cameraUsageLowerLimit + "%");
 				Thread.sleep(5000); // reading out the memory will take some time
-				ScanBase.checkForInterrupts();
 			}
 		}
 		
@@ -156,7 +153,6 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 			} else {
 				Thread.sleep(10);
 			}
-			ScanBase.checkForInterrupts();
 		}
 	}
 

@@ -28,7 +28,6 @@ import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
-import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.event.MonitorEvent;
@@ -193,14 +192,12 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		while (!adDriverPco.getArmModePV().get()) {// this is not working as armMode does not reflect true state of arm
 													// - check with oscilloscope
 			Thread.sleep(50);
-			ScanBase.checkForInterrupts();
 		}
 		this.collectionTime = collectionTime;
 		Thread.sleep(2000); // without this the first trigger seems to be ignored
 		etfg.start();
 		while (etfg.getStatus() != 2) {
 			Thread.sleep(50);
-			ScanBase.checkForInterrupts();
 		}
 		expectedCycle = CYCLES;
 		enableOrDisableCallbacks();
@@ -241,7 +238,6 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		// only cont if the previous cycle has completed
 		logger.info("PCOTFGTrigger collectData in. expectedCycle:" + expectedCycle);
 		while (expectedCycle < etfg.getCurrentCycle()) {
-			ScanBase.checkForInterrupts();
 			Thread.sleep(50);
 		}
 		// if camera usage is above 90% wait until it goes down below 25%
@@ -249,7 +245,6 @@ public class PCOTFGTrigger extends SimpleAcquire {
 			while (cameraUsage > cameraUsageLowerLimit) {
 				logger.info("Waiting for camera usage to go below " + cameraUsageLowerLimit + "%");
 				Thread.sleep(5000); // reading out the memory will take some time
-				ScanBase.checkForInterrupts();
 			}
 		}
 		// open the shutter
@@ -329,7 +324,6 @@ public class PCOTFGTrigger extends SimpleAcquire {
 			} else {
 				Thread.sleep(10);
 			}
-			ScanBase.checkForInterrupts();
 		}
 		// close the shutter
 		openShutter(false);

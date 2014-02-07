@@ -90,12 +90,13 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	 *             if a value that passes the predicate does not appear within the provided timeoutS
 	 * @throws IOException
 	 *             if an Epics CA exception of some sort has occurred
+	 * @throws InterruptedException 
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
 
 	public T waitForValue(Predicate<T> predicate, double timeoutS) throws IllegalStateException,
-			java.util.concurrent.TimeoutException, IOException;
+			java.util.concurrent.TimeoutException, IOException, InterruptedException;
 
 	/**
 	 * Configure this PV to start or stop monitoring. When monitoring, calls to {@link #get()} will returned the most
