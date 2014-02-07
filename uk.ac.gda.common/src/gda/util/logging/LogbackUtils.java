@@ -31,6 +31,8 @@ import ch.qos.logback.classic.BasicConfigurator;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.classic.net.SocketAppender;
+import ch.qos.logback.classic.net.SocketReceiver;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -239,6 +241,54 @@ public class LogbackUtils {
 		configureLoggingForProcess(defaultClientConfigFile, GDA_CLIENT_LOGGING_XML, LEGACY_GDA_LOGGER_IMPL_CLIENT);
 	}
 	
+	/**
+	 * Name of property that specifies the hostname/IP address of the log server.
+	 */
+	public static final String GDA_LOGSERVER_HOST = "gda.logserver.host";
+
+	/**
+	 * Name of property that specifies the port on which the log server appends logging events.
+	 */
+	public static final String GDA_LOGSERVER_OUT_PORT = "gda.logserver.out.port";
+
+	/**
+	 * Configures forwarding of logging events from log server to Beagle plugin view in own context.
+	 */
+	public static void configureLoggingForClientBeagle() {
+		final String logServerHost = LocalProperties.get(GDA_LOGSERVER_HOST);
+		final int logServerOutPort = LocalProperties.getInt(GDA_LOGSERVER_OUT_PORT, 6750);
+
+		if (logServerHost != null) {
+
+			// in Logback-beagle forwarding context
+			LoggerContext beagleForwardingContext = new LoggerContext();
+			beagleForwardingContext.setName("beagleForwarding");
+
+			// receive from log server ServerSocketAppender
+			SocketReceiver receiver = new SocketReceiver();
+			receiver.setContext(beagleForwardingContext);
+			receiver.setRemoteHost(logServerHost);
+			receiver.setPort(logServerOutPort);
+
+			// append to Beagle plugin view
+			SocketAppender beagleAppender = new SocketAppender();
+			beagleAppender.setContext(beagleForwardingContext);
+			beagleAppender.setRemoteHost("localhost");
+			beagleAppender.setPort(4321);
+			beagleAppender.setReconnectionDelay(500);
+
+			beagleForwardingContext.register(receiver);
+			beagleForwardingContext.register(beagleAppender);
+
+			Logger rootLogger = beagleForwardingContext.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+			rootLogger.addAppender(beagleAppender);
+
+			receiver.start();
+			beagleAppender.start();
+			beagleForwardingContext.start();
+		}
+	}
+
 	/**
 	 * Configures Logback for either a server- or client-side process, using a default configuration file, followed by
 	 * a specified configuration file (using the value of a property, or falling back to the value of a legacy
