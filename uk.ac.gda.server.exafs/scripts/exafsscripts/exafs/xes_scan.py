@@ -2,7 +2,7 @@ import array
 from java.lang import InterruptedException
 from java.lang import System
 from xas_scan import XasScan
-from xes import calcExpectedPositions, offsetsStore, setOffsets
+from xes import offsetsStore, setOffsets
 from exafsscripts.exafs.i20.I20SampleIterators import XASXANES_Roomtemp_Iterator, XES_Roomtemp_Iterator, XASXANES_Cryostat_Iterator
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import  XasAsciiDataWriter
