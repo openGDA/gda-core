@@ -21,9 +21,6 @@ package uk.ac.gda.devices.bssc.ispyb;
 import java.sql.SQLException;
 import java.util.List;
 
-import uk.ac.gda.devices.bssc.beans.ISAXSDataCollection;
-import uk.ac.gda.devices.bssc.beans.ISpyBStatus;
-
 public interface BioSAXSISPyB {
 
 	/**

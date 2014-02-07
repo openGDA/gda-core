@@ -44,6 +44,9 @@ public class BSSCScannable extends ScannableBase {
 	Object cachedPosition = null;
 
 	class Poller implements Runnable {
+		
+		Object lastUpdateSent = null;
+		
 		@Override
 		public void run() {
 			while (true) {
@@ -54,9 +57,9 @@ public class BSSCScannable extends ScannableBase {
 					}
 				} catch (InterruptedException e) {
 				}
-				if (cachedPosition != null) {
+				if (cachedPosition != null && cachedPosition != lastUpdateSent) {
 					notifyIObservers(us, cachedPosition);
-					cachedPosition = null;
+					lastUpdateSent = cachedPosition;
 				} else {
 					try {
 						notifyIObservers(us, us.getPosition());

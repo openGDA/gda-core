@@ -1,27 +1,21 @@
 package uk.ac.gda.devices.bssc.ispyb;
 
 import static org.junit.Assert.assertEquals;
-import gda.rcp.GDAClientActivator;
-import gda.rcp.util.OSGIServiceRegister;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.core.databinding.observable.list.ObservableList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.ac.gda.devices.bssc.beans.BioSAXSDataCollection;
 import uk.ac.gda.devices.bssc.beans.BioSAXSProgressController;
 import uk.ac.gda.devices.bssc.beans.BioSAXSProgressModel;
 import uk.ac.gda.devices.bssc.beans.IProgressModel;
-import uk.ac.gda.devices.bssc.beans.ISAXSDataCollection;
-import uk.ac.gda.devices.bssc.beans.ISpyBStatus;
 
 public class BioSAXSISpyBAPITest {
 	public static IProgressModel model;
