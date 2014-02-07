@@ -36,6 +36,7 @@ import ch.qos.logback.classic.net.SocketReceiver;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.Duration;
 
 /**
  * Utility methods for Logback.
@@ -275,7 +276,7 @@ public class LogbackUtils {
 			beagleAppender.setContext(beagleForwardingContext);
 			beagleAppender.setRemoteHost("localhost");
 			beagleAppender.setPort(4321);
-			beagleAppender.setReconnectionDelay(500);
+			beagleAppender.setReconnectionDelay(Duration.buildBySeconds(10));
 
 			beagleForwardingContext.register(receiver);
 			beagleForwardingContext.register(beagleAppender);
