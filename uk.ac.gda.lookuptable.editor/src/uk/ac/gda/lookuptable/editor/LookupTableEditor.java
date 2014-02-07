@@ -144,8 +144,10 @@ public class LookupTableEditor extends EditorPart {
 
 		InputStream contents = null;
 		ArrayList<String> lines = new ArrayList<String>();
+		String fileName = "";
 		try {
 			IFile file = ((FileEditorInput) input).getFile();
+			fileName = file.getName();
 			file.refreshLocal(IResource.DEPTH_ONE, null);
 			contents = file.getContents();
 
@@ -200,9 +202,9 @@ public class LookupTableEditor extends EditorPart {
 			}
 
 		} catch (CoreException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Part not created - Unable to read input file "+fileName, e);
 		} catch (IOException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Part not created - Unable to read input stream for file " +fileName, e);
 		}
 		tv.setInput(lines.toArray());
 
@@ -245,7 +247,7 @@ public class LookupTableEditor extends EditorPart {
 			try {
 				event.getDelta().accept(_visitor);
 			} catch (CoreException e) {
-				logger.error("TODO put description of error here", e);
+				logger.error("Unable to accept visitor", e);
 			}
 		}
 	};
@@ -295,7 +297,7 @@ public class LookupTableEditor extends EditorPart {
 				tv.setInput(lines.toArray());
 			}
 		} catch (IOException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Problem occured reading the input stream for the file", e);
 		}
 	}
 
