@@ -350,8 +350,8 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 				try {
 					controller.caput(startChannel, 1, pcbl);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
+					logger.error("caput to 'start' interrupted", e);
+					throw new DeviceException("failed to start the JOB " + this.getJob().toString(), e);
 				}
 			} catch (CAException e) {
 				logger.error("caput to 'start' failed", e);
