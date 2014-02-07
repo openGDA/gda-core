@@ -124,5 +124,18 @@
            name="Load Experiment">
      </command>
   </extension>
+  <!--<extension
+        id="uk.ac.gda.devices.bssc.hideperspective"
+        name="Hide Perspective"
+        point="org.eclipse.ui.activities">
+     <activityPatternBinding
+           activityId="uk.ac.gda.devices.bssc.hideScriptsPerspectiveActivity"
+           pattern="uk.ac.gda.pydev.extension/uk.ac.gda.pydev.extension.ui.JythonPerspective">
+     </activityPatternBinding>
+     <activity
+           id="uk.ac.gda.devices.bssc.hideScriptsPerspectiveActivity"
+           name="Hide Scripts Perspective">
+     </activity>
+  </extension>-->
 
 </plugin>
