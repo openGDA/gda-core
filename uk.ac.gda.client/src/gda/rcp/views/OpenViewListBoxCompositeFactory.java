@@ -156,9 +156,10 @@ class OpenViewListBoxComposite extends Composite{
 
 	public void setShowOption(OpenViewOption showOption) {
 		this.openViewOption = showOption;
-		String viewId = openViewOption.getViewId();
+		ViewDefinition vd = openViewOption.getViewDefinition();
+		String viewId = vd.viewId;
 		if( viewId != null && viewId.length()>0){
-			String secondaryId = openViewOption.getSecondaryId();
+			String secondaryId = vd.secondaryId;
 			try {
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId,secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
 			} catch (PartInitException e) {

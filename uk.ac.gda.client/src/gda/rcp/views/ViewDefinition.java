@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,8 +18,13 @@
 
 package gda.rcp.views;
 
-
-public interface OpenViewOption {
-	public ViewDefinition getViewDefinition();
-	public String getLabel();
+public class ViewDefinition {
+	public final String viewId;
+	public final String secondaryId;
+	public ViewDefinition(String viewId, String secondaryId) {
+		super();
+		this.viewId = viewId;
+		this.secondaryId = secondaryId;
+	}
+	
 }
