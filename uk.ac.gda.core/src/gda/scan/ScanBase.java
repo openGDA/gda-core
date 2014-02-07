@@ -62,26 +62,7 @@ import uk.ac.gda.util.ThreadManager;
 /**
  * Base class for objects using the Scan interface.
  */
-public abstract class ScanBase implements Scan {
-
-	/**
-	 * Name of property to control the clearing of interrupted flag in ScanBase at end of a scan.
-	 * If not set or is False then 
-	 *  - checkForInterrupts does nothing if the ScanStatus is IDLE
-	 *  - checkForInterrupts sets ScanStatus to IDLE if interrupted flag is true 
-	 *  
-	 *  If set to True then:
-	 *   - in runScan interrupted is set to false
-	 *   
-	 *  The intention is to test the behaviour and then switch to it if OK
-	 */
-	@Deprecated
-	private static final String GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END = "gda.scan.clearInterruptAtScanEnd";
-	
-	private static boolean clearInterruptedAtScanEnd() {
-		return LocalProperties.check(GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END,true);
-	}
-	
+public abstract class ScanBase implements NestableScan {
 
 	public static final String GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST = "gda.scanbase.firstScanNumber";
 	public static final String GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL= "gda.scanbase.printTimestamp";
@@ -162,7 +143,7 @@ public abstract class ScanBase implements Scan {
 
 	protected int numberOfChildScans = 0;
 
-	protected Scan parent = null;
+	protected NestableScan parent = null;
 
 	// attributes relating to the thread which started this scan.
 	protected int permissionLevel = 0;
@@ -755,6 +736,8 @@ public abstract class ScanBase implements Scan {
 	public Scan getChild() {
 		return child;
 	}
+	
+	
 
 	/**
 	 * Gets the reference to the dataHandler object which this scan uses.
@@ -805,7 +788,7 @@ public abstract class ScanBase implements Scan {
 		if( outerMostScan != null && outerMostScan instanceof ContiguousScan)
 			return new int[]{ ((ContiguousScan)outerMostScan).getNumberOfContiguousPoints()};
 		Vector<Integer> dim = new Vector<Integer>();
-		Scan scan = this;
+		NestableScan scan = this;
 		while (scan != null) {
 			int numberPoints = scan.getDimension();
 			if (numberPoints == -1) {
@@ -848,7 +831,7 @@ public abstract class ScanBase implements Scan {
 	}
 
 	Scan getOuterMostScan() {
-		Scan scan = this;
+		NestableScan scan = this;
 		while (scan.getParent() != null) {
 			scan = scan.getParent();
 		}
@@ -856,7 +839,7 @@ public abstract class ScanBase implements Scan {
 	}
 
 	@Override
-	public Scan getParent() {
+	public NestableScan getParent() {
 		return parent;
 	}
 
@@ -897,7 +880,7 @@ public abstract class ScanBase implements Scan {
 	 */
 	List<IScanStepId> getStepIds() {
 		Vector<IScanStepId> stepsIds = new Vector<IScanStepId>();
-		Scan scan = this;
+		NestableScan scan = this;
 		while (scan != null) {
 			IScanStepId stepId = scan.getStepId();
 			// order is parent->child so insert at the front
@@ -921,6 +904,7 @@ public abstract class ScanBase implements Scan {
 	
 	@Override
 	public boolean isChild() {
+		// FIXME: isChild boolean not required. Could we return (parent != null) instead?
 		return isChild;
 	}
 
@@ -1266,7 +1250,7 @@ public abstract class ScanBase implements Scan {
 	}
 
 	@Override
-	public void setParent(Scan parent) {
+	public void setParent(NestableScan parent) {
 		this.parent = parent;
 	}
 
@@ -1430,7 +1414,4 @@ public abstract class ScanBase implements Scan {
 			throw new InterruptedException();
 		}
 	}
-	
-
-	
 }

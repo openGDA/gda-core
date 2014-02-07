@@ -144,7 +144,7 @@ public class MultiRegionScan extends ScanBase {
 	public void doCollection() throws Exception {
 		try {
 			boolean first = true;
-			for (Scan scan : listOfScans) {
+			for (ScanBase scan : listOfScans) {
 				// For nested multiregion scans, notify the GeneralDataHandler
 				// that
 				// the inner scan is complete and the display graph should
@@ -166,11 +166,11 @@ public class MultiRegionScan extends ScanBase {
 				scan.setScanDataPointPipeline(scanDataPointPipeline);
 
 				// run the scan
-				((ScanBase)scan).currentPointCount = pointCount;
-				((ScanBase)scan).TotalNumberOfPoints = TotalNumberOfPoints;
-				((ScanBase)scan).name = name;
+				scan.currentPointCount = pointCount;
+				scan.TotalNumberOfPoints = TotalNumberOfPoints;
+				scan.name = name;
 				scan.doCollection();
-				pointCount = ((ScanBase)scan).currentPointCount;
+				pointCount = scan.currentPointCount;
 			}
 		} catch (Exception e) {
 			if (e instanceof InterruptedException) {

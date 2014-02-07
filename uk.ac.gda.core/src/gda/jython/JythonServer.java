@@ -45,6 +45,7 @@ import gda.messages.MessageHandler;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import gda.scan.NestableScan;
 import gda.scan.Scan;
 import gda.scan.ScanBase;
 import gda.scan.ScanDataPoint;
@@ -1448,20 +1449,28 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return stopJythonScannablesOnStopAll;
 	}
 
-	static public ScanInformation getScanInformation(Scan scan) {
-		if (scan == null)
+	public static ScanInformation getScanInformation(Scan topscan) {
+		// TODO GDA-5863 we should change the scan interface to getDimensions(int[])
+
+		if (topscan == null)
 			return null;
-		Scan topscan = scan;
-		while (topscan.getParent() != null)
-			topscan = topscan.getParent();
+		
 		List<Integer> dims = new Vector<Integer>();
-		for (Scan s = topscan;; s = s.getChild()) {
-			dims.add(s.getDimension());
-			if (s.getChild() == null)
-				break;
+
+		// hack warning!!!
+		// hack warning!!! should change the scan interface to getDimensions(int[]) and drop this part of code
+		if (topscan instanceof NestableScan) {
+			for (Scan s = topscan;; s = s.getChild()) {
+				dims.add(s.getDimension());
+				if (s.getChild() == null)
+					break;
+			}
+		} else {
+			dims.add(topscan.getDimension());
 		}
-		String[] scannables = ScannableUtils.getScannableNames(scan.getScannables()).toArray(new String[] {});
-		String[] detectors = ScannableUtils.getScannableNames(scan.getDetectors()).toArray(new String[] {});
+
+		String[] scannables = ScannableUtils.getScannableNames(topscan.getScannables()).toArray(new String[] {});
+		String[] detectors = ScannableUtils.getScannableNames(topscan.getDetectors()).toArray(new String[] {});
 		Long scanno = topscan.getScanNumber();
 		try { 
 			if (scanno == null)

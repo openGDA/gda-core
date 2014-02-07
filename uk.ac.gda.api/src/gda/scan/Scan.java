@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -250,17 +250,6 @@ public interface Scan extends Serializable {
 	 * @return String
 	 */
 	public String getName();
-
-	/**
-	 * @return The parent scan if this scan is nested
-	 */
-	Scan getParent();
-
-	/**
-	 * @param parent
-	 *            The parent of this scan if this scan is nested
-	 */
-	void setParent(Scan parent);
 
 	/**
 	 * @return The child scan if this scan is nested

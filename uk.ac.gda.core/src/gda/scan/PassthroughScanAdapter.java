@@ -24,11 +24,11 @@ import gda.device.Scannable;
 
 import java.util.Vector;
 
-public class PassthroughScanAdapter implements Scan {
+public class PassthroughScanAdapter implements NestableScan {
 	
-	private final Scan delegate;
+	private final NestableScan delegate;
 
-	public PassthroughScanAdapter(Scan delegate) {
+	public PassthroughScanAdapter(NestableScan delegate) {
 		this.delegate = delegate;
 	}
 	
@@ -118,12 +118,12 @@ public class PassthroughScanAdapter implements Scan {
 	}
 
 	@Override
-	public Scan getParent() {
+	public NestableScan getParent() {
 		return delegate.getParent();
 	}
 
 	@Override
-	public void setParent(Scan parent) {
+	public void setParent(NestableScan parent) {
 		delegate.setParent(parent);
 	}
 
@@ -180,12 +180,16 @@ public class PassthroughScanAdapter implements Scan {
 	@Override
 	public void requestFinishEarly() {
 		delegate.requestFinishEarly();
-		
 	}
 
 	@Override
 	public boolean isFinishEarlyRequested() {
 		return delegate.isFinishEarlyRequested();
+	}
+
+	@Override
+	public void setStatus(ScanStatus status) {
+		delegate.setStatus(status);
 	}
 
 }
