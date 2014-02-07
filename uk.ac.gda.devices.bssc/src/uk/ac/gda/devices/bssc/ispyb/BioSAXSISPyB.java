@@ -137,11 +137,11 @@ public interface BioSAXSISPyB {
 	public abstract void disconnect() throws SQLException;
 
 	/**
-	 * @param saxsDataCollectionId
+	 * @param dataCollectionId
 	 * @return list of samples measured
 	 * @throws SQLException
 	 */
-	public List<SampleInfo> getSaxsDataCollectionInfo(long saxsDataCollectionId) throws SQLException;
+	public List<SampleInfo> getSaxsDataCollectionInfo(long dataCollectionId) throws SQLException;
 
 	/**
 	 * // * @param saxsDataCollectionId
@@ -177,10 +177,10 @@ public interface BioSAXSISPyB {
 	/**
 	 * Sets the status of a data collection
 	 * 
-	 * @param saxsDataCollectionId
+	 * @param dataCollectionId
 	 * @param status
 	 */
-	public void setDataCollectionStatus(long saxsDataCollectionId, ISpyBStatus status);
+	public void setDataCollectionStatus(long dataCollectionId, ISpyBStatus status);
 
 	/**
 	 * Returns the status of the data collection for the sample/data collection
@@ -227,15 +227,6 @@ public interface BioSAXSISPyB {
 	 * @throws SQLException
 	 */
 	public List<ISAXSDataCollection> getSAXSDataCollections(long blSessionId) throws SQLException;
-
-	/**
-	 * Updates a measurement with an analysis status, status can be one of the following 1. NOT STARTED 2. RUNNING 3.
-	 * COMPLETE 4. FAILED // * @param measurementId
-	 * 
-	 * @param analysisStatus
-	 * @throws SQLException
-	 */
-	public void setAnalysisStatus(long dataCollectionId, ISpyBStatus analysisStatus) throws SQLException;
 
 	/**
 	 * Call this method when data analysis is started so that its status can be recorded

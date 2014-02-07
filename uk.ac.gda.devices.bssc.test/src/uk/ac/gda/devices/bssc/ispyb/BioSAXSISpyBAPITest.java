@@ -2,6 +2,8 @@ package uk.ac.gda.devices.bssc.ispyb;
 
 import static org.junit.Assert.assertEquals;
 
+import gda.factory.FactoryException;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +37,14 @@ public class BioSAXSISpyBAPITest {
 			@Override
 			public void run() {
 				controller = new BioSAXSProgressController();
+				
 				bioSAXSISPyB = new MyBioSAXSISPy();
-				controller.setISpyBAPI(bioSAXSISPyB);
+				try {
+					controller.setISpyBAPI(bioSAXSISPyB);
+				} catch (FactoryException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 
 				model = new BioSAXSProgressModel(controller);
 
@@ -356,14 +364,14 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 	public List<ISAXSDataCollection> getSAXSDataCollections(long blSessionId)
 			throws SQLException {
 		for (int i = 0; i < BioSAXSISpyBAPITest.MODEL_SIZE; i++) {
-			ISAXSDataCollection bioSaxsDataCollection = new BioSAXSDataCollection();
-			bioSaxsDataCollection.setExperimentId(String.valueOf(i));
-			bioSaxsDataCollection.setSampleName("Sample " + i);
-			bioSaxsDataCollection.setBlSessionId(blSessionId);
+//			ISAXSDataCollection bioSaxsDataCollection = new BioSAXSDataCollection();
+//			bioSaxsDataCollection.setExperimentId(String.valueOf(i));
+//			bioSaxsDataCollection.setSampleName("Sample " + i);
+//			bioSaxsDataCollection.setBlSessionId(blSessionId);
 
-			if (!containsId(bioSaxsDataCollection.getSampleName())) {
-				isPyBSAXSDataCollections.add(bioSaxsDataCollection);
-			}
+//			if (!containsId(bioSaxsDataCollection.getSampleName())) {
+//				isPyBSAXSDataCollections.add(bioSaxsDataCollection);
+//			}
 		}
 		return isPyBSAXSDataCollections;
 	}
@@ -386,13 +394,6 @@ class MyBioSAXSISPy implements BioSAXSISPyB {
 			long previousDataCollectionId) throws SQLException {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public void setAnalysisStatus(long dataCollectionId,
-			ISpyBStatus analysisStatus) throws SQLException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
