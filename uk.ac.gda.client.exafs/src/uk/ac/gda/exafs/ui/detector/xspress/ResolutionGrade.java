@@ -35,6 +35,8 @@ public class ResolutionGrade{
 	private static final Map<String, Object> RES_ALL;
 	private static final Map<String, Object> RES_NO_16;
 	private ComboAndNumberWrapper resolutionGradeCombo;
+	private Label resGradeLabel;
+	
 	static {
 		RES_ALL = new HashMap<String, Object>(3);
 		RES_ALL.put("Sum all grades", ResGrades.NONE);
@@ -50,7 +52,7 @@ public class ResolutionGrade{
 	}
 
 	private void createResolutionGrade(Composite parent){
-		Label resGradeLabel = new Label(parent, SWT.NONE);
+		resGradeLabel = new Label(parent, SWT.NONE);
 		resGradeLabel.setText("Resolution Grade");
 		resGradeLabel.setToolTipText("The resolution setting during calibration and XAS scans");
 		resGradeLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
@@ -62,6 +64,11 @@ public class ResolutionGrade{
 		resolutionGradeCombo.getValueField().setDecimalPlaces(1);
 		resolutionGradeCombo.getValueField().setNumericValue(1d);
 		resolutionGradeCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+	}
+	
+	public void setVisible(boolean visible){
+		resolutionGradeCombo.setVisible(visible);
+		resGradeLabel.setVisible(visible);
 	}
 	
 	protected void updateResModeItems(boolean readoutRois) {

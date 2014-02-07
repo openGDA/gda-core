@@ -28,20 +28,17 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.forms.events.ExpansionAdapter;
-import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ui.detector.DetectorListComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
-import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIHelper;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizardPage;
 import uk.ac.gda.richbeans.beans.BeanUI;
@@ -64,9 +61,6 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 	private boolean validSource;
 	private VortexParameters vortexParameters;
 	
-	// Region list stores a list of ROIs, potentially unsafe conversion, if it fails
-	// there will be runtime class cast exceptions
-	@SuppressWarnings("unchecked")
 	public ImportVortexROIWizardPage(int elementListSize, List<? extends DetectorROI> currentBeans, double maximum) {
 		this.elementListSize = elementListSize;
 		this.currentBeans = (List<VortexROI>)currentBeans;
@@ -89,7 +83,6 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 			setEnables(detectorListComposite, false);
 		}
 		updateAddButtonEnables();
-		
 	}
 	
 	private void updateAddButtonEnables() {
@@ -110,24 +103,16 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 		}
 	}
 	
-
 	@Override
 	protected void createSourceControls(Composite parent) {
-		detectorListComposite = new DetectorListComposite(parent, DetectorElement.class, elementListSize, VortexROI.class,false);
+		detectorListComposite = new DetectorListComposite(parent, DetectorElement.class, elementListSize, VortexROI.class, true);
 		GridListEditor detectorListGridEditor = detectorListComposite.getDetectorList();
 		VortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
-		detectorListComposite.addExpansionListener(new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				scrolledComp.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-			}
-		});
 		importFileRegionList = detectorListComposite.getDetectorElementComposite().getRegionList();
 		importFileRegionList.setListEditorUI(new ListEditorUI() {
 			
 			@Override
 			public void notifySelected(ListEditor listEditor) {
-				//nothing todo
 			}
 			
 			@Override
@@ -194,7 +179,6 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 				
 				@Override
 				public boolean isAddAllowed(ListEditor listEditor) {
-					// add is performed by using the >>> button
 					return false;
 				}
 			});
@@ -276,16 +260,14 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 					return;
 				}
 			}
-//			System.out.println("the beans found are " + this.currentDetectorList.getValue());
 			try {
 			final List<?> elements = (List<?>) this.currentDetectorList.getValue();
 			final List<?> regionClone = BeanUI.cloneBeans(regionToCopy);
 			int index = -1;
 				for (Object element : elements) {
 					++index;
-					if(index == currentDetectorList.getSelectedIndex()){
+					if(index == currentDetectorList.getSelectedIndex())
 						roisToImportComposite.getRegionList().addBean(regionClone.get(index), -1);
-					}
 					else{
 						Method addRegion = element.getClass().getMethod("addRegion", uk.ac.gda.beans.vortex.VortexROI.class);
 						addRegion.invoke(element, regionClone.get(index));
@@ -299,8 +281,6 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 	
 	@Override
 	public List<? extends DetectorROI> getBeansToAdd() {
-		// the region list is a wrapper for a List of DetectorROIs, therefore safe SuppressWarning
-		@SuppressWarnings("unchecked")
 		List<? extends DetectorROI> value = (List<? extends DetectorROI>)roisToImportComposite.getRegionList().getValue();
 		return value;
 	}

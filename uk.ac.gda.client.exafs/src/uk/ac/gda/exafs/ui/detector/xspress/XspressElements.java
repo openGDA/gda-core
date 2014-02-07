@@ -61,8 +61,9 @@ public class XspressElements extends Elements{
 	private int elementCount;
 	private int inWindowCounts;
 	protected DetectorElementComposite detectorElementComposite;
-
-	public XspressElements(final Composite parent, Shell shell, DirtyContainer dirtyContainer, SashFormPlotComposite sashPlotFormComposite, XspressParameters xspressParameters, final Counts counts) {
+	private boolean showRoi;
+	
+	public XspressElements(final Composite parent, Shell shell, DirtyContainer dirtyContainer, SashFormPlotComposite sashPlotFormComposite, XspressParameters xspressParameters, final Counts counts, boolean showRoi) {
 		super(shell, dirtyContainer, sashPlotFormComposite, counts);
 		Composite grid = new Composite(parent, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(grid);
@@ -123,10 +124,12 @@ public class XspressElements extends Elements{
 		
 		try {
 			List<DetectorElement> detectorList = xspressParameters.getDetectorList();
-			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class,false);
+			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class, showRoi);
 			XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListComposite.getDetectorList());
-			detectorListComposite.getDetectorElementComposite().setMinimumRegions(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
-			detectorListComposite.getDetectorElementComposite().setMaximumRegions(XspressParametersUIHelper.INSTANCE.getMaximumRegions());
+			if(showRoi){
+				detectorListComposite.getDetectorElementComposite().setMinimumRegions(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
+				detectorListComposite.getDetectorElementComposite().setMaximumRegions(XspressParametersUIHelper.INSTANCE.getMaximumRegions());
+			}
 		} catch (Exception e1) {
 			logger.error("Cannot create region editor.", e1);
 		}
@@ -187,9 +190,11 @@ public class XspressElements extends Elements{
 				return null;
 			}
 		};
-		detectorListComposite.getDetectorElementComposite().getWindowStart().addValueListener(detectorElementCompositeValueListener);
-		detectorListComposite.getDetectorElementComposite().getWindowEnd().addValueListener(detectorElementCompositeValueListener);
-		detectorListComposite.getDetectorElementComposite().getRegionList().addValueListener(detectorElementCompositeValueListener);
+		DetectorElementComposite detectorElementComposite = detectorListComposite.getDetectorElementComposite();
+		detectorElementComposite.getWindowStart().addValueListener(detectorElementCompositeValueListener);
+		detectorElementComposite.getWindowEnd().addValueListener(detectorElementCompositeValueListener);
+		if(showRoi)
+			detectorElementComposite.getRegionList().addValueListener(detectorElementCompositeValueListener);
 	}
 
 	protected void updateElementsVisibility() {

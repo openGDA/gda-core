@@ -28,19 +28,13 @@ import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class ReadoutMode {
 	private ComboWrapper readoutMode;
-	private Composite parent;
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
-	private ResolutionGrade resolutionGrade;
 	private Label readoutModeLabel;
 	
-	public ReadoutMode(Composite parent, ResolutionGrade resolutionGrade) {
-		this.parent = parent;
-		this.resolutionGrade = resolutionGrade;
+	public ReadoutMode(Composite parent) {
 		readoutModeLabel = new Label(parent, SWT.NONE);
 		readoutModeLabel.setText("Read out mode");
 		readoutModeLabel.setToolTipText("The type of data which will be written to file");
@@ -51,26 +45,6 @@ public class ReadoutMode {
 		readoutMode.setItems(new String[] { XspressDetector.READOUT_SCALERONLY, XspressDetector.READOUT_MCA, XspressDetector.READOUT_ROIS });
 		readoutMode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		readoutMode.select(0);
-	}
-	
-	public void addListener(){
-		readoutMode.addValueListener(new ValueAdapter("readoutMode") {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				GridUtils.startMultiLayout(parent.getParent());
-				try {
-					updateOverrideMode();
-					boolean readoutRois = false;
-					if(resolutionGrade.getResolutionGradeCombo().getValue().equals(XspressDetector.READOUT_ROIS))
-						readoutRois = true;
-					resolutionGrade.updateResModeItems(readoutRois);
-//					updateRoiVisibility();
-//					updateResGradeVisibility(parent);
-				} finally {
-					GridUtils.endMultiLayout();
-				}
-			}
-		});
 	}
 	
 	public void updateOverrideMode() {

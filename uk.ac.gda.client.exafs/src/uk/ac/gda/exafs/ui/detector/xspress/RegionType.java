@@ -21,6 +21,7 @@ package uk.ac.gda.exafs.ui.detector.xspress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
@@ -28,8 +29,11 @@ import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 
 public class RegionType {
 	private ComboWrapper regionType;
+	private Label lblRegionType;
 	
 	public RegionType(Composite parent) {
+		lblRegionType = new Label(parent, SWT.NONE);
+		lblRegionType.setText("Region type");
 		regionType = new ComboWrapper(parent, SWT.READ_ONLY);
 		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		regionType.setItems(new String[]{XspressParameters.VIRTUALSCALER, XspressROI.MCA});
@@ -38,6 +42,11 @@ public class RegionType {
 
 	public ComboWrapper getRegionType() {
 		return regionType;
+	}
+	
+	public void setVisible(boolean visible){
+		lblRegionType.setVisible(visible);
+		regionType.setVisible(visible);
 	}
 
 }

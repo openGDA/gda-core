@@ -73,8 +73,7 @@ public class Vortex extends Detector{
 		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, site.getShell().getDisplay(), plot, new Counts(), dirtyContainer);
 		vortexAcquire.createAcquire(parent, left);
 		
-		
-		vortexElements = new VortexElements(left, site.getShell(), dirtyContainer, sashPlotFormComposite, vortexParameters, counts);
+		vortexElements = new VortexElements(site.getShell(), dirtyContainer, sashPlotFormComposite, vortexParameters, counts);
 		
 		vortexElements.createROI(left);
 		vortexElements.configureUI(vortexAcquire.getMcaData(), vortexElements.getDetectorListComposite().getDetectorList().getSelectedIndex());

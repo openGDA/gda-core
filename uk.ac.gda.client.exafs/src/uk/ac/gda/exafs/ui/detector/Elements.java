@@ -25,11 +25,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.forms.events.ExpansionAdapter;
-import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,11 +50,9 @@ public class Elements {
 	private ValueListener autoApplyToAllListener;
 	private Shell shell;
 	protected DetectorListComposite detectorListComposite;
-	private ExpansionAdapter expansionListener;
 	private DirtyContainer dirtyContainer;
 	protected SashFormPlotComposite sashPlotFormComposite;
-	private volatile Boolean updatingAfterROIDrag = null;
-	public Counts counts;
+	protected Counts counts;
 	
 	public Elements(Shell shell, DirtyContainer dirtyContainer, SashFormPlotComposite sashPlotFormComposite, Counts counts) {
 		this.shell = shell;
@@ -79,28 +74,40 @@ public class Elements {
 		// to the other elements.
 		Object startWindow = detectorListComposite.getDetectorElementComposite().getWindowStart() != null ? detectorListComposite.getDetectorElementComposite().getWindowStart().getValue() : null;
 		Object endWindow = detectorListComposite.getDetectorElementComposite().getWindowEnd() != null ? detectorListComposite.getDetectorElementComposite().getWindowEnd().getValue() : null;
-		List<?> regions = (List<?>) detectorListComposite.getDetectorElementComposite().getRegionList().getValue();
-		List<?> elements = (List<?>) detectorListComposite.getDetectorList().getValue();
+		
+		VerticalListEditor regionList = detectorListComposite.getDetectorElementComposite().getRegionList();
+		
 		int index = -1;
-		try {
+		List<?> elements = (List<?>) detectorListComposite.getDetectorList().getValue();
+		if(regionList!=null){
+			List<?> regions = (List<?>) regionList.getValue();
 			for (Object element : elements) {
 				++index;
 				if (index == currentIndex)
 					continue;
-				final List<?> regionClone = BeanUI.cloneBeans(regions);
-				final Method setRegionList = element.getClass().getMethod("setRegionList", java.util.List.class);
+				try {
+				List<?> regionClone = BeanUI.cloneBeans(regions);
+				Method setRegionList = element.getClass().getMethod("setRegionList", java.util.List.class);
 				setRegionList.invoke(element, regionClone);
-				// If there are a window start and end, set them
+					BeansFactory.setBeanValue(element, "windowStart", startWindow);
+					BeansFactory.setBeanValue(element, "windowEnd", endWindow);
+				} catch (Exception ignored) {
+				}
+			}
+		}
+		else{
+			for (Object element : elements) {
+				++index;
+				if (index == currentIndex)
+					continue;
 				try {
 					BeansFactory.setBeanValue(element, "windowStart", startWindow);
 					BeansFactory.setBeanValue(element, "windowEnd", endWindow);
-				} catch (IllegalArgumentException ignored) {
-					// The bean may not have windowStart and windowEnd to synchronize
+				} catch (Exception ignored) {
 				}
 			}
-		} catch (Exception e1) {
-			logger.error("Error apply current detector regions to all detectors.", e1);
 		}
+		
 		this.dirtyContainer.setDirty(true);
 		return true;
 	}
@@ -143,25 +150,10 @@ public class Elements {
 	
 	protected DetectorListComposite createDetectorList(final Composite parent,
 	final Class<? extends IDetectorElement> editorClass, final int elementListSize,
-	final Class<? extends DetectorROI> regionClass,
-	final Boolean showAdvanced) {
+	final Class<? extends DetectorROI> regionClass, boolean showRoi) {
 		
-		detectorListComposite = new DetectorListComposite(parent, editorClass, elementListSize, regionClass, showAdvanced);
+		detectorListComposite = new DetectorListComposite(parent, editorClass, elementListSize, regionClass, showRoi);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(detectorListComposite);
-		expansionListener = new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				sashPlotFormComposite.getLeftScroll().setMinSize(sashPlotFormComposite.getLeft().computeSize(SWT.DEFAULT, SWT.DEFAULT));
-			}
-		};
-		
-		expansionListener = new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				sashPlotFormComposite.getLeftScroll().setMinSize(sashPlotFormComposite.getLeft().computeSize(SWT.DEFAULT, SWT.DEFAULT));
-			}
-		};
-		detectorListComposite.addExpansionListener(expansionListener);
 
 		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
@@ -207,7 +199,6 @@ public class Elements {
 	private void updateUIAfterDetectorElementCompositeChange(int[][][] detectorData, int selectedElementIndex) {
 		if(detectorData!=null)
 			if(detectorData.length!=0){
-				updatingAfterROIDrag = false;
 				detectorListComposite.getDetectorElementComposite().setTotalCounts(counts.getTotalCounts(detectorData));
 				detectorListComposite.getDetectorElementComposite().setTotalElementCounts(counts.getTotalElementCounts(selectedElementIndex, detectorData));
 				updateROIAfterElementCompositeChange();
@@ -219,4 +210,5 @@ public class Elements {
 		sashPlotFormComposite.getRegionOnDisplay().setROI(new RectangularROI(roiStart, 0, roiEnd - roiStart, 0, 0));
 		sashPlotFormComposite.getRegionOnDisplay().repaint();
 	}
+	
 }

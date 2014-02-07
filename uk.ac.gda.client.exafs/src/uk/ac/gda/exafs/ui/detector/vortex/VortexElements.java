@@ -42,7 +42,6 @@ import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.Elements;
-import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.wizards.vortex.ImportVortexROIWizard;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
@@ -55,7 +54,7 @@ public class VortexElements extends Elements{
 	private VortexParameters vortexParameters;
 	private Composite importComposite;
 	
-	public VortexElements(final Composite parent, Shell shell, DirtyContainer dirtyContainer, SashFormPlotComposite sashPlotFormComposite, VortexParameters vortexParameters, final Counts counts) {
+	public VortexElements(Shell shell, DirtyContainer dirtyContainer, SashFormPlotComposite sashPlotFormComposite, VortexParameters vortexParameters, final Counts counts) {
 		super(shell, dirtyContainer, sashPlotFormComposite, counts);
 		this.vortexParameters = vortexParameters;
 	}
@@ -108,8 +107,7 @@ public class VortexElements extends Elements{
 			detectorElementsLabel.setText(" Regions of Interest");
 		try {
 			createImportButton(grid, detectorList.size());
-			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class,false);
-			//VortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(getDetectorList());
+			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class, true);
 			detectorListComposite.getDetectorElementComposite().setWindowsEditable(false);
 			detectorListComposite.getDetectorElementComposite().setMinimumRegions(VortexParametersUIHelper.INSTANCE.getMinimumRegions());
 			detectorListComposite.getDetectorElementComposite().setMaximumRegions(VortexParametersUIHelper.INSTANCE.getMaximumRegions());

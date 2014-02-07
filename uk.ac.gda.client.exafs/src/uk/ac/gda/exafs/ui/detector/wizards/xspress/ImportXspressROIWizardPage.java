@@ -28,8 +28,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.forms.events.ExpansionAdapter;
-import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +39,6 @@ import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ui.detector.DetectorListComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
-import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizardPage;
 import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersUIHelper;
@@ -112,16 +109,10 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 
 	@Override
 	protected void createSourceControls(Composite parent) {
-		//IDetectorROICompositeFactory factory = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
-		detectorListComposite = new DetectorListComposite(parent,DetectorElement.class, elementListSize, XspressROI.class, false);
+		detectorListComposite = new DetectorListComposite(parent,DetectorElement.class, elementListSize, XspressROI.class, true);
 		GridListEditor detectorListGridEditor = detectorListComposite.getDetectorList();
 		XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
-		detectorListComposite.addExpansionListener(new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				scrolledComp.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-			}
-		});
+
 		importFileRegionList = detectorListComposite.getDetectorElementComposite().getRegionList();
 		importFileRegionList.setListEditorUI(new ListEditorUI() {
 			
