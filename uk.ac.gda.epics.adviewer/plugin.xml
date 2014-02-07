@@ -34,18 +34,16 @@
          </commandParameter>
       </command>
       <command
-            id="uk.ac.gda.epics.adviewer.showLiveView"
-            name="showLiveView">
+            id="uk.ac.gda.epics.adviewer.mpegview"
+            name="command used to access mpegview image">
       </command>
       <command
-            description="Show raw image"
-            id="uk.ac.gda.epics.adviewer.rawimageview"
-            name="showRawImageView">
+            id="uk.ac.gda.epics.adviewer.twodArrayView"
+            name="command used to access array view image">
       </command>
       <command
-            description="Shows the histogram view for this camera"
             id="uk.ac.gda.epics.adviewer.histogramview"
-            name="showHistogramView">
+            name="command used to access stats image">
       </command>
    </extension>
    <extension
@@ -63,11 +61,11 @@
             icon="icons/arrow_out.png">
       </image>
       <image
-            commandId="uk.ac.gda.epics.adviewer.rawimageview"
+            commandId="uk.ac.gda.epics.adviewer.twodArrayView"
             icon="icons/AreaDetectorImageView.gif">
       </image>
       <image
-            commandId="uk.ac.gda.epics.adviewer.showLiveView"
+            commandId="uk.ac.gda.epics.adviewer.mpegview"
             icon="icons/AreaDetectorLiveView.gif">
       </image>
       <image
@@ -118,8 +116,8 @@
             category="uk.ac.gda.epics.adviewer.view.category"
             class="uk.ac.gda.epics.adviewer.views.MJPegView"
             icon="icons/AreaDetectorLiveView.gif"
-            id="uk.ac.gda.epics.adviewer.showLiveView"
-            name="Live View"
+            id="uk.ac.gda.epics.adviewer.mpegview"
+            name="MPeg View"
             restorable="true">
       </view>
       <view
@@ -127,8 +125,8 @@
             category="uk.ac.gda.epics.adviewer.view.category"
             class="uk.ac.gda.epics.adviewer.views.TwoDArrayView"
             icon="icons/AreaDetectorImageView.gif"
-            id="uk.ac.gda.epics.adviewer.rawimageview"
-            name="Raw Image View"
+            id="uk.ac.gda.epics.adviewer.twodArrayView"
+            name="Two 2 Array View"
             restorable="true">
       </view>
    </extension>

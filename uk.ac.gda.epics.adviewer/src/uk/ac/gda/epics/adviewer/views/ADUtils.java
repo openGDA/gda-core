@@ -22,6 +22,24 @@ public class ADUtils {
 	private static final String COLON_REPLACEMENT = "@";
 	public static final String PV_TYPE = "pv//";
 
+	public enum ViewType {MPEG, STATS, ARRAY};	
+	
+	public static String getViewId(ViewType viewType) {
+		String viewId="";
+		switch (viewType){
+		case MPEG:
+			viewId = MJPegView.Id;
+			break;
+		case ARRAY:
+			viewId = TwoDArrayView.Id;
+			break;
+		case STATS:
+			viewId = HistogramView.Id;
+			break;
+		}
+		return viewId;
+	}	
+	
 	public static String getPVServiceName(String detectorName, String pvPrefix) {
 		return ADUtils.PV_TYPE + detectorName + "//" + pvPrefix.replace(":", COLON_REPLACEMENT);
 	}

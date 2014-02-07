@@ -66,7 +66,7 @@ public class ADActionUtils {
 		return action;
 	}
 	
-	static public IAction addShowViewAction(String name, final String viewId, final String secondaryId, String description){
+	static public IAction addShowViewAction(final String name, final String viewId, final String secondaryId, String description){
 		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
 			@Override
 			public void run() {
@@ -81,7 +81,7 @@ public class ADActionUtils {
 					}
 				}
 				catch(Exception e){
-					logger.error("Error running Set Exposure command", e);
+					logger.error("Error running show view action '" + name + "' for viewid:'"+viewId + "' secondaryId:'" + secondaryId + "'", e);
 				}
 			}
 		};

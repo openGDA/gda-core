@@ -19,27 +19,35 @@
 package uk.ac.gda.epics.adviewer.views;
 
 import gda.rcp.views.OpenViewOption;
+import gda.rcp.views.ViewDefinition;
+import uk.ac.gda.epics.adviewer.views.ADUtils.ViewType;
 
-public class ADOpenViewOption extends OpenViewOption {
+public class ADOpenViewOption implements OpenViewOption {
 
 	private String pvPrefix;
 	private String detectorName;
 
-	public ADOpenViewOption(String label, String viewId) {
-		super(label, viewId);
-	}
+	ViewType viewType;
+	private String label;
 
-	public void setPvPrefix(String pvPrefix) {
+	public ADOpenViewOption(String label, String detectorName, ViewType viewType, String pvPrefix) {
+		this.label = label;
+		this.detectorName = detectorName;
+		this.viewType = viewType;
 		this.pvPrefix = pvPrefix;
 	}
 
 	@Override
-	public String getSecondaryId() {
-		return ADUtils.getPVServiceName(detectorName, pvPrefix);
+	public ViewDefinition getViewDefinition() {
+		return new ViewDefinition(ADUtils.getViewId(viewType), ADUtils.getPVServiceName(detectorName, pvPrefix));
 	}
 
-	public void setDetectorName(String detectorName) {
-		this.detectorName = detectorName;
+
+
+
+	@Override
+	public String getLabel() {
+		return label;
 	}
 
 }

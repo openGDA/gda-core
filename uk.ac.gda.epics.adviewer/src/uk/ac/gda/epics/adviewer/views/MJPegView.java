@@ -46,12 +46,13 @@ import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
 public class MJPegView extends ViewPart {
+	public static final String Id = "uk.ac.gda.epics.adviewer.mpegview";	
 	private static final Logger logger = LoggerFactory.getLogger(MJPegView.class);
 	private MJPeg mJPeg;
 	private ADController adController;
 	private String name="";
 	private Image image=null;
-
+	private boolean createdViaExtendedConstructor=false;
 	public MJPegView(ADController adController, IConfigurationElement configurationElement) {
 		this.adController = adController;
 		try{
@@ -67,6 +68,7 @@ public class MJPegView extends ViewPart {
 		}catch (Exception e){
 			logger.warn("Unable to get image for view",e);
 		}
+		createdViaExtendedConstructor = true;
 	}
 
 	public MJPegView() {
@@ -137,16 +139,18 @@ public class MJPegView extends ViewPart {
 	}
 	
 	protected void createActions() throws NotDefinedException {
-		List<IAction> actions = new Vector<IAction>();			
-		{
-			actions.add(ADActionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add(ADActionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add( ADActionUtils.addShowViewAction("Show Histogram", Ids.COMMANDS_SHOW_HISTOGRAM_VIEW, adController.getServiceName(), "Show Histogram view for selected camera"));
-			actions.add( ADActionUtils.addShowViewAction("Show Raw Image", Ids.COMMANDS_SHOW_RAW_IMAGE_VIEW, adController.getServiceName(), "Show Raw Image view for selected camera"));
-		}	
-		for (IAction iAction : actions) {
-			getViewSite().getActionBars().getToolBarManager().add(iAction);
+		if(!createdViaExtendedConstructor){
+			List<IAction> actions = new Vector<IAction>();			
+			{
+				actions.add(ADActionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+				actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+				actions.add(ADActionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+				actions.add( ADActionUtils.addShowViewAction("Show Stats", HistogramView.Id, adController.getServiceName(), "Show stats view for selected camera"));
+				actions.add( ADActionUtils.addShowViewAction("Show Array", TwoDArrayView.Id, adController.getServiceName(), "Show array view for selected camera"));
+			}	
+			for (IAction iAction : actions) {
+				getViewSite().getActionBars().getToolBarManager().add(iAction);
+			}
 		}
 	}
 	

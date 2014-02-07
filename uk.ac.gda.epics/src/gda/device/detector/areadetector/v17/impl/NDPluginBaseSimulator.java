@@ -20,6 +20,7 @@ package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.observable.Observable;
+import gda.observable.ObservableUtil;
 
 /**
  * Simulation of NDPligin. 
@@ -205,6 +206,7 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 	}
 
 	short datatype = NDPluginBase.UInt8;
+	private Observable<Integer> arrayCounterObservable;
 
 	@Override
 	public short getDataType_RBV() throws Exception {
@@ -275,12 +277,19 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 
 	@Override
 	public Observable<Integer> createArrayCounterObservable() throws Exception {
-		return null;
+		if( arrayCounterObservable == null){
+			arrayCounterObservable = new ObservableUtil<Integer>();
+		}
+		return arrayCounterObservable;
 	}
 
+	ObservableUtil<Boolean> connectionStateObservable;
 	@Override
 	public Observable<Boolean> createConnectionStateObservable() throws Exception {
-		return null;
+		if( connectionStateObservable == null){
+			connectionStateObservable = new ObservableUtil<Boolean>();
+		}
+		return connectionStateObservable;
 	}
 
 	@Override

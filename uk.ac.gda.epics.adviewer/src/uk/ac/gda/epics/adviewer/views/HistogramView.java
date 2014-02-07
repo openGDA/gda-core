@@ -43,12 +43,14 @@ import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.Histogram;
 
 public class HistogramView extends ViewPart{
+	public static final String Id = "uk.ac.gda.epics.adviewer.histogramview";
 	public static final String UK_AC_GDA_EPICS_ADVIEWER_COMMANDS_SET_EXPOSURE = "uk.ac.gda.epics.adviewer.commands.setExposure";
 	private static final Logger logger = LoggerFactory.getLogger(HistogramView.class);
 	private Histogram histogram;
 	private ADController adController;
 	private String name;
 	private Image image;
+	private boolean createdViaExtendedConstructor=false;	
 	
 	public HistogramView(ADController adController, IConfigurationElement configurationElement) {
 		this.adController = adController;
@@ -65,6 +67,7 @@ public class HistogramView extends ViewPart{
 		}catch (Exception e){
 			logger.warn("Unable to get image for view",e);
 		}
+		createdViaExtendedConstructor = true;
 	}
 
 	public HistogramView(){
@@ -107,13 +110,16 @@ public class HistogramView extends ViewPart{
 	}
 	
 	protected void createActions() throws NotDefinedException {
-		List<IAction> actions = new Vector<IAction>();
-		{
-			actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add( ADActionUtils.addShowViewAction("Show Live", "uk.ac.gda.epics.adviewer.showLiveView", adController.getServiceName(), "Show MJPEG view for selected camera"));
-		}	
-		for (IAction iAction : actions) {
-			getViewSite().getActionBars().getToolBarManager().add(iAction);
+		if(!createdViaExtendedConstructor){
+			List<IAction> actions = new Vector<IAction>();
+			{
+				actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+				actions.add( ADActionUtils.addShowViewAction("Show MPeg", MJPegView.Id, adController.getServiceName(), "Show MPeg view for selected camera"));
+				actions.add( ADActionUtils.addShowViewAction("Show Array", TwoDArrayView.Id, adController.getServiceName(), "Show array view for selected camera"));				
+			}	
+			for (IAction iAction : actions) {
+				getViewSite().getActionBars().getToolBarManager().add(iAction);
+			}
 		}
 	}
 	

@@ -21,6 +21,7 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.observable.Observable;
+import gda.observable.ObservableUtil;
 
 public class NDProcessSimulator implements NDProcess {
 
@@ -737,14 +738,22 @@ public class NDProcessSimulator implements NDProcess {
 		return 0;
 	}
 
+	ObservableUtil<Double> offsetObservable;
+	ObservableUtil<Double> scaleObservable;
 	@Override
 	public Observable<Double> createScaleObservable() throws Exception {
-		return null;
+		if( scaleObservable == null){
+			scaleObservable = new ObservableUtil<Double>();
+		}
+		return scaleObservable;
 	}
 
 	@Override
 	public Observable<Double> createOffsetObservable() throws Exception {
-		return null;
+		if( offsetObservable == null){
+			offsetObservable = new ObservableUtil<Double>();
+		}
+		return offsetObservable;
 	}
 
 }
