@@ -69,13 +69,13 @@ public interface Scan extends Serializable {
 		TIDYING_UP_AFTER_STOP {
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
-				return EnumSet.of(COMPLETED_AFTER_STOP);
+				return EnumSet.of(TIDYING_UP_AFTER_STOP, COMPLETED_AFTER_STOP);
 			}
 		},
 		TIDYING_UP_AFTER_FAILURE {
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
-				return EnumSet.of(COMPLETED_AFTER_FAILURE);
+				return EnumSet.of(TIDYING_UP_AFTER_FAILURE, COMPLETED_AFTER_FAILURE);
 			}
 		},
 		
@@ -121,11 +121,6 @@ public interface Scan extends Serializable {
 	 * Name of the thread which all scans run within when started by their runScan method.
 	 */
 	public static final String THREADNAME = "scan_thread";
-
-	/**
-	 * cleanly stop the scan
-	 */
-	public void stop();
 
 	/**
 	 * pause the scans progress
@@ -304,4 +299,11 @@ public interface Scan extends Serializable {
 	public void requestFinishEarly();
 
 	public boolean isFinishEarlyRequested();
+
+	/**
+	 * 
+	 * @return The {@link ScanStatus}
+	 */
+	public ScanStatus getStatus();
+
 }

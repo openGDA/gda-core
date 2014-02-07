@@ -497,13 +497,16 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 				detectorReadoutTask.get(); // exceptions, for example from readout, will be thrown here
 			}
 		} catch (InterruptedException e) {
+			setStatus(ScanStatus.TIDYING_UP_AFTER_STOP);
 			cancelReadoutAndPublishCompletion();
 			throw e;
 		} catch (ExecutionException e) {
 			cancelReadoutAndPublishCompletion();
 			if (e.getCause() instanceof InterruptedException){
+				setStatus(ScanStatus.TIDYING_UP_AFTER_STOP);
 				throw (InterruptedException) e.getCause();
 			}
+			setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 			throw e;
 		}
 	}

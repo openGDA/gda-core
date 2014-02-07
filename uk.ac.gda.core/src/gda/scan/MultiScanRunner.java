@@ -102,11 +102,6 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	
 	}
 	@Override
-	public void stop() {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
 	public void pause() {
 		// TODO Auto-generated method stub
 		
@@ -252,5 +247,15 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	public boolean isFinishEarlyRequested() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	@Override
+	public ScanStatus getStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setStatus(ScanStatus status) {
+		// TODO Auto-generated method stub
+		
 	}
 }

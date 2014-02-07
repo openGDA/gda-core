@@ -47,6 +47,7 @@ import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.NestableScan;
 import gda.scan.Scan;
+import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanBase;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
@@ -654,7 +655,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public void restartCurrentScan(String JSFIdentifier) {
-		if (getScanStatus(JSFIdentifier) == Jython.IDLE && ScanBase.isInterrupted()) {
+		// if the last scan has finished and was aborted for some reason, then re-run it
+		ScanStatus status = currentScan.getStatus();
+		if (status == ScanStatus.COMPLETED_AFTER_FAILURE || status == ScanStatus.COMPLETED_AFTER_STOP) {
 			this.placeInJythonNamespace("the_restarted_scan", this.currentScan, JSFIdentifier);
 			runCommand("the_restarted_scan.runScan()", JSFIdentifier);
 		}
@@ -686,7 +689,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 					stopAll();
 				}
 
-				scanStatus = Jython.IDLE;
 				scriptStatus = Jython.IDLE;
 				updateStatus();
 				updateIObservers(new PanicStopEvent());
@@ -708,7 +710,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 				interruptThreads();
 
-				scanStatus = Jython.IDLE;
+				// TODO GDA-5863 the whole script status thing needs looking at seprately
 				scriptStatus = Jython.IDLE;
 
 				updateStatus();

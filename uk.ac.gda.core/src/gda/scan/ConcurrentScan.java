@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -339,8 +339,13 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 			
 		} catch (Exception e) {
 			//Log here as the exception will not be passed fully to GDA from Jython
-			logger.error("Error while creating scan: " + e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName(), e);
-			throw new IllegalArgumentException("Error while creating scan: " + e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName(), e);
+			String message = e.getMessage();
+			if (message == null){
+				message = e.getClass().getSimpleName();
+			}
+			message = "Error while creating scan: " + message;
+			logger.error(message, e);
+			throw new IllegalArgumentException(message, e);
 		}
 		
 		ScannableCommands.configureScanPipelineParameters(this);
@@ -460,9 +465,12 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					checkThreadInterrupted();
 				}
 			}
-		} catch (Exception ex1) {
-			setInterrupted(true);
-			throw ex1;
+		} catch (InterruptedException e) {
+			setStatus(ScanStatus.TIDYING_UP_AFTER_STOP);
+			throw new ScanInterruptedException(e.getMessage(),e.getStackTrace());
+		} catch (Exception e) {
+			setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
+			throw e;
 		}
 	}
 

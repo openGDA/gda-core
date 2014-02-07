@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -38,6 +38,7 @@ import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServer.JythonServerThread;
+import gda.scan.Scan.ScanStatus;
 import gda.util.OSCommandRunner;
 import gda.util.ScannableLevelComparator;
 
@@ -58,35 +59,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.util.ThreadManager;
-
 /**
  * Base class for objects using the Scan interface.
  */
 public abstract class ScanBase implements NestableScan {
 
 	public static final String GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST = "gda.scanbase.firstScanNumber";
+	
 	public static final String GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL= "gda.scanbase.printTimestamp";
-
-	static public volatile boolean explicitlyHalted = false;
 
 	/**
 	 * set true by multiscans to stop any other scans from creating their own datahandlers.
 	 */
 	static public volatile boolean insideMultiScan = false;
 
-	/**
-	 * Variable used to kill running scans The value of this variable may be double checked by calling
-	 * checkForInterrupts within a running thread
-	 */
-	static public volatile boolean interrupted = false;
-
 	private static final Logger logger = LoggerFactory.getLogger(ScanBase.class);
 
 	/**
 	 * Variable used to pause running scans The value of this variable may be double checked by calling
-	 * checkForInterrupts within a running thread
+	 * checkForInterrupts within a running thread.
+	 * <p>
+	 * When the scan thread discovers that this is set it may enter Status.PAUSED.
+	 * 
 	 */
-	static public volatile boolean paused = false;
+	static public volatile boolean paused = false;  // TODO: GDA-5863 Move to InterfaseProvider.getSoemthing()
 
 	/**
 	 * Return a string representation of an error in the form 'ExceptionTypeName:message'. Useful for
@@ -176,9 +172,10 @@ public abstract class ScanBase implements NestableScan {
 	private Long _scanNumber=null;
 	
 	protected boolean callCollectDataOnDetectors = true;
-	private boolean finishEarlyRequested;
 
-	
+	// TODO This should be null for non-parents. For now we make it null in setIsChild(true)
+	protected ParentScanComponent parentComponent = new ParentScanComponent(ScanStatus.NOTSTARTED);
+
 	@Override
 	public Long getScanNumber() {
 		return _scanNumber;
@@ -208,91 +205,63 @@ public abstract class ScanBase implements NestableScan {
 			permissionLevel = InterfaceProvider.getAuthorisationHolder().getAuthorisationLevel();
 			threadHasBeenAuthorised = false;
 		}
-
-		explicitlyHalted = false;
 	}
-
-//	/**
-//	 * This method should be called before every task in the run method of a concrete scan class which takes a long
-//	 * period of time (e.g. collecting data, moving a motor).
-//	 * <P>
-//	 * If, since the last time this method was called, interrupted was set to true, an interrupted exception is thrown
-//	 * which should be used by the scan to end its run method.
-//	 * <P>
-//	 * If pause was set to true, then this method will loop endlessly until paused has been set to false.
-//	 * <P>
-//	 * As these variable are in the base class, these interrupts will effect all scans running.
-//	 * 
-//	 * @throws InterruptedException
-//	 */
-//	public static void checkForInterrupts() throws InterruptedException {
-//
-//		if (!clearInterruptedAtScanEnd() && InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
-//			return;
-//		}
-//
-//		checkForInterruptsIgnoreIdle();
-//	}
-	
-//	/*
-//	 * Should only be called by Scan objects, as they should be aborted if the flag is set irrespective of the Command
-//	 * Server status.
-//	 * 
-//	 * The use of this function is not recommended as it has the side effect of changing scan status to idle. If all you want to
-//	 * is to check if the scan has been interrupted then simply call isInterrupted
-//	 * 
-//	 * @throws InterruptedException
-//	 */
-//	final protected static void checkForInterruptsIgnoreIdle() throws InterruptedException {
-//		try {
-//			if (paused & !interrupted) {
-//				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.PAUSED);
-//				while (paused) {
-//					Thread.sleep(1000);
-//				}
-//				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.RUNNING);
-//			}
-//		} catch (InterruptedException ex) {
-//			interrupted = true;
-//		}
-//		if (interrupted) {
-//			if (!clearInterruptedAtScanEnd())
-//				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
-//			throw new InterruptedException();
-//		}
-//	}
 	
 	@Override
 	public void requestFinishEarly() {
-		finishEarlyRequested = true;
+		if (isChild()){
+			parent.requestFinishEarly();
+		} else {
+			parentComponent.requestFinishEarly();
+		}
 	}
 	
 	@Override
 	public boolean isFinishEarlyRequested() {
-		return finishEarlyRequested;
+		if (isChild()){
+			return parent.isFinishEarlyRequested();
+		}
+		return parentComponent.isFinishEarlyRequested();
 	}
 
-	protected void waitIfPaused() throws InterruptedException{
-//		// TODO GDA-5863 this is to be replaced by a new central pausing mechanism and delete the ScanBase.paused static
-//		if (paused && getStatus() == ScanStatus.RUNNING) {
-//			// Don't move to PAUSED state if completing early or tidying up
-//			
-//			setStatus(ScanStatus.PAUSED);
-//			while (paused) {
-//				Thread.sleep(1000);
-//			}
-//			// TODO GDA-5776 setStatus currently forbids a transition to PAUSED from anythin but RUNNING
-//			setStatus(ScanStatus.RUNNING);
-//		}
+	@Override
+	public void setStatus(ScanStatus status) {
+		if (isChild()){
+			parent.setStatus(status);
+		} else {
+			parentComponent.setStatus(status);
+		}
 	}
 	
+	@Override
+	public ScanStatus getStatus() {
+		if (isChild()){
+			return parent.getStatus();
+		}
+		return parentComponent.getStatus();
+	}
+	
+	protected void waitIfPaused() throws InterruptedException{
+		// TODO GDA-5863 this is to be replaced by a new central pausing mechanism and delete the ScanBase.paused static
+		if (paused && getStatus() == ScanStatus.RUNNING) {
+			// Don't move to PAUSED state if completing early or tidying up
+			
+			setStatus(ScanStatus.PAUSED);
+			while (paused) {
+				Thread.sleep(1000);
+			}
+			// TODO GDA-5776 setStatus currently forbids a transition to PAUSED from anythin but RUNNING
+			setStatus(ScanStatus.RUNNING);
+		}
+	}
+
 	/**
 	 * Returns true if the scan baton has been claimed by a scan that has already started.
 	 * 
 	 * @return boolean
 	 */
-	public static boolean scanRunning() {
-		return getScanStatusHolder().getScanStatus() == Jython.RUNNING;
+	public boolean scanRunning() {
+		return getStatus().asJython() == Jython.RUNNING;
 	}
 
 	private static double sortArgs(double start, double stop, double step) {
@@ -593,7 +562,7 @@ public abstract class ScanBase implements NestableScan {
 	protected void endScan() throws DeviceException, InterruptedException {
 
 		// if the interrupt was set
-		if (interrupted) {
+		if (getStatus().isAborting()) {
 			// stop all scannables
 			try {
 				logger.info("ScanBase stopping " + allScannables.size() + " Scannables involved in interupted Scan");
@@ -605,20 +574,18 @@ public abstract class ScanBase implements NestableScan {
 					scannable.stop();
 				}
 			} finally  {
-				// disengage with the data handler, in case this scan is
-				// restarted
+				// disengage with the data handler, in case this scan is restarted
 				try {
-					final int SECONDS_TO_WAIT = 10;
-					report("Allowing up to " + SECONDS_TO_WAIT + "s for collected points to be written");
-
 					if (scanDataPointPipeline != null) {
+						final int SECONDS_TO_WAIT = 10;
+						report("Allowing up to " + SECONDS_TO_WAIT + "s for collected points to be written");
 						scanDataPointPipeline.shutdown(SECONDS_TO_WAIT * 1000);
 					}
 				} catch (DeviceException e) {
 					report(e.getMessage());  // The pipeline did not shutdown in the time provided and was harshly shutdown. No need to raise this.
 				} catch (InterruptedException e) {
 					// TODO endScan should throw InteruptedException
-					throw new DeviceException("Problem shutting down scan pipeline while completing and interurupted scan.", e);
+					throw new InterruptedException("Interrupted while shutting down scan pipeline while completing an aborted scan.");
 				}
 			}
 
@@ -691,6 +658,7 @@ public abstract class ScanBase implements NestableScan {
 				this.scanDataPointPipeline.shutdown(Long.MAX_VALUE); // no timeout
 			}
 		} catch (InterruptedException e) {
+			setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 			throw new DeviceException("Interupted while shutting down ScanDataPointPipeline from scan thread", e);
 
 		}
@@ -1082,18 +1050,28 @@ public abstract class ScanBase implements NestableScan {
 			pointNumberAtLineBeginning = currentPointCount;
 			try {
 				// validate scannables
-				for (Scannable scannable : getScannables()) {
-					ScannableBase.validateScannable(scannable);
+				try {
+					for (Scannable scannable : getScannables()) {
+						ScannableBase.validateScannable(scannable);
+					}
+				} catch (Exception e) {
+					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
+					throw new Exception("Exception while validating Scannables: " + createMessage(e), e);
 				}
 
 				// run the child scan, based on innerscanstatus
 				try {
 					prepareForCollection();
+				} catch (InterruptedException e) {
+					setStatus(ScanStatus.TIDYING_UP_AFTER_STOP);
+					throw new ScanInterruptedException(e.getMessage(),e.getStackTrace());
 				} catch (Exception e) {
-					throw new Exception("while preparing for scan collection: " + createMessage(e), e);
+					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
+					throw new Exception("Exception while preparing for scan collection: " + createMessage(e), e);
 				}
 				
 				if (getScannables().size() == 0 && getDetectors().size() == 0) {
+					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 					throw new IllegalStateException("ScanBase: No scannables, detectors or monitors to be scanned!");
 				}
 				
@@ -1104,15 +1082,15 @@ public abstract class ScanBase implements NestableScan {
 					waitIfPaused();
 					doCollection();
 				} catch (InterruptedException e) {
+					setStatus(ScanStatus.TIDYING_UP_AFTER_STOP);
 					// need the correct exception type so wrapping code know its an interrupt
-					String message = "Scan interrupted";
-					if (interrupted){
-						message = "Scan aborted on request.";
-					}
+					String message = "Scan aborted on request.";
 					throw new ScanInterruptedException(message,e.getStackTrace());
 				} catch (Exception e) {
+					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 					throw new Exception("during scan collection: " + createMessage(e), e);
 				}
+				
 			} catch (ScanInterruptedException e) {
 				throw e;
 			} catch (Exception e) {
@@ -1135,8 +1113,7 @@ public abstract class ScanBase implements NestableScan {
 				cancelReadoutAndPublishCompletion();
 
 				logger.info("Ending scan and rethrowing exception");
-				
-				interrupted = true; // causes endscan to behave differently
+
 				throw e; 
 			} finally {
 				try {
@@ -1150,6 +1127,7 @@ public abstract class ScanBase implements NestableScan {
 						lineScanNeedsDoing = true;
 						currentPointCount = pointNumberAtLineBeginning;
 					} else {
+						setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 						logger.error(createMessage(e) + " Calling atCommandFailure hooks.",e);
 						callAtCommandFailureHooks();
 						throw e;
@@ -1167,11 +1145,13 @@ public abstract class ScanBase implements NestableScan {
 	
 	
 	@Override
-	public void runScan() throws InterruptedException, Exception {
-		boolean scanWasInterrupted=false;
+	public final void runScan() throws InterruptedException, Exception {
+		
+		// FIXME GDA-5863 Better if we could get the current scan and compare, possibly removing getScanStatusHolder()
 		if (getScanStatusHolder().getScanStatus() != Jython.IDLE) {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
 		}
+		setStatus(ScanStatus.RUNNING);
 		if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
 			java.util.Date date= new java.util.Date();
 			getTerminalPrinter().print("=== Scan started at "+new Timestamp(date.getTime()).toString()+" ===");
@@ -1187,30 +1167,27 @@ public abstract class ScanBase implements NestableScan {
 			run();
 		} finally {
 			
-			scanWasInterrupted = isInterrupted();
-			// Leaving interrupted true (if it is) allows jython scripts running
-			// Scans to checkForInterrupts and so end 'for' loops sensibly.
-			// (It is set to false at the start of a scan anyway).
-			paused = false;
+			// FIXME: GDA-5863 Needs to tell the gui the scan is no longer paused
+			paused = false;  // this looks wrong, should not change any central pause flag here
 			insideMultiScan = false;
 			
-			// inform observers that scan is complete by sending a Boolean false
-			// nb moved this until after batonTaken is false as we use the flag
-			// to check for scan end.
-			getScanStatusHolder().setScanStatus(Jython.IDLE);
-
-			if( clearInterruptedAtScanEnd())
-				setInterrupted(false);
-		
-		}
-
-		if (scanWasInterrupted) {
-			logger.info("Scan interupted ScanBase.interupted flag");
-			if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
-				java.util.Date date= new java.util.Date();
-				getTerminalPrinter().print("=== Scan interrupted at "+new Timestamp(date.getTime()).toString()+" ===");
+			
+			switch (getStatus()) {
+			case RUNNING:
+				setStatus(ScanStatus.COMPLETED_OKAY);
+				break;
+			case TIDYING_UP_AFTER_FAILURE:
+				setStatus(ScanStatus.COMPLETED_AFTER_FAILURE);
+				break;
+			case TIDYING_UP_AFTER_STOP:
+				setStatus(ScanStatus.COMPLETED_AFTER_STOP);
+				break;
+			case FINISHING_EARLY:
+				setStatus(ScanStatus.COMPLETED_EARLY);
+				break;
+			default:
+				throw new AssertionError("Unexpected status at the end of scan:" + getStatus().toString());
 			}
-			throw new InterruptedException("Scan interrupted");
 		}
 	}
 
@@ -1239,6 +1216,10 @@ public abstract class ScanBase implements NestableScan {
 	@Override
 	public void setIsChild(boolean child) {
 		this.isChild = child;
+		if (child) {
+			// TODO it would be better not to have made this in the first place!
+			parentComponent = null;  // To keep anyone using it instead
+		}
 	}
 
 	public void setLineScanNeedsDoing(boolean lineScanNeedsDoing) {
@@ -1334,14 +1315,11 @@ public abstract class ScanBase implements NestableScan {
 
 	}
 
-	@Override
-	public void stop() {
-		interrupted = true;
-		paused = false;
-	}
-
+	/**
+	 * True if the scan was asked to complete early
+	 */
 	public boolean wasScanExplicitlyHalted() {
-		return explicitlyHalted;
+		return (getStatus() == ScanStatus.COMPLETED_EARLY);
 	}
 	
 	public static void setPaused(boolean paused){
@@ -1356,41 +1334,6 @@ public abstract class ScanBase implements NestableScan {
 
 		logger.info("paused flag set from " + ScanBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "'");
 		ScanBase.paused = paused;
-	}
-	/**
-	 * @param interrupted - allows scripts to be stopped at a convenient point
-	 */
-	public static void setInterrupted(boolean interrupted) {
-		if (interrupted == ScanBase.interrupted) 
-			return;
-		
-		if (!clearInterruptedAtScanEnd() && (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE)) {
-			String msg = MessageFormat.format("interrupted flag set from {0} to {1} by thread :''{2}'' while idle -- ignored",
-					ScanBase.interrupted, interrupted, Thread.currentThread().getName());
-			logger.info(msg);
-			logger.debug(msg + " from:\n" + generateStackTrace());
-			return;
-		}
-		
-		String msg = MessageFormat.format("interrupted flag set from {0} to {1} by thread :''{2}''",
-				ScanBase.interrupted, interrupted, Thread.currentThread().getName());
-		logger.info(msg);
-		logger.debug(msg + " from:\n" + generateStackTrace());
-		ScanBase.interrupted = interrupted;
-	}
-	
-	
-	public static boolean isInterrupted(){
-		return ScanBase.interrupted;
-	}
-	
-	private static String generateStackTrace() {
-		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-		String trace = "";
-		for (int i = 2; i < stackTrace.length; i++) {
-			trace =trace + "    " + stackTrace[i].toString() + "\n";
-		}
-		return "    " + trace.trim();
 	}
 	
 	/**
@@ -1412,6 +1355,65 @@ public abstract class ScanBase implements NestableScan {
 		if (Thread.interrupted()) {
 			logger.info("Scan thread has been interrupted.",Thread.currentThread().getStackTrace());
 			throw new InterruptedException();
+		}
+	}
+
+}
+
+class ParentScanComponent implements ScanParent{
+
+	public static boolean throwExceptionForUnexpectedStateTransition = true;
+
+	private static final Logger logger = LoggerFactory.getLogger(ParentScanComponent.class);
+
+	ScanStatus status;
+
+	/**
+	 * When set to true, the scan should complete the current data point, and then exit normally going through the same
+	 * code, but skip the remaining data points.
+	 */
+	private boolean finishEarlyRequested;
+	
+	public ParentScanComponent(ScanStatus initialStatus) {
+		super();
+		this.status = initialStatus;
+	}
+
+	public void requestFinishEarly() {
+		finishEarlyRequested = true;
+	}
+	
+	public boolean isFinishEarlyRequested() {
+		return finishEarlyRequested;
+	}
+	
+	public ScanStatus getStatus() {
+		return status;
+	}
+
+	@Override
+	public void setStatus(ScanStatus newStatus) {
+
+		if (this.status.possibleFollowUps().contains(newStatus)) {
+			this.status = newStatus;
+		} else {
+			String msg = MessageFormat.format("Scan status change from {0} to {1} is not expected", this.status.name(),
+					newStatus.name());
+			// TODO GDA-5836 Probably should just be logger.error in production code
+			if (throwExceptionForUnexpectedStateTransition) {
+				throw new IllegalStateException(msg);
+			} // else
+			logger.error(msg);
+		}
+
+		// FIXME: GDA-5836 - TEMPORARY ScanStatusHolder should get the status from the scan directly (needs to listen
+		// for changes though)
+		if (newStatus == ScanStatus.RUNNING) {
+			getScanStatusHolder().setScanStatus(Jython.RUNNING);
+		} else if (newStatus == ScanStatus.PAUSED) {
+			getScanStatusHolder().setScanStatus(Jython.PAUSED);
+		} else if (newStatus.isComplete()) {
+			getScanStatusHolder().setScanStatus(Jython.IDLE);
 		}
 	}
 }

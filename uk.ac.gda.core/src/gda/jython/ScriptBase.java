@@ -19,8 +19,6 @@
 
 package gda.jython;
 
-import java.text.MessageFormat;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,41 +35,11 @@ public abstract class ScriptBase {
 	static public volatile boolean paused = false;
 
 	/**
-	 * allows scripts to be stopped at a convenient point
-	 */
-	static public volatile boolean interrupted = false;
-
-	/**
 	 * @param paused - allows UI/users to pause/resume scripts
 	 */
 	public static void setPaused(boolean paused){
 		logger.info("paused flag set from " + ScriptBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "'");
 		ScriptBase.paused = paused;
-	}
-	/**
-	 * @param interrupted - allows scripts to be stopped at a convenient point
-	 */
-	public static void setInterrupted(boolean interrupted){
-		String msg = MessageFormat.format("interrupted flag set from {0} to {1} by thread :''{2}''", 
-				ScriptBase.interrupted, interrupted,Thread.currentThread().getName());
-		logger.info(msg);
-		logger.debug(msg + " from:\n" + generateStackTrace());
-		ScriptBase.interrupted = interrupted;
-	}
-	
-	private static String generateStackTrace() {
-		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-		String trace = "";
-		for (int i = 2; i < stackTrace.length; i++) {
-			trace =trace + "    " + stackTrace[i].toString() + "\n";
-		}
-		return "    " + trace.trim();
-	}
-	/**
-	 * @return allows scripts to be stopped at a convenient point
-	 */
-	public static boolean isInterrupted(){
-		return interrupted;
 	}
 
 	/**
