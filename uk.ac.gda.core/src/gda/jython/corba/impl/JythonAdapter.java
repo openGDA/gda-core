@@ -150,6 +150,12 @@ public class JythonAdapter implements Jython, EventSubscriber {
 			}
 		}
 	}
+	
+	@Override
+	public boolean isFinishEarlyRequested() {
+		// TODO GDA-5863 this method to be added to IDL interface for transport over CORBA
+		return false;
+	}
 
 	@Override
 	public void haltCurrentScript(String JSFIdentifier) {

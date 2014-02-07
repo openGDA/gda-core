@@ -187,7 +187,14 @@ public interface Jython extends Findable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
+	// TODO GDA-5863 rename this method to requestFinishEarly
 	public void haltCurrentScan(String JSFIdentifier);
+	
+	
+	/**
+	 * @return true if the current scan has had requestFinishEarly called on it.
+	 */
+	public boolean isFinishEarlyRequested();
 
 	/**
 	 * Stops all scans, scripts and commands from the command server, but unlike the panicStop method, this does not

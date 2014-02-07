@@ -202,6 +202,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					break;
 				}
 			}
+			checkThreadInterrupted();
 			
 			// trigger at level start on all Scannables
 			for (Scannable scannable : scannablesAtThisLevel) {
@@ -234,15 +235,16 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					ScanObject scanObject = isScannableToBeMoved(device);
 					if (scanObject != null) {
 						if (start) {
-							checkForInterrupts();
+							checkThreadInterrupted();
 							scanObject.moveToStart();
 						} else {
-							checkForInterrupts();
+							checkThreadInterrupted();
 							scanObject.moveStep();
 						}
 					}
 				} else {
 					if (callCollectDataOnDetectors) {
+						checkThreadInterrupted();
 						((Detector) device).collectData();
 					}
 				}
@@ -259,7 +261,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 		}
 		
 	}
-	
+
 	TreeMap<Integer, Scannable[]> generateDevicesToMoveByLevel(TreeMap<Integer, Scannable[]> scannableLevels,
 			Vector<Detector> detectors) {
 
@@ -309,7 +311,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 */
 	protected void checkAllMovesComplete() throws Exception {
 		for (ScanObject scanObject : allScanObjects) {
-			checkForInterrupts();
+			checkThreadInterrupted();
 			// only check those objects which we have moved are no longer busy
 			if (scanObject.hasStart()) {
 				scanObject.scannable.waitWhileBusy();
@@ -439,10 +441,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 
 						// Wait for readout results and put into point
 						for (int i = 0; i < detectors.size(); i++) {
-							if (Thread.interrupted()) {
-								throw new InterruptedException(); // can't trust devices to look for these
-							}
-							checkForInterrupts(); // checks only ScanBase.interupted and may pause
+							checkThreadInterrupted();
 							Object data = readoutTasks.get(i).get();
 							point.addDetectorData(data, ScannableUtils.getExtraNamesFormats(detectors.get(i)));
 						}
@@ -450,9 +449,9 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					}
 
 					// Put point onto pipeline
-					checkForInterrupts();
+					checkThreadInterrupted(); // probably voodoo and not required here
 					scanDataPointPipeline.put(point); // may block
-					checkForInterrupts();
+					checkThreadInterrupted(); // probably voodoo and not required here
 					
 					// The main scan thread cannot call atPointEnd (and subsequently atPointStart) in the correct order
 					// with respect to readout so call these here instead.

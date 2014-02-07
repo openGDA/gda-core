@@ -36,7 +36,6 @@ import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
 import gda.device.scannable.PositionStreamIndexer;
 import gda.jython.InterfaceProvider;
-import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
 import java.text.SimpleDateFormat;
@@ -579,7 +578,6 @@ class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
 		synchronized (lock) {
 			while (!called) {
 				lock.wait(1000);
-				ScanBase.checkForInterrupts();
 			}
 		}
 	}	

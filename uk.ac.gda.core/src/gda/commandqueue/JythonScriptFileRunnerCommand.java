@@ -151,8 +151,7 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 		synchronized (abortRequestedLock) {
 			if(!abortedRequested){
 				logger.info("Aborting command :" + getDescription());
-				InterfaceProvider.getCurrentScanController().haltCurrentScan();
-				InterfaceProvider.getScriptController().haltCurrentScript();
+				InterfaceProvider.getScriptController().haltCurrentScript(); // interrupts all threads including scan
 				abortedRequested = true;
 			} else {
 				logger.info("Abort ignored in command :" + getDescription());

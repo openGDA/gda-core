@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -19,9 +19,8 @@
 
 package gda.scan;
 
-import gda.jython.JythonServerFacade;
-import gda.device.scannable.DummyScannable;
 import gda.device.Scannable;
+import gda.device.scannable.DummyScannable;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -57,33 +56,27 @@ public class PseudoDeviceTimeScan extends ScanBase implements Scan {
 	 * @param numberPoints -
 	 *            the number of points to collect for - if this is set to 0 then the scan will not stop until the user
 	 *            tells it to.
+	 * @throws Exception 
 	 */
-	public PseudoDeviceTimeScan(Scannable[] pseudoDevices, double collectInterval, int numberPoints) {
-		try {
-			this.collectIntervalSeconds = collectInterval;
-			collectInterval *= 1000;
-			this.collectIntervalMilliSeconds = ((Double) collectInterval).intValue(); // convert
-			// to
-			// milliseconds
-			if (numberPoints != 0) {
-				this.numberPoints = numberPoints;
-			} else {
-				this.numberPoints = Integer.MAX_VALUE;
-			}
-
-			this.allScannables.add(relativeTimePD);
-			for (Scannable pd : pseudoDevices) {
-				this.allScannables.add(pd);
-			}
-
-			// setUp();
-			createScanDataPointPipeline();
-		} catch (Exception e) {
-			logger.debug(e.getStackTrace().toString());
-			String error = "Error during scan setup: " + e.getMessage();
-			JythonServerFacade.getInstance().haltCurrentScan();
-			JythonServerFacade.getInstance().print(error);
+	public PseudoDeviceTimeScan(Scannable[] pseudoDevices, double collectInterval, int numberPoints) throws Exception {
+		this.collectIntervalSeconds = collectInterval;
+		collectInterval *= 1000;
+		this.collectIntervalMilliSeconds = ((Double) collectInterval).intValue(); // convert
+		// to
+		// milliseconds
+		if (numberPoints != 0) {
+			this.numberPoints = numberPoints;
+		} else {
+			this.numberPoints = Integer.MAX_VALUE;
 		}
+
+		this.allScannables.add(relativeTimePD);
+		for (Scannable pd : pseudoDevices) {
+			this.allScannables.add(pd);
+		}
+
+		// setUp();
+		createScanDataPointPipeline();
 	}
 
 	@Override
@@ -99,9 +92,7 @@ public class PseudoDeviceTimeScan extends ScanBase implements Scan {
 
 		// loop
 		for (long i = 0; i < numberPoints; ++i) {
-			checkForInterrupts();
 			collectData();
-			checkForInterrupts();
 			// wait until time for next iteration to start
 			// this is based on the fixed point when the scan started, so
 			// the
@@ -111,8 +102,9 @@ public class PseudoDeviceTimeScan extends ScanBase implements Scan {
 				waitUntil(targetTime);
 			}
 
+			waitIfPaused();
 			relativeTimePD.moveTo((Double) relativeTimePD.getPosition() + collectIntervalSeconds);
-			checkForInterrupts();
+			checkThreadInterrupted();
 		}
 	}
 
@@ -130,7 +122,6 @@ public class PseudoDeviceTimeScan extends ScanBase implements Scan {
 		long now = rightNow.getTime();
 		// loop while we have not got to that point
 		while (now < targetTime) {
-			checkForInterrupts();
 			if ((targetTime - now) > 10000) {
 				Thread.sleep((targetTime - now) - 8000);
 			} else {

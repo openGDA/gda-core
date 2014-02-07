@@ -308,4 +308,11 @@ public interface Scan extends Serializable {
 	 * @return The unique id of the scan. Null if not set
 	 */
 	public Long getScanNumber();
+	
+	/**
+	 * Set this scan to complete current scan data point and complete normally without doing any further data points.
+	 */
+	public void requestFinishEarly();
+
+	public boolean isFinishEarlyRequested();
 }

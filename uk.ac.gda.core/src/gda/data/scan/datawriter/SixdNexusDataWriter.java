@@ -1583,7 +1583,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 			error += ")";
 			logger.error(error, ex);
-			currentScanController.haltCurrentScan();
 			terminalPrinter.print(error);
 			terminalPrinter.print(ex.getMessage());
 		}

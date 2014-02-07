@@ -65,7 +65,12 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	}
 
 	@Override
-	public void haltCurrentScan() {
+	public void requestFinishEarly() {
+	}
+	
+	@Override
+	public boolean isFinishEarlyRequested() {
+		return false;
 	}
 
 	@Override

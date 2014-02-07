@@ -406,10 +406,17 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 * @see Jython#haltCurrentScan
 	 */
 	@Override
-	public void haltCurrentScan() {
+	public void requestFinishEarly() {
+		// TODO GDA-5863 this will need to be renamed to requestFinishEarly
 		commandServer.haltCurrentScan(name);
 	}
 
+
+	@Override
+	public boolean isFinishEarlyRequested() {
+		return commandServer.isFinishEarlyRequested();
+	}
+	
 	/**
 	 * @see Jython#pauseCurrentScan
 	 */
@@ -1089,6 +1096,5 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public void deleteOutputTerminal(Terminal term) {
 		deleteIObserver(term);
-	}
-	
+	}	
 }

@@ -193,8 +193,7 @@ public class ScanTest {
 			hashtable.putBoolean(FindableHashtable.NEXUS_METADATA, true);
 			hashtable.putBoolean(FindableHashtable.SRB_STORE, true);
 			printTime("Starting a scan");
-			scan.run();
-			ScanBase.waitForScanEnd();
+			scan.runScan();
 			printTime("Completed a scan");
 		} catch (Exception e) {
 			System.out.println("Error in scan " + e.getMessage());

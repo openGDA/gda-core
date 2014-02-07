@@ -97,19 +97,18 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 		// 1000));
 		logger.debug("AsynchronousTimeScan: Starting scan at " + df.format(startTime) + "\n");
 
-		checkForInterrupts();
-
 		Date rightNow = new Date();
 		logger.debug("Collecting data at " + df.format(rightNow) + "\n");
 
 		// start data Collection
+		
+		waitIfPaused();
 		for (Detector detector : asynchronousDetectors) {
-			checkForInterrupts();
-
+			checkThreadInterrupted();
 			// start the counting
 			((AsynchronousDetector) detector).countAsync(totalTime);
 		}
-		checkForInterrupts();
+		checkThreadInterrupted();
 	}
 
 	@Override
@@ -156,7 +155,6 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 		long now = rightNow.getTime();
 		// loop while we have not got to that point
 		while (now < targetTime) {
-			checkForInterrupts();
 			if ((targetTime - now) > 10000) {
 				Thread.sleep((targetTime - now) - 8000);
 			} else {

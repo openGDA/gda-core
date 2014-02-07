@@ -291,11 +291,10 @@ public class GridScan extends ScanBase implements Scan {
 
 		// make first step
 		logger.debug("Started a scan over " + theScannable.getName() + "\n");
-		checkForInterrupts();
 
 		moveToStart();
+		checkThreadInterrupted();
 		if (this.childScan != null) {
-			checkForInterrupts();
 			// The following line is required to ensure that for nested
 			// scans
 			// the addData is called by the outer scan first in order to
@@ -307,7 +306,6 @@ public class GridScan extends ScanBase implements Scan {
 			getDataWriter().addData(point);
 			runChildScan();
 		} else {
-			checkForInterrupts();
 			// then collect data
 			currentPointCount++;
 			collectData();
@@ -315,11 +313,18 @@ public class GridScan extends ScanBase implements Scan {
 
 		// make subsequent steps
 		for (int i = 1; i <= numberSteps; ++i) {
-			checkForInterrupts();
+			
+			// test no reason to exit or wait
+			if (isFinishEarlyRequested()){
+				return;
+			}
+			waitIfPaused();
+			checkThreadInterrupted();
+				
 			moveStepIncrement(i);
-
+			checkThreadInterrupted();
+			
 			if (this.childScan != null) {
-				checkForInterrupts();
 				// The following line is required to ensure that for
 				// nested scans
 				// the addData is called by the outer scan first in
@@ -332,12 +337,10 @@ public class GridScan extends ScanBase implements Scan {
 				getDataWriter().addData(point);
 				runChildScan();
 			} else {
-				checkForInterrupts();
 				currentPointCount++;
 				collectData();
 			}
 		}
-		resetUnits();
 	}
 
 	/**
@@ -418,10 +421,6 @@ public class GridScan extends ScanBase implements Scan {
 			}
 			throw new Exception("GridScan.moveToStart(): " + e.getMessage());
 		}
-	}
-
-	private void resetUnits() {
-		// theScannable.setReportingUnits(savedUnits);
 	}
 
 	/**

@@ -26,10 +26,11 @@ import org.eclipse.core.commands.ExecutionException;
 
 public class HaltScanHandler extends AbstractHandler {
 
+	// TODO GDA-5863 rename this method to requestFinishEarly
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
-			JythonServerFacade.getInstance().haltCurrentScan();
+			JythonServerFacade.getInstance().requestFinishEarly();
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);

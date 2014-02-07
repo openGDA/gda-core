@@ -23,6 +23,7 @@ import gda.data.scan.datawriter.DataWriterBase;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
+import gda.jython.InterfaceProvider;
 
 import java.util.Vector;
 
@@ -179,7 +180,7 @@ public class PeakScan extends ConcurrentScan implements Scan {
 		getDataWriter().addData(point);
 		// notify IObservers of this scan (e.g. GUI panels)
 		// notifyIObservers(this, currentData);
-		notifyServer(point);
+		InterfaceProvider.getJythonServerNotifer().notifyServer(this,point);
 		// extract the numbers for the calculation
 		xValues.add(theScannable.getPosition().toString());
 		yValues.add(DataWriterBase.getDetectorData(point.getDetectorData().get(0), true));

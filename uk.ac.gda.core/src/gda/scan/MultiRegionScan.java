@@ -21,7 +21,6 @@ package gda.scan;
 
 import gda.device.Detector;
 import gda.device.Scannable;
-import gda.util.exceptionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +37,7 @@ import org.slf4j.LoggerFactory;
  * using the addScan method. The order is important the make sure the scans do not create their own datahandler objects.
  */
 public class MultiRegionScan extends ScanBase {
-	private static final Logger logger = LoggerFactory.getLogger(MultiRegionScan.class);
-
+	
 	private List<ScanBase> listOfScans;
 
 //	private final boolean useOnlyDefaultDetectors;
@@ -50,8 +48,9 @@ public class MultiRegionScan extends ScanBase {
 
 	/**
 	 * @param createScanDataPointPipeline 
+	 * @throws Exception 
 	 */
-	public MultiRegionScan(boolean createScanDataPointPipeline) {
+	public MultiRegionScan(boolean createScanDataPointPipeline) throws Exception {
 		super();
 		this.name = generateRandomName();
 		try {
@@ -59,15 +58,15 @@ public class MultiRegionScan extends ScanBase {
 			if (createScanDataPointPipeline) createScanDataPointPipeline();
 			insideMultiScan = true;
 		} catch (Exception ex) {
-			exceptionUtils.logException(logger, "Error during MultiRegionScan setup", ex);
-			gda.jython.InterfaceProvider.getCurrentScanController().haltCurrentScan();
+			throw new Exception("Error during MultiRegionScan setup", ex);
 		}
 	}
 
 	/**
 	 * Constructor
+	 * @throws Exception 
 	 */
-	public MultiRegionScan() {
+	public MultiRegionScan() throws Exception {
 		this(true);
 	}
 	

@@ -195,6 +195,7 @@ public abstract class ScanBase implements Scan {
 	private Long _scanNumber=null;
 	
 	protected boolean callCollectDataOnDetectors = true;
+	private boolean finishEarlyRequested;
 
 	
 	@Override
@@ -230,56 +231,80 @@ public abstract class ScanBase implements Scan {
 		explicitlyHalted = false;
 	}
 
-	/**
-	 * This method should be called before every task in the run method of a concrete scan class which takes a long
-	 * period of time (e.g. collecting data, moving a motor).
-	 * <P>
-	 * If, since the last time this method was called, interrupted was set to true, an interrupted exception is thrown
-	 * which should be used by the scan to end its run method.
-	 * <P>
-	 * If pause was set to true, then this method will loop endlessly until paused has been set to false.
-	 * <P>
-	 * As these variable are in the base class, these interrupts will effect all scans running.
-	 * 
-	 * @throws InterruptedException
-	 */
-	public static void checkForInterrupts() throws InterruptedException {
-
-		if (!clearInterruptedAtScanEnd() && InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
-			return;
-		}
-
-		checkForInterruptsIgnoreIdle();
+//	/**
+//	 * This method should be called before every task in the run method of a concrete scan class which takes a long
+//	 * period of time (e.g. collecting data, moving a motor).
+//	 * <P>
+//	 * If, since the last time this method was called, interrupted was set to true, an interrupted exception is thrown
+//	 * which should be used by the scan to end its run method.
+//	 * <P>
+//	 * If pause was set to true, then this method will loop endlessly until paused has been set to false.
+//	 * <P>
+//	 * As these variable are in the base class, these interrupts will effect all scans running.
+//	 * 
+//	 * @throws InterruptedException
+//	 */
+//	public static void checkForInterrupts() throws InterruptedException {
+//
+//		if (!clearInterruptedAtScanEnd() && InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+//			return;
+//		}
+//
+//		checkForInterruptsIgnoreIdle();
+//	}
+	
+//	/*
+//	 * Should only be called by Scan objects, as they should be aborted if the flag is set irrespective of the Command
+//	 * Server status.
+//	 * 
+//	 * The use of this function is not recommended as it has the side effect of changing scan status to idle. If all you want to
+//	 * is to check if the scan has been interrupted then simply call isInterrupted
+//	 * 
+//	 * @throws InterruptedException
+//	 */
+//	final protected static void checkForInterruptsIgnoreIdle() throws InterruptedException {
+//		try {
+//			if (paused & !interrupted) {
+//				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.PAUSED);
+//				while (paused) {
+//					Thread.sleep(1000);
+//				}
+//				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.RUNNING);
+//			}
+//		} catch (InterruptedException ex) {
+//			interrupted = true;
+//		}
+//		if (interrupted) {
+//			if (!clearInterruptedAtScanEnd())
+//				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
+//			throw new InterruptedException();
+//		}
+//	}
+	
+	@Override
+	public void requestFinishEarly() {
+		finishEarlyRequested = true;
 	}
 	
-	/*
-	 * Should only be called by Scan objects, as they should be aborted if the flag is set irrespective of the Command
-	 * Server status.
-	 * 
-	 * The use of this function is not recommended as it has the side effect of changing scan status to idle. If all you want to
-	 * is to check if the scan has been interrupted then simply call isInterrupted
-	 * 
-	 * @throws InterruptedException
-	 */
-	final protected static void checkForInterruptsIgnoreIdle() throws InterruptedException {
-		try {
-			if (paused & !interrupted) {
-				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.PAUSED);
-				while (paused) {
-					Thread.sleep(1000);
-				}
-				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.RUNNING);
-			}
-		} catch (InterruptedException ex) {
-			interrupted = true;
-		}
-		if (interrupted) {
-			if (!clearInterruptedAtScanEnd())
-				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
-			throw new InterruptedException();
-		}
+	@Override
+	public boolean isFinishEarlyRequested() {
+		return finishEarlyRequested;
 	}
 
+	protected void waitIfPaused() throws InterruptedException{
+//		// TODO GDA-5863 this is to be replaced by a new central pausing mechanism and delete the ScanBase.paused static
+//		if (paused && getStatus() == ScanStatus.RUNNING) {
+//			// Don't move to PAUSED state if completing early or tidying up
+//			
+//			setStatus(ScanStatus.PAUSED);
+//			while (paused) {
+//				Thread.sleep(1000);
+//			}
+//			// TODO GDA-5776 setStatus currently forbids a transition to PAUSED from anythin but RUNNING
+//			setStatus(ScanStatus.RUNNING);
+//		}
+	}
+	
 	/**
 	 * Returns true if the scan baton has been claimed by a scan that has already started.
 	 * 
@@ -374,25 +399,6 @@ public abstract class ScanBase implements Scan {
 		}
 	}
 
-	/**
-	 * Runs a loop until the scan baton is returned by the currently running scan. Useful for scripts where you do not
-	 * want to start a new scan until the last one has finished.
-	 * 
-	 * @throws InterruptedException
-	 */
-	public static void waitForScanEnd() throws InterruptedException {
-		try {
-			while (InterfaceProvider.getScanStatusHolder().getScanStatus() != Jython.IDLE) {
-				checkForInterrupts();
-				Thread.sleep(1000);
-			}
-			checkForInterrupts();
-		} catch (InterruptedException ex) {
-			// any calling routine should handle when an interrupt is called
-			throw ex;
-		}
-	}
-
 	protected void callAtCommandFailureHooks() {
 		for (Scannable scannable : this.allScannables) {
 			try {
@@ -420,13 +426,35 @@ public abstract class ScanBase implements Scan {
 	 * This should be called at each node of the scan. The collectData method is called for all detectors in the
 	 * DetectorBase.ActiveDetectors static arraylist. Throws two types of errors as scans may want to handle these
 	 * differently.
-	 * 
+	 * <p>
+	 * NOTE: Used only by a few scans, not ScanBase or ConcurrentScan 
 	 * @throws Exception
 	 */
 	protected void collectData() throws Exception {
-		triggerDetectorsAndWait();
-		checkForInterrupts();
+		
+		checkThreadInterrupted();
+		waitIfPaused();
+		if (isFinishEarlyRequested()){
+			return;
+		}
+		
+		// collect data
+		for (Detector detector : allDetectors) {
+			if (callCollectDataOnDetectors) {
+				detector.collectData();
+			}
+		}
+		
+		checkThreadInterrupted();
+
+		// check that all detectors have completed data collection
+		for (Detector detector : allDetectors) {
+			detector.waitWhileBusy();
+		}
+		
 		readDevicesAndPublishScanDataPoint();
+
+		checkThreadInterrupted();
 	}
 	
 	protected void setScanIdentifierInScanDataPoint(IScanDataPoint point) {
@@ -492,9 +520,7 @@ public abstract class ScanBase implements Scan {
 		} catch (Exception e) {
 			throw wrappedException(e);
 		}
-		checkForInterrupts();
 		scanDataPointPipeline.put(point);
-		checkForInterrupts();
 	}
 
 	
@@ -947,9 +973,11 @@ public abstract class ScanBase implements Scan {
 	}
 
 	protected void prepareDevicesForCollection() throws Exception {
+		
+		// Deliberately do *not* complete scan early if requested, once preparation has begun
+		
 		// prepare to collect data
 		for (Detector detector : allDetectors) {
-			checkForInterrupts();
 			detector.prepareForCollection();
 		}
 
@@ -993,7 +1021,6 @@ public abstract class ScanBase implements Scan {
 		try {
 
 			prepareScanForCollection();
-			checkForInterrupts();
 
 			prepareDevicesForCollection();
 		} catch (Exception e) {
@@ -1090,11 +1117,16 @@ public abstract class ScanBase implements Scan {
 				} catch (Exception e) {
 					throw new Exception("while preparing for scan collection: " + createMessage(e), e);
 				}
+				
 				if (getScannables().size() == 0 && getDetectors().size() == 0) {
 					throw new IllegalStateException("ScanBase: No scannables, detectors or monitors to be scanned!");
 				}
 				
 				try {
+					if (isFinishEarlyRequested()){
+						return;
+					}
+					waitIfPaused();
 					doCollection();
 				} catch (InterruptedException e) {
 					// need the correct exception type so wrapping code know its an interrupt
@@ -1149,7 +1181,8 @@ public abstract class ScanBase implements Scan {
 					}
 				}
 			}
-		} while (lineScanNeedsDoing);
+			
+		} while (lineScanNeedsDoing && !isFinishEarlyRequested());
 	}
 
 	private void report(String msg) {
@@ -1335,23 +1368,6 @@ public abstract class ScanBase implements Scan {
 		paused = false;
 	}
 
-	protected void triggerDetectorsAndWait() throws InterruptedException, DeviceException {
-		// collect data
-		for (Detector detector : allDetectors) {
-			checkForInterrupts();
-			if (callCollectDataOnDetectors) {
-				detector.collectData();
-			}
-		}
-		checkForInterrupts();
-
-		// check that all detectors have completed data collection
-		for (Detector detector : allDetectors) {
-			detector.waitWhileBusy();
-		}
-		checkForInterrupts();
-	}
-
 	public boolean wasScanExplicitlyHalted() {
 		return explicitlyHalted;
 	}
@@ -1420,4 +1436,13 @@ public abstract class ScanBase implements Scan {
 		}
 	}
 
+	protected void checkThreadInterrupted() throws InterruptedException {
+		if (Thread.interrupted()) {
+			logger.info("Scan thread has been interrupted.",Thread.currentThread().getStackTrace());
+			throw new InterruptedException();
+		}
+	}
+	
+
+	
 }

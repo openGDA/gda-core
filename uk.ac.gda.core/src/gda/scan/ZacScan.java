@@ -132,19 +132,15 @@ public class ZacScan extends ScanBase implements Scan {
 	public void prepareForCollection() throws Exception {
 		JythonServerFacade.getInstance().print("FastScan: prepareForCollection.");
 		super.prepareForCollection();
-		
+
 		JythonServerFacade.getInstance().print("setting up detectors ......");
-		checkForInterrupts();
-		
-		if ( !buildFastScan(null) ){
+
+		if (!buildFastScan(null)) {
 			JythonServerFacade.getInstance().print("building fast scan failed.");
-			}
-		else{
+		} else {
 			JythonServerFacade.getInstance().print("fast scan built successfully.");
-			}
 		}
-		
-	
+	}
 	
 	/**
 	 * @param parameter

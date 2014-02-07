@@ -641,19 +641,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return theRawInput;
 	}
 
+	// TODO GDA-5863 rename this method to requestFinishEarly
 	@Override
 	public synchronized void haltCurrentScan(String JSFIdentifier) {
-		logger.info("Halting current scan from thread: " + Thread.currentThread().getName());
-		ScanBase.setInterrupted(true);
-		ScanBase.setPaused(false);
-		ScanBase.explicitlyHalted = true;
-
-		uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-			@Override
-			public void run() {
-				notifyServer(null, new ScanInterruptedEvent());
-			}
-		}).start();
+		currentScan.requestFinishEarly();
 	}
 
 	@Override
@@ -1496,6 +1487,11 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	@Override
 	public ScanInformation getCurrentScanInformation() {
 		return getScanInformation(currentScan);
+	}
+	
+	@Override
+	public boolean isFinishEarlyRequested() {
+		return currentScan.isFinishEarlyRequested();
 	}
 
 	@Override

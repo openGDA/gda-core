@@ -207,7 +207,6 @@ public class TimeScan extends ScanBase implements Scan {
 			Date rightNow = new Date();
 
 			// perform data collection
-			checkForInterrupts();
 			collectData();
 			// wait until time for next iteration to start
 			// this is based on the fixed point when the start scan, so the
@@ -215,13 +214,12 @@ public class TimeScan extends ScanBase implements Scan {
 			// after collection finished to write out data etc. will not
 			// extend
 			// the total time
-			checkForInterrupts();
 			if (pauseTime > 0.0) {
 				long targetTime = new Double(startTime.getTime() + ((((i + 1) * stepTimeInSeconds) * 1000)))
 						.longValue();
 				waitUntil(targetTime);
 			}
-			checkForInterrupts();
+			waitIfPaused();
 			// change the scannable which is holding the relative time
 			relativeTime.moveTo((Double) relativeTime.getPosition() + new Double(stepTimeInSeconds));
 			// make sure we have not passed the max time
@@ -246,7 +244,6 @@ public class TimeScan extends ScanBase implements Scan {
 		long now = rightNow.getTime();
 		// loop while we have not got to that point
 		while (now < targetTime) {
-			checkForInterrupts();
 			if ((targetTime - now) > 10000) {
 				Thread.sleep((targetTime - now) - 8000);
 			} else {

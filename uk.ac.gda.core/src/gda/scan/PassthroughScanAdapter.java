@@ -24,7 +24,7 @@ import gda.device.Scannable;
 
 import java.util.Vector;
 
-public class PassthroughScanAdapter implements Scan{
+public class PassthroughScanAdapter implements Scan {
 	
 	private final Scan delegate;
 
@@ -175,6 +175,17 @@ public class PassthroughScanAdapter implements Scan{
 	@Override
 	public ScanStatus getStatus() {
 		return delegate.getStatus();
+	}
+
+	@Override
+	public void requestFinishEarly() {
+		delegate.requestFinishEarly();
+		
+	}
+
+	@Override
+	public boolean isFinishEarlyRequested() {
+		return delegate.isFinishEarlyRequested();
 	}
 
 }

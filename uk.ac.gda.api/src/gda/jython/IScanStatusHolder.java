@@ -33,4 +33,5 @@ public interface IScanStatusHolder {
 	 * @param newStatus see values in Jython e.g. JYTHON.IDLE
 	 */
 	public void setScanStatus(int newStatus);
+
 }

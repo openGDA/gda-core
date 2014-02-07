@@ -397,15 +397,20 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 			// *** First point in this scan ***
 			setPointPositionInLine(PointPositionInLine.FIRST);
 			if (getChild() == null) {
-				
 				callAtPointStartHooks();
 				// move to initial movements
 				currentPointCount++;
 				acquirePoint(true, true);  // start point, collect detectors
-				checkForInterruptsIgnoreIdle();
-				readDevicesAndPublishScanDataPoint();
+				checkThreadInterrupted();
 				
+				readDevicesAndPublishScanDataPoint();
 				callAtPointEndHooks();
+				
+				checkThreadInterrupted();
+				waitIfPaused();
+				if (isFinishEarlyRequested()) {
+					return;
+				}
 			} else {
 				// move the Scannable operated by this scan and then run the child scan
 				ScanObject principleScanObject = this.allScanObjects.get(0);
@@ -413,16 +418,25 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				// need to sort by level!
 				principleScanObject.scannable.atLevelStart();
 				principleScanObject.scannable.atLevelMoveStart();
-				checkForInterrupts();
 				stepId = principleScanObject.moveToStart();
+				checkThreadInterrupted();
 				checkAllMovesComplete();
+				waitIfPaused();
+				if (isFinishEarlyRequested()) {
+					return;
+				}
 				runChildScan();
+				checkThreadInterrupted();
 				// note that some scan hooks not called (atPointStart,atLevelMoveStart,atPointEnd) as this scannable is ot part of the child scan
 			}
 
 			// *** Subsequent points in this scan ***
 			
 			for (int step = 0; step < numberSteps; step++) {
+				waitIfPaused();
+				if (isFinishEarlyRequested()) {
+					return;
+				}
 				
 				setPointPositionInLine((step == (numberSteps - 1)) ? PointPositionInLine.LAST : PointPositionInLine.MIDDLE);
 				
@@ -431,17 +445,19 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					// make all these increments
 					currentPointCount++;
 					acquirePoint(false, true);  // step point, collect detectors
-					checkForInterruptsIgnoreIdle();
+					checkThreadInterrupted();
 					readDevicesAndPublishScanDataPoint();
+					checkThreadInterrupted();
 					callAtPointEndHooks();
 				} else {
 					ScanObject principleScanObject = this.allScanObjects.get(0);
 					principleScanObject.scannable.atLevelStart();
 					principleScanObject.scannable.atLevelMoveStart();
-					checkForInterrupts();
 					stepId = principleScanObject.moveStep();
 					checkAllMovesComplete();
+					checkThreadInterrupted();
 					runChildScan();
+					checkThreadInterrupted();
 				}
 			}
 		} catch (Exception ex1) {

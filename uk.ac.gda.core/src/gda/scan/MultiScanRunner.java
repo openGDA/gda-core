@@ -30,6 +30,7 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 public class MultiScanRunner implements Scan, ContiguousScan{
 	private static final Logger logger = LoggerFactory.getLogger(MultiScanRunner.class);
 	List<MultiScanItem> scans;
@@ -242,5 +243,15 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 	public int getNumberOfContiguousPoints() {
 		// TODO Auto-generated method stub
 		return TotalNumberOfPoints;
+	}
+	@Override
+	public void requestFinishEarly() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public boolean isFinishEarlyRequested() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

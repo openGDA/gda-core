@@ -219,14 +219,14 @@ public class CentroidScan extends ScanBase implements Scan {
 	 * @throws Exception
 	 */
 	private void moveToCentroids() throws Exception {
-		checkForInterrupts();
+		checkThreadInterrupted();
+		waitIfPaused();
 		for (ScanObject j : this.concurrentScan.allScanObjects) {
-			checkForInterrupts();
+			checkThreadInterrupted();
 			j.moveToStart();
 		}
 		// pause here until all the movement has finished
 		for (ScanObject j : this.concurrentScan.allScanObjects) {
-			checkForInterrupts();
 			while (j.scannable.isBusy()) {
 				Thread.sleep(250);
 			}

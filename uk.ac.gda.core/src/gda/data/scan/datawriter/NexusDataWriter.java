@@ -1458,9 +1458,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			error += ")";
 			error += ". Nexus binary library was not found. Inform Data Acquisition.";
 			logger.error(error, ex);
-			if (currentScanController != null) {
-				currentScanController.haltCurrentScan();
-			}
 			if (terminalPrinter != null){
 				terminalPrinter.print(error);
 				terminalPrinter.print(ex.getMessage());
@@ -1473,9 +1470,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				}
 				error += ")";
 				logger.error(error, ex);
-				if (currentScanController != null) {
-					currentScanController.haltCurrentScan();
-				}
 				if (terminalPrinter != null){
 					terminalPrinter.print(error);
 					terminalPrinter.print(ex.getMessage());
