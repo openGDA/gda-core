@@ -676,7 +676,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 					// unlikely to ever have more than one processor, but have this loop just in case
 					for (IFindableQueueProcessor queue : commandQueue){
 						try {
-							queue.stop(1000);
+							// TODO shorten the timeout
+							queue.stopAfterCurrent();
+							queue.stop(-1);  // TODO timeout not used for stops in the underlying code
 						} catch (Exception e) {
 							// log and continue with the panic stop process
 							logger.error("Exception while stopping queue after panic stop called", e);
