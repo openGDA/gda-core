@@ -61,9 +61,9 @@ public interface ISAXSDataCollection {
 
 	public void setBlSessionId(long blSessionId);
 
-	public String getExperimentId();
+	public long getExperimentId();
 
-	public void setExperimentId(String experimentId);
+	public void setExperimentId(long experimentId);
 
 	public void addPropertyChangeListener(PropertyChangeListener listener);
 
