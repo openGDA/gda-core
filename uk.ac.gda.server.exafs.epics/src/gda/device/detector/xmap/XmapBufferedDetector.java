@@ -160,24 +160,45 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		String fileName = null;
 		NexusTreeProvider[] container = null;
-		try {
-			// System.out.println("wating for file");
 			if (lastFileName == null && !lastFileReadStatus) {
-				fileName = this.controller.getHDFFileName();
-
-				waitForFile();
-				// change to linux format
-				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
+				try {
+					fileName = this.controller.getHDFFileName();
+				} catch (Exception e) {
+					logger.error("Could not get HDF filename", e);
+					stopAtException();
+				}
+				try {
+					waitForFile();
+				} catch (InterruptedException e) {
+					logger.error("Exception waiting for file", e);
+				}
+				
+				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();// change to linux format
+				
 				//added wed 31st jul 2013 as now need to stop before reading h5 file. don't know why this is the case
 				xmap.stop();
+				
 				//sleep required for gda to recognise number of arrays has finalized.
-				Thread.sleep(1000);
-				fileName = fileName.replace("X:/", "/dls/" + beamline);
-				if (controller.isBufferedArrayPort())
-					fileLoader = new XmapBufferedHdf5FileLoader(fileName);
-				else
-					fileLoader = new XmapNexusFileLoader(fileName,getXmap().getNumberOfMca());
-				fileLoader.loadFile();
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					logger.error("Exception during one second sleep", e);
+				}
+				if(fileName!=null)
+					fileName = fileName.replace("X:/", "/dls/" + beamline);
+				try {
+					if (controller.isBufferedArrayPort())
+						fileLoader = new XmapBufferedHdf5FileLoader(fileName);
+					else
+						fileLoader = new XmapNexusFileLoader(fileName,getXmap().getNumberOfMca());
+				} catch (Exception e) {
+					logger.error("Exception creating xmap nexus file loader from file " + fileName, e);
+				}
+				try {
+					fileLoader.loadFile();
+				} catch (Exception e) {
+					logger.error("Exception loading nexus file", e);
+				}
 				lastFileName = fileName;
 				lastFileReadStatus = true;
 			}
@@ -201,7 +222,6 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 					container[finalFrame - 1] = writeToNexusFile(finalFrame - 1, fileLoader.getData(finalFrame - 1));
 				else {
 					// always one less than the number of points
-
 					for (int i = startFrame; i < finalFrame; i++) {
 						logger.info("writing point number " + i);
 						container[i] = writeToNexusFile(i, fileLoader.getData(i));
@@ -209,20 +229,30 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 					container[finalFrame - 1] = (writeToNexusFile(finalFrame - 1, fileLoader.getData(finalFrame - 1)));
 				}
 			}
-			// readSoFar = totalToRead;
 			return container;
-		} catch (Exception e) {
-			logger.error("TODO put description of error here", e);
+	}
+	
+	private void stopAtException(){
 			try {
 				stop();
-				controller.endRecording();
-			} catch (Exception e1) {
-				controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-				logger.error("Unalble to end hdf5 capture", e1);
-				throw new DeviceException("Unalble to end hdf5 capture", e1);
+			} catch (DeviceException e) {
+				logger.error("Could not stop xmap", e);
+				revertCollectionMode();
 			}
+			try {
+				controller.endRecording();
+			} catch (Exception e) {
+				logger.error("Could not end recording", e);
+				revertCollectionMode();
+			}
+			revertCollectionMode();
+	}
+	
+	private void revertCollectionMode(){
+		try {
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			throw new DeviceException("Unable to load file called " + fileName, e);
+		} catch (DeviceException e) {
+			logger.error("Exception reverting collection mode to mca spectra", e);
 		}
 	}
 
