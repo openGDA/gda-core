@@ -1,16 +1,16 @@
 <project name="plugin-uk.ac.gda.core" basedir=".">
 
-    <dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
+    <dirname property="plugin.basedir" file="${ant.file.${ant.project.name}}" />
     <pathconvert property="workspace.loc" setonempty="false">
         <regexpmapper from="(.*)_git/.+" to="\1"/>
-        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+        <path><pathelement location="${plugin.basedir}" /></path>
     </pathconvert>
     <pathconvert property="workspace.loc" setonempty="false">
         <regexpmapper from="(.*)/plugins/.+" to="\1"/>
-        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+        <path><pathelement location="${plugin.basedir}" /></path>
     </pathconvert>
     <property name="workspace.git.loc" value="${workspace.loc}_git" />
-    <import file="${workspace.loc}/builder/build-common.xml" />
+    <import file="${workspace.git.loc}/gda-common.git/uk.ac.diamond.test.runners/ant-headless/test-common.xml" />
 
     <!-- ====================================================================
            Build
@@ -29,16 +29,16 @@
         <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m">
             <jvmarg value="-Dgda.install.workspace.loc=${workspace.loc}" />
             <jvmarg value="-Dgda.install.git.loc=${workspace.git.loc}" />
-            <sysproperty key="basedir" value="${GDA-plugin.basedir}" />
-            <sysproperty key="gda.tests" value = "${GDA-plugin.basedir}/test"/>  <!-- read by plugins/uk.ac.gda.core/src/gda/util/TestsUtil.java -->
-            <sysproperty key="gda.propertiesFiles" value = "${GDA-plugin.basedir}/test/java.properties"/>
-            <sysproperty key="gov.aps.jca.JCALibrary.properties" value="${GDA-plugin.basedir}/test/${gov.aps.jca.JCALibrary.properties}"/>
+            <sysproperty key="basedir" value="${plugin.basedir}" />
+            <sysproperty key="gda.tests" value = "${plugin.basedir}/test"/>  <!-- read by plugins/uk.ac.gda.core/src/gda/util/TestsUtil.java -->
+            <sysproperty key="gda.propertiesFiles" value = "${plugin.basedir}/test/java.properties"/>
+            <sysproperty key="gov.aps.jca.JCALibrary.properties" value="${plugin.basedir}/test/${gov.aps.jca.JCALibrary.properties}"/>
             <formatter type="xml" />
             <classpath>
                 <pathelement location="${junitjar.loc}" />
                 <pathelement location="${jythonjar.loc}" />
-                <pathelement location="${GDA-plugin.basedir}/classes/test" />
-                <pathelement location="${GDA-plugin.basedir}/classes/main" />
+                <pathelement location="${plugin.basedir}/classes/test" />
+                <pathelement location="${plugin.basedir}/classes/main" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/jars/*" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
@@ -65,7 +65,7 @@
                 <path refid="libs.jars.path" />
             </classpath>
             <batchtest todir="@{report.dir}">
-                <fileset dir="${GDA-plugin.basedir}/test">
+                <fileset dir="${plugin.basedir}/test">
                     <include name="**/*Test.java" />
                     <exclude name="**/*PluginTest.java" />
                     <!--the excludes below are temporary -->
@@ -110,12 +110,12 @@
 
     <target name="jyunit-script-tests" depends="toolCheck, set-test-base-GDA">
         <jython-call description="${ant.project.name} JyUnit tests (scripts)"
-            jython.file="${GDA-plugin.basedir}/scripts/all_tests.py"
-            python.path="${GDA-plugin.basedir}/scripts">
+            jython.file="${plugin.basedir}/scripts/all_tests.py"
+            python.path="${plugin.basedir}/scripts">
             <classpath>
                 <pathelement location="${jythonjar.loc}" />  <!-- put ahead of the version of Jython bundled with pydev -->
-                <pathelement location="${GDA-plugin.basedir}/classes/test" />
-                <pathelement location="${GDA-plugin.basedir}/classes/main" />
+                <pathelement location="${plugin.basedir}/classes/test" />
+                <pathelement location="${plugin.basedir}/classes/main" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/jars/*" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
