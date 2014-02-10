@@ -18,6 +18,42 @@
 
 package uk.ac.gda.devices.bssc.ispyb;
 
-public enum ISpyBStatus {
-	NOT_STARTED, RUNNING, COMPLETE, FAILED;
+public class ISpyBStatusInfo {
+	private ISpyBStatus status;
+	private double progress;
+	private String fileName;
+	private String message;
+
+	public double getProgress() {
+		return progress;
+	}
+
+	public void setProgress(double progress) {
+		this.progress = progress;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
+	public String getMessage()
+	{
+		return this.message;
+	}
+
+	public ISpyBStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(ISpyBStatus status) {
+		this.status = status;
+	}
 }

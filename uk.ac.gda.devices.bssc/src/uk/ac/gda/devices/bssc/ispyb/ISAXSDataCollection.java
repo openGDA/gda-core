@@ -33,29 +33,17 @@ public interface ISAXSDataCollection {
 
 	public String getSampleName();
 	
-	public ISpyBStatus getCollectionStatus();
+	public ISpyBStatusInfo getCollectionStatus();
 
-	public ISpyBStatus getReductionStatus();
+	public ISpyBStatusInfo getReductionStatus();
 
-	public ISpyBStatus getAnalysisStatus();
+	public ISpyBStatusInfo getAnalysisStatus();
 
-	public void setCollectionStatus(ISpyBStatus collectionStatus);
+	public void setCollectionStatus(ISpyBStatusInfo collectionStatus);
 
-	public void setReductionStatus(ISpyBStatus reductionStatus);
-
-	public void setAnalysisStatus(ISpyBStatus analysisStatus);
-
-	public void setCollectionProgress(double collectionProgress);
-
-	public void setReductionProgress(double reductionProgress);
-
-	public void setAnalysisProgress(double analysisProgress);
+	public void setReductionStatus(ISpyBStatusInfo reductionStatus);
 	
-	public double getCollectionProgress();
-
-	public double getReductionProgress();
-
-	public double getAnalysisProgress();
+	public void setAnalysisStatus(ISpyBStatusInfo analysisStatus);
 
 	public long getBlSessionId();
 

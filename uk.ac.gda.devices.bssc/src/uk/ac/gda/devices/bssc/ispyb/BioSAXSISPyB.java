@@ -180,7 +180,7 @@ public interface BioSAXSISPyB {
 	 * @param dataCollectionId
 	 * @param status
 	 */
-	public void setDataCollectionStatus(long dataCollectionId, ISpyBStatus status);
+	public void setDataCollectionStatus(long dataCollectionId, ISpyBStatusInfo status);
 
 	/**
 	 * Returns the status of the data collection for the sample/data collection
@@ -189,7 +189,7 @@ public interface BioSAXSISPyB {
 	 * @return ProgressStatus
 	 * @throws SQLException
 	 */
-	public ISpyBStatus getDataCollectionStatus(long dataCollectionId) throws SQLException;
+	public ISpyBStatusInfo getDataCollectionStatus(long dataCollectionId) throws SQLException;
 
 	/**
 	 * Call this method when data reduction is started so that its status can be recorded
@@ -208,7 +208,7 @@ public interface BioSAXSISPyB {
 	 * @param resultsFilename
 	 * @throws SQLException
 	 */
-	public void setDataReductionStatus(long dataCollectionId, ISpyBStatus status, String resultsFilename)
+	public void setDataReductionStatus(long dataCollectionId, ISpyBStatusInfo status, String resultsFilename)
 			throws SQLException;
 
 	/**
@@ -218,7 +218,7 @@ public interface BioSAXSISPyB {
 	 * @return ProgressStatus
 	 * @throws SQLException
 	 */
-	public ISpyBStatus getDataReductionStatus(long dataCollectionId) throws SQLException;
+	public ISpyBStatusInfo getDataReductionStatus(long dataCollectionId) throws SQLException;
 
 	/**
 	 * Returns the measurements from ISpyB for a session id
@@ -245,7 +245,7 @@ public interface BioSAXSISPyB {
 	 * @param resultsFilename
 	 * @throws SQLException
 	 */
-	public void setDataAnalysisStatus(long dataCollectionId, ISpyBStatus status, String resultsFilename)
+	public void setDataAnalysisStatus(long dataCollectionId, ISpyBStatusInfo status, String resultsFilename)
 			throws SQLException;
 
 	/**
@@ -255,7 +255,7 @@ public interface BioSAXSISPyB {
 	 * @return ProgressStatus
 	 * @throws SQLException
 	 */
-	public ISpyBStatus getDataAnalysisStatus(long dataCollectionId) throws SQLException;
+	public ISpyBStatusInfo getDataAnalysisStatus(long dataCollectionId) throws SQLException;
 
 	/**
 	 * Return the id of the data collection run previously to the collection with id dataCollectionId
