@@ -135,7 +135,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	volatile int scriptStatus = Jython.IDLE;
 
 	// status of the current scan
-	volatile int scanStatus = Jython.IDLE;
+	volatile int lastScanStatus = Jython.IDLE;
 
 	// the current scan object
 	volatile Scan currentScan = null;
@@ -814,6 +814,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public void notifyServer(Object scan, Object data) {
 		if (data instanceof ScanDataPoint) {
 			((ScanDataPoint) data).setCreatorPanelName(scanObserverName);
+		} else if (scan == currentScan && data instanceof ScanStatus){
+			updateScanStatus(((ScanStatus)data).asJython());
 		}
 
 		updateIObservers(data);
@@ -836,7 +838,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public int getScanStatus(String JSFIdentifier) {
-		return scanStatus;
+		if (currentScan == null){
+			return Jython.IDLE;
+		}
+		return currentScan.getStatus().asJython();
 	}
 
 	@Override
@@ -844,14 +849,11 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return scriptStatus;
 	}
 
+	// FIXME GDA-5863 remove this method, or change the interface to ensure that the status is coming from the current scan 
 	@Override
 	public void setScanStatus(int newStatus, String JSFIdentifier) {
-		// check if the status value is recognised and has changed
-		if ((newStatus == Jython.IDLE || newStatus == Jython.RUNNING || newStatus == Jython.PAUSED)
-				&& scanStatus != newStatus) {
-			scanStatus = newStatus;
-			updateStatus();
-		}
+		// now do nothing.  The status is not held here but in the currentScan.  That scan should inform this class via the notify method
+//		updateScanStatus(newStatus);
 	}
 
 	@Override
@@ -1015,12 +1017,20 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		}
 	}
 
+	private void updateScanStatus(int newStatus) {
+		// check if the status value has changed
+		if (newStatus != lastScanStatus){
+			lastScanStatus = newStatus;
+			updateStatus();
+		}
+	}
+
 	/*
 	 * Creates a new JythonServerStatus object with the current state of the Jython system and passes it to all
 	 * JythonFacade objects for distribution locally.
 	 */
 	private void updateStatus() {
-		JythonServerStatus newStatus = new JythonServerStatus(scriptStatus, scanStatus);
+		JythonServerStatus newStatus = new JythonServerStatus(scriptStatus, lastScanStatus);
 		updateIObservers(newStatus);
 		logger.info(newStatus.toString());
 		jythonServerStatusObservers.notifyIObservers(null, newStatus);
@@ -1506,7 +1516,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public JythonServerStatus getJythonServerStatus() {
-		return new JythonServerStatus(scriptStatus, scanStatus);
+		return new JythonServerStatus(scriptStatus, getScanStatus(null));
 	}
 
 	public void showUsers() {

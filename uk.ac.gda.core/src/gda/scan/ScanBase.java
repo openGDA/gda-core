@@ -1393,9 +1393,10 @@ class ParentScanComponent implements ScanParent{
 
 	@Override
 	public void setStatus(ScanStatus newStatus) {
-
 		if (this.status.possibleFollowUps().contains(newStatus)) {
 			this.status = newStatus;
+			// notify Command (Jython) Server that the status has changed
+			InterfaceProvider.getJythonServerNotifer().notifyServer(this, this.getStatus());
 		} else {
 			String msg = MessageFormat.format("Scan status change from {0} to {1} is not expected", this.status.name(),
 					newStatus.name());
@@ -1406,14 +1407,5 @@ class ParentScanComponent implements ScanParent{
 			logger.error(msg);
 		}
 
-		// FIXME: GDA-5836 - TEMPORARY ScanStatusHolder should get the status from the scan directly (needs to listen
-		// for changes though)
-		if (newStatus == ScanStatus.RUNNING) {
-			getScanStatusHolder().setScanStatus(Jython.RUNNING);
-		} else if (newStatus == ScanStatus.PAUSED) {
-			getScanStatusHolder().setScanStatus(Jython.PAUSED);
-		} else if (newStatus.isComplete()) {
-			getScanStatusHolder().setScanStatus(Jython.IDLE);
-		}
 	}
 }
