@@ -693,18 +693,6 @@ class MockSAXSDataCollection implements ISAXSDataCollection {
 	}
 
 	@Override
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void setId(long saxsCollectionId) {
 		this.saxsCollectionId = saxsCollectionId;
 	}
