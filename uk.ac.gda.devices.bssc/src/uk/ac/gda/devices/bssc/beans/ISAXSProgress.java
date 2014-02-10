@@ -52,10 +52,6 @@ public interface ISAXSProgress {
 	
 	public double getAnalysisProgress();
 
-	public void addPropertyChangeListener(PropertyChangeListener listener);
-
-	public void removePropertyChangeListener(PropertyChangeListener listener);
-
 	public ISpyBStatus getCollectionStatus();
 
 	public ISpyBStatus getReductionStatus();

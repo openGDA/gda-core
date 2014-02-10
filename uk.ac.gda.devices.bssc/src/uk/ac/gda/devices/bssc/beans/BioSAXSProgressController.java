@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -45,7 +46,7 @@ import uk.ac.gda.devices.bssc.ispyb.SimpleUDPServerScannable;
 public class BioSAXSProgressController implements IObservable {
 	private static final Logger logger = LoggerFactory.getLogger(BioSAXSProgressController.class);
 	private BioSAXSISPyB bioSAXSISPyB;
-	private IProgressModel bioSAXSProgressModel;
+	private IObservableList bioSAXSProgressModel;
 	private String visit;
 	private long blSessionId;
 	private List<ISAXSDataCollection> saxsDataCollections;
@@ -91,8 +92,8 @@ public class BioSAXSProgressController implements IObservable {
 					Display.getDefault().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							bioSAXSProgressModel.clearItems();
-							bioSAXSProgressModel.addItems(progressList);
+							bioSAXSProgressModel.clear();
+							bioSAXSProgressModel.addAll(progressList);
 						}
 					});
 					if (monitor.isCanceled())
@@ -182,7 +183,7 @@ public class BioSAXSProgressController implements IObservable {
 		}
 	}
 
-	public void setModel(BioSAXSProgressModel model) {
+	public void setModel(IObservableList model) {
 		bioSAXSProgressModel = model;
 
 	}
@@ -193,6 +194,10 @@ public class BioSAXSProgressController implements IObservable {
 		} catch (SQLException e) {
 			logger.error("Error disconnecting from ISpyB", e);
 		}
+	}
+
+	public IObservableList getModel() {
+		return bioSAXSProgressModel;
 	}
 }
 
