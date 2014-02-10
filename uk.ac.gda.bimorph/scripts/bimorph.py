@@ -183,7 +183,7 @@ class RunOptimisation():
         
         headings = errorData.getNames()
 
-        if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
+        if "Nexus" in LocalProperties.get("gda.data.scan.datawriter.dataFormat"):        
             err_slit_column_name = "/entry1/instrument/" + self.slitPosScannableName + "/" + self.slitPosScannableName
             if not headingExists(headings, err_slit_column_name):
                 err_slit_column_name = "/entry1/instrument/pa/idx"
@@ -220,7 +220,7 @@ class RunOptimisation():
         print "self.scanDir", self.scanDir
         headings = ScanFileLoader(files[0], self.scanDir).getSFH().getNames()
 
-        if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
+        if "Nexus" in LocalProperties.get("gda.data.scan.datawriter.dataFormat") :        
 #            data_slit_column_name = "/entry1/instrument/" + self.slitPosScannableName + "/" + self.slitPosScannableName
 #            if not headingExists(headings, data_slit_column_name):
 #                data_slit_column_name = "/entry1/instrument/pa/idx"
@@ -241,7 +241,7 @@ class RunOptimisation():
             if(self.minSlitPos!=None or self.maxSlitPos!=None):
                 centroids = centroids[startIndex:endIndex]
                 error_centroids = error_centroids[startIndex:endIndex]
-                if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
+                if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriterMetadataTree":        
                     slitPos = errorData.getLazyDataset(err_slit_column_name).getSlice(None).getBuffer()[startIndex:endIndex]
                 else:                
                     if headings[0]=="idx":
@@ -282,7 +282,7 @@ class RunOptimisation():
         print "_________________________________|_________________________________________|______________________________________"
         
         bm_voltage = 0;
-        
+        copyableOutput = []
         if self.auto_offset:
             offset_shown=False
             for voltage in voltages:
@@ -299,9 +299,11 @@ class RunOptimisation():
                 else:
                     print "    ", current,  " "*gap, "|    ", correction,  " "*gap2, "|    ", sum
                     bm_voltage+=1
+                copyableOutput.append(sum)
         
         else: 
             for voltage in voltages:
+                
                 frontBracket = str(voltage).index('[')
                 endBracket = str(voltage).index(']')
                 
@@ -311,7 +313,9 @@ class RunOptimisation():
                 gap = 26-len(str(current))
                 gap2 = 34-len(str(correction))
                 print "    ", current,  " "*gap, "|    ", correction,  " "*gap2, "|    ", sum
+                copyableOutput.append(sum)
                 bm_voltage+=1
+        print copyableOutput
 
 def findSlitRange(data):
     """
