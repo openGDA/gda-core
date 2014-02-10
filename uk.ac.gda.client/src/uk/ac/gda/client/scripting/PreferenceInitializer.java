@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.scripting;
 
+import gda.rcp.GDAClientActivator;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -28,13 +30,11 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import uk.ac.gda.client.Activator;
-
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
 	@Override
 	public void initializeDefaultPreferences() {
-		final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
 		store.setDefault(PreferenceConstants.SHOW_CONFIG_SCRIPTS,     false);
 		store.setDefault(PreferenceConstants.SHOW_GDA_SCRIPTS,        false);
 		store.setDefault(PreferenceConstants.SHOW_XML_CONFIG,         false);
@@ -63,7 +63,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 								ScriptProjectCreator.createProjects(monitor);
 								return Status.OK_STATUS;
 							} catch (Exception e) {
-								return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(),e );
+								return new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, e.getMessage(),e );
 							}
 						}
 					};
@@ -79,7 +79,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 								ScriptProjectCreator.handleShowXMLConfig(monitor);
 								return Status.OK_STATUS;
 							} catch (CoreException e) {
-								return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(),e );
+								return new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, e.getMessage(),e );
 							}
 						}
 					};
