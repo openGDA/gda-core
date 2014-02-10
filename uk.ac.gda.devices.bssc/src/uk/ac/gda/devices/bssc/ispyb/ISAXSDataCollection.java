@@ -18,8 +18,6 @@
 
 package uk.ac.gda.devices.bssc.ispyb;
 
-import java.beans.PropertyChangeListener;
-
 public interface ISAXSDataCollection {
 	public static final String SAMPLE_NAME = "sampleName";
 	public static final String COLLECTION_STATUS = "collectionStatus";
@@ -52,10 +50,6 @@ public interface ISAXSDataCollection {
 	public long getExperimentId();
 
 	public void setExperimentId(long experimentId);
-
-	public void addPropertyChangeListener(PropertyChangeListener listener);
-
-	public void removePropertyChangeListener(PropertyChangeListener listener);
 
 	public void setId(long saxsDataCollectionId);
 	
