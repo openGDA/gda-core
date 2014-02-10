@@ -1,16 +1,16 @@
 <project name="plugin-uk.ac.gda.hrpd" basedir=".">
 
-    <dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
+    <dirname property="plugin.basedir" file="${ant.file.${ant.project.name}}" />
     <pathconvert property="workspace.loc" setonempty="false">
         <regexpmapper from="(.*)_git/.+" to="\1"/>
-        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+        <path><pathelement location="${plugin.basedir}" /></path>
     </pathconvert>
     <pathconvert property="workspace.loc" setonempty="false">
         <regexpmapper from="(.*)/plugins/.+" to="\1"/>
-        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+        <path><pathelement location="${plugin.basedir}" /></path>
     </pathconvert>
     <property name="workspace.git.loc" value="${workspace.loc}_git" />
-    <import file="${workspace.loc}/builder/build-common.xml" />
+    <import file="${workspace.git.loc}/gda-common.git/uk.ac.diamond.test.runners/ant-headless/test-common.xml" />
 
     <!-- ====================================================================
            Build
