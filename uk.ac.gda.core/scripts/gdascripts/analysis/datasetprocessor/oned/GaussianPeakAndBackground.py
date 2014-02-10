@@ -2,9 +2,7 @@ from XYDataSetProcessor import XYDataSetFunction
 from gda.analysis.functions import Gaussian, Offset
 from gda.analysis import DataSetFunctionFitter
 
-	
 from gda.analysis.utils import GeneticAlg
-from uk.ac.diamond.scisoft.analysis import SDAPlotter
 import scisoftpy as np
 
 class GaussianPeakAndBackground(XYDataSetFunction):
@@ -25,7 +23,7 @@ class GaussianPeakAndBackground(XYDataSetFunction):
 		offset = ans[3].getValue()
 		top = area / fwhm
 		if self.plotPanel != None:
-			SDAPlotter.plot(self.plotPanel, np.array(xDataSet), [np.array(yDataSet), offset + np.array(Gaussian([peak, fwhm, area]).makeDataSet([xDataSet]))])
+			np.plot.line(xDataSet, [yDataSet, offset + np.array(Gaussian([peak, fwhm, area]).makeDataSet([xDataSet]))], name=self.plotPanel)
 		return peak, offset, top, fwhm
 	
 	
@@ -46,5 +44,5 @@ class GaussianPeak(XYDataSetFunction):
 		area = ans[2].getValue()
 		top = area / fwhm
 		if self.plotPanel != None:
-			SDAPlotter.plot(self.plotPanel, np.array(xDataSet), [np.array(yDataSet), np.array(Gaussian([peak, fwhm, area]).makeDataSet([xDataSet]))])
+			np.plot.line(xDataSet, [yDataSet, np.array(Gaussian([peak, fwhm, area]).makeDataSet([xDataSet]))], name=self.plotPanel)
 		return peak, top, fwhm

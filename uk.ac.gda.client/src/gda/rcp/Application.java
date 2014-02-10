@@ -85,6 +85,7 @@ public class Application implements IApplication {
 			final boolean localObjectsOnly = createLocalObjectsIfRequired();
 
 			LogbackUtils.configureLoggingForClientProcess();
+			LogbackUtils.configureLoggingForClientBeagle();
 			
 			authenticateUser(display);
 
@@ -435,7 +436,7 @@ public class Application implements IApplication {
 					throw new Exception("Workspace has already been set when trying to set visit based workspace location.");
 				}
 				
-				logger.warn("Not using visit based workspace " + url + " because instance location has been set with -data command line argument to " + instanceLocation.getURL());
+				logger.info("Workspace instance location has been set with -data command line argument to " + instanceLocation.getURL());
 				// for correct reporting further on
 				url = instanceLocation.getURL();
 			}

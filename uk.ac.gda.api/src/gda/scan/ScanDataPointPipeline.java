@@ -52,4 +52,10 @@ public interface ScanDataPointPipeline {
 	 * @throws DeviceException if the pipeline did not shutdown gracefully and required forceful interruption
 	 */
 	void shutdown(long timeoutMillis) throws DeviceException, InterruptedException;
+	
+	/**
+	 * Throws exception if an exception occurred in the processing of the pipeline
+	 * The main Scan thread can check this regularly 
+	 */
+	void checkForException() throws Exception;
 }

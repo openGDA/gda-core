@@ -99,9 +99,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.client.liveplot.LivePlotView;
+import uk.ac.gda.client.scripting.JythonPerspective;
+import uk.ac.gda.client.scripting.ScriptProjectCreator;
 import uk.ac.gda.preferences.PreferenceConstants;
-import uk.ac.gda.pydev.ScriptProjectCreator;
-import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 import uk.ac.gda.ui.partlistener.MenuDisplayPartListener;
 import uk.ac.gda.views.baton.MessageView;
 import uk.ac.gda.views.baton.dialogs.BatonRequestDialog;

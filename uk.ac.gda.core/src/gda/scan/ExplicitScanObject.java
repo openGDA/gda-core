@@ -47,6 +47,7 @@ public class ExplicitScanObject extends ScanObject {
 	@Override
 	ScanStepId moveStep() throws Exception {
 		Object pos = null;
+
 		if (lastPoint != points.size()) {
 			pos = points.get(lastPoint + 1);
 			logger.debug("Moving " + scannable.getName() + " to " + pos);

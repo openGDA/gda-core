@@ -10,11 +10,7 @@ package gda.util;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.util.logging.LogbackUtils;
 import gda.util.logging.LoggingUtils;
-
-import java.net.ServerSocket;
-import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +53,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
  * 	is an xml configuration file fed to {@link JoranConfigurator}
  * .
  */
-public class LogServer implements Runnable, Configurable, BeanNameAware {
+public class LogServer implements Configurable, BeanNameAware {
 
 	static Logger logger = LoggerFactory.getLogger(LogServer.class);
 
@@ -104,8 +100,7 @@ public class LogServer implements Runnable, Configurable, BeanNameAware {
 		}
 
 		if (logServer != null) {
-			logServer.configureLogging();
-			uk.ac.gda.util.ThreadManager.getThread(logServer).start();
+			logServer.configureAndStartLogServer();
 		}
 	}
 
@@ -161,29 +156,11 @@ public class LogServer implements Runnable, Configurable, BeanNameAware {
 		this.configFile = configFile;
 	}
 
-	void configureLogging() throws JoranException {
-		LogbackUtils.resetLogging(lc);
-		LogbackUtils.configureLogging(lc, configFile);
+	void configureAndStartLogServer() throws JoranException {
+		SimpleSocketServer.configureLC(lc, configFile);
+		socketServer.start();
 	}
 
-	@Override
-	public void run() {
-		try {
-			logger.info("Listening on port {}", port);
-			ServerSocket serverSocket = new ServerSocket(port);
-			while (true) {
-				logger.info("Waiting to accept a new client.");
-				Socket socket = serverSocket.accept();
-				logger.info("Connected to client at {}", socket.getInetAddress());
-				logger.info("Starting new socket node.");
-				LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-				uk.ac.gda.util.ThreadManager.getThread(new SocketNode(socketServer, socket, lc)).start();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	private String name;
 	
 	@Override
@@ -197,13 +174,12 @@ public class LogServer implements Runnable, Configurable, BeanNameAware {
 	@Override
 	public void configure() throws FactoryException {
 		try {
-			configureLogging();
+			configureAndStartLogServer();
 		} catch (JoranException e) {
 			String msg = "Unable to configure LogServer " + name;
 			logger.error(msg, e);
 			throw new FactoryException(msg, e);
 		}
-		new Thread(this, "LogServer " + name).start();
 	}
 
 }

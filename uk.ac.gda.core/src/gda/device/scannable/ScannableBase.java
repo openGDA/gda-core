@@ -477,13 +477,8 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	public String toFormattedString() {
 		try {
 			return ScannableUtils.getFormattedCurrentPosition(this);
-		} catch (PyException e) {
-			throw new RuntimeException(e.getMessage(),e);
 		} catch (Exception e) {
-			if (e instanceof NullPointerException || e.getMessage().isEmpty()){
-				throw new RuntimeException("Exception in " + getName() + ".toString()",e);
-			}
-			throw new RuntimeException(e.getMessage(),e);
+			throw new RuntimeException("Exception in " + getName() + ".toFormattedString()", e);
 		}
 	}
 	/**

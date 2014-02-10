@@ -77,6 +77,7 @@ public class ExperimentPerspectiveListener implements IPerspectiveListener4, ISt
 				if (storedEditorRefs == null) {
 					page.closeAllEditors(true);
 				} else {
+					page.saveAllEditors(true);
 					openStoredEditors(page);
 				}
 

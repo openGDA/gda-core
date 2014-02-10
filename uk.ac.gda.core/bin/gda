@@ -682,7 +682,7 @@ where task can be:
 			"org.python.pydev.customizations", "org.python.pydev.help", "org.python.pydev.jython",
 			"org.python.pydev.parser", "org.python.pydev.refactoring",
 			"com.python.pydev", "com.python.pydev.analysis", "com.python.pydev.codecompletion", "com.python.pydev.debug",
-			"com.python.pydev.fastparser", "com.python.pydev.refactoring", "ch.qos.logback.eclipse"]
+			"com.python.pydev.fastparser", "com.python.pydev.refactoring", "ch.qos.logback.eclipse", "ch.qos.logback.beagle"]
 
 		# uk.ac.gda.core needs special handling, since it uses classes/ rather than the standard bin/
 		location = self.plugin_location["uk.ac.gda.core"]
@@ -827,9 +827,9 @@ where task can be:
 					# Further investigation is required.
 					self.append_to_class_path( jarPath )
 			else:
-				rcpclient_required_dependent=["org.python.pydev","org.python.pydev.core","org.python.pydev.debug","org.python.pydev.ast","org.python.pydev.customizations","org.python.pydev.help","org.python.pydev.jython","org.python.pydev.parser","org.python.pydev.refactoring","com.python.pydev","com.python.pydev.analysis","com.python.pydev.codecompletion","com.python.pydev.debug","com.python.pydev.fastparser","com.python.pydev.refactoring","ch.qos.logback.eclipse"]
+				rcpclient_required_dependent=["org.python.pydev","org.python.pydev.core","org.python.pydev.debug","org.python.pydev.ast","org.python.pydev.customizations","org.python.pydev.help","org.python.pydev.jython","org.python.pydev.parser","org.python.pydev.refactoring","com.python.pydev","com.python.pydev.analysis","com.python.pydev.codecompletion","com.python.pydev.debug","com.python.pydev.fastparser","com.python.pydev.refactoring","ch.qos.logback.eclipse","ch.qos.logback.beagle"]
 				#Only RCP client requires these bundles so become critial - a real hack, need a better solution.
-				if self.task != "rcpclient" and dependent not in rcpclient_required_dependent:
+				if self.task == "rcpclient" and dependent in rcpclient_required_dependent:
 					self.logger.critical("Cannot find dependent: %s" % (dependent,))
 
 
@@ -1038,8 +1038,12 @@ where task can be:
 					"-Dgda.install.git.loc=" + self.gda_install_git_loc,
 					"-Dgda.config=" + self.options.gda_config,
 				)
+		
+		swingclient_bin_path = os.path.join(self.gda_install_git_loc, "gda-legacy.git", "uk.ac.gda.swingclient", "bin")
+		class_path = self.gda_class_path + os.pathsep + swingclient_bin_path
+		
 		vmargs = self.addOptionalVMArgs(vmargs)
-		return self.stop_start_java(self.gda_class_path, class_name , vmargs=vmargs, debug_opts=debug_opts)
+		return self.stop_start_java(class_path, class_name , vmargs=vmargs, debug_opts=debug_opts)
 
 	def log_server(self, debug_opts=None):
 		class_name="gda.util.LogServer"

@@ -194,8 +194,8 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		return data;
 	}
 
-	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal) {
-		addData(detName, dataName, data_sds, units, signalVal, null);
+	public INexusTree addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal) {
+		return addData(detName, dataName, data_sds, units, signalVal, null);
 	}
 	/**
 	 * Adds the specified data to the named detector
@@ -204,11 +204,11 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param units  - if not null a units attribute is added
 	 * @param signalVal - if not null a signal attribute is added
 	 */
-	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
-		addData(detName, dataName, data_sds, units, signalVal, interpretation, data_sds.isDetectorEntryData);
+	public INexusTree addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
+		return addData(detName, dataName, data_sds, units, signalVal, interpretation, data_sds.isDetectorEntryData);
 	}
 	
-	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation, boolean isPointDependent) {
+	public INexusTree addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation, boolean isPointDependent) {
 		INexusTree detTree = getDetTree(detName);
 		NexusTreeNode data = new NexusTreeNode(dataName, NexusExtractor.SDSClassName, null, data_sds);
 		data.setIsPointDependent(data_sds.isDetectorEntryData || isPointDependent);
@@ -222,7 +222,8 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 			data.addChildNode(new NexusTreeNode("interpretation",NexusExtractor.AttrClassName, data, 
 					new NexusGroupData(interpretation)));
 		}
-		detTree.addChildNode(data);			
+		detTree.addChildNode(data);
+		return data;
 	}
 	
 	
@@ -233,9 +234,9 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param units  - if not null a units attribute is added
 	 * @param signalVal - if not null a signal attribute is added
 	 */
-	public void addData(String detName, NexusGroupData data_sds, String units, Integer signalVal) {
+	public INexusTree addData(String detName, NexusGroupData data_sds, String units, Integer signalVal) {
 		data_sds.isDetectorEntryData = true;
-		addData(detName, "data", data_sds, units, signalVal, null);
+		return addData(detName, "data", data_sds, units, signalVal, null);
 	}
 	
 	/**
@@ -245,9 +246,9 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param units  - if not null a units attribute is added
 	 * @param signalVal - if not null a signal attribute is added
 	 */
-	public void addData(String detName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
+	public INexusTree addData(String detName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
 		data_sds.isDetectorEntryData = true;
-		addData(detName, "data", data_sds, units, signalVal, interpretation);
+		return addData(detName, "data", data_sds, units, signalVal, interpretation);
 	}
 	
 	/**

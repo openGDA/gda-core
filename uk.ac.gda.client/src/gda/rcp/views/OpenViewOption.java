@@ -19,19 +19,7 @@
 package gda.rcp.views;
 
 
-public class OpenViewOption {
-	final String label;
-	final String viewId;
-	public String getLabel() {
-		return label;
-	}
-	public String getViewId() {
-		return viewId;
-	}
-	public OpenViewOption(String label, String viewId) {
-		super();
-		this.label = label;
-		this.viewId = viewId;
-	}
-
+public interface OpenViewOption {
+	public ViewDefinition getViewDefinition();
+	public String getLabel();
 }

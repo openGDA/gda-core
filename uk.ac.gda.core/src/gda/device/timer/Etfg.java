@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 /**
  * A timer class for the VME time frame generator (Version 2) card implemented using DA.Server
+ * Extended Tfg. The only TFG at diamond. Tfg is old hardware.
  */
 public class Etfg extends Tfg {
 	private static int MAXFRAMES = 32767;

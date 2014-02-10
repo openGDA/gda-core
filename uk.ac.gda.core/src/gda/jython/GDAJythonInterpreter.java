@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -62,8 +61,6 @@ import org.springframework.util.StringUtils;
  */
 public class GDAJythonInterpreter extends ObservableComponent {
 	private static final Logger logger = LoggerFactory.getLogger(GDAJythonInterpreter.class);
-
-	public static final String USE_WRITERS_PROPERTY = String.format("%s.useWriters", GDAJythonInterpreter.class.getName());
 
 	// the Jython interpreter
 	private InteractiveConsole interp;
@@ -268,6 +265,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 						if (!scriptDir.exists()){
 							throw new FactoryException("Configured Jython script location " + scriptFolderName + " does not exist.");
 						}
+						logger.info("Adding " + scriptDir + " to the Command Server Jython path");
+						
 						if (!sys.path.contains(scriptFolderName)) {
 							removeAllJythonClassFiles(new File(path));
 							sys.path.append(scriptFolderName);
@@ -277,15 +276,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				fakeSysExecutable(sys);
 
 				// set the console output
-				if (LocalProperties.check(USE_WRITERS_PROPERTY, true)) {
-					final Writer terminalWriter = jythonServer.getTerminalWriter();
-					interp.setOut(terminalWriter);
-					interp.setErr(terminalWriter);
-				} else {
-					final OutputStream terminalOutputStream = jythonServer.getTerminalOutputStream();
-					interp.setOut(terminalOutputStream);
-					interp.setErr(terminalOutputStream);
-				}
+				final Writer terminalWriter = jythonServer.getTerminalWriter();
+				interp.setOut(terminalWriter);
+				interp.setErr(terminalWriter);
 
 				// dynamic configuration using Castor
 				logger.info("performing standard Jython interpreter imports...");
@@ -348,13 +341,6 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				// persistence
 				this.interp.runsource("from gda.util.persistence import LocalParameters");
 				this.interp.runsource("from gda.util.persistence import LocalObjectShelfManager");
-
-				// plotting
-				this.interp.runsource("from gda.analysis import *");
-				
-				//the following import fails on b18. don't know why
-				//this.interp.runsource("from gda.analysis.utils import *");
-				// not there in 8.2 this.interp.runsource("from gda.analysis.functions import *");
 
 				// import other interfaces to use with list command
 				this.interp.runsource("from gda.device import ScannableMotion");

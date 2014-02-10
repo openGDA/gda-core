@@ -21,8 +21,6 @@ package gda.rcp;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-//import ch.qos.logback.eclipse.views.LogbackView;
-
 /**
  *
  */

@@ -32,5 +32,5 @@
 			</list>
 		</property>
     </bean>
-
+	<import resource="devices/dummyNXDetector.xml"/>
 </beans>

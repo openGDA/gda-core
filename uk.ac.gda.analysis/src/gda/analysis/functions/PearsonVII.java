@@ -40,8 +40,8 @@ public class PearsonVII extends uk.ac.diamond.scisoft.analysis.fitting.functions
 	 * <pre>
 	 *    position
 	 *    FWHM
-	 *    mixing
-	 *    Area
+	 *    area
+	 *    power
 	 * </pre>
 	 * 
 	 * @param params
@@ -65,38 +65,47 @@ public class PearsonVII extends uk.ac.diamond.scisoft.analysis.fitting.functions
 	 * @param maxFWHM
 	 *            The maximum full width half maximum
 	 * @param maxArea
-	 *            The maximum area under the PDF 
-	 *            
-	 * There is also a mixing parameter for the Pearson VII distribution. This parameter defines the mixture between 
-	 * Gaussian and Lorentzian function. Where m = 1 the function is Lorentzian and m = infinity the function is Gaussian. 
-	 * With this constructor the mixing parameter is set to 10 with the lower limit set to 1 and the Upper 
-	 * limit set to Double.MAX_VALUE.
+	 *            The maximum area under the PDF
+	 * 
+	 * There is also a power parameter for the Pearson VII distribution. This parameter defines form as
+	 * somewhere between a Gaussian and a Lorentzian function. When m = 1 the function is Lorentzian and
+	 * m = infinity the function is Gaussian. With this constructor the mixing parameter is set to 2 with
+	 * the lower limit set to 1 and the upper limit set to 10.
 	 */
 	public PearsonVII(double minPeakPosition, double maxPeakPosition, double maxFWHM, double maxArea) {
 		super(minPeakPosition, maxPeakPosition, maxFWHM, maxArea);
 	}
 	
-	public PearsonVII(double minPeakPosition, double maxPeakPosition, double maxFWHM, double maxArea, double mixing) {
-		super(minPeakPosition, maxPeakPosition, maxFWHM, maxArea, mixing);
+	public PearsonVII(double minPeakPosition, double maxPeakPosition, double maxFWHM, double maxArea, double power) {
+		super(minPeakPosition, maxPeakPosition, maxFWHM, maxArea, power);
 	}	
 
-	@Override
 	public PearsonVII createPeakFunction(double minPosition, double maxPosition, double maxArea, double maxFWHM) {
 		return new PearsonVII(minPosition,maxPosition,maxArea,maxFWHM);
 	}
 	
+	@Override
+	public DataSet makeDataSet(DoubleDataset... values) {
+		return DataSet.convertToDataSet(calculateValues(values));
+	}
+
+	@Override
+	public void disp() {
+		TerminalPrinter.print(toString());
+	}
+
 	@Override
 	public IFunction getFunction(int index) {
 		return this;
 	}
 
 	@Override
-	public DataSet makeDataSet(DoubleDataset... values) {
-		return DataSet.convertToDataSet(makeSerialDataset(values));
+	public String getParameterName(int index) {
+		return getParameter(index).getName();
 	}
 
 	@Override
-	public void disp() {
-		TerminalPrinter.print(toString());
+	public void setParameterName(String name, int index) {
+		getParameter(index).setName(name);
 	}
 }

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2009-2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -69,20 +69,8 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		setGroupMembers(groupMembers);
 	}
 
-	/**
-	 * Sets the group members that make up this scannable group.
-	 * 
-	 * @param groupMembers
-	 *            the group members
-	 */
-	public void setGroupMembers(ArrayList<Scannable> groupMembers) {
-		Scannable[] members = groupMembers.toArray(new Scannable[groupMembers.size()]);
-		setGroupMembers(members);
-	}
-
 	@Override
 	public void configure() throws FactoryException {
-
 		// add all membernames to the list of members
 		Set<String> namesOfGroupMembers = setOfGroupMemberNames(groupMembers);
 		for (String name : groupMemberNames) {
@@ -102,7 +90,6 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 				} catch (ClassCastException e) {
 					// finder must have returned something which was not a Scannable
 				}
-
 			}
 		}
 
@@ -118,7 +105,6 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		}
 
 		setArrays();
-
 		configured = true;
 	}
 
@@ -204,17 +190,28 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		return null;
 	}
 
+
+	/**
+	 * Sets the group members that make up this scannable group.
+	 * 
+	 * @param groupMembers
+	 *            the group members
+	 */
+	public void setGroupMembers(ArrayList<Scannable> groupMembers) {
+		this.groupMembers = groupMembers;
+		if (configured) {
+			setGroupMemberNamesArrayUsingGroupMembersList();
+			setArrays();
+		}
+	}
+	
 	/**
 	 * Sets the members of this group
 	 * 
 	 * @param groupMembers
 	 */
 	public void setGroupMembers(Scannable[] groupMembers) {
-		this.groupMembers = new ArrayList<Scannable>(Arrays.asList(groupMembers));
-		if (configured) {
-			setGroupMemberNamesArrayUsingGroupMembersList();
-			setArrays();
-		}
+		setGroupMembers(new ArrayList<Scannable>(Arrays.asList(groupMembers)));
 	}
 
 	/**
@@ -307,7 +304,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 		// loop through members and add position values to array
 		try {
-			int i = 0;
+			List<Object[]> memberPositions = new Vector<Object[]>();
 			for (Scannable member : groupMembers) {
 
 				Object[] memberPosition;
@@ -315,7 +312,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 					
 					Object pos = member.getPosition();
 					if (pos != null) {
-						memberPosition = ScannableUtils.objectToArray(pos);						
+						memberPosition = ScannableUtils.objectToArray(pos);
 					} else {
 						memberPosition = new Object[0];
 					}
@@ -323,10 +320,20 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 					// if this fails, try getting strings instead. If that fails then let exception escalate
 					memberPosition = ScannableUtils.getFormattedCurrentPositionArray(member);
 				}
-
-				for (Object element : memberPosition) {
-					position[i] = element;
-					i++;
+				memberPositions.add(memberPosition);
+			}
+			
+			int n = 0;
+			for (int i = 0; i < groupMembers.size(); i++) {
+				for (int j = 0; j < groupMembers.get(i).getInputNames().length; j++) {
+					position[n] = memberPositions.get(i)[j];
+					n++;
+				}
+			}
+			for (int i = 0; i < groupMembers.size(); i++) {
+				for (int j = 0; j < groupMembers.get(i).getExtraNames().length; j++) {
+					position[n] = memberPositions.get(i)[j+groupMembers.get(i).getInputNames().length];
+					n++;
 				}
 			}
 		} catch (Exception e) {
@@ -420,7 +427,6 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		returnString = returnString.substring(0, returnString.length() - 1);
 
 		return returnString;
-
 	}
 
 	@Override
@@ -467,12 +473,18 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	@Override
 	public String[] getOutputFormat() {
-		// recalculate every time as these attributes may be dynamic
-		String[] outputFormat = new String[0];
-		for (Scannable member : groupMembers) {
-			outputFormat = (String[]) ArrayUtils.addAll(outputFormat, member.getOutputFormat());
+		List<String> outputFormat = new Vector<String>();
+		for (int i = 0; i < groupMembers.size(); i++) {
+			for (int j = 0; j < groupMembers.get(i).getInputNames().length; j++) {
+				outputFormat.add(groupMembers.get(i).getOutputFormat()[j]);
+			}
 		}
-		return outputFormat;
+		for (int i = 0; i < groupMembers.size(); i++) {
+			for (int j = 0; j < groupMembers.get(i).getExtraNames().length; j++) {
+				outputFormat.add(groupMembers.get(i).getOutputFormat()[j+groupMembers.get(i).getInputNames().length]);
+			}
+		}
+		return outputFormat.toArray(new String[]{});
 	}
 
 	@Override
@@ -595,9 +607,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 				this.outputFormat[format] = element;
 				format++;
 			}
-
 		}
-
 	}
 
 	protected void setGroupMemberNamesArrayUsingGroupMembersList() {
@@ -618,5 +628,4 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 			scannable.waitWhileBusy();
 		}
 	}
-
 }

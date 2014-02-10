@@ -33,6 +33,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -155,12 +156,14 @@ class OpenViewListBoxComposite extends Composite{
 
 	public void setShowOption(OpenViewOption showOption) {
 		this.openViewOption = showOption;
-		String viewId = openViewOption.getViewId();
+		ViewDefinition vd = openViewOption.getViewDefinition();
+		String viewId = vd.viewId;
 		if( viewId != null && viewId.length()>0){
+			String secondaryId = vd.secondaryId;
 			try {
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId,secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
 			} catch (PartInitException e) {
-				logger.error("Error opening  view " + viewId, e);
+				logger.error("Error opening  view " + viewId + " with sec id='" +secondaryId +"'" , e);
 			}
 			comboShowObservableValue.setValue(defOption);
 		}

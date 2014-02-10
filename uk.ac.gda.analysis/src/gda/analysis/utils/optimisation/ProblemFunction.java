@@ -23,6 +23,8 @@ import gda.analysis.functions.IFunction;
 import gda.analysis.functions.Parameter;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.IParameter;
+import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 
 public class ProblemFunction implements IFunction {
 
@@ -63,16 +65,6 @@ public class ProblemFunction implements IFunction {
 	}
 
 	@Override
-	public int getNoOfFunctions() {
-		return 0;
-	}
-
-	@Override
-	public IFunction getFunction(int index) {
-		return null;
-	}
-
-	@Override
 	public double getParameterValue(int index) {
 		return parameters == null ? 0 : parameters[index];
 	}
@@ -83,12 +75,22 @@ public class ProblemFunction implements IFunction {
 	}
 
 	@Override
+	public void setParameter(int index, IParameter parameter) {
+		parameters[index] = parameter.getValue();
+	}
+
+	@Override
 	public void setParameterValues(double... params) {
 		parameters = params;
 	}
 
 	@Override
 	public double partialDeriv(int Parameter, double... position) {
+		return 0;
+	}
+
+	@Override
+	public double partialDeriv(IParameter param, double... values) {
 		return 0;
 	}
 
@@ -109,6 +111,11 @@ public class ProblemFunction implements IFunction {
 		} catch (Exception e) {
 			return 0;
 		}
+	}
+
+	@Override
+	public double residual(boolean allValues, IDataset data, IDataset weight, IDataset... values) {
+		return residual(allValues, data, values);
 	}
 
 	@Override
@@ -139,4 +146,36 @@ public class ProblemFunction implements IFunction {
 		
 	}
 
+	@Override
+	public void setMonitor(IMonitor monitor) {
+	}
+
+	@Override
+	public IMonitor getMonitor() {
+		return null;
+	}
+
+	@Override
+	public IFunction copy() throws Exception {
+		return null;
+	}
+
+	@Override
+	public void setDirty(boolean isDirty) {
+	}
+
+	@Override
+	public IFunction getFunction(int index) {
+		return this;
+	}
+
+	@Override
+	public IDataset calculateValues(IDataset... coords) {
+		return null;
+	}
+
+	@Override
+	public IDataset calculatePartialDerivativeValues(IParameter param, IDataset... coords) {
+		return null;
+	}
 }

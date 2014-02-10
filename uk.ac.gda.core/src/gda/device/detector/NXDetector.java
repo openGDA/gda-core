@@ -417,6 +417,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
 		try {
 			getCollectionStrategy().waitWhileBusy();
+		} catch (InterruptedException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}

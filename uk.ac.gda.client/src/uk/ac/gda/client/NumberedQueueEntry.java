@@ -20,7 +20,7 @@ package uk.ac.gda.client;
 
 import gda.commandqueue.QueuedCommandSummary;
 
-class NumberedQueueEntry {
+class NumberedQueueEntry implements QueueEntry{
 
 	public int index;
 	public QueuedCommandSummary entry;
@@ -28,6 +28,11 @@ class NumberedQueueEntry {
 	@Override
 	public String toString() {
 		return String.format("%s(%d, %s)", getClass().getSimpleName(), index, entry);
+	}
+
+	@Override
+	public QueuedCommandSummary getQueueCommandSummary() {
+		return entry;
 	}
 
 }

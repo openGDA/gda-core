@@ -110,6 +110,7 @@ public class DefaultComponentWriter implements ComponentWriter {
 		file.putattr("axis", axislist.getBytes(), NexusFile.NX_CHAR);
 		if (unit != null && !unit.isEmpty())
 			file.putattr("units", unit.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
+		addCustomAttributes(file, scannableName, componentName);
 		file.putslab(getComponentSlab(pos), nulldimfordim(dim), slabsizedimfordim(dim));
 
 		sclc.add(new SelfCreatingLink(file.getdataID()));
@@ -119,6 +120,17 @@ public class DefaultComponentWriter implements ComponentWriter {
 
 		return sclc;
 	}
+
+	/**
+	 * To allow overriding classes to add random attributes if required
+	 * the file will have the data set "open" ready to receive putattr calls
+	 * @param file nexus file
+	 * @param scannableName name of Scannable
+	 * @param componentName extra or input name being written
+	 * @throws NexusException 
+	 */
+	@SuppressWarnings("unused")
+	protected void addCustomAttributes(NeXusFileInterface file, String scannableName, String componentName) throws NexusException { }
 
 	@Override
 	public void writeComponent(NeXusFileInterface file, int[] start, String path, String scannableName,

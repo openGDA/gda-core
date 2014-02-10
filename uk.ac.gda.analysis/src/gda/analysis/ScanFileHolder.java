@@ -40,6 +40,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
@@ -174,11 +175,10 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	public void setAxis(String axisName, IDataset inData) throws ScanFileHolderException {
 		try {
 			if (holder.contains(axisName)) {
-				int i = holder.indexOf(axisName);
 				if (inData instanceof AbstractDataset)
-					holder.setDataset(i, inData);
+					holder.addDataset(axisName, inData);
 				else
-					holder.setDataset(i, inData);
+					holder.addDataset(axisName, inData);
 				return;
 			}
 
@@ -193,11 +193,21 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	@Override
 	public DataSet getAxis(String axisName) throws IllegalArgumentException {
-		AbstractDataset a = holder.getDataset(axisName);
-		if (a != null) {
-			DataSet data = DataSet.convertToDataSet(a).clone();
-			if (data != null)
-				return data;
+		try {
+			AbstractDataset a = holder.getDataset(axisName);
+			if (a != null) {
+				DataSet data = DataSet.convertToDataSet(a).clone();
+				if (data != null)
+					return data;
+			}
+		} catch (Exception e) {
+			ILazyDataset l = holder.getLazyDataset(axisName);
+			IDataset a = l.getSlice();
+			if (a != null) {
+				DataSet data = DataSet.convertToDataSet(a).clone();
+				if (data != null)
+					return data;
+			}
 		}
 
 		String msg = "Axis name " + axisName + " not recognised. Available axes: " + Arrays.toString(getHeadings());

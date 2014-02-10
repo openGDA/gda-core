@@ -3,7 +3,7 @@ from ScanDataProcessorResult import ScanDataProcessorResult
 from gdascripts.scan.process.ScanDataProcessorResult import determineScannableContainingField
 
 from gda.analysis.io import SRSLoader
-from uk.ac.diamond.scisoft.analysis.io import NexusLoader
+from uk.ac.diamond.scisoft.analysis.io import HDF5Loader
 from gda.analysis import ScanFileHolder
 import java.lang.Throwable
 from UserDict import IterableUserDict
@@ -15,7 +15,7 @@ def loadScanFile(ob, columnNames=None, scannables=[]):
 	#if isinstance(ob, ConcurrentScan) or isinstance(ob, SecondaryConcurrentScan):
 	filepath = ob.getDataWriter().getCurrentFileName()
 	if filepath[-3:] == 'nxs':
-		sfh.load(NexusLoader(filepath, columnNames))
+		sfh.load(HDF5Loader(filepath))
 	elif filepath[-3:] == 'dat':
 		srsloader = SRSLoader(filepath)
 		srsloader.setUseImageLoaderForStrings(False)
@@ -73,11 +73,9 @@ class ScanDataProcessor(ScanListener):
 			# load scan
 			xfieldname, yfieldname = self.__determineKeyFieldNames(concurrentScan)
 			xscannable = determineScannableContainingField(xfieldname, allscannables)
+			xfieldname = xscannable.name+"."+xfieldname
 			yscannable = determineScannableContainingField(yfieldname, allscannables)
-			if (len(yscannable.getInputNames())+len(yscannable.getExtraNames())) > 1:
-				yfieldname = yscannable.name+"."+yfieldname
-			if (len(xscannable.getInputNames())+len(xscannable.getExtraNames())) > 1:
-				xfieldname = xscannable.name+"."+xfieldname
+			yfieldname = yscannable.name+"."+yfieldname
 			self.last_scannable_scanned = determineScannableContainingField(xfieldname, allscannables)
 			all_detectors_and_scannables = list(concurrentScan.getAllScannables()) + list(concurrentScan.getDetectors())
 			self.sfh = loadScanFile(concurrentScan, [xfieldname, yfieldname], all_detectors_and_scannables)

@@ -1,2 +1,8 @@
 #!/bin/bash
-`dirname $0`/gda_commands logpanel  $@
+
+THISFILE=`readlink -f $0`
+THISDIR=`dirname $THISFILE`
+CONFIG=`dirname $THISDIR`
+GDA_INSTALL_GIT_LOC=`readlink -f $THISDIR/../../..`
+
+$GDA_INSTALL_GIT_LOC/gda-core.git/uk.ac.gda.core/bin/gda logpanel --mode dummy --config $CONFIG

@@ -65,9 +65,18 @@ public class Gaussian extends uk.ac.diamond.scisoft.analysis.fitting.functions.G
 		super(minPeakPosition, maxPeakPosition, maxFWHM, maxArea);
 	}
 	
-	@Override
 	public Gaussian createPeakFunction(double minPosition, double maxPosition, double maxArea, double maxFWHM) {
 		return new Gaussian(minPosition,  maxPosition,  maxArea,  maxFWHM);
+	}
+
+	@Override
+	public DataSet makeDataSet(DoubleDataset... values) {
+		return DataSet.convertToDataSet(calculateValues(values));
+	}
+
+	@Override
+	public void disp() {
+		TerminalPrinter.print(toString());
 	}
 
 	@Override
@@ -76,12 +85,12 @@ public class Gaussian extends uk.ac.diamond.scisoft.analysis.fitting.functions.G
 	}
 
 	@Override
-	public DataSet makeDataSet(DoubleDataset... values) {
-		return DataSet.convertToDataSet(makeSerialDataset(values));
+	public String getParameterName(int index) {
+		return getParameter(index).getName();
 	}
 
 	@Override
-	public void disp() {
-		TerminalPrinter.print(toString());
+	public void setParameterName(String name, int index) {
+		getParameter(index).setName(name);
 	}
 }

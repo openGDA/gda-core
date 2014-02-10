@@ -45,18 +45,39 @@ public interface IFunction extends uk.ac.diamond.scisoft.analysis.fitting.functi
 	public DataSet makeDataSet(DoubleDataset... values);
 
 	/**
+	 * Displays the content of the Function
+	 */
+	@Deprecated
+	public void disp();
+
+	/**
 	 * Function which gets a particular function from the composite function
 	 * 
 	 * @param index
 	 *            The index of the object to retrieve
 	 * @return A link to the function itself
 	 */
-	@Override
+	@Deprecated
 	public IFunction getFunction(int index);
 
 	/**
-	 * Displays the content of the Function
+	 * Get the parameter name at a particular index in the function
+	 * 
+	 * @param index
+	 *            The index to retrieve
+	 * @return The parameter's name
 	 */
 	@Deprecated
-	public void disp();
+	String getParameterName(int index);
+
+	/**
+	 * Set a parameter name of the function
+	 * 
+	 * @param name
+	 *           A string array with the parameter name
+	 * @param index
+	 *           The index of the parameter name
+	 */
+	@Deprecated
+	public void setParameterName(String name, int index);
 }

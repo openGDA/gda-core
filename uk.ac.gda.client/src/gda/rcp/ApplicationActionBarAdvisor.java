@@ -91,8 +91,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	
 	/** Flag to add a developer test item to the File menu. The Action can be modified below. */
 	private static final boolean USE_TEST_ACTION = false;
-	private static final String SEARCH_ACTION_SET = "org.eclipse.ui.externaltools.ExternalToolsSet";
-	private static final String RUN_ACTION_SET = "org.eclipse.debug.ui.launchActionSet";
 
 	private IWorkbenchWindow window;
 	private ActionSetRegistry registry;
@@ -153,7 +151,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		makeEditActions(window);
 		makeWindowActions(window);
 		makeHelpActions(window);
-		makeTestActions(window);
+		makeTestActions();
 		
 		// Some platform menus appear by default when certain workbench plug-ins are loaded
 		// Here we manually remove an action sets if a use property is set to false for it
@@ -184,7 +182,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private void makeHelpActions(final IWorkbenchWindow window) {
 		IntroDescriptor introDescriptor = ((Workbench) window.getWorkbench()).getIntroDescriptor();
 		if (introDescriptor == null)
-			logger.warn("The Intro Action is not available. There doesn't appear to be a product/intro binding using the org.eclipse.ui.intro");
+			logger.debug("The Intro Action is not available. There doesn't appear to be a product/intro binding using the org.eclipse.ui.intro");
 		else {
 			introAction = ActionFactory.INTRO.create(window);
 			register(introAction);
@@ -237,7 +235,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		register(newWizardAction);
 	}
 	
-	private void makeTestActions(final IWorkbenchWindow window) {
+	private void makeTestActions() {
 		// Action to use for testing. Modify it as needed.
 		if (USE_TEST_ACTION) {
 			testAction = new Action() {

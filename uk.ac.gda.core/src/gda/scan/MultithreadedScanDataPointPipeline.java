@@ -372,4 +372,9 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 	}
 
+	@Override
+	public void checkForException() throws Exception {
+		throwException();
+	}
+
 }

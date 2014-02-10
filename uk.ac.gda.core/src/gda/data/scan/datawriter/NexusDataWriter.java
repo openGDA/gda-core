@@ -35,6 +35,7 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeAppender;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
+import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -42,6 +43,7 @@ import gda.device.detector.NexusDetector;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 
 import java.io.File;
@@ -51,7 +53,12 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -220,7 +227,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	@Override
-	public void configureScanNumber(Long _scanNumber) throws Exception {
+	public synchronized void configureScanNumber(Long _scanNumber) throws Exception {
 		if (!fileNumberConfigured) {
 			if (_scanNumber != null) {
 				// the scan or other datawriter has set the id
@@ -538,7 +545,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					int[] dataDimMake = generateDataDim(tree.isPointDependent(),
 							tree.isPointDependent() ? scanDimensions : null, sds.dimensions);
 
-					// TODO allow NGD to specify compression and chunks
 					if (sds.dimensions != null && sds.dimensions.length > 1) {
 						int[] chunks = Arrays.copyOf(dataDimMake, dataDimMake.length);						
 						for (int i = 0; i < chunks.length; i++) {
@@ -547,7 +553,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						if (sds.chunkDimensions != null && sds.chunkDimensions.length <= chunks.length) {
 							int lendiff = chunks.length - sds.chunkDimensions.length;
 							for (int i = 0; i < sds.chunkDimensions.length; i++) {
-								chunks[i+lendiff] = sds.chunkDimensions[i];
+								chunks[i+lendiff] = dataDimMake[i+lendiff] == -1 ? sds.chunkDimensions[i] : Math.min(sds.chunkDimensions[i], chunks[i+lendiff]);
 							}
 						}
 						int compression = sds.compressionType != null ? sds.compressionType : NexusFile.NX_COMP_LZW_LVL1;
@@ -817,7 +823,64 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		scannableID = new Vector<SelfCreatingLink>();
 		Collection<Scannable> scannablesAndMonitors = new Vector<Scannable>();
 		scannablesAndMonitors.addAll(thisPoint.getScannables());
+		scannablesAndMonitors = makeConfiguredScannablesAndMonitors(scannablesAndMonitors);
 		makeScannablesAndMonitors(scannablesAndMonitors);
+	}
+	
+	/**
+	 * this is run when processing the first ScanDataPoint
+	 * the file is in the root node
+	 * we add all the one off metadata here
+	 */
+	protected Collection<Scannable> makeConfiguredScannablesAndMonitors(Collection<Scannable> scannablesAndMonitors) {
+		Set<String> metadatascannablestowrite = new HashSet<String>(metadatascannables);
+		
+		try {
+			file.opengroup(this.entryName, "NXentry");
+
+			Set<Scannable> wehavewritten = new HashSet<Scannable>();
+			for (Iterator<Scannable> iterator = scannablesAndMonitors.iterator(); iterator.hasNext();) {
+				Scannable scannable = iterator.next();
+				String scannableName = scannable.getName();
+				if (weKnowTheLocationFor(scannableName)) {
+					wehavewritten.add(scannable);
+					Collection<String> prerequisites = locationmap.get(scannableName).getPrerequisiteScannableNames();
+					if (prerequisites != null)
+						metadatascannablestowrite.addAll(prerequisites);
+					scannableID.addAll(locationmap.get(scannableName).makeScannable(file, scannable, getSDPositionFor(scannableName), generateDataDim(false, scanDimensions, null)));
+				}
+			}
+			
+			int oldsize;
+			do { // add dependencies of metadata scannables
+				oldsize = metadatascannablestowrite.size();
+				Set<String> aux = new HashSet<String>();
+				for (String s: metadatascannablestowrite) {
+					if (weKnowTheLocationFor(s)) {
+						Collection<String> prerequisites = locationmap.get(s).getPrerequisiteScannableNames();
+						if (prerequisites != null)
+							aux.addAll(prerequisites);
+					}
+				}
+				metadatascannablestowrite.addAll(aux);
+			} while(metadatascannablestowrite.size() > oldsize);
+			
+			// remove the ones in the scan, as they are not metadata
+			for (Scannable scannable : scannablesAndMonitors) {
+				metadatascannablestowrite.remove(scannable.getName());
+			}
+			// only use default writing for the ones we haven't written yet 
+			scannablesAndMonitors.removeAll(wehavewritten);
+			
+			makeMetadataScannables(metadatascannablestowrite);
+			
+			// Close NXentry
+			file.closegroup();
+		} catch (NexusException e) {
+			// FIXME NexusDataWriter should allow exceptions to be thrown
+			logger.error("TODO put description of error here", e);
+		}
+		return scannablesAndMonitors;
 	}
 	
 	protected void makeScannablesAndMonitors(Collection<Scannable> scannablesAndMonitors) {
@@ -1498,13 +1561,23 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	public void setHeader(String header) {
 	}
 
+	protected void writeScannable(Scannable scannable) throws NexusException {
+		if (!weKnowTheLocationFor(scannable.getName())) {
+			writePlainDoubleScannable(scannable);
+		} else {
+			file.opengroup(this.entryName, "NXentry");
+			locationmap.get(scannable.getName()).writeScannable(file, scannable, getSDPositionFor(scannable.getName()), generateDataStartPos(dataStartPosPrefix, null));
+			file.closegroup();
+		}
+	}
+	
 	/**
 	 * Writes the data for a given scannable to an existing NXpositioner.
 	 * 
 	 * @param scannable
 	 * @throws NexusException
 	 */
-	protected void writeScannable(Scannable scannable) throws NexusException {
+	protected void writePlainDoubleScannable(Scannable scannable) throws NexusException {
 		int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
 		int[] dimArray = generateDataDim(false, dataDimPrefix, null);
 
@@ -1524,12 +1597,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		for (int i = 0; i < inputNames.length; i++) {
 			// Open data item
 			file.opendata(inputNames[i]);
-
 			double[] tmpData = new double[1];
 			tmpData[0] = positions[i];
-
 			file.putslab(tmpData, startPos, dimArray);
-
 			file.closedata();
 		}
 
@@ -1539,9 +1609,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			file.opendata(extraNames[i]);
 			double[] tmpData = new double[1];
 			tmpData[0] = positions[inputNames.length + i];
-
 			file.putslab(tmpData, startPos, dimArray);
-
 			file.closedata();
 		}
 
@@ -1566,12 +1634,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 		for (int j = 0; j < detector.getExtraNames().length; j++) {
 			file.opendata(detector.getExtraNames()[j]);
-
 			double[] tmpData = new double[1];
 			tmpData[0] = newData[j];
-
 			file.putslab(tmpData, startPos, dimArray);
-
 			// Close data
 			file.closedata();
 		}
@@ -1634,5 +1699,99 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	public boolean isFirstData() {
 		return firstData;
+	}
+	
+	private static Set<String> metadatascannables = new HashSet<String>();
+
+	private static Map<String, ScannableWriter> locationmap = new HashMap<String, ScannableWriter>();
+
+	private boolean weKnowTheLocationFor(String scannableName) {
+		return locationmap.containsKey(scannableName);
+	}
+
+	private Object getSDPositionFor(String scannableName) {
+		int index = thisPoint.getScannableNames().indexOf(scannableName);
+		return thisPoint.getPositions().get(index);
+	}
+	
+	private void makeMetadataScannableFallback(Scannable scannable, Object position) throws NexusException {
+		String[] inputNames = scannable.getInputNames();
+		String[] extraNames = scannable.getExtraNames();
+		// FIXME ideally this would work for non-doubles as well
+		// FIXME this needs to bring in the units
+		Double[] positions = ScannableUtils.objectToArray(position);
+
+		logger.debug("Writing data for scannable (" + scannable.getName() + ") to NeXus file.");
+
+		// Navigate to correct location in the file.
+		try {
+			try {
+				file.makegroup("start_metadata", "NXcollection");
+			} catch (Exception e) {
+				// ignored
+			}
+			file.opengroup("start_metadata", "NXcollection");
+			file.makegroup(scannable.getName(), "NXcollection");
+			file.opengroup(scannable.getName(), "NXcollection");
+
+			for (int i = 0; i < inputNames.length; i++) {
+				file.makedata(inputNames[i], NexusFile.NX_FLOAT64, 1, new int[] {1});
+				file.opendata(inputNames[i]);
+				file.putdata(new double[] {positions[i]});
+				file.closedata();
+			}
+			for (int i = 0; i < extraNames.length; i++) {
+				file.makedata(extraNames[i], NexusFile.NX_FLOAT64, 1, new int[] {1});
+				file.opendata(extraNames[i]);
+				file.putdata(new double[] {positions[i]});
+				file.closedata();
+			}
+		} finally {
+			// close NXpositioner
+			file.closegroup();
+			// close NXcollection
+			file.closegroup();
+		}
+	}
+	
+	private void makeMetadataScannables(Set<String> metadatascannablestowrite) throws NexusException {
+		for(String scannableName: metadatascannablestowrite) {
+			try {
+				Scannable scannable = (Scannable) JythonServerFacade.getInstance().getFromJythonNamespace(scannableName);
+				Object position = scannable.getPosition();
+				if (weKnowTheLocationFor(scannableName)) {
+					locationmap.get(scannableName).makeScannable(file, scannable, position, new int[] {1});
+				} else {
+					makeMetadataScannableFallback(scannable, position);
+					// put in default location (NXcollection with name metadata)
+				}
+			} catch (NexusException e) {
+				throw e;
+			} catch (Exception e) {
+				logger.error("error getting "+scannableName+" from namespace or reading position from it.", e);
+			} 
+		}
+	}
+
+	public static Set<String> getMetadatascannables() {
+		return metadatascannables;
+	}
+
+	public static void setMetadatascannables(Set<String> metadatascannables) {
+		if (metadatascannables == null)
+			NexusDataWriter.metadatascannables = new HashSet<String>();
+		else
+			NexusDataWriter.metadatascannables = metadatascannables;
+	}
+
+	public static Map<String, ScannableWriter> getLocationmap() {
+		return locationmap;
+	}
+
+	public static void setLocationmap(Map<String, ScannableWriter> locationmap) {
+		if (locationmap == null) 
+			NexusDataWriter.locationmap = new HashMap<String, ScannableWriter>();
+		else 
+			NexusDataWriter.locationmap = locationmap;
 	}
 }

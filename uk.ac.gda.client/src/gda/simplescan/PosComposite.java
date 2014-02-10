@@ -260,6 +260,8 @@ public class PosComposite extends Composite {
 						public void run() {
 							updateReadback();
 							lblStatus.setText(" Moving  ");
+							btnDecrement.setEnabled(false);
+							btnIncrement.setEnabled(false);
 							btnStop.setEnabled(true);
 						}
 					});
@@ -269,6 +271,8 @@ public class PosComposite extends Composite {
 					public void run() {
 						updateReadback();
 						lblStatus.setText("     Idle     ");
+						btnDecrement.setEnabled(true);
+						btnIncrement.setEnabled(true);
 						btnStop.setEnabled(false);
 					}
 				});
@@ -292,10 +296,7 @@ public class PosComposite extends Composite {
 	private void performIncrement() {
 		scannable = scannableName.getItem(scannableName.getSelectionIndex());
 		double increment = Double.parseDouble(incrementVal.getText());
-		double scannablePos = Double.parseDouble(JythonServerFacade.getInstance().evaluateCommand(
-				bean.getScannableName() + "()"));
-		double demand = scannablePos + increment;
-		String command = scannable + "(" + demand + ")";
+		String command = scannable + "(" + scannable + "()+"+ increment + ")";
 		JythonServerFacade.getInstance().runCommand(command);
 		try {
 			Thread.sleep(100);
@@ -307,10 +308,7 @@ public class PosComposite extends Composite {
 	private void performDecrement() {
 		scannable = scannableName.getItem(scannableName.getSelectionIndex());
 		double decrement = Double.parseDouble(incrementVal.getText());
-		double scannablePos = Double.parseDouble(JythonServerFacade.getInstance().evaluateCommand(
-				bean.getScannableName() + "()"));
-		double demand = scannablePos - decrement;
-		String command = scannable + "(" + demand + ")";
+		String command = scannable + "(" + scannable + "()+-"+ decrement + ")";
 		JythonServerFacade.getInstance().runCommand(command);
 		try {
 			Thread.sleep(100);
@@ -360,9 +358,9 @@ public class PosComposite extends Composite {
 	}
 
 	public void updateReadback() {
-		double scannablePos = Double.parseDouble(JythonServerFacade.getInstance().evaluateCommand(
-				bean.getScannableName() + "()"));
-		lblReadbackVal.setText(String.valueOf(scannablePos));
+		String command = "java.lang.String.format("+ bean.getScannableName()+".getOutputFormat()[0],"+ bean.getScannableName()+"())";
+		String formattedPos = JythonServerFacade.getInstance().evaluateCommand(command);
+		lblReadbackVal.setText(formattedPos);
 	}
 
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {

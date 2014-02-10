@@ -30,10 +30,6 @@
          version="0.0.0"/>
 
    <includes
-         id="org.python.pydev.feature"
-         version="0.0.0"/>
-
-   <includes
          id="uk.ac.gda.xmleditor.feature"
          version="0.0.0"/>
 
@@ -53,13 +49,6 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-
-   <plugin
-         id="uk.ac.gda.pydev.extension"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="uk.ac.diamond.rxtx"
@@ -180,7 +169,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.springsource.org.apache.commons.beanutils"
+         id="org.apache.commons.beanutils"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -250,41 +239,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.springsource.ch.qos.logback.classic"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.springsource.ch.qos.logback.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.springsource.slf4j.org.apache.commons.logging"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.springsource.slf4j.api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.springsource.slf4j.org.apache.log4j"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="uk.ac.diamond.org.springframework"
          download-size="0"
          install-size="0"
@@ -304,7 +258,7 @@
          version="0.0.0"/>
 
    <plugin
-         id="uk.ac.diamond.guava"
+         id="com.google.guava"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -332,13 +286,90 @@
          unpack="false"/>
 
    <plugin
-         id="ch.qos.logback.eclipse"
+         id="org.eclipse.pde.runtime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.configuration"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.gda.common.rcp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.junit"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="org.eclipse.pde.runtime"
+         id="slf4j.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="ch.qos.logback.classic"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="ch.qos.logback.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="jcl.over.slf4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="log4j.over.slf4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.httpcomponents.httpclient"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.httpcomponents.httpcore"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="ch.qos.logback.beagle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.nebula.widgets.grid"
          download-size="0"
          install-size="0"
          version="0.0.0"

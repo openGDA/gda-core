@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
-import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 
 /**
@@ -95,7 +95,7 @@ public class RedirectableFileLogger implements LineLogger, IObserver {
 
 	static private org.slf4j.Logger logger = LoggerFactory.getLogger(RedirectableFileLogger.class);
 
-	private FileAppender<LoggingEvent> localAppender;
+	private FileAppender<ILoggingEvent> localAppender;
 
 	private ch.qos.logback.classic.Logger localLogger;
 
@@ -111,7 +111,7 @@ public class RedirectableFileLogger implements LineLogger, IObserver {
 		localLayout.start();
 
 		// file appender
-		localAppender = new FileAppender<LoggingEvent>();
+		localAppender = new FileAppender<ILoggingEvent>();
 		localAppender.setAppend(true);
 		localAppender.setFile(logFilePathProvider.getPath());
 		localAppender.setContext(localContext);
