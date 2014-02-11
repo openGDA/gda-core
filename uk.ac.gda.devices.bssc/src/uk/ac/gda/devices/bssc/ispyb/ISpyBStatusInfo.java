@@ -18,10 +18,13 @@
 
 package uk.ac.gda.devices.bssc.ispyb;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ISpyBStatusInfo {
 	private ISpyBStatus status;
 	private double progress;
-	private String fileName;
+	private List<String> fileNames = new ArrayList<String>();
 	private String message;
 
 	public double getProgress() {
@@ -32,12 +35,12 @@ public class ISpyBStatusInfo {
 		this.progress = progress;
 	}
 
-	public String getFileName() {
-		return fileName;
+	public List<String> getFileNames() {
+		return fileNames;
 	}
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public void addFileName(String fileName) {
+		fileNames.add(fileName);
 	}
 
 	public void setMessage(String message) {
