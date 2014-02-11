@@ -22,6 +22,9 @@ package uk.ac.gda.devices.bssc;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
+
+import uk.ac.gda.video.views.ICameraConfig;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -34,6 +37,15 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 	// The shared instance
 	private static Activator plugin;
 	
+	@SuppressWarnings("rawtypes")
+	private static ServiceTracker cameraConfigTracker;
+	
+	public static ICameraConfig getCameraConfig() {
+		if( cameraConfigTracker==null||cameraConfigTracker.isEmpty())
+			return null;
+		return (ICameraConfig) cameraConfigTracker.getService();
+	}
+	
 	/**
 	 * The constructor
 	 */
@@ -44,11 +56,15 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		
+		cameraConfigTracker = new ServiceTracker(context, ICameraConfig.class.getName(), null);
+		cameraConfigTracker.open();
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
+		cameraConfigTracker.close();
 		super.stop(context);
 	}
 
