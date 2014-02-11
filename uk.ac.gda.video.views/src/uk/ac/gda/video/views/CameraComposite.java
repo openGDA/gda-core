@@ -22,7 +22,6 @@ import gda.epics.CAClient;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.images.camera.ImageListener;
-import gda.images.camera.MotionJpegOverHttpReceiverSwt;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -69,12 +68,8 @@ public class CameraComposite extends Composite {
 	static final Logger logger = LoggerFactory.getLogger(CameraComposite.class);
 	private static final int[] WEIGHTS_SHOW_EPICS = new int[] { 30, 70 };
 	private static final int[] WEIGHTS_NOSHOW_EPICS = new int[] { 1, 99 };
-	private uk.ac.gda.client.viewer.ImageViewer viewer;
-	private MotionJpegOverHttpReceiverSwt videoReceiver;
-	private VideoListener listener = new VideoListener();
 
 	String[] cams;
-
 	Combo cameraSelect;
 	Composite parent;
 
@@ -85,24 +80,32 @@ public class CameraComposite extends Composite {
 	Button stop;
 
 	private CAClient ca_client;
-
 	FigureCanvas canvas;
-
 	private DemandBox gainBox, periodBox, exposureBox;
-
 	//is the panel of Epics controls to be shown
 	private boolean showEpics = true;
 	
 	static final int labelWidth = 60;
 	ICameraConfig cameraConfig;
+	private Label lastImageId;
 	NewImageListener newImageListener;
+	ImageData lastImage;
+	
+	BasicCameraComposite viewer;
+	
+	private Label lblAcquire;
+	private SashForm sashForm;
+	private Button showImageOnly;
+	private boolean epicsPVsGiven;
+	DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG);
+	VideoListener listener = new VideoListener();
+	
 	CameraComposite(Composite parent, int style, ICameraConfig cameraConfig, @SuppressWarnings("unused") Display display,
 			NewImageListener newImageListener) {
 		super(parent, style);
 		this.newImageListener = newImageListener;
 		ca_client = new CAClient();
 		this.cameraConfig = cameraConfig;
-//		setBackground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
 
 		setLayout(new GridLayout(1, false));
 
@@ -127,7 +130,6 @@ public class CameraComposite extends Composite {
 				selected = cameraSelect.getSelectionIndex();
 				handleSelection(selected);
 			}
-
 		});
 
 		sashForm = new SashForm(this, SWT.NONE);
@@ -140,17 +142,10 @@ public class CameraComposite extends Composite {
 		exposureBox.on();
 		periodBox.on();
 		gainBox.on();
-
-		viewer.showDefaultImage();
-
 		cameraSelect.setItems(cams);
 
 		// end of sash
 		handleShowEpics(true);
-
-		videoReceiver = new MotionJpegOverHttpReceiverSwt();
-		videoReceiver.addImageListener(listener);
-
 		pack();
 	}
 
@@ -166,7 +161,6 @@ public class CameraComposite extends Composite {
 		exposureBox.setLabelWidth(labelWidth);
 		exposureBox.setDecimalPlaces(3);
 		exposureBox.setEnabled(false); //enabled when channel connection is made
-//		GridDataFactory.fillDefaults().applyTo(exposureBox);
 
 		exposureBox.addValueListener(new ValueAdapter("exposureBox listener") {
 			@Override
@@ -181,7 +175,6 @@ public class CameraComposite extends Composite {
 		periodBox.setLabelWidth(labelWidth);
 		periodBox.setDecimalPlaces(3);
 		periodBox.setEnabled(false); //enabled when channel connection is made
-//		GridDataFactory.fillDefaults().applyTo(periodBox);
 
 		periodBox.addValueListener(new ValueAdapter("periodBox listener") {
 			@Override
@@ -198,7 +191,6 @@ public class CameraComposite extends Composite {
 		gainBox.setActive(true);
 		gainBox.setDecimalPlaces(3);
 		gainBox.setEnabled(false); //enabled when channel connection is made
-//		GridDataFactory.fillDefaults().applyTo(gainBox);
 
 		gainBox.addValueListener(new ValueAdapter("gainBox listener") {
 			@Override
@@ -206,9 +198,6 @@ public class CameraComposite extends Composite {
 				gainListener.setValue(e.getDoubleValue());
 			}
 		});
-
-		// Filler
-//		GridDataFactory.swtDefaults().applyTo(new Label(compEpics, SWT.NONE));
 
 		Composite acqComp = new Composite(compEpics, SWT.NONE);
 		acqComp.setLayout(new GridLayout(2, false));
@@ -241,7 +230,6 @@ public class CameraComposite extends Composite {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
-
 		});
 
 		stop = new Button(canvasComposite, SWT.NONE);
@@ -303,7 +291,7 @@ public class CameraComposite extends Composite {
 		lastImageId.setText("Time of last Image");
 		
 
-		viewer = new uk.ac.gda.client.viewer.ImageViewer(imageComp, SWT.DOUBLE_BUFFERED);
+		viewer = new BasicCameraComposite(imageComp, SWT.DOUBLE_BUFFERED, listener);
 	}
 
 	protected void handleShowEpics(boolean b) {
@@ -365,17 +353,10 @@ public class CameraComposite extends Composite {
 
 	PVMonitorListener gainListener, periodListener, exposureListener;
 
-	private void closeDownVideo(boolean full){
-		videoReceiver.removeImageListener(listener);
-		videoReceiver.closeConnection();
-		listener.clear();
-		if( full){
-			videoReceiver = null;
-		}
-	}
+
 	protected void handleSelection(int selected2) {
 		selected = selected2;
-		closeDownVideo(false);
+		viewer.closeDownVideo(false);
 		try {
 			new Thread( new Runnable(){
 
@@ -394,10 +375,7 @@ public class CameraComposite extends Composite {
 						if( mjpegURL == null ){
 							mjpegURL = cameraConfig.getCameras()[selected].getMjpegURL();
 						}
-						videoReceiver.setUrl(mjpegURL);
-						videoReceiver.configure();
-						videoReceiver.addImageListener(listener);
-						videoReceiver.start();
+						viewer.playURL(mjpegURL);
 					} catch(Exception e){
 						logger.error("Error starting videoReceiver",e);
 					}
@@ -464,9 +442,7 @@ public class CameraComposite extends Composite {
 		} catch (Exception e) {
 			logger.error("Error handling selection ", e);
 		}
-
 	}
-
 
 	@Override
 	public boolean setFocus() {
@@ -476,7 +452,6 @@ public class CameraComposite extends Composite {
 	@Override
 	public void dispose() {
 		super.dispose();
-		closeDownVideo(true);
 		viewer.dispose();
 	}
 
@@ -489,27 +464,18 @@ public class CameraComposite extends Composite {
 		if (viewer != null)
 			viewer.zoomFit();
 	}
+	
 	IDataset getDataset(){
 		return lastImage != null ? new SWTImageDataConverter(lastImage).toIDataset() : null;
 	}
 
-	private Label lblAcquire;
-	private SashForm sashForm;
-	private Button showImageOnly;
-	private boolean epicsPVsGiven;
-	ImageData lastImage;
-	private Label lastImageId;
-	DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG);
+
 	private final class VideoListener implements ImageListener<ImageData> {
 		private String name;
 
 		@Override
 		public void setName(String name) {
 			this.name = name;
-		}
-
-		public void clear() {
-			viewer.showDefaultImage();
 		}
 
 		@Override
@@ -560,6 +526,7 @@ public class CameraComposite extends Composite {
 			}
 		}
 	}
+
 
 	public static void main(String... args) throws Exception {
 
@@ -720,7 +687,6 @@ class PVMonitorListener {
 
 			});
 		}
-
 	}
 
 	void disConnect() {
@@ -748,7 +714,5 @@ class SWTImageDataConverter {
 			idataset = SWTImageUtils.createRGBDataset(imageData).createGreyDataset(AbstractDataset.FLOAT32);
 		}
 		return idataset;
-
 	}
-
 }
