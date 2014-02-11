@@ -19,6 +19,7 @@
 package uk.ac.gda.devices.bssc.beans;
 
 import uk.ac.gda.devices.bssc.ispyb.ISAXSDataCollection;
+import uk.ac.gda.devices.bssc.ispyb.ISpyBStatus;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
 
 public class BioSAXSDataCollectionBean implements ISAXSDataCollection {
@@ -36,7 +37,11 @@ public class BioSAXSDataCollectionBean implements ISAXSDataCollection {
 	private long bufferAfterMeasurementId;
 
 	public BioSAXSDataCollectionBean() {
-
+		ISpyBStatusInfo notStartedStatus = new ISpyBStatusInfo();
+		notStartedStatus.setStatus(ISpyBStatus.NOT_STARTED);
+		collectionStatusInfo = notStartedStatus;
+		reductionStatusInfo = notStartedStatus;
+		analysisStatusInfo = notStartedStatus;
 	}
 
 	@Override
