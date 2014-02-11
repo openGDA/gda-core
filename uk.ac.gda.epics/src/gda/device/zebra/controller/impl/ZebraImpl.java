@@ -309,7 +309,6 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 			throw new Exception("zebraPrefix is not set");
 		dev = new CachedLazyPVFactory(zebraPrefix);
 		
-		startMonitoringSoftInputs();
 	}
 
 	@Override
@@ -395,10 +394,14 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private final ObservableUtil<SoftInputChangedEvent> softInputObservable = new ObservableUtil<SoftInputChangedEvent>();
+	private ObservableUtil<SoftInputChangedEvent> softInputObservable;
 
 	@Override
 	public Observable<SoftInputChangedEvent> getSoftInputObservable() {
+		if( softInputObservable == null){
+			softInputObservable = new ObservableUtil<SoftInputChangedEvent>();
+			startMonitoringSoftInputs();
+		}
 		return softInputObservable;
 	}
 
