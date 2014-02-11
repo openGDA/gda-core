@@ -133,12 +133,23 @@ public class BioSAXSProgressController implements IObservable {
 			ISpyBStatusInfo reductionStatusInfo = bioSAXSISPyB.getDataReductionStatus(dataCollectionId);
 			ISpyBStatusInfo analysisStatusInfo = bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId);
 
-			updateModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+			if (containsId(progressList, dataCollectionId)) {
+				updateModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+			} else {
+				addToModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+			}
 		} catch (SQLException e) {
 			logger.error("SQLException", e);
 		}
 	}
-	
+
+	private void addToModel(long dataCollectionId, ISpyBStatusInfo collectionStatusInfo,
+			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
+		ISAXSProgress progress = new BioSAXSProgress(dataCollectionId, "New Sample", collectionStatusInfo,
+				reductionStatusInfo, analysisStatusInfo);
+		progressList.add(progress);
+	}
+
 	public List<ISAXSProgress> loadModel(List<ISAXSDataCollection> saxsDataCollections) {
 		for (ISAXSDataCollection saxsDataCollection : saxsDataCollections) {
 			ISAXSProgress progress = new BioSAXSProgress(saxsDataCollection.getId(),
@@ -159,11 +170,20 @@ public class BioSAXSProgressController implements IObservable {
 		progressItem.setAnalysisProgress(analysisStatusInfo);
 	}
 
+	protected boolean containsId(List<ISAXSProgress> list, long id) {
+		for (ISAXSProgress progressItem : list) {
+			if (progressItem.getId() == id) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public void addIObserver(IObserver anIObserver) {
 		obsComp.addIObserver(anIObserver);
 		if (obsComp.IsBeingObserved()) {
-			 startPolling();
+			startPolling();
 		}
 	}
 
@@ -212,6 +232,7 @@ class SimpleUDPReceiver implements IObserver {
 	public void update(Object theObserved, Object dataCollectionId) {
 		long saxsDataCollectionId = Long.valueOf((String) dataCollectionId);
 		System.out.println("SAXSDataCollection " + saxsDataCollectionId + " has been updated");
+
 		controller.getStatusInfoFromISpyB(saxsDataCollectionId);
 	}
 }
