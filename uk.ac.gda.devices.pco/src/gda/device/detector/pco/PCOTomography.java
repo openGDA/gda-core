@@ -66,6 +66,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	@Override
 	public void setExposureTime(double collectionTime) throws Exception {
 		pcoDetector.getController().getAreaDetector().setAcquireTime(collectionTime);
+		pcoDetector.getController().getAreaDetector().setAcquirePeriod(0); //required for new IOC
 	}
 
 	private double maxIntensity = 65000;
@@ -287,12 +288,14 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 				if (!demandWhileStreaming) {
 					// set file template
+					areaDetector.stopAcquiring(); //stop so that subsequent start works
 					areaDetector.setImageMode(0);
 					areaDetector.setTriggerMode(2);
 					// set num image to 1
 					areaDetector.setNumImages(1);
 
 					areaDetector.setAcquireTime(acqTime);
+					areaDetector.setAcquirePeriod(0.);
 				}
 				if (isFlatFieldCorrectionRequired) {
 
