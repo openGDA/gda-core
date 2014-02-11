@@ -32,6 +32,7 @@ public interface Zebra {
 	final public static int PC_DIR_POSITIVE = 0;
 	final public static int PC_DIR_NEGATIVE = 1;
 
+	final public static int PC_TIMEUNIT_10SEC = 2;
 	final public static int PC_TIMEUNIT_SEC = 1;
 	final public static int PC_TIMEUNIT_MS = 0;
 
@@ -48,11 +49,15 @@ public interface Zebra {
 	final public static int PC_PULSE_SOURCE_POSITION = 0;
 	final public static int PC_PULSE_SOURCE_TIME = 1;
 	final public static int PC_PULSE_SOURCE_EXTERNAL = 2;
-	
+
 	@Deprecated
 	final public static int PC_MODE_POSITION = PC_PULSE_SOURCE_POSITION;
 	@Deprecated
 	final public static int PC_MODE_TIME = PC_PULSE_SOURCE_TIME;
+
+	final public static int PULSE_TIMEUNIT_10SEC = 2;
+	final public static int PULSE_TIMEUNIT_SEC = 1;
+	final public static int PULSE_TIMEUNIT_MS = 0;
 
 	double getPCPulseDelay() throws Exception;
 

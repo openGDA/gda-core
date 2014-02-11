@@ -26,9 +26,13 @@ import org.springframework.beans.factory.InitializingBean;
 
 public class ZebraImpl implements Zebra, InitializingBean {
 
+	final public static int SysSignalMin = 0;
+	final public static int SysSignalMax = 63;
+
 	final public static String connected = "CONNECTED";
 	final public static String store = "STORE";
 	final public static String sysReset = "SYS_RESET";
+	final public static String sysResetProc = "SYS_RESET.PROC";
 	final public static String sysVer = "SYS_VER";
 	final public static String sysStat1Lo = "SYS_STAT1LO";
 	final public static String sysStat1Hi = "SYS_STAT1HI";
@@ -43,7 +47,6 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	final public static String PCTimeUnits_ms = "ms";
 	final public static String PCTimeUnits_s = "s";
 	
-	
 	final public static String PCArmSource = "PC_ARM_SEL";
 	final public static String PCArm = "PC_ARM";
 	final public static String PCDisArm = "PC_DISARM";
@@ -52,19 +55,38 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	final public static String PCArmSourceExternal = "External";
 	final public static String PCDir = "PC_DIR";
 
+	final public static double PCGateStartMin = -214881.9984;
+	final public static double PCGateStartMax =  214881.9984;
+	final public static double PCGateWidthMin =       0.0000;
+	final public static double PCGateWidthMax =  214881.9984;
+	final public static double PCGateStepMin =       0.0000;
+	final public static double PCGateStepMax =  214881.9984;
+	final public static int PCGateNumberOfGatesMin = 0;
+	final public static int PCGateNumberOfGatesMax = 2147483647;
+
 	final public static String PCGateSource = "PC_GATE_SEL";
 	final public static String PCGateStart = "PC_GATE_START";
 	final public static String PCGateWidth = "PC_GATE_WID";
 	final public static String PCGateNumberOfGates = "PC_GATE_NGATE";
 	final public static String PCGateStep = "PC_GATE_STEP";
 	final public static String PCGateStatus = "PC_GATE_OUT";
-	
+
+	final public static double PCPulseDelayMin =       0.0000;
+	final public static double PCPulseDelayMax =  214881.9984;
+	final public static double PCPulseWidthMin =       0.0000;
+	final public static double PCPulseWidthMax =  214881.9984;
+	final public static double PCPulseStepMin  =       0.0016;
+	final public static double PCPulseStepMax  =  214881.9984;
 
 	final public static String PCPulseSource = "PC_PULSE_SEL";
 	final public static String PCPulseDelay = "PC_PULSE_DLY";
 	final public static String PCPulseWidth = "PC_PULSE_WID";
 	final public static String PCPulseStep = "PC_PULSE_STEP";
 	final public static String PCPulseStatus = "PC_PULSE_OUT";
+
+	final public static int PCPulsePulseMaxMin = 0;
+	final public static int PCPulsePulseMaxMax = 2147483647;
+
 	public static final String PCCaptureBitField = "PC_BIT_CAP";
 	public static final String PCEnc = "PC_ENC";
 	public static final String PCEnc1Aval = "PC_ENC1.AVAL";
@@ -78,13 +100,23 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	final public static String PCGateWidthRBV = "PC_GATE_WID:RBV";
 	final public static String PCTimeUnit = "PC_TSPRE";
 	private static final String PCPulseMax = "PC_PULSE_MAX";	
-	
+
+	final public static double PulseDelayMin = 0.0001;
+	final public static double PulseDelayMax = 6.5535;
+
+	final public static double PulseWidthMin = 0.0001;
+	final public static double PulseWidthMax = 6.5535;
+
 	String zebraPrefix;
 
 	CachedLazyPVFactory dev;
 
 	@Override
 	public void setPCPulseSource(int val) throws Exception {
+		assert (val == PC_PULSE_SOURCE_POSITION ||
+				val == PC_PULSE_SOURCE_TIME ||
+				val == PC_PULSE_SOURCE_EXTERNAL);
+		
 		dev.getIntegerPVValueCache(PCPulseSource).putWait(val);
 	}
 
@@ -95,6 +127,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCPulseDelay(double val) throws Exception {
+		assert (PCPulseDelayMin <= val && val <= PCPulseDelayMax);
 		dev.getDoublePVValueCache(PCPulseDelay).putWait(val);
 	}
 
@@ -109,6 +142,8 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCPulseWidth(double val) throws Exception {
+		assert (PCPulseWidthMin <= val && val <= PCPulseWidthMax);
+		// TODO: PULSE_STEP *must* be bigger than PULSE_WID so warn here if it isn't!
 		dev.getDoublePVValueCache(PCPulseWidth).putWait(val);
 	}
 
@@ -123,6 +158,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCPulseStep(double val) throws Exception {
+		assert (PCPulseStepMin <= val && val <= PCPulseStepMax);
 		dev.getDoublePVValueCache(PCPulseStep).putWait(val);
 	}
 
@@ -142,11 +178,16 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCPulseMax(int val) throws Exception {
+		assert (PCPulsePulseMaxMin <= val && val <= PCPulsePulseMaxMax);
 		dev.getIntegerPVValueCache(PCPulseMax).putWait(val);
 	}
 	
 	@Override
 	public void setPCGateSource(int val) throws Exception {
+		assert (val == PC_GATE_SOURCE_POSITION ||
+				val == PC_GATE_SOURCE_TIME ||
+				val == PC_GATE_SOURCE_EXTERNAL);
+
 		dev.getIntegerPVValueCache(PCGateSource).putWait(val);
 	}
 
@@ -157,6 +198,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCGateStart(double val) throws Exception {
+		assert (PCGateStartMin <= val && val <= PCGateStartMax);
 		dev.getDoublePVValueCache(PCGateStart).putWait(val);
 	}
 
@@ -171,6 +213,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCGateWidth(double val) throws Exception {
+		assert (PCGateWidthMin <= val && val <= PCGateWidthMax);
 		dev.getDoublePVValueCache(PCGateWidth).putWait(val);
 	}
 
@@ -185,6 +228,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCGateStep(double val) throws Exception {
+		assert (PCGateStepMin <= val && val <= PCGateStepMax);
 		dev.getDoublePVValueCache(PCGateStep).putWait(val);
 	}
 
@@ -195,6 +239,8 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCArmSource(int val) throws Exception {
+		assert (val == PC_ARM_SOURCE_SOFT ||
+				val == PC_ARM_SOURCE_EXTERNAL);
 		dev.getIntegerPVValueCache(PCArmSource).putWait(val);
 	}
 
@@ -237,6 +283,11 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCEnc(int val) throws Exception {
+		assert (val == PC_ENC_ENC1 ||
+				val == PC_ENC_ENC2 ||
+				val == PC_ENC_ENC3 ||
+				val == PC_ENC_ENC4 ||
+				val == PC_ENC_ENCSUM);
 		dev.getIntegerPVValueCache(PCEnc).putWait(val);
 	}
 
@@ -247,6 +298,9 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCTimeUnit(int val) throws Exception {
+		assert (val == PC_TIMEUNIT_10SEC ||
+				val == PC_TIMEUNIT_SEC ||
+				val == PC_TIMEUNIT_MS);
 		dev.getIntegerPVValueCache(PCTimeUnit).putWait(val);
 	}
 
@@ -254,9 +308,10 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	public int getPCTimeUnit() throws Exception {
 		return dev.getIntegerPVValueCache(PCTimeUnit).get();
 	}
-	
+
 	@Override
 	public void setPCGateNumberOfGates(int val) throws Exception {
+		assert (PCGateNumberOfGatesMin <= val && val <= PCGateNumberOfGatesMax);
 		dev.getIntegerPVValueCache(PCGateNumberOfGates).putWait(val);
 	}
 
@@ -267,6 +322,8 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCNumberOfPointsCaptured(int val) throws Exception {
+		// TODO: Is this really supposed to be settable? If so, what range is acceptable?
+		//assert (PCNumberOfPointsCapturedMin <= val && val <= PCNumberOfPointsCapturedMax);
 		dev.getIntegerPVValueCache(PCNumberOfPointsCaptured).putWait(val);
 	}
 
@@ -289,7 +346,6 @@ public class ZebraImpl implements Zebra, InitializingBean {
 		if (zebraPrefix == null || zebraPrefix.isEmpty())
 			throw new Exception("zebraPrefix is not set");
 		dev = new CachedLazyPVFactory(zebraPrefix);
-
 	}
 
 	@Override
@@ -314,6 +370,8 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCDir(int val) throws Exception {
+		assert (val == PC_DIR_POSITIVE ||
+				val == PC_DIR_NEGATIVE);
 		dev.getIntegerPVValueCache(PCDir).putWait(val);
 	}
 
@@ -323,29 +381,34 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	}
 
 	@Override
-	public void setPulseInput(int pulseId, int input) throws Exception {
-		dev.getIntegerPVValueCache("PULSE"+pulseId+"_INP").putWait(input);
+	public void setPulseInput(int pulseId, int inputSignal) throws Exception {
+		assert(SysSignalMin <= inputSignal && inputSignal <= SysSignalMax);
+		dev.getIntegerPVValueCache("PULSE"+pulseId+"_INP").putWait(inputSignal);
 	}
 
 	@Override
 	public void setPulseDelay(int pulseId, double delay) throws Exception {
+		assert (PulseDelayMin <= delay && delay <= PulseDelayMax);
 		dev.getDoublePVValueCache("PULSE"+pulseId +"_DLY").putWait(delay);
 	}
 
 	@Override
 	public void setPulseWidth(int pulseId, double width) throws Exception {
+		assert (PulseWidthMin <= width && width <= PulseWidthMax);
 		dev.getDoublePVValueCache("PULSE"+pulseId +"_WID").putWait(width);
 	}
 
-
-
 	@Override
 	public void setPulseTimeUnit(int pulseId, int timeunit) throws Exception {
+		assert (timeunit == PULSE_TIMEUNIT_10SEC ||
+				timeunit == PULSE_TIMEUNIT_SEC ||
+				timeunit == PULSE_TIMEUNIT_MS);
 		dev.getIntegerPVValueCache("PULSE"+pulseId+"_PRE").putWait(timeunit);
 	}
 
 	@Override
-	public void setOutTTL(int outId, int val) throws Exception {
-		dev.getIntegerPVValueCache("OUT"+outId+"_TTL").putWait(val);
+	public void setOutTTL(int outId, int outputSignal) throws Exception {
+		assert(SysSignalMin <= outputSignal && outputSignal <= SysSignalMax);
+		dev.getIntegerPVValueCache("OUT"+outId+"_TTL").putWait(outputSignal);
 	}	
 }
