@@ -57,6 +57,7 @@ class QexafsScan(Scan):
         repetitionNumber = 0
         timeRepetitionsStarted = System.currentTimeMillis();
         
+        
         try:
             while True:
                 repetitionNumber+= 1
@@ -77,7 +78,7 @@ class QexafsScan(Scan):
 
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
                 timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
-                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
+                logmsg = XasLoggingMessage(self._getMyVisitID(), unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
                
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
