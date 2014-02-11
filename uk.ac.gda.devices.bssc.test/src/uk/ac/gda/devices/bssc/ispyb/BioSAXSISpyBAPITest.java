@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.observable.list.WritableList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -32,30 +33,31 @@ public class BioSAXSISpyBAPITest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		controller = new BioSAXSProgressController();
 		bioSAXSISPyB = new MyBioSAXSISPyB();
-		try {
-			controller.setISpyBAPI(bioSAXSISPyB);
-		} catch (FactoryException e1) {
-			e1.printStackTrace();
-		}
+		controller = new BioSAXSProgressController();
 
 		realm = new DefaultRealm();
 		realm.exec(new Runnable() {
 			@Override
 			public void run() {
-				model = controller.getModel();
-
 				visit = "nt20-12";
 				try {
 					blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
 					experimentId = bioSAXSISPyB.createExperiment(blSessionId,
 							"test", "TEMPLATE", "test");
+					model = new WritableList();
+					controller.setModel(model);
+					controller.setISpyBAPI(bioSAXSISPyB);
 				} catch (SQLException e) {
 					e.printStackTrace();
+				} catch (FactoryException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
+
 			}
 		});
+
 	}
 
 	@Before
@@ -144,8 +146,7 @@ public class BioSAXSISpyBAPITest {
 				1.0, bufferBeforeFile, bufferBeforePath);
 
 		// assert model is updated with new value from ISpyB
-		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(
-				modelIndex);
+		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
 		assertEquals(33, modelProgressItem.getCollectionProgress(), 0.0);
 		assertEquals(0, modelProgressItem.getReductionProgress(), 0.0);
 		assertEquals(0, modelProgressItem.getAnalysisProgress(), 0.0);
@@ -163,8 +164,7 @@ public class BioSAXSISpyBAPITest {
 				20.0f, 20.0f, 10.0, 10, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 				sampleFile, samplePath);
 
-		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(
-				modelIndex);
+		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
 		assertEquals(66, modelProgressItem.getCollectionProgress(), 0.0);
 		assertEquals(0, modelProgressItem.getReductionProgress(), 0.0);
 		assertEquals(0, modelProgressItem.getAnalysisProgress(), 0.0);
@@ -183,8 +183,7 @@ public class BioSAXSISpyBAPITest {
 				bufferAfterFile, bufferAfterPath);
 
 		// assert model is updated with new value from ISpyB
-		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(
-				modelIndex);
+		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
 		assertEquals(100, modelProgressItem.getCollectionProgress(), 0.0);
 		assertEquals(0, modelProgressItem.getReductionProgress(), 0.0);
 		assertEquals(0, modelProgressItem.getAnalysisProgress(), 0.0);
@@ -205,8 +204,7 @@ public class BioSAXSISpyBAPITest {
 		}
 
 		// assert model is updated with new value from ISpyB
-		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(
-				modelIndex);
+		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
 		assertEquals(66, modelProgressItem.getCollectionProgress(), 0.0);
 		assertEquals(100, modelProgressItem.getReductionProgress(), 0.0);
 		assertEquals(0, modelProgressItem.getAnalysisProgress(), 0.0);
@@ -226,8 +224,7 @@ public class BioSAXSISpyBAPITest {
 		}
 
 		// assert model is updated with new value from ISpyB
-		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(
-				modelIndex);
+		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
 		assertEquals(66, modelProgressItem.getCollectionProgress(), 0.0);
 		assertEquals(100, modelProgressItem.getReductionProgress(), 0.0);
 		assertEquals(100, modelProgressItem.getAnalysisProgress(), 0.0);
