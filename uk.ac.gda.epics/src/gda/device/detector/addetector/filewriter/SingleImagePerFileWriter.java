@@ -87,7 +87,8 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	}
 
 	private String fileTemplateForReadout = null;
-
+	private boolean alreadyPrepared=false; //use to allow the same fileWriter to be used in the same multiscan
+	
 	/**
 	 * Creates a SingleImageFileWriter with ndFile, fileTemplate, filePathTemplate, fileNameTemplate and
 	 * fileNumberAtScanStart yet to be set.
@@ -165,7 +166,8 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 		if (!isEnabled())
 			return;
-
+		if( alreadyPrepared)
+			return;
 		// Create filePath directory if required
 		File f = new File(getFilePath());
 		if (!f.exists()) {
@@ -205,6 +207,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if (!getkeyNameForMetadataPathTemplate().isEmpty()) {
 			addPathTemplateToMetadata();
 		}
+		alreadyPrepared=true;		
 	}
 
 	private void addPathTemplateToMetadata() {
@@ -275,9 +278,22 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	@Override
 	public void completeCollection() throws Exception {
+		alreadyPrepared=false;
 		if (!isEnabled())
 			return;
 		disableFileWriting();
+	}
+
+	@Override
+	public void stop() throws Exception {
+		alreadyPrepared=false;
+		super.stop();
+	}
+
+	@Override
+	public void atCommandFailure() throws Exception {
+		alreadyPrepared=false;
+		super.atCommandFailure();
 	}
 
 	@Override

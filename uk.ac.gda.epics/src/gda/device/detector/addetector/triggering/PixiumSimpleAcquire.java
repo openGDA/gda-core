@@ -72,7 +72,7 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages_IGNORED, ScanInformation scanInfo_IGNORED) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo_IGNORED) throws Exception {
 		if (getCalibrationRequiredPV().get() != 0) {
 			throw new DeviceException("Detector calibration required!");
 		} 
@@ -81,8 +81,8 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 		numberExposuresPerImage = calcNumberExposuresPerImage(collectionTime, localExposureTime);
 		getAdBase().stopAcquiring(); 
 		setNumExposuresPerImage(numberExposuresPerImage);
-		getAdBase().setNumImages(1);
-		getAdBase().setImageModeWait(numberExposuresPerImage > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
+		getAdBase().setNumImages(numImages);
+		getAdBase().setImageModeWait(numImages > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
 	}
 	
 	public boolean isReadAcquireTimeFromHardware() {
