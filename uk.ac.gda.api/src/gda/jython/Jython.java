@@ -153,12 +153,13 @@ public interface Jython extends Findable {
 	 * @param JSFIdentifier
 	 * @param hostName
 	 * @param username
+	 * @param fullName
 	 * @param visitID
 	 * @return the index number of the facade (i.e. its public key)
 	 * @throws DeviceException
 	 *             - thrown if an error during authentication/authorisation
 	 */
-	public int addFacade(IObserver anIObserver, String JSFIdentifier, String hostName, String username, String visitID)
+	public int addFacade(IObserver anIObserver, String JSFIdentifier, String hostName, String username, String fullName, String visitID)
 			throws DeviceException;
 	
 	
@@ -367,6 +368,15 @@ public interface Jython extends Findable {
 	 * @param indexOfReciever
 	 */
 	public void assignBaton(String myJSFIdentifier, int indexOfReciever);
+	
+	
+	/**
+	 * Returns details of this client
+	 * 
+	 * @param name
+	 * @return ClientDetails
+	 */
+	public ClientDetails getClientInformation(String name);
 
 	/**
 	 * Returns an array of objects describing the other clients on this beamline.

@@ -149,12 +149,13 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				logger.error(msg);
 				throw new InstantiationException(msg); // Important - do no exit incorrect for rcp gda client
 			}
-
+			
 			// register with the Command Server and validate login information supplied by the user
 			try {
 				originalUsername = UserAuthentication.getUsername();
+				final String fullName = LibGdaCommon.getFullNameOfUser(originalUsername);
 				indexNumberInJythonServer = commandServer.addFacade(this, name, localHost, UserAuthentication
-						.getUsername(), "");
+						.getUsername(), fullName, "");
 				originalAuthorisationLevel = commandServer.getAuthorisationLevel(indexNumberInJythonServer);
 			} catch (DeviceException e) {
 				final String msg = "Login failed for user: " + UserAuthentication.getUsername();
@@ -919,17 +920,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public ClientDetails getBatonHolder() {
 
 		if (amIBatonHolder()) {
-			String localHost = "unknown";
-			try {
-				InetAddress hostAddress = java.net.InetAddress.getLocalHost();
-				localHost = hostAddress.getHostName();
-			} catch (UnknownHostException e) {
-				logger.error("Problems getting host name", e);
-			}
-			final String username = UserAuthentication.getUsername();
-			final String fullName = LibGdaCommon.getFullNameOfUser(username);
-			return new ClientDetails(indexNumberInJythonServer, username, fullName, localHost,
-					getAuthorisationLevel(), true, visitID);
+			ClientDetails myDetails = getMyDetails();
+			return myDetails;
 		}
 
 		final ClientDetails[] others = getOtherClientInformation();
@@ -1006,29 +998,16 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public ClientDetails getMyDetails() {
-		int authorisationLevel = this.originalAuthorisationLevel;
-		String username = this.originalUsername;
+		ClientDetails myDetails = commandServer.getClientInformation(name);
 		if (runningAsAlternateUser) {
-			username = this.alternateUsername;
+			myDetails.setUserID(this.alternateUsername);
 			try {
-				authorisationLevel = AuthoriserProvider.getAuthoriser().getAuthorisationLevel(alternateUsername);
+				myDetails.setAuthorisationLevel(AuthoriserProvider.getAuthoriser().getAuthorisationLevel(alternateUsername));
 			} catch (ClassNotFoundException e) {
-				authorisationLevel = 0;
+				myDetails.setAuthorisationLevel(0);
 			}
 		}
-		
-		final String fullName = LibGdaCommon.getFullNameOfUser(username);
-		
-		String localHost = "unknown";
-		InetAddress hostAddress;
-		try {
-			hostAddress = java.net.InetAddress.getLocalHost();
-			localHost = hostAddress.getHostName();
-		} catch (UnknownHostException e) {
-			logger.error("Problems while getting host name", e);
-		}
-
-		return new ClientDetails(indexNumberInJythonServer, username, fullName, localHost, authorisationLevel, amIBatonHolder(), visitID);
+		return myDetails;
 	}
 	
 	@Override

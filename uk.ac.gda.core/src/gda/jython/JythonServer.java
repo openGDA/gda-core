@@ -49,7 +49,6 @@ import gda.scan.Scan;
 import gda.scan.ScanBase;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
-import gda.util.LibGdaCommon;
 import gda.util.exceptionUtils;
 
 import java.io.File;
@@ -772,7 +771,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public int addFacade(IObserver anIObserver, String uniqueFacadeName, String hostName, String username,
+	public int addFacade(IObserver anIObserver, String uniqueFacadeName, String hostName, String username, String fullName,
 			String visitID) throws DeviceException {
 
 		try {
@@ -798,7 +797,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			} else {
 				// add the facade and associated roles to the list of registered facades
 				int accessLevel = authoriser.getAuthorisationLevel(username);
-				final String fullName = LibGdaCommon.getFullNameOfUser(username);
 				ClientDetails info = new ClientDetails(indexNumber, username, fullName, hostName, accessLevel, false, visitID);
 				logger.info("User " + username + " logged into GDA with authorisation level " + accessLevel);
 				this.batonManager.addFacade(uniqueFacadeName, info);
@@ -965,6 +963,11 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		this.batonManager.assignBaton(myJSFIdentifier, indexOfReciever);
 	}
 
+	@Override
+	public ClientDetails getClientInformation(String myJSFIdentifier) {
+		return this.batonManager.getClientInformation(myJSFIdentifier);
+	}
+	
 	@Override
 	public ClientDetails[] getOtherClientInformation(String myJSFIdentifier) {
 		return this.batonManager.getOtherClientInformation(myJSFIdentifier);

@@ -323,11 +323,11 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	}
 
 	@Override
-	public int addFacade(IObserver anIObserver, String JSFIdentifier, String hostName, String username, String visitID) {
+	public int addFacade(IObserver anIObserver, String JSFIdentifier, String hostName, String username, String fullname, String visitID) {
 		terminal = anIObserver;
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				return jythonServer.addFacade(JSFIdentifier, hostName, username, visitID);
+				return jythonServer.addFacade(JSFIdentifier, hostName, username, fullname, visitID);
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
 			} catch (org.omg.CORBA.TRANSIENT ct) {
@@ -659,6 +659,28 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		}
 	}
 
+	@Override
+	public ClientDetails getClientInformation(String myJSFIdentifier) {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				// get any from impl
+				Any any = jythonServer.getClientInformation(myJSFIdentifier);
+				ClientDetails details = (ClientDetails) any.extract_Value();
+				return details;
+			} catch (COMM_FAILURE cf) {
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (org.omg.CORBA.TRANSIENT ct) {
+				// This exception is thrown when the ORB failed to connect to
+				// the object
+				// primarily when the server has failed.
+				break;
+			} catch (CorbaDeviceException ex) {
+				// throw new DeviceException(ex.message);
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public ClientDetails[] getOtherClientInformation(String myJSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {

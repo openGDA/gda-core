@@ -21,6 +21,7 @@ package gda.jython.scriptcontroller.logging;
 import gda.commandqueue.JythonScriptProgressProvider;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 
 import java.lang.annotation.Annotation;
@@ -143,6 +144,9 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		ResultSet rs = null;
 		try {
 			ScriptControllerLogResults[] results = new ScriptControllerLogResults[] {};
+			String myVisit = InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID();
+			
+			psSimpleListAll.setString(1, myVisit);
 			rs = psSimpleListAll.executeQuery();
 			Boolean atFirst = rs.next();
 			while (atFirst) {
@@ -366,7 +370,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		psInsert = conn.prepareStatement(insertStatment);
 
 		String listStatement = "SELECT " + PK_COLUMNNAME + "," + SK_COLUMNNAME + "," + DATE_ADDED_COL_NAME + ","
-				+ DATE_UPDATED_COL_NAME + " FROM " + tableName + " ORDER BY " + DATE_UPDATED_COL_NAME + " DESC";
+				+ DATE_UPDATED_COL_NAME + " FROM " + tableName + " WHERE visit_id = (?) ORDER BY " + DATE_UPDATED_COL_NAME + " DESC";
 		psSimpleListAll = conn.prepareStatement(listStatement);
 
 		String fetchStatement = "SELECT * FROM " + tableName + " WHERE " + PK_COLUMNNAME + "= (?)";

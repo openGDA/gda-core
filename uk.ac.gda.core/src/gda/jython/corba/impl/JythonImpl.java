@@ -215,10 +215,10 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	}
 
 	@Override
-	public int addFacade(String facadeName, String hostName, String username, String visitID)
+	public int addFacade(String facadeName, String hostName, String username, String fullname, String visitID)
 			throws CorbaDeviceException {
 		try {
-			return jythonServer.addFacade(this, facadeName, hostName, username, visitID);
+			return jythonServer.addFacade(this, facadeName, hostName, username, fullname, visitID);
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
@@ -374,6 +374,20 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	public void assignBaton(String arg0, int arg1) throws CorbaDeviceException {
 		try {
 			jythonServer.assignBaton(arg0, arg1);
+		} catch (Exception de) {
+			throw new CorbaDeviceException(de.getMessage());
+		}
+	}
+	
+	@Override
+	public Any getClientInformation(String arg0) throws CorbaDeviceException {
+		try {
+			// get array from jython server
+			ClientDetails details = jythonServer.getClientInformation(arg0);
+			org.omg.CORBA.Any any = org.omg.CORBA.ORB.init().create_any();
+			any.insert_Value(details);
+			// send out any
+			return any;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}

@@ -20,6 +20,7 @@ package gda.jython.scriptcontroller.logging;
 
 public class TestMessageBean implements ScriptControllerLoggingMessage {
 
+	private String visitID = "";
 	private String uniqueID = "";
 	private String progressMessage = "";
 	private String runName = "";
@@ -40,7 +41,7 @@ public class TestMessageBean implements ScriptControllerLoggingMessage {
 		return "test scan";
 	}
 
-	@ScriptControllerLogColumn(columnName = "Progress", refresh = true, columnIndex = 1)
+	@ScriptControllerLogColumn(columnName = "Progress", refresh = true, columnIndex = 2)
 	public String getProgressMessage() {
 		return progressMessage;
 	}
@@ -49,7 +50,7 @@ public class TestMessageBean implements ScriptControllerLoggingMessage {
 		this.progressMessage = progressMessage;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Run name", refresh = false, columnIndex = 0)
+	@ScriptControllerLogColumn(columnName = "Run name", refresh = false, columnIndex = 1)
 	public String getRunName() {
 		return runName;
 	}
@@ -58,7 +59,7 @@ public class TestMessageBean implements ScriptControllerLoggingMessage {
 		this.runName = runName;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Comment", refresh = false, columnIndex = 2)
+	@ScriptControllerLogColumn(columnName = "Comment", refresh = false, columnIndex = 3)
 	public String getUserComment() {
 		return userComment;
 	}
@@ -67,7 +68,7 @@ public class TestMessageBean implements ScriptControllerLoggingMessage {
 		this.userComment = userComment;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Complete", refresh = true, columnIndex = 3)
+	@ScriptControllerLogColumn(columnName = "Complete", refresh = true, columnIndex = 4)
 	public String getPercentComplete() {
 		return percentComplete;
 	}
@@ -85,5 +86,15 @@ public class TestMessageBean implements ScriptControllerLoggingMessage {
 	@Override
 	public String getMsg() {
 		return getPercentComplete()  + " complete.";
+	}
+
+	public void setVisitID(String visitID) {
+		this.visitID = visitID;
+	}
+
+	@Override
+	@ScriptControllerLogColumn(columnName = "Visit ID", refresh = false, columnIndex = 0)
+	public String getVisitID() {
+		return visitID;
 	}
 }
