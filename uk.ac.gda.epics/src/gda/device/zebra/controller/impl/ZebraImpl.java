@@ -33,12 +33,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import gda.factory.Findable;
 
 import org.springframework.beans.factory.InitializingBean;
 
-public class ZebraImpl implements Zebra, InitializingBean {
+public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(ZebraImpl.class);
+	String name="zebra";
 
 	final public static String connected = "CONNECTED";
 	final public static String store = "STORE";
@@ -301,6 +303,8 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		if( name == null || name.isEmpty())
+			throw new Exception("name is not set");
 		if (zebraPrefix == null || zebraPrefix.isEmpty())
 			throw new Exception("zebraPrefix is not set");
 		dev = new CachedLazyPVFactory(zebraPrefix);
@@ -363,6 +367,30 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	@Override
 	public void setOutTTL(int outId, int val) throws Exception {
 		dev.getIntegerPVValueCache("OUT"+outId+"_TTL").putWait(val);
+	}
+	
+	public void setValue(String beforeUnderscore, int beforeUnderscoreId, String afterUnderscore, int afterUnderscoreId,int val) throws Exception {
+		String pvSuffix = beforeUnderscore;
+		if (beforeUnderscoreId > 0) {
+			pvSuffix += beforeUnderscoreId;
+		}
+		pvSuffix += "_";
+		pvSuffix += afterUnderscore;
+		if (afterUnderscoreId > 0) {
+			pvSuffix += afterUnderscoreId;
+		}
+		dev.getIntegerPVValueCache(pvSuffix).putWait(val);
+	}
+
+
+	@Override
+	public void setName(String name) {
+		this.name=name;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
