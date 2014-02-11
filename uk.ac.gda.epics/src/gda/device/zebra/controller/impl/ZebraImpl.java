@@ -205,6 +205,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void pcArm() throws Exception {
+		dev.getPVInteger(sysResetProc).putWait(1); // TODO: Do we really need to RESET before each Arm?
 		dev.getPVInteger(PCArm).putWait(1);
 /*		dev.getPVInteger(PCArm).putNoWait(1);
 		try {
