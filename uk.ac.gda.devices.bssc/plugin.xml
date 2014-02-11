@@ -90,12 +90,6 @@
            name="BioSAXS Progress View"
            restorable="true">
      </view>
-     <view
-           class="uk.ac.gda.devices.bssc.ui.CapillaryView"
-           id="uk.ac.gda.devices.bssc.biosaxscapillaryview"
-           name="Capillary View"
-           restorable="true">
-     </view>
   </extension>
   <extension
         point="org.eclipse.ui.menus">
