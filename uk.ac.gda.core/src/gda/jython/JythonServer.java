@@ -444,7 +444,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		boolean wasAlreadyRunning = (getScriptStatus(null) == Jython.RUNNING);
 		try {
 			setScriptStatus(Jython.RUNNING, null);
-			this.interp.runcode(JythonServerFacade.slurp(new File(scriptFullPath)));
+			this.interp.exec(JythonServerFacade.slurp(new File(scriptFullPath)));
 		} finally {
 			if (!wasAlreadyRunning) {
 				ScriptBase.setInterrupted(false);
@@ -466,7 +466,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		if (command.startsWith("print")) {
 			// do this immediately
-			this.interp.runcode(command);
+			this.interp.exec(command);
 
 		} else {
 
@@ -630,7 +630,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		// tell all terminals that they should alter their input prompt
 		updateIObservers(RAWINPUTREQUESTED);
 
-		this.interp.runcode(("print '" + prompt + "'"));
+		this.interp.exec(("print '" + prompt + "'"));
 
 		// call raw_input which waits for an input from the user
 		while (expectingInputForRawInput) {
@@ -1064,7 +1064,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 					+ "\tif isinstance(dontuse,(PseudoDevice, ScannableBase)):\n" + "\t\ttry:\n" + "\t\t\tdontuse.stop()\n"
 					+ "\t\texcept:\n" + "\t\t\tprint '    problem stopping ' + dontuse.getName()\n" + "\n"
 					+ "del dontuse\n" + "\n";
-			interp.runcode(jythonCommand);
+			interp.exec(jythonCommand);
 		} else {
 			logger.info("Configured *not* to stop Scannables found in Jython namespace.");
 		}
@@ -1263,7 +1263,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		@Override
 		public void run() {
 			try {
-				this.interpreter.runcode(cmd);
+				this.interpreter.exec(cmd);
 			} catch (Exception e) {
 				logger.error(
 						"CommandServer: error while running command: '" + cmd + "' encountered an error: "

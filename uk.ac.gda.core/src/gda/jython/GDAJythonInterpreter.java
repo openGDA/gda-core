@@ -352,34 +352,34 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				this.interp.runsource("completer = Completer(locals(), globals())");
 				// inform translator what the built-in commands are by
 				// aliasing them -- i.e. reserved words
-				this.runcode("alias ls");
-				this.runcode("alias ls_names");
-				this.runcode("vararg_alias pos");
-				this.runcode("vararg_alias upos");
-				this.runcode("vararg_alias inc");
-				this.runcode("vararg_alias uinc");
-				this.runcode("alias help");
-				this.runcode("alias list_defaults");
-				this.runcode("vararg_alias add_default");
-				this.runcode("vararg_alias remove_default");
-				this.runcode("vararg_alias level");
-				this.runcode("alias pause");
-				this.runcode("alias reset_namespace");
-				this.runcode("alias run");
-				this.runcode("vararg_alias scan");
-				this.runcode("vararg_alias pscan");
-				this.runcode("vararg_alias cscan");
-				this.runcode("vararg_alias zacscan");
-				this.runcode("vararg_alias testscan");
-				this.runcode("vararg_alias gscan");
-				this.runcode("vararg_alias tscan");
-				this.runcode("vararg_alias timescan");
-				this.runcode("vararg_alias staticscan");
-				this.runcode("alias lastScanDataPoint");
+				this.exec("alias ls");
+				this.exec("alias ls_names");
+				this.exec("vararg_alias pos");
+				this.exec("vararg_alias upos");
+				this.exec("vararg_alias inc");
+				this.exec("vararg_alias uinc");
+				this.exec("alias help");
+				this.exec("alias list_defaults");
+				this.exec("vararg_alias add_default");
+				this.exec("vararg_alias remove_default");
+				this.exec("vararg_alias level");
+				this.exec("alias pause");
+				this.exec("alias reset_namespace");
+				this.exec("alias run");
+				this.exec("vararg_alias scan");
+				this.exec("vararg_alias pscan");
+				this.exec("vararg_alias cscan");
+				this.exec("vararg_alias zacscan");
+				this.exec("vararg_alias testscan");
+				this.exec("vararg_alias gscan");
+				this.exec("vararg_alias tscan");
+				this.exec("vararg_alias timescan");
+				this.exec("vararg_alias staticscan");
+				this.exec("alias lastScanDataPoint");
 
 				// define a function that can check a java object for a field or method called
 				// __doc__ and print it out
-				this.runcode("def _gdahelp(obj=None):\n" + "    if obj is None:\n"
+				this.exec("def _gdahelp(obj=None):\n" + "    if obj is None:\n"
 						+ "        GeneralCommands.gdahelp()\n" + "        return\n"
 						+ "    if hasattr(obj, '__class__'):\n"
 						+ "        if issubclass(obj.__class__, java.lang.Object):\n" + "            helptext = None\n"
@@ -474,11 +474,11 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 * @param input
 	 *            File
 	 */
-	protected void runcode(String input) {
+	protected void exec(String input) throws PyException{
 		// translate script into true Jython line by line
 		PyString tempFile = translateScriptToGDA(input);
 		// pass entire script to interpreter
-		interp.runcode(tempFile);
+		interp.exec(tempFile);
 	}
 
 	/**
@@ -493,7 +493,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		JythonServerFacade.getInstance().setScriptStatus(Jython.RUNNING);
 		try{
 			String lines = JythonServerFacade.slurp(input);
-			this.runcode(lines);
+			this.exec(lines);
 		} finally{
 			JythonServerFacade.getInstance().setScriptStatus(Jython.IDLE);
 		}
