@@ -43,7 +43,7 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 		ISpyBStatusInfo status = new ISpyBStatusInfo();
 		status.setStatus(ISpyBStatus.RUNNING);
 		status.setProgress(33);
-		status.setFileName(filename);
+		status.addFileName(filename);
 		setDataCollectionStatus(currentDataCollectionId, status);
 		isPyBSAXSDataCollections.get(
 				((Long) currentDataCollectionId).intValue())
@@ -66,7 +66,7 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 		ISpyBStatusInfo status = new ISpyBStatusInfo();
 		status.setStatus(ISpyBStatus.RUNNING);
 		status.setProgress(66);
-		status.setFileName(filename);
+		status.addFileName(filename);
 		setDataCollectionStatus(dataCollectionId, status);
 
 		// Mock the controller receiving a notification update that database has
@@ -126,7 +126,7 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 		ISpyBStatusInfo status = new ISpyBStatusInfo();
 		status.setStatus(ISpyBStatus.COMPLETE);
 		status.setProgress(100);
-		status.setFileName("");
+		status.addFileName("");
 		setDataReductionStatus(dataCollectionId, status, "");
 
 		// Mock the controller receiving a notification update that database has
@@ -142,7 +142,7 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 		ISpyBStatusInfo status = new ISpyBStatusInfo();
 		status.setStatus(ISpyBStatus.COMPLETE);
 		status.setProgress(100);
-		status.setFileName("");
+		status.addFileName("");
 		setDataAnalysisStatus(dataCollectionId, status, "");
 
 		// Mock the controller receiving a notification update that database has
@@ -239,19 +239,19 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 			ISpyBStatusInfo collectionStatusInfo = new ISpyBStatusInfo();
 			collectionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
 			collectionStatusInfo.setProgress(0);
-			collectionStatusInfo.setFileName("");
+			collectionStatusInfo.addFileName("");
 			collectionStatusInfo.setMessage("");
 			bioSaxsDataCollection.setCollectionStatus(collectionStatusInfo);
 			ISpyBStatusInfo reductionStatusInfo = new ISpyBStatusInfo();
 			reductionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
 			reductionStatusInfo.setProgress(0);
-			reductionStatusInfo.setFileName("");
+			reductionStatusInfo.addFileName("");
 			reductionStatusInfo.setMessage("");
 			bioSaxsDataCollection.setReductionStatus(reductionStatusInfo);
 			ISpyBStatusInfo analysisStatusInfo = new ISpyBStatusInfo();
 			analysisStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
 			analysisStatusInfo.setProgress(0);
-			analysisStatusInfo.setFileName("");
+			analysisStatusInfo.addFileName("");
 			analysisStatusInfo.setMessage("");
 			bioSaxsDataCollection.setAnalysisStatus(analysisStatusInfo);
 			isPyBSAXSDataCollections.add(bioSaxsDataCollection);
