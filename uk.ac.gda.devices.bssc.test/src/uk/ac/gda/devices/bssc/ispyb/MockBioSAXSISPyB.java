@@ -120,14 +120,14 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	}
 
 	@Override
-	public long createDataReduction(long dataCollectionId) throws SQLException {
+	public long createDataReduction(long dataCollectionId, String fileName) throws SQLException {
 		// Mock up creating a data reduction data base object here
 		long dataReductionId = 0;
 		ISpyBStatusInfo status = new ISpyBStatusInfo();
 		status.setStatus(ISpyBStatus.COMPLETE);
 		status.setProgress(100);
-		status.addFileName("");
-		setDataReductionStatus(dataCollectionId, status, "");
+		status.addFileName(fileName);
+		setDataReductionStatus(dataCollectionId, status);
 
 		// Mock the controller receiving a notification update that database has
 		// been updated
@@ -136,14 +136,14 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	}
 
 	@Override
-	public long createDataAnalysis(long dataCollectionId) throws SQLException {
+	public long createDataAnalysis(long dataCollectionId, String fileName) throws SQLException {
 		// Mock up creating a data reduction data base object here
 		long dataAnalysisId = 0;
 		ISpyBStatusInfo status = new ISpyBStatusInfo();
 		status.setStatus(ISpyBStatus.COMPLETE);
 		status.setProgress(100);
 		status.addFileName("");
-		setDataAnalysisStatus(dataCollectionId, status, "");
+		setDataAnalysisStatus(dataCollectionId, status);
 
 		// Mock the controller receiving a notification update that database has
 		// been updated
@@ -153,7 +153,7 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 
 	@Override
 	public void setDataReductionStatus(long saxsDataCollectionId,
-			ISpyBStatusInfo status, String resultsFilename) throws SQLException {
+			ISpyBStatusInfo status) throws SQLException {
 		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
 
 		isPyBSAXSDataCollections.get(dataCollectionId).setReductionStatus(
@@ -171,7 +171,7 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 
 	@Override
 	public void setDataAnalysisStatus(long saxsDataCollectionId,
-			ISpyBStatusInfo status, String resultsFilename) throws SQLException {
+			ISpyBStatusInfo status) throws SQLException {
 		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
 
 		isPyBSAXSDataCollections.get(dataCollectionId)
