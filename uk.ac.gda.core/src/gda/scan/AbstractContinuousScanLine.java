@@ -387,7 +387,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 				// ignore zero input-output name devices
 				if (!(scn instanceof ContinuouslyScannableViaController)) {
 					throw new IllegalArgumentException("Scannable " + scn.getName()
-							+ " is not ContinuouslyScannableViaController so cannot be used in a TrajectoryScanLine");
+							+ " is not ContinuouslyScannableViaController so cannot be used in an AbstractContinuousScanLine");
 				}
 				scannablesToMove.add((ContinuouslyScannableViaController) scn);
 			}
@@ -398,7 +398,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		for (Detector det : allDetectors) {
 			if (!(det instanceof HardwareTriggeredDetector)) {
 				throw new IllegalArgumentException("Detector " + det.getName()
-						+ " is not a HardwareTriggeredDetector so cannot be used in a TrajectoryScanLine");
+						+ " is not a HardwareTriggeredDetector so cannot be used in an AbstractContinuousScanLine");
 			}
 			detectors.add((HardwareTriggeredDetector) det);
 		}
@@ -496,7 +496,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	@Override
 	public void doCollection() throws Exception {
 
-		logger.info("Starting TrajectoryScanLine for scan: '" + getName() + "' (" + getCommand() + ")" );
+		logger.info("Starting AbstractContinuousScanLine for scan: '" + getName() + "' (" + getCommand() + ")" );
 		
 		getController().stopAndReset(); // should be ready anyway
 
@@ -672,7 +672,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		LinkedList<FutureTask<Void>> futureTasks = new LinkedList<FutureTask<Void>>();
 		for (HardwareTriggeredDetector det : detectors) {
 			futureTasks.add(new FutureTask<Void>(new ArmDetector(det)));
-			(new Thread(futureTasks.getLast(), "TrajectoryScanLine.ArmDetector-" + det.getName())).start();
+			(new Thread(futureTasks.getLast(), "AbstractContinuousScanLine.ArmDetector-" + det.getName())).start();
 		}
 		
 		// Wait for each detector to arm (cancelling other arm-tasks and stopping all detectors on a failure.
