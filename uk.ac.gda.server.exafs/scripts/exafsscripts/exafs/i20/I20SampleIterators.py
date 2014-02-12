@@ -142,10 +142,19 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
         if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or self.sample_roll == None or self.sample_pitch == None:
             raise DeviceException("I20 scan script - could not find all sample stage motors!")
         self.log( "Moving sample stage to",x,y,z,rotation,roll,pitch,"...")
-        self.sample_x.asynchronousMoveTo(x)
-        self.sample_y.asynchronousMoveTo(y)
-        self.sample_z.asynchronousMoveTo(z)
-        self.sample_rot.asynchronousMoveTo(rotation)
+        
+        if samXEnabled == True:
+            self.sample_x.asynchronousMoveTo(x)
+            
+        if samYEnabled == True:
+            self.sample_y.asynchronousMoveTo(y)
+        
+        if samZEnabled == True:
+            self.sample_z.asynchronousMoveTo(z)
+        
+        if rotEnabled == True:
+            self.sample_rot.asynchronousMoveTo(rotation)
+        
         self.sample_x.waitWhileBusy()
         self.sample_y.waitWhileBusy()
         self.sample_z.waitWhileBusy()
@@ -189,14 +198,34 @@ class XES_Roomtemp_Iterator(XASXANES_Roomtemp_Iterator):
     
     def moveToNext(self):
         i = self._determineSample()
-        x = self.sampleBean.get(i).getSample_x()
-        y = self.sampleBean.get(i).getSample_y()
-        z = self.sampleBean.get(i).getSample_z()
-        rotation = self.sampleBean.get(i).getSample_rotation()
-        finerotation = self.sampleBean.get(i).getSample_finerotation()
-        samplename = self.sampleBean.get(i).getSample_name()
-        sampledescription = self.sampleBean.get(i).getSample_description()
-        sample_repeats = self.sampleBean.get(i).getNumberOfRepetitions()
+        sample = self.sampleBean.get(i)
+        
+        samXEnabled = sample.getSamXEnabled;
+        samYEnabled = sample.getSamYEnabled;
+        samZEnabled = sample.getSamZEnabled;
+        rotEnabled = sample.getRotEnabled;
+        rollEnabled = sample.getRollEnabled;
+        pitchEnabled = sample.getPitchEnabled;
+        fineRotEnabled = sample.getFineRotEnabled;
+        
+        print "samXEnabled ", samXEnabled
+        print "samYEnabled ", samYEnabled
+        print "samZEnabled ", samZEnabled
+        print "rotEnabled ", rotEnabled
+        print "rollEnabled ", rollEnabled
+        print "pitchEnabled ", pitchEnabled
+        print "fineRotEnabled ", fineRotEnabled
+        
+        
+        i = self._determineSample()
+        x = sample.getSample_x()
+        y = sample.getSample_y()
+        z = sample.getSample_z()
+        rotation = sample.getSample_rotation()
+        finerotation = sample.getSample_finerotation()
+        samplename = sample.getSample_name()
+        sampledescription = sample.getSample_description()
+        sample_repeats = sample.getNumberOfRepetitions()
         self.log("Running sample:",samplename) # +1 as the user will think the first sample is 1 not 0
         if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or self.sample_fine_rot == None:
             raise DeviceException("I20 scan script - could not find all sample stage motors!")
