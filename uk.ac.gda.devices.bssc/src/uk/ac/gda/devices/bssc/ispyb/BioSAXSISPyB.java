@@ -195,22 +195,42 @@ public interface BioSAXSISPyB {
 	 * Call this method when data reduction is started so that its status can be recorded
 	 * 
 	 * @param dataCollectionId
+	 * @param fileName
 	 * @return SubtractionId
 	 * @throws SQLException
 	 */
-	public long createDataReduction(long dataCollectionId) throws SQLException;
+	public long createDataReduction(long dataCollectionId, String fileName) throws SQLException;
 
 	/**
 	 * Sets the data reduction status of the data collection
 	 * 
 	 * @param dataCollectionId
 	 * @param status
-	 * @param resultsFilename
 	 * @throws SQLException
 	 */
-	public void setDataReductionStatus(long dataCollectionId, ISpyBStatusInfo status, String resultsFilename)
+	public void setDataReductionStatus(long dataCollectionId, ISpyBStatusInfo status)
 			throws SQLException;
 
+	/**
+	 * Call this method when data analysis is started so that its status can be recorded
+	 * 
+	 * @param dataCollectionId
+	 * @param fileName
+	 * @return AnalysisId
+	 * @throws SQLException
+	 */
+	public long createDataAnalysis(long dataCollectionId, String fileName) throws SQLException;
+
+	/**
+	 * Sets the data analysis status of the data collection
+	 * 
+	 * @param dataCollectionId
+	 * @param status
+	 * @throws SQLException
+	 */
+	public void setDataAnalysisStatus(long dataCollectionId, ISpyBStatusInfo status)
+			throws SQLException;
+	
 	/**
 	 * Returns the status of the data reduction for a sample/data collection
 	 * 
@@ -227,26 +247,6 @@ public interface BioSAXSISPyB {
 	 * @throws SQLException
 	 */
 	public List<ISAXSDataCollection> getSAXSDataCollections(long blSessionId) throws SQLException;
-
-	/**
-	 * Call this method when data analysis is started so that its status can be recorded
-	 * 
-	 * @param dataCollectionId
-	 * @return AnalysisId
-	 * @throws SQLException
-	 */
-	public long createDataAnalysis(long dataCollectionId) throws SQLException;
-
-	/**
-	 * Sets the data analysis status of the data collection
-	 * 
-	 * @param dataCollectionId
-	 * @param status
-	 * @param resultsFilename
-	 * @throws SQLException
-	 */
-	public void setDataAnalysisStatus(long dataCollectionId, ISpyBStatusInfo status, String resultsFilename)
-			throws SQLException;
 
 	/**
 	 * Returns the status of the data analysis for a sample/data collection
