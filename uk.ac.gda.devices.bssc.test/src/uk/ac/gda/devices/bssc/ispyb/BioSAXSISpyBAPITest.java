@@ -194,8 +194,9 @@ public class BioSAXSISpyBAPITest {
 		int modelIndex = ((Long) dataCollectionId).intValue();
 
 		try {
+			String reductionFile = "/dls/b21/data/2013/sm999-9/b21-9991.nxs";
 			long reductionId = bioSAXSISPyB
-					.createDataReduction(dataCollectionId);
+					.createDataReduction(dataCollectionId, reductionFile);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -215,7 +216,8 @@ public class BioSAXSISpyBAPITest {
 		int modelIndex = ((Long) dataCollectionId).intValue();
 
 		try {
-			long analysisId = bioSAXSISPyB.createDataAnalysis(dataCollectionId);
+			String analysisFile = "/dls/b21/data/2013/sm999-9/b21-9992.nxs";
+			long analysisId = bioSAXSISPyB.createDataAnalysis(dataCollectionId, analysisFile);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
