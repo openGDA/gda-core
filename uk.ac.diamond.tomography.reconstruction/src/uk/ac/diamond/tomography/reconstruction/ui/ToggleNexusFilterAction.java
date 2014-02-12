@@ -21,25 +21,33 @@ package uk.ac.diamond.tomography.reconstruction.ui;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 
-import uk.ac.diamond.tomography.reconstruction.INexusPathProvider;
+import uk.ac.diamond.tomography.reconstruction.INexusFilterDescriptor;
+import uk.ac.diamond.tomography.reconstruction.INexusFilterInfoProvider;
 
+/**
+ * An action for toggling a nexus filter on or off
+ */
 public class ToggleNexusFilterAction extends Action {
 
-	private INexusPathProvider pathProvider;
-	private String filterPath;
-	
-	public ToggleNexusFilterAction(String path, INexusPathProvider pathProvider) {
-		super(path+'@', IAction.AS_CHECK_BOX); //$NON-NLS-1$
-		setToolTipText("Filter on "+ path);
-		this.filterPath = path;
-		this.pathProvider = pathProvider;
-		String defaultPath = pathProvider.getNexusPath();
-		if (defaultPath != null)setChecked(defaultPath.equals(path));
-		
+	private INexusFilterInfoProvider filterInfoProvider;
+	private INexusFilterDescriptor filterDescriptor;
+
+	/**
+	 * Create a new filter action
+	 * @param thisDescriptor the filter descriptor this action toggles
+	 * @param filterInfoProvider the filter info provider to get and set the filter. Must not be <code>null</code>
+	 */
+	public ToggleNexusFilterAction(INexusFilterDescriptor thisDescriptor, INexusFilterInfoProvider filterInfoProvider) {
+		super(thisDescriptor.toString() +'@', IAction.AS_CHECK_BOX); //$NON-NLS-1$
+		this.filterDescriptor = thisDescriptor;
+		this.filterInfoProvider = filterInfoProvider;
+		if (filterDescriptor != null){
+			setChecked(filterDescriptor.equals(filterInfoProvider.getFilterDescriptor()));
+		}
 	}
-	
+
 	@Override
 	public void run() {
-		if (isChecked()) pathProvider.setNexusPath(filterPath);
+		if (isChecked()) filterInfoProvider.setFilterDescriptor(filterDescriptor);
 	}
 }

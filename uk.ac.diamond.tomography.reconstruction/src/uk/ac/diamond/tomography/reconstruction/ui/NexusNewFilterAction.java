@@ -22,17 +22,17 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.window.Window;
 import org.eclipse.ui.PlatformUI;
 
-import uk.ac.diamond.tomography.reconstruction.INexusPathProvider;
+import uk.ac.diamond.tomography.reconstruction.INexusFilterInfoProvider;
 
 public class NexusNewFilterAction extends Action {
 
-	private INexusPathProvider filterPathProvider;
+	private INexusFilterInfoProvider filterPathProvider;
 	private String[] history;
-	
-	public NexusNewFilterAction(INexusPathProvider sortProvider, String[] history) {
+
+	public NexusNewFilterAction(INexusFilterInfoProvider filterProvider, String[] history) {
 		super("&New Filter..."); //$NON-NLS-1$
 		setImageDescriptor(NexusNavigatorUiImages.filterIcon);
-		this.filterPathProvider = sortProvider;
+		this.filterPathProvider = filterProvider;
 		this.history = history;
 	}
 
@@ -41,7 +41,7 @@ public class NexusNewFilterAction extends Action {
 		NexusFileFilterDialog createFilter = new NexusFileFilterDialog(PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getShell(), filterPathProvider.getSuggestedPath(), history);
 		if (createFilter.open() == Window.OK) {
-			filterPathProvider.setNexusPath(createFilter.getNexusPath());
+			filterPathProvider.setFilterDescriptor(createFilter.getFilterDescriptor());
 		}
 	}
 }

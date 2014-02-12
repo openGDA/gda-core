@@ -78,37 +78,37 @@
             viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator">
             <popupMenu
                 allowsPlatformContributions="true"
-                id="uk.ac.diamond.tomography.reconstruction.NexusNavigator#PopupMenu">  
+                id="uk.ac.diamond.tomography.reconstruction.NexusNavigator#PopupMenu">
              <insertionPoint name="group.new"/>
              <insertionPoint
                    name="group.open"
                    separator="true"/>
-             <insertionPoint name="group.openWith"/>   
+             <insertionPoint name="group.openWith"/>
              <insertionPoint name="group.edit"
-                   separator="true"/>   
-             <insertionPoint name="group.reorganize" />         
+                   separator="true"/>
+             <insertionPoint name="group.reorganize" />
              <insertionPoint
                    name="group.port"
-                   separator="true"/>     
+                   separator="true"/>
              <insertionPoint
                    name="group.build"
-                   separator="true"/> 
+                   separator="true"/>
              <insertionPoint
                    name="group.generate"
-                   separator="true"/> 
+                   separator="true"/>
              <insertionPoint
                    name="group.search"
-                   separator="true"/>              
+                   separator="true"/>
              <insertionPoint
                    name="additions"
-                   separator="true"/>              
+                   separator="true"/>
              <insertionPoint
                    name="group.properties"
                    separator="true"/>
-             
+
           </popupMenu>
           </viewer>
-          
+
           <!--
           <options>
              <property
@@ -117,7 +117,7 @@
              </property>
           </options>
           -->
-       <viewerContentBinding 
+       <viewerContentBinding
              viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator">
           <includes>
               <contentExtension
@@ -138,8 +138,8 @@
              class="org.eclipse.ui.navigator.resources.ResourceDragAdapterAssistant"
              viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator"/>
    </extension>
-   
-   <extension  
+
+   <extension
          point="org.eclipse.ui.navigator.navigatorContent">
       <commonFilter
             activeByDefault="true"
@@ -182,17 +182,20 @@
                </or>
             </parentExpression>
          </commonSorter>
-      </navigatorContent>      
-      <!-- WIP - The Filtering is not fully implemented <commonFilter
+      </navigatorContent>
+      <commonFilter
+            activeByDefault="true"
+            class="uk.ac.diamond.tomography.reconstruction.NexusFilter"
             description="Filters NeXus files based on NeXus paths"
             id="uk.ac.diamond.tomography.reconstruction.filters.NexusPathFilter"
-            name="Nexus Path Filter">
-      
-            
-            
-      </commonFilter> -->
+            name="Nexus Path Filter"
+            visibleInUI="true">
+      </commonFilter>
+
+
+
   </extension>
-  
+
    <extension
          point="org.eclipse.ui.preferencePages">
       <page

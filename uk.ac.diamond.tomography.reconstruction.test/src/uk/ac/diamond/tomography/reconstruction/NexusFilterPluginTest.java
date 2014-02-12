@@ -46,10 +46,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.ac.diamond.tomography.reconstruction.INexusFilterDescriptor.Operation;
+import uk.ac.diamond.tomography.reconstruction.views.NexusFilterDescriptor;
 import uk.ac.diamond.tomography.reconstruction.views.NexusNavigator;
 
 @SuppressWarnings("restriction")
-public class NexusSorterPluginTest {
+public class NexusFilterPluginTest {
 	private static NexusNavigator navigatorView;
 	private static IProject project;
 	private static IWorkspaceRoot root;
@@ -64,26 +66,35 @@ public class NexusSorterPluginTest {
 
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		root = workspace.getRoot();
-		project = root.getProject("NexusSorterPluginTestProject");
+		project = root.getProject("NexusFilterPluginTestProject");
 		// at this point, no resources have been created
 		assertTrue(!project.exists());
 		project.create(null);
 		project.open(null);
 
-		createNexusFile(project.getFile("a.nxs"), "kichwa1", "2");
-		createNexusFile(project.getFile("b.nxs"), "kichwa1", "1");
-		createNexusFile(project.getFile("c.nxs"), "kichwa1", "2");
-		createNexusFile(project.getFile("d.nxs"), "kichwa2", "1");
-		IFile file_e = project.getFile("e.nxs");
-		createNexusFile(file_e, "kichwa1", "2");
+		createNexusFile(project.getFile("kichwa1_1.nxs"), "kichwa1", "1");
+		createNexusFile(project.getFile("kichwa1_2.nxs"), "kichwa1", "2");
+		IFile file = project.getFile("kichwa2_1.nxs");
+		createNexusFile(file, "kichwa2", "1");
 
 		root.refreshLocal(IResource.DEPTH_INFINITE, null);
-		navigatorView.getCommonViewer().expandToLevel(file_e, AbstractTreeViewer.ALL_LEVELS);
+		navigatorView.getCommonViewer().expandToLevel(file, AbstractTreeViewer.ALL_LEVELS);
+	}
+
+	private void setFilter(String nexusFilterPath, INexusFilterDescriptor.Operation nexusFilterOperation,
+			String[] nexusFilterOperands) {
+		INexusFilterDescriptor descriptor = new NexusFilterDescriptor(nexusFilterPath, nexusFilterOperation,
+				nexusFilterOperands);
+		navigatorView.getFilterPathProvider().setFilterDescriptor(descriptor);
+	}
+
+	private void setFilterOff() {
+		navigatorView.getFilterPathProvider().setFilterDescriptor(null);
 	}
 
 	@Before
 	public void before() {
-		navigatorView.getSortPathProvider().setNexusPath("");
+		setFilterOff();
 	}
 
 	@AfterClass
@@ -127,45 +138,32 @@ public class NexusSorterPluginTest {
 	}
 
 	@Test
-	public void testBasic() {
-		navigatorView.getSortPathProvider().setNexusPath("");
-
-		assertDisplayedContent("a.nxs", "b.nxs", "c.nxs", "d.nxs", "e.nxs");
+	public void test_Off() {
+		assertDisplayedContent("kichwa1_1.nxs", "kichwa1_2.nxs", "kichwa2_1.nxs");
 	}
 
 	@Test
-	public void testKichwa1() {
-		navigatorView.getSortPathProvider().setNexusPath("/kichwa1");
+	public void test_CONTAINS() {
+		setFilter("/kichwa1", Operation.CONTAINS, null);
+		assertDisplayedContent("kichwa1_1.nxs", "kichwa1_2.nxs");
 
-		assertDisplayedContent("b.nxs", "a.nxs", "c.nxs", "e.nxs", "d.nxs");
+		setFilter("/kichwa2", Operation.CONTAINS, null);
+		assertDisplayedContent("kichwa2_1.nxs");
+
+		setFilter("/not_in_any_file", Operation.CONTAINS, null);
+		assertDisplayedContent();
 	}
 
 	@Test
-	public void testKichwa2() {
-		navigatorView.getSortPathProvider().setNexusPath("/kichwa2");
+	public void test_DOES_NOT_CONTAIN() {
+		setFilter("/kichwa1", Operation.DOES_NOT_CONTAIN, null);
+		assertDisplayedContent("kichwa2_1.nxs");
 
-		assertDisplayedContent("d.nxs", "a.nxs", "b.nxs", "c.nxs", "e.nxs");
-	}
+		setFilter("/kichwa2", Operation.DOES_NOT_CONTAIN, null);
+		assertDisplayedContent("kichwa1_1.nxs", "kichwa1_2.nxs");
 
-	@Test
-	public void testNonExistentPath() {
-		navigatorView.getSortPathProvider().setNexusPath("/non/existent/path");
-
-		assertDisplayedContent("a.nxs", "b.nxs", "c.nxs", "d.nxs", "e.nxs");
-	}
-
-	@Test
-	public void testNull() {
-		navigatorView.getSortPathProvider().setNexusPath(null);
-
-		assertDisplayedContent("a.nxs", "b.nxs", "c.nxs", "d.nxs", "e.nxs");
-	}
-
-	@Test
-	public void testEmpty() {
-		navigatorView.getSortPathProvider().setNexusPath("");
-
-		assertDisplayedContent("a.nxs", "b.nxs", "c.nxs", "d.nxs", "e.nxs");
+		setFilter("/not_in_any_file", Operation.DOES_NOT_CONTAIN, null);
+		assertDisplayedContent("kichwa1_1.nxs", "kichwa1_2.nxs", "kichwa2_1.nxs");
 	}
 
 	private void assertDisplayedContent(String... expected) {
@@ -181,7 +179,7 @@ public class NexusSorterPluginTest {
 		CommonViewer viewer = navigatorView.getCommonViewer();
 		Tree tree = (Tree) viewer.getControl();
 		for (TreeItem treeItem : tree.getItems()) {
-			if ("NexusSorterPluginTestProject".equals(treeItem.getText())) {
+			if ("NexusFilterPluginTestProject".equals(treeItem.getText())) {
 				TreeItem[] items = treeItem.getItems();
 				String[] itemTexts = new String[items.length];
 				for (int i = 0; i < itemTexts.length; i++) {

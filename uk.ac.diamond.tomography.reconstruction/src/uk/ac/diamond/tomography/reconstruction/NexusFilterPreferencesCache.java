@@ -20,27 +20,31 @@ package uk.ac.diamond.tomography.reconstruction;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.ui.WorkbenchException;
 
-public enum NexusSorterPreferencesCache implements INexusSorterPreferencesCache {
+import uk.ac.diamond.tomography.reconstruction.views.NexusFilterDescriptor;
+
+public enum NexusFilterPreferencesCache implements INexusFilterPreferencesCache {
 
 	// Singleton instance
 	CACHE;
 
-	private String nexusSortPath;
+	private NexusFilterDescriptor nexusFilterDescriptor = null;
 
-	private NexusSorterPreferencesCache() {
+	private NexusFilterPreferencesCache() {
 		IEclipsePreferences prefs = null;
 		prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
 
 		if (prefs != null) {
 			prefs.addPreferenceChangeListener(new PreferenceChangeListener());
-			nexusSortPath = prefs.get(Activator.PREF_NEXUS_FILTER_DESCRIPTOR, "");
-		}
-	}
 
-	@Override
-	public String getNexusSortPath() {
-		return nexusSortPath;
+			String pref = prefs.get(Activator.PREF_NEXUS_FILTER_DESCRIPTOR, "");
+			try {
+				nexusFilterDescriptor = new NexusFilterDescriptor(pref);
+			} catch (WorkbenchException | NullPointerException | IllegalArgumentException e) {
+				nexusFilterDescriptor = null;
+			}
+		}
 	}
 
 	/**
@@ -49,11 +53,20 @@ public enum NexusSorterPreferencesCache implements INexusSorterPreferencesCache 
 	private class PreferenceChangeListener implements IEclipsePreferences.IPreferenceChangeListener {
 		@Override
 		public void preferenceChange(final IEclipsePreferences.PreferenceChangeEvent event) {
-			if (event.getKey().equals(Activator.PREF_NEXUS_SORT_PATH)) {
+			if (event.getKey().equals(Activator.PREF_NEXUS_FILTER_DESCRIPTOR)) {
 				// cast to String because getNewValue always returns String or null
-				nexusSortPath = (String) event.getNewValue();
+				try {
+					nexusFilterDescriptor = new NexusFilterDescriptor((String) event.getNewValue());
+				} catch (WorkbenchException | NullPointerException | IllegalArgumentException e) {
+					nexusFilterDescriptor = null;
+				}
 			}
 		}
+	}
+
+	@Override
+	public INexusFilterDescriptor getNexusFilterDescriptor() {
+		return nexusFilterDescriptor;
 	}
 
 }

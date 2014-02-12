@@ -21,28 +21,25 @@ package uk.ac.diamond.tomography.reconstruction.ui;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 
-import uk.ac.diamond.tomography.reconstruction.INexusPathProvider;
+import uk.ac.diamond.tomography.reconstruction.INexusFilterInfoProvider;
 
 public class ToggleNoNexusFiltersAction extends Action {
 
-	private INexusPathProvider filterPathProvider;
-	
-	public ToggleNoNexusFiltersAction(INexusPathProvider filterPathProvider){
+	private INexusFilterInfoProvider filterInfoProvider;
+
+	public ToggleNoNexusFiltersAction(INexusFilterInfoProvider filterInfoProvider){
 		super("Nexus Filters Off", IAction.AS_CHECK_BOX);
 
-		this.filterPathProvider =filterPathProvider;
-		String path = filterPathProvider.getNexusPath();
-		if (path == null || path.isEmpty()){
+		this.filterInfoProvider = filterInfoProvider;
+		if (filterInfoProvider.getFilterDescriptor()== null){
 			super.setChecked(true);
 		} else {
 			super.setChecked(false);
 		}
 	}
-	
+
 	@Override
 	public void run() {
-		if (isChecked())filterPathProvider.setNexusPath("");
+		if (isChecked())filterInfoProvider.setFilterDescriptor(null);
 	}
-
-
 }

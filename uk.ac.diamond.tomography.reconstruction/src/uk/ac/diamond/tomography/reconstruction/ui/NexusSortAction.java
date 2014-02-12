@@ -31,7 +31,7 @@ public class NexusSortAction extends Action implements IMenuCreator {
 
 	private Menu dropDownMenu;
 	private INexusPathProvider sortProvider;
-	
+
 	public NexusSortAction(INexusPathProvider sortProvider) {
 		setText("Nexus Sort");
 		setToolTipText("Sort nexus files");
@@ -66,22 +66,18 @@ public class NexusSortAction extends Action implements IMenuCreator {
 		addActionsToMenu();
 		return dropDownMenu;
 	}
-	
+
 	private void addActionsToMenu() {
 		// No sort
 		ActionContributionItem itemNoSort = new ActionContributionItem(new ToggleNoNexusSortingAction(sortProvider));
 		itemNoSort.fill(dropDownMenu, -1);
-		
+
 		// Recently used sorts
 		String history[] = sortProvider.getNexusPathHistory();
 		if (history != null){
 			Separator separator = new Separator();
 			separator.fill(dropDownMenu, -1);
 			for (int i = 0; i < history.length; i++) {
-//				StringBuilder tmp = new StringBuilder(history[i]);
-//				if (history[i].contains("@")){
-//					tmp.append('@');
-//				} 
 				ActionContributionItem item = new ActionContributionItem(new ToggleNexusSorterAction(history[i],  sortProvider));
 				item.fill(dropDownMenu, -1);
 			}
