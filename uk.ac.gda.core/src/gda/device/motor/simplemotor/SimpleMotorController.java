@@ -30,7 +30,7 @@ public interface SimpleMotorController {
 
 	void stop()throws DeviceException;
 
-	void setSpeed(double speed) throws DeviceException;
+	void setSpeed(double speed) throws DeviceException, InterruptedException;
 
 	double getSpeed() throws DeviceException;
 
