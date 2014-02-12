@@ -617,28 +617,28 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		DoubleDataset alphaChannel = new DoubleDataset(currentSize);
 		for (int i = 0; i < currentSize; i++) {
 			double value = i / (double) currentSize;
-			double redvalue = redFunc.clippedMapToDouble(value);
+			double redvalue = redFunc.getPoint(value);
 
 			if (curRedInverse)
 				redvalue = 1.0 - redvalue;
 
 			redvalue *= maxValue;
 
-			double greenvalue = greenFunc.clippedMapToDouble(value);
+			double greenvalue = greenFunc.getPoint(value);
 
 			if (curGreenInverse)
 				greenvalue = 1.0 - greenvalue;
 
 			greenvalue *= maxValue;
 
-			double bluevalue = blueFunc.clippedMapToDouble(value);
+			double bluevalue = blueFunc.getPoint(value);
 
 			if (curBlueInverse)
 				bluevalue = 1.0 - bluevalue;
 
 			bluevalue *= maxValue;
 			
-			double alphavalue = alphaFunc.clippedMapToDouble(value);
+			double alphavalue = alphaFunc.getPoint(value);
 			
 			if (curAlphaInverse)
 				alphavalue = 1.0 - alphavalue;
