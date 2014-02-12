@@ -50,6 +50,24 @@ public class NexusFilterDescriptorTest {
 		assertEquals("456", descriptor.getNexusFilterOperands()[1]);
 	}
 
+	@Test
+	public void testToString() {
+		// In this test we want to make sure that toString does not throw exceptions, we are
+		// not attempting to test accuracy of the returned string
+		new NexusFilterDescriptor("/kichwa1", Operation.CONTAINS, null).toString();
+		new NexusFilterDescriptor("/kichwa1", Operation.EQUALS, new String[] { "123" }).toString();
+		new NexusFilterDescriptor("/kichwa1", Operation.CLOSED_INTERVAL, new String[] { "123", "456" }).toString();
+	}
+
+	@Test
+	public void testHashCode() {
+		// In this test we want to make sure that hashCode does not throw exceptions, we are
+		// not attempting to test accuracy of the hashCode
+		new NexusFilterDescriptor("/kichwa1", Operation.CONTAINS, null).hashCode();
+		new NexusFilterDescriptor("/kichwa1", Operation.EQUALS, new String[] { "123" }).hashCode();
+		new NexusFilterDescriptor("/kichwa1", Operation.CLOSED_INTERVAL, new String[] { "123", "456" }).hashCode();
+	}
+
 	@SuppressWarnings("unused")
 	private void checkRaisesException(String nexusFilterPath, INexusFilterDescriptor.Operation nexusFilterOperation,
 			String[] nexusFilterOperands) {
