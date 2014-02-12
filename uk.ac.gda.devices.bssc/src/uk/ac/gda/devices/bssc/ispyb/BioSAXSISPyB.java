@@ -239,7 +239,7 @@ public interface BioSAXSISPyB {
 	public ISpyBStatusInfo getDataReductionStatus(long dataCollectionId) throws SQLException;
 
 	/**
-	 * Returns the measurements from ISpyB for a session id
+	 * Returns the data collections from ISPyB in creation order
 	 * 
 	 * @return list of progress statuses for samples in the ISpyB database
 	 * @throws SQLException
