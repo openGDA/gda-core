@@ -123,6 +123,7 @@ public class MessageBeanTest {
 
 		String id = "unique_id1";
 		TestMessageBean msg1 = new TestMessageBean();
+		msg1.setVisitID("0-0");
 		msg1.setUniqueID(id);
 		msg1.setPercentComplete("10%");
 		msg1.setProgressMessage("Just started");
@@ -130,19 +131,23 @@ public class MessageBeanTest {
 		msg1.setUserComment("My comment");
 		controller.update(this.getClass(), msg1);
 		TestMessageBean msg2 = new TestMessageBean();
+		msg2.setVisitID("0-0");
 		msg2.setUniqueID(id);
 		msg2.setPercentComplete("100%");
 		msg2.setProgressMessage("Done!");
-
+		controller.update(this.getClass(), msg2);
+		
 		String id2 = "unique_id2";
 		TestMessageBean msg3 = new TestMessageBean();
 		msg3.setUniqueID(id2);
+		msg3.setVisitID("0-0");
 		msg3.setPercentComplete("10%");
 		msg3.setProgressMessage("Just started");
 		msg3.setRunName("My Fav Data Collection Script");
 		msg3.setUserComment("Next scan");
 		controller.update(this.getClass(), msg3);
 		TestMessageBean msg4 = new TestMessageBean();
+		msg4.setVisitID("0-0");
 		msg4.setUniqueID(id2);
 		msg4.setPercentComplete("50%");
 		msg4.setProgressMessage("Halfway");
