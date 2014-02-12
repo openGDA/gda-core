@@ -57,7 +57,7 @@ import uk.ac.diamond.tomography.reconstruction.results.reconresults.util.Reconre
  */
 public class Activator extends AbstractUIPlugin {
 	public static final String NXS_FILE_EXTN = "nxs";
-	
+
 	private static final String RECON_RESULTS_FILE_NAME = "list.reconresults";
 
 
@@ -72,7 +72,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREF_VERY_FINE_TOTAL_STEPS = "pref_very_fine_total_steps";
 
 	public static final String PREF_VERY_FINE_STEP_SIZE = "pref_very_fine_step_size";
-	
+
 	public static final String PREF_NEXUS_SORT_PATH = "pref_nexus_sort_path";
 	
 	public static final String PREF_NEXUS_FILTER_PATH = "pref_nexus_filter_path";
@@ -114,7 +114,7 @@ public class Activator extends AbstractUIPlugin {
 
 	/**
 	 * Returns the shared instance
-	 * 
+	 *
 	 * @return the shared instance
 	 */
 	public static Activator getDefault() {
@@ -123,7 +123,7 @@ public class Activator extends AbstractUIPlugin {
 
 	/**
 	 * Returns an image descriptor for the image file at the given plug-in relative path
-	 * 
+	 *
 	 * @param path
 	 *            the path
 	 * @return the image descriptor
@@ -205,7 +205,7 @@ public class Activator extends AbstractUIPlugin {
 		}
 		return reconResultsEditingDomain;
 	}
-	
+
 	public Resource getReconResultsResource() {
 		IProject tomoSettingsProject = Activator.getDefault().getTomoFilesProject();
 		IFile reconResultsFile = tomoSettingsProject.getFile(RECON_RESULTS_FILE_NAME);
