@@ -39,7 +39,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	private String sampleWheelPosition;
 	private Boolean useSampleWheel = false;
 	private String sampleEnvironment = "None";
-	private List<SampleStagePosition> roomTemperatureParameters;
+	private List<SampleStageParameters> roomTemperatureParameters;
 	private CryostatParameters cryostatParameters;
 	private FurnaceParameters furnaceParameters;
 	private MicroreactorParameters microreactorParameters;
@@ -75,7 +75,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		descriptions = new ArrayList<String>(7);
 		customParameters = new ArrayList<CustomParameter>(7);
 		customXYZParameters = new ArrayList<CustomXYZParameter>(7);
-		roomTemperatureParameters = new ArrayList<SampleStagePosition>(7);
+		roomTemperatureParameters = new ArrayList<SampleStageParameters>(7);
 	}
 
 	@Override
@@ -113,15 +113,15 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		this.sampleWheelPosition = sampleWheelPosition;
 	}
 
-	public List<SampleStagePosition> getRoomTemperatureParameters() {
+	public List<SampleStageParameters> getRoomTemperatureParameters() {
 		return roomTemperatureParameters;
 	}
 
-	public void setRoomTemperatureParameters(List<SampleStagePosition> roomTemperatureParameters) {
+	public void setRoomTemperatureParameters(List<SampleStageParameters> roomTemperatureParameters) {
 		this.roomTemperatureParameters = roomTemperatureParameters;
 	}
-
-	public void addRoomTemperatureParameter(SampleStagePosition roomTempParameter) {
+	
+	public void addRoomTemperatureParameter(SampleStageParameters roomTempParameter) {
 		roomTemperatureParameters.add(roomTempParameter);
 	}
 

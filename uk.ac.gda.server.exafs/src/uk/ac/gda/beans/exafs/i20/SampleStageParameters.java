@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-public class SampleStagePosition implements Serializable{
+public class SampleStageParameters implements Serializable{
 	private Double sample_x = 0.;
 	private Double sample_y = 0.;
 	private Double sample_z = 0.;
@@ -33,6 +33,14 @@ public class SampleStagePosition implements Serializable{
 	private String sample_name = "";
 	private String sample_description = "";
 	private Integer numberOfRepetitions = 1;
+	
+	private Boolean samXEnabled;
+	private Boolean samYEnabled;
+	private Boolean samZEnabled;
+	private Boolean rotEnabled;
+	private Boolean rollEnabled;
+	private Boolean pitchEnabled;
+	private Boolean fineRotEnabled;
 
 	public Double getSample_x() {
 		return sample_x;
@@ -139,7 +147,7 @@ public class SampleStagePosition implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SampleStagePosition other = (SampleStagePosition) obj;
+		SampleStageParameters other = (SampleStageParameters) obj;
 		if (numberOfRepetitions == null) {
 			if (other.numberOfRepetitions != null)
 				return false;
@@ -210,6 +218,62 @@ public class SampleStagePosition implements Serializable{
 		} catch (Exception e) {
 			return e.getMessage();
 		}
+	}
+
+	public Boolean getSamXEnabled() {
+		return samXEnabled;
+	}
+
+	public void setSamXEnabled(Boolean samXEnabled) {
+		this.samXEnabled = samXEnabled;
+	}
+
+	public Boolean getSamYEnabled() {
+		return samYEnabled;
+	}
+
+	public void setSamYEnabled(Boolean samYEnabled) {
+		this.samYEnabled = samYEnabled;
+	}
+
+	public Boolean getSamZEnabled() {
+		return samZEnabled;
+	}
+
+	public void setSamZEnabled(Boolean samZEnabled) {
+		this.samZEnabled = samZEnabled;
+	}
+
+	public Boolean getRotEnabled() {
+		return rotEnabled;
+	}
+
+	public void setRotEnabled(Boolean rotEnabled) {
+		this.rotEnabled = rotEnabled;
+	}
+
+	public Boolean getRollEnabled() {
+		return rollEnabled;
+	}
+
+	public void setRollEnabled(Boolean rollEnabled) {
+		this.rollEnabled = rollEnabled;
+	}
+
+	public Boolean getPitchEnabled() {
+		return pitchEnabled;
+	}
+
+	public void setPitchEnabled(Boolean pitchEnabled) {
+		this.pitchEnabled = pitchEnabled;
+	}
+
+	public Boolean getFineRotEnabled() {
+		return fineRotEnabled;
+	}
+
+	public void setFineRotEnabled(Boolean fineRotEnabled) {
+		this.fineRotEnabled = fineRotEnabled;
 	}
 
 }

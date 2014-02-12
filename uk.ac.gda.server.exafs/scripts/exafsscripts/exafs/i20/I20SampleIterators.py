@@ -111,15 +111,33 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
     
     def moveToNext(self):
         i = self._determineSample()
-        x = self.sampleBean.get(i).getSample_x()
-        y = self.sampleBean.get(i).getSample_y()
-        z = self.sampleBean.get(i).getSample_z()
-        rotation = self.sampleBean.get(i).getSample_rotation()
-        roll = self.sampleBean.get(i).getSample_roll()
-        pitch = self.sampleBean.get(i).getSample_pitch()
-        samplename = self.sampleBean.get(i).getSample_name()
-        sampledescription = self.sampleBean.get(i).getSample_description()
-        sample_repeats = self.sampleBean.get(i).getNumberOfRepetitions()
+        sample = self.sampleBean.get(i)
+        
+        samXEnabled = sample.getSamXEnabled;
+        samYEnabled = sample.getSamYEnabled;
+        samZEnabled = sample.getSamZEnabled;
+        rotEnabled = sample.getRotEnabled;
+        rollEnabled = sample.getRollEnabled;
+        pitchEnabled = sample.getPitchEnabled;
+        fineRotEnabled = sample.getFineRotEnabled;
+        
+        print "samXEnabled ", samXEnabled
+        print "samYEnabled ", samYEnabled
+        print "samZEnabled ", samZEnabled
+        print "rotEnabled ", rotEnabled
+        print "rollEnabled ", rollEnabled
+        print "pitchEnabled ", pitchEnabled
+        print "fineRotEnabled ", fineRotEnabled
+        
+        x = sample.getSample_x()
+        y = sample.getSample_y()
+        z = sample.getSample_z()
+        rotation = sample.getSample_rotation()
+        roll = sample.getSample_roll()
+        pitch = sample.getSample_pitch()
+        samplename = sample.getSample_name()
+        sampledescription = sample.getSample_description()
+        sample_repeats = sample.getNumberOfRepetitions()
         self.log("Running sample:",samplename) 
         if self.sample_x == None or self.sample_y ==None or self.sample_z == None or self.sample_rot == None or self.sample_roll == None or self.sample_pitch == None:
             raise DeviceException("I20 scan script - could not find all sample stage motors!")
