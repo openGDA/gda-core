@@ -40,7 +40,7 @@ public class WaxsPerspective implements IPerspectiveFactory {
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_3", IPageLayout.BOTTOM, 0.43f, "folder");
 			folderLayout.addView("gda.rcp.ncd.views.NcdDataSourceWaxs");
-			folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.1D");
+			folderLayout.addPlaceholder("org.dawb.workbench.plotting.views.toolPageView.1D");
 		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_2", IPageLayout.BOTTOM, 0.67f, "folder_3");
@@ -50,7 +50,7 @@ public class WaxsPerspective implements IPerspectiveFactory {
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_4", IPageLayout.RIGHT, 0.5f, "folder");
 			folderLayout.addView("gda.rcp.jythonterminalview");
-			folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.2D");
+			folderLayout.addPlaceholder("org.dawb.workbench.plotting.views.toolPageView.2D");
 		}
 	}
 }

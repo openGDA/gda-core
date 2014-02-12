@@ -42,7 +42,7 @@ public class SaxsProcessingPerspective implements IPerspectiveFactory {
 			folderLayout.addView("gda.rcp.ncd.views.StatsAndMathsWithSymmetry");
 			folderLayout.addView("gda.rcp.ncd.views.NcdDataSourceSaxs");
 			folderLayout.addView("uk.ac.gda.client.ncd.QAxisCalibration");
-			folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.1D");
+			folderLayout.addPlaceholder("org.dawb.workbench.plotting.views.toolPageView.1D");
 		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_2", IPageLayout.BOTTOM, 0.67f, "folder_3");
@@ -52,7 +52,7 @@ public class SaxsProcessingPerspective implements IPerspectiveFactory {
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_4", IPageLayout.RIGHT, 0.5f, "folder");
 			folderLayout.addPlaceholder("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView:*");
-			folderLayout.addView("org.dawb.workbench.plotting.views.toolPageView.2D");
+			folderLayout.addPlaceholder("org.dawb.workbench.plotting.views.toolPageView.2D");
 		}
 	}
 }
