@@ -28,6 +28,7 @@ import uk.ac.gda.beans.exafs.IScanParameters;
 
 public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 
+	private String visitID;
 	private String id;
 	private String scriptName;
 	private String message;
@@ -41,8 +42,9 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	private String predictedTotalTime;
 	private String outputFolder;
 	
-	protected XasLoggingMessage(String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder) {
+	protected XasLoggingMessage(String visit_id,String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder) {
 		super();
+		this.visitID = visit_id;
 		this.id = id;
 		this.scriptName = scriptName;
 		this.message = message;
@@ -57,8 +59,9 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		this.outputFolder = outputFolder;
 	}
 	
-	public XasLoggingMessage(String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, IScanParameters parameters, String outputFolder) throws Exception {
+	public XasLoggingMessage(String visit_id, String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, IScanParameters parameters, String outputFolder) throws Exception {
 		super();
+		this.visitID = visit_id;
 		this.id = id;
 		this.scriptName = scriptName;
 		this.message = message;
@@ -90,12 +93,12 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		return scriptName;
 	}
 	
-	@ScriptControllerLogColumn(columnName = "Status", refresh = true, columnIndex = 0)
+	@ScriptControllerLogColumn(columnName = "Status", refresh = true, columnIndex = 1)
 	public String getMessage() {
 		return message;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Repetition", refresh = true, columnIndex = 1)
+	@ScriptControllerLogColumn(columnName = "Repetition", refresh = true, columnIndex = 2)
 	public String getRepetition() {
 		return scanRepetitionNumber + " of " + getScanRepetitions();
 	}
@@ -123,27 +126,27 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		return property;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Percent Complete", refresh = true, columnIndex = 2)
+	@ScriptControllerLogColumn(columnName = "Percent Complete", refresh = true, columnIndex = 3)
 	public String getPercentComplete() {
 		return percentComplete;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Scan Elapsed Time", refresh = true, columnIndex = 3)
+	@ScriptControllerLogColumn(columnName = "Scan Elapsed Time", refresh = true, columnIndex = 4)
 	public String getElaspedScanTime() {
 		return elaspedScanTime;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Total Elapsed Time", refresh = true, columnIndex = 4)
+	@ScriptControllerLogColumn(columnName = "Total Elapsed Time", refresh = true, columnIndex = 5)
 	public String getElaspedTotalTime() {
 		return elaspedTotalTime;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Est Total Time", refresh = false, columnIndex = 5)
+	@ScriptControllerLogColumn(columnName = "Est Total Time", refresh = false, columnIndex = 6)
 	public String getPredictedTotalTime() {
 		return predictedTotalTime;
 	}
 	
-	@ScriptControllerLogColumn(columnName = "Output Folder", refresh = false, columnIndex = 6)
+	@ScriptControllerLogColumn(columnName = "Output Folder", refresh = false, columnIndex = 7)
 	public String getOutputFolder() {
 		return outputFolder;
 	}
@@ -157,5 +160,15 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	@Override
 	public String getMsg() {
 		return getPercentComplete();
+	}
+	
+	public void setVisitID(String visitID) {
+		this.visitID = visitID;
+	}
+
+	@Override
+	@ScriptControllerLogColumn(columnName = "Visit ID", refresh = false, columnIndex = 0)
+	public String getVisitID() {
+		return this.visitID;
 	}
 }

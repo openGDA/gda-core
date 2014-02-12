@@ -151,21 +151,20 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public void setContinuousMode(boolean on) throws DeviceException {
 		isContinuousMode = on;
-
+		String deviceName = getDescription();
+		
 		if (!isSlave) {
 			if (on) {
 				try {
 					setTimeFrames();
 				} catch (DeviceException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
+					logger.error("Problem setting time frames on device " +deviceName, e);
 				}
 			} else {
 				try {
 					switchOffExtTrigger();
 				} catch (DeviceException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
+					logger.error("Unable to set trigger on device " +deviceName, e);
 				}
 			}
 		}

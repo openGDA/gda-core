@@ -14,7 +14,6 @@ from gda.jython import ScriptBase
 from gda.jython.commands import ScannableCommands
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import LoggingScriptController
-from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.jython.scriptcontroller.logging import XasProgressUpdater
 from gda.scan import ScanBase, ContinuousScan, ConcurrentScan
 from gda.util import Element

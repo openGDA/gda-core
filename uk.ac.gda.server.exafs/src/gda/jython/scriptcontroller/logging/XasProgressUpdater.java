@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class XasProgressUpdater extends ScannableBase implements Scannable, IScanDataPointObserver {
 
 	private transient final LoggingScriptController controller;
+	private String visitID;
 	private String id;
 	private String predictedTotalTime;
 	private String scriptName;
@@ -55,6 +56,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	public XasProgressUpdater(LoggingScriptController controller, XasLoggingMessage msg, long timeRepetitionsStarted) {
 		this.controller = controller;
 		this.timeRepetitionsStarted = timeRepetitionsStarted;
+		visitID = msg.getVisitID();
 		id = msg.getUniqueID();
 		scriptName = msg.getName();
 		thisScanrepetition = msg.getScanRepetitionNumber();
@@ -102,7 +104,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 			percentComplete = "100%";
 		}
 
-		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, status, thisScanrepetition,
+		XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, status, thisScanrepetition,
 				getTotalRepetitions(), sampleEnvironmentRepetitions, sampleEnvironmentRepetitions, percentComplete,
 				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
 		controller.update(this, msg);
@@ -112,7 +114,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	public void atCommandFailure() throws DeviceException {
 		atEndCalled = true;
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
-		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "Aborted", thisScanrepetition,
+		XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, "Aborted", thisScanrepetition,
 				getTotalRepetitions(), sampleEnvironmentRepetitions, sampleEnvironmentRepetitions, lastPercentComplete,
 				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
 		controller.update(this, msg);
@@ -148,7 +150,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 				if (now - timeOfLastReport > 500) {
 					timeOfLastReport = now;
 					String elapsedTime = getElapsedTime();
-					XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "In Progress", thisScanrepetition,
+					XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, "In Progress", thisScanrepetition,
 							getTotalRepetitions(), sampleEnvironmentRepetition, sampleEnvironmentRepetitions,
 							percentComplete + "%", elapsedTime, getElapsedTotalTime(), predictedTotalTime, outputFolder);
 					controller.update(this, msg);
@@ -200,20 +202,24 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 
 	@Override
 	public int hashCode() {
-		int prime = 31;
+		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + (atEndCalled ? 1231 : 1237);
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((lastPercentComplete == null) ? 0 : lastPercentComplete.hashCode());
 		result = prime * result + ((outputFolder == null) ? 0 : outputFolder.hashCode());
 		result = prime * result + ((predictedTotalTime == null) ? 0 : predictedTotalTime.hashCode());
-		result = prime * result	+ ((sampleEnvironmentRepetitions == null) ? 0 : sampleEnvironmentRepetitions.hashCode());
+		result = prime * result + ((sampleEnvironmentRepetition == null) ? 0 : sampleEnvironmentRepetition.hashCode());
+		result = prime * result
+				+ ((sampleEnvironmentRepetitions == null) ? 0 : sampleEnvironmentRepetitions.hashCode());
 		result = prime * result + ((scriptName == null) ? 0 : scriptName.hashCode());
 		result = prime * result + ((thisScanrepetition == null) ? 0 : thisScanrepetition.hashCode());
+		result = prime * result + (int) (timeOfLastReport ^ (timeOfLastReport >>> 32));
 		result = prime * result + (int) (timeRepetitionsStarted ^ (timeRepetitionsStarted >>> 32));
 		result = prime * result + (int) (timeStarted ^ (timeStarted >>> 32));
 		result = prime * result + ((totalScanRepetitions == null) ? 0 : totalScanRepetitions.hashCode());
 		result = prime * result + ((uniqueName == null) ? 0 : uniqueName.hashCode());
+		result = prime * result + ((visitID == null) ? 0 : visitID.hashCode());
 		return result;
 	}
 
@@ -231,44 +237,44 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		if (id == null) {
 			if (other.id != null)
 				return false;
-		} 
-		else if (!id.equals(other.id))
+		} else if (!id.equals(other.id))
 			return false;
 		if (lastPercentComplete == null) {
 			if (other.lastPercentComplete != null)
 				return false;
-		} 
-		else if (!lastPercentComplete.equals(other.lastPercentComplete))
+		} else if (!lastPercentComplete.equals(other.lastPercentComplete))
 			return false;
 		if (outputFolder == null) {
 			if (other.outputFolder != null)
 				return false;
-		} 
-		else if (!outputFolder.equals(other.outputFolder))
+		} else if (!outputFolder.equals(other.outputFolder))
 			return false;
 		if (predictedTotalTime == null) {
 			if (other.predictedTotalTime != null)
 				return false;
-		} 
-		else if (!predictedTotalTime.equals(other.predictedTotalTime))
+		} else if (!predictedTotalTime.equals(other.predictedTotalTime))
+			return false;
+		if (sampleEnvironmentRepetition == null) {
+			if (other.sampleEnvironmentRepetition != null)
+				return false;
+		} else if (!sampleEnvironmentRepetition.equals(other.sampleEnvironmentRepetition))
 			return false;
 		if (sampleEnvironmentRepetitions == null) {
 			if (other.sampleEnvironmentRepetitions != null)
 				return false;
-		} 
-		else if (!sampleEnvironmentRepetitions.equals(other.sampleEnvironmentRepetitions))
+		} else if (!sampleEnvironmentRepetitions.equals(other.sampleEnvironmentRepetitions))
 			return false;
 		if (scriptName == null) {
 			if (other.scriptName != null)
 				return false;
-		} 
-		else if (!scriptName.equals(other.scriptName))
+		} else if (!scriptName.equals(other.scriptName))
 			return false;
 		if (thisScanrepetition == null) {
 			if (other.thisScanrepetition != null)
 				return false;
-		} 
-		else if (!thisScanrepetition.equals(other.thisScanrepetition))
+		} else if (!thisScanrepetition.equals(other.thisScanrepetition))
+			return false;
+		if (timeOfLastReport != other.timeOfLastReport)
 			return false;
 		if (timeRepetitionsStarted != other.timeRepetitionsStarted)
 			return false;
@@ -277,14 +283,17 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		if (totalScanRepetitions == null) {
 			if (other.totalScanRepetitions != null)
 				return false;
-		} 
-		else if (!totalScanRepetitions.equals(other.totalScanRepetitions))
+		} else if (!totalScanRepetitions.equals(other.totalScanRepetitions))
 			return false;
 		if (uniqueName == null) {
 			if (other.uniqueName != null)
 				return false;
-		} 
-		else if (!uniqueName.equals(other.uniqueName))
+		} else if (!uniqueName.equals(other.uniqueName))
+			return false;
+		if (visitID == null) {
+			if (other.visitID != null)
+				return false;
+		} else if (!visitID.equals(other.visitID))
 			return false;
 		return true;
 	}

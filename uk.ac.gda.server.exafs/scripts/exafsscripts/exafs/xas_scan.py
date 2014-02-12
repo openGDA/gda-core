@@ -68,7 +68,7 @@ class XasScan(Scan):
 	def getLogMessage(self, numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName):
 		initialPercent = self.calcInitialPercent(numRepetitions, repetitionNumber)
 		timeSinceRepetitionsStarted = self.calcTimeSinceRepetitionsStarted(timeRepetitionsStarted)
-		return XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),scanBean,experimentFolderName)
+		return XasLoggingMessage(self._getMyVisitID(), scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),scanBean,experimentFolderName)
 		
 	def handleScanInterrupt(self, numRepetitions, repetitionNumber):
 		ScanBase.interrupted = False
@@ -96,7 +96,7 @@ class XasScan(Scan):
 			initialPercent = self.calcInitialPercent(total_repeats, this_repeat)
 # 			print "initialPercent",str(initialPercent),"% of repeat",str(i+1),"of repetition",str(repetitionNumber)
 			timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
-			logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(i+1), str(num_sample_repeats), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),experimentFolderName)
+			logmsg = XasLoggingMessage(self._getMyVisitID(), scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(i+1), str(num_sample_repeats), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),experimentFolderName)
 			
 			if num_sample_repeats == 1:
 				self.printRepetition(numRepetitions, repetitionNumber, scriptType)
