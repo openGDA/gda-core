@@ -89,7 +89,8 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			ascii.setRunFromExperimentDefinition(runFromExperimentDefinition);
 			ascii.setDescriptions(descriptions);
 			ascii.setSampleName(sampleName);
-			ascii.setConfiguration(configuration);
+			if (configuration != null)
+				ascii.setConfiguration(configuration);
 
 			nexus = new XasNexusDataWriter(Long.parseLong(newData.getScanIdentifier()));
 			nexus.setRunFromExperimentDefinition(runFromExperimentDefinition);

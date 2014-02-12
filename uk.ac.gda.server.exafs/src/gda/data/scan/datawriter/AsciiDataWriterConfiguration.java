@@ -18,14 +18,12 @@
 
 package gda.data.scan.datawriter;
 
-import gda.factory.Findable;
-
 import java.util.ArrayList;
 
 /**
  * Bean which holds the configuration for an AsciiDataWriter
  */
-public class AsciiDataWriterConfiguration implements Findable {
+public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConfiguration {
 
 	private ArrayList<AsciiWriterExtenderConfig> columns = new ArrayList<AsciiWriterExtenderConfig>();
 	private ArrayList<AsciiMetadataConfig> header = new ArrayList<AsciiMetadataConfig>();
