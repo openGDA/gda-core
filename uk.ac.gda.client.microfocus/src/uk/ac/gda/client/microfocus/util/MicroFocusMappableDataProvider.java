@@ -81,10 +81,7 @@ public abstract class MicroFocusMappableDataProvider {
 		try {
 			hdf5Loader = new HDF5Loader(fileName);
 			dataHolder = hdf5Loader.loadFile();
-
-			String location = "/entry1/instrument/" + xScannableName + "/" + xScannableName;
-			ILazyDataset xscannableDS = dataHolder.getLazyDataset(location);
-
+			
 			String[] namesList = dataHolder.getNames();
 			String names = "";
 			for (int i = 0; i < namesList.length; i++) {
@@ -92,72 +89,21 @@ public abstract class MicroFocusMappableDataProvider {
 				names = names + name + ", ";
 			}
 
-			if (names.contains("/entry1/counterTimer01/I0")) {
-				ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/counterTimer01/I0");
-				i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
-			} else if (names.contains("/entry1/raster_counterTimer01/I0")) {
-				ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/raster_counterTimer01/I0");
-				i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
-			} else if (names.contains("/entry1/instrument/counterTimer01/I0")) {
-				ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/instrument/counterTimer01/I0");
-				i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
-			} else if (names.contains("/entry1/instrument/raster_counterTimer01/I0")) {
-				ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/instrument/raster_counterTimer01/I0");
-				i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
-			}
+			extractI0Data(names);
+			extractItData(names);
 
-			if (names.contains("/entry1/counterTimer01/It")) {
-				ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/counterTimer01/It");
-				itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
-			} else if (names.contains("/entry1/raster_counterTimer01/It")) {
-				ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/raster_counterTimer01/It");
-				itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
-			} else if (names.contains("/entry1/counterTimer01/It")) {
-				ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/instrument/counterTimer01/It");
-				itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
-			} else if (names.contains("/entry1/raster_counterTimer01/It")) {
-				ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/instrument/raster_counterTimer01/It");
-				itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
-			}
-
-			if (xscannableDS == null) {
-
-				if (names.contains("/entry1/instrument/trajectoryX/value"))
-					xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/trajectoryX/value");
-				else if (names.contains("/entry1/instrument/traj3SampleX/traj3SampleX"))
-					xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj3SampleX/traj3SampleX");
-				else if (names.contains("/entry1/instrument/traj1SampleX/traj1SampleX"))
-					xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj1SampleX/traj1SampleX");
-				else if (names.contains("/entry1/instrument/traj1ContiniousX/value"))
-					xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj1ContiniousX/value");
-				else if (names.contains("/entry1/instrument/traj1ContiniousX/traj1ContiniousX"))
-					xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj1ContiniousX/traj1ContiniousX");
-				else if (names.contains("/entry1/instrument/table_x/table_x"))
-					xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_x/table_x");
-			}
-
+			ILazyDataset xscannableDS = extractXScannableData(names);
 			AbstractDataset xdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(xscannableDS));
 			xAxisLengthFromFile = xdata.getShape()[1];
 
-			ILazyDataset yscannableDS = null;
-
-			if (names.contains("/entry1/instrument/sc_MicroFocusSampleY/sc_MicroFocusSampleY"))
-				yscannableDS = dataHolder
-						.getLazyDataset("/entry1/instrument/sc_MicroFocusSampleY/sc_MicroFocusSampleY");
-			else if (names.contains("/entry1/instrument/sc_MicroFocusSampleY"))
-				yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_MicroFocusSampleY");
-			else if (names.contains("/entry1/instrument/table_y/table_y"))
-				yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_y/table_y");
-
+			ILazyDataset yscannableDS = extractYScannableData(names);
 			AbstractDataset ydata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(yscannableDS));
 			yAxisLengthFromFile = ydata.getShape()[0];
+			
 			double[] x = (double[]) xdata.getBuffer();
 			double[] y = (double[]) ydata.getBuffer();
-			ILazyDataset zscannableDS = null;
-			if (names.contains("/entry1/instrument/sc_sample_z"))
-				zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_sample_z");
-			else if (names.contains("/entry1/instrument/Sample_Stage/sc_sample_z"))
-				zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Sample_Stage/sc_sample_z");
+			
+			ILazyDataset zscannableDS = extractZScannableData(names);
 
 			// zValue is included as part of the scan
 			if (zscannableDS != null) {
@@ -174,6 +120,8 @@ public abstract class MicroFocusMappableDataProvider {
 						zValue = Double.parseDouble(z[0]);
 				}
 			}
+			
+			
 			// x and y values from file will be
 			// x = {0.0, 2.0, 4.0,6.0, 0.0, 2.0, 4.0,6.0,0.0, 2.0, 4.0,6.0}
 			// y = { 0.0,0.0,0.0,0.0, 2.0 , 2.0 , 2.0 , 2.0 , 4.0, 4.0, 4.0}
@@ -208,6 +156,88 @@ public abstract class MicroFocusMappableDataProvider {
 			logger.error("Error Reading the Nexus file", ed);
 		}
 
+	}
+
+	private ILazyDataset extractZScannableData(String names) {
+		ILazyDataset zscannableDS = null;
+		if (names.contains("/entry1/instrument/sc_sample_z"))
+			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_sample_z");
+		else if (names.contains("/entry1/instrument/Sample_Stage/sc_sample_z"))
+			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Sample_Stage/sc_sample_z");
+		return zscannableDS;
+	}
+
+	private ILazyDataset extractYScannableData(String names) {
+		ILazyDataset yscannableDS = null;
+
+		if (names.contains("/entry1/instrument/sc_MicroFocusSampleY/sc_MicroFocusSampleY"))
+			yscannableDS = dataHolder
+					.getLazyDataset("/entry1/instrument/sc_MicroFocusSampleY/sc_MicroFocusSampleY");
+		else if (names.contains("/entry1/instrument/sc_MicroFocusSampleY"))
+			yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_MicroFocusSampleY");
+		else if (names.contains("/entry1/instrument/table_y/table_y"))
+			yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_y/table_y");
+		return yscannableDS;
+	}
+
+	private void extractItData(String names) {
+		if (names.contains("/entry1/counterTimer01/It")) {
+			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/counterTimer01/It");
+			itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+		} else if (names.contains("/entry1/raster_counterTimer01/It")) {
+			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/raster_counterTimer01/It");
+			itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+		} else if (names.contains("/entry1/counterTimer01/It")) {
+			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/instrument/counterTimer01/It");
+			itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+		} else if (names.contains("/entry1/raster_counterTimer01/It")) {
+			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/instrument/raster_counterTimer01/It");
+			itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+		}
+	}
+
+	private void extractI0Data(String names) {
+		if (names.contains("/entry1/counterTimer01/I0")) {
+			ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/counterTimer01/I0");
+			i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+		} else if (names.contains("/entry1/raster_counterTimer01/I0")) {
+			ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/raster_counterTimer01/I0");
+			i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+		} else if (names.contains("/entry1/instrument/counterTimer01/I0")) {
+			ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/instrument/counterTimer01/I0");
+			i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+		} else if (names.contains("/entry1/instrument/raster_counterTimer01/I0")) {
+			ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/instrument/raster_counterTimer01/I0");
+			i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+		}
+	}
+
+	private ILazyDataset extractXScannableData(String names) {
+		// hack warning!!! yuck....
+		// TODO when writing these files in the first place we need some redirection with standard names for x-axis
+		// and y-axis of maps and not using the scannable names hardcoded here which can change
+		
+		ILazyDataset xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/" + xScannableName + "/" + xScannableName);
+		if (xscannableDS == null) {
+
+			if (names.contains("/entry1/instrument/trajectoryX/value"))
+				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/trajectoryX/value");
+			else if (names.contains("/entry1/instrument/traj3SampleX/traj3SampleX"))
+				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj3SampleX/traj3SampleX");
+			else if (names.contains("/entry1/instrument/traj1SampleX/traj1SampleX"))
+				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj1SampleX/traj1SampleX");
+			else if (names.contains("/entry1/instrument/traj1ContiniousX/value"))
+				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj1ContiniousX/value");
+			else if (names.contains("/entry1/instrument/traj1ContiniousX/traj1ContiniousX"))
+				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj1ContiniousX/traj1ContiniousX");
+			else if (names.contains("/entry1/instrument/traj3ContiniousX/value"))
+				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj3ContiniousX/value");
+			else if (names.contains("/entry1/instrument/traj3ContiniousX/traj3ContiniousX"))
+				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj3ContiniousX/traj3ContiniousX");
+			else if (names.contains("/entry1/instrument/table_x/table_x"))
+				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_x/table_x");
+		}
+		return xscannableDS;
 	}
 
 	protected IDataset getDatasetFromLazyDataset(ILazyDataset xscannableDS) {
