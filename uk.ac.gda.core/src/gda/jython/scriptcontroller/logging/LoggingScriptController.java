@@ -85,6 +85,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 	private HashMap<Method, String> refreshColumnGetters;
 	private String tableName;
 	private PreparedStatement psInsert;
+	private PreparedStatement psFetchStartTime;
 	private PreparedStatement psSimpleListAll;
 	private PreparedStatement psFetchEntry;
 	private PreparedStatement psRefresh;
@@ -371,7 +372,10 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 
 		String fetchStatement = "SELECT * FROM " + tableName + " WHERE " + PK_COLUMNNAME + "= (?)";
 		psFetchEntry = conn.prepareStatement(fetchStatement);
-
+		
+		String fetchStartTimeStatement = "SELECT " + DATE_ADDED_COL_NAME + " FROM " + tableName + " WHERE " + PK_COLUMNNAME + "= (?)";
+		psFetchStartTime = conn.prepareStatement(fetchStartTimeStatement);
+		
 		String sqlColumns = "";
 		for (String columnName : refreshColumnGetters.values()) {
 			columnName = columnName.replace(" ", "_");
@@ -396,37 +400,12 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 				rowcount++;
 
 			if (rowcount > 0) {
-				String[] valuesToAdd = getUpdateValues(arg);
-				int i = 1;
-				for (; i <= valuesToAdd.length; i++) {
-					psRefresh.setString(i, valuesToAdd[i - 1]);
-				}
-				Timestamp now = new Timestamp(System.currentTimeMillis());
-				psRefresh.setTimestamp(i++, now);
-				psRefresh.setString(i++, arg.getUniqueID());
-				int numLinesUpdated = psRefresh.executeUpdate();
-				if (numLinesUpdated != 1) {
-					System.out.println("something's wrong");
-					return null;
-				}
-				return new ScriptControllerLogResults(arg.getUniqueID(), arg.getName(), null, now);
+				return refreshExistingEntry(arg);
 			}
-			String[] valuesToAdd = getValues(arg);
-			psInsert.setString(1, arg.getUniqueID());
-			psInsert.setString(2, arg.getName());
-			int i = 3;
-			for (; i <= valuesToAdd.length + 2; i++) {
-				psInsert.setString(i, valuesToAdd[i - 3]);
-			}
-			Timestamp now = new Timestamp(System.currentTimeMillis());
-			psInsert.setTimestamp(i++, now);
-			psInsert.setTimestamp(i++, now);
-			psInsert.executeUpdate();
-			return new ScriptControllerLogResults(arg.getUniqueID(), arg.getName(), now, now);
+			return insertNewEntry(arg);
 
 		} catch (SQLException e) {
-			//This exception occurs per scan point and causes the jython console, logging and plot to gring to a halt
-			//Removed until we can understand why
+			// If this exception occurs per scan point then the jython console, logging and plot grind to a halt
 			logger.error("Exception adding to log by " + getName(), e);
 			return null;
 		} finally {
@@ -437,7 +416,44 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 				}
 			}
 		}
+	}
 
+	private ScriptControllerLogResults insertNewEntry(ScriptControllerLoggingMessage arg) throws SQLException {
+		String[] valuesToAdd = getValues(arg);
+		psInsert.setString(1, arg.getUniqueID());
+		psInsert.setString(2, arg.getName());
+		int i = 3;
+		for (; i <= valuesToAdd.length + 2; i++) {
+			psInsert.setString(i, valuesToAdd[i - 3]);
+		}
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		psInsert.setTimestamp(i++, now);
+		psInsert.setTimestamp(i++, now);
+		psInsert.executeUpdate();
+		return new ScriptControllerLogResults(arg.getUniqueID(), arg.getName(), now, now);
+	}
+
+	private ScriptControllerLogResults refreshExistingEntry(ScriptControllerLoggingMessage arg) throws SQLException {
+		String[] valuesToAdd = getUpdateValues(arg);
+		int i = 1;
+		for (; i <= valuesToAdd.length; i++) {
+			psRefresh.setString(i, valuesToAdd[i - 1]);
+		}
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		psRefresh.setTimestamp(i++, now);
+		psRefresh.setString(i++, arg.getUniqueID());
+		int numLinesUpdated = psRefresh.executeUpdate();
+		if (numLinesUpdated != 1) {
+			System.out.println("something's wrong");
+			return null;
+		}
+		
+		psFetchStartTime.setString(1, arg.getUniqueID());
+		ResultSet rsStartTime = psFetchStartTime.executeQuery();
+		rsStartTime.next();
+		Timestamp startTime = rsStartTime.getTimestamp(1);
+
+		return new ScriptControllerLogResults(arg.getUniqueID(), arg.getName(), startTime, now);
 	}
 
 	private String[] getUpdateValues(ScriptControllerLoggingMessage arg) {
