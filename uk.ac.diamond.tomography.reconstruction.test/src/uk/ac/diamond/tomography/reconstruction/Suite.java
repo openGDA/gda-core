@@ -16,27 +16,20 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.tomography.reconstruction.ui;
+package uk.ac.diamond.tomography.reconstruction;
 
-import org.eclipse.swt.widgets.Shell;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite.SuiteClasses;
 
-public class NexusFileSortDialog extends BaseNexusPathDialog {
+@RunWith(org.junit.runners.Suite.class)
+@SuiteClasses({
 
-	private String sortPath;
+	uk.ac.diamond.tomography.reconstruction.NexusSorterTest.class,
+	uk.ac.diamond.tomography.reconstruction.NexusSorterPluginTest.class,
+	uk.ac.diamond.tomography.reconstruction.NexusFilterTest.class,
+	uk.ac.diamond.tomography.reconstruction.NexusFilterPluginTest.class,
+	uk.ac.diamond.tomography.reconstruction.NexusFilterDescriptorTest.class
 
-	public NexusFileSortDialog(Shell parentShell, String initialPath, String[] ruPaths) {
-		super(parentShell, initialPath, ruPaths);
-		setTitle("NeXus File Sorting");
-	}
-
-	public String getNexusSortPath() {
-		return sortPath;
-	}
-
-	@Override
-	protected void okPressed() {
-		sortPath = getNexusPath();
-		super.okPressed();
-	}
-
+})
+public class Suite {
 }

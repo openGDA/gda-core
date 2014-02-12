@@ -184,9 +184,12 @@
          </commonSorter>
       </navigatorContent>
       <commonFilter
+            activeByDefault="true"
+            class="uk.ac.diamond.tomography.reconstruction.NexusFilter"
             description="Filters NeXus files based on NeXus paths"
             id="uk.ac.diamond.tomography.reconstruction.filters.NexusPathFilter"
-            name="Nexus Path Filter">
+            name="Nexus Path Filter"
+            visibleInUI="true">
       </commonFilter>
 
 

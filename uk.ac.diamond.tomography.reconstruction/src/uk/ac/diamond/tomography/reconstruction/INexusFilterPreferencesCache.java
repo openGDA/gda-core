@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,22 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.tomography.reconstruction.ui;
+package uk.ac.diamond.tomography.reconstruction;
 
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
+public interface INexusFilterPreferencesCache {
 
-public class NexusPathFilter extends ViewerFilter {
-
-	public NexusPathFilter() {
-	}
-
-	@Override
-	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		// we care if element is a nexus file
-		// then we care if it has the path we care about
-		// then we care about the conditions attached to the path
-		return false;
-	}
-
+	/**
+	 * Returns the filter for filtering nexus metadata
+	 * @return the filter tring or <code>null</code> if not specified
+	 */
+	public INexusFilterDescriptor getNexusFilterDescriptor();
 }

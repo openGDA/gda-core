@@ -1,10 +1,13 @@
 package uk.ac.diamond.tomography.reconstruction;
 
 import org.dawb.hdf5.HierarchicalDataFactory;
+import org.dawb.hdf5.HierarchicalDataUtils;
 import org.dawb.hdf5.model.IHierarchicalDataModel;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+
+import uk.ac.diamond.tomography.reconstruction.INexusFilterDescriptor.Operation;
 
 /*-
  * Copyright © 2013 Diamond Light Source Ltd.
@@ -25,41 +28,87 @@ import org.eclipse.jface.viewers.ViewerFilter;
  */
 
 public class NexusFilter extends ViewerFilter {
+	public static final boolean SELECT_WHEN_COMPARE_FAILS_DUE_TO_NUMBERFORMATEXCEPTION = true;
+	private INexusFilterPreferencesCache nexusFilterPreferencesCache;
+	IHierarchicalDataModel model;
 
-	private String filterPath;
-	private boolean reverse;
-
+	/**
+	 * Zero-argument constructor for extension point instantiation
+	 */
 	public NexusFilter() {
-		this.filterPath = "";
+		this(NexusFilterPreferencesCache.CACHE, org.dawb.hdf5.Activator.getPlugin().getHierarchicalDataModel());
 	}
 
-	public NexusFilter(String filterPath, boolean reverse) {
-		this.filterPath = filterPath;
-		this.reverse = reverse;
+	public NexusFilter(INexusFilterPreferencesCache nexusFilterPreferencesCache, IHierarchicalDataModel model) {
+		this.nexusFilterPreferencesCache = nexusFilterPreferencesCache;
+		this.model = model;
 	}
 
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		if (filterPath != null && !"".equals(filterPath)) {
-			if (element instanceof IFile) {
-				IFile file = (IFile) element;
-				if (HierarchicalDataFactory.isHDF5(file.getRawLocation().toOSString())) {
-					boolean hasValue = hasValue(file);
-					// Object data = getValueFromFile((IFile) element);
-					// if (data != null) {
-					// PLACEHOLDER to do condition
-					// nexusfiltercondition
-					// nfc.op(data)
-					// get value
-					return reverse ? hasValue : !hasValue;
-				}
+		INexusFilterDescriptor filter = nexusFilterPreferencesCache.getNexusFilterDescriptor();
+		if (filter == null)
+			return true;
+
+		if (!(element instanceof IFile))
+			return true;
+		IFile file = (IFile) element;
+		if (!HierarchicalDataFactory.isHDF5(file.getRawLocation().toOSString()))
+			return true;
+
+		try {
+			Operation operation = filter.getNexusFilterOperation();
+			String path = filter.getNexusFilterPath();
+			String[] operands = filter.getNexusFilterOperands();
+			switch (operation) {
+			case CONTAINS:
+				return hasPath(file, path);
+			case DOES_NOT_CONTAIN:
+				return !hasPath(file, path);
+			case EQUALS:
+				return compare(file, path, operands[0]) == 0;
+			case NOT_EQUALS:
+				return compare(file, path, operands[0]) != 0;
+			case GREATER_THAN:
+				return compare(file, path, operands[0]) > 0;
+			case GREATER_THAN_OR_EQUAL:
+				return compare(file, path, operands[0]) >= 0;
+			case LESS_THAN:
+				return compare(file, path, operands[0]) < 0;
+			case LESS_THAN_OR_EQUAL:
+				return compare(file, path, operands[0]) <= 0;
+			case CLOSED_INTERVAL:
+				return compare(file, path, operands[0]) >= 0 && compare(file, path, operands[1]) <= 0;
+			case OPEN_INTERVAL:
+				return compare(file, path, operands[0]) > 0 && compare(file, path, operands[1]) < 0;
+			case LEFT_CLOSED_RIGHT_OPEN_INTERVAL:
+				return compare(file, path, operands[0]) >= 0 && compare(file, path, operands[1]) < 0;
+			case LEFT_OPEN_RIGHT_CLOSED_INTERVAL:
+				return compare(file, path, operands[0]) > 0 && compare(file, path, operands[1]) <= 0;
 			}
+		} catch (NumberFormatException nfe) {
+			// we can't compare the values
+			return SELECT_WHEN_COMPARE_FAILS_DUE_TO_NUMBERFORMATEXCEPTION;
 		}
+		// unreachable if switch is complete
 		return true;
 	}
 
-	private boolean hasValue(IFile file) {
-		IHierarchicalDataModel model = org.dawb.hdf5.Activator.getPlugin().getHierarchicalDataModel();
-		return model.getFileModel(file).hasPath(filterPath);
+	/**
+	 * @return <ul>
+	 *         <li>the value 0 if equals</li>
+	 *         <li>a value less than 0 if path's value is less than string</li>
+	 *         <li>a value greater than 0 if path's value is greater than string</li>
+	 *         </ul>
+	 * @throws NumberFormatException
+	 *             if the comparison cannot be completed
+	 */
+	private int compare(IFile file, String nexusFilterPath, String string) throws NumberFormatException {
+		Object data = model.getFileModel(file).getPath(nexusFilterPath);
+		return HierarchicalDataUtils.compareScalarToString(data, string);
+	}
+
+	private boolean hasPath(IFile file, String nexusFilterPath) {
+		return model.getFileModel(file).hasPath(nexusFilterPath);
 	}
 }

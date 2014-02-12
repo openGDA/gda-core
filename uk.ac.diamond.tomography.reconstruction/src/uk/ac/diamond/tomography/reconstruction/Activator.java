@@ -74,8 +74,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PREF_VERY_FINE_STEP_SIZE = "pref_very_fine_step_size";
 
 	public static final String PREF_NEXUS_SORT_PATH = "pref_nexus_sort_path";
-	
-	public static final String PREF_NEXUS_FILTER_PATH = "pref_nexus_filter_path";
+
+	public static final String PREF_NEXUS_FILTER_DESCRIPTOR = "pref_nexus_filter_descriptor";
 
 	private EditingDomain reconResultsEditingDomain;
 	// The plug-in ID

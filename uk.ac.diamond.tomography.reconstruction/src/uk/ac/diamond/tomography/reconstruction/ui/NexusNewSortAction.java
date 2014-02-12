@@ -28,20 +28,20 @@ public class NexusNewSortAction extends Action {
 
 	private INexusPathProvider sortProvider;
 	private String[] history;
-	
+
 	public NexusNewSortAction(INexusPathProvider sortProvider, String[] history) {
 		super("&Sort..."); //$NON-NLS-1$
 		setImageDescriptor(NexusNavigatorUiImages.sortIcon);
 		this.sortProvider = sortProvider;
 		this.history = history;
 	}
-	
+
 	@Override
 	public void run() {
 		NexusFileSortDialog sortDialog = new NexusFileSortDialog(PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getShell(),sortProvider.getSuggestedPath(), history);
 		if (sortDialog.open() == Window.OK) {
-			sortProvider.setNexusPath(sortDialog.getNexusPath());
+			sortProvider.setNexusPath(sortDialog.getNexusSortPath());
 		}
 	}
 }

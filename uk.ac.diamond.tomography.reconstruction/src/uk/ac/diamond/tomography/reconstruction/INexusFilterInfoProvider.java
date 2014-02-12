@@ -18,13 +18,28 @@
 
 package uk.ac.diamond.tomography.reconstruction;
 
-public interface INexusSorterPreferencesCache {
+
+/**
+ * An interface to handle getting and setting
+ * filter information for the Nexus Filter
+ */
+public interface INexusFilterInfoProvider extends INexusPathProvider {
 
 	/**
-	 * Returns the sort path for sorting nexus metadata
-	 *
-	 * @return the sort path string, does not return <code>null</code>, returns "" if sorting is off
+	 * Set filter descriptor
+	 * @param descriptor a filter descriptor or null for no filter
 	 */
-	public abstract String getNexusSortPath();
+	void setFilterDescriptor(INexusFilterDescriptor descriptor);
 
+	/**
+	 * Get the filter descriptor
+	 * @return the filter descriptor or null if one has not been set
+	 */
+	public abstract INexusFilterDescriptor getFilterDescriptor();
+
+	/**
+	 * Get the most recent filter descriptors
+	 * @return array of filter descriptors
+	 */
+	INexusFilterDescriptor[] getFilterDescriptorHistory();
 }
