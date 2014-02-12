@@ -120,13 +120,12 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	}
 
 	@Override
-	public long createDataReduction(long dataCollectionId, String fileName) throws SQLException {
+	public long createDataReduction(long dataCollectionId) throws SQLException {
 		// Mock up creating a data reduction data base object here
 		long dataReductionId = 0;
 		ISpyBStatusInfo status = new ISpyBStatusInfo();
 		status.setStatus(ISpyBStatus.COMPLETE);
 		status.setProgress(100);
-		status.addFileName(fileName);
 		setDataReductionStatus(dataCollectionId, status);
 
 		// Mock the controller receiving a notification update that database has
@@ -136,7 +135,7 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	}
 
 	@Override
-	public long createDataAnalysis(long dataCollectionId, String fileName) throws SQLException {
+	public long createDataAnalysis(long dataCollectionId) throws SQLException {
 		// Mock up creating a data reduction data base object here
 		long dataAnalysisId = 0;
 		ISpyBStatusInfo status = new ISpyBStatusInfo();

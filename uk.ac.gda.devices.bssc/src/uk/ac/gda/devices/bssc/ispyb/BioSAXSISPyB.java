@@ -195,11 +195,10 @@ public interface BioSAXSISPyB {
 	 * Call this method when data reduction is started so that its status can be recorded
 	 * 
 	 * @param dataCollectionId
-	 * @param fileName
 	 * @return SubtractionId
 	 * @throws SQLException
 	 */
-	public long createDataReduction(long dataCollectionId, String fileName) throws SQLException;
+	public long createDataReduction(long dataCollectionId) throws SQLException;
 
 	/**
 	 * Sets the data reduction status of the data collection
@@ -215,11 +214,10 @@ public interface BioSAXSISPyB {
 	 * Call this method when data analysis is started so that its status can be recorded
 	 * 
 	 * @param dataCollectionId
-	 * @param fileName
 	 * @return AnalysisId
 	 * @throws SQLException
 	 */
-	public long createDataAnalysis(long dataCollectionId, String fileName) throws SQLException;
+	public long createDataAnalysis(long dataCollectionId) throws SQLException;
 
 	/**
 	 * Sets the data analysis status of the data collection
