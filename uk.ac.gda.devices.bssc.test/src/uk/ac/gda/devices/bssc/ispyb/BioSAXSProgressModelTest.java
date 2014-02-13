@@ -20,7 +20,7 @@ import org.junit.Test;
 import uk.ac.gda.devices.bssc.beans.BioSAXSProgressController;
 import uk.ac.gda.devices.bssc.beans.ISAXSProgress;
 
-public class BioSAXSISpyBAPITest {
+public class BioSAXSProgressModelTest {
 	public static IObservableList model;
 	public static BioSAXSProgressController controller;
 	private static BioSAXSISPyB bioSAXSISPyB;
