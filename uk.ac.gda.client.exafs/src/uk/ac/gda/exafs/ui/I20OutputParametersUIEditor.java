@@ -61,7 +61,6 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	private TextWrapper asciiDirectory;
 	private TextWrapper afterScanscriptName;
 	private TextWrapper beforeScanscriptName;
-	
 	private BooleanWrapper vortexSaveRawSpectrum;
 	private BooleanWrapper xspressOnlyShowFF;
 	private BooleanWrapper xspressShowDTRawValues;

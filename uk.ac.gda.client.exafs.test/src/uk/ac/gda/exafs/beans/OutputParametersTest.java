@@ -95,9 +95,9 @@ public class OutputParametersTest {
 		o.setAsciiFileName("FeKedge_1");
 		o.setAsciiDirectory("ascii_1");
 		o.setNexusDirectory("nexus_1");
-		o.addSignal(new SignalParameters("Bragg", "bragg", "9.4f", "bragg/I0", "Mono"));
-		o.addSignal(new SignalParameters("Time(sec)", "time", "%s", "time*1000", "EpicsClock"));
-		o.addSignal(new SignalParameters("Temp", "temp", "%s", "temp", "Eurotherm"));
+//		o.addSignal(new SignalParameters("Bragg", "bragg", "9.4f", "bragg/I0", "Mono"));
+//		o.addSignal(new SignalParameters("Time(sec)", "time", "%s", "time*1000", "EpicsClock"));
+//		o.addSignal(new SignalParameters("Temp", "temp", "%s", "temp", "Eurotherm"));
 
 		ExafsValidator._setCheckingFinables(false);
 		
@@ -126,9 +126,9 @@ public class OutputParametersTest {
 		o.setAsciiFileName("FeKedge_$");
 		o.setAsciiDirectory("ascii_$");
 		o.setNexusDirectory("nexus_$");
-		o.addSignal(new SignalParameters("Bragg", "bragg", "9.4f", "bragg/I0", "Mono"));
-		o.addSignal(new SignalParameters("Time(sec)", "time", "%s", "time*1000", "EpicsClock"));
-		o.addSignal(new SignalParameters("Temp", "temp", "%s", "temp", "Eurotherm"));
+		o.addSignal(new SignalParameters("Bragg", "bragg", 4, "bragg/I0", "Mono"));
+		o.addSignal(new SignalParameters("Time(sec)", "time", 4, "time*1000", "EpicsClock"));
+		o.addSignal(new SignalParameters("Temp", "temp", 4, "temp", "Eurotherm"));
 
 		ExafsValidator._setCheckingFinables(false);
 
@@ -156,9 +156,9 @@ public class OutputParametersTest {
 		expectedValue.setAsciiFileName("FeKedge");
 		expectedValue.setAsciiDirectory("ascii");
 		expectedValue.setNexusDirectory("nexus");
-		expectedValue.addSignal(new SignalParameters("Bragg", "bragg", "9.4f", "bragg/I0", "Mono"));
-		expectedValue.addSignal(new SignalParameters("Time(sec)", "time", "%s", "time*1000", "EpicsClock"));
-		expectedValue.addSignal(new SignalParameters("Temp", "temp", "%s", "temp", "Eurotherm"));
+		expectedValue.addSignal(new SignalParameters("Bragg", "bragg", 4, "bragg/I0", "Mono"));
+		expectedValue.addSignal(new SignalParameters("Time(sec)", "time", 4, "time*1000", "EpicsClock"));
+		expectedValue.addSignal(new SignalParameters("Temp", "temp", 4, "temp", "Eurotherm"));
 
 		OutputParameters s = createFromXML(PackageUtils.getTestPath(getClass())
 				+ "OutputParameters.xml");
@@ -175,9 +175,9 @@ public class OutputParametersTest {
 		op.setAsciiFileName("FeKedge");
 		op.setAsciiDirectory("ascii");
 		op.setNexusDirectory("nexus");
-		op.addSignal(new SignalParameters("Bragg", "bragg", "9.4f", "bragg/I0", "Mono"));
-		op.addSignal(new SignalParameters("Time(sec)", "time", "%s", "time*1000", "EpicsClock"));
-		op.addSignal(new SignalParameters("Temp", "temp", "%s", "temp", "Eurotherm"));
+		op.addSignal(new SignalParameters("Bragg", "bragg", 4, "bragg/I0", "Mono"));
+		op.addSignal(new SignalParameters("Time(sec)", "time", 4, "time*1000", "EpicsClock"));
+		op.addSignal(new SignalParameters("Temp", "temp", 4, "temp", "Eurotherm"));
 
 		try {
 			writeToXML(op, testScratchDirectoryName + "OutputParameters_written.xml");

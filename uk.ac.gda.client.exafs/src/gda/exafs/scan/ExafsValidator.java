@@ -100,14 +100,6 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 			checkFindable("Scannable Name", sp.getScannableName(), Scannable.class, errors);
 
-			String dataFormat = sp.getDataFormat();
-			if (!dataFormat.startsWith("%")) {
-				dataFormat = "%" + dataFormat;
-			}
-			checkRegExp("Data Format", dataFormat, "%\\'?\\-?(\\d)+\\.(\\d)+[cdxosqrfkpeg]", errors,
-					"This must be a printf format but you can optionally remove the '%'.", "",
-					"Usage: %['][-][number][.number]character");
-
 			if (sp.getName() != null) {
 				checkRegExp("Variable Name", sp.getName(), "[a-zA-Z0-9_]+", errors,
 						"Only alpha-numeric characters (a-z,A-Z,0-9) and '_' are allowed.");

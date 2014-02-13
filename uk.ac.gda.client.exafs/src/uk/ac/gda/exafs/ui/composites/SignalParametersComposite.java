@@ -34,32 +34,26 @@ import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
-import uk.ac.gda.richbeans.components.wrappers.PrintfWrapper;
 import uk.ac.gda.richbeans.components.wrappers.RegularExpressionTextWrapper;
+import uk.ac.gda.richbeans.components.wrappers.SpinnerWrapper;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper.TEXT_TYPE;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
-/**
- *
- */
 public class SignalParametersComposite extends Composite {
-
 	private FindableNameWrapper scannableName;
 	private TextWrapper expression;
 	private TextWrapper label;
-	private PrintfWrapper dataFormat;
 	private TextWrapper name;
 	private Label scannableNameLabel;
 	private Button setLabelToName;
-	/**
-	 * @param parent
-	 * @param style
-	 */
+	private Label lblDecimalPlaces;
+	private SpinnerWrapper decimalPlacesSpinner;
+
 	public SignalParametersComposite(Composite parent, int style) {
 		super(parent, style);
-		final GridLayout gridLayout = new GridLayout();
+		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
 		setLayout(gridLayout);
 
@@ -73,7 +67,7 @@ public class SignalParametersComposite extends Composite {
 			}
 		});
 		
-		final Label labelLabel = new Label(this, SWT.NONE);
+		Label labelLabel = new Label(this, SWT.NONE);
 		labelLabel.setText("Column Label");
 
 		label = new RegularExpressionTextWrapper(this, SWT.BORDER, Pattern.compile("[a-zA-Z0-9_]+"));
@@ -90,21 +84,20 @@ public class SignalParametersComposite extends Composite {
 				updateLabelContents();
 			}
 		});
+		
+		lblDecimalPlaces = new Label(this, SWT.NONE);
+		lblDecimalPlaces.setText("Decimal Places");
+		
+		decimalPlacesSpinner = new SpinnerWrapper(this, SWT.BORDER);
 
-		final Label dataFormatLabel = new Label(this, SWT.NONE);
-		dataFormatLabel.setText("Data Format");
-
-		dataFormat = new PrintfWrapper(this, SWT.BORDER);
-		dataFormat.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
-		final Label nameLabel = new Label(this, SWT.NONE);
+		Label nameLabel = new Label(this, SWT.NONE);
 		nameLabel.setToolTipText("Optional parameter to say variable name to extract from scannable. If scannable name should be evaluated directly, leave blank.");
 		nameLabel.setText("Variable Name*");
 
 		name = new TextWrapper(this, SWT.BORDER);
 		name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-		final Label expressionLabel = new Label(this, SWT.NONE);
+		Label expressionLabel = new Label(this, SWT.NONE);
 		expressionLabel.setToolTipText("Optional Parameter to set expression of scannable");
 		expressionLabel.setText("Expression*");
 
@@ -112,38 +105,23 @@ public class SignalParametersComposite extends Composite {
 		expression.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		expression.setTextType(TEXT_TYPE.EXPRESSION);
 	}
-	/**
-	 * @return n
-	 */
-	// getName is the same a private getName, suppress warning
-	@SuppressWarnings("all")
+
 	public TextWrapper getName() {
 		return name;
 	}
-	/**
-	 * @return TextWrapper
-	 */
-	public PrintfWrapper getDataFormat() {
-		return dataFormat;
+	
+	public SpinnerWrapper getDecimalPlaces() {
+		return decimalPlacesSpinner;
 	}
-	/**
-	 * 
-	 * @return k
-	 */
+
 	public TextWrapper getLabel() {
 		return label;
 	}
-	/**
-	 * 
-	 * @return e
-	 */
+
 	public TextWrapper getExpression() {
 		return expression;
 	}
-	/**
-	 * 
-	 * @return s
-	 */
+
 	public TextWrapper getScannableName() {
 		return scannableName;
 	}
@@ -151,13 +129,10 @@ public class SignalParametersComposite extends Composite {
 	public void selectionChanged(SignalParameters sigParams) {
 		String labelValue = (String) label.getValue();
 		String scannableNameValue = (String) scannableName.getValue();
-		String dataformat = dataFormat.getValue();
 		if (labelValue == null || "".equals(labelValue) || labelValue.equals(scannableNameValue)) {
-			// ensure here the minimum set of values in the bean to fulfil the xsd
 			if (sigParams != null) {
 				sigParams.setLabel(scannableNameValue);
 				sigParams.setScannableName(scannableNameValue);
-				sigParams.setDataFormat(dataformat);
 			}
 			setLabelToName.setSelection(true);
 		} else {

@@ -11,7 +11,7 @@ from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 
 class Scan:
     
-    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers):
+    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, includeSampleNameInNexusName=True):
         self.detectorPreparer = detectorPreparer
         self.samplePreparer = samplePreparer
         self.outputPreparer = outputPreparer
@@ -22,6 +22,7 @@ class Scan:
         self.original_header = original_header
         self.energy_scannable = energy_scannable
         self.ionchambers=ionchambers
+        self.includeSampleNameInNexusName = includeSampleNameInNexusName
         
     def determineExperimentPath(self, experimentFullPath):
         experimentFullPath = experimentFullPath + "/"
@@ -88,11 +89,17 @@ class Scan:
     def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
         nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
         asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
-        nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
-        asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
+        
         if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
             nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
             asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
+        else:
+            if self.includeSampleNameInNexusName==True:
+                nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
+                asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
+            else:
+                nexusFileNameTemplate = nexusSubFolder +"/"+ "%d_"+str(repetition)+".nxs"
+                asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
 
         # create XasAsciiNexusDataWriter object and give it the parameters
         dataWriter = XasAsciiNexusDataWriter()
@@ -107,7 +114,6 @@ class Scan:
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
-        # get the ascii file format configuration (if not set here then will get it from the Finder inside the Java class
         asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
         if asciidatawriterconfig != None :
             dataWriter.setConfiguration(asciidatawriterconfig)
