@@ -56,9 +56,9 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	ScannableMotor scannableMotor;
 	ZebraMotorInfoProvider zebraMotorInfoProvider;
 
-	private double pcGateWidthRBV;
+	protected double pcGateWidthRBV;
 
-	private double pcGateStartRBV;
+	protected double pcGateStartRBV;
 
 	private int mode=Zebra.PC_PULSE_SOURCE_TIME;
 
@@ -84,7 +84,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 			//sources must be set first
 			zebra.setPCArmSource(Zebra.PC_ARM_SOURCE_SOFT);
-			zebra.setPCGateSource(Zebra.PC_GATE_SOURCE_POSITION);
 			zebra.setPCPulseSource(mode);
 
 			//set motor before setting gates and pulse parameters
@@ -94,7 +93,9 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS);
 			
 			zebra.setPCGateNumberOfGates(1);
-			
+			double pcGateWidth=0.;
+			double pcGateStart=0.;
+			double gateWidthTime=0.;
 			switch(mode){
 			case Zebra.PC_PULSE_SOURCE_POSITION:
 				if(true)
@@ -148,7 +149,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 					zebra.setPCPulseStep(triggerPeriod*1000); // in  ms
 				}
 				
-				double firstPulsePos = start - (step>0 ? 1.0 : -1.0)*exposureStep/2;
+				pcGateStart = start - (step>0 ? 1.0 : -1.0)*exposureStep/2;
 				// Note that we need to read back any values relating to a
 				// physical motor, as the readback will be quantised to the
 				// resolution of the motor.
@@ -157,8 +158,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				
 				//Use at least .5 degrees otherwise we may get error due to encoder noise
 				minAccDistance = Math.max(.5, zebraMotorInfoProvider.distanceToAccToVelocity(requiredSpeed));
-				scannableMotor.asynchronousMoveTo(firstPulsePos - (step>0 ? 1.0 : -1.0)*minAccDistance);
-				zebra.setPCGateStart(firstPulsePos);
+				scannableMotor.asynchronousMoveTo(pcGateStart - (step>0 ? 1.0 : -1.0)*minAccDistance);
 				
 				// Capture positions half way through collection time
 				zebra.setPCPulseDelay(1000.*maxCollectionTimeFromDetectors/2.);
@@ -171,12 +171,9 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
 				pcPulseDelayRBV = zebra.getPCPulseDelayRBV()/1000.;
 
-				double gateWidthTime = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
+				gateWidthTime = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
 				requiredSpeed = (Math.abs(step)/pcPulseStepRBV);
-				zebra.setPCGateWidth((gateWidthTime * requiredSpeed)+minAccDistance);
-				
-				pcGateWidthRBV = zebra.getPCGateWidthRBV();
-				pcGateStartRBV = zebra.getPCGateStartRBV();
+				pcGateWidth=(gateWidthTime * requiredSpeed)+minAccDistance;
 				
 				/*
 				 * To ensure the detector exposure straddles equally across the mid point we should use the PULSE1 block with
@@ -200,7 +197,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 			int numberTriggers = getNumberTriggers();
 			zebra.setPCPulseMax(numberTriggers);
-			zebra.pcArm();
+
+			setupGateAndArm(pcGateStart,pcGateWidth, step, gateWidthTime );
+			
+			
 			if( timeSeriesCollection != null){
 				for(ZebraCaptureInputStreamCollection ts : timeSeriesCollection){
 					ts.start(numberTriggers);
@@ -210,6 +210,18 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		} catch (Exception e) {
 			throw new DeviceException("Error arming the zebra", e);
 		}
+
+	}
+
+	protected void setupGateAndArm(double pcGateStart, double pcGateWidth, @SuppressWarnings("unused") double step2, @SuppressWarnings("unused") double gateWidthTimeInS) throws Exception {
+		zebra.setPCGateSource(Zebra.PC_GATE_SOURCE_POSITION);
+		zebra.setPCGateStart(pcGateStart);
+		zebra.setPCGateWidth(pcGateWidth);
+		
+		pcGateWidthRBV = zebra.getPCGateWidthRBV();
+		pcGateStartRBV = zebra.getPCGateStartRBV();
+		
+		zebra.pcArm();
 
 	}
 

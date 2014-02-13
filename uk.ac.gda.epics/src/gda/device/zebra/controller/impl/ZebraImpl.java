@@ -94,6 +94,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	final public static String PCGateWidthRBV = "PC_GATE_WID:RBV";
 	final public static String PCTimeUnit = "PC_TSPRE";
 	private static final String PCPulseMax = "PC_PULSE_MAX";	
+	public static final String PCArmInput="PC_ARM_INP";
 	
 	private static final String SYS_SOFT_IN_PV = "SOFT_IN";
 
@@ -390,6 +391,12 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public void setPCArmInput(int input) throws Exception {
+		dev.getIntegerPVValueCache(PCArmInput).putWait(input);
+
 	}	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

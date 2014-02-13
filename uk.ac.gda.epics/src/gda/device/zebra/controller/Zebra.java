@@ -175,6 +175,7 @@ public interface Zebra {
 	
 	void setOutTTL(int outId, int val) throws Exception;
 	
+	void setPCArmInput(int input) throws Exception;
 
 	/**
 	 * Returns whether a soft input is set.

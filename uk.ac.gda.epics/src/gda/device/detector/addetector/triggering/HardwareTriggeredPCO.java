@@ -31,7 +31,7 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 	private final ADDriverPco adDriverPco;
 	private Integer adcMode=1; //2 ADCs
 	private Integer timeStamp=1; // BCD
-	private PcoTriggerMode triggerMode = PcoTriggerMode.EXTERNAL_PULSE;
+	private PcoTriggerMode triggerMode = PcoTriggerMode.EXTERNAL_AND_SOFTWARE; //To allow PcoEdge to run at 100Hz. PcoTriggerMode.EXTERNAL_PULSE;
 	private Etfg etfg;
 
 	// The port value used to trigger the camera in live mode
@@ -133,7 +133,7 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 
 			etfg.clearFrameSets(); 
 			etfg.addFrameSet(1, 0.0, 0.0, 0, 0, 0, 8); //leave dead time on ttl0
-			etfg.addFrameSet(1, 0.0, collectionTime * 1000., 0, exposeTriggerOutVal, 0, 0); //in live output trigger to camera
+			etfg.addFrameSet(1, 0.0, collectionTime * 1000., 0, exposeTriggerOutVal, 0, 0); // in live output trigger to camera
 			etfg.addFrameSet(1, 0.0, 0.0, 0, 0, 0, noLongerBusyTriggerInVal); // wait for PCo Busy out
 			etfg.setCycles(CYCLES);
 			etfg.loadFrameSets();		
