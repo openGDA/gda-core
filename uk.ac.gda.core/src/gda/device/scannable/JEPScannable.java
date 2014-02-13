@@ -37,6 +37,7 @@ import org.nfunk.jep.SymbolTable;
  * Scannable.
  * <p>
  * This is for reporting values only. It will only return a single double value from getPosition().
+ * Jep stands for Java equation parsing.
  */
 public class JEPScannable extends ScannableBase {
 	
