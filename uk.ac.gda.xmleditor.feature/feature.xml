@@ -49,21 +49,21 @@
          id="org.eclipse.emf.common"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.8.0.v20130125-0546"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.emf.ecore"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.8.3.v20130125-0546"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.emf.ecore.xmi"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.8.1.v20130125-0546"
          unpack="false"/>
 
    <plugin
