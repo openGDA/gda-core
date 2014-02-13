@@ -5,13 +5,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.transform.sax.SAXSource;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-
 public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	private static final int MODEL_SIZE = 7;
 	private List<ISAXSDataCollection> isPyBSAXSDataCollections;
