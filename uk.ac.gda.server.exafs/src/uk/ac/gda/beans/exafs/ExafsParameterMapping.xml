@@ -410,9 +410,11 @@
 		<field name="name" type="string">
 			<bind-xml name="name" node="element" />
 		</field>
-		<field name="dataFormat" type="string">
-			<bind-xml name="dataFormat" node="element" />
+		
+		<field name="decimalPlaces" type="integer">
+			<bind-xml name="decimalPlaces" node="element" />
 		</field>
+		
 		<field name="expression" type="string">
 			<bind-xml name="expression" node="element" />
 		</field>

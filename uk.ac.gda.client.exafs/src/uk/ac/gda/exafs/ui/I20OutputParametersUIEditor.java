@@ -54,7 +54,6 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public class I20OutputParametersUIEditor extends RichBeanEditorPart {
-
 	private TextWrapper asciiFileName;
 	private VerticalListEditor signalList;
 	private VerticalListEditor metadataList;
@@ -62,20 +61,16 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	private TextWrapper asciiDirectory;
 	private TextWrapper afterScanscriptName;
 	private TextWrapper beforeScanscriptName;
-	
 	private BooleanWrapper vortexSaveRawSpectrum;
 	private BooleanWrapper xspressOnlyShowFF;
 	private BooleanWrapper xspressShowDTRawValues;
 	private BooleanWrapper xspressSaveRawSpectrum;
-
-
-	ExpandableComposite outputFoldersExpandableComposite;
-	ExpandableComposite jythonExpandableComposite;
-	ExpandableComposite signalExpandableComposite;
-	ExpandableComposite metadataExpandableComposite;
-	ExpandableComposite detectorsExpandableComposite;
-	
-	I20OutputParameters bean;
+	private ExpandableComposite outputFoldersExpandableComposite;
+	private ExpandableComposite jythonExpandableComposite;
+	private ExpandableComposite signalExpandableComposite;
+	private ExpandableComposite metadataExpandableComposite;
+	private ExpandableComposite detectorsExpandableComposite;
+	private I20OutputParameters bean;
 
 	public I20OutputParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);

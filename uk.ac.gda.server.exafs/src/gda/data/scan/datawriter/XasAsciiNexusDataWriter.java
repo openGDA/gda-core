@@ -36,12 +36,9 @@ import uk.ac.gda.beans.exafs.IScanParameters;
  * Write to an Xas and a Nexus file simultaneously
  */
 public class XasAsciiNexusDataWriter extends DataWriterBase implements ConfigurableAsciiFormat {
-
 	private static Logger logger = LoggerFactory.getLogger(XasAsciiNexusDataWriter.class);
-
 	private XasAsciiDataWriter ascii;
 	private XasNexusDataWriter nexus;
-
 	private String nexusFileNameTemplate;
 	private String asciiFileNameTemplate;
 	private Boolean firstData = true;
@@ -81,7 +78,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			setFileNameTemplates();
 			firstData = false;
 		}
-
 		try {
 			nexus.addData(newData);
 		} catch (Exception e) {
@@ -102,13 +98,12 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		}
 	}
 
+	//TODO A set method taking no parameters?? crazy. call it something else. These things cost time.
 	private synchronized void setFileNameTemplates() throws Exception {
-		if (nexusFileNameTemplate != null){
+		if (nexusFileNameTemplate != null)
 			nexus.setNexusFileNameTemplate(nexusFileNameTemplate);
-		}
-		if (asciiFileNameTemplate != null) {
+		if (asciiFileNameTemplate != null)
 			ascii.setAsciiFileNameTemplate(asciiFileNameTemplate);
-		}
 		ascii.setNexusFilePath(nexus.getCurrentFileName()); // to cross reference in its header
 	}
 
@@ -165,8 +160,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		this.asciiFileNameTemplate = asciiFileNameTemplate;
 	}
 
-	// from both datawriter components
-
 	public Boolean getRunFromExperimentDefinition() {
 		return nexus.getRunFromExperimentDefinition() && ascii.getRunFromExperimentDefinition();
 	}
@@ -175,8 +168,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		nexus.setRunFromExperimentDefinition(runFromExperimentDefinition);
 		ascii.setRunFromExperimentDefinition(runFromExperimentDefinition);
 	}
-
-	// from the XasNexusDataWriter component
 
 	public IScanParameters getScanBean() {
 		return nexus.getScanBean();
@@ -226,8 +217,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		nexus.setXmlFileName(xmlFileName);
 	}
 
-	// from the XasAsciiDataWriter component
-
 	public List<String> getDescriptions() {
 		return ascii.getDescriptions();
 	}
@@ -243,4 +232,5 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	public void setSampleName(String sampleName) {
 		ascii.setSampleName(sampleName);
 	}
+	
 }
