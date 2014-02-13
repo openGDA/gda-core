@@ -18,11 +18,6 @@
 
 package gda.device.detector.xmap.edxd;
 
-import gda.analysis.DataSet;
-import gda.analysis.DataSetFunctionFitter;
-import gda.analysis.functions.FunctionOutput;
-import gda.analysis.functions.Quadratic;
-import gda.analysis.utils.LeastSquares;
 import gda.data.nexus.INeXusInfoWriteable;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
@@ -35,8 +30,12 @@ import java.util.Arrays;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.Quadratic;
+import uk.ac.diamond.scisoft.analysis.optimize.LeastSquares;
 
 public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 
@@ -70,7 +69,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	private double[] energy = null;
 	private double[] q = null;
 
-	private static final Logger logger = LoggerFactory.getLogger(EDXDElement.class);
 	protected FindableEpicsDevice xmap;
 	protected Integer number;
 	private static String SCADATA = "SCADATA";
@@ -522,15 +520,14 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws Exception 
 	 */
 	public void fitPolynomialToEnergyData(double[] actual, double[] reported) throws Exception {
-		// create some dataSets
-		DataSet act = new DataSet(actual);
-		DataSet rep = new DataSet(reported);
+		DoubleDataset act = new DoubleDataset(actual);
+		DoubleDataset rep = new DoubleDataset(reported);
+		
 		double[] initial = {0.0,1.0,0.0};
-		FunctionOutput out = (new DataSetFunctionFitter().fit(rep, act, new LeastSquares(0.0),new Quadratic(initial))).getFunctionOutput();
-		a = out.getParameterValue(0);
-		b = out.getParameterValue(1);
-		c = out.getParameterValue(2);
-		logger.debug("Polynomial fitted for energy values, with a chisquared value of {}", out.getChiSquared());
+		CompositeFunction out = Fitter.fit(rep, act, new LeastSquares(0.0),new Quadratic(initial));
+		a = out.getFunction(0).getParameter(0).getValue();
+		b = out.getFunction(0).getParameter(1).getValue();
+		c = out.getFunction(0).getParameter(2).getValue();
 		energy = null;
 		q = null;
 	}
