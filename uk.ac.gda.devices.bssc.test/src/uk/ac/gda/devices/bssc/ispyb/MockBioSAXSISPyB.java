@@ -5,12 +5,49 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MockBioSAXSISPyB implements BioSAXSISPyB {
+import javax.xml.transform.sax.SAXSource;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+
+public class MockBioSAXSISPyB implements BioSAXSISPyB {
+	private static final int MODEL_SIZE = 7;
 	private List<ISAXSDataCollection> isPyBSAXSDataCollections;
 
 	public MockBioSAXSISPyB() {
 		isPyBSAXSDataCollections = new ArrayList<ISAXSDataCollection>();
+		initialiseDataCollections();
+	}
+
+	private void initialiseDataCollections() {
+		for (int i = 0; i < MODEL_SIZE; i++) {
+			ISAXSDataCollection bioSaxsDataCollection = new MockSAXSDataCollection();
+			bioSaxsDataCollection.setId(i);
+			bioSaxsDataCollection.setExperimentId(0);
+			bioSaxsDataCollection.setSampleName("Sample " + i);
+			bioSaxsDataCollection.setBlSessionId(0);
+			ISpyBStatusInfo collectionStatusInfo = new ISpyBStatusInfo();
+			collectionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
+			collectionStatusInfo.setProgress(0);
+			collectionStatusInfo.addFileName("");
+			collectionStatusInfo.setMessage("");
+			bioSaxsDataCollection.setCollectionStatus(collectionStatusInfo);
+			ISpyBStatusInfo reductionStatusInfo = new ISpyBStatusInfo();
+			reductionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
+			reductionStatusInfo.setProgress(0);
+			reductionStatusInfo.addFileName("");
+			reductionStatusInfo.setMessage("");
+			bioSaxsDataCollection.setReductionStatus(reductionStatusInfo);
+			ISpyBStatusInfo analysisStatusInfo = new ISpyBStatusInfo();
+			analysisStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
+			analysisStatusInfo.setProgress(0);
+			analysisStatusInfo.addFileName("");
+			analysisStatusInfo.setMessage("");
+			bioSaxsDataCollection.setAnalysisStatus(analysisStatusInfo);
+			isPyBSAXSDataCollections.add(bioSaxsDataCollection);
+		}
 	}
 
 	@Override
@@ -230,31 +267,6 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	@Override
 	public List<ISAXSDataCollection> getSAXSDataCollections(long blSessionId)
 			throws SQLException {
-		for (int i = 0; i < BioSAXSISpyBAPITest.MODEL_SIZE; i++) {
-			ISAXSDataCollection bioSaxsDataCollection = new MockSAXSDataCollection();
-			bioSaxsDataCollection.setExperimentId(0);
-			bioSaxsDataCollection.setSampleName("Sample " + i);
-			bioSaxsDataCollection.setBlSessionId(blSessionId);
-			ISpyBStatusInfo collectionStatusInfo = new ISpyBStatusInfo();
-			collectionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
-			collectionStatusInfo.setProgress(0);
-			collectionStatusInfo.addFileName("");
-			collectionStatusInfo.setMessage("");
-			bioSaxsDataCollection.setCollectionStatus(collectionStatusInfo);
-			ISpyBStatusInfo reductionStatusInfo = new ISpyBStatusInfo();
-			reductionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
-			reductionStatusInfo.setProgress(0);
-			reductionStatusInfo.addFileName("");
-			reductionStatusInfo.setMessage("");
-			bioSaxsDataCollection.setReductionStatus(reductionStatusInfo);
-			ISpyBStatusInfo analysisStatusInfo = new ISpyBStatusInfo();
-			analysisStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
-			analysisStatusInfo.setProgress(0);
-			analysisStatusInfo.addFileName("");
-			analysisStatusInfo.setMessage("");
-			bioSaxsDataCollection.setAnalysisStatus(analysisStatusInfo);
-			isPyBSAXSDataCollections.add(bioSaxsDataCollection);
-		}
 		return isPyBSAXSDataCollections;
 	}
 
