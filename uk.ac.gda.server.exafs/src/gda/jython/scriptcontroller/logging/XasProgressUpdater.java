@@ -96,12 +96,18 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 
 		String status = "Repetition complete";
 		IScanDataPoint lastSDP = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
-		String percentComplete = determinePercentComplete(lastSDP,true) + "%";
-		if (!sampleEnvironmentRepetition.equals(sampleEnvironmentRepetitions))
-			status = "Sample Env repetition complete";
-		else if (thisScanrepetition.equals(totalScanRepetitions)) {
+		String percentComplete;
+		if (lastSDP == null) {
 			status = "Scan Complete";
 			percentComplete = "100%";
+		} else {
+			percentComplete = determinePercentComplete(lastSDP, true) + "%";
+			if (!sampleEnvironmentRepetition.equals(sampleEnvironmentRepetitions))
+				status = "Sample Env repetition complete";
+			else if (thisScanrepetition.equals(totalScanRepetitions)) {
+				status = "Scan Complete";
+				percentComplete = "100%";
+			}
 		}
 
 		XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, status, thisScanrepetition,
