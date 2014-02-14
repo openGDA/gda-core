@@ -42,11 +42,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.nexusformat.NexusFile;
 
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class TwoWayMicroFocusWriterExtenderTest {
@@ -62,10 +61,10 @@ public class TwoWayMicroFocusWriterExtenderTest {
 	private int numberOfScanDataPoints;
 	private int numberOfXPoints;
 	private int numberOfYPoints;
-	private double[] feData  = new double[]{4412.0, 4544.0,4339.0,4389.0,4312.0,4399.0,4429.0,4462.0,4409.0,4496.0,4515.0, 4423.0, 4409.0, 4508.0, 4357.0, 4391.0, 4332.0, 4494.0, 4389.0, 4368.0,4417.0, 4464.0};
-	private double[] twoWayFeData  = new double[]{4412.0, 4544.0,4339.0,4389.0,4312.0,4399.0,4429.0,4462.0,4409.0,4496.0,4515.0,4464.0, 4417.0,4368.0,4389.0,4494.0,4332.0,4391.0, 4357.0,4508.0,4409.0,4423.0};
-	private double []mnData= new double[]{346.0, 352.0,329.0,289.0,318.0,332.0,328.0,305.0,292.0,324.0,345.0,314.0, 316.0, 348.0, 331.0, 322.0, 306.0, 337.0, 365.0, 334.0, 348.0,299.0};
-	private double []twoWayMnData= new double[]{346.0, 352.0,329.0,289.0,318.0,332.0,328.0,305.0,292.0,324.0,345.0,299.0, 348.0,334.0,365.0,337.0,306.0,322.0,331.0,348.0,316.0,314.0};
+//	private double[] feData  = new double[]{4412.0, 4544.0,4339.0,4389.0,4312.0,4399.0,4429.0,4462.0,4409.0,4496.0,4515.0, 4423.0, 4409.0, 4508.0, 4357.0, 4391.0, 4332.0, 4494.0, 4389.0, 4368.0,4417.0, 4464.0};
+//	private double[] twoWayFeData  = new double[]{4412.0, 4544.0,4339.0,4389.0,4312.0,4399.0,4429.0,4462.0,4409.0,4496.0,4515.0,4464.0, 4417.0,4368.0,4389.0,4494.0,4332.0,4391.0, 4357.0,4508.0,4409.0,4423.0};
+//	private double []mnData= new double[]{346.0, 352.0,329.0,289.0,318.0,332.0,328.0,305.0,292.0,324.0,345.0,314.0, 316.0, 348.0, 331.0, 322.0, 306.0, 337.0, 365.0, 334.0, 348.0,299.0};
+//	private double []twoWayMnData= new double[]{346.0, 352.0,329.0,289.0,318.0,332.0,328.0,305.0,292.0,324.0,345.0,299.0, 348.0,334.0,365.0,337.0,306.0,322.0,331.0,348.0,316.0,314.0};
 	class NamedObject {
 		private String name;
 
