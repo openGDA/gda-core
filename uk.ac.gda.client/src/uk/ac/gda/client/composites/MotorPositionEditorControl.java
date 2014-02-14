@@ -51,11 +51,13 @@ public class MotorPositionEditorControl extends NumberEditorControl {
 		}
 		this.setCommitOnOutOfFocus(false);
 		this.setDigits(NumberEditorControl.DEFAULT_DECIMAL_PLACES);
-		if (scannableWrapper.getLowerLimit() != null && scannableWrapper.getUpperLimit() != null) {
-			this.setRange(scannableWrapper.getLowerLimit(), scannableWrapper.getUpperLimit());
+		Double lowerLimit = scannableWrapper.getLowerLimit();
+		Double upperLimit = scannableWrapper.getUpperLimit();
+		if (lowerLimit != null && upperLimit != null) {
+			this.setRange(lowerLimit, upperLimit);
 			this.setToolTipText(String.format("Lower limit: %s Upper limit: %s",
-					roundDoubletoString(scannableWrapper.getLowerLimit(), NumberEditorControl.DEFAULT_DECIMAL_PLACES),
-					roundDoubletoString(scannableWrapper.getUpperLimit(), NumberEditorControl.DEFAULT_DECIMAL_PLACES)));
+					roundDoubletoString(lowerLimit, NumberEditorControl.DEFAULT_DECIMAL_PLACES),
+					roundDoubletoString(upperLimit, NumberEditorControl.DEFAULT_DECIMAL_PLACES)));
 		}
 
 	}
