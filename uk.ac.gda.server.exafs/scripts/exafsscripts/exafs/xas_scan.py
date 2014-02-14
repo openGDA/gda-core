@@ -6,7 +6,6 @@ from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataW
 from gda.device.scannable import XasScannable, XasScannableWithDetectorFramesSetup, JEPScannable
 from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator, ScanStartedMessage
 from gda.exafs.scan import RepetitionsProperties
-from gda.factory import Finder
 from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
@@ -18,8 +17,8 @@ from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters, XesSca
 
 class XasScan(Scan):
 
-	def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=False):
-		Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers)
+	def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=False, includeSampleNameInNexusName=True):
+		Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, energy_scannable, ionchambers, includeSampleNameInNexusName)
 		self.moveMonoToStartBeforeScan=moveMonoToStartBeforeScan
 		self.useItterator=useItterator
 		self.handleGapConverter=handleGapConverter
@@ -82,8 +81,9 @@ class XasScan(Scan):
 			if numRepetitions > 1:
 				self.log("Repetition", str(repetitionNumber),"skipped.")
 		else:
-			raise ScanInterruptedException()
-
+			print e
+			raise # any other exception we are not expecting so raise whatever this is to abort the script
+						
 	def _doItterator(self, iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, experimentFolderName):
 		iterator.resetIterator()
 		num_sample_repeats = int(iterator.getNumberOfRepeats())
@@ -136,8 +136,7 @@ class XasScan(Scan):
 						self.printRepetition(numRepetitions, repetitionNumber, scriptType)
 						logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName)
 						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg)
-				except java.lang.Exception, e:
-					self.handleScanInterrupt(numRepetitions, repetitionNumber)
+					
 				except InterruptedException, e:
 					self.handleScanInterrupt(numRepetitions, repetitionNumber)
 				self._runScript(beanGroup.getOutput().getAfterScriptName())# run the after scan script
@@ -158,6 +157,7 @@ class XasScan(Scan):
 			ScriptBase.checkForPauses()
 			
 	# Runs a single XAS/XANES scan.
+
 	def _doScan(self,beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg):
 		#self.loggingcontroller.update(None,logmsg)
 		self.XASLoggingScriptController.update(None,ScanStartedMessage(scanBean,detectorBean)) # informs parts of the UI about current scan
@@ -241,10 +241,13 @@ class XasScan(Scan):
 			ScriptBase.checkForPauses()
 		return
 
+	# TODO this should be in output preparer.
 	def _getSignalList(self, outputParameters):
 		signalList = []
 		for signal in outputParameters.getSignalList():
-			 scannable = JEPScannable.createJEPScannable(signal.getLabel(), signal.getScannableName(), signal.getDataFormat(), signal.getName(), signal.getExpression())
+			 dp = signal.getDecimalPlaces()
+			 dataFormat = '%6.'+str(dp)+'f'	# construct data format from dp e.g. "%6.2f"
+			 scannable = JEPScannable.createJEPScannable(signal.getLabel(), signal.getScannableName(), dataFormat, signal.getName(), signal.getExpression())
 			 signalList.append(scannable)
 		return signalList
 			
@@ -266,8 +269,7 @@ class XasScan(Scan):
 				if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
 					#print detectorBean.getFluorescenceParameters().getDetectorType(), "experiment"
 					return self._createDetArray(group.getDetector(), scanBean)
-
-		
+	
 	# Move to start energy so that harmonic can be set by gap_converter for i18 only
 	def setupHarmonic(self, scanBean, gap_converter):
 		initialEnergy = scanBean.getInitialEnergy()

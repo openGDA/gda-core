@@ -104,7 +104,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			setFileNameTemplates();
 			firstData = false;
 		}
-
 		try {
 			nexus.addData(newData);
 		} catch (Exception e) {
@@ -125,6 +124,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		}
 	}
 
+	//TODO A set method taking no parameters?? crazy. call it something else. These things cost time.
 	private synchronized void setFileNameTemplates() throws Exception {
 		if (nexusFileNameTemplate != null)
 			nexus.setNexusFileNameTemplate(nexusFileNameTemplate);
@@ -192,6 +192,12 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	public void setRunFromExperimentDefinition(Boolean runFromExperimentDefinition) {
 		this.runFromExperimentDefinition = runFromExperimentDefinition;
+		nexus.setRunFromExperimentDefinition(runFromExperimentDefinition);
+		ascii.setRunFromExperimentDefinition(runFromExperimentDefinition);
+	}
+
+	public IScanParameters getScanBean() {
+		return nexus.getScanBean();
 	}
 
 	public void setScanBean(IScanParameters scanBean) {
@@ -217,6 +223,11 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	public void setXmlFileName(String xmlFileName) {
 		this.xmlFileName = xmlFileName;
+		nexus.setXmlFileName(xmlFileName);
+	}
+
+	public List<String> getDescriptions() {
+		return ascii.getDescriptions();
 	}
 
 	public void setDescriptions(List<String> descriptions) {
@@ -226,4 +237,5 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	public void setSampleName(String sampleName) {
 		this.sampleName = sampleName;
 	}
+	
 }
