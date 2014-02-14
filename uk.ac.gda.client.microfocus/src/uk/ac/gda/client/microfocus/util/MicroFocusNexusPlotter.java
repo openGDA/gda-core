@@ -94,9 +94,6 @@ public class MicroFocusNexusPlotter {
 
 			IPlottingSystem system = getMapPlotPlottingSystem();
 			system.addClickListener(mouseClickListener);
-
-			// todo lock histogram
-//			 system.get
 		}
 	}
 
