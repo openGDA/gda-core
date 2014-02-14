@@ -20,16 +20,12 @@ package uk.ac.gda.epics.adviewer.views;
 
 import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Vector;
 
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.core.commands.common.NotDefinedException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -44,13 +40,14 @@ import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.ADControllerFactory;
+import uk.ac.gda.epics.adviewer.Activator;
 import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.TwoDArray;
 import uk.ac.gda.epics.adviewer.composites.tomove.PlottingSystemIRegionPlotServerConnector;
 
 public class TwoDArrayView extends ViewPart implements InitializingBean {
 	public static final String Id = "uk.ac.gda.epics.adviewer.twodArrayView";
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArrayView.class);
 	private TwoDArray twoDArray;
 	private ADController adController;
@@ -58,28 +55,16 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 	private PlottingSystemIRegionPlotServerConnector plotServerConnector;
 	private String name;
 	private Image image;
-	private boolean createdViaExtendedConstructor=false;
 
-	public TwoDArrayView(ADController adController, IConfigurationElement configurationElement) {
-		this.adController = adController;
-		name = configurationElement.getAttribute("name");
-		try {
-			String icon = configurationElement.getAttribute("icon");
-			if (icon.isEmpty()) {
-				image = adController.getTwoDarrayViewImageDescriptor().createImage();
-			} else {
-				URL iconURL = Platform.getBundle(configurationElement.getContributor().getName()).getResource(icon);
-				ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(iconURL);
-				image = imageDescriptor.createImage();
-			}
-		} catch (Exception e) {
-			logger.warn("Unable to get image for view", e);
-		}
-		createdViaExtendedConstructor = true;
-	}
+	private String serviceName;
 
 	public TwoDArrayView() {
 		super();
+	}
+
+	public TwoDArrayView(String serviceName) {
+		super();
+		this.serviceName = serviceName;
 	}
 
 	@Override
@@ -88,11 +73,16 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 			throw new Exception("Config is null");
 	}
 
+	protected ADController getAdController() {
+		return adController;
+	}
+
 	@Override
 	public void createPartControl(Composite parent) {
-		try{
+		try {
 			if (adController == null) {
-				String serviceName = getViewSite().getSecondaryId();
+				if (StringUtils.isEmpty(serviceName))
+					serviceName = getViewSite().getSecondaryId();
 				if (StringUtils.isEmpty(serviceName))
 					throw new RuntimeException("No secondary id given");
 				try {
@@ -149,9 +139,8 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 			getSite().getWorkbenchWindow().getPartService().addPartListener(partListener);
 
 			if (adController.isConnectToPlotServer()) {
-				plotServerConnector = new PlottingSystemIRegionPlotServerConnector(
-						this.twoDArray.getPlottingSystem(), PlotServerROISelectionProvider.getGuiName(adController
-								.getDetectorName()));
+				plotServerConnector = new PlottingSystemIRegionPlotServerConnector(this.twoDArray.getPlottingSystem(),
+						PlotServerROISelectionProvider.getGuiName(adController.getDetectorName()));
 			}
 			twoDArray.restore(name);
 			createActions();
@@ -166,20 +155,30 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 	}
 
 	protected void createActions() throws NotDefinedException {
-		if(!createdViaExtendedConstructor){
-			List<IAction> actions = new Vector<IAction>();
-			{
-				actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE,
-						Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-				actions.add(ADActionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE,
-						Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-				actions.add( ADActionUtils.addShowViewAction("Show Stats", HistogramView.Id, adController.getServiceName(), "Show stats view for selected camera"));
-				actions.add( ADActionUtils.addShowViewAction("Show MPeg", MJPegView.Id, adController.getServiceName(), "Show MPeg view for selected camera"));
-				
-			}
-			for (IAction iAction : actions) {
-				getViewSite().getActionBars().getToolBarManager().add(iAction);
-			}
+		List<IAction> actions = new Vector<IAction>();
+		{
+			actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE,
+					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add(ADActionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE,
+					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+		}
+		for (IAction iAction : actions) {
+			getViewSite().getActionBars().getToolBarManager().add(iAction);
+		}
+		createShowViewAction();
+	}
+
+	protected void createShowViewAction() {
+		List<IAction> actions = new Vector<IAction>();
+		{
+			actions.add(ADActionUtils.addShowViewAction("Show Stats", HistogramView.Id, adController.getServiceName(),
+					"Show stats view for selected camera", Activator.getHistogramViewImage()));
+			actions.add(ADActionUtils.addShowViewAction("Show MPeg", MJPegView.Id, adController.getServiceName(),
+					"Show MPeg view for selected camera", Activator.getMJPegViewImage()));
+
+		}
+		for (IAction iAction : actions) {
+			getViewSite().getActionBars().getToolBarManager().add(iAction);
 		}
 	}
 
@@ -190,7 +189,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 
 	@Override
 	public void dispose() {
-		if( twoDArray != null)
+		if (twoDArray != null)
 			twoDArray.save(name);
 		if (image != null) {
 			image.dispose();

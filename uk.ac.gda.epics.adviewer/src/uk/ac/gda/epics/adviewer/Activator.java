@@ -82,4 +82,13 @@ public class Activator extends AbstractUIPlugin {
 		return namedServiceProvider.getNamedService(clzz, SERVICE_NAME, name);
 		
 	}
+	public static ImageDescriptor getHistogramViewImage(){
+		return getImageDescriptor("icons/AreaDetectorProfileView.gif");
+	}
+	public static ImageDescriptor getTwoDArrayViewImage(){
+		return getImageDescriptor("icons/AreaDetectorImageView.gif");
+	}
+	public static ImageDescriptor getMJPegViewImage(){
+		return getImageDescriptor("icons/AreaDetectorLiveView.gif");
+	}
 }

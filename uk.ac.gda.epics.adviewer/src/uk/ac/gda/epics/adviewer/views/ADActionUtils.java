@@ -66,7 +66,7 @@ public class ADActionUtils {
 		return action;
 	}
 	
-	static public IAction addShowViewAction(final String name, final String viewId, final String secondaryId, String description){
+	static public IAction addShowViewAction(final String name, final String viewId, final String secondaryId, String description, ImageDescriptor imageDesc){
 		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
 			@Override
 			public void run() {
@@ -86,14 +86,8 @@ public class ADActionUtils {
 			}
 		};
 		action.setToolTipText(description);
-		ICommandImageService service = (ICommandImageService) PlatformUI.getWorkbench().getService(ICommandImageService.class);
-		ImageDescriptor imageDesc = service.getImageDescriptor(viewId);
 		if(imageDesc!=null)
 			action.setImageDescriptor(imageDesc);
-		else{
-			System.out.println("Cannot get image descriptor");
-			imageDesc = service.getImageDescriptor(viewId);
-		}
 		return action;
 	}
 	

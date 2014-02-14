@@ -33,18 +33,6 @@
                optional="false">
          </commandParameter>
       </command>
-      <command
-            id="uk.ac.gda.epics.adviewer.mpegview"
-            name="command used to access mpegview image">
-      </command>
-      <command
-            id="uk.ac.gda.epics.adviewer.twodArrayView"
-            name="command used to access array view image">
-      </command>
-      <command
-            id="uk.ac.gda.epics.adviewer.histogramview"
-            name="command used to access stats image">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.commandImages">
@@ -59,18 +47,6 @@
       <image
             commandId="uk.ac.gda.epics.adviewer.command.zoomToFit"
             icon="icons/arrow_out.png">
-      </image>
-      <image
-            commandId="uk.ac.gda.epics.adviewer.twodArrayView"
-            icon="icons/AreaDetectorImageView.gif">
-      </image>
-      <image
-            commandId="uk.ac.gda.epics.adviewer.mpegview"
-            icon="icons/AreaDetectorLiveView.gif">
-      </image>
-      <image
-            commandId="uk.ac.gda.epics.adviewer.histogramview"
-            icon="icons/AreaDetectorProfileView.gif">
       </image>
    </extension>
    <extension

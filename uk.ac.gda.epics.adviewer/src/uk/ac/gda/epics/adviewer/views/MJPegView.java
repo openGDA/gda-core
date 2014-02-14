@@ -18,16 +18,12 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Vector;
 
 import org.eclipse.core.commands.common.NotDefinedException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -42,51 +38,45 @@ import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.ADControllerFactory;
+import uk.ac.gda.epics.adviewer.Activator;
 import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
 public class MJPegView extends ViewPart {
-	public static final String Id = "uk.ac.gda.epics.adviewer.mpegview";	
+	public static final String Id = "uk.ac.gda.epics.adviewer.mpegview";
 	private static final Logger logger = LoggerFactory.getLogger(MJPegView.class);
 	private MJPeg mJPeg;
 	private ADController adController;
-	private String name="";
-	private Image image=null;
-	private boolean createdViaExtendedConstructor=false;
-	public MJPegView(ADController adController, IConfigurationElement configurationElement) {
-		this.adController = adController;
-		try{
-			name = configurationElement.getAttribute("name");
-			String icon = configurationElement.getAttribute("icon");
-			if( icon.isEmpty()){
-				image = adController.getTwoDarrayViewImageDescriptor().createImage();
-			} else {
-				URL iconURL = Platform.getBundle(configurationElement.getContributor().getName()).getResource(icon);
-				ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(iconURL);
-				image = imageDescriptor.createImage();
-			}
-		}catch (Exception e){
-			logger.warn("Unable to get image for view",e);
-		}
-		createdViaExtendedConstructor = true;
-	}
+	private String name = "";
+	private Image image = null;
+	private String serviceName;
 
 	public MJPegView() {
 		super();
+	}
+
+	public MJPegView(String serviceName) {
+		super();
+		this.serviceName = serviceName;
+	}
+
+	protected ADController getAdController() {
+		return adController;
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 
 		try {
-			if( adController== null){
-				String serviceName = getViewSite().getSecondaryId();
-				if( StringUtils.isEmpty(serviceName))
+			if (adController == null) {
+				if (StringUtils.isEmpty(serviceName))
+					serviceName = getViewSite().getSecondaryId();
+				if (StringUtils.isEmpty(serviceName))
 					throw new RuntimeException("No secondary id given");
 				try {
 					adController = ADControllerFactory.getInstance().getADController(serviceName);
 				} catch (Exception e) {
-					logger.error("Error getting ADController",e);
+					logger.error("Error getting ADController", e);
 					throw new RuntimeException("Error getting ADController see log for details");
 				}
 				name = adController.getDetectorName() + " MPeg";
@@ -94,33 +84,32 @@ public class MJPegView extends ViewPart {
 
 			parent.setLayout(new FillLayout());
 
-			mJPeg=createPartControlEx(parent);
+			mJPeg = createPartControlEx(parent);
 
 			createActions();
 			createMenu();
 			createToolbar();
 			createContextMenu();
 			hookGlobalActions();
-		
-			if( image != null) {
+
+			if (image != null) {
 				setTitleImage(image);
 			}
 			setPartName(name);
-		
+
 		} catch (Exception e) {
 			logger.error("Error creating MJPEGView", e);
 		}
-		
 
 	}
-	
+
 	protected MJPeg createPartControlEx(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout(1, false));
 		Composite composite_2 = new Composite(composite, SWT.NONE);
 		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
 		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		mJPeg = new MJPeg(composite_2, SWT.NONE);		
+		mJPeg = new MJPeg(composite_2, SWT.NONE);
 		mJPeg.setADController(adController);
 		mJPeg.showLeft(true);
 		return mJPeg;
@@ -137,23 +126,36 @@ public class MJPegView extends ViewPart {
 
 	protected void createMenu() {
 	}
-	
+
 	protected void createActions() throws NotDefinedException {
-		if(!createdViaExtendedConstructor){
-			List<IAction> actions = new Vector<IAction>();			
-			{
-				actions.add(ADActionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-				actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-				actions.add(ADActionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE, Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-				actions.add( ADActionUtils.addShowViewAction("Show Stats", HistogramView.Id, adController.getServiceName(), "Show stats view for selected camera"));
-				actions.add( ADActionUtils.addShowViewAction("Show Array", TwoDArrayView.Id, adController.getServiceName(), "Show array view for selected camera"));
-			}	
-			for (IAction iAction : actions) {
-				getViewSite().getActionBars().getToolBarManager().add(iAction);
-			}
+		List<IAction> actions = new Vector<IAction>();
+		{
+			actions.add(ADActionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW,
+					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE,
+					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+			actions.add(ADActionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE,
+					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+		}
+		for (IAction iAction : actions) {
+			getViewSite().getActionBars().getToolBarManager().add(iAction);
+		}
+		createShowViewAction();
+	}
+
+	protected void createShowViewAction() {
+		List<IAction> actions = new Vector<IAction>();
+		{
+			actions.add(ADActionUtils.addShowViewAction("Show Stats", HistogramView.Id, adController.getServiceName(),
+					"Show stats view for selected camera", Activator.getHistogramViewImage()));
+			actions.add(ADActionUtils.addShowViewAction("Show Array", TwoDArrayView.Id, adController.getServiceName(),
+					"Show array view for selected camera", Activator.getTwoDArrayViewImage()));
+		}
+		for (IAction iAction : actions) {
+			getViewSite().getActionBars().getToolBarManager().add(iAction);
 		}
 	}
-	
+
 	@Override
 	public void setFocus() {
 		mJPeg.setFocus();
@@ -176,9 +178,9 @@ public class MJPegView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		if( image != null){
+		if (image != null) {
 			image.dispose();
-			image=null;
+			image = null;
 		}
 		super.dispose();
 	}
