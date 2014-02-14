@@ -25,7 +25,7 @@ public class ISpyBStatusInfo {
 	private ISpyBStatus status;
 	private double progress;
 	private List<String> fileNames = new ArrayList<String>();
-	private String message;
+	private String message = "";
 
 	public double getProgress() {
 		return progress;
