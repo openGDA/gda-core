@@ -37,11 +37,12 @@ public class BioSAXSDataCollectionBean implements ISAXSDataCollection {
 	private long bufferAfterMeasurementId;
 
 	public BioSAXSDataCollectionBean() {
-		ISpyBStatusInfo notStartedStatus = new ISpyBStatusInfo();
-		notStartedStatus.setStatus(ISpyBStatus.NOT_STARTED);
-		collectionStatusInfo = notStartedStatus;
-		reductionStatusInfo = notStartedStatus;
-		analysisStatusInfo = notStartedStatus;
+		collectionStatusInfo = new ISpyBStatusInfo();
+		collectionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
+		reductionStatusInfo = new ISpyBStatusInfo();
+		reductionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
+		analysisStatusInfo = new ISpyBStatusInfo();
+		analysisStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
 	}
 
 	@Override
