@@ -76,6 +76,7 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 				file.makegroup("xml", "NXsample");
 				file.opengroup("xml", "NXsample");
 				try {
+					NeXusUtils.writeNexusString(file, "xmlFolderName", xmlFolderName);
 					writeXml("ScanParameters", scanBean);
 					writeXml("DetectorParameters", detectorBean);
 					writeXml("SampleParameters", sampleBean);
