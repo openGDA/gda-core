@@ -46,7 +46,7 @@ public class ADControllerFactory {
 	}
 	public void registerADController(String serviceName) throws Exception{
 		
-		String detectorName = ADUtils.getDetectorNamePVServiceName(serviceName);
+		String detectorName = ADUtils.getDetectorNameFromPVServiceName(serviceName);
 		DynamicADControllerImpl impl = new DynamicADControllerImpl(serviceName, detectorName, ADUtils.getPVFromPVServiceName(serviceName), ADBASE_SUFFIX, STAT_PLUGIN_SUFFIX, ARRAY_PLUGIN_SUFFIX,
 				MPG_PLUGIN_SUFFIX, ROI_PLUGIN_SUFFIX, MPG_PROC_PLUGIN_SUFFIX);
 		

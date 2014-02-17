@@ -44,13 +44,13 @@ public class ADUtils {
 		return ADUtils.PV_TYPE + detectorName + "//" + pvPrefix.replace(":", COLON_REPLACEMENT);
 	}
 	
-	public static String getDetectorNamePVServiceName(String pvServiceName) throws Exception{
+	public static String getDetectorNameFromPVServiceName(String pvServiceName) throws Exception{
 		String name = pvServiceName;
 		if(pvServiceName.startsWith(PV_TYPE)){
 			String[] split = pvServiceName.split(PV_TYPE);
 			String[] splitAgain = split[1].split("//");
 			if( splitAgain.length != 2)
-				throw new Exception("serviceName should be of form pv://detectorName//pvPrefix actual value is '" + pvServiceName +"'");
+				throw new Exception("serviceName should be of form pv//detectorName//pvPrefix actual value is '" + pvServiceName +"'");
 			return splitAgain[0];
 		}
 		return name;
@@ -64,7 +64,7 @@ public class ADUtils {
 		String[] split = pvServiceName.split(PV_TYPE);
 		String[] splitAgain = split[1].split("//");
 		if( splitAgain.length != 2)
-			throw new Exception("serviceName should be of form pv://detectorName//pvPrefix actual value is '" + pvServiceName +"'");
+			throw new Exception("serviceName should be of form pv//detectorName//pvPrefix actual value is '" + pvServiceName +"'");
 		return splitAgain[1].replace(COLON_REPLACEMENT, ":");
 	}	
 	
