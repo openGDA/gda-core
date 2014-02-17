@@ -81,7 +81,7 @@ public class Normalisation extends ReductionDetectorBase {
 				throw new DeviceException("calibration of wrong dimensionality");
 			}
 
-			uk.ac.diamond.scisoft.ncd.Normalisation nm = new uk.ac.diamond.scisoft.ncd.Normalisation();
+			uk.ac.diamond.scisoft.ncd.core.Normalisation nm = new uk.ac.diamond.scisoft.ncd.core.Normalisation();
 			nm.setCalibChannel(calibChannel);
 			nm.setNormvalue(normvalue);
 			float[] mydata = nm.process(parentngd.getBuffer(), calibngd.getBuffer(), frames, parentngd.dimensions, calibngd.dimensions);

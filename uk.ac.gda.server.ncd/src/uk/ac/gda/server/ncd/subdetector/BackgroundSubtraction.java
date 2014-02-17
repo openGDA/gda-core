@@ -61,7 +61,7 @@ public class BackgroundSubtraction extends ReductionDetectorBase {
 				return;
 			}
 
-			uk.ac.diamond.scisoft.ncd.BackgroundSubtraction bs = new uk.ac.diamond.scisoft.ncd.BackgroundSubtraction();
+			uk.ac.diamond.scisoft.ncd.core.BackgroundSubtraction bs = new uk.ac.diamond.scisoft.ncd.core.BackgroundSubtraction();
 			bs.setBackground(background);
 			float[] mydata = bs.process(parentngd.getBuffer(), parentngd.dimensions);
 			NexusGroupData myngd = new NexusGroupData(parentngd.dimensions, NexusFile.NX_FLOAT32, mydata);

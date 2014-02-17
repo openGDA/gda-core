@@ -58,7 +58,7 @@ public class Invariant extends ReductionDetectorBase {
 		try {
 			NexusGroupData parentngd = nxdata.getData(key, "data", NexusExtractor.SDSClassName);
 			if (parentngd == null) return;
-			uk.ac.diamond.scisoft.ncd.Invariant inv = new uk.ac.diamond.scisoft.ncd.Invariant();
+			uk.ac.diamond.scisoft.ncd.core.Invariant inv = new uk.ac.diamond.scisoft.ncd.core.Invariant();
 			float[] mydata = inv.process(parentngd.getBuffer(), parentngd.dimensions);
 			NexusGroupData myngd = new NexusGroupData(new int[] {parentngd.dimensions[0]}, NexusFile.NX_FLOAT32, mydata);
 			myngd.isDetectorEntryData = true;

@@ -64,7 +64,7 @@ public class DetectorResponse extends ReductionDetectorBase {
 				throw new DeviceException("response of wrong dimensionality");
 			}
 
-			uk.ac.diamond.scisoft.ncd.DetectorResponse dr = new uk.ac.diamond.scisoft.ncd.DetectorResponse();
+			uk.ac.diamond.scisoft.ncd.core.DetectorResponse dr = new uk.ac.diamond.scisoft.ncd.core.DetectorResponse();
 			dr.setResponse(response);
 			
 			float[] mydata = dr.process(parentngd.getBuffer(), frames, parentngd.dimensions);

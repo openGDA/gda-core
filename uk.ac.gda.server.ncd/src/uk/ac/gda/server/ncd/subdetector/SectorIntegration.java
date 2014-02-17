@@ -102,7 +102,7 @@ public class SectorIntegration extends ReductionDetectorBase {
 			NexusGroupData parentngd = nxdata.getData(key, "data", NexusExtractor.SDSClassName);
 			AbstractDataset parentdata = Nexus.createDataset(parentngd, false);
 
-			uk.ac.diamond.scisoft.ncd.SectorIntegration sec = new uk.ac.diamond.scisoft.ncd.SectorIntegration();
+			uk.ac.diamond.scisoft.ncd.core.SectorIntegration sec = new uk.ac.diamond.scisoft.ncd.core.SectorIntegration();
 			sec.setROI(roi);
 			sec.setFast(true);
 			sec.setAreaData(ROIProfile.area(Arrays.copyOfRange(parentdata.getShape(),1,3), parentdata.getDtype(), mask, roi, true, true, true));

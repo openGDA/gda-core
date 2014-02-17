@@ -45,7 +45,7 @@ public class Average extends ReductionDetectorBase {
 		try {
 			NexusGroupData parentngd = nxdata.getData(key, "data", NexusExtractor.SDSClassName);
 			
-			uk.ac.diamond.scisoft.ncd.Average average = new uk.ac.diamond.scisoft.ncd.Average();
+			uk.ac.diamond.scisoft.ncd.core.Average average = new uk.ac.diamond.scisoft.ncd.core.Average();
 			
 			float[] mydata = average.process(parentngd.getBuffer(), parentngd.dimensions);
 			
