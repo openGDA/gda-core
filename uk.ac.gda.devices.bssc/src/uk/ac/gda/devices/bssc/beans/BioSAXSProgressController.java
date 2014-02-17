@@ -203,7 +203,7 @@ public class BioSAXSProgressController implements IObservable {
 	public void addIObserver(IObserver anIObserver) {
 		obsComp.addIObserver(anIObserver);
 		if (obsComp.IsBeingObserved()) {
-//			startPolling();
+			startPolling();
 		}
 	}
 
