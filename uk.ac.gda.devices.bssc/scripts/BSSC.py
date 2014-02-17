@@ -144,9 +144,9 @@ class BSSCRun:
             self.setTitle("Buffer for next and preceding sample measurement")
             filename = self.expose(duration)
             self.reportSampleProgress(titration, "Cleaning after Buffer")
-            if not self.isSimulation:
-                id = self.ispyb.createBufferMeasurement(self.session, self.experiment, titration.getBufferLocation().getPlate(), titration.getBufferLocation().getRowAsInt(), titration.getBufferLocation().getColumn(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/detector/data")
-                self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
+            #if not self.isSimulation:
+            id = self.ispyb.createBufferMeasurement(self.session, self.experiment, titration.getBufferLocation().getPlate(), titration.getBufferLocation().getRowAsInt(), titration.getBufferLocation().getColumn(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/detector/data")
+            self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
             self.clean()
             return filename
    
@@ -157,9 +157,9 @@ class BSSCRun:
             self.reportSampleProgress(titration, "Exposing Sample")
             self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
             filename = self.expose(duration)
-            if not self.isSimulation:
-                id = self.ispyb.createSampleMeasurement(self.session, self.experiment, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/detector/data")
-                self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
+            #if not self.isSimulation:
+            id = self.ispyb.createSampleMeasurement(self.session, self.experiment, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/detector/data")
+            self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
             if not titration.getRecouperateLocation() is None:
                 self.reportSampleProgress(titration, "Recuperating Sample to "+titration.getRecouperateLocation().toString()+" and Cleaning")
                 self.unloadIntoWell(titration.getRecouperateLocation())
@@ -197,8 +197,8 @@ class BSSCRun:
         self.bssc.setViscosityLevel("high")
         self.clean()
         
-        if not self.isSimulation:
-            self.datacollection = self.ispyb.createSaxsDataCollection(self.session, self.experiment)
+        #if not self.isSimulation:
+        self.datacollection = self.ispyb.createSaxsDataCollection(self.session, self.experiment)
         
         self.reportProgress("Opening Shutter")
         self.openShutter()
@@ -206,6 +206,9 @@ class BSSCRun:
         duration=None
         for titration in self.bean.getMeasurements():
             print  "\n              New Titration \n"
+            
+            self.ispyb.setMeasurementStartTime(0)
+            #
             if lastTitration != None and not self.tritrationsCanUseSameBufferMeasurement(lastTitration, titration):
                 print "Redo the buffer "+ str(lastTitration.getBufferLocation())
                 # everything would be set up from previous sample then
@@ -227,7 +230,7 @@ class BSSCRun:
         self.closeShutter()
         time.sleep(2)
         
-        if not self.isSimulation:
-            BioSAXSISPyBUtils.dumpCollectionReport(self.datacollection)
-            self.ispyb.disconnect()
+        #if not self.isSimulation:
+        BioSAXSISPyBUtils.dumpCollectionReport(self.datacollection)
+        self.ispyb.disconnect()
         

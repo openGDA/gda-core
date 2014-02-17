@@ -21,16 +21,7 @@ package uk.ac.gda.devices.bssc.ispyb;
 import java.sql.SQLException;
 import java.util.List;
 
-import uk.ac.gda.devices.bssc.beans.ISampleProgress;
-
 public interface BioSAXSISPyB {
-
-	/**
-	 * @param visitname
-	 *            e.g. sm9999-9
-	 * @return proposalID
-	 */
-	public abstract long getProposalForVisit(String visitname) throws SQLException;
 
 	/**
 	 * @param visitname
@@ -40,26 +31,17 @@ public interface BioSAXSISPyB {
 	public abstract long getSessionForVisit(String visitname) throws SQLException;
 
 	/**
-	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
+	 * This method creates a SAXSDATACOLLECTION which corresponds to one row on the experiement spreadsheet This method
+	 * should also create the measurements (Buffer Before, Sample, Buffer After) and associate the measurements with a
+	 * data collection
 	 * 
-	 * @param sessionID
 	 * @param experimentID
-	 * @return saxsDataCollectionID
-	 */
-	public abstract long createSaxsDataCollection(long sessionID, long experimentID) throws SQLException;
-
-	/**
-	 * @param blsessionId
-	 *            The ID of the visit
-	 * @param experimentId
-	 *            The ID of the experiment
 	 * @param plate
 	 *            does not seem to be in the database. it is 1,2,3 and you could create a SamplePlate for each per
 	 *            Experiment
 	 * @param row
 	 *            i have row as char, i don't mind which way
 	 * @param column
-	 * @param storageTemperature
 	 * @param exposureTemperature
 	 * @param numFrames
 	 * @param timePerFrame
@@ -67,69 +49,107 @@ public interface BioSAXSISPyB {
 	 * @param volume
 	 * @param energyInkeV
 	 * @param viscosity
-	 * @param fileName
-	 *            "/dls/i22/data/2013/sm999-9/i22-9999.nxs"
-	 * @param internalPath
-	 *            "/entry1/detector/data"
-	 * @return bufferMeasurementId
+	 * @return saxsDataCollectionID
 	 */
-	public abstract long createBufferMeasurement(long blsessionId, long experimentId, short plate, short row,
-			short column, float storageTemperature, float exposureTemperature, int numFrames, double timePerFrame,
-			double flow, double volume, double energyInkeV, String viscosity, String fileName, String internalPath)
-			throws SQLException;
+	public long createSaxsDataCollection(long experimentID, short plate, short row, short column, String sampleName,
+			short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
+			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity) throws SQLException;
 
 	/**
-	 * @param blsessionId
-	 *            The ID of the visit
-	 * @param experimentId
-	 *            The ID of the experiment
-	 * @param plate
-	 * @param row
-	 * @param column
-	 * @param name
-	 * @param concentration
-	 * @param storageTemperature
-	 * @param exposureTemperature
-	 * @param numFrames
-	 * @param timePerFrame
-	 * @param flow
-	 * @param volume
-	 * @param energyInkeV
-	 * @param viscosity
-	 * @param fileName
-	 * @param internalPath
-	 * @return sampleMeasurementId
-	 */
-	public abstract long createSampleMeasurement(long blsessionId, long experimentId, short plate, short row,
-			short column, String name, double concentration, float storageTemperature, float exposureTemperature,
-			int numFrames, double timePerFrame, double flow, double volume, double energyInkeV, String viscosity,
-			String fileName, String internalPath) throws SQLException;
-
-	/**
-	 * Retrieve a dataCollectionId from SaxsDataCollection that matches the desired experimentId
+	 * This method creates a SAXSDATACOLLECTION which corresponds to one row on the experiement spreadsheet. This method
+	 * should use the Buffer After measurement of the @previousDataCollectionId as the Buffer Before for this experiment, then
+	 * creates the remaining measurements (Sample, Buffer After) and associates all three measurements with this data collection.
 	 * 
-	 * @param experimentId
-	 * @return first dataCollectionId
-	 * @throws SQLException
+	 * @param experimentID
+	 * @param plate
+	 *            does not seem to be in the database. it is 1,2,3 and you could create a SamplePlate for each per
+	 *            Experiment
+	 * @param row
+	 *            i have row as char, i don't mind which way
+	 * @param column
+	 * @param exposureTemperature
+	 * @param numFrames
+	 * @param timePerFrame
+	 * @param flow
+	 * @param volume
+	 * @param energyInkeV
+	 * @param viscosity
+	 * @param previousDataCollectionId
+	 * @return saxsDataCollectionID
 	 */
-	public long getDataCollectionForExperiment(long experimentId) throws SQLException;
+	public long createSaxsDataCollectionUsingPreviousBuffer(long experimentID, short plate, short row, short column, String sampleName,
+			short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
+			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, long previousDataCollectionId) throws SQLException;
 
 	/**
-	 * @param saxsDataCollectionId
-	 *            from that call
-	 * @param measurementId
-	 *            can be buffer or sample measurement
-	 * @return measurementToSaxsCollectionId
-	 * @throws SQLException
+	 * Creates a buffer run, updates measurement.runId, returns runId.
+	 * 
+	 * @param currentDataCollectionId - id of current data collection
+	 * @param timePerFrame
+	 * @param storageTemperature
+	 * @param exposureTemperature
+	 * @param energy
+	 * @param frameCount
+	 * @param transmission
+	 * @param beamCenterX
+	 * @param beamCenterY
+	 * @param pixelSizeX
+	 * @param pixelSizeY
+	 * @param radiationRelative
+	 * @param radiationAbsolute
+	 * @param normalization
+	 * @return runId
 	 */
-	public long createMeasurementToDataCollection(long saxsDataCollectionId, long measurementId) throws SQLException;
+	public long createBufferRun(long currentDataCollectionId, double timePerFrame,
+			float storageTemperature, float exposureTemperature, double energy, int frameCount, double transmission,
+			double beamCenterX, double beamCenterY, double pixelSizeX, double pixelSizeY, double radiationRelative,
+			double radiationAbsolute, double normalization, String filename, String internalPath);
+
+	/**
+	 * Creates a sample run
+	 * 
+	 * @param dataCollectionId
+	 * @param timePerFrame
+	 * @param storageTemperature
+	 * @param exposureTemperature
+	 * @param energy
+	 * @param frameCount
+	 * @param transmission
+	 * @param beamCenterX
+	 * @param beamCenterY
+	 * @param pixelSizeX
+	 * @param pixelSizeY
+	 * @param radiationRelative
+	 * @param radiationAbsolute
+	 * @param normalization
+	 * @param filename
+	 * @param internalPath
+	 * @return runId
+	 */
+	public long createSampleRun(long dataCollectionId, double timePerFrame, float storageTemperature,
+			float exposureTemperature, double energy, int frameCount, double transmission, double beamCenterX,
+			double beamCenterY, double pixelSizeX, double pixelSizeY, double radiationRelative,
+			double radiationAbsolute, double normalization, String filename, String internalPath);
 
 	/**
 	 * Method to close the database connection once it's no longer needed.
 	 */
 	public abstract void disconnect() throws SQLException;
 
-	public List<SampleInfo> getSaxsDataCollectionInfo(long saxsDataCollectionId) throws SQLException;
+	/**
+	 * @param dataCollectionId
+	 * @return list of samples measured
+	 * @throws SQLException
+	 */
+	public List<SampleInfo> getSaxsDataCollectionInfo(long dataCollectionId) throws SQLException;
+
+	/**
+	 * // * @param saxsDataCollectionId
+	 * 
+	 * @return list of samples measured
+	 * @throws SQLException
+	 */
+	public List<SampleInfo> getExperimentInfo(long experimentId) throws SQLException;
 
 	/**
 	 * retrieve all data collection ids for a session (visit)
@@ -138,10 +158,12 @@ public interface BioSAXSISPyB {
 	 * @return all ids
 	 * @throws SQLException
 	 */
-	public List<Long> getSaxsDataCollectionsForSession(long blsessionId) throws SQLException;
+	public List<Long> getExperimentsForSession(long blsessionId) throws SQLException;
+
+	public List<Long> getDataCollectionsForExperiments(long experiment) throws SQLException;
 
 	/**
-	 * @param proposalId
+	 * @param sessionId
 	 * @param name
 	 * @param experimentType
 	 *            - TEMPLATE, HPLC, STATIC
@@ -149,8 +171,25 @@ public interface BioSAXSISPyB {
 	 * @return experimentId
 	 * @throws SQLException
 	 */
-	public long createExperiment(long proposalId, String name, String experimentType, String comments)
+	public long createExperiment(long sessionId, String name, String experimentType, String comments)
 			throws SQLException;
+
+	/**
+	 * Sets the status of a data collection
+	 * 
+	 * @param dataCollectionId
+	 * @param status
+	 */
+	public void setDataCollectionStatus(long dataCollectionId, ISpyBStatusInfo status);
+
+	/**
+	 * Returns the status of the data collection for the sample/data collection
+	 * 
+	 * @param dataCollectionId
+	 * @return ProgressStatus
+	 * @throws SQLException
+	 */
+	public ISpyBStatusInfo getDataCollectionStatus(long dataCollectionId) throws SQLException;
 
 	/**
 	 * Call this method when data reduction is started so that its status can be recorded
@@ -159,112 +198,68 @@ public interface BioSAXSISPyB {
 	 * @return SubtractionId
 	 * @throws SQLException
 	 */
-	public long createDataReductionStarted(long dataCollectionId) throws SQLException;
+	public long createDataReduction(long dataCollectionId) throws SQLException;
 
 	/**
-	 * @param subtractionId
-	 * @return whether data reduction is still running or not
-	 * @throws SQLException
-	 */
-	public boolean isDataReductionRunning(long subtractionId) throws SQLException;
-
-	/**
-	 * Clear the flag that indicates that the data reduction is running. Run this method when data reduction has
-	 * completed but before results are put into the ISPyB database
-	 * 
-	 * @param subtractionId
-	 * @return success of clearing procedure
-	 * @throws SQLException
-	 */
-	public boolean clearDataReductionStarted(long subtractionId) throws SQLException;
-
-	/**
-	 * Checks whether the data reduction failed to complete at all
-	 * 
-	 * @param subtractionId
-	 * @return whether data reduction failed to complete
-	 * @throws SQLException
-	 */
-	public boolean isDataReductionFailedToComplete(long subtractionId) throws SQLException;
-
-	/**
-	 * Sets the state that the data reduction has failed
-	 * 
-	 * @param subtractionId
-	 * @throws SQLException
-	 */
-	public void setDataReductionFailedToComplete(long subtractionId) throws SQLException;
-
-	/**
-	 * The data reduction has returned some information, but it may not be complete.
+	 * Sets the data reduction status of the data collection
 	 * 
 	 * @param dataCollectionId
-	 * @return whether data reduction failed (incomplete results) or not
+	 * @param status
 	 * @throws SQLException
 	 */
-	public boolean isDataReductionFailed(long dataCollectionId) throws SQLException;
+	public void setDataReductionStatus(long dataCollectionId, ISpyBStatusInfo status)
+			throws SQLException;
 
 	/**
-	 * True when data reduction is not currently running and the process has resulted in complete data in the ISPyB
-	 * database
+	 * Call this method when data analysis is started so that its status can be recorded
 	 * 
 	 * @param dataCollectionId
-	 * @param subtractionId
-	 * @return data reduction has succeeded
+	 * @return AnalysisId
 	 * @throws SQLException
 	 */
-	public boolean isDataReductionSuccessful(long dataCollectionId, long subtractionId) throws SQLException;
+	public long createDataAnalysis(long dataCollectionId) throws SQLException;
 
 	/**
-	 * Returns the measurements from ISpyB for a session id
+	 * Sets the data analysis status of the data collection
+	 * 
+	 * @param dataCollectionId
+	 * @param status
+	 * @throws SQLException
+	 */
+	public void setDataAnalysisStatus(long dataCollectionId, ISpyBStatusInfo status)
+			throws SQLException;
+	
+	/**
+	 * Returns the status of the data reduction for a sample/data collection
+	 * 
+	 * @param dataCollectionId
+	 * @return ProgressStatus
+	 * @throws SQLException
+	 */
+	public ISpyBStatusInfo getDataReductionStatus(long dataCollectionId) throws SQLException;
+
+	/**
+	 * Returns the data collections from ISPyB in creation order
+	 * 
 	 * @return list of progress statuses for samples in the ISpyB database
 	 * @throws SQLException
 	 */
-	public List<ISampleProgress> getBioSAXSMeasurements(long blSessionId) throws SQLException;
-	
-	/**
-	 * Updates a measurement with a collection status, status can be one of the following
-	 * 1. NOT STARTED
-	 * 2. STARTED
-	 * 3. SUCCESSFUL
-	 * 4. NOT SUCCESSFUL
-	 * 
-	 * @param measurementId
-	 * @param collectionStatus
-	 * @throws SQLException
-	 */
-	public void setMeasurementCollectionStatus(long measurementId ,String collectionStatus) throws SQLException;
+	public List<ISAXSDataCollection> getSAXSDataCollections(long blSessionId) throws SQLException;
 
 	/**
-	 * Updates a measurement with a reduction status, status can be one of the following
-	 * 1. NOT STARTED
-	 * 2. STARTED
-	 * 3. SUCCESSFUL
-	 * 4. NOT SUCCESSFUL
+	 * Returns the status of the data analysis for a sample/data collection
 	 * 
-	 * @param measurementId
-	 * @param reductionStatus
+	 * @param dataCollectionId
+	 * @return ProgressStatus
 	 * @throws SQLException
 	 */
-	public void setMeasurementReductionStatus(long measurementId, String reductionStatus) throws SQLException;
-	
+	public ISpyBStatusInfo getDataAnalysisStatus(long dataCollectionId) throws SQLException;
+
 	/**
-	 * Updates a measurement with an analysis status, status can be one of the following
-	 * 1. NOT STARTED
-	 * 2. STARTED
-	 * 3. SUCCESSFUL
-	 * 4. NOT SUCCESSFUL
+	 * Return the id of the data collection run previously to the collection with id dataCollectionId
 	 * 
-	 * @param measurementId
-	 * @param analysisStatus
-	 * @throws SQLException
+	 * @param dataCollectionId
+	 * @return id of the collection which was run before data collection with id dataCollectionId
 	 */
-	public void setMeasurementAnalysisStatus(long measurementId, String analysisStatus) throws SQLException;
-	
-	/**
-	 * Sets the start time for a measurement
-	 * @param startTime
-	 * @throws SQLException
-	 */
-	public void setMeasurementStartTime(long startTime) throws SQLException;
+	public int getPreviousCollectionId(long dataCollectionId);
 }
