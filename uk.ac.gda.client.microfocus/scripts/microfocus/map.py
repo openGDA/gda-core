@@ -104,10 +104,10 @@ class Map(Scan):
             
             zScannable = self.finder.find(scanBean.getZScannableName())
             self.mfd.setEnergyValue(energy)
-            if(zScannablePos == None):
-                self.mfd.setZValue(zScannable.getPosition())
-            else:
-                self.mfd.setZValue(zScannablePos)
+            #if(zScannablePos == None):
+            #    self.mfd.setZValue(zScannable.getPosition())
+            #else:
+            self.mfd.setZValue(zScannablePos)
 
             self.log("Using: " + scanBean.getXScannableName() + ", " + scanBean.getYScannableName() +", " + zScannable.getName())
 
@@ -136,7 +136,7 @@ class Map(Scan):
             if(zScannablePos != None):
                 zScannable.moveTo(zScannablePos)
             scanBean.setCollectionTime(scanBean.getCollectionTime())
-            args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize()]
+            args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize(), zScannable]
             
             self.counterTimer01.setCollectionTime(scanBean.getCollectionTime())
             

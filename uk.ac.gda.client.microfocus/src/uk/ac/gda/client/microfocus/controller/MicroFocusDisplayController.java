@@ -36,10 +36,10 @@ public class MicroFocusDisplayController {
 	private MicroFocusMappableDataProvider currentDetectorProvider;
 	private MicroFocusNexusPlotter plotter = new MicroFocusNexusPlotter();
 	private String[] trajectoryScannableName;
-	private String xScannable = "sc_MicroFocusSampleX";
-	private String yScannable = "sc_MicroFocusSampleY";
+	private String xScannableName = "sc_MicroFocusSampleX";
+	private String yScannableName = "sc_MicroFocusSampleY";
+	private String zScannableName = "sc_sample_z";
 	private String detectorFile;
-	private String zScannableName;
 	private String trajectoryCounterTimerName;
 
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusDisplayController.class);
@@ -49,13 +49,13 @@ public class MicroFocusDisplayController {
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 				"uk.ac.gda.microfocus.xScannableName");
 		if ((null != config) && (config.length > 0)) {
-			xScannable = config[0].getAttribute("name");
-			logger.debug("the x scannable from extn is " + xScannable);
+			xScannableName = config[0].getAttribute("name");
+			logger.debug("the x scannable from extn is " + xScannableName);
 		}
 		config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.microfocus.yScannableName");
 		if ((null != config) && (config.length > 0)) {
-			yScannable = config[0].getAttribute("name");
-			logger.debug("the y scannable from extn is " + yScannable);
+			yScannableName = config[0].getAttribute("name");
+			logger.debug("the y scannable from extn is " + yScannableName);
 		}
 		config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.microfocus.zScannableName");
 		if ((null != config) && (config.length > 0)) {
@@ -126,8 +126,8 @@ public class MicroFocusDisplayController {
 			plotter = new MicroFocusNexusPlotter();
 		detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(bean);
 		ObjectStateManager.register(detectorProvider);
-		detectorProvider.setXScannableName(xScannable);
-		detectorProvider.setYScannableName(yScannable);
+		detectorProvider.setXScannableName(xScannableName);
+		detectorProvider.setYScannableName(yScannableName);
 		detectorProvider.setTrajectoryScannableName(trajectoryScannableName);
 		detectorProvider.setZScannableName(zScannableName);
 		detectorProvider.setTrajectoryCounterTimerName(trajectoryCounterTimerName);
@@ -152,8 +152,8 @@ public class MicroFocusDisplayController {
 		if (detectorProvider == null) {
 			detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(detectorFile);
 			ObjectStateManager.register(detectorProvider);
-			detectorProvider.setXScannableName(xScannable);
-			detectorProvider.setYScannableName(yScannable);
+			detectorProvider.setXScannableName(xScannableName);
+			detectorProvider.setYScannableName(yScannableName);
 			detectorProvider.setTrajectoryScannableName(trajectoryScannableName);
 			detectorProvider.setZScannableName(zScannableName);
 			detectorProvider.setTrajectoryCounterTimerName(trajectoryCounterTimerName);
@@ -171,10 +171,11 @@ public class MicroFocusDisplayController {
 	}
 
 	public Double getZ() {
-		if (currentDetectorProvider != null && ObjectStateManager.isActive(detectorProvider)) {
+		if (ObjectStateManager.isActive(detectorProvider)) {
 			return currentDetectorProvider.getZValue();
 		}
-		return null;
+		return plotter.getZValueFromServer();
+
 	}
 
 	public void disableProvider() {
