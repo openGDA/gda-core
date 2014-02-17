@@ -116,7 +116,6 @@ public class BioSAXSImportTest {
 		Sheet sheet = wb.getSheetAt(0);
 
 		BSSCSessionBean sessionBean = new BSSCSessionBean();
-		sessionBean.setSampleStorageTemperature(sampleStorageTemperature);
 		List<TitrationBean> measurements = new ArrayList<TitrationBean>();
 
 		int rowCount = sheet.getLastRowNum() - sheet.getFirstRowNum();

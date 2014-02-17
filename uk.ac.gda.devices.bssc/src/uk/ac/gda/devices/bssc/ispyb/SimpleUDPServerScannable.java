@@ -18,9 +18,8 @@
 
 package uk.ac.gda.devices.bssc.ispyb;
 
-import gda.device.DeviceException;
-import gda.device.scannable.ScannableBase;
-import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.device.DeviceBase;
+import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
@@ -35,42 +34,19 @@ Scannable to receive UDP datagrams containing a string of format prefix:message.
 The position is set the message part of the string.
 This is used to inform a gda server when a table in ISpy has been updated by a process on the network
 */
-public class SimpleUDPServerScannable extends ScannableBase {
+public class SimpleUDPServerScannable extends DeviceBase implements Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(SimpleUDPServerScannable.class);
 	boolean running = true;
 	private int port=9876;
-	private String position="";
 	private String prefix="";
 
 	
 	@Override
 	public void configure() throws FactoryException {
-		super.configure();
-		setInputNames(new String[]{});
-		setExtraNames(new String[]{getName()});
 		if(isRunning())
 			startReading();
 	}
 	
-	@Override
-	public void asynchronousMoveTo(Object data) throws DeviceException {
-		if( data instanceof String){
-			position = (String)data;
-			notifyIObservers(this, new ScannablePositionChangeEvent(position));
-		}
-	}	
-	
-	@Override
-	public Object getPosition() throws DeviceException {
-		return position;
-	}
-
-	@Override
-	public boolean isBusy() throws DeviceException {
-		return false;
-	}	
-		
-
 	/**
 	 * @return true if the file is being monitored
 	 */
@@ -105,7 +81,7 @@ public class SimpleUDPServerScannable extends ScannableBase {
 						String s = new String(receivePacket.getData(),0,receivePacket.getLength(), "UTF-8");
 						String [] fields = s.split(":",2);
 						if(fields.length==2 && fields[0].equals(prefix))
-							asynchronousMoveTo(fields[1]);
+							notifyIObservers(this, fields[1]);
 					}
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
@@ -147,14 +123,8 @@ public class SimpleUDPServerScannable extends ScannableBase {
 }
 
 class SimpleUDPReceiver implements IObserver {
-
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		if(changeCode instanceof ScannablePositionChangeEvent){
-			Object pos = ((ScannablePositionChangeEvent)changeCode).newPosition;
-			if( pos instanceof String){
-				System.out.println((String)pos);
-			}
-		}
+		System.out.println(changeCode.toString());
 	}
 }

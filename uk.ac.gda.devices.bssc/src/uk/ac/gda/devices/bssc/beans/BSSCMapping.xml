@@ -2,9 +2,6 @@
 <mapping>
 	<class name="uk.ac.gda.devices.bssc.beans.BSSCSessionBean">
 		<map-to xml="BSSCSessionBean" />
-		<field name="sampleStorageTemperature" type="float">
-			<bind-xml name="sampleStorageTemperature" node="element" />
-		</field>
 		<field name="measurements" type="uk.ac.gda.devices.bssc.beans.TitrationBean"
 			collection="collection" set-method="setMeasurements" get-method="getMeasurements">
 			<bind-xml name="measurement" node="element" />

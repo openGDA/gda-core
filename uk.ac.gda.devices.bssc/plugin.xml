@@ -17,7 +17,7 @@
      <content-type
        base-type="org.eclipse.core.runtime.xml"
        describer="uk.ac.gda.devices.bssc.ui.BSSCSessionBeanDescriber"
-       file-extensions="xml"
+       file-extensions="biosaxs, xml"
        id="uk.ac.gda.devices.bssc.beans.BSSCSessionBeanContentType"
        name="BSSCSessionBean File Content"
        priority="high">
@@ -90,6 +90,11 @@
            name="BioSAXS Progress View"
            restorable="true">
      </view>
+     <view
+           class="uk.ac.gda.devices.bssc.views.CapillaryView"
+           id="uk.ac.gda.devices.bssc.views.CapillaryView"
+           name="Capillary View">
+     </view>
   </extension>
   <extension
         point="org.eclipse.ui.menus">
@@ -101,6 +106,15 @@
                  label="Edit Queued Item">
          </command>
      </menuContribution>
+     <menuContribution
+           allPopups="false"
+           locationURI="menu:file?after=additions">
+        <command
+              commandId="uk.ac.gda.devices.bssc.LoadExperiment"
+              label="Load Experiment"
+              style="push">
+        </command>
+     </menuContribution>
   </extension>
   <extension
         point="org.eclipse.ui.commands">
@@ -109,6 +123,24 @@
            id="uk.ac.gda.devices.bssc.EditQueuedItem"
            name="Edit Queued Item">
      </command>
+     <command
+           defaultHandler="uk.ac.gda.devices.bssc.ui.handlers.LoadExperimentHandler"
+           id="uk.ac.gda.devices.bssc.LoadExperiment"
+           name="Load Experiment">
+     </command>
   </extension>
+  <!--<extension
+        id="uk.ac.gda.devices.bssc.hideperspective"
+        name="Hide Perspective"
+        point="org.eclipse.ui.activities">
+     <activityPatternBinding
+           activityId="uk.ac.gda.devices.bssc.hideScriptsPerspectiveActivity"
+           pattern="uk.ac.gda.pydev.extension/uk.ac.gda.pydev.extension.ui.JythonPerspective">
+     </activityPatternBinding>
+     <activity
+           id="uk.ac.gda.devices.bssc.hideScriptsPerspectiveActivity"
+           name="Hide Scripts Perspective">
+     </activity>
+  </extension>-->
 
 </plugin>

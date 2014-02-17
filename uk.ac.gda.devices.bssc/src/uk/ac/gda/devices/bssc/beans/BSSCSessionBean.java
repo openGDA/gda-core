@@ -29,7 +29,6 @@ public class BSSCSessionBean implements IRichBean{
 	static public final URL mappingURL = BSSCSessionBean.class.getResource("BSSCMapping.xml");
 	static public final URL schemaURL  = BSSCSessionBean.class.getResource("BSSCMapping.xsd");
 
-	float sampleStorageTemperature;
 	List<TitrationBean> measurements;
 	
 	public static BSSCSessionBean createFromXML(String filename) throws Exception {
@@ -40,12 +39,6 @@ public class BSSCSessionBean implements IRichBean{
 		XMLHelpers.writeToXML(mappingURL, bean, filename);
 	}
 	
-	public float getSampleStorageTemperature() {
-		return sampleStorageTemperature;
-	}
-	public void setSampleStorageTemperature(float sampleStorageTemperature) {
-		this.sampleStorageTemperature = sampleStorageTemperature;
-	}
 	public List<TitrationBean> getMeasurements() {
 		return measurements;
 	}
@@ -54,7 +47,6 @@ public class BSSCSessionBean implements IRichBean{
 	}
 	@Override
 	public void clear() {
-		sampleStorageTemperature = Float.NaN;
 		measurements = null;
 	}
 }
