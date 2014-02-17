@@ -307,38 +307,41 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		//controller.stop();
 	}
 	
-	private void setupFilename() throws Exception {
-		String beamline = null;
+	private void setupFileAttributes() throws Exception {
+		
+		// filename prefix
+		String beamline = "base";
 		try {
 			beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", null);
 		} catch (DeviceException e1) {
+			// don't let an exception stop us here
+			logger.warn("Cannot get instrument or gda.instrument property value");
 		}
-
-		// If the beamline name isn't set then default to 'base'.
-		if (beamline == null) {
-			// If the beamline name is not set then use 'base'
-			beamline = "base";
-		}
-
 		controller.setFilenamePrefix(beamline);
-		
 
-		// Check to see if the data directory has been defined.
-		String dataDir = PathConstructor.createFromDefaultProperty();
-		dataDir = dataDir + "tmp"+File.separator ;
-		dataDir = dataDir.replace("/dls/"+beamline.toLowerCase(), "X:/");
-		controller.setDirectory(dataDir);
-
-		// Now lets try and setup the NumTracker...
+		// scan number
 		NumTracker runNumber = new NumTracker("tmp");
 		// Get the current number
 		Number scanNumber = runNumber.getCurrentFileNumber();
-		if(! (scanNumber.intValue() == lastScanNumber))
+		if (!(scanNumber.intValue() == lastScanNumber))
 			lastRowNumber = -1;
 		lastScanNumber = scanNumber.intValue();
-		lastRowNumber++;
-		controller.setFilenamePostfix(lastRowNumber +"-"+getName());
 		controller.setFileNumber(scanNumber);
+
+		// row number
+		lastRowNumber++;
+		controller.setFilenamePostfix(lastRowNumber + "-" + getName());
+		
+		// set the sub-directory and create if necessary
+		String dataDir = PathConstructor.createFromDefaultProperty();
+		dataDir = dataDir + "tmp" + File.separator + lastScanNumber;
+		dataDir = dataDir.replace("/dls/" + beamline.toLowerCase(), "X:/");
+		controller.setDirectory(dataDir);
+		boolean directoryExists  = (new File(dataDir)).mkdirs();
+		if (!directoryExists){
+			throw new DeviceException("Failed to create temporary directory to place Xmap HDF5 files: " + dataDir);
+		}
+
 	}
 
 	@Override
@@ -358,17 +361,11 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		try {
 			//setup tfg time frames
 			setupContinuousOperation();
-			setupFilename();
+			setupFileAttributes();
 			controller.resetCounters();
 			
 			//controller.setNexusCapture(0);
 			controller.setAutoPixelsPerBuffer(true);
-			int numberOfPointsPerScan = 0;
-			int numberOfTriggers = getHardwareTriggerProvider().getNumberTriggers() ; 
-			if(numberOfTriggers != 0 && integratesBetweenPoints())
-				numberOfPointsPerScan = numberOfTriggers - 1;
-			if(numberOfTriggers == 0)
-				numberOfPointsPerScan = this.scanNumberOfPoints;
 			//??TODO should get the number of points per scan 
 			//controller.setPixelsPerRun(numberOfPointsPerScan);
 			controller.setPixelsPerRun(scanNumberOfPoints);
