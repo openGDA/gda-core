@@ -19,6 +19,7 @@
 package uk.ac.gda.devices.bssc.beans;
 
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatus;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
@@ -57,4 +58,6 @@ public interface ISAXSProgress {
 	public ISpyBStatus getReductionStatus();
 	
 	public ISpyBStatus getAnalysisStatus();
+	
+	public List<String> getCollectionFileNames();
 }

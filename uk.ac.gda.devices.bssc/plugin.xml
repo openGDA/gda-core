@@ -95,6 +95,12 @@
            id="uk.ac.gda.devices.bssc.views.CapillaryView"
            name="Capillary View">
      </view>
+     <view
+           class="uk.ac.gda.devices.bssc.views.BioSAXSPlotView"
+           id="uk.ac.gda.devices.bssc.views.BioSAXSPlotView"
+           name="BioSAXS Plot"
+           restorable="true">
+     </view>
   </extension>
   <extension
         point="org.eclipse.ui.menus">
