@@ -33,9 +33,13 @@ import uk.ac.gda.ui.components.NumberEditorControl;
 public class MotorPositionEditorControl extends NumberEditorControl {
 
 	private static final Logger logger = LoggerFactory.getLogger(MotorPositionEditorControl.class);
-
 	public MotorPositionEditorControl(Composite parent, int style, ScannableWrapper scannableWrapper, boolean userSpinner) throws Exception {
-		super(parent, style, scannableWrapper, ScannableWrapper.POSITION_PROP_NAME, userSpinner);
+		this(parent, style, scannableWrapper, userSpinner, true );
+	}
+
+	public MotorPositionEditorControl(Composite parent, int style, ScannableWrapper scannableWrapper, boolean userSpinner,
+			boolean horizonalSpinner) throws Exception {
+		super(parent, style, scannableWrapper, ScannableWrapper.POSITION_PROP_NAME, userSpinner, horizonalSpinner);
 		ctx.bindValue(
 				BeanProperties.value(EDITABLE_PROP_NAME).observe(controlModel),
 				BeanProperties.value(ScannableWrapper.BUSY_PROP_NAME).observe(targetObject),
@@ -62,11 +66,6 @@ public class MotorPositionEditorControl extends NumberEditorControl {
 
 	}
 
-	@Override
-	protected void setupControls() {
-		horizonalSpinner = true;
-		super.setupControls();
-	}
 
 	public void setPosition(double value) throws DeviceException {
 		((ScannableWrapper) targetObject).setPosition(value);
