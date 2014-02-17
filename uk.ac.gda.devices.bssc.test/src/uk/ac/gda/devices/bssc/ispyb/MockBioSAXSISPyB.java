@@ -3,19 +3,21 @@ package uk.ac.gda.devices.bssc.ispyb;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	private static final int MODEL_SIZE = 7;
-	private List<ISAXSDataCollection> isPyBSAXSDataCollections;
+	Map<Long, ISAXSDataCollection> collectionsMap;
 
 	public MockBioSAXSISPyB() {
-		isPyBSAXSDataCollections = new ArrayList<ISAXSDataCollection>();
+		collectionsMap = new HashMap<Long, ISAXSDataCollection>();
 		initialiseDataCollections();
 	}
 
 	private void initialiseDataCollections() {
-		for (int i = 0; i < MODEL_SIZE; i++) {
+		for (long i = 0; i < MODEL_SIZE; i++) {
 			ISAXSDataCollection bioSaxsDataCollection = new MockSAXSDataCollection();
 			bioSaxsDataCollection.setId(i);
 			bioSaxsDataCollection.setExperimentId(0);
@@ -39,7 +41,7 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 			analysisStatusInfo.addFileName("");
 			analysisStatusInfo.setMessage("");
 			bioSaxsDataCollection.setAnalysisStatus(analysisStatusInfo);
-			isPyBSAXSDataCollections.add(bioSaxsDataCollection);
+			collectionsMap.put(i, bioSaxsDataCollection);
 		}
 	}
 
@@ -55,8 +57,36 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 			short bufferRow, short bufferColumn, float exposureTemperature,
 			int numFrames, double timePerFrame, double flow, double volume,
 			double energyInkeV, String viscosity) throws SQLException {
-		long dataCollectionId = 0;
+		long dataCollectionId = collectionsMap.size();
 
+		ISAXSDataCollection bioSaxsDataCollection = new MockSAXSDataCollection();
+		bioSaxsDataCollection.setId(dataCollectionId);
+		bioSaxsDataCollection.setExperimentId(0);
+		bioSaxsDataCollection.setSampleName("Sample " + dataCollectionId);
+		bioSaxsDataCollection.setBlSessionId(0);
+		ISpyBStatusInfo collectionStatusInfo = new ISpyBStatusInfo();
+		collectionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
+		collectionStatusInfo.setProgress(0);
+		collectionStatusInfo.addFileName("");
+		collectionStatusInfo.setMessage("");
+		bioSaxsDataCollection.setCollectionStatus(collectionStatusInfo);
+		ISpyBStatusInfo reductionStatusInfo = new ISpyBStatusInfo();
+		reductionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
+		reductionStatusInfo.setProgress(0);
+		reductionStatusInfo.addFileName("");
+		reductionStatusInfo.setMessage("");
+		bioSaxsDataCollection.setReductionStatus(reductionStatusInfo);
+		ISpyBStatusInfo analysisStatusInfo = new ISpyBStatusInfo();
+		analysisStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
+		analysisStatusInfo.setProgress(0);
+		analysisStatusInfo.addFileName("");
+		analysisStatusInfo.setMessage("");
+		bioSaxsDataCollection.setAnalysisStatus(analysisStatusInfo);
+		collectionsMap.put(dataCollectionId, bioSaxsDataCollection);
+
+		// Mock the controller receiving a notification update that database has
+		// been updated
+		sendISpyBUpdate(dataCollectionId);
 		return dataCollectionId;
 	}
 
@@ -75,9 +105,6 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 		status.setProgress(33);
 		status.addFileName(filename);
 		setDataCollectionStatus(currentDataCollectionId, status);
-		isPyBSAXSDataCollections.get(
-				((Long) currentDataCollectionId).intValue())
-				.setCollectionStatus(status);
 
 		// Mock the controller receiving a notification update that database has
 		// been updated
@@ -106,11 +133,6 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	}
 
 	private void sendISpyBUpdate(long collectionId) {
-		int dataCollectionId = ((Long) collectionId).intValue();
-
-		ISAXSDataCollection dataCollectionUpdated = isPyBSAXSDataCollections
-				.get(dataCollectionId);
-
 		final String[] cmd = { "python",
 				"/home/xlw00930/scripts/simple_udp.py", "ws141", "9877",
 				"simpleUDPServer:" + collectionId };
@@ -133,20 +155,14 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	public void setDataCollectionStatus(long saxsDataCollectionId,
 			ISpyBStatusInfo status) {
 		// Mock up setting database object here
-		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
-
-		isPyBSAXSDataCollections.get(dataCollectionId).setCollectionStatus(
-				status);
+		collectionsMap.get(saxsDataCollectionId).setCollectionStatus(status);
 	}
 
 	@Override
 	public ISpyBStatusInfo getDataCollectionStatus(long saxsDataCollectionId)
 			throws SQLException {
 		// Mock up getting item from the database here
-		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
-
-		return isPyBSAXSDataCollections.get(dataCollectionId)
-				.getCollectionStatus();
+		return collectionsMap.get(saxsDataCollectionId).getCollectionStatus();
 	}
 
 	@Override
@@ -183,37 +199,25 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	@Override
 	public void setDataReductionStatus(long saxsDataCollectionId,
 			ISpyBStatusInfo status) throws SQLException {
-		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
-
-		isPyBSAXSDataCollections.get(dataCollectionId).setReductionStatus(
-				status);
+		collectionsMap.get(saxsDataCollectionId).setReductionStatus(status);
 	}
 
 	@Override
 	public ISpyBStatusInfo getDataReductionStatus(long saxsDataCollectionId)
 			throws SQLException {
-		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
-
-		return isPyBSAXSDataCollections.get(dataCollectionId)
-				.getReductionStatus();
+		return collectionsMap.get(saxsDataCollectionId).getReductionStatus();
 	}
 
 	@Override
 	public void setDataAnalysisStatus(long saxsDataCollectionId,
 			ISpyBStatusInfo status) throws SQLException {
-		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
-
-		isPyBSAXSDataCollections.get(dataCollectionId)
-				.setAnalysisStatus(status);
+		collectionsMap.get(saxsDataCollectionId).setAnalysisStatus(status);
 	}
 
 	@Override
 	public ISpyBStatusInfo getDataAnalysisStatus(long saxsDataCollectionId)
 			throws SQLException {
-		int dataCollectionId = ((Long) saxsDataCollectionId).intValue();
-
-		return isPyBSAXSDataCollections.get(dataCollectionId)
-				.getAnalysisStatus();
+		return collectionsMap.get(saxsDataCollectionId).getAnalysisStatus();
 	}
 
 	@Override
@@ -260,7 +264,8 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	@Override
 	public List<ISAXSDataCollection> getSAXSDataCollections(long blSessionId)
 			throws SQLException {
-		return isPyBSAXSDataCollections;
+		List<ISAXSDataCollection> collectionsList = new ArrayList<ISAXSDataCollection>(collectionsMap.values());
+		return collectionsList;
 	}
 
 	@Override
