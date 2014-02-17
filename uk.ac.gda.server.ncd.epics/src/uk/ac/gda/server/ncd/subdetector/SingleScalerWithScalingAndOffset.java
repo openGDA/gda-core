@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A class to represent a detector for NCD.
  */
-public class SingleScalerWithScalingAndOffset extends NcdScalerDetector {
+public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implements IHasMultipleExtraNames {
 
 	private static final Logger logger = LoggerFactory.getLogger(SingleScalerWithScalingAndOffset.class);
 
@@ -52,13 +52,19 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector {
 		float[] tweakeddata = new float[frames];
 		Double offset = scalingAndOffset.getOffset();
 		Double scaling = scalingAndOffset.getScaling();
+		
+		double sum = 0;
 		for (int frame=0; frame<frames; frame++) {
 			tweakeddata[frame] = (float) (data[frame] * scaling + offset);
+			sum += tweakeddata[frame];
 		}
+		
+		nxdata.setPlottableValue(getName(), sum);
 		
 		ngd = new NexusGroupData(datadims, NexusFile.NX_FLOAT32, tweakeddata);
 		ngd.isDetectorEntryData = true;
 		addMonitorData(nxdata, getName(), label, ngd, units, 1,	scalingAndOffset.getDescription());
+		
 		//FIXME add frame axis
 	}
 
@@ -157,5 +163,10 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector {
 	public void stop() throws DeviceException {
 		scalingAndOffset.setFixed(wasFixed);
 		super.stop();
+	}
+
+	@Override
+	public String[] getExtraNames() {
+		return new String[] {getLabel()};
 	}
 }
