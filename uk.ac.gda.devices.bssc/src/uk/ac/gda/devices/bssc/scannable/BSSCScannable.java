@@ -63,6 +63,7 @@ public class BSSCScannable extends ScannableBase {
 				} else {
 					try {
 						notifyIObservers(us, us.getPosition());
+						lastUpdateSent = cachedPosition;
 					} catch (DeviceException e) {
 						logger.error("error reading postion for updates", e);
 					}
