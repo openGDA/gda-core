@@ -133,7 +133,13 @@ public class NumberEditorControl extends Composite {
 	private IConverter targetToModelConverter;
 
 	public NumberEditorControl(final Composite parent, int style, Object targetObject, String propertyName, boolean useSpinner) throws Exception {
+		this(parent, style, targetObject, propertyName, useSpinner, false);
+	}
+
+	public NumberEditorControl(final Composite parent, int style, Object targetObject, String propertyName, boolean useSpinner,
+			boolean horizonalSpinner) throws Exception {
 		super(parent, style);
+		this.horizonalSpinner = horizonalSpinner;
 		this.useSpinner = useSpinner;
 		layout = new StackLayout();
 		this.setLayout(layout);
@@ -141,6 +147,7 @@ public class NumberEditorControl extends Composite {
 		if (targetObject != null & propertyName != null) {
 			setModel(targetObject, propertyName);
 		}
+		setupIncrementCompWidthHint();
 	}
 
 	public NumberEditorControl(final Composite parent, int style, boolean useSpinner) throws Exception {
@@ -508,6 +515,29 @@ public class NumberEditorControl extends Composite {
 		layout.topControl = editorComposite;
 	}
 
+	int getCompositeWidth(Composite cmp, String text){
+		
+		GC gc = new GC(cmp);
+		Point point = gc.stringExtent(text);
+		gc.dispose();
+		return point.x;
+	}
+	int getIncrementCompWidth(){
+		double incrementValue = controlModel.getIncrement() / Math.pow(10, controlModel.getDigits());
+		int widthOfText = getCompositeWidth(incrementComposite, roundDoubletoString(incrementValue, controlModel.getDigits()));
+		int width = MIN_STEP_LABEL_WIDTH;
+			
+		if (widthOfText > width) {
+			width = MIN_STEP_LABEL_WIDTH + LARGE_INCREMENT_WIDTH_PADDING;
+		}
+		return width;
+	}
+	void setupIncrementCompWidthHint(){
+		GridData gridData = (GridData) incrementComposite.getLayoutData();
+		gridData.widthHint = getIncrementCompWidth();
+		incrementComposite.layout();
+		incrementComposite.getParent().layout();		
+	}
 	@Override
 	public boolean setFocus() {
 		if (!numberLabel.isDisposed()) {
