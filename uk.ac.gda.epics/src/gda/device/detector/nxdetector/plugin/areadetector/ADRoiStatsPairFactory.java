@@ -59,6 +59,8 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	private List<BasicStat> enabledBasicStats = Arrays.asList();
 
 	private List<CentroidStat> enabledCentroidStats = Arrays.asList();
+	
+	private Boolean oneTimeSeriesCollectionPerLine = null;
 
 	public void setPluginName(String pluginName) {
 		this.pluginName = pluginName;
@@ -75,11 +77,25 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	public void setRoiInputNdArrayPort(String roiInputNdArrayPort) {
 		this.roiInputNdArrayPort = roiInputNdArrayPort;
 	}
+	
+	public boolean isOneTimeSeriesCollectionPerLine() {
+		return oneTimeSeriesCollectionPerLine;
+	}
+	/**
+	 * Perform one time series per collection per line, rather than one per scan. Defaults to true.
+	 * @param oneTimeSeriesCollectionPerLine
+	 */
+	public void setOneTimeSeriesCollectionPerLine(boolean oneTimeSeriesCollectionPerLine) {
+		this.oneTimeSeriesCollectionPerLine = oneTimeSeriesCollectionPerLine;
+	}
 
 	@Override
 	public ADRoiStatsPair getObject() throws Exception {
 		ADRectangularROIPlugin roiPlugin = ADRectangularROIPlugin.createFromBasePVName(pluginName + "_roi", baseRoiPVName, roiProvider);
 		ADTimeSeriesStatsPlugin statsPlugin = ADTimeSeriesStatsPlugin.createFromBasePVName(pluginName + "_stats", baseStatsPVName, roiProvider);
+		if (oneTimeSeriesCollectionPerLine != null) { // else use the plugin's default
+			statsPlugin.setOneTimeSeriesCollectionPerLine(oneTimeSeriesCollectionPerLine);
+		}
 		ADRoiStatsPair pair = new ADRoiStatsPair(pluginName, roiPlugin, statsPlugin, roiInputNdArrayPort, roiProvider);
 		pair.setEnabledBasicStats(enabledBasicStats);
 		pair.setEnabledCentroidStats(enabledCentroidStats);
