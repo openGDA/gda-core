@@ -30,6 +30,7 @@ import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.server.ncd.beans.CalibLabel;
 import uk.ac.gda.server.ncd.beans.CalibrationLabels;
+import uk.ac.gda.server.ncd.subdetector.IHasMultipleExtraNames;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 
 /**
@@ -144,9 +146,7 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 			throw new DeviceException("trying to read out 0 frames");
 		}
 		
-		for (String name: getExtraNames()) {
-			nxdata.setPlottableValue(name, (double) frames);
-		}
+		nxdata.setPlottableValue(getName(), (double) frames);
 
 		logger.debug("starting to read physical detectors");
 		for (String detectorType : physicalDetectors) {
@@ -310,7 +310,14 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 
 	@Override
 	public String[] getExtraNames() {
-		return new String[] { getName() };
+		ArrayList<String> labels = new ArrayList<String>();
+		labels.add(getName());
+		for (INcdSubDetector  det : subDetectors) {
+				if (det instanceof IHasMultipleExtraNames) {
+					labels.addAll(Arrays.asList(((IHasMultipleExtraNames) det).getExtraNames()));
+				}
+		}
+		return labels.toArray(new String[labels.size()]);
 	}
 
 	@Override
