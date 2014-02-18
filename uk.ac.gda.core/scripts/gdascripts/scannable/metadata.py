@@ -99,7 +99,8 @@ class MetadataCollector(ScannableBase):
         self._clear()
 
     def atScanEnd(self):
-        self._clear()
+        pass
+        # Do not clear as the SrsDataFile does this.
 
     def _append(self, s):
         """Not thread safe"""
