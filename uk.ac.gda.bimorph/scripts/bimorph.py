@@ -268,12 +268,11 @@ class RunOptimisation:
                 offset_shown=True
             else:
                 print "    ", current,  " "*gap, "|    ", correction,  " "*gap2, "|    ", sum
-                copyableOutput.append(sum)
                 bm_voltage+=1
-                useableOutput.append(sum)
+                useableOutput.append(current+float(correction))
         
         print "\nTo be set:"
-        print ",".join([str(sum) for sum in useableOutput])
+        print ",".join(["%.1f" % sum for sum in useableOutput])
 
 class BimorphMirror:
     def __init__(self, numberOfElectrodes, maxSafeVoltage,
