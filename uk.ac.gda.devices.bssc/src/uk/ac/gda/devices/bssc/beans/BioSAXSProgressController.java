@@ -87,7 +87,14 @@ public class BioSAXSProgressController implements IObservable {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					saxsDataCollections = getDataCollectionsFromISPyB();
-					loadModel(saxsDataCollections);
+
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							loadModel(saxsDataCollections);
+						}
+					});
+
 					// }
 					// Display.getDefault().asyncExec(new Runnable() {
 					// @Override
@@ -106,7 +113,7 @@ public class BioSAXSProgressController implements IObservable {
 				} finally {
 					// start job again after specified time has elapsed
 					if (!stopPolling)
-						schedule(3000);
+						schedule(90000);
 				}
 			}
 		};
