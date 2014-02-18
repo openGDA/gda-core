@@ -169,6 +169,8 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			for (HardwareTriggeredDetector det : detectors) {
 				det.setNumberImagesToCollect(getNumberPoints());
 			}
+
+			super.prepareDevicesForCollection();
 			
 		} catch (Exception e) {
 			logger.info("problem in prepareDevicesForCollection()");
@@ -179,7 +181,6 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
 			throw e;
 		}
-		super.prepareDevicesForCollection();
 	}
 
 	private void setHardwareTriggeringOnAllHardwareTriggerableDetectors(boolean enable) throws DeviceException {
