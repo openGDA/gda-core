@@ -89,6 +89,14 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 			pvs.getXDimension().getEnablePVPair().putWait(false);
 			pvs.getYDimension().getEnablePVPair().putWait(false);
 			pvs.getZDimension().getEnablePVPair().putWait(false);
+			
+			// Push these all to zero to make it _really_ clear the region is unused.
+			// This will also implicitly disable those Epics rectangular overlays which have had their DB link fields set to
+			// follow this ROI's PV's.
+			pvs.getXDimension().getMinPVPair().putWait(0);
+			pvs.getXDimension().getSizePVPair().putWait(0);
+			pvs.getYDimension().getMinPVPair().putWait(0);
+			pvs.getYDimension().getSizePVPair().putWait(0);
 		}
 	}
 
