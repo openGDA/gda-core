@@ -29,6 +29,16 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * NOTE: This code assumes that the controller will advance trigger by half a point.
+ * It is up to the controller to determine whether a trailing trigger is given at the end of each line.
+ * It would be quite tricky to handle the case where this is required, e.g. for a counter timer. Either
+ * the counter timer would need to be set to count for a fixed time (like we assume the detectors do), or the
+ * controller would need to send out an inhibit line.
+ * <p>
+ * IMPORTANT: Detectors will not recieve synchronised calls to atLineStart()! An example consequence is that 
+ * plugins must be setup to handle all points made during the scan, not just those from one line.
+ */
 public class ConstantVelocityRasterScan extends ConstantVelocityScanLine {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConstantVelocityRasterScan.class);
@@ -88,13 +98,13 @@ public class ConstantVelocityRasterScan extends ConstantVelocityScanLine {
 		getController().setOuterStart(outerStart);
 		getController().setOuterEnd(outerStop);
 		getController().setOuterStep(outerStep);
-
+	
+		// Please see class comment!
 		if (detectorsIntegrateBetweenTriggers) {
-			getController().setStart(start - step / 2.);
-			getController().setEnd(stop - step / 2.);
+			getController().setStart(start); // - step / 2.);
+			getController().setEnd(stop); //  - step / 2.);
 		} else {
-			getController().setStart(start);
-			getController().setEnd(stop);
+			throw new IllegalArgumentException("The controller we have so far advances triggers by half a point, so detectors must integrate between triggers");
 		}
 		getController().setStep(step);
 		
