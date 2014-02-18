@@ -440,7 +440,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 	
 	private boolean autoCompletePartialMoveToTargets = false;
 
-	private TrajectoryMoveController controller;
+	private ContinuousMoveController controller;
 
 	private Object[] positionAtScanStart = null; // null indicates not operating in a scan
 
@@ -695,7 +695,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 		return controller;
 	}
 	
-	public void setContinuousMoveController(TrajectoryMoveController controller) {
+	public void setContinuousMoveController(ContinuousMoveController controller) {
 		this.controller = controller;
 	}
 
