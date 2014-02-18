@@ -21,7 +21,7 @@ from java.lang import String
 
 
 class RasterMap(Map):
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, rcpController,outputPreparer):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, rcpController,outputPreparer,detectorPreparer):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -48,6 +48,8 @@ class RasterMap(Map):
         self.beamEnabled = True
 
         self.outputPreparer = outputPreparer
+        self.detectorPreparer = detectorPreparer
+
         
     def enableBeam(self):
         self.beamEnabled = True
@@ -114,6 +116,9 @@ class RasterMap(Map):
         self.log("Number y points: " + str(ny))
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
+        
+        self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
+        
         self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
         self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize(),self.detectorBeanFileName, array(detectorList, Detector))
         for energy in energyList:
