@@ -73,6 +73,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	}
 	@Override
 	public Object getPosition() throws DeviceException {
+		//TODO this will not be called as we have getPositionCallable so getLastPointAdded is not required not addPoint
 		Object[] pos = (Object[]) internalToExternal(new Double[]{continuousMoveController.getLastPointAdded()});
 		if (pos == null) {
 			// First point is in process of being added
