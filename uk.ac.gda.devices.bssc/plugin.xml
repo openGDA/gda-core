@@ -17,7 +17,7 @@
      <content-type
        base-type="org.eclipse.core.runtime.xml"
        describer="uk.ac.gda.devices.bssc.ui.BSSCSessionBeanDescriber"
-       file-extensions="xml"
+       file-extensions="biosaxs, xml"
        id="uk.ac.gda.devices.bssc.beans.BSSCSessionBeanContentType"
        name="BSSCSessionBean File Content"
        priority="high">
@@ -88,6 +88,17 @@
            class="uk.ac.gda.devices.bssc.ui.BioSAXSProgressView"
            id="uk.ac.gda.devices.bssc.biosaxsprogressview"
            name="BioSAXS Progress View"
+           restorable="true">
+     </view>
+     <view
+           class="uk.ac.gda.devices.bssc.views.CapillaryView"
+           id="uk.ac.gda.devices.bssc.views.CapillaryView"
+           name="Capillary View">
+     </view>
+     <view
+           class="uk.ac.gda.devices.bssc.views.BioSAXSPlotView"
+           id="uk.ac.gda.devices.bssc.views.BioSAXSPlotView"
+           name="BioSAXS Plot"
            restorable="true">
      </view>
   </extension>

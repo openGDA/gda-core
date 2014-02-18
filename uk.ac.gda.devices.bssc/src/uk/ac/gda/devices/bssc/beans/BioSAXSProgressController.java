@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -50,7 +51,6 @@ public class BioSAXSProgressController implements IObservable {
 	private String visit;
 	private long blSessionId;
 	private List<ISAXSDataCollection> saxsDataCollections;
-	private List<ISAXSProgress> progressList;
 	private SimpleUDPServerScannable simpleUDPServer;
 	ObservableComponent obsComp = new ObservableComponent();
 	private boolean stopPolling;
@@ -71,9 +71,8 @@ public class BioSAXSProgressController implements IObservable {
 		try {
 			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
 			blSessionId = bioSAXSISPyB.getSessionForVisit(/* visit */"cm4977-1");
-			progressList = new ArrayList<ISAXSProgress>();
 		} catch (DeviceException e) {
-			logger.error("DeviceEXception getting visit", e);
+			logger.error("DeviceException getting visit", e);
 		} catch (SQLException e) {
 			logger.error("SQLEXception getting session id", e);
 		}
@@ -88,7 +87,14 @@ public class BioSAXSProgressController implements IObservable {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					saxsDataCollections = getDataCollectionsFromISPyB();
-					loadModel(saxsDataCollections);
+
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							loadModel(saxsDataCollections);
+						}
+					});
+
 					// }
 					// Display.getDefault().asyncExec(new Runnable() {
 					// @Override
@@ -107,7 +113,7 @@ public class BioSAXSProgressController implements IObservable {
 				} finally {
 					// start job again after specified time has elapsed
 					if (!stopPolling)
-						schedule(3000);
+						schedule(90000);
 				}
 			}
 		};
@@ -128,15 +134,17 @@ public class BioSAXSProgressController implements IObservable {
 		return saxsDataCollections;
 	}
 
-	public void getStatusInfoFromISpyB(long dataCollectionId) {
+	public void updateStatusInfoFromISpyB(long dataCollectionId) {
 		try {
 			ISpyBStatusInfo collectionStatusInfo = bioSAXSISPyB.getDataCollectionStatus(dataCollectionId);
 			ISpyBStatusInfo reductionStatusInfo = bioSAXSISPyB.getDataReductionStatus(dataCollectionId);
 			ISpyBStatusInfo analysisStatusInfo = bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId);
 
-			if (containsId(progressList, dataCollectionId)) {
+			if (containsId(bioSAXSProgressModel, dataCollectionId)) {
+				System.out.println("UDP update received, updating model");
 				updateModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
 			} else {
+				System.out.println("UDP update received, adding to model");
 				addToModel(dataCollectionId, "New Sample", collectionStatusInfo, reductionStatusInfo,
 						analysisStatusInfo);
 			}
@@ -153,27 +161,37 @@ public class BioSAXSProgressController implements IObservable {
 			ISpyBStatusInfo reductionStatusInfo = saxsDataCollection.getReductionStatus();
 			ISpyBStatusInfo analysisStatusInfo = saxsDataCollection.getAnalysisStatus();
 
-			if (containsId(progressList, dataCollectionId)) {
+			System.out.println("loadModel dataCollectionId is : " + dataCollectionId);
+			if (containsId(bioSAXSProgressModel, dataCollectionId)) {
+				System.out.println("Updating Model");
 				updateModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
 			} else {
+				System.out.println("Adding to Model");
 				addToModel(dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
 			}
 		}
 
-		return progressList;
+		return bioSAXSProgressModel;
 	}
 
 	private void addToModel(long dataCollectionId, String sampleName, ISpyBStatusInfo collectionStatusInfo,
 			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
-		ISAXSProgress progress = new BioSAXSProgress(dataCollectionId, sampleName, collectionStatusInfo,
+		final ISAXSProgress progress = new BioSAXSProgress(dataCollectionId, sampleName, collectionStatusInfo,
 				reductionStatusInfo, analysisStatusInfo);
-		progressList.add(progress);
+
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				bioSAXSProgressModel.add(progress);
+			}
+		});
+
 	}
 
 	public void updateModel(long dataCollectionId, ISpyBStatusInfo collectionStatusInfo,
 			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
 		int dataCollectionIdIntValue = ((Long) dataCollectionId).intValue();
-		ISAXSProgress progressItem = progressList.get(dataCollectionIdIntValue);
+		ISAXSProgress progressItem = (ISAXSProgress) bioSAXSProgressModel.get(dataCollectionIdIntValue);
 		progressItem.setCollectionProgress(collectionStatusInfo);
 		progressItem.setReductionProgress(reductionStatusInfo);
 		progressItem.setAnalysisProgress(analysisStatusInfo);
@@ -212,9 +230,13 @@ public class BioSAXSProgressController implements IObservable {
 		}
 	}
 
-	public void setModel(IObservableList model) {
-		bioSAXSProgressModel = model;
-
+	public void setModel(final List<ISAXSProgress> list) {
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				bioSAXSProgressModel = new WritableList(list, ISAXSProgress.class);
+			}
+		});
 	}
 
 	public void disconnectFromISpyB() {
@@ -225,7 +247,7 @@ public class BioSAXSProgressController implements IObservable {
 		}
 	}
 
-	public IObservableList getModel() {
+	public List<ISAXSProgress> getModel() {
 		return bioSAXSProgressModel;
 	}
 }
@@ -240,8 +262,8 @@ class SimpleUDPReceiver implements IObserver {
 	@Override
 	public void update(Object theObserved, Object dataCollectionId) {
 		long saxsDataCollectionId = Long.valueOf((String) dataCollectionId);
-		System.out.println("UDP update recieved for : " + saxsDataCollectionId);
+		System.out.println("UDP update recieved for Sample : " + saxsDataCollectionId);
 
-		controller.getStatusInfoFromISpyB(saxsDataCollectionId);
+		controller.updateStatusInfoFromISpyB(saxsDataCollectionId);
 	}
 }

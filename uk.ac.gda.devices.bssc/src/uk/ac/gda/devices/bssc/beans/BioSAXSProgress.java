@@ -1,5 +1,7 @@
 package uk.ac.gda.devices.bssc.beans;
 
+import java.util.List;
+
 import uk.ac.gda.beans.ObservableModel;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatus;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
@@ -91,5 +93,10 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 	@Override
 	public double getAnalysisProgress() {
 		return analysisProgress;
+	}
+
+	@Override
+	public List<String> getCollectionFileNames() {
+		return collectionStatusInfo.getFileNames();
 	}
 }
