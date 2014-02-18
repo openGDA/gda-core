@@ -100,8 +100,8 @@ public class DefaultComponentWriter implements ComponentWriter {
 		int[] makedatadim = makedatadimfordim(dim);
 		file.makedata(name, NexusFile.NX_FLOAT64, makedatadim.length, makedatadim);
 		file.opendata(name);
-		file.putattr("local_name", String.format("%s.%s", scannableName, componentName).getBytes(),
-				NexusFile.NX_CHAR);
+		if (componentName != null)
+			file.putattr("local_name", String.format("%s.%s", scannableName, componentName).getBytes(), NexusFile.NX_CHAR);
 
 		String axislist = "1";
 		for (int j = 2; j <= dim.length; j++) {
