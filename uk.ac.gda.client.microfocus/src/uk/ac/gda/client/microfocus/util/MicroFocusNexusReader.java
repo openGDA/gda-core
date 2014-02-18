@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.analysis.DataSet;
-import gda.analysis.RCPPlotter;
 import gda.analysis.io.ScanFileHolderException;
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -32,6 +30,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.vortex.RegionOfInterest;
@@ -42,7 +42,7 @@ import uk.ac.gda.beans.xspress.XspressROI;
 public class MicroFocusNexusReader {
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusNexusReader.class);
 	private double[][][][] dataret = null;
-	private Object xspressBean;
+//	private Object xspressBean;
 	private INexusTree detectorNode;
 	private Double[] xarray;
 	private Double[] yarray;
@@ -180,28 +180,28 @@ public class MicroFocusNexusReader {
 	 * @param fileName
 	 * @return list of all elements rois
 	 */
-
 	@SuppressWarnings("unchecked")
 	public  List<XspressROI>[] getWindowsfromBean(String ...fileName) {
+		XspressParameters xspressBean = null;
 		try {
 			if(fileName.length == 0)
-				xspressBean = BeansFactory.getBean(new File(LocalProperties.getConfigDir()
+				xspressBean  = (XspressParameters) BeansFactory.getBean(new File(LocalProperties.getConfigDir()
 						+ "/templates/Xspress_Parameters.xml"));
 			else
-				xspressBean = BeansFactory.getBean(new File(fileName[0]));
+				xspressBean = (XspressParameters) BeansFactory.getBean(new File(fileName[0]));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("Could not open Xspress bean to extract the ROIs",e);
+			return null;
 		}
 
-		detectorName = ((XspressParameters) xspressBean).getDetectorName();
-		numberOfdetectorElements = ((XspressParameters) xspressBean).getDetectorList().size();
+		detectorName = xspressBean.getDetectorName();
+		numberOfdetectorElements = xspressBean.getDetectorList().size();
 		int noOfDetectors;
 		noOfDetectors = numberOfdetectorElements;
 		dataret = new double[noOfDetectors][][][];
 		elementRois = new List[noOfDetectors];
 		for (int detectorNo = 0; detectorNo < noOfDetectors; detectorNo++)
-			elementRois[detectorNo] = ((XspressParameters) xspressBean)
+			elementRois[detectorNo] = xspressBean
 			.getDetector(detectorNo).getRegionList();
 		return elementRois;
 
@@ -210,37 +210,42 @@ public class MicroFocusNexusReader {
 	@SuppressWarnings("unchecked")
 	public List<RegionOfInterest>[] getWindowsfromVortexBean(String ...fileName)
 	{
-		Object vortexBean = null;
+		VortexParameters vortexBean = null;
 		try {
 			if(fileName.length == 0)
-				vortexBean = BeansFactory.getBean(new File(LocalProperties.getConfigDir()
+				vortexBean = (VortexParameters) BeansFactory.getBean(new File(LocalProperties.getConfigDir()
 						+ "/templates/Vortex_Parameters.xml"));
 			else
-				vortexBean = BeansFactory.getBean(new File(fileName[0]));
+				vortexBean = (VortexParameters) BeansFactory.getBean(new File(fileName[0]));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("Could not open Vortex bean to extract the ROIs",e);
+			return null;
 		}
 		if(vortexBean != null)	
 		{
-			detectorName = ((VortexParameters)vortexBean).getDetectorName();
-			numberOfdetectorElements = ((VortexParameters) vortexBean).getDetectorList().size();
+			detectorName = vortexBean.getDetectorName();
+			numberOfdetectorElements = vortexBean.getDetectorList().size();
 			vortexdetectorData = new double[numberOfdetectorElements][];
 			elementRois = new List[numberOfdetectorElements];
 			for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++)
-				elementRois[detectorNo] = ((VortexParameters) vortexBean).getDetector(detectorNo).getRegionList();
+				elementRois[detectorNo] = vortexBean.getDetector(detectorNo).getRegionList();
 		}	
 
 		return elementRois;
 
 	}
 
-	@SuppressWarnings("static-access")
+
 	public void plotElement(String elementName, @SuppressWarnings("unused") String fileName) {
 		double[][] mapData = constructMappableData(elementName);
-		DataSet plotSet = new DataSet(mapData);
+		DoubleDataset plotSet = new DoubleDataset(mapData.length, mapData[0].length);
+		for (int iIndex = 0; iIndex < mapData.length; iIndex++){
+			for (int jIndex = 0; jIndex < mapData[0].length; iIndex++){
+				plotSet.set(mapData[iIndex][jIndex], iIndex, jIndex);
+			}
+		}
 		try {
-			RCPPlotter.imagePlot(plottingWindowName, plotSet);
+			SDAPlotter.imagePlot(plottingWindowName, plotSet);
 		} catch (Exception e) {
 			logger.error("Error plotting the dataset in MicroFocusNexusReader", e);
 		}

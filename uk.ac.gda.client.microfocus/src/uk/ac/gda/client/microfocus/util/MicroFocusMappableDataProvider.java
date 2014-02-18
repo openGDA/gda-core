@@ -105,23 +105,9 @@ public abstract class MicroFocusMappableDataProvider {
 			
 			ILazyDataset zscannableDS = extractZScannableData(names);
 
-			// zValue is included as part of the scan
-			if (zscannableDS != null) {
-				AbstractDataset zdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(zscannableDS));
-				zValue = Double.parseDouble(zdata.getString(0));
-			} else {
-				// Read the zvalue from the metadata
-				zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Sample_Stage" + "/" + zScannableName);
-				if (zscannableDS != null) {
-					AbstractDataset zdata = DatasetUtils
-							.convertToAbstractDataset(getDatasetFromLazyDataset(zscannableDS));
-					String[] z = (String[]) zdata.getBuffer();
-					if (null != z)
-						zValue = Double.parseDouble(z[0]);
-				}
-			}
-			
-			
+			AbstractDataset zdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(zscannableDS));
+			zValue = Double.parseDouble(zdata.getString(0));
+	
 			// x and y values from file will be
 			// x = {0.0, 2.0, 4.0,6.0, 0.0, 2.0, 4.0,6.0,0.0, 2.0, 4.0,6.0}
 			// y = { 0.0,0.0,0.0,0.0, 2.0 , 2.0 , 2.0 , 2.0 , 4.0, 4.0, 4.0}
@@ -160,10 +146,12 @@ public abstract class MicroFocusMappableDataProvider {
 
 	private ILazyDataset extractZScannableData(String names) {
 		ILazyDataset zscannableDS = null;
-		if (names.contains("/entry1/instrument/sc_sample_z"))
-			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_sample_z");
+		if (names.contains("/entry1/instrument/sc_sample_z/sc_sample_z"))
+			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_sample_z/sc_sample_z");
 		else if (names.contains("/entry1/instrument/Sample_Stage/sc_sample_z"))
 			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Sample_Stage/sc_sample_z");
+		else if (names.contains("/entry1/instrument/table_z/table_z"))
+			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_z/table_z");
 		return zscannableDS;
 	}
 

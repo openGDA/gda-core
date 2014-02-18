@@ -37,6 +37,8 @@ import gda.scan.ScanDataPoint;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nexusformat.NexusFile;
 
@@ -296,7 +298,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		
 	}
 
-	@Test
+	@Ignore("see BLXVIII-127")@Test
 	public void testAddData() throws Exception{
 		setup();
 		mfWriterExtender.setSelectedElement("Fe_Ka");
@@ -312,7 +314,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		}
 		assertEquals(mfWriterExtender.getDataSet().getDouble(new int[]{1,2}), 348.0, 0.0);
 	}
-	@Test
+	@Ignore("see BLXVIII-127")@Test
 	public void testTwoWayAddData() throws Exception{
 		twoWaySetup();
 		mfWriterExtender.setSelectedElement("Fe_Ka");
@@ -331,7 +333,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		assertEquals(mfWriterExtender.getDataSet().getDouble(new int[]{1,8}), 348.0, 0.0);
 		
 	}
-	@Test
+	@Ignore("see BLXVIII-127")@Test
 	public void testDisplayPlot() throws Exception
 	{
 		setup();
@@ -350,7 +352,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 			assertEquals(dataSDP[i], mnData[i], 0.0);
 		}
 	}
-	@Test
+	@Ignore("see BLXVIII-127")@Test
 	public void testDisplayPlotMidway() throws Exception
 	{
 		setup();
@@ -374,7 +376,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		}
 	}
 	
-	@Test
+	@Ignore("see BLXVIII-127")@Test
 	public void testTwoWayDisplayPlotMidway() throws Exception
 	{
 		twoWaySetup();
@@ -407,7 +409,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 			assertEquals(twoWayMnData[i],dataSDP[i],  0.0);
 		}
 	}
-	@Test
+	@Ignore("see BLXVIII-127")@Test
 	public void testPlotSpectrum() throws Exception
 	{
 		setup();
@@ -424,7 +426,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		spectrum = mfWriterExtender.getSpectrum(1, 6, 0);
 		assertEquals(43.0, spectrum.getDouble(634), 0.0);
 	}
-	@Test
+	@Ignore("see BLXVIII-127")@Test
 	public void testFillDataSet() throws Exception
 	{
 		setup();
@@ -445,7 +447,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		dataSDP = (double[])mfWriterExtender.getDataSet().getBuffer();	
 		assertEquals(dataSDP[pointsList.length -1], feData[4] - ((int)(feData[4] /100)), 0.0);
 	}
-	@Test
+	@Ignore("see BLXVIII-127")@Test
 	public void testTwoWayFillDataSet() throws Exception
 	{
 		twoWaySetup();

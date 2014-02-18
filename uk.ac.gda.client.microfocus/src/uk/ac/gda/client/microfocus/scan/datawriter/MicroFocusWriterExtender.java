@@ -537,7 +537,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 		// the selected element is a scaler value displaying the map for the scaler
 		if (selectedElementIndex == -1) {
-			int scalerIndex = selectedElement.equalsIgnoreCase("i0") ? 0 : 1;
+			int scalerIndex = selectedElement.equalsIgnoreCase("i0") ? 1 : 2;
 			for (int i = 0; i <= plottedSoFar; i++) {
 				dataSetToDisplay.setAbs(i,scalerValuesCache[i][scalerIndex]);
 //				dataSetToDisplay.set(scalerValuesCache[i][scalerIndex], i / numberOfXPoints, i % numberOfXPoints);
