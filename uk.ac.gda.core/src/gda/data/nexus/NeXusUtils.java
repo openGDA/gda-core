@@ -307,7 +307,6 @@ public class NeXusUtils {
 	 * @throws NexusException
 	 */
 	public static void write_NXsource(NeXusFileInterface file) throws NexusException {
-
 		Metadata metadata = GDAMetadataProvider.getInstance();
 
 		// Make the source if it's not there.
@@ -320,16 +319,12 @@ public class NeXusUtils {
 
 		try {
 			writeNexusString(file, "name", metadata.getMetadataValue("facility.name", "gda.facility", "DLS"));
-			writeNexusString(file, "type", metadata.getMetadataValue("facility.type", "gda.facility.type",
-					"Synchrotron X-ray Source"));
+			writeNexusString(file, "type", metadata.getMetadataValue("facility.type", "gda.facility.type", "Synchrotron X-ray Source"));
 			writeNexusString(file, "probe", metadata.getMetadataValue("facility.probe", "gda.facility.probe", "x-ray"));
-//			writeNexusString(file, "mode", metadata.getMetadataValue("source.fillMode"));
-//			writeNexusString(file, "facility_mode", metadata.getMetadataValue("facility.mode"));
-//			writeNexusDouble(file, "frequency", Double.parseDouble(metadata.getMetadataValue("instrument.source.frequency", null, DEFAULT_NUMBER_VALUE)));
-//			writeNexusDouble(file, "voltage", Double.parseDouble(metadata.getMetadataValue("instrument.source.energy", null, DEFAULT_NUMBER_VALUE)) * 1000.0);
-			writeNexusDouble(file, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.source.energy",	null, DEFAULT_NUMBER_VALUE)), "GeV");
-			writeNexusDouble(file, "current", Double.parseDouble(metadata.getMetadataValue("instrument.source.current",	null, DEFAULT_NUMBER_VALUE)), "mA");
-//			writeNexusString(file, "notes", metadata.getMetadataValue("facility.message"));
+			if (!metadata.getMetadataValue("instrument.source.energy").isEmpty())
+				writeNexusDouble(file, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.source.energy",	null, DEFAULT_NUMBER_VALUE)), "GeV");
+			if (!metadata.getMetadataValue("instrument.source.current").isEmpty())
+				writeNexusDouble(file, "current", Double.parseDouble(metadata.getMetadataValue("instrument.source.current",	null, DEFAULT_NUMBER_VALUE)), "mA");
 		} catch (DeviceException e) {
 			logger.warn("NXsource: Problem reading one or more items of metadata.");
 		}
