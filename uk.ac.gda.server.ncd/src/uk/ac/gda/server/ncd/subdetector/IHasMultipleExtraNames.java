@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,20 +16,9 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.rcp.ncd.sideplot;
+package uk.ac.gda.server.ncd.subdetector;
 
-import gda.jython.JythonServerFacade;
+public interface IHasMultipleExtraNames extends INcdSubDetector {
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-
-public class GridStartScan extends AbstractHandler {
-
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		String jythonCommand = "ncdgridscan.scan()";
-		JythonServerFacade.getInstance().runCommand(jythonCommand);
-		return true;
-	}
+	public String[] getExtraNames();
 }

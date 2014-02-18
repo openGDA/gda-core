@@ -37,6 +37,7 @@ public class GridScanPerspective implements IPerspectiveFactory {
 		layout.addView("uk.ac.gda.arpes.ui.view.samplemetadata", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.BOTTOM, 0.65f, "uk.ac.gda.arpes.ui.view.samplemetadata");
 		layout.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawb.workbench.plotting.tools.gridTool", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
+//		layout.addView("org.dawb.workbench.plotting.tools.gridTool", IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 
 		{//Acquisition Buttons and Baton Manager
 			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.81f, "uk.ac.gda.client.ncd.gridcameraview");
