@@ -9,6 +9,7 @@
 -->
 
 <plugin>
+   <extension-point id="commandrunner" name="Tomography Command Runner" schema="schema/commandrunner.exsd"/>
  <extension
          point="org.eclipse.ui.views">
       <category
@@ -314,5 +315,13 @@
             configId="org.dawnsci.intro.universalConfig"
             content="intro/introContribution.xml">
       </configExtension>
+   </extension>
+   <extension
+         point="uk.ac.diamond.tomography.reconstruction.commandrunner">
+      <command_runner
+            class="uk.ac.diamond.tomography.reconstruction.commands.TestCommandRunner"
+            id="uk.ac.diamond.tomography.reconstruction.testcommandrunner"
+            name="Test Command Runner">
+      </command_runner>
    </extension>
 </plugin>
