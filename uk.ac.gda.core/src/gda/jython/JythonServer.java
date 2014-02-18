@@ -1583,5 +1583,15 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			}
 		}
 	}
+	
+	@Override
+	public PyObject eval(String s) {
+		return interp.getInterp().eval(s);
+	}
+
+	@Override
+	public void exec(String s) {
+		interp.getInterp().exec(s);
+	}
 
 }

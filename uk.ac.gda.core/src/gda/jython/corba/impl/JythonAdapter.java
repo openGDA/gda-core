@@ -43,6 +43,7 @@ import java.util.Vector;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
+import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1018,5 +1019,15 @@ public class JythonAdapter implements Jython, EventSubscriber {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public PyObject eval(String s) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void exec(String s) {
+		throw new UnsupportedOperationException();
 	}
 }
