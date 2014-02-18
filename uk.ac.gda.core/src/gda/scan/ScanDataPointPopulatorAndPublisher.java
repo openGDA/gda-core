@@ -67,7 +67,7 @@ public class ScanDataPointPopulatorAndPublisher implements Runnable {
 		try {
 			logger.debug("'{}' publishing", point.getUniqueName());
 			broadcaster.publish(point);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("Exception broadcasting data point", e);
 			pipeline.setExceptionAndShutdownNow(e);
 		}

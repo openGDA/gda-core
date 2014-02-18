@@ -101,7 +101,8 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 
 						@Override
 						public void run() {
-							items.add(new MyMvcExampleItem( (new Date()).toString(), 0.));
+							if(items.size()< 20)
+								items.add(new MyMvcExampleItem( (new Date()).toString(), 0.));
 							for( int i=0; i < items.size(); i++) {
 								MyMvcExampleItem item = (MyMvcExampleItem) items.get(i);
 								double value = item.getValue();
@@ -111,7 +112,7 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 									item.setValue(value+1);
 								}
 							}
-						}});
+					}});
 				}
 			};
 			timer.scheduleAtFixedRate(task, 0, 1000);

@@ -32,7 +32,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
@@ -192,7 +191,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 			if (arg instanceof ScriptControllerLogResults && updateViewLock.tryLock(10, TimeUnit.MILLISECONDS)) {
 				final ScriptControllerLogResults temp = (ScriptControllerLogResults) arg;
 				try {
-					addToKnowScripts(temp.getScriptName());
+					addToKnownScripts(temp.getScriptName());
 					if (haveSeenBefore(temp)) {
 						if (!results[0].getUniqueID().equals(temp.getUniqueID())) {
 							return;
@@ -201,9 +200,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								view.getTreeViewer().refresh();
-								view.getTreeViewer().reveal(results[0]);
-								view.getTreeViewer().expandToLevel(results[0], AbstractTreeViewer.ALL_LEVELS);
+								view.getTreeViewer().refresh(results[0]);
 							}
 						});
 					} else {
@@ -215,11 +212,14 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 							@Override
 							public void run() {
 
+								Object[] expandedElements = view.getTreeViewer().getExpandedElements();
+								expandedElements  = ArrayUtils.add(expandedElements, temp);
+								
 								view.getTreeViewer()
 										.setInput(ScriptControllerLogContentProvider.this.getElements(null));
-								view.getTreeViewer().refresh();
-								view.getTreeViewer().expandToLevel(temp, 1);
-								view.getTreeViewer().reveal(temp);
+								view.getTreeViewer().refresh(results[0]);
+
+								view.getTreeViewer().setExpandedElements(expandedElements);
 							}
 						});
 					}
@@ -233,7 +233,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 		}
 	}
 
-	private void addToKnowScripts(String scriptName) {
+	private void addToKnownScripts(String scriptName) {
 		if (!ArrayUtils.contains(knownScripts, scriptName)) {
 			knownScripts = (String[]) ArrayUtils.add(knownScripts, scriptName);
 			view.updateFilter(knownScripts);
