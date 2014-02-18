@@ -335,13 +335,14 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		// set the sub-directory and create if necessary
 		String dataDir = PathConstructor.createFromDefaultProperty();
 		dataDir = dataDir + "tmp" + File.separator + lastScanNumber;
+		if (!(new File(dataDir)).exists()) {
+			boolean directoryExists = (new File(dataDir)).mkdirs();
+			if (!directoryExists) {
+				throw new DeviceException("Failed to create temporary directory to place Xmap HDF5 files: " + dataDir);
+			}
+		}
 		dataDir = dataDir.replace("/dls/" + beamline.toLowerCase(), "X:/");
 		controller.setDirectory(dataDir);
-		boolean directoryExists = (new File(dataDir)).mkdirs();
-		if (!directoryExists) {
-			throw new DeviceException("Failed to create temporary directory to place Xmap HDF5 files: " + dataDir);
-		}
-
 	}
 
 	@Override
