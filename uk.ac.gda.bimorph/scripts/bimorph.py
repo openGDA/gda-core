@@ -3,7 +3,6 @@ import Jama.SingularValueDecomposition
 from gdascripts.pd.dummy_pds import DummyPD
 import gda.jython.commands.InputCommands as inputCommand
 from gdascripts.analysis.io.ScanFileLoader import ScanFileLoader
-from gda.configuration.properties import LocalProperties
 from gda.data import PathConstructor
 
 class VoltageControllerSim:
@@ -49,34 +48,8 @@ class CentroidReaderSim:
                 break
         val = self.centroids[voltageStep][slitPosIndex] 
         return val 
-
-def headingExists(headings, headingToFind):
-    for h in headings:
-        if h == headingToFind:
-            return True
-    return False
-   
-
-
-def runOptimisation(bimorphScannable=None, mirror_type = None,numberOfElectrodes = None,voltageIncrement = None,files = None,error_file =  None,desiredFocSize = None,user_offset =  None,bm_voltages=None, beamOffset=None, autoDist=None, scalingFactor=None, scanDir=None, minSlitPos=None, maxSlitPos=None, \
-                    slitPosScannableName=None):
-    ''' 
-    >>> runOptimisation(bimorphScannable)
     
-    where bimorphScannable() returns an array of voltages of length = inputNames+extraNames and 
-    positions[i] = demand voltage for plate i
-    positions[len(inputNames)+i]= actual voltage for plate i
-    
-    '''
-    
-    ro=RunOptimisation(bimorphScannable, mirror_type,numberOfElectrodes,voltageIncrement,files,error_file,desiredFocSize,user_offset,bm_voltages, beamOffset, autoDist, scalingFactor, scanDir, minSlitPos, maxSlitPos,slitPosScannableName)
-    ro()
-    return ro
-
-
-#bimorph.runOptimisation(None, "vfm", 8, 50, "23759,23760,23761,23762,23763,23764,23765,23766,23767", "23759", 0, 0, "0,0,0,0,0,0,0,0",0)
-
-class RunOptimisation():
+class RunOptimisation:
     def __init__(self, bimorphScannable=None,
                   mirror_type = None,
                   numberOfElectrodes = None,
@@ -113,7 +86,7 @@ class RunOptimisation():
         self.minSlitPos = minSlitPos
         self.maxSlitPos = maxSlitPos
         self.slitPosScannableName = slitPosScannableName
-        
+
     def __call__(self):
         self.requestInputs()
         self.calculateVoltages()
@@ -151,56 +124,91 @@ class RunOptimisation():
 
     def calculateVoltages(self):
         
-        int_files = []
-        
-        for f in self.files:
-            int_files.append(int(f))
-            
-        files = int_files
-        
         maxSafeVoltage = 1000
         minSafeVoltage = -1000
-        maxSafeVoltDiff = 450        
+        maxSafeVoltDiff = 450
+        
+        errorData = self.getErrorData()
+        
+        headings = errorData.getNames()
+        columnNames = self.getColumnNames(headings)
+        
+        slitPos = self.getSlitPos(columnNames, headings, errorData)
+        limits = self.getLimitIndices(slitPos)
+        if limits is not None:
+            slitPos = slitPos[limits[0]:limits[1]]
+
+        centroidMatrix, error_centroids = self.getCentroidMatrix(errorData, columnNames, limits)
+        
+        initialVoltages = [0] * (self.numberOfElectrodes + int(self.auto_offset))
+        
+        dummyPD = DummyPD("slitpos")
+        vc = VoltageControllerSim(False, self.numberOfElectrodes)
         bm = BimorphMirror(self.numberOfElectrodes, maxSafeVoltage, minSafeVoltage, maxSafeVoltDiff)
-    
-    
-        print "*****************Error file", self.error_file
-        errorData = None
+        centroidReaderSim = CentroidReaderSim(False, centroidMatrix, dummyPD, vc, slitPos, initialVoltages, self.voltageIncrement)
+        optimizer = BimorphOptimiser(False, bm, vc, centroidReaderSim , slitPos, dummyPD, self.beamOffset, self.auto_offset, self.autoDist, self.scalingFactor)
+        
+        noOfCentroids = len(centroidMatrix[0])
+        weights = [1]*noOfCentroids
+        self.voltages = optimizer.run(weights, self.desiredFocSize, initialVoltages, self.voltageIncrement, error_centroids, self.autoDist, self.scalingFactor)
+        self.voltages = self.voltages.getArray();
+        self.printVoltages(self.voltages)
+
+    def getErrorData(self):
         try:
             errorData = ScanFileLoader(self.error_file, self.scanDir).getSFH()
         except Exception, e:
             errorData = ScanFileLoader(self.error_file, PathConstructor().getDefaultDataDir()).getSFH()
+        return errorData
 
-        #print LocalProperties.get("gda.data.scan.datawriter.dataFormat")
-        if self.mirror_type == "hfm" or self.mirror_type == "x" or self.mirror_type == "HFM":
-            centroid_column_name_suffix="peak2d_peakx"
-            data_centroid_column_name="peak2d_peakx"
-            err_centroid_column_name="peak2d_peakx"
-        elif self.mirror_type == "vfm" or self.mirror_type == "y" or self.mirror_type == "VFM":
-            centroid_column_name_suffix="peak2d_peaky"
-            data_centroid_column_name="peak2d_peaky"
-            err_centroid_column_name="peak2d_peaky"
-        
-        headings = errorData.getNames()
+    def getColumnNames(self, headings):
+        suffix = self.getColumnSuffix()
+        if "peak2d." + suffix in headings:
+            return self.nexusColumnNames("peak2d.", suffix)
+        elif "pa." + suffix in headings:
+            return self.nexusColumnNames("pa.", suffix)
+        else:
+            return self.nonNexusColumnNames(suffix)
 
-        if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
-            err_slit_column_name = "/entry1/instrument/" + self.slitPosScannableName + "/" + self.slitPosScannableName
-            if not headingExists(headings, err_slit_column_name):
-                err_slit_column_name = "/entry1/instrument/pa/idx"
-            print "err_slit_column_name=" + err_slit_column_name
+    def nexusColumnNames(self, prefix, suffix):
+        names = {}
+        names["data_centroid"] = prefix + suffix
+        names["err_centroid"] = prefix + suffix
+        names["err_slit"] = self.slitPosScannableName + "." + self.slitPosScannableName
+        return names
+    
+    def nonNexusColumnNames(self, suffix):
+        names = {}
+        names["data_centroid"] = suffix
+        names["err_centroid"] = suffix
+        names["err_slit"] = "/entry1/instrument/pa/idx"
+        return names
 
-            err_centroid_column_name = "/entry1/instrument/peak2d/" + centroid_column_name_suffix
-            if not headingExists(headings, err_centroid_column_name):
-                err_centroid_column_name = "/entry1/instrument/pa/"  + centroid_column_name_suffix
-            print "err_centroid_column_name=" + err_centroid_column_name
-            slitPos = errorData.getLazyDataset(err_slit_column_name).getSlice(None).getBuffer()
+    def getColumnSuffix(self):
+        name = "peak2d_peak"
+        if self.mirror_type in ["vfm", "VFM", "y"]:
+            name += "y"
+        elif self.mirror_type in ["hfm", "HFM", "x"]:
+            name += "x"
+        else:
+            raise "Mirror not recognised"
+        return name
+
+    def getSlitPos(self, names, headings, errorData):
+        if names["err_slit"] in headings:
+            slitPos = errorData.getLazyDataset(names["err_slit"]).getSlice(None).getBuffer()
         else:
             if headings[0]=="idx":
                 slitPos = errorData.getLazyDataset(1).getSlice(None).getBuffer()
             else:
                 slitPos = errorData.getLazyDataset(0).getSlice(None).getBuffer()
-        
-        if self.minSlitPos!=None or self.maxSlitPos!=None:
+        return slitPos
+
+    def hasSlitPosLimit(self):
+        return self.minSlitPos!=None or self.maxSlitPos!=None
+
+    def getLimitIndices(self, slitPos):
+        if self.hasSlitPosLimit():
             startIndex = 0
             endIndex = 0
             startFound=False
@@ -213,67 +221,29 @@ class RunOptimisation():
                             startFound=True
                     endIndex+=1
                 index+=1
-#        startIndex=0
-#        endIndex=22
-            print "startIndex:"+`startIndex` + "endIndex:" + `endIndex`
-            
-        print "self.scanDir", self.scanDir
-        headings = ScanFileLoader(files[0], self.scanDir).getSFH().getNames()
+            print "startIndex: "+`startIndex` + " endIndex: " + `endIndex`
+            return [startIndex, endIndex]
+        return None
 
-        if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
-#            data_slit_column_name = "/entry1/instrument/" + self.slitPosScannableName + "/" + self.slitPosScannableName
-#            if not headingExists(headings, data_slit_column_name):
-#                data_slit_column_name = "/entry1/instrument/pa/idx"
-#            print "data_slit_column_name=" + data_slit_column_name
-
-            data_centroid_column_name = "/entry1/instrument/peak2d/" + centroid_column_name_suffix
-            if not headingExists(headings, data_centroid_column_name):
-                data_centroid_column_name = "/entry1/instrument/pa/"  + centroid_column_name_suffix
-            print "data_centroid_column_name=" + data_centroid_column_name
-            
-            
-        centroidMatrix = []
+    def getCentroidMatrix(self, errorData, columnNames, limit):
+        try:
+            files = [int(f) for f in self.files]
+        except ValueError:
+            files = self.files
+        matrix = []
         for file in files:
             data = ScanFileLoader(file, self.scanDir).getSFH()
-            centroids = data.getLazyDataset(data_centroid_column_name).getSlice(None).getBuffer()
-            error_centroids = errorData.getLazyDataset(err_centroid_column_name).getSlice(None).getBuffer()
+            print columnNames
+            centroids = data.getLazyDataset(columnNames["data_centroid"]).getSlice(None).getBuffer()
+            error_centroids = errorData.getLazyDataset(columnNames["err_centroid"]).getSlice(None).getBuffer()
+            if self.hasSlitPosLimit():
+                centroids = centroids[limit[0]:limit[1]]
+                error_centroids = error_centroids[limit[0]:limit[1]]
+                
+            matrix.append(centroids)
+        return matrix, error_centroids
 
-            if(self.minSlitPos!=None or self.maxSlitPos!=None):
-                centroids = centroids[startIndex:endIndex]
-                error_centroids = error_centroids[startIndex:endIndex]
-                if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
-                    slitPos = errorData.getLazyDataset(err_slit_column_name).getSlice(None).getBuffer()[startIndex:endIndex]
-                else:                
-                    if headings[0]=="idx":
-                        slitPos = errorData.getLazyDataset(1).getSlice(None).getBuffer()[startIndex:endIndex]
-                    else:
-                        slitPos = errorData.getLazyDataset(0).getSlice().getBuffer()[startIndex:endIndex]
-
-            centroidMatrix.append(centroids)
-            
-        vc = VoltageControllerSim(False, self.numberOfElectrodes)
-        motor = DummyPD("slitpos")
-    
-        initialVoltages = []
-        if self.auto_offset:
-            for v in range(self.numberOfElectrodes+1):
-                initialVoltages.append(0)
-        else:
-            for v in range(self.numberOfElectrodes):
-                initialVoltages.append(0)
-    
-        centroidReaderSim = CentroidReaderSim(False, centroidMatrix, motor, vc, slitPos, initialVoltages, self.voltageIncrement)
-        
-        
-        
-        optimizer = BimorphOptimiser(False, bm, vc, centroidReaderSim , slitPos, motor, self.beamOffset, self.auto_offset, self.autoDist, self.scalingFactor)
-        noOfCentroids = len(centroids)
-        weights = [1]*noOfCentroids
-        self.voltages = optimizer.run(weights, self.desiredFocSize, initialVoltages, self.voltageIncrement, error_centroids, self.autoDist, self.scalingFactor)
-        self.voltages = self.voltages.getArray();
-        self.printVoltages(self.voltages, self.auto_offset)
-    
-    def printVoltages(self, voltages, auto_offset):
+    def printVoltages(self, voltages):
         print "\n"
         print "__________________________________________________________________________________________________________________"
         print "                                                   voltages"
@@ -282,88 +252,27 @@ class RunOptimisation():
         print "_________________________________|_________________________________________|______________________________________"
         
         bm_voltage = 0;
-        
-        if self.auto_offset:
-            offset_shown=False
-            for voltage in voltages:
-                frontBracket = str(voltage).index('[')
-                endBracket = str(voltage).index(']')
-                current = self.bm_voltages[bm_voltage] 
-                correction = str(voltage)[frontBracket+1:endBracket]
-                sum = str(current+float(correction))
-                gap = 26-len(str(current))
-                gap2 = 34-len(str(correction))
-                if not offset_shown:
-                    print "                                 |    ", correction, " - offset", " "*(gap2-10), "|    "
-                    offset_shown=True
-                else:
-                    print "    ", current,  " "*gap, "|    ", correction,  " "*gap2, "|    ", sum
-                    bm_voltage+=1
-        
-        else: 
-            for voltage in voltages:
-                frontBracket = str(voltage).index('[')
-                endBracket = str(voltage).index(']')
-                
-                current = self.bm_voltages[bm_voltage]
-                correction = str(voltage)[frontBracket+1:endBracket]
-                sum = str(current+float(correction))
-                gap = 26-len(str(current))
-                gap2 = 34-len(str(correction))
+    
+        useableOutput = [] #Can be copied from the terminal to where the voltages need to be input
+        offset_shown = not self.auto_offset
+        for voltage in voltages:
+            frontBracket = str(voltage).index('[')
+            endBracket = str(voltage).index(']')
+            current = self.bm_voltages[bm_voltage] 
+            correction = str(voltage)[frontBracket+1:endBracket]
+            sum = str(current+float(correction))
+            gap = 26-len(str(current))
+            gap2 = 34-len(str(correction))
+            if not offset_shown:
+                print "                                 |    ", correction, " - offset", " "*(gap2-10), "|    "
+                offset_shown=True
+            else:
                 print "    ", current,  " "*gap, "|    ", correction,  " "*gap2, "|    ", sum
                 bm_voltage+=1
-
-def findSlitRange(data):
-    """
-    data is 2d array [i][j] where i is 0-1 where 0 = slitPositions and 1 = values at that position
-    returns expected edges of the 'step' function and a code to indicate if the step is encompassed in the original scan
-    #message codes
-    #0 - Scan was successful.
-    #1 - Scan has failed.
-    #2 - Enlarge scan at beginning and end of scan.
-    #3 - Enlarge scan range at beginning of scan.
-    #4 - Enlarge scan range at end of scan.
-    """
-
-    detPlot = data[1]
-    slitPos = data[0]
-    firstIndData = detPlot[0]
-    lastIndData = detPlot[detPlot.getDimensions()[0] - 1]
-    precision = round(slitPos[1] - data[0][0], 2)
-
-    threshold = data[1].max() / 2.0
-    
-    firstLastInd = data.getInterpolatedX(data[0], detPlot, threshold)
-    
-    initSlitPos = None
-    finlSlitPos = None
-
-    messageCode = 0
-
-    if len(firstLastInd) == 2:
-        initSlitPos = firstLastInd[0] - (precision / 2.0)
-        finlSlitPos = firstLastInd[1] - (precision / 2.0)
-        initSlitPos = round(initSlitPos, 2)
-        finlSlitPos = round(finlSlitPos, 2)
-        messageCode = 0
+                useableOutput.append(sum)
         
-    elif len(firstLastInd) == 0:
-        if data[1].max() == 0:
-            messageCode = 1
-        else:
-            messageCode = 2
-            
-    elif len(firstLastInd) < 2:
-        if firstIndData > threshold:
-            messageCode = 3
-        if lastIndData > threshold:
-            messageCode = 4
-
-    return initSlitPos, finlSlitPos, messageCode
-
-def footprint(slitWidth, incidenceAngleRad): 
-    footprnt = (slitWidth) / (incidenceAngleRad)
-    return footprnt
+        print "\nTo be set:"
+        print ",".join([str(sum) for sum in useableOutput])
 
 class BimorphMirror:
     def __init__(self, numberOfElectrodes, maxSafeVoltage,
@@ -558,3 +467,81 @@ class BimorphOptimiser:
         weightedCorrection = jCorr.times(weightsMatrix).transpose()
         
         return pseudo_inverse_manual.times(weightedCorrection)
+
+def runOptimisation(bimorphScannable=None, mirror_type = None,numberOfElectrodes = None,voltageIncrement = None,files = None,error_file =  None,desiredFocSize = None,user_offset =  None,bm_voltages=None, beamOffset=None, autoDist=None, scalingFactor=None, scanDir=None, minSlitPos=None, maxSlitPos=None, \
+                    slitPosScannableName=None):
+    ''' 
+    >>> runOptimisation(bimorphScannable)
+    
+    where bimorphScannable() returns an array of voltages of length = inputNames+extraNames and 
+    positions[i] = demand voltage for plate i
+    positions[len(inputNames)+i]= actual voltage for plate i
+    
+    '''
+    
+    ro=RunOptimisation(bimorphScannable, mirror_type,numberOfElectrodes,voltageIncrement,files,error_file,desiredFocSize,user_offset,bm_voltages, beamOffset, autoDist, scalingFactor, scanDir, minSlitPos, maxSlitPos,slitPosScannableName)
+    ro()
+    return ro
+
+def findSlitRange(data):
+    """
+    data is 2d array [i][j] where i is 0-1 where 0 = slitPositions and 1 = values at that position
+    returns expected edges of the 'step' function and a code to indicate if the step is encompassed in the original scan
+    #message codes
+    #0 - Scan was successful.
+    #1 - Scan has failed.
+    #2 - Enlarge scan at beginning and end of scan.
+    #3 - Enlarge scan range at beginning of scan.
+    #4 - Enlarge scan range at end of scan.
+    """
+
+    detPlot = data[1]
+    slitPos = data[0]
+    firstIndData = detPlot[0]
+    lastIndData = detPlot[detPlot.getDimensions()[0] - 1]
+    precision = round(slitPos[1] - data[0][0], 2)
+
+    threshold = data[1].max() / 2.0
+    
+    firstLastInd = data.getInterpolatedX(data[0], detPlot, threshold)
+    
+    initSlitPos = None
+    finlSlitPos = None
+
+    messageCode = 0
+
+    if len(firstLastInd) == 2:
+        initSlitPos = firstLastInd[0] - (precision / 2.0)
+        finlSlitPos = firstLastInd[1] - (precision / 2.0)
+        initSlitPos = round(initSlitPos, 2)
+        finlSlitPos = round(finlSlitPos, 2)
+        messageCode = 0
+        
+    elif len(firstLastInd) == 0:
+        if data[1].max() == 0:
+            messageCode = 1
+        else:
+            messageCode = 2
+            
+    elif len(firstLastInd) < 2:
+        if firstIndData > threshold:
+            messageCode = 3
+        if lastIndData > threshold:
+            messageCode = 4
+
+    return initSlitPos, finlSlitPos, messageCode
+
+def footprint(slitWidth, incidenceAngleRad): 
+    footprnt = (slitWidth) / (incidenceAngleRad)
+    return footprnt
+
+if __name__ == "__main__":
+    s = "/scratch/gda_git/gda-bimorph.git/uk.ac.gda.bimorph/scripts/test/test files/"
+    a = RunOptimisation('vfm_v',"vfm", 16, 200,[s+str(i)+".dat" for i in range(1703, 1720)],s+"1703.dat", 0,"n", [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],0,0,1,'/scratch/gda/data/',-0.8,0.8,"s2_ycentre")
+    a.calculateVoltages()
+    
+    b = RunOptimisation('vfm_v',"vfm", 16, 300,["i22-"+str(i)+".nxs" for i in range(161702,161719)],"i22-161702.nxs", 0,"0", [300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300],0,0,1,'/scratch/gda/data/',-0.8,0.8,"s2_ycentre")
+    b.calculateVoltages()
+    
+#    c = RunOptimisation()
+#    c.requestInputs()
