@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A class to represent a detector for NCD.
  */
-public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implements IHasMultipleExtraNames {
+public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implements IHaveExtraNames {
 
 	private static final Logger logger = LoggerFactory.getLogger(SingleScalerWithScalingAndOffset.class);
 
@@ -167,6 +167,6 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 
 	@Override
 	public String[] getExtraNames() {
-		return new String[] {getLabel()};
+		return new String[] {getName()};
 	}
 }

@@ -113,6 +113,11 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 		setupExtraNames();
 	}
 
+	public void clearScannables() {
+		scannables.clear();
+		setupExtraNames();
+	}
+	
 	public Scannable getBragg() {
 		return bragg;
 	}

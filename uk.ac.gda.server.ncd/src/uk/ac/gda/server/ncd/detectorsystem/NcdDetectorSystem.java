@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.server.ncd.beans.CalibLabel;
 import uk.ac.gda.server.ncd.beans.CalibrationLabels;
-import uk.ac.gda.server.ncd.subdetector.IHasMultipleExtraNames;
+import uk.ac.gda.server.ncd.subdetector.IHaveExtraNames;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 
 /**
@@ -313,8 +313,8 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 		ArrayList<String> labels = new ArrayList<String>();
 		labels.add(getName());
 		for (INcdSubDetector  det : subDetectors) {
-				if (det instanceof IHasMultipleExtraNames) {
-					labels.addAll(Arrays.asList(((IHasMultipleExtraNames) det).getExtraNames()));
+				if (det instanceof IHaveExtraNames) {
+					labels.addAll(Arrays.asList(((IHaveExtraNames) det).getExtraNames()));
 				}
 		}
 		return labels.toArray(new String[labels.size()]);
