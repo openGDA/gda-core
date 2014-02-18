@@ -19,10 +19,11 @@
 package gda.device.zebra.controller;
 
 import gda.epics.ReadOnlyPV;
+import gda.observable.IObservable;
 
 import java.io.IOException;
 
-public interface Zebra {
+public interface Zebra extends IObservable {
 
 	final public static int PC_MODE_POSITION = 0;
 	final public static int PC_MODE_TIME = 1;
@@ -119,5 +120,15 @@ public interface Zebra {
 
 	void setPCDir(int i)  throws IOException;
 	int getPCDir()  throws IOException;
+
+	/**
+	 * Returns whether a soft input is set.
+	 */
+	public boolean isSoftInputSet(int inputNumber) throws IOException;
+
+	/**
+	 * Sets a soft input.
+	 */
+	public void setSoftInput(int inputNumber, boolean set) throws IOException;
 
 }
