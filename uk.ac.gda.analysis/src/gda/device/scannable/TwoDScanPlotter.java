@@ -41,9 +41,9 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 
 	private static final Logger logger = LoggerFactory.getLogger(TwoDScanPlotter.class);
 
-	private DoubleDataset x;
-	private DoubleDataset y;
-	private DoubleDataset intensity;
+	protected DoubleDataset x;
+	protected DoubleDataset y;
+	protected DoubleDataset intensity;
 
 	private String x_colName;
 	private String y_colName;
@@ -88,6 +88,7 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		y = createTwoDset(yStart, yStop, yStep,true);
 		intensity = null;
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
+		logger.info(getName() + " - registering as SDP listener.");
 	}
 
 	private DoubleDataset createTwoDset(Double start, Double stop, Double step, Boolean reverse) {
@@ -133,6 +134,7 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 			int totalPoints = ((ScanDataPoint) arg).getNumberOfPoints();
 			try {
 				unpackSDP((ScanDataPoint) arg);
+				logger.debug(getName() +  " - Plotting map after receiving point " + currentPoint + " of " + totalPoints);
 				plot();
 				if (currentPoint == (totalPoints - 1)) {
 					logger.info(getName() + " - last point recevied; deregistering as SDP listener.");
@@ -197,8 +199,11 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	}
 
 	public void plot() throws Exception {
-		// SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
-		SDAPlotter.imagePlot(plotViewname, x, y, intensity);
+		if (getPlotViewname() != null) {
+			logger.debug("Plotting to RCP client plot named:" + getPlotViewname());
+			// SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
+			SDAPlotter.imagePlot(plotViewname, x, y, intensity);
+		}
 	}
 
 	@Override
