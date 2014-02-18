@@ -158,7 +158,7 @@ class ROIDimensionPVsImpl implements ROIDimensionPVs {
 	public ROIDimensionPVsImpl(String basePVName, String dim) {
 		
 		enablePVPair = new PVWithSeparateReadback<Boolean>(
-				LazyPVFactory.newBooleanFromIntegerPV(basePVName + "Enable" + dim),
+				LazyPVFactory.newBooleanFromEnumPV(basePVName + "Enable" + dim),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(basePVName + "Enable" + dim + "_RBV"));
 
 		minPVPair = new PVWithSeparateReadback<Integer>(

@@ -109,11 +109,11 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 	private void createLazyPvs() {
 
 		computeStatisticsPVPair = new PVWithSeparateReadback<Boolean>(
-				LazyPVFactory.newBooleanFromIntegerPV(fullname(PVNames.ComputeStatistics.name())),
+				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.ComputeStatistics.name())),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.ComputeStatistics_RBV.name())));
 
 		computeCentroidPVPair = new PVWithSeparateReadback<Boolean>(
-				LazyPVFactory.newBooleanFromIntegerPV(fullname(PVNames.ComputeCentroid.name())),
+				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.ComputeCentroid.name())),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.ComputeCentroid_RBV.name())));
 
 		tsControlPV = LazyPVFactory.newEnumPV(fullname(PVNames.TSControl.name()), TSControlCommands.class);

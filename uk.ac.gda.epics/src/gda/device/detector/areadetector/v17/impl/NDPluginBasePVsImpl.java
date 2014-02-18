@@ -84,19 +84,19 @@ public class NDPluginBasePVsImpl implements NDPluginBasePVs, InitializingBean {
 	private void createLazyPvs() {
 
 		enableCallbacksPVPair = new PVWithSeparateReadback<Boolean>(
-				LazyPVFactory.newBooleanFromIntegerPV(fullname(PVNames.EnableCallbacks)),
+				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.EnableCallbacks)),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.EnableCallbacks_RBV)));
 		
 		blockingCallbacksPVPair = new PVWithSeparateReadback<Boolean>(
-				LazyPVFactory.newBooleanFromIntegerPV(fullname(PVNames.BlockingCallbacks)),
+				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.BlockingCallbacks)),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.BlockingCallbacks_RBV)));
 		
 		droppedArraysPVPair = new PVWithSeparateReadback<Boolean>(
-				LazyPVFactory.newBooleanFromIntegerPV(fullname(PVNames.DroppedArrays)),
+				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.DroppedArrays)),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.DroppedArrays_RBV)));
 		
 		arrayCounterPVPair = new PVWithSeparateReadback<Boolean>(
-				LazyPVFactory.newBooleanFromIntegerPV(fullname(PVNames.ArrayCounter)),
+				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.ArrayCounter)),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.ArrayCounter_RBV)));
 		
 		ndArrayPortPVPair = new PVWithSeparateReadback<String>(
