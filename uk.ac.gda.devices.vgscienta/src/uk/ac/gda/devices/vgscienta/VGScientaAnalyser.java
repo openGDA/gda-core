@@ -254,8 +254,12 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		if (getNdProc().getResetFilter_RBV() == 1)
 			throw new DeviceException("processing plugin has not seen any data");
 
+		if (kineticEnergyChangesDuringScan || firstReadoutInScan) {
+			double[] axis = getEnergyAxis();
+			data.addAxis(getName(), "energies", new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, 2, 1, "eV", kineticEnergyChangesDuringScan);
+		}
+		
 		if (firstReadoutInScan) {
-
 			String aunit, aname;
 			if ("Transmission".equals(getLensMode())) {
 				aname = "location";
@@ -266,11 +270,6 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			}
 			double[] axis = getAngleAxis();
 			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, 1, 1, aunit, false);
-			
-			if (kineticEnergyChangesDuringScan)
-				logger.error("we should be recording a dynamic energy axis here!"); // FIXME
-			axis = getEnergyAxis();
-			data.addAxis(getName(), "energies", new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, 2, 1, "eV", false);
 
 			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
 			data.addData(getName(), "acquisition_mode", new NexusGroupData(controller.getAcquisitionMode()), null, null);
