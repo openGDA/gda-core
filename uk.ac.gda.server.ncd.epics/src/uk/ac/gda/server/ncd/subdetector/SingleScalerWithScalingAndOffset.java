@@ -52,19 +52,23 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 		float[] tweakeddata = new float[frames];
 		Double offset = scalingAndOffset.getOffset();
 		Double scaling = scalingAndOffset.getScaling();
+		String desc = scalingAndOffset.getDescription();
 		
 		double sum = 0;
 		for (int frame=0; frame<frames; frame++) {
 			tweakeddata[frame] = (float) (data[frame] * scaling + offset);
 			sum += tweakeddata[frame];
 		}
-		
-		nxdata.setPlottableValue(getName(), sum);
-		
+
 		ngd = new NexusGroupData(datadims, NexusFile.NX_FLOAT32, tweakeddata);
 		ngd.isDetectorEntryData = true;
-		addMonitorData(nxdata, getName(), label, ngd, units, 1,	scalingAndOffset.getDescription());
+		addMonitorData(nxdata, getName(), label, ngd, units, 1, desc, null);
 		
+		nxdata.setPlottableValue(getName(), sum);
+		ngd = new NexusGroupData(new int[]{1}, NexusFile.NX_FLOAT64, new double[] {sum});
+		ngd.isDetectorEntryData = true;
+		addMonitorData(nxdata, getName(), "framesetsum", ngd, units, null, null, "ncddetectors."+getName());
+		//FIXME hardcoding of ncddetectors
 		//FIXME add frame axis
 	}
 
@@ -75,7 +79,7 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 	 * @param units  - if not null a units attribute is added
 	 * @param signalVal - if not null a signal attribute is added
 	 */
-	public static void addMonitorData(NXDetectorData nxdata, String monitorName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String description) {
+	public static void addMonitorData(NXDetectorData nxdata, String monitorName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String description, String local_name) {
 		INexusTree monTree = getMonitorTree(nxdata, monitorName);
 		NexusTreeNode data = new NexusTreeNode(dataName, NexusExtractor.SDSClassName, null, data_sds);
 		data.setIsPointDependent(data_sds.isDetectorEntryData);
@@ -86,6 +90,10 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 			Integer[] signalValArray = {signalVal};
 			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data, 
 					new NexusGroupData(new int[] {signalValArray.length}, NexusFile.NX_INT32, signalValArray)));
+		}
+		if (local_name != null) {
+			data.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, data, 
+					new NexusGroupData(local_name)));
 		}
 		if (description != null) {
 			monTree.addChildNode(new NexusTreeNode("description",NexusExtractor.SDSClassName, monTree, 
