@@ -23,9 +23,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import gda.MockFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.detector.hardwaretriggerable.DummyHardwareTriggerableAreaDetector;
@@ -205,6 +207,50 @@ public class ConstantVelocityScanLineTest {
 		scan.runScan();
 		InOrder inOrder = inOrder(mockscn, mockedController, mockeddet1, mockeddet2);
 		return inOrder;
+	}
+	
+	
+	@SuppressWarnings("unused")
+	public void testReadOnlyScannablesAllowed() throws Exception {
+		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testReadOnlyScannablesAllowed", true);
+		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockscn});
+		
+	}
+
+	@SuppressWarnings("unused")
+	@Test (expected=IllegalArgumentException.class)
+	public void testInvalidArgsNoDetector() throws Exception {
+		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsNoDetector", true);
+		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1});
+		
+	}
+	
+	@SuppressWarnings("unused")
+	@Test
+	public void testZIEScannablesAllowed() throws Exception {
+		Scannable mockziescn = MockFactory.createMockZieScannable("zie", 5);
+		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testReadOnlyScannablesAllowed", true);
+		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockziescn, mockscn});
+		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockziescn});
+		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockscn, mockziescn, mockeddet2});
+		
+	}
+	
+	@SuppressWarnings("unused")
+	@Test (expected=IllegalArgumentException.class)
+	public void testInvalidArgsMovingScannablesWithinInnerLoop() throws Exception {
+		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsMovingScannablesThatMustBeReadOnly", true);
+		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockscn, 999.});
+		
+	}
+	
+	@SuppressWarnings("unused")
+	@Test (expected=IllegalArgumentException.class)
+	public void testInvalidArgsMovingZIEScannablesWithinInnerLoop() throws Exception {
+		Scannable mockziescn = MockFactory.createMockZieScannable("zie", 5);
+		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsMovingScannablesThatMustBeReadOnly", true);
+		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockscn, mockziescn, 999.});
+		
 	}
 
 }
