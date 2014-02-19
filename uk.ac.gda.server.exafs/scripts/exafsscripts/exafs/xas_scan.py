@@ -148,7 +148,7 @@ class XasScan(Scan):
 		finally:
 			if self.moveMonoToStartBeforeScan==True:
 				self.energy_scannable.stop()
-			if self.handleGapConverter==True:
+			if self.handleGapConverter==True and gap_converter!=None:
 				gap_converter.enableAutoConversion()
 			# repetition loop completed, so reset things
 			self.setQueuePropertiesEnd()
