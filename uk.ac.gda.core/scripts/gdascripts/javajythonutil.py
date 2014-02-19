@@ -1,5 +1,8 @@
 # Tools to convert Java collection to/from Python collections
-# Extracted from http://www.ibm.com/developerworks/java/tutorials/j-jython2/index.html
+
+# Extracted from "Introduction to Jython, Part 2: Programming essentials"
+# (http://www.ibm.com/developerworks/java/tutorials/j-jython2/j-jython2.html)
+
 from types import *
 
 from java import lang
