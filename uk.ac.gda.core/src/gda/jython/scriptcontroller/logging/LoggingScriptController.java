@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,6 +24,7 @@ import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.security.SecureRandom;
@@ -38,6 +39,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +104,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		super.configure();
 		try {
 			createDatabase();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			throw new FactoryException("Exception while configuring script controller" + getName(), e);
 		}
 	}
@@ -113,7 +115,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		try {
 			closeDatabase();
 			createDatabase();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			throw new FactoryException("Exception while reconfiguring script controller" + getName(), e);
 		}
 	}
@@ -242,24 +244,42 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		this.directory = directory;
 	}
 
-	private void createDatabase() throws SQLException {
+	private void createDatabase() throws Exception {
 
 		if (getMessageClassToLog() == null) {
 			logger.warn("Message class type not set, cannot create Script Controller log database " + getName());
 		}
 
 		tableName = messageClassToLog.getSimpleName();
-		createConnection();
+		String varDir = getDirectory();
+		if (varDir == null) {
+			LocalProperties.getVarDir();
+		}
+		try {
+			makeDB(varDir);
+		} catch (SQLException e) {
+			// assume a problem with either directory not available or the schema has changed
+			if ((new File(dbName)).exists()){
+				FileUtils.deleteDirectory(new File(dbName));
+				makeDB(varDir);
+			} else {
+				if (new File(varDir).exists()) {
+					makeDB(varDir);
+				} else {
+					throw new Exception(varDir + " could not be created");
+				}
+			}
+		}
+	}
+
+	private void makeDB(String varDir) throws SQLException {
+		connectToDB(varDir);//createConnection();
 		determineColumns();
 		createTable();
 		createPreparedStatements();
 	}
 
-	private void createConnection() throws SQLException {
-		String varDir = getDirectory();
-		if (varDir == null) {
-			LocalProperties.getVarDir();
-		}
+	private void connectToDB(String varDir) throws SQLException {
 		dbName = varDir + tableName;
 		url = "jdbc:derby:" + dbName + ";create=true";
 		conn = DriverManager.getConnection(url);
@@ -276,7 +296,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 
 		for (String columnName : columnGetters.values()) {
 			columnName = columnName.replace(" ", "_");
-			createString += columnName + " VARCHAR(50),";
+			createString += columnName + " VARCHAR(150),";
 		}
 		createString += DATE_ADDED_COL_NAME + " TIMESTAMP," + DATE_UPDATED_COL_NAME + " TIMESTAMP)";
 
