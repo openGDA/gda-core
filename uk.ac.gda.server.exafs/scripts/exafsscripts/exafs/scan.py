@@ -86,7 +86,7 @@ class Scan:
     Get the relevant datawriter config, create a datawriter and if it of the correct type then give it the config.
     Give the datawriter to the scan.
     """
-    def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
+    def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName, experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName):
         nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
         asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
         
@@ -114,6 +114,14 @@ class Scan:
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
+        
+        
+        dataWriter.setFolderName(experimentFullPath)
+        dataWriter.setScanParametersName(scanFileName)
+        dataWriter.setDetectorParametersName(detectorFileName)
+        dataWriter.setSampleParametersName(sampleFileName)
+        dataWriter.setOutputParametersName(outputFileName)
+        
         asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
         if asciidatawriterconfig != None :
             dataWriter.setConfiguration(asciidatawriterconfig)

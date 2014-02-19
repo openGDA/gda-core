@@ -77,13 +77,13 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 				file.opengroup("xml", "NXsample");
 				try {
 					NeXusUtils.writeNexusString(file, "xmlFolderName", xmlFolderName);
-					writeXml("ScanParameters", scanBean);
-					writeXml("DetectorParameters", detectorBean);
-					writeXml("SampleParameters", sampleBean);
-					writeXml("OutputParameters", outputBean);
+					writeBean("ScanParameters", scanBean);
+					writeBean("DetectorParameters", detectorBean);
+					writeBean("SampleParameters", sampleBean);
+					writeBean("OutputParameters", outputBean);
 					// if fluoresence then get the xml detector config from FluorescenceParameters else if diffraction then from  SoftXRaysParameters
 					if (xmlFolderName != null && !xmlFolderName.isEmpty() && xmlFileName != null && !xmlFileName.isEmpty())
-						writeXml("DetectorConfigurationParameters", xmlFolderName + IPath.SEPARATOR + xmlFileName);
+						writeBean("DetectorConfigurationParameters", xmlFolderName + IPath.SEPARATOR + xmlFileName);
 				} finally {
 					file.closegroup();
 				}
@@ -93,7 +93,7 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 		}
 	}
 
-	private void writeXml(final String name, final Object bean) throws NexusException, Exception {
+	private void writeBean(final String name, final Object bean) throws NexusException, Exception {
 		if (bean == null)
 			return;
 		NeXusUtils.writeNexusString(file, name, BeansFactory.getXMLString(bean));

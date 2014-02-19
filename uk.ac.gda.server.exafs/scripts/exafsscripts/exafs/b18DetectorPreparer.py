@@ -135,35 +135,3 @@ class B18DetectorPreparer:
         from gda.jython import JythonServerFacade
         JythonServerFacade.getInstance().setScanStatus(0)
         print "Diffraction scan complete."
-#         
-#         
-# 
-#     def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
-#         nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
-#         asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
-#         nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
-#         asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
-#         if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
-#             nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
-#             asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
-# 
-#         # create XasAsciiNexusDataWriter object and give it the parameters
-#         dataWriter = XasAsciiNexusDataWriter()
-#         dataWriter.setRunFromExperimentDefinition(True);
-#         dataWriter.setScanBean(scanBean);
-#         dataWriter.setDetectorBean(detectorBean);
-#         dataWriter.setSampleBean(sampleBean);
-#         dataWriter.setOutputBean(outputBean);
-#         dataWriter.setSampleName(sampleName);
-#         dataWriter.setXmlFolderName(experimentFullPath)
-#         dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
-#         dataWriter.setDescriptions(descriptions);
-#         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
-#         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
-#         # get the ascii file format configuration (if not set here then will get it from the Finder inside the Java class
-#         asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
-#         if asciidatawriterconfig != None :
-#             dataWriter.setConfiguration(asciidatawriterconfig)
-#         thisscan.setDataWriter(dataWriter)
-#         return thisscan
-

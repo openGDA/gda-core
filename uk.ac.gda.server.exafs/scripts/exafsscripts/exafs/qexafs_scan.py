@@ -27,7 +27,7 @@ class QexafsScan(Scan):
         self.gmsd_enabled = False
         self.additional_channels_enabled = False
         
-    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= -1, validation=True):
+    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName, numRepetitions= -1, validation=True):
         experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
 
         if self.cirrusEnabled:
@@ -56,7 +56,6 @@ class QexafsScan(Scan):
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
         timeRepetitionsStarted = System.currentTimeMillis();
-        
         
         try:
             while True:
@@ -124,12 +123,12 @@ class QexafsScan(Scan):
                 print "running QEXAFS scan:", self.energy_scannable.getName(), start, end, numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
                 thisscan = ContinuousScan(self.energy_scannable , start, end, numberPoints, scan_time, detectorList)
-                thisscan = self._setUpDataWriter(thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleBean.getName(),sampleBean.getDescriptions(),repetitionNumber,experimentFolderName,experimentFullPath)
+                thisscan = self._setUpDataWriter(thisscan, scanBean, detectorBean, sampleBean, outputBean, sampleBean.getName(), sampleBean.getDescriptions(), repetitionNumber, experimentFolderName, experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName)
                 controller.update(None, ScanCreationEvent(thisscan.getName()))
                 try:
                     if numRepetitions > 1:
                         print ""
-                        print "Starting repetition", str(repetitionNumber),"of",numRepetitions
+                        print "Starting repetition", str(repetitionNumber), "of", numRepetitions
                     loggingbean.atScanStart()
                     thisscan.runScan()
                     controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));

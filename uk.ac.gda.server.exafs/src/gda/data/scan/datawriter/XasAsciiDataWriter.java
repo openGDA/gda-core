@@ -44,7 +44,12 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	private Boolean runFromExperimentDefinition = false;
 	private String nexusFilePath;
 	private String asciiFileNameTemplate;
-
+	private String scanParametersName;
+	private String sampleParametersName;
+	private String detectorParametersName;
+	private String outputParametersName;
+	private String folderName;
+	
 	public XasAsciiDataWriter(Long fileNumber) throws InstantiationException {
 		super();
 		thisFileNumber = fileNumber;
@@ -81,8 +86,13 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 			file.write("# Ascii output file name: '" + fileName + "'\n");
 			if (nexusFilePath != null) {
 				file.write("# Nexus output file: '" + nexusFilePath + "'\n");
-				file.write("# The XML files, ScanParameters, SampleParameters, DetectorParameters, OutputParameters\n");
-				file.write("# are stored in the nexus file.\n");
+				file.write("# The XML files:\n");
+				file.write("# " + folderName + "\n");
+				file.write("# " + scanParametersName + "\n");
+				file.write("# " + detectorParametersName + "\n");
+				file.write("# " + sampleParametersName + "\n");
+				file.write("# " + outputParametersName + "\n");
+				file.write("# The contents of these files are also stored in the nexus file.\n");
 			}
 
 			file.write("#\n");
@@ -239,4 +249,45 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	public void setNexusFilePath(String nexusFilePath) {
 		this.nexusFilePath = nexusFilePath;
 	}
+
+	public String getScanParametersName() {
+		return scanParametersName;
+	}
+
+	public void setScanParametersName(String scanParametersName) {
+		this.scanParametersName = scanParametersName;
+	}
+
+	public String getSampleParametersName() {
+		return sampleParametersName;
+	}
+
+	public void setSampleParametersName(String sampleParametersName) {
+		this.sampleParametersName = sampleParametersName;
+	}
+
+	public String getDetectorParametersName() {
+		return detectorParametersName;
+	}
+
+	public void setDetectorParametersName(String detectorParametersName) {
+		this.detectorParametersName = detectorParametersName;
+	}
+
+	public String getOutputParameters() {
+		return outputParametersName;
+	}
+
+	public void setOutputParametersName(String outputParametersName) {
+		this.outputParametersName = outputParametersName;
+	}
+
+	public String getFolderName() {
+		return folderName;
+	}
+
+	public void setFolderName(String folderName) {
+		this.folderName = folderName;
+	}
+	
 }

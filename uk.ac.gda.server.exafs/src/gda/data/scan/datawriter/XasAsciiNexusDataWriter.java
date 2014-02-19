@@ -82,6 +82,8 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		// ignore as they both do their own thing
 	}
 
+	
+	
 	@Override
 	public void addData(IScanDataPoint newData) throws Exception {
 		if (firstData) {
@@ -198,7 +200,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		this.scanBean = scanBean;
 	}
 
-
 	public void setDetectorBean(IDetectorParameters detectorBean) {
 		this.detectorBean = detectorBean;
 	}
@@ -226,4 +227,25 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	public void setSampleName(String sampleName) {
 		this.sampleName = sampleName;
 	}
+
+	public void setScanParametersName(String scanParametersName) {
+		ascii.setScanParametersName(scanParametersName);
+	}
+
+	public void setSampleParametersName(String sampleParametersName) {
+		ascii.setDetectorParametersName(sampleParametersName);
+	}
+
+	public void setDetectorParametersName(String detectorParametersName) {
+		ascii.setSampleParametersName(detectorParametersName);
+	}
+
+	public void setOutputParametersName(String outputParametersName) {
+		ascii.setOutputParametersName(outputParametersName);
+	}
+	
+	public void setFolderName(String folderName) {
+		ascii.setFolderName(folderName);
+	}
+	
 }
