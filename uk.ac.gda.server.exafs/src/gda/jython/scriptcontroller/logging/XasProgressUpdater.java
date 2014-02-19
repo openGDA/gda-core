@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class XasProgressUpdater extends ScannableBase implements Scannable, IScanDataPointObserver {
 
 	private transient final LoggingScriptController controller;
+	private volatile boolean atEndCalled = false;
 	private String visitID;
 	private String id;
 	private String predictedTotalTime;
@@ -50,8 +51,9 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	private long timeRepetitionsStarted;
 	private long timeStarted;
 	private String lastPercentComplete = "0%";
-	private volatile boolean atEndCalled = false;
 	private String uniqueName;
+	private String sampleName;
+	private Integer scanNumber;
 
 	public XasProgressUpdater(LoggingScriptController controller, XasLoggingMessage msg, long timeRepetitionsStarted) {
 		this.controller = controller;
@@ -65,6 +67,8 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		sampleEnvironmentRepetitions = msg.getSampleEnvironmentRepetitions();
 		predictedTotalTime = msg.getPredictedTotalTime();
 		outputFolder = msg.getOutputFolder();
+		sampleName = msg.getSampleName();
+		scanNumber = msg.getScanNumber();
 		setInputNames(new String[] {});
 		setExtraNames(new String[] {});
 		setOutputFormat(new String[] {});
@@ -112,7 +116,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 
 		XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, status, thisScanrepetition,
 				getTotalRepetitions(), sampleEnvironmentRepetitions, sampleEnvironmentRepetitions, percentComplete,
-				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
+				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder, sampleName, scanNumber);
 		controller.update(this, msg);
 	}
 
@@ -122,7 +126,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 		XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, "Aborted", thisScanrepetition,
 				getTotalRepetitions(), sampleEnvironmentRepetitions, sampleEnvironmentRepetitions, lastPercentComplete,
-				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
+				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder, sampleName, scanNumber);
 		controller.update(this, msg);
 	}
 
@@ -149,20 +153,23 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 			ScanDataPoint sdp = (ScanDataPoint) arg;
 			if (uniqueName == null || uniqueName.equals(sdp.getUniqueName())) {
 				uniqueName = sdp.getUniqueName();
+				// always update as it probably was not set before getting any SDPs via this method
+				scanNumber = Integer.parseInt(sdp.getScanIdentifier());
 				long now = System.currentTimeMillis();
-				int percentComplete = determinePercentComplete(sdp,false);
+				int percentComplete = determinePercentComplete(sdp, false);
 				lastPercentComplete = percentComplete + "%";
+				outputFolder = sdp.getCurrentFilename();
 
 				if (now - timeOfLastReport > 500) {
 					timeOfLastReport = now;
 					String elapsedTime = getElapsedTime();
-					XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, "In Progress", thisScanrepetition,
-							getTotalRepetitions(), sampleEnvironmentRepetition, sampleEnvironmentRepetitions,
-							percentComplete + "%", elapsedTime, getElapsedTotalTime(), predictedTotalTime, outputFolder);
+					XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, "In Progress",
+							thisScanrepetition, getTotalRepetitions(), sampleEnvironmentRepetition,
+							sampleEnvironmentRepetitions, percentComplete + "%", elapsedTime, getElapsedTotalTime(),
+							predictedTotalTime, outputFolder, sampleName, scanNumber);
 					controller.update(this, msg);
 				}
-			} 
-			else
+			} else
 				InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 		}
 	}
@@ -172,11 +179,14 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		int pointsPerScanRepetition = sdp.getNumberOfPoints() * Integer.parseInt(sampleEnvironmentRepetitions);
 		int pointsInWholeExperiment = pointsPerScanRepetition * Integer.parseInt(getTotalRepetitions());
 		int currentPointInThisScan = sdp.getCurrentPointNumber() + 1;
-		// at the last point in the scan we get the call via atScanEnd instead of via update, so fix the current point number
+		// at the last point in the scan we get the call via atScanEnd instead of via update, so fix the current point
+		// number
 		if (lastPoint)
 			currentPointInThisScan = sdp.getNumberOfPoints();
-		int currentPointInThisScanRepetition = currentPointInThisScan + (pointsPerScan * (Integer.parseInt(sampleEnvironmentRepetition) - 1));
-		int currentPointInWholeExperiment = currentPointInThisScanRepetition + (pointsPerScanRepetition * (Integer.parseInt(thisScanrepetition) - 1));
+		int currentPointInThisScanRepetition = currentPointInThisScan
+				+ (pointsPerScan * (Integer.parseInt(sampleEnvironmentRepetition) - 1));
+		int currentPointInWholeExperiment = currentPointInThisScanRepetition
+				+ (pointsPerScanRepetition * (Integer.parseInt(thisScanrepetition) - 1));
 		int percentComplete = (int) Math.round((currentPointInWholeExperiment * 100.0) / pointsInWholeExperiment);
 		return percentComplete;
 	}
@@ -201,7 +211,8 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		long duration = now - startTime;
 		long hours = TimeUnit.MILLISECONDS.toHours(duration);
 		long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) - TimeUnit.HOURS.toMinutes(hours);
-		long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.HOURS.toSeconds(hours) - TimeUnit.MINUTES.toSeconds(minutes);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.HOURS.toSeconds(hours)
+				- TimeUnit.MINUTES.toSeconds(minutes);
 		String diff = String.format("%2dh%2dm%2ds", hours, minutes, seconds);
 		return diff;
 	}

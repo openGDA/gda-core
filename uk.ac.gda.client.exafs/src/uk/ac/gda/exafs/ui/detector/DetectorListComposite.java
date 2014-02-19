@@ -37,25 +37,39 @@ public class DetectorListComposite extends Composite {
 	protected GridListEditor detectorList;
 	private DetectorElementComposite detectorElementComposite;
 
-	public DetectorListComposite(final Composite                  parent, 
-            final Class<? extends IDetectorElement>    editorClass, 
-            final int elementListSize,
-            final Class<? extends DetectorROI> regionClass, boolean showRoi) {
+	public DetectorListComposite(final Composite parent, final Class<? extends IDetectorElement> editorClass,
+			final int elementListSize, final Class<? extends DetectorROI> regionClass, boolean showRoi) {
 		super(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(this);
-		
+
 		// Important Note: This is designed to work with more than one detector element.
 		// That simply comes from the data, if it has four elements it will show the grid.
-		detectorList = new GridListEditor(this, SWT.NONE, elementListSize);
+		// Important: the constructor GridListEditor(this, SWT.NONE, elementListSize) is only
+		// valid when the square root of elementListSize gives an integer. Code replaced to use
+		// the constructor GridListEditor(this, SWT.NONE, columns, rows)
+
+		double elementListSizeSquareRoot = Math.sqrt(elementListSize);
+		// Squared table of Detector Elements
+		if (Double.compare(elementListSizeSquareRoot, (int) elementListSizeSquareRoot) == 0) {
+			this.detectorList = new GridListEditor(this, SWT.NONE, (int) elementListSizeSquareRoot,
+					(int) elementListSizeSquareRoot);
+			// Table with two rows in the case of even number of detectors
+		} else if ((elementListSize % 2) == 0) {
+			this.detectorList = new GridListEditor(this, SWT.NONE, elementListSize / 2, 2);
+		} else {
+			throw new NullPointerException("Grid with the list of detectors cannot be created");
+		}
 		detectorList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		detectorList.setEditorClass(editorClass);
-		detectorElementComposite = new DetectorElementComposite(detectorList, SWT.NONE, elementListSize > 1, regionClass, showRoi);
+		detectorElementComposite = new DetectorElementComposite(detectorList, SWT.NONE, elementListSize > 1,
+				regionClass, showRoi);
 		detectorElementComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		detectorList.setEditorUI(detectorElementComposite);
 		detectorList.setGridWidth(200);
 		detectorList.setEnabled(false);
 		detectorList.setAdditionalLabelProvider(new ColumnLabelProvider() {
-			private final Color lightGray   = SWTResourceManager.getColor(SWT.COLOR_GRAY);
+			private final Color lightGray = SWTResourceManager.getColor(SWT.COLOR_GRAY);
+
 			@Override
 			public Color getForeground(Object element) {
 				if (element instanceof IDetectorElement) {
@@ -65,14 +79,15 @@ public class DetectorListComposite extends Composite {
 				}
 				return null;
 			}
+
 			@Override
 			public String getText(Object element) {
 				return null;
 			}
 		});
 	}
-	
-	public void removeExpansionListener(IExpansionListener l){
+
+	public void removeExpansionListener(IExpansionListener l) {
 		detectorElementComposite.removeExpansionListener(l);
 	}
 

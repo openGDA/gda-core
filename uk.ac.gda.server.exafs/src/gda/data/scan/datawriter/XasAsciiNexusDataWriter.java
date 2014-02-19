@@ -196,6 +196,10 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		this.runFromExperimentDefinition = runFromExperimentDefinition;
 	}
 
+	public IScanParameters getScanBean() {
+		return nexus.getScanBean();
+	}
+
 	public void setScanBean(IScanParameters scanBean) {
 		this.scanBean = scanBean;
 	}
@@ -218,6 +222,10 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	public void setXmlFileName(String xmlFileName) {
 		this.xmlFileName = xmlFileName;
+	}
+
+	public List<String> getDescriptions() {
+		return ascii.getDescriptions();
 	}
 
 	public void setDescriptions(List<String> descriptions) {

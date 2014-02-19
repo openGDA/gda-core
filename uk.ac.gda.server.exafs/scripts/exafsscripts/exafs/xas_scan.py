@@ -64,10 +64,10 @@ class XasScan(Scan):
 	def calcTimeSinceRepetitionsStarted(self, timeRepetitionsStarted):
 		return System.currentTimeMillis() - timeRepetitionsStarted
 	
-	def getLogMessage(self, numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName):
+	def getLogMessage(self, numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName, sampleName):
 		initialPercent = self.calcInitialPercent(numRepetitions, repetitionNumber)
 		timeSinceRepetitionsStarted = self.calcTimeSinceRepetitionsStarted(timeRepetitionsStarted)
-		return XasLoggingMessage(self._getMyVisitID(), scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),scanBean,experimentFolderName)
+		return XasLoggingMessage(self._getMyVisitID(), scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),scanBean,experimentFolderName, sampleName, 0)
 		
 	def handleScanInterrupt(self, numRepetitions, repetitionNumber):
 		ScanBase.interrupted = False
@@ -96,7 +96,7 @@ class XasScan(Scan):
 			initialPercent = self.calcInitialPercent(total_repeats, this_repeat)
 # 			print "initialPercent",str(initialPercent),"% of repeat",str(i+1),"of repetition",str(repetitionNumber)
 			timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
-			logmsg = XasLoggingMessage(self._getMyVisitID(), scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(i+1), str(num_sample_repeats), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),experimentFolderName)
+			logmsg = XasLoggingMessage(self._getMyVisitID(), scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(i+1), str(num_sample_repeats), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),experimentFolderName, sampleName, 0)
 			
 			if num_sample_repeats == 1:
 				self.printRepetition(numRepetitions, repetitionNumber, scriptType)
@@ -134,7 +134,8 @@ class XasScan(Scan):
 						sampleName = sampleBean.getName()
 						descriptions = sampleBean.getDescriptions()
 						self.printRepetition(numRepetitions, repetitionNumber, scriptType)
-						logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName)
+
+						logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName, sampleName)
 						self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg, sampleFileName, scanFileName, detectorFileName, outputFileName)
 					
 				except InterruptedException, e:
@@ -236,9 +237,10 @@ class XasScan(Scan):
 		elif isinstance(beanGroup.getScan(),XanesScanParameters):
 			times = XanesScanPointCreator.getScanTimeArray(beanGroup.getScan())
 		if len(times) > 0:
+			print times
+			print "ic", self.ionchambers
 			self.ionchambers.setTimes(times)
 			self.log("Setting detector frame times, using array of length",str(len(times)) + "...")
-			ScriptBase.checkForPauses()
 		return
 
 	# TODO this should be in output preparer.

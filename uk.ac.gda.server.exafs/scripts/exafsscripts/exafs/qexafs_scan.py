@@ -66,6 +66,7 @@ class QexafsScan(Scan):
                 initial_energy = scanBean.getInitialEnergy()
                 final_energy = scanBean.getFinalEnergy()
                 step_size = scanBean.getStepSize()
+                sampleName = sampleBean.getName()
                 self.outputPreparer.prepare(outputBean, scanBean)
                 if len(outputBean.getCheckedSignalList()) > 0:
                     print "Signal parameters not available with QEXAFS"
@@ -77,7 +78,7 @@ class QexafsScan(Scan):
 
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
                 timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
-                logmsg = XasLoggingMessage(self._getMyVisitID(), unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
+                logmsg = XasLoggingMessage(self._getMyVisitID(), unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder, sampleName, 0)
                
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
