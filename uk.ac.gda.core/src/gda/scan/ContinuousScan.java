@@ -323,7 +323,8 @@ public class ContinuousScan extends ConcurrentScanChild {
 			}
 			// readout the correct frame from the detectors
 			for (BufferedDetector detector : qscanDetectors) {
-				Object data = detData.get(detector.getName())[thisFrame - lowFrame];
+				Object[] dataArray = detData.get(detector.getName());
+				Object data = dataArray[thisFrame - lowFrame];
 				if (data != null) {
 					thisPoint.addDetector(detector);
 					thisPoint.addDetectorData(data, ScannableUtils.getExtraNamesFormats(detector));
