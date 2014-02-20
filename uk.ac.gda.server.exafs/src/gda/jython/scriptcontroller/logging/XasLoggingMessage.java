@@ -152,7 +152,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		return predictedTotalTime;
 	}
 	
-	@ScriptControllerLogColumn(columnName = "Output", refresh = true, columnIndex = 3)
+	@ScriptControllerLogColumn(columnName = "Output folder", refresh = true, columnIndex = 3)
 	public String getOutputFolder() {
 		return outputFolder;
 	}
