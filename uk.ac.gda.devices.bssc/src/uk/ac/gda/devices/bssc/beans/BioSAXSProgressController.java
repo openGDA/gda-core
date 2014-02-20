@@ -143,10 +143,12 @@ public class BioSAXSProgressController implements IObservable {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					ISAXSProgress progress = containsId(bioSAXSProgressModel, dataCollectionId);
+					ISAXSProgress progress = getProgressItemFromModel(bioSAXSProgressModel, dataCollectionId);
 					if (progress != null) {
 						System.out.println("UDP update received, updating model");
-//						updateModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+						System.out.println("collection progress is : " + collectionStatusInfo.getProgress());
+						System.out.println("reduction progress is : " + reductionStatusInfo.getProgress());
+						System.out.println("analysis progress is : " + analysisStatusInfo.getProgress());
 						progress.setCollectionProgress(collectionStatusInfo);
 						progress.setReductionProgress(reductionStatusInfo);
 						progress.setAnalysisProgress(analysisStatusInfo);
@@ -175,13 +177,15 @@ public class BioSAXSProgressController implements IObservable {
 
 				System.out.println("loadModel dataCollectionId is : " + dataCollectionId);
 				
-				ISAXSProgress progress = containsId(bioSAXSProgressModel, dataCollectionId);
+				ISAXSProgress progress = getProgressItemFromModel(bioSAXSProgressModel, dataCollectionId);
 				if (progress != null) {
 					System.out.println("Updating Model");
+					System.out.println("collection progress is : " + collectionStatusInfo.getProgress());
+					System.out.println("reduction progress is : " + reductionStatusInfo.getProgress());
+					System.out.println("analysis progress is : " + analysisStatusInfo.getProgress());
 					progress.setCollectionProgress(collectionStatusInfo);
 					progress.setReductionProgress(reductionStatusInfo);
 					progress.setAnalysisProgress(analysisStatusInfo);
-//					updateModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
 				} else {
 					System.out.println("Adding to Model");
 					addToModel(dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo,
@@ -218,7 +222,7 @@ public class BioSAXSProgressController implements IObservable {
 //		progressItem.setAnalysisProgress(analysisStatusInfo);
 //	}
 
-	protected ISAXSProgress containsId(List<ISAXSProgress> list, long id) {
+	protected ISAXSProgress getProgressItemFromModel(List<ISAXSProgress> list, long id) {
 		for (ISAXSProgress progressItem : list) {
 			if (progressItem.getDataCollectionId() == id) {
 				return progressItem;
