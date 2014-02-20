@@ -33,9 +33,9 @@ public interface ISAXSProgress {
 	public static final String REDUCTION_PROGRESS = "reductionProgress";
 	public static final String ANALYSIS_PROGRESS = "analysisProgress";
 
-	public void setId(double id);
+	public void setDataCollectionId(long id);
 
-	public double getId();
+	public long getDataCollectionId();
 	
 	public void setSampleName(String sampleName);
 

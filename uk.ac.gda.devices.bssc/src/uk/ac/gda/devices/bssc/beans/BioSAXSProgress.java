@@ -8,7 +8,7 @@ import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
 
 public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 
-	private double id;
+	private long dataCollectionId;
 	private String sampleName;
 	private ISpyBStatusInfo collectionStatusInfo;
 	private ISpyBStatusInfo reductionStatusInfo;
@@ -17,9 +17,9 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 	private double reductionProgress;
 	private double analysisProgress;
 
-	public BioSAXSProgress(long id, String sampleName, ISpyBStatusInfo collectionStatusInfo,
+	public BioSAXSProgress(long dataCollectionId, String sampleName, ISpyBStatusInfo collectionStatusInfo,
 			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
-		this.id = id;
+		this.dataCollectionId = dataCollectionId;
 		this.sampleName = sampleName;
 		this.collectionStatusInfo = collectionStatusInfo;
 		this.reductionStatusInfo = reductionStatusInfo;
@@ -27,13 +27,13 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 	}
 
 	@Override
-	public void setId(double id) {
-		this.id = id;
+	public void setDataCollectionId(long dataCollectionId) {
+		this.dataCollectionId = dataCollectionId;
 	}
 
 	@Override
-	public double getId() {
-		return id;
+	public long getDataCollectionId() {
+		return dataCollectionId;
 	}
 
 	@Override

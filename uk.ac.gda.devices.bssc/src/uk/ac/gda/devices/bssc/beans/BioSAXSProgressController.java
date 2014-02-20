@@ -70,7 +70,7 @@ public class BioSAXSProgressController implements IObservable {
 		this.bioSAXSISPyB = bioSAXSISPyB;
 		try {
 			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-			blSessionId = bioSAXSISPyB.getSessionForVisit(/* visit */"cm4977-1");
+			blSessionId = bioSAXSISPyB.getSessionForVisit(/* visit */"nt20-12");
 		} catch (DeviceException e) {
 			logger.error("DeviceException getting visit", e);
 		} catch (SQLException e) {
@@ -112,8 +112,8 @@ public class BioSAXSProgressController implements IObservable {
 					return Status.CANCEL_STATUS;
 				} finally {
 					// start job again after specified time has elapsed
-					if (!stopPolling)
-						schedule(90000);
+					// if (!stopPolling)
+					// schedule(90000);
 				}
 			}
 		};
@@ -134,20 +134,30 @@ public class BioSAXSProgressController implements IObservable {
 		return saxsDataCollections;
 	}
 
-	public void updateStatusInfoFromISpyB(long dataCollectionId) {
+	public void updateStatusInfoFromISpyB(final long dataCollectionId) {
 		try {
-			ISpyBStatusInfo collectionStatusInfo = bioSAXSISPyB.getDataCollectionStatus(dataCollectionId);
-			ISpyBStatusInfo reductionStatusInfo = bioSAXSISPyB.getDataReductionStatus(dataCollectionId);
-			ISpyBStatusInfo analysisStatusInfo = bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId);
+			final ISpyBStatusInfo collectionStatusInfo = bioSAXSISPyB.getDataCollectionStatus(dataCollectionId);
+			final ISpyBStatusInfo reductionStatusInfo = bioSAXSISPyB.getDataReductionStatus(dataCollectionId);
+			final ISpyBStatusInfo analysisStatusInfo = bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId);
 
-			if (containsId(bioSAXSProgressModel, dataCollectionId)) {
-				System.out.println("UDP update received, updating model");
-				updateModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
-			} else {
-				System.out.println("UDP update received, adding to model");
-				addToModel(dataCollectionId, "New Sample", collectionStatusInfo, reductionStatusInfo,
-						analysisStatusInfo);
-			}
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					ISAXSProgress progress = containsId(bioSAXSProgressModel, dataCollectionId);
+					if (progress != null) {
+						System.out.println("UDP update received, updating model");
+//						updateModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+						progress.setCollectionProgress(collectionStatusInfo);
+						progress.setReductionProgress(reductionStatusInfo);
+						progress.setAnalysisProgress(analysisStatusInfo);
+					} else {
+						System.out.println("UDP update received, adding to model");
+						addToModel(dataCollectionId, "Sample" + dataCollectionId, collectionStatusInfo, reductionStatusInfo,
+								analysisStatusInfo);
+					}
+				}
+			});
+
 		} catch (SQLException e) {
 			logger.error("SQLException", e);
 		}
@@ -155,19 +165,28 @@ public class BioSAXSProgressController implements IObservable {
 
 	public List<ISAXSProgress> loadModel(List<ISAXSDataCollection> saxsDataCollections) {
 		for (ISAXSDataCollection saxsDataCollection : saxsDataCollections) {
-			long dataCollectionId = saxsDataCollection.getId();
-			String sampleName = saxsDataCollection.getSampleName();
-			ISpyBStatusInfo collectionStatusInfo = saxsDataCollection.getCollectionStatus();
-			ISpyBStatusInfo reductionStatusInfo = saxsDataCollection.getReductionStatus();
-			ISpyBStatusInfo analysisStatusInfo = saxsDataCollection.getAnalysisStatus();
+			if (saxsDataCollection != null) {
+				long dataCollectionId = saxsDataCollection.getId();
+				// String sampleName = saxsDataCollection.getSampleName();
+				String sampleName = "Sample " + dataCollectionId;
+				ISpyBStatusInfo collectionStatusInfo = saxsDataCollection.getCollectionStatus();
+				ISpyBStatusInfo reductionStatusInfo = saxsDataCollection.getReductionStatus();
+				ISpyBStatusInfo analysisStatusInfo = saxsDataCollection.getAnalysisStatus();
 
-			System.out.println("loadModel dataCollectionId is : " + dataCollectionId);
-			if (containsId(bioSAXSProgressModel, dataCollectionId)) {
-				System.out.println("Updating Model");
-				updateModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
-			} else {
-				System.out.println("Adding to Model");
-				addToModel(dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+				System.out.println("loadModel dataCollectionId is : " + dataCollectionId);
+				
+				ISAXSProgress progress = containsId(bioSAXSProgressModel, dataCollectionId);
+				if (progress != null) {
+					System.out.println("Updating Model");
+					progress.setCollectionProgress(collectionStatusInfo);
+					progress.setReductionProgress(reductionStatusInfo);
+					progress.setAnalysisProgress(analysisStatusInfo);
+//					updateModel(dataCollectionId, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+				} else {
+					System.out.println("Adding to Model");
+					addToModel(dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo,
+							analysisStatusInfo);
+				}
 			}
 		}
 
@@ -188,22 +207,24 @@ public class BioSAXSProgressController implements IObservable {
 
 	}
 
-	public void updateModel(long dataCollectionId, ISpyBStatusInfo collectionStatusInfo,
-			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
-		int dataCollectionIdIntValue = ((Long) dataCollectionId).intValue();
-		ISAXSProgress progressItem = (ISAXSProgress) bioSAXSProgressModel.get(dataCollectionIdIntValue);
-		progressItem.setCollectionProgress(collectionStatusInfo);
-		progressItem.setReductionProgress(reductionStatusInfo);
-		progressItem.setAnalysisProgress(analysisStatusInfo);
-	}
+//	public void updateModel(long dataCollectionId, ISpyBStatusInfo collectionStatusInfo,
+//			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
+//		int dataCollectionIdIntValue = ((Long) dataCollectionId).intValue();
+//		
+//		// Find the progressItem and update it
+//		ISAXSProgress progressItem = (ISAXSProgress) bioSAXSProgressModel.get(dataCollectionIdIntValue-38);
+//		progressItem.setCollectionProgress(collectionStatusInfo);
+//		progressItem.setReductionProgress(reductionStatusInfo);
+//		progressItem.setAnalysisProgress(analysisStatusInfo);
+//	}
 
-	protected boolean containsId(List<ISAXSProgress> list, long id) {
+	protected ISAXSProgress containsId(List<ISAXSProgress> list, long id) {
 		for (ISAXSProgress progressItem : list) {
-			if (progressItem.getId() == id) {
-				return true;
+			if (progressItem.getDataCollectionId() == id) {
+				return progressItem;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	@Override
