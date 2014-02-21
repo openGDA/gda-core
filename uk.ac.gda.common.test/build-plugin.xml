@@ -34,7 +34,7 @@
                 <pathelement location="${junitjar.loc}" />
                 <pathelement location="${plugin.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.diamond.test.runners/logging" />  <!-- to pick up logback-test.xml -->
-                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.test.helpers/bin" />
+                <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
                 <pathelement location="${plugin.host.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
                 <path refid="tp.slf4j.path" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
