@@ -13,9 +13,6 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 	private ISpyBStatusInfo collectionStatusInfo;
 	private ISpyBStatusInfo reductionStatusInfo;
 	private ISpyBStatusInfo analysisStatusInfo;
-	private double collectionProgress;
-	private double reductionProgress;
-	private double analysisProgress;
 
 	public BioSAXSProgress(long dataCollectionId, String sampleName, ISpyBStatusInfo collectionStatusInfo,
 			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
@@ -47,52 +44,37 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 	}
 
 	@Override
-	public void setCollectionProgress(ISpyBStatusInfo collectionStatusInfo) {
-		firePropertyChange(ISAXSProgress.COLLECTION_PROGRESS, this.collectionProgress,
-				this.collectionProgress = collectionStatusInfo.getProgress());
+	public void setCollectionStatusInfo(ISpyBStatusInfo collectionStatusInfo) {
+		firePropertyChange(ISAXSProgress.COLLECTION_STATUS_INFO, this.collectionStatusInfo,
+				this.collectionStatusInfo = collectionStatusInfo);
 	}
 
 	@Override
-	public void setReductionProgress(ISpyBStatusInfo reductionStatusInfo) {
-		firePropertyChange(ISAXSProgress.REDUCTION_PROGRESS, this.reductionProgress,
-				this.reductionProgress = reductionStatusInfo.getProgress());
+	public void setReductionStatusInfo(ISpyBStatusInfo reductionStatusInfo) {
+		firePropertyChange(ISAXSProgress.REDUCTION_STATUS_INFO, this.reductionStatusInfo,
+				this.reductionStatusInfo = reductionStatusInfo);
 	}
 
 	@Override
-	public void setAnalysisProgress(ISpyBStatusInfo analysisStatusInfo) {
-		firePropertyChange(ISAXSProgress.ANALYSIS_PROGRESS, this.analysisProgress,
-				this.analysisProgress = analysisStatusInfo.getProgress());
+	public void setAnalysisStatusInfo(ISpyBStatusInfo analysisStatusInfo) {
+		firePropertyChange(ISAXSProgress.ANALYSIS_STATUS_INFO, this.analysisStatusInfo,
+				this.analysisStatusInfo = analysisStatusInfo);
 	}
 
 	@Override
-	public ISpyBStatus getCollectionStatus() {
-		return collectionStatusInfo.getStatus();
+	public ISpyBStatusInfo getCollectionStatusInfo() {
+		return collectionStatusInfo;
 	}
 	
 	@Override
-	public ISpyBStatus getReductionStatus() {
-		return reductionStatusInfo.getStatus();
+	public ISpyBStatusInfo getReductionStatusInfo() {
+		return reductionStatusInfo;
 	}
 	
 	@Override
-	public ISpyBStatus getAnalysisStatus()
+	public ISpyBStatusInfo getAnalysisStatusInfo()
 	{
-		return analysisStatusInfo.getStatus();
-	}
-	
-	@Override
-	public double getCollectionProgress() {
-		return collectionProgress;
-	}
-
-	@Override
-	public double getReductionProgress() {
-		return reductionProgress;
-	}
-
-	@Override
-	public double getAnalysisProgress() {
-		return analysisProgress;
+		return analysisStatusInfo;
 	}
 
 	@Override

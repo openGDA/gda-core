@@ -149,9 +149,9 @@ public class BioSAXSProgressController implements IObservable {
 						System.out.println("collection progress is : " + collectionStatusInfo.getProgress());
 						System.out.println("reduction progress is : " + reductionStatusInfo.getProgress());
 						System.out.println("analysis progress is : " + analysisStatusInfo.getProgress());
-						progress.setCollectionProgress(collectionStatusInfo);
-						progress.setReductionProgress(reductionStatusInfo);
-						progress.setAnalysisProgress(analysisStatusInfo);
+						progress.setCollectionStatusInfo(collectionStatusInfo);
+						progress.setReductionStatusInfo(reductionStatusInfo);
+						progress.setAnalysisStatusInfo(analysisStatusInfo);
 					} else {
 						System.out.println("UDP update received, adding to model");
 						addToModel(dataCollectionId, "Sample" + dataCollectionId, collectionStatusInfo, reductionStatusInfo,
@@ -183,9 +183,9 @@ public class BioSAXSProgressController implements IObservable {
 					System.out.println("collection progress is : " + collectionStatusInfo.getProgress());
 					System.out.println("reduction progress is : " + reductionStatusInfo.getProgress());
 					System.out.println("analysis progress is : " + analysisStatusInfo.getProgress());
-					progress.setCollectionProgress(collectionStatusInfo);
-					progress.setReductionProgress(reductionStatusInfo);
-					progress.setAnalysisProgress(analysisStatusInfo);
+					progress.setCollectionStatusInfo(collectionStatusInfo);
+					progress.setReductionStatusInfo(reductionStatusInfo);
+					progress.setAnalysisStatusInfo(analysisStatusInfo);
 				} else {
 					System.out.println("Adding to Model");
 					addToModel(dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo,
@@ -201,9 +201,9 @@ public class BioSAXSProgressController implements IObservable {
 			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
 		final ISAXSProgress progress = new BioSAXSProgress(dataCollectionId, sampleName, collectionStatusInfo,
 				reductionStatusInfo, analysisStatusInfo);
-		progress.setCollectionProgress(collectionStatusInfo);
-		progress.setReductionProgress(reductionStatusInfo);
-		progress.setAnalysisProgress(analysisStatusInfo);
+		progress.setCollectionStatusInfo(collectionStatusInfo);
+		progress.setReductionStatusInfo(reductionStatusInfo);
+		progress.setAnalysisStatusInfo(analysisStatusInfo);
 		
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
