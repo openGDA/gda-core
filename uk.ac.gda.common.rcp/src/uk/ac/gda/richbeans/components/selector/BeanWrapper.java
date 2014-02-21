@@ -25,6 +25,8 @@ package uk.ac.gda.richbeans.components.selector;
  * The bean wrapper has a unique name and avoids these problems.
  */
 class BeanWrapper {
+	private Object bean;
+	private String name;
 
 	public BeanWrapper(final Object bean) {
 		setBean(bean);
@@ -48,38 +50,28 @@ class BeanWrapper {
 		return super.equals(obj);
 	}
 	
-	private Object bean;
-	private String name;
-	/**
-	 * @return the bean
-	 */
 	public Object getBean() {
 		return bean;
 	}
-	/**
-	 * @param bean the bean to set
-	 */
+
 	public void setBean(Object bean) {
 		this.bean = bean;
 	}
-	/**
-	 * @return the name
-	 */
+
 	public String getName() {
 		return name;
 	}
-	/**
-	 * @param name the name to set
-	 */
+
 	public void setName(String name) {
 		this.name = name;
 	}
 
 	public boolean isValidName() {
-		if (name==null)             return false;
-		if ("".equals(name.trim())) return false;
+		if (name==null)
+			return false;
+		if ("".equals(name.trim())) 
+			return false;
 		return true;
 	}
-}
-
 	
+}

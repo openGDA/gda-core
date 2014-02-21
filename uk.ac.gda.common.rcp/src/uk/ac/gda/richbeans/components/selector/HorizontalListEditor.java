@@ -348,10 +348,8 @@ public final class HorizontalListEditor extends ListEditor {
 
 	@Override
 	public void dispose() {
-
-		if (regionViewer != null && !regionViewer.getControl().isDisposed()) {
+		if (regionViewer != null && !regionViewer.getControl().isDisposed())
 			regionViewer.removeSelectionChangedListener(selectionChangedListener);
-		}
 		if (regionViewer != null && !add.isDisposed())
 			add.removeSelectionListener(addListener);
 		if (delete != null && !delete.isDisposed())
@@ -360,7 +358,6 @@ public final class HorizontalListEditor extends ListEditor {
 			right.removeSelectionListener(rightListener);
 		if (left != null && !left.isDisposed())
 			left.removeSelectionListener(leftListener);
-
 		super.dispose();
 	}
 

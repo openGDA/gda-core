@@ -62,28 +62,26 @@ import com.swtdesigner.SWTResourceManager;
  * @author fcp94556
  */
 public final class VerticalListEditor extends ListEditor {
-
 	protected TableViewer listViewer;
 	protected final Button add, delete, up, down;
-
 	private ISelectionChangedListener selectionChangedListener;
 	private SelectionAdapter addListener;
 	private SelectionAdapter deleteListener; 
 	private SelectionAdapter upListener;
 	private SelectionAdapter downListener;
-    private boolean          requireSelectionPack=true;
-
-	/**
-	 * @param par
-	 * @param switches
-	 */
+	private boolean requireSelectionPack=true;
+	private String[] additionalFields;
+	private int[] columnWidths = new int[] { 300 };
+	private NumberFormat columnFormat = new DecimalFormat("#0.###");
+	private boolean isShowingAdditionalFields = false;
+	private String[] columnNames;
+	protected boolean labelProivderAdded = false;
+	protected List<TableViewerColumn> extraColumns;
+	
 	public VerticalListEditor(final Composite par, final int switches) {
-
 		super(par, switches, VerticalListEditor.class.getName());
 		this.eventDelegate = new EventManagerDelegate(this);
-
 		setLayout(new GridLayout(1, false));
-
 		this.listViewer = new TableViewer(this, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
 		this.selectionChangedListener = new ISelectionChangedListener() {
@@ -190,10 +188,8 @@ public final class VerticalListEditor extends ListEditor {
 
 	@Override
 	public void dispose() {
-
-		if (listViewer != null && !listViewer.getControl().isDisposed()) {
+		if (listViewer != null && !listViewer.getControl().isDisposed())
 			listViewer.removeSelectionChangedListener(selectionChangedListener);
-		}
 		if (listViewer != null && !add.isDisposed())
 			add.removeSelectionListener(addListener);
 		if (delete != null && !delete.isDisposed())
@@ -216,9 +212,8 @@ public final class VerticalListEditor extends ListEditor {
 		up.setEnabled(isEnabled);
 		down.setEnabled(isEnabled);
 
-		if (isEnabled) {
+		if (isEnabled)
 			this.updateButtons();
-		}
 	}
 
 	@Override
@@ -262,9 +257,8 @@ public final class VerticalListEditor extends ListEditor {
 	 *             is bean is not an instance of beanTemplate
 	 */
 	public void addBean(final Object bean, int index) throws ClassCastException {
-		if (!beanTemplate.getClass().isInstance(bean)) {
+		if (!beanTemplate.getClass().isInstance(bean))
 			throw new ClassCastException("Bean passed to addBean is not an instance of beanTemplate.getClass()");
-		}
 		final BeanWrapper wrapper = new BeanWrapper(bean);
 		String wrapperName = getFreeName(wrapper, getTemplateName(), index);
 		wrapper.setName(wrapperName);
@@ -325,17 +319,14 @@ public final class VerticalListEditor extends ListEditor {
 		BeanWrapper bean = getSelectedBeanWrapper();
 		final int index = beans.indexOf(bean);
 		bean = beans.remove(index);
-
 		final int newIndex = index + moveAmount;
 		beans.add(newIndex, bean);
-
 		lastSelectionBean = null;// Stops save
 		if (!beans.isEmpty()) {
 			setSelectedBean(beans.get(newIndex), true);
 			listViewer.getControl().setFocus();
 		}
 		notifyValueListeners();
-
 		// Do last
 		listViewer.refresh();
 	}
@@ -343,9 +334,7 @@ public final class VerticalListEditor extends ListEditor {
 	@Override
 	protected void valueChanged(ValueEvent e) throws Exception {
 		super.valueChanged(e);
-
-		if (this.getNameField() != null && this.getNameField().equalsIgnoreCase(e.getFieldName())
-				|| isShowingAdditionalFields) {
+		if (this.getNameField() != null && this.getNameField().equalsIgnoreCase(e.getFieldName()) || isShowingAdditionalFields) {
 			updateName(lastSelectionBean);
 			listViewer.refresh(lastSelectionBean);
 		}
@@ -356,31 +345,23 @@ public final class VerticalListEditor extends ListEditor {
 		final int selected = getSelectedIndex();
 		if (selected < 0)
 			return;
-
 		boolean reorderAllowed = getListEditorUI().isReorderAllowed(this);
 		boolean addAllowed = getListEditorUI().isAddAllowed(this);
 		boolean deleteAllowed = getListEditorUI().isDeleteAllowed(this);
-
 		up.setEnabled(selected > 0 && reorderAllowed && isEnabled());
 		down.setEnabled(reorderAllowed && selected < (beans.size() - 1) && isEnabled());
-
-		if (maxItems > 0) {
+		if (maxItems > 0)
 			add.setEnabled(addAllowed && beans.size() < maxItems && isEnabled());
-		} else {
+		else
 			add.setEnabled(addAllowed && isEnabled());
-		}
-		if (minItems > 0) {
+		if (minItems > 0)
 			delete.setEnabled(deleteAllowed && beans.size() > minItems && isEnabled());
-		} else if (beans.isEmpty()) {
+		else if (beans.isEmpty())
 			delete.setEnabled(false);
-		} else {
+		else
 			delete.setEnabled(deleteAllowed && isEnabled());
-		}
 	}
 
-	/**
-	 * @return index
-	 */
 	@Override
 	public int getSelectedIndex() {
 		return listViewer.getTable().getSelectionIndex();
@@ -388,12 +369,10 @@ public final class VerticalListEditor extends ListEditor {
 
 	@Override
 	public void setValue(Object value) {
-
 		super.setValue(value);
 		createProviders();
 		if (!listViewer.getControl().isDisposed())
 			listViewer.refresh();
-
 		try {
 			if (!beans.isEmpty()) {
 				setSelectedBean(beans.get(0), true);
@@ -416,18 +395,11 @@ public final class VerticalListEditor extends ListEditor {
 		if (listViewer.getContentProvider() == null) {
 			listViewer.setContentProvider(new BeanListProvider());
 			createLabelProvider();
-			if (!listViewer.getControl().isDisposed()) {
+			if (!listViewer.getControl().isDisposed())
 				listViewer.setInput(new Object());
-			}
 		}
 	}
 
-	private String[] additionalFields;
-	private int[] columnWidths = new int[] { 300 };
-
-	/**
-	 * @param fields
-	 */
 	public void setAdditionalFields(final String[] fields) {
 		this.additionalFields = fields;
 	}
@@ -440,37 +412,26 @@ public final class VerticalListEditor extends ListEditor {
 	public void setColumnWidths(final int... widths) {
 		this.columnWidths = widths;
 	}
-	private String[] columnNames;
-	/**
-	 * @param columnNames
-	 */
+
 	public void setColumnNames(final String... columnNames) {
 		this.columnNames = columnNames;
 	}
 
-
-	protected boolean labelProivderAdded = false;
-	protected List<TableViewerColumn> extraColumns;
-
 	protected void createLabelProvider() {
-
 		if (labelProivderAdded)
 			return;
-
 		ColumnViewerToolTipSupport.enableFor(listViewer, ToolTip.NO_RECREATE);
-
 		final TableViewerColumn name = new TableViewerColumn(listViewer, SWT.NONE, 0);
-		if (getNameField() != null) {
+		if (getNameField() != null)
 			name.getColumn().setText(BeansFactory.getFieldWithUpperCaseFirstLetter(getNameField()));
-		} else {
+		else
 			name.getColumn().setText("Name");
-		}
-		if (columnNames!=null) try {
-			name.getColumn().setText(columnNames[0]);
-		} catch (Throwable ignored) {}
-		
+		if (columnNames!=null) 
+			try {
+				name.getColumn().setText(columnNames[0]);
+			} 
+			catch (Throwable ignored) {}
 		name.getColumn().setWidth(columnWidths[0]);
-
 		name.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -489,12 +450,10 @@ public final class VerticalListEditor extends ListEditor {
 			extraColumns = new ArrayList<TableViewerColumn>(additionalFields.length);
 			for (int i = 0; i < additionalFields.length; i++) {
 				final String additionalField = BeansFactory.getFieldWithUpperCaseFirstLetter(additionalFields[i]);
-
 				final TableViewerColumn col = new TableViewerColumn(listViewer, SWT.NONE, i + 1);
 				extraColumns.add(col);
 				col.getColumn().setText(additionalField);
 				col.getColumn().setWidth(0);
-
 				col.setLabelProvider(new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -503,57 +462,43 @@ public final class VerticalListEditor extends ListEditor {
 						try {
 							Method method = ob.getClass().getMethod("get" + additionalField);
 							Object val = method.invoke(ob);
-							if (val instanceof Double && columnFormat!=null) {
+							if (val instanceof Double && columnFormat!=null)
 								val = columnFormat.format(((Number)val).doubleValue());
-							}
 							return val.toString();
-
 						} catch (Exception e) {
 							return e.getMessage();
 						}
 					}
 				});
-
 			}
 		}
-
 		labelProivderAdded = true;
 	}
-	
-	private NumberFormat columnFormat = new DecimalFormat("#0.###");
 
 	public NumberFormat getColumnFormat() {
 		return columnFormat;
 	}
 
 	/**
-	 * 
 	 * @param columnFormat DecimalFormat string e.g. #0.###
 	 */
 	public void setColumnFormat(String columnFormat) {
 		this.columnFormat = new DecimalFormat(columnFormat);
 	}
 
-	private boolean isShowingAdditionalFields = false;
-
-	/**
-	 * @param b
-	 */
 	public void setShowAdditionalFields(final boolean b) {
 		isShowingAdditionalFields = b;
 		listViewer.getTable().setHeaderVisible(b);
 		int colIndex = 1; // intentional 1 based
 		if (extraColumns!=null) for (TableViewerColumn col : extraColumns) {
-			if (b) {
+			if (b)
 				col.getColumn().setWidth((colIndex < columnWidths.length) ? columnWidths[colIndex] : 200);
-			} else {
+			else
 				col.getColumn().setWidth(0);
-			}
-			
-			if (columnNames!=null) try {
-				col.getColumn().setText(columnNames[colIndex]);
-			} catch (Throwable ignored) {}
-
+			if (columnNames!=null) 
+				try {
+					col.getColumn().setText(columnNames[colIndex]);
+				} catch (Throwable ignored) {}
 			++colIndex;
 		}
 	}
@@ -561,7 +506,6 @@ public final class VerticalListEditor extends ListEditor {
 	private class BeanListProvider implements IStructuredContentProvider {
 
 		@Override
-		@SuppressWarnings("cast")
 		public Object[] getElements(Object ignored) {
 			return ((List<BeanWrapper>) beans).toArray();
 		}
@@ -574,6 +518,7 @@ public final class VerticalListEditor extends ListEditor {
 		public void inputChanged(Viewer viewer, Object arg1, Object arg2) {
 		}
 	}
+	
 	public boolean isRequireSelectionPack() {
 		return requireSelectionPack;
 	}

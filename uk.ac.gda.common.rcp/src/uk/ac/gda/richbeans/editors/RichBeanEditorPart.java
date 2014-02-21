@@ -421,7 +421,4 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 		this.undoStackActive = undoStackActive;
 	}
 
-
 }
-
-	

@@ -64,9 +64,7 @@ import com.swtdesigner.SWTResourceManager;
  *
  */
 public class XMLBeanEditor extends TextEditor  {
-	
 	private static final Logger logger = LoggerFactory.getLogger(XMLBeanEditor.class);
-
 	private ColorManager   colorManager;
 	private DirtyContainer container;
 	private final URL      mappingUrl, schemaUrl;
@@ -82,8 +80,8 @@ public class XMLBeanEditor extends TextEditor  {
 	 * @throws Exception 
 	 */
 	public XMLBeanEditor(final DirtyContainer container,
-			             final URL    mappingUrl,
-						 final URL    schemaUrl,
+			             final URL mappingUrl,
+						 final URL schemaUrl,
 			             final Object bean) throws Exception {
 		super();
 		this.container  = container;
@@ -153,14 +151,15 @@ public class XMLBeanEditor extends TextEditor  {
 					final IRegion region = doc.getLineInformationOfOffset(event.getOffset());
 					final String  line   = doc.get(region.getOffset(), region.getLength());
 					final boolean comm   = line.indexOf("<!--")>-1;
-					messageContainer.setVisible(comm);
+					if(!messageContainer.isDisposed())
+						messageContainer.setVisible(comm);
 				} catch (BadLocationException e) {
 					logger.error(e.getMessage(), e);
 				}
 			}
 			
 		};
-        getDocumentProvider().getDocument(null).addDocumentListener(documentListener);
+		getDocumentProvider().getDocument(null).addDocumentListener(documentListener);
 
 	}
 		

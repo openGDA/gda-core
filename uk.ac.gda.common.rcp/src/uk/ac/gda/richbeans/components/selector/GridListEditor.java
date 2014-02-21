@@ -99,7 +99,6 @@ public final class GridListEditor extends ListEditor {
 	}
 	
 	/**
-	 * 
 	 * @param par
 	 * @param switches
 	 * @param squareTotal
@@ -123,8 +122,8 @@ public final class GridListEditor extends ListEditor {
 	public GridListEditor(final Composite par, final int switches, final int columns, final int rows) {
 		super(par, switches, GridListEditor.class.getName());
  		eventDelegate = new EventManagerDelegate(this);
- 		this.columns       = columns;
- 		this.rows          = rows;
+ 		this.columns = columns;
+ 		this.rows = rows;
 		setLayout(new GridLayout(1, false));
 		
 		if ((rows*columns)>1) {
@@ -213,14 +212,14 @@ public final class GridListEditor extends ListEditor {
 			public boolean canModify(Object element, String property) {
 				if (!GridListEditor.this.isOn()) 
 					return false;
-				final Integer row  = (Integer)element;
-				final int     col  = Integer.parseInt(property);
+				final Integer row = (Integer)element;
+				final int col = Integer.parseInt(property);
 				selectedIndex = getElementIndex(row, col);
-				final BeanWrapper    bean = beans.get(selectedIndex);
+				final BeanWrapper bean = beans.get(selectedIndex);
 				setSelectedBean(bean, false);
 				tableViewer.refresh();
 				if (listeners!=null) {
-					final BeanSelectionEvent evt = new BeanSelectionEvent(this,selectedIndex,bean.getBean());
+					final BeanSelectionEvent evt = new BeanSelectionEvent(this, selectedIndex, bean.getBean());
 					for (BeanSelectionListener l : listeners) 
 						l.selectionChanged(evt);
 				}

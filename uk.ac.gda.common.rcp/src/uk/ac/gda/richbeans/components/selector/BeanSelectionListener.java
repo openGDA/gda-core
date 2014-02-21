@@ -20,13 +20,7 @@ package uk.ac.gda.richbeans.components.selector;
 
 import java.util.EventListener;
 
-/**
- *
- */
 public interface BeanSelectionListener extends EventListener {
 
-	/**
-	 * @param evt
-	 */
 	public void selectionChanged(BeanSelectionEvent evt);
 }

@@ -42,9 +42,7 @@ import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
 
 public abstract class ListEditor extends FieldBeanComposite {
-
 	private static final Logger logger = LoggerFactory.getLogger(ListEditor.class);
-
 	protected final List<BeanWrapper> beans;
 	protected final Map<BeanWrapper, String> takenNames;
 	protected String nameField;
@@ -54,9 +52,9 @@ public abstract class ListEditor extends FieldBeanComposite {
 	protected int minItems;
 	protected String defaultName;
 	private ListEditorUI listEditorUI;
-
 	public abstract StructuredViewer getViewer();
-
+	protected BeanWrapper lastSelectionBean = null;
+	
 	public void setListVisible(boolean isVisible) {
 		GridUtils.setVisibleAndLayout(getViewer().getControl(), isVisible);
 	}
@@ -68,9 +66,8 @@ public abstract class ListEditor extends FieldBeanComposite {
 	}
 
 	protected void updateEditingUIVisibility() {
-		if (editorUI instanceof Control) {
+		if (editorUI instanceof Control)
 			((Control) this.editorUI).setVisible(!beans.isEmpty());
-		}
 	}
 
 	@Override
@@ -100,28 +97,18 @@ public abstract class ListEditor extends FieldBeanComposite {
 	public void setEditorUI(final Object ui) {
 		if (ui instanceof Control) {
 			final Control control = (Control) ui;
-			if (control.getLayoutData() == null) {
+			if (control.getLayoutData() == null)
 				control.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-			}
 			control.setVisible(false);
 		}
 		super.setEditorUI(ui);
 	}
 
-	/**
-	 * @param index
-	 * @param fieldName
-	 * @param value
-	 * @throws Exception
-	 */
 	public void setValue(final int index, final String fieldName, final Object value) throws Exception {
-
 		final BeanWrapper wrapper = beans.get(index);
 		BeansFactory.setBeanValue(wrapper.getBean(), fieldName, value);
-
-		if (index == getSelectedIndex()) {
+		if (index == getSelectedIndex())
 			BeanUI.beanToUI(wrapper.getBean(), editorUI);
-		}
 	}
 
 	public abstract int getSelectedIndex();
@@ -169,26 +156,16 @@ public abstract class ListEditor extends FieldBeanComposite {
 		this.nameField = nameMethod;
 	}
 
-	/**
-	 * @return the listHeight
-	 */
 	public int getListHeight() {
 		return listHeight;
 	}
 
-	/**
-	 * @param listHeight
-	 *            the listHeight to set
-	 */
 	public void setListHeight(int listHeight) {
 		this.listHeight = listHeight;
 		final GridData data = (GridData) getViewer().getControl().getLayoutData();
 		data.heightHint = listHeight;
 	}
 
-	/**
-	 * @return the listHeight
-	 */
 	public int getListWidth() {
 		return listWidth;
 	}
@@ -209,8 +186,6 @@ public abstract class ListEditor extends FieldBeanComposite {
 		this.eventDelegate.notifyValueListeners(evt);
 	}
 
-	protected BeanWrapper lastSelectionBean = null;
-
 	protected void setSelectedBean(BeanWrapper wrapper, boolean fireListeners) {
 		if (wrapper == null) {
 			lastSelectionBean = null;
@@ -229,16 +204,14 @@ public abstract class ListEditor extends FieldBeanComposite {
 			updateButtons();
 
 			if (fireListeners && listeners != null) {
-				final BeanSelectionEvent evt = new BeanSelectionEvent(this, getSelectedIndex(),
-						lastSelectionBean.getBean());
+				final BeanSelectionEvent evt = new BeanSelectionEvent(this, getSelectedIndex(), lastSelectionBean.getBean());
 				for (BeanSelectionListener l : listeners)
 					l.selectionChanged(evt);
 			}
 
 			// Needed only when above listener changes data.
-			if (getNameField() != null) {
+			if (getNameField() != null)
 				updateName(lastSelectionBean);
-			}
 			if (lastSelectionBean != null && getViewer() != null)
 				getViewer().refresh(lastSelectionBean);
 
@@ -259,9 +232,8 @@ public abstract class ListEditor extends FieldBeanComposite {
 	protected void valueChanged(ValueEvent e) throws Exception {
 		try {
 			if (lastSelectionBean != null) {
-				if (e.getFieldName() != null) {
+				if (e.getFieldName() != null)
 					BeanUI.uiToBean(editorUI, lastSelectionBean.getBean(), e.getFieldName());
-				}
 			}
 		} catch (NoSuchMethodException ne) {
 			// We allow the bean to listen to fields it does not have the value of for now.
@@ -274,11 +246,6 @@ public abstract class ListEditor extends FieldBeanComposite {
 		return (BeanWrapper) selection.getFirstElement();
 	}
 
-	/**
-	 * Returns the name of the currently selected bean, or null
-	 * 
-	 * @return the name of the currently selected bean, or null
-	 */
 	public String getSelectedBeanName() {
 		BeanWrapper selectedBean = getSelectedBeanWrapper();
 		if (selectedBean != null)
@@ -286,32 +253,18 @@ public abstract class ListEditor extends FieldBeanComposite {
 		return null;
 	}
 
-	/**
-	 * @return the maxItems
-	 */
 	public int getMaxItems() {
 		return maxItems;
 	}
 
-	/**
-	 * @param maxItems
-	 *            the maxItems to set
-	 */
 	public void setMaxItems(int maxItems) {
 		this.maxItems = maxItems;
 	}
 
-	/**
-	 * @return the minItems
-	 */
 	public int getMinItems() {
 		return minItems;
 	}
 
-	/**
-	 * @param minItems
-	 *            the minItems to set
-	 */
 	public void setMinItems(int minItems) {
 		this.minItems = minItems;
 	}
@@ -323,9 +276,7 @@ public abstract class ListEditor extends FieldBeanComposite {
 
 	@Override
 	public void setValue(final Object value) {
-
 		final List<?> obs = (List<?>) value;
-
 		this.clear();
 		for (int i = 0; i < obs.size(); i++) {
 			final Object bean = obs.get(i);
@@ -333,7 +284,6 @@ public abstract class ListEditor extends FieldBeanComposite {
 			wrapper.setName(getFreeName(wrapper, getTemplateName(), i));
 			beans.add(wrapper);
 		}
-
 	}
 
 	protected String getFreeName(final BeanWrapper wrapper, final String templateName, int index) {
