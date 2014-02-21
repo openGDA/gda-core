@@ -201,10 +201,14 @@ public class BioSAXSProgressController implements IObservable {
 			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
 		final ISAXSProgress progress = new BioSAXSProgress(dataCollectionId, sampleName, collectionStatusInfo,
 				reductionStatusInfo, analysisStatusInfo);
-
+		progress.setCollectionProgress(collectionStatusInfo);
+		progress.setReductionProgress(reductionStatusInfo);
+		progress.setAnalysisProgress(analysisStatusInfo);
+		
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
+				
 				bioSAXSProgressModel.add(progress);
 			}
 		});
