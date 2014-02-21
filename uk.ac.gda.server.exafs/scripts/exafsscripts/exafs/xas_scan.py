@@ -199,10 +199,10 @@ class XasScan(Scan):
 	
 	# run the beamline specific preparers			
 	def runPreparers(self, beanGroup, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean):
-		self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
 		sampleScannables = self.samplePreparer.prepare(sampleBean)
 		outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
 		scanPlotSettings = self.outputPreparer.getPlotSettings(detectorBean,outputBean)
+		self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
 		return sampleScannables, outputScannables, scanPlotSettings
 
 	def buildScanArguments(self, scanBean, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean):
