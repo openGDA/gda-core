@@ -64,7 +64,7 @@ public class XspressElements extends Elements{
 	private boolean showRoi;
 	
 	public XspressElements(final Composite parent, Shell shell, DirtyContainer dirtyContainer, SashFormPlotComposite sashPlotFormComposite, XspressParameters xspressParameters, final Counts counts, boolean showRoi) {
-		super(shell, dirtyContainer, sashPlotFormComposite, counts);
+		super(shell, sashPlotFormComposite, counts);
 		Composite grid = new Composite(parent, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(grid);
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(grid);

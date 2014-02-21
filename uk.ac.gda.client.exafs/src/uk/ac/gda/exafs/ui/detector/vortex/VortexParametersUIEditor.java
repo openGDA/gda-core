@@ -19,13 +19,18 @@
 package uk.ac.gda.exafs.ui.detector.vortex;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.Timer;
+import gda.device.XmapDetector;
+import gda.factory.Finder;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
@@ -36,7 +41,6 @@ import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 public class VortexParametersUIEditor extends DetectorEditor {
@@ -55,7 +59,12 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		this.vortex = new Vortex(path, this.getSite(), parent, vortexParameters, dirtyContainer);
+		List<DetectorElement> detectorList = vortexParameters.getDetectorList();
+		String detectorName = vortexParameters.getDetectorName();
+		String tfgName = vortexParameters.getTfgName();
+		XmapDetector xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
+		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
+		this.vortex = new Vortex(path, this.getSite(), parent, detectorList, xmapDetector, tfg);
 	}
 
 	@Override

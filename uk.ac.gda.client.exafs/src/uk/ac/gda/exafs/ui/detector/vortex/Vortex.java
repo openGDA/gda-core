@@ -20,38 +20,40 @@ package uk.ac.gda.exafs.ui.detector.vortex;
 
 import gda.device.Timer;
 import gda.device.XmapDetector;
-import gda.factory.Finder;
+
+import java.util.List;
 
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
+import org.eclipse.jface.viewers.ICellModifier;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
-import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.Detector;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.Plot;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
-import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
-import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
-import uk.ac.gda.richbeans.editors.DirtyContainer;
+import uk.ac.gda.richbeans.components.selector.GridListEditor;
+import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.richbeans.event.ValueListener;
 
 public class Vortex extends Detector{
 	public Label acquireFileLabel;
 	private VortexAcquire vortexAcquire;
-	private XmapDetector xmapDetector;
 	private VortexElements vortexElements;
 	private RegionSynchronizer regionSynchronizer;
 	
-	public Vortex(String path, IWorkbenchPartSite site, Composite parent, VortexParameters vortexParameters, DirtyContainer dirtyContainer) {
+	public Vortex(String path, IWorkbenchPartSite site, Composite parent, List<DetectorElement> detectorList, XmapDetector xmapDetector, Timer tfg) {
 		super("vortexConfig", site, parent, path);
 		
-		regionSynchronizer = new RegionSynchronizer(counts);
+		regionSynchronizer = new RegionSynchronizer();
 		try {
 			sashPlotFormComposite = new SashFormPlotComposite(parent, site.getPart(), regionSynchronizer, createUpLoadAction(path));
 		} catch (Exception e) {
@@ -63,39 +65,84 @@ public class Vortex extends Detector{
 		
 		Composite left = sashPlotFormComposite.getLeft();
 		
-		String detectorName = vortexParameters.getDetectorName();
-		
-		xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
-		
-		String tfgName = vortexParameters.getTfgName();
-		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-		
-		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, site.getShell().getDisplay(), plot, new Counts(), dirtyContainer);
+		vortexAcquire = new VortexAcquire(sashPlotFormComposite, xmapDetector, tfg, site.getShell().getDisplay(), plot, new Counts());
 		vortexAcquire.createAcquire(parent, left);
 		
-		vortexElements = new VortexElements(site.getShell(), dirtyContainer, sashPlotFormComposite, vortexParameters, counts);
+		vortexElements = new VortexElements(site.getShell(), sashPlotFormComposite, counts);
 		
-		vortexElements.createROI(left);
+		vortexElements.createROI(left, detectorList);
 		vortexElements.configureUI(vortexAcquire.getMcaData(), vortexElements.getDetectorListComposite().getDetectorList().getSelectedIndex());
 		
 		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS))
 			vortexElements.addOutputPreferences(left);
 		
 		vortexAcquire.addAcquireListener(vortexElements.getDetectorListComposite().getDetectorList().getSelectedIndex(), vortexElements.getDetectorListComposite().getDetectorList(), vortexElements.getDetectorListComposite().getDetectorElementComposite());
-		vortexAcquire.addLoadListener(vortexParameters, vortexElements.getDetectorListComposite().getDetectorList(), vortexElements.getDetectorListComposite().getDetectorElementComposite());
+		vortexAcquire.addLoadListener(vortexElements.getDetectorListComposite().getDetectorList(), vortexElements.getDetectorListComposite().getDetectorElementComposite(), detectorList);
 		
-		vortexElements.getDetectorListComposite().getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
+		GridListEditor gridListEditor = vortexElements.getDetectorListComposite().getDetectorList();
+		
+		gridListEditor.addValueListener(new ValueListener() {
+			
 			@Override
-			public void selectionChanged(BeanSelectionEvent evt) {
-				int[][][] mcaData = vortexAcquire.getMcaData();
-				plot.plot(evt.getSelectionIndex(),mcaData, false, null);
-				DetectorElementComposite detectorElementComposite = vortexElements.getDetectorListComposite().getDetectorElementComposite();
-				detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
-				detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
-				vortexElements.configureUI(vortexAcquire.getMcaData(), evt.getSelectionIndex());
+			public void valueChangePerformed(ValueEvent e) {
+				System.out.println(e.getValue());
+				
+			}
+			
+			@Override
+			public String getValueListenerName() {
+				// TODO Auto-generated method stub
+				return null;
 			}
 		});
+		
+		TableViewer tableViewer = gridListEditor.getTableViewer();
+		final int numColumns = tableViewer.getColumnProperties().length;
+		
+		tableViewer.setCellModifier(new ICellModifier() {
+			@Override
+			public boolean canModify(Object element, String property) {
+				final Integer row  = (Integer)element;
+				final int     col  = Integer.parseInt(property);
+				System.out.println(row + "," + col);
+				int selectionIndex = (row*numColumns)+col;
+				
+				int[][][] mcaData = vortexAcquire.getMcaData();
+				plot.plot(selectionIndex,mcaData, false, null);
+				DetectorElementComposite detectorElementComposite = vortexElements.getDetectorListComposite().getDetectorElementComposite();
+				detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectionIndex, mcaData));
+				detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
+				vortexElements.configureUI(vortexAcquire.getMcaData(), selectionIndex);
+				
+				
+				
+				return false;
+			}
+			@Override
+			public Object getValue(Object element, String property) {
+				return null;
+			}
+			@Override
+			public void modify(Object item, String property, Object value) {
+			}
+		});
+		
+		//detector list is a grid list editor which is rich beans specific.
+		
+//		vortexElements.getDetectorListComposite().getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
+//			@Override
+//			public void selectionChanged(BeanSelectionEvent evt) {
+//				int[][][] mcaData = vortexAcquire.getMcaData();
+//				plot.plot(evt.getSelectionIndex(),mcaData, false, null);
+//				DetectorElementComposite detectorElementComposite = vortexElements.getDetectorListComposite().getDetectorElementComposite();
+//				detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
+//				detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
+//				vortexElements.configureUI(vortexAcquire.getMcaData(), evt.getSelectionIndex());
+//			}
+//		});
 	}
+
+
 
 	public VortexAcquire getVortexAcquire() {
 		return vortexAcquire;
@@ -110,14 +157,9 @@ public class Vortex extends Detector{
 	}
 	
 	public class RegionSynchronizer implements IROIListener {
-		protected Counts counts;
 		private double start;
 		private double end;
 		
-		public RegionSynchronizer(Counts counts){
-			this.counts = counts;
-		}
-
 		@Override
 		public void roiDragged(ROIEvent evt) {
 		}

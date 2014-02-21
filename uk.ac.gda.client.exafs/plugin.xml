@@ -103,6 +103,12 @@
             name="Stanford Amplifiers"
             restorable="true">
       </view>
+      <view
+            class="uk.ac.gda.exafs.ui.detector.vortex.VortexView"
+            id="uk.ac.gda.client.exafs.vortex.view"
+            name="Vortex"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

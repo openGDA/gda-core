@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,14 +35,14 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.exafs.ui.detector.Data;
 
 public class VortexData extends Data{
 	private static final Logger logger = LoggerFactory.getLogger(VortexData.class);
 	int[][][] detectorData;
 	
-	protected void load(FileDialog openDialog, final VortexParameters vortexParameters, final String filePath) {
+	protected void load(FileDialog openDialog, final String filePath, final List<DetectorElement> detectorList) {
 		String dataDir = PathConstructor.createFromDefaultProperty();
 		dataDir += "processing";
 		openDialog.setFilterPath(dataDir);
@@ -63,8 +64,8 @@ public class VortexData extends Data{
 							data.add(elementData);
 							line = reader.readLine();
 						}
-						int resGrade = data.size() / vortexParameters.getDetectorList().size();
-						detectorData = new int[vortexParameters.getDetectorList().size()][resGrade][];
+						int resGrade = data.size() / detectorList.size();
+						detectorData = new int[detectorList.size()][resGrade][];
 						int dataIndex = 0;
 						for (int i = 0; i < detectorData.length; i++)
 							for (int j = 0; j < resGrade; j++)

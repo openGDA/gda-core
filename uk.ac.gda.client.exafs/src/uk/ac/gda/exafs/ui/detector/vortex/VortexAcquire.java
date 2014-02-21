@@ -27,6 +27,7 @@ import gda.device.XmapDetector;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -47,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.exafs.ui.detector.Acquire;
 import uk.ac.gda.exafs.ui.detector.Counts;
@@ -73,24 +75,19 @@ public class VortexAcquire extends Acquire {
 	private VortexData vortexData;
 	private Button loadBtn;
 	private Plot plot;
-	private Counts counts;
-	private DirtyContainer dirtyContainer;
 	
-	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Counts counts, final DirtyContainer dirtyContainer){
+	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Counts counts){
 		super(display);
 		this.sashPlotFormComposite = sashPlotFormComposite;
 		this.xmapDetector = xmapDetector;
 		this.tfg = tfg;
 		this.plot = plot;
-		this.counts = counts;
-		this.dirtyContainer = dirtyContainer;
 		vortexData = new VortexData();
 	}
 	
 	@Override
 	public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
 		plot.plot(detectorList.getSelectedIndex(), getMcaData(), false, null);
-		dirtyContainer.setDirty(true);
 	}
 	
 	@Override
@@ -143,20 +140,20 @@ public class VortexAcquire extends Acquire {
 		sashPlotFormComposite.appendStatus("Xspress snapshot saved to " + detectorFile, logger);
 	}
 	
-	public void addLoadListener(final VortexParameters vortexParameters, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
+	public void addLoadListener(final GridListEditor detectorGridList, final DetectorElementComposite detectorElementComposite, final List<DetectorElement> detectorList){
 		loadBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
 				try {
 					final String filePath = openDialog.open();
 					if(filePath!=null){
-						vortexData.load(openDialog, vortexParameters, filePath);
+						vortexData.load(openDialog, filePath, detectorList);
 						display.asyncExec(new Runnable() {
 							@Override
 							public void run() {
 								acquireFileLabel.setText("Loaded: " + filePath);
 								detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
-								plot.plot(detectorList.getSelectedIndex(), vortexData.getDetectorData(), false, null);
+								plot.plot(detectorGridList.getSelectedIndex(), vortexData.getDetectorData(), false, null);
 							}
 						});
 					}
