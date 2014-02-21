@@ -337,7 +337,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		// If this method is being called by a method trying to
 		// set value, ensure that value is set.
-		if (!txt.equals(text.getText()))
+		String textValue = text.getText();
+		if (!txt.equals(textValue))
 			text.setText(txt);
 
 		if (expressionManager != null) {
