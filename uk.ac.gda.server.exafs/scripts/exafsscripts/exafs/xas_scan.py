@@ -38,7 +38,7 @@ class XasScan(Scan):
 		self.log("Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+self.energy_scannable.getName()+"'...")
 		# give the beans to the xasdatawriter class to help define the folders/filenames 
 		beanGroup = self._createBeanGroup(experimentFolderName, validation, controller, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean)
-		self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean)
+		self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean,  sampleFileName, scanFileName, detectorFileName, outputFileName)
 	
 	# reset the properties used to control repetition behaviour
 	def setQueuePropertiesStart(self, numRepetitions):
@@ -84,7 +84,7 @@ class XasScan(Scan):
 			print e
 			raise # any other exception we are not expecting so raise whatever this is to abort the script
 						
-	def _doItterator(self, iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, experimentFolderName):
+	def _doItterator(self, iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, experimentFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName):
 		iterator.resetIterator()
 		num_sample_repeats = int(iterator.getNumberOfRepeats())
 		total_repeats = num_sample_repeats * numRepetitions
@@ -104,7 +104,7 @@ class XasScan(Scan):
 
 			self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg, sampleFileName, scanFileName, detectorFileName, outputFileName)
 	
-	def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean):
+	def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean, sampleFileName, scanFileName, detectorFileName, outputFileName):
 		"""
 		This is the basic looping based on the number of repetitions set in the UI.
 		
@@ -128,7 +128,7 @@ class XasScan(Scan):
 				try:
 					if self.useItterator==True:
 						iterator = self.samplePreparer.createIterator(sampleBean,beanGroup.getDetector().getExperimentType())
-						self._doItterator(iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, experimentFolderName)
+						self._doItterator(iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, experimentFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName)
 					else:
 						# resolve these two values here as they will vary when using iterators
 						sampleName = sampleBean.getName()

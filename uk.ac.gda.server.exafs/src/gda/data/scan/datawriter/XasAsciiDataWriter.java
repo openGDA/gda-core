@@ -93,6 +93,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				file.write("# " + sampleParametersName + "\n");
 				file.write("# " + outputParametersName + "\n");
 				file.write("# The contents of these files are also stored in the nexus file.\n");
+				
 			}
 
 			file.write("#\n");

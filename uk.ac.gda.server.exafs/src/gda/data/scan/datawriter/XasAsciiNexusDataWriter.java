@@ -52,6 +52,11 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	private List<String> descriptions;
 	private String sampleName;
 	private AsciiDataWriterConfiguration configuration;
+	private String scanParametersName;
+	private String sampleParametersName;
+	private String detectorParametersName;
+	private String outputParametersName;
+	private String folderName;
 
 	public XasAsciiNexusDataWriter() {
 		super();
@@ -82,8 +87,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		// ignore as they both do their own thing
 	}
 
-	
-	
 	@Override
 	public void addData(IScanDataPoint newData) throws Exception {
 		if (firstData) {
@@ -94,6 +97,12 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			if (configuration != null)
 				ascii.setConfiguration(configuration);
 
+			ascii.setScanParametersName(scanParametersName);
+			ascii.setDetectorParametersName(sampleParametersName);
+			ascii.setSampleParametersName(detectorParametersName);
+			ascii.setOutputParametersName(outputParametersName);
+			ascii.setFolderName(folderName);
+			
 			nexus = new XasNexusDataWriter(Long.parseLong(newData.getScanIdentifier()));
 			nexus.setRunFromExperimentDefinition(runFromExperimentDefinition);
 			nexus.setScanBean(scanBean);
@@ -237,23 +246,23 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	}
 
 	public void setScanParametersName(String scanParametersName) {
-		ascii.setScanParametersName(scanParametersName);
+		this.scanParametersName = scanParametersName;
 	}
 
 	public void setSampleParametersName(String sampleParametersName) {
-		ascii.setDetectorParametersName(sampleParametersName);
+		this.sampleParametersName = sampleParametersName;
 	}
 
 	public void setDetectorParametersName(String detectorParametersName) {
-		ascii.setSampleParametersName(detectorParametersName);
+		this.detectorParametersName = detectorParametersName;
 	}
 
 	public void setOutputParametersName(String outputParametersName) {
-		ascii.setOutputParametersName(outputParametersName);
+		this.outputParametersName = outputParametersName;
 	}
 	
 	public void setFolderName(String folderName) {
-		ascii.setFolderName(folderName);
+		this.folderName = folderName;
 	}
 	
 }
