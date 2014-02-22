@@ -26,6 +26,8 @@ import java.util.List;
 
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
+import org.eclipse.jface.viewers.ICellModifier;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -42,14 +44,17 @@ import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 import uk.ac.gda.exafs.ui.detector.Detector;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detector.DetectorListComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
 import uk.ac.gda.exafs.ui.detector.Plot;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
+import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditorUIAdapter;
+import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
@@ -64,6 +69,10 @@ public class Xspress extends Detector{
 	private XspressElements xspressElements;
 	private RegionSynchronizer regionSynchronizer;
 	private XspressParameters xspressParameters;
+	private TableViewer tableViewer;
+	private GridListEditor gridListEditor;
+	private DetectorElementComposite detectorElementComposite;
+	private DetectorListComposite detectorListComposite;
 	
 	public Xspress(String path, IWorkbenchPartSite site, Composite parent, XspressParameters xspressParameters, DirtyContainer dirtyContainer) {
 		super("xspressConfig", site, parent, path);
@@ -87,18 +96,22 @@ public class Xspress extends Detector{
 		regionType = new RegionType(topComposite);
 		boolean showRoi = readoutMode.getReadoutMode().getValue().toString().equals("Regions Of Interest");
 		xspressAcquire = new XspressAcquire(left, sashPlotFormComposite, site.getShell().getDisplay(), readoutMode.getReadoutMode(), resolutionGrade.getResolutionGradeCombo(), plot, dirtyContainer, xspressParameters, counts);
-		xspressElements = new XspressElements(left, site.getShell(), dirtyContainer, sashPlotFormComposite, xspressParameters, counts, showRoi);
+		xspressElements = new XspressElements(left, site.getShell(), sashPlotFormComposite, xspressParameters, counts, showRoi);
+		detectorListComposite = xspressElements.getDetectorListComposite();
+		gridListEditor = detectorListComposite.getDetectorList();
 		if(!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS) && !ScanObjectManager.isXESOnlyMode())
 			xspressPreferences = new XspressPreferences(left);
-		xspressElements.configureUI(xspressAcquire.getMcaData(), xspressElements.getDetectorListComposite().getDetectorList().getSelectedIndex());
-		xspressAcquire.addAcquireListener(xspressElements.getDetectorListComposite().getDetectorList().getSelectedIndex(), xspressElements.getDetectorListComposite().getDetectorList(), xspressElements.getDetectorListComposite().getDetectorElementComposite());
-		xspressElements.getDetectorListComposite().getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
+		xspressElements.configureUI(xspressAcquire.getMcaData(), gridListEditor.getSelectedIndex());
+		detectorElementComposite = detectorListComposite.getDetectorElementComposite();
+		int size = xspressParameters.getDetectorList().size();
+		xspressAcquire.addAcquireListener(gridListEditor, detectorElementComposite);
+		xspressAcquire.addLoadListener(gridListEditor, detectorElementComposite, size);
+		gridListEditor.addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
 				int[][][] mcaData = xspressAcquire.getMcaData();
 				if(mcaData!=null){
 					plot.plot(evt.getSelectionIndex(), mcaData, false, null);
-					DetectorElementComposite detectorElementComposite = xspressElements.getDetectorListComposite().getDetectorElementComposite();
 					detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
 					detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
 					xspressElements.setAllElementsCount(counts.getTotalCounts(mcaData));
@@ -106,13 +119,15 @@ public class Xspress extends Detector{
 					int windowStart = getBeanDetectorList().get(evt.getSelectionIndex()).getWindowStart();
 					int windowEnd = getBeanDetectorList().get(evt.getSelectionIndex()).getWindowEnd();
 					RectangularROI rectangularROI = (RectangularROI)sashPlotFormComposite.getRegionOnDisplay().getROI();
-					double[] point = rectangularROI.getPoint();
-					point[0]=windowStart;
-					double[] endPoint = rectangularROI.getEndPoint();
-					endPoint[0]=windowEnd;
-					rectangularROI.setPoint(point);
-					rectangularROI.setEndPoint(endPoint);
-					sashPlotFormComposite.getRegionOnDisplay().setROI(rectangularROI);
+					if(rectangularROI!=null){
+						double[] point = rectangularROI.getPoint();
+						point[0]=windowStart;
+						double[] endPoint = rectangularROI.getEndPoint();
+						endPoint[0]=windowEnd;
+						rectangularROI.setPoint(point);
+						rectangularROI.setEndPoint(endPoint);
+						sashPlotFormComposite.getRegionOnDisplay().setROI(rectangularROI);
+					}
 				}
 			}
 		});
@@ -128,9 +143,9 @@ public class Xspress extends Detector{
 			public void roiChanged(ROIEvent evt) {
 				int start = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getPoint()[0];
 				int end = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getEndPoint()[0];
-				int selectedIndex = xspressElements.getDetectorListComposite().getDetectorList().getSelectedIndex();
+				int selectedIndex = gridListEditor.getSelectedIndex();
 				if(xspressElements.getApplyToAllCheckbox().getSelection())
-					for(int i=0;i<xspressElements.getDetectorListComposite().getDetectorList().getListSize();i++)
+					for(int i=0;i<gridListEditor.getListSize();i++)
 						updateBean(i, start, end);
 				else
 					updateBean(selectedIndex, start, end);
@@ -149,8 +164,6 @@ public class Xspress extends Detector{
 			
 		});
 		
-		xspressAcquire.addLoadListener(xspressElements.getDetectorListComposite().getDetectorList(), xspressElements.getDetectorListComposite().getDetectorElementComposite(), xspressParameters.getDetectorList().size());
-		
 		if(readoutMode.isModeOveride()) {
 			GridUtils.setVisibleAndLayout(readoutMode.getReadoutMode(), false);
 			GridUtils.setVisibleAndLayout(resolutionGrade.getResolutionGradeCombo(), false);
@@ -160,6 +173,33 @@ public class Xspress extends Detector{
 		
 		addReadoutModeListenerListener();
 		updateRegionType();
+		tableViewer = gridListEditor.getTableViewer();
+
+		tableViewer.setCellModifier(new ICellModifier() {
+			@Override
+			public boolean canModify(Object element, String property) {
+				int col = Integer.parseInt(property);
+				int selectedIndex = gridListEditor.getElementIndex(element, col, gridListEditor.getGridOrder(), gridListEditor.getColumns(), gridListEditor.getRows(), gridListEditor.getGridMap());
+				gridListEditor.setSelectedIndex(selectedIndex);
+				tableViewer.refresh();
+				int[][][] mcaData = xspressAcquire.getMcaData();
+				if(mcaData!=null){
+					plot.plot(selectedIndex,mcaData, false, null);
+					detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectedIndex, mcaData));
+					detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
+					xspressElements.setAllElementsCount(counts.getTotalCounts(mcaData));
+					xspressElements.setElementCount(counts.getTotalElementCounts(selectedIndex, mcaData));
+				}
+				return false;
+			}
+			@Override
+			public Object getValue(Object element, String property) {
+				return null;
+			}
+			@Override
+			public void modify(Object item, String property, Object value) {
+			}
+		});
 	}
 	
 	private void addReadoutModeListenerListener(){
@@ -177,13 +217,13 @@ public class Xspress extends Detector{
 		boolean isRoi = readoutModeValue.equals("Regions Of Interest");
 		resolutionGrade.setVisible(isRoi);
 		regionType.setVisible(isRoi);
-		DetectorROIComposite detectorROIComposite = xspressElements.getDetectorListComposite().getDetectorElementComposite().getDetectorROIComposite();
+		DetectorROIComposite detectorROIComposite = detectorElementComposite.getDetectorROIComposite();
 		if(isRoi && detectorROIComposite==null)
-			xspressElements.getDetectorListComposite().getDetectorElementComposite().createRegionList();
+			detectorElementComposite.createRegionList();
 		if(detectorROIComposite!=null)
-			xspressElements.getDetectorListComposite().getDetectorElementComposite().getDetectorROIComposite().setVisible(isRoi);
-		xspressElements.getDetectorListComposite().getDetectorElementComposite().setWindowsEditable(!isRoi);
-		GridUtils.startMultiLayout(xspressElements.getDetectorListComposite().getParent());
+			detectorElementComposite.getDetectorROIComposite().setVisible(isRoi);
+		detectorElementComposite.setWindowsEditable(!isRoi);
+		GridUtils.startMultiLayout(detectorListComposite.getParent());
 	}
 	
 	private String getResGradeAllowingForReadoutMode() {
@@ -242,8 +282,8 @@ public class Xspress extends Detector{
 
 	public void updateVisibility(Composite composite) {
 		boolean isRoi = readoutMode.getReadoutMode().getValue().equals(XspressDetector.READOUT_ROIS);
-		xspressElements.getDetectorListComposite().getDetectorElementComposite().setWindowsEditable(!isRoi);
-		Composite roi = xspressElements.getDetectorListComposite().getDetectorElementComposite().getRegionList();
+		detectorElementComposite.setWindowsEditable(!isRoi);
+		VerticalListEditor roi = detectorElementComposite.getRegionList();
 		GridUtils.setVisibleAndLayout(roi, isRoi);
 		GridUtils.startMultiLayout(composite.getParent());
 		try {
@@ -260,8 +300,8 @@ public class Xspress extends Detector{
 		} finally {
 			GridUtils.endMultiLayout();
 		}
-		listEditorUI.notifySelected(xspressElements.getDetectorListComposite().getDetectorElementComposite().getRegionList());
-		xspressElements.getDetectorListComposite().getDetectorElementComposite().getRegionList().setListEditorUI(listEditorUI);
+		listEditorUI.notifySelected(roi);
+		roi.setListEditorUI(listEditorUI);
 	}
 	
 	public ResolutionGrade getResolutionGrade() {
@@ -314,8 +354,7 @@ public class Xspress extends Detector{
 		@Override
 		public void roiChanged(ROIEvent evt) {
 			int start = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getPoint()[0];
-			int end = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getEndPoint()[0];					
-			DetectorElementComposite detectorElementComposite = xspressElements.getDetectorListComposite().getDetectorElementComposite();
+			int end = (int)((RectangularROI) sashPlotFormComposite.getRegionOnDisplay().getROI()).getEndPoint()[0];
 			detectorElementComposite.getStart().setValue(start);
 			detectorElementComposite.getEnd().setValue(end);
 		}

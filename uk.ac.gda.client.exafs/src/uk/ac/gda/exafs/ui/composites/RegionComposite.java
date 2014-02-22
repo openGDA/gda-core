@@ -43,7 +43,6 @@ import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.XanesRegionParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.exafs.ui.XanesScanParametersUIEditor;
-import uk.ac.gda.richbeans.components.scalebox.ValueResult;
 
 
 public class RegionComposite extends Composite {
