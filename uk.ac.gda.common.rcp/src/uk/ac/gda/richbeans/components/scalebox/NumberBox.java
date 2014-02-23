@@ -283,7 +283,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		if (Double.isNaN(val))
 			return null;
 		if (isIntegerBox || getDecimalPlaces() == 0)
-			return new Integer(Math.round(Math.round(val)));
+			return new Integer((int) Math.round(val));
 		return new Double(val);
 	}
 

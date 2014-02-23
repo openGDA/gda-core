@@ -173,8 +173,13 @@ public final class GridListEditor extends ListEditor {
 	}
 	
 	@Override
+	public void setSelectedIndex(int selectedIndex) {
+		this.selectedIndex = selectedIndex;
+	}
+
+	@Override
 	protected void setSelectedBean(BeanWrapper wrapper, boolean fireListeners) {
-        super.setSelectedBean(wrapper, fireListeners);
+		super.setSelectedBean(wrapper, fireListeners);
 		this.selectedIndex = beans.indexOf(wrapper);
 		if (tableViewer != null)
 			tableViewer.refresh();
@@ -242,14 +247,18 @@ public final class GridListEditor extends ListEditor {
 		for (int i = 0; i < vals.length; i++) 
 			vals[i] = i;
 		tableViewer.setContentProvider(new IStructuredContentProvider() {
+			
 			@Override
 			public void dispose() {}
+			
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
+			
 			@Override
 			public Object[] getElements(Object inputElement) {
 			    return vals;
 			}
+			
 		});
 	}
 
@@ -258,7 +267,8 @@ public final class GridListEditor extends ListEditor {
 	}
 	
 	public void setColumnWidth(final int width) {
-		if (tableViewer==null) return;
+		if (tableViewer==null)
+			return;
 		for (TableViewerColumn col : tableColumns)
 			col.getColumn().setWidth(width);
 	}
@@ -266,14 +276,11 @@ public final class GridListEditor extends ListEditor {
 	private void createLabelProvider() {
 		if (tableViewer==null) 
 			return;
-
 		tableColumns = new HashSet<TableViewerColumn>(7);
 		ColumnViewerToolTipSupport.enableFor(tableViewer,ToolTip.NO_RECREATE);
-
 		int width = Math.round(((float)this.gridWidth)/((float)columns));
 		if (width<1) 
 			width = 25;
-		
 		for (int i = 0; i < columns; i++) {
 			final int column = i;
 			final TableViewerColumn col = new TableViewerColumn(tableViewer, SWT.NONE);
@@ -284,22 +291,29 @@ public final class GridListEditor extends ListEditor {
 				public String getText(Object element) {
 					if (columnLabelProviderDelegate!=null) {
 						final int elementIndex= getElementIndex(element, column);
-						final String text = columnLabelProviderDelegate.getText(beans.get(elementIndex).getBean());
-						if (text!=null) return text;
+						if(beans.size()>0){
+							final String text = columnLabelProviderDelegate.getText(beans.get(elementIndex).getBean());
+							if (text!=null) 
+								return text;
+						}
 					}
 					if (!(element instanceof Integer)) 
 						return null;
 					int index = getElementIndex(element, column);
 					return index+"";
 				}
-
 				private final Color blue = SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE);
 				private final Color white = SWTResourceManager.getColor(SWT.COLOR_WHITE);
 				@Override
 				public Color getBackground(Object element) {
 					if (columnLabelProviderDelegate!=null) {
-						final Color color = columnLabelProviderDelegate.getBackground(beans.get(getElementIndex(element, column)).getBean());
-						if (color!=null) return color;
+						if(beans.size()>0){
+							BeanWrapper beanWrapper = beans.get(getElementIndex(element, column));
+							Object bean = beanWrapper.getBean();
+							final Color color = columnLabelProviderDelegate.getBackground(bean);
+							if (color!=null)
+								return color;
+						}
 					}
 					if (getElementIndex(element, column) == selectedIndex)
 						return blue;
@@ -308,8 +322,13 @@ public final class GridListEditor extends ListEditor {
 				@Override
 				public Color getForeground(Object element) {
 					if (columnLabelProviderDelegate!=null) {
-						final Color color = columnLabelProviderDelegate.getForeground(beans.get(getElementIndex(element, column)).getBean());
-						if (color!=null) return color;
+						if(beans.size()>0){
+							BeanWrapper beanWrapper = beans.get(getElementIndex(element, column));
+							Object bean = beanWrapper.getBean();
+							final Color color = columnLabelProviderDelegate.getForeground(bean);
+							if (color!=null)
+								return color;
+						}
 					}
 					if (getElementIndex(element, column) == selectedIndex)
 						return white;						
@@ -340,6 +359,10 @@ public final class GridListEditor extends ListEditor {
 		}
 	}
 	
+	public GRID_ORDER getGridOrder() {
+		return gridOrder;
+	}
+
 	public void setGridOrder(GRID_ORDER order) {
 		this.gridOrder = order;
 	}
@@ -356,6 +379,22 @@ public final class GridListEditor extends ListEditor {
 	 * @return zero based index for the array of items.
 	 */
 	private int getElementIndex(Object element, int col) {
+		final int row = ((Integer)element).intValue();
+		if (gridOrder==GRID_ORDER.CUSTOM_MAP) {
+			final int index = (col)+(row*columns);
+			return gridMap.get(index);
+		}
+		if (columns==rows) {
+			// Assume left to right top to buttom
+			if (gridOrder==null||gridOrder==GRID_ORDER.LEFT_TO_RIGHT_TOP_TO_BOTTOM)
+				return (col)+(row*columns);
+			final int ref = (rows*columns)-columns;
+			return (ref+row)-(col*columns);
+		}
+		return (row*columns)+col;
+	}
+	
+	public int getElementIndex(Object element, int col, GRID_ORDER gridOrder, int columns, int rows, Map<Integer, Integer> gridMap) {
 		final int row = ((Integer)element).intValue();
 		if (gridOrder==GRID_ORDER.CUSTOM_MAP) {
 			final int index = (col)+(row*columns);
@@ -415,6 +454,14 @@ public final class GridListEditor extends ListEditor {
 
 	public TableViewer getTableViewer() {
 		return tableViewer;
+	}
+
+	public int getColumns() {
+		return columns;
+	}
+
+	public int getRows() {
+		return rows;
 	}
 
 }
