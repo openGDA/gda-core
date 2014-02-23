@@ -30,7 +30,7 @@ import org.jscience.physics.units.Unit;
  * SplitQuantitiesConverterTest Class. It is assumed the that working directory points to the test folder above gda
  */
 public class SplitQuantitiesConverterTest extends TestCase {
-	final static String testFileFolder = "test/gda/util/converters/JEPConverterParametersJUnitTestFiles";
+	final static String testFileFolder = "testfiles/gda/util/converters/JEPQuantityConverterTest";
 
 	/**
 	 * @param arg0

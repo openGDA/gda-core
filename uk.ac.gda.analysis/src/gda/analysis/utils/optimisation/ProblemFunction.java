@@ -178,4 +178,9 @@ public class ProblemFunction implements IFunction {
 	public IDataset calculatePartialDerivativeValues(IParameter param, IDataset... coords) {
 		return null;
 	}
+
+	@Override
+	public boolean isValid() {
+		return def != null;
+	}
 }

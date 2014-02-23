@@ -90,7 +90,7 @@ public class JythonServerTest {
 	
 	@Test
 	public void testLocateStringUsesScriptPathsObject() {
-		ScriptProject realProject = new ScriptProject("test/gda/jython/testfiles", "Real Project", ScriptProjectType.CONFIG);
+		ScriptProject realProject = new ScriptProject("testfiles/gda/jython/JythonServerTest", "Real Project", ScriptProjectType.CONFIG);
 		ScriptPaths realPath = new ScriptPaths(Collections.singletonList(realProject));
 		jythonServer.setJythonScriptPaths(realPath);
 		Assert.assertNotNull(jythonServer.locateScript("exists"));

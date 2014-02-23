@@ -34,7 +34,7 @@ import java.io.IOException;
 public class PCO4000Sim implements IPCO4000Hardware {
 
 	byte[] data = null;
-	String inData = "data/gda/device/detector/pco4000/pco.tif";
+	String inData = "testfiles/gda/device/detector/pco4000/pco.tif";
 
 	/**
 	 * This constructor needs to load in some data and store it internaly, 

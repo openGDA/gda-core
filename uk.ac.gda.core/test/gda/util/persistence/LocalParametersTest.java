@@ -46,8 +46,7 @@ public class LocalParametersTest extends TestCase {
 	public void testNewConfigurationFile() throws Exception {
 		FileConfiguration lp = LocalParameters.getXMLConfiguration();
 		List<Object> keys = getKeysFromXMLConfiguration(lp);
-		assertEquals(1, keys.size());
-		assertEquals("", keys.get(0));
+		assertEquals(0, keys.size());
 	}
 	
 	/**

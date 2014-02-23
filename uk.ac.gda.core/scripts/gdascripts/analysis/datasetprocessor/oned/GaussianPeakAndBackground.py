@@ -1,9 +1,7 @@
 from XYDataSetProcessor import XYDataSetFunction
 from gda.analysis.functions import Gaussian, Offset
 from gda.analysis import DataSetFunctionFitter
-
-from gda.analysis.utils import GeneticAlg
-import scisoftpy as np
+import scisoftpy as dnp
 
 class GaussianPeakAndBackground(XYDataSetFunction):
 
@@ -14,16 +12,22 @@ class GaussianPeakAndBackground(XYDataSetFunction):
 	def _process(self,xDataSet, yDataSet):
 		if yDataSet.max()-yDataSet.min() == 0:
 			raise ValueError("There is no peak")
-		gaussian = Gaussian(xDataSet.min(), xDataSet.max(), xDataSet.max()-xDataSet.min(), (xDataSet.max()-xDataSet.min())*(yDataSet.max()-yDataSet.min()) )
-		ans = DataSetFunctionFitter().fit( xDataSet, yDataSet, GeneticAlg(.001), [ gaussian, Offset( yDataSet.min(),yDataSet.max() ) ] )	
-		ans = ans.functionOutput
-		peak= ans[0].getValue()
-		fwhm = ans[1].getValue()
-		area = ans[2].getValue()
-		offset = ans[3].getValue()
-		top = area / fwhm
+		
+		dx = dnp.array(xDataSet)
+		dy = dnp.array(yDataSet)
+		
+		bounds = [(dx.min(), dx.max()), (dx.ptp()*0.05, dx.ptp()), (dx.ptp()*dy.ptp()*0.05, dx.ptp()*dy.ptp()), (dy.min(), dy.max())]
+		initialParameters = [dx.mean(), dx.ptp()*.5, dx.ptp()*dy.ptp()*.8, dy.mean()]
+		fitResult = dnp.fit.fit([dnp.fit.function.gaussian, dnp.fit.function.offset], dx, dy, initialParameters, bounds=bounds, optimizer='global')
+		peak = fitResult[0]
+		fwhm= fitResult[1]
+		area = fitResult[2]
+		offset = fitResult[3]
+		
+		top = area/fwhm
 		if self.plotPanel != None:
-			np.plot.line(xDataSet, [yDataSet, offset + np.array(Gaussian([peak, fwhm, area]).makeDataSet([xDataSet]))], name=self.plotPanel)
+			dnp.plot.line(dx, [dy, dnp.array(fitResult.makefuncdata()[0])], name=self.plotPanel)
+
 		return peak, offset, top, fwhm
 	
 	
@@ -36,13 +40,18 @@ class GaussianPeak(XYDataSetFunction):
 	def _process(self,xDataSet, yDataSet):
 		if yDataSet.max()-yDataSet.min() == 0:
 			raise ValueError("There is no peak")
-		gaussian = Gaussian(xDataSet.min(), xDataSet.max(), xDataSet.max()-xDataSet.min(), (xDataSet.max()-xDataSet.min())*(yDataSet.max()-yDataSet.min()) )
-		ans = DataSetFunctionFitter().fit( xDataSet, yDataSet, GeneticAlg(.001), [ gaussian ] )	
 		
-		peak= ans[0].getValue()
-		fwhm = ans[1].getValue()
-		area = ans[2].getValue()
+		dx = dnp.array(xDataSet)
+		dy = dnp.array(yDataSet)
+		
+		bounds = [(dx.min(), dx.max()), (dx.ptp()*0.05, dx.ptp()), (dx.ptp()*dy.ptp()*0.05, dx.ptp()*dy.ptp())]
+		initialParameters = [dx.mean(), (dx.max() - dx.min())*.5, (dx.max() - dx.min())*(dy.max() - dy.min())*.8]
+		fitResult = dnp.fit.fit([dnp.fit.function.gaussian], dx, dy, initialParameters, bounds=bounds, optimizer='global')
+		peak = fitResult[0]
+		fwhm= fitResult[1]
+		area = fitResult[2]
+		
 		top = area / fwhm
 		if self.plotPanel != None:
-			np.plot.line(xDataSet, [yDataSet, np.array(Gaussian([peak, fwhm, area]).makeDataSet([xDataSet]))], name=self.plotPanel)
+			dnp.plot.line(dx, [dy, dnp.array(fitResult.makefuncdata()[0])], name=self.plotPanel)
 		return peak, top, fwhm

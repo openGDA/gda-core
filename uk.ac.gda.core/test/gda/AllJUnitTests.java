@@ -38,7 +38,6 @@ import org.junit.runners.Suite;
 	// is an OSGi mechanism or other which allows plugins with
 	// different tests to be run.
 	//gda.exafs.AllJUnitTests.class,
-	gda.factory.AllJUnitTests.class,
 	gda.jython.AllJUnitTests.class,
 	gda.jscience.AllJUnitTests.class,
 	gda.scan.AllJUnitTests.class,

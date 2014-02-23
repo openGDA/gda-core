@@ -139,8 +139,12 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 			// get the hardware units for the underlying motor
 			// perhaps hardware units should be in the motor interface?
 			if (motor instanceof MotorUnitStringSupplier) {
-				// try to work out the units the motor works in
-				unitsComponent.setHardwareUnitString(((MotorUnitStringSupplier) motor).getUnitString());
+				final MotorUnitStringSupplier unitSupplier = (MotorUnitStringSupplier) motor;
+				final String motorUnit = unitSupplier.getUnitString();
+				if (!motorUnit.equals("")) {
+					// try to work out the units the motor works in
+					unitsComponent.setHardwareUnitString(motorUnit);
+				}
 			} else if ((motor instanceof DummyMotor || motor instanceof TotalDummyMotor) // TODO: Get rid of this
 																							// malarchy
 					&& getHardwareUnitString() == null) {

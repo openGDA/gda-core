@@ -262,7 +262,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 							PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 								@Override
 								public void run() {
-									txtInput.append(String.valueOf(SWT.TAB)); // also grab the focus back!
+									txtInput.insert(String.valueOf(SWT.TAB)); // also grab the focus back!
 
 								}
 							});

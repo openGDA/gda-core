@@ -37,7 +37,6 @@ public class ScanPlotSettingsScanTest {
 	private static final Logger logger = LoggerFactory.getLogger(ScanPlotSettingsScanTest.class);
 
 	static String testScratchDirectoryName = null;
-	final static String TestFileFolder = "test/gda/data/nexus/TestFiles/";
 
 	/**
 	 * Setups of environment for the tests

@@ -39,7 +39,7 @@ public class JEPQuantityConverterTest extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		testFileFolder = "test/gda/util/converters/JEPConverterParametersJUnitTestFiles";
+		testFileFolder = "testfiles/gda/util/converters/JEPQuantityConverterTest";
 	}
 
 	@Override

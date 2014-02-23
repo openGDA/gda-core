@@ -34,9 +34,9 @@ public class ScriptPathsTest {
 	private ScriptPaths defaultPaths, testfilesPaths;
 	private String[] nonsensePathsList = new String[] {"Hello", "Test"};
 	private List<ScriptProject> nonsenseProjects;
-	private String testfilesPath = "test/gda/jython/testfiles";
+	private String testfilesPath = "testfiles/gda/jython/JythonServerTest";
 	private ScriptProject testfilesProject;
-	private String existsScriptLocation = "test/gda/jython/testfiles" + File.separator + "exists.py";
+	private String existsScriptLocation = "testfiles/gda/jython/JythonServerTest" + File.separator + "exists.py";
 	private String startupScript = "/some/folder/localStation.py";
 	
 	@Before

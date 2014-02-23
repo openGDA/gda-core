@@ -273,8 +273,65 @@ public class DataSet extends DoubleDataset {
 	}
 
 	/**
-	 * Sets the value at a particular point to the passed value. Note, this will automatically expand the dataset if the
-	 * given position is outside its bounds and make it discontiguous.
+	 * Check the position given against the shape to make sure it is valid and sanitise it
+	 * 
+	 * @param pos
+	 * @return boolean
+	 */
+	private boolean isPositionInShape(final int... pos) {
+		int pmax = pos.length;
+
+		// check the dimensionality of the request
+		if (pmax > shape.length) {
+			throw new IllegalArgumentException(String.format(
+					"Dimensionalities of requested position, %d, and dataset, %d, are incompatible", pos.length,
+					shape.length));
+		}
+
+		// if it's the right size or less, check to see if it's within bounds
+		for (int i = 0; i < pmax; i++) {
+			final int si = shape[i];
+			if (pos[i] < 0) {
+				pos[i] += si;
+			}
+			if (pos[i] < 0) {
+				throw new ArrayIndexOutOfBoundsException("Index (" + pos[i] + ") out of range [-" + si + "," + si
+						+ ") in dimension " + i);
+			}
+			if (pos[i] >= si)
+				return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Sets the value at a particular point to the passed value. Note, this will automatically
+	 * expand the dataset if the given position is outside its bounds and make it discontiguous.
+	 * 
+	 * @param value
+	 * @param i
+	 */
+	@Override
+	public void setItem(final double value, final int i) { // PRIM_TYPE
+		setItem(value, new int[] {i});
+	}
+
+	/**
+	 * Sets the value at a particular point to the passed value. Note, this will automatically
+	 * expand the dataset if the given position is outside its bounds and make it discontiguous.
+	 * 
+	 * @param value
+	 * @param i
+	 */
+	@Override
+	public void setItem(final double value, final int i, final int j) { // PRIM_TYPE
+		setItem(value, new int[] {i, j});
+	}
+
+	/**
+	 * Sets the value at a particular point to the passed value. Note, this will automatically
+	 * expand the dataset if the given position is outside its bounds and make it discontiguous.
 	 * 
 	 * @param value
 	 * @param pos
@@ -1950,7 +2007,7 @@ public class DataSet extends DoubleDataset {
 		for (i = 0; i < vlen; i++) {
 			int d = index[i];
 			if (d < -shape[i] || d >= shape[i]) {
-				logger.error("The value {} is not within the dataset's bounds", index);
+				logger.error("The value {} is not within the dataset's bounds", index.toString());
 				throw new PyException(Py.IndexError);
 			}
 			if (d < 0)

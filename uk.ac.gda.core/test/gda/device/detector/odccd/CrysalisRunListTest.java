@@ -105,14 +105,7 @@ public class CrysalisRunListTest {
 		CrysalisRunListValidator validator2 = new CrysalisRunListValidator(configPath, false);
 		Assert.assertEquals(validator1, validator2);
 
-		URL validatorConfigURL = CrysalisRunListTest.class.getResource("TestFiles/CrysalisRunListValidator.xml");
-		if (validatorConfigURL == null) {
-			 throw new IllegalArgumentException(
-					 "Unable to find CrysalisRunListValidator.xml. Ensure it is in the classpath - set output folder for test folder to test");
-		}
-		configPath = validatorConfigURL.getPath();
-		CrysalisRunListValidator validator = new CrysalisRunListValidator(configPath, true);
-
+		CrysalisRunListValidator validator = new CrysalisRunListValidator("testfiles/gda/device/detector/odccd/CrysalisRunListValidator.xml", true);
 		validator.checkValidity(inList);
 	}
 }

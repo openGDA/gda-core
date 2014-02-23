@@ -48,7 +48,6 @@ public class FileRegistrarTest {
 	private static final Logger logger = LoggerFactory.getLogger(FileRegistrarTest.class);
 
 	static String testScratchDirectoryName = null;
-	final static String TestFileFolder = "test/gda/data/TestFiles/";
 
 	/**
 	 * Setups of environment for the tests
