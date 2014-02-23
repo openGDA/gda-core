@@ -109,24 +109,22 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 								Object obj = guiData.get(GuiParameters.ONEDFILE);
 								if (obj instanceof OneDDataFilePlotDefinition) {
 									final OneDDataFilePlotDefinition data = (OneDDataFilePlotDefinition) obj;
-									//PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay()
-								//			.asyncExec(new Runnable() {
-												Display.getDefault().asyncExec(new Runnable(){
-												@Override
-												public void run() {
-													try {
-														final IWorkbenchPage page = PlatformUI.getWorkbench()
-																.getActiveWorkbenchWindow().getActivePage();
-														LivePlotView part = (LivePlotView) page.findView(LivePlotView.ID);
-														if (part == null) {
-															part = (LivePlotView) page.showView(LivePlotView.ID);
-														}
-														part.openFile(data);
-													} catch (Exception e) {
-														logger.error("Error responding to IDE_ACTION");
-													}
+										Display.getDefault().asyncExec(new Runnable(){
+										@Override
+										public void run() {
+											try {
+												final IWorkbenchPage page = PlatformUI.getWorkbench()
+														.getActiveWorkbenchWindow().getActivePage();
+												LivePlotView part = (LivePlotView) page.findView(LivePlotView.ID);
+												if (part == null) {
+													part = (LivePlotView) page.showView(LivePlotView.ID);
 												}
-											});
+												part.openFile(data);
+											} catch (Exception e) {
+												logger.error("Error responding to IDE_ACTION");
+											}
+										}
+									});
 								}
 							}
 						}
@@ -177,7 +175,6 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		xyPlot.addData(point);
 	}
 
-
 	private IPath getArchiveFileIPath() {
 		if( __mementoFileIPath == null){
 			IPath mementoStoreIPath = GDAClientActivator.getDefault().getStateLocation();
@@ -188,6 +185,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		}
 		return __mementoFileIPath;
 	}
+	
 	private String getArchiveFilePath(){
 		IPath mementoFileIPath = getArchiveFileIPath();
 		return mementoFileIPath.toFile().getAbsolutePath();
@@ -202,8 +200,6 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		}
 		return __archiveFolder;
 	}
-	
-	
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -434,7 +430,6 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		setConnect(false);
 		setPartName("Scan Plot " + secondaryIdSuffix);
 	}
-
 
 	/**
 	 * Writes to a memento and a set of archive files in a folder a copy of the state of the xy lines displayed in the view 

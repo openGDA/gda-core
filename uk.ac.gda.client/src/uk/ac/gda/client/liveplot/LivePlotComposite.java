@@ -110,7 +110,7 @@ import uk.ac.gda.preferences.PreferenceConstants;
  * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
  */
 public class LivePlotComposite extends Composite {
-
+	private static final Logger logger = LoggerFactory.getLogger(LivePlotComposite.class);
 	/**
 	 * Strings used to reference values stored in memento
 	 */
@@ -123,16 +123,20 @@ public class LivePlotComposite extends Composite {
 	static public final String MEMENTO_ARCHIVEFILENAME = "xydata_archivefilename";
 	static public final String MEMENTO_XYDATA_DATAFILENAME = "xydata_datafilename";
 	static public final String MEMENTO_XYDATA_SCANNUMBER = "xydata_scannumber";
-
-	private static final Logger logger = LoggerFactory.getLogger(LivePlotComposite.class);
-
 	private static final int[] WEIGHTS_NORMAL = new int[] { 80, 20 };
 	private static final int[] WEIGHTS_NO_LEGEND = new int[] { 100, 0 };
-	SubLivePlotView plotView;
-	LiveLegend legend;
-	ScanDataPointPlotter plotter = null;
+	protected SubLivePlotView plotView;
+	protected LiveLegend legend;
+	private ScanDataPointPlotter plotter = null;
 	private SashForm sashForm;
-
+	private ActionGroup actionGroup;
+	
+	/*
+	 * Made final as the value is passed to members in constructors so a change at this level would be
+	 * invalid if not passed down to members as well.
+	 */
+	
+	private final String archiveFolder;
 	static LineAppearanceProvider lineAppearanceProvider = new LineAppearanceProvider();
 
 	static public Color getColour(int nr) {
@@ -157,22 +161,20 @@ public class LivePlotComposite extends Composite {
 		return legend.getTreeViewer();
 	}
 
-	private ActionGroup actionGroup;
-
 	/**
 	 * @param parent
 	 * @param actionBars
 	 * @param partName
 	 * @param toolbarActions
 	 */
-	void createAndRegisterPlotActions(@SuppressWarnings("unused") final Composite parent, IActionBars actionBars, @SuppressWarnings("unused") String partName,
-			                       final List<IAction> toolbarActions) {
+	void createAndRegisterPlotActions(final Composite parent, IActionBars actionBars, String partName,
+		final List<IAction> toolbarActions) {
 
 		for (IAction iAction : toolbarActions) {
 			actionBars.getToolBarManager().add(iAction);
 		}
 
-// TODO Get this working
+// TODO Get this working. Is there a ticket associated with this. What is the dialog's purpose.
 //			@Override
 //			public void plotActionPerformed(final PlotActionEvent event) {
 //				if (event instanceof PlotActionComplexEvent) {
@@ -189,12 +191,6 @@ public class LivePlotComposite extends Composite {
 //			}
 
 	}
-	/*
-	 * Made final as the value is passed to members in constructors so a change at this level would be
-	 * invalid if not passed down to members as well.
-	 */
-	
-	private final String archiveFolder;
 
 	void initContextMenu(IWorkbenchPartSite site, IWorkbenchWindow window, final ActionGroup parentActions) {
 		actionGroup = new XYLegendActionGroup(window, this);
@@ -391,11 +387,11 @@ public class LivePlotComposite extends Composite {
 					if(visible ){
 						//if memento states visible then unarchive and simply add to the list of scans
 						scan.unarchive(archiveFolder);
-						DoubleDataset xdata = scan.archive.getxAxis().toDataset();
+						DoubleDataset xdata = scan.getArchive().getxAxis().toDataset();
 						if(xdata == null || xdata.getSize()==0)
 							continue;
 						plotter.addData(scanIdentifier, dataFileName, stepIds, xdata,
-								scan.archive.getyVals(), xAxisHeader, yAxisHeader, true, false, axisSpec);
+								scan.getArchive().getyVals(), xAxisHeader, yAxisHeader, true, false, axisSpec);
 						
 					}else {
 						/**
@@ -404,8 +400,8 @@ public class LivePlotComposite extends Composite {
 						 */
 						int linenum = plotter.addData(scanIdentifier, dataFileName, stepIds, new DoubleDataset(1),
 							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false, axisSpec);
-						plotView.getXYData(linenum).archiveFilename = scan.archiveFilename;//we need to set to archiveFilename in scan as currently equal to null
-						plotView.getXYData(linenum).archive=null;
+						//plotView.getXYData(linenum).archiveFilename = scan.archiveFilename;//we need to set to archiveFilename in scan as currently equal to null
+						plotView.getXYData(linenum).setArchive(null);
 					}
 
 				} catch (Throwable e) {
@@ -465,13 +461,18 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	private static final Logger logger = LoggerFactory.getLogger(SubLivePlotView.class);
 	static public final String ID = "uk.ac.gda.client.xyplotview";
 	protected IPlottingSystem plottingSystem;
-	LiveData dummy; // used when all other lines are invisible
-
+	private LiveData dummy; // used when all other lines are invisible
 	private final String archiveFolder;
 	private Label positionLabel;
-
+	/**
+	 * Entry in scans array that is to contain the next XYData
+	 */
+	int nextUnInitialisedLine = 0;
+	private LiveData scans[] = new LiveData[0];
+	private UpdatePlotQueue updateQueue = new UpdatePlotQueue();
+	private IPositionListener plottingSystemPositionListener;
+	
 	public SubLivePlotView(IWorkbenchPart parentPart, Composite parent, int style, String archiveFolder) {
-		
 		super(parent, style);
 		this.archiveFolder = archiveFolder;
 		dummy = new LiveData(1, "", "x", "y", null,null, null);
@@ -540,7 +541,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				try {
 					archivedFiles.add(scan.saveState(memento, archiveFolder));
 				} catch (Exception e) {
-					logger.warn("Error saving state of scan " + scan.name, e);
+					logger.warn("Error saving state of scan " + scan.getName(), e);
 				}
 
 			}
@@ -552,19 +553,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			if( !archivedFiles.contains(f.getName()))
 				if(!f.delete())
 					logger.warn("Unable to delete file " + f.getAbsolutePath());
-
 		}
 	}
-
-	
-	/**
-	 * Entry in scans array that is to contain the next XYData
-	 */
-	int nextUnInitialisedLine = 0;
-	LiveData scans[] = new LiveData[0];
-
-	private UpdatePlotQueue updateQueue = new UpdatePlotQueue();
-	private IPositionListener plottingSystemPositionListener;
 
 	LiveData getXYData(int line) {
 		if (line > scans.length - 1)
@@ -779,15 +769,15 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	 */
 	@Override
 	public void onUpdate(boolean force) {
-		
-		if (plottingSystem == null) return;
+		if (plottingSystem == null)
+			return;
 		try {
 			/**
 			 * TODO FIXME This class taken from XYPlotComponent replots all the plots
 			 * if one point is added to the end of one plot. Instead it should just add the 
 			 * data to the one plot that is changing.
 			 */
-			List<LineData>    xys  = new Vector<LineData>();
+			List<LineData> xys = new Vector<LineData>();
 			final List<String>     invis = new Vector<String>();
 			String xAxisHeader = null;
 			String yAxisHeader = null;
@@ -795,30 +785,30 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			boolean yAxisIsVarious = false;
 			boolean additionalYAxes = false;
 			for (LiveData sd : scans) {
-				if (sd != null  && sd.number > 1 ) {//do not show lines with only 1 point as the datasetplotter throws exceptions
-					LiveDataArchive archive = sd.archive;
+				if (sd != null  && sd.getNumber() > 1 ) {//do not show lines with only 1 point as the datasetplotter throws exceptions
+					LiveDataArchive archive = sd.getArchive();
 					if( archive == null)
 						continue;
 					if (sd.isVisible()) {
 						
-						xys.add( new LineData(archive.getAppearance(), archive.getxAxis().toDataset(),archive.getyVals(), sd.yAxisSpec ));
+						xys.add( new LineData(archive.getAppearance(), archive.getxAxis().toDataset(),archive.getyVals(), sd.getyAxisSpec() ));
 						AbstractDataset y = archive.getyVals();
 						if (y.getName()==null || "".equals(y.getName())) {
-							y.setName(sd.name);
+							y.setName(sd.getName());
 						}
-						if (!xAxisIsVarious && StringUtils.hasLength(sd.xLabel)) {
+						if (!xAxisIsVarious && StringUtils.hasLength(sd.getxLabel())) {
 							if (xAxisHeader == null) {
-								xAxisHeader = sd.xLabel;
-							} else if (!sd.xLabel.equals(xAxisHeader)) {
+								xAxisHeader = sd.getxLabel();
+							} else if (!sd.getxLabel().equals(xAxisHeader)) {
 								xAxisHeader = "various";
 								xAxisIsVarious = true;
 							}
 						}
-						if( sd.yAxisSpec==null){
-							if (!yAxisIsVarious && StringUtils.hasLength(sd.yLabel)) {
+						if( sd.getyAxisSpec()==null){
+							if (!yAxisIsVarious && StringUtils.hasLength(sd.getyLabel())) {
 								if (yAxisHeader == null) {
-									yAxisHeader = sd.yLabel;
-								} else if (!sd.yLabel.equals(yAxisHeader)) {
+									yAxisHeader = sd.getyLabel();
+								} else if (!sd.getyLabel().equals(yAxisHeader)) {
 									yAxisHeader = "various";
 									yAxisIsVarious = true;
 								}
@@ -854,11 +844,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
        creating individual traces. TODO Convert to more logical design.	
 	 * @param additionalYAxes 
 	 */
-	private void createUpdatePlot(String                xLabelIn, 
-			      				  String                yLabelIn, 
-			                      final List<LineData> xys, 
-			                      final List<String>          invis, boolean additionalYAxes) {
-		
+	private void createUpdatePlot(String xLabelIn, String yLabelIn, final List<LineData> xys, final List<String> invis, boolean additionalYAxes) {
 		final String xLabel = xLabelIn != null ? xLabelIn : UNKNOWN;
 		final String yLabel = yLabelIn != null ? yLabelIn : UNKNOWN;
 		final String title = (additionalYAxes ? "various" : yLabel) + " / " + xLabel;
@@ -908,7 +894,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 						plottingSystem.setSelectedYAxis( defaultYAxis);
 					}
 					ILineTrace trace = plottingSystem.createLineTrace(name);
-					trace.setLineWidth(ld.appearance.getLineWidth());
+					trace.setLineWidth(ld.getAppearance().getLineWidth());
 					trace.setPointSize(3);
 					switch(ld.getAppearance().getStyle()){
 					case DASHED:
@@ -943,7 +929,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				 */
 				for (String traceName : invis) {
 					ITrace trace = plottingSystem.getTrace(traceName);
-					if (trace!=null) plottingSystem.removeTrace(trace);
+					if (trace!=null) 
+						plottingSystem.removeTrace(trace);
 				}
 
 				if (plottingSystem.isRescale()) {
@@ -989,17 +976,17 @@ class LiveData {
 
 	private static final Logger logger = LoggerFactory.getLogger(LiveData.class);
 
-	int number = 0;
-	LiveDataArchive archive; // data and appearance
-	String name; // a mix of the name of the group of plots (scan number) and the name of the line (column header)
-	String archiveFilename = null; // the file created by the archive() method and read by unarchive()
-	int which = 0;
-	String xLabel;
-	String yLabel;
-	AxisSpec yAxisSpec;
+	private int number = 0;
+	private LiveDataArchive archive; // data and appearance
+	private String name; // a mix of the name of the group of plots (scan number) and the name of the line (column header)
+	private String archiveFilename = null; // the file created by the archive() method and read by unarchive()
+	private int which = 0;
+	private String xLabel;
+	private String yLabel;
+	private AxisSpec yAxisSpec;
 
 	/**
-	 * Scan file holding all the data of the scan
+	 * Name of the scan file holding all the data of the scan
 	 */
 	private final String dataFileName;
 
@@ -1012,18 +999,49 @@ class LiveData {
 	 * @param archiveFilename - archive holding the data, only filename, you need to combine with the archive folder
 	 * @param dataFileName - the name of the file holding the scan data
 	 */
-	LiveData(int which, String name, String xLabel, String yLabel, String archiveFilename,
-			String dataFileName, AxisSpec axisSpec) {
+	LiveData(int which, String name, String xLabel, String yLabel, String archiveFilename, String dataFileName, AxisSpec axisSpec) {
 		this.name = name;
 		this.which = which;
 		this.xLabel = xLabel;
 		this.yLabel = yLabel;
 		this.archiveFilename = archiveFilename;
 		this.dataFileName = dataFileName;
-		if( archiveFilename == null){
-			resetArchive(which);
-		}
 		this.yAxisSpec =axisSpec;
+		if( archiveFilename == null)
+			resetArchive(which);
+	}
+
+	public void setArchive(LiveDataArchive archive) {
+		this.archive = archive;
+		
+	}
+
+	public AxisSpec getyAxisSpec() {
+		return yAxisSpec;
+	}
+
+	public String getxLabel() {
+		return xLabel;
+	}
+	
+	public String getyLabel() {
+		return yLabel;
+	}
+	
+	public int getNumber() {
+		return number;
+	}
+
+	public String getName() {
+		return name;
+	}
+	
+	public LiveDataArchive getArchive() {
+		return archive;
+	}
+
+	public String getDataFileName() {
+		return dataFileName;
 	}
 
 	public void deleteArchive(String archiveFolder) {
@@ -1042,7 +1060,7 @@ class LiveData {
 		return archiveFilename != null;
 	}
 
-	String getArchiveFilename(){
+	public String getArchiveFilename(){
 		String archivedFilename = name.replaceAll(" +", "_");
 		return archivedFilename.replaceAll("[,;:]", "_");
 	}
@@ -1065,8 +1083,7 @@ class LiveData {
 		child.putString(LivePlotComposite.MEMENTO_XYDATA_SCANNUMBER, deriveScanIdentifier(name));
 		child.putString(LivePlotComposite.MEMENTO_XYDATA_XAXISHEADER, xLabel);
 		child.putString(LivePlotComposite.MEMENTO_XTDATA_YAXISHEADER, yLabel);
-		child.putBoolean(LivePlotComposite.MEMENTO_XYDATA_VISIBLE, archive != null ? archive.getAppearance().isVisible()
-				: false);
+		child.putBoolean(LivePlotComposite.MEMENTO_XYDATA_VISIBLE, archive != null ? archive.getAppearance().isVisible() : false);
 		if( yAxisSpec != null)
 			child.putString(LivePlotComposite.MEMENTO_XYDATA_YAXISNAME, yAxisSpec.getName());
 		return archivedFilename;
@@ -1094,7 +1111,6 @@ class LiveData {
 						double tmp = xdata[i];
 						xdata[i] = xdata[j];
 						xdata[j] = tmp;
-
 						tmp = ydata[i];
 						ydata[i] = ydata[j];
 						ydata[j] = tmp;
@@ -1119,15 +1135,13 @@ class LiveData {
 	}
 
 	public void setVisible(boolean visibility, String archiveFolder) {
-		if (visibility) { // if we are to maek visible then unarchive
+		if (visibility) // if we are to maek visible then unarchive
 			unarchive(archiveFolder);
-		}
-		if (archive != null) {
+		if (archive != null)
 			archive.getAppearance().setVisible(visibility);
-		}
 	}
 
-	void unarchive(String archiveFolder) {
+	public void unarchive(String archiveFolder) {
 		try {
 			if (archiveFilename != null) {
 				String archiveFilenameCopy = getArchivePath(archiveFolder, archiveFilename);
@@ -1162,7 +1176,7 @@ class LiveData {
 		}
 	}
 
-	void archive(String archiveFolder) {
+	public void archive(String archiveFolder) {
 		try {
 			if (archiveFilename == null) {
 				persistToFilePath( archiveFolder, getArchiveFilename());
@@ -1204,7 +1218,8 @@ class LiveData {
 		
 		if( this.isArchived()){
 			FileUtil.copy(archiveFolder + File.separator + this.archiveFilename, archivedFilePath);
-		} else {
+		} 
+		else {
 			File file = new File(archivedFilePath);
 			file.createNewFile();
 
@@ -1231,22 +1246,22 @@ class LiveData {
 		}
 	}
 
-	void setLineColor(Color color, String archiveFolder) {
+	public void setLineColor(Color color, String archiveFolder) {
 		unarchive(archiveFolder);
 		archive.getAppearance().setColour(color);
 	}
 
-	void setPlot1DStyles(Plot1DStyles style, String archiveFolder) {
+	public void setPlot1DStyles(Plot1DStyles style, String archiveFolder) {
 		unarchive(archiveFolder);
 		archive.getAppearance().setStyle(style);
 	}
 
-	void setLineWidth(int width, String archiveFolder) {
+	public void setLineWidth(int width, String archiveFolder) {
 		unarchive(archiveFolder);
 		archive.getAppearance().setLineWidth(width);
 	}
 
-	Color getLineColor(String archiveFolder) {
+	public Color getLineColor(String archiveFolder) {
 		unarchive(archiveFolder);
 		return archive.getAppearance().getColour();
 	}
@@ -1272,7 +1287,8 @@ class LiveData {
 			// first point
 			yvals_new = new double[] { y };
 			xvals_new = new double[] { x };
-		} else {
+		} 
+		else {
 			// not first so copy old to new before adding to end or inserting
 			yvals_new = Arrays.copyOf(yvals_old, old_length + 1);
 			xvals_new = Arrays.copyOf(xvals_old, old_length + 1);
@@ -1280,7 +1296,8 @@ class LiveData {
 				// add to the end
 				xvals_new[old_length] = x;
 				yvals_new[old_length] = y;
-			} else {
+			} 
+			else {
 				// insert at correct point
 				boolean added = false;
 				for (int x_index = 0; x_index < old_length; x_index++) {
@@ -1304,7 +1321,6 @@ class LiveData {
 					logger.warn("Cannot find point to insert the new point - should not happen");
 				}
 			}
-
 		}
 
 		// create new AxisValues and DataSet
@@ -1369,9 +1385,8 @@ class LiveDataArchive implements Serializable {
 
 
 class XYLegendActionGroup extends ActionGroup {
-
 	private LivePlotComposite comp;
-	IWorkbenchWindow window;
+	private IWorkbenchWindow window;
 
 	XYLegendActionGroup(IWorkbenchWindow window, LivePlotComposite comp) {
 		this.comp = comp;
@@ -1419,7 +1434,7 @@ class EditAppearanceAction extends Action implements ActionFactory.IWorkbenchAct
 	private IWorkbenchWindow workbenchWindow;
 
 	private ScanPair pageInput;
-	LivePlotComposite comp;
+	private LivePlotComposite comp;
 
 	public EditAppearanceAction(IWorkbenchWindow window, LivePlotComposite comp, ScanPair copy) {
 		super("Modify Appearance");

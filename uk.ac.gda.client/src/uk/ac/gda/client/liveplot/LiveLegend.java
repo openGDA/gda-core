@@ -60,18 +60,14 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
-/**
- *
- */
 public class LiveLegend extends Composite implements XYDataHandlerLegend {
-
 	private static final String VISIBLE = "Visible";
-	@SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(XYDataHandlerLegend.class);
 	private ScanTree model;
 	private TreeViewer tv;
 	private CellEditor[] cellEditors;
-
+	boolean autoHideNewScan = false;
+	boolean autoHideLastScan = false;
+	
 	/**
 	 * @param parent
 	 * @param style
@@ -119,8 +115,6 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 
 		});
 	}
-
-	
 	
 	/**
 	 * @param node
@@ -147,7 +141,6 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
     public TreeViewer getTreeViewer() {
         return tv;
     }
-
 	
 	@Override
 	public void addScan(final String currentFilename, final String topGrouping, final String [] subGrouping, 
@@ -164,7 +157,6 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 						menuAutoCollapseTreeOnAdd, autoHideLastScan, autoHideNewScan, reloadLegendModel);
 			}
 		});
-
 	}
 
 	/**
@@ -177,14 +169,13 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	 * remove the item from the tree whose filename equals the one specified
 	 * @param filename 
 	 */
-	public void removeScanGroup(String filename)
-	{
+	public void removeScanGroup(String filename){
 		model.removeScanGroup(filename);
 	}
+	
 	public void removeScanTreeObjects(Object []  selectedItems) {
 		model.removeScanTreeObjects(selectedItems);
-		
-	}	
+	}
 	
 	@Override
 	public void removeAllItems() {
@@ -201,8 +192,6 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 		super.dispose();
 	}
 
-	boolean autoHideNewScan = false;
-
 	/**
 	 * @param value
 	 *            True if new scans are to be hidden automatically
@@ -217,8 +206,6 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	public Boolean getAutoHideNewScan() {
 		return autoHideNewScan;
 	}
-
-	boolean autoHideLastScan = false;
 
 	/**
 	 * @param value
@@ -244,14 +231,10 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 		model.makeAllVisible(false);
 	}
 
-
-
 	@Override
 	public Vector<String> getNamesOfLinesInPreviousScan( boolean visibility) {
 		return model.getNamesOfLinesInPreviousScan(visibility);
 	}
-
-
 
 	public ScanTree getModel() {
 		return model;
@@ -264,9 +247,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
  */
 
 class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener {
-
 	private static final Logger logger = LoggerFactory.getLogger(ScanTreeContentProvider.class);
-
 	private ScanTree tree;
 	private Viewer viewer;
 
@@ -403,11 +384,9 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 
 class ScanTreeLabelProvider implements ILabelProvider, ITreePathLabelProvider {
 	// The listeners
-	private static final Image someSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class,
-			"/partialSelection.gif");
+	private static final Image someSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class, "/partialSelection.gif");
 	private static final Image allSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class, "/tick.png");
-	private static final Image noneSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class,
-			"/noSelection.gif");
+	private static final Image noneSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class, "/noSelection.gif");
 	private List<ILabelProviderListener> listeners;
 
 	/**
@@ -494,7 +473,6 @@ class ScanTreeLabelProvider implements ILabelProvider, ITreePathLabelProvider {
 
 	@Override
 	public void updateLabel(ViewerLabel label, org.eclipse.jface.viewers.TreePath elementPath) {
-
 		label.setText(getText(elementPath.getLastSegment()));
 		label.setImage(getImage(elementPath.getLastSegment()));
 		label.setForeground(getColor(elementPath.getLastSegment()));
@@ -502,5 +480,3 @@ class ScanTreeLabelProvider implements ILabelProvider, ITreePathLabelProvider {
 	}
 
 }
-
-
