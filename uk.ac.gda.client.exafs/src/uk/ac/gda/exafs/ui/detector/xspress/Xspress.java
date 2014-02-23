@@ -106,6 +106,7 @@ public class Xspress extends Detector{
 		int size = xspressParameters.getDetectorList().size();
 		xspressAcquire.addAcquireListener(gridListEditor, detectorElementComposite);
 		xspressAcquire.addLoadListener(gridListEditor, detectorElementComposite, size);
+		
 		gridListEditor.addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {

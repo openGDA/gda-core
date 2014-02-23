@@ -169,7 +169,7 @@ public class XspressAcquire extends Acquire {
 					logger.error("Cannot acquire xspress data", e1);
 				}
 			}
-		});		
+		});
 	}
 	
 	public void writeToDisk(String xspressSaveDir, int[][][] detectorData) throws Exception{

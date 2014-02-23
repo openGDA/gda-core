@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.exafs.ui.detector.Acquire;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
@@ -58,7 +57,6 @@ import uk.ac.gda.exafs.ui.detector.Plot;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
-import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -75,6 +73,7 @@ public class VortexAcquire extends Acquire {
 	private VortexData vortexData;
 	private Button loadBtn;
 	private Plot plot;
+	private Counts counts;
 	
 	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Counts counts){
 		super(display);
@@ -82,6 +81,7 @@ public class VortexAcquire extends Acquire {
 		this.xmapDetector = xmapDetector;
 		this.tfg = tfg;
 		this.plot = plot;
+		this.counts = counts;
 		vortexData = new VortexData();
 	}
 	
@@ -96,9 +96,9 @@ public class VortexAcquire extends Acquire {
 			@Override
 			public void run() {
 				detectorElementComposite.setEndMaximum(mcaData[0][0].length - 1);
-				//counts.calculateAndPlotCountTotals(true, true, mcaData, detectorElementComposite, currentSelectedElementIndex);
 				
-				
+				detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(currentSelectedElementIndex, mcaData));
+				detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
 				
 				Double[] liveStats = null;
 				try {
