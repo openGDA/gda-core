@@ -42,7 +42,7 @@ public class LookupTableQuantityConverterTest {
 
 	@BeforeClass
 	public static void setUp() {
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "test/gda/util/converters/LookupTableConverterJUnitTestFiles");
+		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/util/converters/LookupTableQuantityConverterTest");
 	}
 
 	@SuppressWarnings("unused")
