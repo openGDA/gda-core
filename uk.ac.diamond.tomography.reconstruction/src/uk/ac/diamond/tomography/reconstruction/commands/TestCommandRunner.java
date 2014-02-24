@@ -19,11 +19,16 @@
 package uk.ac.diamond.tomography.reconstruction.commands;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 
-import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Random;
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.NumPyFileSaver;
 
 public class TestCommandRunner implements ITomographyCommandRunner {
 
@@ -33,33 +38,58 @@ public class TestCommandRunner implements ITomographyCommandRunner {
 
 	@Override
 	public List<Integer> makeReduced(File filename, File outputFilename, int sliceToEvaluate) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Integer> list = new ArrayList<Integer>();
+		for(int i = 0; i < 100; i+=10) {
+			list.add(i);
+		}
+		return list;
 	}
 
 	@Override
-	public LazyDataset mapPreviewRecon(IFile filename, IFile configFilename) {
-		// TODO Auto-generated method stub
-		return null;
+	public IDataset mapPreviewRecon(IFile filename, IFile configFilename) {
+		return Random.rand(new int[] {10,120,140});
 	}
 
 	@Override
 	public File fullRecon(File filename, File configfilename) {
-		// TODO Auto-generated method stub
-		return null;
+		DataHolder dh = new DataHolder();
+		DoubleDataset data = Random.rand(new int[] {100,120,140});
+		dh.addDataset("reconstruction", data);
+		File tempFile = null;
+		try {
+			tempFile = File.createTempFile("Reconstruction-", ".npy", new File(System.getProperty("java.io.tmpdir")));
+			new NumPyFileSaver(tempFile.toString()).saveFile(dh);
+		} catch (Exception e) {
+			// XXX This should probably throw?
+			System.out.println(e);
+		}
+		return tempFile;
 	}
 
 	@Override
-	public LazyDataset parameterRecon(ITomographyParameter parameter, IFile filename, int slicenumber,
+	public IDataset parameterRecon(ITomographyParameter parameter, IFile filename, int slicenumber,
 			double[] listOfParametersToEvaluate, IFile configFilename) {
-		// TODO Auto-generated method stub
-		return null;
+		return Random.rand(new int[] {listOfParametersToEvaluate.length,120,140});
 	}
 
 	@Override
 	public ITomographyParameter[] getTomographyParameters() {
-		// TODO Auto-generated method stub
-		return null;
+		DoubleTomographyParameter centreParam = new DoubleTomographyParameter("Center Of Rotation");
+		centreParam.setValue(60);
+		centreParam.setMax(120);
+		centreParam.setMin(0);
+		centreParam.setCoarse_step(5);
+		centreParam.setFine_step(1);
+		centreParam.setVery_fine_step(0.1);
+		
+		StringListTomographyParameter filterParam = new StringListTomographyParameter("Filter");
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("Gaussian Filter");
+		list.add("Square Filter");
+		list.add("Happy Filter");
+		filterParam.setValueLocation(0);
+		
+		return new ITomographyParameter[] {centreParam, filterParam};
 	}
 
 }

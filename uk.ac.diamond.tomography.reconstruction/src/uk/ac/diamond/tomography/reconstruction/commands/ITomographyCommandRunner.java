@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 
 public interface ITomographyCommandRunner {
@@ -47,7 +48,7 @@ public interface ITomographyCommandRunner {
 	 * @param configFilename configuration file
 	 * @return a lazydataset containing images for all slices
 	 */
-	LazyDataset mapPreviewRecon(IFile filename, IFile configFilename);
+	IDataset mapPreviewRecon(IFile filename, IFile configFilename);
 
 	/**
 	 * Given a filename and a configuration file, return the filename of the resulting full reconstruction
@@ -68,7 +69,7 @@ public interface ITomographyCommandRunner {
 	 * @param configFilename configuration file
 	 * @return stack of images
 	 */
-	LazyDataset parameterRecon(ITomographyParameter parameter, IFile filename, int slicenumber, double[] listOfParametersToEvaluate, IFile configFilename);
+	IDataset parameterRecon(ITomographyParameter parameter, IFile filename, int slicenumber, double[] listOfParametersToEvaluate, IFile configFilename);
 
 	/**
 	 * Returns the modifiable parameters for this command runner

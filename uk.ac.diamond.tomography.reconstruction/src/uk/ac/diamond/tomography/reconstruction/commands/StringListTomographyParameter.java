@@ -18,9 +18,42 @@
 
 package uk.ac.diamond.tomography.reconstruction.commands;
 
-public interface ITomographyParameter {
+import java.util.List;
 
-	String getName();
+//XXX Could almost certainly be better
+public class StringListTomographyParameter implements ITomographyParameter {
+
+	private String name;
+	private int valueLocation;
+	List<String> paramValues;
 	
-	Object getValue();
+	public StringListTomographyParameter(String parameterName) {
+		name = parameterName;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public Object getValue() {
+		return paramValues.get(valueLocation);
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setValueLocation(int valueLocation) {
+		this.valueLocation = valueLocation;
+	}
+
+
+	public void setParamValues(List<String> paramValues) {
+		this.paramValues = paramValues;
+	}
+
+
+
 }
