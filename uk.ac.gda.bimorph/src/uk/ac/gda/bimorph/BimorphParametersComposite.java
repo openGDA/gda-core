@@ -322,7 +322,7 @@ public final class BimorphParametersComposite extends Composite {
 		
 		String command = "bimorph.runOptimisation(" + bimorphScannable + "," + "\"" + mirror_type + "\"" + ","
 				+ String.valueOf(noOfElectrodes) + "," + voltageInc + "," + files + "," + error_file + ","
-				+ desiredFocSize + "," + "\"" + user_offset + "\"" + "," + bm_voltages + "," + beamOffsetValue + "," + autoDist + "," + scalingFactor  +  ",'" + selectedDir + "'," + minSlitPos.getValue().toString() + "," +  maxSlitPos.getValue().toString() + "," + slitToScanPos + ")";
+				+ desiredFocSize + "," + "\"" + user_offset + "\"" + "," + bm_voltages + "," + beamOffsetValue + "," + autoDist + "," + scalingFactor  +  ",'" + selectedDir + "'," + minSlitPos.getValue().toString() + "," +  maxSlitPos.getValue().toString() + ",'" + slitToScanPos + "')";
 
 		JythonServerFacade.getInstance().runCommand(command);
 	}
