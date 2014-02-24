@@ -96,15 +96,6 @@ public class BioSAXSProgressController implements IObservable {
 							}
 						});
 					}
-
-					// }
-					// Display.getDefault().asyncExec(new Runnable() {
-					// @Override
-					// public void run() {
-					// bioSAXSProgressModel.clear();
-					// bioSAXSProgressModel.addAll(progressList);6
-					// }
-					// });
 					if (monitor.isCanceled())
 						return Status.CANCEL_STATUS;
 
@@ -156,7 +147,7 @@ public class BioSAXSProgressController implements IObservable {
 						progress.setAnalysisStatusInfo(analysisStatusInfo);
 					} else {
 						System.out.println("UDP update received, adding to model");
-						addToModel(dataCollectionId, "Sample" + dataCollectionId, collectionStatusInfo,
+						addToModel(dataCollectionId, "Sample " + dataCollectionId, collectionStatusInfo,
 								reductionStatusInfo, analysisStatusInfo);
 					}
 				}
