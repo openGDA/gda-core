@@ -130,6 +130,7 @@ public class LivePlotComposite extends Composite {
 	private ScanDataPointPlotter plotter = null;
 	private SashForm sashForm;
 	private ActionGroup actionGroup;
+	private boolean showLegend;
 	
 	/*
 	 * Made final as the value is passed to members in constructors so a change at this level would be
@@ -248,7 +249,7 @@ public class LivePlotComposite extends Composite {
 	 * @return true if last scans are made invisible
 	 */
 	public Boolean getAutoHideLastScan() {
-		return legend.autoHideLastScan;
+		return legend.getAutoHideLastScan();
 	}
 
 	/**
@@ -308,8 +309,6 @@ public class LivePlotComposite extends Composite {
 		sashForm.setWeights(WEIGHTS_NORMAL);
 		plotter = new ScanDataPointPlotter(plotView, legend, archiveFolder);
 	}
-
-	private boolean showLegend;
 
 	/**
 	 * @param showLegend
@@ -973,9 +972,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
  * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
  */
 class LiveData {
-
 	private static final Logger logger = LoggerFactory.getLogger(LiveData.class);
-
 	private int number = 0;
 	private LiveDataArchive archive; // data and appearance
 	private String name; // a mix of the name of the group of plots (scan number) and the name of the line (column header)
@@ -1278,7 +1275,6 @@ class LiveData {
 		DoubleDataset dataset = archive.getxAxis().toDataset();
 		double[] xvals_old = dataset != null ? dataset.getData() : new double[0];
 		double[] yvals_old = archive.getyVals().getData();
-
 		double[] yvals_new = null;
 		double[] xvals_new = null;
 		int old_length = xvals_old.length;
@@ -1397,12 +1393,10 @@ class XYLegendActionGroup extends ActionGroup {
 	public void fillContextMenu(IMenuManager menu) {
 		super.fillContextMenu(menu);
 		IStructuredSelection selection = (IStructuredSelection) getContext().getSelection();
-
 		boolean anyResourceSelected = !selection.isEmpty();
 		if (anyResourceSelected) {
 			addNewWindowAction(menu, selection);
 		}
-
 	}
 
 	/**
@@ -1414,7 +1408,6 @@ class XYLegendActionGroup extends ActionGroup {
 	 *            the current selection
 	 */
 	private void addNewWindowAction(IMenuManager menu, IStructuredSelection selection) {
-
 		// Only supported if exactly one container (i.e open project or folder) is selected.
 		if (selection.size() != 1) {
 			return;
@@ -1427,12 +1420,10 @@ class XYLegendActionGroup extends ActionGroup {
 }
 
 class EditAppearanceAction extends Action implements ActionFactory.IWorkbenchAction {
-
 	/**
 	 * The workbench window; or <code>null</code> if this action has been <code>dispose</code>d.
 	 */
 	private IWorkbenchWindow workbenchWindow;
-
 	private ScanPair pageInput;
 	private LivePlotComposite comp;
 

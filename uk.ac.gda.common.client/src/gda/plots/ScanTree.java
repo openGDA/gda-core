@@ -96,7 +96,6 @@ public class ScanTree extends DefaultTreeModel {
 		super.valueForPathChanged(path, newValue);
 	}
 
-		
 	public Vector<String> getNamesOfLinesInPreviousScan(boolean visibility){
 		Vector<String> names = new Vector<String>();
 		ScanTreeM scanTreeM = (ScanTreeM) getRoot();

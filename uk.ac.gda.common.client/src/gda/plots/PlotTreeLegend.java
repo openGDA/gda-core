@@ -67,16 +67,12 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.jfree.util.ShapeUtilities;
 
-/**
- *
- */
 public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
-
-	TreeListenerArea treeListenerArea;
-	TreeArea treeArea;
-	JCheckBoxMenuItem menuAutoCollapseTreeOnAdd;
-	JCheckBoxMenuItem menuUnshowLast, menuUnshowNew;
-	ScanTree model;
+	private TreeListenerArea treeListenerArea;
+	private TreeArea treeArea;
+	private JCheckBoxMenuItem menuAutoCollapseTreeOnAdd;
+	private JCheckBoxMenuItem menuUnshowLast, menuUnshowNew;
+	private ScanTree model;
 
 	/**
 	 * @param simplePlot
@@ -97,7 +93,7 @@ public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					if (menuAutoCollapseTreeOnAdd.isSelected()) {
-						treeArea.model.reload();
+						treeArea.getModel().reload();
 					}
 				} catch (Exception ex) {
 					// do nothing - sometimes since if tree is being modified
@@ -123,11 +119,10 @@ public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				treeArea.model.makeAllVisible(false);
+				treeArea.getModel().makeAllVisible(false);
 			}
 		});
 		
-
 		JMenuItem menuTreeVisible = new JMenuItem("Show All");
 		menuTreeVisible.setMnemonic(KeyEvent.VK_S);
 		menuTreeVisible.setSelected(true);
@@ -136,12 +131,10 @@ public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				treeArea.model.makeAllVisible(true);
+				treeArea.getModel().makeAllVisible(true);
 			}
 		});
 
-
-		
 		menuBar.add(menuHideAll);
 		JMenu optionsMenu = new JMenu("Options");
 		optionsMenu.setMnemonic(KeyEvent.VK_O);
@@ -183,9 +176,7 @@ public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
 	protected boolean getMenuUnShowNewVal() {
 		return  menuUnshowNew.isSelected();
 	}
-	/**
-	 * 
-	 */
+
 	@Override
 	public void removeAllItems(){
 		treeArea.removeAllItems();
@@ -199,8 +190,8 @@ public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
 }
 
 class TreeArea extends JScrollPane {
-	JTree tree;
-	ScanTree model;
+	private JTree tree;
+	private ScanTree model;
 
 	TreeArea(TreeListenerArea area, ScanTree model) {
 		this.model = model;
@@ -221,14 +212,15 @@ class TreeArea extends JScrollPane {
 			tree.makeVisible(new TreePath(node.getPath()));
 	}
 
-	/**
-	 * 
-	 */
 	public void removeAllItems(){
 		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)model.getRoot();
 		while(rootNode.getChildCount()>0){
 			model.removeNodeFromParent((DefaultMutableTreeNode)rootNode.getChildAt(0));
 		}
+	}
+
+	public ScanTree getModel() {
+		return model;
 	}
 	
 }
@@ -236,8 +228,7 @@ class TreeArea extends JScrollPane {
 class ScanTreeRenderer implements TreeCellRenderer {
 	private SelectableNodeRenderer selectableNodeRenderer = new SelectableNodeRenderer();
 	private ScanPairRenderer scanPairRenderer = new ScanPairRenderer();
-
-	DefaultTreeCellRenderer defaultRenderer = new DefaultTreeCellRenderer();
+	private DefaultTreeCellRenderer defaultRenderer = new DefaultTreeCellRenderer();
 
 	ScanTreeRenderer() {
 		Font fontValue;
@@ -248,8 +239,7 @@ class ScanTreeRenderer implements TreeCellRenderer {
 		}
 		Boolean booleanValue = (Boolean) UIManager.get("Tree.drawsFocusBorderAroundIcon");
 		selectableNodeRenderer.setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));
-		scanPairRenderer.chkBx.setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));
-
+		scanPairRenderer.getCheckBox().setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));
 	}
 
 	@Override
@@ -260,7 +250,8 @@ class ScanTreeRenderer implements TreeCellRenderer {
 		if (value != null && value instanceof ScanPair) {
 			scanPairRenderer.configure((ScanPair) value);
 			returnValue = scanPairRenderer;
-		} else if (value != null && value instanceof ISelectableNode) {
+		} 
+		else if (value != null && value instanceof ISelectableNode) {
 			selectableNodeRenderer.configure((ISelectableNode) value);
 			returnValue = selectableNodeRenderer;
 		}
@@ -274,7 +265,7 @@ class ScanTreeRenderer implements TreeCellRenderer {
 
 
 class SelectableNodeRenderer extends JCheckBox implements ISelectable {
-
+	final static int maxLength = 25;
 	static Icon savedIcon;
 	static Icon icon;
 	static {
@@ -287,7 +278,6 @@ class SelectableNodeRenderer extends JCheckBox implements ISelectable {
 		}
 	}
 
-	final static int maxLength = 25;
 	void configure(ISelectableNode node) {
 		String text = node.toLabelString(maxLength);
 		if (text.length() > maxLength) {
@@ -304,28 +294,27 @@ class SelectableNodeRenderer extends JCheckBox implements ISelectable {
 
 class ScanPairRenderer extends JPanel implements ISelectable {
 	static final int size = 4;
-	JCheckBox chkBx = new JCheckBox();
-	MButton btn1 = new MButton();
+	private JCheckBox checkBox = new JCheckBox();
+	private MButton btn1 = new MButton();
+	final static int maxLength = 25;
 
 	ScanPairRenderer() {
 		setLayout(new FlowLayout());
 		add(btn1);
 		btn1.setOpaque(false);
-		add(chkBx);
-		chkBx.setOpaque(false);
+		add(checkBox);
+		checkBox.setOpaque(false);
 	}
 
-	
-	final static int maxLength = 25;
 	void configure(ScanPair node) {
 		String text = node.toLabelString(maxLength);
-		chkBx.setText(text);
-		chkBx.setSelected(node.scanLine.visible);
-		chkBx.setForeground(node.scanLine.lineColor);
-		btn1.shape = node.scanLine.marker.getShape(size);
-		Rectangle rect = btn1.shape.getBounds();
-		btn1.shape = ShapeUtilities.createTranslatedShape(btn1.shape, size, size);
-		btn1.color = node.scanLine.lineColor;
+		checkBox.setText(text);
+		checkBox.setSelected(node.scanLine.visible);
+		checkBox.setForeground(node.scanLine.lineColor);
+		btn1.setShape(node.scanLine.marker.getShape(size));
+		Rectangle rect = btn1.getShape().getBounds();
+		btn1.setShape(ShapeUtilities.createTranslatedShape(btn1.getShape(), size, size));
+		btn1.setColor(node.scanLine.lineColor);
 		btn1.setPreferredSize(new Dimension(rect.width + 1, rect.height + 1));
 		validate();
 		setOpaque(false);
@@ -333,13 +322,18 @@ class ScanPairRenderer extends JPanel implements ISelectable {
 
 	@Override
 	public boolean isSelected() {
-		return chkBx.isSelected();
+		return checkBox.isSelected();
 	}
+
+	public JCheckBox getCheckBox() {
+		return checkBox;
+	}
+
 }
 
 class MButton extends JComponent {
-	Shape shape;
-	Color color;
+	private Shape shape;
+	private Color color;
 
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -347,23 +341,36 @@ class MButton extends JComponent {
 		if (g instanceof Graphics2D) {
 			Graphics2D g2 = (Graphics2D) g;
 			Color old = g2.getColor();
-			g2.setColor(color);
-			g2.draw(shape);
+			g2.setColor(getColor());
+			g2.draw(getShape());
 			g2.setColor(old);
 		}
+	}
+
+	public Shape getShape() {
+		return shape;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setShape(Shape shape) {
+		this.shape = shape;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
 	}
 
 }
 
 class ScanTreeCellEditor extends AbstractCellEditor implements TreeCellEditor {
-
 	private SelectableNodeRenderer selectableNodeRenderer = new SelectableNodeRenderer();
 	private ScanPairRenderer scanPairRenderer = new ScanPairRenderer();
-
-	JTree tree;
-
-	Component editor;
-	Object objectBeingEdited;
+	private JTree tree;
+	private Component editor;
+	private Object objectBeingEdited;
 
 	ScanTreeCellEditor(JTree tree) {
 		this.tree = tree;
@@ -375,7 +382,7 @@ class ScanTreeCellEditor extends AbstractCellEditor implements TreeCellEditor {
 		}
 		Boolean booleanValue = (Boolean) UIManager.get("Tree.drawsFocusBorderAroundIcon");
 		selectableNodeRenderer.setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));
-		scanPairRenderer.chkBx.setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));
+		scanPairRenderer.getCheckBox().setFocusPainted((booleanValue != null) && (booleanValue.booleanValue()));
 	}
 
 	@Override
@@ -420,7 +427,7 @@ class ScanTreeCellEditor extends AbstractCellEditor implements TreeCellEditor {
 			if (returnValue instanceof AbstractButton)
 				btn = (AbstractButton) returnValue;
 			else
-				btn = ((ScanPairRenderer) returnValue).chkBx;
+				btn = ((ScanPairRenderer) returnValue).getCheckBox();
 			ItemListener itemListener = new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent itemEvent) {
@@ -438,17 +445,17 @@ class ScanTreeCellEditor extends AbstractCellEditor implements TreeCellEditor {
 }
 
 class TreeListenerArea extends JScrollPane implements TreeSelectionListener {
-	JTextArea area;
-
+	private JTextArea area;
 	static final String comment = "Select a line's marker to view details";
-
-	JTree tree;
+	private ScanPair scanPair;
+	private JTree tree;
+	
 	void setTree(JTree tree){
 		this.tree = tree;
 		this.tree.addTreeSelectionListener(this);
 	}
+	
 	TreeListenerArea() {
-		
 		
 		JMenuBar menuBar = new JMenuBar();
 		JMenuItem menuHideAll = new JMenuItem("Properties");
@@ -456,7 +463,6 @@ class TreeListenerArea extends JScrollPane implements TreeSelectionListener {
 		menuHideAll.setToolTipText("Set line properties");
 		menuHideAll.addActionListener(new AbstractAction() {
 
-			@SuppressWarnings("unused")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if( scanPair != null && tree != null){
@@ -482,12 +488,10 @@ class TreeListenerArea extends JScrollPane implements TreeSelectionListener {
 		setViewportView(panel);
 	}
 
-	private ScanPair scanPair;
 	@Override
 	public void valueChanged(TreeSelectionEvent e) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getPath().getLastPathComponent();
 		/* if nothing is selected */
-
 		if (node != null && node instanceof ScanPair) {
 			scanPair = (ScanPair) node;
 			area.setText(scanPair.scanLine.name);

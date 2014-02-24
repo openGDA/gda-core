@@ -65,8 +65,8 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	private ScanTree model;
 	private TreeViewer tv;
 	private CellEditor[] cellEditors;
-	boolean autoHideNewScan = false;
-	boolean autoHideLastScan = false;
+	private boolean autoHideNewScan = false;
+	private boolean autoHideLastScan = false;
 	
 	/**
 	 * @param parent
@@ -126,6 +126,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 			model.valueForPathChanged(new TreePath(node.getPath()), node);		
 		}
 	}
+	
 	/**
 	 * @param path
 	 * @param newValue
@@ -133,6 +134,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	public void valueForPathChanged(TreePath path, Object newValue){
 		model.valueForPathChanged(path, newValue);
 	}
+	
     /**
      * Returns the tree viewer which shows the resource hierarchy.
      * @return the tree viewer
@@ -158,13 +160,14 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 			}
 		});
 	}
-
+	
 	/**
 	 * update the model to cause the legend to be re-displayed
 	 */
 	public void reload(){
 		model.reload();
 	}
+	
 	/**
 	 * remove the item from the tree whose filename equals the one specified
 	 * @param filename 
@@ -245,7 +248,6 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 /**
  * This class provides the content for the tree in FileTree
  */
-
 class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener {
 	private static final Logger logger = LoggerFactory.getLogger(ScanTreeContentProvider.class);
 	private ScanTree tree;
@@ -264,7 +266,6 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 	@Override
 	public Object[] getChildren(Object parent) {
 		Vector<Object> children = new Vector<Object>();
-
 		for (int index = 0; index < tree.getChildCount(parent); index++) {
 			children.add(tree.getChild(parent, index));
 		}
@@ -355,7 +356,6 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 	public void treeNodesChanged(TreeModelEvent e) {
 		if (viewer != null)
 			viewer.refresh();
-
 	}
 
 	@Override
@@ -381,7 +381,6 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 /**
  * This class provides the labels for the file tree
  */
-
 class ScanTreeLabelProvider implements ILabelProvider, ITreePathLabelProvider {
 	// The listeners
 	private static final Image someSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class, "/partialSelection.gif");

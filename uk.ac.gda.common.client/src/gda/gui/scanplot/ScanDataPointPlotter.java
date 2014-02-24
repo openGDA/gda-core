@@ -36,15 +36,12 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
-/**
- *
- */
 public class ScanDataPointPlotter {
 	private static final Logger logger = LoggerFactory.getLogger(ScanDataPointPlotter.class);
-	Config config;
-	HashMap<String, Integer> sourceToLine = new HashMap<String, Integer>();
-	XYDataHandler plot;
-	XYDataHandlerLegend legendPanel;
+	private Config config;
+	private HashMap<String, Integer> sourceToLine = new HashMap<String, Integer>();
+	private XYDataHandler plot;
+	private XYDataHandlerLegend legendPanel;
 	private final String archiveFolder;
 
 	/**
@@ -62,7 +59,6 @@ public class ScanDataPointPlotter {
 	 * @param point
 	 */
 	public synchronized void addData(IScanDataPoint point) {
-
 		Double[] dataPoints;
 		if(point.getScanPlotSettings() != null && point.getScanPlotSettings().isIgnore())
 			return;
@@ -132,7 +128,8 @@ public class ScanDataPointPlotter {
 		String sourceToLineKey = point.getUniqueName() + outerScannablePosition;
 		if (sourceToLine.containsKey(sourceToLineKey)) {
 			addNewPoints(sourceToLine.get(sourceToLineKey), config.linesToAdd, xVal, dataPoints);
-		} else {
+		} 
+		else {
 			try {
 				plot.archive(false, archiveFolder);
 			} catch (IOException e) {
@@ -144,16 +141,10 @@ public class ScanDataPointPlotter {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	public void dispose() {
 		config = null;
 	}
 
-	/**
-	 * 
-	 */
 	public synchronized void clearGraph() {
 		sourceToLine.clear();
 	}
@@ -183,11 +174,10 @@ public class ScanDataPointPlotter {
 	public int createNewLines(String scanIdentifier, String currentFilename, 
 			Vector<String> stepIdsStrings, List<ConfigLine> linesToAdd, Double xVal,
 			Double[] dataPoints, boolean makeGroupAlways, String xAxisHeader, boolean reload) {
+		
 		int firstNewLineNumber = plot.getNextAvailableLine();
-
 		int lineNumber = firstNewLineNumber;
 		String topGrouping = "Scan:" + scanIdentifier;
-
 		String[] subGrouping = stepIdsStrings != null ? stepIdsStrings.toArray(new String[0]) : new String[0];
 
 		/*
@@ -237,8 +227,6 @@ public class ScanDataPointPlotter {
 		plot.setsPointsForLine(newLineNumber, xData, yData);
 		sourceToLine.put(sourceToLineKey, new Integer(newLineNumber));
 		return newLineNumber;
-		
 	}
-
 
 }
