@@ -97,7 +97,6 @@
                     <exclude name="**/OSCommandRunnerTest.java" />
                     <exclude name="**/StringInFileTest.java" />
                     <exclude name="**/SplitQuantitiesConverterTest.java" />
-                    <exclude name="**/LocalParametersTest.java" />
                 </fileset>
             </batchtest>
         </junit-call>
