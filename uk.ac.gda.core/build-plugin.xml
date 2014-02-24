@@ -75,16 +75,11 @@
                     <exclude name="**/DummyKeithleyTest.java" />
                     <exclude name="**/KeithleyRemoteTest.java" />
                     <exclude name="**/KeithleyTest.java" />
-                    <exclude name="**/HPDataLoggerTest.java" />
                     <exclude name="**/ODCCDControllerTest.java" />
-                    <exclude name="**/XmapTest.java" />
-                    <exclude name="**/DummyMotorTest.java" />
-                    <exclude name="**/TotalDummyMotorTest.java" />
                     <exclude name="**/DottedAccessScannableMotionBaseTest.java" />
                     <exclude name="**/DummyTemperatureTest.java" />
                     <exclude name="**/XspressSystemTest.java" />
                     <exclude name="**/ChooseVisitIDFrameTest.java" />
-                    <exclude name="**/BeanTest.java" />
                     <exclude name="**/ScanPlotPanelTest.java" />
                     <exclude name="**/ParametersPanelBuilderTest.java" />
                     <exclude name="**/SimpleXYSeriesTest.java" />
@@ -95,8 +90,6 @@
                     <exclude name="**/AboutTest.java" />
                     <exclude name="**/util/LocalPropertiesTest.java" /> <!-- there is also a LocalPropertiesTest in gda/configuration/properties-->
                     <exclude name="**/OSCommandRunnerTest.java" />
-                    <exclude name="**/StringInFileTest.java" />
-                    <exclude name="**/SplitQuantitiesConverterTest.java" />
                 </fileset>
             </batchtest>
         </junit-call>
