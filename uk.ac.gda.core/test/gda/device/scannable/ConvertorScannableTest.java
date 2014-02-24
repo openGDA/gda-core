@@ -50,7 +50,7 @@ public class ConvertorScannableTest {
 	public void setUp() throws Exception {
 		bsx = MockFactory.createMockScannableMotionUnits("bsx");
 
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "test/gda/device/scannable/TestFiles");
+		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
 		converterx = new gda.util.converters.LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1,
 				null);
 		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
@@ -95,7 +95,7 @@ public class ConvertorScannableTest {
 	public void testWithDifferingUnits() throws DeviceException {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
 
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "test/gda/device/scannable/TestFiles");
+		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
 		gda.util.converters.JEPConverterHolder converterx = new gda.util.converters.JEPConverterHolder("testconverter",
 				"mDeg_dcm_perp_mm_converter.xml");
 		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
@@ -109,7 +109,7 @@ public class ConvertorScannableTest {
 	public void testMoveWithDifferingUnits() throws DeviceException {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
 
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "test/gda/device/scannable/TestFiles");
+		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
 		gda.util.converters.JEPConverterHolder converterx = new gda.util.converters.JEPConverterHolder("testconverter",
 				"mDeg_dcm_perp_mm_converter.xml");
 		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
@@ -125,7 +125,7 @@ public class ConvertorScannableTest {
 	public void testConverterDoesNotHandleTtoS() throws DeviceException {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
 
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "test/gda/device/scannable/TestFiles");
+		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
 		converterx = new gda.util.converters.LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1,
 				LookupTableQuantityConverter.Mode_StoT);
 
@@ -146,7 +146,7 @@ public class ConvertorScannableTest {
 	public void testConverterDoesHandleTtoS() throws DeviceException {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
 
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "test/gda/device/scannable/TestFiles");
+		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
 		converterx = new gda.util.converters.LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1,
 				LookupTableQuantityConverter.Mode_Both);
 
