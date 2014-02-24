@@ -96,8 +96,8 @@
            name="Capillary View">
      </view>
      <view
-           class="uk.ac.gda.devices.bssc.views.BioSAXSPlotView"
-           id="uk.ac.gda.devices.bssc.views.BioSAXSPlotView"
+           class="uk.ac.gda.devices.bssc.views.BioSAXSPlotResultView"
+           id="uk.ac.gda.devices.bssc.views.BioSAXSPlotResultView"
            name="BioSAXS Plot"
            restorable="true">
      </view>
