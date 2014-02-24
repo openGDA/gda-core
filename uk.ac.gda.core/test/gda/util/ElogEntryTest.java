@@ -32,7 +32,7 @@ import org.junit.Test;
  * Tests that wrong input parameters do not result in an ELog being sent.
  *
  */
-//@Ignore("2010/06/09 Test ignored since it floods the Elog server GDA-2354")
+@Ignore("2010/06/09 Test ignored since it floods the Elog server GDA-2354")
 public class ElogEntryTest {
 	static String testfile1 = null;
 	static String testfile2 = null;
