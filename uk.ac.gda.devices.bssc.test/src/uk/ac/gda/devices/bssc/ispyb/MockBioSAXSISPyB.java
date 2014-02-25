@@ -278,4 +278,10 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public ISAXSDataCollection getSAXSDataCollection(long dataCollectionId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
