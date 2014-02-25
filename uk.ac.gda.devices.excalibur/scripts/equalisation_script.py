@@ -23,8 +23,20 @@ The Jython makes use of the Java classes: ExcaliburEqualizationHelper and Hdf5He
 
 import equalisation_script
 
-epg=equalisation_script.ExcaliburEqualiser(logFileName="/dls_sw/i13-1/scripts/equalistaion.dat")
+epg=equalisation_script.ExcaliburEqualiser(logFileName="/dls_sw/i13-1/scripts/equalisation.dat")
 epg.run()
+
+To generate an edge threshold file for a particular setting of the detector
+
+e.g. >>>dacscan threshold0 0 150 1 excalibur_config_dacscan
+
+Then run the command createThresholdFileFromScanData with the first argument set to the name of the file produced in the dacscan
+
+e.g. >>>epg.createThresholdFileFromScanData("/dls/i13-1/data/2013/cm5938-4/raw/19443.nxs", "")
+
+Then run the command analyse_thresholdfile  with the first argument set to the name of the file produced by the createThresholdFileFromScanData command
+
+>>>epg.analyse_thresholdfile("/dls/i13-1/data/2013/cm5938-4/raw/19443_10.nxs")
 
 """
 
@@ -239,19 +251,20 @@ class ExcaliburEqualiser:
         self.getDACPixelOptFilename()
         self.save()
 
-        self.threshold0Max = 100
+
+        self.threshold0Max = 200            # set to 100 for equalising on noise, 200 for Zr with target of 100
         self.threshold0StepSize = 2
         self.getDacPixelCheckScanData()
         self.save()
 
-        self.threshold0Max = 100
+        self.threshold0Max = 200            # set to 100 for equalising on noise, 200 for Zr with target of 100
         self.threshold0StepSize = 1
 
         self.getRawEqCheckFilename()
         self.save()
 
 #Fine tuning steps
-        self.threshold0Max = 50
+        self.threshold0Max = 200            # set to 50 for equalising on noise, 200 for Zr with target of 100
         self.threshold0StepSize = 1
         
         for i in range(numberOfTweaks):
@@ -597,7 +610,9 @@ class ExcaliburEqualiser:
                     t = dnp.io.load(filePath)
 #                    edgeThreshold = t['entry1/equalisation/edgeThresholds_col' + `icol` + '_row' + `irow`][...]
                     edgeThreshold = t['entry1/equalisation/edgeThresholds_row' + `irow` + '_column' + `icol`][...]
-                    equalToMinus10 = edgeThreshold == -10
+                    a=edgeThreshold <= -10
+                    b=edgeThreshold > -11                    
+                    equalToMinus10 = a==b
                     chip.numUnequalisedPixels = int(equalToMinus10.sum())
                     xvals = t['entry1/equalisation/Population_row' + `irow` + '_col' + `icol` + '_xvals'][...]
                     yvals = t['entry1/equalisation/Population_row' + `irow` + '_col' + `icol` + '_yvals'][...]

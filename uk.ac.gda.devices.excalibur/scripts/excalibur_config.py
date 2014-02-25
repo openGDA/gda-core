@@ -31,9 +31,9 @@ def _getTestPattern(on=True):
     
 def loadTestPattern(on=True):
     if on:
-        handle_messages.log(None,"Loading test mask...")
+        handle_messages.log(None,"Loading test pattern...")
     else:
-        handle_messages.log(None,"Clearing test mask...")
+        handle_messages.log(None,"Clearing test pattern...")
     testPulse=_getTestPattern(on)
     config= Finder.getInstance().find("excalibur_config")
     nodes = config.get("readoutFems")
@@ -43,10 +43,30 @@ def loadTestPattern(on=True):
             node.getIndexedMpxiiiChipReg(j).pixel.setTest(testPulse)
             node.getIndexedMpxiiiChipReg(j).loadPixelConfig()
     if on:
-        handle_messages.log(None,"Loading test mask done")
+        handle_messages.log(None,"Loading test pattern done")
     else:
-        handle_messages.log(None,"Clearing test mask done")
+        handle_messages.log(None,"Clearing test pattern done")
     
+
+import csv
+def get_mask_from_csvfile(file_path):
+    d=[]
+    csvfile= open(file_path)
+    rdr=csv.reader(csvfile)
+    for row in rdr:
+        irow=[]
+        for r in row:
+            irow.append(int(r))
+        d=d+irow
+    return d
+
+def loadMask(mask=[0]*3709717): #size of ACQUIRE:PixelMask
+    handle_messages.log(None,"Loading mask...")
+    config= Finder.getInstance().find("excalibur_config")
+    configAdBase = config.get("configAdBase")
+    configAdBase.setPixelMask(mask)
+    handle_messages.log(None,"Loading mask done")
+
     
 def setOperationModeToNormal(dev):
     handle_messages.log(None,"force operation mode to normal")
@@ -82,6 +102,45 @@ def checkFEMInitOK(dev):
             return True
         time.sleep(1)
     return False
+
+def loadDefaultConfig():
+    config= Finder.getInstance().find("excalibur_config")
+    dev=config.get("excaliburDev")
+    config_filepath = LocalProperties.getVarDir() + "excalibur_default_calibration.excaliburconfig"
+    handle_messages.log(None,"Loading default config from " + `config_filepath`)
+    time.sleep(2) #slow things done to avoid problems
+    recordConfig.sendConfigInFileToDetector(config_filepath)
+    time.sleep(2) #slow things done to avoid problems
+    setOperationModeToNormal(dev) #sendConfigInFileToDetector may have changed readout node states
+
+def setBiasOn():
+    config= Finder.getInstance().find("excalibur_config")
+    dev=config.get("excaliburDev")
+    handle_messages.log(None,"Turning on HV and ramping to desired level")
+    dev.set('1:HK:BIAS_ON_OFF',1) #on
+    dev.set('1:HK:BIAS_LEVEL',117.5) 
+    if dev.getDouble('1:HK:BIAS_ON_OFF') != 1:
+        handle_messages.log(None,"HV is OFF", Raise=True)
+        
+    #check vmon is ok. Loop until it is ok, then check
+    for i in range(10):
+        ok = dev.getInteger('1:HK:BIAS_VMON.STAT') == 0
+        if ok:
+            break
+        time.sleep(1)
+    if dev.getInteger('1:HK:BIAS_VMON.STAT') != 0:
+        handle_messages.log(None,"HV VMON is in alarm after 10s", Raise=True)
+        
+    handle_messages.log(None,"POWER OK")
+
+def setBiasOff():
+    config= Finder.getInstance().find("excalibur_config")
+    dev=config.get("excaliburDev")
+    dev.set('1:HK:BIAS_ON_OFF',0) #off
+    if dev.getInteger('1:HK:BIAS_ON_OFF') != 0:
+        handle_messages.log(None,"HV is ON", Raise=True)
+    
+    
         
 def switch_on():
     config= Finder.getInstance().find("excalibur_config")
@@ -113,25 +172,10 @@ def switch_on():
         handle_messages.log(None,"LV is OFF", Raise=True)
         
     if not checkFEMInitOK(dev):
-        handle_messages.log(None,"FEMs did not initialise (FEMInitOK)", Raise=True)
+        handle_messages.log(None,"FEMs did not initialise (FEMInitOK). Check ethernet connections", Raise=True)
 
-    handle_messages.log(None,"Turning on HV and ramping to desired level")
 
-    dev.set('1:HK:BIAS_ON_OFF',1) #on
-    dev.set('1:HK:BIAS_LEVEL',117.5) 
-    if dev.getDouble('1:HK:BIAS_ON_OFF') != 1:
-        handle_messages.log(None,"HV is OFF", Raise=True)
-        
-    #check vmon is ok. Loop until it is ok, then check
-    for i in range(10):
-        ok = dev.getInteger('1:HK:BIAS_VMON.STAT') == 0
-        if ok:
-            break
-        time.sleep(1)
-    if dev.getInteger('1:HK:BIAS_VMON.STAT') != 0:
-        handle_messages.log(None,"HV VMON is in alarm after 10s", Raise=True)
-        
-    handle_messages.log(None,"POWER OK")
+    setBiasOn()
 
     handle_messages.log(None,"Setting up areaDetector plugins ")
     time.sleep(2) #slow things done to avoid problems
@@ -154,15 +198,8 @@ def switch_on():
     finally:
         det.pluginList[1].enabled=True #turn on file saving
 
+    loadDefaultConfig()
 
-    #load default config
-    config_filepath = LocalProperties.getVarDir() + "excalibur_default_calibration.excaliburconfig"
-    handle_messages.log(None,"Loading default config from " + `config_filepath`)
-    time.sleep(2) #slow things done to avoid problems
-    recordConfig.sendConfigInFileToDetector(config_filepath)
-
-    time.sleep(2) #slow things done to avoid problems
-    setOperationModeToNormal(dev) #sendConfigInFileToDetector may have changed readout node states
 
     measureTestPattern()
     
@@ -207,15 +244,53 @@ def switch_off():
 
     handle_messages.log(None,"Turning power off")
     
+    setBiasOff()
     dev.set('CONFIG:ACQUIRE:LvControl',0) #off
-    dev.set('1:HK:BIAS_ON_OFF',0) #off
     if dev.getInteger('CONFIG:ACQUIRE:LvControl') != 0:
         handle_messages.log(None,"LV is ON", Raise=True)
-    if dev.getInteger('1:HK:BIAS_ON_OFF') != 0:
-        handle_messages.log(None,"HV is ON", Raise=True)
     handle_messages.log(None,"POWER OFF")
 
     handle_messages.log(None,"Switch off done")
+    
+
+def get_values_from_csvfile(file_path):
+    d=[]
+    csvfile= open(file_path)
+    rdr=csv.reader(csvfile)
+    for row in rdr:
+        irow=[]
+        for r in row:
+            irow.append(float(r))
+        d.append(irow)
+    return d
+
+def set_threshold_from_energy(energy, dryRun=False):
+    """ 
+    Function to set the threshold0 values for all chips in all readoutNodes
+    
+    threshold0[readoutNode, chip] = gradients[readoutNode][chip]*energy + offsets[readoutNode][chip]
+    
+    where offsets and gradients are from from 2 csv files in LocalProperties.getVarDir(), threhold0_energy_offsets.csv and threhold0_energy_gradients.csv
+    
+    The nth line in a csv file contains the values for the 8 chips in the nth readoutNode
+    """
+    
+    config= Finder.getInstance().find("excalibur_config")
+    nodes = config.get("readoutFems")
+    offsets= get_values_from_csvfile(LocalProperties.getVarDir() + "threhold0_energy_offsets.csv")
+    if dryRun:
+        print offsets
+    gradients= get_values_from_csvfile(LocalProperties.getVarDir() + "threhold0_energy_gradients.csv")
+    if dryRun:
+        print gradients
+    for readoutNode in range(6):
+        for chip in range(8):
+            threshold0=int(gradients[readoutNode][chip]*energy + offsets[readoutNode][chip]+.5)
+            if dryRun:
+                print "%d %d=%d" %(readoutNode, chip, threshold0)
+            else:
+                nodes[readoutNode].getIndexedMpxiiiChipReg(chip).anper.setThreshold0(threshold0)    
+
 
 class ExcaliburConfigurator():
     def __init__(self, fix=True, gap=True, arr=False, master=True, hdf5=False, phdf5=True ):

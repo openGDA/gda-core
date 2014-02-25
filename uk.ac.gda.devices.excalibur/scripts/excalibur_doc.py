@@ -1,47 +1,60 @@
 """
 Help for using excalibur
 
-To restart IOC open IExcalibur Sttaus window via Hardware Status button on I13J synoptic. press restart all. then
-switch LV on excalibur housekeeping window/
+                                                       |                        
+Key:
+ * denotes items which are invoked by mouse clicking
+ $ denotes items which are invoked at the system command prompt
+ >>> denotes items which are invoked at gda command prompt
+
+Before the detector can be used, it is necessary to startup using the following
+sequence. This must be repeated each time the detector head, IOCs or gda is
+restarted.
+ 
+To restart IOC:
+ * open IExcalibur Status window via "Hardware Status" button on I13J synoptic -> "Excalibur IOC Status" button on Hardware and Process EDM screen. 
+ * press restart all
+ * switch LV on excalibur housekeeping window.
+
+To restart gda client:
+ $ gdaclient
 
 To re-configure excalibur IOCs:
 
-import excalibur_config
-configurator=excalibur_config.ExcaliburConfigurator(fix=False, gap=True, arr=False, master=True, hdf5=False, phdf5=True)
-configurator.setup()
+Before running scans you need to take at least 1 image with phdf plugin enabled
+but not saving data - so that the image dimensions match those used to create
+the file in the phfd tab (ArrayDims).
+ >>> caput("BL13J-EA-EXCBR-01:CONFIG:PHDF:EnableCallbacks", 1) # Or in "EXCALIBUR Configuration" EDM screen, phdf tab, Callback Enable: Enable    
+ * In "EXCALIBUR Configuration", acq tab, set up a single acquisition (e.g. Exposure 0.01s; #Exp/image 1; #Images 1; Operation mode Normal; Counter Depth 12bit; Counter Select A; Image mode Multiple; Trigger mode Internal) and click "Start"	 
 
 
-To record summary images to hdf:
-First 
-#note the BL13J-EA-EXCBR-01:CONFIG:MASTER:FrameDivisor needs to be set to 1 if we want to get all the images
->caput("BL13J-EA-EXCBR-01:CONFIG:MASTER:FrameDivisor",1)
->repscan 10 excalibur_summary_cam_normal .5
-
-
->repscan 100 excalibur_config_normal .01
-Note that the chunking is done dynamically by excalibur_config_normal at the start of the scan so there is no need to do this manually. 
-
-
-Before running scan you need to take at least 1 image with phdf plugin enabled but not saving data - so that the image dimensions
-match those used to create the file.
->repscan 100 excalibur_config_normal .01
+To use parallel writing of data to hdf: 
+ >>> repscan 100 excalibur_config_normal .01
+Note that the chunking is done dynamically by excalibur_config_normal at the
+start of the scan so there is no need to do this manually. 
 
 To save images recorded in burst mode:
 
->repscan 100 excalibur_config_burst .1  
+ >>>repscan 100 excalibur_config_burst .1  
 
 To record a dacscan:
->dacscan threshold0 0 149 15 excalibur_config_dacscan .01
+ >>>dacscan threshold0 0 149 15 excalibur_config_dacscan .01
+
+To record summary images to hdf (Not the prefered mode of running):
+#note the BL13J-EA-EXCBR-01:CONFIG:MASTER:FrameDivisor needs to be set to 1 if
+we want to get all the images
+ >>> caput("BL13J-EA-EXCBR-01:CONFIG:MASTER:FrameDivisor",1)
+ >>> repscan 10 excalibur_summary_cam_normal .5
 
 ****************************************
 
 To do a slow (GDA in the loop) threshold0 scan
 e.g. threshold scan using summary image
-scan threshold0 0 149 15 excalibur_summary_cam_normal .01
+ >>> scan threshold0 0 149 15 excalibur_summary_cam_normal .01
 
 
 To do a threshold scan
->dacscan threshold0 <start> <stop> <step> <detector_name> <exposure>
+ >>>dacscan threshold0 <start> <stop> <step> <detector_name> <exposure>
 where <detector_name> is: excalibur_config_dacscan | excalibur_summary_cam_dacscan
 
 e.g. dacscan using per node writing
@@ -99,6 +112,7 @@ scan ix 0 100 1 thresholdN 0 100 10 excalibur_readoutNode1_det .5
 
 To save the current config to file
 ----------------------------------
+import recordConfig
 recordConfig.createModelAndSaveToFile("/data/excalibur/config/yourname.excaliburconfig")
 
 
