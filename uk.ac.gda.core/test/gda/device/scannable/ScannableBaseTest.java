@@ -32,10 +32,15 @@ import junitx.framework.ArrayAssert;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.python.core.Py;
+import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
+import org.python.core.PyNone;
+import org.python.core.PySlice;
 import org.python.core.PyString;
+import org.python.modules.thread.thread;
 
 public class ScannableBaseTest {
 
@@ -193,6 +198,36 @@ public class ScannableBaseTest {
 	public void test__getitem__() throws DeviceException {
 		when(getSB().getPosition()).thenReturn( new Double[] { 1., 2. } );
 		assertEquals(getSB().__getitem__(new PyInteger(0)), new PyFloat(1.));
+	}
+
+	@Test
+	public void test__getitem__Slice() throws DeviceException {
+		when(getSB().getPosition()).thenReturn( new Double[] { 0., 1. } );
+		PyFloat[] values = { new PyFloat(0.), new PyFloat(1.) };
+		PyList expected = new PyList(values);
+		PySlice slice = new PySlice( new PyInteger(0), new PyInteger(2), new PyInteger(1) );
+		assertEquals( expected, getSB().__getitem__(slice) );
+	}
+
+	@Test
+	public void test__getitem__SliceWithNone() throws DeviceException {
+		when(getSB().getPosition()).thenReturn( new Double[] { 0., 1. } );
+		PyFloat[] values = { new PyFloat(0.), new PyFloat(1.) };
+		PyList expected = new PyList(values);
+		PySlice slice = new PySlice();
+		assertEquals( expected, getSB().__getitem__(slice) );
+	}
+
+	@Test
+	public void test__getitem__OutOfRange() throws DeviceException {
+		//might fail when run on its own, as Py.IndexError is sometimes null when it's added to the PyException
+		when(getSB().getPosition()).thenReturn( new Double[] { 0., 1.} );
+		try {
+			getSB().__getitem__( new PyInteger(2) );
+			fail("Should throw Python IndexError exception");
+		} catch (PyException e) {
+			assertEquals( Py.IndexError, e.type );
+		}
 	}
 
 	static String repr = "name : i1: 1.0000 i2: 2.0000 e1: 3.0000 e2: 4.0000";
