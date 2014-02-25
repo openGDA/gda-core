@@ -68,6 +68,7 @@ class QexafsScan(Scan):
                 final_energy = scanBean.getFinalEnergy()
                 step_size = scanBean.getStepSize()
                 self.outputPreparer.prepare(outputBean, scanBean)
+                print 'Prepare output'
                 if len(outputBean.getCheckedSignalList()) > 0:
                     print "Signal parameters not available with QEXAFS"
                 if self.energy_scannable == None:

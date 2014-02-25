@@ -6,8 +6,9 @@ from gda.exafs.scan import BeanGroup, BeanGroups
 from gda.jython.commands.GeneralCommands import run
 from gda.jython import InterfaceProvider
 from gda.data.scan.datawriter import NexusDataWriter, XasAsciiNexusDataWriter
-
+from gdascripts.metadata.metadata_commands import meta_add,meta_ls,meta_rm,meta_clear
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
+from gda.factory import Finder
 
 class Scan:
     
@@ -39,6 +40,7 @@ class Scan:
         
     def _resetHeader(self):
         self.datawriterconfig.setHeader(self.original_header)
+        meta_clear()
 
     def _createDetArray(self, names, scanBean=None):
         dets = []
@@ -103,14 +105,19 @@ class Scan:
 
         # create XasAsciiNexusDataWriter object and give it the parameters
         dataWriter = XasAsciiNexusDataWriter()
-        dataWriter.setRunFromExperimentDefinition(True);
-        dataWriter.setScanBean(scanBean);
-        dataWriter.setDetectorBean(detectorBean);
-        dataWriter.setSampleBean(sampleBean);
-        dataWriter.setOutputBean(outputBean);
-        dataWriter.setSampleName(sampleName);
-        dataWriter.setXmlFolderName(experimentFullPath)
-        dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+        if (Finder.getInstance().find("metashop") != None):
+            meta_add("DetectorParameters", BeansFactory.getXMLString(detectorBean))
+            meta_add("OutputParameters", BeansFactory.getXMLString(outputBean))
+            meta_add("SampleParameters", BeansFactory.getXMLString(sampleBean))
+            meta_add("ScanParameters", BeansFactory.getXMLString(scanBean))
+            meta_add("xmlFolderName", experimentFullPath)
+            xmlFilename = self._determineDetectorFilename(detectorBean)
+            if ((xmlFilename != None) and (experimentFullPath != None)):
+                detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath, xmlFilename)
+                meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
+        else: 
+            self.logger.info("Metashop not found")
+            
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);

@@ -6,7 +6,9 @@ from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 
 from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
 from gda.data.scan.datawriter import NexusFileMetadata
+from gda.data.scan.datawriter import NexusDataWriter
 from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
+from gdascripts.metadata.metadata_commands import meta_add
 
 class Metadata():
     
@@ -31,17 +33,9 @@ class Metadata():
                 scannable=jython_mapper.__getitem__(name)
             asciiConfig.setLabelValues([scannable])
             new_header.add(asciiConfig)
-            self.add_to_nexus_metadata(name, str(scannable), "additional_scannables", NXinstrumentSubTypes.NXpositioner)
-
+            meta_add(scannable)
+           
         self.datawriterconfig.setHeader(new_header)
 
             
-    def add_to_nexus_metadata(self, name, value, type, subtype):
-        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata(name,value,EntryTypes.NXcharacterization,subtype,type))
-        
-    def addScannableMetadataEntry(self, scannableName, type, subtype):
-        jythonNameMap = JythonNameSpaceMapping()
-        scannable = jythonNameMap.__getitem__(scannableName)
-        self.add_to_nexus_metadata(scannableName, str(scannable()), type, subtype)  
-        
-        
+    

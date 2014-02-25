@@ -87,6 +87,7 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 	@Override
 	protected void createCustomMetaData() throws NexusException {
 		HashMap<String,Vector<NexusFileMetadata>> groups = getMetadataEntries();
+		super.createCustomMetaData();
 		for (String groupName : groups.keySet()){
 			Vector<NexusFileMetadata> group = groupedMetadata.get(groupName);
 			if (group.size() > 0) {

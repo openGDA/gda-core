@@ -20,17 +20,12 @@ package gda.data.scan.datawriter;
 
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.scan.IScanDataPoint;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.exafs.IDetectorParameters;
-import uk.ac.gda.beans.exafs.IOutputParameters;
-import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.beans.exafs.IScanParameters;
+
 
 /**
  * Write to an Xas and a Nexus file simultaneously
@@ -43,12 +38,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	private String asciiFileNameTemplate;
 	private Boolean firstData = true;
 	private Boolean runFromExperimentDefinition = false;
-	private IScanParameters scanBean;
-	private IDetectorParameters detectorBean;
-	private ISampleParameters sampleBean;
-	private IOutputParameters outputBean;
-	private String xmlFolderName;
-	private String xmlFileName;
 	private List<String> descriptions;
 	private String sampleName;
 	private AsciiDataWriterConfiguration configuration;
@@ -93,14 +82,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 				ascii.setConfiguration(configuration);
 
 			nexus = new XasNexusDataWriter(Long.parseLong(newData.getScanIdentifier()));
-			nexus.setRunFromExperimentDefinition(runFromExperimentDefinition);
-			nexus.setScanBean(scanBean);
-			nexus.setDetectorBean(detectorBean);
-			nexus.setSampleBean(sampleBean);
-			nexus.setOutputBean(outputBean);
-			nexus.setXmlFolderName(xmlFolderName);
-			nexus.setXmlFileName(xmlFileName);
-			
 			setFileNameTemplates();
 			firstData = false;
 		}
@@ -184,39 +165,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	public void setAsciiFileNameTemplate(String asciiFileNameTemplate) {
 		this.asciiFileNameTemplate = asciiFileNameTemplate;
-	}
-
-	public Boolean getRunFromExperimentDefinition() {
-		return runFromExperimentDefinition;
-	}
-
-	public void setRunFromExperimentDefinition(Boolean runFromExperimentDefinition) {
-		this.runFromExperimentDefinition = runFromExperimentDefinition;
-	}
-
-	public void setScanBean(IScanParameters scanBean) {
-		this.scanBean = scanBean;
-	}
-
-
-	public void setDetectorBean(IDetectorParameters detectorBean) {
-		this.detectorBean = detectorBean;
-	}
-
-	public void setSampleBean(ISampleParameters sampleBean) {
-		this.sampleBean = sampleBean;
-	}
-
-	public void setOutputBean(IOutputParameters outputBean) {
-		this.outputBean = outputBean;
-	}
-
-	public void setXmlFolderName(String xmlFolderName) {
-		this.xmlFolderName = xmlFolderName;
-	}
-
-	public void setXmlFileName(String xmlFileName) {
-		this.xmlFileName = xmlFileName;
 	}
 
 	public void setDescriptions(List<String> descriptions) {
