@@ -24,8 +24,6 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableMotor;
-import gda.scan.ScanPositionRecordable;
-import gda.scan.ScanPositionRecorder;
 
 import java.util.concurrent.Callable;
 
@@ -36,7 +34,7 @@ import org.springframework.beans.factory.InitializingBean;
  * 
  * 
  */
-public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, ZebraMotorInfoProvider, PositionCallableProvider<Double>, ScanPositionRecordable, InitializingBean{
+public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, ZebraMotorInfoProvider, PositionCallableProvider<Double>, InitializingBean{
 //	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMotor.class);
 	private ZebraConstantVelocityMoveController continuousMoveController;
 	private double scurveTimeToVelocity=.03;//default set to rotation stage on I13
@@ -74,14 +72,11 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	// Scannable //
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		if (recorder != null) {
-			recorder.addPositionToCurrentPoint(this, position);
-		} else {
-			continuousMoveController.addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
-		}
+		continuousMoveController.addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
 	}
 	@Override
 	public Object getPosition() throws DeviceException {
+		//TODO this will not be called as we have getPositionCallable so getLastPointAdded is not required not addPoint
 		Object[] pos = (Object[]) internalToExternal(new Double[]{continuousMoveController.getLastPointAdded()});
 		if (pos == null) {
 			// First point is in process of being added
@@ -144,15 +139,9 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 		}
 		return scannableMotor;
 	}
-	private ScanPositionRecorder recorder;
 	private double exposureStep;
 	private boolean exposureStepDefined=false;
 	
-	@Override
-	public void setRecorder(ScanPositionRecorder recorder) {
-		this.recorder=recorder;
-	}
-
 	@Override
 	public double getExposureStep() {
 		return Math.abs(exposureStep);
