@@ -140,6 +140,7 @@ class QexafsScan(Scan):
 #                    raise e
                 # handle every Java exception through this code, as sometimes an interrupt gets 
                 # encapsulated in a DeviceException (which should not happen)
+                
                 except java.lang.Exception, e:
                     self._resetHeader()
                     loggingbean.atCommandFailure()
@@ -158,7 +159,18 @@ class QexafsScan(Scan):
                 except:
                     self._resetHeader()
                     loggingbean.atCommandFailure()
-                    raise
+                    if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
+                        LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
+                        ScanBase.interrupted = False
+                        # check if a panic stop has been issued, so the whole script should stop
+                        if ScriptBase.isInterrupted():
+                            raise e
+                        # only wanted to skip this repetition, so absorb the exception and continue the loop
+                        if numRepetitions > 1:
+                            print "Repetition", str(repetitionNumber),"skipped."
+                    else:
+                        print e
+                        raise
                     
                 # run the after scan script
                 self._runScript(outputBean.getAfterScriptName())
@@ -189,6 +201,8 @@ class QexafsScan(Scan):
             self._resetHeader()
             if self.cirrusEnabled:
                 self.t.stop
+            
+            print "qexafs finished"
                 
 
     def _getQEXAFSDetectors(self, detectorBean, outputBean, scanBean):
