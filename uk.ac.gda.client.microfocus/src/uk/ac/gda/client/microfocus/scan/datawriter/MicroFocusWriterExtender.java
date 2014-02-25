@@ -208,7 +208,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		Double[] xy = dataPoint.getPositionsAsDoubles();
 		int totalPoints = 0;
 		Vector<Detector> detFromDP = dataPoint.getDetectors();
-		if (dataPoint.getCurrentPointNumber() == 0 && lastDataPoint == null) {
+		if (lastDataPoint == null || dataPoint.getCurrentPointNumber() == 0) {
 			// this is the first point in the scan
 			totalPoints = deriveXYArrays(xy);
 			deriveROIHeader(detFromDP);
@@ -221,7 +221,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		if ((lastDataPoint == null || (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(
 				dataPoint.getCurrentFilename())))
 				&& (xValues != null || yValues != null)) {
-//			double valueToDisplay = 0.0;
 			Hashtable<String, Double> rgbLineData = null;
 			StringBuffer rgbLine = new StringBuffer();
 			int xindex = dataPoint.getCurrentPointNumber() % numberOfXPoints;
@@ -243,26 +242,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 								+ " parts in the data and " + detector.getExtraNames().length + " extra names for "
 								+ detector.getName());
 					}
-//					// if TfgScaler data chosen to be plotted
-//					if (selectedElementIndex == -1) {
-//						int selectedScalerElement = ArrayUtils.indexOf(detector.getExtraNames(), selectedElement);
-//						if (selectedScalerElement != -1)
-//							valueToDisplay = scalerData[selectedScalerElement];
-////						String[] s = detector.getExtraNames();
-////						for (int i = 0; i < s.length; i++) {
-////							if (s[i].equals(selectedElement)) {
-////								selectedElementIndex = i;
-////								break;
-////							}
-////							selectedElementIndex = -1;
-////						}
-//					}
 					for (double i : scalerData) {
 						rgbLine.append(i);
 						rgbLine.append("	");
 					}
-//					if (selectedElementIndex != -1 && selectedElementIndex < scalerData.length)
-//						valueToDisplay = scalerData[selectedElementIndex];
 					if (normaliseElementIndex != -1 && normaliseElementIndex < scalerData.length)
 						normaliseValue = scalerData[normaliseElementIndex];
 					scalerValuesCache[dataPoint.getCurrentPointNumber()] = scalerData;
@@ -297,13 +280,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 									double rgbElementSum = rgbLineData.get(key);
 									rgbLineData.put(key, rgbElementSum + windowTotal);
 									detectorValuesCache[i][roiNameMap.get(key)][dataPoint.getCurrentPointNumber()] = windowTotal;
-//									if (roi.getRoiName().equals(selectedElement) && i == selectedChannel) {
-//										valueToDisplay = windowTotal;
-//									}
 								}
 							}
 						}
-//						logger.debug("the value for the selected element " + selectedElement + " is " + valueToDisplay);
 
 					} else if (isXmapScan()
 							&& ((detector instanceof XmapDetector) || (detector instanceof BufferedDetector))) {
@@ -360,16 +339,12 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 									double rgbElementSum = rgbLineData.get(key);
 									rgbLineData.put(key, rgbElementSum + windowTotal);
 									detectorValuesCache[j][roiNameMap.get(key)][dataPoint.getCurrentPointNumber()] = windowTotal;
-//									if (roi.getRoiName().equals(selectedElement) && j == selectedChannel) {
-//										valueToDisplay = windowTotal;
-//									}
 								}
 							}
 						}
 					}
 					logger.debug("The y value is " + xy[0]);
 					logger.debug("the x value is " + xy[1]);
-//					logger.debug("the data to plot is " + valueToDisplay);
 				}
 			}
 
@@ -459,6 +434,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		firstX = xy[1];
 		firstY = xy[0];
 		int totalPoints = numberOfXPoints * numberOfYPoints;
+		scalerValuesCache = null;
 		scalerValuesCache = new double[totalPoints][];
 		if (roiNameMap != null)
 			detectorValuesCache = new double[numberOfSubDetectors][roiNameMap.size()][totalPoints];
@@ -489,7 +465,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		// server
 
 		int point = y * numberOfXPoints + x;
-		int current = lastDataPoint.getCurrentPointNumber();
+		int current = 0;
+		if (lastDataPoint != null){
+			current = lastDataPoint.getCurrentPointNumber();
+		}
 
 		if (current >= point) {
 			IDataset slice = null;
