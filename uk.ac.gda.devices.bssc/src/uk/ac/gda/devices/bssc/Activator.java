@@ -21,7 +21,13 @@ package uk.ac.gda.devices.bssc;
 
 import java.util.Hashtable;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -35,12 +41,13 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "uk.ac.gda.devices.bssc"; //$NON-NLS-1$
+	public static final String IMAGE_ID = "icons/bioSAXS.png";
 
 	// The shared instance
 	private static Activator plugin;
 
 	private BundleContext context;
-	
+
 	/**
 	 * The constructor
 	 */
@@ -59,6 +66,16 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 	}
 
 	@Override
+	protected void initializeImageRegistry(ImageRegistry registry) {
+		super.initializeImageRegistry(registry);
+		Bundle bundle = Platform.getBundle(PLUGIN_ID);
+
+		ImageDescriptor bioISISImage = ImageDescriptor.createFromURL(FileLocator.find(bundle,
+				new Path("icons/bioISIS.png"), null));
+		registry.put(IMAGE_ID, bioISISImage);
+	}
+
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
@@ -66,7 +83,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
 	public static Activator getDefault() {
