@@ -158,12 +158,12 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		String fileName = null;
-		NexusTreeProvider[] container = null;
+//		String fileName = null;
+//		NexusTreeProvider[] container = null;
 		try {
 			// System.out.println("wating for file");
 			if (lastFileName == null && !lastFileReadStatus) {
-				fileName = this.controller.getHDFFileName();
+				lastFileName = this.controller.getHDFFileName();
 
 				waitForFile();
 				// change to linux format
@@ -172,43 +172,59 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				xmap.stop();
 				//sleep required for gda to recognise number of arrays has finalized.
 				Thread.sleep(1000);
-				fileName = fileName.replace("X:/", "/dls/" + beamline);
+				lastFileName = lastFileName.replace("X:/", "/dls/" + beamline);
 				if (controller.isBufferedArrayPort())
-					fileLoader = new XmapBufferedHdf5FileLoader(fileName);
+					fileLoader = new XmapBufferedHdf5FileLoader(lastFileName);
 				else
-					fileLoader = new XmapNexusFileLoader(fileName,getXmap().getNumberOfMca());
+					fileLoader = new XmapNexusFileLoader(lastFileName,getXmap().getNumberOfMca());
 				fileLoader.loadFile();
-				lastFileName = fileName;
+//				lastFileName = lastFileName;
 				lastFileReadStatus = true;
+			} else {
+				
 			}
-			int numOfPoints = fileLoader.getNumberOfDataPoints();
-			container = new NexusTreeProvider[numOfPoints];
-			if (finalFrame < numOfPoints) {
-				for (int i = startFrame; i <= finalFrame; i++) {
-					logger.info("writing point number " + i);
-					container[i] = writeToNexusFile(i, fileLoader.getData(i));
-				}
+			int numOfPointsInFile = fileLoader.getNumberOfDataPoints();
+			int numPointsToRead = finalFrame - startFrame + 1;
+			
+			if (numOfPointsInFile < numPointsToRead) {
+				throw new DeviceException("Xmap data file "+ lastFileName +  " only has " + numOfPointsInFile + " data point but expected at least " + numPointsToRead ); 
 			}
-			if (finalFrame > numOfPoints) {
-				for (int i = startFrame; i < numOfPoints; i++) {
-					logger.info("writing point number " + i);
-					container[i] = writeToNexusFile(i, fileLoader.getData(i));
-				}
+			
+			NexusTreeProvider[] container = new NexusTreeProvider[numPointsToRead];
+			int frameIndex = startFrame;
+			for (int i = 0; i < numPointsToRead; i++) {
+				logger.info("writing point number " + frameIndex);
+				container[i] = writeToNexusFile(i, fileLoader.getData(i));
+				frameIndex++;
 			}
-			// last two points in the scan will have the same values
-			if (finalFrame == numOfPoints) {
-				if ((finalFrame - startFrame) == 0)
-					container[finalFrame - 1] = writeToNexusFile(finalFrame - 1, fileLoader.getData(finalFrame - 1));
-				else {
-					// always one less than the number of points
-
-					for (int i = startFrame; i < finalFrame; i++) {
-						logger.info("writing point number " + i);
-						container[i] = writeToNexusFile(i, fileLoader.getData(i));
-					}
-					container[finalFrame - 1] = (writeToNexusFile(finalFrame - 1, fileLoader.getData(finalFrame - 1)));
-				}
-			}
+			
+//			
+//			if (finalFrame < numOfPoints) {
+//				for (int i = startFrame; i <= finalFrame; i++) {
+//					logger.info("writing point number " + i);
+//					container[i] = writeToNexusFile(i, fileLoader.getData(i));
+//				}
+//			}
+//			if (finalFrame > numOfPoints) {
+//				for (int i = startFrame; i < numOfPoints; i++) {
+//					logger.info("writing point number " + i);
+//					container[i] = writeToNexusFile(i, fileLoader.getData(i));
+//				}
+//			}
+//			// last two points in the scan will have the same values
+//			if (finalFrame == numOfPoints) {
+//				if ((finalFrame - startFrame) == 0)
+//					container[finalFrame - 1] = writeToNexusFile(finalFrame - 1, fileLoader.getData(finalFrame - 1));
+//				else {
+//					// always one less than the number of points
+//
+//					for (int i = startFrame; i < finalFrame; i++) {
+//						logger.info("writing point number " + i);
+//						container[i] = writeToNexusFile(i, fileLoader.getData(i));
+//					}
+//					container[finalFrame - 1] = (writeToNexusFile(finalFrame - 1, fileLoader.getData(finalFrame - 1)));
+//				}
+//			}
 			// readSoFar = totalToRead;
 			return container;
 		} catch (Exception e) {
@@ -222,7 +238,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				throw new DeviceException("Unalble to end hdf5 capture", e1);
 			}
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			throw new DeviceException("Unable to load file called " + fileName, e);
+			throw new DeviceException("Unable to load file called " + lastFileName, e);
 		}
 	}
 
@@ -351,34 +367,40 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	}
 
 	private void setupFilename() throws Exception {
-		String beamline = null;
+		// filename prefix
+		String beamline = "base";
 		try {
 			beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", null);
 		} catch (DeviceException e1) {
+			// don't let an exception stop us here
+			logger.warn("Cannot get instrument or gda.instrument property value");
 		}
-
-		// If the beamline name isn't set then default to 'base'.
-		if (beamline == null) {
-			// If the beamline name is not set then use 'base'
-			beamline = "base";
-		}
-
 		controller.setFilenamePrefix(beamline);
 
-		// Check to see if the data directory has been defined.
-		String dataDir = PathConstructor.createFromDefaultProperty();
-		dataDir = dataDir + "tmp" + File.separator;
-		dataDir = dataDir.replace("/dls/" + beamline.toLowerCase(), "X:/");
-		controller.setDirectory(dataDir);
-
+		// scan number
 		NumTracker runNumber = new NumTracker("tmp");
+		// Get the current number
 		Number scanNumber = runNumber.getCurrentFileNumber();
 		if (!(scanNumber.intValue() == lastScanNumber))
 			lastRowNumber = -1;
 		lastScanNumber = scanNumber.intValue();
+		controller.setFileNumber(scanNumber);
+
+		// row number
 		lastRowNumber++;
 		controller.setFilenamePostfix(lastRowNumber + "-" + getName());
-		controller.setFileNumber(scanNumber);
+
+		// set the sub-directory and create if necessary
+		String dataDir = PathConstructor.createFromDefaultProperty();
+		dataDir = dataDir + "tmp" + File.separator + lastScanNumber;
+		if (!(new File(dataDir)).exists()) {
+			boolean directoryExists = (new File(dataDir)).mkdirs();
+			if (!directoryExists) {
+				throw new DeviceException("Failed to create temporary directory to place Xmap HDF5 files: " + dataDir);
+			}
+		}
+		dataDir = dataDir.replace("/dls/" + beamline.toLowerCase(), "X:/");
+		controller.setDirectory(dataDir);
 	}
 
 	private void setupContinuousOperation() throws DeviceException {

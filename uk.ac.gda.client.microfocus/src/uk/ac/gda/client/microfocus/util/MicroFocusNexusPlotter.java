@@ -94,9 +94,6 @@ public class MicroFocusNexusPlotter {
 
 			IPlottingSystem system = getMapPlotPlottingSystem();
 			system.addClickListener(mouseClickListener);
-
-			// todo lock histogram
-//			 system.get
 		}
 	}
 
@@ -246,5 +243,12 @@ public class MicroFocusNexusPlotter {
 		}
 		lastLCoordinatePlotted = l;
 		lastMCoordinatePlotted = m;
+	}
+
+	public Double getZValueFromServer() {
+		// Again, yuck, but it fits in with how things work until a refactor.
+		// This is to get the z value from the server-side object for a map which has been collected,
+		// instead of reading from an old map
+		return Double.parseDouble(JythonServerFacade.getInstance().evaluateCommand("map.getMFD().getZValue()"));
 	}
 }

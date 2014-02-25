@@ -81,7 +81,7 @@ class B18SamplePreparer:
 				else:
 					self.log("Temperature = " + str(temp_readback))
 					sleep(1)
-		return self.furnace_scannable
+		return [self.furnace_scannable]
 		
 	def _control_lakeshore(self, lakeshore_bean):
 		self.log("Lakeshore is the temp controller")
@@ -138,7 +138,7 @@ class B18SamplePreparer:
 				else:
 					self.log("Temperature = " + str(temp_readback))
 					sleep(1)
-		return self.lakeshore_scannable
+		return [self.lakeshore_scannable]
 	
 	def _control_pulsetube(self, bean):
 		self.log("pulse tube is the temp controller")

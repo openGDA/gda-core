@@ -21,7 +21,6 @@ package gda.device.detector.xmap;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.XmapDetector;
-import gda.device.detector.DetectorWithReadout;
 import gda.device.scannable.PositionCallableProvider;
 
 import java.util.concurrent.Callable;
