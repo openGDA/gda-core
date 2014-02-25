@@ -254,4 +254,11 @@ public interface BioSAXSISPyB {
 	 * @throws SQLException
 	 */
 	public ISpyBStatusInfo getDataAnalysisStatus(long dataCollectionId) throws SQLException;
+
+	/**
+	 * 
+	 * @param dataCollectionId
+	 * @return ISAXSDataCollection
+	 */
+	public ISAXSDataCollection getSAXSDataCollection(long dataCollectionId);
 }
