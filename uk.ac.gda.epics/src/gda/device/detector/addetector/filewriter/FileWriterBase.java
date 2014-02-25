@@ -220,6 +220,16 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 			template = substituteDatadir(template);
 		}
 		return substituteScan(template);
+		
+		// The following change fixed a bug with path creation with the rasterpil camera, but because it causes the
+		// internally stored nextExpectedfileNumber to increment. It should probably do this, but resulted in
+		// things getting out of sync when setting up the i16 bespoke fiddly bit in the top of the metadata.
+		
+//		String fullFileName = getFullFileName(); 
+//		String datadir = PathConstructor.createFromDefaultProperty();
+//		String relativeFilename = StringUtils.removeStart(fullFileName, datadir);
+//		relativeFilename = StringUtils.removeStart(relativeFilename, "/");
+//		return relativeFilename;
 	}
 
 	private String substituteDatadir(String template) {
