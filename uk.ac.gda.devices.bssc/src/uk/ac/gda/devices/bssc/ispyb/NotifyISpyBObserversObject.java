@@ -28,17 +28,20 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NotifyObserversObject {
-	private static final Logger logger = LoggerFactory.getLogger(NotifyObserversObject.class);
+public class NotifyISpyBObserversObject {
+	private static final Logger logger = LoggerFactory.getLogger(NotifyISpyBObserversObject.class);
 	private DatagramSocket socket;
+	private String address;
 	private int port;
 
-	public NotifyObserversObject(int port) {
+	public NotifyISpyBObserversObject(String address, String port) {
 		try {
-			this.port = port;
-			socket = new DatagramSocket(port);
+			this.address = address;
+			this.port = Integer.parseInt(port);
+			socket = new DatagramSocket();
 		} catch (SocketException e) {
 			logger.error("Error creating datagram socket", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -46,21 +49,20 @@ public class NotifyObserversObject {
 		byte[] buf = new byte[1024];
 		InetAddress inetAddress;
 		try {
-			inetAddress = InetAddress.getByName("ws141.diamond.ac.uk");
+			inetAddress = InetAddress.getByName(address);
 			buf = ("simpleUDPServer:" + dataCollectionId).getBytes();
 			DatagramPacket packet = new DatagramPacket(buf, buf.length, inetAddress, port);
 			socket.send(packet);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
 			logger.error("TODO put description of error here", e);
 		}
 	}
 
 	public static void main(String[] args) {
-		NotifyObserversObject notifyObject = new NotifyObserversObject(9877);
+		NotifyISpyBObserversObject notifyObject = new NotifyISpyBObserversObject("localhost", "9877");
 		notifyObject.notifyObservers(0);
 	}
 }
