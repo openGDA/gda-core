@@ -179,7 +179,8 @@ class QexafsScan(Scan):
                 if LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
                     print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
-                    self.commandQueueProcessor.pause(500)
+#                     self.commandQueueProcessor.pause(500)
+                    ScriptBase.setPaused(True)#
                     ScriptBase.checkForPauses()
                 
                 #check if the number of repetitions has been altered and we should now end the loop
