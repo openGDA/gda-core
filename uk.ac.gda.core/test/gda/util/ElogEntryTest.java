@@ -73,10 +73,10 @@ public class ElogEntryTest {
 	}
 
 	/**
-	 * Tests that when an invalid category is used then the ELog will not send.
+	 * Tests that when an invalid groupID is used then the ELog will not send.
 	 */
 	@Test
-	public void testElogEntryFailCategory() {
+	public void testElogEntryFailGroupID() {
 		
 		String
 		visit = "aa34bg",
@@ -97,10 +97,10 @@ public class ElogEntryTest {
 	
 
 	/**
-	 * Tests that when an invalid operation is entered then the ELog will not send.
+	 * Tests that when an invalid logID is entered then the ELog will not send.
 	 */
 	@Test
-	public void testElogEntryFailOperation() {
+	public void testElogEntryFailLogID() {
 		
 		String
 		visit = "aa34bg",
@@ -121,10 +121,10 @@ public class ElogEntryTest {
 	
 	
 	/**
-	 * Tests that when an invalid ID is entered then the ELog will not send.
+	 * Tests that when an invalid userID is entered then the ELog will not send.
 	 */
 	@Test
-	public void testElogEntryFailID() {
+	public void testElogEntryFailUserID() {
 		
 		String
 		visit = "aa34bg",
