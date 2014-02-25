@@ -96,15 +96,27 @@
            name="Capillary View">
      </view>
      <view
-           class="uk.ac.gda.devices.bssc.views.BioSAXSResultPlotView"
-           id="uk.ac.gda.devices.bssc.views.BioSAXSResultPlotView"
-           name="BioSAXS Result Plot"
+           class="uk.ac.gda.devices.bssc.views.BioSAXSCollectionResultPlotView"
+           id="uk.ac.gda.devices.bssc.views.BioSAXSCollectionResultPlotView"
+           name="BioSAXS Collection Result"
            restorable="true">
      </view>
      <view
            class="uk.ac.gda.devices.bssc.views.BioSAXSProgressPlotView"
            id="uk.ac.gda.devices.bssc.views.BioSAXSProgressPlotView"
            name="BioSAXS Progress Plot"
+           restorable="true">
+     </view>
+     <view
+           class="uk.ac.gda.devices.bssc.views.BioSAXSReductionResultPlotView"
+           id="uk.ac.gda.devices.bssc.views.BioSAXSReductionResultPlotView"
+           name="BioSAXS Reduction Result"
+           restorable="true">
+     </view>
+     <view
+           class="uk.ac.gda.devices.bssc.views.BioSAXSAnalysisResultPlotView"
+           id="uk.ac.gda.devices.bssc.views.BioSAXSAnalysisResultPlotView"
+           name="BioSAXS Analysis Result"
            restorable="true">
      </view>
   </extension>
