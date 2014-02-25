@@ -23,8 +23,6 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.SimpleScannable;
-import gda.scan.ScanPositionRecordable;
-import gda.scan.ScanPositionRecorder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +31,7 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class CSViacontrollerScannable extends SimpleScannable implements ContinuouslyScannableViaController, ScanPositionRecordable, PositionCallableProvider<Double>{
+class CSViacontrollerScannable extends SimpleScannable implements ContinuouslyScannableViaController, PositionCallableProvider<Double>{
 	private static final Logger logger = LoggerFactory.getLogger(CSViacontrollerScannable.class);
 	ContinuousMoveController cmc;
 	
@@ -70,16 +68,12 @@ class CSViacontrollerScannable extends SimpleScannable implements ContinuouslySc
 		return cmc;
 	}
 	
-	private ScanPositionRecorder recorder;
 	
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		if (recorder != null) {
-			recorder.addPositionToCurrentPoint(this, position);
-		} else {
-			addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
-		}
+		addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
 	}
+
 	@Override
 	public Object getPosition() throws DeviceException {
 		if (isOperatingContinously()) {
@@ -116,10 +110,4 @@ class CSViacontrollerScannable extends SimpleScannable implements ContinuouslySc
 		return false;
 	}
 
-	@Override
-	public void setRecorder(ScanPositionRecorder recorder) {
-		this.recorder = recorder;
-		
-	}	
-	
 }
