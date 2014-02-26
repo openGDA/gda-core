@@ -37,10 +37,8 @@ import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
-import org.python.core.PyNone;
 import org.python.core.PySlice;
 import org.python.core.PyString;
-import org.python.modules.thread.thread;
 
 public class ScannableBaseTest {
 
