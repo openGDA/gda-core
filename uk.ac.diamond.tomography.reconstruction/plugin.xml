@@ -324,4 +324,17 @@
             name="Test Command Runner">
       </command_runner>
    </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+          <file-association
+            content-type="org.eclipse.core.runtime.xml"
+            file-extensions="hm">
+      </file-association>
+          <content-type
+                id="uk.ac.diamond.tomography.reconstruction.content-type1"
+                name="name"
+                priority="normal">
+          </content-type>
+         
+   </extension>   
 </plugin>

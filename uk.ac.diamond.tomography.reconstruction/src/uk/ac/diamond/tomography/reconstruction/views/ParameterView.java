@@ -112,8 +112,6 @@ import uk.ac.diamond.tomography.reconstruction.parameters.hm.HMxmlType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.HmPackage;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.ROIType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.RingArtefactsType;
-import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditor;
-import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.IParameterView;
 import uk.ac.diamond.tomography.reconstruction.properties.PropertyDescriptor;
 import uk.ac.diamond.tomography.reconstruction.properties.TextPropertyDescriptor;
 import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconResults;
@@ -133,7 +131,7 @@ import uk.ac.diamond.tomography.reconstruction.results.reconresults.util.Reconre
  * <p>
  */
 
-public class ParameterView extends BaseParameterView implements ISelectionListener, IParameterView, ISelectionProvider {
+public class ParameterView extends BaseParameterView implements ISelectionListener, ISelectionProvider {
 
 	private static final String LBL_INCORRECTION_STRENGTH = "	Incorrection Strength";
 
@@ -920,8 +918,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 						}
 					}.run(null);
 				}
-				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), tomoSettingsFile,
-						HmEditor.ID);
+				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), tomoSettingsFile);
 			} catch (Exception ex) {
 				logger.error("Cannot open HM editor - ", ex);
 			}
@@ -946,7 +943,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		try {
 			FBPType fbp = model.getFBP();
 			BackprojectionType backprojection = fbp.getBackprojection();
-			
+
 			backprojection.setImageCentre(BigDecimal.valueOf(Double.parseDouble(txtCentreOfRotation.getText())));
 
 			model.eResource().save(Collections.emptyMap());
