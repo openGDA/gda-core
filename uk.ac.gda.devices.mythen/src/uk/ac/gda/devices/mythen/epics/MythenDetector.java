@@ -197,20 +197,43 @@ public class MythenDetector extends MythenDetectorImpl {
 					status = IDLE;
 				}
 			}
-		});
-		while (mythenAcquire.isAlive()) {
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		}, collectionFilename);
+//		while (mythenAcquire.isAlive()) {
+//			try {
+//				Thread.sleep(50);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
 		mythenAcquire.start();
 	}
 	@Override
 	protected void afterCollectData() {
-		super.afterCollectData();
+//		super.afterCollectData();
+		processedFile = new File(getDataDirectory(), collectionFilename + ".dat");
+		// check if Mythen created raw data file successfully or not
+		double timer=System.currentTimeMillis();
+		double timerElapsed=0.0;
+		while (!rawFile.exists() && timerElapsed < collectionTime*1000) { //checking for maximum of the collection time
+			Sleep.sleep(100);
+			timerElapsed=System.currentTimeMillis()-timer;
+		}
+		if (timerElapsed>= collectionTime*1000) {
+			// failed to create raw data after exposure time, then return no further process of raw data.
+			print("Detector "+ getName()+" failed to create RAW data file "+rawFile.getAbsolutePath());
+			return;
+		}
+		// read data and process it
+		rawData = new MythenRawDataset(rawFile);
+		processedData = dataConverter.process(rawData, delta);
+		processedData.save(processedFile, isHasChannelInfo());
+		if (InterfaceProvider.getTerminalPrinter() != null) {
+			InterfaceProvider.getTerminalPrinter().print("Save to file " + processedFile.getAbsolutePath());
+		}
+		FileRegistrarHelper.registerFiles(new String[] { rawFile.getAbsolutePath(), processedFile.getAbsolutePath() });
+
+		status = IDLE;
 		processedDataFilesForScan.add(processedFile);
 	}
 	@Override
