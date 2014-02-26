@@ -19,14 +19,16 @@
 package uk.ac.gda.devices.bssc.beans;
 
 import gda.data.metadata.GDAMetadataProvider;
+import gda.device.Device;
 import gda.device.DeviceException;
+import gda.factory.Configurable;
 import gda.factory.FactoryException;
+import gda.factory.Finder;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.databinding.observable.list.IObservableList;
@@ -35,11 +37,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,29 +47,25 @@ import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
 import uk.ac.gda.devices.bssc.ispyb.UDPListener;
 import uk.ac.gda.devices.bssc.ui.BioSAXSProgressView;
 
-public class BioSAXSProgressController implements IObservable {
+public class BioSAXSProgressController implements IObservable, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(BioSAXSProgressController.class);
 	private BioSAXSISPyB bioSAXSISPyB;
 	private IObservableList bioSAXSProgressModel;
 	private String visit;
 	private long blSessionId;
 	private List<ISAXSDataCollection> saxsDataCollections;
-	private UDPListener simpleUDPServer;
+	private Device simpleUDPServer;
 	ObservableComponent obsComp = new ObservableComponent();
 	private boolean stopPolling;
 	protected BioSAXSProgressView view;
+	private String udpListenerName;
 
-	public BioSAXSProgressController() throws FactoryException {
-		simpleUDPServer = new UDPListener();
-		simpleUDPServer.setName("simpleUDPServer");
-		simpleUDPServer.setRunning(true);
-		simpleUDPServer.setPort(9877);
-		simpleUDPServer.setPrefix("simpleUDPServer");
-		simpleUDPServer.configure();
-		System.out.println("SimpleUDPReceiver added as an observer");
-		simpleUDPServer.addIObserver(new SimpleUDPReceiver(this));
+	@Override
+	public void configure() throws FactoryException {
+		if (udpListenerName != null && simpleUDPServer != null)
+			simpleUDPServer = Finder.getInstance().find(udpListenerName);
 	}
-
+	
 	public void setISpyBAPI(BioSAXSISPyB bioSAXSISPyB) throws FactoryException {
 		this.bioSAXSISPyB = bioSAXSISPyB;
 		try {
@@ -288,6 +282,14 @@ public class BioSAXSProgressController implements IObservable {
 
 	public List<ISAXSProgress> getModel() {
 		return bioSAXSProgressModel;
+	}
+	
+	public String getUDPListenerName() {
+		return udpListenerName;
+	}
+	
+	public void setUDPListenerName(String simpleUDPServer) {
+		this.udpListenerName = simpleUDPServer;
 	}
 }
 
