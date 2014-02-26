@@ -73,7 +73,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	protected NumTracker scanNumTracker;
 
-	protected long collectionNumber;
+	protected volatile long collectionNumber;
 
 	/**
 	 * The Mythen client that actually interacts with the Mythen controller hardware.
@@ -235,18 +235,18 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	}
 
 	/** The most recently collected raw dataset. */
-	protected MythenRawDataset rawData;
+	protected volatile MythenRawDataset rawData;
 
 	/** File containing the most recently collected raw dataset. */
-	protected File rawFile;
+	protected volatile File rawFile;
 
 	/** The most recently collected processed dataset. */
-	protected MythenProcessedDataset processedData;
+	protected volatile MythenProcessedDataset processedData;
 
 	/** File containing the most recently collected processed dataset. */
-	protected File processedFile;
+	protected volatile File processedFile;
 
-	protected long scanNumber;
+	protected volatile long scanNumber;
 
 	@Override
 	public int getStatus() throws DeviceException {
