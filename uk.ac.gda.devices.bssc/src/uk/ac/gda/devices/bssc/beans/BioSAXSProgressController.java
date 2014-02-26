@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB;
 import uk.ac.gda.devices.bssc.ispyb.ISAXSDataCollection;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
-import uk.ac.gda.devices.bssc.ispyb.SimpleUDPServerScannable;
+import uk.ac.gda.devices.bssc.ispyb.UDPListener;
 import uk.ac.gda.devices.bssc.ui.BioSAXSProgressView;
 
 public class BioSAXSProgressController implements IObservable {
@@ -56,13 +56,13 @@ public class BioSAXSProgressController implements IObservable {
 	private String visit;
 	private long blSessionId;
 	private List<ISAXSDataCollection> saxsDataCollections;
-	private SimpleUDPServerScannable simpleUDPServer;
+	private UDPListener simpleUDPServer;
 	ObservableComponent obsComp = new ObservableComponent();
 	private boolean stopPolling;
 	protected BioSAXSProgressView view;
 
 	public BioSAXSProgressController() throws FactoryException {
-		simpleUDPServer = new SimpleUDPServerScannable();
+		simpleUDPServer = new UDPListener();
 		simpleUDPServer.setName("simpleUDPServer");
 		simpleUDPServer.setRunning(true);
 		simpleUDPServer.setPort(9877);
