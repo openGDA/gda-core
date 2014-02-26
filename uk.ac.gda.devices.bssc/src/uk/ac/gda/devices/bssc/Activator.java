@@ -41,7 +41,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "uk.ac.gda.devices.bssc"; //$NON-NLS-1$
-	public static final String IMAGE_ID = "icons/bioSAXS.png";
+	public static final String DATA_ANALYSIS_IMAGE_ID = "icons/DataAnalysisResult.png";
 
 	// The shared instance
 	private static Activator plugin;
@@ -71,8 +71,8 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 		Bundle bundle = Platform.getBundle(PLUGIN_ID);
 
 		ImageDescriptor bioISISImage = ImageDescriptor.createFromURL(FileLocator.find(bundle,
-				new Path("icons/bioISIS.png"), null));
-		registry.put(IMAGE_ID, bioISISImage);
+				new Path(DATA_ANALYSIS_IMAGE_ID), null));
+		registry.put(DATA_ANALYSIS_IMAGE_ID, bioISISImage);
 	}
 
 	@Override
