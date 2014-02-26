@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.mythen.epics;
 
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.mythen.client.AcquisitionParameters;
@@ -505,6 +506,10 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 	}
 	public void resetArrayCounter() throws Exception {
 		adbase.setArrayCounter(0);
+	}
+
+	public boolean isBusy() {
+		return adbase.getStatus()!=Detector.IDLE;
 	}
 
 }
