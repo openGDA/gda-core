@@ -21,40 +21,44 @@ package uk.ac.diamond.tomography.reconstruction.commands;
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 
 public interface ITomographyCommandRunner {
 
 	/**
-	 * Takes a filename, and an output filename, it puts the reduced data in the location of the outputfilename,
-	 * and returns the slices which will be evaluated in the list.
-	 * Clients may set a specific sliceToEvaluate.(this could be different to the input, as it may be a sequence of slices)
+	 * Takes a filename, and an output filename, it puts the reduced data in the location of the outputfilename, and
+	 * returns the slices which will be evaluated in the list. Clients may set a specific sliceToEvaluate.(this could be
+	 * different to the input, as it may be a sequence of slices)
 	 *
-	 * @param filename input file
-	 * @param outputFilename output file
-	 * @param sliceToEvaluate int of the slice to evaluate
+	 * @param filename
+	 *            input file
+	 * @param outputFilename
+	 *            output file
+	 * @param sliceToEvaluate
+	 *            int of the slice to evaluate
 	 * @return a list of integers
 	 */
 	List<Integer> makeReduced(File filename, File outputFilename, int sliceToEvaluate);
 
 	/**
-	 * Given a filename and a configuration file, return a lazy dataset
-	 * containing the images for all the slices described in the list from makeReduced
+	 * Given a filename and a configuration file, return a lazy dataset containing the images for all the slices
+	 * described in the list from makeReduced
 	 *
-	 * @param filename input file
-	 * @param configFilename configuration file
+	 * @param filename
+	 *            input file
+	 * @param configFilename
+	 *            configuration file
 	 * @return a lazydataset containing images for all slices
 	 */
-	IDataset mapPreviewRecon(IFile filename, IFile configFilename);
+	IDataset mapPreviewRecon(File filename, File configFilename);
 
 	/**
 	 * Given a filename and a configuration file, return the filename of the resulting full reconstruction
 	 *
-	 * @param filename input file
-	 * @param configfilename configuration file
+	 * @param filename
+	 *            input file
+	 * @param configfilename
+	 *            configuration file
 	 * @return reconstruction file
 	 */
 	File fullRecon(File filename, File configfilename);
@@ -62,14 +66,19 @@ public interface ITomographyCommandRunner {
 	/**
 	 * Run a reconstruction for the specific parameter
 	 *
-	 * @param parameter tomography parameter
-	 * @param filename input file
+	 * @param parameter
+	 *            tomography parameter
+	 * @param filename
+	 *            input file
 	 * @param slicenumber
 	 * @param listOfParametersToEvaluate
-	 * @param configFilename configuration file
+	 *            Must not be null
+	 * @param configFilename
+	 *            configuration file
 	 * @return stack of images
 	 */
-	IDataset parameterRecon(ITomographyParameter parameter, IFile filename, int slicenumber, double[] listOfParametersToEvaluate, IFile configFilename);
+	IDataset parameterRecon(ITomographyParameter parameter, File filename, int slicenumber,
+			double[] listOfParametersToEvaluate, File configFilename);
 
 	/**
 	 * Returns the modifiable parameters for this command runner

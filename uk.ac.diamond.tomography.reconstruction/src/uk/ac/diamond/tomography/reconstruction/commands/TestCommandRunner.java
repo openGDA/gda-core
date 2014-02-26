@@ -22,8 +22,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Random;
@@ -46,7 +44,7 @@ public class TestCommandRunner implements ITomographyCommandRunner {
 	}
 
 	@Override
-	public IDataset mapPreviewRecon(IFile filename, IFile configFilename) {
+	public IDataset mapPreviewRecon(File filename, File configFilename) {
 		return Random.rand(new int[] {10,120,140});
 	}
 
@@ -57,7 +55,7 @@ public class TestCommandRunner implements ITomographyCommandRunner {
 		dh.addDataset("reconstruction", data);
 		File tempFile = null;
 		try {
-			tempFile = File.createTempFile("Reconstruction-", ".npy", new File(System.getProperty("java.io.tmpdir")));
+			tempFile = File.createTempFile("Reconstruction-", ".npy");
 			new NumPyFileSaver(tempFile.toString()).saveFile(dh);
 		} catch (Exception e) {
 			// XXX This should probably throw?
@@ -67,8 +65,8 @@ public class TestCommandRunner implements ITomographyCommandRunner {
 	}
 
 	@Override
-	public IDataset parameterRecon(ITomographyParameter parameter, IFile filename, int slicenumber,
-			double[] listOfParametersToEvaluate, IFile configFilename) {
+	public IDataset parameterRecon(ITomographyParameter parameter, File filename, int slicenumber,
+			double[] listOfParametersToEvaluate, File configFilename) {
 		return Random.rand(new int[] {listOfParametersToEvaluate.length,120,140});
 	}
 
@@ -81,14 +79,14 @@ public class TestCommandRunner implements ITomographyCommandRunner {
 		centreParam.setCoarse_step(5);
 		centreParam.setFine_step(1);
 		centreParam.setVery_fine_step(0.1);
-		
+
 		StringListTomographyParameter filterParam = new StringListTomographyParameter("Filter");
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("Gaussian Filter");
 		list.add("Square Filter");
 		list.add("Happy Filter");
 		filterParam.setValueLocation(0);
-		
+
 		return new ITomographyParameter[] {centreParam, filterParam};
 	}
 
