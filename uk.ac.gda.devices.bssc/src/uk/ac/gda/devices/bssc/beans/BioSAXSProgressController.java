@@ -62,10 +62,12 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (udpListenerName != null && simpleUDPServer != null)
+		if (udpListenerName != null && simpleUDPServer == null) {
 			simpleUDPServer = Finder.getInstance().find(udpListenerName);
+			simpleUDPServer.addIObserver(new SimpleUDPReceiver(this));
+		}
 	}
-	
+
 	public void setISpyBAPI(BioSAXSISPyB bioSAXSISPyB) throws FactoryException {
 		this.bioSAXSISPyB = bioSAXSISPyB;
 		try {
@@ -152,17 +154,17 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 								reductionStatusInfo, analysisStatusInfo);
 					}
 
-//					final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-//					try {
-//						view = (BioSAXSProgressView) window.getActivePage().showView(BioSAXSProgressView.ID);
-//						// ((TableViewer) view.getViewer()).reveal(bioSAXSProgressModel.get(bioSAXSProgressModel.size()
-//						// - 1));
-//						// ((TableViewer) view.getViewer()).refresh(
-//						// bioSAXSProgressModel.get(bioSAXSProgressModel.size() - 1), true, false);
-//					} catch (PartInitException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
+					// final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					// try {
+					// view = (BioSAXSProgressView) window.getActivePage().showView(BioSAXSProgressView.ID);
+					// // ((TableViewer) view.getViewer()).reveal(bioSAXSProgressModel.get(bioSAXSProgressModel.size()
+					// // - 1));
+					// // ((TableViewer) view.getViewer()).refresh(
+					// // bioSAXSProgressModel.get(bioSAXSProgressModel.size() - 1), true, false);
+					// } catch (PartInitException e) {
+					// // TODO Auto-generated catch block
+					// e.printStackTrace();
+					// }
 				}
 			});
 
@@ -283,11 +285,11 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	public List<ISAXSProgress> getModel() {
 		return bioSAXSProgressModel;
 	}
-	
+
 	public String getUDPListenerName() {
 		return udpListenerName;
 	}
-	
+
 	public void setUDPListenerName(String simpleUDPServer) {
 		this.udpListenerName = simpleUDPServer;
 	}
