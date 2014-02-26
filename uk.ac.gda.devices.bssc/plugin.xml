@@ -98,7 +98,7 @@
      <view
            class="uk.ac.gda.devices.bssc.views.BioSAXSCollectionResultPlotView"
            id="uk.ac.gda.devices.bssc.views.BioSAXSCollectionResultPlotView"
-           name="BioSAXS Collection Result"
+           name="Raw Data"
            restorable="true">
      </view>
      <view
@@ -110,13 +110,13 @@
      <view
            class="uk.ac.gda.devices.bssc.views.BioSAXSReductionResultPlotView"
            id="uk.ac.gda.devices.bssc.views.BioSAXSReductionResultPlotView"
-           name="BioSAXS Reduction Result"
+           name="Reduced Data"
            restorable="true">
      </view>
      <view
            class="uk.ac.gda.devices.bssc.views.BioSAXSAnalysisResultPlotView"
            id="uk.ac.gda.devices.bssc.views.BioSAXSAnalysisResultPlotView"
-           name="BioSAXS Analysis Result"
+           name="Analysis Result"
            restorable="true">
      </view>
   </extension>
