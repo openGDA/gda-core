@@ -30,12 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
-Scannable to receive UDP datagrams containing a string of format prefix:message. 
-The position is set the message part of the string.
-This is used to inform a gda server when a table in ISpy has been updated by a process on the network
+	This class receives UDP datagrams containing a string of format prefix:message, which is
+	broadcast to objects observing this to inform then a table in ISPyB has been updated
 */
-public class SimpleUDPServerScannable extends DeviceBase implements Configurable {
-	private static final Logger logger = LoggerFactory.getLogger(SimpleUDPServerScannable.class);
+public class UDPListener extends DeviceBase implements Configurable {
+	private static final Logger logger = LoggerFactory.getLogger(UDPListener.class);
 	boolean running = true;
 	private int port=9876;
 	private String prefix="";
@@ -112,7 +111,7 @@ public class SimpleUDPServerScannable extends DeviceBase implements Configurable
 	 * @throws FactoryException 
 	 */
 	public static void main(String[] args) throws FactoryException {
-		SimpleUDPServerScannable simpleUDPServer = new SimpleUDPServerScannable();
+		UDPListener simpleUDPServer = new UDPListener();
 		simpleUDPServer.setName("simpleUDPServer");
 		simpleUDPServer.setRunning(true);
 		simpleUDPServer.setPort(9877);
