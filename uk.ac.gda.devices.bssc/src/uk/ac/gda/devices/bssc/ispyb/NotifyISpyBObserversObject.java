@@ -50,7 +50,7 @@ public class NotifyISpyBObserversObject {
 		InetAddress inetAddress;
 		try {
 			inetAddress = InetAddress.getByName(address);
-			buf = ("simpleUDPServer:" + dataCollectionId).getBytes();
+			buf = ("biosaxs:" + dataCollectionId).getBytes();
 			DatagramPacket packet = new DatagramPacket(buf, buf.length, inetAddress, port);
 			socket.send(packet);
 		} catch (UnknownHostException e) {
