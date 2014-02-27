@@ -19,7 +19,9 @@
 	
 	<import resource="commandQueueProcessor.xml"/>
 	<import resource="plot_server.xml" />
+	<import resource="mvc_example_model.xml"/>
 
+		
 	<bean id="MyLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
 		<property name="serviceUrl" value="${gda.rmi.prefix}MyLoggingScriptController" />
 		<property name="serviceInterface" value="gda.jython.scriptcontroller.logging.ILoggingScriptController" />

@@ -22,17 +22,21 @@ public class StringComponentWriter extends DefaultComponentWriter {
 
 		public StringComponentWriter() { }
 		
-		@Override
-		protected int[] slabsizedimfordim(int[] dim) {
+		protected int[] slabsizedimfordim(int[] dim, byte[] slab) {
 			int[] onedimfordim = super.slabsizedimfordim(dim);
 			if (onedimfordim.length < rank)
-				return ArrayUtils.add(onedimfordim, stringlength);
-			onedimfordim[onedimfordim.length - 1] = stringlength;
+				return ArrayUtils.add(onedimfordim, slab.length);
+			onedimfordim[onedimfordim.length - 1] = slab.length;
 			return onedimfordim;
+		}
+		
+		@Override
+		protected int[] putslabdimfordim(int[] dim) {
+			return ArrayUtils.add(dim, 0);
 		}
 
 		@Override
-		protected Object getComponentSlab(Object pos) {
+		protected byte[] getComponentSlab(Object pos) {
 			byte[] slab = ArrayUtils.add(pos.toString().getBytes(Charset.forName("UTF-8")), (byte) 0);
 			return slab;
 		}
@@ -83,7 +87,10 @@ public class StringComponentWriter extends DefaultComponentWriter {
 
 			file.opendata(name);
 			try {
-				file.putslab(getComponentSlab(pos), putslabdimfordim(start), slabsizedimfordim(start));
+				byte[] slab = getComponentSlab(pos);
+				int[] putslabdim = putslabdimfordim(start);
+				int[] slabsizedim = slabsizedimfordim(start,slab);
+				file.putslab(slab, putslabdim, slabsizedim);
 			} catch (Exception e) {
 				logger.error("error converting scannable data", e);
 			}

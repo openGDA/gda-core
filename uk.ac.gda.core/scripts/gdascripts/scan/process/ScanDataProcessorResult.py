@@ -84,7 +84,6 @@ class ScanDataProcessorResult(object):
 		self.ordinate_scannable = determineScannableContainingField(yfieldname, allscannables)
 		
 		# feature location by scannable:
-
 		for scn, value in self.scannableValues.items():
 			self.scn.addAttribute(scn.getName(), value)
 		for scn in allscannables:
@@ -197,23 +196,26 @@ class ScanDataProcessorResult(object):
 						# Cannot get filenames from SRS files!
 						value = float('nan')
 					else:
-						dsfield = scanFileHolder.getDataSet(fieldname)
-						if feature_inside_scan_data:
-							interp = scanFileHolder.getInterpolatedX(dsfield, dsx, xvalue)
-							# Hack to get around GDA-2269
-							if len(list(interp))==0:
-								value = dsx[len(dsx)-1]
-							else:
-								value = interp[0]
-						else: # feature not inside scan
-							if fieldname == xname:
-								value = xvalue
-							else:
-								# Trick case. Return start or end value for field
-								if xvalue <= dsx.min():
-									value = scanFileHolder.getDataSet(fieldname)[0]
-								else: # xvalue >= dsx.min()
-									value = scanFileHolder.getDataSet(fieldname)[-1]
+						if False:
+							dsfield = scanFileHolder.getDataSet(fieldname)
+							if feature_inside_scan_data:
+								interp = scanFileHolder.getInterpolatedX(dsfield, dsx, xvalue)
+								# Hack to get around GDA-2269
+								if len(list(interp))==0:
+									value = dsx[len(dsx)-1]
+								else:
+									value = interp[0]
+							else: # feature not inside scan
+								if fieldname == xname:
+									value = xvalue
+								else:
+									# Trick case. Return start or end value for field
+									if xvalue <= dsx.min():
+										value = scanFileHolder.getDataSet(fieldname)[0]
+									else: # xvalue >= dsx.min()
+										value = scanFileHolder.getDataSet(fieldname)[-1]
+						else:
+							value = xvalue
 								
 					pos.append(value)
 				if len(pos)==1:
@@ -226,8 +228,6 @@ class ScanDataProcessorResult(object):
 
 	def getScannableValueAtFeature(self, scn):
 		return self.scannableValues[scn]
-	
-
 
 	def __repr__(self):
 		return self.str

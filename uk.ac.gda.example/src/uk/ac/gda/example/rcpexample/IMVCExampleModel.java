@@ -16,22 +16,29 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.motor.simplemotor;
+package uk.ac.gda.example.rcpexample;
 
 import gda.device.DeviceException;
 
-public interface SimpleMotorController {
+import java.beans.PropertyChangeListener;
 
-	double getMotorPosition() throws DeviceException;
+import uk.ac.gda.client.observablemodels.ScannableWrapper;
 
-	void moveTo(double position) throws DeviceException;
+public interface IMVCExampleModel {
+	boolean isSelected();
 
-	boolean isBusy() throws DeviceException;
+	void setSelected(boolean selected);
 
-	void stop()throws DeviceException;
+	double getPosition();
 
-	void setSpeed(double speed) throws DeviceException, InterruptedException;
+	void setPosition(double position);
 
-	double getSpeed() throws DeviceException;
+	public void addPropertyChangeListener(PropertyChangeListener listener);
 
+	public void removePropertyChangeListener(PropertyChangeListener listener);
+
+	public static final String SELECTED_PROPERTY_NAME = "selected";
+	public static final String POSITION_PROPERTY_NAME = "position";
+
+	ScannableWrapper getScannableWrapper() throws DeviceException, Exception;
 }

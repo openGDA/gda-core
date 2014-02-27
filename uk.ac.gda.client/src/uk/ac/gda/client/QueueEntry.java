@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,22 +16,10 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.motor.simplemotor;
+package uk.ac.gda.client;
 
-import gda.device.DeviceException;
+import gda.commandqueue.QueuedCommandSummary;
 
-public interface SimpleMotorController {
-
-	double getMotorPosition() throws DeviceException;
-
-	void moveTo(double position) throws DeviceException;
-
-	boolean isBusy() throws DeviceException;
-
-	void stop()throws DeviceException;
-
-	void setSpeed(double speed) throws DeviceException, InterruptedException;
-
-	double getSpeed() throws DeviceException;
-
+public interface QueueEntry {
+	QueuedCommandSummary getQueueCommandSummary();
 }

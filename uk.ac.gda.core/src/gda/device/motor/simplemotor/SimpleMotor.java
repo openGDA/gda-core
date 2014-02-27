@@ -163,7 +163,7 @@ public class SimpleMotor implements Motor, InitializingBean{
 	public void setSpeed(double speed) throws MotorException {
 		try {
 			smc.setSpeed(speed);
-		} catch (DeviceException e) {
+		} catch (Exception e) {
 			throw new MotorException(MotorStatus.FAULT,"Motor " + name + " error setting motor speed",e);
 		}
 	}

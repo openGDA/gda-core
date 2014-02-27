@@ -48,7 +48,7 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-		clearFrameSets();
+		super.clearFrameSets();
 		if (times != null && times.length > 0) {
 			// create the time frames here
 			for (int i = 0; i < times.length; i++) {

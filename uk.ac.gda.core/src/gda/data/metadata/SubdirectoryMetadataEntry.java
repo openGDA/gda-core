@@ -19,10 +19,6 @@
 package gda.data.metadata;
 
 import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.IMetadataEntry;
-import gda.data.metadata.MetadataEntry;
-import gda.data.metadata.StoredMetadataEntry;
 import gda.device.DeviceException;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
@@ -34,11 +30,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class SubdirectoryMetadataEntry extends StoredMetadataEntry implements IObserver, Configurable {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implements IObserver, Configurable {
 
 	Map<String, String> visit2subdir = new HashMap<String, String>();
 	String currentvisit = "";
 	private String defaultSubdirectory = "";
+	private static final Logger logger = LoggerFactory.getLogger(SubdirectoryMetadataEntry.class);
 
 	@Override
 	public void configure() throws FactoryException {
@@ -66,7 +66,7 @@ public class SubdirectoryMetadataEntry extends StoredMetadataEntry implements IO
 	}
 
 	@Override
-	public void setValue(String value) {
+	public void setValue(String value) throws Exception {
 		String oldValue = getMetadataValue();
 		value = sanitze(value);
 		super.setValue(value);
@@ -92,11 +92,15 @@ public class SubdirectoryMetadataEntry extends StoredMetadataEntry implements IO
 			}
 			visit2subdir.put(currentvisit, getMetadataValue());
 			currentvisit = arg.toString();
-			super.setValue("");
-			if (visit2subdir.containsKey(currentvisit)) {
-				setValue(visit2subdir.get(currentvisit));
-			} else {
-				setValue(getDefaultSubdirectory());
+			try {
+				super.setValue("");
+				if (visit2subdir.containsKey(currentvisit)) {
+					setValue(visit2subdir.get(currentvisit));
+				} else {
+					setValue(getDefaultSubdirectory());
+				}
+			} catch (Exception e) {
+				logger.error("cannot set or persist directory setting", e);
 			}
 		}
 	}

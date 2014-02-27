@@ -23,7 +23,6 @@ import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
 
 import java.io.File;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
