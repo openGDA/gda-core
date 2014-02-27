@@ -67,7 +67,9 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -154,8 +156,26 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 		if (preferenceStore.getBoolean(PreferenceConstants.GDA_DISABLE_LAUNCH_CONFIGS))
 			disableLaunchConfigs();
+		
+		removeUnusedPreferencePages();
 	}
 
+	private void removeUnusedPreferencePages(){
+		PreferenceManager pm = PlatformUI.getWorkbench( ).getPreferenceManager();
+		//Print available preference pages
+		//IPreferenceNode[] arr = pm.getRootSubNodes();
+			//for(IPreferenceNode pn:arr)
+			//    System.out.println("Label:" + pn.getLabelText() + " ID:" + pn.getId()); 
+		pm.remove("org.eclipse.jdt.ui.preferences.JavaBasePreferencePage");//Remove Java preference page
+		pm.remove("org.eclipse.ant.ui.AntPreferencePage");//Remove Ant preference page
+		pm.remove("org.eclipse.team.ui.TeamPreferences");//Remove Team preference page
+		pm.remove("org.eclipse.wst.xml.ui.preferences.xml");//Remove xml preference page
+		pm.remove("org.eclipse.debug.ui.DebugPreferencePage");//Remove debug preference page
+		pm.remove("org.eclipse.help.ui.browsersPreferencePage");//Remove help preference page
+		pm.remove("org.eclipse.update.internal.ui.preferences.MainPreferencePage");//Remove Install/Update preference page
+		pm.remove("net.sf.py4j.defaultserver.preferences.DefaultServerPreferencePage");//Remove Py4J preference page
+	}
+	
 	private void disableLaunchConfigs() {
 		// GDA-3307: Remove Debug/Run menu items from the GUI.
 		// There are a few different ways to achieve this removal
