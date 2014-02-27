@@ -1,6 +1,6 @@
 from gdascripts.messages.handle_messages import simpleLog
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, NexusFileMetadata
-from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
+#from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, NexusFileMetadata
+#from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
 from time import sleep
 
 class I18SamplePreparer:

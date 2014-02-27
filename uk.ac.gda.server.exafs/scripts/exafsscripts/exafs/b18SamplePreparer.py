@@ -1,7 +1,6 @@
 from gdascripts.messages.handle_messages import simpleLog
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, NexusFileMetadata
-from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
 from time import sleep
+from gdascripts.metadata.metadata_commands import meta_add
 
 class B18SamplePreparer:
 	def __init__(self, sxcryo_scannable, xytheta_scannable, ln2cryo_scannable, lakeshore_scannable, furnace_scannable, pulsetube_scannable, samplewheel_scannable, user_scannable):
@@ -51,10 +50,8 @@ class B18SamplePreparer:
 		temperature = furnace_bean.getTemperature()
 		tolerance = furnace_bean.getTolerance()
 		wait_time = furnace_bean.getTime()
-		only_read = furnace_bean.isControlFlag()	
-		meta = NexusFileMetadata("temperature", self.furnace_scannable(), EntryTypes.NXsample, NXinstrumentSubTypes.NXpositioner, "temperature") #@UndefinedVariable
-		NexusExtraMetadataDataWriter.removeMetadataEntry(meta)
-		NexusExtraMetadataDataWriter.addMetadataEntry(meta)	
+		only_read = furnace_bean.isControlFlag()
+		meta_add(self.furnace_scannable)	
 		if only_read == False:
 			self.log("controlling furnace")
 			self.furnace_scannable(temperature);
@@ -101,9 +98,7 @@ class B18SamplePreparer:
 			self.lakeshore_scannable.setTempSelect(2);
 		if selectTemp3 == True:
 			self.lakeshore_scannable.setTempSelect(3);
-		meta = NexusFileMetadata("temp", str(self.lakeshore_scannable()), EntryTypes.NXsample, NXinstrumentSubTypes.NXpositioner, "temp") #@UndefinedVariable
-		NexusExtraMetadataDataWriter.removeMetadataEntry(meta)
-		NexusExtraMetadataDataWriter.addMetadataEntry(meta)
+		meta_add(self.lakeshore_scannable)
 		if only_read == False:
 			self.log("controlling lakeshore")
 			if selectTemp0 == True:

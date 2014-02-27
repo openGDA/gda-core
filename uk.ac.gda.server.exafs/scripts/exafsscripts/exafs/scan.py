@@ -12,6 +12,7 @@ from gda.factory import Finder
 
 class Scan:
     
+    
     def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, includeSampleNameInNexusName=True):
         self.detectorPreparer = detectorPreparer
         self.samplePreparer = samplePreparer
@@ -24,11 +25,21 @@ class Scan:
         self.energy_scannable = energy_scannable
         self.ionchambers=ionchambers
         self.includeSampleNameInNexusName = includeSampleNameInNexusName
+        self.sampleFilename= None
+        self.scanFilename= None
+        self.detectorFilename= None
+        self.outputFilename= None
         
     def determineExperimentPath(self, experimentFullPath):
         experimentFullPath = experimentFullPath + "/"
         experimentFolderName = experimentFullPath[experimentFullPath.find("xml")+4:]
         return experimentFullPath, experimentFolderName
+    
+    def setXmlFileNames(self, sampleFileName, scanFileName, detectorFileName, outputFileName):
+        self.sampleFileName= sampleFileName
+        self.scanFileName= scanFileName
+        self.detectorFileName= detectorFileName
+        self.outputFileName= outputFileName
         
     def log(self,*msg):
         self.logger = LoggerFactory.getLogger("exafsscripts.exafs.scan")
@@ -53,14 +64,14 @@ class Scan:
             dets.append(thisDetector)
         return dets
 
-    def _createBeans(self, experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName):
-        if(sampleFileName == None):
+    def _createBeans(self, experimentFullPath):
+        if(self.sampleFileName == None):
             sampleBean = None
         else:
-            sampleBean = BeansFactory.getBeanObject(experimentFullPath, sampleFileName)
-        scanBean = BeansFactory.getBeanObject(experimentFullPath, scanFileName)
-        detectorBean = BeansFactory.getBeanObject(experimentFullPath, detectorFileName)
-        outputBean = BeansFactory.getBeanObject(experimentFullPath, outputFileName)
+            sampleBean = BeansFactory.getBeanObject(experimentFullPath, self.sampleFileName)
+        scanBean = BeansFactory.getBeanObject(experimentFullPath, self.scanFileName)
+        detectorBean = BeansFactory.getBeanObject(experimentFullPath, self.detectorFileName)
+        outputBean = BeansFactory.getBeanObject(experimentFullPath, self.outputFileName)
         return sampleBean, scanBean, detectorBean, outputBean
     
     # from xas
@@ -106,10 +117,10 @@ class Scan:
         # create XasAsciiNexusDataWriter object and give it the parameters
         dataWriter = XasAsciiNexusDataWriter()
         if (Finder.getInstance().find("metashop") != None):
-            meta_add("DetectorParameters", BeansFactory.getXMLString(detectorBean))
-            meta_add("OutputParameters", BeansFactory.getXMLString(outputBean))
-            meta_add("SampleParameters", BeansFactory.getXMLString(sampleBean))
-            meta_add("ScanParameters", BeansFactory.getXMLString(scanBean))
+            meta_add(self.detectorFileName, BeansFactory.getXMLString(detectorBean))
+            meta_add(self.outputFileName, BeansFactory.getXMLString(outputBean))
+            meta_add(self.sampleFileName, BeansFactory.getXMLString(sampleBean))
+            meta_add(self.scanFileName, BeansFactory.getXMLString(scanBean))
             meta_add("xmlFolderName", experimentFullPath)
             xmlFilename = self._determineDetectorFilename(detectorBean)
             if ((xmlFilename != None) and (experimentFullPath != None)):

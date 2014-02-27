@@ -1,4 +1,3 @@
-#from gda.data.scan.datawriter.NexusFileMetadata import NXinstrumentSubTypes
 from metadata import Metadata
 from gdascripts.metadata.metadata_commands import meta_clear
     
@@ -6,10 +5,8 @@ class B18OutputPreparer:
     
     def __init__(self, datawriterconfig):
         self.datawriterconfig = datawriterconfig
-        print 'Output preparer created'
     
     def prepare(self, outputParameters, scanBean):
-        #meta_clear()
         metadata = outputParameters.getMetadataList()
         meta=Metadata(self.datawriterconfig)
         if len(metadata)>0:

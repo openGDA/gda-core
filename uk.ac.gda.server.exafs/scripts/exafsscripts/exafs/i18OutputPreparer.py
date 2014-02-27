@@ -1,7 +1,7 @@
 from metadata import Metadata
 from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
-from gda.data.scan.datawriter import NexusFileMetadata
-from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
+#from gda.data.scan.datawriter import NexusFileMetadata
+#from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
     
 class I18OutputPreparer:
     
