@@ -49,6 +49,8 @@ public class LogbackUtils {
 	
 	private static final String DEFAULT_CLIENT_CONFIG = "configurations/client-default.xml";
 	
+	private static final String SOURCE_PROPERTY_NAME = "GDA_SOURCE";
+	
 	/**
 	 * Returns the default Logback logger context.
 	 * 
@@ -217,10 +219,12 @@ public class LogbackUtils {
 	
 	/**
 	 * Configures Logback for a server-side process.
+	 * 
+	 * @param processName the name of the process for which logging is being configured
 	 */
-	public static void configureLoggingForServerProcess() {
+	public static void configureLoggingForServerProcess(String processName) {
 		URL defaultServerConfigFile = LogbackUtils.class.getResource(DEFAULT_SERVER_CONFIG);
-		configureLoggingForProcess(defaultServerConfigFile, GDA_SERVER_LOGGING_XML, LEGACY_GDA_LOGGER_IMPL_SERVER);
+		configureLoggingForProcess(processName, defaultServerConfigFile, GDA_SERVER_LOGGING_XML, LEGACY_GDA_LOGGER_IMPL_SERVER);
 	}
 	
 	/**
@@ -236,10 +240,12 @@ public class LogbackUtils {
 	
 	/**
 	 * Configures Logback for a client-side process.
+	 * 
+	 * @param processName the name of the process for which logging is being configured
 	 */
-	public static void configureLoggingForClientProcess() {
+	public static void configureLoggingForClientProcess(String processName) {
 		URL defaultClientConfigFile = LogbackUtils.class.getResource(DEFAULT_CLIENT_CONFIG);
-		configureLoggingForProcess(defaultClientConfigFile, GDA_CLIENT_LOGGING_XML, LEGACY_GDA_LOGGER_IMPL_CLIENT);
+		configureLoggingForProcess(processName, defaultClientConfigFile, GDA_CLIENT_LOGGING_XML, LEGACY_GDA_LOGGER_IMPL_CLIENT);
 	}
 	
 	/**
@@ -295,11 +301,12 @@ public class LogbackUtils {
 	 * a specified configuration file (using the value of a property, or falling back to the value of a legacy
 	 * property).
 	 * 
+	 * @param processName the name of the process for which logging is being configured
 	 * @param defaultConfigFile the default logging configuration file, which will be applied first
 	 * @param newPropertyName the preferred property name to use for the custom logging configuration file
 	 * @param legacyPropertyName legacy property name that can be used instead
 	 */
-	protected static void configureLoggingForProcess(URL defaultConfigFile, String newPropertyName, String legacyPropertyName) {
+	protected static void configureLoggingForProcess(String processName, URL defaultConfigFile, String newPropertyName, String legacyPropertyName) {
 		
 		LoggerContext context = getLoggerContext();
 		
@@ -354,6 +361,8 @@ public class LogbackUtils {
 				"Support for the old property may be removed in a future release of GDA.";
 			logger.warn(msg, legacyPropertyName, newPropertyName);
 		}
+		
+		context.putProperty(SOURCE_PROPERTY_NAME, processName);
 	}
 	
 }
