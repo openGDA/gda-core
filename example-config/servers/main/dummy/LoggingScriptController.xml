@@ -20,20 +20,20 @@
 		seen then the information in that bean is logged to a Derby database. There 
 		is a view which displays the contents of this database. -->
 
-	<bean id="MyLoggingScriptController"
-		class="gda.jython.scriptcontroller.logging.LoggingScriptController">
-		<property name="messageClassToLog"
-			value="gda.example.scriptcontroller.logging.ExampleLoggingMessage" />
-		<property name="directory" value="${gda.var}/" />
-		<property name="local" value="true"/>
-	</bean>
+<!-- 	<bean id="MyLoggingScriptController" -->
+<!-- 		class="gda.jython.scriptcontroller.logging.LoggingScriptController"> -->
+<!-- 		<property name="messageClassToLog" -->
+<!-- 			value="gda.example.scriptcontroller.logging.ExampleLoggingMessage" /> -->
+<!-- 		<property name="directory" value="${gda.var}/" /> -->
+<!-- 		<property name="local" value="true"/> -->
+<!-- 	</bean> -->
 
-	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter">
-		<property name="serviceName" value="gda/MyLoggingScriptController" />
-		<property name="service" ref="MyLoggingScriptController" />
-		<property name="serviceInterface"
-			value="gda.jython.scriptcontroller.logging.ILoggingScriptController" />
-	</bean>
+<!-- 	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter"> -->
+<!-- 		<property name="serviceName" value="gda/MyLoggingScriptController" /> -->
+<!-- 		<property name="service" ref="MyLoggingScriptController" /> -->
+<!-- 		<property name="serviceInterface" -->
+<!-- 			value="gda.jython.scriptcontroller.logging.ILoggingScriptController" /> -->
+<!-- 	</bean> -->
 
 	<bean id="MyOtherLoggingScriptController"
 		class="gda.jython.scriptcontroller.logging.LoggingScriptController">
