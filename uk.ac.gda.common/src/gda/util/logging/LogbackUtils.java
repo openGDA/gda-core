@@ -49,7 +49,7 @@ public class LogbackUtils {
 	
 	private static final String DEFAULT_CLIENT_CONFIG = "configurations/client-default.xml";
 	
-	private static final String SOURCE_PROPERTY_NAME = "GDA_SOURCE";
+	public static final String SOURCE_PROPERTY_NAME = "GDA_SOURCE";
 	
 	/**
 	 * Returns the default Logback logger context.
