@@ -31,12 +31,13 @@ import gda.factory.FactoryException;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.scan.ScanBase;
 
+import org.python.core.Py;
 import org.python.core.PyArray;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
+import org.python.core.PyList;
 import org.python.core.PyLong;
-import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySlice;
 import org.python.core.PyString;
@@ -676,19 +677,28 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 *            a number or a PySlice object
 	 * @return the part of the objects array of position as defined by index
 	 */
-	public PyObject __getitem__(PyObject index) {
+	public PyObject __getitem__(PyObject index) throws PyException {
 		double[] currentPosition;
 		try {
 			currentPosition = ScannableUtils.getCurrentPositionArray(this);
 		} catch (Exception e) {
 			logger.info(getName() + ": exception while converting array of positions to a string. " + e.getMessage());
-			return null;
+			PyException ex = new PyException();
+			ex.value = new PyString("could not convert positions array");
+			ex.type = Py.TypeError;
+			throw ex;
 		}
 
 		if (index instanceof PyInteger) {
-			if (((PyInteger) index).getValue() < __len__()) {
-				return new PyFloat(currentPosition[((PyInteger) index).getValue()]);
+			final PyInteger pyIntValue = (PyInteger) index;
+			final int intIndex = pyIntValue.getValue();
+			if (intIndex >= 0 && intIndex < __len__()) {
+				return new PyFloat(currentPosition[intIndex]);
 			}
+			PyException ex = new PyException();
+			ex.value = new PyString( String.format("index out of range: %d", intIndex) );
+			ex.type = Py.IndexError;
+			throw ex;
 		} else if (index instanceof PySlice) {
 			// only react if the command was [0] or [:]
 			PySlice slice = (PySlice) index;
@@ -696,42 +706,37 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 			int start, stop, step;
 
 			// start
-			if (slice.start instanceof PyNone) {
+			if (slice.start == null || slice.start.equals(Py.None)) {
 				start = 0;
 			} else {
-				start = ((PyInteger) slice.start).getValue();
+				start = Math.max(((PyInteger) slice.start).getValue(), 0);
 			}
 
 			// stop
-			if (slice.stop instanceof PyNone) {
+			if (slice.stop == null || slice.stop.equals(Py.None)) {
 				stop = this.__len__() - 1;
 			} else {
-				stop = ((PyInteger) slice.stop).getValue();
+				stop = Math.min(((PyInteger) slice.stop).getValue(), this.__len__() - 1);
 			}
 
 			// step
-			if (slice.step instanceof PyNone) {
+			if (slice.step == null || slice.step.equals(Py.None)) {
 				step = 1;
 			} else {
 				step = ((PyInteger) slice.step).getValue();
 			}
 
-			int numberElements = 0;
+			PyList output = new PyList();
 			for (int i = start; i <= stop; i += step) {
-				numberElements++;
-			}
-
-			PyArray output = new PyArray(PyFloat.class, numberElements);
-			int j = 0;
-			for (int i = start; i <= stop; i += step) {
-				output.__setitem__(j, new PyFloat(currentPosition[i]));
-				j++;
+				output.append(new PyFloat(currentPosition[i]));
 			}
 
 			return output;
-
 		}
-		return null;
+		PyException ex = new PyException();
+		ex.value = new PyString("__getitem()__ parameter was not PyInteger or PySlice");
+		ex.type = Py.TypeError;
+		throw ex;
 	}
 
 	/**
