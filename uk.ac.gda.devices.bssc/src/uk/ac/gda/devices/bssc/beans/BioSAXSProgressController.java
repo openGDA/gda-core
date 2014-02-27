@@ -38,13 +38,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB;
 import uk.ac.gda.devices.bssc.ispyb.ISAXSDataCollection;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
-import uk.ac.gda.devices.bssc.ispyb.UDPListener;
 import uk.ac.gda.devices.bssc.ui.BioSAXSProgressView;
 
 public class BioSAXSProgressController implements IObservable, Configurable {
@@ -154,17 +155,13 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 								reductionStatusInfo, analysisStatusInfo);
 					}
 
-					// final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-					// try {
-					// view = (BioSAXSProgressView) window.getActivePage().showView(BioSAXSProgressView.ID);
-					// // ((TableViewer) view.getViewer()).reveal(bioSAXSProgressModel.get(bioSAXSProgressModel.size()
-					// // - 1));
-					// // ((TableViewer) view.getViewer()).refresh(
-					// // bioSAXSProgressModel.get(bioSAXSProgressModel.size() - 1), true, false);
-					// } catch (PartInitException e) {
-					// // TODO Auto-generated catch block
-					// e.printStackTrace();
-					// }
+					final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+					view = (BioSAXSProgressView) window.getActivePage().findView(BioSAXSProgressView.ID);
+
+					if (view != null) {
+						view.reveal();
+					}
 				}
 			});
 
@@ -220,17 +217,6 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		});
 
 	}
-
-	// public void updateModel(long dataCollectionId, ISpyBStatusInfo collectionStatusInfo,
-	// ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
-	// int dataCollectionIdIntValue = ((Long) dataCollectionId).intValue();
-	//
-	// // Find the progressItem and update it
-	// ISAXSProgress progressItem = (ISAXSProgress) bioSAXSProgressModel.get(dataCollectionIdIntValue-38);
-	// progressItem.setCollectionProgress(collectionStatusInfo);
-	// progressItem.setReductionProgress(reductionStatusInfo);
-	// progressItem.setAnalysisProgress(analysisStatusInfo);
-	// }
 
 	protected ISAXSProgress getProgressItemFromModel(List<ISAXSProgress> list, long id) {
 		for (ISAXSProgress progressItem : list) {
