@@ -62,14 +62,17 @@ import uk.ac.gda.richbeans.event.ValueListener;
  *
  */
 public class FieldBeanComposite extends FieldComposite implements IFieldCollection, IExpressionWidget, IFieldProvider, BeanProvider {
-
 	private static Logger logger = LoggerFactory.getLogger(FieldBeanComposite.class);
-	
 	protected Object beanTemplate;
 	protected Object editorUI;
 	protected Object editorBean;
     protected String listenerName;
-    
+ 	protected boolean active = true;// Important to start with true! For what reason??
+	protected Collection<BeanSelectionListener> listeners;
+	private boolean isEnabled = true;
+	private boolean isOn = false;
+	private ACTIVE_MODE activeMode = ACTIVE_MODE.SET_VISIBLE_AND_ACTIVE;
+	
 	/**
 	 * @param parent
 	 * @param style
@@ -110,7 +113,8 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 	public void setEditorClass(final Class<?> clazz) {
 		try {
 			beanTemplate = clazz.newInstance();
-			if (editorUI==this) addValueListeners(this);
+			if (editorUI==this) 
+				addValueListeners(this);
 		} catch (Exception e) {
 			// In rare cases the editor class cannot be
 			// instantiated due to classpath/plugin problems.
@@ -143,7 +147,6 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 	}
 	
 	protected void addValueListeners(final Object editorUI) {
-		
 		if (beanTemplate==null) throw new RuntimeException("You must set the editing class for with setEditorClass(...) before setting the editorUI object.");
 		try {
 			BeanUI.addValueListener(beanTemplate, editorUI, new ValueAdapter(getListenerName()) {
@@ -167,9 +170,8 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 	 */
 	protected void valueChanged(ValueEvent e) throws Exception {
 		try {
-		    if (e.getFieldName()!=null) {
-		    	BeanUI.uiToBean(editorUI, editorBean, e.getFieldName());
-		    }
+			if (e.getFieldName()!=null)
+				BeanUI.uiToBean(editorUI, editorBean, e.getFieldName());
 		} catch (NoSuchMethodException ne) {
 			// We allow the bean to listen to fields it does not have the value of for now.
 			// No action is required.
@@ -194,8 +196,10 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 	
 	@Override
 	public void removeValueListener(ValueListener l) {
-		if (editorUI==null) throw new RuntimeException("You must set the editing UI for each item with setEditorUI(...)");
-		if (beanTemplate==null) throw new RuntimeException("You must set the editing class for with setEditorClass(...)");
+		if (editorUI==null) 
+			throw new RuntimeException("You must set the editing UI for each item with setEditorUI(...)");
+		if (beanTemplate==null) 
+			throw new RuntimeException("You must set the editing class for with setEditorClass(...)");
 		try {
 			BeanUI.removeValueListener(beanTemplate, editorUI, l);
 		} catch (Exception e) {
@@ -206,9 +210,11 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 	@Override
 	public void dispose() {
 		try {
-			if (listeners!=null) listeners.clear();
+			if (listeners!=null) 
+				listeners.clear();
 			if (editorUI!=null && beanTemplate!=null) {
-				if (editorUI instanceof Widget && ((Widget)editorUI).isDisposed()) return;
+				if (editorUI instanceof Widget && ((Widget)editorUI).isDisposed()) 
+					return;
 				BeanUI.dispose(beanTemplate, editorUI);
 			}
 		} catch (Exception e) {
@@ -227,7 +233,8 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 		this.editorBean   = value;
 		try {
 			off(); // Need to off all beans or get unwanted value changed.
-			if (editorUI instanceof Widget && ((Widget)editorUI).isDisposed()) return;
+			if (editorUI instanceof Widget && ((Widget)editorUI).isDisposed()) 
+				return;
 			BeanUI.beanToUI(editorBean, editorUI);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
@@ -249,8 +256,9 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 				public void process(Entry<Object, Object> prop, IFieldWidget box) throws Exception {
 					if (box instanceof IExpressionWidget) {
 						final IExpressionWidget expressionBox = (IExpressionWidget)box;
-						if (!expressionBox.isExpressionAllowed()) return;
-						final BeanExpressionManager man       = new BeanExpressionManager(expressionBox, FieldBeanComposite.this);
+						if (!expressionBox.isExpressionAllowed()) 
+							return;
+						final BeanExpressionManager man = new BeanExpressionManager(expressionBox, FieldBeanComposite.this);
 						man.setAllowedSymbols(getExpressionFields());
 						expressionBox.setExpressionManager(man);
 					}
@@ -292,10 +300,8 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 	 * @throws Exception
 	 */
 	protected List<String> getExpressionFields() throws Exception {
-  	    
-		if (expressionFields==null) {
+		if (expressionFields==null)
 			expressionFields = BeanUI.getEditingFields(editorBean, editorUI);
-		}
         return expressionFields;
 	}
 
@@ -308,49 +314,32 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 	public void setEditingBean(final Object bean) {
 		boolean newBean   = editorBean==null;
 		this.editorBean   = bean;
-		if (newBean) setValue(bean);
+		if (newBean) 
+			setValue(bean);
 	}
 	
-	// Important to start with true!
-	@SuppressWarnings("hiding")
-	protected boolean active = true;
-	/**
-	 * @return the active
-	 */
 	@Override
 	public boolean isActivated() {
 		return active;
 	}
 
-	private ACTIVE_MODE activeMode = ACTIVE_MODE.SET_VISIBLE_AND_ACTIVE;
-	/**
-	 * @param active the active to set
-	 */
 	@Override
 	public void setActive(boolean active) {
 		this.active = active;
-		if (activeMode==ACTIVE_MODE.SET_VISIBLE_AND_ACTIVE) {
+		if (activeMode==ACTIVE_MODE.SET_VISIBLE_AND_ACTIVE)
 		    setVisible(active);
-		} else if (activeMode==ACTIVE_MODE.SET_ENABLED_AND_ACTIVE){
+		else if (activeMode==ACTIVE_MODE.SET_ENABLED_AND_ACTIVE)
 			setVisible(active);
-		} // Nothing is nothing
 	}
-		
-	/**
-	 * @return the activeMode
-	 */
+
 	public ACTIVE_MODE getActiveMode() {
 		return activeMode;
 	}
 
-	/**
-	 * @param activeMode the activeMode to set
-	 */
 	public void setActiveMode(ACTIVE_MODE activeMode) {
 		this.activeMode = activeMode;
 	}
 
-	private boolean isOn = false;
 	@Override
 	public boolean isOn() {
 		return isOn;
@@ -358,17 +347,20 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 
 	@Override
 	public void off() {
-		if (editorUI==null)     throw new RuntimeException("You must set the editing UI with setEditorUI(...)");
-		if (beanTemplate==null) throw new RuntimeException("You must set the editing class for with setEditorClass(...)");
+		if (editorUI==null)
+			throw new RuntimeException("You must set the editing UI with setEditorUI(...)");
+		if (beanTemplate==null)
+			throw new RuntimeException("You must set the editing class for with setEditorClass(...)");
 		isOn = false;
 		updateState(isOn);
 	}
 
-
 	@Override
 	public void on() {
-		if (editorUI==null)     throw new RuntimeException("You must set the editing UI for each item with setEditorUI(...)");
-		if (beanTemplate==null) throw new RuntimeException("You must set the editing class for with setEditorClass(...)");
+		if (editorUI==null)
+			throw new RuntimeException("You must set the editing UI for each item with setEditorUI(...)");
+		if (beanTemplate==null)
+			throw new RuntimeException("You must set the editing class for with setEditorClass(...)");
 		isOn = true;
 		updateState(isOn);
 	}
@@ -380,25 +372,15 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 			throw new RuntimeException(e);
 		}
 	}
-
-
-	protected Collection<BeanSelectionListener> listeners;
-	private boolean isEnabled = true;
 	
-	/**
-	 * @return if enabled
-	 * 
-	 */
 	@Override
 	public boolean isEnabled() {
 		return isEnabled;
 	}
 
-	/**
-	 * @param l
-	 */
 	public void addBeanSelectionListener(final BeanSelectionListener l) {
-		if (listeners==null) listeners = new HashSet<BeanSelectionListener>(7);
+		if (listeners==null) 
+			listeners = new HashSet<BeanSelectionListener>(7);
 		listeners.add(l);
 	}
 	
@@ -415,16 +397,10 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 		}
 	}
 
-	/**
-	 * @return Returns the listenerName.
-	 */
 	public String getListenerName() {
 		return listenerName;
 	}
 
-	/**
-	 * @param listenerName The listenerName to set.
-	 */
 	public void setListenerName(String listenerName) {
 		this.listenerName = listenerName;
 	}
@@ -463,6 +439,5 @@ public class FieldBeanComposite extends FieldComposite implements IFieldCollecti
 	public boolean isExpressionAllowed() {
 		return true;
 	}
-}
-
 	
+}

@@ -39,9 +39,6 @@ import uk.ac.gda.ui.utils.StringUtils;
  */
 public class LabelWrapper extends FieldComposite {
 
-	/**
-	 *
-	 */
 	public enum TEXT_TYPE {
 	/**
 	 * Optional
@@ -52,34 +49,26 @@ public class LabelWrapper extends FieldComposite {
 	 */
 	NUMBER_WITH_UNIT}
 	
-
-	
 	private int decimalPlaces = 2;
 	private Label label;
+	private String text;
+	private TEXT_TYPE textType;
+	private NumberFormat numberFormat;
+	private String unit;
 	
 	public void setLabelColor(Color color){ 
  		label.setForeground(color); 
  	} 
 
-	/**
-	 * @return the decimalPlaces
-	 */
 	public int getDecimalPlaces() {
 		return decimalPlaces;
 	}
-	/**
-	 * @param decimalPlaces the decimalPlaces to set
-	 */
+	
 	public void setDecimalPlaces(int decimalPlaces) {
 		this.decimalPlaces = decimalPlaces;
 		numberFormat.setMaximumFractionDigits(decimalPlaces);
 	}
 
-	private NumberFormat numberFormat;
-	/**
-	 * @param parent
-	 * @param style
-	 */
 	public LabelWrapper(final Composite parent, final int style) {
 		super(parent, SWT.NONE);
 		setLayout(new FillLayout());
@@ -90,42 +79,34 @@ public class LabelWrapper extends FieldComposite {
 		numberFormat.setGroupingUsed(false);
 	}
 	
-	private String text;
-	private TEXT_TYPE textType;
 	@Override
 	public String getValue() {
 		return text;
 	}
 	
-	/**
-	 * @param type
-	 */
 	public void setTextType(TEXT_TYPE type) {
 		this.textType = type;
 	}
 	
-	
 	@Override
 	public void setValue(Object value) {
 		if (textType==null||textType==TEXT_TYPE.NUMBER_WITH_UNIT) {
-			if (value!=null) {
+			if (value!=null)
 				text = numberFormat.format(value);
-			} else {
+			else
 				text = "";
-			}
-			
 			String boxValue="";
 			if (!"".equals(text)) {
 				boxValue = StringUtils.keepDigits(text, decimalPlaces).toString();
 				if (unit!=null) boxValue+=" "+unit;
 			}
 			label.setText(boxValue);
-		} else {
-			if (value!=null) {
-				text = value+"";
-			} else {
+		} 
+		else {
+			if (value!=null)
+				text = value+""; 
+			else
 				text = "";
-			}
 			label.setText(text);
 		}
 		
@@ -142,8 +123,10 @@ public class LabelWrapper extends FieldComposite {
 	 */
 	public double getNumericValue() throws ParseException {
 		final Object val = getValue();
-		if (val==null) return Double.NaN;
-		if (val instanceof Number) return ((Number)val).doubleValue();
+		if (val==null) 
+			return Double.NaN;
+		if (val instanceof Number) 
+			return ((Number)val).doubleValue();
 		return (numberFormat.parse(val.toString())).doubleValue();
 	}
 	
@@ -153,24 +136,15 @@ public class LabelWrapper extends FieldComposite {
 	@Override
 	protected void checkSubclass () {
 	}
-	
-	private String unit;
-	/**
-	 * @return the unit
-	 */
+
 	public String getUnit() {
 		return unit;
 	}
-	/**
-	 * @param unit the unit to set
-	 */
+
 	public void setUnit(String unit) {
 		this.unit = unit;
 	}
 
-	/**
-	 * @param text
-	 */
 	public void setText(String text) {
 		if (textType==TEXT_TYPE.NUMBER_WITH_UNIT&&getUnit()!=null) {
 			label.setText(text+" "+unit);			
@@ -189,5 +163,3 @@ public class LabelWrapper extends FieldComposite {
 	}
 
 }
-
-	

@@ -343,7 +343,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		if (expressionManager != null) {
 			processAsExpression(txt);
-		} else {
+		} 
+		else {
 			processAsNumber(txt);
 		}
 
