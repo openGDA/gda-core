@@ -31,8 +31,9 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import uk.ac.diamond.scisoft.analysis.IAnalysisService;
-import uk.ac.diamond.scisoft.analysis.osgi.AnalysisServiceImpl;
+//FXIME
+//import uk.ac.diamond.scisoft.analysis.IAnalysisService;
+//import uk.ac.diamond.scisoft.analysis.osgi.AnalysisServiceImpl;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -62,7 +63,8 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 		Hashtable<String, String> props = new Hashtable<String, String>(1);
 		props = new Hashtable<String, String>(1);
 		props.put("description", "A service which replaces concrete classes in the scisoft.analysis plugin.");
-		context.registerService(IAnalysisService.class, new AnalysisServiceImpl(), props);
+		//		FIXME
+		//		context.registerService(IAnalysisService.class, new AnalysisServiceImpl(), props);
 	}
 
 	@Override
