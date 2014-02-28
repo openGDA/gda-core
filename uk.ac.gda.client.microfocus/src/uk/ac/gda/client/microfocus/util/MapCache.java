@@ -58,6 +58,28 @@ public class MapCache {
 		}
 		return data;
 	}
+	
+	
+	private double[][][] getAllMCAForOneLine(int y) {
+		IDataset pointData = lazyDataset.getSlice(new int[]{y,0,0,0},new int[]{y+1,lazyDataset.getShape()[1],lazyDataset.getShape()[2],lazyDataset.getShape()[3]},null);
+
+		int numberXPixels = pointData.getShape()[1];
+		int numberChannels = pointData.getShape()[2];
+		int mcaSize = pointData.getShape()[3];
+
+		double[][][] data = new double[numberXPixels][numberChannels][mcaSize];
+
+		for (int xIndex = 0; xIndex < numberXPixels; xIndex++) {
+			for (int chaIndex = 0; chaIndex < numberChannels; chaIndex++) {
+				for (int mcaIndex = 0; mcaIndex < mcaSize; mcaIndex++) {
+					data[xIndex][chaIndex][mcaIndex] = pointData.getDouble(0,xIndex,chaIndex,mcaIndex);
+				}
+			}
+		}
+
+		return data;
+		
+	}
 
 	private double[][] getAllMCAForOnePoint(int x, int y){
 		IDataset pointData = lazyDataset.getSlice(new int[]{y,x,0,0},new int[]{y+1,x+1,lazyDataset.getShape()[2],lazyDataset.getShape()[3]},null);
@@ -83,12 +105,19 @@ public class MapCache {
 		int numX = shape[1];
 		int numberChannels = shape[2];
 
+		// TODO could speed this up by getting the complete slice for each roi...
+		
 		mapdata = new double[roiNameMap.size()][numberChannels][numY][numX];
 		for (int yIndex = 0; yIndex < numY; yIndex++) {
+			
+			System.out.println(yIndex);
+			double[][][] buffer = getAllMCAForOneLine(yIndex);
+//			logger.info("Reading Nexus Xmap line " + yIndex);
+			
 			for (int xIndex = 0; xIndex < numX; xIndex++) {
 				
 				// this should not be too much to hold in memory
-				double[][] buffer = getAllMCAForOnePoint(xIndex,yIndex);
+//				double[][] buffer = getAllMCAForOnePoint(xIndex,yIndex);
 				
 				for (int chaIndex = 0; chaIndex < numberChannels; chaIndex++) {
 					List<? extends DetectorROI> roiList = elementRois[chaIndex];
@@ -98,7 +127,7 @@ public class MapCache {
 						int windowEnd = roi.getRoiEnd();
 						int roiCount = 0;
 						for (int mcaChannel = windowStart; mcaChannel <= windowEnd; mcaChannel++) {
-							roiCount += buffer[chaIndex][mcaChannel];
+							roiCount += buffer[xIndex][chaIndex][mcaChannel];
 						}
 						mapdata[elementIndex][chaIndex][yIndex][xIndex] = roiCount;
 					}

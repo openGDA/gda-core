@@ -200,10 +200,10 @@ class XasScan(Scan):
 	
 	# run the beamline specific preparers			
 	def runPreparers(self, beanGroup, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean):
-		self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
 		sampleScannables = self.samplePreparer.prepare(sampleBean)
 		outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
 		scanPlotSettings = self.outputPreparer.getPlotSettings(detectorBean,outputBean)
+		self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
 		return sampleScannables, outputScannables, scanPlotSettings
 
 	def buildScanArguments(self, scanBean, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean):
@@ -285,7 +285,10 @@ class XasScan(Scan):
 	def checkForPause(self, numRepetitions,repetitionNumber):
 		if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
 			self.log("Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.")
-			self.commandQueueProcessor.pause(500);
+			# should not operate the Command Queue here, as it will simply make the queue pause once this scan has completed
+# 			self.commandQueueProcessor.pause(500);
+			# instead set the Script pause flag and wait until someone clears it to resume this scan
+			ScriptBase.setPaused(True)
 			LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
 			ScriptBase.checkForPauses()
 		

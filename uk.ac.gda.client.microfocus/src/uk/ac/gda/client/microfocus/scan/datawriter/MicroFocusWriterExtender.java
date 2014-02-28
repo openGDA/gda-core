@@ -284,7 +284,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						}
 					}
 					if (isXspressScan()
-							&& (detector instanceof XspressDetector) || detector instanceof BufferedDetector) {
+							&& ((detector instanceof XspressDetector) || detector instanceof BufferedDetector)) {
 						d = ((NXDetectorData) dataObj);
 						double[][] dataArray = (double[][]) d.getData(detectorName, "MCAs", "SDS").getBuffer();
 						// assuming all detector elements have the same number of roi
@@ -312,7 +312,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 //						logger.debug("the value for the selected element " + selectedElement + " is " + valueToDisplay);
 
 					} else if (isXmapScan()
-							&& (detector instanceof XmapDetector) || (detector instanceof BufferedDetector)) {
+							&& ((detector instanceof XmapDetector) || (detector instanceof BufferedDetector))) {
 						d = ((NXDetectorData) dataObj);
 						double wholeDataArray[][] = new double[numberOfSubDetectors][];
 						Object wholeDataArrayObject;
@@ -363,6 +363,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 										detectorValuesCache[j][roiNameMap.get(key)] = new double[totalPoints];
 									double windowTotal = getWindowedData(wholeDataArray[j], roi.getRoiStart(),
 											roi.getRoiEnd());
+									double rgbElementSum = rgbLineData.get(key);
+									rgbLineData.put(key, rgbElementSum + windowTotal);
 									detectorValuesCache[j][roiNameMap.get(key)][currentPointNumber] = windowTotal;
 //									if (roi.getRoiName().equals(selectedElement) && j == selectedChannel) {
 //										valueToDisplay = windowTotal;

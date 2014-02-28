@@ -104,9 +104,10 @@ public abstract class MicroFocusMappableDataProvider {
 			double[] y = (double[]) ydata.getBuffer();
 			
 			ILazyDataset zscannableDS = extractZScannableData(names);
+
 			AbstractDataset zdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(zscannableDS));
 			zValue = Double.parseDouble(zdata.getString(0));
-			
+	
 			// x and y values from file will be
 			// x = {0.0, 2.0, 4.0,6.0, 0.0, 2.0, 4.0,6.0,0.0, 2.0, 4.0,6.0}
 			// y = { 0.0,0.0,0.0,0.0, 2.0 , 2.0 , 2.0 , 2.0 , 4.0, 4.0, 4.0}
