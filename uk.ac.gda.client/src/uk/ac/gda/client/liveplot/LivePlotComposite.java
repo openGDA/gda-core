@@ -269,6 +269,14 @@ public class LivePlotComposite extends Composite {
 		legend.removeAllItems();
 	}
 
+	public void setHideOldestScan(Boolean value){
+		legend.setHideOldestScan(value);
+	}
+	
+	public boolean getHideOldestScan() {
+		return legend.getHideOldestScan();
+	}
+	
 	/**
 	 * remove the item from the tree whose filename equals the one specified
 	 * 
@@ -447,6 +455,7 @@ public class LivePlotComposite extends Composite {
 				axis.setLog10(isLog10);
 		}
 	}
+
 }
 
 /**
