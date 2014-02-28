@@ -17,51 +17,38 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector;
+package gda.device.detector.xmap;
 
-import gda.device.detector.xmap.Xmap;
+import gda.device.detector.FluorescentDetectorConfiguration;
 import gda.device.detector.xspress.Xspress2DetectorConfiguration;
 import gda.factory.FactoryException;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.observable.ObservableComponent;
 
-import java.io.File;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.util.beans.xml.XMLHelpers;
-
-public class VortexDetectorConfiguration{
+public class VortexDetectorConfiguration implements FluorescentDetectorConfiguration{
 	
 	private Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
 	private Xmap xmap;
 	private ObservableComponent observer;
 	private String message = "Xspress configuration has not been applied yet";
+	private boolean saveRawSpectrum = false;
 	
 	public VortexDetectorConfiguration(Xmap xmap, final ObservableComponent observer){
-		this.xmap = xmap;
 		this.observer = observer;
+		this.xmap = xmap;
 	}
 	
-	public VortexParameters createBeanFromXML(String xmlPath) throws Exception{
-		return (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, new File(xmlPath));
-	}
-	
-	public void createXMLfromBean(VortexParameters vortexBean) throws Exception{
-		File file = new File(xmap.getConfigFileName());
-		XMLHelpers.writeToXML(XspressParameters.mappingURL, vortexBean, file);
-	}
-	
-	public void configure(String xmlFileName, boolean isVortexSaveRawSpectrum) throws FactoryException {
+	@Override
+	public void configure(String xmlFileName) throws FactoryException {
 		try {	
 			xmap.setConfigFileName(xmlFileName);
 			xmap.stop();
 			logger.info("Wrote new Vortex Parameters to: "+xmap.getConfigFileName());
 			xmap.loadConfigurationFromFile();
-			xmap.setSaveRawSpectrum(isVortexSaveRawSpectrum);
+			xmap.setSaveRawSpectrum(saveRawSpectrum);
 			message = " The Xspress detector configuration updated.";
 			observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {
@@ -73,7 +60,17 @@ public class VortexDetectorConfiguration{
 		observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 	}
 	
+	@Override
 	public String getMessage() {
 		return message;
 	}
+
+	public boolean isSaveRawSpectrum() {
+		return saveRawSpectrum;
+	}
+
+	public void setsaveRawSpectrum(boolean saveRawSpectrum) {
+		this.saveRawSpectrum = saveRawSpectrum;
+	}
+
 }

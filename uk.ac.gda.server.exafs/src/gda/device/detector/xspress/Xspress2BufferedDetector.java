@@ -16,13 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector;
+package gda.device.detector.xspress;
 
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
-import gda.device.detector.xspress.Xspress2System;
-import gda.device.detector.xspress.XspressDetector;
+import gda.device.detector.BufferedDetector;
+import gda.device.detector.DetectorBase;
+import gda.device.detector.NexusDetector;
 
 import java.util.HashMap;
 

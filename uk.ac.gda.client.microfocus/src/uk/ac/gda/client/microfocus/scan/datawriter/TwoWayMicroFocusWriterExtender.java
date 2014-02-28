@@ -18,45 +18,12 @@
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
 
-import gda.analysis.RCPPlotter;
-import gda.analysis.io.ScanFileHolderException;
-import gda.data.scan.datawriter.DataWriterExtenderBase;
-import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.XmapDetector;
-import gda.device.detector.BufferedDetector;
-import gda.device.detector.NXDetectorData;
-import gda.device.detector.Xspress2BufferedDetector;
-import gda.device.detector.countertimer.TfgScaler;
-import gda.device.detector.xmap.XmapBufferedDetector;
-import gda.device.detector.xspress.XspressDetector;
 import gda.scan.IScanDataPoint;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.beans.vortex.VortexROI;
-import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
-import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
 import uk.ac.gda.client.microfocus.util.RandomLineFileWriter;
-import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 
 public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
 	
