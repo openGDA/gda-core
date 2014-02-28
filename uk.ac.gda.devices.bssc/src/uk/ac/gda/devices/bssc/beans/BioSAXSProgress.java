@@ -8,18 +8,15 @@ import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
 
 public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 
-	private double id;
+	private long dataCollectionId;
 	private String sampleName;
 	private ISpyBStatusInfo collectionStatusInfo;
 	private ISpyBStatusInfo reductionStatusInfo;
 	private ISpyBStatusInfo analysisStatusInfo;
-	private double collectionProgress;
-	private double reductionProgress;
-	private double analysisProgress;
 
-	public BioSAXSProgress(long id, String sampleName, ISpyBStatusInfo collectionStatusInfo,
+	public BioSAXSProgress(long dataCollectionId, String sampleName, ISpyBStatusInfo collectionStatusInfo,
 			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
-		this.id = id;
+		this.dataCollectionId = dataCollectionId;
 		this.sampleName = sampleName;
 		this.collectionStatusInfo = collectionStatusInfo;
 		this.reductionStatusInfo = reductionStatusInfo;
@@ -27,13 +24,13 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 	}
 
 	@Override
-	public void setId(double id) {
-		this.id = id;
+	public void setDataCollectionId(long dataCollectionId) {
+		this.dataCollectionId = dataCollectionId;
 	}
 
 	@Override
-	public double getId() {
-		return id;
+	public long getDataCollectionId() {
+		return dataCollectionId;
 	}
 
 	@Override
@@ -47,52 +44,37 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 	}
 
 	@Override
-	public void setCollectionProgress(ISpyBStatusInfo collectionStatusInfo) {
-		firePropertyChange(ISAXSProgress.COLLECTION_PROGRESS, this.collectionProgress,
-				this.collectionProgress = collectionStatusInfo.getProgress());
+	public void setCollectionStatusInfo(ISpyBStatusInfo collectionStatusInfo) {
+		firePropertyChange(ISAXSProgress.COLLECTION_STATUS_INFO, this.collectionStatusInfo,
+				this.collectionStatusInfo = collectionStatusInfo);
 	}
 
 	@Override
-	public void setReductionProgress(ISpyBStatusInfo reductionStatusInfo) {
-		firePropertyChange(ISAXSProgress.REDUCTION_PROGRESS, this.reductionProgress,
-				this.reductionProgress = reductionStatusInfo.getProgress());
+	public void setReductionStatusInfo(ISpyBStatusInfo reductionStatusInfo) {
+		firePropertyChange(ISAXSProgress.REDUCTION_STATUS_INFO, this.reductionStatusInfo,
+				this.reductionStatusInfo = reductionStatusInfo);
 	}
 
 	@Override
-	public void setAnalysisProgress(ISpyBStatusInfo analysisStatusInfo) {
-		firePropertyChange(ISAXSProgress.ANALYSIS_PROGRESS, this.analysisProgress,
-				this.analysisProgress = analysisStatusInfo.getProgress());
+	public void setAnalysisStatusInfo(ISpyBStatusInfo analysisStatusInfo) {
+		firePropertyChange(ISAXSProgress.ANALYSIS_STATUS_INFO, this.analysisStatusInfo,
+				this.analysisStatusInfo = analysisStatusInfo);
 	}
 
 	@Override
-	public ISpyBStatus getCollectionStatus() {
-		return collectionStatusInfo.getStatus();
+	public ISpyBStatusInfo getCollectionStatusInfo() {
+		return collectionStatusInfo;
 	}
 	
 	@Override
-	public ISpyBStatus getReductionStatus() {
-		return reductionStatusInfo.getStatus();
+	public ISpyBStatusInfo getReductionStatusInfo() {
+		return reductionStatusInfo;
 	}
 	
 	@Override
-	public ISpyBStatus getAnalysisStatus()
+	public ISpyBStatusInfo getAnalysisStatusInfo()
 	{
-		return analysisStatusInfo.getStatus();
-	}
-	
-	@Override
-	public double getCollectionProgress() {
-		return collectionProgress;
-	}
-
-	@Override
-	public double getReductionProgress() {
-		return reductionProgress;
-	}
-
-	@Override
-	public double getAnalysisProgress() {
-		return analysisProgress;
+		return analysisStatusInfo;
 	}
 
 	@Override

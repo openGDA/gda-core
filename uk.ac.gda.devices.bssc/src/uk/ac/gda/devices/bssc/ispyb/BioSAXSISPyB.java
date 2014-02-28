@@ -256,10 +256,9 @@ public interface BioSAXSISPyB {
 	public ISpyBStatusInfo getDataAnalysisStatus(long dataCollectionId) throws SQLException;
 
 	/**
-	 * Return the id of the data collection run previously to the collection with id dataCollectionId
 	 * 
 	 * @param dataCollectionId
-	 * @return id of the collection which was run before data collection with id dataCollectionId
+	 * @return ISAXSDataCollection
 	 */
-	public int getPreviousCollectionId(long dataCollectionId);
+	public ISAXSDataCollection getSAXSDataCollection(long dataCollectionId);
 }

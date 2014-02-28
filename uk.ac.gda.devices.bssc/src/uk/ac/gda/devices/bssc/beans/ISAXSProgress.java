@@ -18,46 +18,35 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
-import java.beans.PropertyChangeListener;
 import java.util.List;
 
-import uk.ac.gda.devices.bssc.ispyb.ISpyBStatus;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
 
 public interface ISAXSProgress {
 	public static final String SAMPLE_NAME = "sampleName";
-	public static final String COLLECTION_STATUS = "collectionStatus";
-	public static final String REDUCTION_STATUS = "reductionStatus";
-	public static final String ANALYSIS_STATUS = "analysisStatus";
-	public static final String COLLECTION_PROGRESS = "collectionProgress";
-	public static final String REDUCTION_PROGRESS = "reductionProgress";
-	public static final String ANALYSIS_PROGRESS = "analysisProgress";
+	public static final String COLLECTION_STATUS_INFO = "collectionStatusInfo";
+	public static final String REDUCTION_STATUS_INFO = "reductionStatusInfo";
+	public static final String ANALYSIS_STATUS_INFO = "analysisStatusInfo";
 
-	public void setId(double id);
+	public void setDataCollectionId(long id);
 
-	public double getId();
-	
+	public long getDataCollectionId();
+
 	public void setSampleName(String sampleName);
-
+	
 	public String getSampleName();
 	
-	public void setCollectionProgress(ISpyBStatusInfo collectionStatusInfo);
-	
-	public double getCollectionProgress();
+	public void setCollectionStatusInfo(ISpyBStatusInfo collectionStatusInfo);
 
-	public void setReductionProgress(ISpyBStatusInfo reductionStatusInfo);
-	
-	public double getReductionProgress();
+	public void setReductionStatusInfo(ISpyBStatusInfo reductionStatusInfo);
 
-	public void setAnalysisProgress(ISpyBStatusInfo analysisStatusInfo);
+	public void setAnalysisStatusInfo(ISpyBStatusInfo analysisStatusInfo);
 	
-	public double getAnalysisProgress();
+	public ISpyBStatusInfo getCollectionStatusInfo();
 
-	public ISpyBStatus getCollectionStatus();
-
-	public ISpyBStatus getReductionStatus();
+	public ISpyBStatusInfo getReductionStatusInfo();
 	
-	public ISpyBStatus getAnalysisStatus();
+	public ISpyBStatusInfo getAnalysisStatusInfo();
 	
 	public List<String> getCollectionFileNames();
 }
