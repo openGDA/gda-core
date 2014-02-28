@@ -41,12 +41,12 @@ import org.springframework.util.StringUtils;
 public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, InitializingBean {
 	protected static final Logger logger = LoggerFactory.getLogger(SocketBidiAsciiCommunicator.class);
 
-	private OutputStream writer;
-	private InputStream reader;
+	protected OutputStream writer;
+	protected InputStream reader;
 	private String address = "";
 	private int port = -1;
 	private Socket socket;
-	private final ReentrantLock lock = new ReentrantLock();
+	protected final ReentrantLock lock = new ReentrantLock();
 	// properties
 	private String cmdTerm = "\r\n";
 	private String replyTerm = "\r\n";
