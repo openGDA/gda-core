@@ -1,11 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: uk.ac.gda.server.exafs.epics.test
-Bundle-SymbolicName: uk.ac.gda.server.exafs.epics.test
+Bundle-Name: uk.ac.gda.devices.xmap.test
+Bundle-SymbolicName: uk.ac.gda.devices.xmap.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.gda.server.exafs.epics
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
- org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)"
+ org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
+ uk.ac.gda.nexus,
+ uk.ac.gda.devices.xmap

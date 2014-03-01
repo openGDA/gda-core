@@ -19,9 +19,6 @@
 
 package gda.device.detector.xmap.corba.impl;
 
-import java.util.Collections;
-import java.util.List;
-
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -33,11 +30,16 @@ import gda.device.detector.xmap.corba.CorbaXmapDetectorHelper;
 import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.Object;
 import org.omg.CORBA.TRANSIENT;
 
 public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetector, Findable, Scannable {
+
+	private static final long serialVersionUID = -3788520814633324994L;
 	private CorbaXmapDetector corbaXmapDetector;
 	/**
 	 * @param obj

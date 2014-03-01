@@ -29,7 +29,7 @@ import org.junit.Test;
 public class XmapBufferedHdf5FileLoaderTest {
 	
 	static String TestFileFolder;
-	XmapBufferedHdf5FileLoader xMapLoader;
+	private XmapBufferedHdf5FileLoader xMapLoader;
 
 	@BeforeClass
 	public static void beforeClass() {
