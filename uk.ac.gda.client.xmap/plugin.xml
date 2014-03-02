@@ -59,5 +59,16 @@
             priority="high">
       </content-type>
    </extension>
+   <extension
+         point="uk.ac.gda.richbeans.beantypes">
+      <describer
+            bean="uk.ac.gda.beans.vortex.VortexParameters"
+            contentType="uk.ac.diamond.gda.client.exafs.getVortexContent"
+            includeInNew="false"
+            name="Vortex"
+            template="Vortex_Parameters"
+            type="UNREGISTERED">
+      </describer>
+   </extension>
 
 </plugin>
