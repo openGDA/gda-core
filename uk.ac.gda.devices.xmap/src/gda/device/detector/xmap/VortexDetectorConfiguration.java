@@ -68,7 +68,7 @@ public class VortexDetectorConfiguration implements FluorescentDetectorConfigura
 		return saveRawSpectrum;
 	}
 
-	public void setsaveRawSpectrum(boolean saveRawSpectrum) {
+	public void setSaveRawSpectrum(boolean saveRawSpectrum) {
 		this.saveRawSpectrum = saveRawSpectrum;
 	}
 
