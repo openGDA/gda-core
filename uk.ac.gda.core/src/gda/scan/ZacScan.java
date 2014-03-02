@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Zac stands for Zero Acceleration
  * FastScan extends ScanBase to implement scans in which the Scannable
  * moves continuously from beginning to end, not step by step. The timing is
  * under the control of detectors, not the scan itself. In addition
