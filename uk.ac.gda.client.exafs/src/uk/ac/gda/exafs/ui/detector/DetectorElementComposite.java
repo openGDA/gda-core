@@ -52,18 +52,18 @@ public class DetectorElementComposite extends Composite {
 	private LabelWrapper name;
 	private ScaleBox peakingTime;
 	private ExpandableComposite advancedExpandableComposite;
-	private VerticalListEditor regionList;
+	protected VerticalListEditor regionList;
 	private ExpansionAdapter expansionListener;
 	private ScaleBox windowStart, roiStart;
 	private ScaleBox windowEnd, roiEnd;
 	private LabelWrapper windowCounts;
 	private Group windowComposite;
 	private boolean windowsEditable;
-	private Composite mainComposite;
+	protected Composite mainComposite;
 	private boolean isIndividualElements = false;
-	private DetectorROIComposite detectorROIComposite;
-	private boolean isMultipleElements;
-	Class<? extends DetectorROI> regionClass;
+	protected DetectorROIComposite detectorROIComposite;
+	protected boolean isMultipleElements;
+	protected Class<? extends DetectorROI> regionClass;
 	
 	public DetectorElementComposite(final Composite parent, final int style, boolean isMultipleElements,
 	final Class<? extends DetectorROI> regionClass, boolean showRoi) {

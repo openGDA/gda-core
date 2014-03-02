@@ -35,7 +35,7 @@ import com.swtdesigner.SWTResourceManager;
 public class DetectorListComposite extends Composite {
 
 	protected GridListEditor detectorList;
-	private DetectorElementComposite detectorElementComposite;
+	public DetectorElementComposite detectorElementComposite;
 
 	public DetectorListComposite(final Composite parent, final Class<? extends IDetectorElement> editorClass,
 			final int elementListSize, final Class<? extends DetectorROI> regionClass, boolean showRoi) {
