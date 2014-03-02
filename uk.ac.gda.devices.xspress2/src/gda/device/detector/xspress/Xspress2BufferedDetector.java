@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * To operate the Xspress through TFGv2 in the ContinuousScan framework
  */
 public class Xspress2BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector {
+	private static final long serialVersionUID = -6791888656626099507L;
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2BufferedDetector.class);
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = false;

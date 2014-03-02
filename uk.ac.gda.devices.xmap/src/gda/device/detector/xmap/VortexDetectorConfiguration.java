@@ -20,7 +20,6 @@
 package gda.device.detector.xmap;
 
 import gda.device.detector.FluorescentDetectorConfiguration;
-import gda.device.detector.xspress.Xspress2DetectorConfiguration;
 import gda.factory.FactoryException;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.observable.ObservableComponent;
@@ -30,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class VortexDetectorConfiguration implements FluorescentDetectorConfiguration{
 	
-	private Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
+	private Logger logger = LoggerFactory.getLogger(VortexDetectorConfiguration.class);
 	private Xmap xmap;
 	private ObservableComponent observer;
 	private String message = "Xspress configuration has not been applied yet";

@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Datawriter
+Bundle-SymbolicName: uk.ac.gda.exafs.datawriter;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ uk.ac.gda.epics,
+ uk.ac.gda.core,
+ uk.ac.gda.nexus,
+ uk.ac.gda.common,
+ uk.ac.gda.server.exafs,
+ uk.ac.gda.devices.xmap,
+ uk.ac.gda.devices.xspress2
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: gda.data.scan.datawriter
+Import-Package: org.slf4j

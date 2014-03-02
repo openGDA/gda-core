@@ -21,7 +21,6 @@ package gda.device.detector.xmap;
 import java.io.File;
 
 import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class VortexBeanUtils {
@@ -31,6 +30,6 @@ public class VortexBeanUtils {
 	
 	public void createXMLfromBean(Xmap xmap, VortexParameters vortexBean) throws Exception{
 		File file = new File(xmap.getConfigFileName());
-		XMLHelpers.writeToXML(XspressParameters.mappingURL, vortexBean, file);
+		XMLHelpers.writeToXML(VortexParameters.mappingURL, vortexBean, file);
 	}
 }

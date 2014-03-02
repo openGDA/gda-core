@@ -62,7 +62,6 @@ public class XasDataWriterExtender extends AsciiWriterExtender {
 				String inputName = detectorElement.getName() + "_" + label;
 				if (fieldToVariableMap.containsKey(inputName)) {
 					int index = (detectorElement.getNumber()-1) * 4 + j;
-					@SuppressWarnings("unchecked")
 					HashMap<String, NexusGroupData > positions = (HashMap<String, NexusGroupData >) data;
 					NexusGroupData ngd = positions.get("scaler");
 					int[] idata = (int[]) ngd.getBuffer();

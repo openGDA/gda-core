@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="uk.ac.gda.client.xspress3.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="RCP Perspective"
+            class="uk.ac.gda.client.xspress3.Perspective"
+            id="uk.ac.gda.client.xspress3.perspective">
+      </perspective>
+   </extension>
+
+</plugin>

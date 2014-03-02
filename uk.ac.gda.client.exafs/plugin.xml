@@ -185,11 +185,6 @@
             name="ScalersMonitorViewCommands">
       </category>
       <command
-            defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.ShowXspressCommand"
-            id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.showXspress"
-            name="ShowHide Xspress stats">
-      </command>
-      <command
             defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.ChangeRateCommand"
             id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.changerate"
             name="Change scaler monitor rate">
@@ -546,12 +541,6 @@
                class="uk.ac.gda.client.experimentdefinition.components.ExperimentProjectNature">
          </run>
       </runtime>
-   </extension>
-   <extension
-         point="gda.scan.scan.data.point.formatter">
-      <formatter
-            class="gda.data.scan.datawriter.XasScanDataPointFormatter">
-      </formatter>
    </extension>
 
 
