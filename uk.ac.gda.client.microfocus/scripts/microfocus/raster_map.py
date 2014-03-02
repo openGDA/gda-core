@@ -49,7 +49,6 @@ class RasterMap(Map):
 
         self.outputPreparer = outputPreparer
         self.detectorPreparer = detectorPreparer
-
         
     def enableBeam(self):
         self.beamEnabled = True
@@ -65,9 +64,7 @@ class RasterMap(Map):
         elif stage==3:
             self.trajContiniousX = self.traj3ContiniousX
             self.trajPositionReader = self.traj3PositionReader
-            # RJW 11/2/14 could have a different TTL socket and then do not have to switch the cables...
-            # it was like this but everyone forgot and so kept swapping the cable anyway... 
-            self.raster_counterTimer01.setTtlSocket(1)
+            self.raster_counterTimer01.setTtlSocket(2)
             
         else:
             print "please enter 1 or 3 as a parameter where 1 is the small stage and 3 is the large stage"
@@ -116,9 +113,6 @@ class RasterMap(Map):
         self.log("Number y points: " + str(ny))
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
-        
-        self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
-        
         self.detectorBeanFileName =experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
         self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize(),self.detectorBeanFileName, array(detectorList, Detector))
         for energy in energyList:
