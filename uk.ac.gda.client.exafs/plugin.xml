@@ -68,22 +68,6 @@
             restorable="true">
       </view>
       <view
-            category="uk.ac.gda.client.exafs.category"
-            class="uk.ac.gda.exafs.ui.views.scalersmonitor.XmapMonitorView"
-            icon="icons/control_play_blue.png"
-            id="uk.ac.gda.exafs.ui.views.xmapmonitor"
-            name="Xmap Monitor"
-            restorable="true">
-      </view>
-      <view
-            category="uk.ac.gda.client.exafs.category"
-            class="uk.ac.gda.exafs.ui.views.scalersmonitor.XmapI1MonitorView"
-            icon="icons/control_play_blue.png"
-            id="uk.ac.gda.exafs.ui.views.xmapi1monitor"
-            name="XES Xmap Rates"
-            restorable="true">
-      </view>
-      <view
             class="uk.ac.gda.exafs.ui.ionchambers.IonChambersView"
             id="uk.ac.gda.exafs.ui.ionchambers"
             name="Ion Chambers"
@@ -101,12 +85,6 @@
             class="uk.ac.gda.exafs.ui.views.amplifier.StanfordAmplifierView"
             id="uk.ac.gda.client.exafs.stanford.amplifiers"
             name="Stanford Amplifiers"
-            restorable="true">
-      </view>
-      <view
-            class="uk.ac.gda.exafs.ui.detector.vortex.VortexView"
-            id="uk.ac.gda.client.exafs.vortex.view"
-            name="Vortex"
             restorable="true">
       </view>
    </extension>

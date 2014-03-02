@@ -5,7 +5,7 @@ from gda.configuration.properties import LocalProperties
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
 from gda.device.detector.xspress import Xspress2BeanUtils
 
-from gda.device.detector import VortexDetectorConfiguration
+from gda.device.detector.xmap import VortexDetectorConfiguration
 from gda.device.detector.xmap import VortexBeanUtils
 
 from gda.jython import InterfaceProvider

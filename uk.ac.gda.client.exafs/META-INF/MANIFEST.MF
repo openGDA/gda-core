@@ -91,15 +91,14 @@ Export-Package: gda.exafs.scan,
  uk.ac.gda.exafs.ui.data,
  uk.ac.gda.exafs.ui.describers,
  uk.ac.gda.exafs.ui.detector,
- uk.ac.gda.exafs.ui.detector.vortex,
  uk.ac.gda.exafs.ui.detector.wizards,
  uk.ac.gda.exafs.ui.detector.xspress,
  uk.ac.gda.exafs.ui.dialogs,
+ uk.ac.gda.exafs.ui.microreactor,
  uk.ac.gda.exafs.ui.plot,
  uk.ac.gda.exafs.ui.preferences,
  uk.ac.gda.exafs.ui.views.scalersmonitor,
- uk.ac.gda.exafs.util,
- uk.ac.gda.exafs.ui.microreactor
+ uk.ac.gda.exafs.util
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: uk.ac.gda.exafs.ExafsActivator

@@ -27,6 +27,7 @@ import gda.device.DeviceException;
  */
 public class XmapwithSlaveMode extends gda.device.detector.xmap.Xmap {
 
+	private static final long serialVersionUID = 4308115011613534896L;
 	boolean slave;
 	
 	@Override

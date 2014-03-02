@@ -49,6 +49,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * implementation is only for the Normal mode.
  */
 public class Xmap extends DetectorBase implements XmapDetector, Detector, Scannable, Configurable, IObserver {
+	private static final long serialVersionUID = 2780213150490777588L;
 
 	private static final Logger logger = LoggerFactory.getLogger(Xmap.class);
 

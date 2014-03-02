@@ -46,9 +46,8 @@ public class XmapMonitorView extends MonitorViewBase {
 	
 	private static final Double MAX_FLUO_RATE = 500000.0;
 
-	public static final String ID = "uk.ac.gda.exafs.ui.views.xmapmonitor"; //$NON-NLS-1$
+	public static final String ID = "uk.ac.gda.exafs.ui.views.xmapmonitor";
 
-	@SuppressWarnings("hiding")
 	protected static final Logger logger = LoggerFactory.getLogger(XmapMonitorView.class);
 
 	protected ScalersMonitorViewData displayData;

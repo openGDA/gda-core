@@ -45,6 +45,7 @@ import uk.ac.gda.util.CorrectionUtils;
  * Version of Xmap which returns its data in a format which works with the NexusFileWriter better than raw data
  */
 public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
+	private static final long serialVersionUID = 7628345757698564553L;
 	private static final Logger logger = LoggerFactory.getLogger(NexusXmap.class);
 	private boolean sumAllElementData = false;
 	private int numberOfElements;
