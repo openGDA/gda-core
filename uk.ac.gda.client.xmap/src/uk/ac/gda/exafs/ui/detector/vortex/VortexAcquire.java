@@ -75,6 +75,9 @@ public class VortexAcquire extends Acquire {
 	private Plot plot;
 	private Counts counts;
 	
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Counts counts){
 		super(display);
 		this.sashPlotFormComposite = sashPlotFormComposite;
