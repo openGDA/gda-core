@@ -27,7 +27,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.api,
  org.eclipse.ui.workbench,
  uk.ac.gda.client.exafs,
- org.eclipse.equinox.app
+ org.eclipse.equinox.app,
+ uk.ac.gda.devices.xmap
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.gda.exafs.ui.describers,

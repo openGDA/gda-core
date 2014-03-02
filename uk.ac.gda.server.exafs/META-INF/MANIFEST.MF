@@ -35,7 +35,6 @@ Export-Package: gda.data.scan.datawriter,
  uk.ac.gda.beans.exafs.i18,
  uk.ac.gda.beans.exafs.i20,
  uk.ac.gda.beans.microfocus,
- uk.ac.gda.beans.vortex,
  uk.ac.gda.beans.xspress,
  uk.ac.gda.server.exafs
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
