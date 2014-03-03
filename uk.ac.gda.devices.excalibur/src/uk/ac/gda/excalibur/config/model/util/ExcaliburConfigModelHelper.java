@@ -128,18 +128,19 @@ public class ExcaliburConfigModelHelper {
 	 * 
 	 * @param fileName
 	 * @param excaliburConfig
+	 * @throws IOException 
 	 */
-	public void saveToXML(String fileName, ExcaliburConfig excaliburConfig) {
-		Resource resource = createResource(fileName);
-		resource.getContents().add(excaliburConfig);
-		// Save the contents of the resource to the file system.
-		//
-		Map<Object, Object> options = new HashMap<Object, Object>();
-		options.put(XMLResource.OPTION_ENCODING, "UTF-8");
-		try {
+	public void saveToXML(String fileName, ExcaliburConfig excaliburConfig) throws Exception {
+		try{
+			Resource resource = createResource(fileName);
+			resource.getContents().add(excaliburConfig);
+			// Save the contents of the resource to the file system.
+			//
+			Map<Object, Object> options = new HashMap<Object, Object>();
+			options.put(XMLResource.OPTION_ENCODING, "UTF-8");
 			resource.save(options);
-		} catch (IOException e) {
-			logger.error("Exception saving the configuration model", e);
+		} catch(Exception e){
+			throw new Exception("Error saving to file '" + fileName + "'", e);
 		}
 
 	}

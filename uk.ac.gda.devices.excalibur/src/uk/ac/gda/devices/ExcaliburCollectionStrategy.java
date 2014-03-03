@@ -40,8 +40,18 @@ public class ExcaliburCollectionStrategy extends SingleExposureStandard implemen
 	private boolean softwareTrigger=false;
 	private String operationModePVName = "EXCALIBUR:CONFIG:ACQUIRE:OperationMode";
 	private boolean started;
+
+	private int triggerMode=StandardTriggerMode.INTERNAL.ordinal();;
 	
 	
+
+	public int getTriggerMode() {
+		return triggerMode;
+	}
+
+	public void setTriggerMode(int triggerMode) {
+		this.triggerMode = triggerMode;
+	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -58,7 +68,7 @@ public class ExcaliburCollectionStrategy extends SingleExposureStandard implemen
 		super.prepareForCollection(collectionTime, 1, scanInfo);
 		operationModePV.putWait(burst ? "Burst" : "Normal");
 		getAdBase().setImageModeWait(ImageMode.MULTIPLE);
-		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal());
+		getAdBase().setTriggerMode(triggerMode);
 		int numImagesToTrigger = 1;
 		if(!softwareTrigger){
 			ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
