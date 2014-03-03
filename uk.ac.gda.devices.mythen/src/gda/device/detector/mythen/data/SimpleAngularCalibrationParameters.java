@@ -52,6 +52,7 @@ public class SimpleAngularCalibrationParameters implements AngularCalibrationPar
 				double centre = Double.parseDouble(bits[1]);
 				parameters.put(module, centre);
 			}
+			br.close();
 		} catch (IOException e) {
 			throw new RuntimeException("Could not load angular calibration parameters from " + StringUtils.quote(file.getAbsolutePath()), e);
 		}
