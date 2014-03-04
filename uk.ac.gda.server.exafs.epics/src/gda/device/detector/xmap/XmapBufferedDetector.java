@@ -50,7 +50,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
@@ -411,11 +415,25 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		// set the sub-directory and create if necessary
 		String dataDir = PathConstructor.createFromDefaultProperty();
 		dataDir = dataDir + "tmp" + File.separator + lastScanNumber;
-		if (!(new File(dataDir)).exists()) {
-			boolean directoryExists = (new File(dataDir)).mkdirs();
+		File scanSubDir = new File(dataDir);
+		if (!scanSubDir.exists()) {
+			boolean directoryExists = scanSubDir.mkdirs();
 			if (!directoryExists) {
 				throw new DeviceException("Failed to create temporary directory to place Xmap HDF5 files: " + dataDir);
 			}
+			
+			// set 777 perms to ensure detector account
+			Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+			perms.add(PosixFilePermission.OWNER_READ);
+			perms.add(PosixFilePermission.OWNER_WRITE);
+			perms.add(PosixFilePermission.OWNER_EXECUTE);
+			perms.add(PosixFilePermission.GROUP_READ);
+			perms.add(PosixFilePermission.GROUP_WRITE);
+			perms.add(PosixFilePermission.GROUP_EXECUTE);
+			perms.add(PosixFilePermission.OTHERS_READ);
+			perms.add(PosixFilePermission.OTHERS_WRITE);
+			perms.add(PosixFilePermission.OTHERS_EXECUTE);
+			Files.setPosixFilePermissions(scanSubDir.toPath(), perms);
 		}
 		dataDir = dataDir.replace("/dls/" + beamline.toLowerCase(), "X:/");
 		controller.setDirectory(dataDir);
