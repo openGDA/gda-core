@@ -37,8 +37,6 @@ public class BatonManagerTest {
 
 	BatonManager manager;
 
-	/**
-	 */
 	@Before
 	public void setUp() {
 		LocalProperties.set("gda.accesscontrol.firstClientTakesBaton", "true");
@@ -56,9 +54,6 @@ public class BatonManagerTest {
 		manager.addFacade("rst", details3);
 	}
 
-	/**
-	 * 
-	 */
 	@Test
 	public void testAddFacade() {
 		ClientDetails details4 = new ClientDetails(manager.getNewFacadeIndex(), "jkl101", "JKL 101", "pc34567", 0, false, "mx123-3");
@@ -66,35 +61,23 @@ public class BatonManagerTest {
 		assertTrue(manager.isJSFRegistered("uvw"));
 	}
 
-	/**
-	 * 
-	 */
 	@Test
 	public void testRemoveFacade() {
 		manager.removeFacade("opq");
 		assertEquals(manager.getOtherClientInformation("xyz").length, 1);
 	}
 
-	/**
-	 * 
-	 */
 	@Test
 	public void testGetNewFacadeIndex() {
 		assertEquals(manager.getNewFacadeIndex(), 3);
 	}
 
-	/**
-	 * 
-	 */
 	@Test
 	public void testAmIBatonHolder() {
 		assertTrue(manager.amIBatonHolder("opq"));
 		assertFalse(manager.amIBatonHolder("xyz"));
 	}
 
-	/**
-	 * 
-	 */
 	@Test
 	public void testAssignBaton() {
 		manager.requestBaton("opq");
@@ -103,18 +86,12 @@ public class BatonManagerTest {
 		assertFalse(manager.amIBatonHolder("opq"));
 	}
 
-	/**
-	 * 
-	 */
 	@Test
 	public void testGetOtherClientInformation() {
 		ClientDetails[] test = manager.getOtherClientInformation("opq");
 		assertEquals(test.length, 2);
 	}
 
-	/**
-	 * 
-	 */
 	@Test
 	public void testRequestAndReturnBaton() {
 		manager.returnBaton("opq");
@@ -127,9 +104,6 @@ public class BatonManagerTest {
 		assertTrue(manager.amIBatonHolder("rst"));
 	}
 	
-	/**
-	 * 
-	 */
 	@Test
 	public void testSwitchUser() {
 		manager.requestBaton("xyz");
@@ -140,9 +114,6 @@ public class BatonManagerTest {
 		
 	}
 
-	/**
-	 * 
-	 */
 	@Test
 	public void testIsJSFRegistered() {
 		assertFalse(manager.isJSFRegistered(";flakedg"));
