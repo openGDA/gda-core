@@ -32,6 +32,7 @@ import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class BatonManager implements IBatonManager {
 
 	private final long LEASETIMEOUT = 60000; // 1 minute in milliseconds
 
-	private int facadeIndex = 0;
+	private AtomicInteger facadeIndex = new AtomicInteger();
 
 	private String batonHolder = "";
 
@@ -182,9 +183,7 @@ public class BatonManager implements IBatonManager {
 
 	@Override
 	public int getNewFacadeIndex() {
-		int returnValue = facadeIndex;
-		facadeIndex++;
-		return returnValue;
+		return facadeIndex.getAndIncrement();
 	}
 
 	@Override
