@@ -43,7 +43,6 @@ import gda.epics.CAClient;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -178,7 +177,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				// change to linux format
 				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
 				lastFileName = lastFileName.replace("X:/", "/dls/" + beamline);
-				
+								
 				waitForFileToBeReadable();
 
 				createFileLoader();
@@ -194,14 +193,15 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 					fileLoader.loadFile();  // let this throw its exception to surrounding catch
 				}
 				lastFileReadStatus = true;
-			} else {
-				
-			}
+			} 
+			
 			int numOfPointsInFile = fileLoader.getNumberOfDataPoints();
 			int numPointsToRead = finalFrame - startFrame + 1;
 			
 			if (numOfPointsInFile < numPointsToRead) {
-				throw new DeviceException("Xmap data file "+ lastFileName +  " only has " + numOfPointsInFile + " data point but expected at least " + numPointsToRead ); 
+				String msg = "Xmap data file "+ lastFileName +  " only has " + numOfPointsInFile + " data point but expected at least " + numPointsToRead;
+				logger.error(msg);
+				throw new DeviceException( msg);
 			}
 			
 			NexusTreeProvider[] container = new NexusTreeProvider[numPointsToRead];
@@ -262,7 +262,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		}
 	}
 
-	private void createFileLoader() throws Exception {
+	private void createFileLoader() throws  Exception {
 		if (controller.isBufferedArrayPort())
 			fileLoader = new XmapBufferedHdf5FileLoader(lastFileName);
 		else
@@ -400,7 +400,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		controller.setFilenamePrefix(beamline);
 
 		// scan number
-		NumTracker runNumber = new NumTracker("tmp");
+		NumTracker runNumber = new NumTracker("scanbase_numtracker");
 		// Get the current number
 		Number scanNumber = runNumber.getCurrentFileNumber();
 		if (!(scanNumber.intValue() == lastScanNumber))
@@ -487,17 +487,10 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		double timeoutMilliSeconds = 100000;
 		double waitedSoFarMilliSeconds = 0;
 		int waitTime = 1000;
-		CAClient ca_client = new CAClient();
-		try {
-			while (ca_client.caget(capturepv + "_RBV").equals("Capturing")
-					&& waitedSoFarMilliSeconds <= timeoutMilliSeconds) {
-				Thread.sleep(waitTime);
-				waitedSoFarMilliSeconds += waitTime;
-			}
-		} catch (CAException e) {
-			logger.error("Timeout waiting to connect to xmap capture pv", e);
-		} catch (TimeoutException e) {
-			logger.error("Timeout waiting to connect to xmap capture pv", e);
+
+		while (controller.getCaptureStatus() && waitedSoFarMilliSeconds <= timeoutMilliSeconds) {
+			Thread.sleep(waitTime);
+			waitedSoFarMilliSeconds += waitTime;
 		}
 	}
 
