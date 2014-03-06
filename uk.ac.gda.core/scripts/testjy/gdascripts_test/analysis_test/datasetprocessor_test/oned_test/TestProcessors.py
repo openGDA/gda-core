@@ -139,7 +139,7 @@ class TestPeak(Test):
 		self.p = GaussianPeakAndBackground()
 		
 	def test__init__(self):
-		self.check__init__('peak', ('pos','offset','top', 'fwhm'), 'pos')
+		self.check__init__('peak', ('pos','offset','top', 'fwhm', 'residual'), 'pos')
 		
 	def test_process(self):
 		pos = 15.014649472869898
@@ -177,10 +177,10 @@ class TestEdge(Test):
 		self.yDataset = sfh.getDataSet('ch16')
 		
 	def test__init__(self):
-		self.check__init__('edge', ('pos','slope', 'fwhm'), 'pos')
+		self.check__init__('edge', ('pos','slope', 'fwhm', 'residual'), 'pos')
 		
 	def test_process(self):
-		pos,  top, fwhm = self.p._process(self.xDataset, self.yDataset)
+		pos,  top, fwhm, _ = self.p._process(self.xDataset, self.yDataset)
 		self.assertAlmostEqual(pos, 6.4703041688, 4)
 		self.assertAlmostEqual(abs(top), 10050.0, -2)
 		self.assertAlmostEqual(fwhm, 0.0066020719, 4)
