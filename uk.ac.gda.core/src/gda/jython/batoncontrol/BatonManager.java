@@ -32,6 +32,7 @@ import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class BatonManager implements IBatonManager {
 
 	private final long LEASETIMEOUT = 60000; // 1 minute in milliseconds
 
-	private int facadeIndex = 0;
+	private AtomicInteger facadeIndex = new AtomicInteger();
 
 	private String batonHolder = "";
 
@@ -173,7 +174,7 @@ public class BatonManager implements IBatonManager {
 	}
 
 	@Override
-	public void removeFacade(String uniqueID) {
+	public synchronized void removeFacade(String uniqueID) {
 		returnBaton(uniqueID);
 		facadeNames.remove(uniqueID);
 		leaseHolders.remove(uniqueID);
@@ -182,9 +183,7 @@ public class BatonManager implements IBatonManager {
 
 	@Override
 	public int getNewFacadeIndex() {
-		int returnValue = facadeIndex;
-		facadeIndex++;
-		return returnValue;
+		return facadeIndex.getAndIncrement();
 	}
 
 	@Override
@@ -502,20 +501,24 @@ public class BatonManager implements IBatonManager {
 		/**
 		 * Remove from the list of leased clients those which have not communicated for some time.
 		 */
-		private synchronized void removeTimeoutLeases() {
-			// refresh all other leases
-			Long now = new GregorianCalendar().getTimeInMillis();
-
-			String[] clientIDs = leaseHolders.keySet().toArray(new String[0]);
-
-			for (int i = 0; i < clientIDs.length; i++) {
-				Long leaseStart = leaseHolders.get(clientIDs[i]);
-				if (now - leaseStart > LEASETIMEOUT) {
-					leaseHolders.remove(clientIDs[i]);
-					if (amIBatonHolder(clientIDs[i], false)) {
-						logger.warn("Baton holder timeout, so baton released after " + ((now - leaseStart) / 1000)
-								+ "s");
-						changeBatonHolder("");
+		private void removeTimeoutLeases() {
+			
+			synchronized (BatonManager.this) {
+				
+				// refresh all other leases
+				Long now = new GregorianCalendar().getTimeInMillis();
+	
+				String[] clientIDs = leaseHolders.keySet().toArray(new String[0]);
+	
+				for (int i = 0; i < clientIDs.length; i++) {
+					Long leaseStart = leaseHolders.get(clientIDs[i]);
+					if (now - leaseStart > LEASETIMEOUT) {
+						leaseHolders.remove(clientIDs[i]);
+						if (amIBatonHolder(clientIDs[i], false)) {
+							logger.warn("Baton holder timeout, so baton released after " + ((now - leaseStart) / 1000)
+									+ "s");
+							changeBatonHolder("");
+						}
 					}
 				}
 			}
