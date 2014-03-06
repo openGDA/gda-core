@@ -4,8 +4,8 @@ from gda.configuration.properties import LocalProperties
 from gda.scan import ScanPlotSettings
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XesScanParameters
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+#from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+#from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
 #from gda.data.scan.datawriter import NexusFileMetadata
 #from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
         
@@ -18,8 +18,8 @@ class I20OutputPreparer:
         self.datawriterconfig_xes = datawriterconfig_xes
         
     def prepare(self, outputParameters, scanBean):
-        NexusExtraMetadataDataWriter.removeAllMetadataEntries();
-        self.redefineNexusMetadata()
+        #NexusExtraMetadataDataWriter.removeAllMetadataEntries();
+        #self.redefineNexusMetadata()
         self.jython_mapper.ionchambers.setOutputLogValues(True) 
         # Custom for I20, which is why it is here instead of the shared DetectorConfiguration.java classes.
         # Set the output options for the fluo detectors. Hope that this output preparer has been called AFTER the
@@ -93,7 +93,7 @@ class I20OutputPreparer:
 #                return True
 #        return False
          
-    def redefineNexusMetadata(self):
+    #def redefineNexusMetadata(self):
         
 #        if (LocalProperties.get("gda.mode") == 'dummy'):
 #            return
@@ -123,7 +123,7 @@ class I20OutputPreparer:
         #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Yaw",str(self.jython_mapper.m2_yaw()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
     
         # attentuators
-        if (LocalProperties.get("gda.mode") != 'dummy'):
+        #if (LocalProperties.get("gda.mode") != 'dummy'):
             #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn1()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN1"))
             #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn2()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN2"))
             #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn3()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN3"))
@@ -150,7 +150,7 @@ class I20OutputPreparer:
     #    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("YPlus",str(self.jython_mapper.s1_voffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"Y slits"))
     
         # Mono
-        if (LocalProperties.get("gda.mode") != 'dummy'):
+        #if (LocalProperties.get("gda.mode") != 'dummy'):
        #     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal Cut",str(self.jython_mapper.crystalcut()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
         #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 1 pitch",str(self.jython_mapper.crystal1_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
         #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 2 roll",str(self.jython_mapper.crystal2_roll()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
