@@ -252,18 +252,22 @@ public class LogbackUtils {
 	 * Name of property that specifies the hostname/IP address of the log server.
 	 */
 	public static final String GDA_LOGSERVER_HOST = "gda.logserver.host";
+	
+	public static final String GDA_LOGSERVER_HOST_DEFAULT = "localhost";
 
 	/**
 	 * Name of property that specifies the port on which the log server appends logging events.
 	 */
 	public static final String GDA_LOGSERVER_OUT_PORT = "gda.logserver.out.port";
 
+	public static final int GDA_LOGSERVER_OUT_PORT_DEFAULT = 6750;
+
 	/**
 	 * Configures forwarding of logging events from log server to Beagle plugin view in own context.
 	 */
 	public static void configureLoggingForClientBeagle() {
 		final String logServerHost = LocalProperties.get(GDA_LOGSERVER_HOST);
-		final int logServerOutPort = LocalProperties.getInt(GDA_LOGSERVER_OUT_PORT, 6750);
+		final int logServerOutPort = LocalProperties.getInt(GDA_LOGSERVER_OUT_PORT, GDA_LOGSERVER_OUT_PORT_DEFAULT);
 
 		if (logServerHost != null) {
 
