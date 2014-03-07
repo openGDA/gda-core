@@ -363,6 +363,24 @@ public class LogbackUtils {
 		}
 		
 		context.putProperty(SOURCE_PROPERTY_NAME, processName);
+		
+		setEventDelayToZeroInAllSocketAppenders(context);
+	}
+	
+	public static void setEventDelayToZeroInAllSocketAppenders(LoggerContext context) {
+		// Force event delay to zero for all SocketAppenders.
+		// Prevents 100 ms delay per log event when a SocketAppender's queue fills up
+		// (this happens if the SocketAppender can't connect to the remote host)
+		for (Logger logger : context.getLoggerList()) {
+			final Iterator<Appender<ILoggingEvent>> appenderIterator = logger.iteratorForAppenders();
+			while (appenderIterator.hasNext()) {
+				final Appender<ILoggingEvent> appender = appenderIterator.next();
+				if (appender instanceof SocketAppender) {
+					final SocketAppender sockAppender = (SocketAppender) appender;
+					sockAppender.setEventDelayLimit(Duration.buildByMilliseconds(0));
+				}
+			}
+		}
 	}
 	
 }
