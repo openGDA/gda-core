@@ -5,29 +5,16 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Logging"
-            id="uk.ac.gda.client.logpanel.category">
+            name="Diagnostics"
+            id="uk.ac.gda.client.categories.diagnostics">
       </category>
       <view
-            name="Logpanel"
-            icon="icons/GDAlogos/GDALogo32.png"
-            category="uk.ac.gda.client.logpanel.category"
+            category="uk.ac.gda.client.categories.diagnostics"
             class="uk.ac.gda.client.logpanel.view.LogpanelView"
-            id="uk.ac.gda.client.logpanel.view">
+            icon="icons/application_error.png"
+            id="uk.ac.gda.client.logpanel.view"
+            name="Logpanel">
       </view>
-   </extension>
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="*">
-         <view
-               id="uk.ac.gda.client.logpanel.view"
-               minimized="false"
-               ratio="0.3"
-               relationship="bottom"
-               relative="org.eclipse.ui.editorss">
-         </view>
-      </perspectiveExtension>
    </extension>
    <extension
          id="application"
@@ -42,7 +29,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="uk.ac.gda.client.logpanel.Perspective"
-            icon="icons/GDAlogos/GDALogo32.png"
+            icon="icons/application_error.png"
             id="uk.ac.gda.client.logpanel.perspective"
             name="Logging">
       </perspective>
@@ -61,7 +48,75 @@
                name="appName"
                value="GDA Logpanel">
          </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
       </product>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.client.logpanel.view">
+         <command
+               commandId="uk.ac.gda.client.logpanel.commands.clear"
+               icon="icons/console_clear.gif"
+               style="push"
+               tooltip="Clear Log">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.logpanel.commands.scrollLock"
+               icon="icons/scroll_lock.gif"
+               style="toggle"
+               tooltip="Scroll Lock">
+         </command>
+      </menuContribution>
+<!--
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="uk.ac.gda.client.logpanel.toolbar"
+               label="Logpanel">
+            <command
+                  commandId="uk.ac.gda.client.logpanel.commands.clear"
+                  icon="icons/console_clear.gif"
+                  style="push"
+                  tooltip="Clear Log">
+            </command>
+            <command
+                  commandId="uk.ac.gda.client.logpanel.commands.scrollLock"
+                  icon="icons/scroll_lock.gif"
+                  style="toggle"
+                  tooltip="Scroll Lock">
+            </command>
+         </toolbar>
+      </menuContribution>
+-->
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="uk.ac.gda.client.categories.diagnostics.logpanel.commands"
+            name="Logpanel">
+      </category>
+      <command
+            categoryId="uk.ac.gda.client.categories.diagnostics.logpanel.commands"
+            defaultHandler="uk.ac.gda.client.logpanel.commands.ClearHandler"
+            id="uk.ac.gda.client.logpanel.commands.clear"
+            name="Clear Log">
+      </command>
+      <command
+            categoryId="uk.ac.gda.client.categories.diagnostics.logpanel.commands"
+            defaultHandler="uk.ac.gda.client.logpanel.commands.ScrollLockHandler"
+            id="uk.ac.gda.client.logpanel.commands.scrollLock"
+            name="Scroll Lock">
+         <state
+               class="org.eclipse.jface.commands.ToggleState"
+               id="uk.ac.gda.client.logpanel.commands.scrollLock.toggleState">
+         </state>
+      </command>
    </extension>
 
 </plugin>
