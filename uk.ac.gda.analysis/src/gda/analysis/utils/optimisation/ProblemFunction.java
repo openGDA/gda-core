@@ -23,6 +23,7 @@ import gda.analysis.functions.IFunction;
 import gda.analysis.functions.Parameter;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.IOperator;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IParameter;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 
@@ -182,5 +183,14 @@ public class ProblemFunction implements IFunction {
 	@Override
 	public boolean isValid() {
 		return def != null;
+	}
+
+	@Override
+	public IOperator getParentOperator() {
+		return null;
+	}
+
+	@Override
+	public void setParentOperator(IOperator parent) {
 	}
 }
