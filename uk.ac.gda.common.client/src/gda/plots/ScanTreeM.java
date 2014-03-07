@@ -24,10 +24,10 @@ import java.util.Enumeration;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+// TODO what does the M mean in ScanTreeM?
 public class ScanTreeM extends SelectableNode {
 	private boolean visibleFLag;
-
-	String name;
+	protected String name;
 
 	public ScanTreeM() {
 		this("");
@@ -37,21 +37,21 @@ public class ScanTreeM extends SelectableNode {
 		this.name = name;
 	}
 
-	DefaultMutableTreeNode addSingleScanLine(String currentFilename, String topGrouping, ScanLine scanLine) {
+	public DefaultMutableTreeNode addSingleScanLine(String currentFilename, String topGrouping, ScanLine scanLine) {
 		DefaultMutableTreeNode node = new SingleScanLine(currentFilename, topGrouping, scanLine);
 		insert(node, 0);
 		return node;
 	}
 
 	@SuppressWarnings("unchecked")
-	DefaultMutableTreeNode addGroupedScanLine(String currentFilename, String topGrouping, String []subGrouping, ScanLine scanLine) {
+	public DefaultMutableTreeNode addGroupedScanLine(String currentFilename, String topGrouping, String []subGrouping, ScanLine scanLine) {
 		// find group
 		ScanTreeItem scanTreeItem = null;
 		Enumeration<TreeNode> e = children();
 		while (e.hasMoreElements()) {
 			TreeNode n = e.nextElement();
 			if (n instanceof ScanTreeItem) {
-				if (((ScanTreeItem) n).name.equals(topGrouping)) {
+				if (((ScanTreeItem) n).getName().equals(topGrouping)) {
 					scanTreeItem = (ScanTreeItem) n;
 					break;
 				}
@@ -66,7 +66,7 @@ public class ScanTreeM extends SelectableNode {
 
 	@Override
 	public String toString() {
-		return name;
+		return getName();
 	}
 
 	@Override
@@ -111,6 +111,10 @@ public class ScanTreeM extends SelectableNode {
 			text = "." + text.substring(text.length() - maxlength + 1);
 		}	
 		return text;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 }

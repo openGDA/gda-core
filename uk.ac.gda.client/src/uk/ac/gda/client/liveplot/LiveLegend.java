@@ -26,6 +26,7 @@ import gda.plots.ScanTreeM;
 import gda.plots.Selected;
 import gda.plots.XYDataHandler;
 import gda.plots.XYDataHandlerLegend;
+import gda.rcp.GDAClientActivator;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -38,6 +39,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
@@ -57,6 +61,8 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.preferences.PreferenceConstants;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -83,6 +89,22 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 		tv.setLabelProvider(new ScanTreeLabelProvider());
 		tv.setColumnProperties(new String[] { VISIBLE });
 		model = new ScanTree(new ScanTreeM(), simplePlot);
+		
+		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+		String hideScanThreshold = preferenceStore.getString(PreferenceConstants.HIDE_SCAN_THRESHOLD);
+		int hideScanThresholdVal = Integer.parseInt(hideScanThreshold);
+		model.setNumberOfScansBeforeHiding(hideScanThresholdVal);
+		
+		preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				String hideScanThreshold = event.getNewValue().toString();
+				int hideScanThresholdVal = Integer.parseInt(hideScanThreshold);
+				model.setNumberOfScansBeforeHiding(hideScanThresholdVal);
+			}
+		});
+		
 		tv.setInput(model); // pass a non-null that will be ignored
 		CheckboxCellEditor chk = new CheckboxCellEditor(tv.getTree());
 		cellEditors = new CellEditor[] { chk };
@@ -123,7 +145,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	public void setSelectedFlag(DefaultMutableTreeNode node, boolean value){
 		if (node instanceof ISelectableNode) {
 			((ISelectableNode) node).setSelectedFlag(value);
-			model.valueForPathChanged(new TreePath(node.getPath()), node);		
+			model.valueForPathChanged(new TreePath(node.getPath()), node);
 		}
 	}
 	
@@ -225,6 +247,14 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 		return autoHideLastScan;
 	}
 
+	public void setHideOldestScan(Boolean value){
+		model.setHideOldestScan(value);
+	}
+	
+	public boolean getHideOldestScan() {
+		return model.getHideOldestScan();
+	}
+	
 	/**
 	 * Hide all scans
 	 */

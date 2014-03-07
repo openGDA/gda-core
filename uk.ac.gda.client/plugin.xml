@@ -402,6 +402,11 @@
           id="uk.ac.gda.client.DashDownCommand"
           name="Dash Item Down">
     </command>
+    <command
+          defaultHandler="uk.ac.gda.client.HideOldHandler"
+          id="uk.ac.gda.client.hideoldscans"
+          name="Hide old scans">
+    </command>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -526,6 +531,13 @@
            icon="icons/chart_curve_go.png"
            label="New"
            tooltip="New">
+     </command>
+     <command
+           commandId="uk.ac.gda.client.hideoldscans"
+           icon="icons/chart_curve_hide_old.png"
+           label="Hide old scans"
+           style="toggle"
+           tooltip="for each new scan over a threshold, hide the oldest. Threshold value set in Preferences - Visualization - Live Plot">
      </command>
 	</menuContribution>
 	
@@ -929,6 +941,12 @@
             class="gda.rcp.views.dashboard.DashboardPreferencePage"
             id="uk.ac.gda.client.dashboardPreferences"
             name="Dashboard">
+      </page>
+      <page
+            category="org.dawb.workbench.ui.visualizationPreferences"
+            class="uk.ac.gda.preference.pages.LivePlotPreferencePage"
+            id="uk.ac.gda.client.liveplot"
+            name="Live Plot">
       </page>
    </extension>
    <extension

@@ -53,7 +53,7 @@ public class ScanTreeItem extends ScanTreeM {
 				while (e.hasMoreElements()) {
 					TreeNode n = e.nextElement();
 					if (n instanceof ScanPairGroup) {
-						if (((ScanPairGroup) n).name.equals(subGroups[0])) {
+						if (((ScanPairGroup) n).getName().equals(subGroups[0])) {
 							scanPairGroup = (ScanPairGroup) n;
 						}
 					}
@@ -75,7 +75,7 @@ public class ScanTreeItem extends ScanTreeM {
 				while (e.hasMoreElements()) {
 					TreeNode n = e.nextElement();
 					if (n instanceof ScanPairGroup) {
-						if (((ScanPairGroup) n).name.equals(s)) {
+						if (((ScanPairGroup) n).getName().equals(s)) {
 							child = (ScanPairGroup) n;
 						}
 					}

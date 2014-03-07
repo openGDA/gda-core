@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,25 +24,22 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-/**
- *
- */
-public class XYPlotHideAllHandler extends AbstractHandler {
-	
-	/**
-	 * ID of command
-	 */
-	public static final String ID = "uk.ac.gda.client.xyPlotHideAllCommand";
+import uk.ac.gda.client.liveplot.LivePlotView;
 
+public class HideOldHandler extends AbstractHandler {
+
+	public static final String ID = "uk.ac.gda.client.xyPlotHideOldCommand";
+	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
-		
-			IWorkbenchPart view = HandlerUtil.getActivePartChecked(event);
-			if(view instanceof ScanPlotView){
-				ScanPlotView xYPlotView = (ScanPlotView)view;
-				xYPlotView.hideAll();
-			}
-		return null;
+		IWorkbenchPart view = HandlerUtil.getActivePartChecked(event);
+		if(view instanceof ScanPlotView){
+			LivePlotView livePlotView = (LivePlotView)view;
+			//boolean enabled = false;
+			boolean enabled=!livePlotView.getHideOldestScan();
+			livePlotView.setHideOldestScan(enabled);
+		}
+	return null;
 	}
+
 }
