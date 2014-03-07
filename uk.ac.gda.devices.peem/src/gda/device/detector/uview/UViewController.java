@@ -25,9 +25,23 @@ import gda.device.DeviceException;
  */
 public interface UViewController {
 
-	public interface GrayAdjustment {
-		public int getWindowLow();
-		public int getWindowHigh();
+	public String getVersion() throws DeviceException;
+	
+	public class GrayAdjustment {
+		private int windowHigh;
+		private int windowLow;
+		
+		public GrayAdjustment(int high, int low) {
+			windowHigh = high;
+			windowLow = low;
+		}
+		
+		public int getWindowLow() {
+			return windowLow;
+		}
+		public int getWindowHigh() {
+			return windowHigh;
+		}
 	}
 
 	public class ImageData {
@@ -61,7 +75,7 @@ public interface UViewController {
 			DAT, PNG, TIFF, BMP, JPG
 		}
 		public enum ImageContentsType {
-			RGB_XYZ, RGB_XY_RAWZ, GRAYLEVEL16
+			RGB_XYZ, RGB_XYZ_RAW, GRAYLEVEL16
 		}
 		
 		private final String fileName;
@@ -119,19 +133,19 @@ public interface UViewController {
 
 	}
 
-	public GrayAdjustment doGrayAdjust();
-	public GrayAdjustment getGrayAdjustment();
+	public GrayAdjustment doGrayAdjust() throws DeviceException;
+	public GrayAdjustment getGrayAdjustment() throws DeviceException;
 
 	public ImageData getImageData() throws DeviceException;
 
-	public int getCameraExpTime();
-	public void setCameraExpTime(int newMsecTime);
+	public int getCameraExpTime() throws DeviceException;
+	public void setCameraExpTime(int newMsecTime) throws DeviceException;
 
-	public boolean getSequential();
-	public void setSequential(boolean newSeq);
+	public boolean getSequential() throws DeviceException;
+	public void setSequential(boolean newSeq) throws DeviceException;
 
-	public int getFrameAverage();
-	public void setFrameAverage(int newAveraging);
+	public int getFrameAverage() throws DeviceException;
+	public void setFrameAverage(int newAveraging) throws DeviceException;
 
 	public boolean getNewImageReady();
 
@@ -140,7 +154,7 @@ public interface UViewController {
 
 	public void acquireSingleImage(int imageId) throws DeviceException;
 
-	public void exportImage(final ImageFile fileDetails);
+	public void exportImage(final ImageFile fileDetails) throws DeviceException;
 
 	public void roiData(final RegionOfInterest roi);
 

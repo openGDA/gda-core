@@ -18,6 +18,8 @@
 
 package gda.device.detector.uview;
 
+import java.io.IOException;
+
 import gda.device.DeviceException;
 
 /**
@@ -26,23 +28,24 @@ import gda.device.DeviceException;
 public class TcpUViewController implements UViewController {
 
 	private UViewTcpSocketConnection socket;
-	
-	public class TcpGrayAdjustment implements UViewController.GrayAdjustment {
-
-		@Override
-		public int getWindowLow() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public int getWindowHigh() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
 		
+	public TcpUViewController(String address, int port) {
+		socket = new UViewTcpSocketConnection();
+		socket.setCmdTerm("\0");
+		socket.setReplyTerm("\0");
+		socket.setAddress(address);
+		socket.setPort(port);
 	}
 	
+	public void closeConnection() throws IOException {
+		socket.closeConnection();
+	}
+
+	@Override
+	public String getVersion() throws DeviceException {
+		return socket.send("ver");
+	}
+		
 	public class TcpRoi implements UViewController.RegionOfInterest {
 
 		@Override
@@ -78,16 +81,13 @@ public class TcpUViewController implements UViewController {
 	}
 	
 	@Override
-	public GrayAdjustment doGrayAdjust() {
-		return null;
-		// TODO Auto-generated method stub
-
+	public GrayAdjustment doGrayAdjust() throws DeviceException {
+		return grayAdjust(false);
 	}
 
 	@Override
-	public GrayAdjustment getGrayAdjustment() {
-		// TODO Auto-generated method stub
-		return null;
+	public GrayAdjustment getGrayAdjustment() throws DeviceException {
+		return grayAdjust(false);
 	}
 
 	@Override
@@ -106,52 +106,62 @@ public class TcpUViewController implements UViewController {
 		short[] data = new short[width * height];
 		int j = 0;
 		for( int i = 0; i < outputBytes.length; i += 2 ) {
-			data[j] = (short) (outputBytes[i] << 8 | outputBytes[i + 1] & 0xFF);
+			data[j] = (short) (outputBytes[i + 1] << 8 | outputBytes[i] & 0xFF);
 			j++;
 		}
 		return new ImageData(height, width, data);
 	}
 
 	@Override
-	public int getCameraExpTime() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getCameraExpTime() throws DeviceException {
+		String timeString = socket.send("ext");
+		//returns as a decimal, but decimal part is always 0
+		return Integer.parseInt( timeString.split("\\.")[0] );
 	}
 
 	@Override
-	public void setCameraExpTime(int newMsecTime) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean getSequential() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void setSequential(boolean newSeq) {
-		// TODO Auto-generated method stub
+	public void setCameraExpTime(int newMsecTime) throws DeviceException {
+		if( ! "0".equals(socket.send("ext " + newMsecTime)) ){
+			throw new DeviceException("Unexpected return value from TCP socket when setting exposure time");
+		}
 
 	}
 
 	@Override
-	public int getFrameAverage() {
-		// TODO Auto-generated method stub
-		return 0;
+	public boolean getSequential() throws DeviceException {
+		return ("1".equals(socket.send("seq")));
 	}
 
 	@Override
-	public void setFrameAverage(int newAveraging) {
-		// TODO Auto-generated method stub
+	public void setSequential(boolean newSeq) throws DeviceException {
+		String cmd = "seq " + (newSeq ? "1" : "0");
+		String reply = socket.send(cmd);
+		if ( ! "0".equals(reply) ) {
+			throw new DeviceException("Unexpected return value from TCP socket");
+		}
+	}
 
+	@Override
+	public int getFrameAverage() throws DeviceException {
+		try {
+			return Integer.parseInt(socket.send("avr"));
+		} catch (NumberFormatException e) {
+			throw new DeviceException(e);
+		}
+	}
+
+	@Override
+	public void setFrameAverage(int newAveraging) throws DeviceException {
+		String cmd = "avr " + newAveraging;
+		String reply = socket.send(cmd);
+		if (! "0".equals(reply)) {
+			throw new DeviceException("Unexpected return value from TCP socket");
+		}
 	}
 
 	@Override
 	public boolean getNewImageReady() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -161,8 +171,7 @@ public class TcpUViewController implements UViewController {
 
 	@Override
 	public void setAcquisitionInProgess(boolean newAcqusitionStatus) {
-		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -174,14 +183,62 @@ public class TcpUViewController implements UViewController {
 	}
 
 	@Override
-	public void exportImage(ImageFile fileDetails) {
-		// TODO Auto-generated method stub
+	public void exportImage(ImageFile fileDetails) throws DeviceException {
+		StringBuffer sb = new StringBuffer("exp ");
+		switch (fileDetails.getFormat()) {
+		case DAT:
+			sb.append("0,");
+			break;
+		case PNG:
+			sb.append("1,");
+			break;
+		case TIFF:
+			sb.append("2,");
+			break;
+		case BMP:
+			sb.append("3,");
+			break;
+		case JPG:
+			sb.append("4,");
+			break;
+		}
+		
+		switch (fileDetails.getContentType()) {
+		case RGB_XYZ:
+			sb.append("0,");
+			break;
+		case RGB_XYZ_RAW:
+			sb.append("1,");
+			break;
+		case GRAYLEVEL16:
+			sb.append("2,");
+			break;
+		}
+
+		sb.append( fileDetails.getFileName() );
+
+		String status = socket.send(sb.toString());
+		if ( !status.equals("0") ) {
+			throw new DeviceException(String.format("Could not export Image: return code {0}, status"));
+		}
 
 	}
 
 	@Override
 	public void roiData(RegionOfInterest roi) {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException();
 	}
 
+	private GrayAdjustment grayAdjust(boolean perform) throws DeviceException {
+		String cmd = "doa " + (perform ? "1" : "0");
+		String[] reply = socket.send(cmd).split(" ");
+		if ( reply.length != 2 ) {
+			throw new DeviceException("Invalid result from TCP socket");
+		}
+		int[] values = new int[2];
+		values[0] = Integer.parseInt(reply[0]);
+		values[1] = Integer.parseInt(reply[1]);
+		return new GrayAdjustment(values[1], values[0]);
+		
+	}
 }

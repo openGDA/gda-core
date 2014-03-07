@@ -29,12 +29,21 @@ public class UViewTcpSocketConnection extends SocketBidiAsciiCommunicator {
 		lock.lock();
 		byte read[] = new byte[length];
 		try {
+			connectIfRequired();
 			reader.read(read);
 			return read;
 		} catch (IOException e) {
 			throw new DeviceException("Error reading output bytes", e);
 		} finally {
-			lock.lock();
+			lock.unlock();
+		}
+	}
+	
+	@Override
+	protected void connectIfRequired() throws DeviceException {
+		if ( writer == null || reader == null ) {
+			super.connectIfRequired();
+			this.send("asc");
 		}
 	}
 }
