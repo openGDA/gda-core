@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Logging"
+            id="uk.ac.gda.client.logpanel.category">
+      </category>
+      <view
+            name="Logpanel"
+            icon="icons/GDAlogos/GDALogo32.png"
+            category="uk.ac.gda.client.logpanel.category"
+            class="uk.ac.gda.client.logpanel.view.LogpanelView"
+            id="uk.ac.gda.client.logpanel.view">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <view
+               id="uk.ac.gda.client.logpanel.view"
+               minimized="false"
+               ratio="0.3"
+               relationship="bottom"
+               relative="org.eclipse.ui.editorss">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="uk.ac.gda.client.logpanel.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.client.logpanel.Perspective"
+            icon="icons/GDAlogos/GDALogo32.png"
+            id="uk.ac.gda.client.logpanel.perspective"
+            name="Logging">
+      </perspective>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="uk.ac.gda.client.logpanel.application"
+            name="GDA Logpanel">
+         <property
+               name="windowImages"
+               value="platform:/plugin/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo16.png,platform:/plugin/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo32.png,platform:/plugin/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo48.png,platform:/plugin/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo64.png,platform:/plugin/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo128.png">
+         </property>
+         <property
+               name="appName"
+               value="GDA Logpanel">
+         </property>
+      </product>
+   </extension>
+
+</plugin>
