@@ -160,6 +160,7 @@ public class LogServer implements Configurable, BeanNameAware {
 	void configureAndStartLogServer() throws JoranException {
 		SimpleSocketServer.configureLC(lc, configFile);
 		lc.putProperty(LogbackUtils.SOURCE_PROPERTY_NAME, "logserver");
+		LogbackUtils.setEventDelayToZeroInAllSocketAppenders(lc);
 		socketServer.start();
 	}
 
