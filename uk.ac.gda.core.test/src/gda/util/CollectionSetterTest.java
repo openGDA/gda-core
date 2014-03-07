@@ -34,13 +34,19 @@ import gda.util.converters.util.RangeandConverterNameHolder;
 
 import java.util.ArrayList;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 
 /**
  * Tests that the newly-introduced setters for collection fields that are
  */
-public class CollectionSetterTests extends TestCase {
+public class CollectionSetterTest {
 	
+	@Test
 	public void testGdaMetadata() {
 		GdaMetadata gm = new GdaMetadata();
 		assertTrue(gm.getMetadataEntries().isEmpty());
@@ -49,6 +55,7 @@ public class CollectionSetterTests extends TestCase {
 		assertEquals(1, gm.getMetadataEntries().size());
 	}
 	
+	@Test
 	public void testNexusMetadataReader() {
 		NexusMetadataReader nmr = new NexusMetadataReader();
 		assertTrue(nmr.getNexusMetadataEntries().isEmpty());
@@ -57,6 +64,7 @@ public class CollectionSetterTests extends TestCase {
 		assertEquals(1, nmr.getNexusMetadataEntries().size());
 	}
 	
+	@Test
 	public void testScannableGroupMemberNames() {
 		ScannableGroup sg = new ScannableGroup();
 		assertEquals(0, sg.getGroupMemberNames().length);
@@ -64,6 +72,7 @@ public class CollectionSetterTests extends TestCase {
 		assertEquals(2, sg.getGroupMemberNames().length);
 	}
 	
+	@Test
 	public void testCoupledScannableScannableNames() {
 		CoupledScannable cs = new CoupledScannable();
 		assertNull(cs.getScannableNames());
@@ -71,6 +80,7 @@ public class CollectionSetterTests extends TestCase {
 		assertEquals(3, cs.getScannableNames().length);
 	}
 	
+	@Test
 	public void testCoupledScannableFunctions() {
 		CoupledScannable cs = new CoupledScannable();
 		assertEquals(0, cs.getFunctions().length);
@@ -79,6 +89,7 @@ public class CollectionSetterTests extends TestCase {
 		assertEquals(1, cs.getFunctions().length);
 	}
 	
+	@Test
 	public void testDummyEnumPositioner() {
 		DummyEnumPositioner dep = new DummyEnumPositioner();
 		assertEquals(0, dep.getPositionArrayList().size());
@@ -86,43 +97,7 @@ public class CollectionSetterTests extends TestCase {
 		assertEquals(3, dep.getPositionArrayList().size());
 	}
 	
-//	public void testPolarimeterPinholeEnumPositionerLabels() {
-//		PolarimeterPinholeEnumPositioner ppep = new PolarimeterPinholeEnumPositioner();
-//		assertEquals(0, ppep.getLabelArrayList().size());
-//		ppep.setLabels(vectorOf("one", "two"));
-//		assertEquals(2, ppep.getLabelArrayList().size());
-//	}
-//	
-//	public void testPolarimeterPinholeEnumPositionerValues() {
-//		PolarimeterPinholeEnumPositioner ppep = new PolarimeterPinholeEnumPositioner();
-//		assertEquals(0, ppep.getValueArrayList().size());
-//		ppep.setValues(vectorOf("one", "two"));
-//		assertEquals(2, ppep.getValueArrayList().size());
-//	}
-	
-//	public void testEpicsMCACounterTimerNames() {
-//		EpicsMCACounterTimer emct = new EpicsMCACounterTimer();
-//		assertEquals(0, emct.getEpicsMcaNameList().size());
-//		emct.setEpicsMcaNames(arrayListOf("one", "two"));
-//		assertEquals(2, emct.getEpicsMcaNameList().size());
-//	}
-//	
-//	public void testTfgEpicsMCACounterTimerNames() {
-//		TfgEpicsMCACounterTimer temct = new TfgEpicsMCACounterTimer();
-//		assertEquals(0, temct.getEpicsMcaNameList().size());
-//		temct.setEpicsMcaNames(arrayListOf("one", "two"));
-//		assertEquals(2, temct.getEpicsMcaNameList().size());
-//	}
-	
-//	public void testGenericOEMoveables() {
-//		GenericOE oe = new GenericOE();
-//		assertEquals(0, oe.getMoveableList().size());
-//		Moveable m = new SingleAxisLinearDOF();
-//		oe.setMoveables(arrayListOf(m));
-//		assertEquals(1, oe.getMoveableList().size());
-//	}
-	
-	
+	@Test
 	public void testRangeConverterNameProviderConverters() {
 		RangeConverterNameProvider rcnp = new RangeConverterNameProvider("name", "converterName");
 		assertEquals(0, rcnp.getConverterList().size());
