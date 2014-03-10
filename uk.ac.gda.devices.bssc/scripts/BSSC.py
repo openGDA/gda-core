@@ -176,6 +176,9 @@ class BSSCRun:
             self.clean()
             return filename
 
+    def setExperimentFinished(self, experimentId):
+        self.ispyb.setExperimentFinished(experimentId)
+
     def setUpRobotAndDetector(self, titration):
             self.reportSampleProgress(titration, "Setting Up Robot")
             self.bssc.setViscosityLevel(titration.getViscosity())
@@ -230,5 +233,6 @@ class BSSCRun:
         self.closeShutter()
         time.sleep(2)
         
+        self.setExperimentFinished(self.experiment)
         BioSAXSISPyBUtils.dumpCollectionReport(self.datacollection)
         self.ispyb.disconnect()
