@@ -18,8 +18,8 @@ from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters, XesSca
 
 class XasScan(Scan):
 
-	def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=False, includeSampleNameInNexusName=True):
-		Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, energy_scannable, ionchambers, includeSampleNameInNexusName)
+	def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=False, includeSampleNameInNexusName=True):
+		Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, includeSampleNameInNexusName)
 		self.moveMonoToStartBeforeScan=moveMonoToStartBeforeScan
 		self.useItterator=useItterator
 		self.handleGapConverter=handleGapConverter
@@ -154,7 +154,7 @@ class XasScan(Scan):
 				gap_converter.enableAutoConversion()
 			# repetition loop completed, so reset things
 			self.setQueuePropertiesEnd()
-			self.outputPreparer._resetHeader(scanBean)
+			self._resetHeader()
 			self.detectorPreparer.completeCollection()
 			ScriptBase.checkForPauses()
 			

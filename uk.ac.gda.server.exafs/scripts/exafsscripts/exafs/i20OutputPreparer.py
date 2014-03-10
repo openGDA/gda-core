@@ -12,11 +12,12 @@ from gdascripts.metadata.metadata_commands import meta_clear
         
 class I20OutputPreparer:
     
-    def __init__(self, datawriterconfig, datawriterconfig_xes):
+    #def __init__(self, datawriterconfig, datawriterconfig_xes):
+    def __init__(self, datawriterconfig):
         self.mode = "xas"
         self.jython_mapper = JythonNameSpaceMapping()
         self.datawriterconfig = datawriterconfig
-        self.datawriterconfig_xes = datawriterconfig_xes
+        #self.datawriterconfig_xes = datawriterconfig_xes
         
     def prepare(self, outputParameters, scanBean):
         #NexusExtraMetadataDataWriter.removeAllMetadataEntries();
@@ -35,20 +36,18 @@ class I20OutputPreparer:
     #
     # If this returns None, then let the Ascii Data Writer class find the config for itself.
     #
-    def getAsciiDataWriterConfig(self, scanBean):
-        if self.mode == "xes" or isinstance(scanBean,XesScanParameters):
+    #def getAsciiDataWriterConfig(self, scanBean):
+     #   if self.mode == "xes" or isinstance(scanBean,XesScanParameters):
             # will return None if not found
-            print "Ascii (.dat) files will have XES format header."
-            return self.datawriterconfig_xes
-        else:
+      #      print "Ascii (.dat) files will have XES format header."
+       #     return self.datawriterconfig_xes
+        #else:
             # will return None if not found
-            print "Ascii (.dat) files will have XAS format header."
-            return self.datawriterconfig
-
-    def _resetHeader(self,scanBean):
-        original_header = self.getAsciiDataWriterConfig(scanBean).getHeader()[:]
-        self.getAsciiDataWriterConfig(scanBean).setHeader(original_header)
-        meta_clear()
+         #   print "Ascii (.dat) files will have XAS format header."
+          #  return self.datawriterconfig
+    
+    def getAsciiDataWriterConfig(self,scanBean):
+        return self.datawriterconfig
     
     #
     # For any specific plotting requirements based on all the options in this experiment
