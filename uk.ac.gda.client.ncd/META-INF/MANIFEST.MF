@@ -38,4 +38,6 @@ Bundle-SymbolicName: uk.ac.gda.client.ncd;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gda.rcp.ncd.perspectives,
  gda.rcp.ncd.views
-Import-Package: org.slf4j;version="[1.7.6,1.7.7)"
+Import-Package: org.apache.commons.lang,
+ org.dawb.common.services,
+ org.slf4j;version="[1.7.6,1.7.7)"

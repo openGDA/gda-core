@@ -253,6 +253,14 @@
             point="org.dawnsci.plotting.api.toolPageAction">
          <tool_page_action
                action_type="TOOLBAR"
+               command_id="uk.ac.gda.client.ncd.updatescanmaskfile"
+               icon="icons/insert.png"
+               id="uk.ac.gda.client.ncd.scanmaskfileupdater"
+               label="Use Current Mask"
+               tool_id="org.dawb.workbench.plotting.tools.maskingTool">
+         </tool_page_action>
+         <tool_page_action
+               action_type="TOOLBAR"
                command_id="uk.ac.gda.client.ncd.gridrefreshimage"
                id="uk.ac.gda.client.ncd.gridtool.gridrefreshimage"
                label="Refresh Image"
@@ -281,6 +289,11 @@
                defaultHandler="gda.rcp.ncd.sideplot.GridStartScanAll"
                id="uk.ac.gda.client.ncd.gridstartscanall"
                name="Scan All">
+		</command>
+		<command
+               defaultHandler="gda.rcp.ncd.actions.MaskFileUpdater"
+               id="uk.ac.gda.client.ncd.updatescanmaskfile"
+               name="Update Scan Mask">
          </command>
       </extension>
 </plugin>
