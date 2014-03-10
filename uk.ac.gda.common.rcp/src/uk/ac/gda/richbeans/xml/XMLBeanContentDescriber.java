@@ -60,11 +60,12 @@ public abstract class XMLBeanContentDescriber implements IContentDescriber, ITex
 		try {
 			// TODO Use castor to read the file and use instanceof
 			// on the bean type returned.
-			//final String titleLine = reader.readLine(); // unused.
+			reader.readLine(); // don't use the first line
 			final String tagLine   = reader.readLine();
 			final String tagName   = getTagName();
-			if (tagLine.trim().equalsIgnoreCase("<"+tagName+">")||tagLine.trim().equalsIgnoreCase("<"+tagName+"/>"))
+			if (tagLine.trim().equalsIgnoreCase("<"+tagName+">")||tagLine.trim().equalsIgnoreCase("<"+tagName+"/>")) {
 				return IContentDescriber.VALID;
+			}
 			return IContentDescriber.INVALID;
 		} finally {
 			reader.close();
