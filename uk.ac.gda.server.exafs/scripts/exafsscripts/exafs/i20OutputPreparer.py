@@ -4,6 +4,7 @@ from gda.configuration.properties import LocalProperties
 from gda.scan import ScanPlotSettings
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XesScanParameters
+from gdascripts.metadata.metadata_commands import meta_clear
 #from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
 #from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
 #from gda.data.scan.datawriter import NexusFileMetadata
@@ -44,6 +45,11 @@ class I20OutputPreparer:
             print "Ascii (.dat) files will have XAS format header."
             return self.datawriterconfig
 
+    def _resetHeader(self,scanBean):
+        original_header = self.getAsciiDataWriterConfig(scanBean).getHeader()[:]
+        self.getAsciiDataWriterConfig(scanBean).setHeader(original_header)
+        meta_clear()
+    
     #
     # For any specific plotting requirements based on all the options in this experiment
     #

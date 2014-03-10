@@ -63,7 +63,7 @@ class QexafsScan(Scan):
         try:
             while True:
                 repetitionNumber+= 1
-                self._resetHeader()
+                self.outputPreparer._resetHeader(scanBean)
                 self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
                 meta_clear()
                 self.samplePreparer.prepare(sampleBean)
@@ -146,7 +146,7 @@ class QexafsScan(Scan):
                 # handle every Java exception through this code, as sometimes an interrupt gets 
                 # encapsulated in a DeviceException (which should not happen)
                 except java.lang.Exception, e:
-                    self._resetHeader()
+                    self.outputPreparer_resetHeader(scanBean)
                     loggingbean.atCommandFailure()
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
                         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
@@ -161,7 +161,7 @@ class QexafsScan(Scan):
                         print e
                         raise # any other exception we are not expecting so raise whatever this is to abort the script
                 except:
-                    self._resetHeader()
+                    self.outputPreparer_resetHeader(scanBean)
                     loggingbean.atCommandFailure()
                     raise
                     
@@ -179,10 +179,10 @@ class QexafsScan(Scan):
                 numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
                 if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
                     print "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end."
-                    self._resetHeader()
+                    self.outputPreparer._resetHeader(scanBean)
                     break
                 elif numRepsFromProperty <= (repetitionNumber):
-                    self._resetHeader()
+                    self.outputPreparer._resetHeader(scanBean)
                     break
         finally:
             #self.energy_scannable.stop()
@@ -191,7 +191,7 @@ class QexafsScan(Scan):
             LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
             #remove added metadata from default metadata list to avoid multiple instances of the same metadata
-            self._resetHeader()
+            self.outputPreparer_resetHeader(scanBean)
             if self.cirrusEnabled:
                 self.t.stop
                 

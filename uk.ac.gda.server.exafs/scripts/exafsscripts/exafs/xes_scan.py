@@ -53,6 +53,8 @@ class I20XesScan(XasScan):
     def __call__ (self,sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
         self.experimentFullPath, self.experimentFolderName = self.determineExperimentPath(experimentFullPath)
         self.experimentFullPath = self.experimentFullPath + "/"
+        self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
+        print "XML file names",sampleFileName, scanFileName, detectorFileName, outputFileName
         # Create the beans from the file names
         self.sampleBean = BeansFactory.getBeanObject(self.experimentFullPath, sampleFileName)
         self.scanBean = BeansFactory.getBeanObject(self.experimentFullPath, scanFileName)

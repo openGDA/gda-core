@@ -20,3 +20,7 @@ class B18OutputPreparer:
     # For any specific plotting requirements based on all the options in this experiment
     def getPlotSettings(self,detectorBean,outputBean):
         return None
+    
+    def _resetHeader(self):
+        self.datawriterconfig.setHeader(self.original_header)
+        meta_clear()

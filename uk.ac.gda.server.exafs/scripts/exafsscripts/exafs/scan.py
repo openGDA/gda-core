@@ -13,15 +13,13 @@ from gda.factory import Finder
 class Scan:
     
     
-    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, includeSampleNameInNexusName=True):
+    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, energy_scannable, ionchambers, includeSampleNameInNexusName=True):
         self.detectorPreparer = detectorPreparer
         self.samplePreparer = samplePreparer
         self.outputPreparer = outputPreparer
         self.commandQueueProcessor = commandQueueProcessor
         self.ExafsScriptObserver=ExafsScriptObserver
         self.XASLoggingScriptController=XASLoggingScriptController
-        self.datawriterconfig=datawriterconfig
-        self.original_header = original_header
         self.energy_scannable = energy_scannable
         self.ionchambers=ionchambers
         self.includeSampleNameInNexusName = includeSampleNameInNexusName
@@ -48,10 +46,6 @@ class Scan:
             message += str(part) + " "
         print message
         self.logger.info(message)
-        
-    def _resetHeader(self):
-        self.datawriterconfig.setHeader(self.original_header)
-        meta_clear()
 
     def _createDetArray(self, names, scanBean=None):
         dets = []
