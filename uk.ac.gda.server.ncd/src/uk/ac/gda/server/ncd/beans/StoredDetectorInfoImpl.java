@@ -31,9 +31,11 @@ import gda.data.PathConstructor;
 import gda.data.metadata.MetadataBlaster;
 import gda.observable.IObserver;
 
-import org.apache.commons.io.FileUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.util.io.FileUtils;
 
 public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(StoredDetectorInfoImpl.class);
@@ -136,7 +138,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	private void copyMaskToNewFile(String newFileName) {
 		File newFile = new File(newFileName);
 		try {
-			FileUtils.copyFile(saxsDetectorInfo, newFile);
+			FileUtils.copy(saxsDetectorInfo, newFile);
 		} catch (IOException e) {
 			logger.error("Could not copy detectorMask to new folder", e);
 		}
