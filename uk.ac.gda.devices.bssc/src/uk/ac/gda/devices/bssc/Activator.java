@@ -75,8 +75,8 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 		super.initializeImageRegistry(registry);
 		Bundle bundle = Platform.getBundle(PLUGIN_ID);
 
-		ImageDescriptor bioISISImage = ImageDescriptor.createFromURL(FileLocator.find(bundle,
-				new Path(DATA_ANALYSIS_IMAGE_ID), null));
+		ImageDescriptor bioISISImage = ImageDescriptor.createFromURL(FileLocator.find(bundle, new Path(
+				DATA_ANALYSIS_IMAGE_ID), null));
 		registry.put(DATA_ANALYSIS_IMAGE_ID, bioISISImage);
 	}
 
