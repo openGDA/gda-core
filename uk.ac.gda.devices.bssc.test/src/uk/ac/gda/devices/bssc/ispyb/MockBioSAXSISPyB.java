@@ -284,4 +284,16 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public void setExperimentFinished(long experimentId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setExperimentAborted(long experimentId) {
+		// TODO Auto-generated method stub
+		
+	}
 }
