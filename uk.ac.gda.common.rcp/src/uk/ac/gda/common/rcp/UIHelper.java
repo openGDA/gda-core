@@ -97,17 +97,16 @@ public class UIHelper {
 	}
 
 	public static Color convertHexadecimalToColor(String hexadecimal, Display display) throws NumberFormatException {
-		java.awt.Color col=null;
-		try{
-			col=java.awt.Color.decode(hexadecimal);
+		java.awt.Color col = null;
+		try {
+			col = java.awt.Color.decode(hexadecimal);
 		}
 		catch (Exception e) {
-			col=java.awt.Color.WHITE;
+			col = java.awt.Color.WHITE;
 		}
-		int red=col.getRed();
-		int blue=col.getBlue();
-		int green=col.getGreen();
-
-		return new Color(display, new RGB(red, green, blue));
+		
+		int red = col.getRed(), blue = col.getBlue(), green = col.getGreen();
+		
+ 		return new Color(display, new RGB(red, green, blue));
 	}
 }
