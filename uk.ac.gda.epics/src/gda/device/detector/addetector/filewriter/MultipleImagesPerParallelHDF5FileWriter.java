@@ -57,6 +57,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	public String getName() {
 		return "hdfwriter"; // TODO: Multiple filewriters require different names.
 	}
+	private boolean alreadyPrepared=false;
 	
 	public NDParallelHDF getNdFilePHDF5() {
 		return ndFilePHDF5;
@@ -112,7 +113,19 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	private int roiPos2;
 
 	private String expectedFullFileName;
+
+	private boolean checkPathExists=true;
 	
+	public boolean isCheckPathExists() {
+		return checkPathExists;
+	}
+
+
+	public void setCheckPathExists(boolean checkPathExists) {
+		this.checkPathExists = checkPathExists;
+	}
+
+
 	public boolean isStoreAttr() {
 		return storeAttr;
 	}
@@ -265,6 +278,9 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if(!isEnabled())
 			return;
+		if( alreadyPrepared)
+			return;
+		
 		setNDArrayPortAndAddress();
 		getNdFile().getPluginBase().disableCallbacks();
 		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory 
@@ -282,6 +298,8 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		startRecording();
 		getNdFile().getPluginBase().enableCallbacks();
 		firstReadoutInScan = true;
+		alreadyPrepared=true;
+		
 	}
 	
 	private void setScanDimensions(int[] dimensions, int numberImagesPerCollection) throws Exception {
@@ -336,11 +354,12 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		if (!filePath.endsWith(File.separator))
 			filePath += File.separator;
 		getNdFile().setFilePath(filePath);
-		if( !getNdFile().filePathExists())
+		if( checkPathExists && !getNdFile().filePathExists())
 			if (isPathErrorSuppressed())
 				logger.warn("Ignoring Path does not exist on IOC '" + filePath + "'");
 			else
 				throw new Exception("Path does not exist on IOC '" + filePath + "'");
+
 		long scanNumber = getScanNumber();
 		
 		getNdFile().setFileNumber((int)scanNumber);	
@@ -382,6 +401,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	
 	@Override
 	public void completeCollection() throws Exception{
+		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
 		FileRegistrarHelper.registerFile(getNdFilePHDF5().getFullFileName_RBV());
@@ -407,6 +427,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 
 	@Override
 	public void stop() throws Exception {
+		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
 		getNdFilePHDF5().stopCapture();
@@ -415,6 +436,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 
 	@Override
 	public void atCommandFailure() throws Exception {
+		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
 		stop();
