@@ -261,4 +261,8 @@ public interface BioSAXSISPyB {
 	 * @return ISAXSDataCollection
 	 */
 	public ISAXSDataCollection getSAXSDataCollection(long dataCollectionId);
+
+	public void setExperimentFinished(long experimentId);
+
+	public void setExperimentAborted(long experimentId);
 }

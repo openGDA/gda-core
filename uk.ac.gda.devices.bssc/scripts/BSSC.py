@@ -176,6 +176,9 @@ class BSSCRun:
             self.clean()
             return filename
 
+    def setExperimentFinished(self, experimentId):
+        self.ispyb.setExperimentFinished(experimentId)
+
     def setUpRobotAndDetector(self, titration):
             self.reportSampleProgress(titration, "Setting Up Robot")
             self.bssc.setViscosityLevel(titration.getViscosity())
@@ -222,7 +225,7 @@ class BSSCRun:
             samplefile = self.measureSample(titration, duration)
             print "\n= Buffer after"
             self.measureBuffer(titration, duration)
-            self.processing.triggerProcessing(samplefile, backgroundfile, self.dataCollectionIds[self.dataCollectionIndex])
+            self.processing.triggerProcessing(samplefile, backgroundfile, str(self.dataCollectionIds[self.dataCollectionIndex]))
             lastTitration = titration
             self.dataCollectionIndex += 1
 
@@ -230,5 +233,6 @@ class BSSCRun:
         self.closeShutter()
         time.sleep(2)
         
+        self.setExperimentFinished(self.experiment)
         BioSAXSISPyBUtils.dumpCollectionReport(self.datacollection)
         self.ispyb.disconnect()

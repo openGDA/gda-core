@@ -34,10 +34,6 @@ import org.osgi.framework.BundleContext;
 import uk.ac.diamond.scisoft.analysis.dataset.IDatasetMathsService;
 import uk.ac.diamond.scisoft.analysis.osgi.DatasetMathsServiceImpl;
 
-//FXIME
-//import uk.ac.diamond.scisoft.analysis.IAnalysisService;
-//import uk.ac.diamond.scisoft.analysis.osgi.AnalysisServiceImpl;
-
 /**
  * The activator class controls the plug-in life cycle
  */
