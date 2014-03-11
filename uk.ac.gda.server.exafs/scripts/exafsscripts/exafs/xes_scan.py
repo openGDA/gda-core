@@ -25,8 +25,9 @@ from uk.ac.gda.doe import DOEUtils
 
 class I20XesScan(XasScan):
     
-    def __init__(self, xas,loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController, ExafsScriptObserver, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot,twodplotter,I1,monoenergy,XESEnergy,XESBragg):
+    def __init__(self, xas,loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController, ExafsScriptObserver, datawriterconfig, original_header, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot,twodplotter,I1,monoenergy,XESEnergy,XESBragg,includeSampleNameInNexusName=True):
         self.xas = xas
+        self.includeSampleNameInNexusName=includeSampleNameInNexusName
         self.detectorPreparer = detectorPreparer
         self.samplePreparer = samplePreparer
         self.outputPreparer = outputPreparer
@@ -34,6 +35,8 @@ class I20XesScan(XasScan):
         self.commandQueueProcessor=commandQueueProcessor
         self.XASLoggingScriptController=XASLoggingScriptController
         self.ExafsScriptObserver=ExafsScriptObserver
+        self.datawriterconfig=datawriterconfig
+        self.original_header = original_header
         self.sample_x=sample_x
         self.sample_y=sample_y
         self.sample_z=sample_z
