@@ -23,7 +23,7 @@ from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 class Map(Scan):
 
     #TODO compare to the Scan initializer
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, xScan, yScan, ExafsScriptObserver,outputPreparer):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, xScan, yScan, ExafsScriptObserver,outputPreparer,detectorPreparer):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -38,6 +38,7 @@ class Map(Scan):
         self.yScan = yScan
         self.ExafsScriptObserver=ExafsScriptObserver
         self.outputPreparer = outputPreparer
+        self.detectorPreparer = detectorPreparer
         
     def enableBeam(self):
         self.beamEnabled = True
