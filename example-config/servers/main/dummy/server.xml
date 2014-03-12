@@ -43,8 +43,10 @@
 	<import resource="LoggingScriptController.xml" />     
 	<import resource="scriptcontroller.xml" />
 	<import resource="../mvc_example_model.xml"/>
+
+<!-- do not remove anything below here -->
 	<import resource="jythonServerFacade.xml" />
-	<corba:export namespace="gda" />     
+	<corba:export namespace="gda" />
 
 
 </beans>
