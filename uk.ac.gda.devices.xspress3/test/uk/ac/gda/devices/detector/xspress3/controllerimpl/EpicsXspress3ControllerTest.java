@@ -28,9 +28,9 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
  * @author rjw82
  * 
  */
-public class TestEPICSImpl {
+public class EpicsXspress3ControllerTest {
 
-	private static EpicsController x3c;
+	private static EpicsXspress3Controller x3c;
 	private static Xspress3Detector x3d;
 
 	private static final String IOC_TEMPLATE = "BL18B-EA-XSP3-01";
@@ -39,10 +39,10 @@ public class TestEPICSImpl {
 		try {
 			// set properties file
 			LocalProperties.set("gov.aps.jca.JCALibrary.properties",
-					TestEPICSImpl.class.getResource("JCALibrary.properties").getFile());
+					EpicsXspress3ControllerTest.class.getResource("JCALibrary.properties").getFile());
 
 			// create Controller
-			x3c = new EpicsController();
+			x3c = new EpicsXspress3Controller();
 			x3c.setEpicsTemplate(IOC_TEMPLATE);
 			x3c.configure();
 			x3c.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);

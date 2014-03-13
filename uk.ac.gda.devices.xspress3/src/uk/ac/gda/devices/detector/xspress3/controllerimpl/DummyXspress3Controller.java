@@ -27,10 +27,10 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * @author rjw82
  * 
  */
-public class DummyController implements Xspress3Controller {
+public class DummyXspress3Controller implements Xspress3Controller {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(DummyController.class);
+			.getLogger(DummyXspress3Controller.class);
 
 	private static final int NUMBER_CHANNELS = 4;
 
@@ -60,7 +60,7 @@ public class DummyController implements Xspress3Controller {
 
 	private int nextNumber;
 
-	public DummyController(Tfg tfg, DummyDAServer daserver) {
+	public DummyXspress3Controller(Tfg tfg, DummyDAServer daserver) {
 		this.tfg = tfg;
 		this.daserver = daserver;
 	}

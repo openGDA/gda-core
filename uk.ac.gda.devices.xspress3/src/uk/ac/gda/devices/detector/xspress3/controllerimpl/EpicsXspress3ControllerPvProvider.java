@@ -6,7 +6,7 @@ import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
 
-public class EpicsControllerPvProvider {
+public class EpicsXspress3ControllerPvProvider {
 	
 	public static final int NUMBER_DETECTOR_CHANNELS = 8; // fixed for the moment, but will probably be changed in the future
 	public static final int NUMBER_ROIs = 4; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
@@ -157,7 +157,7 @@ public class EpicsControllerPvProvider {
 	protected ReadOnlyPV<String> pvGetFilePrefix;
 	protected PV<Integer> pvNextFileNumber;
 
-	public EpicsControllerPvProvider(String epicsTemplate) throws FactoryException {
+	public EpicsXspress3ControllerPvProvider(String epicsTemplate) throws FactoryException {
 		if (epicsTemplate == null || epicsTemplate.isEmpty()){
 			throw new FactoryException("Epics template has not been set!");
 		}

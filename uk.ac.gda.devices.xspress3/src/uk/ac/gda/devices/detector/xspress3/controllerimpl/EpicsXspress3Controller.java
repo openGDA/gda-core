@@ -25,13 +25,13 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * @author rjw82
  * 
  */
-public class EpicsController implements Xspress3Controller, Configurable, Findable {
+public class EpicsXspress3Controller implements Xspress3Controller, Configurable, Findable {
 
-	private static final Logger logger = LoggerFactory.getLogger(EpicsController.class);
+	private static final Logger logger = LoggerFactory.getLogger(EpicsXspress3Controller.class);
 
 	private String epicsTemplate;
 
-	private EpicsControllerPvProvider pvProvider;
+	private EpicsXspress3ControllerPvProvider pvProvider;
 
 	private String name;
 
@@ -42,7 +42,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 		if (epicsTemplate == null || epicsTemplate.isEmpty()) {
 			throw new FactoryException("Epics template has not been set!");
 		}
-		pvProvider = new EpicsControllerPvProvider(epicsTemplate);
+		pvProvider = new EpicsXspress3ControllerPvProvider(epicsTemplate);
 
 		try {
 			Boolean epicsConnectionToHardware = pvProvider.pvIsConnected.get() == CONNECTION_STATE.Connected;
