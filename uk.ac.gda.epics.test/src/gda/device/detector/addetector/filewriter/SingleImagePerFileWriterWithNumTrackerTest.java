@@ -100,7 +100,9 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 		createWriter();
 
 		writer.prepareForCollection(1, null);
+		writer.completeCollection();
 		writer.prepareForCollection(1, null);
+		writer.completeCollection();
 		writer.prepareForCollection(1, null);
 
 		InOrder inOrder = inOrder(mockNdFile);
@@ -116,6 +118,7 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 
 		numTracker.setFileNumber(100);
 		writer.prepareForCollection(1, null);
+		writer.completeCollection();
 		writer.prepareForCollection(1, null);
 
 		InOrder inOrder = inOrder(mockNdFile);
