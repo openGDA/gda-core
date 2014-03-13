@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -30,9 +30,13 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SkipRepetition extends AbstractHandler implements IWorkbenchWindowActionDelegate, IEditorActionDelegate {
 
+	private static final Logger logger = LoggerFactory.getLogger(SkipRepetition.class);
+	
 	@Override
 	public void run(IAction arg0) {
 	}
@@ -43,6 +47,9 @@ public class SkipRepetition extends AbstractHandler implements IWorkbenchWindowA
 
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
+		
+		logger.debug("SkipRepetition button pressed");
+		
 		InterfaceProvider.getTerminalPrinter().print(
 				"Request made to skip the current repetition and if available move on to the next one.");
 		InterfaceProvider.getCommandRunner().runCommand(

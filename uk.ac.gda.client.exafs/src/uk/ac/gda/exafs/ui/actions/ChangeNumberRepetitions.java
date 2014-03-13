@@ -28,12 +28,16 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.exafs.ui.dialogs.ChangeNumberRepetitionsDialog;
 
 public class ChangeNumberRepetitions extends AbstractHandler implements IWorkbenchWindowActionDelegate,
 		IEditorActionDelegate {
 
+	private static final Logger logger = LoggerFactory.getLogger(ChangeNumberRepetitions.class);
+	
 	@Override
 	public void run(IAction action) {
 	}
@@ -44,6 +48,9 @@ public class ChangeNumberRepetitions extends AbstractHandler implements IWorkben
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		
+		logger.debug("ChangeNumberRepetitions button pressed");
+		
 		ChangeNumberRepetitionsDialog dialog = new ChangeNumberRepetitionsDialog(PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getShell());
 		dialog.create();

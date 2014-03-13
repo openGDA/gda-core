@@ -30,9 +30,13 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PauseAfterRepetition extends AbstractHandler implements IWorkbenchWindowActionDelegate,
 		IEditorActionDelegate {
+	
+	private static final Logger logger = LoggerFactory.getLogger(PauseAfterRepetition.class);
 	
 	@Override
 	public void run(IAction arg0) {
@@ -44,6 +48,9 @@ public class PauseAfterRepetition extends AbstractHandler implements IWorkbenchW
 
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
+		
+		logger.debug("PauseAfterRepetition button pressed");
+		
 		InterfaceProvider.getCommandRunner().runCommand(
 				"LocalProperties.set(\"" + RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY + "\",\"true\")");
 		InterfaceProvider.getTerminalPrinter().print(
