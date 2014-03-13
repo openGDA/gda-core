@@ -81,7 +81,8 @@ class QexafsScan(Scan):
 
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
                 timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
-                logmsg = XasLoggingMessage(self._getMyVisitID(), unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder)
+                sampleName = sampleBean.getName()
+                logmsg = XasLoggingMessage(self._getMyVisitID(), unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder,sampleName, 0)
                
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
@@ -127,7 +128,7 @@ class QexafsScan(Scan):
                 print "running QEXAFS scan:", self.energy_scannable.getName(), start, end, numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
                 thisscan = ContinuousScan(self.energy_scannable , start, end, numberPoints, scan_time, detectorList)
-                thisscan = self._setUpDataWriter(thisscan, scanBean, detectorBean, sampleBean, outputBean, sampleBean.getName(), sampleBean.getDescriptions(), repetitionNumber, experimentFolderName, experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName)
+                thisscan = self._setUpDataWriter(thisscan, scanBean, detectorBean, sampleBean, outputBean, sampleBean.getName(), sampleBean.getDescriptions(), repetitionNumber, experimentFolderName, experimentFullPath)
                 controller.update(None, ScanCreationEvent(thisscan.getName()))
                 try:
                     if numRepetitions > 1:

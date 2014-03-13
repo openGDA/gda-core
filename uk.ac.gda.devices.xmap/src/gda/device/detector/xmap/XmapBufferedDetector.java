@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -43,10 +43,17 @@ import gda.epics.CAClient;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
@@ -158,88 +165,108 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-//		String fileName = null;
-//		NexusTreeProvider[] container = null;
 		try {
-			// System.out.println("wating for file");
 			if (lastFileName == null && !lastFileReadStatus) {
 				lastFileName = this.controller.getHDFFileName();
 
 				waitForFile();
-				// change to linux format
-				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
 				//added wed 31st jul 2013 as now need to stop before reading h5 file. don't know why this is the case
 				xmap.stop();
 				//sleep required for gda to recognise number of arrays has finalized.
-				Thread.sleep(1000);
+//				Thread.sleep(1000);
+				// change to linux format
+				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
 				lastFileName = lastFileName.replace("X:/", "/dls/" + beamline);
-				if (controller.isBufferedArrayPort())
-					fileLoader = new XmapBufferedHdf5FileLoader(lastFileName);
-				else
-					fileLoader = new XmapNexusFileLoader(lastFileName,getXmap().getNumberOfMca());
-				fileLoader.loadFile();
-//				lastFileName = lastFileName;
+								
+				waitForFileToBeReadable();
+
+				createFileLoader();
+				try {
+					logger.info("Loading " + lastFileName);
+					fileLoader.loadFile();
+				} catch (Exception e) {
+					// this could be an NFS cache problem, so wait and try once more after a few seconds
+					logger.warn("Exception trying to read Xmap HDF5 file, so wait and try again...");
+					Thread.sleep(5000);
+					fileLoader = null;
+					createFileLoader();
+					fileLoader.loadFile();  // let this throw its exception to surrounding catch
+				}
 				lastFileReadStatus = true;
-			} else {
-				
-			}
+			} 
+			
 			int numOfPointsInFile = fileLoader.getNumberOfDataPoints();
 			int numPointsToRead = finalFrame - startFrame + 1;
 			
 			if (numOfPointsInFile < numPointsToRead) {
-				throw new DeviceException("Xmap data file "+ lastFileName +  " only has " + numOfPointsInFile + " data point but expected at least " + numPointsToRead ); 
+				String msg = "Xmap data file "+ lastFileName +  " only has " + numOfPointsInFile + " data point but expected at least " + numPointsToRead;
+				logger.error(msg);
+				throw new DeviceException( msg);
 			}
 			
 			NexusTreeProvider[] container = new NexusTreeProvider[numPointsToRead];
-			int frameIndex = startFrame;
 			for (int i = 0; i < numPointsToRead; i++) {
-				logger.info("writing point number " + frameIndex);
 				container[i] = writeToNexusFile(i, fileLoader.getData(i));
-				frameIndex++;
 			}
-			
-//			
-//			if (finalFrame < numOfPoints) {
-//				for (int i = startFrame; i <= finalFrame; i++) {
-//					logger.info("writing point number " + i);
-//					container[i] = writeToNexusFile(i, fileLoader.getData(i));
-//				}
-//			}
-//			if (finalFrame > numOfPoints) {
-//				for (int i = startFrame; i < numOfPoints; i++) {
-//					logger.info("writing point number " + i);
-//					container[i] = writeToNexusFile(i, fileLoader.getData(i));
-//				}
-//			}
-//			// last two points in the scan will have the same values
-//			if (finalFrame == numOfPoints) {
-//				if ((finalFrame - startFrame) == 0)
-//					container[finalFrame - 1] = writeToNexusFile(finalFrame - 1, fileLoader.getData(finalFrame - 1));
-//				else {
-//					// always one less than the number of points
-//
-//					for (int i = startFrame; i < finalFrame; i++) {
-//						logger.info("writing point number " + i);
-//						container[i] = writeToNexusFile(i, fileLoader.getData(i));
-//					}
-//					container[finalFrame - 1] = (writeToNexusFile(finalFrame - 1, fileLoader.getData(finalFrame - 1)));
-//				}
-//			}
-			// readSoFar = totalToRead;
 			return container;
 		} catch (Exception e) {
-			logger.error("TODO put description of error here", e);
 			try {
 				stop();
 				controller.endRecording();
 			} catch (Exception e1) {
 				controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-				logger.error("Unalble to end hdf5 capture", e1);
-				throw new DeviceException("Unalble to end hdf5 capture", e1);
+				logger.error("Unable to end hdf5 capture", e1);
+				throw new DeviceException("Unable to end hdf5 capture", e1);
 			}
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
 			throw new DeviceException("Unable to load file called " + lastFileName, e);
 		}
+	}
+
+	private void waitForFileToBeReadable() throws DeviceException, InterruptedException {
+		try {
+			int timeout = 5000; // ms
+			int timeWaited = 0; // ms
+			int waitTime = 500; // ms
+			
+			// first wait until the file can be seen on the filesystem
+			File existsTest = new File(lastFileName);
+			while (!existsTest.exists() && timeWaited < timeout){
+				Thread.sleep(waitTime);
+				timeWaited += waitTime;
+			}
+			
+			// then keep trying to read from it, as it may still being read to 
+			while(true && timeWaited < timeout) {
+				try {
+					// if get here then it at leasts exists
+					BufferedInputStream fileTester = new BufferedInputStream(new FileInputStream(lastFileName));
+					fileTester.read(new byte[64]);
+					// if no exception then its OK to properly open the file
+					fileTester.close();
+					return;
+				} catch (FileNotFoundException e) {
+					logger.warn("FileNotFoundException while waiting for Xmap HDF5, will try again...");
+					Thread.sleep(waitTime);
+					timeWaited += waitTime;
+				} catch (IOException e) {
+					logger.warn("IOException while waiting for Xmap HDF5, will try again...");
+					Thread.sleep(waitTime);
+					timeWaited += waitTime;
+				}
+			}
+			
+			throw new DeviceException("Too many attempts / timeout while waiting for XMAP HDF5 file to be readable - " + lastFileName);
+		} catch (InterruptedException e) {
+			throw new InterruptedException("InterruptedException while waiting for XMAP HDF5 file to be readable - " + lastFileName);
+		}
+	}
+
+	private void createFileLoader() throws  Exception {
+		if (controller.isBufferedArrayPort())
+			fileLoader = new XmapBufferedHdf5FileLoader(lastFileName);
+		else
+			fileLoader = new XmapNexusFileLoader(lastFileName, getXmap().getNumberOfMca());
 	}
 
 	@Override
@@ -279,14 +306,12 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	@Override
 	public void collectData() throws DeviceException {
-		// donothing collection triggered by hardware
-
+		// do nothing as collection triggered by hardware
 	}
 
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
-		// TODO Auto-generated method stub
-		return false;
+		return false;  // no, as this returns data in the readFrames method
 	}
 
 	@Override
@@ -296,19 +321,16 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	@Override
 	public String getDescription() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getDetectorID() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getDetectorType() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -378,7 +400,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		controller.setFilenamePrefix(beamline);
 
 		// scan number
-		NumTracker runNumber = new NumTracker("tmp");
+		NumTracker runNumber = new NumTracker("scanbase_numtracker");
 		// Get the current number
 		Number scanNumber = runNumber.getCurrentFileNumber();
 		if (!(scanNumber.intValue() == lastScanNumber))
@@ -393,11 +415,25 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		// set the sub-directory and create if necessary
 		String dataDir = PathConstructor.createFromDefaultProperty();
 		dataDir = dataDir + "tmp" + File.separator + lastScanNumber;
-		if (!(new File(dataDir)).exists()) {
-			boolean directoryExists = (new File(dataDir)).mkdirs();
+		File scanSubDir = new File(dataDir);
+		if (!scanSubDir.exists()) {
+			boolean directoryExists = scanSubDir.mkdirs();
 			if (!directoryExists) {
 				throw new DeviceException("Failed to create temporary directory to place Xmap HDF5 files: " + dataDir);
 			}
+			
+			// set 777 perms to ensure detector account
+			Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+			perms.add(PosixFilePermission.OWNER_READ);
+			perms.add(PosixFilePermission.OWNER_WRITE);
+			perms.add(PosixFilePermission.OWNER_EXECUTE);
+			perms.add(PosixFilePermission.GROUP_READ);
+			perms.add(PosixFilePermission.GROUP_WRITE);
+			perms.add(PosixFilePermission.GROUP_EXECUTE);
+			perms.add(PosixFilePermission.OTHERS_READ);
+			perms.add(PosixFilePermission.OTHERS_WRITE);
+			perms.add(PosixFilePermission.OTHERS_EXECUTE);
+			Files.setPosixFilePermissions(scanSubDir.toPath(), perms);
 		}
 		dataDir = dataDir.replace("/dls/" + beamline.toLowerCase(), "X:/");
 		controller.setDirectory(dataDir);
@@ -427,21 +463,20 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	public void stop() throws DeviceException {
 		xmap.stop();
 		stopAcq();
-		//controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
 	}
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		// TODO Auto-generated method stub
-		return null;
+		// FIXME should this really be extending DetectorBase???
+		return null;  // cannot act as a regular detector, buffered detector only.  
 	}
 
 	public boolean isStillWriting(String fileName) throws DeviceException {
 		try {
-			if (controller.getHDFFileName().equals(fileName))
+			if (controller.getHDFFileName().equals(fileName)) {
 				return controller.getCaptureStatus();
+			}
 		} catch (Exception e) {
-			
 			logger.error("CAnnot read the file capture status", e);
 			throw new DeviceException("CAnnot read the file capture status", e);
 		}
@@ -452,19 +487,11 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		double timeoutMilliSeconds = 100000;
 		double waitedSoFarMilliSeconds = 0;
 		int waitTime = 1000;
-		CAClient ca_client = new CAClient();
-		try {
-			while (ca_client.caget(capturepv+"_RBV").equals("Capturing")
-					&& waitedSoFarMilliSeconds <= timeoutMilliSeconds) {
-				Thread.sleep(waitTime);
-				waitedSoFarMilliSeconds += waitTime;
-			}
-		} catch (CAException e) {
-			logger.error("Timeout waiting to connect to xmap capture pv", e);
-		} catch (TimeoutException e) {
-			logger.error("Timeout waiting to connect to xmap capture pv" , e);
+
+		while (controller.getCaptureStatus() && waitedSoFarMilliSeconds <= timeoutMilliSeconds) {
+			Thread.sleep(waitTime);
+			waitedSoFarMilliSeconds += waitTime;
 		}
-		Thread.sleep(3000);
 	}
 
 	// File r/w methods
@@ -473,7 +500,6 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		INexusTree detTree = output.getDetTree(xmap.getName());
 
 		int numFilteredElements = xmap.getNumberOfIncludedDetectors();
-//		int numberOfElements = xmap.vortexParameters.getDetectorList().size();
 		int originalNumberOfElements = xmap.vortexParameters.getDetectorList().size();
 		int numberOfROIs = xmap.vortexParameters.getDetectorList().get(0).getRegionList().size();
 
@@ -511,7 +537,6 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 				final VortexROI roi = thisElement.getRegionList().get(iroi);
 
-				// TODO calculate roi from the full spectrum data
 				double count = calculateROICounts(roi.getRoiStart(), roi.getRoiEnd(), detectorData[element]);
 				if (deadTimeEnabled) {
 					Double deadTimeCorrectionFactor = CorrectionUtils.getK(times.get(element), icr, ocr);

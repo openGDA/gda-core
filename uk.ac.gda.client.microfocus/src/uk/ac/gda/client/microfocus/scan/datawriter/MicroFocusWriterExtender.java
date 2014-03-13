@@ -212,6 +212,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		Double[] xy = dataPoint.getPositionsAsDoubles();
 		int totalPoints = 0;
 		Vector<Detector> detFromDP = dataPoint.getDetectors();
+
 		int currentPointNumber = getCurrentSDPNumber(dataPoint);
 		if (currentPointNumber == 0 && lastDataPoint == null) {
 			// this is the first point in the scan
@@ -226,7 +227,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		if ((lastDataPoint == null || (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(
 				dataPoint.getCurrentFilename())))
 				&& (xValues != null || yValues != null)) {
-//			double valueToDisplay = 0.0;
 			Hashtable<String, Double> rgbLineData = null;
 			StringBuffer rgbLine = new StringBuffer();
 			int xindex = currentPointNumber % numberOfXPoints;
@@ -248,26 +248,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 								+ " parts in the data and " + detector.getExtraNames().length + " extra names for "
 								+ detector.getName());
 					}
-//					// if TfgScaler data chosen to be plotted
-//					if (selectedElementIndex == -1) {
-//						int selectedScalerElement = ArrayUtils.indexOf(detector.getExtraNames(), selectedElement);
-//						if (selectedScalerElement != -1)
-//							valueToDisplay = scalerData[selectedScalerElement];
-////						String[] s = detector.getExtraNames();
-////						for (int i = 0; i < s.length; i++) {
-////							if (s[i].equals(selectedElement)) {
-////								selectedElementIndex = i;
-////								break;
-////							}
-////							selectedElementIndex = -1;
-////						}
-//					}
 					for (double i : scalerData) {
 						rgbLine.append(i);
 						rgbLine.append("	");
 					}
-//					if (selectedElementIndex != -1 && selectedElementIndex < scalerData.length)
-//						valueToDisplay = scalerData[selectedElementIndex];
 					if (normaliseElementIndex != -1 && normaliseElementIndex < scalerData.length)
 						normaliseValue = scalerData[normaliseElementIndex];
 					scalerValuesCache[currentPointNumber] = scalerData;
@@ -302,14 +286,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 									double rgbElementSum = rgbLineData.get(key);
 									rgbLineData.put(key, rgbElementSum + windowTotal);
 									detectorValuesCache[i][roiNameMap.get(key)][currentPointNumber] = windowTotal;
-//									if (roi.getRoiName().equals(selectedElement) && i == selectedChannel) {
-//										valueToDisplay = windowTotal;
-//									}
-
 								}
 							}
 						}
-//						logger.debug("the value for the selected element " + selectedElement + " is " + valueToDisplay);
 
 					} else if (isXmapScan()
 							&& ((detector instanceof XmapDetector) || (detector instanceof BufferedDetector))) {
@@ -366,16 +345,12 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 									double rgbElementSum = rgbLineData.get(key);
 									rgbLineData.put(key, rgbElementSum + windowTotal);
 									detectorValuesCache[j][roiNameMap.get(key)][currentPointNumber] = windowTotal;
-//									if (roi.getRoiName().equals(selectedElement) && j == selectedChannel) {
-//										valueToDisplay = windowTotal;
-//									}
 								}
 							}
 						}
 					}
 					logger.debug("The y value is " + xy[0]);
 					logger.debug("the x value is " + xy[1]);
-//					logger.debug("the data to plot is " + valueToDisplay);
 				}
 			}
 
@@ -478,6 +453,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		firstX = xy[1];
 		firstY = xy[0];
 		int totalPoints = numberOfXPoints * numberOfYPoints;
+		scalerValuesCache = null;
 		scalerValuesCache = new double[totalPoints][];
 		if (roiNameMap != null)
 			detectorValuesCache = new double[numberOfSubDetectors][roiNameMap.size()][totalPoints];
@@ -519,7 +495,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		// server
 
 		int point = y * numberOfXPoints + x;
-		int current = lastDataPoint.getCurrentPointNumber();
+		int current = 0;
+		if (lastDataPoint != null){
+			current = lastDataPoint.getCurrentPointNumber();
+		}
 
 		if (current >= point) {
 			IDataset slice = null;
@@ -537,35 +516,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 							new int[] { 1, 1, 1 });
 				} else {
 					slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
-							spectrumLength }, new int[] { 1, 1, 1, 1 });//	private IDataset getSpectrum(int detNo, int x, int y) {
-//					IDataset slice = null;
-//					try {
-//						DataHolder dataHolder = hdf5Loader.loadFile();
-//						if (isXspressScan()) {
-//							lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
-//							slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
-//									spectrumLength }, new int[] { 1, 1, 1, 1 });
-//						} else if (isXmapScan()) {
-//							lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/fullSpectrum");
-//							if (lazyDataset == null) {
-//								lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/Element" + detNo
-//										+ "_fullSpectrum");
-//								slice = lazyDataset.getSlice(new int[] { y, x, 0 }, new int[] { y + 1, x + 1, spectrumLength },
-//										new int[] { 1, 1, 1 });
-//							} else
-//								slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
-//										spectrumLength }, new int[] { 1, 1, 1, 1 });
-//						}
-//					} catch (ScanFileHolderException e) {
-//						logger.error("Error slicing xmap data", e);
-//					}
-//					if (slice != null) {
-//						ILazyDataset sqSlice = slice.squeeze();
-//						return (IDataset) sqSlice;
-//					}
-//					return slice;
-//				}
-
+							spectrumLength }, new int[] { 1, 1, 1, 1 });
 				}
 			}
 
