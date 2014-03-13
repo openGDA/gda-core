@@ -19,6 +19,7 @@
 
 package gda.device.detector.uview.corba.impl;
 
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.UViewROI;
 import gda.device.corba.CorbaDeviceException;
@@ -27,8 +28,6 @@ import gda.device.detector.uview.corba.CorbaUViewROI;
 import gda.device.detector.uview.corba.CorbaUViewROIHelper;
 import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import java.io.IOException;
 
 import org.omg.CORBA.COMM_FAILURE;
 
@@ -55,7 +54,7 @@ public class UviewRoiAdapter extends DetectorAdapter implements UViewROI, Findab
 	}
 
 	@Override
-	public void setBounds(int x, int y, int width, int height) throws IOException {
+	public void setBounds(int x, int y, int width, int height) throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				corbaUViewROI.setBounds(x, y, width, height);
@@ -70,7 +69,7 @@ public class UviewRoiAdapter extends DetectorAdapter implements UViewROI, Findab
 	}
 
 	@Override
-	public void setLocation(int x, int y) throws IOException {
+	public void setLocation(int x, int y) throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				corbaUViewROI.setLocation(x, y);
@@ -78,25 +77,25 @@ public class UviewRoiAdapter extends DetectorAdapter implements UViewROI, Findab
 			} catch (COMM_FAILURE cf) {
 				corbaUViewROI = CorbaUViewROIHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new IOException(ex.message);
+				throw new DeviceException(ex.message);
 			}
 		}
-		throw new IOException("Communication failure: retry failed");
+		throw new DeviceException("Communication failure: retry failed");
 
 	}
 
 	@Override
-	public void setSize(int x, int y) throws IOException {
+	public void setSize(int x, int y) throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				corbaUViewROI.setLocation(x, y);
 			} catch (COMM_FAILURE cf) {
 				corbaUViewROI = CorbaUViewROIHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new IOException(ex.message);
+				throw new DeviceException(ex.message);
 			}
 		}
-		throw new IOException("Communication failure: retry failed");
+		throw new DeviceException("Communication failure: retry failed");
 
 	}
 

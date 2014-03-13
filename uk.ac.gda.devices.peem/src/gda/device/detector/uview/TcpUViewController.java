@@ -18,6 +18,7 @@
 
 package gda.device.detector.uview;
 
+import java.awt.Rectangle;
 import java.io.IOException;
 
 import gda.device.DeviceException;
@@ -45,7 +46,8 @@ public class TcpUViewController implements UViewController {
 	public String getVersion() throws DeviceException {
 		return socket.send("ver");
 	}
-		
+	
+	/*
 	public class TcpRoi implements UViewController.RegionOfInterest {
 
 		@Override
@@ -79,10 +81,10 @@ public class TcpUViewController implements UViewController {
 		}
 		
 	}
-	
+	*/
 	@Override
 	public GrayAdjustment doGrayAdjust() throws DeviceException {
-		return grayAdjust(false);
+		return grayAdjust(true);
 	}
 
 	@Override
@@ -103,6 +105,7 @@ public class TcpUViewController implements UViewController {
 		width = Integer.parseInt(headerStrings[argOffset]);
 		height = Integer.parseInt(headerStrings[argOffset+1]);
 		byte[] outputBytes = socket.readBinary(width * height * 2);
+		socket.readBinary(1); //there's a null-byte at the end of the binary block we need to skip over
 		short[] data = new short[width * height];
 		int j = 0;
 		for( int i = 0; i < outputBytes.length; i += 2 ) {
@@ -152,6 +155,7 @@ public class TcpUViewController implements UViewController {
 
 	@Override
 	public void setFrameAverage(int newAveraging) throws DeviceException {
+		if ( newAveraging < 0 ) newAveraging = 1; //may be some things that expect -1 to carry the same meaning as 1
 		String cmd = "avr " + newAveraging;
 		String reply = socket.send(cmd);
 		if (! "0".equals(reply)) {
@@ -219,25 +223,47 @@ public class TcpUViewController implements UViewController {
 
 		String status = socket.send(sb.toString());
 		if ( !status.equals("0") ) {
-			throw new DeviceException(String.format("Could not export Image: return code {0}, status"));
+			throw new DeviceException(String.format("Could not export Image: return code %s", status));
 		}
 
 	}
 
 	@Override
-	public void roiData(RegionOfInterest roi) {
-		throw new UnsupportedOperationException();
+	public void defineRoi(final RegionOfInterest roi) throws DeviceException {
+		Rectangle region = roi.getRegion();
+		String cmd = String.format("itd %d 0 %d %d %d %d", roi.id, region.x, region.y, region.width, region.height);
+		String reply = socket.send(cmd);
+		if ( !reply.equals("0")) {
+			throw new DeviceException("Invalid result from TCP socket: " + reply);
+		}
+	}
+	
+	@Override
+	public double getRoiData(final int roiId) throws DeviceException {
+		String cmd = "roi " + roiId;
+		String reply = socket.send(cmd);
+		double result = 0;
+		try {
+			result = Double.parseDouble(reply);
+		} catch (NumberFormatException e) {
+			throw new DeviceException("Unexpected response from TCP socket: '" + reply + "'");
+		}
+		if ( result < 0 ) {
+			throw new DeviceException(String.format("Error code from TCP socket: %d", result));
+		}
+		return result;
 	}
 
 	private GrayAdjustment grayAdjust(boolean perform) throws DeviceException {
 		String cmd = "doa " + (perform ? "1" : "0");
-		String[] reply = socket.send(cmd).split(" ");
-		if ( reply.length != 2 ) {
-			throw new DeviceException("Invalid result from TCP socket");
+		String reply = socket.send(cmd);
+		String[] replyArray = reply.split(" ");
+		if ( reply.length() < 2 || replyArray.length != 2 || replyArray[0].length() == 0 || replyArray[1].length() == 0 ) {
+			throw new DeviceException("Invalid result from TCP socket: " + reply);
 		}
 		int[] values = new int[2];
-		values[0] = Integer.parseInt(reply[0]);
-		values[1] = Integer.parseInt(reply[1]);
+		values[0] = Integer.parseInt(replyArray[0]);
+		values[1] = Integer.parseInt(replyArray[1]);
 		return new GrayAdjustment(values[1], values[0]);
 		
 	}

@@ -24,13 +24,24 @@ import gda.device.DeviceException;
 import gda.io.socket.SocketBidiAsciiCommunicator;
 
 public class UViewTcpSocketConnection extends SocketBidiAsciiCommunicator {
-	
-	public byte[] readBinary(int length) throws DeviceException {
+
+	public byte[] readBinary(final int length) throws DeviceException {
 		lock.lock();
 		byte read[] = new byte[length];
+		int readIndex = 0;
 		try {
 			connectIfRequired();
-			reader.read(read);
+			while ( readIndex < length ) {
+				int bytesRead = reader.read(read, readIndex, length - readIndex);
+				if ( bytesRead == -1 ) {
+					throw new DeviceException( String.format("Expected {0} bytes, received {1}", length, readIndex) );
+				}
+				readIndex += bytesRead;
+			}
+			if ( logger.isDebugEnabled() ) {
+				String strOut = new String(read, 0, Math.min(length, 30));
+				logger.debug("data out = " + strOut);
+			}
 			return read;
 		} catch (IOException e) {
 			throw new DeviceException("Error reading output bytes", e);
@@ -38,7 +49,7 @@ public class UViewTcpSocketConnection extends SocketBidiAsciiCommunicator {
 			lock.unlock();
 		}
 	}
-	
+
 	@Override
 	protected void connectIfRequired() throws DeviceException {
 		if ( writer == null || reader == null ) {

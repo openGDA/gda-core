@@ -18,11 +18,10 @@
 
 package gda.device.detector.uview;
 
+import java.awt.Rectangle;
+
 import gda.device.DeviceException;
 
-/**
- *
- */
 public interface UViewController {
 
 	public String getVersion() throws DeviceException;
@@ -102,6 +101,7 @@ public interface UViewController {
 		}
 	}
 
+	/*
 	public interface RegionOfInterest {
 
 		public class Point {
@@ -132,6 +132,32 @@ public interface UViewController {
 		public void resetData();
 
 	}
+	*/
+	
+	public class RegionOfInterest {
+		private Rectangle region;
+		public final int id;
+
+		public RegionOfInterest(int x, int y, int width, int height, int id){
+			this.id = id;
+			this.region = new Rectangle(x, y, width, height);
+		}
+		public RegionOfInterest(Rectangle region, int id) {
+			this(region.x, region.y, region.width, region.height, id);
+		}
+		
+		public Rectangle getRegion() {
+			return new Rectangle(region);
+		}
+		
+		public void setRegion(int x, int y, int width, int height) {
+			this.region = new Rectangle(x, y, width, height);
+		}
+		
+		public void setRegion(Rectangle region) {
+			this.region = new Rectangle(region);
+		}
+	}
 
 	public GrayAdjustment doGrayAdjust() throws DeviceException;
 	public GrayAdjustment getGrayAdjustment() throws DeviceException;
@@ -156,6 +182,7 @@ public interface UViewController {
 
 	public void exportImage(final ImageFile fileDetails) throws DeviceException;
 
-	public void roiData(final RegionOfInterest roi);
+	public void defineRoi(final RegionOfInterest roi) throws DeviceException;
+	public double getRoiData(int roiId) throws DeviceException;
 
 }

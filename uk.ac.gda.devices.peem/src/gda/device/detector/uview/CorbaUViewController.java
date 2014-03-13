@@ -17,36 +17,16 @@
  */
 
 package gda.device.detector.uview;
+
 import org.omg.CORBA.ShortHolder;
 
+import gda.device.DeviceException;
 import gda.device.peem.MicroscopeControl.Microscope;
 
 /**
  *
  */
 public class CorbaUViewController implements UViewController {
-	
-	public class CorbaGrayAdjustment implements UViewController.GrayAdjustment {
-
-		public CorbaGrayAdjustment(int windowLow, int windowHigh) {
-			super();
-			this.windowLow = windowLow;
-			this.windowHigh = windowHigh;
-		}
-
-		private int windowLow;
-		private int windowHigh;
-
-		@Override
-		public int getWindowLow() {
-			return windowLow;
-		}
-
-		@Override
-		public int getWindowHigh() {
-			return windowHigh;
-		}
-	}
 	
 	private Microscope msImpl;
 
@@ -64,7 +44,7 @@ public class CorbaUViewController implements UViewController {
 		org.omg.CORBA.ShortHolder low = new ShortHolder();
 		org.omg.CORBA.ShortHolder high = new ShortHolder();
 		msImpl.DoGrayAdjust( (short) (performAdjustment ? 0 : 1), low, high );
-		return new CorbaGrayAdjustment( low.value, high.value );
+		return new GrayAdjustment( low.value, high.value );
 		
 	}
 
@@ -141,9 +121,19 @@ public class CorbaUViewController implements UViewController {
 	}
 
 	@Override
-	public void roiData(RegionOfInterest roi) {
+	public void defineRoi(final RegionOfInterest roi) {
 		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public double getRoiData(final int roiId) {
+		throw new UnsupportedOperationException();
+	}
 
+	@Override
+	public String getVersion() throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

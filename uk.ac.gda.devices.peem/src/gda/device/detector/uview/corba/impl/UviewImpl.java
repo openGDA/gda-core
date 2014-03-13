@@ -28,7 +28,6 @@ import gda.device.detector.uview.corba.CorbaUViewPOA;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
 
-import java.io.IOException;
 import java.io.Serializable;
 
 import org.omg.CORBA.Any;
@@ -92,7 +91,9 @@ public class UviewImpl extends CorbaUViewPOA {
 	public String shotSingleImage() throws CorbaDeviceException {
 		try {
 			return uview.shotSingleImage();
-		} catch (IOException ex) {
+		} catch (InterruptedException ex) {
+			throw new CorbaDeviceException(ex.getMessage());
+		} catch (DeviceException ex) {
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 
@@ -102,7 +103,7 @@ public class UviewImpl extends CorbaUViewPOA {
 	public void prepare() throws CorbaDeviceException {
 		try {
 			uview.prepare();
-		} catch (IOException ex) {
+		} catch (DeviceException ex) {
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 
@@ -112,7 +113,7 @@ public class UviewImpl extends CorbaUViewPOA {
 	public void connect(String host) throws CorbaDeviceException {
 		try {
 			uview.connect("No host");
-		} catch (IOException ex) {
+		} catch (DeviceException ex) {
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 
