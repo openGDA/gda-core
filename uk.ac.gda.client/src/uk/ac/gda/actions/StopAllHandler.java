@@ -23,13 +23,18 @@ import gda.jython.JythonServerFacade;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StopAllHandler extends AbstractHandler {
 
 	public static String id = "uk.ac.gda.client.StopAll";
+	private static final Logger logger = LoggerFactory.getLogger(StopAllHandler.class);
+	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
+			logger.debug("Stop All button pressed");
 			JythonServerFacade.getInstance().panicStop();
 			return Boolean.TRUE;
 		} catch (Exception ne) {
