@@ -64,7 +64,7 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 				String scannableName, String componentName, Object pos, String unit) throws NexusException {
 			uncertaintiesPath = path+"_error";
 			super.makeComponent(file, dim, uncertaintiesPath, scannableName, null, pos, unit);
-			return trueEnergyWriter.makeComponent(file, dim, path, scannableName, componentName, pos, null); 
+			return trueEnergyWriter.makeComponent(file, dim, path, scannableName, componentName, pos, unit); 
 		}
 		
 		@Override
