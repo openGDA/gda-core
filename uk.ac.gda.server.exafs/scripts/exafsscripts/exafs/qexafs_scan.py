@@ -7,7 +7,7 @@ import java.lang.Exception
 from scan import Scan
 
 from gda.configuration.properties import LocalProperties
-from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter
+#from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter
 from gda.epics import CAClient
 from gda.exafs.scan import BeanGroup, BeanGroups, ScanStartedMessage, RepetitionsProperties
 from gda.jython import ScriptBase
@@ -16,6 +16,7 @@ from gda.jython.scriptcontroller.logging import XasProgressUpdater
 from gda.jython.scriptcontroller.logging import LoggingScriptController
 from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.scan import ScanBase, ContinuousScan
+from gdascripts.metadata.metadata_commands import meta_clear
 
 class QexafsScan(Scan):
     
@@ -29,11 +30,12 @@ class QexafsScan(Scan):
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= -1, validation=True):
         experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
+        self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
 
         if self.cirrusEnabled:
             self.t = None
 
-        sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName) 
+        sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath) 
         controller = self.ExafsScriptObserver
 
         outputBean.setAsciiFileName(sampleBean.getName())
@@ -62,11 +64,13 @@ class QexafsScan(Scan):
                 repetitionNumber+= 1
                 self._resetHeader()
                 self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
+                meta_clear()
                 self.samplePreparer.prepare(sampleBean)
                 initial_energy = scanBean.getInitialEnergy()
                 final_energy = scanBean.getFinalEnergy()
                 step_size = scanBean.getStepSize()
                 self.outputPreparer.prepare(outputBean, scanBean)
+                print 'Prepare output'
                 if len(outputBean.getCheckedSignalList()) > 0:
                     print "Signal parameters not available with QEXAFS"
                 if self.energy_scannable == None:

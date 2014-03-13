@@ -49,7 +49,10 @@ class RasterMap(Map):
 
         self.outputPreparer = outputPreparer
         self.detectorPreparer = detectorPreparer
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/heads/local_master
         
     def enableBeam(self):
         self.beamEnabled = True

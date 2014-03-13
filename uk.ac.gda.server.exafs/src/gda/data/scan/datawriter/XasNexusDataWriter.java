@@ -17,33 +17,13 @@
  */
 
 package gda.data.scan.datawriter;
-
 import gda.configuration.properties.LocalProperties;
-import gda.data.nexus.NeXusUtils;
 
-import org.eclipse.core.runtime.IPath;
-import org.nexusformat.NexusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.exafs.IDetectorParameters;
-import uk.ac.gda.beans.exafs.IOutputParameters;
-import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.beans.exafs.IScanParameters;
 
 /**
  * A nexus data writer that stores the XAS xml files contents.
  */
-public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
-	private static Logger logger = LoggerFactory.getLogger(XasNexusDataWriter.class);
-	private String xmlFolderName;
-	private String xmlFileName;
-	private Boolean runFromExperimentDefinition = false;
-	private IScanParameters scanBean;
-	private IDetectorParameters detectorBean;
-	private ISampleParameters sampleBean;
-	private IOutputParameters outputBean;
+public class XasNexusDataWriter extends NexusDataWriter {
 	
 	public XasNexusDataWriter() throws InstantiationException {
 		super();
@@ -54,7 +34,7 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 		super(fileNumber);
 		setupProperties();
 	}
-	
+
 	@Override
 	public void createNextFile() throws Exception {
 		if (getNexusFileNameTemplate() == null) {
@@ -66,6 +46,7 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 		super.createNextFile();
 	}
 
+<<<<<<< HEAD
 	@Override
 	protected void createCustomMetaData() throws NexusException {
 		super.createCustomMetaData();
@@ -98,60 +79,7 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 			return;
 		NeXusUtils.writeNexusString(file, name, BeansFactory.getXMLString(bean));
 	}
+=======
+>>>>>>> refs/heads/local_master
 	
-	public Boolean getRunFromExperimentDefinition() {
-		return runFromExperimentDefinition;
-	}
-
-	public void setRunFromExperimentDefinition(Boolean runFromExperimentDefinition) {
-		this.runFromExperimentDefinition = runFromExperimentDefinition;
-	}
-
-	public IScanParameters getScanBean() {
-		return scanBean;
-	}
-
-	public void setScanBean(IScanParameters scanBean) {
-		this.scanBean = scanBean;
-	}
-
-	public IDetectorParameters getDetectorBean() {
-		return detectorBean;
-	}
-
-	public void setDetectorBean(IDetectorParameters detectorBean) {
-		this.detectorBean = detectorBean;
-	}
-
-	public ISampleParameters getSampleBean() {
-		return sampleBean;
-	}
-
-	public void setSampleBean(ISampleParameters sampleBean) {
-		this.sampleBean = sampleBean;
-	}
-
-	public IOutputParameters getOutputBean() {
-		return outputBean;
-	}
-
-	public void setOutputBean(IOutputParameters outputBean) {
-		this.outputBean = outputBean;
-	}
-
-	public String getXmlFolderName() {
-		return xmlFolderName;
-	}
-
-	public void setXmlFolderName(String xmlFolderName) {
-		this.xmlFolderName = xmlFolderName;
-	}
-
-	public String getXmlFileName() {
-		return xmlFileName;
-	}
-
-	public void setXmlFileName(String xmlFileName) {
-		this.xmlFileName = xmlFileName;
-	}
 }

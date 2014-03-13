@@ -2,7 +2,11 @@ from java.lang import InterruptedException, System
 import java.lang.Exception
 
 from gda.configuration.properties import LocalProperties
+<<<<<<< HEAD
 from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter
+=======
+from gda.data.scan.datawriter import XasAsciiDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter, XasAsciiNexusDataWriter
+>>>>>>> refs/heads/local_master
 from gda.device.scannable import XasScannable, XasScannableWithDetectorFramesSetup, JEPScannable
 from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator, ScanStartedMessage
 from gda.exafs.scan import RepetitionsProperties
@@ -10,6 +14,7 @@ from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan, ScanInterruptedException
+from gdascripts.metadata.metadata_commands import meta_clear
 
 from scan import Scan
 
@@ -25,11 +30,12 @@ class XasScan(Scan):
 
 	def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
 		experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
+		self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
 		ScanBase.interrupted = False
 		ScriptBase.interrupted = False
 		ScriptBase.paused = False
 		controller = self.ExafsScriptObserver
-		sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName)
+		sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath)
 		# create unique ID for this scan (all repetitions will share the same ID)
 		scriptType = "Exafs"
 		if isinstance(scanBean, XanesScanParameters):
@@ -200,6 +206,11 @@ class XasScan(Scan):
 	
 	# run the beamline specific preparers			
 	def runPreparers(self, beanGroup, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean):
+<<<<<<< HEAD
+=======
+		self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
+		meta_clear()
+>>>>>>> refs/heads/local_master
 		sampleScannables = self.samplePreparer.prepare(sampleBean)
 		outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
 		scanPlotSettings = self.outputPreparer.getPlotSettings(detectorBean,outputBean)
