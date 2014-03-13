@@ -19,6 +19,7 @@
 package uk.ac.gda.exafs.ui.detector.vortex;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.Detector;
 import gda.device.Timer;
 import gda.device.XmapDetector;
 import gda.factory.Finder;
@@ -62,7 +63,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		List<DetectorElement> detectorList = vortexParameters.getDetectorList();
 		String detectorName = vortexParameters.getDetectorName();
 		String tfgName = vortexParameters.getTfgName();
-		XmapDetector xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
+		Detector xmapDetector = Finder.getInstance().find(detectorName);
 		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
 		this.vortex = new Vortex(path, this.getSite(), parent, detectorList, xmapDetector, tfg);
 	}

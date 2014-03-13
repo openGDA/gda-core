@@ -21,6 +21,7 @@ package uk.ac.gda.exafs.ui.detector.vortex;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.XmapDetector;
@@ -78,10 +79,10 @@ public class VortexAcquire extends Acquire {
 	/**
 	 * @wbp.parser.entryPoint
 	 */
-	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, XmapDetector xmapDetector, Timer tfg, Display display, final Plot plot, Counts counts){
+	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, Detector xmapDetector, Timer tfg, Display display, final Plot plot, Counts counts){
 		super(display);
 		this.sashPlotFormComposite = sashPlotFormComposite;
-		this.xmapDetector = xmapDetector;
+		this.xmapDetector = (XmapDetector)xmapDetector;
 		this.tfg = tfg;
 		this.plot = plot;
 		this.counts = counts;
@@ -169,13 +170,15 @@ public class VortexAcquire extends Acquire {
 	
 	@Override
 	public void acquire(double collectionTime) throws DeviceException, InterruptedException{
-		xmapDetector.clearAndStart();
-		tfg.countAsync(collectionTime);
-		xmapDetector.waitWhileBusy();
-		xmapDetector.stop();
-		int[][] data = xmapDetector.getData();
-		mcaData = convert2DTo3DArray(data);
-		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
+//		xmapDetector.clearAndStart();
+//		tfg.countAsync(collectionTime);
+//		xmapDetector.waitWhileBusy();
+//		xmapDetector.stop();
+//		int[][] data = xmapDetector.getData();
+//		mcaData = convert2DTo3DArray(data);
+//		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
+		
+		
 	}
 	
 	public int[][][] getMcaData() {

@@ -27,6 +27,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.countertimer.BufferedScaler;
 
 public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
+	private static final long serialVersionUID = 4571439036961728662L;
 	private String scalerName;
 	private XmapBufferedDetector qxmap = null;
 	private BufferedScaler qscaler = null;

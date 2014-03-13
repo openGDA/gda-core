@@ -57,7 +57,7 @@ import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.util.CorrectionUtils;
 
 public class XmapBufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector {
-
+	private static final long serialVersionUID = -361735061750343662L;
 	NexusXmap xmap;
 	private XmapFileLoader fileLoader;
 	private static final Logger logger = LoggerFactory.getLogger(XmapBufferedDetector.class);

@@ -84,7 +84,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
  uk.ac.gda.api,
  uk.ac.gda.devices.xmap,
- uk.ac.gda.devices.xspress2
+ uk.ac.gda.devices.xspress2,
+ uk.ac.gda.beans.vortex;bundle-version="1.0.0"
 Export-Package: gda.exafs.scan,
  uk.ac.gda.exafs,
  uk.ac.gda.exafs.ui,

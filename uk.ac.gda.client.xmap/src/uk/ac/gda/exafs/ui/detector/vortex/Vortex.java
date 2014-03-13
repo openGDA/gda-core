@@ -52,7 +52,7 @@ public class Vortex extends Detector{
 	private GridListEditor gridListEditor;
 	private DetectorElementComposite detectorElementComposite;
 	
-	public Vortex(String path, IWorkbenchPartSite site, Composite parent, List<DetectorElement> detectorList, XmapDetector xmapDetector, Timer tfg) {
+	public Vortex(String path, IWorkbenchPartSite site, Composite parent, List<DetectorElement> detectorList, gda.device.Detector xmapDetector, Timer tfg) {
 		super("vortexConfig", site, parent, path);
 		regionSynchronizer = new RegionSynchronizer();
 		try {

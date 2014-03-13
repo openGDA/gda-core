@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Vortex
+Bundle-SymbolicName: uk.ac.gda.beans.vortex;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: uk.ac.gda.beans.vortex
+Require-Bundle: uk.ac.gda.common,
+ uk.ac.gda.server.exafs;bundle-version="1.0.0"
+Import-Package: org.apache.commons.beanutils

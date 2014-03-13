@@ -6,7 +6,7 @@ from gda.exafs.scan import BeanGroup, BeanGroups
 from gda.jython.commands.GeneralCommands import run
 from gda.jython import InterfaceProvider
 from gda.data.scan.datawriter import NexusDataWriter, XasAsciiNexusDataWriter
-from gdascripts.metadata.metadata_commands import meta_add,meta_ls,meta_rm,meta_clear
+#from gdascripts.metadata.metadata_commands import meta_add,meta_ls,meta_rm,meta_clear
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 from gda.factory import Finder
 

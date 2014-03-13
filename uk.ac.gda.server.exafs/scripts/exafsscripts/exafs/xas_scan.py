@@ -2,15 +2,10 @@ from java.lang import InterruptedException, System
 import java.lang.Exception
 
 from gda.configuration.properties import LocalProperties
-<<<<<<< HEAD
-from gda.data.scan.datawriter import XasAsciiDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter, XasAsciiNexusDataWriter
-=======
-<<<<<<< HEAD
+
+
 from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter
-=======
-from gda.data.scan.datawriter import XasAsciiDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter, XasAsciiNexusDataWriter
->>>>>>> refs/heads/local_master
->>>>>>> refs/heads/master
+
 from gda.device.scannable import XasScannable, XasScannableWithDetectorFramesSetup, JEPScannable
 from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator, ScanStartedMessage
 from gda.exafs.scan import RepetitionsProperties
@@ -18,7 +13,7 @@ from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan, ScanInterruptedException
-from gdascripts.metadata.metadata_commands import meta_clear
+#from gdascripts.metadata.metadata_commands import meta_clear
 
 from scan import Scan
 
@@ -210,14 +205,10 @@ class XasScan(Scan):
 	
 	# run the beamline specific preparers			
 	def runPreparers(self, beanGroup, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean):
-<<<<<<< HEAD
-=======
+
 		self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
-		meta_clear()
-<<<<<<< HEAD
-=======
->>>>>>> refs/heads/local_master
->>>>>>> refs/heads/master
+		#meta_clear()
+
 		sampleScannables = self.samplePreparer.prepare(sampleBean)
 		outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
 		scanPlotSettings = self.outputPreparer.getPlotSettings(detectorBean,outputBean)
