@@ -13,7 +13,7 @@ from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan, ScanInterruptedException
-#from gdascripts.metadata.metadata_commands import meta_clear
+from gdascripts.metadata.metadata_commands import meta_clear
 
 from scan import Scan
 
