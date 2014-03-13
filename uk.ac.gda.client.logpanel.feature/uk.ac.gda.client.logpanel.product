@@ -3,6 +3,7 @@
 
 <product name="GDA Logpanel" id="uk.ac.gda.client.logpanel.product" application="uk.ac.gda.client.logpanel.application" version="8.38.0" useFeatures="true" includeLaunchers="true">
 
+
    <configIni use="default">
    </configIni>
 
@@ -12,7 +13,8 @@
 
    <windowImages i16="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo16.png" i32="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo32.png" i48="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo48.png" i64="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo64.png" i128="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo128.png"/>
 
-   <launcher name="logpanel">
+
+   <launcher name="gdalogpanel">
       <linux icon="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo128.xpm"/>
       <solaris/>
       <win useIco="true">
@@ -20,6 +22,7 @@
          <bmp/>
       </win>
    </launcher>
+
 
    <vm>
    </vm>
