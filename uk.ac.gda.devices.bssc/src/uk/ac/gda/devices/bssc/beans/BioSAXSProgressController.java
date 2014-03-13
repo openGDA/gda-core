@@ -67,10 +67,6 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 			simpleUDPServer = Finder.getInstance().find(udpListenerName);
 			simpleUDPServer.addIObserver(new SimpleUDPReceiver(this));
 		}
-	}
-
-	public void setISpyBAPI(BioSAXSISPyB bioSAXSISPyB) throws FactoryException {
-		this.bioSAXSISPyB = bioSAXSISPyB;
 		try {
 			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
 			blSessionId = bioSAXSISPyB.getSessionForVisit(/* visit */"nt20-12");
@@ -79,6 +75,10 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		} catch (SQLException e) {
 			logger.error("SQLEXception getting session id", e);
 		}
+	}
+
+	public void setISpyBAPI(BioSAXSISPyB bioSAXSISPyB) throws FactoryException {
+		this.bioSAXSISPyB = bioSAXSISPyB;
 	}
 
 	public void startPolling() {
