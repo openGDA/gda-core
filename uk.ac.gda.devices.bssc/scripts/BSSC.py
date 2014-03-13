@@ -42,7 +42,7 @@ class BSSCRun:
         # self.session = self.ispyb.getSessionForVisit(currentVisit)
         self.session = 434
         print "session " + str(self.session)
-        self.experiment = self.ispyb.createExperiment(self.session, "test", "TEMPLATE", "test")
+        self.experiment = self.ispyb.createExperiment(self.session, "test", "STATIC", "test")
         self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample + (self.bean.getMeasurements().size() + 1) * self.stepsperbuffer
         self.dataCollectionIds = list()
         lastTitration = None
