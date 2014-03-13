@@ -41,6 +41,11 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	private List<String> descriptions;
 	private String sampleName;
 	private AsciiDataWriterConfiguration configuration;
+	private String scanParametersName;
+	private String sampleParametersName;
+	private String detectorParametersName;
+	private String outputParametersName;
+	private String folderName;
 
 	public XasAsciiNexusDataWriter() {
 		super();
@@ -81,6 +86,15 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			if (configuration != null)
 				ascii.setConfiguration(configuration);
 
+<<<<<<< HEAD
+=======
+			ascii.setScanParametersName(scanParametersName);
+			ascii.setDetectorParametersName(sampleParametersName);
+			ascii.setSampleParametersName(detectorParametersName);
+			ascii.setOutputParametersName(outputParametersName);
+			ascii.setFolderName(folderName);
+			
+>>>>>>> refs/heads/master
 			nexus = new XasNexusDataWriter(Long.parseLong(newData.getScanIdentifier()));
 			setFileNameTemplates();
 			firstData = false;
@@ -165,6 +179,52 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	public void setAsciiFileNameTemplate(String asciiFileNameTemplate) {
 		this.asciiFileNameTemplate = asciiFileNameTemplate;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+	}
+
+	public Boolean getRunFromExperimentDefinition() {
+		return runFromExperimentDefinition;
+	}
+
+	public void setRunFromExperimentDefinition(Boolean runFromExperimentDefinition) {
+		this.runFromExperimentDefinition = runFromExperimentDefinition;
+	}
+
+	public IScanParameters getScanBean() {
+		return nexus.getScanBean();
+	}
+
+	public void setScanBean(IScanParameters scanBean) {
+		this.scanBean = scanBean;
+	}
+
+	public void setDetectorBean(IDetectorParameters detectorBean) {
+		this.detectorBean = detectorBean;
+	}
+
+	public void setSampleBean(ISampleParameters sampleBean) {
+		this.sampleBean = sampleBean;
+	}
+
+	public void setOutputBean(IOutputParameters outputBean) {
+		this.outputBean = outputBean;
+	}
+
+	public void setXmlFolderName(String xmlFolderName) {
+		this.xmlFolderName = xmlFolderName;
+	}
+
+	public void setXmlFileName(String xmlFileName) {
+		this.xmlFileName = xmlFileName;
+=======
+>>>>>>> refs/heads/local_master
+	}
+
+	public List<String> getDescriptions() {
+		return ascii.getDescriptions();
+>>>>>>> refs/heads/master
 	}
 
 	public void setDescriptions(List<String> descriptions) {
@@ -174,4 +234,25 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	public void setSampleName(String sampleName) {
 		this.sampleName = sampleName;
 	}
+
+	public void setScanParametersName(String scanParametersName) {
+		this.scanParametersName = scanParametersName;
+	}
+
+	public void setSampleParametersName(String sampleParametersName) {
+		this.sampleParametersName = sampleParametersName;
+	}
+
+	public void setDetectorParametersName(String detectorParametersName) {
+		this.detectorParametersName = detectorParametersName;
+	}
+
+	public void setOutputParametersName(String outputParametersName) {
+		this.outputParametersName = outputParametersName;
+	}
+	
+	public void setFolderName(String folderName) {
+		this.folderName = folderName;
+	}
+	
 }

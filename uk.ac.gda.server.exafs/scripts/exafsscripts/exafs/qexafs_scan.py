@@ -59,7 +59,6 @@ class QexafsScan(Scan):
         repetitionNumber = 0
         timeRepetitionsStarted = System.currentTimeMillis();
         
-        
         try:
             while True:
                 repetitionNumber+= 1
@@ -128,12 +127,12 @@ class QexafsScan(Scan):
                 print "running QEXAFS scan:", self.energy_scannable.getName(), start, end, numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
                 thisscan = ContinuousScan(self.energy_scannable , start, end, numberPoints, scan_time, detectorList)
-                thisscan = self._setUpDataWriter(thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleBean.getName(),sampleBean.getDescriptions(),repetitionNumber,experimentFolderName,experimentFullPath)
+                thisscan = self._setUpDataWriter(thisscan, scanBean, detectorBean, sampleBean, outputBean, sampleBean.getName(), sampleBean.getDescriptions(), repetitionNumber, experimentFolderName, experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName)
                 controller.update(None, ScanCreationEvent(thisscan.getName()))
                 try:
                     if numRepetitions > 1:
                         print ""
-                        print "Starting repetition", str(repetitionNumber),"of",numRepetitions
+                        print "Starting repetition", str(repetitionNumber), "of", numRepetitions
                     loggingbean.atScanStart()
                     thisscan.runScan()
                     controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
@@ -145,6 +144,7 @@ class QexafsScan(Scan):
 #                    raise e
                 # handle every Java exception through this code, as sometimes an interrupt gets 
                 # encapsulated in a DeviceException (which should not happen)
+                
                 except java.lang.Exception, e:
                     self._resetHeader()
                     loggingbean.atCommandFailure()
@@ -163,7 +163,18 @@ class QexafsScan(Scan):
                 except:
                     self._resetHeader()
                     loggingbean.atCommandFailure()
-                    raise
+                    if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
+                        LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
+                        ScanBase.interrupted = False
+                        # check if a panic stop has been issued, so the whole script should stop
+                        if ScriptBase.isInterrupted():
+                            raise e
+                        # only wanted to skip this repetition, so absorb the exception and continue the loop
+                        if numRepetitions > 1:
+                            print "Repetition", str(repetitionNumber),"skipped."
+                    else:
+                        print e
+                        raise
                     
                 # run the after scan script
                 self._runScript(outputBean.getAfterScriptName())
@@ -172,7 +183,8 @@ class QexafsScan(Scan):
                 if LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
                     print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
-                    self.commandQueueProcessor.pause(500)
+#                     self.commandQueueProcessor.pause(500)
+                    ScriptBase.setPaused(True)#
                     ScriptBase.checkForPauses()
                 
                 #check if the number of repetitions has been altered and we should now end the loop
@@ -194,6 +206,8 @@ class QexafsScan(Scan):
             self._resetHeader()
             if self.cirrusEnabled:
                 self.t.stop
+            
+            print "qexafs finished"
                 
 
     def _getQEXAFSDetectors(self, detectorBean, outputBean, scanBean):

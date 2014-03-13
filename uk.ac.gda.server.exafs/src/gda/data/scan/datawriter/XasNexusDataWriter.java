@@ -46,5 +46,43 @@ public class XasNexusDataWriter extends NexusDataWriter {
 		super.createNextFile();
 	}
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+	@Override
+	protected void createCustomMetaData() throws NexusException {
+		super.createCustomMetaData();
+		// add extra metadata from xml files to the nexus file if available
+		if (runFromExperimentDefinition) {
+			try {
+				// Store XML
+				file.makegroup("xml", "NXsample");
+				file.opengroup("xml", "NXsample");
+				try {
+					NeXusUtils.writeNexusString(file, "xmlFolderName", xmlFolderName);
+					writeBean("ScanParameters", scanBean);
+					writeBean("DetectorParameters", detectorBean);
+					writeBean("SampleParameters", sampleBean);
+					writeBean("OutputParameters", outputBean);
+					// if fluoresence then get the xml detector config from FluorescenceParameters else if diffraction then from  SoftXRaysParameters
+					if (xmlFolderName != null && !xmlFolderName.isEmpty() && xmlFileName != null && !xmlFileName.isEmpty())
+						writeBean("DetectorConfigurationParameters", xmlFolderName + IPath.SEPARATOR + xmlFileName);
+				} finally {
+					file.closegroup();
+				}
+			} catch (Exception e) {
+				logger.warn("Exception while adding extra metadata: " + e.getMessage(), e);
+			}
+		}
+	}
+
+	private void writeBean(final String name, final Object bean) throws NexusException, Exception {
+		if (bean == null)
+			return;
+		NeXusUtils.writeNexusString(file, name, BeansFactory.getXMLString(bean));
+	}
+=======
+>>>>>>> refs/heads/local_master
+>>>>>>> refs/heads/master
 	
 }

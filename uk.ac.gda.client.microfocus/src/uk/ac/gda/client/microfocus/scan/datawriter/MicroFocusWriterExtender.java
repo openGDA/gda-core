@@ -25,9 +25,9 @@ import gda.device.DeviceException;
 import gda.device.XmapDetector;
 import gda.device.detector.BufferedDetector;
 import gda.device.detector.NXDetectorData;
-import gda.device.detector.Xspress2BufferedDetector;
 import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.xmap.XmapBufferedDetector;
+import gda.device.detector.xspress.Xspress2BufferedDetector;
 import gda.device.detector.xspress.XspressDetector;
 import gda.scan.IScanDataPoint;
 
@@ -53,8 +53,8 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
@@ -284,7 +284,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						}
 					}
 					if (isXspressScan()
-							&& (detector instanceof XspressDetector) || detector instanceof BufferedDetector) {
+							&& ((detector instanceof XspressDetector) || detector instanceof BufferedDetector)) {
 						d = ((NXDetectorData) dataObj);
 						double[][] dataArray = (double[][]) d.getData(detectorName, "MCAs", "SDS").getBuffer();
 						// assuming all detector elements have the same number of roi
@@ -312,7 +312,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 //						logger.debug("the value for the selected element " + selectedElement + " is " + valueToDisplay);
 
 					} else if (isXmapScan()
-							&& (detector instanceof XmapDetector) || (detector instanceof BufferedDetector)) {
+							&& ((detector instanceof XmapDetector) || (detector instanceof BufferedDetector))) {
 						d = ((NXDetectorData) dataObj);
 						double wholeDataArray[][] = new double[numberOfSubDetectors][];
 						Object wholeDataArrayObject;
@@ -363,6 +363,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 										detectorValuesCache[j][roiNameMap.get(key)] = new double[totalPoints];
 									double windowTotal = getWindowedData(wholeDataArray[j], roi.getRoiStart(),
 											roi.getRoiEnd());
+									double rgbElementSum = rgbLineData.get(key);
+									rgbLineData.put(key, rgbElementSum + windowTotal);
 									detectorValuesCache[j][roiNameMap.get(key)][currentPointNumber] = windowTotal;
 //									if (roi.getRoiName().equals(selectedElement) && j == selectedChannel) {
 //										valueToDisplay = windowTotal;
@@ -593,7 +595,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 		// the selected element is a scaler value displaying the map for the scaler
 		if (selectedElementIndex == -1) {
-			int scalerIndex = selectedElement.equalsIgnoreCase("i0") ? 0 : 1;
+			int scalerIndex = selectedElement.equalsIgnoreCase("i0") ? 1 : 2;
 			for (int i = 0; i <= plottedSoFar; i++) {
 				dataSetToDisplay.setAbs(i,scalerValuesCache[i][scalerIndex]);
 //				dataSetToDisplay.set(scalerValuesCache[i][scalerIndex], i / numberOfXPoints, i % numberOfXPoints);

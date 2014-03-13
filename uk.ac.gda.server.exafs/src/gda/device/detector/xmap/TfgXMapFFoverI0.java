@@ -16,13 +16,16 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector;
+package gda.device.detector.xmap;
 
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.XmapDetector;
+import gda.device.detector.DetectorBase;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.NexusDetector;
 import gda.factory.Finder;
 
 import org.nexusformat.NexusFile;

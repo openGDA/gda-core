@@ -44,7 +44,6 @@ import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.Elements;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
-import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
@@ -63,8 +62,8 @@ public class XspressElements extends Elements{
 	protected DetectorElementComposite detectorElementComposite;
 	private boolean showRoi;
 	
-	public XspressElements(final Composite parent, Shell shell, DirtyContainer dirtyContainer, SashFormPlotComposite sashPlotFormComposite, XspressParameters xspressParameters, final Counts counts, boolean showRoi) {
-		super(shell, dirtyContainer, sashPlotFormComposite, counts);
+	public XspressElements(final Composite parent, Shell shell, SashFormPlotComposite sashPlotFormComposite, XspressParameters xspressParameters, final Counts counts, boolean showRoi) {
+		super(shell, sashPlotFormComposite, counts);
 		Composite grid = new Composite(parent, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(grid);
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(grid);

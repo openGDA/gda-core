@@ -113,7 +113,8 @@ public class Acquire {
 		};	
 	}
 	
-	public void addAcquireListener(final int currentSelectedElementIndex, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
+	public void addAcquireListener(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite){
+		final int currentSelectedElementIndex = detectorList.getSelectedIndex();
 		acquireBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {

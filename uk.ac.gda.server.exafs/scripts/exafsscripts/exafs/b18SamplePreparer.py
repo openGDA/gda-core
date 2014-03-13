@@ -78,7 +78,7 @@ class B18SamplePreparer:
 				else:
 					self.log("Temperature = " + str(temp_readback))
 					sleep(1)
-		return self.furnace_scannable
+		return [self.furnace_scannable]
 		
 	def _control_lakeshore(self, lakeshore_bean):
 		self.log("Lakeshore is the temp controller")
@@ -133,7 +133,7 @@ class B18SamplePreparer:
 				else:
 					self.log("Temperature = " + str(temp_readback))
 					sleep(1)
-		return self.lakeshore_scannable
+		return [self.lakeshore_scannable]
 	
 	def _control_pulsetube(self, bean):
 		self.log("pulse tube is the temp controller")
@@ -149,7 +149,7 @@ class B18SamplePreparer:
 			self.log("starting temperature control loop")
 			while temp_final == False:
 				self.pulsetube_scannable.collectData()
-				temp_readback = float(self.pulsetube_scannable.getPosition()[0]);
+				temp_readback = float(self.pulsetube_scannable.readout()[0]);
 				if temp_readback>=min and temp_readback<=max:
 					self.log("Temperature reached, checking if it has stabilised")
 					finalised = True;
@@ -157,7 +157,7 @@ class B18SamplePreparer:
 					while finalised == True and time < wait_time:
 						self.log("Temperature stable")
 						self.pulsetube_scannable.collectData()
-						temp_readback = float(self.pulsetube_scannable.getPosition()[0]);
+						temp_readback = float(self.pulsetube_scannable.readout()[0]);
 						if (temp_readback>=min and temp_readback<=max) == False:
 							self.log("Temperature unstable")
 							finalised = False
@@ -167,9 +167,9 @@ class B18SamplePreparer:
 						temp_final = True 
 				else:
 					self.pulsetube_scannable.collectData()
-					self.log("Temperature = " + str(self.pulsetube_scannable.getPosition()[0]))
+					self.log("Temperature = " + str(self.pulsetube_scannable.readout()[0]))
 					sleep(1)
-		return self.pulsetube_scannable
+		return [self.pulsetube_scannable]
 
 	def _control_sxcryo_stage(self, bean):
 		manual = bean.isManual()

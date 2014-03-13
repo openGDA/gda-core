@@ -20,14 +20,14 @@ package uk.ac.gda.exafs.ui.detector;
 
 public class Counts {
 	
-	public int calculateInWindowCounts(Boolean currentEditIndividual, Boolean calculateSingleElement, int[][][] detectorData, DetectorElementComposite detectorElementComposite, int currentSelectedElementIndex) {
-		// use last value or store new value;
-		if (currentEditIndividual == null)
-			currentEditIndividual = calculateSingleElement;
-		int start = (Integer) detectorElementComposite.getStart().getValue();
-		int end = (Integer) detectorElementComposite.getEnd().getValue();
-		return getInWindowsCounts(currentEditIndividual, start, end, currentSelectedElementIndex, detectorData);
-	}
+//	public int calculateInWindowCounts(Boolean currentEditIndividual, Boolean calculateSingleElement, int[][][] detectorData, DetectorElementComposite detectorElementComposite, int currentSelectedElementIndex) {
+//		// use last value or store new value;
+//		if (currentEditIndividual == null)
+//			currentEditIndividual = calculateSingleElement;
+//		int start = (Integer) detectorElementComposite.getStart().getValue();
+//		int end = (Integer) detectorElementComposite.getEnd().getValue();
+//		return getInWindowsCounts(currentEditIndividual, start, end, currentSelectedElementIndex, detectorData);
+//	}
 	
 	public int getInWindowsCounts(Boolean currentEditIndividual, int start, int end, int currentSelectedElementIndex, int[][][] detectorData) {
 		int total = 0;
@@ -67,5 +67,36 @@ public class Counts {
 			sum += getTotalElementCounts(i, detectorData);
 		return sum;
 	}
+	
+//	protected void calculateAndPlotCountTotals(Boolean currentEditIndividual) {
+//
+//		// use last value or store new value;
+//		if (currentEditIndividual == null) {
+//			currentEditIndividual = calculateSingleElement;
+//		} else {
+//			calculateSingleElement = currentEditIndividual;
+//		}
+//
+//		if (detectorData == null)
+//			return;
+//
+//		if (getDetectorElementComposite().getCount() == null || getDetectorElementComposite().getStart() == null
+//				|| getDetectorElementComposite().getEnd() == null) {
+//			return;
+//		}
+//		if (getDetectorElementComposite().getStart().getValue() == null
+//				|| getDetectorElementComposite().getEnd().getValue() == null) {
+//			return;
+//		}
+//
+//		final int start = (Integer) getDetectorElementComposite().getStart().getValue();
+//		final int end = (Integer) getDetectorElementComposite().getEnd().getValue();
+//
+//		int total = getInWindowsCounts(currentEditIndividual, start, end);
+//		getDetectorElementComposite().getCount().setValue(total);
+//		getDetectorElementComposite().setTotalCounts(getTotalCounts());
+//		getDetectorElementComposite().setTotalElementCounts(getTotalElementCounts(getCurrentSelectedElementIndex()));
+//
+//	}
 	
 }

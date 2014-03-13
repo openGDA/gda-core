@@ -37,26 +37,22 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.Elements;
 import uk.ac.gda.exafs.ui.detector.wizards.vortex.ImportVortexROIWizard;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
-import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 import com.swtdesigner.SWTResourceManager;
 
 public class VortexElements extends Elements{
 	private static final Logger logger = LoggerFactory.getLogger(VortexElements.class);
 	private BooleanWrapper saveRawSpectrum;
-	private VortexParameters vortexParameters;
 	private Composite importComposite;
 	
-	public VortexElements(Shell shell, DirtyContainer dirtyContainer, SashFormPlotComposite sashPlotFormComposite, VortexParameters vortexParameters, final Counts counts) {
-		super(shell, dirtyContainer, sashPlotFormComposite, counts);
-		this.vortexParameters = vortexParameters;
+	public VortexElements(Shell shell, SashFormPlotComposite sashPlotFormComposite, final Counts counts) {
+		super(shell, sashPlotFormComposite, counts);
 	}
 
 	public void addOutputPreferences(Composite comp) {
@@ -71,11 +67,10 @@ public class VortexElements extends Elements{
 		saveRawSpectrum.setValue(false);
 	}
 	
-	public void createROI(final Composite left) {
+	public void createROI(final Composite left, List<DetectorElement> detectorList) {
 		Composite grid = new Composite(left, SWT.BORDER);
 		grid.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		grid.setLayout(new GridLayout());
-		List<DetectorElement> detectorList = vortexParameters.getDetectorList();
 		if (detectorList.size() > 1) {
 			Composite buttonPanel = new Composite(grid, SWT.NONE);
 			buttonPanel.setLayout(new GridLayout(2, false));

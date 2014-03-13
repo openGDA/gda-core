@@ -16,9 +16,10 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector;
+package gda.device.detector.xspress;
 
 import gda.device.DeviceException;
+import gda.device.detector.SimulatedBufferedDetector;
 
 /**
  * Version of Xspress2BufferedDetector which takes a software trigger. For system testing.

@@ -22,6 +22,7 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.countertimer.BufferedScaler;
+import gda.device.detector.xspress.Xspress2BufferedDetector;
 
 public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 	private String scalerName;

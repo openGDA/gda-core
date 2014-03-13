@@ -20,6 +20,7 @@ package gda.device.scannable;
 
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
+import gda.device.MotorStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
@@ -232,24 +233,24 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		}
 		return radToDeg(braggAngleOf);
 	}
-	
-	private void move(double position){
+
+	private void move(double position) {
 		double currentPosition = 0;
 		try {
 			currentPosition = (Double) this.rawGetPosition();
 		} catch (DeviceException e1) {
 			logger.error("TCould not read scannable position", e1);
 		}
-		
+
 		double demandDegrees = energyToDegrees(position);
 		double currentDegrees = energyToDegrees(currentPosition);
-		
-		if(Math.abs(currentDegrees-demandDegrees)>0.00011){
-		try {
-			super.moveTo(position);
-		} catch (DeviceException e) {
-			logger.error("Could not move scannable", e);
-		}
+
+		if (Math.abs(currentDegrees - demandDegrees) > 0.00011) {
+			try {
+				super.moveTo(position);
+			} catch (DeviceException e) {
+				logger.error("Could not move scannable", e);
+			}
 		}
 	}
 
@@ -319,6 +320,10 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	
 	@Override
 	public void stop() throws DeviceException {
+		
+		if (getMotor().getStatus().value() == MotorStatus._READY)
+			return;
+		
 		super.stop();
 		long timeAtMethodStart = System.currentTimeMillis();
 		try {
@@ -326,8 +331,30 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			logger.info("Setting energy to max speed");
 			controller.caputWait(currentSpeedChnl, getMaxSpeed());
 			logger.info("Toggling energy control");
-			controller.caputWait(energySwitchChnl, 0); //off
-			controller.caputWait(energySwitchChnl, 1); //on
+			
+			synchronized (energySwitchChnl) {
+				new Thread(
+				new Runnable() {
+					@Override
+					public void run() {
+						// FIXME BLXVIIIB-149 this is the slow bit
+						try {
+							controller.caputWait(energySwitchChnl, 0);
+							controller.caputWait(energySwitchChnl, 1); // on
+						} catch (final TimeoutException e) {
+							// TODO Auto-generated catch block
+							logger.error("TODO put description of error here", e);
+						} catch (final CAException e) {
+							// TODO Auto-generated catch block
+							logger.error("TODO put description of error here", e);
+						} catch (final InterruptedException e) {
+							// TODO Auto-generated catch block
+							logger.error("TODO put description of error here", e);
+						} // off
+					}
+				}).start();
+			}
+			
 		} catch (Exception e) {
 			throw new DeviceException("Exception while changing energy switch off/on to stop the motion", e);
 		}

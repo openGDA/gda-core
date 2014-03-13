@@ -54,9 +54,8 @@ public class Elements {
 	protected SashFormPlotComposite sashPlotFormComposite;
 	protected Counts counts;
 	
-	public Elements(Shell shell, DirtyContainer dirtyContainer, SashFormPlotComposite sashPlotFormComposite, Counts counts) {
+	public Elements(Shell shell, SashFormPlotComposite sashPlotFormComposite, Counts counts) {
 		this.shell = shell;
-		this.dirtyContainer = dirtyContainer;
 		this.sashPlotFormComposite = sashPlotFormComposite;
 		this.counts = counts;
 	}

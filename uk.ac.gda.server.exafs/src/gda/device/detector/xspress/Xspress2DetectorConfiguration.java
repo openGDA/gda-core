@@ -19,40 +19,30 @@
 
 package gda.device.detector.xspress;
 
+import gda.device.detector.FluorescentDetectorConfiguration;
 import gda.factory.FactoryException;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.observable.ObservableComponent;
 
-import java.io.File;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.util.beans.xml.XMLHelpers;
-
-public class Xspress2DetectorConfiguration{
+public class Xspress2DetectorConfiguration implements FluorescentDetectorConfiguration{
 
 	private Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
 	private Xspress2System xspress2System;
 	private ObservableComponent observer;
 	private String message = "Xspress configuration has not been applied yet";
+	private boolean onlyShowFF = false;
+	private boolean showDTRawValues = false;
+	private boolean saveRawSpectrum = false;
 	
 	public Xspress2DetectorConfiguration(Xspress2System xspress2System, final ObservableComponent observer) {
 		this.observer = observer;
 		this.xspress2System = xspress2System;
 	}
 	
-	public XspressParameters createBeanFromXML(String xmlPath) throws Exception{
-		return (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, new File(xmlPath));
-	}
-	
-	public void createXMLfromBean(XspressParameters xspressBean) throws Exception{
-		File file = new File(xspress2System.getConfigFileName());
-		XMLHelpers.writeToXML(XspressParameters.mappingURL, xspressBean, file);
-	}
-	
-	public void configure(String xmlFileName, boolean onlyShowFF, boolean showDTRawValues, boolean saveRawSpectrum) throws FactoryException {
+	public void configure(String xmlFileName) throws FactoryException {
 		try {
 			xspress2System.setConfigFileName(xmlFileName);
 			xspress2System.configure();
@@ -71,4 +61,29 @@ public class Xspress2DetectorConfiguration{
 	public String getMessage() {
 		return message;
 	}
+
+	public boolean isOnlyShowFF() {
+		return onlyShowFF;
+	}
+
+	public void setOnlyShowFF(boolean onlyShowFF) {
+		this.onlyShowFF = onlyShowFF;
+	}
+
+	public boolean isShowDTRawValues() {
+		return showDTRawValues;
+	}
+
+	public void setShowDTRawValues(boolean showDTRawValues) {
+		this.showDTRawValues = showDTRawValues;
+	}
+
+	public boolean isSaveRawSpectrum() {
+		return saveRawSpectrum;
+	}
+
+	public void setSaveRawSpectrum(boolean saveRawSpectrum) {
+		this.saveRawSpectrum = saveRawSpectrum;
+	}
+	
 }

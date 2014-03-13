@@ -20,6 +20,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gda.data.scan.datawriter,
  gda.device.detector,
  gda.device.detector.countertimer,
+ gda.device.detector.xmap,
  gda.device.detector.xspress,
  gda.device.detector.xspress.corba.impl,
  gda.device.scannable,
