@@ -21,12 +21,17 @@ package uk.ac.gda.client;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StopCommandQueueHandler extends AbstractHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(StopCommandQueueHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
+			logger.debug("Stop queue button pressed");
 			CommandQueueViewFactory.processor.stop(1000);
 			return Boolean.TRUE;
 		} catch (Exception ne) {
