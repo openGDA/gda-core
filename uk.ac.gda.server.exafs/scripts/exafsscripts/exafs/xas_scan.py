@@ -2,15 +2,7 @@ from java.lang import InterruptedException, System
 import java.lang.Exception
 
 from gda.configuration.properties import LocalProperties
-<<<<<<< HEAD
 from gda.data.scan.datawriter import XasAsciiDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter, XasAsciiNexusDataWriter
-=======
-<<<<<<< HEAD
-from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter
-=======
-from gda.data.scan.datawriter import XasAsciiDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter, XasAsciiNexusDataWriter
->>>>>>> refs/heads/local_master
->>>>>>> refs/heads/master
 from gda.device.scannable import XasScannable, XasScannableWithDetectorFramesSetup, JEPScannable
 from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator, ScanStartedMessage
 from gda.exafs.scan import RepetitionsProperties
@@ -210,14 +202,8 @@ class XasScan(Scan):
 	
 	# run the beamline specific preparers			
 	def runPreparers(self, beanGroup, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean):
-<<<<<<< HEAD
-=======
 		self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
 		meta_clear()
-<<<<<<< HEAD
-=======
->>>>>>> refs/heads/local_master
->>>>>>> refs/heads/master
 		sampleScannables = self.samplePreparer.prepare(sampleBean)
 		outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
 		scanPlotSettings = self.outputPreparer.getPlotSettings(detectorBean,outputBean)
