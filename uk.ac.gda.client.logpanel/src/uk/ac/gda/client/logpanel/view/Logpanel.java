@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2014 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.gda.client.logpanel.view;
 
 import gda.configuration.properties.LocalProperties;
@@ -5,6 +23,8 @@ import gda.util.logging.LogbackUtils;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.property.Properties;
@@ -15,9 +35,11 @@ import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -25,12 +47,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.net.SocketReceiver;
@@ -40,50 +61,55 @@ import ch.qos.logback.core.AppenderBase;
 
 public class Logpanel extends Composite {
 
-	String pattern = "%d %-5level %logger - %m%n%ex";
+	private static final Logger logger = LoggerFactory.getLogger(Logpanel.class);
 
-	PatternLayout patternLayout;
+	private String patternLayoutPattern = "%d %-5level %logger - %m%n%ex";
 
-	List<ILoggingEvent> loggingEvents = new LinkedList<ILoggingEvent>();
+	private PatternLayout patternLayout; //TODO enable customisation
+
+	protected String applyPatternLayout(ILoggingEvent loggingEvent) {
+		return patternLayout.doLayout(loggingEvent).trim();
+	}
+
+	private List<ILoggingEvent> loggingEvents = new LinkedList<ILoggingEvent>();
 
 	/**
-	 * wrap a writable list into an IObservableList: 
+	 * Wrap a writable list into an IObservableList: 
 	 *  http://www.vogella.com/tutorials/EclipseDataBinding/article.html#jfacedb_viewer
 	 */
 	final IObservableList input = Properties.selfList(ILoggingEvent.class).observe(loggingEvents);
-	
-	TableViewer viewer;
-	
+
+	public IObservableList getInput() {
+		return input;
+	}
+
+	private TableViewer viewer; // to set with input
+
 	boolean scrollLockChecked = false;
-	
-	Display display = getDisplay();
 
-	Color debugForeground = display.getSystemColor(SWT.COLOR_DARK_GRAY);
-	Color errorForeground = display.getSystemColor(SWT.COLOR_WHITE);
-	Color errorBackground = display.getSystemColor(SWT.COLOR_DARK_RED);
-	Color infoForeground = display.getSystemColor(SWT.COLOR_BLACK);
-	Color warnForeground = display.getSystemColor(SWT.COLOR_BLACK);
-	Color warnBackground = display.getSystemColor(SWT.COLOR_YELLOW);
+	public void setScrollLockChecked(final boolean isChecked) {
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				scrollLockChecked = isChecked;
+			}
+		});
+	}
 
-//	public PatternLayout getPatternLayout() {
-//		return patternLayout;
-//	}
+	final Display display = getDisplay();
 
-//	public void setPattern(String pattern) {
-//		getPatternLayout().setPattern(pattern);
-//	}
+	private Color debugForeground = display.getSystemColor(SWT.COLOR_DARK_GRAY);
+	private Color errorForeground = display.getSystemColor(SWT.COLOR_WHITE);
+	private Color errorBackground = display.getSystemColor(SWT.COLOR_DARK_RED);
+	private Color infoForeground = display.getSystemColor(SWT.COLOR_BLACK);
+	private Color warnForeground = display.getSystemColor(SWT.COLOR_BLACK);
+	private Color warnBackground = display.getSystemColor(SWT.COLOR_YELLOW);
 
-//	public String getMessage(ILoggingEvent loggingEvent) {
-////		return getPatternLayout().doLayout(loggingEvent).trim();
-//		return patternLayout.doLayout(loggingEvent).trim();
-//	}
-
-	class ILoggingEventLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
+	private class ILoggingEventLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			ILoggingEvent loggingEvent = (ILoggingEvent) element;
-//			return getMessage(loggingEvent);
-			return patternLayout.doLayout(loggingEvent).trim();
+			return applyPatternLayout(loggingEvent);
 		}
 		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
@@ -113,64 +139,88 @@ public class Logpanel extends Composite {
 				return errorBackground;
 			return null;
 		}
-	}	
+	}
+
+	private boolean isMatchingFilterCaseInsensitive = true;
+
+	public void setIsMatchingFilterCaseInsensitive(boolean isMatchingFilterCaseInsensitive) {
+		this.isMatchingFilterCaseInsensitive = isMatchingFilterCaseInsensitive;
+	}
+
+	private class MatchingFilter extends ViewerFilter {
+
+		private Pattern pattern;
+
+		/**
+		 * Ensure that the value can be used for matching.
+		 * @param matching
+		 */
+		public void setMatching(String matching) {
+			String regex = ".*" + matching + ".*"; // ensure any value can be used for matching
+			try {
+				if (isMatchingFilterCaseInsensitive) {
+					pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE); // UNICODE_CASE essential
+				}
+				else {
+					pattern = Pattern.compile(regex);
+				}
+			}
+			catch (PatternSyntaxException e) {
+				pattern = null;
+			}
+		}
+
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			if (pattern == null) {
+				return true;
+			}
+			ILoggingEvent loggingEvent = (ILoggingEvent) element;
+			String message = applyPatternLayout(loggingEvent);
+			return pattern.matcher(message).matches();
+		}
+	};
+
+	private MatchingFilter filter;
 
 	public Logpanel(Composite parent, int style) {
 		super(parent, style);
 
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(this);
+		connectToLogServer();
 
-		Label connectionLabel = new Label(this, SWT.NONE);
-		GridDataFactory.swtDefaults().span(3, 1).grab(true, false).applyTo(connectionLabel);
-
-		String logServerHost = LocalProperties.get(LogbackUtils.GDA_LOGSERVER_HOST, LogbackUtils.GDA_LOGSERVER_HOST_DEFAULT);
-		int logServerOutPort = LocalProperties.getInt(LogbackUtils.GDA_LOGSERVER_OUT_PORT, LogbackUtils.GDA_LOGSERVER_OUT_PORT_DEFAULT);
-		
-		String connectionLabelText; 
-		Color connectionLabelForeground; 
-
-		try {
-			connectToLogServer(logServerHost, logServerOutPort); //TODO doesn't throw an Exception if host doesn't exist
-
-			connectionLabelText = String.format("Connected to log server %s:%d", logServerHost, logServerOutPort);
-			connectionLabelForeground = debugForeground;//display.getSystemColor(SWT.COLOR_GREEN);
-		}
-		catch (Exception exception) {
-			connectionLabelText = String.format("Failed to connect to log server %s:%d\n%s", logServerHost, logServerOutPort, exception.getMessage());
-			connectionLabelForeground = display.getSystemColor(SWT.COLOR_RED);
-		}
-		
-		connectionLabel.setForeground(connectionLabelForeground);
-		connectionLabel.setText(connectionLabelText);
-
-		viewer = new TableViewer(this, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		GridDataFactory.fillDefaults().span(3, 1).grab(true, true).applyTo(viewer.getControl());
-
-		viewer.setLabelProvider(new ILoggingEventLabelProvider());
-
-		// http://www.vogella.com/tutorials/EclipseDataBinding/article.html#jfacedb_viewer
-		viewer.setContentProvider(new ObservableListContentProvider());
-		
-		// set the IObservableList as input for the viewer
-		viewer.setInput(input); 
-
-		Composite spacer = new Composite(this, SWT.NONE);
-		GridDataFactory.swtDefaults().hint(1, 1).grab(true, false).applyTo(spacer);
-
-		Label filterLabel = new Label(spacer, SWT.NONE);
-		filterLabel.setText("Filter:");
-		
-		Text filterText = new Text(spacer, SWT.SINGLE);
-		GridDataFactory.swtDefaults().hint(1, 1).grab(true, false).applyTo(filterText);
-		filterText.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				//TODO implement updating filter
+		final Text filterText = new Text(this, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL);
+		filterText.setMessage("Matching ...");
+		filterText.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent keyEvent) {
+				filter.setMatching(filterText.getText());
+				viewer.refresh();
 			}
 		});
+		filterText.setFocus();
 
-		final Button scrollLockCheckBox = new Button(this, SWT.CHECK); //TODO move to view toolbar
-//		GridDataFactory.swtDefaults().applyTo(scrollLockCheckBox);
+		viewer = new TableViewer(this, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		viewer.setLabelProvider(new ILoggingEventLabelProvider());
+		viewer.setContentProvider(new ObservableListContentProvider());
+		viewer.setUseHashlookup(true); //TODO test for possible speedup and increased memory usage
+		viewer.setInput(input); 
+
+		filter = new MatchingFilter();
+		viewer.addFilter(filter);
+
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(this);
+		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(filterText);
+		GridDataFactory.fillDefaults().span(3, 1).grab(true, true).applyTo(viewer.getControl());
+
+		// supplanted by LogpanelView toolbar commands
+		//createScrollLockCheckBox(this);
+		//createClearButton(this);
+	}
+
+	/**
+	 * For use of Logpanel behaviour outside LogpanelView.
+	 */
+	public Button createScrollLockCheckBox(Composite parent) {
+		final Button scrollLockCheckBox = new Button(parent, SWT.CHECK);
 		scrollLockCheckBox.setText("Scroll Lock");
 		scrollLockCheckBox.setSelection(scrollLockChecked);
 		scrollLockCheckBox.addSelectionListener(new SelectionAdapter() {
@@ -179,9 +229,14 @@ public class Logpanel extends Composite {
 				scrollLockChecked = scrollLockCheckBox.getSelection();
 			}
 		});
+		return scrollLockCheckBox;
+	}
 
-		Button clearButton = new Button(this, SWT.PUSH); //TODO move to view toolbar
-		GridDataFactory.swtDefaults().applyTo(clearButton);
+	/**
+	 * For control of Logpanel behaviour outside LogpanelView.
+	 */
+	public Button createClearButton(Composite parent) {
+		Button clearButton = new Button(parent, SWT.PUSH);
 		clearButton.setText("Clear");
 		clearButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -189,28 +244,47 @@ public class Logpanel extends Composite {
 				input.clear();
 			}
 		});
+		return clearButton;
 	}
 
-	protected void connectToLogServer(String logServerHost, int logServerOutPort) throws Exception {
+	private String logServerHost;
+	public String getLogServerHost() {
+		return logServerHost;
+	}
 
-		// in Log view forwarding context
-		LoggerContext logViewForwardingContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-		logViewForwardingContext.reset();
-		logViewForwardingContext.setName("logViewForwarding");
+	private Integer logServerOutPort;
+	public Integer getLogServerOutPort() {
+		return logServerOutPort;
+	}
+
+	protected void connectToLogServer() {
+		String logServerHost = LocalProperties.get(LogbackUtils.GDA_LOGSERVER_HOST, LogbackUtils.GDA_LOGSERVER_HOST_DEFAULT);
+		int logServerOutPort = LocalProperties.getInt(LogbackUtils.GDA_LOGSERVER_OUT_PORT, LogbackUtils.GDA_LOGSERVER_OUT_PORT_DEFAULT);
+		connectToLogServer(logServerHost, logServerOutPort);
+	}
+
+	protected void connectToLogServer(String logServerHost, Integer logServerOutPort) {
+		this.logServerHost = logServerHost;
+		this.logServerOutPort = logServerOutPort;
+
+		// in Logpanel context
+		LoggerContext logpanelContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		logpanelContext.reset();
+		logpanelContext.setName("Logpanel");
 
 		// receive from log server ServerSocketAppender
 		SocketReceiver receiver = new SocketReceiver();
-		receiver.setContext(logViewForwardingContext);
+		receiver.setContext(logpanelContext);
 		receiver.setRemoteHost(logServerHost);
 		receiver.setPort(logServerOutPort);
 		receiver.setReconnectionDelay(10000);
 
 		// and using layout
 		patternLayout = new PatternLayout();
-		patternLayout.setPattern(pattern);
-		patternLayout.setContext(logViewForwardingContext);
+		patternLayout.setPattern(patternLayoutPattern);
+		patternLayout.setContext(logpanelContext);
 
-		// append to loggingEvents and update UI
+		// append to loggingEvents and update IObservableList in UI thread
 		Appender<ILoggingEvent> loggingEventsAppender = new AppenderBase<ILoggingEvent>() {
 			@Override
 			protected void append(final ILoggingEvent loggingEvent) {
@@ -225,19 +299,20 @@ public class Logpanel extends Composite {
 				});
 			}
 		};
+		loggingEventsAppender.setContext(logpanelContext);
 
-		loggingEventsAppender.setContext(logViewForwardingContext);
+		logpanelContext.register(receiver);
+		logpanelContext.register(loggingEventsAppender);
 
-		logViewForwardingContext.register(receiver);
-		logViewForwardingContext.register(loggingEventsAppender);
-
-		Logger rootLogger = logViewForwardingContext.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+		ch.qos.logback.classic.Logger rootLogger = logpanelContext.getLogger(Logger.ROOT_LOGGER_NAME);
 		rootLogger.addAppender(loggingEventsAppender);
 
 		receiver.start();
 		patternLayout.start();
 		loggingEventsAppender.start();
-		logViewForwardingContext.start();
+		logpanelContext.start();
+
+		logger.info("Receiving from log server {}:{}", new Object[]{logServerHost, logServerOutPort});
 	}
 
 }
