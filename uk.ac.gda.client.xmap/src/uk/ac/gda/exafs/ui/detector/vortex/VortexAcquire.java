@@ -170,15 +170,13 @@ public class VortexAcquire extends Acquire {
 	
 	@Override
 	public void acquire(double collectionTime) throws DeviceException, InterruptedException{
-//		xmapDetector.clearAndStart();
-//		tfg.countAsync(collectionTime);
-//		xmapDetector.waitWhileBusy();
-//		xmapDetector.stop();
-//		int[][] data = xmapDetector.getData();
-//		mcaData = convert2DTo3DArray(data);
-//		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
-		
-		
+		xmapDetector.clearAndStart();
+		tfg.countAsync(collectionTime);
+		xmapDetector.waitWhileBusy();
+		xmapDetector.stop();
+		int[][] data = xmapDetector.getData();
+		mcaData = convert2DTo3DArray(data);
+		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
 	}
 	
 	public int[][][] getMcaData() {
