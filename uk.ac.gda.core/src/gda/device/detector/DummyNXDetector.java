@@ -175,6 +175,10 @@ public class DummyNXDetector implements NexusDetector {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public void atLevelEnd() throws DeviceException {
+	}
 
 	@Override
 	public void atPointEnd() throws DeviceException {

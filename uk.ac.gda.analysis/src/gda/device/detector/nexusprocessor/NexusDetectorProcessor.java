@@ -395,6 +395,11 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	public void atLevelStart() throws DeviceException {
 		detector.atLevelStart();
 	}
+	
+	@Override
+	public void atLevelEnd() throws DeviceException {
+		detector.atLevelEnd();
+	}
 
 	@Override
 	public void atCommandFailure() throws DeviceException {

@@ -503,4 +503,9 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 		scannableImpl.atLevelStart();
 	}
 
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+	}
+
 }

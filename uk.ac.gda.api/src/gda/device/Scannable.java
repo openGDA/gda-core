@@ -264,6 +264,8 @@ public interface Scannable extends Device {
 	 * @throws DeviceException
 	 */
 	public void atLevelStart() throws DeviceException;
+	
+	public void atLevelEnd() throws DeviceException;
 
 	/**
 	 * Hook to be used by commands moving the scannable if the command fails. Used by pos and scan. Useful for telling

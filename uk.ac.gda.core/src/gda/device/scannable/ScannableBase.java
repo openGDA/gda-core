@@ -366,7 +366,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	@Override
 	public void atLevelStart() throws DeviceException {
 	}
-
+	
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
@@ -377,6 +377,16 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	public void atLevelMoveStart() throws DeviceException {
 	}
 
+	/**
+	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
+	 * specific behaviour requires it.
+	 * 
+	 * @see gda.device.Scannable#atLevelEnd()
+	 */
+	@Override
+	public void atLevelEnd() throws DeviceException {
+	}
+	
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
