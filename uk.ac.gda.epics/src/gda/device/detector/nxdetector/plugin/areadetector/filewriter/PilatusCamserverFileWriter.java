@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,14 +18,19 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector.filewriter;
 
-public class SingleImagePerFileWriter extends gda.device.detector.addetector.filewriter.SingleImagePerFileWriter {
+public class PilatusCamserverFileWriter extends SingleImagePerFileWriter {
 	
-	public SingleImagePerFileWriter() {
+	public PilatusCamserverFileWriter() {
 		super();
 	}
 	
-	SingleImagePerFileWriter(String detectorName) {
+	PilatusCamserverFileWriter(String detectorName) {
 		super(detectorName);
 	}
 	
+	@Override
+	public boolean willRequireCallbacks() {
+		return false;
+	}
+
 }
