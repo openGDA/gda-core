@@ -27,6 +27,7 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
+import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
@@ -35,6 +36,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.gda.epics.adviewer.views.ADViewerCompositeFactory;
@@ -276,7 +278,8 @@ public class ADControllerImpl implements ADController, InitializingBean {
 			throw new IllegalArgumentException("ffmpegImageOutHeightMax < 1");
 		if (ffmpegImageOutWidthMax < 1)
 			throw new IllegalArgumentException("ffmpegImageOutWidthMax < 1");
-		
+		if (!StringUtils.hasLength(serviceName))
+			throw new IllegalArgumentException("serviceName is not set");
 
 	}
 
@@ -556,8 +559,8 @@ public class ADControllerImpl implements ADController, InitializingBean {
 
 
 	@Override
-	public String getImageNDArrayPortInput() {
-		return imageNDArrayPortInput;
+	public String getImageNDArrayPortInput() throws Exception {
+		return imageNDArrayPortInput != null ? imageNDArrayPortInput : getAdBase().getPortName_RBV();
 	}
 
 	public void setImageNDArrayPortInput(String imageNDArrayPortInput) {
@@ -577,6 +580,8 @@ public class ADControllerImpl implements ADController, InitializingBean {
 	
 	private String setExposureTimeCmd;
 
+	private String serviceName;
+
 	private String getSetExposureTimeCmd() {
 		return setExposureTimeCmd;
 	}
@@ -584,6 +589,15 @@ public class ADControllerImpl implements ADController, InitializingBean {
 	public void setSetExposureTimeCmd(String setExposureTimeCmd) {
 		this.setExposureTimeCmd = setExposureTimeCmd;
 	}
-	
+
+
+	@Override
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public void setServiceName(String name) {
+		this.serviceName = name;
+	}
 	
 }

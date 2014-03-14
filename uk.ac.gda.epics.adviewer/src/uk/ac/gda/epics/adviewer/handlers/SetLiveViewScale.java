@@ -40,6 +40,9 @@ public class SetLiveViewScale extends AbstractHandler {
 		String serviceName = event.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
 		Object namedService = Activator.getNamedService(ADController.class, serviceName);
 		final ADController adController = (ADController) namedService;
+		if( adController == null){
+			throw new ExecutionException("Error setting live view range  - ADController '" + serviceName + "' not found");			
+		}
 		ProgressMonitorDialog pd = new ProgressMonitorDialog(Display.getCurrent().getActiveShell());
 		try {
 			pd.run(true /* fork */, true /* cancelable */, new IRunnableWithProgress() {

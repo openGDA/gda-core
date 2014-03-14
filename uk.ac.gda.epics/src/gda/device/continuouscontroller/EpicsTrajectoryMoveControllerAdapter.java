@@ -22,6 +22,9 @@ import static java.text.MessageFormat.format;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.ScannableMotion;
+import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.FactoryException;
 import gda.util.OutOfRangeException;
 import gov.aps.jca.CAException;
@@ -183,13 +186,45 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 		controller.build(); // will throw an exception with no points (this is okay)
 		
 		// move to first position
-		if (getScannableForMovingGroupToStart() != null) {
+		Scannable scannableForMovingGroupToStart = getScannableForMovingGroupToStart();
+		if (scannableForMovingGroupToStart != null) {
+			
+			// We have broken encapsulation early on with this design. As a repercussion we should make sure
+			// that an offset is not applied twice when moving to the start. TODO: Fix encapsulation issue.
+			if (scannableForMovingGroupToStart instanceof ScannableGroup) {
+				ArrayList<Scannable> groupMembers = ((ScannableGroup) scannableForMovingGroupToStart).getGroupMembers();
+				for (Scannable member : groupMembers) {
+					if (member instanceof ScannableMotion) {
+						Double[] offset = ((ScannableMotion) member).getOffset();
+						if ((offset != null) && (!zeroLength(offset))) {
+							throw new IllegalStateException("The scannable used to move motors to the start of a continuous move must have no gda offset!");
+						}
+					}
+				}
+			}
+			boolean wasOperatingContinously=false;
+			if (scannableForMovingGroupToStart instanceof ContinuouslyScannableViaController) {
+				wasOperatingContinously = ((ContinuouslyScannableViaController) scannableForMovingGroupToStart).isOperatingContinously();
+				((ContinuouslyScannableViaController) scannableForMovingGroupToStart).setOperatingContinuously(false);
+			}
 			Double[] firstPosition = points.get(0);
-			logger.info("Moving axes to start (" + Arrays.toString(firstPosition) + ") via configured Scannable " + getScannableForMovingGroupToStart().getName());
-			getScannableForMovingGroupToStart().moveTo(firstPosition);
+			logger.info("Moving axes to start (" + Arrays.toString(firstPosition) + ") via configured Scannable " + scannableForMovingGroupToStart.getName());
+			scannableForMovingGroupToStart.moveTo(firstPosition);
 			logger.info("Move to start complete");
+			if (scannableForMovingGroupToStart instanceof ContinuouslyScannableViaController) {
+				((ContinuouslyScannableViaController) scannableForMovingGroupToStart).setOperatingContinuously(wasOperatingContinously);
+			}
 		}
 		
+	}
+
+	private boolean zeroLength(Double[] offset) {
+		for (int i = 0; i < offset.length; i++) {
+			if (offset[i] != 0) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	void verifyEpicsSettingsForNumberOfElementsAndPulses() throws DeviceException, InterruptedException {

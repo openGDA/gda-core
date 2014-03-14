@@ -22,6 +22,6 @@ package uk.ac.gda.epics.adviewer.views;
 public class TwoDArrayViewCreator extends AreaDetectorViewCreatorBase{
 	@Override
 	protected Object getView(ViewCreator adController) throws Exception {
-		return adController.createArrayView();
+		return adController.createArrayView(configurationElement);
 	}
 }

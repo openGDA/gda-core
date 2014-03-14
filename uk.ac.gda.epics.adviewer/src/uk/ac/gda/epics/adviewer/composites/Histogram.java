@@ -259,8 +259,9 @@ public class Histogram extends Composite {
 						Command command = cs.getCommand(Ids.COMMANDS_SET_LIVEVIEW_SCALE);
 						IParameter parameter = command
 								.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
+						String name = Histogram.this.config.getServiceName();
 						Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter,
-								"i13") };
+								name	) };
 						ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
 						ExecutionEvent executionEvent = ((IHandlerService) parentViewPart.getSite().getService(
 								IHandlerService.class)).createExecutionEvent(cmd, null);

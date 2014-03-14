@@ -23,6 +23,6 @@ public class HistogramViewCreator extends AreaDetectorViewCreatorBase{
 	
 	@Override
 	protected Object getView(ViewCreator adController) throws Exception {
-		return adController.createProfileView();
+		return adController.createProfileView(configurationElement);
 	}
 }
