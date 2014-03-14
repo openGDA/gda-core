@@ -52,19 +52,38 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 	private String replyTerm = "\r\n";
 	private int timeout = 5000;
 
+	public String getCmdTerm() {
+		return cmdTerm;
+	}
+
+	public void setCmdTerm(String cmdTerm) {
+		this.cmdTerm = cmdTerm;
+	}
+
+	public String getReplyTerm() {
+		return replyTerm;
+	}
+
+	public void setReplyTerm(String replyTerm) {
+		this.replyTerm = replyTerm;
+	}
+
 	@Override
 	public String send(String cmd) throws DeviceException {
-		lock.lock();
 		try {
+			lock.lock();
 			sendCmdNoReply(cmd);
 			StringBuffer sb = new StringBuffer();
 			while (true) {
-				byte read[] = new byte[100];
 				int bytesRead = 0;
+				byte read[] = new byte[100];
 				try {
 					bytesRead = reader.read(read);
 				} catch (IOException e) {
 					throw new DeviceException("Error in reading reply to '" + cmd + "'", e);
+				}
+				if( bytesRead ==-1){
+					throw new DeviceException("Terminator not found:" + sb.toString());
 				}
 				try {
 					String str = new String(read, 0, bytesRead, "UTF-8");
@@ -132,8 +151,8 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 
 	@Override
 	public void sendCmdNoReply(String cmd) throws DeviceException {
-		lock.lock();
 		try {
+			lock.lock();
 
 			if (writer == null) {
 				try {
@@ -143,7 +162,7 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 					reader = socket.getInputStream();
 					writer = socket.getOutputStream();
 				} catch (Exception e) {
-					throw new DeviceException("Error connecting to '" + address + "' : '" + port);
+					throw new DeviceException("Error connecting to '" + address + "' : '" + port,e);
 				}
 			}
 			if (logger.isDebugEnabled())
