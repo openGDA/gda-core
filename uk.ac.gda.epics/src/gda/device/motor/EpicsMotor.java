@@ -545,6 +545,14 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	}
 
+	public void setUserOffset(double userOffset) throws MotorException {
+		try {
+			controller.caput(offset, userOffset);
+		} catch (Throwable ex) {
+			throw new MotorException(getStatus(), "failed to set user offset", ex);
+		}
+	}
+
 	@Override
 	public boolean isMoving() throws MotorException {
 		return (checkStatus() == MotorStatus.BUSY);

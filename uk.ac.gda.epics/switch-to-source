@@ -1,0 +1,36 @@
+#! /bin/bash
+
+# Remove upstream JARs
+rm -f jars/{caj-1.1.13.jar,jca-2.3.6.jar}
+
+# Remove source folders, in case they already exist
+rm -rf src-caj src-jca
+
+# Unzip the source
+mkdir -p src-caj src-jca
+(cd src-caj; unzip -q ../jars/caj-1.1.13-sources.jar)
+(cd src-jca; unzip -q ../jars/jca-2.3.6-sources.jar)
+
+# Remove a class that we have our own implementation of
+rm src-jca/gov/aps/jca/event/LatestMonitorOnlyQueuedEventDispatcher.java
+
+# Replace classpath entries for JARs with entries for source
+grep -q src-jca .classpath || (
+	sed -i '8,13d' .classpath
+	sed -i '8i\\t<classpathentry kind=\"src\" path=\"src-caj\"\/>' .classpath
+	sed -i '7i\\t<classpathentry kind=\"src\" path=\"src-jca\"\/>' .classpath
+)
+
+# Fix build.properties
+grep -q src-jca build.properties || (
+	sed -i '5,6d' build.properties
+	sed -i 's/source.. = src\//source.. = src\/,\\\n           src-caj\/,\\\n           src-jca\//' build.properties
+)
+
+# Fix manifest
+grep -q jars/jca META-INF/MANIFEST.MF && (
+	sed -i '104,105d' META-INF/MANIFEST.MF
+)
+
+# Source has lots of Javadoc errors; reduce them to warnings
+sed -i 's/invalidJavadoc=error/invalidJavadoc=warning/' .settings/org.eclipse.jdt.core.prefs
