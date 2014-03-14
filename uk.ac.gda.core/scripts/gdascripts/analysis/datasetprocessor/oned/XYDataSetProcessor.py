@@ -55,6 +55,7 @@ class XYDataSetFunction(XYDataSetProcessor):
 		"""returns a float/double"""
 		raise RuntimeError("Not implemented")
 
+
 class XYDataSetMap(XYDataSetProcessor):
 	def _process(self, xDataSet, yDataSet):
 		"""returns another DataVector"""

@@ -26,6 +26,11 @@ import org.eclipse.core.commands.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+
 public class StopAllHandler extends AbstractHandler {
 
 	public static String id = "uk.ac.gda.client.StopAll";
@@ -35,7 +40,16 @@ public class StopAllHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
 			logger.debug("Stop All button pressed");
-			JythonServerFacade.getInstance().panicStop();
+			Job job = new Job("Panic Stop...") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					JythonServerFacade.getInstance().panicStop();
+					return Status.OK_STATUS;
+				}
+			};
+			job.setUser(false);
+			job.schedule();
+			
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);
