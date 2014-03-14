@@ -986,7 +986,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	@Override
 	public void stop() throws MotorException {
 		try {
-			controller.caput(stop, 1);
+			if (configured)
+				controller.caput(stop, 1);
 		} catch (Throwable ex) {
 			throw new MotorException(getStatus(), "failed to stop", ex);
 		}
