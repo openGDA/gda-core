@@ -18,7 +18,6 @@
 
 package uk.ac.gda.bimorph;
 
-import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.jython.JythonServerFacade;
 
@@ -43,9 +42,6 @@ import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
 
-/**
- *
- */
 public final class BimorphParametersComposite extends Composite {
 	private FieldComposite slitSizeScannable;
 	private FieldComposite slitPosScannable;
@@ -136,7 +132,7 @@ public final class BimorphParametersComposite extends Composite {
 	
 	
 	
-	public BimorphParametersComposite(Composite parent, @SuppressWarnings("unused") int style) {
+	public BimorphParametersComposite(Composite parent, int style) {
 		super(parent, SWT.NONE);
 		setLayout(new GridLayout(1, false));
 
@@ -813,7 +809,6 @@ public final class BimorphParametersComposite extends Composite {
 		
 	}
 
-	@SuppressWarnings("unused")
 	public void createBeamGroup() {
 		beamOffsetGroup = new Group(this, SWT.NONE);
 		GridData gd_beamOffsetGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -1046,7 +1041,6 @@ public final class BimorphParametersComposite extends Composite {
 		return maxSlitPos;
 	}
 	
-	@SuppressWarnings("unused")
 	private static void newLabel(Composite parent, int style) {
 		new Label(parent, style);
 	}

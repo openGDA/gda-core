@@ -67,7 +67,7 @@ class Bimorph(ScannableMotionBase):
 		self.IAmBusy=True
 		try:
 			for i in range(self.startChan,self.startChan+self.numOfChans):
-				self.beamline.setValue(None,"Top",self.pvPrefix+`i`+"D",new_position[i-self.startChan], 20)
+				self.beamline.setValue(None,"Top",self.pvPrefix+`i`+"D",new_position[i-self.startChan], 60)
 			sleep(self.sleepInS)
 		except:
 			pass
