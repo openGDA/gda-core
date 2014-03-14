@@ -62,6 +62,8 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 
 	private String inputNdArrayPort;
 	
+	private boolean oneTimeSeriesCollectionPerLine = true;
+	
 	public ADTimeSeriesStatsPlugin(NDStatsPVs statsPVs, String name, RectangularROIProvider<Integer> roiProvider) {
 		this.pvs = statsPVs;
 		this.name = name;
@@ -74,6 +76,17 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 		} catch (Exception e) {
 			throw new RuntimeException("Problem getting ROI", e);
 		}
+	}
+
+	public boolean isOneTimeSeriesCollectionPerLine() {
+		return oneTimeSeriesCollectionPerLine;
+	}
+	/**
+	 * Perform one time series per collection per line, rather than one per scan. Defaults to true.
+	 * @param oneTimeSeriesCollectionPerLine
+	 */
+	public void setOneTimeSeriesCollectionPerLine(boolean oneTimeSeriesCollectionPerLine) {
+		this.oneTimeSeriesCollectionPerLine = oneTimeSeriesCollectionPerLine;
 	}
 
 	public List<BasicStat> getEnabledBasicStats() {
@@ -179,21 +192,37 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 		pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(isEnabled());
 		pvs.getComputeStatistsicsPVPair().putWait(!getEnabledBasicStats().isEmpty() && isEnabled());
 		pvs.getComputeCentroidPVPair().putWait(!getEnabledCentroidStats().isEmpty() && isEnabled());
+		
+		if (!isOneTimeSeriesCollectionPerLine()){
+			startNewTimeSeriesCollectionIfRequested();
+		}
 	}
 
 	@Override
 	public void prepareForLine() throws Exception {
-		if (timeSeriesCollection != null) {
-			throw new IllegalStateException("A collection has already started");
-		}
 		if (scanInfo == null) {
 			throw new IllegalStateException("prepareForLine called before prepareForCollection");
+		}
+		if (isOneTimeSeriesCollectionPerLine()){
+			startNewTimeSeriesCollectionIfRequested();
+		}
+	}
+
+	private void startNewTimeSeriesCollectionIfRequested() throws IOException {
+		if (timeSeriesCollection != null) {
+			throw new IllegalStateException("A collection has already started");
 		}
 
 		if ((getEnabledStats().isEmpty()) || (!isEnabled())) {
 			return; // Don't start a collection
 		}
-		int numPointsToCollect = getNumPointsInLine();
+		int numPointsToCollect;
+		if (isOneTimeSeriesCollectionPerLine()) {
+			numPointsToCollect = getNumPointsInLine();
+		} else {
+			numPointsToCollect = getNumPointsInScan();
+			
+		}
 		List<ReadOnlyPV<Double[]>> tsArrayPVList = new ArrayList<ReadOnlyPV<Double[]>>();
 		for (Stat stat: getEnabledStats()) {
 			tsArrayPVList.add(pvs.getTSArrayPV(stat));
@@ -206,8 +235,23 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 		return dimensions[dimensions.length - 1];
 	}
 
+	private int getNumPointsInScan() {
+		int[] dimensions = scanInfo.getDimensions();
+		int numpoints = 1;
+		for (int i = 0; i < dimensions.length; i++) {
+			numpoints = numpoints * dimensions[i];
+		}
+		return numpoints;
+	}
+
 	@Override
 	public void completeLine() throws Exception {
+		if (isOneTimeSeriesCollectionPerLine()){
+			waitForTimeSeriesCollectionCompletion();
+		}
+	}
+
+	private void waitForTimeSeriesCollectionCompletion() throws InterruptedException {
 		if (timeSeriesCollection != null) {
 			try {
 				timeSeriesCollection.waitForCompletion();
@@ -220,6 +264,9 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 	@Override
 	public void completeCollection() throws Exception {
 		scanInfo = null;
+		if (!isOneTimeSeriesCollectionPerLine()){
+			waitForTimeSeriesCollectionCompletion();
+		}
 	}
 
 	@Override
@@ -252,9 +299,12 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		String[] formats = new String[getEnabledStats().size()];
-		Arrays.fill(formats, "%f");
-		return Arrays.asList(formats);
+		if (isEnabled()) {
+			String[] formats = new String[getEnabledStats().size()];
+			Arrays.fill(formats, "%f");
+			return Arrays.asList(formats);
+		}
+		return Arrays.asList();
 	}
 
 	public String getInputStreamNamesPrefix() {
