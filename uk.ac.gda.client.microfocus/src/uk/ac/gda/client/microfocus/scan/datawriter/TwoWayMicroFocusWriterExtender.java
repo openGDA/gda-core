@@ -657,7 +657,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	public void closeWriter() throws Throwable {
-		writer.close();
+		if (writer != null) writer.close();
 	}
 
 	public void setZValue(double zValue) {
