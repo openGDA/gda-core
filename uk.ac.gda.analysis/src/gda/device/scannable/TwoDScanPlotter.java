@@ -41,13 +41,14 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 
 	private static final Logger logger = LoggerFactory.getLogger(TwoDScanPlotter.class);
 
-	private DoubleDataset x;
-	private DoubleDataset y;
+	protected DoubleDataset x;
+	protected DoubleDataset y;
 	protected DoubleDataset intensity;
 
 	private String x_colName;
 	private String y_colName;
-	private String z_colName;
+
+	private String z_colName;  // Currently, this *must* be a detector as this class looks only in the 
 	private String plotViewname = "Plot 1";
 
 	private Double xStart;
@@ -87,10 +88,11 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		y = createTwoDset(yStart, yStop, yStep,true);
 		intensity = null;
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
+		logger.info(getName() + " - registering as SDP listener.");
 	}
 
 	private DoubleDataset createTwoDset(Double start, Double stop, Double step, Boolean reverse) {
-		int numPoints = ScannableUtils.getNumberSteps(start, stop, step) + 1;
+		int numPoints = ScannableUtils.getNumberSteps(start, stop, step) + 1; // why + 1?
 		double[] values = new double[numPoints];
 		Double value = start;
 		for (int index = 0; index < numPoints; index++){
@@ -106,17 +108,44 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
+		// Do not deregister as this may be called before all SDPs have been completed in the pipeline and broadcast;
+		// The update methid will deregister once the final point has been received. If the scan fials or is stopped
+		// atCommandFailure() or stop() will deregister.
 	}
 
 	@Override
+	public void atCommandFailure() {
+		deregisterAsScanDataPointObserver();
+	}
+	
+	@Override
+	public void stop() throws DeviceException {
+		deregisterAsScanDataPointObserver();
+	}
+	
+	private void deregisterAsScanDataPointObserver() {
+		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
+	}
+	
+	@Override
 	public void update(Object source, Object arg) {
 		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint) {
+			int currentPoint = ((ScanDataPoint) arg).getCurrentPointNumber();
+			int totalPoints = ((ScanDataPoint) arg).getNumberOfPoints();
 			try {
 				unpackSDP((ScanDataPoint) arg);
+				logger.debug(getName() +  " - Plotting map after receiving point " + currentPoint + " of " + totalPoints);
 				plot();
+				if (currentPoint == (totalPoints - 1)) {
+					logger.info(getName() + " - last point recevied; deregistering as SDP listener.");
+					deregisterAsScanDataPointObserver();
+				}
 			} catch (Exception e) {
-				logger.warn("exception while plotting 2D data: " + e.getMessage(), e);
+				logger.error("exception while plotting 2D data: " + e.getMessage(), e);
+				if (currentPoint == (totalPoints -1)) {
+					logger.info(getName() + " - last point recevied; deregistering as SDP listener.");
+					deregisterAsScanDataPointObserver();
+				}
 			}
 		}
 	}
@@ -170,8 +199,11 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	}
 
 	public void plot() throws Exception {
-		// SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
-		SDAPlotter.imagePlot(plotViewname, x, y, intensity);
+		if (getPlotViewname() != null) {
+			logger.debug("Plotting to RCP client plot named:" + getPlotViewname());
+			// SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
+			SDAPlotter.imagePlot(plotViewname, x, y, intensity);
+		}
 	}
 
 	@Override

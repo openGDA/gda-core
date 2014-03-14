@@ -23,6 +23,9 @@
 		<config>servers/main/dummy/powerSupply.xml</config>
 		<config>servers/main/dummy/server.xml</config>
 		<config>servers/main/dummy/devices/dummyNXDetector.xml</config>
+		<config>clients/main/mvc_example_model.xml</config>
+		<config>servers/main/dummy/scriptcontroller.xml</config>
+		<config>servers/main/mvc_example_model.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

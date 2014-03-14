@@ -50,7 +50,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
+import org.python.core.PyException;
 import org.python.core.PyFile;
+import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -1068,6 +1070,27 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public void deleteOutputTerminal(Terminal term) {
 		deleteIObserver(term);
+	}
+	
+	
+	/**
+	 * Evaluates a string as a Python expression and returns the result. Bypasses translator, batton control, and is not
+	 * available across corba.
+	 * <p>
+	 * This is of particular utility compared to other offerings as calls are synchronous, throw exceptions and can return an actual object.
+	 */
+	public PyObject eval(String s) throws PyException{
+		return commandServer.eval(s);
+	}
+
+	/**
+	 * Executes a string of Python source in the local namespace. Bypasses translator, batton control, and is not
+	 * available across corba.
+	 * <p>
+	 * This is of particular utility compared to other offerings as calls are synchronous and  throw exceptions.
+	 */
+	public void exec(String s) throws PyException {
+		commandServer.exec(s);
 	}
 	
 }
