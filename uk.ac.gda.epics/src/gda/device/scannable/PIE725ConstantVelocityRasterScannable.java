@@ -28,6 +28,7 @@ import gda.epics.PVWithSeparateReadback;
 import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gda.scan.ConstantVelocityRasterScan;
+import gda.scan.ScanBase;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -124,6 +125,20 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 		return false;
 	}
 
+	@Override
+	public void stop() throws DeviceException {
+		try {
+			getContinuousMoveController().stopAndReset();
+		} catch (InterruptedException e) {
+			throw new DeviceException(e);
+		}
+	}
+	
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		stop();
+	}
+	
 	class PIE725ConstantVelocityRasterMoveController extends DeviceBase implements ConstantVelocityRasterMoveController {
 
 		private PV<Boolean> sendStartCommandPv;
@@ -164,6 +179,11 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 			waveformSetupCommandString = LazyPVFactory.newStringFromWaveformPV(pvName + "WFSETUP:WR");
 		}
 
+		@Override
+		public String getName() {
+			return "pie725_controller";
+		}
+		
 		@Override
 		public void setTriggerPeriod(double seconds) throws DeviceException {
 			periodS = seconds;
@@ -271,7 +291,19 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 		@Override
 		public boolean isMoving() throws DeviceException {
 			log(".isMoving() *Just returning false as EPICS gives no feedback*");
-			return hasBeenStarted;
+			try {
+				ScanBase.checkForInterrupts();
+			} catch (InterruptedException e) {
+				throw new DeviceException(e);
+			}
+			if (hasBeenStarted) {
+				try {
+					Thread.sleep(1000);  // Bodge!
+				} catch (InterruptedException e) {
+					throw new DeviceException(e);
+				}
+			}
+			return false;
 		}
 
 		@Override
