@@ -13,7 +13,8 @@ from mock import Mock
 from gdascripts.scan.process.ScanDataProcessorResult import ScanDataProcessorResult
 from gda.scan import ConcurrentScan
 import os
-
+from gda.analysis import ScanFileHolder
+from uk.ac.diamond.scisoft.analysis.io import HDF5Loader
 
 def MockConcurrentScan(filename = '1234.dat'):
 	w, x, y, z, _ = createSimpleScanFileHolderAndScannables()
@@ -31,14 +32,14 @@ def MockConcurrentScan(filename = '1234.dat'):
 
 def createMockConcurrentScanForRealNexusFile():
 	
-	filepath = os.path.join(os.path.dirname(__file__), 'i22-23098.nxs')
-	a = MockScannable('Elapsed', ['Elapsed'], [])	
-	b = MockScannable('sbsdiode', ['sbsdiode'], [])
+	filepath = os.path.join(os.path.dirname(__file__), 'i22-166406.nxs')
+	a = MockScannable('base_x', ['base_x'], [])	
+	b = MockScannable('bsdiode', ['bsdiode'], [])
 	
 	mock = Mock(ConcurrentScan)
 	mock.getScanPlotSettings.return_value = Mock()
-	mock.getScanPlotSettings.return_value.getYAxesShown.return_value = ['sbsdiode']
-	mock.getScanPlotSettings.return_value.getXAxisName.return_value = 'Elapsed'
+	mock.getScanPlotSettings.return_value.getYAxesShown.return_value = ['bsdiode']
+	mock.getScanPlotSettings.return_value.getXAxisName.return_value = 'base_x'
 	mock.getUserListedScannables.return_value = [a, b]
 	mock.getAllScannables.return_value = [a, b]
 	mock.getDetectors.return_value = []
@@ -46,26 +47,20 @@ def createMockConcurrentScanForRealNexusFile():
 	mock.getDataWriter.return_value.getCurrentFileName.return_value = filepath
 	return mock
 		
-def createMockConcurrentScanForRealNexusFileBm26():
-	
-	filepath = os.path.join(os.path.dirname(__file__), 'bm26-300.nxs')
-	import gdascripts.scan.process.ScanDataProcessor
-	reload(gdascripts.scan.process.ScanDataProcessor)
-	a = MockScannable('testscannable', ['testscannable'], [])	
-	b = MockScannable('counterTimer02', [], ['I0', 'c8'])
-	
-	mock = Mock(ConcurrentScan)
-	mock.getScanPlotSettings.return_value = Mock()
-	mock.getScanPlotSettings.return_value.getYAxesShown.return_value = ['c8']
-	mock.getScanPlotSettings.return_value.getXAxisName.return_value = 'testscannable'
-	mock.getUserListedScannables.return_value = [a, b]
-	mock.getAllScannables.return_value = [a, b]
-	mock.getDetectors.return_value = []
-	mock.getDataWriter.return_value = Mock()
-	mock.getDataWriter.return_value.getCurrentFileName.return_value = filepath
-	return mock
 
-		
+class TestScisoftScanFileHolder(unittest.TestCase):
+ 	
+# 	def testJhddf5InPath(self):
+# 		print "java.library.path:", java.lang.System.getProperty("java.library.path")
+# 		import ncsa.hdf.hdf5lib.H5  # @UnusedImport
+ 	
+	def testHDF5Loader(self):
+		filepath = os.path.join(os.path.dirname(__file__), 'i22-166406.nxs')
+		sfh = ScanFileHolder()
+		hdf5loader= HDF5Loader(filepath)
+		sfh.load(hdf5loader)
+
+
 class TestScanDataProcessor(unittest.TestCase):
 
 	def setUp(self):
@@ -233,19 +228,16 @@ class TestScanDataProcessorIntegrationWithRealNexusFile(unittest.TestCase):
 	def testProcessScanFile1(self):
 		self.concurrentScan = createMockConcurrentScanForRealNexusFile()
 		rootNamespaceDict = {}
-		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], rootNamespaceDict, raiseProcessorExceptions=True)
+		min_processor = MinPositionAndValue()
+		max_processor = MaxPositionAndValue()
+		min_processor.raise_process_exceptions = True
+		max_processor.raise_process_exceptions = True
+		
+		sdp = ScanDataProcessor([min_processor, max_processor], rootNamespaceDict, raiseProcessorExceptions=True)
 		sdp.raiseProcessorExceptions = True
 		result = sdp.processScan(self.concurrentScan)
-		self.assertAlmostEqual(result['maxval'].result.maxpos, 7.00578900002)
+		self.assertAlmostEqual(result['maxval'].result.maxpos, -50)
 	
-	def testProcessScanFileBm26(self):
-		self.concurrentScan = createMockConcurrentScanForRealNexusFileBm26()
-		rootNamespaceDict = {}
-		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], rootNamespaceDict, raiseProcessorExceptions=True)
-		sdp.raiseProcessorExceptions = True
-		result = sdp.processScan(self.concurrentScan)
-		print result
-		self.assertAlmostEqual(result['maxval'].result.maxpos, 10)
 
 class TestScanDataProcessorWithEceptionRaisingProcessor(TestScanDataProcessor):
 	
@@ -272,7 +264,8 @@ def suite():
 							unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessor),
 							unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorWithOnlyOnePoint),
 							unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorWithEceptionRaisingProcessor),			
-							unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorIntegrationWithRealNexusFile)			
+							unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorIntegrationWithRealNexusFile),			
+							unittest.TestLoader().loadTestsFromTestCase(TestScisoftScanFileHolder)			
 	))
 
 if __name__ == '__main__':

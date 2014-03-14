@@ -200,7 +200,7 @@ class ScanDataProcessorResult(object):
 						# Cannot get filenames from SRS files!
 						value = float('nan')
 					else:
-						dsfield = scanFileHolder.getDataSet(fieldname)
+						dsfield = getDataSetFromSFH(scanFileHolder, scn.name + '.' + fieldname)
 						if feature_inside_scan_data:
 							interp = scanFileHolder.getInterpolatedX(dsfield, dsx, xvalue)
 							# Hack to get around GDA-2269
@@ -214,9 +214,9 @@ class ScanDataProcessorResult(object):
 							else:
 								# Trick case. Return start or end value for field
 								if xvalue <= dsx.min():
-									value = scanFileHolder.getDataSet(fieldname)[0]
+									value = dsfield[0]
 								else: # xvalue >= dsx.min()
-									value = scanFileHolder.getDataSet(fieldname)[-1]
+									value = dsfield[-1]
 								
 					pos.append(value)
 				if len(pos)==1:

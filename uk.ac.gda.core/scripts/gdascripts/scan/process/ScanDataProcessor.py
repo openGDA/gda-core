@@ -93,6 +93,8 @@ class ScanDataProcessor(ScanListener):
 			try:
 				xDataSet = getDataSetFromSFH(self.sfh,xfieldname)
 			except KeyError, e:
+				if self.raiseProcessorExceptions:
+					raise e
 				return "<" + e.message + ">"
 			
 			if len(xDataSet.dimensions) > 1:
@@ -106,6 +108,8 @@ class ScanDataProcessor(ScanListener):
 			try:
 				yDataSet = getDataSetFromSFH(self.sfh, yfieldname)
 			except KeyError, e:
+				if self.raiseProcessorExceptions:
+					raise e
 				return "<" + e.message + ">"
 			
 			lines = []
