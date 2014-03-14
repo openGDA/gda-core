@@ -230,7 +230,7 @@ class PushEventQueue implements Runnable {
 						long timeAfterDispatch = System.currentTimeMillis();
 						long timeToDispatch = timeAfterDispatch-timeOfDispatch;
 						if( timeToDispatch > 1000){
-							logger.warn(String.format("Event took %dms to dispatch (source=%s, type=%s)", timeToDispatch, event.getHeader().eventName, event.getHeader().typeName));
+							logger.warn(String.format("Event took %dms to dispatch (source=%s, type=%s) (trying again)", timeToDispatch, event.getHeader().eventName, event.getHeader().typeName));
 							receiver.pushNow(event);
 						}
 					}
