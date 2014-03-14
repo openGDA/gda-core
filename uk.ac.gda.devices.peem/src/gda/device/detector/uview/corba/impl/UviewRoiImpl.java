@@ -398,7 +398,12 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
 	}
-	
+
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+	}
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
