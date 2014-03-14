@@ -52,14 +52,6 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	private NumTracker numTracker;
 	private Long currentScanNumber = -1L;
 
-	public Xspress3Detector() {
-	}
-
-	public Xspress3Detector(Xspress3Controller controller) {
-		super();
-		this.controller = controller;
-	}
-
 	@Override
 	public void configure() throws FactoryException {
 		controller.configure();

@@ -16,10 +16,6 @@ public class Xspress3BufferedDetector extends Xspress3Detector implements Buffer
 	private boolean isContinuousModeOn;
 	private TRIGGER_MODE triggerModeWhenInContinuousScan = TRIGGER_MODE.TTl_Veto_Only;
 
-	public Xspress3BufferedDetector(Xspress3Controller controller) {
-		super(controller);
-	}
-
 	@Override
 	public void clearMemory() throws DeviceException {
 		controller.doStop();

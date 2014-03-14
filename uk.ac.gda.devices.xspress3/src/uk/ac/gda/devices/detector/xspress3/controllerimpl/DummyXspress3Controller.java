@@ -33,37 +33,22 @@ public class DummyXspress3Controller implements Xspress3Controller {
 			.getLogger(DummyXspress3Controller.class);
 
 	private static final int NUMBER_CHANNELS = 4;
-
-	private final Tfg tfg;
-	private final DummyDAServer daserver;
+	private Tfg tfg;
+	private DummyDAServer daServer;
 	private String xspressSystemName = "'xs3'";
 	private String mcaOpenCommand = "xspress2 open-mca " + xspressSystemName;
-	private String scalerOpenCommand = "xspress2 open-scalers "
-			+ xspressSystemName;
-	private String startupScript = "xspress2 format-run " + xspressSystemName
-			+ " res-none";
+	private String scalerOpenCommand = "xspress2 open-scalers " + xspressSystemName;
+	private String startupScript = "xspress2 format-run " + xspressSystemName + " res-none";
 	private int mcaHandle = -1;
 	private int scalerHandle = -1;
-
 	private Integer numFramesToAcquire;
-
 	private TRIGGER_MODE mode;
-
 	private ROI[] roi;
 	private ROI[] windows;
-
 	private String path;
-
 	private int numRoiToRead;
-
 	private String template;
-
 	private int nextNumber;
-
-	public DummyXspress3Controller(Tfg tfg, DummyDAServer daserver) {
-		this.tfg = tfg;
-		this.daserver = daserver;
-	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -71,41 +56,41 @@ public class DummyXspress3Controller implements Xspress3Controller {
 			if (scalerHandle < 0) {
 				close();
 			}
-			daserver.sendCommand(startupScript);
+			daServer.sendCommand(startupScript);
 			String formatCommand = "xspress2 format-run " + xspressSystemName
 					+ " 12 res-none";
-			daserver.sendCommand(formatCommand);
+			daServer.sendCommand(formatCommand);
 
 			// clear rois
 			String roiCommand = "xspress2 set-roi " + xspressSystemName + " -1";
-			daserver.sendCommand(roiCommand);
+			daServer.sendCommand(roiCommand);
 
 			// set windows and rois for 4-element
 			String windowCommand = "xspress2 set-window " + xspressSystemName
 					+ " " + 0 + " " + 0 + " " + 4096;
-			daserver.sendCommand(windowCommand);
+			daServer.sendCommand(windowCommand);
 			windowCommand = "xspress2 set-window " + xspressSystemName + " "
 					+ 1 + " " + 0 + " " + 4096;
-			daserver.sendCommand(windowCommand);
+			daServer.sendCommand(windowCommand);
 			windowCommand = "xspress2 set-window " + xspressSystemName + " "
 					+ 2 + " " + 0 + " " + 4096;
-			daserver.sendCommand(windowCommand);
+			daServer.sendCommand(windowCommand);
 			windowCommand = "xspress2 set-window " + xspressSystemName + " "
 					+ 3 + " " + 0 + " " + 4096;
-			daserver.sendCommand(windowCommand);
+			daServer.sendCommand(windowCommand);
 
 			roiCommand = "xspress2 set-roi " + xspressSystemName
 					+ " 0 100 200 1";
-			daserver.sendCommand(roiCommand);
+			daServer.sendCommand(roiCommand);
 			roiCommand = "xspress2 set-roi " + xspressSystemName
 					+ " 1 100 200 1";
-			daserver.sendCommand(roiCommand);
+			daServer.sendCommand(roiCommand);
 			roiCommand = "xspress2 set-roi " + xspressSystemName
 					+ " 2 100 200 1";
-			daserver.sendCommand(roiCommand);
+			daServer.sendCommand(roiCommand);
 			roiCommand = "xspress2 set-roi " + xspressSystemName
 					+ " 3 100 200 1";
-			daserver.sendCommand(roiCommand);
+			daServer.sendCommand(roiCommand);
 
 			open();
 		} catch (DeviceException e) {
@@ -115,9 +100,9 @@ public class DummyXspress3Controller implements Xspress3Controller {
 
 	private void open() throws DeviceException {
 		Object obj;
-		if (daserver != null && daserver.isConnected()) {
+		if (daServer != null && daServer.isConnected()) {
 			if (mcaOpenCommand != null) {
-				if ((obj = daserver.sendCommand(mcaOpenCommand)) != null) {
+				if ((obj = daServer.sendCommand(mcaOpenCommand)) != null) {
 					mcaHandle = ((Integer) obj).intValue();
 					if (mcaHandle < 0) {
 						throw new DeviceException(
@@ -129,7 +114,7 @@ public class DummyXspress3Controller implements Xspress3Controller {
 			}
 
 			if (scalerOpenCommand != null) {
-				if ((obj = daserver.sendCommand(scalerOpenCommand)) != null) {
+				if ((obj = daServer.sendCommand(scalerOpenCommand)) != null) {
 					scalerHandle = ((Integer) obj).intValue();
 					if (scalerHandle < 0) {
 						throw new DeviceException(
@@ -143,12 +128,12 @@ public class DummyXspress3Controller implements Xspress3Controller {
 	}
 
 	private void close() throws DeviceException {
-		if (mcaHandle >= 0 && daserver != null && daserver.isConnected()) {
-			daserver.sendCommand("close " + mcaHandle);
+		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
+			daServer.sendCommand("close " + mcaHandle);
 			mcaHandle = -1;
 		}
-		if (scalerHandle >= 0 && daserver != null && daserver.isConnected()) {
-			daserver.sendCommand("close " + scalerHandle);
+		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
+			daServer.sendCommand("close " + scalerHandle);
 			scalerHandle = -1;
 		}
 	}
@@ -156,7 +141,7 @@ public class DummyXspress3Controller implements Xspress3Controller {
 	private synchronized void sendCommand(String command, int handle)
 			throws DeviceException {
 		Object obj;
-		if ((obj = daserver.sendCommand(command + handle)) == null) {
+		if ((obj = daServer.sendCommand(command + handle)) == null) {
 			throw new DeviceException(
 					"Null reply received from daserver during " + command);
 		} else if (((Integer) obj).intValue() == -1) {
@@ -173,10 +158,10 @@ public class DummyXspress3Controller implements Xspress3Controller {
 		if (mcaHandle < 0 || scalerHandle < 0) {
 			open();
 		}
-		if (mcaHandle >= 0 && daserver != null && daserver.isConnected()) {
+		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
 			sendCommand("disable ", mcaHandle);
 		}
-		if (scalerHandle >= 0 && daserver != null && daserver.isConnected()) {
+		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
 			sendCommand("disable ", scalerHandle);
 		}
 
@@ -188,10 +173,10 @@ public class DummyXspress3Controller implements Xspress3Controller {
 		if (mcaHandle < 0 || scalerHandle < 0) {
 			open();
 		}
-		if (mcaHandle >= 0 && daserver != null && daserver.isConnected()) {
+		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
 			sendCommand("clear ", mcaHandle);
 		}
-		if (scalerHandle >= 0 && daserver != null && daserver.isConnected()) {
+		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
 			sendCommand("clear ", scalerHandle);
 		}
 	}
@@ -228,7 +213,7 @@ public class DummyXspress3Controller implements Xspress3Controller {
 
 	@Override
 	public Boolean isConnected() {
-		return daserver.isConnected();
+		return daServer.isConnected();
 	}
 
 	@Override
@@ -435,7 +420,7 @@ public class DummyXspress3Controller implements Xspress3Controller {
 	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel,
 			int finalChannel) throws DeviceException {
 		int numChannels = finalChannel - startChannel + 1;
-		int[] rawData = daserver.getIntBinaryData("read 0 0 0 " + 4096 + " "
+		int[] rawData = daServer.getIntBinaryData("read 0 0 0 " + 4096 + " "
 				+ 1 + " " + 1 + " from " + mcaHandle + " raw motorola", 4096);
 
 		Double[][] results = new Double[numChannels][4096];
@@ -447,4 +432,21 @@ public class DummyXspress3Controller implements Xspress3Controller {
 
 		return results;
 	}
+
+	public Tfg getTfg() {
+		return tfg;
+	}
+
+	public void setTfg(Tfg tfg) {
+		this.tfg = tfg;
+	}
+
+	public DummyDAServer getDaServer() {
+		return daServer;
+	}
+
+	public void setDaServer(DummyDAServer daServer) {
+		this.daServer = daServer;
+	}
+	
 }

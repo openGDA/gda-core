@@ -50,7 +50,7 @@ public class EpicsXspress3ControllerTest {
 			x3c.setPerformROIUpdates(true);
 
 			// create detector
-			x3d = new Xspress3Detector(x3c);
+			x3d = new Xspress3Detector();
 			x3d.setName("x3d");
 			x3d.setController(x3c);
 			x3d.setNumTrackerExtension("");

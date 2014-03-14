@@ -29,7 +29,7 @@ import gda.device.detector.countertimer.BufferedScaler;
 public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 	private static final long serialVersionUID = 4571439036961728662L;
 	private String scalerName;
-	private XmapBufferedDetector qxmap = null;
+	private BufferedDetector qxmap = null;
 	private BufferedScaler qscaler = null;
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = true;
@@ -46,11 +46,11 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 		this.scalerName = scalerName[0];
 	}
 
-	public XmapBufferedDetector getQexafsXmap() {
+	public BufferedDetector getQexafsXmap() {
 		return qxmap;
 	}
 
-	public void setQexafsXmap(XmapBufferedDetector qxmap) {
+	public void setQexafsXmap(BufferedDetector qxmap) {
 		this.qxmap = qxmap;
 	}
 

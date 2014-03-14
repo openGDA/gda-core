@@ -32,7 +32,7 @@ public class Xspress3SystemBufferedDetector extends Xspress3System implements
 
 	public Xspress3SystemBufferedDetector(Xspress3Controller controller,
 			Timer tfg, DAServer daServer, int triggerSwitch ) {
-		super(controller, tfg);
+		super(tfg);
 		this.daServer = daServer;
 		this.triggerSwitch = triggerSwitch;
 	}

@@ -39,8 +39,7 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 												// interface!!
 	private Double[] scanTimes;
 
-	public Xspress3System(Xspress3Controller controller, Timer tfg) {
-		super(controller);
+	public Xspress3System(Timer tfg) {
 		this.tfg = tfg;
 	}
 
