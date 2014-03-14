@@ -20,10 +20,13 @@
 package gda.device.detector.uview;
 
 import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.detector.uview.UViewController.ImageFile;
+import gda.device.detector.uview.UViewController.ImageFile.ImageContentsType;
+import gda.device.detector.uview.UViewController.ImageFile.ImageFormat;
 
 import java.awt.Rectangle;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 import java.util.Observable;
 
 import org.slf4j.Logger;
@@ -40,6 +43,9 @@ public class UViewImageController extends Observable implements Runnable {
 	double exposureTime = 0.1; // default exposureTime in unit second
 
 	String corbaBridgeName = null;
+	
+	String address;
+	int port;
 
 	CorbaBridgeConnection bridge = null;
 
@@ -47,29 +53,23 @@ public class UViewImageController extends Observable implements Runnable {
 
 	UViewFile uvf = null;
 
-	short format = 1; // Default file format PNG format
-	short imagecontents = 2; // 16 bits graylevel x, y, z raw data
+	ImageFormat format = ImageFormat.PNG;
+	ImageContentsType imageContents = ImageContentsType.GRAYLEVEL16; // 16 bits graylevel x, y, z raw data
 
 	String imageFileName;
 
 	private int currentDetectorStatus = Detector.STANDBY;
 
 	private int previousDetectorStatus = Detector.STANDBY;
-	
-	
-	
-    Map<String,Short> mp=new HashMap<String, Short>();
 
-	/**
-	 * Construct a new UViewImageClient using the Corba bridge name supplied
-	 * 
-	 * @param corbaBridgeName
-	 */
-	public UViewImageController(String corbaBridgeName) {
-		this.corbaBridgeName = corbaBridgeName;
+	//Map<String,Short> mp=new HashMap<String, Short>();
+
+	public UViewImageController(String address, int port) throws DeviceException {
+		this.corbaBridgeName = address;
 		statusMonitor = uk.ac.gda.util.ThreadManager.getThread(this);
 		statusMonitor.start();
-
+		this.port = port;
+		this.address = address;
 		this.connect();
 		this.init();
 
@@ -81,32 +81,40 @@ public class UViewImageController extends Observable implements Runnable {
 	 */
 	private void connect() {
 		uvc = new UViewClient();
+		/*
 		boolean uvcs = uvc.connect(corbaBridgeName);
 		if (uvcs) {
 			logger.info("UViewClient created!");
 		} else {
 			logger.error("UViewClient Can NOT be created!");
 		}
+		*/
+		uvc.initializeTcpController(address, port);
 	}
 
 	/**
 	 * Initialise image and create new image file
+	 * @throws DeviceException 
 	 */
-	private void init() {
-	    // adding or set elements in Map by put method key and value pair
-	    mp.put("dat",  new Short( (short)0) );
-	    mp.put("png",  new Short( (short)1) );
-	    mp.put("tiff", new Short( (short)2) );
-	    mp.put("bmp",  new Short( (short)3) );
-	    mp.put("jpg",  new Short( (short)4) );
-	    mp.put("tif",  new Short( (short)5) );
+	private void init() throws DeviceException {
+		// adding or set elements in Map by put method key and value pair
+		//mp.put("dat",  new Short( (short)0) );
+		//mp.put("png",  new Short( (short)1) );
+		//mp.put("tiff", new Short( (short)2) );
+		//mp.put("bmp",  new Short( (short)3) );
+		//mp.put("jpg",  new Short( (short)4) );
+		//mp.put("tif",  new Short( (short)5) );
 
 		uvc.setupImage(1); // use buffered image
-		uvc.adjustGreyLevel((short) 0); // get current grey windows value without adjustment
-		uvf = new UViewFile("ui", "png");
+		uvc.getGreyLevel(); // get current grey windows value without adjustment
+		try {
+			//uvf = new UViewFile("ui", "png");
+			uvf = new UViewFile("ui", ImageFormat.PNG);
+		} catch (IOException e) {
+			throw new DeviceException(e);
+		}
 		
-		setFileFormat("png", (short)2 );
-	    
+		setFileFormat(ImageFormat.PNG, ImageContentsType.GRAYLEVEL16 );
 	}
 
 	/**
@@ -117,13 +125,12 @@ public class UViewImageController extends Observable implements Runnable {
 	}
 
 	
-	public int getImageAverageNumber() {
+	public int getImageAverageNumber() throws DeviceException {
 		return uvc.getAverageImageNumber();
 	}
 
-	public void setImageAverageNumber(int numberOfImages) {
+	public void setImageAverageNumber(int numberOfImages) throws DeviceException {
 		uvc.setAverageImageNumber(numberOfImages);
-		
 	}
 	
 	
@@ -131,32 +138,22 @@ public class UViewImageController extends Observable implements Runnable {
 	 * Set detector exposure time
 	 * 
 	 * @param exposureTime
+	 * @throws DeviceException 
 	 */
-	public void setExposureTime(double exposureTime) {
+	public void setExposureTime(double exposureTime) throws DeviceException {
 
 		this.exposureTime = exposureTime;
 		uvc.setCameraExposureTime(exposureTime);
 	}
 
-	/**
-	 * Get exposure time
-	 * 
-	 * @return double exposure time
-	 */
-	public double getExposureTime() {
+	public double getExposureTime() throws DeviceException {
 		this.exposureTime = uvc.getCameraExposureTime();
 		return this.exposureTime;
 	}
 
-	/**
-	 * Get image from UViewClient
-	 * 
-	 * @return String image file name
-	 */
 	public String getImage() {
 		imageFileName = uvf.getCurrentFullFileName();
 
-		// Get the image, assemble it and save
 		int len = uvc.getPixelData16();
 		uvc.assembleImage(len);
 		uvc.saveImage(imageFileName);
@@ -164,27 +161,28 @@ public class UViewImageController extends Observable implements Runnable {
 		return imageFileName;
 	}
 
-	public void setFileFormat(String fileExtension, short imagecontents){
-		uvf.setFileExtenstion(fileExtension);
-		format = mp.get(fileExtension).shortValue();
-		this.imagecontents = imagecontents;
-
-		
+	public void setFileFormat(ImageFormat format, ImageContentsType imageContents) {
+		uvf.setFileExtenstion(format);
+		this.format = format;
+		this.imageContents = imageContents;
 	}
 
 	/**
 	 * Export UView image as file from UView Host directly
 	 * 
 	 * @return image file name
+	 * @throws DeviceException 
 	 */
-	public String exportImage() {
+	public String exportImage() throws DeviceException {
 		imageFileName = uvf.getCurrentFullFileName();
 
 		String imageFileNameDetector = uvf.getCurrentDetectorFileName();
 		System.out.println("GDA File Name: " + imageFileName);
 		System.out.println("Detector File Name: " + imageFileNameDetector);
 		
-		uvc.exportImage(imageFileNameDetector, format, imagecontents);
+		//uvc.exportImage(imageFileNameDetector, format, imagecontents);
+		ImageFile fileDetails = new ImageFile(imageFileName, format, imageContents);
+		uvc.exportImage(fileDetails);
 		return imageFileName;
 	}
 
@@ -204,41 +202,27 @@ public class UViewImageController extends Observable implements Runnable {
 		return imageFileName;
 	}
 
-	/**
-	 * @param id
-	 * @param rect
-	 */
-	public void setROI(int id, Rectangle rect) {
+	public void setROI(int id, Rectangle rect) throws DeviceException {
 		this.setROI(id, rect.x, rect.y, rect.width, rect.height);
 	}
 
-	/**
-	 * @param id
-	 * @param x
-	 * @param y
-	 * @param width
-	 * @param height
-	 */
-	public void setROI(int id, int x, int y, int width, int height) {
+	public void setROI(int id, int x, int y, int width, int height) throws DeviceException {
 		uvc.setROI(id, x, y, width, height);
 		// uvc.setROIPlot();
 	}
 
-	/**
-	 * @param id
-	 * @return ROI data
-	 */
-	public double getROIData(int id) {
+	public double getROIData(int id) throws DeviceException {
 		return uvc.getROIData(id);
 	}
 
 	/**
-	 * To set camera acquisition submode sequential=true or simulataneous=false
+	 * To set camera acquisition submode sequential=true or simultaneous=false
 	 * 
 	 * @param bs
 	 *            boolean true if sequential mode else false
+	 * @throws DeviceException 
 	 */
-	public void setCameraSequentialMode(boolean bs) {
+	public void setCameraSequentialMode(boolean bs) throws DeviceException {
 		uvc.setCameraSequentialMode(bs);
 	}
 
@@ -257,36 +241,47 @@ public class UViewImageController extends Observable implements Runnable {
 	
 	/**
 	 * Prepare by creating a new image directory based on the tracker
+	 * @throws DeviceException 
 	 */
-	public void prepare(String tracker, String imageDir) {
-		uvf.newImageDir(tracker, imageDir);
+	public void prepare(String tracker, String imageDir) throws DeviceException {
+		try {
+			uvf.newImageDir(tracker, imageDir);
+		} catch (IOException e) {
+			throw new DeviceException(e);
+		}
 		// Turn the continuous image acquisition OFF, the same as to click the RED button on UView Camera Control Panel)
 		uvc.setCameraSequentialMode(true);
 	}
 	
 	/**
 	 * Prepare by creating a new image directory based on the scan run number
+	 * @throws DeviceException 
 	 */
-	public void prepareForScan() {
-		uvf.setupScanDir();
+	public void prepareForScan() throws DeviceException {
+		try {
+			uvf.setupScanDir();
+		} catch (IOException e) {
+			throw new DeviceException(e);
+		}
 		// Turn the continuous image acquisition OFF, the same as to click the RED button on UView Camera Control Panel)
 		uvc.setCameraSequentialMode(true);
 	}
 
 	/**
 	 * Setup camera and take single image
+	 * @throws DeviceException 
 	 */
-	public void trigger() {
+	public void trigger() throws DeviceException {
 //		logger.debug("Shot one image");
 		currentDetectorStatus = Detector.BUSY;
-		uvc.setInProgress(false);
 		uvc.shotSingleImage(-1);
 	}
 
 	/**
 	 * @return Returns the detector status (as per detector interface)
+	 * @throws DeviceException 
 	 */
-	public int getDetectorStatus() {
+	public int getDetectorStatus() throws DeviceException {
 		boolean inProgress = uvc.isInProgress();
 		if (inProgress) { //Detector Status: the UView camera is IN Progress"
 			currentDetectorStatus = Detector.BUSY;
@@ -313,11 +308,12 @@ public class UViewImageController extends Observable implements Runnable {
 	/**
 	 * Thread which checks on the status of the detector
 	 */
+	@Override
 	public void run() {
 		/*
 		 * Find out if status changes have occured.if so keep a record and pass on the information.
 		 */
-		do {
+		while (true) {
 			// this.sim();
 			try {
 				Thread.sleep(100);
@@ -329,7 +325,7 @@ public class UViewImageController extends Observable implements Runnable {
 				setChanged();
 				notifyObservers(currentDetectorStatus);
 			}
-		} while (true);
+		}
 	}
 
 }

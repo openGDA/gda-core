@@ -27,10 +27,9 @@ import gda.factory.Finder;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 /**
  * UViewImageDetectorROI Class
@@ -38,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 public class UViewImageDetectorROI extends DetectorBase implements UViewROI {
 
-	private static final Logger logger = LoggerFactory.getLogger(UViewImageDetectorROI.class);
+	//private static final Logger logger = LoggerFactory.getLogger(UViewImageDetectorROI.class);
 
 	boolean isConfigured = false;
 
@@ -52,9 +51,6 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROI {
 
 	Rectangle bgRect = new Rectangle(0, 0, 512, 512);
 
-	/**
-	 * Constructor
-	 */
 	public UViewImageDetectorROI() {
 	}
 
@@ -62,18 +58,18 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROI {
 	public void configure() throws FactoryException {
 		Finder finder = Finder.getInstance();
 		uvid = (UViewImageDetector) finder.find(baseDetector);
-		if (uvid != null) {
-			logger.debug("ROI finds UViewImageDetector!");
-
+		try {
 			uvid.createROI(name);
-			UViewImageDetector.hashROIs.get(name).setBoundaryColor(StringToColor(boundaryColor));
-
-			isConfigured = true;
-			logger.info("UViewImageDetector found. ROI enabled");
-		} else {
-			logger.error("Could not find UViewImageDetector. ROI disabled");
+		} catch (DeviceException e) {
+			throw new FactoryException(e.toString(), e.getCause());
 		}
-
+		//UViewImageDetector.hashROIs.get(name).setBoundaryColor(StringToColor(boundaryColor));
+		UViewImageROI roi = uvid.getROI(name);
+		if (roi == null) {
+			throw new FactoryException(String.format("Region of Interest with name '{0}' does not exist", name));
+		}
+		roi.setBoundaryColor( StringToColor(boundaryColor) );
+		isConfigured = true;
 	}
 
 	@Override
@@ -87,12 +83,12 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROI {
 	}
 
 	@Override
-	public Object readout() throws DeviceException {
+	public Double readout() throws DeviceException {
 		return uvid.readoutROI(name);
 	}
 
 	@Override
-	public void setCollectionTime(double collectionTime) {
+	public void setCollectionTime(double collectionTime) throws DeviceException {
 
 		uvid.setCollectionTime(collectionTime);
 	}
@@ -105,7 +101,7 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROI {
 
 	// method for UViewROI interface
 	@Override
-	public void setBounds(int x, int y, int width, int height) throws IOException {
+	public void setBounds(int x, int y, int width, int height) throws DeviceException {
 
 		// uvid.setBoundsROI(name, x, y, width, height);
 
@@ -115,7 +111,7 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROI {
 	}
 
 	@Override
-	public void setLocation(int x, int y) throws IOException {
+	public void setLocation(int x, int y) throws DeviceException {
 
 		Rectangle rect = getCustomiseBounds();
 
@@ -127,7 +123,7 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROI {
 	}
 
 	@Override
-	public void setSize(int width, int height) throws IOException {
+	public void setSize(int width, int height) throws DeviceException {
 
 		Rectangle rect = getCustomiseBounds();
 		Rectangle newBoundary = this.validateBoundary(rect.x, rect.y, width, height);
@@ -231,8 +227,9 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROI {
 	 * Get the user required coordination system from the standard internal Up-Left Corner pixel coordination
 	 * 
 	 * @return the user required coordination system from the standard internal Up-Left Corner pixel coordination
+	 * @throws DeviceException 
 	 */
-	public Rectangle getCustomiseBounds() {
+	public Rectangle getCustomiseBounds() throws DeviceException {
 		Rectangle internalRectr = this.getBounds();
 		int newWidth = internalRectr.width;
 		int newHeight = internalRectr.height;
@@ -250,15 +247,10 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROI {
 	 * Return a un-customised ROI Boundary, which is used internally.
 	 * 
 	 * @return a un-customised ROI Boundary, which is used internally.
+	 * @throws DeviceException 
 	 */
-	public Rectangle getBounds() {
-		try {
-			return (Rectangle) uvid.getBoundsROI(name);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	public Rectangle getBounds() throws DeviceException {
+		return (Rectangle) uvid.getBoundsROI(name);
 	}
 
 	private Rectangle validateBoundary(Rectangle rect) {

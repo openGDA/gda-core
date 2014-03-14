@@ -30,29 +30,30 @@ public interface UView extends Detector {
 	 * Acquire a single image from the detector
 	 * 
 	 * @return String = image file name
-	 * @throws IOException
+	 * @throws DeviceException
+	 * @throws InterruptedException 
 	 */
-	public String shotSingleImage() throws IOException;
+	public String shotSingleImage() throws DeviceException, InterruptedException;
 
 	/**
 	 * Prepare image file
 	 * 
-	 * @throws IOException
+	 * @throws DeviceException 
 	 */
-	public void prepare() throws IOException;
+	public void prepare() throws DeviceException;
 
 	/**
 	 * @return object
-	 * @throws IOException
+	 * @throws DeviceException
 	 */
-	public Object getHashROIs() throws IOException;
-
+	public Object getHashROIs() throws DeviceException;
+	
 	/**
 	 * @param nameROI
 	 * @return int
-	 * @throws IOException
+	 * @throws DeviceException 
 	 */
-	public int createROI(String nameROI) throws IOException;
+	public int createROI(String nameROI) throws DeviceException;
 
 	/**
 	 * @param nameROI
@@ -60,32 +61,32 @@ public interface UView extends Detector {
 	 * @param y
 	 * @param width
 	 * @param height
-	 * @throws IOException
+	 * @throws DeviceException 
 	 */
-	public void setBoundsROI(String nameROI, int x, int y, int width, int height) throws IOException;
+	public void setBoundsROI(String nameROI, int x, int y, int width, int height) throws DeviceException;
 
 	/**
 	 * @param nameROI
 	 * @return object
-	 * @throws IOException
+	 * @throws DeviceException 
 	 */
-	public Object getBoundsROI(String nameROI) throws IOException;
+	public Object getBoundsROI(String nameROI) throws DeviceException;
 
 	/**
 	 * @param nameROI
 	 * @return object
-	 * @throws IOException
+	 * @throws DeviceException
 	 */
-	public Object readoutROI(String nameROI) throws IOException;
+	public Object readoutROI(String nameROI) throws DeviceException;
 
 	/**
 	 * Connect to the PEEM UView software on remote host.
 	 * 
 	 * @param host
 	 *            The remote host IS is running on.
-	 * @throws IOException
+	 * @throws DeviceException
 	 */
-	public void connect(String host) throws IOException;
+	public void connect(String host) throws DeviceException;
 
 	/**
 	 * Use this method to disconnect from the PEEM UView host.

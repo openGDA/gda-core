@@ -21,6 +21,11 @@ package gda.device.detector.uview;
 
 // CORBA Studbs
 // import java.awt.image.*;
+import gda.device.DeviceException;
+import gda.device.detector.uview.UViewController.GrayAdjustment;
+import gda.device.detector.uview.UViewController.ImageData;
+import gda.device.detector.uview.UViewController.ImageFile;
+import gda.device.detector.uview.UViewController.RegionOfInterest;
 import gda.device.peem.MicroscopeControl.Microscope;
 import gda.device.peem.MicroscopeControl.MicroscopePackage.UNBOUNDED_SEQUENCEHolder;
 import gda.device.peem.MicroscopeControl.MicroscopePackage.UNBOUNDED_SHORTSEQUENCEHolder;
@@ -46,16 +51,28 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ShortHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * UViewClient class
- */
 public class UViewClient {
 	private static final Logger logger = LoggerFactory.getLogger(UViewClient.class);
 
+
+	 /* 
+	 * ALL NEW STUFF HERE!
+	 * 
+	 */
+	private UViewController controller;
+	
+	private ImageData imageData;
+	
+	/*
+	 * 
+	 * 
+	 * ALL OLD STUFF HERE
+	 * 
+	*/
+	
 	boolean isConfigured = false;
 
 	String corbaBridgeName = null;
@@ -64,82 +81,42 @@ public class UViewClient {
 
 	Microscope msImpl = null;
 
-	/**
-	 * Maximum Image Size in Bytes
-	 */
 	public static final int MaxImageArrayinBytes = 512 * 512;
 
-	/**
-	 * 
-	 */
 	public int imageGrayWindowLow = 0;
 
-	/**
-	 * 
-	 */
 	public int imageGrayWindowHigh = 255;
 
-	/**
-	 * Image width
-	 */
 	public int imageWidth = 512;
 
-	/**
-	 * Image Height
-	 */
 	public int imageHeight = 512;
 
-	short[] imageData = new short[MaxImageArrayinBytes];
+	short[] imageDataOLD = new short[MaxImageArrayinBytes];
 
 	char[] imageDataBitmap = new char[MaxImageArrayinBytes];
 
 	short compression = 0;
 
-	/**
-	 * 
-	 */
 	public int[] pixData = new int[MaxImageArrayinBytes];
 
-	/**
-	 * 
-	 */
 	public MemoryImageSource mis;
 
-	/**
-	 * 
-	 */
 	public Image image;
 
-	/**
-	 * 
-	 */
 	public BufferedImage bImage;
 
 	boolean useMemoryImageSource = false;
 
 	boolean useBufferedImage = true;
 
-	/**
-	 * no image rendering
-	 */
 	static public final int NO_RENDERING = 0;
 
-	/**
-	 * auto image rendering
-	 */
 	static public final int AUTO_RENDERING = 1;
 
-	/**
-	 * (0.5 ~ 99.5) scaled image
-	 */
 	static public final int SCALE_RENDERING = 2;
 
-	/**
-	 * rendering
-	 */
-	static public final int CUSTOMER_RENDERING = 3; // Customer self defined
 
-	// scaled image rendering
+	static public final int CUSTOMER_RENDERING = 3; // Customer self defined
 
 	int imageRendering = NO_RENDERING;
 
@@ -147,22 +124,12 @@ public class UViewClient {
 
 	JPanel imagePanel;
 
-	// abstract public void adjustGreyLevel(short op);
-	// abstract public int getPixelData16();
-	// abstract public int getPixelDataBitmap();
-
 	gda.device.peem.MicroscopeControl.MicroscopePackage.UNBOUNDED_SHORTSEQUENCEHolder data = new UNBOUNDED_SHORTSEQUENCEHolder(
-			imageData);
+			imageDataOLD);
 
 	org.omg.CORBA.IntHolder width = new IntHolder();
 
 	org.omg.CORBA.IntHolder height = new IntHolder();
-
-	/**
-	 * Constructor.
-	 */
-	public UViewClient() {
-	}
 
 	/**
 	 * Connect PEEM Client to Server by using the given Corba bridge
@@ -195,20 +162,15 @@ public class UViewClient {
 		return ret;
 	}
 
-	/**
-	 * Set image rendering method
-	 * 
-	 * @param opt
-	 *            int value of the image rendering option
-	 */
+	public void initializeTcpController(String address, int port) {
+		controller = new TcpUViewController(address, port);
+	}
+	
 	public void setRenderingMethod(int opt) {
 		this.imageRendering = opt;
 	}
 
-	/**
-	 * 
-	 */
-	public void renderingImage() {
+	public void renderingImage() throws DeviceException {
 		switch (imageRendering) {
 		case NO_RENDERING:
 			getGreyLevel();
@@ -241,9 +203,40 @@ public class UViewClient {
 	 * 
 	 * @param opt
 	 *            int option 0 = 'use the MemoryImageSource for drawing', 1 = 'use bufferedImage for drawing',
+	 * @throws DeviceException 
 	 */
-	public void setupImage(int opt) {
-		getPixelData16();
+	public void setupImage(int opt) throws DeviceException {
+		imageData = controller.getImageData();
+		switch (opt) {
+		case 0: // use the MemoryImageSource for drawing
+			// Create the MemoryImageSource and associate it with pixData
+			// array
+			mis = new MemoryImageSource(imageData.getWidth(),
+					imageData.getHeight(),
+					ColorModel.getRGBdefault(),
+					pixData,
+					0,
+					imageData.getWidth() );
+			
+			mis.setAnimated(true);
+			mis.setFullBufferUpdates(true);
+			// Create a image from the MemoryImageSource
+			image = Toolkit.getDefaultToolkit().createImage(mis);
+			// image.setAccelerationPriority(1);
+			useMemoryImageSource = true;
+			useBufferedImage = false;
+			break;
+
+		case 1: // use bufferedImage for drawing
+			// Create a buffered image that supports transparency
+			bImage = new BufferedImage(imageData.getWidth(), imageData.getHeight(), BufferedImage.TYPE_INT_ARGB);
+			useMemoryImageSource = false;
+			useBufferedImage = true;
+			break;
+		default:
+			break;
+		/*
+		 getPixelData16();
 		switch (opt) {
 		case 0: // use the MemoryImageSource for drawing
 			// Create the MemoryImageSource and associate it with pixData
@@ -266,12 +259,10 @@ public class UViewClient {
 			break;
 		default:
 			break;
+		*/
 		}
 	}
 
-	/**
-	 * Display the image
-	 */
 	public void showImage() {
 		if (useMemoryImageSource && !useBufferedImage) {
 			g.drawImage(image, 1, 1, imagePanel);
@@ -346,7 +337,7 @@ public class UViewClient {
 		int x1, x2, y1, y2;
 		double factor = 256.0 / (imageGrayWindowHigh - imageGrayWindowLow);
 		for (int offset = 0; offset < len; offset++) {
-			s = (short) (factor * (imageData[offset] - imageGrayWindowLow));
+			s = (short) (factor * (imageDataOLD[offset] - imageGrayWindowLow));
 			if (s < 0)
 				s = 0;
 			else if (s > 255)
@@ -377,7 +368,7 @@ public class UViewClient {
 		double factor = 256.0 / (imageGrayWindowHigh - imageGrayWindowLow);
 
 		for (int offset = 0; offset < len; offset++) {
-			s = (short) (factor * (imageData[offset] - imageGrayWindowLow));
+			s = (short) (factor * (imageDataOLD[offset] - imageGrayWindowLow));
 			// s = (short) (factor * (data.value[offset] -
 			// imageGrayWindowLow));
 			if (s < 0)
@@ -483,42 +474,27 @@ public class UViewClient {
 
 	/**
 	 * Invoke the CORBA Client stubs to get the Gray Level without adjust it
+	 * @throws DeviceException 
 	 */
-	public void getGreyLevel() {
-		org.omg.CORBA.ShortHolder low = new ShortHolder();
-		org.omg.CORBA.ShortHolder hi = new ShortHolder();
-
-		msImpl.DoGrayAdjust((short) 0, low, hi);
-
-		imageGrayWindowHigh = hi.value;
-		imageGrayWindowLow = low.value;
+	public GrayAdjustment getGreyLevel() throws DeviceException {
+		return controller.getGrayAdjustment();
 	}
 
 	/**
 	 * Invoke the CORBA Client stubs to get the Gray Level and adjust the contrast and brightmess automatically
+	 * @throws DeviceException 
 	 */
-	public void autoRendering() {
-		org.omg.CORBA.ShortHolder low = new ShortHolder();
-		org.omg.CORBA.ShortHolder hi = new ShortHolder();
-
-		msImpl.DoGrayAdjust((short) 1, low, hi);
-		imageGrayWindowHigh = hi.value;
-		imageGrayWindowLow = low.value;
+	public void autoRendering() throws DeviceException {
+		adjustGreyLevel();
 	}
 
 	/**
 	 * Invoke the CORBA Client stubs to do grey adjustment
-	 * 
-	 * @param op
 	 *            short value of the grey level
+	 * @throws DeviceException 
 	 */
-	public void adjustGreyLevel(short op) {
-		org.omg.CORBA.ShortHolder low = new ShortHolder();
-		org.omg.CORBA.ShortHolder hi = new ShortHolder();
-
-		msImpl.DoGrayAdjust(op, low, hi);
-		imageGrayWindowHigh = hi.value;
-		imageGrayWindowLow = low.value;
+	public GrayAdjustment adjustGreyLevel() throws DeviceException {
+		return controller.doGrayAdjust();
 	}
 
 	/**
@@ -535,7 +511,7 @@ public class UViewClient {
 
 		imageWidth = width.value;
 		imageHeight = height.value;
-		imageData = data.value;
+		imageDataOLD = data.value;
 
 		// logger.debug("Dumped image data details: total byte " + length + " =
 		// "
@@ -585,9 +561,11 @@ public class UViewClient {
 	 * Invoke the CORBA Client stubs to get camera exposure time in unit second
 	 * 
 	 * @return double value of exposure time in seconds
+	 * @throws DeviceException 
 	 */
-	public double getCameraExposureTime() {
-		return 0.001 * msImpl.GetCameraExpTime();
+	public double getCameraExposureTime() throws DeviceException {
+		//return 0.001 * msImpl.GetCameraExpTime();
+		return 0.001 * controller.getCameraExpTime();
 	}
 
 	/**
@@ -595,9 +573,11 @@ public class UViewClient {
 	 * 
 	 * @param et
 	 *            double value of exposure time in seconds
+	 * @throws DeviceException 
 	 */
-	public void setCameraExposureTime(double et) {
-		msImpl.PutCameraExpTime((float) (et * 1000));
+	public void setCameraExposureTime(double et) throws DeviceException {
+		//msImpl.PutCameraExpTime((float) (et * 1000));
+		controller.setCameraExpTime( (int) Math.floor(1000 * et) );
 	}
 
 	/**
@@ -605,18 +585,21 @@ public class UViewClient {
 	 * 
 	 * @param bs
 	 *            boolean true if sequential mode else false
+	 * @throws DeviceException 
 	 */
-	public void setCameraSequentialMode(boolean bs) {
-		msImpl.PutSequential(bs);
+	public void setCameraSequentialMode(boolean bs) throws DeviceException {
+		//msImpl.PutSequential(bs);
+		controller.setSequential(bs);
 	}
 
 	/**
 	 * Invoke the CORBA Client stubs to get PCO camera acquisition submode
 	 * 
 	 * @return boolean true if sequential mode
+	 * @throws DeviceException 
 	 */
-	public boolean getCameraSequentialMode() {
-		return msImpl.GetSequential();
+	public boolean getCameraSequentialMode() throws DeviceException {
+		return controller.getSequential();
 	}
 
 	
@@ -624,9 +607,11 @@ public class UViewClient {
 	 * Invoke the CORBA Client stubs to get the number the PCO camera used to average images
 	 * 
 	 * @return the number of images used for averaging
+	 * @throws DeviceException 
 	 */
-	public int getAverageImageNumber() {
-		return msImpl.GetAverageImages();
+	public int getAverageImageNumber() throws DeviceException {
+		return controller.getFrameAverage();
+		//return msImpl.GetAverageImages();
 	}
 
 	/**
@@ -634,9 +619,11 @@ public class UViewClient {
 	 * 
 	 * @param numberOfImages
 	 *            number Of images used for averaging
+	 * @throws DeviceException 
 	 */
-	public void setAverageImageNumber(int numberOfImages) {
-		msImpl.PutAverageImages( (short)numberOfImages );
+	public void setAverageImageNumber(int numberOfImages) throws DeviceException {
+		controller.setFrameAverage( numberOfImages );
+		//msImpl.PutAverageImages( (short)numberOfImages );
 	}
 	
 	
@@ -654,9 +641,11 @@ public class UViewClient {
 	 * acquisition" is OFF
 	 * 
 	 * @return boolean true if in progress
+	 * @throws DeviceException 
 	 */
-	public boolean isInProgress() {
-		return msImpl.GetAcquisitionInProgress();
+	public boolean isInProgress() throws DeviceException {
+		//return msImpl.GetAcquisitionInProgress();
+		return controller.getAcquisitionInProgress();
 	}
 
 	/**
@@ -668,7 +657,8 @@ public class UViewClient {
 	 */
 	public void setInProgress(boolean bs) {
 		// TODO New implementation in 1.4.2
-		msImpl.SetAcquisitionInProgress(bs);
+		//msImpl.SetAcquisitionInProgress(bs);
+		controller.setAcquisitionInProgess(bs);
 	}
 
 	/**
@@ -677,22 +667,26 @@ public class UViewClient {
 	 * 
 	 * @param imageID
 	 *            int value of the image ID
+	 * @throws DeviceException 
 	 */
-	public void shotSingleImage(int imageID) {
+	public void shotSingleImage(int imageID) throws DeviceException {
 		// TODO New implementation in 1.4.2
 		// msImpl.AcquireSingleImage(imageID);
 
-		msImpl.AcquireSingleImage((short) imageID);
+		//msImpl.AcquireSingleImage((short) imageID);
+		controller.acquireSingleImage(imageID);
 	}
 
 	/**
 	 * Save image file from the PEEM Control machine (Windows) directly
 	 * 
-	 * @param imageFileNameWin32
-	 *            the file to save image to
+	 * @param fileDetails
+	 *            details of the file to save
+	 * @throws DeviceException 
 	 */
-	public void exportImage(String imageFileNameWin32, short format, short imagecontents) {
-		msImpl.ExportImage(imageFileNameWin32, format, imagecontents);
+	public void exportImage(ImageFile fileDetails) throws DeviceException {
+		//msImpl.ExportImage(imageFileNameWin32, format, imagecontents);
+		controller.exportImage(fileDetails);
 	}
 
 	/**
@@ -703,8 +697,10 @@ public class UViewClient {
 	 * @param y
 	 * @param width
 	 * @param height
+	 * @throws DeviceException 
 	 */
-	public void setROI(int id, int x, int y, int width, int height) {
+	public void setROI(int id, int x, int y, int width, int height) throws DeviceException {
+		/*
 		int color = 0;
 		int interactive = 0;
 
@@ -715,6 +711,8 @@ public class UViewClient {
 		y2 = y + height;
 
 		msImpl.IvsTDefineROI((short) id, color, (short) x1, (short) y1, (short) x2, (short) y2, (char) interactive);
+		*/
+		controller.defineRoi(new RegionOfInterest(x, y, width, height, id));
 	}
 
 	/**
@@ -723,11 +721,11 @@ public class UViewClient {
 	 * @param id
 	 *            id of ROI
 	 * @return double ROI data
+	 * @throws DeviceException 
 	 */
-	public double getROIData(int id) {
-
-		return msImpl.ROIdata((short) id);
-
+	public double getROIData(int id) throws DeviceException {
+		//return msImpl.ROIdata((short) id);
+		return controller.getRoiData(id);
 	}
 
 	/**
@@ -738,6 +736,14 @@ public class UViewClient {
 	public int setROIPlot() {
 		return msImpl.IvsTAddPoint((short) 0, (short) 0, (float) 0.0, (float) 0.0);
 
+	}
+	
+	public ImageData getImageData() {
+		return imageData;
+	}
+	
+	public String getVersion() throws DeviceException {
+		return controller.getVersion();
 	}
 
 }

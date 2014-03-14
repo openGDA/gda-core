@@ -19,6 +19,7 @@
 
 package gda.device.detector.uview.corba.impl;
 
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.UView;
 import gda.device.corba.CorbaDeviceException;
@@ -27,8 +28,6 @@ import gda.device.detector.uview.corba.CorbaUView;
 import gda.device.detector.uview.corba.CorbaUViewHelper;
 import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import java.io.IOException;
 
 import org.omg.CORBA.COMM_FAILURE;
 
@@ -55,7 +54,7 @@ public class UviewAdapter extends DetectorAdapter implements UView, Findable, Sc
 	}
 
 	@Override
-	public String shotSingleImage() throws IOException {
+	public String shotSingleImage() throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				return corbaUView.shotSingleImage();
@@ -71,7 +70,7 @@ public class UviewAdapter extends DetectorAdapter implements UView, Findable, Sc
 	}
 
 	@Override
-	public void prepare() throws IOException {
+	public void prepare() throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				corbaUView.prepare();
@@ -79,14 +78,14 @@ public class UviewAdapter extends DetectorAdapter implements UView, Findable, Sc
 			} catch (COMM_FAILURE cf) {
 				corbaUView = CorbaUViewHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				// throw new IOException(ex.message);
+				throw new DeviceException(ex.message);
 			}
 		}
-		// throw new IOException("Communication failure: retry failed");
+		throw new DeviceException("Communication failure: retry failed");
 	}
 
 	@Override
-	public void connect(String host) throws IOException {
+	public void connect(String host) throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				corbaUView.connect(host);
@@ -94,10 +93,10 @@ public class UviewAdapter extends DetectorAdapter implements UView, Findable, Sc
 			} catch (COMM_FAILURE cf) {
 				corbaUView = CorbaUViewHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new IOException(ex.message);
+				throw new DeviceException(ex.message);
 			}
 		}
-		throw new IOException("Communication failure: retry failed");
+		throw new DeviceException("Communication failure: retry failed");
 
 	}
 
@@ -133,7 +132,7 @@ public class UviewAdapter extends DetectorAdapter implements UView, Findable, Sc
 	}
 
 	@Override
-	public int createROI(String nameROI) throws IOException {
+	public int createROI(String nameROI) throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				return corbaUView.createROI(nameROI);
@@ -141,16 +140,14 @@ public class UviewAdapter extends DetectorAdapter implements UView, Findable, Sc
 			} catch (COMM_FAILURE cf) {
 				corbaUView = CorbaUViewHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				// throw new IOException(ex.message);
+				throw new DeviceException(ex.message);
 			}
 		}
-		// throw new IOException("Communication failure: retry failed");
-
-		return 0;
+		throw new DeviceException("Communication failure: retry failed");
 	}
 
 	@Override
-	public Object readoutROI(String nameROI) throws IOException {
+	public Object readoutROI(String nameROI) throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				org.omg.CORBA.Any any = corbaUView.readoutROI(nameROI);
@@ -159,16 +156,16 @@ public class UviewAdapter extends DetectorAdapter implements UView, Findable, Sc
 			} catch (COMM_FAILURE cf) {
 				corbaUView = CorbaUViewHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new IOException(ex.message);
+				throw new DeviceException(ex.message);
 			}
 		}
-		// throw new IOException("Communication failure: retry failed");
+		throw new DeviceException("Communication failure: retry failed");
 
-		return null;
+		//return null;
 	}
 
 	@Override
-	public void setBoundsROI(String nameROI, int x, int y, int width, int height) throws IOException {
+	public void setBoundsROI(String nameROI, int x, int y, int width, int height) throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				corbaUView.setBoundsROI(nameROI, x, y, width, height);
@@ -176,14 +173,14 @@ public class UviewAdapter extends DetectorAdapter implements UView, Findable, Sc
 			} catch (COMM_FAILURE cf) {
 				corbaUView = CorbaUViewHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				// throw new IOException(ex.message);
+				throw new DeviceException(ex.message);
 			}
 		}
-		// throw new IOException("Communication failure: retry failed");
+		throw new DeviceException("Communication failure: retry failed");
 	}
 
 	@Override
-	public Object getBoundsROI(String nameROI) throws IOException {
+	public Object getBoundsROI(String nameROI) throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				org.omg.CORBA.Any any = corbaUView.getBoundsROI(nameROI);
@@ -192,14 +189,14 @@ public class UviewAdapter extends DetectorAdapter implements UView, Findable, Sc
 			} catch (COMM_FAILURE cf) {
 				corbaUView = CorbaUViewHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new IOException(ex.message);
+				throw new DeviceException(ex.message);
 			}
 		}
-		return null;
+		throw new DeviceException("Communication failure: retry failed");
 	}
 
 	@Override
-	public Object getHashROIs() throws IOException {
+	public Object getHashROIs() throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				org.omg.CORBA.Any any = corbaUView.getHashROIs();
@@ -208,11 +205,11 @@ public class UviewAdapter extends DetectorAdapter implements UView, Findable, Sc
 			} catch (COMM_FAILURE cf) {
 				corbaUView = CorbaUViewHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new IOException(ex.message);
+				throw new DeviceException(ex.message);
 			}
 		}
 
-		return null;
+		throw new DeviceException("Communication failure: retry failed");
 	}
 
 }

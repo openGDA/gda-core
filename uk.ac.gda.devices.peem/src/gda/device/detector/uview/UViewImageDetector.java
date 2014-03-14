@@ -23,10 +23,10 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.UView;
 import gda.device.detector.DetectorBase;
-import gda.device.detector.areadetector.EpicsAreaDetector;
+import gda.device.detector.uview.UViewController.ImageFile.ImageContentsType;
+import gda.device.detector.uview.UViewController.ImageFile.ImageFormat;
 
 import java.awt.Rectangle;
-import java.io.IOException;
 import java.util.Hashtable;
 
 import org.slf4j.Logger;
@@ -39,7 +39,8 @@ public class UViewImageDetector extends DetectorBase implements UView {
 
 	private static final Logger logger = LoggerFactory.getLogger(UViewImageDetector.class);
 
-	String corbaBridgeName = null;
+	String address = null;
+	int port;
 
 	UViewImageController uic = null;
 	
@@ -47,43 +48,33 @@ public class UViewImageDetector extends DetectorBase implements UView {
 	protected String imageDir = null;
 	
 
-	/**
-	 * 
-	 */
-	public static Hashtable<String, UViewImageROI> hashROIs = new Hashtable<String, UViewImageROI>(10, 10);
+	public Hashtable<String, UViewImageROI> hashROIs = new Hashtable<String, UViewImageROI>(10, 10);
 
-	/**
-	 * 
-	 */
-	public static int numberROIs = 0;
+	public int numberROIs = 0;
 
-	/**
-	 * @return UViewImageController
-	 */
 	public UViewImageController getUViewImageController() {
 		return uic;
 	}
 
-	/**
-	 * @return String Corba bridge name
-	 */
-	public String getCorbaBridgeName() {
-		return corbaBridgeName;
+	public String getAddress() {
+		return this.address;
 	}
-
-	/**
-	 * @param corbaBridgeName
-	 *            String
-	 */
-	public void setCorbaBridgeName(String corbaBridgeName) {
-		this.corbaBridgeName = corbaBridgeName;
+	
+	public void setAddress(String address) {
+		this.address = address;
 	}
-
+	
+	public void setPort(int port) {
+		this.port = port;
+	}
+	public int getPort() {
+		return this.port;
+	}
 	
 	public String getTracker() {
 		return this.tracker;
 	}
-	
+		
 	public void setTracker(String tracker) {
 		this.tracker = tracker;
 	}
@@ -97,24 +88,35 @@ public class UViewImageDetector extends DetectorBase implements UView {
 	
 	@Override
 	public void configure() {
-		uic = new UViewImageController(corbaBridgeName);
-		this.collectionTime = uic.getExposureTime();
-		this.prepare();
+		try {
+			uic = new UViewImageController(address, port);
+			this.collectionTime = uic.getExposureTime();
+			this.prepare();
+		} catch (DeviceException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
 	}
 
+	@Override
 	public boolean createsOwnFiles() throws DeviceException {
 		return true;
 	}
 
 	@Override
-	public void setCollectionTime(double collectionTime) {
+	public void setCollectionTime(double collectionTime) throws DeviceException {
 		this.collectionTime = collectionTime;
 		uic.setExposureTime(collectionTime);
 	}
 
 	@Override
 	public double getCollectionTime() {
-		this.collectionTime = uic.getExposureTime();
+		try {
+			this.collectionTime = uic.getExposureTime();
+		} catch (DeviceException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
 		return this.collectionTime;
 	}
 
@@ -144,11 +146,12 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		uic.prepare(tracker, imageDir);
 	}
 	
-	public void prepare(){
+	@Override
+	public void prepare() throws DeviceException{
 		uic.prepare(tracker, imageDir);
 	}
 	
-	public void setCameraSequentialMode(boolean bs) {
+	public void setCameraSequentialMode(boolean bs) throws DeviceException {
 		uic.setCameraSequentialMode(bs);
 	}
 
@@ -162,117 +165,116 @@ public class UViewImageDetector extends DetectorBase implements UView {
 	 *  	-1: Sliding average
 	 *  	 0: No average
 	 *  	1 ~ 99: Number of frames to be averaged
+	 * @throws DeviceException 
 	 */
-	public void setImageAverageNumber(int imageNumber){
+	public void setImageAverageNumber(int imageNumber) throws DeviceException{
 		uic.setImageAverageNumber(imageNumber);
 	}
 	
-	public int getImageAverageNumber(){
+	public int getImageAverageNumber() throws DeviceException{
 		return uic.getImageAverageNumber();
 	}
 
-	/**
-	 *  fileExtension:
-	 *  	dat: Raw data uncompressed
-	 *  	png: PNG compressed
-	 *  	tiff: TIFF compressed
-	 *  	bmp: BMP uncompressed
-	 *  	jpg: JPG compressed 
-	 *  	tif: TIFF uncompressed
-	 *  
-	 *  imagecontent:
-	 *  	0: RGB 8+8+8 bits x,y,z, as seen on screen
-	 *  	1: RGB 8+8+8 bits,x,y raw, z as seen on screen
-	 *  	2: RAW 16 bits graylevel x, y, z raw data
-	 */
-	public void setFileFormat(String fileExtension, int imagecontents){
-		uic.setFileFormat(fileExtension, (short)imagecontents);
+	public void setFileFormat(ImageFormat format, ImageContentsType imageContents){
+		//uic.setFileFormat(fileExtension, (short)imagecontents);
+		uic.setFileFormat(format, imageContents);
 	}
-	
-	
-	
-	public String shotSingleImage() throws IOException {
-		int status;
-		try {
-			switch (status = this.getStatus()) {
-			case Detector.IDLE:
-				this.collectData();
-				break;
-			case Detector.BUSY:
-				this.collectData();
-				logger.error("UView camera is currently busy and the ongoing activity is disrupted.");
-				break;
-			default:
-			}
 
-			do {
-				status = this.getStatus();
-				if (status == Detector.IDLE) {
-					// return (String)uic.getImage();
-					return uic.exportImage();
-				}
-				Thread.sleep(100);
 
-			} while (status == Detector.BUSY);
 
-		} catch (DeviceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	@Override
+	public String shotSingleImage() throws InterruptedException, DeviceException {
+		if (this.getStatus() == Detector.BUSY) {
+			logger.error("UView camera is currently busy and the ongoing activity is disrupted.");
 		}
+		this.collectData();
 
-		return "Aaa! Wrong Detector Status. Not working!";
+		
+		while (this.getStatus() == Detector.BUSY) {
+			Thread.sleep(100);
+		}
+		return uic.exportImage();
 	}
 
-	public void connect(String host) throws IOException {
-		// TODO Auto-generated method stub
+	@Override
+	public void connect(String host) throws DeviceException {
+		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void disconnect() {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException();
 
 	}
 
+	@Override
 	public boolean isConnected() {
-		// TODO Auto-generated method stub
-		return true;
+		throw new UnsupportedOperationException();
 	}
 
-	public Object getHashROIs() throws IOException {
-
+	@Override
+	public Object getHashROIs() {
 		return hashROIs;
 	}
-
-	public int createROI(String nameROI) {
+	
+	@Override
+	public int createROI(String nameROI) throws DeviceException {
+//		int idROI = 0;
+//
+//		if (hashROIs.containsKey(nameROI)) {
+//			logger.info(nameROI + " already exists.");
+//			idROI = hashROIs.get(nameROI).id;
+//		} else {
+//			if (numberROIs >= 5) {
+//				logger.info("No more ROI available");
+//				return 0;
+//			}
+//
+//			idROI = ++numberROIs;
+//			int gap = 80;
+//			Rectangle rectROI = new Rectangle(idROI * 10 + (idROI - 1) * gap, 0, 50, 50);
+//
+//			hashROIs.put(nameROI, new UViewImageROI(idROI, rectROI));
+//
+//			uic.setROI(idROI, rectROI);
+//		}
+//
+//		notifyROIChange(nameROI);
+//		return idROI;
+		int gap = 80;
+		return createROI(nameROI, numberROIs * 10 + (numberROIs - 1) * gap, 0, 50, 50);
+	}
+	
+	public int createROI(String nameROI, int x, int y, int width, int height) throws DeviceException {
 		int idROI = 0;
-
-		if (hashROIs.containsKey(nameROI)) {
-			logger.info(nameROI + " already exists.");
-			
-		} else {
+		UViewImageROI roi = hashROIs.get(nameROI);
+		if (roi == null) {
 			if (numberROIs >= 5) {
 				logger.info("No more ROI available");
 				return 0;
 			}
 
 			idROI = ++numberROIs;
-			int gap = 80;
-			Rectangle rectROI = new Rectangle(idROI * 10 + (idROI - 1) * gap, 0, 50, 50);
+			Rectangle rectROI = new Rectangle(x, y, width, height);
 
-			// key: nameROI;
-			// value: UViewROI;
 			hashROIs.put(nameROI, new UViewImageROI(idROI, rectROI));
 
 			uic.setROI(idROI, rectROI);
+		} else {
+			idROI = roi.id;
+			roi.setROI(x, y, width, height);
+			uic.setROI(roi.id, x, y, width, height);
 		}
-		
 		notifyROIChange(nameROI);
 		return idROI;
 	}
 
-	public void setBoundsROI(String nameROI, int x, int y, int width, int height) {
+	public UViewImageROI getROI(String nameROI) {
+		return hashROIs.get(nameROI);
+	}
+
+	@Override
+	public void setBoundsROI(String nameROI, int x, int y, int width, int height) throws DeviceException {
 
 		if (hashROIs.containsKey(nameROI)) {
 			int idROI = hashROIs.get(nameROI).getID();
@@ -287,7 +289,8 @@ public class UViewImageDetector extends DetectorBase implements UView {
 
 	}
 
-	public Object getBoundsROI(String nameROI) throws IOException {
+	@Override
+	public Object getBoundsROI(String nameROI) throws DeviceException {
 		Rectangle rect = null;
 		if (hashROIs.containsKey(nameROI)) {
 			rect = hashROIs.get(nameROI).getROI();
@@ -297,7 +300,8 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		return rect;
 	}
 
-	public Object readoutROI(String nameROI) {
+	@Override
+	public Double readoutROI(String nameROI) throws DeviceException {
 		double dataROI = -100;
 
 		if (hashROIs.containsKey(nameROI)) {
@@ -311,24 +315,28 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		return dataROI;
 	}
 
-	/**
-	 * @param nameROI
-	 */
 	public void notifyROIChange(String nameROI) {
 		System.out.println("From UViewDetector: ROI changed");
 		this.notifyIObservers(this, nameROI);
 	}
 
+	@Override
 	public String getDescription() throws DeviceException {
 		return "UView Image Detector";
 	}
 
+	@Override
 	public String getDetectorID() throws DeviceException {
 		return "unknown";
 	}
 
+	@Override
 	public String getDetectorType() throws DeviceException {
 		return "unknown";
+	}
+
+	public String getVersion() throws DeviceException {
+		return uic.getUViewClient().getVersion();
 	}
 
 }
