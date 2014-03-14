@@ -39,7 +39,7 @@ import org.springframework.util.StringUtils;
  * made when it is needed if not already opened.
  */
 public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, InitializingBean {
-	private static final Logger logger = LoggerFactory.getLogger(SocketBidiAsciiCommunicator.class);
+	protected static final Logger logger = LoggerFactory.getLogger(SocketBidiAsciiCommunicator.class);
 
 	private OutputStream writer;
 	private InputStream reader;
@@ -67,7 +67,7 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 					throw new DeviceException("Error in reading reply to '" + cmd + "'", e);
 				}
 				try {
-					String str = new String(read, 0, bytesRead, "UTF-8");
+					String str = new String(read, 0, bytesRead, "US-ASCII");
 					sb.append(str);
 				} catch (UnsupportedEncodingException e) {
 					throw new DeviceException("Error in reading reply to '" + cmd + "' char=" + read, e);
@@ -106,6 +106,22 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 
 	}
 
+	public String getCmdTerm() {
+		return cmdTerm;
+	}
+
+	public void setCmdTerm(String cmdTerm) {
+		this.cmdTerm = cmdTerm;
+	}
+
+	public String getReplyTerm() {
+		return replyTerm;
+	}
+
+	public void setReplyTerm(String replyTerm) {
+		this.replyTerm = replyTerm;
+	}
+
 	public String getAddress() {
 		return address;
 	}
@@ -134,18 +150,7 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 	public void sendCmdNoReply(String cmd) throws DeviceException {
 		lock.lock();
 		try {
-
-			if (writer == null) {
-				try {
-					socket = new Socket(address, port);
-					socket.setKeepAlive(true);
-					socket.setSoTimeout(timeout);
-					reader = socket.getInputStream();
-					writer = socket.getOutputStream();
-				} catch (Exception e) {
-					throw new DeviceException("Error connecting to '" + address + "' : '" + port);
-				}
-			}
+			connectIfRequired();
 			if (logger.isDebugEnabled())
 				logger.debug("cmd = '" + cmd + "'");
 			try {
@@ -166,6 +171,20 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 			lock.unlock();
 		}
 
+	}
+
+	protected void connectIfRequired() throws DeviceException {
+		if (reader == null || writer == null) {
+			try {
+				socket = new Socket(address, port);
+				socket.setKeepAlive(true);
+				socket.setSoTimeout(timeout);
+				reader = socket.getInputStream();
+				writer = socket.getOutputStream();
+			} catch (Exception e) {
+				throw new DeviceException("Error connecting to '" + address + "' : '" + port);
+			}
+		}
 	}
 
 }
