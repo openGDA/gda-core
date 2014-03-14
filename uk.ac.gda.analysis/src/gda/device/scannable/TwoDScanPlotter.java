@@ -43,7 +43,7 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 
 	private DoubleDataset x;
 	private DoubleDataset y;
-	private DoubleDataset intensity;
+	protected DoubleDataset intensity;
 
 	private String x_colName;
 	private String y_colName;
