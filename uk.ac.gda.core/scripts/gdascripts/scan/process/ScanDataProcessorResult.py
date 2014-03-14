@@ -1,3 +1,6 @@
+from gdascripts.scan.process.sfhloader import getDataSetFromSFH
+
+
 def determineScannableContainingField(targetFieldname, scannables):
 	for scn in scannables:
 		fieldnames = list(scn.getInputNames()) + list(scn.getExtraNames())
@@ -183,7 +186,7 @@ class ScanDataProcessorResult(object):
 		return list(dataset.doubleArray()).index(value)
 	
 	def determineScannableValuesAtFeature(self, scannables, scanFileHolder, xname, xvalue):
-		dsx = scanFileHolder.getDataSet(xname)
+		dsx = getDataSetFromSFH(scanFileHolder, xname)
 		feature_inside_scan_data = dsx.min() <= xvalue <= dsx.max()
 			
 		result = {}
