@@ -94,7 +94,8 @@ class TwoGaussianEdges(XYDataSetFunction):
 
 		# Plot to swing	
 		if Plotter:  # Not always on path
-			Plotter.plot('Data Vector', xDataSet, [dyDataSet, DataSet(r.makefuncdata())])
+			funcsets = r.makefuncdata()
+			Plotter.plot('Data Vector', xDataSet, [dyDataSet, DataSet(list(funcsets[0])), DataSet(list(funcsets[1])), DataSet(list(funcsets[2]))])
 		
 		# Plot to RCP
 		r.plot()
