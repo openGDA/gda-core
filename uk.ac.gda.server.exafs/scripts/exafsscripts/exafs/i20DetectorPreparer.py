@@ -1,6 +1,6 @@
 from java.lang import Exception
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
-from gda.device.detector import VortexDetectorConfiguration
+from gda.device.detector.xmap import VortexDetectorConfiguration
 from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
 
 class I20DetectorPreparer:
