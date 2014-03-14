@@ -21,12 +21,17 @@ package uk.ac.gda.client;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SkipCommandQueueHandler extends AbstractHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(SkipCommandQueueHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
+			logger.debug("Skip Scan button pressed");
 			CommandQueueViewFactory.processor.skip(500);
 			return Boolean.TRUE;
 		} catch (Exception ne) {

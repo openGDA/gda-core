@@ -24,9 +24,13 @@ import gda.jython.JythonServerFacade;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PauseScanHandler extends AbstractHandler {
 	
+	private static final Logger logger = LoggerFactory.getLogger(PauseScanHandler.class);
+
 	/**
 	 * Returns if the button should be checked (ie something was pause), true or
 	 * if there was nothing to pause or a resume happened then false.
@@ -34,6 +38,9 @@ public class PauseScanHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
+			
+			logger.debug("Pause/Resume Scan button pressed");
+			
 			final JythonServerFacade facade = JythonServerFacade.getCurrentInstance();
 			if (facade.getScanStatus()==Jython.IDLE) {
 				return Boolean.FALSE;
