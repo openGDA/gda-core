@@ -19,8 +19,6 @@
 
 package gda.device;
 
-import java.io.IOException;
-
 /**
  * An interface for a distributed PEEM Uview Detector class
  */
@@ -31,21 +29,21 @@ public interface UViewROI extends Detector {
 	 * @param y
 	 * @param width
 	 * @param height
-	 * @throws IOException
+	 * @throws DeviceException 
 	 */
-	public void setBounds(int x, int y, int width, int height) throws IOException;
+	public void setBounds(int x, int y, int width, int height) throws DeviceException;
 
 	/**
 	 * @param x
 	 * @param y
-	 * @throws IOException
+	 * @throws DeviceException 
 	 */
-	public void setLocation(int x, int y) throws IOException;
+	public void setLocation(int x, int y) throws DeviceException;
 
 	/**
 	 * @param width
 	 * @param height
-	 * @throws IOException
+	 * @throws DeviceException 
 	 */
-	public void setSize(int width, int height) throws IOException;
+	public void setSize(int width, int height) throws DeviceException;
 }

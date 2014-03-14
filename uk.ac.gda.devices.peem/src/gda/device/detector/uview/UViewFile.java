@@ -22,6 +22,7 @@ package gda.device.detector.uview;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
+import gda.device.detector.uview.UViewController.ImageFile.ImageFormat;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class UViewFile {
 	private long thisFileNumber = 0;
 
 	// file extension to use
-	private String fileExtension = "png";
+	private ImageFormat format = ImageFormat.PNG;
 
 	// file prefix to use (if any)
 	private String filePrefix = "uviewImage_";
@@ -50,32 +51,23 @@ public class UViewFile {
 
 	private NumTracker runs = null;
 
-	/**
-	 * Constructor for UViewFile image file
-	 * 
-	 * @param filePrefix
-	 * @param fileExtension
-	 */
-	public UViewFile(String filePrefix, String fileExtension) {
+	public UViewFile(String filePrefix, ImageFormat format) throws IOException {
 		this.filePrefix = filePrefix;
-		this.fileExtension = fileExtension;
+		this.format = format;
 
 		this.setupScanDir();
 	}
 	
-	public void setFileExtenstion(String fileExtension){
-		this.fileExtension = fileExtension;
+	public void setFileExtenstion(ImageFormat format){
+		this.format = format;
 	}
 
 	/**
 	 * Setup a new image directory based on the tracker provided
+	 * @throws IOException 
 	 */
-	public void newImageDir(String tracker, String imageDir){
-		try {
-			runs = new NumTracker(tracker);
-		} catch (IOException e) {
-			logger.error("ERROR: Could not instantiate NumTracker using: " + tracker);
-		}
+	public void newImageDir(String tracker, String imageDir) throws IOException{
+		runs = new NumTracker(tracker);
 
 		long nextNum = 0L + runs.incrementNumber();
 		newDataDir = PathConstructor.createFromDefaultProperty() + File.separator + imageDir + File.separator + nextNum + "_UViewImage";
@@ -99,13 +91,10 @@ public class UViewFile {
 	/**
 	 * Find the directory in which the incremental run number (runTracker) file exists, this file name is the number of
 	 * the current run and will be auto-incremented during scanning
+	 * @throws IOException 
 	 */
-	public void setupScanDir() {
-		try {
-			runs = new NumTracker("tmp");
-		} catch (IOException e) {
-			logger.error("ERROR: Could not instantiate NumTracker in IncrementalFile().");
-		}
+	public void setupScanDir() throws IOException {
+		runs = new NumTracker("tmp");
 
 		long nextNum = 0L + runs.getCurrentFileNumber();
 		newDataDir = PathConstructor.createFromDefaultProperty() + File.separator + nextNum + "_UViewImage";
@@ -125,9 +114,27 @@ public class UViewFile {
 	 */
 	public String getCurrentFullFileName() {
 		++thisFileNumber;
+		String fileExtension = "png";
+		switch (this.format) {
+		case PNG:
+			fileExtension = "png";
+			break;
+		case BMP:
+			fileExtension = "bmp";
+			break;
+		case DAT:
+			fileExtension = "dat";
+			break;
+		case JPG:
+			fileExtension = "jpg";
+			break;
+		case TIFF:
+			fileExtension = "tif";
+			break;
+		}
 
 		currentFileName = newDataDir + File.separator + this.filePrefix + String.format("%08d", thisFileNumber) + "."
-				+ this.fileExtension;
+				+ fileExtension;
 		return currentFileName;
 	}
 
