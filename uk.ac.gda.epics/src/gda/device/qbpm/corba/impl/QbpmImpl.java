@@ -343,4 +343,9 @@ public class QbpmImpl extends CorbaQbpmPOA {
 	public void atLevelStart() throws CorbaDeviceException {
 		enumpositionerImpl.atLevelStart();
 	}
+
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		enumpositionerImpl.atLevelEnd();
+	}
 }
