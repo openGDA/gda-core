@@ -31,6 +31,7 @@ import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.NexusDetector;
+import gda.device.detector.addetector.filewriter.NonAsyncSingleImagePerFileWriter;
 import gda.device.detector.addetector.filewriter.SingleImagePerFileWriter;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
 import gda.device.detector.areadetector.NDStatsGroup;
@@ -384,7 +385,8 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 		if (fileWriter == null) {
 			if (ndFile != null) {
-				SingleImagePerFileWriter fileW = new SingleImagePerFileWriter(getName());
+				SingleImagePerFileWriter fileW = new NonAsyncSingleImagePerFileWriter(getName());
+				fileW.setWriteErrorStatusSupported(false);
 				fileW.setNdFile(ndFile);
 				fileW.setEnabled(true);
 				fileW.afterPropertiesSet();
