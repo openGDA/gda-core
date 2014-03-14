@@ -215,7 +215,8 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 					"RasterGenerator(rate={0} , xmin={1}, xmax={2}, ymin={3}, ymax={4}, rows={5}, cols={6})",
 					rate, xmin, xmax, ymin, ymax, rows, cols);
 
-			jsf.exec(logAndReturn("from generateRaster import RasterGenerator"));
+			// TODO: create constant for epics_scripts.device.scannable.pie725.generateRaster
+			jsf.exec(logAndReturn("from epics_scripts.device.scannable.pie725.generateRaster import RasterGenerator"));
 			jsf.exec(logAndReturn("_rg = " + instantiateRasterGenerator));
 			jsf.exec(logAndReturn("_rg.createCommands()"));
 
