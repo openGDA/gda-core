@@ -351,6 +351,11 @@ public class XspressImpl extends CorbaXspressPOA {
 	}
 
 	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+	}
+
+	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
