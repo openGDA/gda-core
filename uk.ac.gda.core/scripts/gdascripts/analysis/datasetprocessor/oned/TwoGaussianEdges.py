@@ -7,6 +7,7 @@ from gda.analysis.utils import GeneticAlg, NelderMead
 import scisoftpy as dnp
 
 from gda.analysis import DataSetFunctionFitter
+import java.lang.IllegalArgumentException
 
 try:
 	from gda.analysis import Fitter # from swingclient plugin not available to PyDev tests
@@ -94,10 +95,20 @@ class TwoGaussianEdges(XYDataSetFunction):
 
 		# Plot to swing	
 		if Plotter:  # Not always on path
-			funcsets = r.makefuncdata()
-			Plotter.plot('Data Vector', xDataSet, [dyDataSet, DataSet(list(funcsets[0])), DataSet(list(funcsets[1])), DataSet(list(funcsets[2]))])
+			yaxes = [dyDataSet]
+			for funcset in r.makefuncdata():
+				yaxes.append(DataSet(list(funcset)))
+		try:
+			Plotter.plot('Data Vector', xDataSet, yaxes)
+		except java.lang.IllegalArgumentException:
+			# Probably cannot find Plot_Manager on the finder
+			print "WARNING: TwoGaussianEdges could not plot fit details as there is no Plot_Manager"
 		
 		# Plot to RCP
-		r.plot()
+		try:
+			r.plot()
+		except java.lang.NoClassDefFoundError:
+			print "WARNING: TwoGaussianEdges could not plot fit details to RCP client"
+		
 	
 		return upos, ufwhm, dpos, dfwhm , area, fwhm
