@@ -29,6 +29,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Layout;
 
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.EventManagerDelegate;
@@ -41,7 +42,6 @@ import uk.ac.gda.richbeans.event.ValueListener;
  *
  */
 public class RadioWrapper extends Group implements IFieldWidget {
-	
 	protected final EventManagerDelegate eventDelegate;
 	protected final Map<String,Button>   buttonMap;
 	protected final Map<String, SelectionListener> listenerMap;
@@ -53,13 +53,12 @@ public class RadioWrapper extends Group implements IFieldWidget {
 	 * @param items 
 	 */
 	public RadioWrapper(Composite parent, int style, String[] items) {
-
-		super(parent, SWT.NONE);	
+		super(parent, SWT.NONE);
 		setLayout(new RowLayout());
 		
-		this.eventDelegate = new EventManagerDelegate(this);
-		this.buttonMap     = new HashMap<String,Button>(7);
-		this.listenerMap   = new HashMap<String,SelectionListener>(7);
+		eventDelegate = new EventManagerDelegate(this);
+		buttonMap     = new HashMap<String,Button>(7);
+		listenerMap   = new HashMap<String,SelectionListener>(7);
 		
 		for (int i = 0; i < items.length; i++) {
 			final Button button = new Button(this, SWT.RADIO | style);
@@ -87,7 +86,6 @@ public class RadioWrapper extends Group implements IFieldWidget {
 		}
 		super.dispose();
 	}
-
 	
 	@Override
 	public Object getValue() {
@@ -116,17 +114,23 @@ public class RadioWrapper extends Group implements IFieldWidget {
 			buttonMap.get(label).setSelection(false);
 		}
 	}
+	
 	/*******************************************************************/
 	/**        This section will be the same for many wrappers.       **/
 	/*******************************************************************/
+	
 	@Override
 	protected void checkSubclass () {
 	}
+	
 	private boolean isOn = false;
+	
 	@Override
 	public boolean isOn() {return isOn;}
+	
 	@Override
 	public void off() {isOn = false;}
+	
 	@Override
 	public void on() {isOn = true;}
 	
@@ -152,7 +156,9 @@ public class RadioWrapper extends Group implements IFieldWidget {
 	}
 
 	/*******************************************************************/
+	
 	protected String fieldName;
+	
 	/**
 	 * @return b
 	 */
@@ -175,9 +181,7 @@ public class RadioWrapper extends Group implements IFieldWidget {
 		evt.setValue(getValue());
 		eventDelegate.notifyValueListeners(evt);
 	}
-	/**
-	 * 
-	 */
+
 	@Override
 	public void fireBoundsUpdaters() {
 		final ValueEvent evt = new ValueEvent(this, getFieldName());
@@ -189,7 +193,9 @@ public class RadioWrapper extends Group implements IFieldWidget {
 	public void removeValueListener(ValueListener listener) {
 		eventDelegate.removeValueListener(listener);
 	}
+	
+//	public void setLayout(Layout layout){
+//		
+//	}
 
 }
-
-	
