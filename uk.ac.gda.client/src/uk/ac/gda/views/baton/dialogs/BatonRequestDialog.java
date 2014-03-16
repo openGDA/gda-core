@@ -42,21 +42,16 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.views.baton.BatonView;
 
-/**
- *
- */
-public class BatonRequestDialog extends Dialog {
-	
+public class BatonRequestDialog extends Dialog {	
 	private static final Logger logger = LoggerFactory.getLogger(BatonRequestDialog.class);
+	private Label lblARequestFor;
+	private ClientDetails request;
+	private boolean open = true;
 	
 	public static void doPassBaton(Shell shell, final BatonRequested request) {
 		final boolean keepBaton = GDAClientActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.KEEP_BATON);
 		BatonRequestDialog.openPassBatonForm(shell, request.getRequester(), keepBaton);
 	}
-
-	private Label lblARequestFor;
-	private ClientDetails request;
-	private boolean open = true;
 
 	/**
 	 * Create the dialog.
