@@ -22,7 +22,6 @@ package gda.rcp.views;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class TabCompositeFactoryImpl implements TabCompositeFactory {
@@ -76,8 +75,8 @@ public class TabCompositeFactoryImpl implements TabCompositeFactory {
 
 
 	@Override
-	public Composite createComposite(Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite) {
-		return compositeFactory.createComposite(parent, SWT.NONE, null);
+	public Composite createComposite(Composite parent, int style) {
+		return compositeFactory.createComposite(parent, SWT.NONE);
 	}
 
 

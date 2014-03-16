@@ -252,19 +252,21 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		if (numExtraNames == 0) {
 			if (length != numInputNames) {
 				throw new IllegalArgumentException(
-					String.format("Expected position of length %d but got position of length %d",
+					String.format("Expected position of length %d but got position of length %d on scannable %s",
 						numInputNames,
-						length));
+						length,
+						getName()));
 			}
 		}
 		
 		else {
 			if ((length != numInputNames) && (length != numTotalNames)) {
 				throw new IllegalArgumentException(
-					String.format("Expected position of length %d or %d but got position of length %d",
+					String.format("Expected position of length %d or %d but got position of length %d on scannable %s" ,
 						numInputNames,
 						numTotalNames,
-						length));
+						length,
+						getName()));
 			}
 		}
 	}
@@ -366,7 +368,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	@Override
 	public void atLevelStart() throws DeviceException {
 	}
-
+	
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
@@ -377,6 +379,16 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	public void atLevelMoveStart() throws DeviceException {
 	}
 
+	/**
+	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
+	 * specific behaviour requires it.
+	 * 
+	 * @see gda.device.Scannable#atLevelEnd()
+	 */
+	@Override
+	public void atLevelEnd() throws DeviceException {
+	}
+	
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.

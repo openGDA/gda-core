@@ -31,7 +31,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.ui.IWorkbenchPartSite;
 import org.springframework.util.StringUtils;
 
 public class GroupCompositeFactory implements CompositeFactory {
@@ -76,7 +75,7 @@ public class GroupCompositeFactory implements CompositeFactory {
 	}
 	
 	@Override
-	public Composite createComposite(Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite) {
+	public Composite createComposite(Composite parent, int style) {
 		Composite cmp;
 		if( StringUtils.hasLength(label)){
 			Group grp = new Group(parent,SWT.NONE);
@@ -98,7 +97,7 @@ public class GroupCompositeFactory implements CompositeFactory {
 				GridLayoutFactory.fillDefaults().numColumns(columns).applyTo(currentComp);
 				GridDataFactory.fillDefaults().applyTo(currentComp);		
 			}
-			compositeFactory.createComposite(currentComp, SWT.NONE, iWorkbenchPartSite);
+			compositeFactory.createComposite(currentComp, SWT.NONE);
 			columnIndex++;
 			if(columnIndex == columns){
 				columnIndex = 0;

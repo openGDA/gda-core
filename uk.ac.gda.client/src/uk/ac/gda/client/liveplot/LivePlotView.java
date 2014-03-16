@@ -515,6 +515,14 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		xyPlot.clearGraph();
 	}
 
+	public void setHideOldestScan(Boolean value){
+		xyPlot.setHideOldestScan(value);
+	}
+	
+	public boolean getHideOldestScan(){
+		return xyPlot.getHideOldestScan();
+	}
+	
 	/**
 	 * @param connect
 	 *            True if scandatapoints are to be ignored

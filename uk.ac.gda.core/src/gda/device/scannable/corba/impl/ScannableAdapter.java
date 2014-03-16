@@ -223,6 +223,23 @@ public class ScannableAdapter extends DeviceAdapter implements Scannable {
 	}
 	
 	@Override
+	public void atLevelEnd() throws DeviceException {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				corbaScannable.atLevelEnd();
+				return;
+			} catch (COMM_FAILURE cf) {
+				corbaScannable = CorbaScannableHelper.narrow(netService.reconnect(name));
+			} catch (TRANSIENT ct) {
+				corbaScannable = CorbaScannableHelper.narrow(netService.reconnect(name));
+			} catch (CorbaDeviceException ex) {
+				throw new DeviceException(ex.message);
+			}
+		}
+		throw new DeviceException("Communication failure: retry failed");
+	}
+	
+	@Override
 	public String[] getExtraNames() {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {

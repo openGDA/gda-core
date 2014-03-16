@@ -487,4 +487,8 @@ public class CountertimerImpl extends CorbaCounterTimerPOA {
 		scannableImpl.atLevelStart();
 	}
 
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+	}
 }

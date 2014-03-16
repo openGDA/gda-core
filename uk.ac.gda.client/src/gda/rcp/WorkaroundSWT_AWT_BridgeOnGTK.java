@@ -72,7 +72,7 @@ public class WorkaroundSWT_AWT_BridgeOnGTK {
 			// get XlibWrapper.SetToolkitErrorHandler() and XSetErrorHandler() methods
 			@SuppressWarnings("rawtypes")
 			Class xlibwrapperClass = Class.forName( "sun.awt.X11.XlibWrapper" );
-			final Method setToolkitErrorHandlerMethod = xlibwrapperClass.getDeclaredMethod( "SetToolkitErrorHandler", null );
+			final Method setToolkitErrorHandlerMethod = xlibwrapperClass.getDeclaredMethod( "SetToolkitErrorHandler", (Class[]) null );
 			final Method setErrorHandlerMethod = xlibwrapperClass.getDeclaredMethod( "XSetErrorHandler", new Class[] { Long.TYPE } );
 			setToolkitErrorHandlerMethod.setAccessible( true );
 			setErrorHandlerMethod.setAccessible( true );
@@ -86,8 +86,8 @@ public class WorkaroundSWT_AWT_BridgeOnGTK {
 			// determine the current error handler and the value of XLibWrapper.ToolkitErrorHandler
 			// (XlibWrapper.SetToolkitErrorHandler() sets the X11 error handler to
 			// XLibWrapper.ToolkitErrorHandler and returns the old error handler)
-			final Object defaultErrorHandler = setToolkitErrorHandlerMethod.invoke( null, null );
-			final Object toolkitErrorHandler = setToolkitErrorHandlerMethod.invoke( null, null );
+			final Object defaultErrorHandler = setToolkitErrorHandlerMethod.invoke( null, (Object[]) null );
+			final Object toolkitErrorHandler = setToolkitErrorHandlerMethod.invoke( null, (Object[]) null );
 			setErrorHandlerMethod.invoke( null, new Object[] { defaultErrorHandler } );
 
 			// create timer that watches XToolkit.saved_error_handler whether its value is equal

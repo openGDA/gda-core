@@ -389,4 +389,9 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 		scannableImpl.atLevelStart();
 	}
 
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+	}
+
 }

@@ -366,7 +366,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 				
 				@Override
 				public void run() {
-					logger.debug("======= make system beep =======");
+					logger.debug("======= system beep =======");
 					PlatformUI.getWorkbench().getDisplay().beep();
 				}
 			});

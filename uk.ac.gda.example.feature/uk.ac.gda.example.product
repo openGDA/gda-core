@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="GDA Example" uid="uk.ac.gda.example.product" id="uk.ac.gda.example.product" application="uk.ac.gda.client.application" version="8.36.0" useFeatures="true" includeLaunchers="true">
+<product name="GDA Example" uid="uk.ac.gda.example.product" id="uk.ac.gda.example.product" application="uk.ac.gda.client.application" version="8.38.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>
@@ -22,30 +22,17 @@ See &lt;http://www.opengda.org/&gt;
    <launcherArgs>
       <vmArgs>-Dgda.mode=dummy
 -Dosgi.locking=none
--Dgda.install.workspace.loc=/dls_sw/apps/GDAexample/8.36/workspace
--Dgda.install.git.loc=/dls_sw/apps/GDAexample/8.36/workspace_git
--Dgda.config=$HOME/gda_training/example-config/
--Djava.library.path=/dls_sw/apps/GDAexample/8.36/workspace_git/gda-nexus.git/uk.ac.gda.nexus/lib/linux-x86_64
--Dgda.propertiesFile=$HOME/gda_training/example-config//properties/dummy/java.properties
--Djacorb.config.dir=$HOME/gda_training/example-config/jacorb/dummy
--Dgov.aps.jca.JCALibrary.properties=$HOME/gda_training/example-config/jca/dummy/JCALibrary.properties
+-Dgda.install.workspace.loc=${workspace_loc:uk.ac.gda.core}/../../
+-Dgda.install.git.loc=${workspace_loc:uk.ac.gda.core}/../
+-Dgda.config=${workspace_loc:example-config}
+-Djava.library.path=${workspace_loc:uk.ac.gda.nexus}/lib/${target.os}-${target.arch}
+-Dgda.propertiesFile=${workspace_loc:example-config}/properties/dummy/java.properties
+-Djacorb.config.dir=${workspace_loc:example-config}/jacorb/dummy
+-Dgov.aps.jca.JCALibrary.properties=${workspace_loc:example-config}/jca/dummy/JCALibrary.properties
 -Xms512m
 -Xmx2048m
 -XX:MaxPermSize=1024m
 -XX:+DisableExplicitGC</vmArgs>
-      <vmArgsLin>-Dgda.mode=dummy
--Dosgi.locking=none
--Dgda.install.workspace.loc=/dls_sw/apps/GDAexample/8.36/workspace
--Dgda.install.git.loc=/dls_sw/apps/GDAexample/8.36/workspace_git
--Dgda.config=${env_var:HOME}/gda_training/example-config/
--Djava.library.path=/dls_sw/apps/GDAexample/8.36/workspace_git/gda-nexus.git/uk.ac.gda.nexus/lib/linux-x86_64
--Dgda.propertiesFile=${env_var:HOME}/gda_training/example-config//properties/dummy/java.properties
--Djacorb.config.dir=${env_var:HOME}/gda_training/example-config/jacorb/dummy
--Dgov.aps.jca.JCALibrary.properties=${env_var:HOME}/gda_training/example-config/jca/dummy/JCALibrary.properties
--Xms512m
--Xmx2048m
--XX:MaxPermSize=1024m
--XX:+DisableExplicitGC</vmArgsLin>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
@@ -92,5 +79,8 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <feature id="uk.ac.gda.example.feature"/>
    </features>
 
+   <configurations>
+      <plugin id="org.dawnsci.plotting.services" autoStart="true" startLevel="2" />
+   </configurations>
 
 </product>

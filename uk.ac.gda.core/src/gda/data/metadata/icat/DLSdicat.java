@@ -252,6 +252,7 @@ public class DLSdicat extends IcatBase {
 		info.put ("oracle.jdbc.timezoneAsRegion", "false");
 
 		connection = DriverManager.getConnection(LocalProperties.get(URL_PROP), info);
+		logger.info("Successfully connected to DiCat, using " + LocalProperties.get(URL_PROP));
 		return connection;
 	}
 

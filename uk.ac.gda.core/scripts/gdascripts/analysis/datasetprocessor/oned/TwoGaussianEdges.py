@@ -1,10 +1,13 @@
 from XYDataSetProcessor import XYDataSetFunction
 from GaussianPeakAndBackground import GaussianPeak
 from gda.analysis.functions import Gaussian, Offset
-from gda.analysis import ScanFileHolder
+from gda.analysis import ScanFileHolder, DataSet
 from gda.analysis.utils import GeneticAlg, NelderMead
 
+import scisoftpy as dnp
+
 from gda.analysis import DataSetFunctionFitter
+import java.lang.IllegalArgumentException
 
 try:
 	from gda.analysis import Fitter # from swingclient plugin not available to PyDev tests
@@ -14,6 +17,11 @@ except ImportError:
 	def fitplot(*args):
 		return DataSetFunctionFitter.fit(*args)
 
+try:
+	from gda.analysis import Plotter  # for Swing
+except ImportError:
+	Plotter = None
+
 
 class TwoGaussianEdges(XYDataSetFunction):
 
@@ -22,8 +30,6 @@ class TwoGaussianEdges(XYDataSetFunction):
 		self.smoothwidth = smoothwidth
 	
 	def coarseProcess(self, xDataSet, dyDataSet):
-		# For fallback only:
-		
 		
 		upos = xDataSet[dyDataSet.maxPos()[0]]
 		dpos = xDataSet[dyDataSet.minPos()[0]]
@@ -45,60 +51,64 @@ class TwoGaussianEdges(XYDataSetFunction):
 			dfwhm = .01 * (xDataSet.max() - xDataSet.min())
 		darea = dyDataSet.min() * dfwhm
 			
-			
-		#print 'upos', upos
-		#print 'ufwhm', ufwhm
-		#print 'uarea', uarea
-		#print 'dpos', dpos
-		#print 'dfwhm', dfwhm
-		#print 'darea', darea		
 		return upos, ufwhm, uarea, dpos, dfwhm , darea
 	
 	def _process(self, xDataSet, yDataSet):	
 		dyDataSet = yDataSet.diff(xDataSet, self.smoothwidth)
 		
 		uposC, ufwhmC, uareaC, dposC, dfwhmC, dareaC = self.coarseProcess(xDataSet, dyDataSet)
+# 		
+		gaussian = dnp.fit.function.gaussian
+		x = dnp.array(xDataSet)
+		dy = dnp.array(dyDataSet)
+
+		if abs(dareaC) < .2 * uareaC:
+			print "only upward edge present"
+			r = dnp.fit.fit([gaussian], x, dy, 
+							[uposC, ufwhmC, uareaC],
+							ptol=1e-10, optimizer='apache_nm')
+			upos, ufwhm, _uarea = r.parameters
+			dpos = 0.
+			dfwhm = 0.
+			area = _uarea
+			fwhm = ufwhm
 		
-		gu = Gaussian([uposC, ufwhmC, uareaC])
-		gd = Gaussian([dposC, dfwhmC, dareaC])		
-		try:	
-			r = fitplot(xDataSet, dyDataSet, GeneticAlg(1e-10), [gu, gd])
-		except: #java.lang.IllegalArgumentException: cannot find the Plot_Manager object of type PlotManager
-			r = DataSetFunctionFitter().fit(xDataSet, dyDataSet, GeneticAlg(1e-10), [gu, gd])
-			r = r.functionOutput
-		#print r.disp()
-	
-		upos = r[0].getValue()
-		ufwhm = r[1].getValue()
-		uarea = r[2].getValue()
-		dpos = r[3].getValue()
-		dfwhm = r[4].getValue()
-		darea = r[5].getValue()
-		# TODO: Check for Nones here
-		if darea>=0:
-			print "Area under slope of downward edge should be negative!"
-		if uarea <= 0:
-			print "Area under slope of upward edge should be positive!"	
-		darea = abs(darea)
+		elif uareaC < .2 * abs(dareaC):
+			print "only downward edge present"
+			r = dnp.fit.fit([gaussian], x, dy, 
+							[dposC, dfwhmC, dareaC],
+							ptol=1e-10, optimizer='apache_nm')
+			dpos, dfwhm, _darea = r.parameters
+			upos = 0.
+			ufwhm = 0.
+			area = abs(_darea)
+			fwhm = dfwhm
 		
-		if 	uarea > darea:
-			if darea > .2 * uarea:
-				area = (uarea + darea) / 2.
-				fwhm = (ufwhm + dfwhm) / 2.
-			else:
-				dpos = 0
-				dfwhm = 0
-				area = uarea
-				fwhm = ufwhm
-				
-		else: #	darea > uarea:
-			if uarea > .2 * darea:
-				area = (uarea + darea) / 2.
-				fwhm = (ufwhm + dfwhm) / 2.
-			else:
-				upos = 0
-				ufwhm = 0
-				area = darea
-				fwhm = dfwhm				
+		else:
+			print "both edges present"
+			r = dnp.fit.fit([gaussian, gaussian], x, dy, 
+							[uposC, ufwhmC, uareaC,dposC, dfwhmC, dareaC],
+							ptol=1e-10, optimizer='apache_nm')
+			upos, ufwhm, _uarea, dpos, dfwhm, _darea = r.parameters
+			area = (_uarea + abs(_darea)) / 2.
+			fwhm = (ufwhm + dfwhm) / 2.
+
+		# Plot to swing	
+		if Plotter:  # Not always on path
+			yaxes = [dyDataSet]
+			for funcset in r.makefuncdata():
+				yaxes.append(DataSet(list(funcset)))
+			try:
+				Plotter.plot('Data Vector', xDataSet, yaxes)
+			except java.lang.IllegalArgumentException:
+				# Probably cannot find Plot_Manager on the finder
+				print "WARNING: TwoGaussianEdges could not plot fit details as there is no Plot_Manager"
+		
+		# Plot to RCP
+		try:
+			r.plot()
+		except java.lang.NoClassDefFoundError:
+			print "WARNING: TwoGaussianEdges could not plot fit details to RCP client"
+		
 	
 		return upos, ufwhm, dpos, dfwhm , area, fwhm

@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.python.core.PyException;
+import org.python.core.PyObject;
+
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.jython.batoncontrol.ClientDetails;
@@ -486,4 +489,28 @@ public interface Jython extends Findable {
 
 	public boolean projectIsCoreType(String path);
 
+	/**
+	 * Evaluates a string as a Python expression and returns the result. Bypasses translator, batton control, and is not
+	 * available across corba.
+	 * <p>
+	 * This is of particular utility compared to other offerings as calls are synchronous, throw exceptions and can
+	 * return an actual object.
+	 * 
+	 * @param s
+	 *            The pure Jython string command to eval.
+	 * @return The result of the eval
+	 * @throws PyException If eval resulted in exception.
+	 */
+	public PyObject eval(String s) throws PyException;
+
+	/**
+	 * Executes a string of Python source in the local namespace. Bypasses translator, batton control, and is not
+	 * available across corba.
+	 * <p>
+	 * This is of particular utility compared to other offerings as calls are synchronous and throw exceptions.
+	 * 
+	 * @param s The pure Jython string command to exec.
+	 * @throws PyException If exec resulted in exception.
+	 */
+	public void exec(String s) throws PyException;
 }

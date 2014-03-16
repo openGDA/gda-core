@@ -677,4 +677,5 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	public InteractiveConsole getInterp() {
 		return interp;
 	}
+
 }
