@@ -710,7 +710,8 @@ public class NumberEditorControl extends Composite {
 	private void updateIncrementChangesAndDispose(boolean saveChanges) {
 		if (saveChanges) {
 			incrementTextBinding.updateTargetToModel();
-		} else {
+		} 
+		else {
 			incrementTextBinding.updateModelToTarget();
 		}
 		IStatus status = (IStatus) incrementTextBinding.getValidationStatus().getValue();
@@ -724,7 +725,8 @@ public class NumberEditorControl extends Composite {
 			GridData gridData = (GridData) incrementComposite.getLayoutData();
 			if (point.x > MIN_STEP_LABEL_WIDTH) {
 				gridData.widthHint = point.x + LARGE_INCREMENT_WIDTH_PADDING;
-			} else {
+			} 
+			else {
 				gridData.widthHint = MIN_STEP_LABEL_WIDTH;
 			}
 			stepText.dispose();
@@ -754,53 +756,54 @@ public class NumberEditorControl extends Composite {
 
 	protected class NumberEditorWidgetModel extends ObservableModel {
 		private boolean editable = true;
-
 		public static final String MAX_VALUE_PROP_NAME = "maxValue";
 		private Number maxValue;
-
 		public static final String MIN_VALUE_PROP_NAME = "minValue";
 		private Number minValue;
-
 		public static final String RANGE_SET_PROP_NAME = "rangeSet";
 		private boolean rangeSet;
-
 		public static final String DIGITS_PROP_NAME = "digits";
 		private int digits;
-
 		public static final String INCREMENT_PROP_NAME = "increment";
 		private int increment;
-
 		private String unit;
-
 		private Object bindingPropertyType;
 		private DecimalFormat decimalFormat;
 
 		public boolean isEditable() {
 			return editable;
 		}
+		
 		public void setEditable(boolean value) {
 			firePropertyChange(EDITABLE_PROP_NAME, editable, editable = value);
 		}
+		
 		public Number getMaxValue() {
 			return maxValue;
 		}
+		
 		public void setMaxValue(Number value) {
 			firePropertyChange(MAX_VALUE_PROP_NAME, maxValue, maxValue = value);
 			firePropertyChange(RANGE_SET_PROP_NAME, rangeSet, rangeSet = true);
 		}
+		
 		public Number getMinValue() {
 			return minValue;
 		}
+		
 		public void setMinValue(Number value) {
 			firePropertyChange(MIN_VALUE_PROP_NAME, minValue, minValue = value);
 			firePropertyChange(RANGE_SET_PROP_NAME, rangeSet, rangeSet = true);
 		}
+		
 		public boolean isRangeSet() {
 			return rangeSet;
 		}
+		
 		public int getDigits() {
 			return digits;
 		}
+		
 		public void setDigits(int value) {
 			firePropertyChange(DIGITS_PROP_NAME, digits, digits = value);
 			StringBuilder string = new StringBuilder("#.");
@@ -817,18 +820,23 @@ public class NumberEditorControl extends Composite {
 		public int getIncrement() {
 			return increment;
 		}
+		
 		public void setIncrement(int value) {
 			firePropertyChange(INCREMENT_PROP_NAME, increment, increment = value);
 		}
+		
 		public String getUnit() {
 			return unit;
 		}
+		
 		public void setUnit(String value) {
 			firePropertyChange(UNIT_PROP_NAME, unit, unit = value);
 		}
+		
 		public Object getBindingPropertyType() {
 			return bindingPropertyType;
 		}
+		
 		public void setBindingPropertyType(Object bindingPropertyType) {
 			this.bindingPropertyType = bindingPropertyType;
 		}
@@ -887,9 +895,8 @@ public class NumberEditorControl extends Composite {
 			inFocus = new Listener() {
 				@Override
 				public void handleEvent(Event event) {
-					if (lostFocus & event.widget != editorText & event.widget != editorCancelButton & event.widget != editorAcceptButton & !cancelOrCommit) {
+					if (lostFocus & event.widget != editorText & event.widget != editorCancelButton & event.widget != editorAcceptButton & !cancelOrCommit)
 						NumberEditorText.this.updateChangesAndDispose(commitOnOutOfFocus);
-					}
 				}
 			};
 			textOutFocus = new FocusListener() {
@@ -916,19 +923,16 @@ public class NumberEditorControl extends Composite {
 				targetToModelUpdateValueStrategy.setBeforeSetValidator(new IValidator() {
 					@Override
 					public IStatus validate(Object value) {
-						if (targetToModelConverter != null) {
+						if (targetToModelConverter != null)
 							value = targetToModelConverter.convert(value);
-						}
 						// TODO Max and min are int, review
 						if (controlModel.getBindingPropertyType().equals(double.class)) {
-							if (((Number) value).doubleValue() >= controlModel.getMinValue().doubleValue() & ((Number) value).doubleValue() <= controlModel.getMaxValue().doubleValue()) {
+							if (((Number) value).doubleValue() >= controlModel.getMinValue().doubleValue() & ((Number) value).doubleValue() <= controlModel.getMaxValue().doubleValue())
 								return ValidationStatus.ok();
-							}
 							return ValidationStatus.error("Out of range");
 						} else if (controlModel.getBindingPropertyType().equals(int.class)) {
-							if (((Number) value).intValue() >= controlModel.getMinValue().intValue() & ((Number) value).intValue() <= controlModel.getMaxValue().intValue()) {
+							if (((Number) value).intValue() >= controlModel.getMinValue().intValue() & ((Number) value).intValue() <= controlModel.getMaxValue().intValue())
 								return ValidationStatus.ok();
-							}
 							return ValidationStatus.error("Out of range");
 						}
 						return ValidationStatus.error("Unknown type");
@@ -942,12 +946,10 @@ public class NumberEditorControl extends Composite {
 			binding = editorCtx.bindValue(textValue, objectValue, targetToModelUpdateValueStrategy, new UpdateValueStrategy() {
 				@Override
 				public Object convert(Object value) {
-					if (modelToTargetConverter != null) {
+					if (modelToTargetConverter != null)
 						value = modelToTargetConverter.convert(value);
-					}
-					if (controlModel.getBindingPropertyType().equals(double.class)) {
+					if (controlModel.getBindingPropertyType().equals(double.class))
 						return roundDoubletoString(((Number) value).doubleValue(), controlModel.getDigits());
-					}
 					return super.convert(value);
 				}
 			});
@@ -961,12 +963,10 @@ public class NumberEditorControl extends Composite {
 			editorText.addTraverseListener(new TraverseListener() {
 				@Override
 				public void keyTraversed(TraverseEvent event) {
-					if (event.detail == SWT.TRAVERSE_RETURN) {
+					if (event.detail == SWT.TRAVERSE_RETURN)
 						updateChangesAndDispose(true);
-					}
-					if (event.detail == SWT.TRAVERSE_ESCAPE) {
+					if (event.detail == SWT.TRAVERSE_ESCAPE)
 						updateChangesAndDispose(false);
-					}
 				}
 			});
 			ControlDecorationSupport.create(binding, SWT.TOP | SWT.LEFT);
@@ -990,16 +990,13 @@ public class NumberEditorControl extends Composite {
 		}
 
 		private void updateChangesAndDispose(boolean saveChanges) {
-			if (saveChanges) {
+			if (saveChanges)
 				binding.updateTargetToModel();
-			} else {
+			else
 				binding.updateModelToTarget();
-			}
 			IStatus status = (IStatus) binding.getValidationStatus().getValue();
-			if (status.isOK()) {
+			if (status.isOK())
 				NumberEditorText.this.dispose();
-			}
-
 		}
 	}
 
@@ -1009,18 +1006,17 @@ public class NumberEditorControl extends Composite {
 
 	protected String getFormattedText(Object value) {
 		String formattedValue = null;
-		if (controlModel.getBindingPropertyType().equals(double.class)) {
+		if (controlModel.getBindingPropertyType().equals(double.class))
 			formattedValue = controlModel.getFormattedValue(((Number) value).doubleValue());
-		} else if (controlModel.getBindingPropertyType().equals(int.class)) {
+		else if (controlModel.getBindingPropertyType().equals(int.class))
 			formattedValue = Integer.toString(((Number) value).intValue());
-		}
-		if (controlModel.getUnit() != null) {
+		if (controlModel.getUnit() != null)
 			return formattedValue + " " + controlModel.getUnit();
-		}
 		return formattedValue;
 	}
 
 	public String _getTextForTesting() {
 		return numberLabel.getText();
 	}
+	
 }

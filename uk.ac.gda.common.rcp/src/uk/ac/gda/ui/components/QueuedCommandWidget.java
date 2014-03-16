@@ -104,7 +104,7 @@ public abstract class QueuedCommandWidget extends Composite {
 	 */
 	protected static void initQueue() {
 		if (queue==null) {
-			queue           = new ArrayBlockingQueue<QueuedCommandWidget>(3);
+			queue = new ArrayBlockingQueue<QueuedCommandWidget>(3);
 		}
 		if (mainQueueThread==null) {
 			mainQueueThread = uk.ac.gda.util.ThreadManager.getThread(getRunnable(), "QueuedCommandWidget thread. Used to updated all "+QueuedCommandWidget.class.getName()+"'s");
