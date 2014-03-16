@@ -36,7 +36,6 @@ public class ARPESScanBean implements IRichBean {
 	double timePerStep = 1;
 	short iterations = 1;
 	boolean sweptMode;
-	boolean configureOnly = false;
 	List<SetBean> setBeanList;
 	StartStopStepBean startStopStepBean;
 	
@@ -115,14 +114,6 @@ public class ARPESScanBean implements IRichBean {
 
 	public void setSweptMode(boolean sweptMode) {
 		this.sweptMode = sweptMode;
-	}
-
-	public boolean isConfigureOnly() {
-		return configureOnly;
-	}
-
-	public void setConfigureOnly(boolean configureOnly) {
-		this.configureOnly = configureOnly;
 	}
 
 	public List<SetBean> getSetBeanList() {
