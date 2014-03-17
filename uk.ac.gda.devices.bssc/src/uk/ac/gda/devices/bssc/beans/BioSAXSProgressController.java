@@ -69,7 +69,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		}
 		try {
 			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-			blSessionId = bioSAXSISPyB.getSessionForVisit(/* visit */"nt20-12");
+			blSessionId = bioSAXSISPyB.getSessionForVisit(/* visit */"nt20-13");
 		} catch (DeviceException e) {
 			logger.error("DeviceException getting visit", e);
 		} catch (SQLException e) {
@@ -144,8 +144,11 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 					if (progress != null) {
 						System.out.println("UDP update received, updating model");
 						System.out.println("collection progress is : " + collectionStatusInfo.getProgress());
+						System.out.println("collection status is : " + collectionStatusInfo.getStatus());
 						System.out.println("reduction progress is : " + reductionStatusInfo.getProgress());
+						System.out.println("reduction status is : " + reductionStatusInfo.getStatus());
 						System.out.println("analysis progress is : " + analysisStatusInfo.getProgress());
+						System.out.println("analysis status is : " + analysisStatusInfo.getStatus());
 						progress.setCollectionStatusInfo(collectionStatusInfo);
 						progress.setReductionStatusInfo(reductionStatusInfo);
 						progress.setAnalysisStatusInfo(analysisStatusInfo);
