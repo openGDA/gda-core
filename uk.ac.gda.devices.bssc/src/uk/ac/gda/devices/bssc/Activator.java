@@ -31,8 +31,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import uk.ac.diamond.scisoft.analysis.dataset.IDatasetMathsService;
-import uk.ac.diamond.scisoft.analysis.osgi.DatasetMathsServiceImpl;
+import uk.ac.diamond.scisoft.analysis.IAnalysisService;
+import uk.ac.diamond.scisoft.analysis.osgi.AnalysisServiceImpl;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -63,7 +63,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 		props = new Hashtable<String, String>(1);
 		props.put("description", "A service which replaces concrete classes in the scisoft.analysis plugin.");
 		// The following service is required for dataset plotting in the BioSAXS Results perspective
-		context.registerService(IDatasetMathsService.class, new DatasetMathsServiceImpl(), props);
+		context.registerService(IAnalysisService.class, new AnalysisServiceImpl(), props);
 	}
 
 	@Override
