@@ -1730,15 +1730,20 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		logger.debug("Writing data for scannable (" + scannable.getName() + ") to NeXus file.");
 
 		// Navigate to correct location in the file.
+		String nxDirName = "before_scan";
+		String nxClass = "NXcollection";
+		// Navigate to correct location in the file.
 		try {
 			try {
-				file.makegroup("start_metadata", "NXcollection");
+				if (!(file.groupdir().containsKey(nxDirName) && file.groupdir().get(nxDirName).equals(nxClass))) {
+					file.makegroup(nxDirName, nxClass);
+				} 
 			} catch (Exception e) {
 				// ignored
 			}
-			file.opengroup("start_metadata", "NXcollection");
-			file.makegroup(scannable.getName(), "NXcollection");
-			file.opengroup(scannable.getName(), "NXcollection");
+			file.opengroup(nxDirName, nxClass);
+			file.makegroup(scannable.getName(), nxClass);
+			file.opengroup(scannable.getName(), nxClass);
 
 			for (int i = 0; i < inputNames.length; i++) {
 				file.makedata(inputNames[i], NexusFile.NX_FLOAT64, 1, new int[] {1});

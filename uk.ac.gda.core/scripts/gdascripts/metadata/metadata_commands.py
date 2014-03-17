@@ -43,38 +43,9 @@ def meta_rm(farg, *vargs):
     metashop.remove([farg]+list(vargs))
     return metashop.list(False)
 
-def meta_clear():
-    """
-    Command to remove items to be put into the scan metadata. 
-    """
-    metashop=Finder.getInstance().find("metashop")
-    #metashop.getMetaScannables().clear()    
-    metadataList = metashop.getMetaScannables()
-    for metadata in metadataList:
-        metashop.remove(metadata)
+def meta_clear_nonscannables():
+    metashop = Finder.getInstance().find("metashop")
     metashop.clear()
-    return metashop.list(False)
+    
 
-def meta_enable():
-    """
-    Command to enable reading out and writing out (to scan file) of meta data at scan start. 
-    """
-    metashop=Finder.getInstance().find("metashop")
-    metashop.setEnabled(True)
-    
-def meta_disable():
-    """
-    Command to disable reading out and writing out (to scan file) of meta data at scan start. 
-    """
-    metashop=Finder.getInstance().find("metashop")
-    metashop.setEnabled(False)
-    
-def meta_enabled():
-    """
-    Command to find out if reading out and writing out (to scan file) of meta data at scan start is enabled or not. 
-    """
-    metashop=Finder.getInstance().find("metashop")
-    return metashop.isEnabled()
-    
-    
 
