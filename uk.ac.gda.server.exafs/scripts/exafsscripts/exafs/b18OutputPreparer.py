@@ -1,5 +1,4 @@
 from metadata import Metadata
-from gdascripts.metadata.metadata_commands import meta_clear
     
 class B18OutputPreparer:
     
@@ -23,4 +22,3 @@ class B18OutputPreparer:
     
     def _resetHeader(self):
         self.datawriterconfig.setHeader(self.original_header)
-        meta_clear()

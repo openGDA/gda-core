@@ -4,7 +4,6 @@ from gda.configuration.properties import LocalProperties
 from gda.scan import ScanPlotSettings
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XesScanParameters
-#from gdascripts.metadata.metadata_commands import meta_clear
 #from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
 #from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
 #from gda.data.scan.datawriter import NexusFileMetadata

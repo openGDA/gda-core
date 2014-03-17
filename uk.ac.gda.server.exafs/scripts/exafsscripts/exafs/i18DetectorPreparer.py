@@ -1,11 +1,12 @@
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
-from gda.device.detector import VortexDetectorConfiguration
+from gda.device.detector.xmap import VortexDetectorConfiguration
 from gda.exafs.scan import BeanGroup, BeanGroups
 from gda.device.detector.xspress import XspressDetector
 from gda.jython.commands.ScannableCommands import scan, add_default
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from java.io import File
+
 from gda.device.detector.xspress import ResGrades
 from gda.epics import CAClient
 
