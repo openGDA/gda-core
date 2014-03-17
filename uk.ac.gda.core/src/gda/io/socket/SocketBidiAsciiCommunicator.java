@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.concurrent.locks.ReentrantLock;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -54,8 +55,8 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 
 	@Override
 	public String send(String cmd) throws DeviceException {
-		lock.lock();
 		try {
+			lock.lock();
 			sendCmdNoReply(cmd);
 			StringBuffer sb = new StringBuffer();
 			while (true) {
@@ -65,6 +66,9 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 					bytesRead = reader.read(read);
 				} catch (IOException e) {
 					throw new DeviceException("Error in reading reply to '" + cmd + "'", e);
+				}
+				if( bytesRead ==-1){
+					throw new DeviceException("Terminator not found:" + sb.toString());
 				}
 				try {
 					String str = new String(read, 0, bytesRead, "US-ASCII");
@@ -148,8 +152,8 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 
 	@Override
 	public void sendCmdNoReply(String cmd) throws DeviceException {
-		lock.lock();
 		try {
+			lock.lock();
 			connectIfRequired();
 			if (logger.isDebugEnabled())
 				logger.debug("cmd = '" + cmd + "'");
@@ -182,7 +186,7 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 				reader = socket.getInputStream();
 				writer = socket.getOutputStream();
 			} catch (Exception e) {
-				throw new DeviceException("Error connecting to '" + address + "' : '" + port);
+				throw new DeviceException("Error connecting to '" + address + "' : '" + port, e);
 			}
 		}
 	}
