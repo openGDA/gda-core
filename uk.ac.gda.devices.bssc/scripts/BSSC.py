@@ -234,5 +234,5 @@ class BSSCRun:
         time.sleep(2)
         
         self.setExperimentFinished(self.experiment)
-        BioSAXSISPyBUtils.dumpCollectionReport(self.datacollection)
+        BioSAXSISPyBUtils.dumpCollectionReport(self.experiment)
         self.ispyb.disconnect()
