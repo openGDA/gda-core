@@ -138,6 +138,12 @@
               label="Load Experiment"
               style="push">
         </command>
+        <command
+              commandId="uk.ac.gda.devices.bssc.LoadRedSettings"
+              label="Load Reduction Settings"
+              style="push"
+              tooltip="Load new reduction settings xml file">
+        </command>
      </menuContribution>
   </extension>
   <extension
@@ -151,6 +157,11 @@
            defaultHandler="uk.ac.gda.devices.bssc.ui.handlers.LoadExperimentHandler"
            id="uk.ac.gda.devices.bssc.LoadExperiment"
            name="Load Experiment">
+     </command>
+     <command
+           defaultHandler="uk.ac.gda.devices.bssc.ui.handlers.LoadNewReductionSetup"
+           id="uk.ac.gda.devices.bssc.LoadRedSettings"
+           name="Load New Reduction Settings">
      </command>
   </extension>
   <!--<extension
