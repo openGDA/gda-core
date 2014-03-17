@@ -170,7 +170,6 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 		} finally {
 			lock.unlock();
 		}
-
 	}
 
 	protected void connectIfRequired() throws DeviceException {
@@ -182,7 +181,7 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 				reader = socket.getInputStream();
 				writer = socket.getOutputStream();
 			} catch (Exception e) {
-				throw new DeviceException("Error connecting to '" + address + "' : '" + port);
+				throw new DeviceException("Error connecting to '" + address + "' : '" + port, e);
 			}
 		}
 	}
