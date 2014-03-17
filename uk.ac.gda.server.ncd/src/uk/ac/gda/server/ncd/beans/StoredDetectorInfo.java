@@ -23,4 +23,6 @@ import gda.factory.Findable;
 public interface StoredDetectorInfo extends Findable {
 	void setSaxsDetectorInfoPath(String filePath);
 	String getSaxsDetectorInfoPath();
+	void setDataCalibrationReductionSetupPath(String filePath);
+	String getDataCalibrationReductionSetupPath();
 }

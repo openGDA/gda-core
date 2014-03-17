@@ -25,12 +25,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.data.metadata.MetadataBlaster;
 import gda.observable.IObserver;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,34 +40,48 @@ import uk.ac.gda.util.io.FileUtils;
 
 public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(StoredDetectorInfoImpl.class);
-	private String name;
-	private File saxsDetectorInfo;
-	private MetadataBlaster currentDataDirectoryUpdater;
 	private static final String DETECTOR_MASK_STORAGE = LocalProperties.getVarDir() + "detectorInfoFileLocation";
+	private static final String REDUCTION_SETUP_STORAGE = LocalProperties.getVarDir() + "reductionSetupFileLocation";
+	private String name;
 	
-	public StoredDetectorInfoImpl() {
-		if (new File(DETECTOR_MASK_STORAGE).exists()) {
-			loadDetectorMaskFile();
-		} else {
-			saxsDetectorInfo = new File("");
-		}
-	}
+	private MetadataBlaster currentDataDirectoryUpdater;
 
-	private void loadDetectorMaskFile() {
-		logger.debug("Loading detector mask location from {}", DETECTOR_MASK_STORAGE);
+	private File saxsDetectorInfo;
+	private File dataCalibrationReductionSetup;
+
+	public StoredDetectorInfoImpl() {
+		loadFileLocations();
+	}
+	
+	public void setCurrentDataDirectoryUpdater(MetadataBlaster currentDataDirectoryUpdater) {
+		if (this.currentDataDirectoryUpdater != null) {
+			this.currentDataDirectoryUpdater.deleteIObserver(this);
+		}
+		this.currentDataDirectoryUpdater = currentDataDirectoryUpdater;
+		this.currentDataDirectoryUpdater.addIObserver(this);
+	}
+	
+	private void loadFileLocations() {
+		saxsDetectorInfo = createFileFromLocation(DETECTOR_MASK_STORAGE);
+		dataCalibrationReductionSetup = createFileFromLocation(REDUCTION_SETUP_STORAGE);
+	}
+	
+	private File createFileFromLocation(String filePath) {
+		logger.debug("Loading file location from {}", filePath);
 		FileInputStream fileIn = null;
 		ObjectInputStream objIn = null;
+		String found = "";
 		try {
-			fileIn = new FileInputStream(DETECTOR_MASK_STORAGE);
+			fileIn = new FileInputStream(filePath);
 			objIn = new ObjectInputStream(fileIn);
-			setSaxsDetectorInfoPath((String)objIn.readObject());
-			logger.debug("Found detector mask location file. Detector mask location: {}", saxsDetectorInfo.getPath());
+			found = ((String)objIn.readObject());
+			logger.debug("Found file location: {}", found);
 		} catch (FileNotFoundException e) {
-			logger.info("No mask location stored, defaulting to base data directory");
+			logger.info("No file location stored, defaulting to base data directory");
 		} catch (ClassNotFoundException e) {
-			logger.error("Could not read stored mask location", e);
+			logger.error("Could not read stored file location from {}", filePath, e);
 		} catch (IOException e) {
-			logger.error("Could not read stored mask location", e);
+			logger.error("Could not read stored file location from {}", filePath, e);
 		}
 		finally {
 			try {
@@ -76,34 +91,79 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 				logger.error("Could not close loadDetectorMaskFile fileStreams", e);
 			}
 		}
+		return new File(found);
 	}
 
-	private void storeDetectorMaskFile() {
-		logger.info("Saving detector mask location to {}", DETECTOR_MASK_STORAGE);
+	@Override
+	public void update(Object source, Object arg) {
+		logger.debug("Subdirectory changed. New directory: {}", arg);
+		updateFilePaths();
+	}
+	
+	private void updateFilePaths() {
+		updateSaxsDetectorInfo();
+		updateDataCalibrationReductionSetup();
+	}
+
+	private void updateSaxsDetectorInfo() {
+		if (saxsDetectorInfo.exists()) {
+			logger.debug("Copying saxs Detector Info to new data directory");
+			String newPath = getNewFilePath(saxsDetectorInfo);
+			File newFile = new File(newPath);
+			copyFile(saxsDetectorInfo, newFile);
+			saxsDetectorInfo = newFile;
+			storeFileLocation(saxsDetectorInfo, DETECTOR_MASK_STORAGE);
+		} else {
+			logger.debug("Detector info file does not exist");
+			setSaxsDetectorInfoPath("");
+		}
+	}
+
+	private void updateDataCalibrationReductionSetup() {
+		if (dataCalibrationReductionSetup.exists()) {
+			String newPath = getNewFilePath(dataCalibrationReductionSetup);
+			File newFile = new File(newPath);
+			copyFile(dataCalibrationReductionSetup, newFile);
+			dataCalibrationReductionSetup = newFile;
+			storeFileLocation(dataCalibrationReductionSetup, REDUCTION_SETUP_STORAGE);
+		} else {
+			logger.debug("Calibration and reduction info file does not exist");
+			setDataCalibrationReductionSetupPath("");
+		}
+	}
+
+	private String getNewFilePath(File currentFile) {
+		return PathConstructor.createFromDefaultProperty() + "/" + currentFile.getName();
+	}
+	
+	private void copyFile(File source, File target) {
+		try {
+			FileUtils.copy(source, target);
+		} catch (IOException e) {
+			logger.error("Could not copy {} to {}", source.getName(), target.getPath(), e);
+		}
+	}
+
+	private void storeFileLocation(File file, String saveAsFile) {
 		FileOutputStream fileOut = null;
 		ObjectOutputStream objOut = null;
+		String pathToSave = file.getPath();
 		try {
-			fileOut = new FileOutputStream(DETECTOR_MASK_STORAGE);
+			fileOut = new FileOutputStream(saveAsFile);
 			objOut = new ObjectOutputStream(fileOut);
-			objOut.writeObject(saxsDetectorInfo.getPath());
+			objOut.writeObject(pathToSave);
 		} catch (FileNotFoundException e) {
-			logger.error("Could not save detector mask location to {}", DETECTOR_MASK_STORAGE, e);
+			logger.error("Could not save {} to {}", pathToSave, saveAsFile, e);
 		} catch (IOException e) {
-			logger.error("Could not save detector mask location", e);
+			logger.error("Could not save {} to {}", pathToSave, saveAsFile, e);
 		} finally {
 			try {
 				if (objOut != null) objOut.close();
 				if (fileOut != null) fileOut.close();
 			} catch (IOException e) {
-				logger.error("could not close storeDetectorMaskFile fileStreams", e);
+				logger.error("could not close fileStreams", e);
 			}
 		}
-	}
-
-	@Override
-	public void setSaxsDetectorInfoPath(String filePath) {
-		saxsDetectorInfo = new File(filePath);
-		storeDetectorMaskFile();
 	}
 	
 	@Override
@@ -111,47 +171,48 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 		return saxsDetectorInfo.getPath();
 	}
 
-	public void setCurrentDataDirectoryUpdater(MetadataBlaster currentDataDirectoryUpdater) {
-		if (this.currentDataDirectoryUpdater != null) {
-			this.currentDataDirectoryUpdater.deleteIObserver(this);
+	@Override
+	public void setSaxsDetectorInfoPath(String filePath) {
+		File newFile = new File(filePath);
+		if (newFile.exists()) {
+			this.saxsDetectorInfo = newFile;
+		} else {
+			this.saxsDetectorInfo = new File("");
 		}
-		this.currentDataDirectoryUpdater = currentDataDirectoryUpdater;
-		this.currentDataDirectoryUpdater.addIObserver(this);
+		logger.debug("saxsDetectorInfoPath is: {}", filePath);
+		storeFileLocation(saxsDetectorInfo, DETECTOR_MASK_STORAGE);
 	}
 
 	@Override
-	public void update(Object source, Object arg) {
-		if (detectorInfoFileExists()) {
-			String newFileName = PathConstructor.createFromDefaultProperty() + "/" + saxsDetectorInfo.getName();
-			logger.info("Subdirectory changed, copying {} to {}", saxsDetectorInfo.getName(), arg);
-			copyMaskToNewFile(newFileName);
-			setSaxsDetectorInfoPath(newFileName);
-		} else {
-			logger.debug("Subdirectory changed but there is no mask to copy");
-		}
-	}
-	
-	private boolean detectorInfoFileExists() {
-		return saxsDetectorInfo.exists();
-	}
-	
-	private void copyMaskToNewFile(String newFileName) {
-		File newFile = new File(newFileName);
-		try {
-			FileUtils.copy(saxsDetectorInfo, newFile);
-		} catch (IOException e) {
-			logger.error("Could not copy detectorMask to new folder", e);
-		}
-		
+	public String getDataCalibrationReductionSetupPath() {
+		return dataCalibrationReductionSetup.getPath();
 	}
 
+	@Override
+	public void setDataCalibrationReductionSetupPath(String filePath) {
+		File newFile = new File(filePath);
+		File timeStamped = new File(PathConstructor.createFromDefaultProperty() + "/" + timeStamped("ReductionAndCalibration") + ".xml");
+		if (newFile.exists()) {
+			copyFile(newFile, timeStamped);
+			this.dataCalibrationReductionSetup = timeStamped;
+		} else this.dataCalibrationReductionSetup = new File("");
+		logger.debug("dataCalibrationReductionSetupPath is: {}", filePath);
+		storeFileLocation(dataCalibrationReductionSetup, REDUCTION_SETUP_STORAGE);
+	}
+	
+	@Override
+	public String getName() {
+		return name;
+	}
+	
 	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	@Override
-	public String getName() {
-		return name;
+	
+	public String timeStamped(String toStamp) {
+		Date now = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("-yyyyMMdd-HHmmss");
+		return toStamp + sdf.format(now);
 	}
 }
