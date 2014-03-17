@@ -49,7 +49,7 @@
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs.epics/bin" />
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xmap/bin" />
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xspress2/bin" />
-                <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.beans.vortex" />
+                <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.beans.vortex/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.client/bin" />
                 <pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/bin" />
                 <pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/jars/*" />
