@@ -522,7 +522,20 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 			scannable.atLevelMoveStart();
 		}
 	}
+	@Override
+	public void atLevelStart() throws DeviceException {
+		for (Scannable scannable : groupMembers) {
+			scannable.atLevelStart();
+		}
+	}
+	@Override
+	public void atLevelEnd() throws DeviceException {
+		for (Scannable scannable : groupMembers) {
+			scannable.atLevelEnd();
+		}
+	}
 
+	
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		for (Scannable scannable : groupMembers) {
