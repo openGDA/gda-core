@@ -3,6 +3,7 @@ package uk.ac.gda.devices.excalibur;
 import gda.device.Scannable;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.areadetector.v17.impl.NDBaseImpl;
 import gda.device.scannable.ScannableUtils;
 
 import java.util.List;
@@ -10,11 +11,11 @@ import java.util.Random;
 
 import org.apache.commons.math.distribution.NormalDistribution;
 import org.apache.commons.math.distribution.NormalDistributionImpl;
+import org.springframework.beans.factory.InitializingBean;
 
 
-public class ExcaliburNDArraySimulator implements NDArray{
+public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 
-	NDPluginBase pluginBase;
 	double height=0.;
 	double centre=0.;
 	double width=1.;
@@ -91,19 +92,11 @@ public class ExcaliburNDArraySimulator implements NDArray{
 		this.width = width;
 		heights = null;
 	}
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.pluginBase = pluginBase;
-	}
-
-	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
-	}
 
 	@Override
 	public short[] getShortArrayData(int numberOfElements) throws Exception {
-		int w = pluginBase.getArraySize0_RBV();
-		int h = pluginBase.getArraySize1_RBV();
+		int w = getPluginBase().getArraySize0_RBV();
+		int h = getPluginBase().getArraySize1_RBV();
 		
 		if( widthUsed != w || heightUsed != h || heights==null){
 			handleWidthHeight(w, h);
@@ -152,8 +145,8 @@ public class ExcaliburNDArraySimulator implements NDArray{
 /*		if(getPluginBase().getDataType_RBV() != NDPluginBase.UInt32)
 			throw new UnsupportedOperationException("Only getIntArrayData for  NDPluginBase.UInt32 is supported");
 */
-		int w = pluginBase.getArraySize0_RBV();
-		int h = pluginBase.getArraySize1_RBV();
+		int w = getPluginBase().getArraySize0_RBV();
+		int h = getPluginBase().getArraySize1_RBV();
 		
 		if( widthUsed != w || heightUsed != h || heights==null){
 			handleWidthHeight(w, h);
