@@ -19,7 +19,6 @@
 package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDPluginBasePVs;
-import gda.device.detector.areadetector.v18.impl.NDStatsPVsImpl;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;
