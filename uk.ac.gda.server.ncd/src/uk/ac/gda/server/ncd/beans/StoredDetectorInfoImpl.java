@@ -175,9 +175,15 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	public void setSaxsDetectorInfoPath(String filePath) {
 		File newFile = new File(filePath);
 		if (newFile.exists()) {
-			this.saxsDetectorInfo = newFile;
+			if (!(newFile.getParentFile().equals(new File(PathConstructor.createFromDefaultProperty())))) {
+				File timeStamped = new File(PathConstructor.createFromDefaultProperty() + "/" + timeStamped("detectorMask") + ".h5");
+				copyFile(newFile, timeStamped);
+				this.saxsDetectorInfo = timeStamped;
+			} else {
+				this.saxsDetectorInfo = newFile;
+			}
 		} else {
-			this.saxsDetectorInfo = new File("");
+			logger.error("new file does not exist");
 		}
 		logger.debug("saxsDetectorInfoPath is: {}", filePath);
 		storeFileLocation(saxsDetectorInfo, DETECTOR_MASK_STORAGE);
@@ -195,7 +201,9 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 		if (newFile.exists()) {
 			copyFile(newFile, timeStamped);
 			this.dataCalibrationReductionSetup = timeStamped;
-		} else this.dataCalibrationReductionSetup = new File("");
+		} else {
+			logger.error("new file does not exist");
+		}
 		logger.debug("dataCalibrationReductionSetupPath is: {}", filePath);
 		storeFileLocation(dataCalibrationReductionSetup, REDUCTION_SETUP_STORAGE);
 	}
@@ -210,7 +218,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 		this.name = name;
 	}
 	
-	public String timeStamped(String toStamp) {
+	private String timeStamped(String toStamp) {
 		Date now = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("-yyyyMMdd-HHmmss");
 		return toStamp + sdf.format(now);
