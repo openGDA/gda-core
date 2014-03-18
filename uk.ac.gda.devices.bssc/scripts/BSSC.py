@@ -151,6 +151,7 @@ class BSSCRun:
             self.loadWell(titration.getBufferLocation())
             self.reportSampleProgress(titration, "Exposing Buffer")
             self.setTitle("Buffer for next and preceding sample measurement")
+            sample_name.asynchronousMoveTo("buffer")
             filename = self.expose(duration)
             self.reportSampleProgress(titration, "Cleaning after Buffer")
             #print "Create buffer run dataCollectionIndex " + str(self.dataCollectionIndex)
@@ -164,6 +165,7 @@ class BSSCRun:
             self.loadWell(titration.getLocation())
             self.reportSampleProgress(titration, "Exposing Sample")
             self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
+            sample_name.asynchronousMoveTo(titration.getSampleName())
             filename = self.expose(duration)
             #print "Create sample run dataCollectionIndex " + str(self.dataCollectionIndex)
             self.ispyb.createSampleRun(self.dataCollectionIds[self.dataCollectionIndex], titration.getTimePerFrame(), self.getStorageTemperature(), self.getExposureTemperature(), self.energy, titration.getFrames(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, filename, "/entry1/detector/data");
