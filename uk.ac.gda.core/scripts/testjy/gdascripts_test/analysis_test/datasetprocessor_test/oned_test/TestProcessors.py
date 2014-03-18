@@ -197,17 +197,6 @@ def check(result, expected, labels, tol=.0001):
 		raise AssertionError('\n'.join(lines))
 
 
-def check(result, expected, labels, tol=.0001):
-	if not closer(result, expected, tol):
-		lines = ['Result not close to expected to tolerence:' + str(tol)]
-		lines.append('          result  expected')
-		for r, e, name in zip(result, expected, labels):
-			lines.append('%6s % 6f % 6f' % (name, r, e))
-		fmt = 'result: ' + ', '.join(['% 6f'] * len(result))
-		lines.append(fmt % result)
-		raise AssertionError('\n'.join(lines))
-
-
 class TestTwoEdges(Test):
 		
 	def setUp(self):
