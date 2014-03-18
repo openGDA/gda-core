@@ -284,7 +284,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final ConnectionEvent event = cl.event;
 			if (event == null)
-				throw new TimeoutException("connection timeout for '" + pvname + "'");
+				throw new TimeoutException("connection timeout for '" + pvname + "', "+timeoutInS+"s");
 
 			if (!event.isConnected())
 				throw new CAException("failed to connect to '" + pvname + "'");
@@ -819,6 +819,8 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	}
 
 	private DBR getDBR(Channel ch, DBRType type, int count, double timeout) throws TimeoutException, CAException {
+		if (ch.getElementCount() != count)
+			logger.warn("Requested "+count+" elements from "+ch.getName()+" but channel elementCount is "+ch.getElementCount()); 
 		try {
 			GetListenerImpl listener = new GetListenerImpl();
 			synchronized (listener) {
@@ -834,7 +836,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final GetEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("get timeout");
+				throw new TimeoutException("get timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "get failed");
@@ -1624,7 +1626,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
@@ -1670,7 +1672,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
@@ -1716,7 +1718,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
@@ -1762,7 +1764,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
@@ -1808,7 +1810,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
@@ -1854,7 +1856,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
@@ -1900,7 +1902,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
@@ -1946,7 +1948,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
@@ -1992,7 +1994,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
@@ -2038,7 +2040,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
@@ -2369,7 +2371,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout");
+				throw new TimeoutException("put timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
 				throw new CAStatusException(event.getStatus(), "put failed");
