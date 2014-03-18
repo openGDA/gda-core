@@ -29,7 +29,6 @@ import gda.device.scannable.DummyScannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Factory;
 import gda.factory.Finder;
-import gda.jython.ITerminalPrinter;
 import gda.scan.ConcurrentScan;
 
 import java.util.HashMap;
@@ -44,13 +43,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class NXMetaDataProviderTest {
-
-	class TerminalPrinter implements ITerminalPrinter {
-		@Override
-		public synchronized void print(String text) {
-			System.out.print(text);
-		}
-	}
 
 	Random rand;
 	private ScannableMotionUnits bsx;
