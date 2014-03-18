@@ -67,8 +67,10 @@ public class ProcessingRunner implements Findable, Map<String, String> {
 		if (backgroundfilepath == null)
 			backgroundfilepath = "";
 		
-		environment.put("NCDREDXML", detectorInfo.getDataCalibrationReductionSetupPath());
-		environment.put("PERSISTENCEFILE", detectorInfo.getSaxsDetectorInfoPath());
+		if (detectorInfo != null) {
+			environment.put("NCDREDXML", detectorInfo.getDataCalibrationReductionSetupPath());
+			environment.put("PERSISTENCEFILE", detectorInfo.getSaxsDetectorInfoPath());
+		}
 		
 		OSCommandRunner.runNoWait(Arrays.asList(new String[] {executablePath, datafilepath, backgroundfilepath, dataCollectionId}), OSCommandRunner.LOGOPTION.ONLY_ON_ERROR, "/dev/null", environment, new Vector<String>());
 	}
