@@ -170,13 +170,13 @@ public class ContinuousScan extends ConcurrentScanChild {
 				}
 				// get data from detectors for that frame and create an sdp and send it out
 				if (frameNumberReached > -1 && frameNumberReached > highestFrameNumberRead) {
-					logger.info("about to createDataPoints " + (highestFrameNumberRead + 1) + " " + frameNumberReached
+					logger.debug("about to createDataPoints " + (highestFrameNumberRead + 1) + " " + frameNumberReached
 							+ " " + qscanAxis.isBusy());
 					createDataPoints(highestFrameNumberRead + 1, frameNumberReached);
 				}
 
 				highestFrameNumberRead = frameNumberReached;
-				logger.info("number of frames completed:" + new Integer(frameNumberReached + 1));
+				logger.debug("number of frames completed:" + new Integer(frameNumberReached + 1));
 
 			}
 
@@ -239,7 +239,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 			// always stop the detectors and end the scan (which will stop the qscanAxis too)
 			qscanAxis.stop();
 			for (BufferedDetector detector : qscanDetectors) {
-				logger.info("Stopping detector: " + detector.getName());
+				logger.debug("Stopping detector: " + detector.getName());
 				detector.stop();
 				detector.setContinuousMode(false);
 			}
