@@ -502,9 +502,7 @@ public class DummyDAServer extends DAServer {
 		String memoryType = handles.get(handle);
 		if ("scaler".equals(memoryType))
 			scalerData = createDummyScalerData(x, y, t, dx, dy, dt);
-		else if ("gdhist".equals(memoryType))
-			scalerData = createDummyHistData(x, y, t, dx, dy, dt);
-		else if ("vvhist".equals(memoryType))
+		else if ("gdhist".equals(memoryType) || "vvhist".equals(memoryType))
 			scalerData = createDummyHistData(x, y, t, dx, dy, dt);
 		return scalerData;
 	}
@@ -810,17 +808,16 @@ public class DummyDAServer extends DAServer {
 					}
 				}
 			}
-		} 
-		else {
+		} else {
 			if (gaussians[0] == null || gaussiansused > 13 || data_size != old_data_size) { // initialise them on the																		// fly
 				old_data_size = data_size;
 				gaussiansused = 0;
 				// one for the background
-				gaussians[0] = new Gaussian(data_size / 3, data_size, 400.0);
+				gaussians[0] = new Gaussian(dx * dy / 3, dx * dy, 400.0);
 				// some for the show
 				for (int j = 1; j < gaussians.length; j++) {
-					gaussians[j] = new Gaussian(data_size * j / gaussians.length + (Math.random() - 0.5) * data_size
-							/ (20 * gaussians.length), data_size / (40 * gaussians.length), (Math.random() + 1) * 800);
+					gaussians[j] = new Gaussian(dx * dy * j / gaussians.length + (Math.random() - 0.5) * dx * dy 
+							/ (20 * gaussians.length), dx * dy / (40 * gaussians.length), (Math.random() + 1) * 800);
 				}
 				middlegaussian = new Gaussian(dx / 2 + dx / 10 * Math.random(), dx / 7, 4.0);
 			}
@@ -834,7 +831,7 @@ public class DummyDAServer extends DAServer {
 					data[l] = (long) (count + Math.random() * (count + 1) / (Math.sqrt(count / 50) + 0.1));
 					for (int i = x; i < x + dx; i++) { // x loop
 						for (Gaussian element : gaussians)
-							data[l] += element.yAtX(l) * (count + 1) / 10;
+							data[l] += element.yAtX(j * dy + i) * (count + 1) / 10;
 						data[l] *= middlegaussian.yAtX(i);
 						l++;
 					}
