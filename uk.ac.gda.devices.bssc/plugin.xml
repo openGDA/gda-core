@@ -134,16 +134,25 @@
            allPopups="false"
            locationURI="menu:file?after=additions">
         <command
-              commandId="uk.ac.gda.devices.bssc.LoadExperiment"
-              label="Load Experiment"
-              style="push">
-        </command>
-        <command
               commandId="uk.ac.gda.devices.bssc.LoadRedSettings"
               label="Load Reduction Settings"
               style="push"
               tooltip="Load new reduction settings xml file">
         </command>
+     </menuContribution>
+     <menuContribution
+           allPopups="false"
+           locationURI="toolbar:org.eclipse.ui.main.toolbar">
+        <toolbar
+              id="uk.ac.gda.devices.bssc.toolbar1">
+           <command
+                 commandId="uk.ac.gda.devices.bssc.LoadExperiment"
+                 icon="icons/well.png"
+                 label="Import Excel Spreadsheet"
+                 mode="FORCE_TEXT"
+                 style="push">
+           </command>
+        </toolbar>
      </menuContribution>
   </extension>
   <extension
