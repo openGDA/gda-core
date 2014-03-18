@@ -24,7 +24,7 @@ import gda.observable.Observable;
 /**
  * This maps to the roi plugin on the edm screen.
  */
-public interface NDROI {
+public interface NDROI extends GetPluginBaseAvailable {
 	/**
 	 * List all the PVs
 	 */
@@ -445,11 +445,6 @@ public interface NDROI {
 	 * @throws Exception
 	 */
 	void setAreaDetectorROI(AreaDetectorROI areaDetectorROI) throws Exception;
-
-	/**
-	 * @return {@link NDPluginBase}
-	 */
-	NDPluginBase getPluginBase();
 
 	/**
 	 * @return {@link AreaDetectorROI}

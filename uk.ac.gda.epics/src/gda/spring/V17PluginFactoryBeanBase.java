@@ -19,6 +19,7 @@
 package gda.spring;
 
 import gda.device.detector.areadetector.IPVProvider;
+import gda.device.detector.areadetector.v17.ADCommon;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl;
 import gda.device.detector.areadetector.v17.impl.SimplePVProvider;
@@ -29,13 +30,22 @@ import gda.device.detector.areadetector.v17.impl.SimplePVProvider;
 abstract public  class  V17PluginFactoryBeanBase <T> extends V17FactoryBeanBase<T>{
 
 	private String prefix;
-	
+	private ADCommon input;
+
 	public String getPrefix() {
 		return prefix;
 	}
 
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
+	}
+
+	public ADCommon getInput() {
+		return input;
+	}
+
+	public void setInput(ADCommon input) {
+		this.input = input;
 	}
 
 	abstract protected T createObject(NDPluginBase pluginBase, IPVProvider pvProvider) throws Exception;

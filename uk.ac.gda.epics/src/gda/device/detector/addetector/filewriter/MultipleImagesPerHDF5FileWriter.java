@@ -337,7 +337,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		getNdFileHDF5().stopCapture();
 		
 //		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all we be ok in the end.");
-		if (getNdFileHDF5().getPluginBase().getDroppedArrays_RBV() > 0)
+		if (getNdFileHDF5().getFile().getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");
 	}
 	

@@ -22,7 +22,6 @@ import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.FfmpegStream;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.FfmpegStreamType;
 import gda.factory.FactoryException;
@@ -37,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class FfmpegStreamImpl implements InitializingBean, FfmpegStream {
+public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, FfmpegStream {
 	// Setup the logging facilities
 	static final Logger logger = LoggerFactory.getLogger(FfmpegStreamImpl.class);
 
@@ -51,8 +50,6 @@ public class FfmpegStreamImpl implements InitializingBean, FfmpegStream {
 	 * Map that stores the channel against the PV name
 	 */
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
-
-	private NDPluginBase ndPluginBase;
 
 	private FfmpegStreamType config;
 	
@@ -326,7 +323,7 @@ public class FfmpegStreamImpl implements InitializingBean, FfmpegStream {
 		if (deviceName == null && basePVName == null && pvProvider == null) {
 			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
 		}
-		if (ndPluginBase == null) {
+		if (getPluginBase() == null) {
 			throw new IllegalArgumentException("'ndPluginBase' should be declared.");
 		}
 	}
@@ -447,21 +444,8 @@ public class FfmpegStreamImpl implements InitializingBean, FfmpegStream {
 	}
 
 	@Override
-	public NDPluginBase getPluginBase() {
-		return ndPluginBase;
-	}
-
-	/**
-	 * @param ndPluginBase
-	 *            The ndPluginBase to set.
-	 */
-	public void setPluginBase(NDPluginBase ndPluginBase) {
-		this.ndPluginBase = ndPluginBase;
-	}
-
-	@Override
 	public void reset() throws Exception {
-		ndPluginBase.reset();
+		getPluginBase().reset();
 		if (initialQuality != Double.NaN) {
 			setQUALITY(initialQuality);
 		}

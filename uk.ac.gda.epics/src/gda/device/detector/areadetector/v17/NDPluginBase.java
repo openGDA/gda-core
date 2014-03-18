@@ -25,10 +25,13 @@ import gda.observable.Observable;
  * This maps to the subset of PV that are shared across all plugins. All the plugins that share this have an object
  * contained within themselves.
  */
+
 /**
- *
+ * All plugins have an 'NDPluginBase' which is represents the elements that all plugins have available.
+ * 
+ * This should not be confused with a 'base class' in the OO sense.
  */
-public interface NDPluginBase {
+public interface NDPluginBase extends ADCommon {
 	static final String PortName_RBV = "PortName_RBV";
 
 	static final String PluginType_RBV = "PluginType_RBV";
@@ -84,11 +87,6 @@ public interface NDPluginBase {
 	static final String NDAttributesFile = "NDAttributesFile";
 
 	
-	/**
-	 *
-	 */
-	String getPortName_RBV() throws Exception;
-
 	/**
 	 *
 	 */

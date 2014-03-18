@@ -18,28 +18,17 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.observable.Observable;
 
-public class NDStatsSimulator implements NDStats {
+public class NDStatsSimulator extends NDBaseImpl implements NDStats {
 
-	NDPluginBase pluginBase;
 	private double minValue=0.;
 	private double maxValue=0.;
 	private double meanValue=0.;
 	private double total;
 	private double net;
 	private double sigma;
-
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.pluginBase = pluginBase;
-	}
-
-	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
-	}
 
 	@Override
 	public short getComputeStatistics() throws Exception {

@@ -41,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class NDROIImpl implements InitializingBean, NDROI {
+public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 
 	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
@@ -55,7 +55,6 @@ public class NDROIImpl implements InitializingBean, NDROI {
 	private NDROIType config;
 	private String deviceName;
 
-	private NDPluginBase pluginBase;
 	// Setup the logging facilities
 	static final Logger logger = LoggerFactory.getLogger(NDROIImpl.class);
 
@@ -1088,21 +1087,8 @@ public class NDROIImpl implements InitializingBean, NDROI {
 	}
 
 	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
-	}
-
-	/**
-	 * @param pluginBase
-	 *            The pluginBase to set.
-	 */
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.pluginBase = pluginBase;
-	}
-
-	@Override
 	public void reset() throws Exception {
-		pluginBase.reset();
+		getPluginBase().reset();
 		if (initialDataType != null)
 			setDataTypeOut((short) initialDataType.intValue());
 		if (initialEnableScale)

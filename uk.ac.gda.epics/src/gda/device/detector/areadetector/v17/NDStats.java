@@ -24,7 +24,7 @@ import gda.observable.Observable;
 /**
  * This maps to the stats plugin on the edm screen.
  */
-public interface NDStats {
+public interface NDStats extends GetPluginBaseAvailable {
 
 	/**
 	 * List all the PVs
@@ -127,8 +127,6 @@ public interface NDStats {
 	String MaxSizeY = "MaxSizeY";
 
 	String SetYHOPR = "SetYHOPR";
-
-	NDPluginBase getPluginBase();
 
 	/**
 	 *

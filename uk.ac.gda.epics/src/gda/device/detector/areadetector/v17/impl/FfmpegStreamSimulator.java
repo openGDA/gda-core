@@ -19,11 +19,9 @@
 package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.FfmpegStream;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 
-public class FfmpegStreamSimulator implements FfmpegStream {
+public class FfmpegStreamSimulator extends NDBaseImpl implements FfmpegStream {
 
-	NDPluginBase nDPluginBase;
 	private double quality;
 	private int false_col;
 	private int always_on;
@@ -34,11 +32,6 @@ public class FfmpegStreamSimulator implements FfmpegStream {
 	private String mjpg_url="";
 	private int maxw;
 	private int maxh;
-	@Override
-	public NDPluginBase getPluginBase() {
-		return nDPluginBase;
-	}
-	
 
 	@Override
 	public double getQUALITY() throws Exception {
@@ -113,11 +106,6 @@ public class FfmpegStreamSimulator implements FfmpegStream {
 
 	@Override
 	public void reset() throws Exception {
-	}
-
-
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.nDPluginBase = pluginBase;
 	}
 
 

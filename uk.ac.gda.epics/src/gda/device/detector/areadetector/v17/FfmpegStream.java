@@ -22,7 +22,7 @@ package gda.device.detector.areadetector.v17;
 /**
  * This maps to the fmpeg plugin on the EDM screen
  */
-public interface FfmpegStream {
+public interface FfmpegStream extends GetPluginBaseAvailable {
 	static final String QUALITY = "QUALITY";
 
 	static final String QUALITY_RBV = "QUALITY_RBV";
@@ -49,8 +49,6 @@ public interface FfmpegStream {
 	static final String MAXH ="MAXH_RBV";
 	static final String MAXW_RBV ="MAXW";
 	static final String MAXH_RBV ="MAXH_RBV";
-
-	NDPluginBase getPluginBase();
 
 	/**
 	 *

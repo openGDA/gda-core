@@ -22,7 +22,6 @@ import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDOverlay;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDOverlayType;
 import gda.factory.FactoryException;
@@ -37,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class NDOverlayImpl implements InitializingBean, NDOverlay {
+public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOverlay {
 
 	private static final String OVERLAY_7 = "8:";
 
@@ -91,8 +90,6 @@ public class NDOverlayImpl implements InitializingBean, NDOverlay {
 	 * Map that stores the channel against the PV name
 	 */
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
-
-	private NDPluginBase pluginBase;
 
 	/**
 	 * List all the PVs
@@ -6097,17 +6094,8 @@ public class NDOverlayImpl implements InitializingBean, NDOverlay {
 	}
 
 	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
-	}
-
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.pluginBase = pluginBase;
-	}
-
-	@Override
 	public void reset() throws Exception {
-		pluginBase.reset();
+		getPluginBase().reset();
 	}
 
 }

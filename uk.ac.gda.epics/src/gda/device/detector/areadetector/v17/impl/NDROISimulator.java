@@ -19,23 +19,11 @@
 package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.AreaDetectorROI;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.observable.Observable;
 
-public class NDROISimulator implements NDROI {
+public class NDROISimulator extends NDBaseImpl implements NDROI {
 
-	NDPluginBase pluginBase;
-
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.pluginBase = pluginBase;
-	}
-
-	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
-	}	
-	
 	@Override
 	public String getLabel() throws Exception {
 

@@ -19,19 +19,20 @@
 package gda.device.detector.addetector.triggering;
 
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.scan.ScanInformation;
 
-public final class SingleExposureUnsynchronisedExternalShutter extends SingleExposureStandard
+public final class MultipleExposureSoftwareTriggerAutoModeUnsynchronisedExternalShutter extends MultipleExposureSoftwareTriggerAutoMode
 		implements UnsynchronisedExternalShutterNXCollectionStrategy {
 
 	private double collectionExtensionTimeS = 5.0;
 
-	public SingleExposureUnsynchronisedExternalShutter(ADBase adBase, double readoutTimeS, double collectionExtensionTimeS) {
+	public MultipleExposureSoftwareTriggerAutoModeUnsynchronisedExternalShutter(ADBase adBase, double readoutTimeS, double collectionExtensionTimeS) {
 		super(adBase, readoutTimeS);
 		this.collectionExtensionTimeS = collectionExtensionTimeS;
 	}
 
 	/**
-	 * Override SingleExposureStandard in order to silently extend detector acquisition time.
+	 * Override MultipleExposureSoftwareTriggerAutoMode in order to silently extend detector acquisition time.
 	 * 
 	 * On beamlines where an external shutter is used to control the length of an exposure and the trigger/gate for the shutter
 	 * is not also sent to the detector, the acquisition must enclose the shutter acquisition time. Thus the actual acquisition
@@ -45,23 +46,18 @@ public final class SingleExposureUnsynchronisedExternalShutter extends SingleExp
 	 */
 
 	@Override
-	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		if (getReadoutTime() < 0) {
-			getAdBase().setAcquirePeriod(0.0);
-		} else {
-			getAdBase().setAcquirePeriod(collectionTime + getReadoutTime() + collectionExtensionTimeS);
-		}
-		getAdBase().setAcquireTime(collectionTime + collectionExtensionTimeS);
+	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
+		super.prepareForCollection(collectionTime + collectionExtensionTimeS, numImagesIgnored, scanInfo);
 	}
 
 	@Override
 	public double getAcquireTime() throws Exception {
-		return getAdBase().getAcquireTime_RBV() - collectionExtensionTimeS;
+		return super.getAcquireTime() - collectionExtensionTimeS;
 	}
 
 	@Override
 	public double getAcquirePeriod() throws Exception {
-		double acquirePeriod_RBV = getAdBase().getAcquirePeriod_RBV();
+		double acquirePeriod_RBV = super.getAcquirePeriod();
 		if (getReadoutTime() > 0) acquirePeriod_RBV -= collectionExtensionTimeS;
 		return acquirePeriod_RBV; 
 	}
