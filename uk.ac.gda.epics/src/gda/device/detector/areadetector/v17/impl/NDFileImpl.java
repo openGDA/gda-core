@@ -25,7 +25,6 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDFileType;
@@ -49,7 +48,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.util.FilePathConverter;
 
-public class NDFileImpl implements InitializingBean, NDFile {
+public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 
 	private volatile int status = Detector.IDLE;
 
@@ -143,8 +142,6 @@ public class NDFileImpl implements InitializingBean, NDFile {
 	private String initialFileName;
 	private String initialFileTemplate;
 	private Integer initialFileNumber;
-
-	private NDPluginBase ndPluginBase;
 
 	private NDFileType config;
 	private String deviceName;
@@ -869,7 +866,7 @@ public class NDFileImpl implements InitializingBean, NDFile {
 		if (deviceName == null && basePVName == null && pvProvider == null) {
 			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
 		}
-		if (ndPluginBase == null) {
+		if (getPluginBase() == null) {
 			logger.warn(getDeviceName() + " : 'ndPluginBase' not declared");
 			// TODO: The pilatus driver contains an NDFile with no associated NDPluginBase
 			// throw new IllegalArgumentException("'ndPluginBase' needs to be declared");
@@ -934,23 +931,10 @@ public class NDFileImpl implements InitializingBean, NDFile {
 	}
 
 	@Override
-	public NDPluginBase getPluginBase() {
-		return ndPluginBase;
-	}
-
-	/**
-	 * @param ndPluginBase
-	 *            The ndPluginBase to set.
-	 */
-	public void setPluginBase(NDPluginBase ndPluginBase) {
-		this.ndPluginBase = ndPluginBase;
-	}
-
-	@Override
 	public void reset() throws Exception {
 		// Reset the plugin base variables.
-		if (ndPluginBase != null) {
-			ndPluginBase.reset();
+		if (getPluginBase() != null) {
+			getPluginBase().reset();
 		}
 		if( resetToInitialValues){
 			// Reset local variables.

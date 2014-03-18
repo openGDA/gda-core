@@ -29,7 +29,7 @@ import gda.factory.FactoryException;
 /*
  * class that returns data from a file rather than EPICS.
  */
-public class NDArraySimulator implements NDArray {
+public class NDArraySimulator extends NDBaseImpl implements NDArray {
 
 	GaussianController gC;
 
@@ -37,17 +37,6 @@ public class NDArraySimulator implements NDArray {
 		super();
 		gC = new GaussianController();
 		gC.configure();
-	}
-
-	NDPluginBase pluginBase;
-
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.pluginBase = pluginBase;
-	}
-
-	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
 	}
 
 	@Override
@@ -69,8 +58,8 @@ public class NDArraySimulator implements NDArray {
 	@Override
 	public byte[] getByteArrayData() throws Exception {
 
-		int width = pluginBase.getArraySize0_RBV();
-		int height = pluginBase.getArraySize1_RBV();
+		int width = getPluginBase().getArraySize0_RBV();
+		int height = getPluginBase().getArraySize1_RBV();
 
 		short dataType = getPluginBase().getDataType_RBV();
 		double maxHeightForType = getMaxHeightForType(dataType);
@@ -189,8 +178,8 @@ public class NDArraySimulator implements NDArray {
 
 	@Override
 	public short[] getShortArrayData(int numberOfElements) throws Exception {
-		int width = pluginBase.getArraySize0_RBV();
-		int height = pluginBase.getArraySize1_RBV();
+		int width = getPluginBase().getArraySize0_RBV();
+		int height = getPluginBase().getArraySize1_RBV();
 
 		double maxHeightForType = getMaxHeightForType(getPluginBase().getDataType_RBV());
 		Gaussian g = new Gaussian(gC.heightFrac * maxHeightForType, gC.centreXFrac * width, gC.centreYFrac * height,
@@ -208,8 +197,8 @@ public class NDArraySimulator implements NDArray {
 	@Override
 	public int[] getIntArrayData(int numberOfElements) throws Exception {
 		double maxHeightForType = getMaxHeightForType(getPluginBase().getDataType_RBV());
-		int width = pluginBase.getArraySize0_RBV();
-		int height = pluginBase.getArraySize1_RBV();
+		int width = getPluginBase().getArraySize0_RBV();
+		int height = getPluginBase().getArraySize1_RBV();
 		Gaussian g = new Gaussian(gC.heightFrac * maxHeightForType, gC.centreXFrac * width, gC.centreYFrac * height,
 				gC.widthXFrac * width, gC.widthYFrac * height);
 
@@ -226,8 +215,8 @@ public class NDArraySimulator implements NDArray {
 	@Override
 	public float[] getFloatArrayData(int numberOfElements) throws Exception {
 		double maxHeightForType = getMaxHeightForType(getPluginBase().getDataType_RBV());
-		int width = pluginBase.getArraySize0_RBV();
-		int height = pluginBase.getArraySize1_RBV();
+		int width = getPluginBase().getArraySize0_RBV();
+		int height = getPluginBase().getArraySize1_RBV();
 		Gaussian g = new Gaussian(gC.heightFrac * maxHeightForType, gC.centreXFrac * width, gC.centreYFrac * height,
 				gC.widthXFrac * width, gC.widthYFrac * height);
 

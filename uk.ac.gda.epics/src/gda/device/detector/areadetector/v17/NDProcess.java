@@ -24,7 +24,7 @@ import gda.observable.Observable;
 /**
  * This maps to the "proc" plugin on the edm screen
  */
-public interface NDProcess {
+public interface NDProcess extends GetPluginBaseAvailable {
 
 	/**
 	 * List all the PVs
@@ -208,8 +208,6 @@ public interface NDProcess {
 	static final int DatatypeOut_Float64=7;
 	static final int DatatypeOut_Automatic=8;
 	
-	NDPluginBase getPluginBase();
-
 	/**
 	 *
 	 */

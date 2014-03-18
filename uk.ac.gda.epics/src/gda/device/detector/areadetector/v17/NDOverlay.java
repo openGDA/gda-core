@@ -25,9 +25,7 @@ package gda.device.detector.areadetector.v17;
 /**
  *
  */
-public interface NDOverlay {
-
-	NDPluginBase getPluginBase();
+public interface NDOverlay extends GetPluginBaseAvailable {
 
 	/**
 	 *

@@ -228,8 +228,8 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	
 	//hdf5 commands
 	public void resetCounters() throws Exception {
-		hdf5.getPluginBase().setDroppedArrays(0);
-		hdf5.getPluginBase().setArrayCounter(0);
+		hdf5.getFile().getPluginBase().setDroppedArrays(0);
+		hdf5.getFile().getPluginBase().setArrayCounter(0);
 	}
 
 	public void startRecording() throws Exception {
@@ -256,7 +256,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		}
 		hdf5.stopCapture();
 		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all we be ok in the end.");
-		if (hdf5.getPluginBase().getDroppedArrays_RBV() > 0)
+		if (hdf5.getFile().getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");
 	}
 

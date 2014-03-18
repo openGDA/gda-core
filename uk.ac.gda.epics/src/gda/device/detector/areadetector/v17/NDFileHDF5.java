@@ -21,6 +21,7 @@ package gda.device.detector.areadetector.v17;
 import java.util.Vector;
 
 public interface NDFileHDF5 {
+	/* Note that NDFileHDF5 doesn't extend GetPluginBaseAvailable since it 'contains an' NDFile rather than being an NDFile. */
 
 	int getNumRowChunks() throws Exception;
 
@@ -81,8 +82,6 @@ public interface NDFileHDF5 {
 	void setZCompressLevel(int value) throws Exception;
 
 	NDFile getFile();
-
-	NDPluginBase getPluginBase();
 
 	void reset() throws Exception;
 
