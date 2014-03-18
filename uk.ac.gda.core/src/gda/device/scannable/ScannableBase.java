@@ -251,19 +251,21 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		if (numExtraNames == 0) {
 			if (length != numInputNames) {
 				throw new IllegalArgumentException(
-					String.format("Expected position of length %d but got position of length %d",
+					String.format("Expected position of length %d but got position of length %d on scannable %s",
 						numInputNames,
-						length));
+						length,
+						getName()));
 			}
 		}
 		
 		else {
 			if ((length != numInputNames) && (length != numTotalNames)) {
 				throw new IllegalArgumentException(
-					String.format("Expected position of length %d or %d but got position of length %d",
+					String.format("Expected position of length %d or %d but got position of length %d on scannable %s" ,
 						numInputNames,
 						numTotalNames,
-						length));
+						length,
+						getName()));
 			}
 		}
 	}
