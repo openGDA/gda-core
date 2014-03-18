@@ -637,10 +637,11 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	public void initialisePluginsArrayDimensions() throws Exception {
 		if ((tiff.getPluginBase().isCallbackEnabled() && tiff.getPluginBase().getArraySize0_RBV() == 0)
-				|| (hdf.getPluginBase().isCallbackEnabled() && hdf.getPluginBase().getArraySize0_RBV() == 0)) {
+				|| (hdf.getFile().getPluginBase().isCallbackEnabled() && 
+					hdf.getFile().getPluginBase().getArraySize0_RBV() == 0)) {
 			if (this.getAreaDetector().getArraySizeX_RBV() == 0
-					|| (tiff.getPluginBase().getArraySize0_RBV() != this.getAreaDetector().getArraySizeX_RBV() || hdf
-							.getPluginBase().getArraySize0_RBV() != getAreaDetector().getArraySizeX_RBV())) {
+					|| (         tiff.getPluginBase().getArraySize0_RBV() != this.getAreaDetector().getArraySizeX_RBV() || 
+						hdf.getFile().getPluginBase().getArraySize0_RBV() !=      getAreaDetector().getArraySizeX_RBV())) {
 				// dummy acquisition to ensure all plugin array dimensions are initialised,
 				// these must be called at least once after IOC restarts.
 				int cachedImgMode = areaDetector.getImageMode();
@@ -665,8 +666,8 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		tiff.getPluginBase().setDroppedArrays(0);
 		tiff.getPluginBase().setArrayCounter(0);
 		hdf.stopCapture();
-		hdf.getPluginBase().setDroppedArrays(0);
-		hdf.getPluginBase().setArrayCounter(0);
+		hdf.getFile().getPluginBase().setDroppedArrays(0);
+		hdf.getFile().getPluginBase().setArrayCounter(0);
 		// set the image mode to Multiple
 		areaDetector.setImageMode((short) 0);
 		areaDetector.setTriggerMode((short) 2); // EXT + SOFT
@@ -723,7 +724,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		}
 		hdf.stopCapture();
 		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all we be ok in the end.");
-		if (hdf.getPluginBase().getDroppedArrays_RBV() > 0)
+		if (hdf.getFile().getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");
 	}
 
@@ -1053,12 +1054,12 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	@Override
 	public void disableHdfSaver() throws Exception {
-		hdf.getPluginBase().disableCallbacks();
+		hdf.getFile().getPluginBase().disableCallbacks();
 	}
 
 	@Override
 	public void enableHdfSaver() throws Exception {
-		hdf.getPluginBase().enableCallbacks();
+		hdf.getFile().getPluginBase().enableCallbacks();
 	}
 
 	@Override

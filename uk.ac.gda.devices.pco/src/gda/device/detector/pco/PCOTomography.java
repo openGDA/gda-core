@@ -567,7 +567,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		// HDF plugin is not used for the tomography alignment.
 		NDFileHDF5 hdf = pcoDetector.getController().getHdf();
 		if (hdf != null) {
-			hdf.getPluginBase().disableCallbacks();
+			hdf.getFile().getPluginBase().disableCallbacks();
 		}
 	}
 

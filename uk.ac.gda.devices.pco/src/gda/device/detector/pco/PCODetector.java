@@ -333,13 +333,13 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			}
 			controller.makeDetectorReadyForCollection(); // this will leave camera disarmed
 			if (hdfFormat) {
-				controller.getHdf().getPluginBase().enableCallbacks();
+				controller.getHdf().getFile().getPluginBase().enableCallbacks();
 				controller.getTiff().getPluginBase().disableCallbacks();
 				controller.getHdf().stopCapture();
-				controller.getHdf().getPluginBase().setDroppedArrays(0);
-				controller.getHdf().getPluginBase().setArrayCounter(0);
+				controller.getHdf().getFile().getPluginBase().setDroppedArrays(0);
+				controller.getHdf().getFile().getPluginBase().setArrayCounter(0);
 			} else {
-				controller.getHdf().getPluginBase().disableCallbacks();
+				controller.getHdf().getFile().getPluginBase().disableCallbacks();
 				controller.getTiff().getPluginBase().enableCallbacks();
 				controller.getTiff().stopCapture();
 				controller.getTiff().getPluginBase().setDroppedArrays(0);
@@ -386,7 +386,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		if (hdfFormat) {
 			int num;
 			try {
-				if ((num = controller.getHdf().getPluginBase().getDroppedArrays_RBV()) != 0) {
+				if ((num = controller.getHdf().getFile().getPluginBase().getDroppedArrays_RBV()) != 0) {
 					controller.getHdf().stopCapture();
 					throw new DeviceException("Buffer reports dropped array number: " + num);
 				}
