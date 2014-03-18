@@ -76,7 +76,7 @@ public class PilatusADController implements InitializingBean {
 			hdf5.setFileNumber((short) 0);
 			hdf5.setFileName("unused");
 			hdf5.setFilePath("unused");
-			hdf5.getPluginBase().enableCallbacks();
+			hdf5.getFile().getPluginBase().enableCallbacks();
 			array.getPluginBase().enableCallbacks();
 		} catch (Exception e) {
 			throw new FactoryException("error configuring relevant area detector plugins", e);
@@ -411,7 +411,7 @@ public class PilatusADController implements InitializingBean {
 			
 			if (hdf5.getFile().getCapture_RBV() == 0) return;
 			
-			if (hdf5.getPluginBase().getArrayCounter_RBV() == totalFramesCollected) {
+			if (hdf5.getFile().getPluginBase().getArrayCounter_RBV() == totalFramesCollected) {
 				hdf5.stopCapture();
 			}
 		
@@ -421,7 +421,7 @@ public class PilatusADController implements InitializingBean {
 			}
 				
 			
-			if (hdf5.getPluginBase().getDroppedArrays_RBV() > 0)
+			if (hdf5.getFile().getPluginBase().getDroppedArrays_RBV() > 0)
 				throw new DeviceException("dropped frames in the hdf5 recording");
 			
 			throwIfWriteError();
@@ -462,8 +462,8 @@ public class PilatusADController implements InitializingBean {
 		areaDetector.setArrayCounter(0);
 		array.getPluginBase().setArrayCounter(0);
 		array.getPluginBase().setDroppedArrays(0);
-		hdf5.getPluginBase().setArrayCounter(0);
-		hdf5.getPluginBase().setDroppedArrays(0);
+		hdf5.getFile().getPluginBase().setArrayCounter(0);
+		hdf5.getFile().getPluginBase().setDroppedArrays(0);
 	}
 
 	public void waitForReady() throws DeviceException {
