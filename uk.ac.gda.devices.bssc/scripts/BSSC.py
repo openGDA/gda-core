@@ -14,7 +14,6 @@ class BSSCRun:
         self.bssc = gda.factory.Finder.getInstance().listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
         self.tfg = gda.factory.Finder.getInstance().listAllLocalObjects("gda.device.Timer")[0]
         self.detector = gda.factory.Finder.getInstance().listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
-        self.cam = gda.factory.Finder.getInstance().find("bsaxscam")
         self.shutter = gda.factory.Finder.getInstance().find("shutter")
         self.bsscscannable = gda.factory.Finder.getInstance().find("bsscscannable")
         self.processing = gda.factory.Finder.getInstance().find("biosaxsprocessingrunner")
@@ -34,6 +33,7 @@ class BSSCRun:
         if self.isSimulation:
             self.scannables = [self.detector, self.bsscscannable]
         else:
+            self.cam = gda.factory.Finder.getInstance().find("bsaxscam")
             self.scannables = [self.detector, self.bsscscannable, self.cam]
 
         self.ispyb = BioSAXSDBFactory.makeAPI()
