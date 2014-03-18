@@ -3,7 +3,6 @@ import time
 
 from exafsscripts.exafs.scan import Scan
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
-from microfocus_elements import showElementsList, getElementNamesfromIonChamber
 
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, NexusDataWriter, XasAsciiNexusDataWriter
@@ -15,12 +14,9 @@ from gda.jython.commands import ScannableCommands
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 
-from java.io import File
-from java.lang import String
 
 class Map(Scan):
 
-    #TODO compare to the Scan initializer
     def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, xScan, yScan):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
@@ -50,6 +46,10 @@ class Map(Scan):
     
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
     
+        print ""
+        print "*********************"
+        self.log("Starting map...")
+        
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
         experimentFullPath, experimentFolderName = self.determineExperimentPath(folderName)
@@ -169,6 +169,7 @@ class Map(Scan):
         mapscan = self._setUpDataWriter(mapscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
         mapscan.getScanPlotSettings().setIgnore(1)
         self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
+        self.log("Starting step map scan...")
         mapscan.runScan()
     
     # should merge with method in xas_scan but keeping here while developing to see what differences required
@@ -206,19 +207,7 @@ class Map(Scan):
         
         thisscan.setDataWriter(dataWriter)
         return thisscan
-    
-#     def _configureFluoDetector(self, beanGroup):
-#         fluoresenceParameters = beanGroup.getDetector().getFluorescenceParameters()
-#         detType = fluoresenceParameters.getDetectorType()
-#         xmlFileName = beanGroup.getXmlFolder() + fluoresenceParameters.getConfigFileName()
-#         if detType == "Germanium":
-#             self.xspressConfig.initialize()
-#             xspressBean = self.xspressConfig.createBeanFromXML(xmlFileName)
-#             onlyShowFF = xspressBean.isOnlyShowFF()
-#             showDTRawValues = xspressBean.isShowDTRawValues()
-#             saveRawSpectrum = xspressBean.isSaveRawSpectrum()
-#             self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
-            
+
     def _setupFromSampleParameters(self, beanGroup):
         outputBean=beanGroup.getOutput()
         sampleParameters = beanGroup.getSample()
@@ -234,11 +223,6 @@ class Map(Scan):
 
     def _setupForMap(self, beanGroup):
 
-        self.log("Starting step map scan...")
-
-#         if beanGroup.getDetector().getExperimentType() == "Fluorescence":
-#             self._configureFluoDetector(beanGroup)
-    
         if (LocalProperties.get("gda.mode") == 'live'):
             collectionTime = beanGroup.getScan().getCollectionTime()
             command_server = self.finder.find("command_server")    

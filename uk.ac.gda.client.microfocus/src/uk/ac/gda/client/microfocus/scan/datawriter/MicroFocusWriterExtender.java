@@ -34,6 +34,7 @@ import gda.scan.IScanDataPoint;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.Hashtable;
 import java.util.List;
@@ -62,46 +63,46 @@ import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 
 public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
-	private int numberOfXPoints = 0;
-	private int numberOfYPoints = 0;
-	private double firstX = 0.0;
-	private double firstY = 0.0;
-	private double xStepSize;
-	private double yStepSize;
-	private Detector detectors[];
-	private String selectedElement = "";
-	private int selectedChannel = 0;
-	private IRichBean detectorBean;
+	protected int numberOfXPoints = 0;
+	protected int numberOfYPoints = 0;
+	protected double firstX = 0.0;
+	protected double firstY = 0.0;
+	protected double xStepSize;
+	protected double yStepSize;
+	protected Detector detectors[];
+	protected String selectedElement = "";
+	protected int selectedChannel = 0;
+	protected IRichBean detectorBean;
 	// FIXME this warning is showing that how this list is used is not clear - needs a redesign
 	@SuppressWarnings("rawtypes")
-	private List[] elementRois;
-	private Logger logger = LoggerFactory.getLogger(MicroFocusWriterExtender.class);
-	private int selectedElementIndex = -1;
-	private String detectorBeanFileName;
-	private int numberOfSubDetectors;
-	private String detectorName;
-	private Hashtable<String, Integer> roiNameMap;
-	private StringBuffer roiHeader = new StringBuffer("row  column");
-	private FileWriter writer;
-	private String[] roiNames;
-	private double[][] scalerValuesCache; // [buffer array][element]
-	private double[][][] detectorValuesCache; // [det chan][element][buffer array]
-	private double[] xValues;
-	private double[] yValues;
-	private double zValue;
-	private double energyValue;
-	private int plottedSoFar = -1;
-	private int yIndex = -1;
-	private IScanDataPoint lastDataPoint = null;
-	private long lastTimePlotWasUpdate = 0;
-	private HDF5Loader hdf5Loader;
-	private ILazyDataset lazyDataset;
-	private int spectrumLength = 4096;
-	private boolean normalise = false;
-	private String normaliseElement = "I0";
-	private int normaliseElementIndex = -1;
-	private double normaliseValue = 1.0;
-	private boolean active = false;
+	protected List[] elementRois;
+	protected Logger logger = LoggerFactory.getLogger(MicroFocusWriterExtender.class);
+	protected int selectedElementIndex = -1;
+	protected String detectorBeanFileName;
+	protected int numberOfSubDetectors;
+	protected String detectorName;
+	protected Hashtable<String, Integer> roiNameMap;
+	protected StringBuffer roiHeader = new StringBuffer("row  column");
+	protected Writer writer;
+	protected String[] roiNames;
+	protected double[][] scalerValuesCache; // [buffer array][element]
+	protected double[][][] detectorValuesCache; // [det chan][element][buffer array]
+	protected double[] xValues;
+	protected double[] yValues;
+	protected double zValue;
+	protected double energyValue;
+	protected int plottedSoFar = -1;
+	protected int yIndex = -1;
+	protected IScanDataPoint lastDataPoint = null;
+	protected long lastTimePlotWasUpdate = 0;
+	protected HDF5Loader hdf5Loader;
+	protected ILazyDataset lazyDataset;
+	protected int spectrumLength = 4096;
+	protected boolean normalise = false;
+	protected String normaliseElement = "I0";
+	protected int normaliseElementIndex = -1;
+	protected double normaliseValue = 1.0;
+	protected boolean active = false;
 
 	public MicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize,
 			String detectorFileName, Detector[] detectors2) {
@@ -358,8 +359,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				}
 			}
 
-			if (dataPoint.getCurrentPointNumber() == 0) addToRgbFile(roiHeader.toString());
-			addToRgbFile(rgbLine.toString().trim());
+			int lineNumber = dataPoint.getCurrentPointNumber();
+			if (lineNumber == 0) {
+				addToRgbFile(lineNumber, roiHeader.toString());
+			}
+			addToRgbFile(lineNumber, rgbLine.toString().trim());
 
 			normaliseDetectorValues(dataPoint);
 
@@ -558,7 +562,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		return false;
 	}
 
-	private void addToRgbFile(String string) throws IOException {
+	protected void addToRgbFile(@SuppressWarnings("unused") int lineNumber, String string) throws IOException {
 		active = true;
 		if (writer != null) {
 			writer.write(string + "\n");
@@ -566,7 +570,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 	}
 
-	private void createRgbFile(String string) {
+	protected void createRgbFile(String string) {
 		if (!string.contains("."))
 			string = string + ".rgb";
 		try {

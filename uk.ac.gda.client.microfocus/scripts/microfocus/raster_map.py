@@ -1,24 +1,13 @@
-import time
-from jarray import array
-
 from map import Map
-from microfocus_elements import showElementsList
 
 from gda.configuration.properties import LocalProperties
 from gda.factory import Finder
-from gda.data.scan.datawriter import NexusDataWriter, XasAsciiNexusDataWriter
-from gda.device import Detector
 from gda.device.detector.xspress import XspressDetector, ResGrades
-from gda.device.scannable import ScannableUtils
-from gda.exafs.scan import BeanGroup
 from gda.jython.commands import ScannableCommands
-from gda.scan import ContinuousScan, ScanBase
-from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
+from gda.scan import ContinuousScan
 from uk.ac.gda.beans import BeansFactory
 
 from java.io import File
-from java.lang import String
-
 
 class RasterMap(Map):
     def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress):
@@ -127,10 +116,11 @@ class RasterMap(Map):
             if(not (beam == None) and self.beamEnabled==True):
                 beam.setPauseBeforePoint(False)
                 beam.setPauseBeforeLine(True)
-            if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"and not (detectorFillingMonitor == None)):
-                detectorFillingMonitor.setPauseBeforePoint(False)
-                detectorFillingMonitor.setPauseBeforeLine(True)
-                detectorFillingMonitor.setCollectionTime(collectionTime)
+            if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
+                if detectorFillingMonitor != None :
+                    detectorFillingMonitor.setPauseBeforePoint(False)
+                    detectorFillingMonitor.setPauseBeforeLine(True)
+                    detectorFillingMonitor.setCollectionTime(collectionTime)
            
                 fullFileName = beanGroup.getXmlFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
                 bean = BeansFactory.getBean(File(fullFileName));
@@ -143,9 +133,5 @@ class RasterMap(Map):
                 BeansFactory.saveBean(File(fullFileName), bean)
                 
         self._setupFromSampleParameters(beanGroup)
-
-#         if beanGroup.getDetector().getExperimentType() == "Fluorescence":
-#             self._configureFluoDetector(beanGroup)
-
        
         self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")

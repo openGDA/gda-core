@@ -384,8 +384,18 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	}
 
 	@Override
+	public String[] getInputNames() {
+		return xmap.getInputNames();
+	}
+	
+	@Override
 	public String[] getExtraNames() {
 		return xmap.getExtraNames();
+	}
+	
+	@Override
+	public String[] getOutputFormat() {
+		return xmap.getOutputFormat();
 	}
 
 	private void setupFilename() throws Exception {

@@ -67,7 +67,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			int total = 0;
 			while (controller.getStatus() == Detector.BUSY) {
 				try {
-					logger.info("detector busy waiting to stop");
+//					logger.info("detector busy waiting to stop");
 					Thread.sleep(100);
 					total += 100;
 					// We don't wait more than 5seconds.
@@ -270,6 +270,17 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			}
 		}
 		return extraNames;
+	}
+	
+	@Override
+	public String[] getOutputFormat() {
+		String[] basicFormat = super.getOutputFormat();
+		int formatLength = getInputNames().length + getExtraNames().length;
+		String[] format = new String[formatLength];
+		for (int i  = 0; i < formatLength; i++){
+			format[i] = basicFormat[0];
+		}
+		return format;
 	}
 
 	@Override

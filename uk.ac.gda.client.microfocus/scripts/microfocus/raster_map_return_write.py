@@ -1,27 +1,13 @@
-import time
 from jarray import array
-
-from exafsscripts.exafs.config_fluoresence_detectors import XspressConfig, VortexConfig
 from map import Map
-from microfocus_elements import showElementsList
 
-from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import TwoDScanRowReverser
 from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
-from gda.data.scan.datawriter import XasAsciiDataWriter
-from gda.device import Detector
-from gda.device.scannable import ScannableUtils
-from gda.exafs.scan import BeanGroup
 from gda.factory import Finder
 from gda.jython.commands import ScannableCommands
 from gda.scan import TrajectoryScanLine
-from uk.ac.gda.beans import BeansFactory
-from uk.ac.gda.client.microfocus.scan.datawriter import TwoWayMicroFocusWriterExtender
 from uk.ac.gda.client.microfocus.util import ScanPositionsTwoWay
 
-from java.io import File
-from java.lang import String
-import java.lang.Exception
 
 #
 # Faster raster
@@ -77,85 +63,36 @@ class RasterMapReturnWrite(Map):
         else:
             print "please enter 1 or 3 as a parameter where 1 is the small stage and 3 is the large stage"
 
-    def _createMFD(self, nx, ny, xStepSize, yStepSize, detectorList):
-        self.mfd = TwoWayMicroFocusWriterExtender(nx, ny, xStepSize, yStepSize)
-
     def _runMap(self,beanGroup, xScannable, yScannable, zScannable, detectorList,scanNumber,experimentFolderName,experimentFullPath,nx,ny):
         scanBean = beanGroup.getScan()
         detectorBean = beanGroup.getDetector()
-
-        if(detectorBean.getExperimentType() == "Silicon"):
-            point_collection_time = scanBean.getRowTime() / nx
-            self.trajtfg.setIntegrateBetweenPoints(True)
-            self.trajxmap.setIntegrateBetweenPoints(True)
-            self.trajtfg.setCollectionTime(point_collection_time)
-            self.trajxmap.setCollectionTime(point_collection_time)
-            self.trajxmap.setScanNumberOfPoints(nx)
-            sptw= ScanPositionsTwoWay(self.trajSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize())
-            tsl = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, self.trajxmap, scanBean.getRowTime()/(nx)] )
-            tsl.setScanDataPointQueueLength(10000)
-            tsl.setPositionCallableThreadPoolSize(10)
-            xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl, self.trajPositionReader])
-            xmapRasterscan.getScanPlotSettings().setIgnore(1)
-            xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
-            rowR = TwoDScanRowReverser()
-            rowR.setNoOfColumns(nx)
-            rowR.setNoOfRows(ny)
-            rowR.setReverseOdd(True)
-            xasWriter.setIndexer(rowR)
-            xasWriter.addDataWriterExtender(self.mfd)
-            xmapRasterscan.setDataWriter(xasWriter)
-            self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
-            xmapRasterscan.runScan()
-
-    def _setupForMap(self, beanGroup):
-        rasterscan = beanGroup.getScan()
-        print "collection time is " , str(rasterscan.getRowTime())   
-        collectionTime = rasterscan.getRowTime()
-        print "1setting collection time to" , str(collectionTime)  
-        command_server = self.finder.find("command_server")    
-        topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
-        beam = command_server.getFromJythonNamespace("beam", None)
-        detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
-        trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-        print "setting collection time to" , str(collectionTime)
-        if(not (topupMonitor == None)):        
-            topupMonitor.setPauseBeforePoint(False)
-            topupMonitor.setPauseBeforeLine(True)
-            topupMonitor.setCollectionTime(collectionTime)
-        if(not (beam == None) and self.beamEnabled==True):
-            self.finder.find("command_server").addDefault(beam);
-            beam.setPauseBeforePoint(False)
-            beam.setPauseBeforeLine(True)
-        if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" and not (detectorFillingMonitor == None)):
-            self.finder.find("command_server").addDefault(detectorFillingMonitor);
-            detectorFillingMonitor.setPauseBeforePoint(False)
-            detectorFillingMonitor.setPauseBeforeLine(True)
-            detectorFillingMonitor.setCollectionTime(collectionTime)
-        if(not (trajBeamMonitor == None)):
-            trajBeamMonitor.setActive(True)
-            
-        outputBean=beanGroup.getOutput()
-        sampleParameters = beanGroup.getSample()
-        outputBean.setAsciiFileName(sampleParameters.getName())
-        print "Setting the ascii file name as " ,sampleParameters.getName()    
-        att1 = sampleParameters.getAttenuatorParameter1()
-        att2 = sampleParameters.getAttenuatorParameter2()
-        self.d7a(att1.getSelectedPosition())
-        self.d7b(att2.getSelectedPosition())
-#         configFluoDetector(beanGroup)
-        # TODO should this not simply use the detector preparer? This code comes from there.
-        if beanGroup.getDetector().getExperimentType() == "Fluorescence":
-            fluoresenceParameters = beanGroup.getDetector().getFluorescenceParameters()
-            detType = fluoresenceParameters.getDetectorType()
-            xmlFileName = beanGroup.getXmlFolder() + fluoresenceParameters.getConfigFileName()
-            if detType == "Germanium":
-                self.xspressConfig.initialize()
-                xspressBean = self.xspressConfig.createBeanFromXML(xmlFileName)
-                onlyShowFF = xspressBean.isOnlyShowFF()
-                showDTRawValues = xspressBean.isShowDTRawValues()
-                saveRawSpectrum = xspressBean.isSaveRawSpectrum()
-                self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
-
-        LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-        self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
+        detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
+        
+        if detectorBean.getExperimentType() != "Fluorescence" or detectorType != "Silicon":
+            print "*** Faster maps may only be performed using the Xmap Vortex detector! ***"
+            print "*** Change detector type in XML or mapping mode by typing map.disableFasterRaster()"
+            return
+        
+        point_collection_time = scanBean.getRowTime() / nx
+        self.trajtfg.setIntegrateBetweenPoints(True)
+        self.trajxmap.setIntegrateBetweenPoints(True)
+        self.trajtfg.setCollectionTime(point_collection_time)
+        self.trajxmap.setCollectionTime(point_collection_time)
+        self.trajxmap.setScanNumberOfPoints(nx)
+        sptw= ScanPositionsTwoWay(self.trajSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize())
+        tsl = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, self.trajxmap, scanBean.getRowTime()/(nx)] )
+        tsl.setScanDataPointQueueLength(10000)
+        tsl.setPositionCallableThreadPoolSize(10)
+        xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl, self.trajPositionReader])
+        xmapRasterscan.getScanPlotSettings().setIgnore(1)
+        xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
+        rowR = TwoDScanRowReverser()
+        rowR.setNoOfColumns(nx)
+        rowR.setNoOfRows(ny)
+        rowR.setReverseOdd(True)
+        xasWriter.setIndexer(rowR)
+        xasWriter.addDataWriterExtender(self.mfd)
+        xmapRasterscan.setDataWriter(xasWriter)
+        self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
+        self.log("Starting two-directional raster scan...")
+        xmapRasterscan.runScan()

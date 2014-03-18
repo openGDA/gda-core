@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,26 +19,31 @@
 package gda.data.scan.datawriter;
 
 import gda.scan.IScanDataPoint;
-import gda.scan.ScanDataPoint;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 
-public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-	@Override
-	public void configureScanNumber(Long scanNumber) throws Exception {
-	}
+/**
+ * For use in two-directional raster scans (faster raster or ratser-map-return-write).
+ * <p>
+ * This 'flips' (changes the data point number) and buffers the data points from the odd numbered rows which run in the
+ * returning direction. It then issues the data points in the normal order as if this was a regular two dimensional scan
+ * and the data points have the correct numbering.
+ */
+public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter {
 
+	private static final Logger logger = LoggerFactory.getLogger(XasAsciiNexusDatapointCompletingDataWriter.class);
+
+	// this does the flipping of the SDP indexes
+	TwoDScanRowReverser indexer;
+	// this does the file writing, but in an asynchronous way
 	DatapointCompletingDataWriter sink;
-	DataIndexer indexer;
 
-	public DataIndexer getIndexer() {
-		return indexer;
-	}
-
-	public void setIndexer(DataIndexer indexer) {
-		this.indexer = indexer;
-	}
+	private volatile int lastWrittenDataPoint = -1;
+	private Hashtable<Integer, IScanDataPoint> pointsBuffer = new Hashtable<Integer, IScanDataPoint>();
 
 	public XasAsciiNexusDatapointCompletingDataWriter() {
 		XasAsciiNexusDataWriter xasAsciiNexusDataWriter = new XasAsciiNexusDataWriter();
@@ -46,15 +51,64 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
 		sink.setDatawriter(xasAsciiNexusDataWriter);
 	}
 
-	public void addData(IDataWriterExtender parent, ScanDataPoint dataPoint) throws Exception {
-		sink.addData(parent, dataPoint);
+	@Override
+	public void addData(IScanDataPoint point) throws Exception {
+		// flip the point
+		if (getIndexer() != null) {
+			indexer.indexData(point);
+		}
+
+		// add the point, but if its out of order then buffer it
+		if (point.getCurrentPointNumber() == lastWrittenDataPoint + 1) {
+			addPointToDataWriterAndFlush(point);
+		} else {
+			addPointToBufferAndFlush(point);
+		}
+	}
+
+	private synchronized void addPointToDataWriterAndFlush(IScanDataPoint point) throws Exception {
+		logger.error("writing point" + point.getCurrentPointNumber());
+		sink.addData(point);
+		lastWrittenDataPoint = point.getCurrentPointNumber();
+		flushBuffer();
+	}
+
+	private synchronized void addPointToBufferAndFlush(IScanDataPoint point) throws Exception {
+		// add to buffer
+		pointsBuffer.put(new Integer(point.getCurrentPointNumber()), point);
+		flushBuffer();
+	}
+
+	private void flushBuffer() throws Exception {
+		// see if we can empty the buffer in the correct order, so points written to file correctly
+		for (Integer i = lastWrittenDataPoint + 1;; i++) {
+
+			if (!pointsBuffer.containsKey(i)) {
+				break;
+			}
+
+			IScanDataPoint pointToWrite = pointsBuffer.get(i);
+			logger.error("writing buffered point" + pointToWrite.getCurrentPointNumber());
+			sink.addData(pointToWrite);
+			lastWrittenDataPoint = pointToWrite.getCurrentPointNumber();
+			pointsBuffer.remove(i);
+
+			if (pointsBuffer.size() == 0) {
+				break;
+			}
+		}
 	}
 
 	@Override
-	public void addData(IScanDataPoint point) throws Exception {
-		if(getIndexer() != null)
-			indexer.indexData(point);
-		sink.addData(point);
+	public void configureScanNumber(Long scanNumber) throws Exception {
+	}
+
+	public TwoDScanRowReverser getIndexer() {
+		return indexer;
+	}
+
+	public void setIndexer(TwoDScanRowReverser indexer) {
+		this.indexer = indexer;
 	}
 
 	@Override
@@ -123,5 +177,5 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
 	public String toString() {
 		return sink.toString();
 	}
-	
+
 }
