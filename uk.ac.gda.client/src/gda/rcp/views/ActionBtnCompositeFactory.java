@@ -30,7 +30,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.slf4j.Logger;
@@ -82,9 +82,9 @@ public class ActionBtnCompositeFactory implements CompositeFactory, Initializing
 
 	
 	@Override
-	public Composite createComposite(Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite) {
+	public Composite createComposite(Composite parent, int style) {
 		Image buttonImage = buttonImagePath != null ? GDAClientActivator.getImageDescriptor(buttonImagePath).createImage() : null;
-		return new ActionBtnComposite(parent, iWorkbenchPartSite, buttonText, tooltipText, buttonImage, foregroundColorId != null ? parent.getDisplay().getSystemColor(foregroundColorId): null,
+		return new ActionBtnComposite(parent, buttonText, tooltipText, buttonImage, foregroundColorId != null ? parent.getDisplay().getSystemColor(foregroundColorId): null,
 				actionId);
 	}
 
@@ -92,7 +92,7 @@ public class ActionBtnCompositeFactory implements CompositeFactory, Initializing
 
 class ActionBtnComposite extends Composite{
 	private static final Logger logger = LoggerFactory.getLogger(ActionBtnComposite.class);
-	public ActionBtnComposite(Composite parent, final IWorkbenchPartSite iWorkbenchPartSite, String buttonText, String tooltipText, Image buttonImage, Color foregroundColor, final String actionId) {
+	public ActionBtnComposite(Composite parent, String buttonText, String tooltipText, Image buttonImage, Color foregroundColor, final String actionId) {
 		super(parent, SWT.NONE);
 		setLayout(new GridLayout(1, false));
 		Button btn = new Button(this, SWT.PUSH);
@@ -109,8 +109,8 @@ class ActionBtnComposite extends Composite{
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ICommandService cmdService = (ICommandService)iWorkbenchPartSite.getService(ICommandService.class);
-				IHandlerService hdlService = (IHandlerService)iWorkbenchPartSite.getService(IHandlerService.class);
+				ICommandService cmdService = (ICommandService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ICommandService.class);
+				IHandlerService hdlService = (IHandlerService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
 				Command cmd = cmdService.getCommand(actionId);
 				try {
 					hdlService.executeCommand(cmd.getId(), null);
