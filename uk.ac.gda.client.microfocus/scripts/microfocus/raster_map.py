@@ -79,6 +79,7 @@ class RasterMap(Map):
             xmapRasterscan = self._setUpDataWriter(xmapRasterscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
         
             self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
+            self.log("Starting raster map...")
             xmapRasterscan.runScan()
         else:
             cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress])
@@ -92,6 +93,7 @@ class RasterMap(Map):
             xspressRasterscan = self._setUpDataWriter(xspressRasterscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
         
             self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
+            self.log("Starting raster map...")
             xspressRasterscan.runScan()
         
                 

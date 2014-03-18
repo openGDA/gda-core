@@ -94,5 +94,5 @@ class RasterMapReturnWrite(Map):
         xasWriter.addDataWriterExtender(self.mfd)
         xmapRasterscan.setDataWriter(xasWriter)
         self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
-        self.log("Starting two-directional raster scan...")
+        self.log("Starting two-directional raster map...")
         xmapRasterscan.runScan()

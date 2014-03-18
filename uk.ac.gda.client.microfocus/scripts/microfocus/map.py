@@ -48,7 +48,7 @@ class Map(Scan):
     
         print ""
         print "*********************"
-        self.log("Starting map...")
+        self.log("Preparing for map...")
         
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
@@ -169,7 +169,7 @@ class Map(Scan):
         mapscan = self._setUpDataWriter(mapscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
         mapscan.getScanPlotSettings().setIgnore(1)
         self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
-        self.log("Starting step map scan...")
+        self.log("Starting step map...")
         mapscan.runScan()
     
     # should merge with method in xas_scan but keeping here while developing to see what differences required
