@@ -219,17 +219,17 @@ class TestTwoEdges(Test):
 	
 	def test_process_positive_pulse_148(self):
 		x, y = self.getInnerAndDetDatasetForGivenOuterValue(148.0)
-		expected = -3.944682,  0.006067, -3.896408,  0.006343,  1.691232,  0.006205
+		expected = -3.944682,  0.006068, -3.896411,  0.007328,  1.848998,  0.006698
 		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
 
 	def test_process_positive_pulse_158(self):
 		x, y = self.getInnerAndDetDatasetForGivenOuterValue(158.0)
-		expected = -3.944114,  0.002347, -3.895760,  0.002611,  1.637478,  0.002479
+		expected = -3.944114,  0.002347, -3.895740,  0.003230,  1.845266,  0.002788
 		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
 
 	def test_process_positive_pulse_185(self):
 		x, y = self.getInnerAndDetDatasetForGivenOuterValue(185.0)
-		expected = -3.946507,  0.011813, -3.898099,  0.011800,  1.715308,  0.011806
+		expected = -3.946507,  0.011813, -3.898122,  0.013704,  1.947078,  0.012758
 		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
 
 	def test_process_negative_pulse(self):
