@@ -21,6 +21,8 @@ package gda.device.scannable;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.any;
 import gda.MockFactory;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
@@ -258,6 +260,32 @@ public class ScannableGroupTest extends TestCase {
 		assertArraysEqual(new Object[] {10., 20., 10., 3., .901}, position);
 		assertArraysEqual(new String[] {"%1.1g", "%2.2g","%4.4g","%3.3f","%5.5g"}, outputFormat);
 	}
+	
+	/**
+	 * @throws Exception
+	 */
+	@Test
+	public void testInputAndExtraOrderWithZIEScannable() throws Exception {
+		Scannable zie1 = MockFactory.createMockZieScannable("zie1", 5);  // arbitrary level
+		Scannable zie2 = MockFactory.createMockZieScannable("zie2", 5);  // arbitrary level
+		Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"}, 
+				new String[] {"%1.1g","%2.2g","%3.3f"},5,new Double[]{10.,20.,3.});
+		Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input3"}, new String[0], new String[] {"%4.4g"},5,10.);
+		Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra2"}, new String[] {"%5.5g"},5,.901);
+		
+		ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1, zie1, s2, zie2, s3});
+		
+		String[] inputNames = group.getInputNames();
+		String[] extraNames = group.getExtraNames();
+		String[] outputFormat = group.getOutputFormat();
+		Object[] position = (Object[]) group.getPosition();
+
+		assertArraysEqual(new String[] {"input1", "input2","input3"}, inputNames);
+		assertArraysEqual(new String[] {"extra1", "extra2"}, extraNames);
+		// GDA-5794 from here
+		assertArraysEqual(new Object[] {10., 20., 10., 3., .901}, position);
+		assertArraysEqual(new String[] {"%1.1g", "%2.2g","%4.4g","%3.3f","%5.5g"}, outputFormat);
+	}
 	/**
 	 * @throws Exception
 	 */
@@ -291,11 +319,29 @@ public class ScannableGroupTest extends TestCase {
 
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	@Test
+	public void testMoveTo() throws Exception {
+		Scannable zie1 = MockFactory.createMockZieScannable("zie1", 5);  // arbitrary level
+		Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"}, 
+				new String[] {"%1.1g","%2.2g","%3.3f"},5,new Double[]{10.,20.,3.});
+		Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input3"}, new String[0], new String[] {"%4.4g"},5,10.);
+		Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra2"}, new String[] {"%5.5g"},5,.901);
 
+		ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1, zie1, s2, s3});
+		
+		group.asynchronousMoveTo(new Object[] {10., 20., 10.});
+		verify(s1).asynchronousMoveTo(new Object[] {10., 20.});
+		verify(s2).asynchronousMoveTo(10.);
+		verify(zie1, never()).asynchronousMoveTo(any(Object.class));
+		verify(s3).asynchronousMoveTo(new Object[] {});
+		Object[] position = (Object[]) group.getPosition();
 
+		assertArraysEqual(new Object[] {10., 20., 10., 3., .901}, position);
+	}
 	
-	
-
 	private ScannableGroup createAndCheckScannableGroupContaining(Scannable... scannables) throws Exception {
 		ScannableGroup sg = new ScannableGroup();
 		sg.setGroupMembers(new ArrayList<Scannable>(Arrays.asList(scannables)));
