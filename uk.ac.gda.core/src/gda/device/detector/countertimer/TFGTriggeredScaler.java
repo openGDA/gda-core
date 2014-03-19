@@ -25,6 +25,7 @@ import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionStreamIndexer;
+import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +45,7 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 	private int numberScanPointsToCollect = 1;
 	private boolean returnCountRates = false;
 	private boolean integrateBetweenPoints;
-	private boolean busy;
+	private boolean busy; // TODO not clear how this is used / is useful
 	private AtomicBoolean readingOut = new AtomicBoolean(false);
 	private PositionStreamIndexer<double[]> indexer;
 	private DAServer daserver;
@@ -220,52 +221,48 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 				waitedSoFarMilliSeconds += waitTime;
 				totalCollectedByHarwdare = getNumberFrames();
 			}
-			// log waitedSoFarMilliSeconds totalCollectedByHarwdare
 			logger.debug("waitedSoFarMilliSeconds=" + waitedSoFarMilliSeconds + ", totalCollectedByHarwdare="
 					+ totalCollectedByHarwdare);
+
 			List<double[]> container = new ArrayList<double[]>();
-			// if there is no data to read then treat as an error and thro
+			// if there is no data to read then treat as an error and throw
 			if (totalCollectedByHarwdare <= 0) {
 				logger.info("Nothing collected so returning");
 				return container;
 			}
-			int startFrame = readOutFromHardwareSoFar;
-			int finalFrame = totalCollectedByHarwdare - 1;
-			if (finalFrame < startFrame) {
-				throw new DeviceException("Something's gone wrong as finalFrame < startFrame");
-			}
-			double dataRead[][] = readData(startFrame, finalFrame); // readData must block until the range is available
-			for (int i = 0; i < dataRead.length; i++) {
-				setReadingOut(true);
-				container.add(dataRead[i]);
-			}
-			// add log on totalCollectedByHarwdare and readOutFromHardwareSoFar
-			logger.debug("readOutFromHardwareSoFar=" + readOutFromHardwareSoFar + ", totalCollectedByHarwdare="
-					+ totalCollectedByHarwdare);
+			synchronized (this) {
+				readingOut.set(true);
+				int startFrame = readOutFromHardwareSoFar;
+				int finalFrame = totalCollectedByHarwdare - 1;
+				if (finalFrame < startFrame) {
+					throw new DeviceException("Something's gone wrong as finalFrame < startFrame");
+				}
+				double dataRead[][] = readData(startFrame, finalFrame); // readData must block until the range is
+																		// available
+				for (int i = 0; i < dataRead.length; i++) {
+					container.add(dataRead[i]);
+				}
+				
+				// add log on totalCollectedByHarwdare and readOutFromHardwareSoFar
+				logger.debug("readOutFromHardwareSoFar=" + readOutFromHardwareSoFar + ", totalCollectedByHarwdare="
+						+ totalCollectedByHarwdare);
 
-			readOutFromHardwareSoFar = totalCollectedByHarwdare;
+				readOutFromHardwareSoFar = totalCollectedByHarwdare;
+			}
 			if (readOutFromHardwareSoFar >= numberScanPointsToCollect)
-				setReadingOut(false);
+				readingOut.set(false);
 			return container;
 		}
 	}
 
-	private void setReadingOut(boolean readingOut) {
-		synchronized (this.readingOut) {
-			this.readingOut.set(readingOut);
-			this.readingOut.notifyAll();
-		}
-	}
-
-	public void waitForReadoutCompletion() {
-		synchronized (readingOut) {
-			while (readingOut.get()) {
-				try {
-					Thread.interrupted();
-					readingOut.wait();
-				} catch (InterruptedException e) {
-					setReadingOut(false);
-				}
+	public void waitForReadoutCompletion() throws InterruptedException {
+		while (readingOut.get()) {
+			try {
+				// check both ways that a scan might be aborted here, by Thread abort or Scan flag
+				Thread.sleep(100);
+				ScanBase.checkForInterrupts();
+			} finally {
+				readingOut.set(false);
 			}
 		}
 	}
@@ -305,7 +302,11 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-		waitForReadoutCompletion();
+		try {
+			waitForReadoutCompletion();
+		} catch (InterruptedException e1) {
+			throw new DeviceException("InterruptedException while setting up detector for hardware triggering", e1);
+		}
 		try {
 			clearMemory();
 			setTimeFrames();
