@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import gda.MockFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
+import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -29,11 +30,14 @@ import gda.device.scannable.DummyScannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Factory;
 import gda.factory.Finder;
+import gda.jython.IJythonNamespace;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -67,6 +71,7 @@ public class NXMetaDataProviderTest {
 	@Before
 	public void setUp() throws DeviceException {
 		InterfaceProvider.setTerminalPrinterForTesting(new TerminalPrinter());
+		NexusDataWriter.setMetadatascannables(new HashSet<String>());
 		this.rand = new Random();
 		this.formattingMap = new HashMap<String, String>();
 		this.userSuppliedItems = new Vector<MetaDataUserSuppliedItem>();
@@ -100,7 +105,7 @@ public class NXMetaDataProviderTest {
 		// when(testScn.getUserUnits()).thenReturn("mm");
 		when(testScn.getAttribute(ScannableMotionUnits.USERUNITS)).thenReturn("GeV");
 		// when(testScn.getOutputFormat()).thenReturn(new String[] { "%5.2g" });
-		// when(testScn.getPosition()).thenReturn(6.0);
+		// when(testScn.getPosition()).thenReturn(6.0);		
 
 		try {
 			String name = "mscnIn3Ex0";
@@ -115,7 +120,7 @@ public class NXMetaDataProviderTest {
 			// TODO Auto-generated catch block
 			// logger.error("TODO put description of error here", e);
 		}
-
+		
 		try {
 			String name = "mscnIn3Ex2";
 			mscnIn3Ex2 = MockFactory.createMockScannable(name // String name
@@ -299,6 +304,7 @@ public class NXMetaDataProviderTest {
 
 		factory.addFindable(smplScn1);
 		metaDataProvider.add(smplScn1);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mySimpleScannable_In1Ex0", smplScn1);
 
 		Scannable scnIn2Ex1 = TestHelpers.createTestScannable("mySimpleScannable_In2Ex1", new double[] { 1.11, 1.21,
 				3.13 }, new String[] { "mySimpleScannable_In2Ex1_extra1" }, new String[] {
@@ -307,6 +313,7 @@ public class NXMetaDataProviderTest {
 
 		factory.addFindable(scnIn2Ex1);
 		metaDataProvider.add(scnIn2Ex1);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mySimpleScannable_In2Ex1", scnIn2Ex1);
 
 		Scannable scnIn1Ex2 = TestHelpers
 				.createTestScannable("mySimpleScannable_In1Ex2", new double[] { 1.11, 3.13, 3.23 }, new String[] {
@@ -316,6 +323,7 @@ public class NXMetaDataProviderTest {
 
 		factory.addFindable(scnIn1Ex2);
 		metaDataProvider.add(scnIn1Ex2);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mySimpleScannable_In1Ex2", scnIn1Ex2);
 
 		Scannable scnIn1Ex1U = TestHelpers.createTestScannable("mySimpleScannable_In1Ex1U", new int[] { 101, 303 },
 				new String[] { "mySimpleScannable_In1Ex1U_extra1" },
@@ -324,6 +332,7 @@ public class NXMetaDataProviderTest {
 
 		factory.addFindable(scnIn1Ex1U);
 		metaDataProvider.add(scnIn1Ex1U);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mySimpleScannable_In1Ex1U", scnIn1Ex1U);
 
 		// Scannable scnI1E0 = TestHelpers.createTestScannable("mySimpleScannableI1E0",
 		// new String [] { "string_is_returned" }, new String[] {}, new String[] { "mySimpleScannableI1E0_input1" },
@@ -347,11 +356,14 @@ public class NXMetaDataProviderTest {
 				testScn });
 		// ScannableGroup group = new ScannableGroup("myScannableGroup", new Scannable[] {ss101,ss102,ss103});
 		metaDataProvider.add(group);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("myScannableGroup", group);
 
 		// Scannable scnMotnU = new DummyUnitsScannable("bsx", 0, "mm", "micron");
 		metaDataProvider.add(bsx);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("bsx", bsx);
 		// factory.addFindable(testScn);
 		metaDataProvider.add(testScn);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("testScn", testScn);
 
 		Finder.getInstance().addFactory(factory);
 
@@ -452,7 +464,7 @@ public class NXMetaDataProviderTest {
 		for (MetaDataUserSuppliedItem item : userSuppliedItems) {
 			metaDataProvider.add(item);
 		}
-
+		
 		// list
 		boolean withValues = false;
 
@@ -1229,7 +1241,8 @@ public class NXMetaDataProviderTest {
 		// add
 		Scannable scannable = bsx;
 		metaDataProvider.add(scannable);
-
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("bsx", bsx);
+		
 		// list
 		boolean withValues = false;
 
@@ -1260,6 +1273,7 @@ public class NXMetaDataProviderTest {
 		scannable = mscnIn3Ex2;
 		scannable = mscnIn0Ex2;
 		metaDataProvider.add(scannable);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mscnIn0Ex2", mscnIn0Ex2);
 
 		// list
 		boolean withValues = true;
@@ -1290,6 +1304,7 @@ public class NXMetaDataProviderTest {
 		// add
 		Scannable scannable = mscnIn3Ex0;
 		metaDataProvider.add(scannable);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mscnIn3Ex0", mscnIn3Ex0);
 
 		// list
 		boolean withValues = false;
@@ -1321,6 +1336,7 @@ public class NXMetaDataProviderTest {
 		// add
 		Scannable scannable = mscnIn3Ex0;
 		metaDataProvider.add(scannable);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mscnIn3Ex0", mscnIn3Ex0);
 
 		// list
 		boolean withValues = true;
@@ -1351,6 +1367,7 @@ public class NXMetaDataProviderTest {
 		// add
 		Scannable scannable = mscnIn3Ex2;
 		metaDataProvider.add(scannable);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mscnIn3Ex2", mscnIn3Ex2);
 
 		// list
 		boolean withValues = false;
@@ -1382,6 +1399,7 @@ public class NXMetaDataProviderTest {
 		// add
 		Scannable scannable = mscnIn3Ex2;
 		metaDataProvider.add(scannable);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mscnIn3Ex2", mscnIn3Ex2);
 
 		// list
 		boolean withValues = true;
@@ -1412,6 +1430,7 @@ public class NXMetaDataProviderTest {
 		// add
 		Scannable scannable = mscnIn0Ex2;
 		metaDataProvider.add(scannable);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mscnIn0Ex2", mscnIn0Ex2);
 
 		// list
 		boolean withValues = false;
@@ -1443,6 +1462,7 @@ public class NXMetaDataProviderTest {
 		// add
 		Scannable scannable = mscnIn0Ex2;
 		metaDataProvider.add(scannable);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mscnIn0Ex2", mscnIn0Ex2);
 
 		// list
 		boolean withValues = true;
@@ -1473,6 +1493,7 @@ public class NXMetaDataProviderTest {
 		// add
 		Scannable scannable = scnGroup;
 		metaDataProvider.add(scannable);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("scnGroup", scnGroup);
 
 		// list
 		boolean withValues = false;
@@ -1504,6 +1525,7 @@ public class NXMetaDataProviderTest {
 		// add
 		Scannable scannable = scnGroup;
 		metaDataProvider.add(scannable);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("scnGroup", scnGroup);
 
 		// list
 		boolean withValues = true;

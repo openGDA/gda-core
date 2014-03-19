@@ -32,6 +32,7 @@ import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Findable;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
 import java.io.Serializable;
@@ -148,11 +149,14 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 			List<Scannable> metaScannableList = new Vector<Scannable>();
 			Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
 			for (String scannableName : metaScannableSet) {
-				Scannable scannable = (Scannable) JythonServerFacade.getInstance().getFromJythonNamespace(scannableName);
+				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+				if (scannable == null) {
+					throw new IllegalStateException("could not find scannable '" + scannableName + "' in Jython namespace.");
+				}
 				metaScannableList.add(scannable);
 			}
 			for (Scannable scn : metaScannableList) {
-				//System.out.println("getNexusTree: scannable = " + scn.getName());
+//				System.out.println("getNexusTree: scannable = " + scn.getName());
 				try {
 					Map<String, Object> scannableMap = createMetaScannableMap(scn);
 					//System.out.println("\t scannableMap = " + scannableMap.toString());
@@ -336,7 +340,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 		List<Scannable> metaScannableList = new Vector<Scannable>();
 		Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
 		for (String scannableName : metaScannableSet) {
-			Scannable scannable = (Scannable) JythonServerFacade.getInstance().getFromJythonNamespace(scannableName);
+			Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 			metaScannableList.add(scannable);
 		}
 		return metaScannableList;
@@ -534,7 +538,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 		List<Scannable> metaScannableList = new Vector<Scannable>();
 		Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
 		for (String scannableName : metaScannableSet) {
-			Scannable scannable = (Scannable) JythonServerFacade.getInstance().getFromJythonNamespace(scannableName);
+			Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 			metaScannableList.add(scannable);
 		}
 		for (Scannable scn : metaScannableList) {

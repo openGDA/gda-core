@@ -1768,7 +1768,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	private void makeMetadataScannables(Set<String> metadatascannablestowrite) throws NexusException {
 		for(String scannableName: metadatascannablestowrite) {
 			try {
-				Scannable scannable = (Scannable) JythonServerFacade.getInstance().getFromJythonNamespace(scannableName);
+				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 				Object position = scannable.getPosition();
 				if (weKnowTheLocationFor(scannableName)) {
 					locationmap.get(scannableName).makeScannable(file, scannable, position, new int[] {1});
