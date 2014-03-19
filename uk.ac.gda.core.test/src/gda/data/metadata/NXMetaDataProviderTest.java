@@ -30,15 +30,9 @@ import gda.device.scannable.DummyScannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Factory;
 import gda.factory.Finder;
-<<<<<<< HEAD
-import gda.jython.IJythonNamespace;
-import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
-=======
->>>>>>> branch 'master' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-core.git
 import gda.scan.ConcurrentScan;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,11 +60,7 @@ public class NXMetaDataProviderTest {
 
 	@Before
 	public void setUp() throws DeviceException {
-<<<<<<< HEAD
-		InterfaceProvider.setTerminalPrinterForTesting(new TerminalPrinter());
 		NexusDataWriter.setMetadatascannables(new HashSet<String>());
-=======
->>>>>>> branch 'master' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-core.git
 		this.rand = new Random();
 		this.formattingMap = new HashMap<String, String>();
 		this.userSuppliedItems = new Vector<MetaDataUserSuppliedItem>();
