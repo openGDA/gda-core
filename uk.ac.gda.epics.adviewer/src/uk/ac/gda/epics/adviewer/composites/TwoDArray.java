@@ -242,7 +242,7 @@ public class TwoDArray extends Composite {
 
 		ShowOption[] showOption = new ShowOption[] { showOptionDefault, new ShowOption("I-A", OptionIndex.I_MINUS_A),
 				new ShowOption("I/A", OptionIndex.I_OVER_A), new ShowOption("I-B", OptionIndex.I_MUNIS_B),
-				new ShowOption("I/B", OptionIndex.I_OVER_B), new ShowOption("I-B/A-B", OptionIndex.I_NORMALISED),
+				new ShowOption("I/B", OptionIndex.I_OVER_B), new ShowOption("(I-B)/(A-B)", OptionIndex.I_NORMALISED),
 				new ShowOption("A", OptionIndex.A), new ShowOption("B", OptionIndex.B) };
 		comboShow.setInput(showOption);
 
@@ -518,6 +518,8 @@ public class TwoDArray extends Composite {
 
 	public void setShowOption(ShowOption showOption) {
 		this.showOption = showOption;
+		if(updateArrayJob != null )
+			updateArrayJob.schedule();
 	}
 
 	public void start() throws Exception {
