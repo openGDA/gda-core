@@ -34,7 +34,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
@@ -63,7 +62,7 @@ public class OpenViewListBoxCompositeFactory implements CompositeFactory, Initia
 	}
 
 	@Override
-	public Composite createComposite(Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite) {
+	public Composite createComposite(Composite parent, int style) {
 		return new OpenViewListBoxComposite(parent, style, label, tooltipText, options);
 	}
 

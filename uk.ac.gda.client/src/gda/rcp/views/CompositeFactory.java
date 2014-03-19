@@ -19,7 +19,6 @@
 package gda.rcp.views;
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IWorkbenchPartSite;
 
 /**
  * Interface for Factories that create composites. 
@@ -27,5 +26,5 @@ import org.eclipse.ui.IWorkbenchPartSite;
  */
 
 public interface CompositeFactory {
-	public Composite createComposite(Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite);
+	public Composite createComposite(Composite parent, int style);
 }

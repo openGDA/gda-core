@@ -30,9 +30,12 @@ import gda.device.scannable.DummyScannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Factory;
 import gda.factory.Finder;
+<<<<<<< HEAD
 import gda.jython.IJythonNamespace;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
+=======
+>>>>>>> branch 'master' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-core.git
 import gda.scan.ConcurrentScan;
 
 import java.util.Arrays;
@@ -50,13 +53,6 @@ import org.junit.Test;
 
 public class NXMetaDataProviderTest {
 
-	class TerminalPrinter implements ITerminalPrinter {
-		@Override
-		public synchronized void print(String text) {
-			System.out.print(text);
-		}
-	}
-
 	Random rand;
 	private ScannableMotionUnits bsx;
 	private Scannable testScn;
@@ -70,8 +66,11 @@ public class NXMetaDataProviderTest {
 
 	@Before
 	public void setUp() throws DeviceException {
+<<<<<<< HEAD
 		InterfaceProvider.setTerminalPrinterForTesting(new TerminalPrinter());
 		NexusDataWriter.setMetadatascannables(new HashSet<String>());
+=======
+>>>>>>> branch 'master' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-core.git
 		this.rand = new Random();
 		this.formattingMap = new HashMap<String, String>();
 		this.userSuppliedItems = new Vector<MetaDataUserSuppliedItem>();
@@ -1263,7 +1262,7 @@ public class NXMetaDataProviderTest {
 	@Test
 	public void testAddForScannableGeneratedWithoutUnitsAgainstLongList_testScan() throws InterruptedException,
 			Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList",
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList_testScan",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
@@ -1329,7 +1328,7 @@ public class NXMetaDataProviderTest {
 	@Test
 	public void testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn3Ex0() throws InterruptedException,
 			Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList",
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn3Ex0",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
@@ -1392,7 +1391,7 @@ public class NXMetaDataProviderTest {
 	@Test
 	public void testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn3Ex2() throws InterruptedException,
 			Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList",
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn3Ex2",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
@@ -1455,7 +1454,7 @@ public class NXMetaDataProviderTest {
 	@Test
 	public void testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn0Ex2() throws InterruptedException,
 			Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList",
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn0Ex2",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
@@ -1518,7 +1517,7 @@ public class NXMetaDataProviderTest {
 	@Test
 	public void testAddForScannableGeneratedWithoutUnitsAgainstLongList_scnGroup() throws InterruptedException,
 			Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList",
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList_scnGroup",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
