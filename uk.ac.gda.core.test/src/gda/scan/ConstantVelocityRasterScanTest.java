@@ -111,8 +111,8 @@ public class ConstantVelocityRasterScanTest {
 		inOrder.verify(mockedController).setOuterStart(0.);
 		inOrder.verify(mockedController).setOuterEnd(2.);
 		inOrder.verify(mockedController).setOuterStep(1.);
-		inOrder.verify(mockedController).setStart(9.5);
-		inOrder.verify(mockedController).setEnd(10.5);
+		inOrder.verify(mockedController).setStart(10); // 9.5); // Please see ConstantVelocityRasterScanTest class comment
+		inOrder.verify(mockedController).setEnd(11); // 10.5);
 		inOrder.verify(mockedController).setStep(1.);
 		
 		inOrder.verify(mockedController).prepareForMove();

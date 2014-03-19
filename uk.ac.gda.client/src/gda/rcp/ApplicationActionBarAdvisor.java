@@ -238,10 +238,11 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private void makeTestActions() {
 		// Action to use for testing. Modify it as needed.
 		if (USE_TEST_ACTION) {
+			final Display display = window.getShell().getDisplay();
 			testAction = new Action() {
 				@Override
 				public void run() {
-					Display.getDefault().asyncExec(new Runnable() {
+					display.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							// Help determine where properties are coming from
@@ -252,7 +253,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 							msg += "\nzzz=" + zzzVal;
 							msg += "\nyyy=" + yyyVal;
 							// Bring up a MessageDialog
-							MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Information", msg);
+							MessageDialog.openInformation(display.getActiveShell(), "Information", msg);
 						}
 					});
 				}
