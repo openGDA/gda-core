@@ -37,16 +37,17 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter {
 
 	private static final Logger logger = LoggerFactory.getLogger(XasAsciiNexusDatapointCompletingDataWriter.class);
 
-	// this does the flipping of the SDP indexes
-	TwoDScanRowReverser indexer;
-	// this does the file writing, but in an asynchronous way
-	DatapointCompletingDataWriter sink;
-
 	private volatile int lastWrittenDataPoint = -1;
+
+	// this does the flipping of the SDP indexes
+	private TwoDScanRowReverser indexer;
+	// this does the file writing, but in an asynchronous way
+	private DatapointCompletingDataWriter sink;
 	private Hashtable<Integer, IScanDataPoint> pointsBuffer = new Hashtable<Integer, IScanDataPoint>();
+	private XasAsciiNexusDataWriter xasAsciiNexusDataWriter;
 
 	public XasAsciiNexusDatapointCompletingDataWriter() {
-		XasAsciiNexusDataWriter xasAsciiNexusDataWriter = new XasAsciiNexusDataWriter();
+		xasAsciiNexusDataWriter = new XasAsciiNexusDataWriter();
 		sink = new DatapointCompletingDataWriter();
 		sink.setDatawriter(xasAsciiNexusDataWriter);
 	}
@@ -178,4 +179,14 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter {
 		return sink.toString();
 	}
 
+	/**
+	 * The underlying data writer which will create the Nexus and Ascii files. The same used in other scans.
+	 * <p>
+	 * Access is provided to enable extra settings to be made on this object.
+	 * 
+	 * @return XasAsciiNexusDataWriter
+	 */
+	public XasAsciiNexusDataWriter getXasDataWriter() {
+		return xasAsciiNexusDataWriter;
+	}
 }
