@@ -1,4 +1,10 @@
 from gda.factory import Finder
+from gda.data.scan.datawriter import NexusDataWriter
+#import gda.data.scan.datawriter.NexusDataWriter 
+from gda.data.scan.datawriter.NexusDataWriter import getLocationmap
+#from sets import Set
+from java.util import HashSet  
+
 def setTitle(title):
     """
     Command to set the title that is recorded in the scan file
@@ -43,9 +49,22 @@ def meta_rm(farg, *vargs):
     metashop.remove([farg]+list(vargs))
     return metashop.list(False)
 
-def meta_clear_nonscannables():
+def meta_clear_alldynamical():
     metashop = Finder.getInstance().find("metashop")
+    # clear scannables
+    #metashop.getMetaScannables().clear()    
+    allMetaScannableList = metashop.getMetaScannables()
+    for s in allMetaScannableList:
+        metashop.remove(s)
+    # clear non-scannables
     metashop.clear()
+    staticLocationMap = NexusDataWriter.getLocationmap()
+    staticMetaScannableList = []
+    for k in staticLocationMap.keySet():
+        staticMetaScannableList.append(k)
+        #print "key = " , k
+    NexusDataWriter.setMetadatascannables(HashSet(staticMetaScannableList))
+    return metashop.list(False)
     
 
 
