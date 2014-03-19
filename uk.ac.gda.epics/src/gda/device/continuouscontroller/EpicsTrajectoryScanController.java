@@ -479,7 +479,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 		}
 		BuildStatus initialbuildStatus = getBuildStatus();
 		if (initialbuildStatus == BuildStatus.SUCCESS) {
-			logger.info("{} build complete, state='{}', status='{}', message='{}'", new Object[] { getName(),
+			logger.debug("{} build complete, state='{}', status='{}', message='{}'", new Object[] { getName(),
 					getBuildState(), getBuildStatus(), getBuildMessage() });
 		} else {
 			String msg = MessageFormat.format(
@@ -507,7 +507,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			throw new DeviceException("Time out while executing the trajectory move", e);
 		}
 		if (getExecuteStatus() == ExecuteStatus.SUCCESS) {
-			logger.info("{} move complete, state=''{}'', status=''{}'', message=''{}''", new Object[] { getName(),
+			logger.debug("{} move complete, state=''{}'', status=''{}'', message=''{}''", new Object[] { getName(),
 					getExecuteState(), getExecuteStatus(), getExecuteMessage() });
 		} else {
 			String msg = MessageFormat.format(
@@ -530,7 +530,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 				logger.warn("{} has already read actual positions up and is greyed out", getName());
 				return;
 			}
-			logger.info("{} reading actual positions", getName());
+			logger.debug("{} reading actual positions", getName());
 			controller.caput(read, 1, READ_TIMEOUT);
 			logger.debug("{} reading actual positions complete", getName());
 			
@@ -540,10 +540,10 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			throw new DeviceException("Epics timeout while reading up actual positions", e);
 		}
 		if (getReadStatus() == ReadStatus.SUCCESS) {
-			logger.info("{} read complete, state='{}', status='{}', message='{}'", new Object[] { getName(),
+			logger.debug("{} read complete, state='{}', status='{}', message='{}'", new Object[] { getName(),
 					getReadState(), getReadStatus(), getReadMessage() });
 		} else {
-			logger.info("{} initial read status was:''{0}''", getName(), getReadStatus());
+			logger.debug("{} initial read status was:''{0}''", getName(), getReadStatus());
 			String msg = MessageFormat.format(
 					"Read of real trajectory positions *failed*: state=''{0}'', status=''{1}'', message=''{2}''",
 					getReadState(), getReadStatus(), getReadMessage());
@@ -651,7 +651,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 		} catch (CAException e) {
 			throw new DeviceException("Problem getting build status: " + e.getMessage(), e);
 		}
-		logger.info("getBuildStatus got state: " + value);
+		logger.debug("getBuildStatus got state: " + value);
 		return (new BuildStatus[] { BuildStatus.UNDEFINED, BuildStatus.SUCCESS, BuildStatus.FAILURE })[value];
 	}
 
