@@ -147,7 +147,9 @@ public class NumberEditorControl extends Composite {
 		if (targetObject != null & propertyName != null) {
 			setModel(targetObject, propertyName);
 		}
-		setupIncrementCompWidthHint();
+		if (this.useSpinner) {
+			setupIncrementCompWidthHint();
+		}
 	}
 
 	public NumberEditorControl(final Composite parent, int style, boolean useSpinner) throws Exception {
