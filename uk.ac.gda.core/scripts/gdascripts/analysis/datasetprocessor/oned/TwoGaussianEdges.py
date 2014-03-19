@@ -98,11 +98,11 @@ class TwoGaussianEdges(XYDataSetFunction):
 			yaxes = [dyDataSet]
 			for funcset in r.makefuncdata():
 				yaxes.append(DataSet(list(funcset)))
-		try:
-			Plotter.plot('Data Vector', xDataSet, yaxes)
-		except java.lang.IllegalArgumentException:
-			# Probably cannot find Plot_Manager on the finder
-			print "WARNING: TwoGaussianEdges could not plot fit details as there is no Plot_Manager"
+			try:
+				Plotter.plot('Data Vector', xDataSet, yaxes)
+			except java.lang.IllegalArgumentException:
+				# Probably cannot find Plot_Manager on the finder
+				print "WARNING: TwoGaussianEdges could not plot fit details as there is no Plot_Manager"
 		
 		# Plot to RCP
 		try:
