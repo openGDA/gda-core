@@ -1,7 +1,7 @@
-from jarray import array
 from map import Map
 
-from gda.data.scan.datawriter import TwoDScanRowReverser
+from gda.configuration.properties import LocalProperties
+from gda.data.scan.datawriter import TwoDScanRowReverser, NexusDataWriter
 from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
 from gda.factory import Finder
 from gda.jython.commands import ScannableCommands
@@ -14,7 +14,7 @@ from uk.ac.gda.client.microfocus.util import ScanPositionsTwoWay
 #
 class RasterMapReturnWrite(Map):
     
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, raster_xmap, traj1PositionReader, traj3PositionReader, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, raster_xmap, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -25,10 +25,6 @@ class RasterMapReturnWrite(Map):
         self.outputPreparer = outputPreparer
         self.detectorPreparer = detectorPreparer
         self.raster_xmap=raster_xmap
-
-        self.traj1PositionReader=traj1PositionReader
-        self.traj3PositionReader=traj3PositionReader
-        self.trajPositionReader=traj1PositionReader
 
         self.traj1SampleX=traj1SampleX
         self.traj3SampleX=traj3SampleX
@@ -50,13 +46,11 @@ class RasterMapReturnWrite(Map):
     def setStage(self, stage):
         if stage==1:
             self.trajSampleX = self.traj1SampleX
-            self.trajPositionReader = self.traj1PositionReader
             self.trajtfg=self.traj1tfg
             self.trajtfg.setTtlSocket(1)
             self.trajxmap=self.traj1xmap
         elif stage==3:
             self.trajSampleX = self.traj3SampleX
-            self.trajPositionReader = self.traj3PositionReader
             self.trajtfg=self.traj3tfg
             self.trajtfg.setTtlSocket(2)
             self.trajxmap=self.traj3xmap
@@ -79,20 +73,64 @@ class RasterMapReturnWrite(Map):
         self.trajtfg.setCollectionTime(point_collection_time)
         self.trajxmap.setCollectionTime(point_collection_time)
         self.trajxmap.setScanNumberOfPoints(nx)
-        sptw= ScanPositionsTwoWay(self.trajSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize())
-        tsl = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, self.trajxmap, scanBean.getRowTime()/(nx)] )
+        print "start", scanBean.getXStart()
+        print "stop", scanBean.getXEnd()
+        print "step", scanBean.getXStepSize()
+        sptw = ScanPositionsTwoWay(self.trajSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize())
+        tsl  = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, self.trajxmap, scanBean.getRowTime()/(nx)] )
         tsl.setScanDataPointQueueLength(10000)
         tsl.setPositionCallableThreadPoolSize(10)
-        xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl, self.trajPositionReader])
+        xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl])
         xmapRasterscan.getScanPlotSettings().setIgnore(1)
-        xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
+        self._setUpTwoDDataWriter(xmapRasterscan, nx, ny, beanGroup, experimentFullPath, experimentFolderName,scanNumber)
+        self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
+        self.log("Starting two-directional raster map...")
+        xmapRasterscan.runScan()
+
+    def _setUpTwoDDataWriter(self,xmapRasterscan, nx, ny, beanGroup, experimentFullPath, experimentFolderName, scanNumber):
+        
+        detectorBean = beanGroup.getDetector()
+        scanBean = beanGroup.getScan()
+        sampleBean = beanGroup.getSample()
+        outputBean=beanGroup.getOutput()
+        
+        sampleName = sampleBean.getName()
+        descriptions = sampleBean.getDescriptions()
+ 
         rowR = TwoDScanRowReverser()
         rowR.setNoOfColumns(nx)
         rowR.setNoOfRows(ny)
         rowR.setReverseOdd(True)
-        xasWriter.setIndexer(rowR)
-        xasWriter.addDataWriterExtender(self.mfd)
-        xmapRasterscan.setDataWriter(xasWriter)
-        self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
-        self.log("Starting two-directional raster map...")
-        xmapRasterscan.runScan()
+        
+        nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
+        asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
+        
+        nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(scanNumber)+".nxs"
+        asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(scanNumber)+".dat"
+        if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
+            nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(scanNumber)+".nxs"
+            asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(scanNumber)+".dat"
+
+        twoDWriter = XasAsciiNexusDatapointCompletingDataWriter()
+        twoDWriter.setIndexer(rowR)
+        twoDWriter.addDataWriterExtender(self.mfd)
+        
+        xasWriter = twoDWriter.getXasDataWriter()
+        
+        xasWriter.setRunFromExperimentDefinition(True);
+        xasWriter.setScanBean(scanBean);
+        xasWriter.setDetectorBean(detectorBean);
+        xasWriter.setSampleBean(sampleBean);
+        xasWriter.setOutputBean(outputBean);
+        xasWriter.setSampleName(sampleName);
+        xasWriter.setXmlFolderName(experimentFullPath)
+        
+        # add the detector configuration file to the metadata
+        xasWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+        xasWriter.setDescriptions(descriptions);
+        xasWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
+        xasWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
+        
+        
+        xmapRasterscan.setDataWriter(twoDWriter)
+        

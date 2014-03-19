@@ -66,11 +66,8 @@ class RasterMap(Map):
         self.log("Row time: " + str(float(scanBean.getRowTime())))
         self.log("Number points: "+ str(float(numberPoints)))
         
-        #TODO the if/else below looks remarkably like something that can be turned into a method that takes a single parameter.
         if(detectorType == "Silicon"):
             cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap]) 
-            # NB: cannot use trajPositionReader in ContinuousScan and is not a priority for I18. Seems unclear how this would be used as the RealPositionReader interface is not used outside of Epics
-        #                    xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
             xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs])
             xmapRasterscan.getScanPlotSettings().setIgnore(1)
         
@@ -83,8 +80,6 @@ class RasterMap(Map):
             xmapRasterscan.runScan()
         else:
             cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress])
-            # NB: cannot use trajPositionReader in ContinuousScan and is not a priority for I18. Seems unclear how this would be used as the RealPositionReader interface is not used outside of Epics
-        #                    xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.trajPositionReader])
             xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs])
             xspressRasterscan.getScanPlotSettings().setIgnore(1)
         
