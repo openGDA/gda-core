@@ -21,7 +21,6 @@ package gda.device.scannable;
 import static org.junit.Assert.*;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.enumpositioner.DummyEnumPositioner;
 import gda.device.scannable.TogglerScannable.Hook;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,6 +37,7 @@ public class TogglerScannableTest {
 
 	Object posStart;
 	Object posEnd;
+	Object posStop;
 	TogglerScannable toggler;
 	private Scannable scn;
 
@@ -46,10 +46,12 @@ public class TogglerScannableTest {
 		scn = mock(Scannable.class);
 		posStart = new Object();
 		posEnd = new Object();
+		posStop  = new Object();
 
 		toggler = Mockito.spy( new TogglerScannable(scn) );
 		toggler.setStartValue(posStart);
 		toggler.setEndValue(posEnd);
+		toggler.setStopValue(posStop);
 	}
 
 	@Test
@@ -70,9 +72,17 @@ public class TogglerScannableTest {
 
 	@Test
 	public void testEndValue() {
-		String expected = posEnd + "_testing";
+		String expected = "test";
 		toggler.setEndValue(expected);
 		String actual = (String) toggler.getEndValue();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testStopValue() {
+		String expected = "test";
+		toggler.setStopValue(expected);
+		String actual = (String) toggler.getStopValue();
 		assertEquals(expected, actual);
 	}
 
@@ -202,4 +212,25 @@ public class TogglerScannableTest {
 		assert( names == null || names.length == 0 );
 	}
 
+	@Test
+	public void testEndCallWithNullStop() throws DeviceException {
+		posStop = null;
+		posEnd = "Something";
+		toggler.setStopValue(posStop);
+		toggler.setEndValue(posEnd);
+		toggler.stop();
+		verify(scn).moveTo(posEnd);
+		verify(scn,never()).moveTo(posStop);
+	}
+
+	@Test
+	public void testInitialValueEnd() throws DeviceException {
+		posEnd = null;
+		toggler.setHook(Hook.AT_LEVEL);
+		when(scn.getPosition()).thenReturn("initial");
+		toggler.setEndValue(posEnd);
+		toggler.atLevelStart();
+		toggler.atLevelEnd();
+		verify(scn).moveTo("initial");
+	}
 }

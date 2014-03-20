@@ -21,9 +21,14 @@ package gda.device.scannable;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 
-public class TogglerScannable extends PassthroughScannableDecorator {
+/**
+ *
+ */
+public class TogglerScannable extends ScannableBase {
 
-	enum Hook {
+	private Scannable delegate;
+	
+	public enum Hook {
 		AT_SCAN,
 		AT_LINE,
 		AT_LEVEL,
@@ -33,11 +38,15 @@ public class TogglerScannable extends PassthroughScannableDecorator {
 	private Hook hook;
 
 	private Object startValue;
+	
+	private Object initialValue;
 
-	private Object endValue;
+	private Object stopValue = null;
+
+	private Object endValue = null;
 
 	public TogglerScannable(Scannable delegate) {
-		super(delegate);
+		this.delegate = delegate;
 	}
 
 	public void setHook(Hook hook) {
@@ -54,19 +63,47 @@ public class TogglerScannable extends PassthroughScannableDecorator {
 		return startValue;
 	}
 
+	/**
+	 * Sets the value the toggled scannable should move to at the hooked end-event.
+	 * <p>
+	 * Leave null to restore to the value before the hooked start-event.
+	 * @param endValue
+	 */
 	public void setEndValue(Object endValue) {
 		this.endValue = endValue;
 	}
 	public Object getEndValue() {
 		return endValue;
+	}	
+
+	/**
+	 * Sets the value the toggled scannable should move to when stop() or atCommandFailure() are called.
+	 * <p>
+	 * Leave null to use the implementation used by the hooked end-event.
+	 * @param stopValue
+	 */
+	public void setStopValue(Object stopValue) {
+		this.stopValue = stopValue;
+	}
+	public Object getStopValue() {
+		return stopValue;
 	}
 
 	public void togglePositionStart() throws DeviceException {
+		initialValue = delegate.getPosition();
 		delegate.moveTo(startValue);
 	}
 
 	public void togglePositionEnd() throws DeviceException {
-		delegate.moveTo(endValue);
+		delegate.moveTo(endValue == null ? initialValue : endValue);
+	}
+
+	public void togglePositionStop() throws DeviceException {
+		if (stopValue == null) {
+			togglePositionEnd();
+		} else {
+			delegate.moveTo(stopValue);
+		}
 	}
 
 	@Override
@@ -148,6 +185,37 @@ public class TogglerScannable extends PassthroughScannableDecorator {
 	@Override
 	public void asynchronousMoveTo(Object target) throws DeviceException {
 		throw new DeviceException("Unsupported operation. Use underlying scannable directly if necessary (getDelegate()).");
+	}
+	
+	@Override
+	public void moveTo(Object target) throws DeviceException {
+		throw new DeviceException("Unsupported operation. Use underlying scannable directly if necessary (getDelegate()).");
+	}
+	
+	@Override
+	public String[] getInputNames() {
+		return new String[] {};
+	}
+	
+	@Override
+	public String[] getExtraNames() {
+		return new String[] {};
+	}
+
+	@Override
+	public boolean isBusy() throws DeviceException {
+		return delegate.isBusy();
+	}
+
+	@Override
+	public String toFormattedString() {
+		return delegate.toFormattedString();
+	}
+
+	@Override
+	public Object getPosition() throws DeviceException {
+		//return delegate.getPosition();
+		return null;
 	}
 
 }
