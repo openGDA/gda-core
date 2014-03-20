@@ -45,7 +45,7 @@ public class XMLIcatTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		LocalProperties.set(Icat.URL_PROP,IcatProviderTest.class.getResource("testicat.xml").getFile());
+		LocalProperties.set(Icat.URL_PROP,XMLIcatTest.class.getResource("testicat.xml").getFile());
 		LocalProperties.set(Icat.SHIFT_TOL_PROP,"1440");
 		LocalProperties.set(Icat.ICAT_TYPE_PROP,gda.data.metadata.icat.XMLIcat.class.getName());
 
