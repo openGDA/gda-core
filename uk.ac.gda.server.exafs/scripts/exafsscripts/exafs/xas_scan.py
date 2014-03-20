@@ -10,7 +10,7 @@ from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
 from gda.scan import ScanBase, ConcurrentScan, ScanInterruptedException
-#from gdascripts.metadata.metadata_commands import meta_clear_nonscannables
+from gdascripts.metadata.metadata_commands import meta_clear_alldynamical
 
 from scan import Scan
 
@@ -203,6 +203,7 @@ class XasScan(Scan):
     # run the beamline specific preparers            
     def runPreparers(self, beanGroup, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean):
         self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
+        meta_clear_alldynamical()
         sampleScannables = self.samplePreparer.prepare(sampleBean)
         outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
         scanPlotSettings = self.outputPreparer.getPlotSettings(detectorBean,outputBean)
