@@ -16,6 +16,7 @@ from gda.jython.scriptcontroller.logging import XasProgressUpdater
 from gda.jython.scriptcontroller.logging import LoggingScriptController
 from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.scan import ScanBase, ContinuousScan
+from gdascripts.metadata.metadata_commands import meta_clear_alldynamical
 
 class QexafsScan(Scan):
     
@@ -63,7 +64,7 @@ class QexafsScan(Scan):
                 repetitionNumber+= 1
                 self._resetHeader()
                 self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
-                #meta_clear()
+                meta_clear_alldynamical()
                 self.samplePreparer.prepare(sampleBean)
                 initial_energy = scanBean.getInitialEnergy()
                 final_energy = scanBean.getFinalEnergy()

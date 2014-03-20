@@ -5,12 +5,13 @@ from gdascripts.parameters import beamline_parameters
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 from gda.data.scan.datawriter import NexusDataWriter
 #from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
-from gdascripts.metadata.metadata_commands import meta_add
+from gdascripts.metadata.metadata_commands import meta_add, meta_rm
 
 class Metadata():
     
     def __init__(self, datawriterconfig):
         self.datawriterconfig = datawriterconfig
+       
     
     def add_to_metadata(self, metadataList):
         header = self.datawriterconfig.getHeader()[:]
@@ -30,9 +31,13 @@ class Metadata():
                 scannable=jython_mapper.__getitem__(name)
             asciiConfig.setLabelValues([scannable])
             new_header.add(asciiConfig)
-            meta_add(scannable)
+            if scannable is not None:
+                meta_add(scannable)
+            else:
+                print "Failed in add_to_metadata because scannable does not exist: %s" %(name)
            
         self.datawriterconfig.setHeader(new_header)
-
-            
+        
+    
+     
     
