@@ -48,10 +48,10 @@ class BSSCRun:
         lastTitration = None
         for titration in self.bean.getMeasurements():
             if self.titrationsCanUseSameBufferMeasurement(lastTitration, titration):
-                dataCollectionId = self.ispyb.createSaxsDataCollectionUsingPreviousBuffer(self.experiment, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getBufferLocation().getPlate(), titration.getBufferLocation().getRowAsInt(), titration.getBufferLocation().getColumn(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), dataCollectionId)
+                dataCollectionId = self.ispyb.createSaxsDataCollectionUsingPreviousBuffer(self.experiment, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), titration.getMolecularWeight(), titration.getBufferLocation().getPlate(), titration.getBufferLocation().getRowAsInt(), titration.getBufferLocation().getColumn(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), dataCollectionId)
             else:
                 self.totalSteps += self.stepsperbuffer
-                dataCollectionId = self.ispyb.createSaxsDataCollection(self.experiment, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getBufferLocation().getPlate(), titration.getBufferLocation().getRowAsInt(), titration.getBufferLocation().getColumn(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity())
+                dataCollectionId = self.ispyb.createSaxsDataCollection(self.experiment, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), titration.getMolecularWeight(), titration.getBufferLocation().getPlate(), titration.getBufferLocation().getRowAsInt(), titration.getBufferLocation().getColumn(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity())
             self.dataCollectionIds.append(dataCollectionId)
             lastTitration = titration
 

@@ -51,8 +51,8 @@ public interface BioSAXSISPyB {
 	 * @param viscosity
 	 * @return saxsDataCollectionID
 	 */
-	public long createSaxsDataCollection(long experimentID, short plate, short row, short column, String sampleName,
-			short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
+	public long createSaxsDataCollection(long experimentID, short plate, short row, short column, String sampleName, double sampleConcentrationMgMl,
+			double molecularMassKda, short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity) throws SQLException;
 
 	/**
@@ -77,8 +77,8 @@ public interface BioSAXSISPyB {
 	 * @param previousDataCollectionId
 	 * @return saxsDataCollectionID
 	 */
-	public long createSaxsDataCollectionUsingPreviousBuffer(long experimentID, short plate, short row, short column, String sampleName,
-			short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
+	public long createSaxsDataCollectionUsingPreviousBuffer(long experimentID, short plate, short row, short column, String sampleName, double sampleConcentrationMgMl,
+			double molecularMassKda, short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, long previousDataCollectionId) throws SQLException;
 
 	/**

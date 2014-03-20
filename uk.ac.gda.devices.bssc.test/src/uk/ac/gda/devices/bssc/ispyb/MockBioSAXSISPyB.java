@@ -53,10 +53,12 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 
 	@Override
 	public long createSaxsDataCollection(long experimentID, short plate,
-			short row, short column, String sampleName, short bufferPlate,
-			short bufferRow, short bufferColumn, float exposureTemperature,
-			int numFrames, double timePerFrame, double flow, double volume,
-			double energyInkeV, String viscosity) throws SQLException {
+			short row, short column, String sampleName,
+			double concentrationMgMl, double molecularMassKda,
+			short bufferPlate, short bufferRow, short bufferColumn,
+			float exposureTemperature, int numFrames, double timePerFrame,
+			double flow, double volume, double energyInkeV, String viscosity)
+			throws SQLException {
 		long dataCollectionId = collectionsMap.size();
 
 		ISAXSDataCollection bioSaxsDataCollection = new MockSAXSDataCollection();
@@ -271,6 +273,7 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	@Override
 	public long createSaxsDataCollectionUsingPreviousBuffer(long experimentID,
 			short plate, short row, short column, String sampleName,
+			double concentrationMgMl, double molecularMassKda,
 			short bufferPlate, short bufferRow, short bufferColumn,
 			float exposureTemperature, int numFrames, double timePerFrame,
 			double flow, double volume, double energyInkeV, String viscosity,
