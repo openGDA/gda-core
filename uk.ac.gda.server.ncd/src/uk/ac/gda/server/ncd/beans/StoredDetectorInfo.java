@@ -21,8 +21,8 @@ package uk.ac.gda.server.ncd.beans;
 import gda.factory.Findable;
 
 public interface StoredDetectorInfo extends Findable {
-	void setSaxsDetectorInfoPath(String filePath);
+	boolean setSaxsDetectorInfoPath(String filePath);
 	String getSaxsDetectorInfoPath();
-	void setDataCalibrationReductionSetupPath(String filePath);
+	boolean setDataCalibrationReductionSetupPath(String filePath);
 	String getDataCalibrationReductionSetupPath();
 }
