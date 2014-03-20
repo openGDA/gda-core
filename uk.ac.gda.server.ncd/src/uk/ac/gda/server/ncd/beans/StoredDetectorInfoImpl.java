@@ -172,7 +172,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	}
 
 	@Override
-	public void setSaxsDetectorInfoPath(String filePath) {
+	public boolean setSaxsDetectorInfoPath(String filePath) {
 		File newFile = new File(filePath);
 		if (newFile.exists()) {
 			if (!(newFile.getParentFile().equals(new File(PathConstructor.createFromDefaultProperty())))) {
@@ -184,9 +184,11 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 			}
 		} else {
 			logger.error("new file does not exist");
+			return false;
 		}
-		logger.debug("saxsDetectorInfoPath is: {}", filePath);
+		logger.debug("saxsDetectorInfoPath is: {}", getSaxsDetectorInfoPath());
 		storeFileLocation(saxsDetectorInfo, DETECTOR_MASK_STORAGE);
+		return true;
 	}
 
 	@Override
@@ -195,17 +197,23 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	}
 
 	@Override
-	public void setDataCalibrationReductionSetupPath(String filePath) {
+	public boolean setDataCalibrationReductionSetupPath(String filePath) {
 		File newFile = new File(filePath);
-		File timeStamped = new File(PathConstructor.createFromDefaultProperty() + "/" + timeStamped("ReductionAndCalibration") + ".xml");
 		if (newFile.exists()) {
-			copyFile(newFile, timeStamped);
-			this.dataCalibrationReductionSetup = timeStamped;
+			if (!(newFile.getParentFile().equals(new File(PathConstructor.createFromDefaultProperty())))) {
+				File timeStamped = new File(PathConstructor.createFromDefaultProperty() + "/" + timeStamped("ReductionAndCalibration") + ".xml");
+				copyFile(newFile, timeStamped);
+				this.dataCalibrationReductionSetup = timeStamped;
+			} else {
+				this.dataCalibrationReductionSetup = newFile;
+			}
 		} else {
 			logger.error("new file does not exist");
+			return false;
 		}
 		logger.debug("dataCalibrationReductionSetupPath is: {}", filePath);
 		storeFileLocation(dataCalibrationReductionSetup, REDUCTION_SETUP_STORAGE);
+		return true;
 	}
 	
 	@Override
