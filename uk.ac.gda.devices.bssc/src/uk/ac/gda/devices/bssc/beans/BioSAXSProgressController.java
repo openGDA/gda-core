@@ -133,6 +133,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	public void updateStatusInfoFromISpyB(final long dataCollectionId) {
 		try {
 			final ISAXSDataCollection dataCollection = bioSAXSISPyB.getSAXSDataCollection(dataCollectionId);
+			final long experimentId = dataCollection.getExperimentId();
 			final ISpyBStatusInfo collectionStatusInfo = bioSAXSISPyB.getDataCollectionStatus(dataCollectionId);
 			final ISpyBStatusInfo reductionStatusInfo = bioSAXSISPyB.getDataReductionStatus(dataCollectionId);
 			final ISpyBStatusInfo analysisStatusInfo = bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId);
@@ -154,8 +155,8 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 						progress.setAnalysisStatusInfo(analysisStatusInfo);
 					} else {
 						System.out.println("UDP update received, adding to model");
-						addToModel(dataCollectionId, dataCollection.getSampleName(), collectionStatusInfo,
-								reductionStatusInfo, analysisStatusInfo);
+						addToModel(experimentId, dataCollectionId, dataCollection.getSampleName(),
+								collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
 					}
 
 					final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -176,6 +177,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	public List<ISAXSProgress> loadModel(List<ISAXSDataCollection> saxsDataCollections) {
 		for (ISAXSDataCollection saxsDataCollection : saxsDataCollections) {
 			if (saxsDataCollection != null) {
+				long experimentId = saxsDataCollection.getExperimentId();
 				long dataCollectionId = saxsDataCollection.getId();
 				String sampleName = saxsDataCollection.getSampleName();
 				ISpyBStatusInfo collectionStatusInfo = saxsDataCollection.getCollectionStatus();
@@ -195,7 +197,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 					progress.setAnalysisStatusInfo(analysisStatusInfo);
 				} else {
 					System.out.println("Adding to Model");
-					addToModel(dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo,
+					addToModel(experimentId, dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo,
 							analysisStatusInfo);
 				}
 			}
@@ -204,10 +206,11 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		return bioSAXSProgressModel;
 	}
 
-	private void addToModel(long dataCollectionId, String sampleName, ISpyBStatusInfo collectionStatusInfo,
-			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
-		final ISAXSProgress progress = new BioSAXSProgress(dataCollectionId, sampleName, collectionStatusInfo,
-				reductionStatusInfo, analysisStatusInfo);
+	private void addToModel(long experimentId, long dataCollectionId, String sampleName,
+			ISpyBStatusInfo collectionStatusInfo, ISpyBStatusInfo reductionStatusInfo,
+			ISpyBStatusInfo analysisStatusInfo) {
+		final ISAXSProgress progress = new BioSAXSProgress(experimentId, dataCollectionId, sampleName,
+				collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
 		progress.setCollectionStatusInfo(collectionStatusInfo);
 		progress.setReductionStatusInfo(reductionStatusInfo);
 		progress.setAnalysisStatusInfo(analysisStatusInfo);

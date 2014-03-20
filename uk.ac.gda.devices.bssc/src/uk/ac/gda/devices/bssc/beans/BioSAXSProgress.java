@@ -3,19 +3,19 @@ package uk.ac.gda.devices.bssc.beans;
 import java.util.List;
 
 import uk.ac.gda.beans.ObservableModel;
-import uk.ac.gda.devices.bssc.ispyb.ISpyBStatus;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
 
 public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
-
+	private long experimentId;
 	private long dataCollectionId;
 	private String sampleName;
 	private ISpyBStatusInfo collectionStatusInfo;
 	private ISpyBStatusInfo reductionStatusInfo;
 	private ISpyBStatusInfo analysisStatusInfo;
 
-	public BioSAXSProgress(long dataCollectionId, String sampleName, ISpyBStatusInfo collectionStatusInfo,
+	public BioSAXSProgress(long experimentId, long dataCollectionId, String sampleName, ISpyBStatusInfo collectionStatusInfo,
 			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
+		this.experimentId = experimentId;
 		this.dataCollectionId = dataCollectionId;
 		this.sampleName = sampleName;
 		this.collectionStatusInfo = collectionStatusInfo;
@@ -23,6 +23,16 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 		this.analysisStatusInfo = analysisStatusInfo;
 	}
 
+	@Override
+	public void setExperimentId(long experimentId) {
+		this.experimentId = experimentId;
+	}
+
+	@Override
+	public long getExperimentId() {
+		return experimentId;
+	}
+	
 	@Override
 	public void setDataCollectionId(long dataCollectionId) {
 		this.dataCollectionId = dataCollectionId;
