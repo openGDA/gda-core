@@ -183,6 +183,9 @@ public class ScannableCommands {
 					if (exceptionCaughtWhileWaitingOnIsBusy != null) {
 						throw exceptionCaughtWhileWaitingOnIsBusy;
 					}
+					for (Scannable scn1 : currentLevelScannables.getValue()) {
+						scn1.atLevelEnd();
+					}
 				}
 
 				if (scannableList.length > 1){

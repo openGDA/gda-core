@@ -206,11 +206,15 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev5a).waitWhileBusy();
 		inOrder.verify(lev5b).waitWhileBusy();
 		inOrder.verify(detlev5).waitWhileBusy();
+		inOrder.verify(lev5a).atLevelEnd();
+		inOrder.verify(lev5b).atLevelEnd();
+		inOrder.verify(detlev5).atLevelEnd();
 		inOrder.verify(lev6).atLevelStart();
 		inOrder.verify(lev6).atLevelMoveStart();
 		inOrder.verify(lev6).asynchronousMoveTo(pos6);
 		inOrder.verify(lev6).waitWhileBusy();
 		inOrder.verify(lev6b).waitWhileBusy();
+		inOrder.verify(lev6).atLevelEnd();
 		inOrder.verify(detlev9a).atLevelStart();
 		inOrder.verify(detlev9b).atLevelStart();
 		inOrder.verify(detlev9a).waitForReadoutCompletion();
@@ -219,6 +223,8 @@ public class ConcurrentScanTest {
 		inOrder.verify(detlev9b).collectData();
 		inOrder.verify(detlev9a).waitWhileBusy();
 		inOrder.verify(detlev9b).waitWhileBusy();
+		inOrder.verify(detlev9a).atLevelEnd();
+		inOrder.verify(detlev9b).atLevelEnd();
 		
 	}
 	protected void verifyBigScanMoveLevel4Scannables(InOrder inOrder, double pos4)
@@ -227,6 +233,7 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(pos4);
 		inOrder.verify(lev4).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
 	}
 
 	protected void verifyBigScanGetPosition(InOrder inOrder) throws DeviceException {
@@ -507,6 +514,7 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(0.);
 		inOrder.verify(lev4).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
 		// Note: technically we don't care about the order of these pairs
 		inOrder.verify(lev5a).atLevelStart();
 		inOrder.verify(lev5b).atLevelStart();
@@ -514,10 +522,13 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev5a).asynchronousMoveTo(1.);
 		inOrder.verify(lev5a).waitWhileBusy();
 		inOrder.verify(lev5b).waitWhileBusy();
+		inOrder.verify(lev5a).atLevelEnd();
+		inOrder.verify(lev5b).atLevelEnd();
 		inOrder.verify(lev6).atLevelStart();
 		inOrder.verify(lev6).atLevelMoveStart();
 		inOrder.verify(lev6).asynchronousMoveTo(3.);
 		inOrder.verify(lev6).waitWhileBusy();
+		inOrder.verify(lev6).atLevelEnd();
 		inOrder.verify(lev6).getPosition();
 
 		// The second point (illustrative of all later points)
@@ -525,16 +536,20 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(1.);
 		inOrder.verify(lev4).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
 		inOrder.verify(lev5a).atLevelStart();
 		inOrder.verify(lev5b).atLevelStart();
 		inOrder.verify(lev5a).atLevelMoveStart();
 		inOrder.verify(lev5a).asynchronousMoveTo(1.);
 		inOrder.verify(lev5a).waitWhileBusy();
 		inOrder.verify(lev5b).waitWhileBusy();
+		inOrder.verify(lev5a).atLevelEnd();
+		inOrder.verify(lev5b).atLevelEnd();
 		inOrder.verify(lev6).atLevelStart();
 		inOrder.verify(lev6).atLevelMoveStart();
 		inOrder.verify(lev6).asynchronousMoveTo(3.);
 		inOrder.verify(lev6).waitWhileBusy();
+		inOrder.verify(lev6).atLevelEnd();
 		inOrder.verify(lev4).getPosition();
 
 		verify(lev5b, never()).atLevelMoveStart();
@@ -545,6 +560,10 @@ public class ConcurrentScanTest {
 		verify(lev4, times(2)).atLevelStart();
 		verify(lev5a, times(2)).atLevelStart();
 		verify(lev6, times(2)).atLevelStart();
+		verify(lev5b, times(2)).atLevelEnd();
+		verify(lev4, times(2)).atLevelEnd();
+		verify(lev5a, times(2)).atLevelEnd();
+		verify(lev6, times(2)).atLevelEnd();
 	}
 
 	/**
@@ -572,6 +591,7 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev6).atLevelMoveStart();
 		inOrder.verify(lev6).asynchronousMoveTo(0.);
 		inOrder.verify(lev6).waitWhileBusy();
+		inOrder.verify(lev6).atLevelEnd();
 
 		// First point, inner loop
 		inOrder.verify(lev6).atScanLineStart();
@@ -582,24 +602,30 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(30.);
 		inOrder.verify(lev4).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
 		inOrder.verify(lev5b).atLevelStart();
 		inOrder.verify(lev5a).atLevelStart();
 		inOrder.verify(lev5b).atLevelMoveStart();
 		inOrder.verify(lev5b).asynchronousMoveTo(10.);
 		inOrder.verify(lev5b).waitWhileBusy();
 		inOrder.verify(lev5a).waitWhileBusy();
+		inOrder.verify(lev5b).atLevelEnd();
+		inOrder.verify(lev5a).atLevelEnd();
 
 		// second point, inner loop
 		inOrder.verify(lev4).atLevelStart();
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(30.);
 		inOrder.verify(lev4).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
 		inOrder.verify(lev5b).atLevelStart();
 		inOrder.verify(lev5a).atLevelStart();
 		inOrder.verify(lev5b).atLevelMoveStart();
 		inOrder.verify(lev5b).asynchronousMoveTo(12.);
 		inOrder.verify(lev5b).waitWhileBusy();
 		inOrder.verify(lev5a).waitWhileBusy();
+		inOrder.verify(lev5b).atLevelEnd();
+		inOrder.verify(lev5a).atLevelEnd();
 
 		// finish inner loop
 		inOrder.verify(lev6).atScanLineEnd();
@@ -612,6 +638,7 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev6).atLevelMoveStart();
 		inOrder.verify(lev6).asynchronousMoveTo(1.);
 		inOrder.verify(lev6).waitWhileBusy();
+		inOrder.verify(lev6).atLevelEnd();
 
 		// First point, inner loop
 		inOrder.verify(lev6).atScanLineStart();
@@ -622,24 +649,30 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(30.);
 		inOrder.verify(lev4).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
 		inOrder.verify(lev5b).atLevelStart();
 		inOrder.verify(lev5a).atLevelStart();
 		inOrder.verify(lev5b).atLevelMoveStart();
 		inOrder.verify(lev5b).asynchronousMoveTo(10.);
 		inOrder.verify(lev5b).waitWhileBusy();
 		inOrder.verify(lev5a).waitWhileBusy();
+		inOrder.verify(lev5b).atLevelEnd();
+		inOrder.verify(lev5a).atLevelEnd();
 
 		// second point, inner loop
 		inOrder.verify(lev4).atLevelStart();
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(30.);
 		inOrder.verify(lev4).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
 		inOrder.verify(lev5b).atLevelStart();
 		inOrder.verify(lev5a).atLevelStart();
 		inOrder.verify(lev5b).atLevelMoveStart();
 		inOrder.verify(lev5b).asynchronousMoveTo(12.);
 		inOrder.verify(lev5b).waitWhileBusy();
 		inOrder.verify(lev5a).waitWhileBusy();
+		inOrder.verify(lev5b).atLevelEnd();
+		inOrder.verify(lev5a).atLevelEnd();
 
 		// finish inner loop
 		inOrder.verify(lev6).atScanLineEnd();
@@ -668,6 +701,10 @@ public class ConcurrentScanTest {
 		verify(lev5a, times(4)).atLevelStart();
 		verify(lev5b, times(4)).atLevelStart();
 		verify(lev4, times(4)).atLevelStart();
+
+		verify(lev5a, times(4)).atLevelEnd();
+		verify(lev5b, times(4)).atLevelEnd();
+		verify(lev4, times(4)).atLevelEnd();
 
 		verify(lev6, times(4)).atPointStart();
 		verify(lev5a, times(4)).atPointStart();
@@ -714,6 +751,9 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(0.);
 		inOrder.verify(lev4).waitWhileBusy();
+//		inOrder.verify(zie).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
+		inOrder.verify(zie).atLevelEnd();
 		inOrder.verify(zie).getPosition();
 		inOrder.verify(lev4).getPosition();
 
@@ -723,6 +763,9 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(1.);
 		inOrder.verify(lev4).waitWhileBusy();
+//		inOrder.verify(zie).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
+		inOrder.verify(zie).atLevelEnd();
 		inOrder.verify(zie).getPosition();
 		inOrder.verify(lev4).getPosition();
 
@@ -730,6 +773,8 @@ public class ConcurrentScanTest {
 		verify(zie, never()).atLevelMoveStart();
 		verify(lev4, times(2)).atLevelStart();
 		verify(zie, times(2)).atLevelStart();
+		verify(lev4, times(2)).atLevelEnd();
+		verify(zie, times(2)).atLevelEnd();
 		verify(zie, never()).asynchronousMoveTo(anyObject());
 	}
 
@@ -775,9 +820,12 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev5b).asynchronousMoveTo(10.);
 		inOrder.verify(lev5a).waitWhileBusy();
 		inOrder.verify(lev5b).waitWhileBusy();
+		inOrder.verify(lev5a).atLevelEnd();
+		inOrder.verify(lev5b).atLevelEnd();
 		inOrder.verify(lev6).atLevelStart();
 		inOrder.verify(lev6).atLevelMoveStart();
 		inOrder.verify(lev6).asynchronousMoveTo(30.);
+		inOrder.verify(lev6).atLevelEnd();
 
 		// Second point
 		inOrder.verify(lev5a).atLevelStart();
@@ -788,9 +836,12 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev5b).asynchronousMoveTo(10.);
 		inOrder.verify(lev5a).waitWhileBusy();
 		inOrder.verify(lev5b).waitWhileBusy();
+		inOrder.verify(lev5a).atLevelEnd();
+		inOrder.verify(lev5b).atLevelEnd();
 		inOrder.verify(lev6).atLevelStart();
 		inOrder.verify(lev6).atLevelMoveStart();
 		inOrder.verify(lev6).asynchronousMoveTo(30.);
+		inOrder.verify(lev6).atLevelEnd();
 
 		verify(lev5a, times(2)).atLevelMoveStart();
 		verify(lev5b, times(2)).atLevelMoveStart();
@@ -799,6 +850,9 @@ public class ConcurrentScanTest {
 		verify(lev5a, times(2)).atLevelStart();
 		verify(lev5b, times(2)).atLevelStart();
 		verify(lev6, times(2)).atLevelStart();
+		verify(lev5a, times(2)).atLevelEnd();
+		verify(lev5b, times(2)).atLevelEnd();
+		verify(lev6, times(2)).atLevelEnd();
 	}
 
 	@Test
