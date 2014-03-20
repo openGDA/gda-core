@@ -69,9 +69,11 @@ public class ScannableCommandsTest extends TestCase {
 		ScannableCommands.pos(lev4, 1.2);
 		InOrder inOrder = inOrder(lev4);
 		inOrder.verify(lev4).checkPositionValid(1.2);
+		inOrder.verify(lev4).atLevelStart();
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(1.2);
 		inOrder.verify(lev4).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
 		inOrder.verify(lev4).getPosition();
 	}
 
@@ -89,21 +91,29 @@ public class ScannableCommandsTest extends TestCase {
 		//inOrder.verify(lev5b).checkPositionValid(1.35); Not ScannableMotion so not checked
 		inOrder.verify(lev4).checkPositionValid(1.2);
 
+		inOrder.verify(lev4).atLevelStart();
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(1.2);
 		inOrder.verify(lev4).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
 
 		// NOTE: Order of any pair here is unimportant
+		inOrder.verify(lev5a).atLevelStart();
+		inOrder.verify(lev5b).atLevelStart();
 		inOrder.verify(lev5a).atLevelMoveStart();
 		inOrder.verify(lev5b).atLevelMoveStart();
 		inOrder.verify(lev5a).asynchronousMoveTo(1.3);
 		inOrder.verify(lev5b).asynchronousMoveTo(1.35);
 		inOrder.verify(lev5a).waitWhileBusy();
 		inOrder.verify(lev5b).waitWhileBusy();
+		inOrder.verify(lev5a).atLevelEnd();
+		inOrder.verify(lev5b).atLevelEnd();
 
+		inOrder.verify(lev6).atLevelStart();
 		inOrder.verify(lev6).atLevelMoveStart();
 		inOrder.verify(lev6).asynchronousMoveTo(1.4);
 		inOrder.verify(lev6).waitWhileBusy();
+		inOrder.verify(lev6).atLevelEnd();
 
 		// NOTE: getPosition() order unimportant
 		inOrder.verify(lev5a).getPosition();
@@ -112,9 +122,11 @@ public class ScannableCommandsTest extends TestCase {
 		inOrder.verify(lev4).getPosition();
 
 		for (Scannable scn : Arrays.asList(lev4, lev5a, lev5b, lev6)) {
+			verify(scn, times(1)).atLevelStart();
 			verify(scn, times(1)).atLevelMoveStart();
 			verify(scn, times(1)).asynchronousMoveTo(anyObject());
 			verify(scn, times(1)).waitWhileBusy();
+			verify(scn, times(1)).atLevelEnd();
 		}
 	}
 
@@ -142,6 +154,7 @@ public class ScannableCommandsTest extends TestCase {
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(1.2);
 		inOrder.verify(lev4).waitWhileBusy();
+		inOrder.verify(lev4).atLevelEnd();
 
 		// NOTE: Order of any pair here is unimportant
 		inOrder.verify(lev5a).atLevelStart();
@@ -154,8 +167,10 @@ public class ScannableCommandsTest extends TestCase {
 		inOrder.verify(lev5b).stop();
 
 		inOrder.verify(lev6, never()).atLevelMoveStart();
+		inOrder.verify(lev6, never()).atLevelStart();
 		inOrder.verify(lev6, never()).asynchronousMoveTo(anyObject());
 		inOrder.verify(lev6, never()).waitWhileBusy();
+		inOrder.verify(lev6, never()).atLevelEnd();
 
 		// NOTE: getPosition() order unimportant
 		inOrder.verify(lev5a, never()).getPosition();
