@@ -138,36 +138,15 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 			final ISpyBStatusInfo reductionStatusInfo = bioSAXSISPyB.getDataReductionStatus(dataCollectionId);
 			final ISpyBStatusInfo analysisStatusInfo = bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId);
 
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					ISAXSProgress progress = getProgressItemFromModel(bioSAXSProgressModel, dataCollectionId);
-					if (progress != null) {
-						System.out.println("UDP update received, updating model");
-						System.out.println("collection progress is : " + collectionStatusInfo.getProgress());
-						System.out.println("collection status is : " + collectionStatusInfo.getStatus());
-						System.out.println("reduction progress is : " + reductionStatusInfo.getProgress());
-						System.out.println("reduction status is : " + reductionStatusInfo.getStatus());
-						System.out.println("analysis progress is : " + analysisStatusInfo.getProgress());
-						System.out.println("analysis status is : " + analysisStatusInfo.getStatus());
-						progress.setCollectionStatusInfo(collectionStatusInfo);
-						progress.setReductionStatusInfo(reductionStatusInfo);
-						progress.setAnalysisStatusInfo(analysisStatusInfo);
-					} else {
-						System.out.println("UDP update received, adding to model");
-						addToModel(experimentId, dataCollectionId, dataCollection.getSampleName(),
-								collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
-					}
+			ISAXSProgress progress = getProgressItemFromModel(bioSAXSProgressModel, dataCollectionId);
+			if (progress != null) {
+				updateModel(progress, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+			} else {
+				addToModel(experimentId, dataCollectionId, dataCollection.getSampleName(), collectionStatusInfo,
+						reductionStatusInfo, analysisStatusInfo);
+			}
 
-					final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-
-					view = (BioSAXSProgressView) window.getActivePage().findView(BioSAXSProgressView.ID);
-
-					if (view != null) {
-						view.reveal();
-					}
-				}
-			});
+			scrollToUpdatedItem();
 
 		} catch (SQLException e) {
 			logger.error("SQLException", e);
@@ -188,40 +167,56 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 
 				ISAXSProgress progress = getProgressItemFromModel(bioSAXSProgressModel, dataCollectionId);
 				if (progress != null) {
-					System.out.println("Updating Model");
-					System.out.println("collection progress is : " + collectionStatusInfo.getProgress());
-					System.out.println("reduction progress is : " + reductionStatusInfo.getProgress());
-					System.out.println("analysis progress is : " + analysisStatusInfo.getProgress());
-					progress.setCollectionStatusInfo(collectionStatusInfo);
-					progress.setReductionStatusInfo(reductionStatusInfo);
-					progress.setAnalysisStatusInfo(analysisStatusInfo);
+					updateModel(progress, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
 				} else {
-					System.out.println("Adding to Model");
+					
 					addToModel(experimentId, dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo,
 							analysisStatusInfo);
 				}
 			}
 		}
-
+		
 		return bioSAXSProgressModel;
+	}
+	
+	private void scrollToUpdatedItem() {
+		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+		view = (BioSAXSProgressView) window.getActivePage().findView(BioSAXSProgressView.ID);
+
+		if (view != null) {
+			view.reveal();
+		}
+	}
+	
+	private void updateModel(ISAXSProgress progress, ISpyBStatusInfo collectionStatusInfo, ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
+		System.out.println("UDP update received, updating model");
+		System.out.println("collection progress is : " + collectionStatusInfo.getProgress());
+		System.out.println("collection status is : " + collectionStatusInfo.getStatus());
+		System.out.println("reduction progress is : " + reductionStatusInfo.getProgress());
+		System.out.println("reduction status is : " + reductionStatusInfo.getStatus());
+		System.out.println("analysis progress is : " + analysisStatusInfo.getProgress());
+		System.out.println("analysis status is : " + analysisStatusInfo.getStatus());
+		progress.setCollectionStatusInfo(collectionStatusInfo);
+		progress.setReductionStatusInfo(reductionStatusInfo);
+		progress.setAnalysisStatusInfo(analysisStatusInfo);
+
+		scrollToUpdatedItem();
 	}
 
 	private void addToModel(long experimentId, long dataCollectionId, String sampleName,
 			ISpyBStatusInfo collectionStatusInfo, ISpyBStatusInfo reductionStatusInfo,
 			ISpyBStatusInfo analysisStatusInfo) {
+		System.out.println("Adding to Model");
 		final ISAXSProgress progress = new BioSAXSProgress(experimentId, dataCollectionId, sampleName,
 				collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
 		progress.setCollectionStatusInfo(collectionStatusInfo);
 		progress.setReductionStatusInfo(reductionStatusInfo);
 		progress.setAnalysisStatusInfo(analysisStatusInfo);
 
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				bioSAXSProgressModel.add(progress);
-			}
-		});
+		bioSAXSProgressModel.add(progress);
 
+		scrollToUpdatedItem();
 	}
 
 	protected ISAXSProgress getProgressItemFromModel(List<ISAXSProgress> list, long id) {
@@ -296,9 +291,15 @@ class SimpleUDPReceiver implements IObserver {
 
 	@Override
 	public void update(Object theObserved, Object dataCollectionId) {
-		long saxsDataCollectionId = Long.valueOf((String) dataCollectionId);
+		final long saxsDataCollectionId = Long.valueOf((String) dataCollectionId);
 		System.out.println("UDP update recieved for Sample : " + saxsDataCollectionId);
 
-		controller.updateStatusInfoFromISpyB(saxsDataCollectionId);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				controller.updateStatusInfoFromISpyB(saxsDataCollectionId);
+			}
+		});
+
 	}
 }
