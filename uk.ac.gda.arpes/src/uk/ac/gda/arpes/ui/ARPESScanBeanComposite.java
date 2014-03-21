@@ -21,6 +21,7 @@ package uk.ac.gda.arpes.ui;
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Queue;
 import gda.factory.Finder;
+import gda.jython.JythonServerFacade;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -146,7 +147,13 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 						return;
 					}
 					Queue queue = CommandQueueViewFactory.getQueue();
-					if (queue != null) {
+					boolean batonHeld = JythonServerFacade.getInstance().isBatonHeld();
+					if(!batonHeld){
+						MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
+							    "You do not hold the baton, please take the baton using the baton manager.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
+						dialog.open();
+					}
+					else if (queue != null) {
 						queue.addToTail(new JythonCommandCommandProvider(getOurJythonCommand(editor),
 								editor.getTitle(), editor.getPath()));
 					} else {
@@ -162,8 +169,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("lensMode");
 		this.lensMode = new ComboWrapper(this, SWT.NONE);
+		GridData gd_lensMode = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lensMode.widthHint = 200;
+		lensMode.setLayoutData(gd_lensMode);
 		this.lensMode.setItems(capabilities.getLensModes());
-		lensMode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Comparator<String> passEComparator = new Comparator<String>() {
 			@Override
@@ -180,9 +189,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("passEnergy");
 		this.passEnergy = new ComboWrapper(this, SWT.NONE);
+		GridData gd_passEnergy = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_passEnergy.widthHint = 200;
+		passEnergy.setLayoutData(gd_passEnergy);
 		this.passEnergy.setItems(passMap);
 		this.passEnergy.addValueListener(this);
-		passEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -198,13 +209,16 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				return super.getValue().equals("swept");
 			}
 		};
-		sweptMode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		sweptMode.addValueListener(this);
 
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("startEnergy");
 		this.startEnergy = new ScaleBox(this, SWT.NONE);
+		GridData gridData = (GridData) startEnergy.getControl().getLayoutData();
+		gridData.widthHint = 200;
+		gridData.horizontalAlignment = SWT.LEFT;
+		gridData.grabExcessHorizontalSpace = false;
 		startEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		startEnergy.setUnit("eV");
 		startEnergy.setDecimalPlaces(3);
@@ -214,6 +228,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("centreEnergy");
 		centreEnergy = new ScaleBox(this, SWT.NONE);
+		GridData gridData_1 = (GridData) centreEnergy.getControl().getLayoutData();
+		gridData_1.widthHint = 200;
+		gridData_1.horizontalAlignment = SWT.LEFT;
+		gridData_1.grabExcessHorizontalSpace = false;
 		centreEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		centreEnergy.setUnit("eV");
 		centreEnergy.setDecimalPlaces(3);
@@ -225,6 +243,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("endEnergy");
 		this.endEnergy = new ScaleBox(this, SWT.NONE);
+		GridData gridData_2 = (GridData) endEnergy.getControl().getLayoutData();
+		gridData_2.widthHint = 200;
+		gridData_2.horizontalAlignment = SWT.LEFT;
+		gridData_2.grabExcessHorizontalSpace = false;
 		endEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		endEnergy.setUnit("eV");
 		endEnergy.setDecimalPlaces(3);
@@ -234,6 +256,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("stepEnergy");
 		this.stepEnergy = new ScaleBox(this, SWT.NONE);
+		GridData gridData_3 = (GridData) stepEnergy.getControl().getLayoutData();
+		gridData_3.widthHint = 200;
+		gridData_3.horizontalAlignment = SWT.LEFT;
+		gridData_3.grabExcessHorizontalSpace = false;
 		stepEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		stepEnergy.setUnit("meV");
 		stepEnergy.setDecimalPlaces(5);
@@ -246,6 +272,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("energyWidth");
 		energyWidth = new ScaleBox(this, SWT.NONE);
+		GridData gridData_4 = (GridData) energyWidth.getControl().getLayoutData();
+		gridData_4.widthHint = 200;
+		gridData_4.horizontalAlignment = SWT.LEFT;
+		gridData_4.grabExcessHorizontalSpace = false;
 		energyWidth.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		energyWidth.setUnit("eV");
 		energyWidth.setDecimalPlaces(3);
@@ -258,6 +288,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("timePerStep");
 		this.timePerStep = new ScaleBox(this, SWT.NONE);
+		GridData gridData_5 = (GridData) timePerStep.getControl().getLayoutData();
+		gridData_5.widthHint = 200;
+		gridData_5.horizontalAlignment = SWT.LEFT;
+		gridData_5.grabExcessHorizontalSpace = false;
 		timePerStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		timePerStep.setUnit("s");
 		timePerStep.addValueListener(this);
@@ -266,6 +300,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("iterations");
 		this.iterations = new IntegerBox(this, SWT.NONE);
+		GridData gridData_6 = (GridData) iterations.getControl().getLayoutData();
+		gridData_6.widthHint = 200;
+		gridData_6.horizontalAlignment = SWT.LEFT;
+		gridData_6.grabExcessHorizontalSpace = false;
 		iterations.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		iterations.addValueListener(this);
 
