@@ -151,6 +151,12 @@
                  label="Import Excel Spreadsheet"
                  mode="FORCE_TEXT"
                  style="push">
+                       <visibleWhen
+        					checkEnabled="false">
+        					<reference
+          						definitionId="uk.ac.gda.devices.bssc.perspectives.isBioSAXSPerspectiveDefinition">
+        					</reference>
+      					</visibleWhen>
            </command>
         </toolbar>
      </menuContribution>
@@ -172,6 +178,29 @@
            id="uk.ac.gda.devices.bssc.LoadRedSettings"
            name="Load New Reduction Settings">
      </command>
+  </extension>
+  <extension
+        point="org.eclipse.core.expressions.propertyTesters">
+     <propertyTester
+           class="uk.ac.gda.devices.bssc.perspectives.PerspecticePropertyTester"
+           id="uk.ac.gda.devices.bssc.perspectives.PerspecticePropertyTester"
+           namespace="uk.ac.gda.devices.bssc.perspectives.PerspecticePropertyTester"
+           properties="isKnownPerspective"
+           type="java.lang.Object">
+     </propertyTester>
+  </extension>
+  <extension
+        point="org.eclipse.core.expressions.definitions">
+     <definition
+           id="uk.ac.gda.devices.bssc.perspectives.isBioSAXSPerspectiveDefinition">
+        <with
+              variable="activeWorkbenchWindow.activePerspective">
+           <test
+                 forcePluginActivation="true"
+                 property="uk.ac.gda.devices.bssc.perspectives.PerspecticePropertyTester.isKnownPerspective">
+           </test>
+        </with>
+     </definition>
   </extension>
   <!--<extension
         id="uk.ac.gda.devices.bssc.hideperspective"
