@@ -12,6 +12,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISIT
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.ELEMENT_SET;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY;
@@ -448,7 +449,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int FIRST_XCHANNEL_EDEFAULT = 0;
+	protected static final int FIRST_XCHANNEL_EDEFAULT = 1;
 
 	/**
 	 * The cached value of the '{@link #getFirstXChannel() <em>First XChannel</em>}' attribute.
@@ -506,7 +507,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int FIRST_YCHANNEL_EDEFAULT = 0;
+	protected static final int FIRST_YCHANNEL_EDEFAULT = 1;
 
 	/**
 	 * The cached value of the '{@link #getFirstYChannel() <em>First YChannel</em>}' attribute.

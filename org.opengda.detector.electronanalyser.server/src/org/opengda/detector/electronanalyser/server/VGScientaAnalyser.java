@@ -1050,7 +1050,9 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public String[] getLensModes() throws DeviceException {
 		return controller.getLensModes();
 	}
-
+	public String[] getElementSet() throws DeviceException {
+		return controller.getElementset();
+	}
 	@Override
 	public double getExcitationEnergy() throws Exception {
 		return controller.getExcitationEnergy();

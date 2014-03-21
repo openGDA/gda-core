@@ -72,6 +72,8 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_COMPLETE);
 					} else if (region.getStatus()==STATUS.ABORTED) {
 						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_FAILURE);
+					} else if (region.getStatus()==STATUS.INVALID) {
+						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_INVALID_REGION);
 					}
 				}
 			}
@@ -137,7 +139,6 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 				return Integer.toString(region.getSlices());
 			case SequenceTableConstants.COL_MODE:
 				return region.getDetectorMode().getLiteral();
-
 			}
 		}
 		return null;

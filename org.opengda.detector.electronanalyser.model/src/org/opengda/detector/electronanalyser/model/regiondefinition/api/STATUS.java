@@ -56,7 +56,15 @@ public enum STATUS implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	ABORTED(3, "ABORTED", "ABORTED"); //$NON-NLS-1$ //$NON-NLS-2$
+	ABORTED(3, "ABORTED", "ABORTED"), /**
+	 * The '<em><b>INVALID</b></em>' literal object.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #INVALID_VALUE
+	 * @generated
+	 * @ordered
+	 */
+	INVALID(4, "INVALID", "INVALID"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	/**
 	 * The '<em><b>READY</b></em>' literal value.
@@ -119,6 +127,21 @@ public enum STATUS implements Enumerator {
 	public static final int ABORTED_VALUE = 3;
 
 	/**
+	 * The '<em><b>INVALID</b></em>' literal value.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of '<em><b>INVALID</b></em>' literal object isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @see #INVALID
+	 * @model
+	 * @generated
+	 * @ordered
+	 */
+	public static final int INVALID_VALUE = 4;
+
+	/**
 	 * An array of all the '<em><b>STATUS</b></em>' enumerators.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -130,6 +153,7 @@ public enum STATUS implements Enumerator {
 			RUNNING,
 			COMPLETED,
 			ABORTED,
+			INVALID,
 		};
 
 	/**
@@ -184,6 +208,7 @@ public enum STATUS implements Enumerator {
 			case RUNNING_VALUE: return RUNNING;
 			case COMPLETED_VALUE: return COMPLETED;
 			case ABORTED_VALUE: return ABORTED;
+			case INVALID_VALUE: return INVALID;
 		}
 		return null;
 	}

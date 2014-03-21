@@ -342,7 +342,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Acquisition Mode</b></em>' attribute.
-	 * The default value is <code>"SWEPT"</code>.
+	 * The default value is <code>"Swept"</code>.
 	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE}.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -356,7 +356,7 @@ public interface Region extends EObject {
 	 * @see #unsetAcquisitionMode()
 	 * @see #setAcquisitionMode(ACQUISITION_MODE)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_AcquisitionMode()
-	 * @model default="SWEPT" unsettable="true"
+	 * @model default="Swept" unsettable="true"
 	 * @generated
 	 */
 	ACQUISITION_MODE getAcquisitionMode();
@@ -399,7 +399,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Energy Mode</b></em>' attribute.
-	 * The default value is <code>"KINTETIC"</code>.
+	 * The default value is <code>"Kinetic"</code>.
 	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE}.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -413,7 +413,7 @@ public interface Region extends EObject {
 	 * @see #unsetEnergyMode()
 	 * @see #setEnergyMode(ENERGY_MODE)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_EnergyMode()
-	 * @model default="KINTETIC" unsettable="true"
+	 * @model default="Kinetic" unsettable="true"
 	 * @generated
 	 */
 	ENERGY_MODE getEnergyMode();
@@ -726,7 +726,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>First XChannel</b></em>' attribute.
-	 * The default value is <code>"0"</code>.
+	 * The default value is <code>"1"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>First XChannel</em>' attribute isn't clear,
@@ -738,7 +738,7 @@ public interface Region extends EObject {
 	 * @see #unsetFirstXChannel()
 	 * @see #setFirstXChannel(int)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_FirstXChannel()
-	 * @model default="0" unsettable="true"
+	 * @model default="1" unsettable="true"
 	 * @generated
 	 */
 	int getFirstXChannel();
@@ -834,7 +834,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>First YChannel</b></em>' attribute.
-	 * The default value is <code>"0"</code>.
+	 * The default value is <code>"1"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>First YChannel</em>' attribute isn't clear,
@@ -846,7 +846,7 @@ public interface Region extends EObject {
 	 * @see #unsetFirstYChannel()
 	 * @see #setFirstYChannel(int)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_FirstYChannel()
-	 * @model default="0" unsettable="true"
+	 * @model default="1" unsettable="true"
 	 * @generated
 	 */
 	int getFirstYChannel();
