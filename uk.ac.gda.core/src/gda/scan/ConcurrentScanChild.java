@@ -298,6 +298,9 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					scn.waitWhileBusy();
 				}
 			}
+			for (Scannable scannable : scannablesAtThisLevel) {
+				scannable.atLevelEnd();
+			}
 		}
 		
 	}

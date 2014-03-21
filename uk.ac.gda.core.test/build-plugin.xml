@@ -71,7 +71,6 @@
                     <!--the excludes below are temporary -->
                     <exclude name="**/EditPermissionsTest.java" />
                     <exclude name="**/ObjectFactoryValidationTest.java" />
-                    <exclude name="**/IcatProviderTest.java" />
                     <exclude name="**/DummyKeithleyTest.java" />
                     <exclude name="**/KeithleyRemoteTest.java" />
                     <exclude name="**/KeithleyTest.java" />

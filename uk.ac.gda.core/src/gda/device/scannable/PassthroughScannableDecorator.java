@@ -25,7 +25,7 @@ import gda.observable.IObserver;
 
 public class PassthroughScannableDecorator implements Scannable {
 
-	private final Scannable delegate;
+	protected final Scannable delegate;
 
 	public Scannable getDelegate() {
 		return delegate;

@@ -415,6 +415,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				principleScanObject.scannable.atLevelMoveStart();
 				stepId = principleScanObject.moveToStart();
 				checkAllMovesComplete();
+				principleScanObject.scannable.atLevelEnd();
 				runChildScan();
 				// note that some scan hooks not called (atPointStart,atLevelMoveStart,atPointEnd) as this scannable is ot part of the child scan
 			}
@@ -439,6 +440,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					principleScanObject.scannable.atLevelMoveStart();
 					stepId = principleScanObject.moveStep();
 					checkAllMovesComplete();
+					principleScanObject.scannable.atLevelEnd();
 					runChildScan();
 				}
 			}
