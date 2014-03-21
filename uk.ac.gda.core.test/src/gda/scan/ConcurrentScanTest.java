@@ -751,7 +751,7 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(0.);
 		inOrder.verify(lev4).waitWhileBusy();
-//		inOrder.verify(zie).waitWhileBusy();
+		inOrder.verify(zie).waitWhileBusy();
 		inOrder.verify(lev4).atLevelEnd();
 		inOrder.verify(zie).atLevelEnd();
 		inOrder.verify(zie).getPosition();
@@ -763,7 +763,7 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(1.);
 		inOrder.verify(lev4).waitWhileBusy();
-//		inOrder.verify(zie).waitWhileBusy();
+		inOrder.verify(zie).waitWhileBusy();
 		inOrder.verify(lev4).atLevelEnd();
 		inOrder.verify(zie).atLevelEnd();
 		inOrder.verify(zie).getPosition();
