@@ -31,6 +31,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -60,16 +62,17 @@ public class NudgePositionerComposite extends Composite{
 	private String scannableName;
 	private boolean limitsSet=false;
 	private String userUnits;
+	boolean moveEnabled;
 	
 	public NudgePositionerComposite(Composite parent, int style, Scannable scannable) {
-		this(parent, style, scannable, true, null);
+		this(parent, style, scannable, true, null, false, true);
 	}
 	
 	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, boolean showName) {
-		this(parent, style, scannable, showName, null);
+		this(parent, style, scannable, showName, null, false, true);
 	}
 	
-	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, boolean showName, String overrideName) {
+	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, boolean showName, String overrideName, boolean positionOnly, boolean moveEnabled) {
 		super(parent, style);
 		this.scannable = scannable;
 		GridLayout gridLayout = new GridLayout(4, false);
@@ -79,6 +82,7 @@ public class NudgePositionerComposite extends Composite{
 		gridLayout.verticalSpacing = 0;
 		setLayout(gridLayout);
 		scannableName = scannable.getName();
+		this.moveEnabled = moveEnabled;
 		
 		GridData gd_position = new GridData(SWT.FILL, SWT.TOP, false, false, 4, 1);
 		gd_position.widthHint = 85;
@@ -110,74 +114,102 @@ public class NudgePositionerComposite extends Composite{
 				}
 			}
 		});
+		
+		position.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				try {
+					double currentPosition = Double.valueOf(NudgePositionerComposite.this.scannable.getPosition().toString());
+					setPositionValue(currentPosition);
+				} catch (NumberFormatException e1) {
+					logger.error("Error while trying to get position of " + scannableName, e1);
+				} catch (DeviceException e1) {
+					logger.error("Error while trying to get position of " + scannableName, e1);
+				}
+				
+				
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
 		gd_position = new GridData(SWT.FILL, SWT.TOP, false, false, 4, 1);
 		gd_position.widthHint = 85;
 		position.setLayoutData(gd_position);
 		
-		btnDecrement = new Button(this, SWT.NONE);
-		btnDecrement.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				updateReadbackJob.schedule();
-				try {
-					double currentPosition = Double.valueOf(NudgePositionerComposite.this.scannable.getPosition().toString());
-					double decrementValue = Double.valueOf(increment.getText());
-					move(currentPosition-decrementValue);
-				} catch (DeviceException e1) {
-					logger.error("Error while trying to move " + scannableName, e1);
+		position.setEditable(moveEnabled);
+		
+		if(!positionOnly){
+			btnDecrement = new Button(this, SWT.NONE);
+			btnDecrement.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					updateReadbackJob.schedule();
+					try {
+						double currentPosition = Double.valueOf(NudgePositionerComposite.this.scannable.getPosition().toString());
+						double decrementValue = Double.valueOf(increment.getText());
+						move(currentPosition-decrementValue);
+					} catch (DeviceException e1) {
+						logger.error("Error while trying to move " + scannableName, e1);
+					}
 				}
-			}
-		});
-		GridData gd_btnDecrement = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_btnDecrement.widthHint = 30;
-		btnDecrement.setLayoutData(gd_btnDecrement);
-		btnDecrement.setText("-");
-		
-		increment = new Text(this, SWT.BORDER);
-		increment.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				//check whether valid
-			}
-		});
-		increment.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		btnIncrement = new Button(this, SWT.NONE);
-		btnIncrement.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				updateReadbackJob.schedule();
-				try {
-					double currentPosition = Double.valueOf(NudgePositionerComposite.this.scannable.getPosition().toString());
-					double incrementValue = Double.valueOf(increment.getText());
-					move(currentPosition+incrementValue);
-				} catch (DeviceException e1) {
-					logger.error("Error while trying to move " + scannableName, e1);
+			});
+			GridData gd_btnDecrement = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+			gd_btnDecrement.widthHint = 30;
+			btnDecrement.setLayoutData(gd_btnDecrement);
+			btnDecrement.setText("-");
+			
+			increment = new Text(this, SWT.BORDER);
+			increment.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					//check whether valid
 				}
-			}
-		});
-		GridData gd_btnIncrement = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_btnIncrement.widthHint = 30;
-		btnIncrement.setLayoutData(gd_btnIncrement);
-		btnIncrement.setText("+");
-		
-		btnStop = new Button(this, SWT.NONE);
-		btnStop.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				updateReadbackJob.schedule();
-				try {
-					NudgePositionerComposite.this.scannable.stop();
-				} catch (DeviceException e1) {
-					logger.error("Error while stopping "+ scannableName, e);
+			});
+			increment.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+			
+			btnIncrement = new Button(this, SWT.NONE);
+			btnIncrement.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					updateReadbackJob.schedule();
+					try {
+						double currentPosition = Double.valueOf(NudgePositionerComposite.this.scannable.getPosition().toString());
+						double incrementValue = Double.valueOf(increment.getText());
+						move(currentPosition+incrementValue);
+					} catch (DeviceException e1) {
+						logger.error("Error while trying to move " + scannableName, e1);
+					}
 				}
-			}
-		});
-		btnStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
-		btnStop.setText("Stop");
-		
-		double defaultIncrement = 1;
-		increment.setText(String.valueOf(defaultIncrement));
+			});
+			GridData gd_btnIncrement = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+			gd_btnIncrement.widthHint = 30;
+			btnIncrement.setLayoutData(gd_btnIncrement);
+			btnIncrement.setText("+");
+			
+			btnStop = new Button(this, SWT.NONE);
+			btnStop.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					updateReadbackJob.schedule();
+					try {
+						NudgePositionerComposite.this.scannable.stop();
+					} catch (DeviceException e1) {
+						logger.error("Error while stopping "+ scannableName, e);
+					}
+				}
+			});
+			btnStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
+			btnStop.setText("Stop");
+			
+			double defaultIncrement = 1;
+			increment.setText(String.valueOf(defaultIncrement));
+		}
 		
 		updateReadbackJob = new Job("updateReadback") {
 			@Override
@@ -267,7 +299,7 @@ public class NudgePositionerComposite extends Composite{
 				    "You do not hold the baton, please take the baton using the baton manager.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
 			dialog.open();
 		}
-		else if(!limitsSet || (position>=lowerLimit && position<= upperLimit))
+		else if(!limitsSet || (position>=lowerLimit && position<= upperLimit) && moveEnabled)
 			NudgePositionerComposite.this.scannable.asynchronousMoveTo(position);
 	}
 	
