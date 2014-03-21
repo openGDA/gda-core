@@ -41,6 +41,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import org.apache.commons.math3.util.Pair;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -140,7 +141,12 @@ public class NXMetaDataProviderTest {
 
 		scnGroup = new ScannableGroup("scnGroup", new Scannable[] { bsx, mscnIn3Ex2 });
 	}
-
+	
+	@After
+	public void tearDown() { 
+		LocalProperties.set("gda.nexus.metadata.provider.name", "");
+	}
+	
 	private void populateNXMetaDataProvider(NXMetaDataProvider metaDataProvider, int numEntries, String entryKeyRoot,
 			String entryValueRoot) {
 
