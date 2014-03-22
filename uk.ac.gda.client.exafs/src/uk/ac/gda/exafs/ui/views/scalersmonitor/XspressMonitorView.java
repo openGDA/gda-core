@@ -47,7 +47,7 @@ public class XspressMonitorView extends MonitorViewBase {
 	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor";
 	protected static final Logger logger = LoggerFactory.getLogger(XspressMonitorView.class);
 	private static final Double MAX_FLUO_RATE = 500000.0;
-	protected ScalersMonitorViewData displayData;
+	protected ScalersMonitorConfig displayData;
 	private IAxis dtAxis;
 	private IAxis primaryAxis;
 
@@ -61,7 +61,7 @@ public class XspressMonitorView extends MonitorViewBase {
 		grpCurrentCountRates.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		grpCurrentCountRates.setLayout(new GridLayout());
 
-		displayData = new ScalersMonitorViewData(grpCurrentCountRates);
+		displayData = new ScalersMonitorConfig(grpCurrentCountRates);
 		
 		myPlotter.createPlotPart(grpCurrentCountRates, "Rates", null, PlotType.XY, null);
 		myPlotter.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
