@@ -43,27 +43,19 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
-public class ScalersMonitorView extends MonitorViewBase {
-
-	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor"; //$NON-NLS-1$
-
-	@SuppressWarnings("hiding")
-	protected static final Logger logger = LoggerFactory.getLogger(ScalersMonitorView.class);
-	
+public class XspressRatesView extends MonitorViewBase {
+	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor";
+	protected static final Logger logger = LoggerFactory.getLogger(XspressRatesView.class);
 	private static final Double MAX_FLUO_RATE = 500000.0;
-
 	protected ScalersMonitorViewData displayData;
-
 	private IAxis dtAxis;
-
 	private IAxis primaryAxis;
 
-	public ScalersMonitorView() {
+	public XspressRatesView() {
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-
 		Group grpCurrentCountRates = new Group(parent, SWT.BORDER);
 		grpCurrentCountRates.setText("Current count rates");
 		grpCurrentCountRates.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -91,7 +83,6 @@ public class ScalersMonitorView extends MonitorViewBase {
 				rates[element] = xspressStats[element * 3]; // Hz
 				dts[element] = (xspressStats[element * 3 + 1] - 1) * 100; // %
 				FF += xspressStats[element * 3];
-
 				maxRate = xspressStats[element * 3] > maxRate ? xspressStats[element * 3] : maxRate;
 				maxDT = xspressStats[element * 3 + 1] > maxDT ? xspressStats[element * 3 + 1] : maxDT;
 			}
@@ -171,7 +162,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 
 	@Override
 	protected Double[] getIonChamberValues() throws Exception {
-
+		//TODO why get the detector names from java properties? Spring is a much nicer way of configuring as it means not having to look in the code to see what devices are used.
 		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
 		XspressDetector xspress = (XspressDetector) Finder.getInstance().find(xspressName);
 		String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
@@ -186,19 +177,17 @@ public class ScalersMonitorView extends MonitorViewBase {
 			ionchambers.setCollectionTime(1);
 			ionchambers.clearFrameSets();
 			ionchambers.collectData();
-
 			xspress.waitWhileBusy();
 			ionchambers.waitWhileBusy();
 		} else {
 			throw new Exception(ALREADY_RUNNING_MSG);
 		}
 
-
 		// read the latest frame
 		int currentFrame = ionchambers.getCurrentFrame();
-		if (currentFrame % 2 != 0) {
+		if (currentFrame % 2 != 0)
 			currentFrame--;
-		}
+		
 		if (currentFrame > 0) {
 			currentFrame /= 2;
 			currentFrame--;
@@ -224,7 +213,6 @@ public class ScalersMonitorView extends MonitorViewBase {
 			ion_results[i0Index + 2] /= collectionTime;
 		}
 		return new Double[] { ion_results[i0Index + 0], ion_results[i0Index + 1], ion_results[i0Index + 2] };
-
 	}
 
 	@Override
