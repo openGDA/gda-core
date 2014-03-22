@@ -43,15 +43,15 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
-public class XspressRatesView extends MonitorViewBase {
+public class XspressMonitorView extends MonitorViewBase {
 	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor";
-	protected static final Logger logger = LoggerFactory.getLogger(XspressRatesView.class);
+	protected static final Logger logger = LoggerFactory.getLogger(XspressMonitorView.class);
 	private static final Double MAX_FLUO_RATE = 500000.0;
 	protected ScalersMonitorViewData displayData;
 	private IAxis dtAxis;
 	private IAxis primaryAxis;
 
-	public XspressRatesView() {
+	public XspressMonitorView() {
 	}
 
 	@Override
