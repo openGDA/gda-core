@@ -54,7 +54,7 @@
             allowMultiple="false"
             category="uk.ac.gda.client.exafs.category"
             id="uk.ac.gda.exafs.ui.views.scalersmonitor"
-            class="uk.ac.gda.exafs.ui.views.scalersmonitor.ScalersMonitorView"
+            class="uk.ac.gda.exafs.ui.views.scalersmonitor.XspressRatesView"
             icon="icons/control_play_blue.png"
             name="Detector Rates"
             restorable="true">

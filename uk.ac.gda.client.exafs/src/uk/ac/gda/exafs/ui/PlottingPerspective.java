@@ -34,7 +34,7 @@ import uk.ac.gda.exafs.ui.plot.FourierScanPlotView;
 import uk.ac.gda.exafs.ui.plot.LnI0ItScanPlotView;
 import uk.ac.gda.exafs.ui.plot.SubtractedBackgroundScanPlotView;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
-import uk.ac.gda.exafs.ui.views.scalersmonitor.ScalersMonitorView;
+import uk.ac.gda.exafs.ui.views.scalersmonitor.XspressRatesView;
 
 public class PlottingPerspective implements IPerspectiveFactory {
 
@@ -56,7 +56,7 @@ public class PlottingPerspective implements IPerspectiveFactory {
 			flBottom.addView(JythonTerminalView.ID);
 			IFolderLayout flBottomRight = layout.createFolder("flBottomRight", IPageLayout.RIGHT, 0.5f, "flBottom");
 			flBottomRight.addView(ScriptControllerLogView.ID);
-			flBottomRight.addView(ScalersMonitorView.ID);
+			flBottomRight.addView(XspressRatesView.ID);
 			IFolderLayout flTopRight = layout.createFolder("flTopRight", IPageLayout.RIGHT, 0.5f, "flTop");
 			flTopRight.addView(LnI0ItScanPlotView.ID);
 			flTopRight.addView(SubtractedBackgroundScanPlotView.ID);
@@ -71,7 +71,7 @@ public class PlottingPerspective implements IPerspectiveFactory {
 			folderLayout_0.addView(LnI0ItScanPlotView.ID);
 		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.5f, "folder1");
 		folderLayout.addView(JythonTerminalView.ID);
-		folderLayout.addView(ScalersMonitorView.ID);
+		folderLayout.addView(XspressRatesView.ID);
 		IFolderLayout folderLayout_1 = layout.createFolder("folder0", IPageLayout.BOTTOM, 0.7f, LivePlotView.ID);
 		folderLayout_1.addView(CommandQueueViewFactory.ID);
 		IFolderLayout folderLayout_2 = layout.createFolder("folder2", IPageLayout.RIGHT, 0.5f, "folder0");
