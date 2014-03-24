@@ -176,7 +176,7 @@ public interface UViewController {
 	public boolean getNewImageReady();
 
 	public boolean getAcquisitionInProgress() throws DeviceException;
-	public void setAcquisitionInProgess(boolean newAcqusitionStatus);
+	public void setAcquisitionInProgess(boolean newAcqusitionStatus) throws DeviceException;
 
 	public void acquireSingleImage(int imageId) throws DeviceException;
 

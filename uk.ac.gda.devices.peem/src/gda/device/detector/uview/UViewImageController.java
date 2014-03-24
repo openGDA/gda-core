@@ -181,7 +181,7 @@ public class UViewImageController extends Observable implements Runnable {
 		System.out.println("Detector File Name: " + imageFileNameDetector);
 		
 		//uvc.exportImage(imageFileNameDetector, format, imagecontents);
-		ImageFile fileDetails = new ImageFile(imageFileName, format, imageContents);
+		ImageFile fileDetails = new ImageFile(imageFileNameDetector, format, imageContents);
 		uvc.exportImage(fileDetails);
 		return imageFileName;
 	}
@@ -232,8 +232,9 @@ public class UViewImageController extends Observable implements Runnable {
 	 * 
 	 * @param bs
 	 *            boolean true for recorder ON, false for OFF
+	 * @throws DeviceException 
 	 */
-	public void setCameraInProgress(boolean bs) {
+	public void setCameraInProgress(boolean bs) throws DeviceException {
 		uvc.setInProgress(bs);
 	}
 

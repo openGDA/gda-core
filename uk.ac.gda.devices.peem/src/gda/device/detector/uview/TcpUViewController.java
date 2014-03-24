@@ -140,7 +140,7 @@ public class TcpUViewController implements UViewController {
 		String cmd = "seq " + (newSeq ? "1" : "0");
 		String reply = socket.send(cmd);
 		if ( ! "0".equals(reply) ) {
-			throw new DeviceException("Unexpected return value from TCP socket");
+			throw new DeviceException("Unexpected return value from TCP socket: " + reply);
 		}
 	}
 
@@ -159,7 +159,7 @@ public class TcpUViewController implements UViewController {
 		String cmd = "avr " + newAveraging;
 		String reply = socket.send(cmd);
 		if (! "0".equals(reply)) {
-			throw new DeviceException("Unexpected return value from TCP socket");
+			throw new DeviceException("Unexpected return value from TCP socket: " + reply);
 		}
 	}
 
@@ -174,8 +174,13 @@ public class TcpUViewController implements UViewController {
 	}
 
 	@Override
-	public void setAcquisitionInProgess(boolean newAcqusitionStatus) {
-		throw new UnsupportedOperationException();
+	public void setAcquisitionInProgess(boolean newAcquisitionStatus) throws DeviceException {
+		//throw new UnsupportedOperationException();
+		String cmd = "aip " + (newAcquisitionStatus ? "1" : "0"); 
+		String reply = socket.send(cmd);
+		if (! "0".equals(reply)) {
+			throw new DeviceException("Unexpected return value from TCP socket: " + reply);
+		}
 	}
 
 	@Override

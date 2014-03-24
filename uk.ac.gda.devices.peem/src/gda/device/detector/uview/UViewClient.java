@@ -654,8 +654,9 @@ public class UViewClient {
 	 * 
 	 * @param bs
 	 *            boolean true if sequential mode else false
+	 * @throws DeviceException 
 	 */
-	public void setInProgress(boolean bs) {
+	public void setInProgress(boolean bs) throws DeviceException {
 		// TODO New implementation in 1.4.2
 		//msImpl.SetAcquisitionInProgress(bs);
 		controller.setAcquisitionInProgess(bs);

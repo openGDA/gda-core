@@ -155,7 +155,7 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		uic.setCameraSequentialMode(bs);
 	}
 
-	public void setCameraInProgress(boolean bs) {
+	public void setCameraInProgress(boolean bs) throws DeviceException {
 		uic.setCameraInProgress(bs);
 	}
 
