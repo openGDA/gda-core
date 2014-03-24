@@ -62,7 +62,7 @@ public class XspressElements extends Elements{
 	protected DetectorElementComposite detectorElementComposite;
 	private boolean showRoi;
 	
-	public XspressElements(final Composite parent, Shell shell, SashFormPlotComposite sashPlotFormComposite, XspressParameters xspressParameters, final Counts counts, boolean showRoi) {
+	public XspressElements(final Composite parent, Shell shell, SashFormPlotComposite sashPlotFormComposite, List<DetectorElement> detectorList, final Counts counts, boolean showRoi) {
 		super(shell, sashPlotFormComposite, counts);
 		Composite grid = new Composite(parent, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(grid);
@@ -122,7 +122,6 @@ public class XspressElements extends Elements{
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorElementsGroup);
 		
 		try {
-			List<DetectorElement> detectorList = xspressParameters.getDetectorList();
 			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class, showRoi);
 			XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListComposite.getDetectorList());
 			if(showRoi){

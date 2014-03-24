@@ -21,7 +21,6 @@ package uk.ac.gda.exafs.ui.detector.vortex;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.Timer;
-import gda.device.XmapDetector;
 import gda.factory.Finder;
 
 import java.io.File;

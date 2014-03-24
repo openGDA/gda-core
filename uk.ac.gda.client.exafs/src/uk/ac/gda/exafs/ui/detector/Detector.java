@@ -29,7 +29,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.dawnsci.plotting.jreality.util.PlotColorUtility;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -124,10 +123,6 @@ public class Detector {
 						sashPlotFormComposite.appendStatus((String) changeCode, logger);
 			}
 		};
-	}
-
-	protected java.awt.Color getChannelColor(int i) {
-		return PlotColorUtility.getDefaultColour(i);
 	}
 
 	public SashFormPlotComposite getSashPlotFormComposite() {

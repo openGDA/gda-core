@@ -19,10 +19,15 @@
 package uk.ac.gda.exafs.ui.detector.xspress;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.detector.xspress.XspressDetector;
+import gda.factory.Finder;
+
 import java.io.File;
 import java.net.URL;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
+
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
@@ -49,7 +54,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		xspress = new Xspress(xmlPath, this.getSite(), parent, xspressParameters, dirtyContainer);
+		XspressDetector xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
+		xspress = new Xspress(xmlPath, this.getSite(), parent, xspressDetector, dirtyContainer, xspressParameters.getDetectorList());
 	}
 
 	@Override
