@@ -26,6 +26,9 @@
 		<field name="iterations" type="short">
 			<bind-xml name="iterations" node="element"/>
 		</field>
+		<field name="configureOnly" type="boolean">
+			<bind-xml name="configureOnly" node="element"/>
+		</field>
 		<field name="scanBean" type="uk.ac.gda.arpes.beans.StartStopStepBean">
 			<bind-xml name="scanBean" node="element"/>
 		</field>

@@ -43,7 +43,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -60,17 +59,16 @@ import uk.ac.gda.devices.vgscienta.AnalyserCapabilties;
 import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.FieldComposite;
+import uk.ac.gda.richbeans.components.scalebox.IntegerBox;
 import uk.ac.gda.richbeans.components.scalebox.NumberBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
+import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.components.wrappers.RadioWrapper;
-import uk.ac.gda.richbeans.components.wrappers.SpinnerWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
-
-import org.eclipse.swt.widgets.Group;
 
 public final class ARPESScanBeanComposite extends Composite implements ValueListener {
 	private static final Logger logger = LoggerFactory.getLogger(ARPESScanBeanComposite.class);
@@ -81,28 +79,13 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final NumberBox endEnergy;
 	private final NumberBox stepEnergy;
 	private final NumberBox timePerStep;
-	private final SpinnerWrapper iterations;
+	private final NumberBox iterations;
 	private final RadioWrapper sweptMode;
 	private final ScaleBox centreEnergy;
 	private final ScaleBox energyWidth;
-	private boolean wedidit = false;
+	private final BooleanWrapper configureOnly;
+	boolean wedidit = false;
 	private AnalyserCapabilties capabilities;
-	private Label lblLensMode;
-	private Label lblPassEnergy;
-	private Label lblSweptMode;
-	private Label lblStartEnergy;
-	private Label lblCentreEnergy;
-	private Label lblEndEnergy;
-	private Label lblStepEnergy;
-	private Label lblEnergyWidth;
-	private Label lblTimePerStep;
-	private Label lblIterations;
-	private Label lblScanCommand;
-	private Label lblNewLabel_1;
-	private Group queueGroup;
-	private Group commandGroup;
-	private Label lblAlsoCopiesCommand;
-	private Group grpEnergy;
 
 	public ARPESScanBeanComposite(final Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
@@ -113,17 +96,83 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		Label label = new Label(this, SWT.NONE);
 		label.setText("Drop file here!");
-		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 
 		setDropTarget(parent, parent.getShell(), editor);
 
-		lblLensMode = new Label(this, SWT.NONE);
-		lblLensMode.setText("Lens Mode");
+		Composite btnComp = new Composite(this, SWT.NONE);
+		btnComp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+
+		btnComp.setLayout(new GridLayout(2, false));
+
+		Button btnClipboard = new Button(btnComp, SWT.NONE);
+		btnClipboard.setText("Jython to Clipboard");
+		btnClipboard
+				.setToolTipText("save file and copy Jython instructions to clip board to use this defintion in scripts");
+		btnClipboard.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				try {
+					IProgressMonitor monitor = new NullProgressMonitor();
+					editor.doSave(monitor);
+					if (monitor.isCanceled()) {
+						return;
+					}
+					Display display = Display.getCurrent();
+					Clipboard clipboard = new org.eclipse.swt.dnd.Clipboard(display);
+					String[] data = { getOurJythonCommand(editor) };
+					clipboard.setContents(data, new Transfer[] { TextTransfer.getInstance() });
+					clipboard.dispose();
+				} catch (Exception e1) {
+					logger.error("Error sending command to the clipboard", e1);
+				}
+			}
+		});
+
+		Button btnQueueExperiment = new Button(btnComp, SWT.NONE);
+		btnQueueExperiment.setText("Queue Experiment");
+		btnQueueExperiment
+				.setToolTipText("save file and queue for execution (will start immediately if queue running)");
+		btnQueueExperiment.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				try {
+					IProgressMonitor monitor = new NullProgressMonitor();
+					editor.doSave(monitor);
+					if (monitor.isCanceled()) {
+						return;
+					}
+					Queue queue = CommandQueueViewFactory.getQueue();
+					boolean batonHeld = JythonServerFacade.getInstance().isBatonHeld();
+					if(!batonHeld){
+						MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
+							    "You do not hold the baton, please take the baton using the baton manager.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
+						dialog.open();
+					}
+					else if (queue != null) {
+						queue.addToTail(new JythonCommandCommandProvider(getOurJythonCommand(editor),
+								editor.getTitle(), editor.getPath()));
+					} else {
+						logger.warn("No queue received from CommandQueueViewFactory");
+					}
+				} catch (Exception e1) {
+					logger.error("Error adding command to the queue", e1);
+				}
+			}
+		});
+
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("lensMode");
 		this.lensMode = new ComboWrapper(this, SWT.NONE);
-		this.lensMode.setItems(capabilities.getLensModes());
 		GridData gd_lensMode = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lensMode.widthHint = 185;
+		gd_lensMode.widthHint = 200;
 		lensMode.setLayoutData(gd_lensMode);
+		this.lensMode.setItems(capabilities.getLensModes());
 
 		Comparator<String> passEComparator = new Comparator<String>() {
 			@Override
@@ -136,9 +185,19 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		for (short s : capabilities.getPassEnergies()) {
 			passMap.put(String.format("%d eV", s), s);
 		}
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("passEnergy");
+		this.passEnergy = new ComboWrapper(this, SWT.NONE);
+		GridData gd_passEnergy = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_passEnergy.widthHint = 200;
+		passEnergy.setLayoutData(gd_passEnergy);
+		this.passEnergy.setItems(passMap);
+		this.passEnergy.addValueListener(this);
 
-		lblSweptMode = new Label(this, SWT.NONE);
-		lblSweptMode.setText("Swept Mode");
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("sweptMode");
 		this.sweptMode = new RadioWrapper(this, SWT.NONE, new String[] { "fixed", "swept" }) {
 			@Override
 			public void setValue(Object value) {
@@ -150,39 +209,28 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				return super.getValue().equals("swept");
 			}
 		};
-		GridData gd_sweptMode = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
-		gd_sweptMode.widthHint = 182;
-		sweptMode.setLayoutData(gd_sweptMode);
 		sweptMode.addValueListener(this);
-		RowLayout rowLayout = new RowLayout();
-		rowLayout.spacing=20;
-		rowLayout.marginLeft=13;
-		sweptMode.setLayout(rowLayout);
-		grpEnergy = new Group(this, SWT.NONE);
-		grpEnergy.setLayout(new GridLayout(6, false));
-		grpEnergy.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
-		grpEnergy.setText("Energy");
-				
-		lblStartEnergy = new Label(grpEnergy, SWT.NONE);
-		lblStartEnergy.setText("Start");
-						
-		this.startEnergy = new ScaleBox(grpEnergy, SWT.NONE);
+
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("startEnergy");
+		this.startEnergy = new ScaleBox(this, SWT.NONE);
 		GridData gridData = (GridData) startEnergy.getControl().getLayoutData();
-		gridData.verticalAlignment = SWT.TOP;
+		gridData.widthHint = 200;
 		gridData.horizontalAlignment = SWT.LEFT;
-		gridData.grabExcessVerticalSpace = false;
-		gridData.widthHint = 90;
 		gridData.grabExcessHorizontalSpace = false;
 		startEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		startEnergy.setUnit("eV");
 		startEnergy.setDecimalPlaces(3);
 		startEnergy.addValueListener(this);
 
-		lblCentreEnergy = new Label(grpEnergy, SWT.NONE);
-		lblCentreEnergy.setText("Center");
-		centreEnergy = new ScaleBox(grpEnergy, SWT.NONE);
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("centreEnergy");
+		centreEnergy = new ScaleBox(this, SWT.NONE);
 		GridData gridData_1 = (GridData) centreEnergy.getControl().getLayoutData();
-		gridData_1.widthHint = 90;
+		gridData_1.widthHint = 200;
+		gridData_1.horizontalAlignment = SWT.LEFT;
 		gridData_1.grabExcessHorizontalSpace = false;
 		centreEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		centreEnergy.setUnit("eV");
@@ -191,22 +239,26 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		centreEnergy.on();
 		centreEnergy.addValueListener(this);
 
-		lblEndEnergy = new Label(grpEnergy, SWT.NONE);
-		lblEndEnergy.setText("End");
-		this.endEnergy = new ScaleBox(grpEnergy, SWT.NONE);
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("endEnergy");
+		this.endEnergy = new ScaleBox(this, SWT.NONE);
 		GridData gridData_2 = (GridData) endEnergy.getControl().getLayoutData();
-		gridData_2.widthHint = 90;
+		gridData_2.widthHint = 200;
+		gridData_2.horizontalAlignment = SWT.LEFT;
 		gridData_2.grabExcessHorizontalSpace = false;
 		endEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		endEnergy.setUnit("eV");
 		endEnergy.setDecimalPlaces(3);
 		endEnergy.addValueListener(this);
 
-		lblStepEnergy = new Label(grpEnergy, SWT.NONE);
-		lblStepEnergy.setText("Step");
-		this.stepEnergy = new ScaleBox(grpEnergy, SWT.NONE);
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("stepEnergy");
+		this.stepEnergy = new ScaleBox(this, SWT.NONE);
 		GridData gridData_3 = (GridData) stepEnergy.getControl().getLayoutData();
-		gridData_3.widthHint = 90;
+		gridData_3.widthHint = 200;
+		gridData_3.horizontalAlignment = SWT.LEFT;
 		gridData_3.grabExcessHorizontalSpace = false;
 		stepEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		stepEnergy.setUnit("meV");
@@ -216,143 +268,53 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		stepEnergy.setMinimumValid(true);
 		stepEnergy.addValueListener(this);
 
-		lblEnergyWidth = new Label(grpEnergy, SWT.NONE);
-		lblEnergyWidth.setText("Width");
-		energyWidth = new ScaleBox(grpEnergy, SWT.NONE);
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("energyWidth");
+		energyWidth = new ScaleBox(this, SWT.NONE);
 		GridData gridData_4 = (GridData) energyWidth.getControl().getLayoutData();
-		gridData_4.widthHint = 90;
+		gridData_4.widthHint = 200;
+		gridData_4.horizontalAlignment = SWT.LEFT;
 		gridData_4.grabExcessHorizontalSpace = false;
+		energyWidth.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		energyWidth.setUnit("eV");
 		energyWidth.setDecimalPlaces(3);
 		energyWidth.setFieldName("energyWidth");
 		energyWidth.on();
 		energyWidth.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
-		
-		lblPassEnergy = new Label(grpEnergy, SWT.NONE);
-		lblPassEnergy.setText("Pass");
-		this.passEnergy = new ComboWrapper(grpEnergy, SWT.NONE);
-		GridData gd_passEnergy = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_passEnergy.widthHint = 100;
-		passEnergy.setLayoutData(gd_passEnergy);
-		this.passEnergy.setItems(passMap);
-		this.passEnergy.addValueListener(this);
-		
 		energyWidth.addValueListener(this);
 
-		lblTimePerStep = new Label(this, SWT.NONE);
-		lblTimePerStep.setText("Time Per Step");
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("timePerStep");
 		this.timePerStep = new ScaleBox(this, SWT.NONE);
 		GridData gridData_5 = (GridData) timePerStep.getControl().getLayoutData();
-		gridData_5.widthHint = 90;
+		gridData_5.widthHint = 200;
+		gridData_5.horizontalAlignment = SWT.LEFT;
 		gridData_5.grabExcessHorizontalSpace = false;
 		timePerStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		timePerStep.setUnit("s");
 		timePerStep.addValueListener(this);
 
-		lblIterations = new Label(this, SWT.NONE);
-		lblIterations.setText("Iterations");
-		this.iterations = new SpinnerWrapper(this, SWT.NONE);
-		GridData gd_iterations = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_iterations.widthHint = 96;
-		iterations.setLayoutData(gd_iterations);
-		
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("iterations");
+		this.iterations = new IntegerBox(this, SWT.NONE);
+		GridData gridData_6 = (GridData) iterations.getControl().getLayoutData();
+		gridData_6.widthHint = 200;
+		gridData_6.horizontalAlignment = SWT.LEFT;
+		gridData_6.grabExcessHorizontalSpace = false;
+		iterations.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		iterations.addValueListener(this);
 
-		commandGroup = new Group(this, SWT.NONE);
-		commandGroup.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
-		commandGroup.setLayout(new GridLayout(2, false));
-						
-								Button btnClipboard = new Button(commandGroup, SWT.NONE);
-								GridData gd_btnClipboard = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
-								gd_btnClipboard.widthHint = 160;
-								btnClipboard.setLayoutData(gd_btnClipboard);
-								btnClipboard.setText("Show Scan Command");
-								btnClipboard
-										.setToolTipText("save file and copy Jython instructions to clip board to use this defintion in scripts");
-								btnClipboard.addSelectionListener(new SelectionAdapter() {
+		label = new Label(this, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("configureOnly");
+		this.configureOnly = new BooleanWrapper(this, SWT.NONE);
+		configureOnly.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		// configureOnly.addValueListener(this);
+		configureOnly.setToolTipText("Do not run experiment, just set up analyser accordingly.");
 
-									@Override
-									public void widgetSelected(SelectionEvent e) {
-										super.widgetSelected(e);
-										try {
-											IProgressMonitor monitor = new NullProgressMonitor();
-											editor.doSave(monitor);
-											if (monitor.isCanceled()) {
-												return;
-											}
-											Display display = Display.getCurrent();
-											Clipboard clipboard = new org.eclipse.swt.dnd.Clipboard(display);
-											String[] commands = { getOurJythonCommand(editor) };
-											String command = "";
-											for(int i=0;i<commands.length;i++)
-												command+=commands[i];
-											lblScanCommand.setText(command);
-											clipboard.setContents(commands, new Transfer[] { TextTransfer.getInstance() });
-											clipboard.dispose();
-										} catch (Exception e1) {
-											logger.error("Error sending command to the clipboard", e1);
-										}
-									}
-								});
-						
-						lblAlsoCopiesCommand = new Label(commandGroup, SWT.WRAP);
-						GridData gd_lblAlsoCopiesCommand = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-						gd_lblAlsoCopiesCommand.widthHint = 310;
-						lblAlsoCopiesCommand.setLayoutData(gd_lblAlsoCopiesCommand);
-						lblAlsoCopiesCommand.setText("Also copies command to clipboard so it can be pasted into the jython console.");
-						
-						lblScanCommand = new Label(commandGroup, SWT.WRAP);
-						GridData gd_lblScanCommand = new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1);
-						gd_lblScanCommand.heightHint = 35;
-						lblScanCommand.setLayoutData(gd_lblScanCommand);
-		
-		queueGroup = new Group(this, SWT.NONE);
-		queueGroup.setLayout(new GridLayout(2, false));
-		queueGroup.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
-				
-						Button btnQueueExperiment = new Button(queueGroup, SWT.NONE);
-						GridData gd_btnQueueExperiment = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
-						gd_btnQueueExperiment.widthHint = 160;
-						btnQueueExperiment.setLayoutData(gd_btnQueueExperiment);
-						btnQueueExperiment.setText("Queue Experiment");
-						btnQueueExperiment
-								.setToolTipText("save file and queue for execution (will start immediately if queue running)");
-						
-						lblNewLabel_1 = new Label(queueGroup, SWT.WRAP);
-						GridData gd_lblNewLabel_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 2);
-						gd_lblNewLabel_1.widthHint = 310;
-						lblNewLabel_1.setLayoutData(gd_lblNewLabel_1);
-						lblNewLabel_1.setText("Creates a scan based on the xml file that represents these parameters and queues it. Editing afterwards will change the running scan. Create a new file if you want a new scan.");
-
-						btnQueueExperiment.addSelectionListener(new SelectionAdapter() {
-
-							@Override
-							public void widgetSelected(SelectionEvent e) {
-								super.widgetSelected(e);
-								try {
-									IProgressMonitor monitor = new NullProgressMonitor();
-									editor.doSave(monitor);
-									if (monitor.isCanceled()) {
-										return;
-									}
-									Queue queue = CommandQueueViewFactory.getQueue();
-									boolean batonHeld = JythonServerFacade.getInstance().isBatonHeld();
-									if(!batonHeld){
-										MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
-											    "You do not hold the baton, please take the baton using the baton manager.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
-										dialog.open();
-									}
-									else if (queue != null) {
-										queue.addToTail(new JythonCommandCommandProvider(getOurJythonCommand(editor),
-												editor.getTitle(), editor.getPath()));
-									} else {
-										logger.warn("No queue received from CommandQueueViewFactory");
-									}
-								} catch (Exception e1) {
-									logger.error("Error adding command to the queue", e1);
-								}
-							}
-						});
 	}
 
 	protected String getOurJythonCommand(final RichBeanEditorPart editor) {
@@ -387,6 +349,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return iterations;
 	}
 
+	public FieldComposite getConfigureOnly() {
+		return configureOnly;
+	}
+
 	public IFieldWidget getSweptMode() {
 		return sweptMode;
 	}
@@ -397,11 +363,17 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 	@Override
 	public void valueChangePerformed(ValueEvent e) {
-		if (Double.isNaN(e.getDoubleValue()))
+
+		if (Double.isNaN(e.getDoubleValue())) {
 			return;
-		if (wedidit)
+		}
+
+		if (wedidit) {
 			return;
+		}
+
 		wedidit = true;
+
 		try {
 			if (e.getFieldName().equals("sweptMode")) {
 				stepEnergy.setMinimum(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
@@ -416,8 +388,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 					endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
 							+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
 
-				} 
-				else {
+				} else {
 					stepEnergy.setEditable(true);
 					energyWidth.setActive(true);
 				}
@@ -497,8 +468,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 						- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
 				endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
 						+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-			} 
-			else {
+
+			} else {
 				stepEnergy.setEditable(true);
 				energyWidth.setActive(true);
 				energyWidth.setValue(((Number) endEnergy.getValue()).doubleValue()

@@ -74,6 +74,10 @@ public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 		return beanComposite.getPassEnergy();
 	}
 
+	public FieldComposite getConfigureOnly() {
+		return beanComposite.getConfigureOnly();
+	}
+
 	public FieldComposite getStartEnergy() {
 		return beanComposite.getStartEnergy();
 	}

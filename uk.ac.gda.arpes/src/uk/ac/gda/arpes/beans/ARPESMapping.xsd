@@ -18,6 +18,7 @@
 				<xsd:element name="stepEnergy" type="xsd:double" minOccurs="1" />
 				<xsd:element name="timePerStep" type="xsd:double" minOccurs="1" />
 				<xsd:element name="iterations" type="xsd:int" minOccurs="0" />
+				<xsd:element name="configureOnly" type="xsd:boolean" minOccurs="0" />
 				<xsd:element name="scanBean" minOccurs="0" maxOccurs="1">
 					<xsd:complexType>
 						<xsd:sequence>
