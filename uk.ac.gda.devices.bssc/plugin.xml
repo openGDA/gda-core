@@ -152,11 +152,11 @@
                  mode="FORCE_TEXT"
                  style="push">
                        <visibleWhen
-        					checkEnabled="false">
-        					<reference
-          						definitionId="uk.ac.gda.devices.bssc.perspectives.isBioSAXSPerspectiveDefinition">
-        					</reference>
-      					</visibleWhen>
+        checkEnabled="false">
+        <reference
+          definitionId="uk.ac.gda.devices.bssc.perspectives.isBioSAXSPerspectiveDefinition">
+        </reference>
+      </visibleWhen>
            </command>
         </toolbar>
      </menuContribution>
@@ -182,9 +182,9 @@
   <extension
         point="org.eclipse.core.expressions.propertyTesters">
      <propertyTester
-           class="uk.ac.gda.devices.bssc.perspectives.PerspecticePropertyTester"
-           id="uk.ac.gda.devices.bssc.perspectives.PerspecticePropertyTester"
-           namespace="uk.ac.gda.devices.bssc.perspectives.PerspecticePropertyTester"
+           class="uk.ac.gda.devices.bssc.perspectives.PerspectivePropertyTester"
+           id="uk.ac.gda.devices.bssc.perspectives.PerspectivePropertyTester"
+           namespace="uk.ac.gda.devices.bssc.perspectives.PerspectivePropertyTester"
            properties="isKnownPerspective"
            type="java.lang.Object">
      </propertyTester>
@@ -197,7 +197,7 @@
               variable="activeWorkbenchWindow.activePerspective">
            <test
                  forcePluginActivation="true"
-                 property="uk.ac.gda.devices.bssc.perspectives.PerspecticePropertyTester.isKnownPerspective">
+                 property="uk.ac.gda.devices.bssc.perspectives.PerspectivePropertyTester.isKnownPerspective">
            </test>
         </with>
      </definition>
