@@ -31,6 +31,7 @@
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//STATUS/RUNNING"/>
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//STATUS/COMPLETED"/>
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//STATUS/ABORTED"/>
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//STATUS/INVALID"/>
     </genEnums>
     <genClasses ecoreClass="regiondefinition.ecore#//DocumentRoot">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference regiondefinition.ecore#//DocumentRoot/sequence"/>
@@ -45,6 +46,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/repeatUntilStopped"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/confirmAfterEachIteration"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference regiondefinition.ecore#//Sequence/spectrum"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/elementSet"/>
       <genOperations ecoreOperation="regiondefinition.ecore#//Sequence/getRegionById">
         <genParameters ecoreParameter="regiondefinition.ecore#//Sequence/getRegionById/regionId"/>
       </genOperations>

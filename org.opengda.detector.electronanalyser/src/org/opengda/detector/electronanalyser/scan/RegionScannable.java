@@ -168,7 +168,12 @@ public class RegionScannable extends ScannableBase implements Scannable {
 					getAnalyser().setCentreEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getFixEnergy(), 5.0);
 				}
 				getAnalyser().setEnergyMode("Kinetic",5.0);
-			} 
+			} else {
+				getAnalyser().setStartEnergy(region.getLowEnergy(), 5.0);
+				getAnalyser().setEndEnergy(region.getHighEnergy(), 5.0);
+				getAnalyser().setCentreEnergy(region.getFixEnergy(), 5.0);
+				getAnalyser().setEnergyMode(literal,5.0);
+			}
 			if (!firstInScan) {
 				busy=false;
 				return;
@@ -181,12 +186,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 5.0);
 			getAnalyser().setLensMode(region.getLensMode(), 5.0);
 			getAnalyser().setPassEnergy(region.getPassEnergy(), 5.0);
-			if (literal.equalsIgnoreCase("Kinetic")) {
-				getAnalyser().setStartEnergy(region.getLowEnergy(), 5.0);
-				getAnalyser().setEndEnergy(region.getHighEnergy(), 5.0);
-				getAnalyser().setCentreEnergy(region.getFixEnergy(), 5.0);
-				getAnalyser().setEnergyMode(literal,5.0);
-			}
+
 			getAdArray().setEnergyMode(literal);
 			
 			getAnalyser().setStepTime(region.getStepTime(), 5.0);

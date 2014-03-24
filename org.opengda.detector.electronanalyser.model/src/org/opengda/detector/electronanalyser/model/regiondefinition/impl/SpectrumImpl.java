@@ -78,7 +78,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String USER_EDEFAULT = "";
+	protected static final String USER_EDEFAULT = "i09user";
 
 	/**
 	 * The cached value of the '{@link #getUser() <em>User</em>}' attribute.

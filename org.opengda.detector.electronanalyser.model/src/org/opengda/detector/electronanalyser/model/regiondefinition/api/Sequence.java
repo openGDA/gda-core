@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUntilStopped <em>Repeat Until Stopped</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getSpectrum <em>Spectrum</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getElementSet <em>Element Set</em>}</li>
  * </ul>
  * </p>
  *
@@ -33,7 +34,6 @@ import org.eclipse.emf.ecore.EObject;
 public interface Sequence extends EObject {
 	/**
 	 * Returns the value of the '<em><b>Run Mode</b></em>' attribute.
-	 * The default value is <code>""</code>.
 	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES}.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -47,7 +47,7 @@ public interface Sequence extends EObject {
 	 * @see #unsetRunMode()
 	 * @see #setRunMode(RUN_MODES)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_RunMode()
-	 * @model default="" unique="false" unsettable="true"
+	 * @model unique="false" unsettable="true"
 	 * @generated
 	 */
 	RUN_MODES getRunMode();
@@ -383,6 +383,33 @@ public interface Sequence extends EObject {
 	 * @generated
 	 */
 	boolean isSetSpectrum();
+
+	/**
+	 * Returns the value of the '<em><b>Element Set</b></em>' attribute.
+	 * The default value is <code>"Low"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Element Set</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Element Set</em>' attribute.
+	 * @see #setElementSet(String)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_ElementSet()
+	 * @model default="Low"
+	 * @generated
+	 */
+	String getElementSet();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getElementSet <em>Element Set</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Element Set</em>' attribute.
+	 * @see #getElementSet()
+	 * @generated
+	 */
+	void setElementSet(String value);
 
 	/**
 	 * <!-- begin-user-doc -->

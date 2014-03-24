@@ -260,4 +260,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 			oc.notifyIObservers(this, arg);
 		}		
 	}
+	public void createSingleFile(boolean b){
+		collectionStrategy.setSingleDataFile(b);
+	}
 }

@@ -87,7 +87,7 @@ public interface Spectrum extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>User</b></em>' attribute.
-	 * The default value is <code>""</code>.
+	 * The default value is <code>"i09user"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>User</em>' attribute isn't clear,
@@ -99,7 +99,7 @@ public interface Spectrum extends EObject {
 	 * @see #unsetUser()
 	 * @see #setUser(String)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSpectrum_User()
-	 * @model default="" unsettable="true"
+	 * @model default="i09user" unsettable="true"
 	 * @generated
 	 */
 	String getUser();
