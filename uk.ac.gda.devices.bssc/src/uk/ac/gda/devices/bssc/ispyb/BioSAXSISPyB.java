@@ -185,8 +185,9 @@ public interface BioSAXSISPyB {
 	/**
 	 * Changes the status of the data collection from NOT_STARTED to RUNNING
 	 * @param dataCollectionId
+	 * @throws SQLException 
 	 */
-	public void setDataCollectionStarted(long dataCollectionId);
+	public void setDataCollectionStarted(long dataCollectionId) throws SQLException;
 	
 	/**
 	 * Returns the status of the data collection for the sample/data collection
