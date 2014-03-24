@@ -24,47 +24,44 @@ import gda.scan.ScanBase;
 import gda.scan.ScanPositionProvider;
 
 public class ScanPositionsTwoWay implements ScanPositionProvider {
-	
+
 	private double start;
 	private double stop;
 	private double step;
 	private double[] points;
 	private boolean forward;
 
-	public ScanPositionsTwoWay(Scannable firstScannable, double start, double stop, double step) throws Exception
-	{
+	public ScanPositionsTwoWay(Scannable firstScannable, double start, double stop, double step) throws Exception {
 		this.start = start;
 		this.stop = stop;
 		this.step = (Double) ScanBase.sortArguments(start, stop, step);
 		int numberSteps = ScannableUtils.getNumberSteps(firstScannable, this.start, this.stop, this.step);
 		this.points = new double[numberSteps + 1];
-		this.points[0]=start;
+		this.points[0] = start;
 		double previousPoint = start;
 		double nextPoint = start;
-		for (int i =1; i<= numberSteps;i++){
-			            nextPoint = (Double) ScannableUtils.calculateNextPoint(previousPoint, this.step);
-			            this.points[i] = nextPoint;
-			            previousPoint = nextPoint;
+		for (int i = 1; i <= numberSteps; i++) {
+			nextPoint = (Double) ScannableUtils.calculateNextPoint(previousPoint, this.step);
+			this.points[i] = nextPoint;
+			previousPoint = nextPoint;
 		}
-		this.forward=false;
+		this.forward = false;
 	}
 
 	@Override
 	public Object get(int index) {
-		int  max_index = this.size()-1;
+		int max_index = this.size() - 1;
 		Object val = null;
 		if (index > max_index)
-			throw new IndexOutOfBoundsException("Position "+ index+" is outside possible range : "+max_index);
-		if (this.forward){
+			throw new IndexOutOfBoundsException("Position " + index + " is outside possible range : " + max_index);
+		if (this.forward) {
 			val = this.points[index];
 			if (index == max_index)
 				this.forward = false;
-		}
-		else
-		{
-			val = this.points[max_index-index];
+		} else {
+			val = this.points[max_index - index];
 			if (index == max_index)
-			this.forward = true;
+				this.forward = true;
 		}
 		return val;
 	}
