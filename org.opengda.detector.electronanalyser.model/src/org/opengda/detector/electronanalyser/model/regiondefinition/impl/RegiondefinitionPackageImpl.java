@@ -263,6 +263,15 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getSequence_ElementSet() {
+        return (EAttribute)getSequence().getEStructuralFeatures().get(9);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EAttribute getSequence_Filename() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(0);
 	}

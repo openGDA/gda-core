@@ -176,13 +176,22 @@ public interface RegiondefinitionPackage extends EPackage {
 	int SEQUENCE__SPECTRUM = 8;
 
 	/**
+	 * The feature id for the '<em><b>Element Set</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SEQUENCE__ELEMENT_SET = 9;
+
+	/**
 	 * The number of structural features of the '<em>Sequence</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE_FEATURE_COUNT = 9;
+	int SEQUENCE_FEATURE_COUNT = 10;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl <em>Region</em>}' class.
@@ -759,6 +768,17 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 */
 	EReference getSequence_Spectrum();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getElementSet <em>Element Set</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Element Set</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getElementSet()
+	 * @see #getSequence()
+	 * @generated
+	 */
+	EAttribute getSequence_ElementSet();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getFilename <em>Filename</em>}'.
@@ -1407,6 +1427,14 @@ public interface RegiondefinitionPackage extends EPackage {
 		 * @generated
 		 */
 		EReference SEQUENCE__SPECTRUM = eINSTANCE.getSequence_Spectrum();
+
+		/**
+		 * The meta object literal for the '<em><b>Element Set</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SEQUENCE__ELEMENT_SET = eINSTANCE.getSequence_ElementSet();
 
 		/**
 		 * The meta object literal for the '<em><b>Filename</b></em>' attribute feature.

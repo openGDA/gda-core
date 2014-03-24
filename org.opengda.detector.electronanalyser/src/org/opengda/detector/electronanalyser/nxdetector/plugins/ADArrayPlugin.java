@@ -21,13 +21,14 @@ package org.opengda.detector.electronanalyser.nxdetector.plugins;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
-import gda.device.detector.addetector.ArrayData;
 import gda.device.detector.areadetector.v17.NDArray;
+import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.scan.ScanInformation;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -182,8 +183,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 	public void appendTo(NXDetectorData data, String detectorName)
 			throws DeviceException {
 		try {
-			ArrayData ad = ArrayData.readArrayData(ndArray);
-			data.addData(detectorName, regionName + "_image", ad.getDims(), ad.getNexusType(),	ad.getDataVals(), "counts", 1);
+			readoutArrayIntoNXDetectorData(data, ndArray, detectorName,regionName);
 			if (firstReadoutInScan) {
 				appendRegionParametersAndDataAxes(data, detectorName);
 			}
@@ -195,7 +195,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 		short state = analyser.getAdBase().getDetectorState_RBV();
 		switch (state) {
 			case 6:
-				throw new DeviceException("analyser in error state during readout");
+				//throw new DeviceException("analyser in error state during readout");
 			case 1:
 				// The IOC can report acquiring for quite a while after being stopped
 				logger.debug("analyser status is acquiring during readout although we think it has stopped");
@@ -269,7 +269,114 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 //
 //			data.addData(detectorName, "region_size", new int[] {2}, NexusFile.NX_INT32, new int[] { analyser.getAdBase().getSizeX_RBV(), analyser.getAdBase().getSizeY_RBV() }, null, null);
 		}
-	
+	private int[] determineDataDimensions(NDArray ndArray) throws Exception {
+		// only called if configured to readArrays (and hence ndArray is set)
+		NDPluginBase pluginBase = ndArray.getPluginBase();
+		int nDimensions = pluginBase.getNDimensions_RBV();
+		int[] dimFromEpics = new int[3];
+		dimFromEpics[0] = pluginBase.getArraySize2_RBV();
+		dimFromEpics[1] = pluginBase.getArraySize1_RBV();
+		dimFromEpics[2] = pluginBase.getArraySize0_RBV();
 
+		int[] dims = java.util.Arrays.copyOfRange(dimFromEpics, 3 - nDimensions, 3);
+		return dims;
+	}
+	private void readoutArrayIntoNXDetectorData(NXDetectorData data,
+			NDArray ndArray, String detectorName, String regionName)
+			throws Exception, DeviceException {
+		int[] dims = determineDataDimensions(ndArray);
+
+		if (dims.length == 0) {
+			logger.warn("Dimensions of data from " + detectorName
+					+ " are zero length");
+			return;
+		}
+
+		int expectedNumPixels = dims[0];
+		for (int i = 1; i < dims.length; i++) {
+			expectedNumPixels = expectedNumPixels * dims[i];
+		}
+		Serializable dataVals;
+		// TODO do only once per scan
+		short dataType = ndArray.getPluginBase().getDataType_RBV();
+		int nexusType;
+		switch (dataType) {
+		case NDPluginBase.UInt8: {
+			byte[] b = new byte[] {};
+			b = ndArray.getByteArrayData(expectedNumPixels);
+			if (expectedNumPixels > b.length)
+				throw new DeviceException("Data size is not valid");
+			{
+				short cd[] = new short[expectedNumPixels];
+				for (int i = 0; i < expectedNumPixels; i++) {
+					cd[i] = (short) (b[i] & 0xff);
+				}
+				dataVals = cd;
+				nexusType = NexusFile.NX_INT16;
+			}
+		}
+			break;
+		case NDPluginBase.Int8: {
+			byte[] b = ndArray.getByteArrayData(expectedNumPixels);
+			if (expectedNumPixels > b.length)
+				throw new DeviceException("Data size is not valid");
+			dataVals = b;
+			nexusType = NexusFile.NX_INT8;
+			break;
+		}
+		case NDPluginBase.Int16: {
+			short[] s = ndArray.getShortArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:"
+						+ s.length + " expected:" + expectedNumPixels);
+
+			dataVals = s;
+			nexusType = NexusFile.NX_INT16;
+		}
+			break;
+		case NDPluginBase.UInt16: {
+			short[] s = ndArray.getShortArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:"
+						+ s.length + " expected:" + expectedNumPixels);
+
+			int cd[] = new int[expectedNumPixels];
+			for (int i = 0; i < expectedNumPixels; i++) {
+				cd[i] = (s[i] & 0xffff);
+			}
+			dataVals = cd;
+			nexusType = NexusFile.NX_INT32;
+		}
+			break;
+		case NDPluginBase.UInt32: // TODO should convert to INT64 if any numbers
+									// are negative
+		case NDPluginBase.Int32: {
+			int[] s = ndArray.getIntArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:"
+						+ s.length + " expected:" + expectedNumPixels);
+
+			dataVals = s;
+			nexusType = NexusFile.NX_INT32;
+		}
+			break;
+		case NDPluginBase.Float32:
+		case NDPluginBase.Float64: {
+			float[] s = ndArray.getFloatArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:"
+						+ s.length + " expected:" + expectedNumPixels);
+
+			dataVals = s;
+			nexusType = NexusFile.NX_FLOAT32;
+		}
+			break;
+		default:
+			throw new DeviceException("Type of data is not understood :"
+					+ dataType);
+		}
+
+		data.addData(detectorName, regionName + "_image", dims, nexusType,	dataVals, "counts", 1);
+	}
 
 }

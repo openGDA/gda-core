@@ -112,19 +112,21 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	private List<Double> totalIntensity=new ArrayList<Double>();
 
 	private boolean stillHaveDataToWrite=false;
-
+	protected void beforeCollectData() {
+		busy.getAndSet(true);
+		scanDatapoint.incrementAndGet();
+		if (!regionDataList.isEmpty()) {
+			regionDataList.clear();
+			getTotalIntensity().clear();
+		}
+	}
 	@Override
 	public void collectData() throws Exception {
+		beforeCollectData();
 		Runnable target = new Runnable() {
 
 			@Override
 			public void run() {
-				busy.getAndSet(true);
-				scanDatapoint.incrementAndGet();
-				if (!regionDataList.isEmpty()) {
-					regionDataList.clear();
-					getTotalIntensity().clear();
-				}
 				for (Region region : sequence.getRegion()) {
 					if(Thread.currentThread().isInterrupted()) break;
 					if (region.isEnabled()) {
@@ -435,6 +437,11 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 					getAnalyser().setCentreEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getFixEnergy(), 10.0);
 				}
 				getAnalyser().setEnergyMode("Kinetic",10.0);
+			} else {
+				getAnalyser().setStartEnergy(region.getLowEnergy(), 10.0);
+				getAnalyser().setEndEnergy(region.getHighEnergy(), 10.0);
+				getAnalyser().setCentreEnergy(region.getFixEnergy(), 10.0);
+				getAnalyser().setEnergyMode(literal,10.0);
 			}
 			if (lastregion == region) {
 				//only set analyser region when region changed.
@@ -449,12 +456,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 10.0);
 			getAnalyser().setLensMode(region.getLensMode(), 10.0);
 			getAnalyser().setPassEnergy(region.getPassEnergy(), 10.0);
-			if (literal.equalsIgnoreCase("Kinetic")) {
-				getAnalyser().setStartEnergy(region.getLowEnergy(), 10.0);
-				getAnalyser().setEndEnergy(region.getHighEnergy(), 10.0);
-				getAnalyser().setCentreEnergy(region.getFixEnergy(), 10.0);
-				getAnalyser().setEnergyMode(literal,10.0);
-			}
+
 			getAnalyser().setCachedEnergyMode(literal);
 			
 //			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 10.0);

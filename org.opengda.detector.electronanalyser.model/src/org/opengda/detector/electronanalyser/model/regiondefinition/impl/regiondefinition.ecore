@@ -18,7 +18,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="region" upperBound="-1"
         eType="#//Region" unsettable="true" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="runMode" unique="false"
-        eType="#//RUN_MODES" defaultValueLiteral="" unsettable="true"/>
+        eType="#//RUN_MODES" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="runModeIndex" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="0" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="numIterations" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
@@ -32,6 +32,8 @@
         unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="spectrum" eType="#//Spectrum"
         unsettable="true" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="elementSet" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral="Low"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Region">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="regionId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
@@ -51,9 +53,9 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="excitationEnergy" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
         defaultValueLiteral="0.0" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="acquisitionMode" eType="#//ACQUISITION_MODE"
-        defaultValueLiteral="SWEPT" unsettable="true"/>
+        defaultValueLiteral="Swept" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="energyMode" eType="#//ENERGY_MODE"
-        defaultValueLiteral="KINTETIC" unsettable="true"/>
+        defaultValueLiteral="Kinetic" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="fixEnergy" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
         defaultValueLiteral="9.0" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="lowEnergy" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
@@ -65,11 +67,11 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="stepTime" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
         defaultValueLiteral="1.0" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstXChannel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
-        defaultValueLiteral="0" unsettable="true"/>
+        defaultValueLiteral="1" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastXChannel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="1000" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstYChannel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
-        defaultValueLiteral="0" unsettable="true"/>
+        defaultValueLiteral="1" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastYChannel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="900" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="slices" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
@@ -119,7 +121,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="location" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="Diamond I09" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="User" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="" unsettable="true"/>
+        defaultValueLiteral="i09user" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sampleName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="sample name" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="filenamePrefix" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
@@ -141,5 +143,6 @@
     <eLiterals name="RUNNING" value="1"/>
     <eLiterals name="COMPLETED" value="2"/>
     <eLiterals name="ABORTED" value="3"/>
+    <eLiterals name="INVALID" value="4"/>
   </eClassifiers>
 </ecore:EPackage>

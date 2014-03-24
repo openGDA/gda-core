@@ -40,6 +40,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#isRepeatUntilStopped <em>Repeat Until Stopped</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getSpectrum <em>Spectrum</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getElementSet <em>Element Set</em>}</li>
  * </ul>
  * </p>
  *
@@ -262,6 +263,26 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * @ordered
 	 */
 	protected boolean spectrumESet;
+
+	/**
+	 * The default value of the '{@link #getElementSet() <em>Element Set</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getElementSet()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String ELEMENT_SET_EDEFAULT = "Low"; //$NON-NLS-1$
+
+	/**
+	 * The cached value of the '{@link #getElementSet() <em>Element Set</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getElementSet()
+	 * @generated
+	 * @ordered
+	 */
+	protected String elementSet = ELEMENT_SET_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -603,6 +624,27 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getElementSet() {
+		return elementSet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setElementSet(String newElementSet) {
+		String oldElementSet = elementSet;
+		elementSet = newElementSet;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__ELEMENT_SET, oldElementSet, elementSet));
+	}
+
+	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
 	 * @generated NOT
@@ -744,6 +786,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 				return isConfirmAfterEachIteration();
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				return getSpectrum();
+			case RegiondefinitionPackage.SEQUENCE__ELEMENT_SET:
+				return getElementSet();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -784,6 +828,9 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				setSpectrum((Spectrum)newValue);
 				return;
+			case RegiondefinitionPackage.SEQUENCE__ELEMENT_SET:
+				setElementSet((String)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -822,6 +869,9 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				unsetSpectrum();
 				return;
+			case RegiondefinitionPackage.SEQUENCE__ELEMENT_SET:
+				setElementSet(ELEMENT_SET_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -851,6 +901,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 				return isSetConfirmAfterEachIteration();
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				return isSetSpectrum();
+			case RegiondefinitionPackage.SEQUENCE__ELEMENT_SET:
+				return ELEMENT_SET_EDEFAULT == null ? elementSet != null : !ELEMENT_SET_EDEFAULT.equals(elementSet);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -878,6 +930,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 		if (repeatUntilStoppedESet) result.append(repeatUntilStopped); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", confirmAfterEachIteration: "); //$NON-NLS-1$
 		if (confirmAfterEachIterationESet) result.append(confirmAfterEachIteration); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", elementSet: "); //$NON-NLS-1$
+		result.append(elementSet);
 		result.append(')');
 		return result.toString();
 	}

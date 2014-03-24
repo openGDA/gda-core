@@ -158,6 +158,8 @@ public interface IVGScientaAnalyser extends Findable {
 	public void setExcitationEnergy(double energy) throws Exception;
 
 	double getStepTime() throws Exception;
+
+	public abstract String[] getElementSet() throws DeviceException;
 	
 
 }

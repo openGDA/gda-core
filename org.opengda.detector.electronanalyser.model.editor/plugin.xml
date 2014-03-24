@@ -6,7 +6,20 @@
 
 <plugin>
 
+   <extension point="org.eclipse.emf.edit.itemProviderAdapterFactories">
+      <factory
+            uri="http://www.opengda.org/regiondefinition"
+            class="org.opengda.detector.electronanalyser.model.regiondefinition.provider.RegiondefinitionItemProviderAdapterFactory"
+            supportedTypes=
+              "org.eclipse.emf.edit.provider.IEditingDomainItemProvider
+               org.eclipse.emf.edit.provider.IStructuredItemContentProvider
+               org.eclipse.emf.edit.provider.ITreeItemContentProvider
+               org.eclipse.emf.edit.provider.IItemLabelProvider
+               org.eclipse.emf.edit.provider.IItemPropertySource"/>
+   </extension>
+
    <extension point="org.eclipse.ui.newWizards">
+      <!-- @generated regiondefinition -->
       <category
             id="org.eclipse.emf.ecore.Wizard.category.ID"
             name="%_UI_Wizard_category"/>
@@ -22,6 +35,7 @@
    </extension>
 
    <extension point="org.eclipse.ui.editors">
+      <!-- @generated regiondefinition -->
       <editor
             id="org.opengda.detector.electronanalyser.model.regiondefinition.presentation.RegiondefinitionEditorID"
             name="%_UI_RegiondefinitionEditor_label"
@@ -31,5 +45,4 @@
             contributorClass="org.opengda.detector.electronanalyser.model.regiondefinition.presentation.RegiondefinitionActionBarContributor">
       </editor>
    </extension>
-
 </plugin>

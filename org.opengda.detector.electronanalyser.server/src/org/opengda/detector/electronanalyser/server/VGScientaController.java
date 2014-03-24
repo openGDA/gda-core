@@ -161,6 +161,18 @@ public class VGScientaController implements Configurable {
 	public String getElement() throws Exception {
 		return EPICS_CONTROLLER.cagetString(getChannel(ELEMENTSET_RBV));
 	}
+	public String[] getElementset() throws DeviceException {
+		String[] positionLabels = new String[0];
+		try {
+			positionLabels = EPICS_CONTROLLER.cagetLabels(getChannel(ELEMENTSET));
+		} catch (Exception e) {
+			if (e instanceof RuntimeException) {
+				throw (RuntimeException) e;
+			}
+			throw new DeviceException(" exception in get element set Positions", e);
+		}
+		return positionLabels;
+	}
 
 	public void setPassEnergy(Integer value) throws Exception {
 		int i = 0;
@@ -204,7 +216,7 @@ public class VGScientaController implements Configurable {
 			if (e instanceof RuntimeException) {
 				throw (RuntimeException) e;
 			}
-			throw new DeviceException(" exception in getPositions", e);
+			throw new DeviceException(" exception in get Pass Energy Positions", e);
 		}
 		return positionLabels;
 	}
@@ -216,7 +228,7 @@ public class VGScientaController implements Configurable {
 			if (e instanceof RuntimeException) {
 				throw (RuntimeException) e;
 			}
-			throw new DeviceException(" exception in getPositions", e);
+			throw new DeviceException(" exception in get Lens Positions", e);
 		}
 		return positionLabels;
 	}
