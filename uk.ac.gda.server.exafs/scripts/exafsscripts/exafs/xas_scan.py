@@ -121,7 +121,6 @@ class XasScan(Scan):
 		try:
 			while True:
 				repetitionNumber+= 1
-				# TODO does this need to be inside the _doIterator loop?
 				self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, controller,repetitionNumber)
 				if self.handleGapConverter==True:
 					self.setupHarmonic()
