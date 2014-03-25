@@ -23,6 +23,9 @@ import gda.analysis.DataSet;
 import java.util.Collections;
 import java.util.List;
 
+import org.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
+import org.dawnsci.plotting.api.histogram.functions.ConstMapFunction;
+import org.dawnsci.plotting.api.histogram.functions.SquareRootMapFunction;
 import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.dawnsci.plotting.jreality.impl.SurfPlotStyles;
 import org.eclipse.swt.layout.FormAttachment;
@@ -33,9 +36,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
-import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.ConstMapFunction;
-import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.SquareRootMapFunction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 

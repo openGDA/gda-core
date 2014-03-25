@@ -16,8 +16,9 @@ import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
 import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.client.liveplot.LivePlotView;
+import uk.ac.gda.client.scripting.JythonPerspective;
 import uk.ac.gda.epics.client.mythen.views.MythenView;
-import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
+
 
 public class MythenPerspective implements IPerspectiveFactory {
 	
