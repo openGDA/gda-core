@@ -27,7 +27,6 @@ import gda.device.Scannable;
 import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.ScannableUtils;
-import gda.jython.InterfaceProvider;
 
 import java.util.HashMap;
 
@@ -102,7 +101,6 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 	@Override
 	public void doCollection() throws Exception {
-		InterfaceProvider.getTerminalPrinter().print("Continuous Scan doCollection");
 		acquirePoint(true, false);
 		ContinuousParameters params = new ContinuousParameters();
 		params.setStartPosition(start);
