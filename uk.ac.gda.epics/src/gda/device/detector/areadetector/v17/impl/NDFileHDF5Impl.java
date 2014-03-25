@@ -23,6 +23,7 @@ import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
+import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDFileHDF5Type;
 import gda.factory.FactoryException;
@@ -1008,6 +1009,11 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			throw new IllegalArgumentException("BoundaryAlign not yet in the interface file");
 		}
 		return EPICS_CONTROLLER.cagetInt(getChannel(BoundaryAlign_RBV));
+	}
+
+	@Override
+	public NDPluginBase getPluginBase() {
+		return getFile().getPluginBase();
 	}
 
 
