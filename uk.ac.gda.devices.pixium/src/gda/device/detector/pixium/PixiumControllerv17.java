@@ -388,7 +388,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 	}
 	public void initialisePluginsArrayDimensions() throws Exception {
 		if ((tiff.getPluginBase().isCallbackEnabled() && tiff.getPluginBase().getArraySize0_RBV() == 0)
-				|| (hdf.getFile().getPluginBase().isCallbackEnabled() && hdf.getFile().getPluginBase().getArraySize0_RBV() == 0)) {
+				|| (hdf.getPluginBase().isCallbackEnabled() && hdf.getPluginBase().getArraySize0_RBV() == 0)) {
 			// dummy acquisition to ensure all enabled EPICS plugin array dimensions are initialised,
 			// these must be called at least once after IOC restarts.
 			areaDetector.setImageMode((short)0); //
@@ -450,7 +450,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 		}
 		hdf.stopCapture();
 		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all we be ok in the end.");
-		if (hdf.getFile().getPluginBase().getDroppedArrays_RBV() > 0)
+		if (hdf.getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");
 	}
 	// Pixium specific methods
@@ -1667,12 +1667,12 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 
 	@Override
 	public void disableHdfSaver() throws Exception {
-		hdf.getFile().getPluginBase().disableCallbacks();
+		hdf.getPluginBase().disableCallbacks();
 	}
 
 	@Override
 	public void enableHdfSaver() throws Exception {
-		hdf.getFile().getPluginBase().enableCallbacks();
+		hdf.getPluginBase().enableCallbacks();
 	}
 	@Override
 	public String getHDFFileName() throws Exception {
