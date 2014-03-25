@@ -19,9 +19,14 @@
 package gda.device.detector.pixium;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.detector.NXDetector;
+import gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter;
+import gda.device.detector.addetector.filewriter.SingleImagePerFileWriter;
 import gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy;
 import gda.device.detector.addetector.triggering.PixiumSimpleAcquire;
+import gda.device.detector.areadetector.v17.impl.NDFileImpl;
+import gda.device.detector.nxdetector.NXPluginBase;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
@@ -39,6 +44,8 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.util.UnixToWindowsFilePathConverter;
 
 public class PixiumNXDetector extends NXDetector {
 
@@ -81,6 +88,7 @@ public class PixiumNXDetector extends NXDetector {
 	private int shutterIntForOpen;
 	private boolean useShutter = true;
 	PV<Integer> shutterPV;
+	private Scannable fastshutter=null;
 	
 	
 	public PV<Integer> getShutterPV() {
@@ -159,12 +167,26 @@ public class PixiumNXDetector extends NXDetector {
 //		metashop.add(pix10_BaseAcquirePeriod);
 	}
 
+	@Override
+	public void atPointStart() throws DeviceException {
+		super.atPointStart();
+		if (fastshutter!=null) {
+			fastshutter.moveTo("OPEN");
+		}
+	}
+	@Override
+	public void atPointEnd() throws DeviceException {
+		super.atPointEnd();
+		if (fastshutter!=null) {
+			fastshutter.moveTo("CLOSE");
+		}
+	}
 	public void includeEarlyFrames() throws Exception {
-		dev.getPVInteger(EARLY_FRAMES).putWait(1);
+		dev.getPVInteger(EARLY_FRAMES).putWait(0);
 	}
 	
 	public void includeEarlyFramesExt() throws Exception {
-		int newVal = 1;
+		int newVal = 0;
 		int oldVal = dev.getPVInteger(EARLY_FRAMES_RBV).get();
 		dev.getPVInteger(EARLY_FRAMES).putWait(newVal);
 		String msg =	"Old : " + earlyFramesTranslatn.get(oldVal) + " ("+ oldVal +")\n";
@@ -173,11 +195,11 @@ public class PixiumNXDetector extends NXDetector {
 	}
 
 	public void excludeEarlyFrames() throws Exception {
-		dev.getPVInteger(EARLY_FRAMES).putWait(0);
+		dev.getPVInteger(EARLY_FRAMES).putWait(1);
 	}
 	
 	public void excludeEarlyFramesExt() throws Exception {
-		int newVal = 0;
+		int newVal = 1;
 		int oldVal = dev.getPVInteger(EARLY_FRAMES_RBV).get();
 		dev.getPVInteger(EARLY_FRAMES).putWait(newVal);
 		String msg =	"Old : " + earlyFramesTranslatn.get(oldVal) + " ("+ oldVal +")\n";
@@ -320,6 +342,7 @@ public class PixiumNXDetector extends NXDetector {
 		// wait for detector to stop acquire
 		waitForIntPVValEqualTo(dev.getPVInteger(ACQUIRE), 0, 10);
 		print("Acquire stopped at Acquire State: " + dev.getPVInteger(ACQUIRE).get());
+		waitForIntPVValEqualTo(dev.getPVInteger(DETECTOR_STATE_RBV), 0, 60*2.0);
 		
 		print("\t at Acquire State: " + dev.getPVInteger(ACQUIRE).get());
 		print("\t at Detector State: " + dev.getPVInteger(DETECTOR_STATE_RBV).get());
@@ -328,7 +351,7 @@ public class PixiumNXDetector extends NXDetector {
 				
 		// calibrate
 		print("About to calibrate...");
-		dev.getPVInteger(CALIBRATE).putWait(1);
+		dev.getPVInteger(CALIBRATE).putWait(1,60.0*3.5);
 		
 		// wait for calibration to be running
 		//waitForIntPVValNotEqualTo(dev.getPVInteger(CALIBRATE_RBV), valBeforeCalibrate, 30);
@@ -502,9 +525,11 @@ public class PixiumNXDetector extends NXDetector {
 		ScanInformation scanInfo_IGNORED = null;
 		int numberImagesPerCollection_IGNORED = -1;
 		PixiumSimpleAcquire psa = (PixiumSimpleAcquire)this.getCollectionStrategy();
-		psa.prepareForCollection(collectionTime, numberImagesPerCollection_IGNORED, scanInfo_IGNORED);
-		ConcurrentScan scan = RepeatScan.create_repscan(numImages, this);
-		scan.runScan();
+		psa.prepareForCollection(collectionTime, numImages, scanInfo_IGNORED);
+//		ConcurrentScan scan = RepeatScan.create_repscan(numImages, this);
+//		scan.runScan();
+		psa.collectData();
+		psa.waitWhileBusy();
 	}
 
 	public void acquire(double collectionTime) throws Exception {
@@ -536,6 +561,64 @@ public class PixiumNXDetector extends NXDetector {
 	public void stopAcquiring() throws Exception {
 		AbstractADTriggeringStrategy ats = (AbstractADTriggeringStrategy)this.getCollectionStrategy();
 		ats.getAdBase().stopAcquiring();
+	}
+	
+	public void setWindowsSubString(String windowsSubString) {
+		UnixToWindowsFilePathConverter filePathConverter = null;
+		for (NXPluginBase plugin : getAdditionalPluginList()) {
+			filePathConverter = null;
+			if (plugin instanceof SingleImagePerFileWriter){
+				SingleImagePerFileWriter fileWriter = (SingleImagePerFileWriter)plugin;
+				NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
+				filePathConverter = (UnixToWindowsFilePathConverter)(ndFile.getFilePathConverter());
+			} else if (plugin instanceof MultipleImagesPerHDF5FileWriter) {
+				MultipleImagesPerHDF5FileWriter fileWriter = (MultipleImagesPerHDF5FileWriter)plugin;
+				NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
+				filePathConverter = (UnixToWindowsFilePathConverter)(ndFile.getFilePathConverter());
+			}
+			if (filePathConverter != null) {
+				String oldVal = filePathConverter.getWindowsSubString();
+				filePathConverter.setWindowsSubString(windowsSubString);
+				String msg =	"Old : " + oldVal +"\n";
+				msg +=			"New : " + windowsSubString;
+				print(msg);
+			}
+		}
+		
+	}
+	
+	public String[] getWindowsSubString() {
+		String[] windowsSubString = new String[getAdditionalPluginList().size()];
+		UnixToWindowsFilePathConverter filePathConverter = null;
+		int i = 0;
+		for (NXPluginBase plugin : getAdditionalPluginList()) {
+			filePathConverter = null;
+			if (plugin instanceof SingleImagePerFileWriter){
+				SingleImagePerFileWriter fileWriter = (SingleImagePerFileWriter)plugin;
+				NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
+				filePathConverter = (UnixToWindowsFilePathConverter)(ndFile.getFilePathConverter());
+			} else if (plugin instanceof MultipleImagesPerHDF5FileWriter) {
+				MultipleImagesPerHDF5FileWriter fileWriter = (MultipleImagesPerHDF5FileWriter)plugin;
+				NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
+				filePathConverter = (UnixToWindowsFilePathConverter)(ndFile.getFilePathConverter());
+			}
+			
+			if (filePathConverter != null) {
+				windowsSubString[i] = filePathConverter.getWindowsSubString();
+			} else {
+				windowsSubString[i] = "undefined";
+			}
+			i += 1;
+		}
+		return windowsSubString;
+	}
+
+	public Scannable getFastshutter() {
+		return fastshutter;
+	}
+
+	public void setFastshutter(Scannable fastshutter) {
+		this.fastshutter = fastshutter;
 	}
 }
 
