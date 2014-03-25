@@ -90,7 +90,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	/**
 	 * The directory below the main data collection directory in which Mythen data files are saved.
 	 */
-	protected String subDirectory = "";
+	protected String subDirectory="";
 
 	/**
 	 * Creates a new Mythen detector with a default collection time of 1s.
@@ -112,11 +112,11 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		} catch (IOException e) {
 			throw new FactoryException("Couldn't create NumTracker for Mythen detector", e);
 		}
-		try {
-			setCollectionTime(1);
-		} catch (DeviceException e) {
-			logger.error("MythenDetectorImpl caught DeviceException during instantiation: ", e);
-		}
+//		try {
+//			setCollectionTime(1);
+//		} catch (DeviceException e) {
+//			logger.error("MythenDetectorImpl caught DeviceException during instantiation: ", e);
+//		}
 
 	}
 
@@ -301,7 +301,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	protected void beforeCollectData() throws DeviceException {
 		collectionNumber++;
-		beforeCollectData((int) collectionNumber);
+		beforeCollectData(collectionNumber);
 	}
 	
 	/**

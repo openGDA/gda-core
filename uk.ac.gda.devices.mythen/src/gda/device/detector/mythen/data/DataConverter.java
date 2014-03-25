@@ -53,23 +53,19 @@ public class DataConverter {
 	}
 
 	private double[] calculateFlatFieldScalingFactors(MythenRawDataset flatFieldData) {
-		final Set<Integer> badChannels = badChannelProvider == null ? null : badChannelProvider.getBadChannels();
 		final List<MythenRawData> dataLines = flatFieldData.getLines();
-		double[] corrections = new double[dataLines.size()];
-		double flatFieldMean = 0;
-		int datacount=0;
-		for (MythenRawData data : dataLines) {
-			int channel = data.getChannel();
-			if (badChannels == null || !badChannels.contains(channel)) {
-				flatFieldMean += data.getCount();
-				datacount += 1;
-			}
-			flatFieldMean /= datacount;
 
-			// Calculate scaling factors, bad channels corrections are excluded in process() later. 
-			for (int i = 0; i < dataLines.size(); i++) {
-				corrections[i] = flatFieldMean / dataLines.get(i).getCount();
-			}
+		// Calculate the mean
+		double flatFieldMean = 0;
+		for (MythenRawData line : dataLines) {
+			flatFieldMean += line.getCount();
+		}
+		flatFieldMean /= dataLines.size();
+
+		// Calculate scaling factors
+		double[] corrections = new double[dataLines.size()];
+		for (int i = 0; i < dataLines.size(); i++) {
+			corrections[i] = flatFieldMean / dataLines.get(i).getCount();
 		}
 		return corrections;
 	}
