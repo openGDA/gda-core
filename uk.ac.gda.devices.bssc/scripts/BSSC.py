@@ -4,7 +4,7 @@ import uk.ac.gda.devices.bssc.beans.BSSCSessionBean
 from gda.data.metadata import GDAMetadataProvider
 import gda.jython.commands.ScannableCommands
 from gda.commandqueue import JythonScriptProgressProvider
-from uk.ac.gda.devices.bssc.ispyb import BioSAXSDBFactory, BioSAXSISPyBUtils
+from uk.ac.gda.devices.bssc.ispyb import BioSAXSDBFactory, BioSAXSISPyBUtils, ISpyBStatusInfo, ISpyBStatus
 
 class BSSCRun:
     
@@ -40,7 +40,7 @@ class BSSCRun:
         currentVisit = GDAMetadataProvider.getInstance().getMetadataValue("visit")
         # self.proposal = self.ispyb.getProposalForVisit(currentVisit)
         # self.session = self.ispyb.getSessionForVisit(currentVisit)
-        self.session = 434
+        self.session = 435
         print "session " + str(self.session)
         self.experiment = self.ispyb.createExperiment(self.session, "test", "STATIC", "test")
         self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample + (self.bean.getMeasurements().size() + 1) * self.stepsperbuffer
@@ -118,7 +118,7 @@ class BSSCRun:
     
     def loadWell(self, location):
         self.monitorAsynchronousMethod(self.bssc.fill(location.getPlate(), location.getRowAsInt(), location.getColumn(), self.samplevolume))
-
+        
     def unloadIntoWell(self, location):
         self.monitorAsynchronousMethod(self.bssc.recuperate(location.getPlate(), location.getRowAsInt(), location.getColumn()))
     
@@ -151,7 +151,7 @@ class BSSCRun:
             self.loadWell(titration.getBufferLocation())
             self.reportSampleProgress(titration, "Exposing Buffer")
             self.setTitle("Buffer for next and preceding sample measurement")
-            sample_name.asynchronousMoveTo("buffer")
+            #sample_name.asynchronousMoveTo("buffer")
             filename = self.expose(duration)
             self.reportSampleProgress(titration, "Cleaning after Buffer")
             #print "Create buffer run dataCollectionIndex " + str(self.dataCollectionIndex)
@@ -165,7 +165,7 @@ class BSSCRun:
             self.loadWell(titration.getLocation())
             self.reportSampleProgress(titration, "Exposing Sample")
             self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
-            sample_name.asynchronousMoveTo(titration.getSampleName())
+            #sample_name.asynchronousMoveTo(titration.getSampleName())
             filename = self.expose(duration)
             #print "Create sample run dataCollectionIndex " + str(self.dataCollectionIndex)
             self.ispyb.createSampleRun(self.dataCollectionIds[self.dataCollectionIndex], titration.getTimePerFrame(), self.getStorageTemperature(), self.getExposureTemperature(), self.energy, titration.getFrames(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, filename, "/entry1/detector/data");
@@ -218,11 +218,21 @@ class BSSCRun:
         for titration in self.bean.getMeasurements():
             print  "\n== Running Titration " + titration.getSampleName() + "\n"
             duration = self.setUpRobotAndDetector(titration)
+            
+            self.ispyBStatusInfo = ISpyBStatusInfo()
+            self.ispyBStatusInfo.setStatus(ISpyBStatus.RUNNING)
+            self.ispyBStatusInfo.setProgress(0)
+            self.ispyb.setDataCollectionStatus(self.dataCollectionIds[self.dataCollectionIndex], self.ispyBStatusInfo)
+        
             if not self.titrationsCanUseSameBufferMeasurement(lastTitration, titration):
                 print "\n= Buffer before"
                 backgroundfile = self.measureBuffer(titration, duration)
             else:
-                print "\n= skipping Buffer before (reusing last)"
+                print "\n= Skipping Buffer before (reusing last)"
+                self.ispyBStatusInfo = ISpyBStatusInfo()
+                self.ispyBStatusInfo.setStatus(ISpyBStatus.RUNNING)
+                self.ispyBStatusInfo.setProgress(33)
+                self.ispyb.setDataCollectionStatus(self.dataCollectionIds[self.dataCollectionIndex], self.ispyBStatusInfo)
             print "\n= SAMPLE "
             samplefile = self.measureSample(titration, duration)
             print "\n= Buffer after"
