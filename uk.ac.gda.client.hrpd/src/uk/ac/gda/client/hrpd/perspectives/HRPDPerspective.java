@@ -34,7 +34,8 @@ import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
 import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.client.liveplot.LivePlotView;
-import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
+import uk.ac.gda.client.scripting.JythonPerspective;
+
 
 
 public class HRPDPerspective implements IPerspectiveFactory {
