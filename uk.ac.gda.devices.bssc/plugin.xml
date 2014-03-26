@@ -202,6 +202,12 @@
         </with>
      </definition>
   </extension>
+  <extension
+        point="org.eclipse.ui.startup">
+     <startup
+           class="uk.ac.gda.devices.bssc.perspectives.BioSAXSStartUp">
+     </startup>
+  </extension>
   <!--<extension
         id="uk.ac.gda.devices.bssc.hideperspective"
         name="Hide Perspective"
