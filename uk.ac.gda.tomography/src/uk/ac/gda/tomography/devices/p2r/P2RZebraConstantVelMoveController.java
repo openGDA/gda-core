@@ -24,6 +24,7 @@ import gda.device.scannable.PositionStreamIndexer;
 import gda.device.zebra.ZebraConstantVelocityMoveController;
 import gda.device.zebra.controller.Zebra;
 import gda.io.BidiAsciiCommunicator;
+import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.NoSuchElementException;
 public class P2RZebraConstantVelMoveController extends ZebraConstantVelocityMoveController {
 
 	
+	protected static boolean started=false;
 	BidiAsciiCommunicator comm;
 	Double positionToReport=0.;
 	Double step=0.;
@@ -68,25 +70,57 @@ public class P2RZebraConstantVelMoveController extends ZebraConstantVelocityMove
 		
 		positionToReport=pcGateStart;
 		this.step=step;
+		started = true;
 		
 	}
+	
+	
+	
+	@Override
+	public void atScanLineStart() throws DeviceException {
+		super.atScanLineStart();
+		started=false;
+	}
 
+	@Override
+	public void atScanLineEnd() throws DeviceException {
+		super.atScanLineEnd();
+		positionStreamIndexer=null;
+	}
+
+
+
+	@Override
+	public void stop() throws DeviceException {
+		super.stop();
+		positionStreamIndexer=null;
+	}
+
+
+
+	PositionStreamIndexer<Double> positionStreamIndexer=null;
 	@Override
 	public PositionStreamIndexer<Double> getPositionSteamIndexer(int index) {
 		if( index!=0)
 			return super.getPositionSteamIndexer(index);
-		PositionInputStream<Double> stream = new PositionInputStream<Double>(){
+		if( positionStreamIndexer == null){
+			PositionInputStream<Double> stream = new PositionInputStream<Double>(){
 
-			@Override
-			public List<Double> read(int maxToRead) throws NoSuchElementException, InterruptedException,
-					DeviceException {
-				List<Double> read = new ArrayList<Double>();
-				read.add(positionToReport); 
-				positionToReport += step;
-				return read;
-			}};
-		return new PositionStreamIndexer<Double>(stream);
-		
+				@Override
+				public List<Double> read(int maxToRead) throws NoSuchElementException, InterruptedException,
+						DeviceException {
+					while(!P2RZebraConstantVelMoveController.started){
+						Thread.sleep(1000);
+						ScanBase.checkForInterrupts();			
+					}				
+					List<Double> read = new ArrayList<Double>();
+					read.add(positionToReport); 
+					positionToReport += step;
+					return read;
+				}};
+			positionStreamIndexer =  new PositionStreamIndexer<Double>(stream);
+		}
+		return positionStreamIndexer;
 	}	
 	
 }

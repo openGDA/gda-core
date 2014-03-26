@@ -235,18 +235,56 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
 
 def reportJythonNamespaceMapping():
     jns = beamline_parameters.JythonNameSpaceMapping()
-    objectOfInterest = {}
-    objectOfInterest['tomography_theta'] = jns.tomography_theta
-    objectOfInterest['tomography_shutter'] = jns.tomography_shutter
-    objectOfInterest['tomography_translation'] = jns.tomography_translation
-    objectOfInterest['tomography_detector'] = jns.tomography_detector
-    objectOfInterest['tomography_camera_stage'] = jns.tomography_camera_stage
-    objectOfInterest['tomography_sample_stage'] = jns.tomography_sample_stage
-   
-    for key, val in objectOfInterest.iteritems():
-        print key + ' = ' + str(val)
+    objectOfInterestSTEP = {}
+    objectOfInterestSTEP['tomography_theta'] = jns.tomography_theta
+    objectOfInterestSTEP['tomography_shutter'] = jns.tomography_shutter
+    objectOfInterestSTEP['tomography_translation'] = jns.tomography_translation
+    objectOfInterestSTEP['tomography_detector'] = jns.tomography_detector
+    
+    objectOfInterestSTEP_INFO = {}
+    objectOfInterestSTEP_INFO['tomography_camera_stage'] = jns.tomography_camera_stage
+    objectOfInterestSTEP_INFO['tomography_sample_stage'] = jns.tomography_sample_stage
+    
+    objectOfInterestFLY = {}
+    objectOfInterestFLY['tomography_shutter'] = jns.tomography_shutter
+    objectOfInterestFLY['tomography_translation'] = jns.tomography_translation
+    objectOfInterestFLY['tomography_flyscan_theta'] = jns.tomography_flyscan_theta
+    objectOfInterestFLY['tomography_flyscan_det'] = jns.tomography_flyscan_det
+    objectOfInterestFLY['tomography_flyscan_flat_dark_det'] = jns.tomography_flyscan_flat_dark_det
+    
     msg = "\n These mappings can be changed by editing a file named jythonNamespaceMapping_live, "
     msg += "\n located in GDA Client under Scripts: Config (this can be done by beamline staff)."
+    msg += "\n Note that PRIMARY SETTINGS for the desired type of tomography scan should normally"
+    msg += "\n not include any dummy objects because they are typically used only for testing."
+    
+    print "******STEP-SCAN PRIMARY SETTINGS (essential for running a tomography step-scan)******"
+    idx=1
+    for key, val in objectOfInterestSTEP.iteritems():
+        name = "object undefined!"
+        if val is not None:
+            name = str(val.getName())
+        print `idx` + "."+ key + ' = ' + name
+        idx += 1
+    print msg
+    
+    print "******STEP-SCAN SECONDARY SETTINGS (for additional, per-scan-point data, ie NOT essential for running a tomography step-scan)******"
+    idx=1
+    for key, val in objectOfInterestSTEP_INFO.iteritems():
+        name = "object undefined!"
+        if val is not None:
+            name = str(val.getName())
+        print `idx` + "."+ key + ' = ' + name
+        idx += 1
+    print msg
+    
+    print "******FLY-SCAN PRIMARY SETTINGS (essential for running a tomography fly-scan)******"
+    idx=1
+    for key, val in objectOfInterestFLY.iteritems():
+        name = "object undefined!"
+        if val is not None:
+            name = str(val.getName())
+        print `idx` + "."+ key + ' = ' + name
+        idx += 1
     print msg
 
 def reportTomo():
