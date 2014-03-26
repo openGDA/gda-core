@@ -2,6 +2,7 @@ package uk.ac.gda.devices.detector.xspress3;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
+import gda.factory.Findable;
 
 /**
  * Xspress3 is a generic electronic readout chain for up to 8 MCAs. Data is held
@@ -30,7 +31,7 @@ import gda.factory.FactoryException;
  * @author rjw82
  * 
  */
-public interface Xspress3Controller {
+public interface Xspress3Controller extends Findable{
 
 	// from acquisition control and status panel
 	public void doStart() throws DeviceException;
