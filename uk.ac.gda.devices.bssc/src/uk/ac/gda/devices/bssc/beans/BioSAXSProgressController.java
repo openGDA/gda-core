@@ -69,7 +69,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		}
 		try {
 			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-			blSessionId = bioSAXSISPyB.getSessionForVisit(/* visit */"nt20-13");
+			blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
 		} catch (DeviceException e) {
 			logger.error("DeviceException getting visit", e);
 		} catch (SQLException e) {

@@ -38,9 +38,7 @@ class BSSCRun:
 
         self.ispyb = BioSAXSDBFactory.makeAPI()
         currentVisit = GDAMetadataProvider.getInstance().getMetadataValue("visit")
-        # self.proposal = self.ispyb.getProposalForVisit(currentVisit)
-        # self.session = self.ispyb.getSessionForVisit(currentVisit)
-        self.session = 435
+        self.session = self.ispyb.getSessionForVisit(currentVisit)
         print "session " + str(self.session)
         self.experiment = self.ispyb.createExperiment(self.session, "test", "STATIC", "test")
         self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample + (self.bean.getMeasurements().size() + 1) * self.stepsperbuffer
