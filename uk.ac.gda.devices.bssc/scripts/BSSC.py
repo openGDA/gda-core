@@ -88,10 +88,6 @@ class BSSCRun:
         else:
             return -300.0
             
-    def setStorageTemperature(self):
-        if not self.isSimulation:
-            self.monitorAsynchronousMethod(self.bssc.waitTemperatureSample(self.bean.getSampleStorageTemperature()))
-    
     def getExposureTemperature(self):
         if not self.isSimulation:
             return self.bssc.getTemperatureSEU()
@@ -204,8 +200,6 @@ class BSSCRun:
         self.reportProgress("Initialising");
         self.checkDevice()
         self.bssc.setSampleType("green")
-        self.reportProgress("Setting Storage Temperature")
-        self.setStorageTemperature()
         self.reportProgress("Performing Courtesy Cell Wash")
         self.bssc.setViscosityLevel("high")
         self.clean()
