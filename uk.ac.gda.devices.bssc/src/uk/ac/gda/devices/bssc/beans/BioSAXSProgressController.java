@@ -95,7 +95,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 						Display.getDefault().asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								loadModel(saxsDataCollections);
+								loadModelFromISpyB(saxsDataCollections);
 							}
 						});
 					}
@@ -130,7 +130,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		return saxsDataCollections;
 	}
 
-	public List<ISAXSProgress> loadModel(List<ISAXSDataCollection> saxsDataCollections) {
+	public List<ISAXSProgress> loadModelFromISpyB(List<ISAXSDataCollection> saxsDataCollections) {
 		for (ISAXSDataCollection saxsDataCollection : saxsDataCollections) {
 			if (saxsDataCollection != null) {
 				long experimentId = saxsDataCollection.getExperimentId();
