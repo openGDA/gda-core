@@ -189,7 +189,6 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		}
 		this.collectData();
 
-		
 		while (this.getStatus() == Detector.BUSY) {
 			Thread.sleep(100);
 		}

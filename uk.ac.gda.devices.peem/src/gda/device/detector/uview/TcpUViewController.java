@@ -97,9 +97,9 @@ public class TcpUViewController implements UViewController {
 		int height, width;
 		socket.sendCmdNoReply("ida 0 0");
 		byte[] header = socket.readBinary(19);
-		String[] headerStrings = new String(header).split(" ");
+		String[] headerStrings = new String(header).split("[ ]+");
 		int argOffset = 1;
-		if ( headerStrings[0].length() == 0) {
+		if ( headerStrings[0].length() == 0 ) {
 			argOffset++; //first argument might be a space
 		}
 		width = Integer.parseInt(headerStrings[argOffset]);
@@ -210,6 +210,9 @@ public class TcpUViewController implements UViewController {
 		case JPG:
 			sb.append("4,");
 			break;
+		case TIFF_UNCOMPRESSED:
+			sb.append("5,");
+			break;
 		}
 		
 		switch (fileDetails.getContentType()) {
@@ -228,7 +231,7 @@ public class TcpUViewController implements UViewController {
 
 		String status = socket.send(sb.toString());
 		if ( !status.equals("0") ) {
-			throw new DeviceException(String.format("Could not export Image: return code %s", status));
+			throw new DeviceException(String.format( "Could not export Image: return code %s - command: %s", status, sb.toString() ));
 		}
 
 	}

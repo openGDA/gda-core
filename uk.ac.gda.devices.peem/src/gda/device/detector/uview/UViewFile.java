@@ -131,6 +131,9 @@ public class UViewFile {
 		case TIFF:
 			fileExtension = "tif";
 			break;
+		case TIFF_UNCOMPRESSED:
+			fileExtension = "tif";
+			break;
 		}
 
 		currentFileName = newDataDir + File.separator + this.filePrefix + String.format("%08d", thisFileNumber) + "."

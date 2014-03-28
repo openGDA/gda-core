@@ -71,7 +71,7 @@ public interface UViewController {
 	public class ImageFile {
 
 		public enum ImageFormat {
-			DAT, PNG, TIFF, BMP, JPG
+			DAT, PNG, TIFF, BMP, JPG, TIFF_UNCOMPRESSED
 		}
 		public enum ImageContentsType {
 			RGB_XYZ, RGB_XYZ_RAW, GRAYLEVEL16
