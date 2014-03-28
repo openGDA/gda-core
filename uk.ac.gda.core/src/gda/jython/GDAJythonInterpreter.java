@@ -474,11 +474,17 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 * @param input
 	 *            File
 	 */
-	protected void exec(String input) throws PyException{
+	protected void exec(String input) throws PyException {
 		// translate script into true Jython line by line
 		PyString tempFile = translateScriptToGDA(input);
 		// pass entire script to interpreter
-		interp.exec(tempFile);
+		try {
+			interp.exec(tempFile);
+		} catch (PyException e) {
+			interp.showexception(e);
+			throw e;
+		}
+
 	}
 
 	/**

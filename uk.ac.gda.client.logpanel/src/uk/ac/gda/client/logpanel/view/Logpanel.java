@@ -312,7 +312,7 @@ public class Logpanel extends Composite {
 		loggingEventsAppender.start();
 		logpanelContext.start();
 
-		logger.info("Receiving from log server {}:{}", new Object[]{logServerHost, logServerOutPort});
+		logger.info("Receiving from log server {}:{}", logServerHost, logServerOutPort);
 	}
 
 }
