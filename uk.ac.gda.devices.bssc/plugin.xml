@@ -169,7 +169,7 @@
            name="Edit Queued Item">
      </command>
      <command
-           defaultHandler="uk.ac.gda.devices.bssc.ui.handlers.LoadExperimentHandler"
+           defaultHandler="uk.ac.gda.devices.bssc.ui.handlers.ImportSpreadsheetHandler"
            id="uk.ac.gda.devices.bssc.LoadExperiment"
            name="Load Experiment">
      </command>
