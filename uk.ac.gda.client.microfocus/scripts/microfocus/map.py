@@ -18,7 +18,7 @@ from gda.factory import Finder
 from gda.jython.commands import ScannableCommands
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
-
+from gdascripts.metadata.metadata_commands import meta_add
 
 class Map(Scan):
 
@@ -39,6 +39,10 @@ class Map(Scan):
         self.ExafsScriptObserver=ExafsScriptObserver
         self.outputPreparer = outputPreparer
         self.detectorPreparer = detectorPreparer
+        self.sampleFilename= None
+        self.scanFilename= None
+        self.detectorFilename= None
+        self.outputFilename= None
         
     def enableBeam(self):
         self.beamEnabled = True
@@ -54,6 +58,7 @@ class Map(Scan):
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
         experimentFullPath, experimentFolderName = self.determineExperimentPath(folderName)
+        self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
     
         if(sampleFileName == None or sampleFileName == 'None'):
             sampleBean = None
@@ -157,7 +162,7 @@ class Map(Scan):
             
             scanStart = time.asctime()
             
-            self.redefineNexusMetadataForMaps(beanGroup)
+        #    self.redefineNexusMetadataForMaps(beanGroup)
             
             try:
                 mapscan= ScannableCommands.createConcurrentScan(args)
@@ -178,6 +183,12 @@ class Map(Scan):
                 self.log("Map end time " + str(scanEnd))
                 self.finish()
                 
+    def setXmlFileNames(self, sampleFileName, scanFileName, detectorFileName, outputFileName):
+        self.sampleFileName= sampleFileName
+        self.scanFileName= scanFileName
+        self.detectorFileName= detectorFileName
+        self.outputFileName= outputFileName
+                
     # should merge with method in xas_scan but keeping here while developing to see what differences required
     def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
         nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
@@ -191,26 +202,40 @@ class Map(Scan):
 
         # create XasAsciiNexusDataWriter object and give it the parameters
         dataWriter = XasAsciiNexusDataWriter()
-        dataWriter.setRunFromExperimentDefinition(True);
-        dataWriter.setScanBean(scanBean);
-        dataWriter.setDetectorBean(detectorBean);
-        dataWriter.setSampleBean(sampleBean);
-        dataWriter.setOutputBean(outputBean);
-        dataWriter.setSampleName(sampleName);
-        dataWriter.setXmlFolderName(experimentFullPath)
+        
+        if (Finder.getInstance().find("metashop") != None):
+            meta_add(self.detectorFileName, BeansFactory.getXMLString(detectorBean))
+            meta_add(self.outputFileName, BeansFactory.getXMLString(outputBean))
+            meta_add(self.sampleFileName, BeansFactory.getXMLString(sampleBean))
+            meta_add(self.scanFileName, BeansFactory.getXMLString(scanBean))
+            meta_add("xmlFolderName", experimentFullPath)
+            xmlFilename = self._determineDetectorFilename(detectorBean)
+            if ((xmlFilename != None) and (experimentFullPath != None)):
+                detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath, xmlFilename)
+                meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
+        else: 
+            self.logger.info("Metashop not found")
+            
+               
+        dataWriter.setFolderName(experimentFullPath)
+        dataWriter.setScanParametersName(self.scanFileName)
+        dataWriter.setDetectorParametersName(self.detectorFileName)
+        dataWriter.setSampleParametersName(self.sampleFileName)
+        dataWriter.setOutputParametersName(self.outputFileName)
         
         # add the detector configuration file to the metadata
-        dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+        #dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+        
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
+       
         # get the ascii file format configuration (if not set here then will get it from the Finder inside the Java class
         asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
         if asciidatawriterconfig != None :
             dataWriter.setConfiguration(asciidatawriterconfig)
             
         dataWriter.addDataWriterExtender(self.mfd)
-        
         thisscan.setDataWriter(dataWriter)
         return thisscan
 
@@ -270,14 +295,14 @@ class Map(Scan):
         
         self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
         
-    def redefineNexusMetadataForMaps(self, beanGroup):
+    #def redefineNexusMetadataForMaps(self, beanGroup):
         #from gda.data.scan.datawriter import NexusFileMetadata
         #from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
         
-        jython_mapper = JythonNameSpaceMapping()
+     #   jython_mapper = JythonNameSpaceMapping()
         
-        if (LocalProperties.get("gda.mode") == 'dummy'):
-            return
+     #   if (LocalProperties.get("gda.mode") == 'dummy'):
+     #       return
         
         #NexusExtraMetadataDataWriter.removeAllMetadataEntries()
         

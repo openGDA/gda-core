@@ -52,6 +52,7 @@ class Scan:
     def _resetHeader(self):
         self.datawriterconfig.setHeader(self.original_header)
         meta_clear_alldynamical()
+        self.outputPreparer._resetNexusStaticMetadataList()
 
     def _createDetArray(self, names, scanBean=None):
         dets = []
