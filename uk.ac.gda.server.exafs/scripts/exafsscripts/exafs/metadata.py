@@ -37,7 +37,20 @@ class Metadata():
                 print "Failed in add_to_metadata because scannable does not exist: %s" %(name)
            
         self.datawriterconfig.setHeader(new_header)
-        
-    
-     
+      
+    def removeNexusMetadataList(self, removeList):
+        finder = Finder.getInstance()     
+        if (len(removeList) != 0):
+            for i in range(len(removeList)):
+                scannable = finder.find(removeList[i])
+                if scannable is not None:
+                    meta_rm(scannable)
+                    
+    def addNexusMetadataList(self, addList):
+        finder = Finder.getInstance()
+        if (len(addList) != 0):
+            for i in range(len(addList)):
+                scannable = finder.find(addList[i])
+                if scannable is not None:
+                    meta_add(scannable)
     

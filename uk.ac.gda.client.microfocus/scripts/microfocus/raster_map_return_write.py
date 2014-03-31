@@ -168,7 +168,7 @@ class RasterMapReturnWrite(Map):
             energyScannable.moveTo(energy) 
             zScannable.moveTo(zScannablePos)
     
-            self.redefineNexusMetadataForMaps(beanGroup)
+            #self.redefineNexusMetadataForMaps(beanGroup)
     
             scanStart = time.asctime()
             try:

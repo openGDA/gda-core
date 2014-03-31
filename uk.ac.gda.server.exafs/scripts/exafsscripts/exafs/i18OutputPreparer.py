@@ -47,3 +47,7 @@ class I18OutputPreparer:
     # For any specific plotting requirements based on all the options in this experiment
     def getPlotSettings(self,detectorBean,outputBean):
         return None
+    
+    def _resetNexusStaticMetadataList(self):
+        pass
+    

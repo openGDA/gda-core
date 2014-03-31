@@ -24,3 +24,6 @@ class B18OutputPreparer:
     def _resetHeader(self):
         self.datawriterconfig.setHeader(self.original_header)
         meta_clear_alldynamical()
+    
+    def _resetNexusStaticMetadataList(self):
+        pass

@@ -131,7 +131,7 @@ class RasterMap(Map):
             zScannable.moveTo(zScannablePos)
             scanStart = time.asctime()
             
-            self.redefineNexusMetadataForMaps(beanGroup)
+            #self.redefineNexusMetadataForMaps(beanGroup)
             
             try:
                 numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize() + 1.0
