@@ -6,6 +6,7 @@ import gda.device.Timer;
 import gda.device.detector.DummyDAServer;
 import gda.device.timer.Tfg;
 import gda.factory.FactoryException;
+import gda.factory.Findable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,18 +28,25 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * @author rjw82
  * 
  */
-public class DummyXspress3Controller implements Xspress3Controller {
+public class DummyXspress3Controller implements Xspress3Controller, Findable {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(DummyXspress3Controller.class);
 
 	private static final int NUMBER_CHANNELS = 4;
+	// Tfg is only for simulation purposes to get current state (in real system
+	// Xspress3 hardware would know what is going on)
+	// Tfg should not be driven by this simulation as Xspress3Controllers only
+	// have access to Xspress3 hardware which has no frame times
 	private Tfg tfg;
 	private DummyDAServer daServer;
+	private String name = "not set";
 	private String xspressSystemName = "'xs3'";
 	private String mcaOpenCommand = "xspress2 open-mca " + xspressSystemName;
-	private String scalerOpenCommand = "xspress2 open-scalers " + xspressSystemName;
-	private String startupScript = "xspress2 format-run " + xspressSystemName + " res-none";
+	private String scalerOpenCommand = "xspress2 open-scalers "
+			+ xspressSystemName;
+	private String startupScript = "xspress2 format-run " + xspressSystemName
+			+ " res-none";
 	private int mcaHandle = -1;
 	private int scalerHandle = -1;
 	private Integer numFramesToAcquire;
@@ -49,6 +57,12 @@ public class DummyXspress3Controller implements Xspress3Controller {
 	private int numRoiToRead;
 	private String template;
 	private int nextNumber;
+
+	public DummyXspress3Controller(Tfg tfg, DummyDAServer daServer) {
+		super();
+		this.tfg = tfg;
+		this.daServer = daServer;
+	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -154,7 +168,7 @@ public class DummyXspress3Controller implements Xspress3Controller {
 
 	@Override
 	public void doStop() throws DeviceException {
-		tfg.stop();
+		// tfg.stop();
 		if (mcaHandle < 0 || scalerHandle < 0) {
 			open();
 		}
@@ -231,7 +245,9 @@ public class DummyXspress3Controller implements Xspress3Controller {
 
 	@Override
 	public int getTotalFramesAvailable() throws DeviceException {
-		return tfg.getCurrentFrame();
+		// simulation is not good enough!
+		return numFramesToAcquire;
+		// return tfg.getCurrentFrame();
 	}
 
 	@Override
@@ -320,7 +336,7 @@ public class DummyXspress3Controller implements Xspress3Controller {
 
 	@Override
 	public void doStart() throws DeviceException {
-		tfg.start();
+		// tfg.start();
 	}
 
 	@Override
@@ -386,7 +402,7 @@ public class DummyXspress3Controller implements Xspress3Controller {
 		for (int chan = 0; chan < numChannels; chan++) {
 			results[chan] = new Integer[] { 0, 1, 2, 3 };
 		}
-		
+
 		return results;
 	}
 
@@ -448,5 +464,16 @@ public class DummyXspress3Controller implements Xspress3Controller {
 	public void setDaServer(DummyDAServer daServer) {
 		this.daServer = daServer;
 	}
-	
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return name;
+	}
+
 }

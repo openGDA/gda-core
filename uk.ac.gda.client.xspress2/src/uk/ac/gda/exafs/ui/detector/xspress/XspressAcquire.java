@@ -78,7 +78,7 @@ public class XspressAcquire extends Acquire {
 	private Button loadBtn;
 	private FileDialog openDialog;
 	
-	public XspressAcquire(Composite parent, final SashFormPlotComposite sashPlotFormComposite, Display display, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, final DirtyContainer dirtyContainer, XspressParameters xspressParameters, Counts counts){
+	public XspressAcquire(Composite parent, final SashFormPlotComposite sashPlotFormComposite, Display display, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, final DirtyContainer dirtyContainer, XspressDetector xspressDetector, Counts counts){
 		super(display);
 		this.display = display;
 		this.sashPlotFormComposite = sashPlotFormComposite;
@@ -86,6 +86,7 @@ public class XspressAcquire extends Acquire {
 		this.resolutionGrade = resolutionGrade;
 		this.dirtyContainer = dirtyContainer;
 		this.plot = plot;
+		this.xspressDetector = xspressDetector;
 		
 		Group grpAcquire = new Group(parent, SWT.NONE);
 		grpAcquire.setText("Acquire Spectra");
@@ -146,7 +147,6 @@ public class XspressAcquire extends Acquire {
 		acquireFileLabel.setLayoutData(gridData);
 		
 		this.counts = counts;
-		xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
 	}
 	
 	public void addLoadListener(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int detectorListLength){

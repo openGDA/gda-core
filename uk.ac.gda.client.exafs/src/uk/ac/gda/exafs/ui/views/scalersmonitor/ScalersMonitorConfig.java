@@ -24,13 +24,11 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
-public class ScalersMonitorViewData {
+public class ScalersMonitorConfig {
 	private String[] titles = { "I0", "It", "Iref", "ln(It/I0)","ln(Iref/It)", "Total Counts", "Single-element / I0" };
 	private String[] formats = { "%.0f","%.0f", "%.0f", "%.4f", "%.4f", "%.0f", "%.4f" };
 	private String detectorName = "Ge";
 	private Table table;
-
-	
 
 	public void setI0(double val) {
 		String txt = String.format(formats[0], val);
@@ -67,8 +65,7 @@ public class ScalersMonitorViewData {
 		table.getItem(0).setText(6, txt);
 	}
 
-
-	public ScalersMonitorViewData(Group grpCurrentCountRates) {
+	public ScalersMonitorConfig(Group grpCurrentCountRates) {
 		table = new Table(grpCurrentCountRates, SWT.MULTI | SWT.BORDER | SWT.NO_FOCUS);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
@@ -99,6 +96,5 @@ public class ScalersMonitorViewData {
 	public String getDetectorName() {
 		return detectorName;
 	}
-
 
 }

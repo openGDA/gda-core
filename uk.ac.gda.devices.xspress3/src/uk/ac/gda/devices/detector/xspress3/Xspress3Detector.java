@@ -22,8 +22,8 @@ import org.nexusformat.NexusFile;
  * chain via EPICS.
  * <p>
  * By passive I mean that the Xspress3 is an externally triggered system and
- * this class does not cover the triggering but sets up the time frames and
- * reads out the data.
+ * this class does not cover how the triggers are generated. This class sets up
+ * the Xspress3 time frames and reads out the data.
  * 
  * @see uk.ac.gda.devices.detector.xspress#Xspress3System
  * @author rjw82
@@ -47,10 +47,13 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	private boolean writeHDF5Files = false;
 	private String filePath = "";
 	private String filePrefix = "";
-	private int fileNumber = -1;
 	private String numTrackerExtension = "nxs";
 	private NumTracker numTracker;
 	private Long currentScanNumber = -1L;
+
+	public Xspress3Detector() {
+		super();
+	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -62,7 +65,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		if (filePrefix.isEmpty() && !getName().isEmpty()) {
 			filePrefix = getName();
 		}
-		inputNames = new String[]{};
+		inputNames = new String[] {};
 	}
 
 	private void createNumTracker() {
@@ -140,7 +143,10 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 
 	@Override
 	public void collectData() throws DeviceException {
-		// do nothing here as its passive
+		// do nothing here as the detector is passive: it sets up time frames at
+		// the start of the scan and then is triggered by a TFG (or another
+		// detector driving the TFG) which must be
+		// included in the same scan
 	}
 
 	@Override
@@ -182,12 +188,13 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 			// are
 			// looking at the EPICS layer which will be a bit behind the gate
 			// signals sent to the xspress3 electronics, so need a delay until
-			// the available frames PV (and therefore all the data PVs) has been updated
+			// the available frames PV (and therefore all the data PVs) has been
+			// updated
 			Thread.sleep(150);
 		} catch (InterruptedException e) {
 			throw new DeviceException("InterruptedException during readout.");
 		}
-		
+
 		if (framesRead == controller.getTotalFramesAvailable()) {
 			// we have run out of data! This method should not have been called.
 			// Problem in the logic somewhere.
@@ -413,15 +420,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	public void setFilePrefix(String filePrefix) {
 		this.filePrefix = filePrefix;
 	}
-
-	public int getFileNumber() {
-		return fileNumber;
-	}
-
-	public void setFileNumber(int fileNumber) {
-		this.fileNumber = fileNumber;
-	}
-
+	
 	public String getNumTrackerExtension() {
 		return numTrackerExtension;
 	}

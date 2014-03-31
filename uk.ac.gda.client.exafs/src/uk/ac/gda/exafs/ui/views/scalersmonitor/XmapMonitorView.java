@@ -50,7 +50,7 @@ public class XmapMonitorView extends MonitorViewBase {
 
 	protected static final Logger logger = LoggerFactory.getLogger(XmapMonitorView.class);
 
-	protected ScalersMonitorViewData displayData;
+	protected ScalersMonitorConfig displayData;
 
 	private IAxis primaryAxis;
 
@@ -68,7 +68,7 @@ public class XmapMonitorView extends MonitorViewBase {
 		grpCurrentCountRates.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		grpCurrentCountRates.setLayout(new GridLayout());
 
-		displayData = new ScalersMonitorViewData(grpCurrentCountRates);
+		displayData = new ScalersMonitorConfig(grpCurrentCountRates);
 
 		myPlotter.createPlotPart(grpCurrentCountRates, "Rates", null, PlotType.XY, null);
 		myPlotter.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

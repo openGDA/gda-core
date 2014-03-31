@@ -19,7 +19,6 @@
 package uk.ac.gda.exafs.ui.detector.vortex;
 
 import gda.device.Timer;
-import gda.device.XmapDetector;
 
 import java.util.List;
 
