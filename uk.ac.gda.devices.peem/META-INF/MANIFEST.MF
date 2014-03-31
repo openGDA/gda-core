@@ -25,6 +25,8 @@ Export-Package: gda.device,
  gda.device.detector.uview,
  gda.device.detector.uview.corba,
  gda.device.detector.uview.corba.impl,
+ gda.device.detector.uviewnew,
+ gda.device.detector.uviewnew.corba.impl,
  gda.device.peem,
  gda.device.peem.MicroscopeControl,
  gda.device.peem.MicroscopeControl.MicroscopePackage,
@@ -33,7 +35,6 @@ Export-Package: gda.device,
  gda.devices.peem,
  gda.gui.peem,
  gda.gui.peem.UViewPlayer
- 
 Bundle-ClassPath: .,
  jars/peem-1.0.jar,
  jars/gda_peem-corba.jar

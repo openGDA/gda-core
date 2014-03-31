@@ -17,13 +17,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.uview;
+package gda.device.detector.uviewnew;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.detector.uview.UViewController.ImageFile;
-import gda.device.detector.uview.UViewController.ImageFile.ImageContentsType;
-import gda.device.detector.uview.UViewController.ImageFile.ImageFormat;
+import gda.device.detector.uviewnew.UViewController.ImageFile;
+import gda.device.detector.uviewnew.UViewController.ImageFile.ImageContentsType;
+import gda.device.detector.uviewnew.UViewController.ImageFile.ImageFormat;
 
 import java.awt.Rectangle;
 import java.io.IOException;

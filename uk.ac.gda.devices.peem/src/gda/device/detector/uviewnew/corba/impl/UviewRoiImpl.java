@@ -17,10 +17,10 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.uview.corba.impl;
+package gda.device.detector.uviewnew.corba.impl;
 
 import gda.device.DeviceException;
-import gda.device.UViewROI;
+import gda.device.UViewROINew;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.corba.impl.DetectorImpl;
@@ -37,7 +37,7 @@ import org.omg.CORBA.Any;
  */
 public class UviewRoiImpl extends CorbaUViewROIPOA {
 
-	private UViewROI ur;
+	private UViewROINew ur;
 
 	private DetectorImpl detectorImpl;
 
@@ -55,7 +55,7 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 	 * @param poa
 	 *            the portable object adapter
 	 */
-	public UviewRoiImpl(UViewROI ur, org.omg.PortableServer.POA poa) {
+	public UviewRoiImpl(UViewROINew ur, org.omg.PortableServer.POA poa) {
 		this.ur = ur;
 		this.poa = poa;
 		detectorImpl = new DetectorImpl(ur, poa);
@@ -68,7 +68,7 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 	 * 
 	 * @return the UView implementation object
 	 */
-	public UViewROI _delegate() {
+	public UViewROINew _delegate() {
 		return ur;
 	}
 
@@ -77,7 +77,7 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 	 * 
 	 * @param ur
 	 */
-	public void _delegate(UViewROI ur) {
+	public void _delegate(UViewROINew ur) {
 		this.ur = ur;
 	}
 

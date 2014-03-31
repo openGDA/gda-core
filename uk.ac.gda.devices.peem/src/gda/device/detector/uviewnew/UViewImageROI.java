@@ -17,26 +17,29 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.uview;
+package gda.device.detector.uviewnew;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 
 /**
- * UViewROI Class
+ * UViewImageROI Class
  */
-public class UViewROI {
+public class UViewImageROI implements java.io.Serializable {
+
+	private static final long serialVersionUID = 3333900291815094339L;
+
 	int id;
 
 	Rectangle roiRect = null;
 
-	Rectangle bgRect = null;
+	Color boundColor = Color.RED;
 
 	/**
 	 * Constructor
 	 */
-	public UViewROI() {
+	public UViewImageROI() {
 		id = 0;
-		bgRect = new Rectangle(0, 0, 512, 512);
 		roiRect = new Rectangle(0, 0, 10, 10);
 	}
 
@@ -44,9 +47,8 @@ public class UViewROI {
 	 * @param id
 	 * @param rect
 	 */
-	public UViewROI(int id, Rectangle rect) {
+	public UViewImageROI(int id, Rectangle rect) {
 		this.id = id;
-		bgRect = new Rectangle(0, 0, 512, 512);
 		roiRect = new Rectangle(rect);
 	}
 
@@ -65,7 +67,21 @@ public class UViewROI {
 	}
 
 	/**
-	 * @return ROI
+	 * @return boundary colour
+	 */
+	public Color getBoundaryColor() {
+		return boundColor;
+	}
+
+	/**
+	 * @param color
+	 */
+	public void setBoundaryColor(Color color) {
+		boundColor = color;
+	}
+
+	/**
+	 * @return ROI rectangle
 	 */
 	public Rectangle getROI() {
 		return roiRect;
@@ -88,15 +104,6 @@ public class UViewROI {
 	public void setROI(int x, int y, int width, int height) {
 
 		roiRect.setBounds(x, y, width, height);
-	}
-
-	/**
-	 * @param width
-	 * @param height
-	 */
-	public void setBG(int width, int height) {
-		bgRect.setSize(width, height);
-
 	}
 
 }

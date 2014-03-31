@@ -17,11 +17,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.uview.corba.impl;
+package gda.device.detector.uviewnew.corba.impl;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.UView;
+import gda.device.UViewNew;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorAdapter;
 import gda.device.detector.uview.corba.CorbaUView;
@@ -34,7 +34,7 @@ import org.omg.CORBA.COMM_FAILURE;
 /**
  * A client side implementation of the adapter pattern for the UView class
  */
-public class UviewAdapter extends DetectorAdapter implements UView, Findable, Scannable {
+public class UviewAdapter extends DetectorAdapter implements UViewNew, Findable, Scannable {
 
 	private CorbaUView corbaUView;
 

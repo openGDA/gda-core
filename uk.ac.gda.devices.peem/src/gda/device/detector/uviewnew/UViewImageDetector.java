@@ -17,14 +17,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.uview;
+package gda.device.detector.uviewnew;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.UView;
+import gda.device.UViewNew;
 import gda.device.detector.DetectorBase;
-import gda.device.detector.uview.UViewController.ImageFile.ImageContentsType;
-import gda.device.detector.uview.UViewController.ImageFile.ImageFormat;
+import gda.device.detector.uviewnew.UViewController.ImageFile.ImageContentsType;
+import gda.device.detector.uviewnew.UViewController.ImageFile.ImageFormat;
 
 import java.awt.Rectangle;
 import java.util.Hashtable;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * UViewImageDetector Class
  */
-public class UViewImageDetector extends DetectorBase implements UView {
+public class UViewImageDetector extends DetectorBase implements UViewNew {
 
 	private static final Logger logger = LoggerFactory.getLogger(UViewImageDetector.class);
 

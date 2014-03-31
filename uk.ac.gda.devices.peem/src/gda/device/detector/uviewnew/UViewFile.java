@@ -17,12 +17,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.uview;
+package gda.device.detector.uviewnew;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
-import gda.device.detector.uview.UViewController.ImageFile.ImageFormat;
+import gda.device.detector.uviewnew.UViewController.ImageFile.ImageFormat;
 
 import java.io.File;
 import java.io.IOException;

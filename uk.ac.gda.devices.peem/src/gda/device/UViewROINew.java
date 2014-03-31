@@ -22,7 +22,7 @@ package gda.device;
 /**
  * An interface for a distributed PEEM Uview Detector class
  */
-public interface UViewROI extends Detector {
+public interface UViewROINew extends Detector {
 
 	/**
 	 * @param x

@@ -17,10 +17,10 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.uview;
+package gda.device.detector.uviewnew;
 
 import gda.device.DeviceException;
-import gda.device.UViewROI;
+import gda.device.UViewROINew;
 import gda.device.detector.DetectorBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -35,7 +35,7 @@ import java.awt.Rectangle;
  * UViewImageDetectorROI Class
  */
 
-public class UViewImageDetectorROI extends DetectorBase implements UViewROI {
+public class UViewImageDetectorROI extends DetectorBase implements UViewROINew {
 
 	//private static final Logger logger = LoggerFactory.getLogger(UViewImageDetectorROI.class);
 

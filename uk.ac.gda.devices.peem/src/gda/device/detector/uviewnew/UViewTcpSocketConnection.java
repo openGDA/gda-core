@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.uview;
+package gda.device.detector.uviewnew;
 
 import java.io.IOException;
 
@@ -55,6 +55,19 @@ public class UViewTcpSocketConnection extends SocketBidiAsciiCommunicator {
 		if ( writer == null || reader == null ) {
 			super.connectIfRequired();
 			this.send("asc");
+		}
+	}
+	
+	@Override
+	public String send(String cmd) throws DeviceException {
+		lock.lock();
+		try {
+			logger.info("sent: "+ cmd);
+			String response = super.send(cmd);
+			logger.info("received: " + response);
+			return response;
+		} finally {
+			lock.unlock();
 		}
 	}
 }

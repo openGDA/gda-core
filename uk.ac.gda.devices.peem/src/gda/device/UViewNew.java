@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * An interface for a distributed PEEM Uview Detector class
  */
-public interface UView extends Detector {
+public interface UViewNew extends Detector {
 
 	/**
 	 * Acquire a single image from the detector

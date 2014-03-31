@@ -17,15 +17,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.uview;
+package gda.device.detector.uviewnew;
 
 // CORBA Studbs
 // import java.awt.image.*;
 import gda.device.DeviceException;
-import gda.device.detector.uview.UViewController.GrayAdjustment;
-import gda.device.detector.uview.UViewController.ImageData;
-import gda.device.detector.uview.UViewController.ImageFile;
-import gda.device.detector.uview.UViewController.RegionOfInterest;
+import gda.device.detector.uviewnew.UViewController.GrayAdjustment;
+import gda.device.detector.uviewnew.UViewController.ImageData;
+import gda.device.detector.uviewnew.UViewController.ImageFile;
+import gda.device.detector.uviewnew.UViewController.RegionOfInterest;
 import gda.device.peem.MicroscopeControl.Microscope;
 import gda.device.peem.MicroscopeControl.MicroscopePackage.UNBOUNDED_SEQUENCEHolder;
 import gda.device.peem.MicroscopeControl.MicroscopePackage.UNBOUNDED_SHORTSEQUENCEHolder;
