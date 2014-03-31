@@ -263,7 +263,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	protected void removeHandles() {
 		int hmax = roiHandler.size();
 		if (hmax > 0) {
-			oProvider.unregisterPrimitive(roiHandler);
+			oProvider.unregisterPrimitive(roiHandler.getAll());
 			for (int h = 0; h < hmax; h++) {
 				roiHandler.set(h, -1);
 			}
