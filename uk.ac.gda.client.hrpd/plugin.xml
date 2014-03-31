@@ -12,25 +12,6 @@
       </application>
    </extension>
    <extension
-         point="org.eclipse.ui.perspectives">
-      <perspective
-            class="uk.ac.gda.client.hrpd.perspectives.HrpdExperimentPerspective"
-            fixed="true"
-            id="uk.ac.gda.client.hrpd.ExperimentPerspective"
-            name="Surface and Interface X-ray Diffraction Experiment">
-      </perspective>
-      <perspective
-            class="uk.ac.gda.client.hrpd.perspectives.HrpdScriptingPerspective"
-            id="uk.ac.gda.client.hrpd.ScriptingPerspective"
-            name="HRPD Basic Scripting Perspective">
-      </perspective>
-      <perspective
-            class="uk.ac.gda.client.hrpd.perspectives.HrpdAdvancedScriptingPerspective"
-            id="uk.ac.gda.client.hrpd.AdvancedScriptingPerspective"
-            name="HRPD Advanced Scripting Perspective">
-      </perspective>
-   </extension>
-   <extension
          point="org.eclipse.ui.views">
       <category
             id="uk.ac.gda.client.hrpd.views.hrpdCategory"
@@ -41,15 +22,7 @@
             class="uk.ac.gda.client.hrpd.views.JythonConsoleView"
             icon="icons/terminal_16.png"
             id="uk.ac.gda.client.hrpd.views.JythonConsoleView"
-            name="JythonConsole"
-            restorable="true">
-      </view>
-      <view
-            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
-            class="uk.ac.gda.client.hrpd.views.XrrView"
-            icon="icons/hrpd_16.png"
-            id="uk.ac.gda.client.hrpd.views.XrrView"
-            name="X-ray Reflectivity"
+            name="GDA Client Console"
             restorable="true">
       </view>
       <view
@@ -71,15 +44,6 @@
             restorable="true">
       </view>
       <view
-            name="Area Detector 2I"
-            id="uk.ac.gda.client.hrpd.views.AreaDetectorView2"
-            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
-            icon="icons/detector2D_02_16.png"
-            allowMultiple="false"
-            restorable="true">
-      </view>
-      <view
             allowMultiple="false"
             category="uk.ac.gda.client.hrpd.views.hrpdCategory"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
@@ -89,10 +53,20 @@
             restorable="true">
       </view>
       <view
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
             class="gda.rcp.views.JythonTerminalView"
             icon="icons/application_xp_terminal.png"
             id="uk.ac.gda.client.hrpd.views.terminalView"
-            name="GDA Jython Terminal"
+            name="GDA Server Console"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.hrpd.views.MACPlotView"
+            name="MAC"
             restorable="true">
       </view>
    </extension>
@@ -135,6 +109,14 @@
                	</parameter>
          </command>
       </menuContribution>                                                                  
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.client.hrpd.perspectives.HRPDPerspective"
+            id="uk.ac.gda.client.hrpd.perspective"
+            name="MAC">
+      </perspective>
    </extension>
 
 
