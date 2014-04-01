@@ -208,46 +208,60 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 		@Override
 		public List<double[]> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
 
-			int totalCollectedByHarwdare = getNumberFrames();
-			double millisToCollectEntireLine = getCollectionTime() * TFGTriggeredScaler.this.numberScanPointsToCollect
-					* 1000;
-			double waitedSoFarMilliSeconds = 0;
-			int waitTime = 1000;
+			List<double[]> container;
+			try {
+				int totalCollectedByHardware = getNumberFrames();
+				logger.info(totalCollectedByHardware + " frames available from " + getName());
+				double millisToCollectEntireLine = getCollectionTime() * TFGTriggeredScaler.this.numberScanPointsToCollect
+						* 1000;
+				double waitedSoFarMilliSeconds = 0;
+				int waitTime = 1000;
 
-			// Waits for *first* frame to become available in hardware or millisToCollectEntireLine to have passed
-			while (totalCollectedByHarwdare <= readOutFromHardwareSoFar
-					&& waitedSoFarMilliSeconds <= millisToCollectEntireLine) {
-				Thread.sleep(waitTime);
-				waitedSoFarMilliSeconds += waitTime;
-				totalCollectedByHarwdare = getNumberFrames();
-			}
-			logger.debug("waitedSoFarMilliSeconds=" + waitedSoFarMilliSeconds + ", totalCollectedByHarwdare="
-					+ totalCollectedByHarwdare);
-
-			List<double[]> container = new ArrayList<double[]>();
-			// if there is no data to read then treat as an error and throw
-			if (totalCollectedByHarwdare <= 0) {
-				logger.info("Nothing collected so returning");
-				return container;
-			}
-			synchronized (this) {
-				readingOut.set(true);
-				int startFrame = readOutFromHardwareSoFar;
-				int finalFrame = totalCollectedByHarwdare - 1;
-				if (finalFrame < startFrame) {
-					throw new DeviceException("Something's gone wrong as finalFrame < startFrame");
+				// Waits for *first* frame to become available in hardware or millisToCollectEntireLine to have passed
+				while (totalCollectedByHardware <= readOutFromHardwareSoFar
+						&& waitedSoFarMilliSeconds <= millisToCollectEntireLine) {
+					Thread.sleep(waitTime);
+					waitedSoFarMilliSeconds += waitTime;
+					totalCollectedByHardware = getNumberFrames();
 				}
-				double dataRead[][] = readData(startFrame, finalFrame); // readData must block until the range is
-																		// available
-				for (int i = 0; i < dataRead.length; i++) {
-					container.add(dataRead[i]);
-				}
-				
-				// add log on totalCollectedByHarwdare and readOutFromHardwareSoFar
-				logger.debug("readOutFromHardwareSoFar=" + readOutFromHardwareSoFar + ", totalCollectedByHarwdare="
-						+ totalCollectedByHarwdare);
+				logger.debug("waitedSoFarMilliSeconds=" + waitedSoFarMilliSeconds + ", totalCollectedByHarwdare="
+						+ totalCollectedByHardware);
 
-				readOutFromHardwareSoFar = totalCollectedByHarwdare;
+				container = new ArrayList<double[]>();
+				// if there is no data to read then treat as an error and throw
+				if (totalCollectedByHardware <= 0) {
+					logger.info("Nothing collected so returning");
+					return container;
+				}
+				synchronized (this) {
+					readingOut.set(true);
+					int startFrame = readOutFromHardwareSoFar;
+					int finalFrame = totalCollectedByHardware - 1;
+					if (finalFrame < startFrame) {
+						throw new DeviceException("Something's gone wrong as finalFrame < startFrame");
+					}
+					logger.info("Reading frames " + startFrame + " to " + finalFrame + " from " + getName());
+					double dataRead[][] = readData(startFrame, finalFrame); // readData must block until the range is
+																			// available
+					for (int i = 0; i < dataRead.length; i++) {
+						container.add(dataRead[i]);
+					}
+					
+					// add log on totalCollectedByHarwdare and readOutFromHardwareSoFar
+					logger.debug("readOutFromHardwareSoFar=" + readOutFromHardwareSoFar + ", totalCollectedByHarwdare="
+							+ totalCollectedByHardware);
+
+					readOutFromHardwareSoFar = totalCollectedByHardware;
+				}
+			} catch (NoSuchElementException e) {
+				readingOut.set(false);
+				throw e;
+			} catch (InterruptedException e) {
+				readingOut.set(false);
+				throw e;
+			} catch (DeviceException e) {
+				readingOut.set(false);
+				throw e;
 			}
 			if (readOutFromHardwareSoFar >= numberScanPointsToCollect)
 				readingOut.set(false);
@@ -256,15 +270,21 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 	}
 
 	public void waitForReadoutCompletion() throws InterruptedException {
-		while (readingOut.get()) {
-			try {
+		try {
+			while (readingOut.get()) {
 				// check both ways that a scan might be aborted here, by Thread abort or Scan flag
 				Thread.sleep(100);
 				ScanBase.checkForInterrupts();
-			} finally {
-				readingOut.set(false);
 			}
+		} finally {
+			readingOut.set(false);
 		}
+	}
+	
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		readingOut.set(false);
+		super.atCommandFailure();
 	}
 
 	@Override
