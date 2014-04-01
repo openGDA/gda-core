@@ -172,7 +172,9 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	
 	@Override
 	public void stop() throws DeviceException {
-		xmap.setValueNoWait(STOPALL,"",1);
+		if (xmap != null && xmap.isConfigured()) {
+			xmap.setValueNoWait(STOPALL,"",1);
+		}
 	}
 	
 	/**
