@@ -42,14 +42,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * For B18 QEXAFS scans. Operates the mono energy but also set position compare to define when and how TTL pulses are
+ * For I18 QEXAFS scans. Operates the mono energy but also set position compare to define when and how TTL pulses are
  * sent from the bragg motor to the TFG.
  * <p>
  * This will change the speed of the Bragg motor if the required movement is slower than the Bragg's maximum (which is
  * also the Bragg default speed). If the required motion is faster than the maximum then this will be logged and the
  * speed will be set to the maximum.
- * <p>
- * TODO: change movement control based on exit mode (current behaviour is fixed exit mode);
  */
 public class I18QexafsScannable extends ScannableMotor implements ContinuouslyScannable, InitializationListener {
 
@@ -66,7 +64,6 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	private String braggMaxSpeedPV; // the max and default speed of
 	private String energySwitchPV; // combined energy motion flag
 	private String stepIncDegPV; // after start,stop,step set this is the step size in deg
-	private String pulseWidthDegPV; // pulse width - treated here as read-only
 	private String numPulsesPV; // the number of pulses that will be sent out, after start,stop,step set
 
 	private boolean channelsConfigured = false;
@@ -82,7 +79,6 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	private Channel maxSpeedChnl;
 	private Channel energySwitchChnl;
 	private Channel stepIncDegChnl;
-//	private Channel pulseWidthDegChnl;
 	private Channel numPulsesChnl;
 
 	private Angle startAngle;
@@ -119,9 +115,8 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 			if (energySwitchPV != null)
 				energySwitchChnl = channelManager.createChannel(energySwitchPV, false);
 			stepIncDegChnl = channelManager.createChannel(stepIncDegPV, false);
-//			pulseWidthDegChnl = channelManager.createChannel(pulseWidthDegPV, false);
 			numPulsesChnl = channelManager.createChannel(numPulsesPV, false);
-
+			
 			if(inKev)
 				energyDivision=1000.0;
 			else
@@ -162,8 +157,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 
 			controller.caputWait(outputModeChnl, 0); // ensure at 0 for the run-up movement. No longer in EDM screen.
 			controller.caputWait(currentSpeedChnl, getMaxSpeed()); // ensure at max speed for the run-up movement
-			// move to run-up position so ready to collect
-			// super.asynchronousMoveTo(angleToEV(runupPosition));
+
 			if (runUpOn)
 				super.moveTo(angleToEV(runupPosition)/energyDivision);
 			else
@@ -172,10 +166,6 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 			controller.caputWait(startChnl, -startDeg);
 			controller.caputWait(stopChnl, -stopDeg);
 			controller.caputWait(stepChnl, -stepDeg);
-//			if (checkStepGTPulse()) {
-//				throw new DeviceException(
-//						"Too many data points, so pulses would overlap - no pulses would be sent from Bragg motor");
-//			}
 
 			try {
 				Thread.sleep(500);
@@ -189,14 +179,6 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 			throw new DeviceException(getName() + " exception in prepareForContinuousMove", e);
 		}
 	}
-
-//	private boolean checkStepGTPulse() throws TimeoutException, CAException, InterruptedException {
-//		Double stepInc = controller.cagetDouble(this.stepIncDegChnl);
-//		Double pulseWidth = controller.cagetDouble(this.pulseWidthDegChnl);
-//
-//		Double ratio = stepInc / Math.abs(pulseWidth);
-//		return ratio < 2.5;
-//	}
 
 	private Double getMaxSpeed() {
 		if (maxSpeed == null) {
@@ -296,8 +278,6 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 		} else if (xtalSwitch.contains("311")) {
 			return Quantity.valueOf(0.327, SI.NANO(SI.METER));
 		}
-		// TODO need 311 value else its 111
-		// TODO this may be different for I18
 		return Quantity.valueOf(0.62711, SI.NANO(SI.METER));
 	}
 
@@ -342,16 +322,16 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 		// v^2 = u^2 + 2as
 		double acceleration = controller.cagetDouble(accelChnl);
 		desiredSpeed = Math.abs(radToDeg(endAngle) - radToDeg(startAngle)) / continuousParameters.getTotalTime();
-		double runUp = (desiredSpeed * desiredSpeed) / (2 * acceleration);
-		runUp *= 3.0; // to be safe add 10%
+		final double runUp = (desiredSpeed * desiredSpeed) / (2 * acceleration);
 		Angle runUpAngle = (Angle) QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE);
-		// 1.165E-4 deg is a practical minimum to avoid the motor's deadband
+
 		double step = controller.cagetDouble(this.stepIncDegChnl);
-
-		if (runUpAngle.doubleValue() < 10 * step) {// 0.0001165
-			runUpAngle = (Angle) QuantityFactory.createFromObject(10 * step, NonSI.DEGREE_ANGLE);
+		double dblRunUpAngle = runUpAngle.getAmount();
+		final int runupFactor = 3;
+		if (Math.abs(dblRunUpAngle) < Math.abs(runupFactor * step)) {
+			runUpAngle = (Angle) QuantityFactory.createFromObject(Math.abs(runupFactor * step), NonSI.DEGREE_ANGLE);
 		}
-
+		
 		Quantity add = QuantityFactory.createFromObject(extraRunUp, NonSI.DEGREE_ANGLE);
 
 		runUpAngle = (Angle) runUpAngle.plus(add);
@@ -446,15 +426,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	public void setStepIncDegPV(String stepIncDegPV) {
 		this.stepIncDegPV = stepIncDegPV;
 	}
-
-	public String getPulseWidthDegPV() {
-		return pulseWidthDegPV;
-	}
-
-	public void setPulseWidthDegPV(String pulseWidthDegPV) {
-		this.pulseWidthDegPV = pulseWidthDegPV;
-	}
-
+	
 	public String getNumPulsesPV() {
 		return numPulsesPV;
 	}
@@ -509,13 +481,10 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 		try {
 			return controller.cagetInt(this.numPulsesChnl);
 		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
 			logger.error(erorMessage, e);
 		} catch (CAException e) {
-			// TODO Auto-generated catch block
 			logger.error(erorMessage, e);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			logger.error(erorMessage, e);
 		}
 		return 0;

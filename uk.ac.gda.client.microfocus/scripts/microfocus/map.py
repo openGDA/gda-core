@@ -1,13 +1,8 @@
-from java.io import File
-from java.lang import String
-
 from jarray import array
 import time
 
-from microfocus_elements import showElementsList, getElementNamesfromIonChamber
-
-from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 from exafsscripts.exafs.scan import Scan
+from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, NexusDataWriter, XasAsciiNexusDataWriter
@@ -22,23 +17,23 @@ from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 
 class Map(Scan):
 
-    #TODO compare to the Scan initializer
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, xScan, yScan, ExafsScriptObserver,outputPreparer,detectorPreparer):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, xScan, yScan):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
-        self.finder = Finder.getInstance()
-        self.mfd = None
-        self.detectorBeanFileName = ""
         self.rcpController = rcpController
-        self.beamEnabled = True
-        self.xScan = xScan
-        self.yScan = yScan
         self.ExafsScriptObserver=ExafsScriptObserver
         self.outputPreparer = outputPreparer
         self.detectorPreparer = detectorPreparer
+        self.xScan = xScan
+        self.yScan = yScan
+
+        self.finder = Finder.getInstance()
+        self.mfd = None
+        self.detectorBeanFileName = ""
+        self.beamEnabled = True
         
     def enableBeam(self):
         self.beamEnabled = True
@@ -51,6 +46,10 @@ class Map(Scan):
     
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
     
+        print ""
+        print "*********************"
+        self.log("Preparing for map...")
+        
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
         experimentFullPath, experimentFolderName = self.determineExperimentPath(folderName)
@@ -61,7 +60,6 @@ class Map(Scan):
             sampleBean  = BeansFactory.getBeanObject(experimentFullPath, sampleFileName)
             
         scanBean = BeansFactory.getBeanObject(experimentFullPath, scanFileName)
-        
         detectorBean = BeansFactory.getBeanObject(experimentFullPath, detectorFileName)
         outputBean   = BeansFactory.getBeanObject(experimentFullPath, outputFileName)
     
@@ -79,95 +77,55 @@ class Map(Scan):
         beanGroup.setScan(scanBean)
 
         detectorList = self.getDetectors(detectorBean, scanBean)
-    
-        self.setupForMap(beanGroup)
-    
-        scannablex = self.finder.find(scanBean.getXScannableName())
-        scannabley = self.finder.find(scanBean.getYScannableName())
+        self.log("Detectors: " + str(detectorList))
         
-        if scannablex==None:
+        # *************** DIFFERENT
+        self._setupForMap(beanGroup)
+    
+        xScannable = self.finder.find(scanBean.getXScannableName())
+        yScannable = self.finder.find(scanBean.getYScannableName())
+        
+        if xScannable==None:
             from gdascripts.parameters import beamline_parameters
             jythonNameMap = beamline_parameters.JythonNameSpaceMapping()
-            scannablex=jythonNameMap.__getitem__(scanBean.getXScannableName())
-            scannabley=jythonNameMap.__getitem__(scanBean.getYScannableName())
+            xScannable=jythonNameMap.__getitem__(scanBean.getXScannableName())
+            yScannable=jythonNameMap.__getitem__(scanBean.getYScannableName())
         
-        nx = ScannableUtils.getNumberSteps(scannablex,scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
-        ny = ScannableUtils.getNumberSteps(scannabley,scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
-    
+        nx = ScannableUtils.getNumberSteps(xScannable,scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
+        ny = ScannableUtils.getNumberSteps(yScannable,scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
         self.log("Number x points: " + str(nx))
         self.log("Number y points: " + str(ny))
+        
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
         
         self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
         
         self.detectorBeanFileName = experimentFullPath+detectorBean.getFluorescenceParameters().getConfigFileName()
-        self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize(),self.detectorBeanFileName, array(detectorList, Detector))
+        self._createMFD(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize(), detectorList)
+#         self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize(),self.detectorBeanFileName, array(detectorList, Detector))
 
         for energy in energyList:
             
-            zScannable = self.finder.find(scanBean.getZScannableName())
-            self.mfd.setEnergyValue(energy)
-            #if(zScannablePos == None):
-            #    self.mfd.setZValue(zScannable.getPosition())
-            #else:
-            self.mfd.setZValue(zScannablePos)
-
-            self.log("Using: " + scanBean.getXScannableName() + ", " + scanBean.getYScannableName() +", " + zScannable.getName())
-
-            if scanBean.getXScannableName() == 'micosx':
-                xScannable=self.xScan
-            else:
-                xScannable = self.finder.find(scanBean.getXScannableName())
-                
-            if scanBean.getYScannableName() == 'micosy':
-                yScannable=self.yScan
-            else:
-                yScannable = self.finder.find(scanBean.getYScannableName())
-
-            if xScannable is None:
-                xScannable = globals()[scanBean.getXScannableName()]
-            if yScannable is None:
-                yScannable = globals()[scanBean.getYScannableName()]
-                
-            useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
-            self.log("Using frames: " + str(useFrames))
+            
             energyScannable = self.finder.find(scanBean.getEnergyScannableName())
             self.log("Energy: " + str(energy))
-    
-            self.log("Detectors: " + str(detectorList))
             energyScannable.moveTo(energy) 
+            self.mfd.setEnergyValue(energy)
+            
+            
+            zScannable = self.finder.find(scanBean.getZScannableName())
+            self.mfd.setZValue(zScannablePos)
+            self.log("Using: " + scanBean.getXScannableName() + ", " + scanBean.getYScannableName() +", " + zScannable.getName())
             if(zScannablePos != None):
                 zScannable.moveTo(zScannablePos)
-            scanBean.setCollectionTime(scanBean.getCollectionTime())
-            args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize(), zScannable]
-            
-            self.counterTimer01.setCollectionTime(scanBean.getCollectionTime())
-            
-            # what does this do? why is it not in raster map? Adding this to raster map does not set live time.
-            if(detectorBean.getExperimentType() == "Fluorescence" and useFrames):
-                args+= detectorList
-                self.counterTimer01.clearFrameSets()
-                self.log("Frame collection time: " + str(scanBean.getCollectionTime()))
-                self.counterTimer01.addFrameSet(int(nx),1.0E-4,scanBean.getCollectionTime()*1000.0,0,7,-1,0)
-            else:
-                for detector in detectorList:
-                    args.append(detector)              
-                    args.append(scanBean.getCollectionTime())
             
             scanStart = time.asctime()
             
-            self.redefineNexusMetadataForMaps(beanGroup)
+            self._redefineNexusMetadataForMaps(beanGroup)
             
             try:
-                mapscan= ScannableCommands.createConcurrentScan(args)
-                sampleName = sampleBean.getName()
-                descriptions = sampleBean.getDescriptions()
-                mapscan = self._setUpDataWriter(mapscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
-                mapscan.getScanPlotSettings().setIgnore(1)
-                self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
-                mapscan.runScan()
-                
+                self._runMap(beanGroup, xScannable, yScannable, zScannable, detectorList,scanNumber,experimentFolderName,experimentFullPath,nx,ny)
             finally:
                 scanEnd = time.asctime()
                 if(origScanPlotSettings):
@@ -178,6 +136,42 @@ class Map(Scan):
                 self.log("Map end time " + str(scanEnd))
                 self.finish()
                 
+    def _createMFD(self, nx, ny, xStepSize, yStepSize, detectorList):
+        self.mfd = MicroFocusWriterExtender(nx, ny, xStepSize, yStepSize,self.detectorBeanFileName, array(detectorList, Detector))
+    
+    def _runMap(self,beanGroup, xScannable, yScannable, zScannable, detectorList,scanNumber,experimentFolderName,experimentFullPath,nx,ny):
+        
+        detectorBean = beanGroup.getDetector()
+        scanBean = beanGroup.getScan()
+        sampleBean = beanGroup.getSample()
+        outputBean=beanGroup.getOutput()
+        
+        scanBean.setCollectionTime(scanBean.getCollectionTime())
+        args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize(), zScannable]
+        
+        self.counterTimer01.setCollectionTime(scanBean.getCollectionTime())
+        
+        # what does this do? why is it not in raster map? Adding this to raster map does not set live time.
+        useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
+        self.log("Using frames: " + str(useFrames))
+        if(detectorBean.getExperimentType() == "Fluorescence" and useFrames):
+            args+= detectorList
+            self.counterTimer01.clearFrameSets()
+            self.log("Frame collection time: " + str(scanBean.getCollectionTime()))
+            self.counterTimer01.addFrameSet(int(nx),1.0E-4,scanBean.getCollectionTime()*1000.0,0,7,-1,0)
+        else:
+            for detector in detectorList:
+                args.append(detector)              
+                args.append(scanBean.getCollectionTime())            
+        mapscan= ScannableCommands.createConcurrentScan(args)
+        sampleName = sampleBean.getName()
+        descriptions = sampleBean.getDescriptions()
+        mapscan = self._setUpDataWriter(mapscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,scanNumber,experimentFolderName,experimentFullPath)
+        mapscan.getScanPlotSettings().setIgnore(1)
+        self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
+        self.log("Starting step map...")
+        mapscan.runScan()
+    
     # should merge with method in xas_scan but keeping here while developing to see what differences required
     def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
         nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
@@ -214,26 +208,23 @@ class Map(Scan):
         thisscan.setDataWriter(dataWriter)
         return thisscan
 
-    def setupForMap(self, beanGroup):
+    def _setupFromSampleParameters(self, beanGroup):
+        outputBean=beanGroup.getOutput()
+        sampleParameters = beanGroup.getSample()
+        outputBean.setAsciiFileName(sampleParameters.getName())
+        self.log("Ascii file prefix: " ,sampleParameters.getName())
+        att1 = sampleParameters.getAttenuatorParameter1()
+        att2 = sampleParameters.getAttenuatorParameter2()
+        self.log("Moving: " + self.d7a.getName() + " to " + att1.getSelectedPosition())
+        self.log("Moving: " + self.d7b.getName() + " to " + att2.getSelectedPosition())
+        self.d7a(att1.getSelectedPosition())
+        self.d7b(att2.getSelectedPosition())
+        LocalProperties.set("gda.scan.useScanPlotSettings", "true")
 
-        self.log("Starting step map scan...")
+    def _setupForMap(self, beanGroup):
 
-        if beanGroup.getDetector().getExperimentType() == "Fluorescence":
-            fluoresenceParameters = beanGroup.getDetector().getFluorescenceParameters()
-            detType = fluoresenceParameters.getDetectorType()
-            xmlFileName = beanGroup.getXmlFolder() + fluoresenceParameters.getConfigFileName()
-            if detType == "Germanium":
-                self.xspressConfig.initialize()
-                xspressBean = self.xspressConfig.createBeanFromXML(xmlFileName)
-                onlyShowFF = xspressBean.isOnlyShowFF()
-                showDTRawValues = xspressBean.isShowDTRawValues()
-                saveRawSpectrum = xspressBean.isSaveRawSpectrum()
-                self.xspressConfig.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
-
-        scan = beanGroup.getScan()
-    
         if (LocalProperties.get("gda.mode") == 'live'):
-            collectionTime = scan.getCollectionTime()
+            collectionTime = beanGroup.getScan().getCollectionTime()
             command_server = self.finder.find("command_server")    
             topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
             beam = command_server.getFromJythonNamespace("beam", None)
@@ -256,21 +247,11 @@ class Map(Scan):
                 detectorFillingMonitor.setCollectionTime(collectionTime)
             trajBeamMonitor.setActive(False)
 
-        outputBean=beanGroup.getOutput()
-        sampleParameters = beanGroup.getSample()
-        outputBean.setAsciiFileName(sampleParameters.getName())
-        self.log("Ascii file prefix: " ,sampleParameters.getName())
-        att1 = sampleParameters.getAttenuatorParameter1()
-        att2 = sampleParameters.getAttenuatorParameter2()
-        self.log("Moving: " + self.d7a.getName() + " to " + att1.getSelectedPosition())
-        self.log("Moving: " + self.d7b.getName() + " to " + att2.getSelectedPosition())
-        self.d7a(att1.getSelectedPosition())
-        self.d7b(att2.getSelectedPosition())
-        LocalProperties.set("gda.scan.useScanPlotSettings", "true")
+        self._setupFromSampleParameters(beanGroup)
         
         self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
         
-    def redefineNexusMetadataForMaps(self, beanGroup):
+    def _redefineNexusMetadataForMaps(self, beanGroup):
         from gda.data.scan.datawriter import NexusFileMetadata
         from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
         
@@ -309,7 +290,7 @@ class Map(Scan):
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7B", str(jython_mapper.D7B()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
     
         NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("energy", str(jython_mapper.energy()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXmonochromator, "DCM_energy"))
- 
+
     def getDetectors(self, detectorBean, scanBean):
         expt_type = detectorBean.getExperimentType()
         if expt_type == "Transmission":
@@ -320,11 +301,12 @@ class Map(Scan):
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
                     return self._createDetArray(group.getDetector(), scanBean)
-    
+ 
     def finish(self):
         command_server = self.finder.find("command_server")
         beam = command_server.getFromJythonNamespace("beam", None)
         detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
         self.finder.find("command_server").removeDefault(beam);
         self.finder.find("command_server").removeDefault(detectorFillingMonitor);
-        self.mfd.closeWriter()
+        if self.mfd != None:
+            self.mfd.closeWriter()

@@ -172,9 +172,14 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				lastFileName = this.controller.getHDFFileName();
 				
 				waitForFile();
+
 				// 11/3/14 experiment
 //				Thread.sleep(2000); // I have put this in just in case there is a delay fully writing the file, but I do
 									// not think this is the problem
+
+				//TODO can this be removed now that waitForFile() working?
+//				xmap.stop();
+				// change to linux format
 
 				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
 				lastFileName = lastFileName.replace("X:/", "/dls/" + beamline);
@@ -459,11 +464,13 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			controller.resetCounters();
 			
 			int numberOfPointsPerScan = continuousParameters.getNumberDataPoints();
+
 			// This has a -1 for b18. This is because the B18 Position Compare does not send the first
 			// pulse and so the first data point is always missed
 			if (LocalProperties.get("gda.factory.factoryName").equalsIgnoreCase("b18")){
 				numberOfPointsPerScan -= 1;
 			}
+
 			controller.setPixelsPerRun(numberOfPointsPerScan);
 			controller.setAutoPixelsPerBuffer(true);
 			

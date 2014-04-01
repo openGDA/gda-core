@@ -49,7 +49,7 @@ class I18DetectorPreparer:
         change_sensitivity = ion_chamber.getChangeSensitivity()
         if change_sensitivity == True:
             gain = ion_chamber.getGain()
-            print "setting i0 sensitivity to ", gain
+            print "I0 sensitivity: ", gain
             if ion_chamber_num==0:
                 pv = CAClient("BL18I-EA-IAMP-02:Gain.VAL")
             elif ion_chamber_num==1:
