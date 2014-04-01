@@ -49,6 +49,10 @@ class RasterMap(Map):
 
         self.outputPreparer = outputPreparer
         self.detectorPreparer = detectorPreparer
+        self.sampleFilename= None
+        self.scanFilename= None
+        self.detectorFilename= None
+        self.outputFilename= None
         
     def enableBeam(self):
         self.beamEnabled = True
@@ -79,6 +83,7 @@ class RasterMap(Map):
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
         experimentFullPath, experimentFolderName = self.determineExperimentPath(folderName)
+        self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
         
         if(sampleFileName == None or sampleFileName == 'None'):
             sampleBean = None
@@ -184,38 +189,38 @@ class RasterMap(Map):
                 self.finish()
                 
                 
-    def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
-        nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
-        asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
+    #def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
+        #nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
+        #asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
         
-        nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
-        asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
-        if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
-            nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
-            asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
+        #nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
+        #asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
+        #if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
+            #nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
+            #asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
 
         # create XasAsciiNexusDataWriter object and give it the parameters
-        dataWriter = XasAsciiNexusDataWriter()
-        dataWriter.setRunFromExperimentDefinition(True);
-        dataWriter.setScanBean(scanBean);
-        dataWriter.setDetectorBean(detectorBean);
-        dataWriter.setSampleBean(sampleBean);
-        dataWriter.setOutputBean(outputBean);
-        dataWriter.setSampleName(sampleName);
-        dataWriter.setXmlFolderName(experimentFullPath)
-        dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
-        dataWriter.setDescriptions(descriptions);
-        dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
-        dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
+        #dataWriter = XasAsciiNexusDataWriter()
+        #dataWriter.setRunFromExperimentDefinition(True);
+        #dataWriter.setScanBean(scanBean);
+        #dataWriter.setDetectorBean(detectorBean);
+        #dataWriter.setSampleBean(sampleBean);
+        #dataWriter.setOutputBean(outputBean);
+        #dataWriter.setSampleName(sampleName);
+        #dataWriter.setXmlFolderName(experimentFullPath)
+        #dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+        #dataWriter.setDescriptions(descriptions);
+        #dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
+        #dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
         # get the ascii file format configuration (if not set here then will get it from the Finder inside the Java class
-        asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
-        if asciidatawriterconfig != None :
-            dataWriter.setConfiguration(asciidatawriterconfig)
+        #asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
+        #if asciidatawriterconfig != None :
+            #dataWriter.setConfiguration(asciidatawriterconfig)
             
-        dataWriter.addDataWriterExtender(self.mfd)
+        #dataWriter.addDataWriterExtender(self.mfd)
         
-        thisscan.setDataWriter(dataWriter)
-        return thisscan
+        #thisscan.setDataWriter(dataWriter)
+        #return thisscan
 
     def setupForRaster(self, beanGroup):
         rasterscan = beanGroup.getScan()

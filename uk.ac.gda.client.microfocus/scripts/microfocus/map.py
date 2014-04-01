@@ -22,6 +22,9 @@ from gdascripts.metadata.metadata_commands import meta_add
 
 class Map(Scan):
 
+    #runPreparer methods that called the prepare method in output, sample and detector preparers. Here only detectorPreparer.prepare is called 
+    #outputpreparer.prepare should be called to be able to add metadata in both ASCII and Nexus files. Maybe runPreparers method should move 
+    #from XasScan to Scan class? 
     #TODO compare to the Scan initializer
     def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, xScan, yScan, ExafsScriptObserver,outputPreparer,detectorPreparer):
         self.xspressConfig = xspressConfig
@@ -183,13 +186,9 @@ class Map(Scan):
                 self.log("Map end time " + str(scanEnd))
                 self.finish()
                 
-    def setXmlFileNames(self, sampleFileName, scanFileName, detectorFileName, outputFileName):
-        self.sampleFileName= sampleFileName
-        self.scanFileName= scanFileName
-        self.detectorFileName= detectorFileName
-        self.outputFileName= outputFileName
-                
     # should merge with method in xas_scan but keeping here while developing to see what differences required
+    # Here _setUpData method is a repetition of the same method in the class Scan except for the name of the nexus and ascii files
+    
     def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName,experimentFullPath):
         nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
         asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
@@ -200,7 +199,7 @@ class Map(Scan):
             nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
             asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
 
-        # create XasAsciiNexusDataWriter object and give it the parameters
+        #create XasAsciiNexusDataWriter object and give it the parameters
         dataWriter = XasAsciiNexusDataWriter()
         
         if (Finder.getInstance().find("metashop") != None):
@@ -293,47 +292,7 @@ class Map(Scan):
         self.d7b(att2.getSelectedPosition())
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
         
-        self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
-        
-    #def redefineNexusMetadataForMaps(self, beanGroup):
-        #from gda.data.scan.datawriter import NexusFileMetadata
-        #from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
-        
-     #   jython_mapper = JythonNameSpaceMapping()
-        
-     #   if (LocalProperties.get("gda.mode") == 'dummy'):
-     #       return
-        
-        #NexusExtraMetadataDataWriter.removeAllMetadataEntries()
-        
-        # primary slits
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s1ygap", str(jython_mapper.s1ygap()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "primary_slits"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s1xgap", str(jython_mapper.s1xgap()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "primary_slits"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s1ypos", str(jython_mapper.s1ypos()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "primary_slits"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s1xpos", str(jython_mapper.s1xpos()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "primary_slits"))
-    
-        # secondary slits
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s2ygap", str(jython_mapper.s2ygap()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "secondary_slits"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s2xgap", str(jython_mapper.s2xgap()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "secondary_slits"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s2ypos", str(jython_mapper.s2ypos()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "secondary_slits"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s2xpos", str(jython_mapper.s2xpos()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "secondary_slits"))
-    
-        # post DCM slits
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s3ygap", str(jython_mapper.s3ygap()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "postDCM_slits"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s3xgap", str(jython_mapper.s3xgap()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "postDCM_slits"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s3ypos", str(jython_mapper.s3ypos()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "postDCM_slits"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s3xpos", str(jython_mapper.s3xpos()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "postDCM_slits"))
-        
-        # Sample Stage
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_z", str(jython_mapper.sc_sample_z()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_thetacoarse", str(jython_mapper.sc_sample_thetacoarse()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_thetafine", str(jython_mapper.sc_sample_thetafine()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
-    
-        # attenuators
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7A", str(jython_mapper.D7A()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7B", str(jython_mapper.D7B()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
-    
-        #NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("energy", str(jython_mapper.energy()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXmonochromator, "DCM_energy"))
+        self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")      
  
     def getDetectors(self, detectorBean, scanBean):
         expt_type = detectorBean.getExperimentType()
