@@ -65,13 +65,13 @@ import uk.ac.gda.util.CorrectionUtils;
 
 public class XmapBufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector {
 
-	NexusXmap xmap;
+	private NexusXmap xmap;
 	private XmapFileLoader fileLoader;
 	private static final Logger logger = LoggerFactory.getLogger(XmapBufferedDetector.class);
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = false;
 	private DAServer daServer;
-	EDXDMappingController controller;
+	private EDXDMappingController controller;
 	private boolean isSlave = true;
 	private String daServerName;
 	private int lastScanNumber = 0;
@@ -134,14 +134,16 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			logger.error("Error getting HDF filename", e);
 		}
 		if (fileName != null && isStillWriting(fileName))
-			return -1;
+			return 0;  // nothing available yet until file written and closed
 		// wait for another second to file to be closed
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			logger.error("Error performing sleep", e);
 		}
-		return continuousParameters.getNumberDataPoints();
+		// for Xmap, as data written to file and not accessible during data collection,
+		// return the total number of pixels only at the end of the scan i.e. file has been written to
+		return controller.getPixelsPerRun();
 	}
 
 	@Override
@@ -168,16 +170,15 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		try {
 			if (lastFileName == null && !lastFileReadStatus) {
 				lastFileName = this.controller.getHDFFileName();
-
+				
 				waitForFile();
-				//added wed 31st jul 2013 as now need to stop before reading h5 file. don't know why this is the case
-				xmap.stop();
-				//sleep required for gda to recognise number of arrays has finalized.
-//				Thread.sleep(1000);
-				// change to linux format
+				// 11/3/14 experiment
+//				Thread.sleep(2000); // I have put this in just in case there is a delay fully writing the file, but I do
+									// not think this is the problem
+
 				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
 				lastFileName = lastFileName.replace("X:/", "/dls/" + beamline);
-								
+
 				waitForFileToBeReadable();
 
 				createFileLoader();
@@ -190,20 +191,21 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 					Thread.sleep(5000);
 					fileLoader = null;
 					createFileLoader();
-					fileLoader.loadFile();  // let this throw its exception to surrounding catch
+					fileLoader.loadFile(); // let this throw its exception to surrounding catch
 				}
 				lastFileReadStatus = true;
-			} 
-			
+			}
+
 			int numOfPointsInFile = fileLoader.getNumberOfDataPoints();
 			int numPointsToRead = finalFrame - startFrame + 1;
-			
+
 			if (numOfPointsInFile < numPointsToRead) {
-				String msg = "Xmap data file "+ lastFileName +  " only has " + numOfPointsInFile + " data point but expected at least " + numPointsToRead;
+				String msg = "Xmap data file " + lastFileName + " only has " + numOfPointsInFile
+						+ " data point but expected at least " + numPointsToRead;
 				logger.error(msg);
-				throw new DeviceException( msg);
+				throw new DeviceException(msg);
 			}
-			
+
 			NexusTreeProvider[] container = new NexusTreeProvider[numPointsToRead];
 			for (int i = 0; i < numPointsToRead; i++) {
 				container[i] = writeToNexusFile(i, fileLoader.getData(i));
@@ -228,16 +230,16 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			int timeout = 5000; // ms
 			int timeWaited = 0; // ms
 			int waitTime = 500; // ms
-			
+
 			// first wait until the file can be seen on the filesystem
 			File existsTest = new File(lastFileName);
-			while (!existsTest.exists() && timeWaited < timeout){
+			while (!existsTest.exists() && timeWaited < timeout) {
 				Thread.sleep(waitTime);
 				timeWaited += waitTime;
 			}
-			
-			// then keep trying to read from it, as it may still being read to 
-			while(true && timeWaited < timeout) {
+
+			// then keep trying to read from it, as it may still being read to
+			while (true && timeWaited < timeout) {
 				try {
 					// if get here then it at leasts exists
 					BufferedInputStream fileTester = new BufferedInputStream(new FileInputStream(lastFileName));
@@ -255,14 +257,16 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 					timeWaited += waitTime;
 				}
 			}
-			
-			throw new DeviceException("Too many attempts / timeout while waiting for XMAP HDF5 file to be readable - " + lastFileName);
+
+			throw new DeviceException("Too many attempts / timeout while waiting for XMAP HDF5 file to be readable - "
+					+ lastFileName);
 		} catch (InterruptedException e) {
-			throw new InterruptedException("InterruptedException while waiting for XMAP HDF5 file to be readable - " + lastFileName);
+			throw new InterruptedException("InterruptedException while waiting for XMAP HDF5 file to be readable - "
+					+ lastFileName);
 		}
 	}
 
-	private void createFileLoader() throws  Exception {
+	private void createFileLoader() throws Exception {
 		if (controller.isBufferedArrayPort())
 			fileLoader = new XmapBufferedHdf5FileLoader(lastFileName);
 		else
@@ -311,7 +315,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
-		return false;  // no, as this returns data in the readFrames method
+		return false; // no, as this returns data in the readFrames method
 	}
 
 	@Override
@@ -384,8 +388,18 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	}
 
 	@Override
+	public String[] getInputNames() {
+		return xmap.getInputNames();
+	}
+	
+	@Override
 	public String[] getExtraNames() {
 		return xmap.getExtraNames();
+	}
+
+	@Override
+	public String[] getOutputFormat() {
+		return xmap.getOutputFormat();
 	}
 
 	private void setupFilename() throws Exception {
@@ -421,7 +435,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			if (!directoryExists) {
 				throw new DeviceException("Failed to create temporary directory to place Xmap HDF5 files: " + dataDir);
 			}
-			
+
 			// set 777 perms to ensure detector account
 			Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
 			perms.add(PosixFilePermission.OWNER_READ);
@@ -443,16 +457,25 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		try {
 			setupFilename();
 			controller.resetCounters();
+			
 			int numberOfPointsPerScan = continuousParameters.getNumberDataPoints();
-			//This has a -1 for b18 and not for i18. Need to figure out why.
+			// This has a -1 for b18. This is because the B18 Position Compare does not send the first
+			// pulse and so the first data point is always missed
+			if (LocalProperties.get("gda.factory.factoryName").equalsIgnoreCase("b18")){
+				numberOfPointsPerScan -= 1;
+			}
 			controller.setPixelsPerRun(numberOfPointsPerScan);
-			//
 			controller.setAutoPixelsPerBuffer(true);
-			int buffPerRow = (numberOfPointsPerScan) / 124 + 1;
+			
+			// in Xmap, each buffer holds 124 points and we have to also tell it the number of buffers to expect
+			int buffPerRow = Math.round(numberOfPointsPerScan / 124);
+			if (numberOfPointsPerScan % 124 != 0) {
+				buffPerRow++;
+			}
+			
 			controller.setHdfNumCapture(buffPerRow);
 			controller.startRecording();
 		} catch (Exception e) {
-
 			logger.error("Error occurred arming the xmap detector", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
 		}
@@ -468,7 +491,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		// FIXME should this really be extending DetectorBase???
-		return null;  // cannot act as a regular detector, buffered detector only.  
+		return null; // cannot act as a regular detector, buffered detector only.
 	}
 
 	public boolean isStillWriting(String fileName) throws DeviceException {
@@ -519,10 +542,10 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			DetectorElement thisElement = this.xmap.vortexParameters.getDetectorList().get(element);
 			if (thisElement.isExcluded())
 				continue;
-			index ++;
-			
+			index++;
+
 			reducedData[index] = detectorData[element];
-			
+
 			final double ocr = getOCR(dataPointNumber, element);
 			ocrs[index] = ocr;
 			final double icr = getICR(dataPointNumber, element);
@@ -593,7 +616,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			index = -1;
 			for (int element = 0; element < originalNumberOfElements; element++) {
 				DetectorElement detElement = xmap.vortexParameters.getDetectorList().get(element);
-				if (detElement.isExcluded()) 
+				if (detElement.isExcluded())
 					continue;
 				index++;
 				String elementName = detElement.getName();
