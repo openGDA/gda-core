@@ -233,6 +233,11 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		 xmap.setValue(PIXELSPERRUN, "", number);
 	}
 	
+	public int getPixelsPerRun() throws DeviceException {
+		int number = (Integer) xmap.getValue(ReturnType.DBR_NATIVE, PIXELSPERRUN, "");
+		return number;
+	}
+	
 	//hdf5 commands
 	public void resetCounters() throws Exception {
 			hdf5.getPluginBase().setDroppedArrays(0);
