@@ -250,7 +250,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					if (normaliseElementIndex != -1 && normaliseElementIndex < scalerData.length)
 						normaliseValue = scalerData[normaliseElementIndex];
 					scalerValuesCache[dataPoint.getCurrentPointNumber()] = scalerData;
-					logger.debug("The rgb Line with scaler values is " + rgbLine.toString());
+//					logger.debug("The rgb Line with scaler values is " + rgbLine.toString());
 
 				} else if (dataObj instanceof NXDetectorData) {  // then this must be a fluorescence detector
 					// make the roiHeader once
@@ -344,8 +344,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 							}
 						}
 					}
-					logger.debug("The y value is " + xy[0]);
-					logger.debug("the x value is " + xy[1]);
+//					logger.debug("The y value is " + xy[0]);
+//					logger.debug("the x value is " + xy[1]);
 				}
 			}
 
