@@ -285,7 +285,7 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 				if (dbr.isENUM()) {
 					short index = ((DBR_Enum) dbr).getEnumValue()[0];
 					currentposition = positions.get(index);
-					logger.warn("Position of {}: {}", getName(), currentposition);
+					logger.debug("Position of {}: {}", getName(), currentposition);
 					notifyIObservers(currentposition);
 				} else {
 					logger.error("{} : ProfileListener expect Enum type but got {} type.", getName(), dbr.getType());
@@ -295,9 +295,9 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 	}
 
 	public void notifyIObservers(String position) {
-		logger.warn("{}: Notify observers of position changed to {}", getName(), position);
+		logger.info("{}: Notify observers of position changed to {}", getName(), position);
 		notifyIObservers(this, position);
-		logger.warn("{}: notify sent.", getName());
+		logger.info("{}: notify sent.", getName());
 	}
 
 	public String getEnableName() {
