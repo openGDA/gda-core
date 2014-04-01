@@ -65,13 +65,13 @@ import uk.ac.gda.util.CorrectionUtils;
 
 public class XmapBufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector {
 
-	NexusXmap xmap;
+	private NexusXmap xmap;
 	private XmapFileLoader fileLoader;
 	private static final Logger logger = LoggerFactory.getLogger(XmapBufferedDetector.class);
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = false;
 	private DAServer daServer;
-	EDXDMappingController controller;
+	private EDXDMappingController controller;
 	private boolean isSlave = true;
 	private String daServerName;
 	private int lastScanNumber = 0;
@@ -134,14 +134,16 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			logger.error("Error getting HDF filename", e);
 		}
 		if (fileName != null && isStillWriting(fileName))
-			return -1;
+			return 0;  // nothing available yet until file written and closed
 		// wait for another second to file to be closed
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			logger.error("Error performing sleep", e);
 		}
-		return continuousParameters.getNumberDataPoints();
+		// for Xmap, as data written to file and not accessible during data collection,
+		// return the total number of pixels only at the end of the scan i.e. file has been written to
+		return controller.getPixelsPerRun();
 	}
 
 	@Override
@@ -170,10 +172,8 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				lastFileName = this.controller.getHDFFileName();
 
 				waitForFile();
-				//added wed 31st jul 2013 as now need to stop before reading h5 file. don't know why this is the case
-				xmap.stop();
-				//sleep required for gda to recognise number of arrays has finalized.
-//				Thread.sleep(1000);
+				//TODO can this be removed now that waitForFile() working?
+//				xmap.stop();
 				// change to linux format
 				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
 				lastFileName = lastFileName.replace("X:/", "/dls/" + beamline);
@@ -454,11 +454,15 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			setupFilename();
 			controller.resetCounters();
 			int numberOfPointsPerScan = continuousParameters.getNumberDataPoints();
-			//This has a -1 for b18 and not for i18. Need to figure out why.
 			controller.setPixelsPerRun(numberOfPointsPerScan);
 			//
 			controller.setAutoPixelsPerBuffer(true);
-			int buffPerRow = (numberOfPointsPerScan) / 124 + 1;
+			
+			int buffPerRow = Math.round(numberOfPointsPerScan / 124);
+			if (numberOfPointsPerScan % 124 != 0){
+				buffPerRow++;
+			}
+			
 			controller.setHdfNumCapture(buffPerRow);
 			controller.startRecording();
 		} catch (Exception e) {

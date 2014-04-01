@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -38,13 +38,21 @@ public class ScanPositionsTwoWay implements ScanPositionProvider {
 		int numberSteps = ScannableUtils.getNumberSteps(firstScannable, this.start, this.stop, this.step);
 		this.points = new double[numberSteps + 1];
 		this.points[0] = start;
-		double previousPoint = start;
 		double nextPoint = start;
-		for (int i = 1; i <= numberSteps; i++) {
-			nextPoint = (Double) ScannableUtils.calculateNextPoint(previousPoint, this.step);
+		for (int i = 0; i <= numberSteps; i++) {
 			this.points[i] = nextPoint;
-			previousPoint = nextPoint;
+			nextPoint += step;
 		}
+
+		// give some run-up to the first point. It seems that the trajectory scanning system seems
+		// to expect the ScanPositionProvider to account for this, so this class should be doing this.
+		if (start < stop) {
+			this.points[0] -= step;
+		} else {
+			this.points[0] += step;
+		}
+		// this assumes that the step size is > the motor dead zone which seems reasonable
+
 		this.forward = false;
 	}
 
