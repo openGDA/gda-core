@@ -89,19 +89,19 @@ public class XspressAcquire extends Acquire {
 		
 		Group grpAcquire = new Group(parent, SWT.NONE);
 		grpAcquire.setText("Acquire Spectra");
-		grpAcquire.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+		grpAcquire.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		grpAcquire.setLayout(gridLayout);
 		
 		Composite acquire = new Composite(grpAcquire, SWT.NONE);
 		GridLayout gridLayoutAcq = new GridLayout();
-		gridLayoutAcq.numColumns = 5;
+		gridLayoutAcq.numColumns = 1;
 		gridLayoutAcq.marginWidth = 0;
 		acquire.setLayout(gridLayoutAcq);
 		
 		loadBtn = new Button(acquire, SWT.NONE);
-		loadBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 5, 1));
+		loadBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
 		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/folder.png"));
 		loadBtn.setText("Load Saved mca");
 		openDialog = new FileDialog(acquire.getShell(), SWT.OPEN);
@@ -117,12 +117,12 @@ public class XspressAcquire extends Acquire {
 		acquireTime.setValue(1000);
 		acquireTime.setMaximum(50000);
 		acquireTime.setUnit("ms");
-		acquireTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		acquireTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
 		autoSave = new Button(acquire, SWT.CHECK);
 		autoSave.setText("Save on Acquire");
 		autoSave.setSelection(LocalProperties.check("gda.detectors.save.single.acquire"));
-		autoSave.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
+		autoSave.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		autoSave.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -141,9 +141,9 @@ public class XspressAcquire extends Acquire {
 
 		acquireFileLabel.setText("									                                                    	                                                                        ");
 		acquireFileLabel.setToolTipText("The file path for the acquire data");
-		GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, false);
-		gridData.horizontalSpan=6;
-		acquireFileLabel.setLayoutData(gridData);
+//		GridData gridData = new GridData(SWT.LEFT, SWT.TOP, true, false);
+//		gridData.horizontalSpan=1;
+//		acquireFileLabel.setLayoutData(gridData);
 		
 		this.counts = counts;
 		xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());

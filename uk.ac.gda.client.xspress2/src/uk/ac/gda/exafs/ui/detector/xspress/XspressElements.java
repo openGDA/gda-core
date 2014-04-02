@@ -66,7 +66,7 @@ public class XspressElements extends Elements{
 		super(shell, sashPlotFormComposite, counts);
 		Composite grid = new Composite(parent, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(grid);
-		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(grid);
+		//GridDataFactory.fillDefaults().span(1, 1).grab(false, false).applyTo(grid);
 		
 		showIndividualElements = new BooleanWrapper(grid, SWT.NONE);
 		showIndividualElements.setText("Show individual elements");
@@ -75,7 +75,7 @@ public class XspressElements extends Elements{
 		
 		Composite middleComposite = new Composite(grid, SWT.BORDER);
 		middleComposite.setLayout(new GridLayout(2, false));
-		GridDataFactory.fillDefaults().applyTo(middleComposite);
+		//GridDataFactory.fillDefaults().applyTo(middleComposite);
 		
 		applyToAllCheckbox = new Button(middleComposite, SWT.CHECK);
 		applyToAllCheckbox.setText("Apply Changes To All Elements ");

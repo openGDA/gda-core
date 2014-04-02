@@ -89,7 +89,7 @@ public class Xspress extends Detector{
 		Composite topComposite = new Composite(left, SWT.NONE);
 		topComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		GridLayout gridLayout_1 = new GridLayout();
-		gridLayout_1.numColumns = 2;
+		gridLayout_1.numColumns = 1;
 		topComposite.setLayout(gridLayout_1);
 		resolutionGrade = new ResolutionGrade(topComposite);
 		readoutMode = new ReadoutMode(topComposite);
