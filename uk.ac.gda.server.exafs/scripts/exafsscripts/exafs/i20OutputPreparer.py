@@ -3,30 +3,26 @@ from metadata import Metadata
 from gda.configuration.properties import LocalProperties
 from gda.scan import ScanPlotSettings
 from uk.ac.gda.beans import BeansFactory
-from uk.ac.gda.beans.exafs import XesScanParameters
-from gdascripts.metadata.metadata_commands import meta_clear_alldynamical,meta_rm, meta_add
+from uk.ac.gda.beans.exafs import XesScanParameters,XasScanParameters,XanesScanParameters
+from gdascripts.metadata.metadata_commands import meta_clear_alldynamical, meta_rm, meta_add
 from gda.factory import Finder
-print "Before NexusDataWriter"
 from gda.data.scan.datawriter import NexusDataWriter
-print "Before SingleScannableWriter"
-from gda.data.scan.datawriter.scannablewriter import SingleScannableWriter
-print "After SingleScannableWriter"
-from java.util import HashSet  
-#from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
-#from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
-#from gda.data.scan.datawriter import NexusFileMetadata
-#from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
-   
+from java.util import HashSet 
+# from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+# from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+# from gda.data.scan.datawriter import NexusFileMetadata
+# from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
+        
 class I20OutputPreparer:
     
     def __init__(self, datawriterconfig, datawriterconfig_xes):
         self.jython_mapper = JythonNameSpaceMapping()
         self.datawriterconfig = datawriterconfig
         self.datawriterconfig_xes = datawriterconfig_xes
-
+        self.meta=Metadata(self.datawriterconfig)
+        
     def prepare(self, outputParameters, scanBean):
-
-        #NexusExtraMetadataDataWriter.removeAllMetadataEntries();
+        # NexusExtraMetadataDataWriter.removeAllMetadataEntries();
         self.redefineNexusMetadata(scanBean)
         self.jython_mapper.ionchambers.setOutputLogValues(True) 
         # Custom for I20, which is why it is here instead of the shared DetectorConfiguration.java classes.
@@ -43,7 +39,7 @@ class I20OutputPreparer:
     # If this returns None, then let the Ascii Data Writer class find the config for itself.
     #
     def getAsciiDataWriterConfig(self, scanBean):
-        if (isinstance(scanBean,XesScanParameters)):
+        if (isinstance(scanBean, XesScanParameters)):
             # will return None if not found
             print "Ascii (.dat) files will have XES format header."
             return self.datawriterconfig_xes
@@ -52,44 +48,46 @@ class I20OutputPreparer:
             print "Ascii (.dat) files will have XAS format header."
             return self.datawriterconfig
 
-    def _resetHeader(self,scanBean):
-        original_header = self.getAsciiDataWriterConfig(scanBean).getHeader()[:]
-        self.getAsciiDataWriterConfig(scanBean).setHeader(original_header)
-        meta_clear_alldynamical()
-
-    def redefineNexusMetadata(self,scanBean):
-        #XES mode just need information of I1 Stanford amplifiers and four filters for attenuator 5 
-        #clear all metadata linked to stanford_amplifiers and attenuator 5 (filter5 ... filter8) in the two list of 
-        #NexusDataWriter (LocationMap and MetaScannableList) 
-        addListXes = ["i1_stanford_offset_current","i1_stanford_offset","i1_stanford_offset_units","i1_stanford_sensitivity",
-                      "i1_stanford_sensitivity_units"]
-        addListXas = ["atn5_filter5_name","atn5_filter5","atn5_filter6_name","atn5_filter6","atn5_filter7_name","atn5_filter7",
-                       "atn5_filter8_name","atn5_filter8","i0_stanford_offset_current","i0_stanford_offset","i0_stanford_offset_units",
-                       "i0_stanford_sensitivity","i0_stanford_sensitivity_units","iref_stanford_offset_current","iref_stanford_offset",
-                       "iref_stanford_offset_units","iref_stanford_sensitivity","iref_stanford_sensitivity_units","it_stanford_offset_current",
-                       "it_stanford_offset","it_stanford_offset_units","it_stanford_sensitivity","it_stanford_sensitivity_units"]
-        removeList = addListXes + addListXas
-        finder = Finder.getInstance()
-       
-        if (len(removeList)!=0):
-            for i in range(len(removeList)):
-                scannable=finder.find(removeList[i])
-                if scannable is not None:
-                    meta_rm(scannable)
-             
-                    
+    #def _resetHeader(self, scanBean):
+     #   original_header = self.getAsciiDataWriterConfig(scanBean).getHeader()[:]
+     #   self.getAsciiDataWriterConfig(scanBean).setHeader(original_header)
+     #   meta_clear_alldynamical()
+        
+    def _resetNexusStaticMetadataList(self):
+        self.meta.removeNexusMetadataList(self.getXasNexusMetadataList() + self.getXesNexusMetadataList())   
+    
+    def redefineNexusMetadata(self, scanBean):
+        # XES mode just need information of I1 Stanford amplifiers and four filters for attenuator 5 
+        # clear all metadata linked to stanford_amplifiers and attenuator 5 (filter5 ... filter8) in the two list of 
+        # NexusDataWriter (LocationMap and MetaScannableList) 
+        addListXes = self.getXesNexusMetadataList()
+        addListXas = self.getXasNexusMetadataList()
+        
+        self.meta.removeNexusMetadataList(addListXes + addListXas)               
         # add metadata specific to xes or xas 
-        if (isinstance(scanBean,XesScanParameters)):
+        addList=[]
+        if (isinstance(scanBean, XesScanParameters)):
             addList = addListXes
-        else:
+        elif isinstance(scanBean,XasScanParameters) or isinstance(scanBean,XanesScanParameters):
             addList = addListXas
-            
-        if (len(addList)!=0):
-            for i in range(len(addList)):
-                scannable=finder.find(addList[i])
-                if scannable is not None:
-                    meta_add(scannable)
-                  
+       
+        
+        self.meta.addNexusMetadataList(addList)
+                    
+                    
+    def getXasNexusMetadataList(self):
+        addListXas = ["atn5_filter5_name", "atn5_filter5", "atn5_filter6_name", "atn5_filter6", "atn5_filter7_name", "atn5_filter7",
+                       "atn5_filter8_name", "atn5_filter8", "i0_stanford_offset_current", "i0_stanford_offset", "i0_stanford_offset_units",
+                       "i0_stanford_sensitivity", "i0_stanford_sensitivity_units", "iref_stanford_offset_current", "iref_stanford_offset",
+                       "iref_stanford_offset_units", "iref_stanford_sensitivity", "iref_stanford_sensitivity_units", "it_stanford_offset_current",
+                       "it_stanford_offset", "it_stanford_offset_units", "it_stanford_sensitivity", "it_stanford_sensitivity_units"]
+        return addListXas
+
+    def getXesNexusMetadataList(self):       
+        addListXes = ["i1_stanford_offset_current", "i1_stanford_offset", "i1_stanford_offset_units", "i1_stanford_sensitivity",
+                      "i1_stanford_sensitivity_units"]
+        return addListXes         
+    
     #
     # For any specific plotting requirements based on all the options in this experiment
     #
