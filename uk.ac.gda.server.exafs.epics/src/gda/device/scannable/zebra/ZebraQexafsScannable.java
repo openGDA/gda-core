@@ -18,13 +18,17 @@
 
 package gda.device.scannable.zebra;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
+import gda.util.QuantityFactory;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+
+import org.jscience.physics.quantities.Angle;
+import org.jscience.physics.units.NonSI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Zebra-specific parts of the Qexafs movement
@@ -35,6 +39,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	private String armTrigSourcePV = "BL18B-OP-DCM-01:ZEBRA:PC_ARM_SEL";
 	private String armPV = "BL18B-OP-DCM-01:ZEBRA:PC_ARM";
+	private String disarmPV = "BL18B-OP-DCM-01:ZEBRA:PC_DISARM";
 
 	private String gateTrigSourcePV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_SEL";
 	private String gateStartPV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_START";
@@ -51,6 +56,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	private Channel armTrigSourceChnl;
 	private Channel armChnl;
+	private Channel disarmChnl;
 	private Channel gateTrigSourceChnl;
 	private Channel gateStartChnl;
 	private Channel gateWidthChnl;
@@ -69,6 +75,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		try {
 			armTrigSourceChnl = channelManager.createChannel(armTrigSourcePV, false);
 			armChnl = channelManager.createChannel(armPV, false);
+			disarmChnl = channelManager.createChannel(disarmPV, false);
 			gateTrigSourceChnl = channelManager.createChannel(gateTrigSourcePV, false);
 			gateStartChnl = channelManager.createChannel(gateStartPV, false);
 			gateWidthChnl = channelManager.createChannel(gateWidthPV, false);
@@ -79,6 +86,8 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			pulseStepChnl = channelManager.createChannel(pulseStepPV, false);
 			positionTrigChnl = channelManager.createChannel(positionTrigPV, false);
 			positionDirectionChnl = channelManager.createChannel(positionDirectionPV, false);
+
+			channelManager.creationPhaseCompleted();
 
 		} catch (CAException e) {
 			throw new FactoryException("CAException while creating channels for " + getName(), e);
@@ -121,22 +130,23 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			// TODO tidy up and move Strings to constants 
 
 			// fixed settings
-			controller.caputWait(armTrigSourceChnl, "Soft");
-			controller.caputWait(gateTrigSourceChnl, "Position");
-			controller.caputWait(numGatesChnl, 1);
-			controller.caputWait(pulseTrigSourceChnl, "Position");
-			controller.caputWait(pulseStartChnl, 0.0);
-			controller.caputWait(pulseWidthChnl, 0.0020);
-			controller.caputWait(positionTrigChnl, "Position");
+			controller.caput(armTrigSourceChnl, "Soft");
+			controller.caput(gateTrigSourceChnl, "Position");
+			controller.caput(numGatesChnl, 1);
+			controller.caput(pulseTrigSourceChnl, "Position");
+			controller.caput(pulseStartChnl, 0.0);
+			controller.caput(pulseWidthChnl, 0.0020);
+			controller.caput(positionTrigChnl, "Enc1");
 
 			// variable settings
-			Double startDeg = radToDeg(startAngle);
-			Double stopDeg = radToDeg(endAngle);
-			Double stepDeg = radToDeg(stepSize);
+			double startDeg = radToDeg(startAngle);
+			double stopDeg = radToDeg(endAngle);
+			double stepDeg = radToDeg(stepSize);
+			double width = Math.abs(stopDeg - startDeg);
 			String positionDirection = stopDeg > startDeg ? "Positive" : "Negative";
-			controller.caputWait(gateStartChnl, startDeg);
-			controller.caputWait(gateWidthChnl, Math.abs(stopDeg - stepDeg));
-			controller.caputWait(pulseStepChnl, stepDeg);
+			controller.caput(gateStartChnl, startDeg);
+			controller.caput(gateWidthChnl, width);
+			controller.caput(pulseStepChnl, stepDeg);
 			controller.caputWait(positionDirectionChnl, positionDirection);
 
 			long timeAtMethodEnd = System.currentTimeMillis();
@@ -166,7 +176,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 						logger.info("-----waiting for qscanAxis to finish moving inside perform before starting scanning. after goto runup");
 						Thread.sleep(100);
 					}
-					controller.caputWait(currentSpeedChnl, desiredSpeed);
+					controller.caput(currentSpeedChnl, desiredSpeed);
 				} else {
 					logger.info("Continuous motion for " + getName()
 							+ " greater than Bragg maximum speed. Speed will be set instead to the max imum speed of "
@@ -174,7 +184,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				}
 
 				// prepare zebra to send pulses
-				controller.caputWait(armChnl, 1);
+				controller.caput(armChnl, 1);
 
 				// do the move asynchronously to this thread
 				if (runDownOn) {
@@ -196,18 +206,47 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		long timeAtMethodStart = System.currentTimeMillis();
 		// return to regular running values
 		resetDCMSpeed();
+		try {
+			controller.caput(disarmChnl, 1);
+		} catch (CAException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
 		long timeAtMethodEnd = System.currentTimeMillis();
 		logger.debug("Time spent in continuousMoveComplete = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 	}
 
 	@Override
 	public double calculateEnergy(int frameIndex) throws DeviceException {
-		Double startDeg = radToDeg(startAngle);
-		if (endAngle.getAmount() < startAngle.getAmount()) {
-			startDeg = radToDeg(endAngle);
+		double startDeg = radToDeg(startAngle);
+		double stopDeg = radToDeg(endAngle);
+		double stepDeg = radToDeg(stepSize);
+		
+		double diff = (frameIndex * stepDeg) + (0.5 * stepDeg);
+		
+		double thisAngle = startDeg - diff;
+		// if going down in energy, so up in angle, then want to add to startDeg
+		if (startDeg < stopDeg){
+			thisAngle = startDeg + diff;
 		}
-		Double stepDeg = radToDeg(stepSize);
-		return startDeg + (frameIndex * stepDeg) + (0.5 * stepDeg);
+		
+		try {
+			Angle angleInDeg = (Angle) QuantityFactory.createFromObject(thisAngle, NonSI.DEGREE_ANGLE);
+			return angleToEV(angleInDeg);
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		} catch (CAException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
+		return 0.0;
 	}
 
 }
