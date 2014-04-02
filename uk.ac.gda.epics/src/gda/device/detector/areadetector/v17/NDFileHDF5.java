@@ -154,7 +154,5 @@ public interface NDFileHDF5 {
 	 */
 	void setBoundaryAlign(int boundaryAlign) throws Exception;
 	int getBoundaryAlign() throws Exception;
-
-	NDPluginBase getPluginBase();
 	
 }

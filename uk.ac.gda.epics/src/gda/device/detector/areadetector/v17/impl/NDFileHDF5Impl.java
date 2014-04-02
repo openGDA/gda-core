@@ -1010,11 +1010,4 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 		}
 		return EPICS_CONTROLLER.cagetInt(getChannel(BoundaryAlign_RBV));
 	}
-
-	@Override
-	public NDPluginBase getPluginBase() {
-		return getFile().getPluginBase();
-	}
-
-
 }
