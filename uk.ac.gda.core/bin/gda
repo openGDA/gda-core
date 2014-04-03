@@ -237,7 +237,7 @@ where task can be:
 		group.add_option("--restart", dest="restart", action="store_true", help="restart the process; equivalent to --stop --start (default)")
 		group.add_option("--start", dest="start", action="store_true", help="start the process")
 		group.add_option("--stop", dest="stop", action="store_true", help="stop the process")
-		group.add_option("--stoppg", dest="stoppg", action="store_true", help="stop the process group")
+		
 		self.parser.add_option_group(group)
 
 		group = OptionGroup(self.parser, "What to run")
@@ -390,16 +390,13 @@ where task can be:
 				sys.exit(1)
 
 		# if start/stop/restart not specified, default is to restart
-		if self.options.start == None and self.options.stop == None and self.options.stoppg == None and self.options.restart == None:
+		if self.options.start == None and self.options.stop == None and self.options.restart == None:
 			self.options.restart = True
 
 		# restart implies stop and start
 		if self.options.restart:
 			self.options.start = self.options.stop = True
 
-		# stoppg implies stop
-		if self.options.stoppg:
-			self.options.stop = True
 
 		if self.options.version:
 			return
@@ -927,16 +924,10 @@ where task can be:
 				pids= self.getpids(grep_phrases)
 				for pid in pids:
 					if self.options.verbose:
-						if self.options.stoppg:
-							print "About to kill process group %d (for process %d) with signal %d" % (os.getpgid(pid), pid, sig)
-						else:
-							print "About to kill process %d with signal %d" % (pid, sig)
+						print "About to kill process %d with signal %d" % (pid, sig)
 					if not self.options.dry_run:
 						try:
-							if self.options.stoppg:
-								os.killpg(os.getpgid(pid), sig)
-							else:
-								os.kill(pid, sig)
+							os.kill(pid, sig)
 						except:
 							type, exception, traceback = sys.exc_info()
 							print "Exception raised when trying to kill process %s. %s" % (pid, exception)
