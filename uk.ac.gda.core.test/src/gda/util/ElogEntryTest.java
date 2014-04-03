@@ -178,8 +178,8 @@ public class ElogEntryTest {
 		logID = "OPR",
 		groupID = "DA",
 		userID = "gda",
-		title = "java multipart try - should fail",
-		content = "please ignore - should fail due to invalid file names";
+		title = "java multipart try - no images",
+		content = "please ignore - should be post with no images";
 		
 		try {
 			ElogEntry.post(title, content,userID, visit, logID, groupID, null);
@@ -206,5 +206,28 @@ public class ElogEntryTest {
 
 		ElogEntry.postAsyn(title, content,userID, visit, logID, groupID, fileLocations);
 		Sleep.sleep(1000);
+	}
+	
+	@Test
+	public void testElogEntryNonStaticOK() {
+		String
+		visit = "aa34bg",
+		logID = "OPR",
+		groupID = "DA",
+		userID = "gda",
+		title = "java multipart posting non-static post";
+		
+		try {
+			ElogEntry log = new ElogEntry(title, userID, visit, logID, groupID);
+			log.addText("Please ignore this string");
+			log.addText(new String[] {"and this one", "this one as well"});
+			log.addHtml("<p>This html should be ignored</p>");
+			log.addHtml(new String[] {"<p>list of <em>ignored</em> html strings</p>", "<p> as Above</p>"});
+			log.addImage(testfile1, "Caption of test1");
+			log.addImage(testfile2);
+			log.post();
+		} catch (ELogEntryException e) {
+			fail("Non static post should be successful");
+		}
 	}
 }
