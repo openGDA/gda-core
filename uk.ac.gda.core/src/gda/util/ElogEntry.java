@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -287,19 +288,60 @@ public class ElogEntry {
 	 *            The image file names with path to upload
 	 * @throws ELogEntryException
 	 */
-	public static void post(String title, String content, String userID,
-			String visit, String logID, String groupID,
+	public static void post(String title, String content, String userID, String visit, String logID, String groupID,
 			String[] fileLocations) throws ELogEntryException {
-
-		ElogEntry log = new ElogEntry(title, userID, visit, logID, groupID);
-		
-		log.addText(content);
-		if (fileLocations != null) {
-			for (String file : fileLocations) {
-				log.addImage(file);
+		String targetURL = POST_UPLOAD_URL;
+		try {
+			String entryType = "41";// entry type is always a log (41)
+			String titleForPost = visit == null ? title : "Visit: " + visit + " - " + title;
+			
+			MultipartEntityBuilder request = MultipartEntityBuilder.create()
+					.addTextBody("txtTITLE", titleForPost)
+					.addTextBody("txtCONTENT", content)
+					.addTextBody("txtLOGBOOKID", logID)
+					.addTextBody("txtGROUPID", groupID)
+					.addTextBody("txtENTRYTYPEID", entryType)
+					.addTextBody("txtUSERID", userID);
+			
+			if(fileLocations != null){
+				for (int i = 1; i < fileLocations.length + 1; i++) {
+					File targetFile = new File(fileLocations[i - 1]);
+					request = request.addBinaryBody("userfile" + i,
+							targetFile,
+							ContentType.create("image/png"),
+							targetFile.getName());
+				}
 			}
+			
+			HttpEntity entity = request.build();
+			targetURL  = LocalProperties.get("gda.elog.targeturl", POST_UPLOAD_URL);
+			HttpPost httpPost = new HttpPost(targetURL);
+			httpPost.setEntity(entity);
+			CloseableHttpClient httpClient = HttpClients.createDefault();
+			CloseableHttpResponse response = httpClient.execute(httpPost);
+			
+			try {
+				String responseString = EntityUtils.toString(response.getEntity());
+				System.out.println(responseString);
+				if (!responseString.contains("New Log Entry ID")) {
+					throw new ELogEntryException("Upload failed, status=" + response.getStatusLine().getStatusCode()
+						+ " response="+responseString
+						+ " targetURL = " + targetURL
+						+ " titleForPost = " + titleForPost
+						+ " logID = " + logID
+						+ " groupID = " + groupID
+						+ " entryType = " + entryType
+						+ " userID = " + userID);
+				}
+			} finally {
+				response.close();
+				httpClient.close();
+			}
+		} catch (ELogEntryException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ELogEntryException("Error in ELogger.  Database:" + targetURL, e);
 		}
-		log.post();
 	}
 
 	/**
