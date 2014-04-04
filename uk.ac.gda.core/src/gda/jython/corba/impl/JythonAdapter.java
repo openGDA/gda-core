@@ -46,6 +46,7 @@ import org.omg.CORBA.TRANSIENT;
 import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * A client side implementation of the adapter pattern for the Jython class
@@ -328,6 +329,26 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		terminal = anIObserver;
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
+				logger.info("JSFIdentifier = " + StringUtils.quote(JSFIdentifier));
+				logger.info("hostName = " + StringUtils.quote(hostName));
+				logger.info("username = " + StringUtils.quote(username));
+				logger.info("fullname = " + StringUtils.quote(fullname));
+				logger.info("visitID = " + StringUtils.quote(visitID));
+				if (JSFIdentifier == null) {
+					JSFIdentifier = "";
+				}
+				if (hostName == null) {
+					hostName = "";
+				}
+				if (username == null) {
+					username = "";
+				}
+				if (fullname == null) {
+					fullname = "";
+				}
+				if (visitID == null) {
+					visitID = "";
+				}
 				return jythonServer.addFacade(JSFIdentifier, hostName, username, fullname, visitID);
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
