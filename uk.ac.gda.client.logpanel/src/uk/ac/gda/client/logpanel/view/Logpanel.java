@@ -32,6 +32,7 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ITableColorProvider;
+import org.eclipse.jface.viewers.ITableFontProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -43,6 +44,8 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -105,7 +108,7 @@ public class Logpanel extends Composite {
 	private Color warnForeground = display.getSystemColor(SWT.COLOR_BLACK);
 	private Color warnBackground = display.getSystemColor(SWT.COLOR_YELLOW);
 
-	private class ILoggingEventLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
+	private class ILoggingEventLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider, ITableFontProvider {
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			ILoggingEvent loggingEvent = (ILoggingEvent) element;
@@ -138,6 +141,10 @@ public class Logpanel extends Composite {
 			else if (level == Level.ERROR)
 				return errorBackground;
 			return null;
+		}
+		@Override
+		public Font getFont(Object element, int columnIndex) {
+			return MONOSPACE;
 		}
 	}
 
@@ -183,12 +190,27 @@ public class Logpanel extends Composite {
 
 	private MatchingFilter filter;
 
+	public static final Font MONOSPACE = new Font(Display.getDefault(), new FontData("Monospace", 10, SWT.NORMAL));
+
+	protected Font font = MONOSPACE;
+	public Font getFont() {
+		return font;
+	}
+	public void setFont(Font font) {
+		this.font = font;
+	}
+	public void setFont(String name, int size) {
+		FontData data = new FontData(name, size, SWT.NORMAL);
+		setFont(new Font(display, data));
+	}
+
 	public Logpanel(Composite parent, int style) {
 		super(parent, style);
 
 		connectToLogServer();
 
 		final Text filterText = new Text(this, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL);
+		filterText.setFont(getFont());
 		filterText.setMessage("Matching ...");
 		filterText.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent keyEvent) {
@@ -312,7 +334,7 @@ public class Logpanel extends Composite {
 		loggingEventsAppender.start();
 		logpanelContext.start();
 
-		logger.info("Receiving from log server {}:{}", logServerHost, logServerOutPort);
+//		logger.info("Receiving from log server {}:{}", logServerHost, logServerOutPort);
 	}
 
 }
