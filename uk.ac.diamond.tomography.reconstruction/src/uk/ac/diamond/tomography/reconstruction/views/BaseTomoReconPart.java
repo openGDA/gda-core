@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.tomography.reconstruction.views;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -32,6 +30,7 @@ import org.eclipse.ui.part.ViewPart;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 public abstract class BaseTomoReconPart extends ViewPart {
 

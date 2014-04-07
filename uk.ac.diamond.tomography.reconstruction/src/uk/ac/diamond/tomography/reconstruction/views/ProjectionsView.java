@@ -17,8 +17,6 @@
  */
 package uk.ac.diamond.tomography.reconstruction.views;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import org.dawnsci.common.widgets.stepper.IStepperSelectionListener;
 import org.dawnsci.common.widgets.stepper.Stepper;
 import org.dawnsci.common.widgets.stepper.StepperChangedEvent;
@@ -72,6 +70,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
