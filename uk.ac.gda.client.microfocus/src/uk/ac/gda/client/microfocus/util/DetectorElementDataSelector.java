@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.analysis.io.ScanFileHolderException;
 import gda.data.nexus.GdaNexusFile;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -36,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 public class DetectorElementDataSelector {
 	private INexusTree mainTree;

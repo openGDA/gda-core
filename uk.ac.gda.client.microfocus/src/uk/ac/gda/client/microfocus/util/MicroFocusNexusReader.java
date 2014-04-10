@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.analysis.io.ScanFileHolderException;
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -33,9 +32,10 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 
