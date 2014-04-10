@@ -16,7 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import gda.analysis.io.ScanFileHolderException;
 import gda.data.nexus.tree.INexusTree;
 
 import java.io.File;
@@ -36,6 +35,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.rcp.nexus.NexusTreeExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.util.NexusUtils;
 

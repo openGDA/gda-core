@@ -62,9 +62,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
@@ -100,7 +102,7 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 	private DataSetPlotView   dataSetPlotView;
 	private SliceComponent    sliceComponent;
 	private AbstractPlotWindow        plotWindow;
-	private DataHolder        cachedDataHolder;
+	private IDataHolder       cachedDataHolder;
 	private PlotServerConnection plotServerConnection;
 	private Text              point;
 	private Composite         pointControls;
@@ -401,7 +403,7 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 	@Override
 	public AbstractDataset getDataSet(String name, IMonitor monitor) {
 		createCachedData(monitor);
-		return cachedDataHolder.getDataset(name);
+		return DatasetUtils.convertToAbstractDataset(cachedDataHolder.getDataset(name));
 	}
 
 

@@ -16,8 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views.nexus;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -94,6 +92,7 @@ import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
@@ -104,6 +103,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.util.SDAUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.gda.ui.modifiers.DoubleClickModifier;
+
 import com.swtdesigner.ResourceManager;
 
 /**

@@ -24,7 +24,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.SliceObject;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.SliceUtils;
@@ -49,7 +49,7 @@ public class SliceTest {
 		currentSlice.setX(0);
 		currentSlice.setY(1);
 		
-		final DataHolder   dh = LoaderFactory.getData(currentSlice.getPath());
+		final IDataHolder   dh = LoaderFactory.getData(currentSlice.getPath());
 		final ILazyDataset lz = dh.getLazyDataset(currentSlice.getName());
 		final IDataset  slice = lz.getSlice(currentSlice.getSliceStart(), currentSlice.getSliceStop(), currentSlice.getSliceStep());
 		AbstractDataset       trans = DatasetUtils.transpose(slice, new int[]{0, 1, 2});
@@ -80,7 +80,7 @@ public class SliceTest {
 		currentSlice.setX(0);
 		currentSlice.setY(1);
 
-		final DataHolder   dh = LoaderFactory.getData(currentSlice.getPath());
+		final IDataHolder   dh = LoaderFactory.getData(currentSlice.getPath());
 		final ILazyDataset lz = dh.getLazyDataset(currentSlice.getName());
 		final IDataset  slice = lz.getSlice(currentSlice.getSliceStart(), currentSlice.getSliceStop(), currentSlice.getSliceStep());
 		AbstractDataset       trans = DatasetUtils.transpose(slice, new int[]{0, 1, 2});
@@ -113,7 +113,7 @@ public class SliceTest {
 		currentSlice.setX(1);
 		currentSlice.setY(2);
 
-		final DataHolder   dh = LoaderFactory.getData(currentSlice.getPath());
+		final IDataHolder   dh = LoaderFactory.getData(currentSlice.getPath());
 		final ILazyDataset lz = dh.getLazyDataset(currentSlice.getName());
 		final IDataset  slice = lz.getSlice(currentSlice.getSliceStart(), currentSlice.getSliceStop(), currentSlice.getSliceStep());
 		AbstractDataset       trans = DatasetUtils.transpose(slice, new int[]{0, 1, 2});

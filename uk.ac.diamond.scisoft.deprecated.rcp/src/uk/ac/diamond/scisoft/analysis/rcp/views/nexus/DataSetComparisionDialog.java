@@ -46,7 +46,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.Metadata;
@@ -177,7 +177,7 @@ public class DataSetComparisionDialog extends Dialog {
 			final IMetaData     data    = LoaderFactory.getMetaData(path, new ProgressMonitorWrapper(monitor));
 			Collection<String>  names   = data != null ? data.getDataNames() : null;
 			if (names == null)  {
-				final DataHolder dh = LoaderFactory.getData(path, new ProgressMonitorWrapper(monitor));
+				final IDataHolder dh = LoaderFactory.getData(path, new ProgressMonitorWrapper(monitor));
 				names = dh != null ? dh.toLazyMap().keySet() : null;
 			}
 			SortingUtils.removeIgnoredNames(names,ignored);
