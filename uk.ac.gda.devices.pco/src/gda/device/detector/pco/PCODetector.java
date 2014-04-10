@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.gda.devices.pco.LiveModeUtil;
@@ -818,9 +818,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 						}
 						try {
 
-							AbstractFileLoader loader = LoaderFactory.getLoader(TIFFImageLoader.class, imageFileName);
-							DataHolder dataHolder = loader.loadFile();
-							AbstractDataset dataset = dataHolder.getDataset(0);
+							IFileLoader loader = LoaderFactory.getLoader(TIFFImageLoader.class, imageFileName);
+							IDataHolder dataHolder = loader.loadFile();
+							IDataset dataset = dataHolder.getDataset(0);
 							if (dataset != null) {
 								dataset.setMetadata(null);
 								SDAPlotter.imagePlot(getPlotName(), dataset);
