@@ -18,8 +18,6 @@
 
 package uk.ac.gda.analysis.hdf5;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import java.util.Arrays;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
@@ -27,6 +25,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.ILazyLoader;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 
 /*

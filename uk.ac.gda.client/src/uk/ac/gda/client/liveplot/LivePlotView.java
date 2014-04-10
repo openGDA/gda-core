@@ -19,7 +19,6 @@
 package uk.ac.gda.client.liveplot;
 
 import gda.analysis.ScanFileHolder;
-import gda.analysis.io.IFileLoader;
 import gda.data.PathConstructor;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.jython.IAllScanDataPointsObserver;
@@ -77,6 +76,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.io.IFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
