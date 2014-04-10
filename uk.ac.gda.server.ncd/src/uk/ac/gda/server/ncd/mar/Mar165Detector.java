@@ -18,7 +18,6 @@
 
 package uk.ac.gda.server.ncd.mar;
 
-import gda.analysis.io.ScanFileHolderException;
 import gda.data.PathConstructor;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -39,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.MARLoader;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  * Controls the MarCCD Mosaic detector.
