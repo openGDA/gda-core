@@ -1,6 +1,6 @@
 
-from gda.analysis.io import JPEGLoader, TIFFImageLoader, ScanFileHolderException
-from uk.ac.diamond.scisoft.analysis.io import PilatusEdfLoader
+from gda.analysis.io import JPEGLoader, TIFFImageLoader
+from uk.ac.diamond.scisoft.analysis.io import PilatusEdfLoader, ScanFileHolderException
 try:
 	from gda.analysis.io import ConvertedTIFFImageLoader 
 except ImportError:
