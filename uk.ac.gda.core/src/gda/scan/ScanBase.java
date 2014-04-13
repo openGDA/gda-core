@@ -79,7 +79,7 @@ public abstract class ScanBase implements Scan {
 	private static final String GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END = "gda.scan.clearInterruptAtScanEnd";
 	
 	private static boolean clearInterruptedAtScanEnd() {
-		return LocalProperties.check(GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END,true);
+		return LocalProperties.check(GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END,false);
 	}
 	
 
