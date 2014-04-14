@@ -385,6 +385,6 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	}
 	@Override
 	public boolean requiresAsynchronousPlugins() {
-		return true;
+		return true; //there is no synchronisation between this collection strategy and reading of the data in to the areaDetector plugins
 	}
 }
