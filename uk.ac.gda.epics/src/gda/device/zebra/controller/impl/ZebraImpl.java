@@ -207,14 +207,14 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public void pcArm() throws Exception {
-		dev.getPVInteger(PCArm).putWait(1);
-/*		dev.getPVInteger(PCArm).putNoWait(1);
+//		dev.getPVInteger(PCArm).putWait(1);
+		dev.getPVInteger(PCArm).putNoWait(1);
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 		}
-*/	}
+	}
 
 	@Override
 	public void pcDisarm() throws Exception {
