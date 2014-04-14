@@ -32,7 +32,12 @@ public interface ADDriverPco {
 		/**
 		 * In External Pulse the exposure length is controlled by the hardware trigger
 		 */
-		EXTERNAL_PULSE
+		EXTERNAL_PULSE,
+		
+		/**
+		 * External trigger only
+		 */
+		EXTERNAL_ONLY
 	}
 
 	PV<Boolean> getArmModePV();
