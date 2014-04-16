@@ -31,6 +31,7 @@ import org.eclipse.core.databinding.property.Properties;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableFontProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -61,6 +62,8 @@ import ch.qos.logback.classic.net.SocketReceiver;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.AppenderBase;
+
+import org.eclipse.swt.dnd.DND;
 
 public class Logpanel extends Composite {
 
@@ -97,6 +100,17 @@ public class Logpanel extends Composite {
 				scrollLockChecked = isChecked;
 			}
 		});
+	}
+
+	public List<String> getSelectedMessageStrings() {
+		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+		List<String> selectedMessageStrings = new LinkedList<String>();
+		for (Object element : selection.toList()) {
+			ILoggingEvent loggingEvent = (ILoggingEvent) element;
+			String string = applyPatternLayout(loggingEvent);
+			selectedMessageStrings.add(string);
+		}
+		return selectedMessageStrings;
 	}
 
 	final Display display = getDisplay();

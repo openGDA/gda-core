@@ -60,16 +60,23 @@
             allPopups="false"
             locationURI="toolbar:uk.ac.gda.client.logpanel.view">
          <command
-               commandId="uk.ac.gda.client.logpanel.commands.clear"
-               icon="icons/console_clear.gif"
+               commandId="uk.ac.gda.client.logpanel.commands.copy"
+               icon="icons/copy_edit_on.gif"
+               label="Copy"
                style="push"
-               tooltip="Clear Log">
+               tooltip="Copy selected message to system clipboard">
          </command>
          <command
                commandId="uk.ac.gda.client.logpanel.commands.scrollLock"
                icon="icons/scroll_lock.gif"
                style="toggle"
                tooltip="Scroll Lock">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.logpanel.commands.clear"
+               icon="icons/console_clear.gif"
+               style="push"
+               tooltip="Clear Log">
          </command>
       </menuContribution>
 <!--
@@ -116,6 +123,13 @@
                class="org.eclipse.jface.commands.ToggleState"
                id="uk.ac.gda.client.logpanel.commands.scrollLock.toggleState">
          </state>
+      </command>
+      <command
+            categoryId="uk.ac.gda.client.categories.diagnostics.logpanel.commands"
+            defaultHandler="uk.ac.gda.client.logpanel.commands.CopyToClipboardHandler"
+            description="Copy selected messages to system clipboard"
+            id="uk.ac.gda.client.logpanel.commands.copy"
+            name="Copy">
       </command>
    </extension>
 
