@@ -18,35 +18,93 @@
 
 package uk.ac.gda.client.logpanel.view;
 
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.IHandler;
+import org.eclipse.core.databinding.observable.list.IListChangeListener;
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.observable.list.ListChangeEvent;
 import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.handlers.IHandlerActivation;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
-public class LogpanelView extends ViewPart {
+import uk.ac.gda.client.logpanel.commands.CopyToClipboardHandler;
 
+public class LogpanelView extends ViewPart {
+	
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "uk.ac.gda.client.logpanel.view";
-
-	private Logpanel logpanel;
-
+	
+	protected Logpanel logpanel;
 	public Logpanel getLogpanel() {
 		return logpanel;
 	}
-
+	
+	protected IStatusLineManager statusLineManager;
+	public IStatusLineManager getStatusLineManager() {
+		return statusLineManager;
+	}
+	
 	@Override
 	public void createPartControl(Composite parent) {
 		logpanel = new Logpanel(parent, SWT.NONE);
-
-		IStatusLineManager manager = getViewSite().getActionBars().getStatusLineManager();
-		manager.setMessage(String.format("Configured to receive messages from log server %s:%d", logpanel.getLogServerHost(), logpanel.getLogServerOutPort())); 
+		
+		setupStatusLine();
+		
+		setupCommandActivationAndDeactivationHandlers();
 	}
-
+	
+	protected void setupStatusLine() {
+		statusLineManager = getViewSite().getActionBars().getStatusLineManager();
+		statusLineManager.setMessage(String.format("Configured to receive messages from log server %s", getLogpanel().getLogServerAddress()));
+		
+		final IObservableList input = logpanel.getInput();
+		input.addListChangeListener(new IListChangeListener() {
+			@Override
+			public void handleListChange(ListChangeEvent event) {
+				// if list changed/added to then we are actually receiving
+				if (event.getObservableList().size() > 0) {
+					statusLineManager.setMessage(String.format("Receiving from log server %s", logpanel.getLogServerAddress()));
+					input.removeListChangeListener(this);
+				}
+			}
+		});
+	}
+	
+	protected void setupCommandActivationAndDeactivationHandlers() {
+		// activate/deactivate Copy command depending on whether any log messages are selected or not
+		ICommandService commandService = (ICommandService) getSite().getService(ICommandService.class);	// or PlatformUI.getWorkbench().getService(ICommandService.class);
+		final String copyCommandId = CopyToClipboardHandler.ID;
+		Command copyCommand = commandService.getCommand(copyCommandId);
+		IHandler copyCommandHandler = copyCommand.getHandler();
+		final IHandlerService handlerService = (IHandlerService) getSite().getService(IHandlerService.class);	// or PlatformUI.getWorkbench().getService(IHandlerService.class);
+		final IHandlerActivation copyCommandHandlerActivation = handlerService.activateHandler(copyCommandId, copyCommandHandler);
+		handlerService.deactivateHandler(copyCommandHandlerActivation);
+		getLogpanel().getViewer().addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+				if (selection.size() > 0){
+					handlerService.activateHandler(copyCommandHandlerActivation);	// or handlerService.activateHandler(copyCommandId, command.getHandler());
+				}
+				else {
+					handlerService.deactivateHandler(copyCommandHandlerActivation);
+				}
+			}
+		});
+	}
+	
 	@Override
 	public void setFocus() {
 		logpanel.setFocus();
 	}
-
+	
 }
