@@ -41,7 +41,7 @@ public class LogpanelView extends ViewPart {
 		logpanel = new Logpanel(parent, SWT.NONE);
 
 		IStatusLineManager manager = getViewSite().getActionBars().getStatusLineManager();
-		manager.setMessage(String.format("Receiving from log server %s:%d", logpanel.getLogServerHost(), logpanel.getLogServerOutPort())); 
+		manager.setMessage(String.format("Configured to receive messages from log server %s:%d", logpanel.getLogServerHost(), logpanel.getLogServerOutPort())); 
 	}
 
 	@Override
