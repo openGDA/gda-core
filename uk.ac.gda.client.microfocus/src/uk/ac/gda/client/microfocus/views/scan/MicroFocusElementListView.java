@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.microfocus.views.scan;
 
-import gda.analysis.io.ScanFileHolderException;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Finder;
 import gda.jython.scriptcontroller.Scriptcontroller;
@@ -57,6 +56,7 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
