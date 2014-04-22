@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.logpanel.view;
 
+import java.util.List;
+
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.databinding.observable.list.IListChangeListener;
@@ -34,6 +36,7 @@ import org.eclipse.ui.handlers.IHandlerActivation;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import uk.ac.gda.client.logpanel.commands.CopyToClipboardHandler;
 
 public class LogpanelView extends ViewPart {
@@ -68,13 +71,21 @@ public class LogpanelView extends ViewPart {
 		
 		final IObservableList input = logpanel.getInput();
 		input.addListChangeListener(new IListChangeListener() {
+			final boolean setStatusMessageToLastEventMessageFirstLine = true; //TODO make parameter?
 			@Override
 			public void handleListChange(ListChangeEvent event) {
-				// if list changed/added to then we are actually receiving
-				if (event.getObservableList().size() > 0) {
-					statusLineManager.setMessage(String.format("Receiving from log server %s", logpanel.getLogServerAddress()));
-					input.removeListChangeListener(this);
+				@SuppressWarnings("unchecked")
+				List<ILoggingEvent> list = (List<ILoggingEvent>) event.getObservableList();
+				// if new list added to at least once then we are actually receiving
+				if (list.size() > 0 && setStatusMessageToLastEventMessageFirstLine) {
+					statusLineManager.setMessage("Latest: "+logpanel.getLatestMessageFirstLine());
 				}
+//				else if (size == 1) {
+//					statusLineManager.setMessage(String.format("Receiving from log server %s", logpanel.getLogServerAddress()));
+					if (!setStatusMessageToLastEventMessageFirstLine) {
+						input.removeListChangeListener(this);
+					}
+//				}
 			}
 		});
 	}

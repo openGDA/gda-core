@@ -23,7 +23,6 @@ import gda.util.logging.LogbackUtils;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -57,6 +56,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ import ch.qos.logback.core.AppenderBase;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.collect.EvictingQueue;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -238,22 +238,50 @@ public class Logpanel extends Composite {
 		return ImmutableList.copyOf(Lists.transform(getSelectedLoggingEvents(), layoutMessage));
 	}
 	
-	protected static Joiner newLineJoiner = Joiner.on('\n');
-//	protected static Joiner ellipsesLineJoiner = Joiner.on("\n...\n"); //TODO should not put ellipses between adjacent logging events
+	private static final String NEW_LINE = System.getProperty("line.separator");
+	public static final Joiner newLineJoiner = Joiner.on(NEW_LINE);
+	public static final Splitter newLineSplitter = Splitter.on(NEW_LINE); // used by LogpanelView
 	
 	private Joiner messageJoiner = newLineJoiner;
-//	public Joiner getMessageJoiner() {
-//		return messageJoiner;
-//	}
+	public Joiner getMessageJoiner() {
+		return messageJoiner;
+	}
 	public void setMessageJoiner(Joiner messageJoiner) {
 		this.messageJoiner = messageJoiner;
 	}
 	
 	protected static boolean appendNewLineToJoined = true;
 	
-	public String getSelectedMessages(Joiner messageJoiner) {
-		return messageJoiner.join(getSelectedMessages()) + (appendNewLineToJoined ? '\n' : "");
+	public String getSelectedMessagesJoined(Joiner messageJoiner) {
+		return messageJoiner.join(getSelectedMessages()) + (appendNewLineToJoined ? NEW_LINE : "");
 	}
+	
+	protected static boolean appendNewLineToLatest = true;
+	
+	public String getLatestMessage() {
+		String latestMessage = layoutMessage(loggingEvents.get(loggingEvents.size()-1)).trim();
+		if (appendNewLineToLatest) {
+			return latestMessage + NEW_LINE;
+		}
+		else {
+			return latestMessage;
+		}
+	}
+	
+	public String getLatestMessageFirstLine() {
+		List<String> lines = newLineSplitter.splitToList(getLatestMessage());
+		return lines.get(0);
+	}
+	
+	
+	/**
+	 * Convenience method using current joiner
+	 */
+	public String getSelectedMessagesJoined() {
+		return getSelectedMessagesJoined(messageJoiner);
+	}
+	
+	//TODO public String getSelectedLoggingEventMessagesStringWithInterveningEllipses() {} // should only put ellipses between non-sequential logging events so can't use Joiner.on("\n...\n")
 	
 	//TODO public String getSelectedLoggingEventMessagesStringWithInterveningCounted() {}
 	
@@ -276,10 +304,10 @@ public class Logpanel extends Composite {
 	 * Convenience method
 	 */
 	public boolean copySelectedMessagesToClipboard(Joiner messageJoiner) {
-		return copyToClipboard(getSelectedMessages(messageJoiner));
+		return copyToClipboard(getSelectedMessagesJoined(messageJoiner));
 	}
 	/**
-	 * Convenience method using default joiner
+	 * Convenience method using current joiner
 	 */
 	public boolean copySelectedMessagesToClipboard() {
 		return copySelectedMessagesToClipboard(messageJoiner);
@@ -292,14 +320,12 @@ public class Logpanel extends Composite {
 	 * Maximum size to which loggingEvents is allowed to grow before eviction 
 	 * of earliest events occurs.
 	 */
-	protected static int maxSize = 12345; //TODO uninformed guess
+	protected static int maxSize = 12345; //TODO uninformed guess ~ Windows XP widget possibly 10,000
 
 	/**
 	 * Collection of logging events received since connectToLogServer ran for the first time.
 	 */
-	private List<ILoggingEvent> loggingEvents = new LinkedList<ILoggingEvent>(); //TODO restore?
-//	private Deque<ILoggingEvent> loggingEvents = new ArrayDeque<ILoggingEvent>(maxSize); //TODO remove?
-//	private Queue<ILoggingEvent> loggingEvents = EvictingQueue.create(maxSize);	// http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/collect/EvictingQueue.html
+	private List<ILoggingEvent> loggingEvents = new LinkedList<ILoggingEvent>();
 	
 	/**
 	 * Bridge between logging events buffer and viewer in GUI
@@ -315,7 +341,6 @@ public class Logpanel extends Composite {
 		}
 		input.add(loggingEvent);
 	}
-	
 	
 	
 	// widgets 
@@ -443,19 +468,18 @@ public class Logpanel extends Composite {
 	private MatchingFilter filter;
 	
 	
-	/**
-	 * Construct GUI
-	 * @param parent
-	 * @param style
-	 */
 	public Logpanel(Composite parent, int style) {
 		super(parent, style);
 		
 		connectToLogServer();
 		
+		
+		Label filterLabel = new Label(this, SWT.NONE);
+		filterLabel.setText("Filter:");
+		
 		final Text filterText = new Text(this, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL);
 		filterText.setFont(getFont());
-		filterText.setMessage("Matching ...");
+		filterText.setMessage("... matching ...");
 		filterText.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent keyEvent) {
 				filter.setMatching(filterText.getText());
@@ -468,25 +492,35 @@ public class Logpanel extends Composite {
 		viewer.setLabelProvider(new ILoggingEventLabelProvider());
 		viewer.setContentProvider(new ObservableListContentProvider());
 		viewer.setUseHashlookup(true); //TODO test for possible speedup and increased memory usage
-		viewer.setInput(input); 
+		viewer.setInput(input);
 		
 		filter = new MatchingFilter();
 		viewer.addFilter(filter);
 		
+		
+		// copy selection to X buffer when Copy command not explicitly invocation by user
+		// do not copy to clipboard automatically as this can overwrite it's contents
+		final Text invisibleSelectionText = new Text(this, SWT.READ_ONLY);
+		// widget must be visible and not .exclude(true) to enable automatic copying to X cut buffer
+		GridDataFactory.swtDefaults().span(3, 1).hint(0, 0).applyTo(invisibleSelectionText);
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				if (selection.size() > 0){
-					// do not copy automatically as this can overwrite clipboard contents //copySelectedMessagesToClipboard();
-					//TODO ideally copy selection to X buffer when Copy command not explicitly invocation by user
+					String selectedMessagesJoined = getSelectedMessagesJoined();
+					invisibleSelectionText.setText(selectedMessagesJoined);
+					invisibleSelectionText.setSelection(0,selectedMessagesJoined.length());
 				}
 			}
 		}); 
 		
+		
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(this);
-		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(filterText);
+		GridDataFactory.swtDefaults().span(1, 1).applyTo(filterLabel);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(filterText);
 		GridDataFactory.fillDefaults().span(3, 1).grab(true, true).applyTo(viewer.getControl());
+		
 		
 		// former controls supplanted by command buttons in LogpanelView toolbar
 		// methods still useful for other Composites embedding Logpanel 
@@ -510,7 +544,7 @@ public class Logpanel extends Composite {
 		});
 		return scrollLockCheckBox;
 	}
-
+	
 	public Button createClearButton(Composite parent) {
 		Button clearButton = new Button(parent, SWT.PUSH);
 		clearButton.setText("Clear");
@@ -524,5 +558,16 @@ public class Logpanel extends Composite {
 	}
 	
 	//TODO public Button createCopyButton(Composite parent) {}
+	public Button createCopyButton(Composite parent) {
+		Button clearButton = new Button(parent, SWT.PUSH);
+		clearButton.setText("Clear");
+		clearButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				input.clear();
+			}
+		});
+		return clearButton;
+	}
 	
 }
