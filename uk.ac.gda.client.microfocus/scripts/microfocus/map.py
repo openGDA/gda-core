@@ -230,15 +230,17 @@ class Map(Scan):
             beam = command_server.getFromJythonNamespace("beam", None)
             detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
             trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-            topupMonitor.setPauseBeforePoint(True)
-            topupMonitor.setCollectionTime(collectionTime)
             
             topupMonitor.setPauseBeforePoint(True)
+            topupMonitor.setCollectionTime(collectionTime)
             topupMonitor.setPauseBeforeLine(False)
     
             beam.setPauseBeforePoint(True)
-            beam.setPauseBeforePoint(True)
             beam.setPauseBeforeLine(True)
+            
+            if self.beamEnabled :
+                self.finder.find("command_server").addDefault(beam);
+                beam.setPauseBeforePoint(False)
             
             if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
                 #self.finder.find("command_server").addDefault(detectorFillingMonitor);
