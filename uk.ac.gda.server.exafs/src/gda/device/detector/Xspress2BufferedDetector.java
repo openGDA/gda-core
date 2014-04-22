@@ -72,6 +72,16 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	public String[] getExtraNames() {
 		return xspress2system.getExtraNames();
 	}
+	
+	@Override
+	public String[] getInputNames() {
+		return xspress2system.getInputNames();
+	}
+	
+	@Override
+	public String[] getOutputFormat() {
+		return xspress2system.getOutputFormat();
+	}
 
 	@Override
 	public void clearMemory() throws DeviceException {
