@@ -89,16 +89,6 @@ class QexafsScan(Scan):
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
             
-                if (LocalProperties.get("gda.mode") == 'live'):
-                    if self.beamCheck==True:
-                        feAbsPV = "FE18B-RS-ABSB-02:STA"
-                        feAbsStatus = int(CAClient().caget(feAbsPV))
-                        print "feAbsStatus=",feAbsStatus
-                        while feAbsStatus!=1 and self.beamCheck==True:
-                            feAbsStatus = int(CAClient().caget(feAbsPV))
-                            print "Checking whether front end absorber is open. Currently "+str(feAbsStatus)
-                            sleep(2)
-            
                 current_energy = self.energy_scannable();
                 dist_to_init = math.fabs(initial_energy - current_energy)
                 dist_to_final = math.fabs(final_energy - current_energy)
