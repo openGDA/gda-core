@@ -38,7 +38,10 @@ class I18DetectorPreparer:
 
     def completeCollection(self):
         # this will be called at the end of a loop of scans, or after an abort
-        pass
+        command_server = self.finder.find("command_server")
+        detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
+        if detectorFillingMonitor != None:
+            self.finder.find("command_server").removeDefault(detectorFillingMonitor);
 
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
