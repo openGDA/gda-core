@@ -59,24 +59,36 @@
       <menuContribution
             allPopups="false"
             locationURI="toolbar:uk.ac.gda.client.logpanel.view">
+         <control
+               class="uk.ac.gda.client.logpanel.view.MinLogLevelCombo"
+               id="uk.ac.gda.client.logpanel.view.MinLogLevelCombo">
+         </control>
          <command
                commandId="uk.ac.gda.client.logpanel.commands.copy"
                icon="icons/copy_edit_on.gif"
                label="Copy"
+               mnemonic="C"
+               mode="FORCE_TEXT"
                style="push"
-               tooltip="Copy selected message to system clipboard">
-         </command>
-         <command
-               commandId="uk.ac.gda.client.logpanel.commands.scrollLock"
-               icon="icons/scroll_lock.gif"
-               style="toggle"
-               tooltip="Scroll Lock">
+               tooltip="Copy selected messages to system clipboard">
          </command>
          <command
                commandId="uk.ac.gda.client.logpanel.commands.clear"
                icon="icons/console_clear.gif"
+               label="Clear All"
+               mnemonic="l"
+               mode="FORCE_TEXT"
                style="push"
-               tooltip="Clear Log">
+               tooltip="Remove old logging messages">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.logpanel.commands.scrollLock"
+               icon="icons/scroll_lock.gif"
+               label="Scroll Lock"
+               mnemonic="S"
+               mode="FORCE_TEXT"
+               style="toggle"
+               tooltip="Prevent scrolling down as new messages are received">
          </command>
       </menuContribution>
 <!--

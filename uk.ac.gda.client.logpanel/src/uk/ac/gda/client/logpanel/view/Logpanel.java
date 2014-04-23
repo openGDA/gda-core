@@ -72,6 +72,8 @@ import ch.qos.logback.core.AppenderBase;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -465,7 +467,51 @@ public class Logpanel extends Composite {
 		}
 	};
 	
-	private MatchingFilter filter;
+	private MatchingFilter matchingFilter;
+	
+	
+	public static final BiMap<Level, String> LOG_LEVELS = ImmutableBiMap.<Level, String>of(
+			Level.ALL, "All", 
+			Level.DEBUG, "DEBUG", 
+			Level.INFO, "INFO", 
+			Level.WARN, "WARN", 
+			Level.ERROR, "ERROR");
+	
+	public static Level getLogLevel(String level) {
+		return LOG_LEVELS.inverse().get(level);
+	}
+	
+	public static String getLogLevelText(Level level) {
+		return LOG_LEVELS.get(level);
+	}
+	
+	private Level minLogLevel = Level.INFO;
+	
+	public Level getMinLogLevel() {
+		return minLogLevel;
+	}
+	
+	public void setMinLogLevel(Level level) {
+		if (!LOG_LEVELS.keySet().contains(level)) {
+			throw new IllegalArgumentException(LOG_LEVELS.get(level));
+		}
+		minLogLevel = level;
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				viewer.refresh();
+			}
+		});
+	}
+	
+	public class MinLogLevelFilter extends ViewerFilter {
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			return ((ILoggingEvent) element).getLevel().isGreaterOrEqual(minLogLevel) ? true : false;
+		}
+	};
+	
+	private MinLogLevelFilter minLogLevelFilter;
 	
 	
 	public Logpanel(Composite parent, int style) {
@@ -482,7 +528,7 @@ public class Logpanel extends Composite {
 		filterText.setMessage("... matching ...");
 		filterText.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent keyEvent) {
-				filter.setMatching(filterText.getText());
+				matchingFilter.setMatching(filterText.getText());
 				viewer.refresh();
 			}
 		});
@@ -494,8 +540,11 @@ public class Logpanel extends Composite {
 		viewer.setUseHashlookup(true); //TODO test for possible speedup and increased memory usage
 		viewer.setInput(input);
 		
-		filter = new MatchingFilter();
-		viewer.addFilter(filter);
+		matchingFilter = new MatchingFilter();
+		viewer.addFilter(matchingFilter);
+		
+		minLogLevelFilter = new MinLogLevelFilter();
+		viewer.addFilter(minLogLevelFilter);
 		
 		
 		// copy selection to X buffer when Copy command not explicitly invocation by user
