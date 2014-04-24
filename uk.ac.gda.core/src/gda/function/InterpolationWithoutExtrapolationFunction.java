@@ -30,14 +30,13 @@ public class InterpolationWithoutExtrapolationFunction extends InterpolationFunc
 
 	@Override
 	protected int[] calculateBeforeAfterPair(double x, boolean isAscending, boolean isDescending, double[] xValues, int numberOfXValues) {
-		System.out.println("InterpolationWithoutExtrapolationFunction");
 		int before, after;
 		if (isAscending) {
 			// ascending values in x
 			if (x < xValues[0] ) {
 				throw new IllegalArgumentException(String.format("Input value %.2f below accepted minimum %.2f", x, xValues[0]));
 			} else if (x > xValues[numberOfXValues - 1]) {
-				throw new IllegalArgumentException(String.format("Input value {0} above accepted maximum {1}", x, xValues[numberOfXValues - 1]));
+				throw new IllegalArgumentException(String.format("Input value %.2f above accepted maximum %.2f", x, xValues[numberOfXValues - 1]));
 			} else {
 				// Interpolate from the two surrounding xValues
 				for (before = 0, after = 1; before < numberOfXValues; before++, after++) {
