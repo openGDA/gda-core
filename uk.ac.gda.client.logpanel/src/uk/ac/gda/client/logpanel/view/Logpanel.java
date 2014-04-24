@@ -395,7 +395,7 @@ public class Logpanel extends Composite {
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			ILoggingEvent loggingEvent = (ILoggingEvent) element;
-			return layoutMessage(loggingEvent);
+			return layoutMessage(loggingEvent); //TODO collapse messages to first line by default, expanding individually on double-click
 		}
 		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
@@ -519,13 +519,30 @@ public class Logpanel extends Composite {
 		
 		connectToLogServer();
 		
+		// display copyable path to gda_server.log
+		String logsDir = LocalProperties.get(LocalProperties.GDA_LOGS_DIR);
+		if (logsDir != null) {
+			Composite logFileComposite = new Composite(this, SWT.NONE);
+			
+			Label logFileLabel = new Label(logFileComposite, SWT.NONE);
+			logFileLabel.setText("Highlights of:");
+			GridDataFactory.swtDefaults().applyTo(logFileLabel);
+			
+			final Text logFileText = new Text(logFileComposite, SWT.SINGLE | SWT.READ_ONLY);
+			logFileText.setText(logsDir + "/gda_server.log");
+			
+			GridDataFactory.swtDefaults().span(3, 1).applyTo(logFileComposite);
+			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(logFileComposite);
+			GridDataFactory.fillDefaults().applyTo(logFileText);
+		}
 		
+		// filter using substrings
 		Label filterLabel = new Label(this, SWT.NONE);
 		filterLabel.setText("Filter:");
 		
 		final Text filterText = new Text(this, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL);
 		filterText.setFont(getFont());
-		filterText.setMessage("... matching ...");
+		filterText.setMessage("*case-insensitive matches*");
 		filterText.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent keyEvent) {
 				matchingFilter.setMatching(filterText.getText());
@@ -534,6 +551,7 @@ public class Logpanel extends Composite {
 		});
 		filterText.setFocus();
 		
+		// table for log messages //TODO ListViewer
 		viewer = new TableViewer(this, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setLabelProvider(new ILoggingEventLabelProvider());
 		viewer.setContentProvider(new ObservableListContentProvider());
