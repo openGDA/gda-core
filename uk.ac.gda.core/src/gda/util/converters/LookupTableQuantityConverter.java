@@ -202,6 +202,10 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 		try {
 			return interpolateFunctionTtoS.evaluate(target);
 		} catch (Exception e) {
+			if (e instanceof IllegalArgumentException &&
+					e.getMessage().startsWith("Input value")) {
+				throw e;
+			}
 			throw new Exception(toString() + " - exception " + e.getMessage(), e);
 		}
 	}
@@ -222,6 +226,10 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 		try {
 			return interpolateFunctionStoT.evaluate(source);
 		} catch (Exception e) {
+			if (e instanceof IllegalArgumentException &&
+					e.getMessage().startsWith("Input value")) {
+				throw e;
+			}
 			throw new Exception(toString() + " - exception " + e.getMessage(), e);
 		}
 	}
