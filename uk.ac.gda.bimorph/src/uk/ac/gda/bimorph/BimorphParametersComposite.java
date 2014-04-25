@@ -330,7 +330,7 @@ public final class BimorphParametersComposite extends Composite {
 	private int determineCurrentScanFileNumber(){
 		int currentScanNumber = 0;
 		JythonServerFacade.getInstance().runCommand("from gda.data import NumTracker");
-		String scannumberProperty = JythonServerFacade.getInstance().evaluateCommand("LocalProperties.get(\"gda.scan.sets.scannumber\", \"False\")");
+		String scannumberProperty = JythonServerFacade.getInstance().evaluateCommand("LocalProperties.check(\"gda.scan.sets.scannumber\")");
 		//String scannumberProperty = LocalProperties.get("gda.scan.sets.scannumber", "False");
 		if(scannumberProperty.equals("True")){
 			try {
