@@ -47,7 +47,7 @@ public class SpringObjectServer extends ObjectServer {
 	
 	boolean allowExceptionInConfigure=LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
 
-	private ApplicationContext applicationContext;
+	private FileSystemXmlApplicationContext applicationContext;
 
 	/**
 	 * Creates an object server.
@@ -68,7 +68,10 @@ public class SpringObjectServer extends ObjectServer {
 	 */
 	public SpringObjectServer(File xmlFile, boolean localObjectsOnly) {
 		super(xmlFile, localObjectsOnly);
-		applicationContext = new FileSystemXmlApplicationContext("file:" + xmlFile.getAbsolutePath());
+		final String configLocation = "file:" + xmlFile.getAbsolutePath();
+		applicationContext = new FileSystemXmlApplicationContext(new String[] {configLocation}, false);
+		applicationContext.setAllowBeanDefinitionOverriding(false);
+		applicationContext.refresh();
 	}
 
 	@Override
