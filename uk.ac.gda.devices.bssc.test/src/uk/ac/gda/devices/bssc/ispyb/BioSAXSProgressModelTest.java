@@ -63,7 +63,7 @@ public class BioSAXSProgressModelTest {
 		model.clear();
 		iSpyBSAXSDataCollections = controller.getDataCollectionsFromISPyB();
 		List<ISAXSProgress> progressList = controller
-				.loadModel(iSpyBSAXSDataCollections);
+				.loadModelFromISpyB(iSpyBSAXSDataCollections);
 		model.addAll(progressList);
 	}
 
