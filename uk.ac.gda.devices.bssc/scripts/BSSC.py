@@ -204,8 +204,8 @@ class BSSCRun:
         self.reportProgress("Initialising");
         self.checkDevice()
         self.bssc.setSampleType("green")
-        self.reportProgress("Setting Storage Temperature")
-        self.setStorageTemperature()
+        #self.reportProgress("Setting Storage Temperature")
+        #self.setStorageTemperature()
         self.reportProgress("Performing Courtesy Cell Wash")
         self.bssc.setViscosityLevel("high")
         self.clean()
