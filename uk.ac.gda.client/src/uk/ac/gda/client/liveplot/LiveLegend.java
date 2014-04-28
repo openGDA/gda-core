@@ -26,6 +26,7 @@ import gda.plots.ScanTreeM;
 import gda.plots.Selected;
 import gda.plots.XYDataHandler;
 import gda.plots.XYDataHandlerLegend;
+import gda.rcp.GDAClientActivator;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -38,6 +39,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
@@ -58,20 +62,18 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.preferences.PreferenceConstants;
+
 import com.swtdesigner.SWTResourceManager;
 
-/**
- *
- */
 public class LiveLegend extends Composite implements XYDataHandlerLegend {
-
 	private static final String VISIBLE = "Visible";
-	@SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(XYDataHandlerLegend.class);
 	private ScanTree model;
 	private TreeViewer tv;
 	private CellEditor[] cellEditors;
-
+	private boolean autoHideNewScan = false;
+	private boolean autoHideLastScan = false;
+	
 	/**
 	 * @param parent
 	 * @param style
@@ -87,6 +89,22 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 		tv.setLabelProvider(new ScanTreeLabelProvider());
 		tv.setColumnProperties(new String[] { VISIBLE });
 		model = new ScanTree(new ScanTreeM(), simplePlot);
+		
+		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+		String hideScanThreshold = preferenceStore.getString(PreferenceConstants.HIDE_SCAN_THRESHOLD);
+		int hideScanThresholdVal = Integer.parseInt(hideScanThreshold);
+		model.setNumberOfScansBeforeHiding(hideScanThresholdVal);
+		
+		preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				String hideScanThreshold = event.getNewValue().toString();
+				int hideScanThresholdVal = Integer.parseInt(hideScanThreshold);
+				model.setNumberOfScansBeforeHiding(hideScanThresholdVal);
+			}
+		});
+		
 		tv.setInput(model); // pass a non-null that will be ignored
 		CheckboxCellEditor chk = new CheckboxCellEditor(tv.getTree());
 		cellEditors = new CellEditor[] { chk };
@@ -119,8 +137,6 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 
 		});
 	}
-
-	
 	
 	/**
 	 * @param node
@@ -129,9 +145,10 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	public void setSelectedFlag(DefaultMutableTreeNode node, boolean value){
 		if (node instanceof ISelectableNode) {
 			((ISelectableNode) node).setSelectedFlag(value);
-			model.valueForPathChanged(new TreePath(node.getPath()), node);		
+			model.valueForPathChanged(new TreePath(node.getPath()), node);
 		}
 	}
+	
 	/**
 	 * @param path
 	 * @param newValue
@@ -139,6 +156,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	public void valueForPathChanged(TreePath path, Object newValue){
 		model.valueForPathChanged(path, newValue);
 	}
+	
     /**
      * Returns the tree viewer which shows the resource hierarchy.
      * @return the tree viewer
@@ -147,7 +165,6 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
     public TreeViewer getTreeViewer() {
         return tv;
     }
-
 	
 	@Override
 	public void addScan(final String currentFilename, final String topGrouping, final String [] subGrouping, 
@@ -164,27 +181,26 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 						menuAutoCollapseTreeOnAdd, autoHideLastScan, autoHideNewScan, reloadLegendModel);
 			}
 		});
-
 	}
-
+	
 	/**
 	 * update the model to cause the legend to be re-displayed
 	 */
 	public void reload(){
 		model.reload();
 	}
+	
 	/**
 	 * remove the item from the tree whose filename equals the one specified
 	 * @param filename 
 	 */
-	public void removeScanGroup(String filename)
-	{
+	public void removeScanGroup(String filename){
 		model.removeScanGroup(filename);
 	}
+	
 	public void removeScanTreeObjects(Object []  selectedItems) {
 		model.removeScanTreeObjects(selectedItems);
-		
-	}	
+	}
 	
 	@Override
 	public void removeAllItems() {
@@ -201,8 +217,6 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 		super.dispose();
 	}
 
-	boolean autoHideNewScan = false;
-
 	/**
 	 * @param value
 	 *            True if new scans are to be hidden automatically
@@ -217,8 +231,6 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	public Boolean getAutoHideNewScan() {
 		return autoHideNewScan;
 	}
-
-	boolean autoHideLastScan = false;
 
 	/**
 	 * @param value
@@ -235,6 +247,14 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 		return autoHideLastScan;
 	}
 
+	public void setHideOldestScan(Boolean value){
+		model.setHideOldestScan(value);
+	}
+	
+	public boolean getHideOldestScan() {
+		return model.getHideOldestScan();
+	}
+	
 	/**
 	 * Hide all scans
 	 */
@@ -244,14 +264,10 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 		model.makeAllVisible(false);
 	}
 
-
-
 	@Override
 	public Vector<String> getNamesOfLinesInPreviousScan( boolean visibility) {
 		return model.getNamesOfLinesInPreviousScan(visibility);
 	}
-
-
 
 	public ScanTree getModel() {
 		return model;
@@ -262,11 +278,8 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 /**
  * This class provides the content for the tree in FileTree
  */
-
 class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener {
-
 	private static final Logger logger = LoggerFactory.getLogger(ScanTreeContentProvider.class);
-
 	private ScanTree tree;
 	private Viewer viewer;
 
@@ -283,7 +296,6 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 	@Override
 	public Object[] getChildren(Object parent) {
 		Vector<Object> children = new Vector<Object>();
-
 		for (int index = 0; index < tree.getChildCount(parent); index++) {
 			children.add(tree.getChild(parent, index));
 		}
@@ -374,7 +386,6 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 	public void treeNodesChanged(TreeModelEvent e) {
 		if (viewer != null)
 			viewer.refresh();
-
 	}
 
 	@Override
@@ -400,14 +411,11 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 /**
  * This class provides the labels for the file tree
  */
-
 class ScanTreeLabelProvider implements ILabelProvider, ITreePathLabelProvider {
 	// The listeners
-	private static final Image someSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class,
-			"/partialSelection.gif");
+	private static final Image someSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class, "/partialSelection.gif");
 	private static final Image allSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class, "/tick.png");
-	private static final Image noneSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class,
-			"/noSelection.gif");
+	private static final Image noneSelected = SWTResourceManager.getImage(ScanTreeLabelProvider.class, "/noSelection.gif");
 	private List<ILabelProviderListener> listeners;
 
 	/**
@@ -494,7 +502,6 @@ class ScanTreeLabelProvider implements ILabelProvider, ITreePathLabelProvider {
 
 	@Override
 	public void updateLabel(ViewerLabel label, org.eclipse.jface.viewers.TreePath elementPath) {
-
 		label.setText(getText(elementPath.getLastSegment()));
 		label.setImage(getImage(elementPath.getLastSegment()));
 		label.setForeground(getColor(elementPath.getLastSegment()));
@@ -502,5 +509,3 @@ class ScanTreeLabelProvider implements ILabelProvider, ITreePathLabelProvider {
 	}
 
 }
-
-

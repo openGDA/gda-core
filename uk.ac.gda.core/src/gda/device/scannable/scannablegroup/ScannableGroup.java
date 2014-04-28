@@ -253,7 +253,10 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 		// send out moves
 		for (int i = 0; i < groupMembers.size(); i++) {
-
+			// Don't try to move zero-input-extra name scannables
+			if ((groupMembers.get(i).getInputNames().length + groupMembers.get(i).getExtraNames().length) == 0) {
+				continue;
+			}
 			Double[] thisTarget = targets.get(i);
 			if (thisTarget.length == 1) {
 				if (targets.get(i)[0] != null) {
@@ -522,7 +525,20 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 			scannable.atLevelMoveStart();
 		}
 	}
+	@Override
+	public void atLevelStart() throws DeviceException {
+		for (Scannable scannable : groupMembers) {
+			scannable.atLevelStart();
+		}
+	}
+	@Override
+	public void atLevelEnd() throws DeviceException {
+		for (Scannable scannable : groupMembers) {
+			scannable.atLevelEnd();
+		}
+	}
 
+	
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		for (Scannable scannable : groupMembers) {

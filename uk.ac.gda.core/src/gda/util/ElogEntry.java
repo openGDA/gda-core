@@ -18,12 +18,14 @@
 
 package gda.util;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
-
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -32,20 +34,235 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Used to send ELog entries consisting of text and images to an ELog server.
- */
+import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.device.DeviceException;
+import gda.util.ELogEntryException;
+import uk.ac.gda.util.ThreadManager;
+
 public class ElogEntry {
-	static final String defaultURL = "http://rdb.pri.diamond.ac.uk/devl/php/elog/cs_logentryext_bl.php";
-	/**
-	 * logger that can be used for logging messages to go into eLog - needs to be selected in the logger config
-	 */
-	public static final Logger elogger = LoggerFactory.getLogger(ElogEntry.class);
 	
+	private static final String IMG_UPLOAD_URL = "http://rdb.pri.diamond.ac.uk/devl/php/elog/cs_logonlyimageupload_ext_bl.php";
+	private static final String POST_UPLOAD_URL = "http://rdb.pri.diamond.ac.uk/devl/php/elog/cs_logentryext_bl.php";
+	
+	private static final Logger elogger = LoggerFactory.getLogger(ElogEntry.class);
+	
+	private String targetPostURL;
+	private String imagePostURL;
+
+	//the html output to be posted - Stops post being buried in unknown html
+	private String startLine = "\n\n<!-- ==== Start of Elog Entry Content ==== -->\n";
+	private ArrayList<PostPart> parts;
+	private String endLine = "\n<!-- ==== End of Elog Entry Content ==== -->\n\n";
+
+	//parameters to be given as headers
+	private String title;
+	private String userID;
+	private String visit;
+	private String logID;
+	private String groupID;
+
+	public ElogEntry(String title, String userID, String visit, String logID,
+			String groupID) {
+		this.parts = new ArrayList<ElogEntry.PostPart>();
+		this.title = title;
+		this.userID = userID;
+		this.visit = visit;
+		this.logID = logID;
+		this.groupID = groupID;
+		this.targetPostURL  = LocalProperties.get("gda.elog.targeturl", POST_UPLOAD_URL);
+		this.imagePostURL = LocalProperties.get("gda.elog.imageurl", IMG_UPLOAD_URL);
+		
+	}
+
+	/**
+	 * Post eLog Entry
+	 */
+	public void post() throws ELogEntryException {
+
+		String entryType = "41";// entry type is always a log (41)
+
+		String titleForPost = visit == null ? title : "Visit: " + visit + " - " + title;
+		
+		String content = buildContent();
+		
+		MultipartEntityBuilder request = MultipartEntityBuilder.create()
+			.addTextBody("txtTITLE", titleForPost)
+			.addTextBody("txtCONTENT", content)
+			.addTextBody("txtLOGBOOKID", logID)
+			.addTextBody("txtGROUPID", groupID)
+			.addTextBody("txtENTRYTYPEID", entryType)
+			.addTextBody("txtUSERID", userID);
+
+		HttpEntity entity = request.build();
+		HttpPost httpPost = new HttpPost(targetPostURL);
+		httpPost.setEntity(entity);
+		
+		CloseableHttpClient httpClient = null;
+		CloseableHttpResponse response = null;
+
+		try {
+			httpClient = HttpClients.createDefault();
+			response = httpClient.execute(httpPost);
+			String responseString = EntityUtils.toString(response.getEntity());
+			System.out.println(responseString);
+			if (!responseString.contains("New Log Entry ID")) {
+				throw new ELogEntryException("Upload failed, status=" + response.getStatusLine().getStatusCode()
+					+ " response="+responseString
+					+ " targetURL = " + targetPostURL
+					+ " titleForPost = " + titleForPost
+					+ " logID = " + logID
+					+ " groupID = " + groupID
+					+ " entryType = " + entryType
+					+ " userID = " + userID);
+			}
+		} catch (ELogEntryException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ELogEntryException("Error in ELogger.  Database:" + targetPostURL, e);
+		} finally {
+			try {
+				if (httpClient != null) httpClient.close();
+				if (response != null) response.close();
+			} catch (IOException e) {
+				elogger.error("Could not close connections", e);
+			}
+		}
+
+	}
+	
+	public void postFile(String file) throws ELogEntryException {
+//			if (new File(fileURI).exists()) {
+//				System.out.println("fileExists");
+//				return;
+//			}
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(file, "UTF-8");
+			writer.println(buildContent());
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Async version of post @see ElogEntry.post
+	 * 
+	 */
+	public void postAsync() {
+		Thread t = ThreadManager.getThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					post();
+				} catch (Exception e) {
+					Logger logger = LoggerFactory.getLogger(ElogEntry.class);
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}, "ElogEntry: "+title);
+		
+		t.start();
+	}
+	
+	private String buildContent() throws ELogEntryException {
+		StringBuffer content = new StringBuffer(startLine);
+		for (PostPart part : parts) {
+			content.append(part.getHTML());
+		}
+		content.append(endLine);
+		return content.toString();
+	}
+	
+	/**
+	 * Add html string to eLog <br>
+	 * html will be added as is with no characters escaped
+	 * 
+	 * @param html html string to add
+	 */
+	public void addHtml(String html) {
+		this.parts.add(new htmlPart(html));
+	}
+	
+	/**
+	 * Add multiple html strings to eLog <br>
+	 * html will be added as is with no characters escaped
+	 * 
+	 * @param html Array of html strings to add
+	 */
+	public void addHtml(String[] html) {
+		for (String string : html) {
+			addHtml(string);
+		}
+	}
+	
+	/**
+	 * Add paragraph of text to the eLog Entry.<br>
+	 * html characters will be escaped
+	 * 
+	 * @param text String to add
+	 */
+	public void addText(String text) {
+		this.parts.add(new textPart(text));
+	}
+	
+	/**
+	 * Add multiple lines of text to the eLog Entry.
+	 * <br>Each will be formatted as a separate paragraph
+	 * 
+	 * @param texts Array of strings to add
+	 */
+	public void addText(String[] texts) {
+		for (String text : texts) {
+			addText(text);
+		}
+	}
+	
+	/**
+	 * Add single image to the eLog Entry
+	 * 
+	 * @param fileURI The location of image to add
+	 * @throws ELogEntryException if file does not exist
+	 */
+	public void addImage(String fileURI) throws ELogEntryException {
+		addImage(fileURI, null);
+	}
+	
+	/**
+	 * Add single image to the eLog Entry with caption
+	 * 
+	 * @param fileURI The list of file locations of images to add
+	 * @param caption A caption to be displayed below the image
+	 * @throws ELogEntryException if file does not exist
+	 */
+	public void addImage(String fileURI, String caption) throws ELogEntryException {
+		File img = new File(fileURI);
+		if (img.exists()) {
+			this.parts.add(new imagePart(fileURI, caption));
+		} else {
+			throw new ELogEntryException("File \"" + fileURI + "\" does not exist");
+		}
+	}
+
+	/**
+	 * Add multiple images to the eLog Entry
+	 * 
+	 * @param fileURIs The list of file locations of images to add
+	 * @throws ELogEntryException if file does not exist
+	 */
+	public void addImage(String[] fileURIs) throws ELogEntryException {
+		for (String file : fileURIs) {
+			addImage(file, null);
+		}
+	}
+	
+
 	/**
 	 * Creates an ELog entry. Default ELog server is "http://rdb.pri.diamond.ac.uk/devl/php/elog/cs_logentryext_bl.php"
 	 * which is the development database. "http://rdb.pri.diamond.ac.uk/php/elog/cs_logentryext_bl.php" is the
@@ -73,7 +290,7 @@ public class ElogEntry {
 	 */
 	public static void post(String title, String content, String userID, String visit, String logID, String groupID,
 			String[] fileLocations) throws ELogEntryException {
-		String targetURL = defaultURL;
+		String targetURL = POST_UPLOAD_URL;
 		try {
 			String entryType = "41";// entry type is always a log (41)
 			String titleForPost = visit == null ? title : "Visit: " + visit + " - " + title;
@@ -97,7 +314,7 @@ public class ElogEntry {
 			}
 			
 			HttpEntity entity = request.build();
-			targetURL  = LocalProperties.get("gda.elog.targeturl", defaultURL);
+			targetURL  = LocalProperties.get("gda.elog.targeturl", POST_UPLOAD_URL);
 			HttpPost httpPost = new HttpPost(targetURL);
 			httpPost.setEntity(entity);
 			CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -126,7 +343,7 @@ public class ElogEntry {
 			throw new ELogEntryException("Error in ELogger.  Database:" + targetURL, e);
 		}
 	}
-	
+
 	/**
 	 * Async version of post @see ElogEntry.post
 	 * 
@@ -140,7 +357,7 @@ public class ElogEntry {
 	 */
 	public static void postAsyn(final String title, final String content, final String userID, final String visit,
 			final String logID, final String groupID, final String[] fileLocations) {
-
+		
 		Thread t = uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
 			@Override
 			public void run() {
@@ -152,7 +369,7 @@ public class ElogEntry {
 				}
 			}
 		}, "ElogEntry: "+title);
-
+		
 		t.start();
 	}
 	
@@ -172,5 +389,125 @@ public class ElogEntry {
 			visit = "unknown";
 		}
 		elogger.info(visit + "%%" + title + "%%" + content);
+	}
+	
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public void setUserID(String userID) {
+		this.userID = userID;
+	}
+
+	public void setVisit(String visit) {
+		this.visit = visit;
+	}
+
+	public void setLogID(String logID) {
+		this.logID = logID;
+	}
+
+	public void setGroupID(String groupID) {
+		this.groupID = groupID;
+	}
+
+	private interface PostPart {
+		String getHTML() throws ELogEntryException;
+	}
+	
+	private class textPart implements PostPart {
+		private String text;
+		public textPart(String text) {
+			this.text = text;
+		}
+		@Override
+		public String getHTML() {
+			return "<p>" + StringEscapeUtils.escapeHtml(text).replace("\n", "<br>\n\t") + "</p>";
+		}
+	}
+	
+	private class htmlPart implements PostPart {
+		private String html;
+		public htmlPart(String html) {
+			this.html = html;
+		}
+		@Override
+		public String getHTML() throws ELogEntryException {
+			return "\n<!-- html submitted as is - not rendered by ElogEntry -->\n" + html + "<br>\n";
+		}
+		
+	}
+	
+	private class imagePart implements PostPart {
+		private final String fileURI;
+		private final String caption;
+		private String imageURL = null;
+		
+		public imagePart(String fileURI, String caption) {
+			this.fileURI = fileURI;
+			this.caption = caption;
+		}
+		
+		@Override
+		public String getHTML() throws ELogEntryException {
+			if (imageURL == null) {
+				imageURL = uploadImage();
+			}
+			return imageHtml();
+		}
+		
+		private String imageHtml() {
+			if (imageURL != null) {
+				String captionText = caption == null || caption.isEmpty()
+						? "" 
+						: "\n<span style=\"max-width:600px; margin: 0 auto; text-align:inherited; word-wrap:break-word;\">" + StringEscapeUtils.escapeHtml(caption) + "</span>\n";
+				String style = "display:inline-block;";
+				String imageHtml = "\n" +
+						"<img alt =\"" + imageURL + "\" src=\"" + imageURL + "\"/><br>" +
+						captionText;
+				return "\n<div style=\"" + style + "\">" + imageHtml + "</div><br><br>\n";
+			}
+			return null;
+		}	
+		
+//		private String uploadImage() {
+//			return fileURI;
+//		}
+		
+		//upload image to eLog and get attachment URL
+		private String uploadImage() throws ELogEntryException {
+			MultipartEntityBuilder request = MultipartEntityBuilder.create()
+					.addTextBody("txtUSERID", userID)
+					.addBinaryBody("userfile1", new File(fileURI));
+			
+			HttpEntity entity = request.build();
+			HttpPost httpPost = new HttpPost(imagePostURL);
+			httpPost.setEntity(entity);
+			CloseableHttpClient httpClient = null;
+			CloseableHttpResponse response = null;
+			try {			
+				httpClient = HttpClients.createDefault();
+				response = httpClient.execute(httpPost);
+				String responseString = EntityUtils.toString(response.getEntity());
+				int index = responseString.indexOf("FULL URL:");
+				if (index > 0) {
+					return responseString.substring(index + 9);
+				}
+				throw new ELogEntryException("Image upload failed: " + fileURI + " not found");
+			} catch (ELogEntryException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new ELogEntryException("Image upload failed", e);
+			}	
+			finally {
+				try {
+					if (httpClient != null) httpClient.close();
+					if (response != null) response.close();
+				} catch (IOException e) {
+					elogger.error("Could not close connections", e);
+				}
+			}
+		}
+		
 	}
 }

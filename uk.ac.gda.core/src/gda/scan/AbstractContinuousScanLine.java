@@ -26,29 +26,19 @@ import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
-import gda.device.scannable.PositionCallableProvider;
-import gda.device.scannable.PositionConvertorFunctions;
-import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.math.linear.MatrixUtils;
-import org.apache.commons.math.linear.RealVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,284 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
-	static class PositionGrabbingAdapter<T> implements ContinuouslyScannableViaController, PositionCallableProvider<T>, ScanPositionRecordable {
-		
-		private final ContinuouslyScannableViaController delegate;
-		
-		private ScanPositionRecorder recorder;
 
-		public PositionGrabbingAdapter(ContinuouslyScannableViaController delegate) {
-			this.delegate = delegate;
-		}
-
-		@Override
-		public void setRecorder(ScanPositionRecorder recorder) {
-			this.recorder = recorder;
-			
-		}
-		
-		@Override
-		public void asynchronousMoveTo(Object position) throws DeviceException {
-			if (recorder != null) {
-				recorder.addPositionToCurrentPoint(delegate, position);
-			}
-			delegate.asynchronousMoveTo(position);
-		}
-//
-		@Override
-		public void setName(String name) {
-			delegate.setName(name);
-		}
-
-		@Override
-		public void reconfigure() throws FactoryException {
-			delegate.reconfigure();
-		}
-
-		@Override
-		public Object getPosition() throws DeviceException {
-			return delegate.getPosition();
-		}
-
-		@Override
-		public String getName() {
-			return delegate.getName();
-		}
-
-		@Override
-		public void addIObserver(IObserver observer) {
-			delegate.addIObserver(observer);
-		}
-
-		@Override
-		public void setAttribute(String attributeName, Object value) throws DeviceException {
-			delegate.setAttribute(attributeName, value);
-		}
-
-		@Override
-		public String toString() {
-			return delegate.toString();
-		}
-
-		@Override
-		public void setOperatingContinuously(boolean b) throws DeviceException {
-			delegate.setOperatingContinuously(b);
-		}
-
-		@Override
-		public void deleteIObserver(IObserver observer) {
-			delegate.deleteIObserver(observer);
-		}
-
-		@Override
-		public void deleteIObservers() {
-			delegate.deleteIObservers();
-		}
-
-		@Override
-		public void moveTo(Object position) throws DeviceException {
-			delegate.moveTo(position);
-		}
-
-		@Override
-		public Object getAttribute(String attributeName) throws DeviceException {
-			return delegate.getAttribute(attributeName);
-		}
-
-		@Override
-		public ContinuousMoveController getContinuousMoveController() {
-			return delegate.getContinuousMoveController();
-		}
-
-		@Override
-		public void close() throws DeviceException {
-			delegate.close();
-		}
-
-		@Override
-		public void setProtectionLevel(int newLevel) throws DeviceException {
-			delegate.setProtectionLevel(newLevel);
-		}
-
-		@Override
-		public String checkPositionValid(Object position) throws DeviceException {
-			return delegate.checkPositionValid(position);
-		}
-
-		@Override
-		public int getProtectionLevel() throws DeviceException {
-			return delegate.getProtectionLevel();
-		}
-
-		@Override
-		public void stop() throws DeviceException {
-			delegate.stop();
-		}
-
-		@Override
-		public boolean isBusy() throws DeviceException {
-			return delegate.isBusy();
-		}
-
-		@Override
-		public void waitWhileBusy() throws DeviceException, InterruptedException {
-			delegate.waitWhileBusy();
-		}
-
-		@Override
-		public boolean isAt(Object positionToTest) throws DeviceException {
-			return delegate.isAt(positionToTest);
-		}
-
-		@Override
-		public void setLevel(int level) {
-			delegate.setLevel(level);
-		}
-
-		@Override
-		public int getLevel() {
-			return delegate.getLevel();
-		}
-
-		@Override
-		public String[] getInputNames() {
-			return delegate.getInputNames();
-		}
-
-		@Override
-		public void setInputNames(String[] names) {
-			delegate.setInputNames(names);
-		}
-
-		@Override
-		public String[] getExtraNames() {
-			return delegate.getExtraNames();
-		}
-
-		@Override
-		public void setExtraNames(String[] names) {
-			delegate.setExtraNames(names);
-		}
-
-		@Override
-		public void setOutputFormat(String[] names) {
-			delegate.setOutputFormat(names);
-		}
-
-		@Override
-		public String[] getOutputFormat() {
-			return delegate.getOutputFormat();
-		}
-
-		@SuppressWarnings("deprecation")
-		@Override
-		public void atStart() throws DeviceException {
-			delegate.atStart();
-		}
-
-		@SuppressWarnings("deprecation")
-		@Override
-		public void atEnd() throws DeviceException {
-			delegate.atEnd();
-		}
-
-		@Override
-		public void atScanStart() throws DeviceException {
-			delegate.atScanStart();
-		}
-
-		@Override
-		public void atScanEnd() throws DeviceException {
-			delegate.atScanEnd();
-		}
-
-		@Override
-		public void atScanLineStart() throws DeviceException {
-			delegate.atScanLineStart();
-		}
-
-		@Override
-		public void atScanLineEnd() throws DeviceException {
-			delegate.atScanLineEnd();
-		}
-
-		@Override
-		public void atPointStart() throws DeviceException {
-			delegate.atPointStart();
-		}
-
-		@Override
-		public void atPointEnd() throws DeviceException {
-			delegate.atPointEnd();
-		}
-
-		@Override
-		public void atLevelMoveStart() throws DeviceException {
-			delegate.atLevelMoveStart();
-		}
-		
-		@Override
-		public void atLevelStart() throws DeviceException {
-			delegate.atLevelStart();
-		}
-
-		@Override
-		public void atCommandFailure() throws DeviceException {
-			delegate.atCommandFailure();
-		}
-
-		@Override
-		public String toFormattedString() {
-			return delegate.toFormattedString();
-		}
-
-		@Override
-		public boolean isOperatingContinously() {
-			return delegate.isOperatingContinously();
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public Callable<T> getPositionCallable() throws DeviceException {
-			if( delegate instanceof PositionCallableProvider<?>){
-				return  ((PositionCallableProvider<T>)delegate).getPositionCallable();
-			}
-			final Object position = delegate.getPosition();
-			return new Callable<T>() {
-				@Override
-				public T call() throws Exception {
-					return (T) position;
-				}
-			};
-		}
-		
-		
-	}
-	
-	class LocalScanPositionRecorder implements ScanPositionRecorder{
-		
-		LinkedList<Map<Scannable, RealVector>> points = 
-			new LinkedList<Map<Scannable, RealVector>>();
-
-		@Override
-		public void startNewPoint() {
-			points.add(new HashMap<Scannable, RealVector>());
-		}
-		
-		@Override
-		public void addPositionToCurrentPoint(Scannable scannable, Object demandPosition) {
-			double[] doublePosition = ArrayUtils.toPrimitive(PositionConvertorFunctions.toDoubleArray(demandPosition));
-			RealVector positionVector = MatrixUtils.createRealVector(doublePosition);
-			points.getLast().put(scannable, positionVector);
-		}
-		
-		@Override
-		public List<Map<Scannable, RealVector>> getPoints() {
-			return points;
-		}
-
-	}
-	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractContinuousScanLine.class);
 
 	// TODO: handle requirement for repeating a line
@@ -345,12 +58,10 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
 	protected Vector<ContinuouslyScannableViaController> scannablesToMove = new Vector<ContinuouslyScannableViaController>();
 
-	ScanPositionRecorder scanPositionRecorder;
-
-	private boolean detectorsIntegrateBetweenTriggers;
+	protected boolean detectorsIntegrateBetweenTriggers;
 	
 	public AbstractContinuousScanLine(Object[] args) throws IllegalArgumentException {
-		super(wrapContinuouslyScannables(args));
+		super(args);
 		callCollectDataOnDetectors = false;
 		extractScannablesToScan();
 		extractDetectors();
@@ -368,26 +79,13 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		return false;  // should be false even if enabled for beamline
 	}
 	
-	@SuppressWarnings("rawtypes")
-	private static Object[] wrapContinuouslyScannables(Object[] args) {
-		for (int i = 0; i < args.length; i++) {
-			Object object = args[i];
-			if (object instanceof ContinuouslyScannableViaController) {
-				if(  !(object instanceof ScanPositionRecordable)){
-					args[i] = new PositionGrabbingAdapter((ContinuouslyScannableViaController)args[i]);
-				}
-			}
-		}
-		return args;
-	}
-
 	protected void extractScannablesToScan() {
 		for (Scannable scn : allScannables) {
 			if ((scn.getInputNames().length + scn.getExtraNames().length) != 0 ) {
 				// ignore zero input-output name devices
 				if (!(scn instanceof ContinuouslyScannableViaController)) {
 					throw new IllegalArgumentException("Scannable " + scn.getName()
-							+ " is not ContinuouslyScannableViaController so cannot be used in a TrajectoryScanLine");
+							+ " is not ContinuouslyScannableViaController so cannot be used in an AbstractContinuousScanLine");
 				}
 				scannablesToMove.add((ContinuouslyScannableViaController) scn);
 			}
@@ -398,7 +96,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		for (Detector det : allDetectors) {
 			if (!(det instanceof HardwareTriggeredDetector)) {
 				throw new IllegalArgumentException("Detector " + det.getName()
-						+ " is not a HardwareTriggeredDetector so cannot be used in a TrajectoryScanLine");
+						+ " is not a HardwareTriggeredDetector so cannot be used in an AbstractContinuousScanLine");
 			}
 			detectors.add((HardwareTriggeredDetector) det);
 		}
@@ -472,6 +170,8 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			for (HardwareTriggeredDetector det : detectors) {
 				det.setNumberImagesToCollect(getNumberPoints());
 			}
+
+			super.prepareDevicesForCollection();
 			
 		} catch (Exception e) {
 			logger.info("problem in prepareDevicesForCollection()");
@@ -482,7 +182,6 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
 			throw e;
 		}
-		super.prepareDevicesForCollection();
 	}
 
 	private void setHardwareTriggeringOnAllHardwareTriggerableDetectors(boolean enable) throws DeviceException {
@@ -496,7 +195,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	@Override
 	public void doCollection() throws Exception {
 
-		logger.info("Starting TrajectoryScanLine for scan: '" + getName() + "' (" + getCommand() + ")" );
+		logger.info("Starting AbstractContinuousScanLine for scan: '" + getName() + "' (" + getCommand() + ")" );
 		
 		getController().stopAndReset(); // should be ready anyway
 
@@ -504,13 +203,6 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
 			// TODO: Check the controller is not moving
 
-			if (detectorsIntegrateBetweenTriggers) {
-				scanPositionRecorder = new LocalScanPositionRecorder();
-				for (ContinuouslyScannableViaController scn : scannablesToMove) {
-					((ScanPositionRecordable) scn).setRecorder(scanPositionRecorder);
-				}
-			}
-			
 			// 2. Perform the 'scan'. Scannables must direct their asynchronousMoveTo methods to the controller,
 			// and detectors should ingorec alls made to collectData. Detectors will have their collectionTimes set.
 			// ScanDataPoints will be created although will likely be incomplete awaiting results from
@@ -583,61 +275,6 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	
 	protected abstract void configureControllerTriggerTimes() throws DeviceException ;
 
-	List<Map<Scannable,double[]>> generateTrajectoryForDetectorsThatIntegrateBetweenTriggers() {
-		List<Map<Scannable, double[]>> triggers = 
-			new LinkedList<Map<Scannable, double[]>>();
-		List<Map<Scannable, RealVector>> binCentres = 
-			scanPositionRecorder.getPoints();
-		
-		HashMap<Scannable, double[]> pointToAdd;
-		
-		Set<Scannable> scannables = binCentres.get(0).keySet();
-		
-		// Add first trigger: xtrig[0] = bincentre[0] - (bincentre[1] - bincentre[0]) / 2
-		pointToAdd = new HashMap<Scannable, double[]>();
-		for (Scannable scannable : scannables) {
-			RealVector first = binCentres.get(0).get(scannable);
-			RealVector second = binCentres.get(1).get(scannable);
-			double[] firstTrigger = first.subtract(second.subtract(first).mapDivide(2.)).toArray();
-			pointToAdd.put(scannable, firstTrigger );
-		}
-		triggers.add(pointToAdd);	
-		
-		// Add middle triggers: xtrig[i] = (bincentre[i] + bincentre[i+1]) / 2
-		for (int i = 0; i < binCentres.size() -1 ; i++) { // not the last one
-			pointToAdd = new HashMap<Scannable, double[]>();
-			for (Scannable scannable : scannables) {
-				RealVector current = binCentres.get(i).get(scannable);
-				RealVector next = binCentres.get(i+1).get(scannable);
-				double[] trigger = current.add(next).mapDivide(2.).toArray();
-				pointToAdd.put(scannable, trigger);
-			}
-			triggers.add(pointToAdd);	
-		}
-		
-		// Add last trigger: xtrig[n+1] = bincentre[n] + (bincentre[n] - bincentre[n-1]) / 2
-		pointToAdd = new HashMap<Scannable, double[]>();
-		for (Scannable scannable : scannables) {
-			int lastIndex = binCentres.size() - 1;
-			RealVector last = binCentres.get(lastIndex).get(scannable);
-			RealVector secondLast = binCentres.get(lastIndex-1).get(scannable);
-			double[] lastTrigger = last.add(last.subtract(secondLast).mapDivide(2.)).toArray();
-			pointToAdd.put(scannable, lastTrigger );
-		}
-		triggers.add(pointToAdd);	
-		
-		return triggers;
-	}
-
-
-	@Override
-	protected void callAtPointStartHooks() throws DeviceException {
-		super.callAtPointStartHooks();
-		if (scanPositionRecorder != null) {
-			scanPositionRecorder.startNewPoint();
-		}
-	}
-	
 	private String scannablesToString(Vector<? extends Scannable> scannables) {
 		Vector<String> names = new Vector<String>();
 		for (Scannable scn : scannables) {
@@ -672,7 +309,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		LinkedList<FutureTask<Void>> futureTasks = new LinkedList<FutureTask<Void>>();
 		for (HardwareTriggeredDetector det : detectors) {
 			futureTasks.add(new FutureTask<Void>(new ArmDetector(det)));
-			(new Thread(futureTasks.getLast(), "TrajectoryScanLine.ArmDetector-" + det.getName())).start();
+			(new Thread(futureTasks.getLast(), "AbstractContinuousScanLine.ArmDetector-" + det.getName())).start();
 		}
 		
 		// Wait for each detector to arm (cancelling other arm-tasks and stopping all detectors on a failure.

@@ -8,6 +8,7 @@ from gda.analysis import ScanFileHolder
 import java.lang.Throwable
 from UserDict import IterableUserDict
 import traceback
+from gdascripts.scan.process.sfhloader import getDataSetFromSFH
 
 def loadScanFile(ob, columnNames=None, scannables=[]):
 	sfh = ScanFileHolder()
@@ -28,6 +29,7 @@ def loadScanFile(ob, columnNames=None, scannables=[]):
 	#else:
 	#	raise Exception("Failed to load scan file: was expecting a ConcurrentScan object")
 	return sfh
+
 
 class ScanDataProcessorResults(IterableUserDict):
 
@@ -81,11 +83,19 @@ class ScanDataProcessor(ScanListener):
 			self.sfh = loadScanFile(concurrentScan, [xfieldname, yfieldname], all_detectors_and_scannables)
 			
 			# determine from the scan object which fields are to be processed as x and y
+			
+			# NOTE: As of gda 8.38 xfieldname and yfieldname are prefaced with scannable name. i.e. x.x rather than x
+			# This is inorder that things work with ScanFileHolder loading Nexus files. When ScanFileHolder loads
+			# SRS files it does not do this.
+			
 			report += "   (Processing %s v's %s)\n"%(yfieldname,xfieldname)
+
 			try:
-				xDataSet = self.sfh.getAxis(xfieldname)
-			except:
-				return "<cannot analyse axis %s in scan file - unable to retrieve>" % yfieldname
+				xDataSet = getDataSetFromSFH(self.sfh,xfieldname)
+			except KeyError, e:
+				if self.raiseProcessorExceptions:
+					raise e
+				return "<" + e.message + ">"
 			
 			if len(xDataSet.dimensions) > 1:
 				return "<Cannot process multidimensional scans>"
@@ -93,10 +103,14 @@ class ScanDataProcessor(ScanListener):
 			if xDataSet.dimensions[0] in (0,1):
 				return "<Scan too short to process sensibly>"
 
+			#try:
+			
 			try:
-				yDataSet = self.sfh.getAxis(yfieldname)
-			except:
-				return "<cannot analyse axis %s in scan file - unable to retrieve>" % yfieldname
+				yDataSet = getDataSetFromSFH(self.sfh, yfieldname)
+			except KeyError, e:
+				if self.raiseProcessorExceptions:
+					raise e
+				return "<" + e.message + ">"
 			
 			lines = []
 			for processor in self.processors:

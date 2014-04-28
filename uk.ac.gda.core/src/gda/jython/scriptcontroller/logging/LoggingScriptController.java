@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -21,8 +21,10 @@ package gda.jython.scriptcontroller.logging;
 import gda.commandqueue.JythonScriptProgressProvider;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.security.SecureRandom;
@@ -37,6 +39,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +88,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 	private HashMap<Method, String> refreshColumnGetters;
 	private String tableName;
 	private PreparedStatement psInsert;
+	private PreparedStatement psFetchStartTime;
 	private PreparedStatement psSimpleListAll;
 	private PreparedStatement psFetchEntry;
 	private PreparedStatement psRefresh;
@@ -100,7 +104,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		super.configure();
 		try {
 			createDatabase();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			throw new FactoryException("Exception while configuring script controller" + getName(), e);
 		}
 	}
@@ -111,7 +115,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		try {
 			closeDatabase();
 			createDatabase();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			throw new FactoryException("Exception while reconfiguring script controller" + getName(), e);
 		}
 	}
@@ -143,6 +147,9 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		ResultSet rs = null;
 		try {
 			ScriptControllerLogResults[] results = new ScriptControllerLogResults[] {};
+			String myVisit = InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID();
+			
+			psSimpleListAll.setString(1, myVisit);
 			rs = psSimpleListAll.executeQuery();
 			Boolean atFirst = rs.next();
 			while (atFirst) {
@@ -237,24 +244,42 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		this.directory = directory;
 	}
 
-	private void createDatabase() throws SQLException {
+	private void createDatabase() throws Exception {
 
 		if (getMessageClassToLog() == null) {
 			logger.warn("Message class type not set, cannot create Script Controller log database " + getName());
 		}
 
 		tableName = messageClassToLog.getSimpleName();
-		createConnection();
+		String varDir = getDirectory();
+		if (varDir == null) {
+			LocalProperties.getVarDir();
+		}
+		try {
+			makeDB(varDir);
+		} catch (SQLException e) {
+			// assume a problem with either directory not available or the schema has changed
+			if ((new File(dbName)).exists()){
+				FileUtils.deleteDirectory(new File(dbName));
+				makeDB(varDir);
+			} else {
+				if (new File(varDir).exists()) {
+					makeDB(varDir);
+				} else {
+					throw new Exception(varDir + " could not be created");
+				}
+			}
+		}
+	}
+
+	private void makeDB(String varDir) throws SQLException {
+		connectToDB(varDir);//createConnection();
 		determineColumns();
 		createTable();
 		createPreparedStatements();
 	}
 
-	private void createConnection() throws SQLException {
-		String varDir = getDirectory();
-		if (varDir == null) {
-			LocalProperties.getVarDir();
-		}
+	private void connectToDB(String varDir) throws SQLException {
 		dbName = varDir + tableName;
 		url = "jdbc:derby:" + dbName + ";create=true";
 		conn = DriverManager.getConnection(url);
@@ -271,7 +296,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 
 		for (String columnName : columnGetters.values()) {
 			columnName = columnName.replace(" ", "_");
-			createString += columnName + " VARCHAR(50),";
+			createString += columnName + " VARCHAR(150),";
 		}
 		createString += DATE_ADDED_COL_NAME + " TIMESTAMP," + DATE_UPDATED_COL_NAME + " TIMESTAMP)";
 
@@ -366,12 +391,15 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		psInsert = conn.prepareStatement(insertStatment);
 
 		String listStatement = "SELECT " + PK_COLUMNNAME + "," + SK_COLUMNNAME + "," + DATE_ADDED_COL_NAME + ","
-				+ DATE_UPDATED_COL_NAME + " FROM " + tableName + " ORDER BY " + DATE_UPDATED_COL_NAME + " DESC";
+				+ DATE_UPDATED_COL_NAME + " FROM " + tableName + " WHERE visit_id = (?) ORDER BY " + DATE_UPDATED_COL_NAME + " DESC";
 		psSimpleListAll = conn.prepareStatement(listStatement);
 
 		String fetchStatement = "SELECT * FROM " + tableName + " WHERE " + PK_COLUMNNAME + "= (?)";
 		psFetchEntry = conn.prepareStatement(fetchStatement);
-
+		
+		String fetchStartTimeStatement = "SELECT " + DATE_ADDED_COL_NAME + " FROM " + tableName + " WHERE " + PK_COLUMNNAME + "= (?)";
+		psFetchStartTime = conn.prepareStatement(fetchStartTimeStatement);
+		
 		String sqlColumns = "";
 		for (String columnName : refreshColumnGetters.values()) {
 			columnName = columnName.replace(" ", "_");
@@ -396,37 +424,12 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 				rowcount++;
 
 			if (rowcount > 0) {
-				String[] valuesToAdd = getUpdateValues(arg);
-				int i = 1;
-				for (; i <= valuesToAdd.length; i++) {
-					psRefresh.setString(i, valuesToAdd[i - 1]);
-				}
-				Timestamp now = new Timestamp(System.currentTimeMillis());
-				psRefresh.setTimestamp(i++, now);
-				psRefresh.setString(i++, arg.getUniqueID());
-				int numLinesUpdated = psRefresh.executeUpdate();
-				if (numLinesUpdated != 1) {
-					System.out.println("something's wrong");
-					return null;
-				}
-				return new ScriptControllerLogResults(arg.getUniqueID(), arg.getName(), null, now);
+				return refreshExistingEntry(arg);
 			}
-			String[] valuesToAdd = getValues(arg);
-			psInsert.setString(1, arg.getUniqueID());
-			psInsert.setString(2, arg.getName());
-			int i = 3;
-			for (; i <= valuesToAdd.length + 2; i++) {
-				psInsert.setString(i, valuesToAdd[i - 3]);
-			}
-			Timestamp now = new Timestamp(System.currentTimeMillis());
-			psInsert.setTimestamp(i++, now);
-			psInsert.setTimestamp(i++, now);
-			psInsert.executeUpdate();
-			return new ScriptControllerLogResults(arg.getUniqueID(), arg.getName(), now, now);
+			return insertNewEntry(arg);
 
 		} catch (SQLException e) {
-			//This exception occurs per scan point and causes the jython console, logging and plot to gring to a halt
-			//Removed until we can understand why
+			// If this exception occurs per scan point then the jython console, logging and plot grind to a halt
 			logger.error("Exception adding to log by " + getName(), e);
 			return null;
 		} finally {
@@ -437,7 +440,44 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 				}
 			}
 		}
+	}
 
+	private ScriptControllerLogResults insertNewEntry(ScriptControllerLoggingMessage arg) throws SQLException {
+		String[] valuesToAdd = getValues(arg);
+		psInsert.setString(1, arg.getUniqueID());
+		psInsert.setString(2, arg.getName());
+		int i = 3;
+		for (; i <= valuesToAdd.length + 2; i++) {
+			psInsert.setString(i, valuesToAdd[i - 3]);
+		}
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		psInsert.setTimestamp(i++, now);
+		psInsert.setTimestamp(i++, now);
+		psInsert.executeUpdate();
+		return new ScriptControllerLogResults(arg.getUniqueID(), arg.getName(), now, now);
+	}
+
+	private ScriptControllerLogResults refreshExistingEntry(ScriptControllerLoggingMessage arg) throws SQLException {
+		String[] valuesToAdd = getUpdateValues(arg);
+		int i = 1;
+		for (; i <= valuesToAdd.length; i++) {
+			psRefresh.setString(i, valuesToAdd[i - 1]);
+		}
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		psRefresh.setTimestamp(i++, now);
+		psRefresh.setString(i++, arg.getUniqueID());
+		int numLinesUpdated = psRefresh.executeUpdate();
+		if (numLinesUpdated != 1) {
+			System.out.println("something's wrong");
+			return null;
+		}
+		
+		psFetchStartTime.setString(1, arg.getUniqueID());
+		ResultSet rsStartTime = psFetchStartTime.executeQuery();
+		rsStartTime.next();
+		Timestamp startTime = rsStartTime.getTimestamp(1);
+
+		return new ScriptControllerLogResults(arg.getUniqueID(), arg.getName(), startTime, now);
 	}
 
 	private String[] getUpdateValues(ScriptControllerLoggingMessage arg) {

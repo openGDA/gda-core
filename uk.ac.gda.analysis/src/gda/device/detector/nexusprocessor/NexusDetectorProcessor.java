@@ -20,9 +20,11 @@ package gda.device.detector.nexusprocessor;
 
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
+import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
+import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
@@ -41,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * not support PositionCallableProvider into one that does Functions add data to the NexusData provide helper functions
  * to get the image data from the detector for derived classes Passes data to processor. Once 1 thread per processor.
  */
-public class NexusDetectorProcessor implements NexusDetector, PositionCallableProvider<GDANexusDetectorData> {
+public class NexusDetectorProcessor implements NexusDetector, PositionCallableProvider<GDANexusDetectorData>, HardwareTriggerableDetector {
 	private static final Logger logger = LoggerFactory.getLogger(NexusDetectorProcessor.class);
 	boolean mergeWithDetectorData=true;
 	NexusDetector detector;
@@ -225,6 +227,8 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	public void stop() throws DeviceException {
 		detector.stop();
 	}
+	
+	
 
 	@Override
 	public boolean isBusy() throws DeviceException {
@@ -395,6 +399,11 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	public void atLevelStart() throws DeviceException {
 		detector.atLevelStart();
 	}
+	
+	@Override
+	public void atLevelEnd() throws DeviceException {
+		detector.atLevelEnd();
+	}
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
@@ -484,6 +493,37 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 			}
 		};
 		return positionCallableCache;
+	}
+
+	HardwareTriggerableDetector getHardDet(){
+		if( detector instanceof HardwareTriggerableDetector)
+			return (HardwareTriggerableDetector)detector;
+		throw new UnsupportedOperationException("Detector '" + detector.getName() + "' is not a HardwareTriggerableDetector ");
+	}
+
+	@Override
+	public void setHardwareTriggering(boolean b) throws DeviceException {
+		getHardDet().setHardwareTriggering(b);
+	}
+
+	@Override
+	public boolean isHardwareTriggering() {
+		return getHardDet().isHardwareTriggering();
+	}
+
+	@Override
+	public HardwareTriggerProvider getHardwareTriggerProvider() {
+		return getHardDet().getHardwareTriggerProvider();
+	}
+
+	@Override
+	public void setNumberImagesToCollect(int numberImagesToCollect) {
+		getHardDet().setNumberImagesToCollect(numberImagesToCollect);
+	}
+
+	@Override
+	public boolean integratesBetweenPoints() {
+		return getHardDet().integratesBetweenPoints();
 	}
 
 	

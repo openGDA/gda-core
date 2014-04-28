@@ -73,6 +73,8 @@ public class MotorPositionViewer {
 	
 	private String commandFormat;
 
+	private MotorPositionDemandChangedCallback callback;
+
 	private Job motorPositionJob;
 
 	private boolean restoreValueWhenFocusLost;
@@ -140,6 +142,10 @@ public class MotorPositionViewer {
 	
 	public void setCommandFormat(String commandFormat) {
 		this.commandFormat = commandFormat;
+	}
+	
+	public void setCallback(MotorPositionDemandChangedCallback callback) {
+		this.callback = callback;
 	}
 	
 	private void setDemandPrev() {
@@ -210,7 +216,11 @@ public class MotorPositionViewer {
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
 							try {
-								if (commandFormat == null) {
+								if (callback != null) {
+									callback.call(demand);
+								}
+								
+								else if (commandFormat == null) {
 									motor.setPosition(demand);
 								}
 								

@@ -22,17 +22,17 @@
 	<import resource="mvc_example_model.xml"/>
 
 		
-	<bean id="MyLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
-		<property name="serviceUrl" value="${gda.rmi.prefix}MyLoggingScriptController" />
-		<property name="serviceInterface" value="gda.jython.scriptcontroller.logging.ILoggingScriptController" />
-		<property name="refreshStubOnConnectFailure" value="true" />
-	</bean>
+<!-- 	<bean id="MyLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean"> -->
+<!-- 		<property name="serviceUrl" value="${gda.rmi.prefix}MyLoggingScriptController" /> -->
+<!-- 		<property name="serviceInterface" value="gda.jython.scriptcontroller.logging.ILoggingScriptController" /> -->
+<!-- 		<property name="refreshStubOnConnectFailure" value="true" /> -->
+<!-- 	</bean> -->
 	
-	<bean id="MyOtherLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
-		<property name="serviceUrl" value="${gda.rmi.prefix}MyOtherLoggingScriptController" />
-		<property name="serviceInterface" value="gda.jython.scriptcontroller.logging.ILoggingScriptController" />
-		<property name="refreshStubOnConnectFailure" value="true" />
-	</bean>
+<!-- 	<bean id="MyOtherLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean"> -->
+<!-- 		<property name="serviceUrl" value="${gda.rmi.prefix}MyOtherLoggingScriptController" /> -->
+<!-- 		<property name="serviceInterface" value="gda.jython.scriptcontroller.logging.ILoggingScriptController" /> -->
+<!-- 		<property name="refreshStubOnConnectFailure" value="true" /> -->
+<!-- 	</bean> -->
 
 	<bean id="ScanDataPointServer" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
 		<property name="serviceUrl" value="${gda.rmi.prefix}ScanDataPointServer" />

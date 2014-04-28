@@ -27,7 +27,8 @@ import java.util.List;
 import org.nexusformat.NexusFile;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 /**
@@ -72,7 +73,7 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 				if( !(new File(path)).exists()){
 					Thread.sleep(1000);
 				}
-				DataHolder data=null;
+				IDataHolder data=null;
 				while( data == null){
 					data = LoaderFactory.getData(path);
 					if(data == null){ 
@@ -85,7 +86,7 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 						}
 					}
 				}
-				return data.getDataset(dataset_index);
+				return DatasetUtils.convertToAbstractDataset(data.getDataset(dataset_index));
 			}
 		}
 		return null;

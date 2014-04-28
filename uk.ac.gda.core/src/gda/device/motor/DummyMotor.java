@@ -23,6 +23,7 @@ import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.device.MotorProperties.MotorEvent;
+import gda.device.scannable.MotorUnitStringSupplier;
 import gda.observable.IObservable;
 
 import java.util.Random;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A Dummy motor class
  */
-public class DummyMotor extends MotorBase implements Runnable, IObservable, Motor {
+public class DummyMotor extends MotorBase implements Runnable, IObservable, Motor, MotorUnitStringSupplier {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DummyMotor.class);
 	
@@ -78,6 +79,9 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	private Random random = new Random();
 
+	//dimensionless ( == 1) by default
+	private String unitString = "";
+	
 	// If randomlyProduceExceptions is true then a limit will be generated
 	// during a move if random.nextGaussian() produces a value greater
 	// than randomLimitTriggerLevel. When a limit is set limitCount is set
@@ -626,6 +630,15 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	@Override
 	public double getUserOffset() throws MotorException {
 		return 0.;
+	}
+
+	@Override
+	public String getUnitString() throws MotorException {
+		return unitString;
+	}
+
+	public void setUnitString(String unitString) {
+		this.unitString = unitString;
 	}
 
 }

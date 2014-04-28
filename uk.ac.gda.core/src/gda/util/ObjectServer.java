@@ -496,7 +496,7 @@ public abstract class ObjectServer implements Runnable {
 	 */
 	public static void main(String[] args) {
 		LoggingUtils.setLogDirectory();
-		LogbackUtils.configureLoggingForServerProcess();
+		LogbackUtils.configureLoggingForServerProcess("objectserver");
 		
 		try {
 			

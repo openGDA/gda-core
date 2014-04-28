@@ -51,7 +51,6 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanBase;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
-import gda.util.LibGdaCommon;
 import gda.util.exceptionUtils;
 
 import java.io.File;
@@ -441,7 +440,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		boolean wasAlreadyRunning = (getScriptStatus(null) == Jython.RUNNING);
 		try {
 			setScriptStatus(Jython.RUNNING, null);
-			this.interp.runcode(JythonServerFacade.slurp(new File(scriptFullPath)));
+			this.interp.exec(JythonServerFacade.slurp(new File(scriptFullPath)));
 		} finally {
 			if (!wasAlreadyRunning) {
 				setScriptStatus(Jython.IDLE, null);
@@ -462,7 +461,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		if (command.startsWith("print")) {
 			// do this immediately
-			this.interp.runcode(command);
+			this.interp.exec(command);
 
 		} else {
 
@@ -626,7 +625,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		// tell all terminals that they should alter their input prompt
 		updateIObservers(RAWINPUTREQUESTED);
 
-		this.interp.runcode(("print '" + prompt + "'"));
+		this.interp.exec(("print '" + prompt + "'"));
 
 		// call raw_input which waits for an input from the user
 		while (expectingInputForRawInput) {
@@ -757,7 +756,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public int addFacade(IObserver anIObserver, String uniqueFacadeName, String hostName, String username,
+	public int addFacade(IObserver anIObserver, String uniqueFacadeName, String hostName, String username, String fullName,
 			String visitID) throws DeviceException {
 
 		try {
@@ -783,7 +782,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			} else {
 				// add the facade and associated roles to the list of registered facades
 				int accessLevel = authoriser.getAuthorisationLevel(username);
-				final String fullName = LibGdaCommon.getFullNameOfUser(username);
 				ClientDetails info = new ClientDetails(indexNumber, username, fullName, hostName, accessLevel, false, visitID);
 				logger.info("User " + username + " logged into GDA with authorisation level " + accessLevel);
 				this.batonManager.addFacade(uniqueFacadeName, info);
@@ -953,6 +951,11 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
+	public ClientDetails getClientInformation(String myJSFIdentifier) {
+		return this.batonManager.getClientInformation(myJSFIdentifier);
+	}
+	
+	@Override
 	public ClientDetails[] getOtherClientInformation(String myJSFIdentifier) {
 		return this.batonManager.getOtherClientInformation(myJSFIdentifier);
 	}
@@ -1059,7 +1062,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 					+ "\tif isinstance(dontuse,(PseudoDevice, ScannableBase)):\n" + "\t\ttry:\n" + "\t\t\tdontuse.stop()\n"
 					+ "\t\texcept:\n" + "\t\t\tprint '    problem stopping ' + dontuse.getName()\n" + "\n"
 					+ "del dontuse\n" + "\n";
-			interp.runcode(jythonCommand);
+			interp.exec(jythonCommand);
 		} else {
 			logger.info("Configured *not* to stop Scannables found in Jython namespace.");
 		}
@@ -1258,7 +1261,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		@Override
 		public void run() {
 			try {
-				this.interpreter.runcode(cmd);
+				this.interpreter.exec(cmd);
 			} catch (Exception e) {
 				logger.error(
 						"CommandServer: error while running command: '" + cmd + "' encountered an error: "
@@ -1549,5 +1552,14 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			}
 		}
 	}
+	
+	@Override
+	public PyObject eval(String s) {
+		return interp.getInterp().eval(s);
+	}
 
+	@Override
+	public void exec(String s) {
+		interp.getInterp().exec(s);
+	}
 }

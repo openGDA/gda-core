@@ -10,6 +10,7 @@ package gda.util;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
+import gda.util.logging.LogbackUtils;
 import gda.util.logging.LoggingUtils;
 
 import org.slf4j.Logger;
@@ -158,6 +159,8 @@ public class LogServer implements Configurable, BeanNameAware {
 
 	void configureAndStartLogServer() throws JoranException {
 		SimpleSocketServer.configureLC(lc, configFile);
+		lc.putProperty(LogbackUtils.SOURCE_PROPERTY_NAME, "logserver");
+		LogbackUtils.setEventDelayToZeroInAllSocketAppenders(lc);
 		socketServer.start();
 	}
 

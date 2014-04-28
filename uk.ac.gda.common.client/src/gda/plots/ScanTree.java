@@ -30,16 +30,12 @@ import javax.swing.tree.TreePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class ScanTree extends DefaultTreeModel {
 	private static final Logger logger = LoggerFactory.getLogger(ScanTree.class);	
-	/**
-	 * 
-	 */
 	public XYDataHandler simplePlot;
-
+	private boolean hideOldestScan = false;
+	private int numberOfScansBeforeHiding = 0;
+	
 	/**
 	 * @param root
 	 * @param simplePlot
@@ -49,7 +45,6 @@ public class ScanTree extends DefaultTreeModel {
 		this.simplePlot = simplePlot;
 	}
 
-	@SuppressWarnings("unchecked")
 	void setScanTreeItemVisibility(SelectableNode item, boolean visibility) {
 		if(item instanceof ScanPair){
 			setScanPairVisibility((ScanPair) item, visibility);
@@ -96,7 +91,6 @@ public class ScanTree extends DefaultTreeModel {
 		super.valueForPathChanged(path, newValue);
 	}
 
-		
 	public Vector<String> getNamesOfLinesInPreviousScan(boolean visibility){
 		Vector<String> names = new Vector<String>();
 		ScanTreeM scanTreeM = (ScanTreeM) getRoot();
@@ -122,7 +116,6 @@ public class ScanTree extends DefaultTreeModel {
 		if(node.getChildCount()>0){
 			TreeNode nextLevelNode = node.getChildAt(0);
 			if( nextLevelNode instanceof ScanPair){
-				@SuppressWarnings("unchecked")
 				Enumeration<TreeNode> e = node.children();
 				while (e.hasMoreElements()) {
 					TreeNode n = e.nextElement();
@@ -133,6 +126,25 @@ public class ScanTree extends DefaultTreeModel {
 			}
 		}
 	}
+	
+	private void hideLastScan(ScanTreeM scanTreeM){
+		if(scanTreeM.getChildCount()>1){
+			SelectableNode selNode = (SelectableNode)scanTreeM.getChildAt(1);
+			setScanTreeItemVisibility(selNode, false);
+			reload(selNode);
+		}
+	}
+	
+	private void hideOldestScan(ScanTreeM scanTreeM){
+		int numberOfScans = scanTreeM.getChildCount();
+		if(numberOfScans>numberOfScansBeforeHiding && numberOfScansBeforeHiding!=0){
+			for(int i=numberOfScansBeforeHiding;i<numberOfScans;i++){
+				SelectableNode selNode = (SelectableNode)scanTreeM.getChildAt(i);
+				setScanTreeItemVisibility(selNode, false);
+			}
+		}
+	}
+	
 	/**
 	 * @param currentFilename 
 	 * @param topGrouping
@@ -150,14 +162,15 @@ public class ScanTree extends DefaultTreeModel {
 		DefaultMutableTreeNode node = onlyOne ? scanTreeM.addSingleScanLine(currentFilename, topGrouping, scanLine) : scanTreeM
 				.addGroupedScanLine(currentFilename, topGrouping, subGrouping, scanLine);
 
-		if( unshowLastScan ){
-			if(scanTreeM.getChildCount()>1){
-				SelectableNode selNode = (SelectableNode)scanTreeM.getChildAt(1);
-				setScanTreeItemVisibility(selNode, false);
-				reload(selNode);
-			}
+		if(unshowLastScan)
+			hideLastScan(scanTreeM);
+		
+		
+		if(hideOldestScan){
+			hideOldestScan(scanTreeM);
 		}
-		if( reloadLegendModel){
+		
+		if(reloadLegendModel){
 			try {
 				if (autoCollapseTree)
 					reload();
@@ -181,23 +194,19 @@ public class ScanTree extends DefaultTreeModel {
 	 * remove the item from the tree whose filename equals the one specified
 	 * @param filename 
 	 */
-	@SuppressWarnings("unchecked")
-	public void removeScanGroup(String filename)
-	{
+	public void removeScanGroup(String filename){
 		ScanTreeM scanTreeM = (ScanTreeM) getRoot();
 		Enumeration<TreeNode> e = scanTreeM.children();
 		while (e.hasMoreElements()) {
 			TreeNode n = e.nextElement();
-			if (n instanceof SingleScanLine && ((SingleScanLine)n).getCurrentFilename().equals(filename))
-			{
+			if (n instanceof SingleScanLine && ((SingleScanLine)n).getCurrentFilename().equals(filename)){
 				scanTreeM.remove((SingleScanLine)n);
 //				simplePlot.deleteLine(((SingleScanLine)n).getLineNumber());
 				removeNodeFromPlot(n);
 				reload();
 				return;
 			}
-			if (n instanceof ScanTreeItem && ((ScanTreeItem)n).getCurrentFilename().equals(filename))
-			{
+			if (n instanceof ScanTreeItem && ((ScanTreeItem)n).getCurrentFilename().equals(filename)){
 				scanTreeM.remove((ScanTreeItem)n);
 				removeNodeFromPlot(n);
 				reload();
@@ -211,10 +220,9 @@ public class ScanTree extends DefaultTreeModel {
 			removeScanTreeObject(obj);
 		}
 		reload();
-			
 	}
 	
-	private void removeScanTreeObject(Object obj) {
+	private void removeScanTreeObject(Object obj){
 		DefaultMutableTreeNode treeNode = null;
 		if (obj instanceof DefaultMutableTreeNode )
 		{
@@ -227,18 +235,18 @@ public class ScanTree extends DefaultTreeModel {
 		if ( treeNode != null ){
 			removeNodeFromPlot(treeNode);
 		}
-		
-	}	
-	@SuppressWarnings("unchecked")
+	}
+
 	void removeNodeFromPlot(TreeNode item) {
 		Enumeration<TreeNode> e = item.children();
-		while (e.hasMoreElements()) {
+		while (e.hasMoreElements()){
 			removeNodeFromPlot( e.nextElement());
 		}
-		if (item instanceof ScanPair) {
+		if (item instanceof ScanPair){
 			simplePlot.deleteLine(((ScanPair)item).scanLine.line);
 		}
-	}	
+	}
+	
 	/**
 	 * @param visibleFLag
 	 */
@@ -246,7 +254,21 @@ public class ScanTree extends DefaultTreeModel {
 		setScanTreeItemVisibility((SelectableNode)getRoot(), visibleFLag);
 		reload();
 	}
+
+	public void setHideOldestScan(boolean hideOldestScan) {
+		this.hideOldestScan = hideOldestScan;
+	}
+
+	public boolean getHideOldestScan() {
+		return this.hideOldestScan;
+	}
+
+	public int getNumberOfScansBeforeHiding() {
+		return numberOfScansBeforeHiding;
+	}
+
+	public void setNumberOfScansBeforeHiding(int numberOfScansBeforeHiding) {
+		this.numberOfScansBeforeHiding = numberOfScansBeforeHiding;
+	}
 	
 }
-
-

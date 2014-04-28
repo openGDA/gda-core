@@ -19,12 +19,12 @@
 package uk.ac.gda.client.scripting;
 
 
+import gda.rcp.GDAClientActivator;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-
-import uk.ac.gda.client.Activator;
 
 public class JythonPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -32,7 +32,7 @@ public class JythonPreferencePage extends FieldEditorPreferencePage implements I
 
 	public JythonPreferencePage() {
 		super(GRID);
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
+		setPreferenceStore(GDAClientActivator.getDefault().getPreferenceStore());
 		setDescription("Preferences for the Scripts perspective. For instance it automatically closes XML file editors for the GDA confguration.");
 	}
 	

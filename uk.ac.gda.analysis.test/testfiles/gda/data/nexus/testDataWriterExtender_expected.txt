@@ -277,30 +277,6 @@
 <value>base</value>
 </SDS>
 <NXsource @name=source>
-<SDS @name=current>
-<dimensions><dimension>1</dimension></dimensions>
-<type>NX_FLOAT64</type>
-<values>
-<value>-1.0</value>
-</values>
-<Attr @name=units>
-<dimensions><dimension>2</dimension></dimensions>
-<type>NX_CHAR</type>
-<value>mA</value>
-</Attr>
-</SDS>
-<SDS @name=energy>
-<dimensions><dimension>1</dimension></dimensions>
-<type>NX_FLOAT64</type>
-<values>
-<value>-1.0</value>
-</values>
-<Attr @name=units>
-<dimensions><dimension>3</dimension></dimensions>
-<type>NX_CHAR</type>
-<value>GeV</value>
-</Attr>
-</SDS>
 <SDS @name=name>
 <dimensions><dimension>3</dimension></dimensions>
 <type>NX_CHAR</type>

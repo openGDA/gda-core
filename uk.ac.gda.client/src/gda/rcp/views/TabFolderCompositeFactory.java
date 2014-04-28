@@ -32,7 +32,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.IWorkbenchPartSite;
 import org.springframework.beans.factory.InitializingBean;
 
 
@@ -40,8 +39,8 @@ public class TabFolderCompositeFactory implements CompositeFactory, Initializing
 	protected TabCompositeFactory[] factories;
 
 	@Override
-	public Composite createComposite(Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite) {
-		final TabFolderComposite comp = new TabFolderComposite(parent, style, iWorkbenchPartSite, factories);
+	public Composite createComposite(Composite parent, int style) {
+		final TabFolderComposite comp = new TabFolderComposite(parent, style, factories);
 		comp.createControls();
 		return comp;
 	}
@@ -66,11 +65,9 @@ class TabFolderComposite extends Composite {
 	private CTabFolder tabFolder;
 	protected TabCompositeFactory[] availableModes;
 	private HashMap<TabCompositeFactory, CTabItem> tabs;
-	private final IWorkbenchPartSite iWorkbenchPartSite;
 	
-	public TabFolderComposite(Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite,  TabCompositeFactory[] availableModes) {
+	public TabFolderComposite(Composite parent, int style, TabCompositeFactory[] availableModes) {
 		super(parent, style);
-		this.iWorkbenchPartSite = iWorkbenchPartSite;
 		this.availableModes = availableModes;
 	}	
 	
@@ -97,7 +94,7 @@ class TabFolderComposite extends Composite {
 			}
 			cTab.setText(mode.getLabel());
 			cTab.setToolTipText(mode.getTooltip());
-			Control control = mode.createComposite(tabFolder, SWT.NONE, iWorkbenchPartSite);
+			Control control = mode.createComposite(tabFolder, SWT.NONE);
 			cTab.setControl(control);
 			tabs.put(mode, cTab);
 			

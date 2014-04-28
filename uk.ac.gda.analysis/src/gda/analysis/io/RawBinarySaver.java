@@ -29,9 +29,12 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IFileSaver;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  * Save datasets in a Diamond specific raw format
@@ -70,7 +73,7 @@ public class RawBinarySaver implements IFileSaver {
 	}
 
 	@Override
-	public void saveFile(DataHolder dh) throws ScanFileHolderException {
+	public void saveFile(IDataHolder dh) throws ScanFileHolderException {
 		File f = null;
 		for (int i = 0, imax = dh.size(); i < imax; i++) {
 			try {
@@ -94,7 +97,9 @@ public class RawBinarySaver implements IFileSaver {
 			} catch (Exception e) {
 				throw new ScanFileHolderException("Error saving file '" + filename + "'", e);
 			}
-			DoubleDataset data = (DoubleDataset) dh.getDataset(i).cast(AbstractDataset.FLOAT64);
+			
+			AbstractDataset adata = DatasetUtils.convertToAbstractDataset(dh.getDataset(i));
+			DoubleDataset data = (DoubleDataset)adata.cast(AbstractDataset.FLOAT64);
 			byte dtype = -1;
 			byte isize = 1;
 			String dataName = data.getName();

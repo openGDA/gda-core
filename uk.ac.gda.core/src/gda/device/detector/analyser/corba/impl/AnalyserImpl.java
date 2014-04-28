@@ -603,4 +603,9 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		scannableImpl.atLevelStart();
 	}
 
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+	}
+
 }

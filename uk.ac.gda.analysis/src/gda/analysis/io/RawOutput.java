@@ -24,8 +24,10 @@ import java.io.FileWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IFileSaver;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  * Class that saves data from DataHolder and writes the output as delimited
@@ -50,11 +52,10 @@ public class RawOutput implements IFileSaver {
 
 	/**
 	 * 
-	 * @see gda.analysis.io.IFileSaver#saveFile(DataHolder)
+	 * 
 	 */
-
 	@Override
-	public void saveFile(DataHolder dh) throws ScanFileHolderException {
+	public void saveFile(IDataHolder dh) throws ScanFileHolderException {
 		File f = null;
 		for (int i = 0, imax = dh.size(); i < imax; i++) {
 			try {
@@ -77,7 +78,7 @@ public class RawOutput implements IFileSaver {
 
 				f = new File(name);
 
-				AbstractDataset data = dh.getDataset(i);
+				IDataset data = dh.getDataset(i);
 				int[] dims = data.getShape();
 				int height = dims[0];
 				int width = dims[1];

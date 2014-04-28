@@ -19,9 +19,6 @@
 
 package gda.analysis;
 
-import gda.analysis.io.IFileLoader;
-import gda.analysis.io.IFileSaver;
-import gda.analysis.io.ScanFileHolderException;
 import gda.analysis.utils.DatasetMaths;
 
 import java.io.Serializable;
@@ -42,10 +39,14 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IFileLoader;
+import uk.ac.diamond.scisoft.analysis.io.IFileSaver;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 
 /**
@@ -78,7 +79,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	/**
 	 * container for all the lines of the data file
 	 */
-	protected DataHolder holder;
+	protected IDataHolder holder;
 
 	/**
 	 * Container for an image which is associated with the file.
@@ -194,7 +195,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	@Override
 	public DataSet getAxis(String axisName) throws IllegalArgumentException {
 		try {
-			AbstractDataset a = holder.getDataset(axisName);
+			IDataset a = holder.getDataset(axisName);
 			if (a != null) {
 				DataSet data = DataSet.convertToDataSet(a).clone();
 				if (data != null)
@@ -219,7 +220,8 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	@Override
 	public AbstractDataset getAxis(int axisNumber) throws IllegalArgumentException {
 		try {
-			return holder.getDataset(axisNumber).clone();
+			IDataset data = holder.getDataset(axisNumber).clone();
+			return DatasetUtils.convertToAbstractDataset(data);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			logger.error("{} is not a valid position in ScanFileHolder", axisNumber);
 			throw new IllegalArgumentException(axisNumber + " is not a valid position in the ScanFileHolder");
@@ -228,12 +230,16 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	@Override
 	public List<Double> getInterpolatedX(String XAxis, String YAxis, double yPosition) {
-		return DatasetUtils.crossings(holder.getDataset(XAxis), holder.getDataset(YAxis), yPosition);
+		AbstractDataset a = DatasetUtils.convertToAbstractDataset(holder.getDataset(XAxis));
+		AbstractDataset b = DatasetUtils.convertToAbstractDataset(holder.getDataset(YAxis));
+		return DatasetUtils.crossings(a, b, yPosition);
 	}
 
 	@Override
 	public List<Double> getInterpolatedX(String XAxis, String YAxis, double yPosition, double VarianceProportion) {
-		return DatasetUtils.crossings(holder.getDataset(XAxis), holder.getDataset(YAxis), yPosition, VarianceProportion);
+		AbstractDataset a = DatasetUtils.convertToAbstractDataset(holder.getDataset(XAxis));
+		AbstractDataset b = DatasetUtils.convertToAbstractDataset(holder.getDataset(YAxis));
+		return DatasetUtils.crossings(a, b, yPosition, VarianceProportion);
 	}
 
 	@Deprecated

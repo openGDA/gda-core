@@ -293,4 +293,10 @@ public class ControlpointImpl extends CorbaControlPointPOA {
 		scannableImpl.atLevelStart();
 	}
 
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+		
+	}
+
 }

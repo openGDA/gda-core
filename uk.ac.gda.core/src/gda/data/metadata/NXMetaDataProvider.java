@@ -24,6 +24,7 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeAppender;
 import gda.data.nexus.tree.NexusTreeNode;
+import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -31,6 +32,8 @@ import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Findable;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -107,7 +110,9 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 	
 	
 	Map<String, Object> metaTextualMap;
-	List<Scannable> metaScannables = new Vector<Scannable>();
+	//List<Scannable> metaScannables = new Vector<Scannable>();
+	
+	private boolean withScannables = false; 
 
 
 	private static final Logger logger = LoggerFactory.getLogger(NXMetaDataProvider.class);
@@ -139,21 +144,33 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 			}
 		}
 
-		for (Scannable scn : metaScannables) {
-			//System.out.println("getNexusTree: scannable = " + scn.getName());
-			try {
-				Map<String, Object> scannableMap = createMetaScannableMap(scn);
-				//System.out.println("\t scannableMap = " + scannableMap.toString());
-				INexusTree childNode = createChildNodeForScannableMetaEntry(scn, topNode, scannableMap); //TODO Change name
-				if (childNode != null) {
-					topNode.addChildNode(childNode);
-				} else {
-					logger.debug("Nexus tree child node is null for " + scn.getName());
+		if (withScannables) {
+			//for (Scannable scn : metaScannables) {
+			List<Scannable> metaScannableList = new Vector<Scannable>();
+			Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
+			for (String scannableName : metaScannableSet) {
+				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+				if (scannable == null) {
+					throw new IllegalStateException("could not find scannable '" + scannableName + "' in Jython namespace.");
 				}
-			} catch (DeviceException e1) {
-				logger.error("Error creating metadata for scannable" + scn.getName(), e1);
+				metaScannableList.add(scannable);
 			}
-
+			for (Scannable scn : metaScannableList) {
+//				System.out.println("getNexusTree: scannable = " + scn.getName());
+				try {
+					Map<String, Object> scannableMap = createMetaScannableMap(scn);
+					//System.out.println("\t scannableMap = " + scannableMap.toString());
+					INexusTree childNode = createChildNodeForScannableMetaEntry(scn, topNode, scannableMap); //TODO Change name
+					if (childNode != null) {
+						topNode.addChildNode(childNode);
+					} else {
+						logger.debug("Nexus tree child node is null for " + scn.getName());
+					}
+				} catch (DeviceException e1) {
+					logger.error("Error creating metadata for scannable" + scn.getName(), e1);
+				}
+	
+			}
 		}
 	}
 
@@ -311,12 +328,22 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 	}
 
 	public void setMetaScannables(List<Scannable> metaScannables) {
-		this.metaScannables.addAll(metaScannables);
+		//this.metaScannables.addAll(metaScannables);
+		for (Scannable scn : metaScannables) {
+			NexusDataWriter.getMetadatascannables().add(scn.getName());
+		}
 	}
 
 	public List<Scannable> getMetaScannables() {
-		List<Scannable> outLst = new Vector<Scannable>(this.metaScannables);
-		return outLst;
+		//List<Scannable> outLst = new Vector<Scannable>(this.metaScannables);
+		//return outLst;
+		List<Scannable> metaScannableList = new Vector<Scannable>();
+		Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
+		for (String scannableName : metaScannableSet) {
+			Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+			metaScannableList.add(scannable);
+		}
+		return metaScannableList;
 	}
 	
 	
@@ -324,6 +351,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 	 * To be called by meata_ls command
 	 */
 	public String list(boolean withValues) {
+		withScannables = true;
 		return concatenateContentsForList(withValues, preamble, lsNextItemSeparator, llMidConnector, llNextItemSeparator);
 	}
 
@@ -462,6 +490,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 		if (strOutLen >= lsNextItemSeparatorUsedLen) {
 			strOut = strOut.substring(0, strOutLen - lsNextItemSeparatorUsedLen);
 		}
+		withScannables = false;
 		return strOut;
 	}
 	
@@ -479,10 +508,11 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 
 	public void add(Scannable scannable) {
 		logger.debug("add called on scannable = " + scannable.getName());
-		while( metaScannables.contains(scannable)){
-			metaScannables.remove(scannable);
+		String scannableName = scannable.getName();
+		while (NexusDataWriter.getMetadatascannables().contains(scannableName)) {
+			NexusDataWriter.getMetadatascannables().remove(scannableName);
 		}
-		metaScannables.add(scannable);
+		NexusDataWriter.getMetadatascannables().add(scannableName);
 	}
 
 	public void remove(Object... args) {
@@ -499,11 +529,19 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 	
 	public void remove(Scannable scannable) {
 		logger.debug("remove called on scannable = " + scannable.getName());
-		metaScannables.remove(scannable);
+		//metaScannables.remove(scannable);
+		NexusDataWriter.getMetadatascannables().remove(scannable.getName());
 	}
 
 	public void createMetaScannableMap() throws DeviceException {
-		for (Scannable scn : metaScannables) {
+		//for (Scannable scn : metaScannables) {
+		List<Scannable> metaScannableList = new Vector<Scannable>();
+		Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
+		for (String scannableName : metaScannableSet) {
+			Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+			metaScannableList.add(scannable);
+		}
+		for (Scannable scn : metaScannableList) {
 			List<ScannableMetaEntry> metas = new Vector<ScannableMetaEntry>();
 
 			List<String> scnNames = new Vector<String>();

@@ -28,7 +28,9 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.io.CBFLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  * set up file paths
@@ -99,7 +101,7 @@ public class RawOutputTest {
 	
 	@Test
 	public void testLoaderFactory() throws Exception {
-		DataHolder dh = LoaderFactory.getData(testpath + "F6_1_001.cbf", null);
+		IDataHolder dh = LoaderFactory.getData(testpath + "F6_1_001.cbf", null);
         if (dh==null || dh.getNames().length<1) throw new Exception();
  	}
 

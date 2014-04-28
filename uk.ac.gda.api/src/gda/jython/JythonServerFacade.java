@@ -50,7 +50,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
+import org.python.core.PyException;
 import org.python.core.PyFile;
+import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -149,12 +151,13 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				logger.error(msg);
 				throw new InstantiationException(msg); // Important - do no exit incorrect for rcp gda client
 			}
-
+			
 			// register with the Command Server and validate login information supplied by the user
 			try {
 				originalUsername = UserAuthentication.getUsername();
+				final String fullName = LibGdaCommon.getFullNameOfUser(originalUsername);
 				indexNumberInJythonServer = commandServer.addFacade(this, name, localHost, UserAuthentication
-						.getUsername(), "");
+						.getUsername(), fullName, "");
 				originalAuthorisationLevel = commandServer.getAuthorisationLevel(indexNumberInJythonServer);
 			} catch (DeviceException e) {
 				final String msg = "Login failed for user: " + UserAuthentication.getUsername();
@@ -926,17 +929,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public ClientDetails getBatonHolder() {
 
 		if (amIBatonHolder()) {
-			String localHost = "unknown";
-			try {
-				InetAddress hostAddress = java.net.InetAddress.getLocalHost();
-				localHost = hostAddress.getHostName();
-			} catch (UnknownHostException e) {
-				logger.error("Problems getting host name", e);
-			}
-			final String username = UserAuthentication.getUsername();
-			final String fullName = LibGdaCommon.getFullNameOfUser(username);
-			return new ClientDetails(indexNumberInJythonServer, username, fullName, localHost,
-					getAuthorisationLevel(), true, visitID);
+			ClientDetails myDetails = getMyDetails();
+			return myDetails;
 		}
 
 		final ClientDetails[] others = getOtherClientInformation();
@@ -1013,29 +1007,16 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public ClientDetails getMyDetails() {
-		int authorisationLevel = this.originalAuthorisationLevel;
-		String username = this.originalUsername;
+		ClientDetails myDetails = commandServer.getClientInformation(name);
 		if (runningAsAlternateUser) {
-			username = this.alternateUsername;
+			myDetails.setUserID(this.alternateUsername);
 			try {
-				authorisationLevel = AuthoriserProvider.getAuthoriser().getAuthorisationLevel(alternateUsername);
+				myDetails.setAuthorisationLevel(AuthoriserProvider.getAuthoriser().getAuthorisationLevel(alternateUsername));
 			} catch (ClassNotFoundException e) {
-				authorisationLevel = 0;
+				myDetails.setAuthorisationLevel(0);
 			}
 		}
-		
-		final String fullName = LibGdaCommon.getFullNameOfUser(username);
-		
-		String localHost = "unknown";
-		InetAddress hostAddress;
-		try {
-			hostAddress = java.net.InetAddress.getLocalHost();
-			localHost = hostAddress.getHostName();
-		} catch (UnknownHostException e) {
-			logger.error("Problems while getting host name", e);
-		}
-
-		return new ClientDetails(indexNumberInJythonServer, username, fullName, localHost, authorisationLevel, amIBatonHolder(), visitID);
+		return myDetails;
 	}
 	
 	@Override
@@ -1096,5 +1077,27 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public void deleteOutputTerminal(Terminal term) {
 		deleteIObserver(term);
-	}	
+	}
+	
+	
+	/**
+	 * Evaluates a string as a Python expression and returns the result. Bypasses translator, batton control, and is not
+	 * available across corba.
+	 * <p>
+	 * This is of particular utility compared to other offerings as calls are synchronous, throw exceptions and can return an actual object.
+	 */
+	public PyObject eval(String s) throws PyException{
+		return commandServer.eval(s);
+	}
+
+	/**
+	 * Executes a string of Python source in the local namespace. Bypasses translator, batton control, and is not
+	 * available across corba.
+	 * <p>
+	 * This is of particular utility compared to other offerings as calls are synchronous and  throw exceptions.
+	 */
+	public void exec(String s) throws PyException {
+		commandServer.exec(s);
+	}
+	
 }

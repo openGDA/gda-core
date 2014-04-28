@@ -45,9 +45,11 @@ public class NXMultipleFileLinkWriter extends DataWriterExtenderBase{
 		filename=new File(dataPoint.getCurrentFilename()).getAbsolutePath();
 		Vector<Object> data = dataPoint.getDetectorData();
 		detectorHeader = dataPoint.getDetectorHeader();
-		for (Object name : data)
-			if (name instanceof String)
+		for (Object name : data) {
+			if (name instanceof String) {
 				externalfilenames.add(name.toString());
+			}
+		}
 	}
 
 	@Override

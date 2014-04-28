@@ -32,7 +32,7 @@ public class XYPlotHideAllHandler extends AbstractHandler {
 	/**
 	 * ID of command
 	 */
-	public static final String ID = "uk.ac.gda.client.xyPlotHideAllCommand";	
+	public static final String ID = "uk.ac.gda.client.xyPlotHideAllCommand";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {

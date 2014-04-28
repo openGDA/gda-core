@@ -369,4 +369,8 @@ public class DataloggerImpl extends CorbaDataLoggerPOA {
 		scannableImpl.atLevelStart();
 	}
 
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+	}
 }

@@ -6,7 +6,7 @@ from gdascripts.analysis.datasetprocessor.oned.GaussianEdge import GaussianEdge
 from gdascripts.analysis.datasetprocessor.oned.TwoGaussianEdges import TwoGaussianEdges
 from gdascripts.analysis.datasetprocessor.oned.scan_stitching import Lcen, Rcen
 
-from testjy.gdascripts_test.analysis_test.datasetprocessor_test.oned_test.files.files import WIRESCANFILE, WIRESCANFILE2, DAT_31473, DAT_31474, DAT_31484
+from testjy.gdascripts_test.analysis_test.datasetprocessor_test.oned_test.files.files import WIRESCANFILE, WIRESCANFILE2, DAT_31473, DAT_31474, DAT_31484, WIRESCANFILE_FAILING_NEGATIVE_STEP
 from gda.analysis import DataSet, ScanFileHolder
 from gda.analysis.io import SRSLoader
 
@@ -139,7 +139,7 @@ class TestPeak(Test):
 		self.p = GaussianPeakAndBackground()
 		
 	def test__init__(self):
-		self.check__init__('peak', ('pos','offset','top', 'fwhm'), 'pos')
+		self.check__init__('peak', ('pos','offset','top', 'fwhm', 'residual'), 'pos')
 		
 	def test_process(self):
 		pos = 15.014649472869898
@@ -177,32 +177,37 @@ class TestEdge(Test):
 		self.yDataset = sfh.getDataSet('ch16')
 		
 	def test__init__(self):
-		self.check__init__('edge', ('pos','slope', 'fwhm'), 'pos')
+		self.check__init__('edge', ('pos','slope', 'fwhm', 'residual'), 'pos')
 		
 	def test_process(self):
-		pos,  top, fwhm = self.p._process(self.xDataset, self.yDataset)
+		pos,  top, fwhm, _ = self.p._process(self.xDataset, self.yDataset)
 		self.assertAlmostEqual(pos, 6.4703041688, 4)
 		self.assertAlmostEqual(abs(top), 10050.0, -2)
 		self.assertAlmostEqual(fwhm, 0.0066020719, 4)
+
+
+def check(result, expected, labels, tol=.0001):
+	if not closer(result, expected, tol):
+		lines = ['Result not close to expected to tolerence:' + str(tol)]
+		lines.append('          result  expected')
+		for r, e, name in zip(result, expected, labels):
+			lines.append('%6s % 6f % 6f' % (name, r, e))
+		fmt = 'result: ' + ', '.join(['% 6f'] * len(result))
+		lines.append(fmt % result)
+		raise AssertionError('\n'.join(lines))
 
 
 class TestTwoEdges(Test):
 		
 	def setUp(self):
 		Test.setUp(self)
-		self.p = TwoGaussianEdges()
-		
 		sfh = ScanFileHolder()
-#		sfh.load(SRSLoader(WIRESCANFILE))
-#		self.xDataset = sfh.getDataSet('tbdiagY')
-#		self.yDataset = sfh.getDataSet('pips2')		
-#		
-#		self.xDatasetLeft = self.xDataset[0:len(self.xDataset)]
-#		self.yDatasetLeft = self.yDataset[0:len(self.yDataset)]		
+
 		sfh.load(SRSLoader(WIRESCANFILE)) ## where tbdiagZcoarse is outer loop, tbdiagY is inner loop and pips2 is data
 		self.outer = sfh.getDataSet('tbdiagZcoarse')
 		self.inner = sfh.getDataSet('tbdiagY')
 		self.det   = sfh.getDataSet('pips2')
+		self.labels = TwoGaussianEdges().labelList
 	
 	def getInnerAndDetDatasetForGivenOuterValue(self, outerValue, DataSet=DataSet):
 		mush =  [[o, i, d] for o,i,d in
@@ -210,77 +215,53 @@ class TestTwoEdges(Test):
 				 if o==float(outerValue)]
 		x = [a[1] for a in mush]
 		y = [a[2] for a in mush]
-		print x
-		print y
 		return DataSet.array(x), DataSet.array(y)
 	
-#	def test__init__(self):
-#		self.check__init__('edge', ('pos','slope', 'fwhm'), 'pos')
-		
-	def test_process_positive_pulse(self):
-		upos, ufwhm, dpos, dfwhm = -3.945, 0.006538598547287666, -3.897, 0.007012183526397653
-		# outer = 148
+	def test_process_positive_pulse_148(self):
 		x, y = self.getInnerAndDetDatasetForGivenOuterValue(148.0)
-		result = self.p._process(x, y)
-		expected = (upos, ufwhm, dpos, dfwhm , 1.94, (ufwhm+ dfwhm)/2)
-		self.assert_(closer(result, expected, 0.02),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
+		expected = -3.944682,  0.006067, -3.896408,  0.006343,  1.691232,  0.006205
+		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
+
+	def test_process_positive_pulse_158(self):
+		x, y = self.getInnerAndDetDatasetForGivenOuterValue(158.0)
+		expected = -3.944114,  0.002347, -3.895760,  0.002611,  1.637478,  0.002479
+		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
+
+	def test_process_positive_pulse_185(self):
+		x, y = self.getInnerAndDetDatasetForGivenOuterValue(185.0)
+		expected = -3.946507,  0.011813, -3.898099,  0.011800,  1.715308,  0.011806
+		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
 
 	def test_process_negative_pulse(self):
-		dpos, dfwhm ,upos, ufwhm, area, fwhm = -3.897, 0.007012183526397653, -3.945, 0.006538598547287666, 1.9477794856163586, 0.0067753910368426595
 		# outer = 148, y --> -1
 		x, y = self.getInnerAndDetDatasetForGivenOuterValue(148.0)
 		y = -1 * y
-		print y.doubleArray()
-		result = self.p._process(x, y)
-		expected = (dpos, dfwhm ,upos, ufwhm, area, fwhm)
-		self.assert_(closer(result, expected),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
+		expected = -3.896408,  0.006343, -3.944682,  0.006067,  1.691232,  0.006205
+		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
 	
 	def test_process_positive_edge(self):
-		upos, ufwhm, dpos, dfwhm , area, fwhm =	-3.94, 0.006, -3.896, 0.00634, 1.691, 0.0062
-		uarea = 1.68
 		# outer = 148, left half (first half of data though!)
 		x, y = self.getInnerAndDetDatasetForGivenOuterValue(148.0)
 		x=x[len(x)/2:]
 		y=y[len(y)/2:]
-		result = self.p._process(x, y)
-		expected = (upos, ufwhm, 0, 0 , uarea, ufwhm)
-		# compare with the same tolerance as specified in the NelderMead constructor (_process in TwoGaussianEdges)
-		# This has been Dissabled but should be sorted out in the code reviews to be conducted as part of 
-		#self.assert_(closer(result, expected, 0.02),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
+		expected = -3.944682,  0.006067,  0.000000,  0.000000,  1.683015,  0.006067
+		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
 
 	def test_process_negative_edge(self):
-		dpos, dfwhm =  -3.897, 0.007012183526397653
-		darea = 2.0146003271342665
-		
-		
 		# outer = 148, left half (first half of data though!)
 		x, y = self.getInnerAndDetDatasetForGivenOuterValue(148.0)
 		x=x[:len(x)/2]
 		y=y[:len(y)/2]
-		result = self.p._process(x, y)
-		expected = (0, 0, dpos, dfwhm, darea, dfwhm)
-		# compare with the same tolerance as specified in the NelderMead constructor (_process in TwoGaussianEdges)
-		self.assert_(closer(result, expected, 0.02),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
+		expected = 0.000000,  0.000000, -3.896408,  0.006343,  1.699449,  0.006343
+		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
 
-	def testWithFailedRealworldCase1(self):
-		#	upos, ufwhm, uarea, dpos, dfwhm, darea =	-3.9446817310490303, 0.00606781983747795, 1.683015428325902, -3.8964078360719188, 0.00634377630045584, 1.6912320011757114 
-		# outer = 148
-		x, y = self.getInnerAndDetDatasetForGivenOuterValue(158.0)
-		result = self.p._process(x, y)
-		print 123
-		#expected = (upos, ufwhm, dpos, dfwhm , 1.6912320011757114, (ufwhm+ dfwhm)/2)
-		#self.assert_(closer(result, expected),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
+	def test_with_failing_negative_edge_2014(self):
+		sfh = ScanFileHolder()
+		sfh.load(SRSLoader(WIRESCANFILE_FAILING_NEGATIVE_STEP))
+		result = TwoGaussianEdges()._process(sfh.getDataSet('kbwireY'), sfh.getDataSet('ai2'))
+		expected = 0.000000,  0.000000, -3.878564,  0.777419,  1.535403,  0.777419
+		check(result, expected, TwoGaussianEdges().labelList)
 
-	def testWithFailedRealworldCase2(self):
-		#	upos, ufwhm, uarea, dpos, dfwhm, darea =	-3.9446817310490303, 0.00606781983747795, 1.683015428325902, -3.8964078360719188, 0.00634377630045584, 1.6912320011757114 
-		# outer = 148
-		x, y = self.getInnerAndDetDatasetForGivenOuterValue(185.0)
-		result = self.p._process(x, y)
-		print 123
-		#expected = (upos, ufwhm, dpos, dfwhm , 1.6912320011757114, (ufwhm+ dfwhm)/2)
-		#self.assert_(closer(result, expected),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
-
-	
 
 def suite():
 	suite = unittest.TestSuite()
@@ -289,9 +270,9 @@ def suite():
 	suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestCOM))
 	suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestPeak))
 	suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestEdge))
-	suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTwoEdges))			
-	suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestLcen))			
-	suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestRcen))			
+	suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTwoEdges))
+	suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestLcen))
+	suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestRcen))
 	suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestStandardPrcoessorsForCompletion))			
 	return suite 
 

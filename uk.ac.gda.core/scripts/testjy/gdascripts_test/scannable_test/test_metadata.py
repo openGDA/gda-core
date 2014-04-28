@@ -109,7 +109,7 @@ scn3.c=4.1234
 
     def test_atScanEnd(self):
         self.mc.atScanEnd()
-        eq_(self.d, {'should_remain': 1, KEY: ''})
+        eq_(self.mc.rootNamespaceDict, {'should_remain': 1, KEY: 'abcd\n'})
 
     def test_atCommandFailure(self):
         self.mc.atCommandFailure()

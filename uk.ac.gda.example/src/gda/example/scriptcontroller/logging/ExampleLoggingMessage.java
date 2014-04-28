@@ -28,14 +28,16 @@ import gda.jython.scriptcontroller.logging.ScriptControllerLoggingMessage;
  */
 public class ExampleLoggingMessage implements ScriptControllerLoggingMessage, Serializable {
 
+	private final String visitID;
 	String id = "";
 	String scriptName;
 	String progress;
 	String percentComplete;
 	String sampleTemperature;
 
-	public ExampleLoggingMessage(String id, String scriptName, String progress, String percentComplete,
+	public ExampleLoggingMessage(String visitID, String id, String scriptName, String progress, String percentComplete,
 			String sampleTemperature) {
+		this.visitID = visitID;
 		this.id = id;
 		this.scriptName = scriptName;
 		this.progress = progress;
@@ -76,6 +78,13 @@ public class ExampleLoggingMessage implements ScriptControllerLoggingMessage, Se
 
 	@Override
 	public String getMsg() {
-		return getProgress() + " (" + getPercentComplete()  + " complete)";
+		return getProgress() + " (" + getPercentComplete() + " complete)";
 	}
+
+	@Override
+	@ScriptControllerLogColumn(columnName = "Visit ID", refresh = false, columnIndex = 0)
+	public String getVisitID() {
+		return visitID;
+	}
+
 }

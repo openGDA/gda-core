@@ -430,6 +430,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				if (isFinishEarlyRequested()) {
 					return;
 				}
+				principleScanObject.scannable.atLevelEnd();
 				runChildScan();
 				checkThreadInterrupted();
 				// note that some scan hooks not called (atPointStart,atLevelMoveStart,atPointEnd) as this scannable is ot part of the child scan
@@ -461,6 +462,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					stepId = principleScanObject.moveStep();
 					checkAllMovesComplete();
 					checkThreadInterrupted();
+					principleScanObject.scannable.atLevelEnd();
 					runChildScan();
 					checkThreadInterrupted();
 				}

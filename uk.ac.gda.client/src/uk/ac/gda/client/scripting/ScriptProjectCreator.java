@@ -20,6 +20,7 @@ package uk.ac.gda.client.scripting;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
+import gda.rcp.GDAClientActivator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -56,7 +57,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.common.rcp.util.BundleUtils;
 import uk.ac.gda.jython.PydevConstants;
-import uk.ac.gda.client.Activator;
 import uk.ac.gda.ui.utils.ProjectUtils;
 
 /**
@@ -84,7 +84,7 @@ public class ScriptProjectCreator implements IStartup {
 	}
 
 	static public void handleShowXMLConfig(IProgressMonitor monitor) throws CoreException {
-		final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
 		if (store.getBoolean(PreferenceConstants.SHOW_XML_CONFIG)) {
 			ProjectUtils.createImportProjectAndFolder(getProjectNameXMLConfig(), "src",
 					LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml", null, null, monitor);
@@ -108,7 +108,7 @@ public class ScriptProjectCreator implements IStartup {
 
 		if (System.getProperty("gda.client.jython.automatic.interpreter") != null)
 			return;
-		final IPreferenceStore preferenceStore = Activator.getDefault().getPreferenceStore();
+		final IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
 		monitor.subTask("Checking if interpreter already exists");
@@ -188,7 +188,7 @@ public class ScriptProjectCreator implements IStartup {
 
 	static public void createProjects(IProgressMonitor monitor) throws Exception {
 		monitor.subTask("Checking existence of projects");
-		final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
 		boolean chkGDASyntax = store.getBoolean(PreferenceConstants.CHECK_SCRIPT_SYNTAX);
 
 		if (chkGDASyntax)

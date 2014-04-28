@@ -97,27 +97,35 @@ public class DefaultComponentWriter implements ComponentWriter {
 
 		String name = enterLocation(file, path);
 
-		int[] makedatadim = makedatadimfordim(dim);
-		file.makedata(name, NexusFile.NX_FLOAT64, makedatadim.length, makedatadim);
-		file.opendata(name);
-		file.putattr("local_name", String.format("%s.%s", scannableName, componentName).getBytes(),
-				NexusFile.NX_CHAR);
-
-		String axislist = "1";
-		for (int j = 2; j <= dim.length; j++) {
-			axislist = axislist + String.format(",%d", j);
+		try {
+			file.opendata(name);
+			logger.info("found dataset "+path+" exists already when trying to create it for "+scannableName+". This may not be a problem provided the data written is the same");
+			return sclc;
+		} catch (NexusException e) {
+			// this is normal case!
+			int[] makedatadim = makedatadimfordim(dim);
+			file.makedata(name, NexusFile.NX_FLOAT64, makedatadim.length, makedatadim);
+			file.opendata(name);
+			if (componentName != null) {
+				file.putattr("local_name", String.format("%s.%s", scannableName, componentName).getBytes(), NexusFile.NX_CHAR);
+			}
+	
+			String axislist = "1";
+			for (int j = 2; j <= dim.length; j++) {
+				axislist = axislist + String.format(",%d", j);
+			}
+			file.putattr("axis", axislist.getBytes(), NexusFile.NX_CHAR);
+			if (unit != null && !unit.isEmpty())
+				file.putattr("units", unit.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
+			addCustomAttributes(file, scannableName, componentName);
+			file.putslab(getComponentSlab(pos), nulldimfordim(dim), slabsizedimfordim(dim));
+	
+			sclc.add(new SelfCreatingLink(file.getdataID()));
+			file.closedata();
+		} finally {
+			leaveLocation(file);
 		}
-		file.putattr("axis", axislist.getBytes(), NexusFile.NX_CHAR);
-		if (unit != null && !unit.isEmpty())
-			file.putattr("units", unit.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
-		addCustomAttributes(file, scannableName, componentName);
-		file.putslab(getComponentSlab(pos), nulldimfordim(dim), slabsizedimfordim(dim));
-
-		sclc.add(new SelfCreatingLink(file.getdataID()));
-		file.closedata();
-
-		leaveLocation(file);
-
+		
 		return sclc;
 	}
 

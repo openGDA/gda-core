@@ -72,7 +72,7 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
     boolean runsource(in string command, in string observer, in string JSFIdentifier)
       raises (device::corba::CorbaDeviceException);
 
-    long addFacade(in string name, in string hostName, in string username, in string visitID)
+    long addFacade(in string name, in string hostName, in string username, in string fullname, in string visitID)
       raises (device::corba::CorbaDeviceException);
 
     void removeFacade(in string name)
@@ -134,6 +134,8 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
 
 	void assignBaton(in string myJSFIdentifier, in long indexOfReciever) raises (device::corba::CorbaDeviceException);
 	
+	any getClientInformation(in string myJSFIdentifier) raises (device::corba::CorbaDeviceException);
+
 	any getOtherClientInformation(in string myJSFIdentifier) raises (device::corba::CorbaDeviceException);
 	
 	boolean amIBatonHolder(in string myJSFIdentifier) raises (device::corba::CorbaDeviceException);

@@ -73,7 +73,7 @@ public class ScannableWrapper extends UIObservableModel implements IObserver {
 				Double[] lowerGdaLimits = ((ScannableMotionUnits)scannable).getLowerGdaLimits();
 				if( (upperGdaLimits != null) && (upperGdaLimits.length==1) && (lowerGdaLimits != null) && (lowerGdaLimits.length==1)) {
 					upperLimit = upperGdaLimits[0];
-					lowerLimit = upperGdaLimits[0];
+					lowerLimit = lowerGdaLimits[0];
 					return;
 				}
 			}

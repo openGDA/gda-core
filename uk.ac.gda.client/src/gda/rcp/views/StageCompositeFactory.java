@@ -31,16 +31,17 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.ui.viewer.RotationViewer;
+import uk.ac.gda.client.composites.MotorPositionEditorControl;
+import uk.ac.gda.client.observablemodels.ScannableWrapper;
 
 public class StageCompositeFactory implements CompositeFactory {
 	private static final Logger logger = LoggerFactory.getLogger(StageCompositeFactory.class);
@@ -87,16 +88,16 @@ public class StageCompositeFactory implements CompositeFactory {
 		GridLayoutFactory.fillDefaults().margins(1, 1).spacing(1, 1).applyTo(cmp);
 
 		Composite c1 = new Composite(cmp, SWT.NONE);
-		GridLayoutFactory.swtDefaults().margins(1,1).spacing(2,2).numColumns(2).applyTo(c1);
-		Label label2 = new Label(c1,SWT.NONE);
+		GridLayoutFactory.swtDefaults().margins(1, 1).spacing(2, 2).numColumns(2).applyTo(c1);
+		Label label2 = new Label(c1, SWT.NONE);
 		label2.setText("Stop all motors on this stage");
 		GridDataFactory.swtDefaults().applyTo(label2);
 		Button button = new Button(c1, SWT.PUSH);
 		ImageDescriptor descr = GDAClientActivator.getImageDescriptor("icons/stop.png");
-		if (descr != null){
+		if (descr != null) {
 			image = descr.createImage();
 			button.setImage(image);
-			
+
 		}
 		button.setToolTipText("Stop all the motors on this stage");
 		GridDataFactory.swtDefaults().applyTo(button);
@@ -115,45 +116,50 @@ public class StageCompositeFactory implements CompositeFactory {
 			}
 
 		});
-		
-		GridLayoutFactory rotationGroupLayoutFactory = GridLayoutFactory.swtDefaults().numColumns(3).margins(0,0).spacing(0,0);
-		GridLayoutFactory layoutFactory = GridLayoutFactory.swtDefaults().numColumns(3).margins(0,0).spacing(0,0);
-		GridData gd = labelWidth != null ?  GridDataFactory.swtDefaults().hint(labelWidth, SWT.DEFAULT).create(): null;
-
 
 		Label sep = new Label(cmp, SWT.SEPARATOR | SWT.HORIZONTAL);
-		GridDataFactory.fillDefaults().grab(true,false).applyTo(sep);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(sep);
 		for (StageCompositeDefinition s : stageCompositeDefinitions) {
-			RotationViewer rotViewer = new RotationViewer(s.scannable, s.getLabel() != null ? s.getLabel()
-					: s.scannable.getName(), s.isResetToZero());
-			rotViewer.configureStandardStep(s.stepSize);
-			rotViewer.setNudgeSizeBoxDecimalPlaces(s.decimalPlaces);
-			if (s.isUseSteps()) {
-				rotViewer.configureFixedStepButtons(s.smallStep, s.bigStep);
+			
+			try {
+				Composite motorComp = new Composite(cmp, SWT.NONE);
+				GridDataFactory.fillDefaults().grab(true, false).applyTo(motorComp);
+				motorComp.setLayout(new GridLayout(2, false));
+
+				Label label = new Label(motorComp, SWT.NONE);
+				label.setText( s.label != null ? s.label :s.scannable.getName());
+				GridDataFactory.swtDefaults().hint(labelWidth != null ? labelWidth : 120, SWT.DEFAULT).applyTo(label);
+				
+				MotorPositionEditorControl motorPosControl;
+				motorPosControl = new MotorPositionEditorControl(motorComp, SWT.NONE, new ScannableWrapper(s.scannable), true, false);
+				motorPosControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+				double d = s.stepSize*Math.pow(10, s.getDecimalPlaces());
+				motorPosControl.setIncrement((int)d);
+			} catch (Exception e1) {
+				logger.error("Error creating control for '", s.scannable.getName() + "'");
 			}
-			rotViewer.createControls(cmp, s.isSingleLineNudge() ? SWT.SINGLE : SWT.NONE, s.isSingleLine(),
-					rotationGroupLayoutFactory.create(), layoutFactory.create(),
-					gd);
+			
+			
 			Label sep1 = new Label(cmp, SWT.SEPARATOR | SWT.HORIZONTAL);
-			GridDataFactory.fillDefaults().grab(true,false).applyTo(sep1);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(sep1);
 		}
 
 		cmp.addDisposeListener(new DisposeListener() {
-			
+
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				if(image != null){
+				if (image != null) {
 					image.dispose();
-					image=null;
+					image = null;
 				}
-				
+
 			}
 		});
 		return cmp;
 	}
 
 	@Override
-	public Composite createComposite(Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite) {
+	public Composite createComposite(Composite parent, int style) {
 		return (Composite) getTabControl(parent);
 	}
 

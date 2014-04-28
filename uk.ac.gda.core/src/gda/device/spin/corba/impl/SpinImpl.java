@@ -323,4 +323,8 @@ public class SpinImpl extends CorbaSpinPOA {
 		scannableImpl.atLevelStart();
 	}
 
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+	}
 }

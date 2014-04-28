@@ -105,11 +105,13 @@ public class AdapterFactory implements Factory {
 	
 	public static Findable createRbacWrappedAdapter(NetService netService, String fullName, String objectName) throws Exception {
 		Findable findable = createAdapter(netService, fullName, objectName);
-		
 		if (LocalProperties.isAccessControlEnabled()) {
-			findable = RbacUtils.buildProxy(findable);
+			try {
+				findable = RbacUtils.buildProxy(findable);
+			} catch (Exception e) {
+				logger.error("Could not wrap findable with Rbac Proxy", e);
+			}
 		}
-		
 		return findable;
 	}
 	

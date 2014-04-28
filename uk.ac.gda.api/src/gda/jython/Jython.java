@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.python.core.PyException;
+import org.python.core.PyObject;
+
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.jython.batoncontrol.ClientDetails;
@@ -153,12 +156,13 @@ public interface Jython extends Findable {
 	 * @param JSFIdentifier
 	 * @param hostName
 	 * @param username
+	 * @param fullName
 	 * @param visitID
 	 * @return the index number of the facade (i.e. its public key)
 	 * @throws DeviceException
 	 *             - thrown if an error during authentication/authorisation
 	 */
-	public int addFacade(IObserver anIObserver, String JSFIdentifier, String hostName, String username, String visitID)
+	public int addFacade(IObserver anIObserver, String JSFIdentifier, String hostName, String username, String fullName, String visitID)
 			throws DeviceException;
 	
 	
@@ -374,6 +378,15 @@ public interface Jython extends Findable {
 	 * @param indexOfReciever
 	 */
 	public void assignBaton(String myJSFIdentifier, int indexOfReciever);
+	
+	
+	/**
+	 * Returns details of this client
+	 * 
+	 * @param name
+	 * @return ClientDetails
+	 */
+	public ClientDetails getClientInformation(String name);
 
 	/**
 	 * Returns an array of objects describing the other clients on this beamline.
@@ -483,4 +496,28 @@ public interface Jython extends Findable {
 
 	public boolean projectIsCoreType(String path);
 
+	/**
+	 * Evaluates a string as a Python expression and returns the result. Bypasses translator, batton control, and is not
+	 * available across corba.
+	 * <p>
+	 * This is of particular utility compared to other offerings as calls are synchronous, throw exceptions and can
+	 * return an actual object.
+	 * 
+	 * @param s
+	 *            The pure Jython string command to eval.
+	 * @return The result of the eval
+	 * @throws PyException If eval resulted in exception.
+	 */
+	public PyObject eval(String s) throws PyException;
+
+	/**
+	 * Executes a string of Python source in the local namespace. Bypasses translator, batton control, and is not
+	 * available across corba.
+	 * <p>
+	 * This is of particular utility compared to other offerings as calls are synchronous and throw exceptions.
+	 * 
+	 * @param s The pure Jython string command to exec.
+	 * @throws PyException If exec resulted in exception.
+	 */
+	public void exec(String s) throws PyException;
 }

@@ -65,9 +65,6 @@ public interface IBatonManager {
 	 */
 	public void removeFacade(String uniqueID);
 
-	/**
-	 * @return Returns the facadeIndex.
-	 */
 	public int getNewFacadeIndex();
 
 	/**

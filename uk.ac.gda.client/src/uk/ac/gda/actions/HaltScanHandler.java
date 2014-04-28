@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -23,8 +23,12 @@ import gda.jython.JythonServerFacade;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HaltScanHandler extends AbstractHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(HaltScanHandler.class);
 
 	// TODO GDA-5863 rename this method to requestFinishEarly
 	@Override

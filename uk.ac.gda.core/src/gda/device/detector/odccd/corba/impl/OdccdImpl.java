@@ -479,4 +479,9 @@ public class OdccdImpl extends CorbaODCCDPOA {
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
 	}
+
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+	}
 }

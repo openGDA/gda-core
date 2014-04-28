@@ -29,4 +29,8 @@ import java.io.Serializable;
  * marked by annotation.
  */
 public interface ScriptControllerLoggingMessage extends Serializable, CommandProgress{
+	
+	@ScriptControllerLogColumn(columnName = "Visit ID", refresh = false, columnIndex = -1)
+	public String getVisitID();
+
 }

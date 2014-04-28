@@ -64,7 +64,7 @@ public class CompositeFactoryView extends ViewPart implements InitializingBean{
 		GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, true).applyTo(top);
 
 		for(CompositeFactory compositeFactory : compositeFactories){
-			Composite composite = compositeFactory.createComposite(top, SWT.NONE, this.getSite());
+			Composite composite = compositeFactory.createComposite(top, SWT.NONE);
 			GridDataFactory.fillDefaults().applyTo(composite);
 		}
 	}

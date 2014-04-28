@@ -393,6 +393,11 @@ public class CurrentamplifierImpl extends CorbaCurrentAmplifierPOA {
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
 	}
+	
+	@Override
+	public void atLevelEnd() throws CorbaDeviceException {
+		scannableImpl.atLevelEnd();
+	}
 
 
 }
