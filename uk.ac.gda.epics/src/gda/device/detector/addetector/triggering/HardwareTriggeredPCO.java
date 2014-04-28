@@ -31,7 +31,7 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 	private final ADDriverPco adDriverPco;
 	private Integer adcMode=1; //2 ADCs
 	private Integer timeStamp=1; // BCD
-	private PcoTriggerMode triggerMode = PcoTriggerMode.EXTERNAL_AND_SOFTWARE; //To allow PcoEdge to run at 100Hz. PcoTriggerMode.EXTERNAL_PULSE;
+	private PcoTriggerMode triggerMode = PcoTriggerMode.EXTERNAL_ONLY; //_AND_SOFTWARE; //To allow PcoEdge to run at 100Hz. PcoTriggerMode.EXTERNAL_PULSE;
 	private Etfg etfg;
 
 	// The port value used to trigger the camera in live mode

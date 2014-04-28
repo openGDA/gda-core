@@ -241,6 +241,12 @@ class ValueBox extends StandardBox{
 
 	public ValueBox(Composite parent, int style) {
 		super(parent, style);
+		GridLayout gridLayout = new GridLayout(3, false);
+		gridLayout.verticalSpacing = 0;
+		gridLayout.marginWidth = 2;
+		gridLayout.marginHeight = 2;
+		gridLayout.horizontalSpacing = 5;
+		setLayout(gridLayout);		
 		addDisposeListener( new DisposeListener() {
 			
 			@Override

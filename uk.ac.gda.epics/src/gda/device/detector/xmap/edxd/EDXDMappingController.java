@@ -169,7 +169,9 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	
 	@Override
 	public void stop() throws DeviceException {
-		xmap.setValueNoWait(STOPALL,"",1);
+		if (xmap != null && xmap.isConfigured()) {
+			xmap.setValueNoWait(STOPALL,"",1);
+		}
 	}
 	
 	/**
@@ -224,6 +226,11 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	
 	public void setPixelsPerRun(int number) throws DeviceException{
 		 xmap.setValue(PIXELSPERRUN, "", number);
+	}
+	
+	public int getPixelsPerRun() throws DeviceException {
+		int number = (Integer) xmap.getValue(ReturnType.DBR_NATIVE, PIXELSPERRUN, "");
+		return number;
 	}
 	
 	//hdf5 commands
@@ -352,5 +359,4 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 			return true;
 		return false;
 	}
-	
 }

@@ -105,7 +105,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	public static final String PCCaptureBitField = "PC_BIT_CAP";
 	public static final String PCEnc = "PC_ENC";
-	public static final String PCEnc1Aval = "PC_ENC1.AVAL";
+	public static final String PCEnc1Aval = "PC_ENC1";
 	public static final String PCTime = "PC_TIME";
 	public static final String PCNumberOfPointsCaptured = "PC_NUM_CAP";
 	public static final String PCNumberOfPointsDownloaded = "PC_NUM_DOWN";
@@ -129,6 +129,22 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	String zebraPrefix;
 
 	CachedLazyPVFactory dev;
+	
+	
+	
+	private boolean useAvalField=false;
+	
+	public boolean isUseAvalField() {
+		return useAvalField;
+	}
+
+	/**
+	 * 
+	 * @param useAvalField if true the captured ENC1 values are stored in .AVAL field ( original IOC interface). Default is false
+	 */
+	public void setUseAvalField(boolean useAvalField) {
+		this.useAvalField = useAvalField;
+	}
 
 	@Override
 	public void setPCPulseSource(int val) throws Exception {
@@ -272,13 +288,12 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public void pcArm() throws Exception {
 		dev.getPVInteger(sysResetProc).putWait(1); // TODO: Do we really need to RESET before each Arm?
 		dev.getPVInteger(PCArm).putWait(1);
-/*		dev.getPVInteger(PCArm).putNoWait(1);
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 		}
-*/	}
+	}
 
 	@Override
 	public void pcDisarm() throws Exception {
@@ -371,7 +386,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
-		return dev.getReadOnlyPVDoubleArray(PCEnc1Aval);
+		return dev.getReadOnlyPVDoubleArray(useAvalField? PCEnc1Aval + ".AVAL": PCEnc1Aval);
 	}
 
 	@Override

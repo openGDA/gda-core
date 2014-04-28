@@ -176,6 +176,17 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * Monitor EPICS motor higher limit
 	 */
 	protected HLMMonitorListener highLimitMonitor;
+
+	/**
+	 * Monitor EPICS motor dial higher limit
+	 */
+	protected DHLMMonitorListener dialHighLimitMonitor;
+
+	/**
+	 * Monitor EPICS motor dial lower limit
+	 */
+	protected DLLMMonitorListener dialLowLimitMonitor;
+	
 	protected MSTAMonitorListener mstaMonitorListener;
 	/**
 	 * Monitor EPICS motor limit violation
@@ -265,6 +276,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		putCallbackListener = new PutCallbackListener();
 		highLimitMonitor = new HLMMonitorListener();
 		lowLimitMonitor = new LLMMonitorListener();
+		dialHighLimitMonitor = new DHLMMonitorListener();
+		dialLowLimitMonitor = new DLLMMonitorListener();
 		lvioMonitor = new LVIOMonitorListener();
 		mstaMonitorListener = new MSTAMonitorListener();
 		setUseListener = new SetUseMonitorListener();
@@ -394,8 +407,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			lvio = channelManager.createChannel(pvName + ".LVIO");
 			hlm = channelManager.createChannel(pvName + ".HLM", highLimitMonitor, false);
 			llm = channelManager.createChannel(pvName + ".LLM", lowLimitMonitor, false);
-			dhlm = channelManager.createChannel(pvName + ".DHLM", false);
-			dllm = channelManager.createChannel(pvName + ".DLLM", false);
+			dhlm = channelManager.createChannel(pvName + ".DHLM", dialHighLimitMonitor, false);
+			dllm = channelManager.createChannel(pvName + ".DLLM", dialLowLimitMonitor,false);
 			homf = channelManager.createChannel(pvName + ".HOMF", false);
 
 			rdbd = channelManager.createChannel(pvName + ".RDBD", false);
@@ -856,7 +869,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 */
 	protected double getDialLowLimit() throws MotorException {
 		try {
-			return controller.cagetDouble(dllm);
+			return Double.isNaN(dialLowLimit) ? controller.cagetDouble(dllm) : dialLowLimit;
 		} catch (Throwable ex) {
 			throw new MotorException(getStatus(), "Unable to read DLLM for " + getName(), ex);
 		}
@@ -869,7 +882,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 */
 	protected double getDialHighLimit() throws MotorException {
 		try {
-			return controller.cagetDouble(dhlm);
+			return Double.isNaN(dialHighLimit) ? controller.cagetDouble(dhlm) : dialHighLimit;
 		} catch (Throwable ex) {
 			throw new MotorException(getStatus(), "Unable to read DHLM for " + getName(), ex);
 		}
@@ -940,8 +953,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			return Double.NaN;
 		}
 		try {
-			minPosition = controller.cagetDouble(llm);
-			return minPosition;
+			return Double.isNaN(minPosition) ? (minPosition=controller.cagetDouble(llm)) : minPosition;
 		} catch (Throwable ex) {
 			throw new MotorException(getStatus(), "failed to get min position", ex);
 		}
@@ -973,8 +985,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			return Double.NaN;
 		}
 		try {
-			maxPosition = controller.cagetDouble(hlm);
-			return maxPosition;
+			return Double.isNaN(maxPosition) ? (maxPosition=controller.cagetDouble(hlm)) : maxPosition;
 		} catch (Throwable ex) {
 			throw new MotorException(getStatus(), "failed to get max position", ex);
 		}
@@ -1153,6 +1164,10 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * This implementation implies there is an order of importance in the returning bits.
 	 */
 	private MotorStatus lastMotorStatus = MotorStatus.UNKNOWN;
+
+	public double dialHighLimit=Double.NaN;
+
+	public double dialLowLimit=Double.NaN;
 
 	private MotorStatus getMotorStatusFromMSTAValue(double msta) {
 		MotorStatus status = MotorStatus.UNKNOWN;
@@ -1412,6 +1427,37 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		}
 	}
 
+	/**
+	 * update upper dial limit when and if it changes in EPICS.
+	 */
+	private class DHLMMonitorListener implements MonitorListener {
+		@Override
+		public void monitorChanged(MonitorEvent mev) {
+			DBR dbr = mev.getDBR();
+			if  (dbr.isDOUBLE()) {
+				dialHighLimit = ((DBR_Double) dbr).getDoubleValue()[0];
+			} else {
+				logger.error("Error: illegal .DHLM value.");
+			}
+		}
+	}
+
+	/**
+	 * update lower dial limit when and if it changes in EPICS.
+	 */
+	private class DLLMMonitorListener implements MonitorListener {
+		@Override
+		public void monitorChanged(MonitorEvent mev) {
+			DBR dbr = mev.getDBR();
+			if  (dbr.isDOUBLE()) {
+				dialLowLimit = ((DBR_Double) dbr).getDoubleValue()[0];
+			} else {
+				logger.error("Error: illegal .DLLM value.");
+			}
+		}
+	}
+	
+	
 	/**
 	 * updates limit violation status from EPICS.
 	 */
