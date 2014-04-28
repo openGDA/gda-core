@@ -18,7 +18,9 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
+import gda.data.metadata.GDAMetadataProvider;
 import gda.device.Device;
+import gda.device.DeviceException;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -55,7 +57,6 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	private List<ISAXSDataCollection> saxsDataCollections;
 	private Device simpleUDPServer;
 	ObservableComponent obsComp = new ObservableComponent();
-	private boolean stopPolling;
 	protected BioSAXSProgressView view;
 	private String udpListenerName;
 
@@ -65,16 +66,15 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 			simpleUDPServer = Finder.getInstance().find(udpListenerName);
 			simpleUDPServer.addIObserver(new SimpleUDPReceiver(this));
 		}
-//		try {
-//			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-//			blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
-			blSessionId = 435;
-//		} catch (DeviceException e) {
-//			logger.error("DeviceException getting visit", e);
-//		} 
-//		catch (SQLException e) {
-//			logger.error("SQLEXception getting session id", e);
-//		}
+		try {
+			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
+			blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
+		} catch (DeviceException e) {
+			logger.error("DeviceException getting visit", e);
+		} 
+		catch (SQLException e) {
+			logger.error("SQLEXception getting session id", e);
+		}
 	}
 
 	public void setISpyBAPI(BioSAXSISPyB bioSAXSISPyB) throws FactoryException {
@@ -84,7 +84,6 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	public void startPolling() {
 		if (bioSAXSProgressModel == null)
 			throw new RuntimeException("Model is null");
-		stopPolling = false;
 		final Job pollingJob = new Job("Polling ISpyB") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -107,18 +106,11 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 					logger.error("Error polling ispyb", e);
 					return Status.CANCEL_STATUS;
 				} finally {
-					// start job again after specified time has elapsed
-					// if (!stopPolling)
-					// schedule(90000);
+
 				}
 			}
 		};
-		/*
-		 * job.addJobChangeListener(new JobChangeAdapter() {
-		 * @Override public void done(IJobChangeEvent event) { if (event.getResult().isOK())
-		 * System.out.println("Job completed successfully"); else
-		 * System.out.println("Job did not complete successfully"); } }); start as soon as possible
-		 */pollingJob.schedule();
+		pollingJob.schedule();
 	}
 
 	public List<ISAXSDataCollection> getDataCollectionsFromISPyB() {
@@ -229,17 +221,11 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
 		obsComp.deleteIObserver(anIObserver);
-		if (!obsComp.IsBeingObserved()) {
-			stopPolling = true;
-		}
 	}
 
 	@Override
 	public void deleteIObservers() {
 		obsComp.deleteIObservers();
-		if (!obsComp.IsBeingObserved()) {
-			stopPolling = true;
-		}
 	}
 
 	public void setModel(final List<ISAXSProgress> list) {
