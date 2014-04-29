@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 public class OpenViewListBoxCompositeFactory implements CompositeFactory, InitializingBean {
 	private String tooltipText;
@@ -158,7 +159,7 @@ class OpenViewListBoxComposite extends Composite{
 		ViewDefinition vd = openViewOption.getViewDefinition();
 		String viewId = vd.viewId;
 		if( viewId != null && viewId.length()>0){
-			String secondaryId = vd.secondaryId;
+			String secondaryId = StringUtils.hasText(vd.secondaryId) ? vd.secondaryId : null;
 			try {
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId,secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
 			} catch (PartInitException e) {
