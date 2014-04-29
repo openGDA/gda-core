@@ -46,7 +46,9 @@ public interface IScriptController {
 	public void resumeCurrentScript();
 	
 	/**
+	 * FIXME to remove
 	 * @see Jython#haltCurrentScript
 	 */
+	@Deprecated
 	public void haltCurrentScript();	
 }
