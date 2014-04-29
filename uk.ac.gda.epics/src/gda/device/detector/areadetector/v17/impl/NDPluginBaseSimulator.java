@@ -191,12 +191,12 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 
 	@Override
 	public int getArraySize0_RBV() throws Exception {
-		return dims[1]; //width is ArraySize0 and is last entry in dims
+		return dims[1]; // width is ArraySize0 and is last entry in dims
 	}
 
 	@Override
 	public int getArraySize1_RBV() throws Exception {
-		return dims[0]; //height is ArraySize1 and is last entry in dims
+		return dims[0]; // height is ArraySize1 and is last entry in dims
 	}
 
 	@Override
@@ -206,7 +206,11 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 	}
 
 	short datatype = NDPluginBase.UInt8;
+	private ObservableUtil<Boolean> connectionStateObservable;
+	private Observable<String> enableObservable;
 	private Observable<Integer> arrayCounterObservable;
+	private Observable<Double> minCallbackTimeObservable;
+	private Observable<Integer> droppedFramesObservable;
 
 	@Override
 	public short getDataType_RBV() throws Exception {
@@ -277,16 +281,15 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 
 	@Override
 	public Observable<Integer> createArrayCounterObservable() throws Exception {
-		if( arrayCounterObservable == null){
+		if (arrayCounterObservable == null) {
 			arrayCounterObservable = new ObservableUtil<Integer>();
 		}
 		return arrayCounterObservable;
 	}
 
-	ObservableUtil<Boolean> connectionStateObservable;
 	@Override
 	public Observable<Boolean> createConnectionStateObservable() throws Exception {
-		if( connectionStateObservable == null){
+		if (connectionStateObservable == null) {
 			connectionStateObservable = new ObservableUtil<Boolean>();
 		}
 		return connectionStateObservable;
@@ -294,21 +297,30 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 
 	@Override
 	public Observable<String> createEnableObservable() throws Exception {
-		return null;
+		if (enableObservable == null) {
+			enableObservable = new ObservableUtil<String>();
+		}
+		return enableObservable;
 	}
 
 	@Override
 	public Observable<Double> createMinCallbackTimeObservable() throws Exception {
-		return null;
+		if (minCallbackTimeObservable == null) {
+			minCallbackTimeObservable = new ObservableUtil<Double>();
+		}
+		return minCallbackTimeObservable;
 	}
 
 	@Override
 	public Observable<Integer> createDroppedFramesObservable() throws Exception {
-		return null;
+		if (droppedFramesObservable == null) {
+			droppedFramesObservable = new ObservableUtil<Integer>();
+		}
+		return droppedFramesObservable;
 	}
 
 	@Override
 	public void checkDroppedFrames() throws Exception {
-		//do nothing
+		// do nothing
 	}
 }

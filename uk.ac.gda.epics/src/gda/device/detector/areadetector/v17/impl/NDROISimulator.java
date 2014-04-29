@@ -21,8 +21,16 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.observable.Observable;
+import gda.observable.ObservableUtil;
 
 public class NDROISimulator extends NDBaseImpl implements NDROI {
+
+	private Observable<Integer> minXObservable;
+	private Observable<Integer> minYObservable;
+	private Observable<Integer> sizeXObservable;
+	private Observable<Integer> sizeYObservable;
+	private Observable<String> enableXObservable;
+	private Observable<String> enableYObservable;
 
 	@Override
 	public String getLabel() throws Exception {
@@ -413,32 +421,50 @@ public class NDROISimulator extends NDBaseImpl implements NDROI {
 
 	@Override
 	public Observable<Integer> createMinXObservable() throws Exception {
-		return null;
+		if (minXObservable == null) {
+			minXObservable = new ObservableUtil<Integer>();
+		}
+		return minXObservable;
 	}
 
 	@Override
 	public Observable<Integer> createMinYObservable() throws Exception {
-		return null;
+		if (minYObservable == null) {
+			minYObservable = new ObservableUtil<Integer>();
+		}
+		return minYObservable;
 	}
 
 	@Override
 	public Observable<Integer> createSizeXObservable() throws Exception {
-		return null;
+		if (sizeXObservable == null) {
+			sizeXObservable = new ObservableUtil<Integer>();
+		}
+		return sizeXObservable;
 	}
 
 	@Override
 	public Observable<Integer> createSizeYObservable() throws Exception {
-		return null;
+		if (sizeYObservable == null) {
+			sizeYObservable = new ObservableUtil<Integer>();
+		}
+		return sizeYObservable;
 	}
 
 	@Override
 	public Observable<String> createEnableXObservable() throws Exception {
-		return null;
+		if (enableXObservable == null) {
+			enableXObservable = new ObservableUtil<String>();
+		}
+		return enableXObservable;
 	}
 
 	@Override
 	public Observable<String> createEnableYObservable() throws Exception {
-		return null;
+		if (enableYObservable == null) {
+			enableYObservable = new ObservableUtil<String>();
+		}
+		return enableYObservable;
 	}
 
 }
