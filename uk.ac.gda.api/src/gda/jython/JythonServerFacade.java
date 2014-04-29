@@ -56,6 +56,7 @@ import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 /**
  * Provides a single point of access for the Jython package for all Java classes. This will work whether the Java is
@@ -155,9 +156,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			// register with the Command Server and validate login information supplied by the user
 			try {
 				originalUsername = UserAuthentication.getUsername();
-				final String fullName = LibGdaCommon.getFullNameOfUser(originalUsername);
-				indexNumberInJythonServer = commandServer.addFacade(this, name, localHost, UserAuthentication
-						.getUsername(), fullName, "");
+				String fullName = null;
+				// username is an empty string on the GDA server
+				if (StringUtils.hasText(originalUsername)) {
+					fullName = LibGdaCommon.getFullNameOfUser(originalUsername);
+				}
+				indexNumberInJythonServer = commandServer.addFacade(this, name, localHost, originalUsername, fullName, "");
 				originalAuthorisationLevel = commandServer.getAuthorisationLevel(indexNumberInJythonServer);
 			} catch (DeviceException e) {
 				final String msg = "Login failed for user: " + UserAuthentication.getUsername();
