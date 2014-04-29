@@ -814,7 +814,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	public String toString() {
 		
 		String identifier = getCurrentFilename() != null ?  getCurrentFilename() : uniqueName;
-		return "point " + (currentPointNumber + 1) + " of " + numberOfPoints + " for scan " + identifier;
+		return "point " + (currentPointNumber) + " of " + numberOfPoints + " for scan " + identifier;
 	}
 
 	/**

@@ -59,14 +59,14 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 	@Override
 	public void addData(IScanDataPoint point) throws Exception {
 		throwException();
-		super.addData(point); // runs extenders
 		if (pointContainsCallablePosition(point)) {
 			DatapointCompleterTask task = new DatapointCompleterTask(sink, point, this);
 			datapointCompleterSingleThreadpool.execute(task);
-
 		} else {
 			sink.addData(point);
 		}
+		// do this after the main addData to act like NexusDataWriter, as extenders will expect the same behaviour
+		super.addData(point); // runs extenders
 	}
 
 	synchronized void setExceptionAndShutdownNow(Throwable e) {

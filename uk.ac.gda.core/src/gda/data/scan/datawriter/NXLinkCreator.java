@@ -113,7 +113,12 @@ public class NXLinkCreator {
 			}
 			
 		} finally {
-			file.flush();
+			try {
+				file.flush();
+			} catch (Throwable e) {
+				logger.error("Error flushing file",e);
+				//do not rethrow as we need to finalize
+			}
 			try {
 				file.finalize();
 			} catch (Throwable e) {
