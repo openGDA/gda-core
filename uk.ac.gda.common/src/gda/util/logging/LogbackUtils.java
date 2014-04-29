@@ -212,19 +212,13 @@ public class LogbackUtils {
 	public static final String GDA_SERVER_LOGGING_XML = "gda.server.logging.xml";
 	
 	/**
-	 * Old property that specifies the logging configuration file to use for server-side processes.
-	 * Superseded by {@link #GDA_SERVER_LOGGING_XML}.
-	 */
-	private static final String LEGACY_GDA_LOGGER_IMPL_SERVER = "gda.logger.impl.server";
-	
-	/**
 	 * Configures Logback for a server-side process.
 	 * 
 	 * @param processName the name of the process for which logging is being configured
 	 */
 	public static void configureLoggingForServerProcess(String processName) {
 		URL defaultServerConfigFile = LogbackUtils.class.getResource(DEFAULT_SERVER_CONFIG);
-		configureLoggingForProcess(processName, defaultServerConfigFile, GDA_SERVER_LOGGING_XML, LEGACY_GDA_LOGGER_IMPL_SERVER);
+		configureLoggingForProcess(processName, defaultServerConfigFile, GDA_SERVER_LOGGING_XML);
 	}
 	
 	/**
@@ -233,19 +227,13 @@ public class LogbackUtils {
 	public static final String GDA_CLIENT_LOGGING_XML = "gda.client.logging.xml";
 	
 	/**
-	 * Old property that specifies the logging configuration file to use for client-side processes.
-	 * Superseded by {@link #GDA_CLIENT_LOGGING_XML}.
-	 */
-	private static final String LEGACY_GDA_LOGGER_IMPL_CLIENT = "gda.logger.impl.client";
-	
-	/**
 	 * Configures Logback for a client-side process.
 	 * 
 	 * @param processName the name of the process for which logging is being configured
 	 */
 	public static void configureLoggingForClientProcess(String processName) {
 		URL defaultClientConfigFile = LogbackUtils.class.getResource(DEFAULT_CLIENT_CONFIG);
-		configureLoggingForProcess(processName, defaultClientConfigFile, GDA_CLIENT_LOGGING_XML, LEGACY_GDA_LOGGER_IMPL_CLIENT);
+		configureLoggingForProcess(processName, defaultClientConfigFile, GDA_CLIENT_LOGGING_XML);
 	}
 	
 	/**
@@ -307,30 +295,21 @@ public class LogbackUtils {
 	 * 
 	 * @param processName the name of the process for which logging is being configured
 	 * @param defaultConfigFile the default logging configuration file, which will be applied first
-	 * @param newPropertyName the preferred property name to use for the custom logging configuration file
-	 * @param legacyPropertyName legacy property name that can be used instead
+	 * @param propertyName the property name to use for the custom logging configuration file
 	 */
-	protected static void configureLoggingForProcess(String processName, URL defaultConfigFile, String newPropertyName, String legacyPropertyName) {
+	protected static void configureLoggingForProcess(String processName, URL defaultConfigFile, String propertyName) {
 		
 		LoggerContext context = getLoggerContext();
 		
-		boolean oldPropertyIsBeingUsed = false;
+		// Look for the property
+		String configFile = LocalProperties.get(propertyName);
 		
-		// Look for the new property first
-		String configFile = LocalProperties.get(newPropertyName);
-		
-		// If it isn't present, look for the old property instead
-		if (configFile == null) {
-			configFile = LocalProperties.get(legacyPropertyName);
-			oldPropertyIsBeingUsed = (configFile != null);
-		}
-		
-		// If the old property isn't found either, log an error. Treat this as non-fatal, because Logback will still
+		// If the property isn't found, log an error. Treat this as non-fatal, because Logback will still
 		// be in its default state (so log messages will still be displayed on the console).
 		if (configFile == null) {
 			final String msg = String.format(
 				"Please set the %s property, to specify the logging configuration file",
-				newPropertyName);
+				propertyName);
 			logger.error(msg);
 			return;
 		}
@@ -357,13 +336,6 @@ public class LogbackUtils {
 		} catch (JoranException e) {
 			final String msg = String.format("Unable to configure logging using %s", configFile);
 			throw new RuntimeException(msg, e);
-		}
-		
-		// Emit warning if old property is being used
-		if (oldPropertyIsBeingUsed) {
-			final String msg = "You are using the old '{}' property. Please rename it to '{}'. " +
-				"Support for the old property may be removed in a future release of GDA.";
-			logger.warn(msg, legacyPropertyName, newPropertyName);
 		}
 		
 		context.putProperty(SOURCE_PROPERTY_NAME, processName);
