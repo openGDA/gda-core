@@ -30,6 +30,9 @@ import gda.jython.authoriser.AuthoriserProvider;
 import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.ICommandThreadInfo;
+import gda.jython.commandinfo.ICommandThreadInfoProvider;
+import gda.jython.commandinfo.ICommandThreadObserver;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
@@ -77,7 +80,7 @@ import org.springframework.util.StringUtils;
 public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHolder, ICommandRunner,
 		ICurrentScanController, ITerminalPrinter, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider,
 		IScriptController, IPanicStop, IBatonStateProvider, InitializingBean, AliasedCommandProvider, IJythonContext,
-		ITerminalOutputProvider {
+		ITerminalOutputProvider, ICommandThreadInfoProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServerFacade.class);
 
@@ -1000,6 +1003,21 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			logger.info("Setting JythonServerFacade singleton to Spring-instantiated instance " + this);
 			theInstance = this;
 		}
+	}
+
+	@Override
+	public void addCommandThreadObserver(ICommandThreadObserver anObserver) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void deleteCommandThreadObserver(ICommandThreadObserver anObserver) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public List<ICommandThreadInfo> getCommandThreadInfo() {
+		return commandServer.getCommandThreadInfo();
 	}
 
 	@Override

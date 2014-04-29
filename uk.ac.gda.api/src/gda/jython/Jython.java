@@ -29,6 +29,7 @@ import org.python.core.PyObject;
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.observable.IObserver;
 
 /**
@@ -269,6 +270,13 @@ public interface Jython extends Findable {
 	 * @return int
 	 */
 	public int getScriptStatus(String JSFIdentifier);
+
+	/**
+	 * Returns information about each active command thread
+	 * 
+	 * @return List
+	 */
+	public List<ICommandThreadInfo> getCommandThreadInfo();
 
 	/**
 	 * Sets the scan status.
