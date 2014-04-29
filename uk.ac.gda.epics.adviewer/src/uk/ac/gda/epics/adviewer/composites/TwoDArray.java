@@ -162,7 +162,7 @@ public class TwoDArray extends Composite {
 	static final String showOptionName = "showOption";
 	private Button btnSnapshot;
 	
-	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) throws Exception {
+	public TwoDArray(IViewPart parentViewPart, Composite parent, int style, ADController adController) throws Exception {
 		super(parent, style);
 
 		this.setLayout(new GridLayout(3,false));
@@ -281,7 +281,7 @@ public class TwoDArray extends Composite {
 		btnSnapshot.setText("Snapshot");
 
 		btnAutoscale = new Button(left, SWT.CHECK);
-		btnAutoscale.setText("Fast Colour Map");
+		btnAutoscale.setText("Auto. scale");
 		btnAutoscale.addSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -294,7 +294,11 @@ public class TwoDArray extends Composite {
 		autoScale = true;
 		btnAutoscale.setSelection(autoScale);
 
+		setADController(left, adController);
+
 		left.setSize(left.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
+
 		
 		middle = new Button(this,SWT.PUSH | SWT.TOP);
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.BEGINNING).applyTo(middle);
@@ -333,6 +337,8 @@ public class TwoDArray extends Composite {
 		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setTitle("");
 		}
+		
+		
 		addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -385,7 +391,7 @@ public class TwoDArray extends Composite {
 		}
 	}
 
-	public void setADController(ADController config) throws Exception {
+	private void setADController(Composite left2, ADController config) throws Exception {
 		this.config = config;
 
 		// Configure AreaDetector
@@ -440,11 +446,12 @@ public class TwoDArray extends Composite {
 		NDROI imageNDROI = config.getImageNDROI();
 		if (imageNDROI != null) {
 			TwoDArrayROI twoDArrayROI;
-			twoDArrayROI = new TwoDArrayROI(left, SWT.NONE);
-			twoDArrayROI.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(twoDArrayROI);
+			twoDArrayROI = new TwoDArrayROI(left2, SWT.NONE);
+			GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+			gd.widthHint = 151;
+			twoDArrayROI.setLayoutData(gd);
 			twoDArrayROI.setVisible(true);
-			layout(true);
+//			layout(true);
 
 			try {
 				twoDArrayROI.setNDRoi(imageNDROI, getPlottingSystem());
