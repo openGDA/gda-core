@@ -31,6 +31,7 @@ import gda.factory.FactoryException;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup implements
 		ContinuouslyScannableViaController {
@@ -44,7 +45,7 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 	}
 
 	@Override
-	public void setGroupMembers(Scannable[] groupMembers) {
+	public void setGroupMembers(List<Scannable> groupMembers) {
 		for (Scannable scn : groupMembers) {
 			if (!(scn instanceof ScannableMotor)) {
 				throw new IllegalArgumentException("groupMembers must be ScannableMotors ");

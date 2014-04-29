@@ -38,10 +38,17 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 	@Override
 	public void preWindowOpen() {
 		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
-		configurer.setInitialSize(new Point(800, 600));
+		configurer.setInitialSize(new Point(1024, 400));
 		configurer.setShowMenuBar(false);
 		configurer.setShowCoolBar(false);
 		configurer.setShowStatusLine(true);
-		configurer.setTitle("GDA Log Panel");
+		configurer.setTitle("GDA Log Panel"); // DO NOT CHANGE as this window name is used by scripts like "/dls_sw/i04-1/software/gda/i04-1-config/bin/gdaservers" in commands like 'wmctrl -r "GDA Log Panel" -e 0,1921,0,1000,1000'
 	}
+
+	@Override
+	public void postWindowCreate() {
+		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
+		configurer.getWindow().getShell().setBounds(320, 320, 1024, 320);
+	}
+
 }

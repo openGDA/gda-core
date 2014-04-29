@@ -22,6 +22,8 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import uk.ac.gda.client.logpanel.view.Logpanel;
@@ -29,11 +31,24 @@ import uk.ac.gda.client.logpanel.view.LogpanelView;
 
 public class ClearHandler extends AbstractHandler implements IHandler {
 
+	private static final boolean askForConfirmation = true; //TODO set from user preference
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		LogpanelView logpanelView = (LogpanelView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView("uk.ac.gda.client.logpanel.view");
-		Logpanel logpanel = logpanelView.getLogpanel();
-		logpanel.getInput().clear();
+		Logpanel logpanel = ((LogpanelView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView(LogpanelView.ID)).getLogpanel();
+		boolean clear = true;
+		// ask for confirmation
+		if (askForConfirmation) {
+			MessageBox dialog = new MessageBox(logpanel.getShell(), SWT.ICON_QUESTION | SWT.OK| SWT.CANCEL);
+			dialog.setText("Confirm Clear Logpanel");
+			dialog.setMessage("This will remove all log messages from this panel \nand cannot be undone."); //TODO implement "Clear previous messages" in TableViewer row's (actually cell) popup menu
+			int returnCode = dialog.open();
+			// wait for response; one of {OK, Cancel, Close}
+			clear = (returnCode == SWT.OK);
+		}
+		if (clear) {
+			logpanel.getInput().clear();
+		}
 		return null;
 	}
 
