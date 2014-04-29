@@ -19,14 +19,19 @@
 
 package gda.device.motor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.serial.SerialController;
-import gda.util.GDALogger;
 
 /**
  *
  */
 public class SlaveCommandThread extends Thread {
+
+	private static final Logger logger = LoggerFactory.getLogger(SlaveCommandThread.class);
+
 	String reply = "";
 	String command;
 	String errorString;
@@ -54,13 +59,13 @@ public class SlaveCommandThread extends Thread {
 
 	@Override
 	public void run() {
-		GDALogger.debug("Sending slave command: " + this.command);
+		logger.debug("Sending slave command: " + this.command);
 		try {
 			if (serialController != null && command != null) {
 				serialController.sendCommand(command);
 				reply = serialController.getReply();
 
-				GDALogger.debug("Slave reply = " + reply);
+				logger.debug("Slave reply = " + reply);
 				if (reply.equals("") || reply.startsWith(errorString))
 					throw new DeviceException(" Error returned from Slave or Slave Timeout: " + reply);
 			} else
@@ -68,7 +73,7 @@ public class SlaveCommandThread extends Thread {
 		}
 
 		catch (DeviceException e) {
-			GDALogger.error("DeviceException in SlaveMotor: " + e.getMessage());
+			logger.error("DeviceException in SlaveMotor: " + e.getMessage());
 		}
 	}
 }
