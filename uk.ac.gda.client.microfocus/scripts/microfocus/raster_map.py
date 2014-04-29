@@ -10,7 +10,7 @@ from uk.ac.gda.beans import BeansFactory
 from java.io import File
 
 class RasterMap(Map):
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, cid):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -34,6 +34,8 @@ class RasterMap(Map):
         self.mfd = None
         self.finder = Finder.getInstance()
         self.beamEnabled = True
+        
+        self.cid = cid
 
     def setStage(self, stage):
         if stage==1:
@@ -67,7 +69,7 @@ class RasterMap(Map):
         self.log("Number points: "+ str(float(numberPoints)))
         
         if(detectorType == "Silicon"):
-            cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap]) 
+            cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap, self.cid]) 
             xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs])
             xmapRasterscan.getScanPlotSettings().setIgnore(1)
         
@@ -79,7 +81,7 @@ class RasterMap(Map):
             self.log("Starting raster map...")
             xmapRasterscan.runScan()
         else:
-            cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress])
+            cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress, self.cid])
             xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs])
             xspressRasterscan.getScanPlotSettings().setIgnore(1)
         

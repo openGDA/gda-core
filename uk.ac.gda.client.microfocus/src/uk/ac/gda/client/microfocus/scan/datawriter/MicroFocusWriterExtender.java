@@ -222,16 +222,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		if ((lastDataPoint == null || (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(
 				dataPoint.getCurrentFilename())))
 				&& (xValues != null || yValues != null)) {
-			Hashtable<String, Double> rgbLineData = null;
-			StringBuffer rgbLine = new StringBuffer();
-			int xindex = dataPoint.getCurrentPointNumber() % numberOfXPoints;
-			int yindex = dataPoint.getCurrentPointNumber() / numberOfXPoints;
-			rgbLine.append(yindex + " " + xindex + " ");
+			
+			Hashtable<String, Double> rgbLineData = new Hashtable<String, Double>(roiNames.length);
 			NXDetectorData d = null;
 			Vector<Object> detectorsData = dataPoint.getDetectorData();
 			if (detectorsData.size() != detFromDP.size()){
 				logger.error("Inconsistency in ScanDataPoint. There are " + detFromDP.size() + " detectors and " + detectorsData.size() + " data parts");
 			}
+			
 			for (int detDataIndex = 0; detDataIndex < detectorsData.size(); detDataIndex++) {
 				Object dataObj = detectorsData.get(detDataIndex);
 				Detector detector = detFromDP.get(detDataIndex);
@@ -243,25 +241,34 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 								+ " parts in the data and " + detector.getExtraNames().length + " extra names for "
 								+ detector.getName());
 					}
-					for (double i : scalerData) {
-						rgbLine.append(i);
-						rgbLine.append("	");
+					
+					for (int index = 0; index < scalerData.length; index++) {
+						String columnName = detector.getExtraNames()[index];
+						double data = scalerData[index];
+						rgbLineData.put(columnName, data);
 					}
-					if (normaliseElementIndex != -1 && normaliseElementIndex < scalerData.length)
+					
+					if (normaliseElementIndex != -1 && normaliseElementIndex < scalerData.length){
 						normaliseValue = scalerData[normaliseElementIndex];
+					}
 					scalerValuesCache[dataPoint.getCurrentPointNumber()] = scalerData;
-//					logger.debug("The rgb Line with scaler values is " + rgbLine.toString());
-
+					
 				} else if (dataObj instanceof NXDetectorData) {  // then this must be a fluorescence detector
 					// make the roiHeader once
-					if (rgbLineData == null) {
-						rgbLineData = new Hashtable<String, Double>(roiNames.length);
+					if (dataPoint.getCurrentPointNumber() == 0) {
 						for (String s : roiNames) {
-							rgbLineData.put(s, 0.0);
-							if (dataPoint.getCurrentPointNumber() == 0)
+							// add the fluo det columns to the rbg header
+							if (dataPoint.getCurrentPointNumber() == 0) {
 								roiHeader.append("  " + s);
+							}
 						}
 					}
+					// add rbgData to the array to start off the counts
+					for (String s : roiNames) {
+						// add the fluo det columns to the rbg header
+						rgbLineData.put(s, 0.0);
+					}
+					
 					if (isXspressScan()
 							&& ((detector instanceof XspressDetector) || detector instanceof BufferedDetector)) {
 						d = ((NXDetectorData) dataObj);
@@ -349,16 +356,21 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				}
 			}
 
+			// FIXME into new method after merge to master
 			// so what goes into RGB files? An average or a single detector channel or what?
-			if (roiNames != null && rgbLineData != null) {
-				for (String s : roiNames) {
-					double val = rgbLineData.get(s);
+			StringBuffer rgbLine = new StringBuffer();
+			int xindex = dataPoint.getCurrentPointNumber() % numberOfXPoints;
+			int yindex = dataPoint.getCurrentPointNumber() / numberOfXPoints;
+			rgbLine.append(yindex + " " + xindex + " ");
+			String[] rbgColumns = roiHeader.toString().split(" +");
+			for (String s : rbgColumns) {
+				Double val = rgbLineData.get(s);
+				if (val != null){
 					DecimalFormat df = new DecimalFormat("#");
 					rgbLine.append(df.format(val));
-					rgbLine.append("	");
+					rgbLine.append(" ");
 				}
 			}
-
 			int lineNumber = dataPoint.getCurrentPointNumber();
 			if (lineNumber == 0) {
 				addToRgbFile(lineNumber, roiHeader.toString());
@@ -402,9 +414,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private void deriveROIHeader(Vector<Detector> detFromDP) {
-		// get the list of names from Scaler
+		// get the list of names from Scalers
+		roiHeader = new StringBuffer("row  column");
 		for (Detector det : detFromDP) {
 			if (det instanceof TfgScaler) {
+				
 				String[] s = det.getExtraNames();
 				for (int i = 0; i < s.length; i++) {
 					if (s[i].equals(selectedElement)) {
@@ -423,8 +437,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					}
 				}
 				// Build the rgb file column names with scaler names
-				roiHeader = new StringBuffer("row  column  ");
 				int headerCounter = 0;
+				roiHeader.append("  ");
 				for (String h : s) {
 					roiHeader.append(h);
 					if (++headerCounter != s.length)
