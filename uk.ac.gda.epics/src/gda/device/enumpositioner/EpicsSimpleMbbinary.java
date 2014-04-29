@@ -144,7 +144,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 	private void createChannelAccess(gda.epics.interfaceSpec.Device device) throws FactoryException {
 		try {
 			pv = channelManager.createChannel(device.getField("RECORD").getPV(), pvMonitor, MonitorType.NATIVE, false);
-			setReadOnly(device.getField("RECORD").isReadOnly());
+			readOnly = device.getField("RECORD").isReadOnly();
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 
@@ -157,7 +157,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 	private void createChannelAccess(SimpleMbbinaryType config) throws FactoryException {
 		try {
 			pv = channelManager.createChannel(config.getRECORD().getPv(), pvMonitor, MonitorType.NATIVE, false);
-			setReadOnly(config.getRECORD().getRo());
+			readOnly = config.getRECORD().getRo();
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 
@@ -220,20 +220,14 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		if (isReadOnly()) {
+		if (readOnly) {
 			JythonServerFacade.getInstance().print("You can not write to a READ-ONLY field in EPICS");
 			logger.warn("Failed to write to Read-Only field in {}.", getName());
 			return;
 		}
 		// find in the positionNames array the index of the string
-		int target = -1;
 		if (positions.contains(position.toString())) {
-			target = positions.indexOf(position.toString());
-		} else if (positions.contains(position.toString().toUpperCase())) {
-			//fast shutter use 'OPEN' and 'CLOSE' instead of 'Open' and 'Close'
-			target=positions.indexOf(position.toString().toUpperCase());
-		}
-		if (target != -1) {
+			int target = positions.indexOf(position.toString());
 			try {
 				positionerStatus = EnumPositionerStatus.MOVING;
 				controller.caput(pv, target, pcbl);
@@ -289,9 +283,9 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 						position = positions.get(value);
 						if (!position.isEmpty()) {
 							positionerStatus = EnumPositionerStatus.IDLE;
+							notifyIObservers(EpicsSimpleMbbinary.this, new ScannablePositionChangeEvent(position));
 						}
 						logger.info("{} is at {}", getName(), position);
-						notifyIObservers(EpicsSimpleMbbinary.this, new ScannablePositionChangeEvent(position));
 					}
 				}
 			}
@@ -367,13 +361,5 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 			logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
 			return getName();
 		}
-	}
-
-	public boolean isReadOnly() {
-		return readOnly;
-	}
-
-	private void setReadOnly(boolean readOnly) {
-		this.readOnly = readOnly;
 	}
 }
