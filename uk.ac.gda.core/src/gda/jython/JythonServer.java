@@ -642,12 +642,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public void pauseCurrentScan(String JSFIdentifier) {
-		ScanBase.setPaused(true);
+		currentScan.pause();
 	}
 
 	@Override
 	public void resumeCurrentScan(String JSFIdentifier) {
-		ScanBase.setPaused(false);
+		currentScan.resume();
 	}
 
 	@Override
@@ -671,9 +671,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 					// unlikely to ever have more than one processor, but have this loop just in case
 					for (IFindableQueueProcessor queue : commandQueue){
 						try {
-							// TODO shorten the timeout
-							queue.stopAfterCurrent();
-							queue.stop(-1);  // TODO timeout not used for stops in the underlying code
+							queue.stop(-1);
 						} catch (Exception e) {
 							// log and continue with the panic stop process
 							logger.error("Exception while stopping queue after panic stop called", e);
@@ -696,23 +694,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	// TODO GDA-5863 need to be renamed as this stops all threads
 	@Override
 	public void haltCurrentScript(String JSFIdentifier) {
-		logger.info("Halting current script");
-		uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-			@Override
-			public void run() {
-//				// first stop current scan
-				ScanBase.setPaused(false);
-//				// then stop current scripts
-				ScriptBase.setPaused(false);
-
-				interruptThreads();
-
-				// TODO GDA-5863 the whole script status thing needs looking at seprately
-				scriptStatus = Jython.IDLE;
-
-				updateStatus();
-			}
-		}).start();
+		//  GDA-5863 we agreed to drop this functionality but keep the script pause
+		panicStop(JSFIdentifier);
 	}
 
 	@Override

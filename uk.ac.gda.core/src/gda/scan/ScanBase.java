@@ -1322,19 +1322,19 @@ public abstract class ScanBase implements NestableScan {
 		return (getStatus() == ScanStatus.COMPLETED_EARLY);
 	}
 	
-	public static void setPaused(boolean paused){
-		if (paused == ScanBase.paused)
-			return;
-
-		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
-			logger.info("paused flag set from " + ScanBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "' while idle -- ignored");
-			ScanBase.paused = paused;
-			return;
-		}
-
-		logger.info("paused flag set from " + ScanBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "'");
-		ScanBase.paused = paused;
-	}
+//	public static void setPaused(boolean paused){
+//		if (paused == ScanBase.paused)
+//			return;
+//
+//		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+//			logger.info("paused flag set from " + ScanBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "' while idle -- ignored");
+//			ScanBase.paused = paused;
+//			return;
+//		}
+//
+//		logger.info("paused flag set from " + ScanBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "'");
+//		ScanBase.paused = paused;
+//	}
 	
 	/**
 	 * Returns for example "ErrorType: message" 
