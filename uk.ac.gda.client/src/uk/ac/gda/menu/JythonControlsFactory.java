@@ -47,7 +47,6 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 	
 	private static ActionContributionItem pauseScan;
 	private static ActionContributionItem haltScan;
-	private static ActionContributionItem haltScript;
 	private static ActionContributionItem pauseScript;
 	private static Boolean controlsEnabled = true;
 	
@@ -59,7 +58,6 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 	private static void enableControls(){
 		enableControl(pauseScan);
 		enableControl(haltScan);
-		enableControl(haltScript);
 		enableControl(pauseScript);
 	}
 	
@@ -79,16 +77,13 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
-		haltScan = createHaltAction(serviceLocator, "Interrupt Scan Gracefully", "uk.ac.gda.client.jython.HaltScan", "/control_stop_blue.png", true);
+		haltScan = createHaltAction(serviceLocator, "Fast forward to end of scan", "uk.ac.gda.client.jython.HaltScan", "/control_fastforward_blue.png", true);
 		additions.addContributionItem(haltScan, Expression.TRUE);
 		
 		pauseScan = createPauseAction(serviceLocator, "Pause Scan", "uk.ac.gda.client.jython.PauseScan", "/control_pause_blue.png", true);
 		additions.addContributionItem(pauseScan, Expression.TRUE);
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
-		
-		haltScript = createHaltAction(serviceLocator, "Stop Script", "uk.ac.gda.client.jython.HaltScript", "/script_delete.png", false);
-		additions.addContributionItem(haltScript, Expression.TRUE);
 		
 		pauseScript = createPauseAction(serviceLocator, "Pause Script", "uk.ac.gda.client.jython.PauseScript", "/script_pause.png", false);
 		additions.addContributionItem(pauseScript, Expression.TRUE);
