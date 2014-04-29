@@ -22,10 +22,16 @@ import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.observable.Observable;
+import gda.observable.ObservableUtil;
 
 import java.util.concurrent.TimeoutException;
 
 public class ADBaseSimulator implements ADBase {
+
+	private ObservableUtil<Short> acquireStateObservable;
+	private ObservableUtil<Double> createAcquireTimeObservable;
+
+	private String model = "";
 
 	@Override
 	public String getPortName_RBV() throws Exception {
@@ -40,7 +46,11 @@ public class ADBaseSimulator implements ADBase {
 	@Override
 	public String getModel_RBV() throws Exception {
 
-		return null;
+		return model;
+	}
+
+	public void setModel(String model) {
+		this.model = model;
 	}
 
 	@Override
@@ -754,60 +764,66 @@ public class ADBaseSimulator implements ADBase {
 
 	@Override
 	public Observable<Short> createAcquireStateObservable() throws Exception {
-		return null;
+		if (acquireStateObservable == null) {
+			acquireStateObservable = new ObservableUtil<Short>();
+		}
+		return acquireStateObservable;
 	}
 
 	@Override
 	public Observable<Double> createAcquireTimeObservable() throws Exception {
-		return null;
+		if (createAcquireTimeObservable == null) {
+			createAcquireTimeObservable = new ObservableUtil<Double>();
+		}
+		return createAcquireTimeObservable;
 	}
 
 	@Override
 	public void setImageMode(gda.device.detector.areadetector.v17.ADBase.ImageMode imagemode) throws Exception {
-		
+
 	}
 
 	@Override
 	public void setMinXWait(int minx, double timeout) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setMinYWait(int value, double timeout) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setSizeXWait(int sizex, double timeout) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setSizeYWait(int sizey, double timeout) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setNumExposures(int numexposures, double timeout) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setImageModeWait(gda.device.detector.areadetector.v17.ADBase.ImageMode imagemode, double timeout)
 			throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void waitForDetectorStateIDLE(double timeoutS) throws InterruptedException, Exception, TimeoutException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
