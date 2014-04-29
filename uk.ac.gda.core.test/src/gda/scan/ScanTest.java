@@ -166,7 +166,7 @@ public class ScanTest {
 		configurator.setContext(lc);
 		lc.reset();
 		try {
-			configurator.doConfigure(LocalProperties.get("gda.logger.impl.server"));
+			configurator.doConfigure(LocalProperties.get("gda.server.logging.xml"));
 		} catch (JoranException e) {
 			e.printStackTrace();
 		}
