@@ -1353,7 +1353,7 @@ public abstract class ScanBase implements NestableScan {
 
 	protected void checkThreadInterrupted() throws InterruptedException {
 		if (Thread.interrupted()) {
-			logger.info("Scan thread has been interrupted.",Thread.currentThread().getStackTrace());
+			logger.info("Scan thread has been interrupted.", (Object[])Thread.currentThread().getStackTrace());
 			throw new InterruptedException();
 		}
 	}
