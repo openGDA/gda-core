@@ -72,13 +72,13 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	
 	private Object previousEvent;
 	
-	class TimedStructuredEvent {
+	static class OutgoingTimedStructuredEvent {
 
 		public StructuredEvent event;
 
 		public long timeReceivedMs;
 
-		public TimedStructuredEvent(StructuredEvent event, long timeReceivedMS) {
+		public OutgoingTimedStructuredEvent(StructuredEvent event, long timeReceivedMS) {
 			this.event = event;
 			this.timeReceivedMs = timeReceivedMS;
 		}
@@ -134,7 +134,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	 * @param timeEvent
 	 *            the event.
 	 */
-	public void publish(TimedStructuredEvent timeEvent) {
+	public void publish(OutgoingTimedStructuredEvent timeEvent) {
 		Any any = ORB.init().create_any();
 		StructuredEventHelper.insert(any, timeEvent.event);
 
@@ -203,7 +203,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 				String argClass = (message == null) ? "null" : message.getClass().toString();
 				EventHeader eventHeader = new EventHeader(argClass, id);
 				StructuredEvent event = new StructuredEvent(eventHeader, Serializer.toByte(message));
-				final TimedStructuredEvent timeEvent = new TimedStructuredEvent(event,
+				final OutgoingTimedStructuredEvent timeEvent = new OutgoingTimedStructuredEvent(event,
 						logger.isDebugEnabled() ? System.currentTimeMillis() : 0);
 				publish(timeEvent);
 			}
@@ -213,7 +213,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 		}
 	}
 
-	public Callable<Void> createPublishCallable(final TimedStructuredEvent timeEvent) {
+	public Callable<Void> createPublishCallable(final OutgoingTimedStructuredEvent timeEvent) {
 		return new Callable<Void>() {
 
 			@Override
@@ -286,7 +286,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 						byte[] byte1 = Serializer.toByte(objectForSource);
 						if( byte1 != null){
 							StructuredEvent event = new StructuredEvent(eventHeader, byte1);
-							final TimedStructuredEvent timeEvent = new TimedStructuredEvent(event,
+							final OutgoingTimedStructuredEvent timeEvent = new OutgoingTimedStructuredEvent(event,
 									logger.isDebugEnabled() ? System.currentTimeMillis() : 0);
 
 							Callable<Void> publishCallable = createPublishCallable(timeEvent);
