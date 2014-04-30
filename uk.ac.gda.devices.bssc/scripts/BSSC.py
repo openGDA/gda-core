@@ -141,20 +141,22 @@ class BSSCRun:
         
     def measureBuffer(self, titration, duration):
         if titration != None:
+            self.reportSampleProgress(titration, "Cleaning before Buffer")
+            self.clean()
             self.reportSampleProgress(titration, "Sucking in Buffer from %s" % titration.getBufferLocation())
             self.loadWell(titration.getBufferLocation())
             self.reportSampleProgress(titration, "Exposing Buffer")
             self.setTitle("Buffer for next and preceding sample measurement")
             #sample_name.asynchronousMoveTo("buffer")
             filename = self.expose(duration)
-            self.reportSampleProgress(titration, "Cleaning after Buffer")
             #print "Create buffer run dataCollectionIndex " + str(self.dataCollectionIndex)
             self.ispyb.createBufferRun(self.dataCollectionIds[self.dataCollectionIndex], titration.getTimePerFrame(), self.getStorageTemperature(), self.getExposureTemperature(), self.energy, titration.getFrames(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, filename, "/entry1/detector/data")
-            self.clean()
             return filename
    
     def measureSample(self, titration, duration):
         if titration != None:     
+            self.reportSampleProgress(titration, "Cleaning before Sample")
+            self.clean()
             self.reportSampleProgress(titration, "Sucking in Sample")
             self.loadWell(titration.getLocation())
             self.reportSampleProgress(titration, "Exposing Sample")
@@ -165,11 +167,8 @@ class BSSCRun:
             self.ispyb.createSampleRun(self.dataCollectionIds[self.dataCollectionIndex], titration.getTimePerFrame(), self.getStorageTemperature(), self.getExposureTemperature(), self.energy, titration.getFrames(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, filename, "/entry1/detector/data");
 
             if not titration.getRecouperateLocation() is None:
-                self.reportSampleProgress(titration, "Recuperating Sample to " + titration.getRecouperateLocation().toString() + " and Cleaning")
+                self.reportSampleProgress(titration, "Recuperating Sample to " + titration.getRecouperateLocation().toString())
                 self.unloadIntoWell(titration.getRecouperateLocation())
-            else:
-                self.reportSampleProgress(titration, "Cleaning after Sample")
-            self.clean()
             return filename
 
     def setExperimentFinished(self, experimentId):
@@ -200,9 +199,6 @@ class BSSCRun:
         self.reportProgress("Initialising");
         self.checkDevice()
         self.bssc.setSampleType("green")
-        self.reportProgress("Performing Courtesy Cell Wash")
-        self.bssc.setViscosityLevel("high")
-        self.clean()
         self.reportProgress("Opening Shutter")
         self.openShutter()
         lastTitration = None
@@ -233,10 +229,11 @@ class BSSCRun:
             lastTitration = titration
             self.dataCollectionIndex += 1
 
-        self.reportProgress("Closing shutter")
-        self.closeShutter()
-        time.sleep(2)
-        
         self.setExperimentFinished(self.experiment)
         BioSAXSISPyBUtils.dumpCollectionReport(self.experiment)
+        self.reportProgress("Closing shutter")
+        self.closeShutter()
+        self.reportProgress("Performing Final Cell Wash")
+        self.bssc.setViscosityLevel("high")
+        self.clean()
         self.ispyb.disconnect()
