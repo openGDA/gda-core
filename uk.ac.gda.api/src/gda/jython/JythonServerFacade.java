@@ -89,6 +89,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	Vector<INamedScanDataPointObserver> namedSDPObservers = new Vector<INamedScanDataPointObserver>();
 	
 	Vector<IScanDataPointObserver> allSDPObservers = new Vector<IScanDataPointObserver>();
+	
+	Vector<ICommandThreadObserver> commandThreadObservers = new Vector<ICommandThreadObserver>();
 
 	String name = "";
 
@@ -552,7 +554,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			} else if (data instanceof BatonLeaseRenewRequest){
 				amIBatonHolder();
 				notifyIObservers(this, data);
-			} 
+			} else if (data instanceof ICommandThreadInfo) {
+				for (ICommandThreadObserver observer: commandThreadObservers) {
+					observer.update(this,data);
+				}
+			}
 			// fan out all other messages
 			else {
 				notifyIObservers(this, data);
@@ -1007,12 +1013,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public void addCommandThreadObserver(ICommandThreadObserver anObserver) {
-		// TODO Auto-generated method stub
+		commandThreadObservers.add(anObserver);
 	}
 
 	@Override
 	public void deleteCommandThreadObserver(ICommandThreadObserver anObserver) {
-		// TODO Auto-generated method stub
+		commandThreadObservers.removeElement(anObserver);
 	}
 
 	@Override

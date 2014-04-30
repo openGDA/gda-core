@@ -18,10 +18,12 @@
 
 package gda.jython.commandinfo;
 
+import gda.observable.IObserver;
+
 /**
  * For classes who wish to observe command thread information managed by 
  * the Jython Server through JythonServerFacade.
  */
-public interface ICommandThreadObserver {
+public interface ICommandThreadObserver extends IObserver {
 
 }
