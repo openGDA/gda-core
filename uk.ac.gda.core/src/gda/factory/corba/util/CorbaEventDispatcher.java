@@ -100,51 +100,6 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	}
 
 	@Override
-	public void disconnect_push_supplier() {
-		try {
-			consumer.disconnect_push_consumer();
-		} catch (org.omg.CORBA.TRANSIENT ex) {
-			logger.error("EventDispatcher.disconnect_push_supplier() ", ex);
-		} finally {
-			consumer = null;
-		}
-	}
-
-	/**
-	 * Push the event to all event channels
-	 * 
-	 * @param timeEvent
-	 *            the event.
-	 */
-	public void publish(OutgoingTimedStructuredEvent timeEvent) {
-		Any any = ORB.init().create_any();
-		StructuredEventHelper.insert(any, timeEvent.event);
-
-		try {
-			if (consumer != null) {
-				consumer.push(any);
-				if (logger.isDebugEnabled()) {
-					long timeAfterDispatch = System.currentTimeMillis();
-					long timeToDispatch = timeAfterDispatch - timeEvent.timeReceivedMs;
-					if (timeToDispatch > 100) {
-						logger.debug(String.format("Event took %dms to publish %s", timeToDispatch, timeEvent.toString()));
-					}
-				}
-			}
-		} catch (Disconnected ex) {
-			logger.error("EventDispatcher.publish()", ex);
-		} catch (org.omg.CORBA.COMM_FAILURE ex) {
-			logger.error("EventDispatcher.publish()", ex);
-			disconnect_push_supplier();
-		} catch (org.omg.CORBA.TRANSIENT ex) {
-			logger.error("EventDispatcher.publish()", ex);
-			disconnect_push_supplier();
-		} catch (org.omg.CORBA.UNKNOWN ex) {
-			// do nothing here see bugzilla bug #
-		}
-	}
-
-	@Override
 	public void publish(String sourceName, Object message) {
 		try {
 			/**
@@ -193,44 +148,6 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 		} catch (Exception e) {
 			logger.error("Could not publish event", e);
 		}
-	}
-
-	public Callable<Void> createPublishCallable(final OutgoingTimedStructuredEvent timeEvent) {
-		return new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				long timeOfDispatch = System.currentTimeMillis();
-				if (logger.isDebugEnabled()) {
-					long timeBeforeDispatching = timeOfDispatch - timeEvent.timeReceivedMs;
-					if (timeBeforeDispatching > 100) {
-						logger.debug(String
-								.format("Event took %dms until publish %s. %d events published since last warning. Previous event %s",
-										timeBeforeDispatching, timeEvent.toString(), eventsPublishedWithinTime,
-										previousEvent != null ? previousEvent.toString() : "none"));
-						eventsPublishedWithinTime = 0;
-					} else {
-						eventsPublishedWithinTime++;
-					}
-					timeEvent.timeReceivedMs = timeOfDispatch;
-				}
-				publish(timeEvent);
-				previousEvent = timeEvent;
-				if (logger.isDebugEnabled()) {
-					long timeAfterPublish = System.currentTimeMillis();
-					long timeToPublish = timeAfterPublish - timeOfDispatch;
-					if (timeToPublish >= 500) { 
-						logger.debug(String.format("[%s] Event took %dms to publish %s. ", Thread.currentThread()
-								.getName(), timeToPublish, timeEvent.toString()));
-					}
-				}
-				return null;
-			}
-		};
-	}
-
-	public void dispose() {
-		killed = true;
 	}
 
 	@Override
@@ -295,6 +212,89 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 			} catch (InterruptedException e) {
 				logger.error("execCompletionService.poll interrupted",e);
 			}
+		}
+	}
+
+	public Callable<Void> createPublishCallable(final OutgoingTimedStructuredEvent timeEvent) {
+		return new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				long timeOfDispatch = System.currentTimeMillis();
+				if (logger.isDebugEnabled()) {
+					long timeBeforeDispatching = timeOfDispatch - timeEvent.timeReceivedMs;
+					if (timeBeforeDispatching > 100) {
+						logger.debug(String
+								.format("Event took %dms until publish %s. %d events published since last warning. Previous event %s",
+										timeBeforeDispatching, timeEvent.toString(), eventsPublishedWithinTime,
+										previousEvent != null ? previousEvent.toString() : "none"));
+						eventsPublishedWithinTime = 0;
+					} else {
+						eventsPublishedWithinTime++;
+					}
+					timeEvent.timeReceivedMs = timeOfDispatch;
+				}
+				publish(timeEvent);
+				previousEvent = timeEvent;
+				if (logger.isDebugEnabled()) {
+					long timeAfterPublish = System.currentTimeMillis();
+					long timeToPublish = timeAfterPublish - timeOfDispatch;
+					if (timeToPublish >= 500) { 
+						logger.debug(String.format("[%s] Event took %dms to publish %s. ", Thread.currentThread()
+								.getName(), timeToPublish, timeEvent.toString()));
+					}
+				}
+				return null;
+			}
+		};
+	}
+
+	/**
+	 * Push the event to all event channels
+	 * 
+	 * @param timeEvent
+	 *            the event.
+	 */
+	public void publish(OutgoingTimedStructuredEvent timeEvent) {
+		Any any = ORB.init().create_any();
+		StructuredEventHelper.insert(any, timeEvent.event);
+
+		try {
+			if (consumer != null) {
+				consumer.push(any);
+				if (logger.isDebugEnabled()) {
+					long timeAfterDispatch = System.currentTimeMillis();
+					long timeToDispatch = timeAfterDispatch - timeEvent.timeReceivedMs;
+					if (timeToDispatch > 100) {
+						logger.debug(String.format("Event took %dms to publish %s", timeToDispatch, timeEvent.toString()));
+					}
+				}
+			}
+		} catch (Disconnected ex) {
+			logger.error("EventDispatcher.publish()", ex);
+		} catch (org.omg.CORBA.COMM_FAILURE ex) {
+			logger.error("EventDispatcher.publish()", ex);
+			disconnect_push_supplier();
+		} catch (org.omg.CORBA.TRANSIENT ex) {
+			logger.error("EventDispatcher.publish()", ex);
+			disconnect_push_supplier();
+		} catch (org.omg.CORBA.UNKNOWN ex) {
+			// do nothing here see bugzilla bug #
+		}
+	}
+
+	public void dispose() {
+		killed = true;
+	}
+
+	@Override
+	public void disconnect_push_supplier() {
+		try {
+			consumer.disconnect_push_consumer();
+		} catch (org.omg.CORBA.TRANSIENT ex) {
+			logger.error("EventDispatcher.disconnect_push_supplier() ", ex);
+		} finally {
+			consumer = null;
 		}
 	}
 }
