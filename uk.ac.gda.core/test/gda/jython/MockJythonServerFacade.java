@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner, ITerminalPrinter,
 		ICurrentScanController, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider ,
-		IScriptController, IPanicStop, IBatonStateProvider, JSFObserver, AliasedCommandProvider{
+		IScriptController, ICommandAborter, IBatonStateProvider, JSFObserver, AliasedCommandProvider{
 	private static final Logger logger = LoggerFactory.getLogger(MockJythonServerFacade.class);
 	
 	private String terminalOutput = "";
@@ -80,7 +80,6 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 
 	volatile int scanStatus = Jython.IDLE;
 
-	@Override
 	public void setScanStatus(int newStatus) {
 		scanStatus = newStatus;
 	}
@@ -166,9 +165,14 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	}
 
 	@Override
-	public void panicStop() {
+	public void abortCommands() {
 		scanStatus = Jython.IDLE;
 		scriptStatus = Jython.IDLE;
+	}
+	
+	@Override
+	public void beamlineHalt() {
+		abortCommands();
 	}
 
 	@Override
@@ -182,10 +186,6 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	
 	@Override
 	public void runCommand(String command, String scanObserver) {
-	}
-
-	@Override
-	public void haltCurrentScript() {
 	}
 
 	@Override

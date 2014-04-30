@@ -74,7 +74,7 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHolder, ICommandRunner,
 		ICurrentScanController, ITerminalPrinter, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider,
-		IScriptController, IPanicStop, IBatonStateProvider, InitializingBean, AliasedCommandProvider, IJythonContext,
+		IScriptController, ICommandAborter, IBatonStateProvider, InitializingBean, AliasedCommandProvider, IJythonContext,
 		ITerminalOutputProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServerFacade.class);
@@ -405,12 +405,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	/**
-	 * @see Jython#haltCurrentScan
+	 * @see Jython#requestFinishEarly
 	 */
 	@Override
 	public void requestFinishEarly() {
 		// TODO GDA-5863 this will need to be renamed to requestFinishEarly
-		commandServer.haltCurrentScan(name);
+		commandServer.requestFinishEarly(name);
 	}
 
 
@@ -444,27 +444,21 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	/**
-	 * @see Jython#panicStop(String)
+	 * @see Jython#beamlineHalt(String)
 	 */
 	@Override
-	public void panicStop() {
-		commandServer.panicStop(name);
+	public void beamlineHalt(){
+		commandServer.beamlineHalt(name);
 	}
-
+	
 	/**
-	 * @see Jython#haltCurrentScript
+	 * @see Jython#abortCommands(String)
 	 */
 	@Override
-	public void haltCurrentScript() {
-		commandServer.haltCurrentScript(name);
+	public void abortCommands(){
+		commandServer.abortCommands(name);
 	}
 
-	/**
-	 * @param theObserved
-	 *            Object
-	 * @param changeCode
-	 *            Object
-	 */
 	private void notifyIObservers(Object theObserved, Object changeCode) {
 		myIObservers.notifyIObservers(theObserved, changeCode);
 	}
@@ -598,16 +592,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public int getScanStatus() {
 		return commandServer.getScanStatus(name);
-	}
-
-	/**
-	 * @see Jython#setScanStatus
-	 * @param status
-	 *            int
-	 */
-	@Override
-	public void setScanStatus(int status) {
-		commandServer.setScanStatus(status, name);
 	}
 
 	/**

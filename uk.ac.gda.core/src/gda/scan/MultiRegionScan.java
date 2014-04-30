@@ -25,9 +25,6 @@ import gda.device.Scannable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * A scan which holds a collection of scans. It runs them all, making sure that they use the same datahandler.
  * <p>
@@ -40,8 +37,6 @@ public class MultiRegionScan extends ScanBase {
 	
 	private List<ScanBase> listOfScans;
 
-//	private final boolean useOnlyDefaultDetectors;
-	
 	private int pointCount = -1;
 	
 	private double totalTime = 0;
@@ -56,7 +51,6 @@ public class MultiRegionScan extends ScanBase {
 		try {
 			listOfScans = new ArrayList<ScanBase>();
 			if (createScanDataPointPipeline) createScanDataPointPipeline();
-			insideMultiScan = true;
 		} catch (Exception ex) {
 			throw new Exception("Error during MultiRegionScan setup", ex);
 		}

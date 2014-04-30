@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council
  *
  * This file is part of GDA.
@@ -19,12 +19,15 @@
 
 package gda.jython;
 
-/**
- *
- */
-public interface IPanicStop {
+public interface ICommandAborter {
+	
 	/**
-	 * @see Jython#panicStop(String)
+	 * @see Jython#beamlineHalt(String)
 	 */
-	public void panicStop();
+	public void beamlineHalt();
+	
+	/**
+	 * @see Jython#abortCommands(String)
+	 */
+	public void abortCommands();
 }

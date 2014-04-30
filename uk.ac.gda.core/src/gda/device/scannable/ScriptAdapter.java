@@ -114,7 +114,7 @@ public class ScriptAdapter extends ScannableBase implements Scannable {
 
 	@Override
 	public void stop() {
-		scriptingmediator.panicStop();
+		scriptingmediator.beamlineHalt();
 	}
 
 	@Override

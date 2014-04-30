@@ -125,14 +125,6 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	public void setAllChildScans(Vector<IConcurrentScanChild> allChildScans) {
 		this.allChildScans = allChildScans;
 	}
-	
-	public static boolean isInsideMultiScan() {
-		return insideMultiScan;
-	}
-
-	public static void setInsideMultiScan(boolean insideMultiScan) {
-		ScanBase.insideMultiScan = insideMultiScan;
-	}
 
 	@Override
 	public Vector<Scannable> getAllScannables() {

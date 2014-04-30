@@ -28,7 +28,6 @@ import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,8 +71,6 @@ public class JythonServerTest {
 		jythonServer = null;
 		pathsList = null;
 		pathsArray = null;
-		ScriptBase.setInterrupted(false);
-		ScanBase.setInterrupted(false);
 	}
 	
 	@Test
@@ -102,7 +99,7 @@ public class JythonServerTest {
 	}
 	
 	@Test
-	public void testPanicStop_StopsMotors() throws MotorException, InterruptedException {
+	public void testBeamlineHalt_StopsMotors() throws MotorException, InterruptedException {
 		Factory factory = mock(Factory.class);
 		Motor mockMotor1 = mock(Motor.class);
 		Motor mockMotor2 = mock(Motor.class);
@@ -110,7 +107,7 @@ public class JythonServerTest {
 		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
 		Finder.getInstance().addFactory(factory );
 		
-		jythonServer.panicStop("Unused JSFIdentifier");
+		jythonServer.beamlineHalt("Unused JSFIdentifier");
 		Thread.sleep(1000);
 		verify(mockMotor1).stop();
 		verify(mockMotor2).stop();
@@ -118,7 +115,7 @@ public class JythonServerTest {
 	}
 	
 	@Test
-	public void testPanicStop_StopsMotorsDespiteADelayAndExceptionFromOne() throws MotorException, InterruptedException {
+	public void testBeamlineHalt_StopsMotorsDespiteADelayAndExceptionFromOne() throws MotorException, InterruptedException {
 		Factory factory = mock(Factory.class);
 		Motor mockMotor1 = mock(Motor.class);
 		Motor mockMotor2 = mock(Motor.class);
@@ -138,7 +135,7 @@ public class JythonServerTest {
 		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
 		Finder.getInstance().addFactory(factory );
 		
-		jythonServer.panicStop("Unused JSFIdentifier");
+		jythonServer.beamlineHalt("Unused JSFIdentifier");
 		Thread.sleep(3000);
 		verify(mockMotor1).stop();
 		verify(mockMotor2).stop();

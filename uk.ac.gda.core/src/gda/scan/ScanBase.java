@@ -68,21 +68,7 @@ public abstract class ScanBase implements NestableScan {
 	
 	public static final String GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL= "gda.scanbase.printTimestamp";
 
-	/**
-	 * set true by multiscans to stop any other scans from creating their own datahandlers.
-	 */
-	static public volatile boolean insideMultiScan = false;
-
 	private static final Logger logger = LoggerFactory.getLogger(ScanBase.class);
-
-	/**
-	 * Variable used to pause running scans The value of this variable may be double checked by calling
-	 * checkForInterrupts within a running thread.
-	 * <p>
-	 * When the scan thread discovers that this is set it may enter Status.PAUSED.
-	 * 
-	 */
-	static public volatile boolean paused = false;  // TODO: GDA-5863 Move to InterfaseProvider.getSoemthing()
 
 	/**
 	 * Return a string representation of an error in the form 'ExceptionTypeName:message'. Useful for
@@ -242,16 +228,11 @@ public abstract class ScanBase implements NestableScan {
 	}
 	
 	protected void waitIfPaused() throws InterruptedException{
-		// TODO GDA-5863 this is to be replaced by a new central pausing mechanism and delete the ScanBase.paused static
-		if (paused && getStatus() == ScanStatus.RUNNING) {
-			// Don't move to PAUSED state if completing early or tidying up
-			
-			setStatus(ScanStatus.PAUSED);
-			while (paused) {
-				Thread.sleep(1000);
+		while (getStatus() == ScanStatus.PAUSED) {
+			if (isFinishEarlyRequested()) {
+				return;
 			}
-			// TODO GDA-5776 setStatus currently forbids a transition to PAUSED from anythin but RUNNING
-			setStatus(ScanStatus.RUNNING);
+			Thread.sleep(1000);
 		}
 	}
 
@@ -921,7 +902,9 @@ public abstract class ScanBase implements NestableScan {
 
 	@Override
 	public void pause() {
-		paused = true;
+		if (getStatus().possibleFollowUps().contains(ScanStatus.PAUSED)) {
+			setStatus(ScanStatus.PAUSED);
+		}
 	}
 
 	protected void prepareDevicesForCollection() throws Exception {
@@ -1011,10 +994,8 @@ public abstract class ScanBase implements NestableScan {
 		}
 	}
 	
-	// TODO: The scan status needs to get the status from the current running scan
 	protected synchronized void prepareStaticVariables() {
 		getCurrentScanInformationHolder().setCurrentScan(this);
-		ScanBase.paused = false;
 	}
 
 	private void removeDuplicateScannables() {
@@ -1038,7 +1019,9 @@ public abstract class ScanBase implements NestableScan {
 
 	@Override
 	public void resume() {
-		paused = false;
+		if (getStatus() == ScanStatus.PAUSED){
+			setStatus(ScanStatus.RUNNING);
+		}
 	}
 
 	@Override
@@ -1147,8 +1130,8 @@ public abstract class ScanBase implements NestableScan {
 	@Override
 	public final void runScan() throws InterruptedException, Exception {
 		
-		// FIXME GDA-5863 Better if we could get the current scan and compare, possibly removing getScanStatusHolder()
-		if (getScanStatusHolder().getScanStatus() != Jython.IDLE) {
+		int currentStatus = getScanStatusHolder().getScanStatus();
+		if (currentStatus != Jython.IDLE) {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
 		}
 		setStatus(ScanStatus.RUNNING);
@@ -1166,12 +1149,7 @@ public abstract class ScanBase implements NestableScan {
 			// be simply pulled into this method
 			run();
 		} finally {
-			
-			// FIXME: GDA-5863 Needs to tell the gui the scan is no longer paused
-			paused = false;  // this looks wrong, should not change any central pause flag here
-			insideMultiScan = false;
-			
-			
+
 			switch (getStatus()) {
 			case RUNNING:
 				setStatus(ScanStatus.COMPLETED_OKAY);
@@ -1381,6 +1359,9 @@ class ParentScanComponent implements ScanParent{
 
 	public void requestFinishEarly() {
 		finishEarlyRequested = true;
+		if (this.status.possibleFollowUps().contains(ScanStatus.FINISHING_EARLY)){
+			setStatus(ScanStatus.FINISHING_EARLY);
+		}
 	}
 	
 	public boolean isFinishEarlyRequested() {

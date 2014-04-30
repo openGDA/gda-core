@@ -18,12 +18,10 @@
 
 package gda.scan;
 
-import static gda.jython.InterfaceProvider.getScanStatusHolder;
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
-import gda.jython.Jython;
 
 import java.util.List;
 import java.util.Vector;
@@ -99,11 +97,9 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 				lastscan.shutdownScandataPipieline();
 				lastscan.signalScanComplete();
 			}
-			getScanStatusHolder().setScanStatus(Jython.IDLE);
 		}
-		
-
 	}
+	
 	@Override
 	public
 	void run(){

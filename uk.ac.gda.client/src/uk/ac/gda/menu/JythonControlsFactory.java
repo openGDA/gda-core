@@ -79,12 +79,17 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 		
-		CommandContributionItemParameter pStop = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.StopAll", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/stop.png"), null, null, "Stop All", null, null, SWT.PUSH, null, false);
-		final CommandContributionItem    stopAll = new CommandContributionItem(pStop);
-		  
-		additions.addContributionItem(stopAll, Expression.TRUE);
+		CommandContributionItemParameter abortCommandsAction = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.AbortCommands", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/control_stop_blue.png"), null, null, "Abort all running commands, scripts and scans", null, null, SWT.PUSH, null, false);
+		final CommandContributionItem    abortCommandsItem = new CommandContributionItem(abortCommandsAction);
+		additions.addContributionItem(abortCommandsItem, Expression.TRUE);
+
+		CommandContributionItemParameter beamlineHaltAction = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.StopAll", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/stop.png"), null, null, "Call stop on all beamline commands and hardware", null, null, SWT.PUSH, null, false);
+		final CommandContributionItem    beamlineHaltItem = new CommandContributionItem(beamlineHaltAction);		
+		additions.addContributionItem(beamlineHaltItem, Expression.TRUE);
+
+		additions.addContributionItem(new Separator(), Expression.TRUE);
+
 	}
-	
 
 	private ActionContributionItem createHaltAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath) {
 		final ActionContributionItem halt = new ActionContributionItem(new Action(label, SWT.NONE) {

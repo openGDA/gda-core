@@ -26,15 +26,30 @@ import org.eclipse.core.commands.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HaltScriptHandler extends AbstractHandler {
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
-	private static final Logger logger = LoggerFactory.getLogger(HaltScriptHandler.class);
+public class BeamlineHaltHandler extends AbstractHandler {
 
+	public static String id = "uk.ac.gda.client.StopAll";
+	private static final Logger logger = LoggerFactory.getLogger(BeamlineHaltHandler.class);
+	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
-			logger.debug("Halt script button pressed");
-			JythonServerFacade.getInstance().haltCurrentScript();
+			logger.debug("Stop All button pressed");
+			Job job = new Job("Stop All Commands and Hardware...") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					JythonServerFacade.getInstance().beamlineHalt();
+					return Status.OK_STATUS;
+				}
+			};
+			job.setUser(false);
+			job.schedule();
+			
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);

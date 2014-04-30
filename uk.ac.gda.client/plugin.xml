@@ -281,14 +281,14 @@
             name="Pause Script">
       </command>
       <command
-            defaultHandler="uk.ac.gda.actions.StopAllHandler"
-            id="uk.ac.gda.client.StopAll"
-            name="Stop All">
+            defaultHandler="uk.ac.gda.actions.AbortCommandsHandler"
+            id="uk.ac.gda.client.AbortCommands"
+            name="Abort all commands">
       </command>
       <command
-            defaultHandler="uk.ac.gda.actions.HaltScriptHandler"
-            id="uk.ac.gda.client.jython.HaltScript"
-            name="Halt Script">
+            defaultHandler="uk.ac.gda.actions.BeamlineHaltHandler"
+            id="uk.ac.gda.client.StopAll"
+            name="Stop All Command and Hardware">
       </command>
       <command
             defaultHandler="uk.ac.gda.actions.HaltScanHandler"

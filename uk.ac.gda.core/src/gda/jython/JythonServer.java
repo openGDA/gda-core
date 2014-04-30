@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -48,7 +48,6 @@ import gda.observable.ObservableComponent;
 import gda.scan.NestableScan;
 import gda.scan.Scan;
 import gda.scan.Scan.ScanStatus;
-import gda.scan.ScanBase;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
 import gda.util.exceptionUtils;
@@ -634,9 +633,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return theRawInput;
 	}
 
-	// TODO GDA-5863 rename this method to requestFinishEarly
 	@Override
-	public synchronized void haltCurrentScan(String JSFIdentifier) {
+	public synchronized void requestFinishEarly(String JSFIdentifier) {
 		currentScan.requestFinishEarly();
 	}
 
@@ -661,27 +659,38 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public void panicStop(String JSFIdentifier) {
+	public void beamlineHalt(String JSFIdentifier) {
+		abortCommands(true);
+	}
+
+	@Override
+	public void abortCommands(String JSFIdentifier) {
+		abortCommands(false);
+	}
+
+	private void abortCommands(final boolean andCallStopAll) {
 		uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					// first stop any command queue that might be running
-					List<IFindableQueueProcessor> commandQueue = Finder.getInstance().listFindablesOfType(IFindableQueueProcessor.class);
+					List<IFindableQueueProcessor> commandQueue = Finder.getInstance().listFindablesOfType(
+							IFindableQueueProcessor.class);
 					// unlikely to ever have more than one processor, but have this loop just in case
-					for (IFindableQueueProcessor queue : commandQueue){
+					for (IFindableQueueProcessor queue : commandQueue) {
 						try {
 							queue.stop(-1);
 						} catch (Exception e) {
-							// log and continue with the panic stop process
-							logger.error("Exception while stopping queue after panic stop called", e);
+							// log and continue with the aborting process
+							logger.error("Exception while stopping queue after abort called", e);
 						}
 					}
-					
+
 					interruptThreads();
 					interp.getInterp().interrupt(Py.getThreadState());
 				} finally {
-					stopAll();
+					if (andCallStopAll)
+						stopAll();
 				}
 
 				scriptStatus = Jython.IDLE;
@@ -689,13 +698,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				updateIObservers(new PanicStopEvent());
 			}
 		}).start();
-	}
-
-	// TODO GDA-5863 need to be renamed as this stops all threads
-	@Override
-	public void haltCurrentScript(String JSFIdentifier) {
-		//  GDA-5863 we agreed to drop this functionality but keep the script pause
-		panicStop(JSFIdentifier);
 	}
 
 	@Override
@@ -828,13 +830,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	@Override
 	public int getScriptStatus(String JSFIdentifier) {
 		return scriptStatus;
-	}
-
-	// FIXME GDA-5863 remove this method, or change the interface to ensure that the status is coming from the current scan 
-	@Override
-	public void setScanStatus(int newStatus, String JSFIdentifier) {
-		// now do nothing.  The status is not held here but in the currentScan.  That scan should inform this class via the notify method
-//		updateScanStatus(newStatus);
 	}
 
 	@Override

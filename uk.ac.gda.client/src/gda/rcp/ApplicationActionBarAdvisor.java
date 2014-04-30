@@ -30,6 +30,8 @@ import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.rcp.views.GdaImages;
+import gda.scan.Scan;
+import gda.scan.ScanCompletedEvent;
 
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.jface.action.Action;
@@ -508,6 +510,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 						} else if (changeCode instanceof BatonLeaseRenewRequest) {
 							InterfaceProvider.getBatonStateProvider().amIBatonHolder();
 						} else if (changeCode instanceof JythonServerStatus) {
+							updateScanStatus(scanStatus);
+							updateScriptStatus(scriptStatus);
+						} else if (changeCode instanceof ScanCompletedEvent) {
+							updateScanStatus(scanStatus);
+							updateScriptStatus(scriptStatus);
+						} else if (changeCode instanceof Scan.ScanStatus) {
 							updateScanStatus(scanStatus);
 							updateScriptStatus(scriptStatus);
 						}
