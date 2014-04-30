@@ -72,24 +72,6 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	
 	private Object previousEvent;
 	
-	static class OutgoingTimedStructuredEvent {
-
-		public StructuredEvent event;
-
-		public long timeReceivedMs;
-
-		public OutgoingTimedStructuredEvent(StructuredEvent event, long timeReceivedMS) {
-			this.event = event;
-			this.timeReceivedMs = timeReceivedMS;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("TimedStructuredEvent(time=%d, source=%s, type=%s)", timeReceivedMs,
-					event.eventHeader.eventName, event.eventHeader.typeName);
-		}
-	}
-	
 	/**
 	 * Create an event dispatcher for the specified channel.
 	 * 
