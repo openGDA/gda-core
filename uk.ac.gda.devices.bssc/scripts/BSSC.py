@@ -229,14 +229,6 @@ class BSSCRun:
             samplefile = self.measureSample(titration, duration)
             print "\n= Buffer after"
             self.measureBuffer(titration, duration)
-
-            self.ispyb.createDataReduction(self.dataCollectionIds[self.dataCollectionIndex])
-            #set data analysis status because it is created as RUNNING
-            analysisStatus = ISPyBStatusInfo()
-            analysisStatus.setStatus(ISpyBStatus.NOT_STARTED)
-            analysisStatus.setProgress(0)
-            self.ispyb.setDataAnalysisStatus(self.dataCollectionIds[self.dataCollectionIndex], analysisStatus)
-
             self.processing.triggerProcessing(samplefile, backgroundfile, str(self.dataCollectionIds[self.dataCollectionIndex]))
             lastTitration = titration
             self.dataCollectionIndex += 1
