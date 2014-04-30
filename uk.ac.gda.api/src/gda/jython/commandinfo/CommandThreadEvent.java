@@ -18,7 +18,9 @@
 
 package gda.jython.commandinfo;
 
-public class CommandThreadEvent {
+import java.io.Serializable;
+
+public class CommandThreadEvent implements Serializable{
 	
 	private CommandThreadEventType event;
 	private ICommandThreadInfo info;
