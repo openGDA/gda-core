@@ -45,6 +45,8 @@ import org.omg.CosEventComm.PushSupplierPOA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+
 public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispatcher, Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(CorbaEventDispatcher.class);
@@ -121,13 +123,10 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 
 				}
 			} else {
-				String id = NameFilter.MakeEventChannelName(sourceName);
-				String argClass = (message == null) ? "null" : message.getClass().toString();
-				EventHeader eventHeader = new EventHeader(argClass, id);
-				StructuredEvent event = new StructuredEvent(eventHeader, Serializer.toByte(message));
-				final OutgoingTimedStructuredEvent timeEvent = new OutgoingTimedStructuredEvent(event,
-						logger.isDebugEnabled() ? System.currentTimeMillis() : 0);
-				publish(timeEvent);
+				final Optional<OutgoingTimedStructuredEvent> timeEvent = makeTimedStructuredEvent(sourceName, message);
+				if (timeEvent.isPresent()) {
+					publish(timeEvent.get());
+				}
 			}
 
 		} catch (Exception e) {
@@ -154,7 +153,6 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 			if (sourceEventsMapToHandle != null) {
 				for (Entry<String,EventCollection> mapEntry : sourceEventsMapToHandle.entrySet()) {
 					try{
-						String id = NameFilter.MakeEventChannelName(mapEntry.getKey());
 						Object objectForSource;
 						{
 							Vector<Object> objectsForSource = mapEntry.getValue();
@@ -164,21 +162,13 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 								objectForSource = objectsForSource;
 							}
 						}
-						String argClass = (objectForSource == null) ? "null" : objectForSource.getClass().toString();
-						EventHeader eventHeader = new EventHeader(argClass, id);
-						byte[] byte1 = Serializer.toByte(objectForSource);
-						if( byte1 != null){
-							StructuredEvent event = new StructuredEvent(eventHeader, byte1);
-							final OutgoingTimedStructuredEvent timeEvent = new OutgoingTimedStructuredEvent(event,
-									logger.isDebugEnabled() ? System.currentTimeMillis() : 0);
-
-							Callable<Void> publishCallable = createPublishCallable(timeEvent);
+						final String sourceName = mapEntry.getKey();
+						final Optional<OutgoingTimedStructuredEvent> timeEvent = makeTimedStructuredEvent(sourceName, objectForSource);
+						if (timeEvent.isPresent()) {
+							Callable<Void> publishCallable = createPublishCallable(timeEvent.get());
 							execCompletionService.submit(publishCallable);
 							numberCallablesSubmitted++;
-						} else {
-							logger.error("Error dispatch event:" + mapEntry.getKey() + " serializer returned null");
 						}
-						
 					}
 					catch (Throwable th){
 						logger.error("Error dispatch event:" + mapEntry.getKey(),th);
@@ -197,6 +187,25 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 				logger.error("execCompletionService.poll interrupted",e);
 			}
 		}
+	}
+
+	private static Optional<OutgoingTimedStructuredEvent> makeTimedStructuredEvent(String sourceName, Object message) {
+		
+		final byte[] byteData = Serializer.toByte(message);
+		if (byteData == null) {
+			logger.error("Error dispatch event:" + sourceName + " serializer returned null");
+			return Optional.absent();
+		}
+		
+		final String argClass = (message == null) ? "null" : message.getClass().toString();
+		final String id = NameFilter.MakeEventChannelName(sourceName);
+		final EventHeader eventHeader = new EventHeader(argClass, id);
+		
+		final StructuredEvent event = new StructuredEvent(eventHeader, byteData);
+		
+		final long timeReceived = logger.isDebugEnabled() ? System.currentTimeMillis() : 0;
+		final OutgoingTimedStructuredEvent timeEvent = new OutgoingTimedStructuredEvent(event, timeReceived);
+		return Optional.of(timeEvent);
 	}
 
 	private Callable<Void> createPublishCallable(final OutgoingTimedStructuredEvent timeEvent) {
