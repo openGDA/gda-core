@@ -554,7 +554,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			} else if (data instanceof BatonLeaseRenewRequest){
 				amIBatonHolder();
 				notifyIObservers(this, data);
-			} else if (data instanceof ICommandThreadInfo) {
+			} else if (data instanceof CommandThreadInfoEvent) {
 				for (ICommandThreadObserver observer: commandThreadObservers) {
 					observer.update(this,data);
 				}

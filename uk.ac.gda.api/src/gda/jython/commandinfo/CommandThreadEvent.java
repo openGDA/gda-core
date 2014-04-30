@@ -18,32 +18,24 @@
 
 package gda.jython.commandinfo;
 
-import java.io.Serializable;
-
-public interface ICommandThreadInfo extends Serializable {
+public class CommandThreadEvent {
 	
-	public String getCommand();
-
-	CommandThreadType getCommandThreadType();
-
-	String getDate();
-
-	String getInterrupt();
-
-	String getQueue();
-
-	String getTime();
-
-	void setCommand(String command);
-
-	void setCommandThreadType(CommandThreadType threadType);
-
-	void setDate(String date);
-
-	void setInterrupt(String interrupt);
-
-	void setQueue(String queue);
-
-	void setTime(String time);
-
+	private CommandThreadEventType event;
+	private ICommandThreadInfo info;
+	
+	public CommandThreadEventType getEventType() {
+		return event;
+	}
+	
+	public ICommandThreadInfo getInfo() {
+		return info;
+	}
+	
+	public void setEventType(CommandThreadEventType event) {
+		this.event = event;
+	}
+	
+	public void setInfo(ICommandThreadInfo info) {
+		this.info = info;
+	}
 }

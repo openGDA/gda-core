@@ -22,7 +22,7 @@ import gda.jython.commandinfo.ICommandThreadInfo;
 
 public class CommandThreadInfo implements ICommandThreadInfo {
 	
-	private String commandThreadType;
+	private CommandThreadType threadType;
 	private String date;
 	private String time;
 	private String queue;
@@ -30,13 +30,13 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	private String command;
 
 	public CommandThreadInfo(
-			String commandThreadType, 
+			CommandThreadType commandThreadType, 
 			String date, 
 			String time, 
 			String queue, 
 			String interrupt,
 			String command) {
-		this.commandThreadType = commandThreadType;
+		this.threadType = commandThreadType;
 		this.date = date;
 		this.time = time;
 		this.queue = queue;
@@ -52,8 +52,8 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	}
 
 	@Override
-	public String getCommandThreadType() {
-		return commandThreadType;
+	public CommandThreadType getCommandThreadType() {
+		return threadType;
 	}
 
 	@Override
@@ -82,8 +82,8 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	}
 
 	@Override
-	public void setCommandThreadType(String commandThreadType) {
-		this.commandThreadType = commandThreadType;
+	public void setCommandThreadType(CommandThreadType threadType) {
+		this.threadType = threadType;
 	}
 
 	@Override
