@@ -45,9 +45,6 @@ import org.omg.CosEventComm.PushSupplierPOA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * An event dispatcher class
- */
 public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispatcher, Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(CorbaEventDispatcher.class);
@@ -56,7 +53,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 
 	private ProxyPushConsumer consumer;
 
-	boolean batchMode;
+	private boolean batchMode;
 
 	private ExecutorCompletionService<Void> execCompletionService;
 	
@@ -72,15 +69,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	
 	private Object previousEvent;
 	
-	/**
-	 * Create an event dispatcher for the specified channel.
-	 * 
-	 * @param channel
-	 *            the event channel
-	 * @param orb
-	 *            the orb
-	 */
-	public CorbaEventDispatcher(EventChannel channel, ORB orb, boolean batchMode) {
+	public CorbaEventDispatcher(EventChannel eventChannel, ORB orb, boolean batchMode) {
 		this.batchMode = batchMode;
 
 		if(batchMode){
@@ -89,7 +78,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 			execCompletionService = new ExecutorCompletionService<Void>(Executors.newFixedThreadPool(threadPoolSize));
 		}
 		
-		supplierAdmin = channel.for_suppliers();
+		supplierAdmin = eventChannel.for_suppliers();
 		consumer = supplierAdmin.obtain_push_consumer();
 		try {
 			consumer.connect_push_supplier(_this(orb));
@@ -102,10 +91,6 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	@Override
 	public void publish(String sourceName, Object message) {
 		try {
-			/**
-			 * Enter batchMode if allowed AND either sourceEventsMap != null OR sequential messages are to
-			 * the same source
-			 */
 			if (batchMode) {
 				synchronized (lock) {
 					if (sourceEventsMap == null)
@@ -159,8 +144,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 					try {
 						lock.wait();
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						// ignore
 					}
 				}
 				sourceEventsMapToHandle = sourceEventsMap;
@@ -215,7 +199,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 		}
 	}
 
-	public Callable<Void> createPublishCallable(final OutgoingTimedStructuredEvent timeEvent) {
+	private Callable<Void> createPublishCallable(final OutgoingTimedStructuredEvent timeEvent) {
 		return new Callable<Void>() {
 
 			@Override
@@ -249,13 +233,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 		};
 	}
 
-	/**
-	 * Push the event to all event channels
-	 * 
-	 * @param timeEvent
-	 *            the event.
-	 */
-	public void publish(OutgoingTimedStructuredEvent timeEvent) {
+	private void publish(OutgoingTimedStructuredEvent timeEvent) {
 		Any any = ORB.init().create_any();
 		StructuredEventHelper.insert(any, timeEvent.event);
 
@@ -279,12 +257,8 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 			logger.error("EventDispatcher.publish()", ex);
 			disconnect_push_supplier();
 		} catch (org.omg.CORBA.UNKNOWN ex) {
-			// do nothing here see bugzilla bug #
+			// do nothing
 		}
-	}
-
-	public void dispose() {
-		killed = true;
 	}
 
 	@Override
