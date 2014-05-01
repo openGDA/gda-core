@@ -23,7 +23,6 @@ import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
-import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
 public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
@@ -140,7 +139,6 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 			etfg.start();
 			while (etfg.getStatus() != 2) {
 				Thread.sleep(50);
-				ScanBase.checkForInterrupts();
 			}			
 		}
 		

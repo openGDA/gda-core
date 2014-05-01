@@ -37,7 +37,6 @@ import gda.device.scannable.ScannableUtils;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
-import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -405,7 +404,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 						done &= ts.isComplete();
 					}
 				}
-				ScanBase.checkForInterrupts();
 				Thread.sleep(500);
 			}
 		} catch (InterruptedException e) {

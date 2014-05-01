@@ -30,7 +30,6 @@ import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDFileType;
 import gda.factory.FactoryException;
 import gda.observable.Observable;
-import gda.scan.ScanBase;
 import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -1085,12 +1084,12 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	public void waitWhileStatusBusy() throws InterruptedException {
 		synchronized (statusMonitor) {
 			while (status == Detector.BUSY) { 
-				statusMonitor.wait(1000);
-				//if interrupted clear the status state as the IOC may have crashed
-				if( ScanBase.isInterrupted()){
+				try {
+					statusMonitor.wait(1000);
+				} catch (InterruptedException e) {
 					setStatus(0);
+					throw e;
 				}
-				ScanBase.checkForInterrupts();
 			}
 		}
 	}

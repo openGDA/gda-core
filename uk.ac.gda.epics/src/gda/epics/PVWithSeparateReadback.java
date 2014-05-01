@@ -81,7 +81,7 @@ public class PVWithSeparateReadback<T> implements PV<T> {
 
 	@Override
 	public T waitForValue(Predicate<T> predicate, double timeoutS) throws IllegalStateException, TimeoutException,
-			IOException {
+			IOException, InterruptedException {
 		return getPV.waitForValue(predicate, timeoutS);
 	}
 

@@ -3,14 +3,11 @@ package gda.device.zebra;
 import gda.device.DeviceException;
 import gda.device.scannable.PositionInputStream;
 import gda.epics.ReadOnlyPV;
-import gda.scan.ScanBase;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +83,6 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 	public List<Double> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
 		while(!started){
 			Thread.sleep(1000);
-			ScanBase.checkForInterrupts();			
 		}
 		if (numPointsReturned >= numPointsToCollect) {
 			throw new IllegalStateException("All " + numPointsToCollect + " points to collect have been read.");
@@ -95,15 +91,8 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 
 		int numPointsAvailable=0;
 		try {
-			while(numPointsAvailable <  desiredPoint){
-				try
-				{
-					numPointsAvailable = numDownloadedPV.waitForValue(new GreaterThanOrEqualTo(desiredPoint), 5);
-				} catch(TimeoutException e){
-					ScanBase.checkForInterrupts();	 		
-				}
-			}
-		} catch (InterruptedIOException e) {
+			numPointsAvailable = numDownloadedPV.waitForValue(new GreaterThanOrEqualTo(desiredPoint), -1);
+		} catch (InterruptedException e) {
 			throw new InterruptedException("Interupted while waiting for point: " + desiredPoint);
 		} catch (Exception e) {
 			throw new DeviceException("Problem while waiting for point: " + desiredPoint, e);
