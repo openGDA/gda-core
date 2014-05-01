@@ -1,5 +1,6 @@
 /*-
- * Copyright © 2014 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council
  *
  * This file is part of GDA.
  *
@@ -16,24 +17,17 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.actions;
+package gda.jython;
 
-import gda.jython.JythonServerFacade;
-
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-
-public class HaltScanHandler extends AbstractHandler {
-
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		try {
-			JythonServerFacade.getInstance().requestFinishEarly();
-			return Boolean.TRUE;
-		} catch (Exception ne) {
-			throw new ExecutionException(ne.getMessage(), ne);
-		}
-	}
-
+public interface ICommandAborter {
+	
+	/**
+	 * @see Jython#beamlineHalt(String)
+	 */
+	public void beamlineHalt();
+	
+	/**
+	 * @see Jython#abortCommands(String)
+	 */
+	public void abortCommands();
 }

@@ -193,14 +193,12 @@ public class CentroidScan extends ScanBase implements Scan {
 			if (!(e instanceof InterruptedException)) {
 				this.moveToCentroids();
 			}
-			interrupted = true;
 			throw e;
 		}
-
 	}
 
 	@Override
-	protected void endScan() throws DeviceException {
+	protected void endScan() throws DeviceException, InterruptedException {
 		if (!concurrentScan.returnScannablesToOrginalPositions) {
 			try {
 				this.moveToCentroids();
@@ -221,12 +219,14 @@ public class CentroidScan extends ScanBase implements Scan {
 	 * @throws Exception
 	 */
 	private void moveToCentroids() throws Exception {
+		checkThreadInterrupted();
+		waitIfPaused();
 		for (ScanObject j : this.concurrentScan.allScanObjects) {
+			checkThreadInterrupted();
 			j.moveToStart();
 		}
 		// pause here until all the movement has finished
 		for (ScanObject j : this.concurrentScan.allScanObjects) {
-			checkForInterrupts();
 			while (j.scannable.isBusy()) {
 				Thread.sleep(250);
 			}

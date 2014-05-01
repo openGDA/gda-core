@@ -115,9 +115,9 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	}
 
 	@Override
-	public void haltCurrentScan(String JSFIdentifier) throws CorbaDeviceException {
+	public void requestFinishEarly(String JSFIdentifier) throws CorbaDeviceException {
 		try {
-			jythonServer.haltCurrentScan(JSFIdentifier);
+			jythonServer.requestFinishEarly(JSFIdentifier);
 			return;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
@@ -125,9 +125,18 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	}
 
 	@Override
-	public void haltCurrentScript(String JSFIdentifier) throws CorbaDeviceException {
+	public boolean isFinishEarlyRequested() throws CorbaDeviceException {
 		try {
-			jythonServer.haltCurrentScript(JSFIdentifier);
+			return jythonServer.isFinishEarlyRequested();
+		} catch (Exception de) {
+			throw new CorbaDeviceException(de.getMessage());
+		}
+	}
+
+	@Override
+	public void beamlineHalt(String JSFIdentifier) throws CorbaDeviceException {
+		try {
+			jythonServer.beamlineHalt(JSFIdentifier);
 			return;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
@@ -135,9 +144,9 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	}
 
 	@Override
-	public void panicStop(String JSFIdentifier) throws CorbaDeviceException {
+	public void abortCommands(String JSFIdentifier) throws CorbaDeviceException {
 		try {
-			jythonServer.panicStop(JSFIdentifier);
+			jythonServer.abortCommands(JSFIdentifier);
 			return;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
@@ -237,15 +246,6 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	public int getScriptStatus(String JSFIdentifier) throws CorbaDeviceException {
 		try {
 			return jythonServer.getScriptStatus(JSFIdentifier);
-		} catch (Exception de) {
-			throw new CorbaDeviceException(de.getMessage());
-		}
-	}
-
-	@Override
-	public void setScanStatus(int status, String JSFIdentifier) throws CorbaDeviceException {
-		try {
-			jythonServer.setScanStatus(status, JSFIdentifier);
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}

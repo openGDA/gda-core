@@ -27,7 +27,7 @@ import java.util.Vector;
 /**
  * Interface for access to scan objects which can be part of a multidimensional ConcurrentScan
  */
-public interface IConcurrentScanChild extends Scan {
+public interface IConcurrentScanChild extends NestableScan {
 
 	@Override
 	public IConcurrentScanChild getChild();

@@ -35,8 +35,10 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import org.junit.Ignore;
+import junit.framework.Assert;
+
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -166,7 +168,7 @@ public class ScanTest {
 		configurator.setContext(lc);
 		lc.reset();
 		try {
-			configurator.doConfigure(LocalProperties.get("gda.server.logging.xml"));
+			configurator.doConfigure(LocalProperties.get("gda.logger.impl.server"));
 		} catch (JoranException e) {
 			e.printStackTrace();
 		}
@@ -193,7 +195,9 @@ public class ScanTest {
 			hashtable.putBoolean(FindableHashtable.NEXUS_METADATA, true);
 			hashtable.putBoolean(FindableHashtable.SRB_STORE, true);
 			printTime("Starting a scan");
-			scan.run();
+			scan.runScan();
+			Assert.fail(); //Need to be able to add this back in!: //ScanBase.waitForScanEnd();
+
 			printTime("Completed a scan");
 		} catch (Exception e) {
 			System.out.println("Error in scan " + e.getMessage());

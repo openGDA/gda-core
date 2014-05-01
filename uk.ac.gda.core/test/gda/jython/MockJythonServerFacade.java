@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,7 +24,6 @@ import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
-import gda.scan.ScanBase;
 import gda.util.LibGdaCommon;
 
 import java.io.File;
@@ -46,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner, ITerminalPrinter,
 		ICurrentScanController, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider ,
-		IScriptController, IPanicStop, IBatonStateProvider, JSFObserver, AliasedCommandProvider{
+		IScriptController, ICommandAborter, IBatonStateProvider, JSFObserver, AliasedCommandProvider{
 	private static final Logger logger = LoggerFactory.getLogger(MockJythonServerFacade.class);
 	
 	private String terminalOutput = "";
@@ -65,7 +64,12 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	}
 
 	@Override
-	public void haltCurrentScan() {
+	public void requestFinishEarly() {
+	}
+	
+	@Override
+	public boolean isFinishEarlyRequested() {
+		return false;
 	}
 
 	@Override
@@ -76,7 +80,6 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 
 	volatile int scanStatus = Jython.IDLE;
 
-	@Override
 	public void setScanStatus(int newStatus) {
 		scanStatus = newStatus;
 	}
@@ -162,11 +165,14 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	}
 
 	@Override
-	public void panicStop() {
-		ScriptBase.setInterrupted(true);
-		ScanBase.setInterrupted(true);
+	public void abortCommands() {
 		scanStatus = Jython.IDLE;
 		scriptStatus = Jython.IDLE;
+	}
+	
+	@Override
+	public void beamlineHalt() {
+		abortCommands();
 	}
 
 	@Override
@@ -180,10 +186,6 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	
 	@Override
 	public void runCommand(String command, String scanObserver) {
-	}
-
-	@Override
-	public void haltCurrentScript() {
 	}
 
 	@Override

@@ -173,30 +173,21 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 			}
 			
 			fileUrl = dataDir + currentFileName;
-			try {
-				// Check to see if the file(s) already exists!
-				File f = new File(fileUrl);
-				if (f.exists()) {
-					throw new Exception("The file " + fileUrl + " already exists.");
-				}
-				File fparent = new File(f.getParent());
-				if( !fparent.exists()){
-					fparent.mkdirs();	
-				}
-				file = new FileWriter(f);
-			} catch (IOException ex1) {
-				String error = "Failed to create a new data file: " + fileUrl + " - " + ex1.getMessage();
-				exceptionUtils.logException(logger, "Failed to create a new data file: " + fileUrl, ex1);
-				currentScanController.haltCurrentScan();
-				terminalPrinter.print(error);
+			// Check to see if the file(s) already exists!
+			File f = new File(fileUrl);
+			if (f.exists()) {
+				throw new Exception("The file " + fileUrl + " already exists.");
 			}
+			File fparent = new File(f.getParent());
+			if( !fparent.exists()){
+				fparent.mkdirs();	
+			}
+			file = new FileWriter(f);
 			terminalPrinter.print("Writing data to file:" + fileUrl);
 		} catch (Exception ex) {
 			String error = "Failed to create a new data file: " + fileUrl + " - " + ex.getMessage();
-			exceptionUtils.logException(logger, "Failed to create a new data file: " + fileUrl, ex);
 			terminalPrinter.print(error);
-			terminalPrinter.print(ex.getMessage());
-			throw new Exception(error);
+			throw new Exception(ex);
 		}
 	}
 

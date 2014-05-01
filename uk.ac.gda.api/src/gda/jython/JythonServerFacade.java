@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +75,7 @@ import org.springframework.util.StringUtils;
  */
 public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHolder, ICommandRunner,
 		ICurrentScanController, ITerminalPrinter, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider,
-		IScriptController, IPanicStop, IBatonStateProvider, InitializingBean, AliasedCommandProvider, IJythonContext,
+		IScriptController, ICommandAborter, IBatonStateProvider, InitializingBean, AliasedCommandProvider, IJythonContext,
 		ITerminalOutputProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServerFacade.class);
@@ -410,13 +409,20 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	/**
-	 * @see Jython#haltCurrentScan
+	 * @see Jython#requestFinishEarly
 	 */
 	@Override
-	public void haltCurrentScan() {
-		commandServer.haltCurrentScan(name);
+	public void requestFinishEarly() {
+		// TODO GDA-5863 this will need to be renamed to requestFinishEarly
+		commandServer.requestFinishEarly(name);
 	}
 
+
+	@Override
+	public boolean isFinishEarlyRequested() {
+		return commandServer.isFinishEarlyRequested();
+	}
+	
 	/**
 	 * @see Jython#pauseCurrentScan
 	 */
@@ -442,27 +448,21 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	/**
-	 * @see Jython#panicStop(String)
+	 * @see Jython#beamlineHalt(String)
 	 */
 	@Override
-	public void panicStop() {
-		commandServer.panicStop(name);
+	public void beamlineHalt(){
+		commandServer.beamlineHalt(name);
 	}
-
+	
 	/**
-	 * @see Jython#haltCurrentScript
+	 * @see Jython#abortCommands(String)
 	 */
 	@Override
-	public void haltCurrentScript() {
-		commandServer.haltCurrentScript(name);
+	public void abortCommands(){
+		commandServer.abortCommands(name);
 	}
 
-	/**
-	 * @param theObserved
-	 *            Object
-	 * @param changeCode
-	 *            Object
-	 */
 	private void notifyIObservers(Object theObserved, Object changeCode) {
 		myIObservers.notifyIObservers(theObserved, changeCode);
 	}
@@ -596,16 +596,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public int getScanStatus() {
 		return commandServer.getScanStatus(name);
-	}
-
-	/**
-	 * @see Jython#setScanStatus
-	 * @param status
-	 *            int
-	 */
-	@Override
-	public void setScanStatus(int status) {
-		commandServer.setScanStatus(status, name);
 	}
 
 	/**

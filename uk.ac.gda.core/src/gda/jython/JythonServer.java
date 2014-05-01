@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -45,8 +45,9 @@ import gda.messages.MessageHandler;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import gda.scan.NestableScan;
 import gda.scan.Scan;
-import gda.scan.ScanBase;
+import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
 import gda.util.exceptionUtils;
@@ -132,7 +133,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	volatile int scriptStatus = Jython.IDLE;
 
 	// status of the current scan
-	volatile int scanStatus = Jython.IDLE;
+	volatile int lastScanStatus = Jython.IDLE;
 
 	// the current scan object
 	volatile Scan currentScan = null;
@@ -428,25 +429,19 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		// This method is not called directly as run() in the Runnable interface
 		// does not throw any exceptions.
 
-		// refuse to start a new script if the interrupt flag is set
-		if (ScriptBase.isInterrupted()) {
-			if (getScriptStatus(null) != Jython.RUNNING) {
-				// should never get here, so clear flag and continue to allow users to run new scripts
-				ScriptBase.setInterrupted(false);
-			} else {
-				throw new InterruptedException(
-						"Script interrupt flag set to True and Jython Server is running a script, so cannot start a new script");
-			}
-		}
 		// make a note of current script status - only clear flags at the end if this method call was the one which
 		// changed the script state
+
+		if (Thread.interrupted()) {
+			throw new InterruptedException();
+		}
+
 		boolean wasAlreadyRunning = (getScriptStatus(null) == Jython.RUNNING);
 		try {
 			setScriptStatus(Jython.RUNNING, null);
 			this.interp.exec(JythonServerFacade.slurp(new File(scriptFullPath)));
 		} finally {
 			if (!wasAlreadyRunning) {
-				ScriptBase.setInterrupted(false);
 				setScriptStatus(Jython.IDLE, null);
 			}
 		}
@@ -639,93 +634,68 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public synchronized void haltCurrentScan(String JSFIdentifier) {
-		logger.info("Halting current scan from thread: " + Thread.currentThread().getName());
-		ScanBase.setInterrupted(true);
-		ScanBase.setPaused(false);
-		ScanBase.explicitlyHalted = true;
-
-		uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-			@Override
-			public void run() {
-				notifyServer(null, new ScanInterruptedEvent());
-			}
-		}).start();
+	public synchronized void requestFinishEarly(String JSFIdentifier) {
+		currentScan.requestFinishEarly();
 	}
 
 	@Override
 	public void pauseCurrentScan(String JSFIdentifier) {
-		ScanBase.setPaused(true);
+		currentScan.pause();
 	}
 
 	@Override
 	public void resumeCurrentScan(String JSFIdentifier) {
-		ScanBase.setPaused(false);
+		currentScan.resume();
 	}
 
 	@Override
 	public void restartCurrentScan(String JSFIdentifier) {
-		if (getScanStatus(JSFIdentifier) == Jython.IDLE && ScanBase.isInterrupted()) {
+		// if the last scan has finished and was aborted for some reason, then re-run it
+		ScanStatus status = currentScan.getStatus();
+		if (status == ScanStatus.COMPLETED_AFTER_FAILURE || status == ScanStatus.COMPLETED_AFTER_STOP) {
 			this.placeInJythonNamespace("the_restarted_scan", this.currentScan, JSFIdentifier);
 			runCommand("the_restarted_scan.runScan()", JSFIdentifier);
 		}
 	}
 
 	@Override
-	public void panicStop(String JSFIdentifier) {
+	public void beamlineHalt(String JSFIdentifier) {
+		abortCommands(true);
+	}
+
+	@Override
+	public void abortCommands(String JSFIdentifier) {
+		abortCommands(false);
+	}
+
+	private void abortCommands(final boolean andCallStopAll) {
 		uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					// first stop any command queue that might be running
-					List<IFindableQueueProcessor> commandQueue = Finder.getInstance().listFindablesOfType(IFindableQueueProcessor.class);
+					List<IFindableQueueProcessor> commandQueue = Finder.getInstance().listFindablesOfType(
+							IFindableQueueProcessor.class);
 					// unlikely to ever have more than one processor, but have this loop just in case
-					for (IFindableQueueProcessor queue : commandQueue){
+					for (IFindableQueueProcessor queue : commandQueue) {
 						try {
-							queue.stop(1000);
+							queue.stop(-1);
 						} catch (Exception e) {
-							// log and continue with the panic stop process
-							logger.error("Exception while stopping queue after panic stop called", e);
+							// log and continue with the aborting process
+							logger.error("Exception while stopping queue after abort called", e);
 						}
 					}
-					
-					ScriptBase.setInterrupted(true);
-					ScanBase.setInterrupted(true);
-					
+
 					interruptThreads();
 					interp.getInterp().interrupt(Py.getThreadState());
 				} finally {
-					stopAll();
+					if (andCallStopAll)
+						stopAll();
 				}
 
-				scanStatus = Jython.IDLE;
 				scriptStatus = Jython.IDLE;
 				updateStatus();
 				updateIObservers(new PanicStopEvent());
-			}
-		}).start();
-	}
-
-	@Override
-	public void haltCurrentScript(String JSFIdentifier) {
-		logger.info("Halting current script");
-		uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-			@Override
-			public void run() {
-				// first stop current scan
-				ScanBase.setInterrupted(true);
-				ScanBase.setPaused(false);
-
-				// then stop current scripts
-				ScriptBase.setInterrupted(true);
-				ScriptBase.setPaused(false);
-
-				interruptThreads();
-
-				scanStatus = Jython.IDLE;
-				scriptStatus = Jython.IDLE;
-
-				updateStatus();
 			}
 		}).start();
 	}
@@ -827,6 +797,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public void notifyServer(Object scan, Object data) {
 		if (data instanceof ScanDataPoint) {
 			((ScanDataPoint) data).setCreatorPanelName(scanObserverName);
+		} else if (scan == currentScan && data instanceof ScanStatus){
+			updateScanStatus(((ScanStatus)data).asJython());
 		}
 
 		updateIObservers(data);
@@ -849,22 +821,15 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public int getScanStatus(String JSFIdentifier) {
-		return scanStatus;
+		if (currentScan == null){
+			return Jython.IDLE;
+		}
+		return currentScan.getStatus().asJython();
 	}
 
 	@Override
 	public int getScriptStatus(String JSFIdentifier) {
 		return scriptStatus;
-	}
-
-	@Override
-	public void setScanStatus(int newStatus, String JSFIdentifier) {
-		// check if the status value is recognised and has changed
-		if ((newStatus == Jython.IDLE || newStatus == Jython.RUNNING || newStatus == Jython.PAUSED)
-				&& scanStatus != newStatus) {
-			scanStatus = newStatus;
-			updateStatus();
-		}
 	}
 
 	@Override
@@ -1033,12 +998,20 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		}
 	}
 
+	private void updateScanStatus(int newStatus) {
+		// check if the status value has changed
+		if (newStatus != lastScanStatus){
+			lastScanStatus = newStatus;
+			updateStatus();
+		}
+	}
+
 	/*
 	 * Creates a new JythonServerStatus object with the current state of the Jython system and passes it to all
 	 * JythonFacade objects for distribution locally.
 	 */
 	private void updateStatus() {
-		JythonServerStatus newStatus = new JythonServerStatus(scriptStatus, scanStatus);
+		JythonServerStatus newStatus = new JythonServerStatus(scriptStatus, lastScanStatus);
 		updateIObservers(newStatus);
 		logger.info(newStatus.toString());
 		jythonServerStatusObservers.notifyIObservers(null, newStatus);
@@ -1305,9 +1278,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				// write the command to file
 				buf.write(cmd);
 				buf.close();
-				// clear the flag before starting again - analoguous to the ScanBase flag being cleared at the start of
-				// every new scan
-				ScriptBase.setInterrupted(false);
 				// then run the file
 				this.interpreter.runscript(out);
 			} catch (IOException e) {
@@ -1433,20 +1403,28 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return stopJythonScannablesOnStopAll;
 	}
 
-	static public ScanInformation getScanInformation(Scan scan) {
-		if (scan == null)
+	public static ScanInformation getScanInformation(Scan topscan) {
+		// TODO GDA-5863 we should change the scan interface to getDimensions(int[])
+
+		if (topscan == null)
 			return null;
-		Scan topscan = scan;
-		while (topscan.getParent() != null)
-			topscan = topscan.getParent();
+		
 		List<Integer> dims = new Vector<Integer>();
-		for (Scan s = topscan;; s = s.getChild()) {
-			dims.add(s.getDimension());
-			if (s.getChild() == null)
-				break;
+
+		// hack warning!!!
+		// hack warning!!! should change the scan interface to getDimensions(int[]) and drop this part of code
+		if (topscan instanceof NestableScan) {
+			for (Scan s = topscan;; s = s.getChild()) {
+				dims.add(s.getDimension());
+				if (s.getChild() == null)
+					break;
+			}
+		} else {
+			dims.add(topscan.getDimension());
 		}
-		String[] scannables = ScannableUtils.getScannableNames(scan.getScannables()).toArray(new String[] {});
-		String[] detectors = ScannableUtils.getScannableNames(scan.getDetectors()).toArray(new String[] {});
+
+		String[] scannables = ScannableUtils.getScannableNames(topscan.getScannables()).toArray(new String[] {});
+		String[] detectors = ScannableUtils.getScannableNames(topscan.getDetectors()).toArray(new String[] {});
 		Long scanno = topscan.getScanNumber();
 		try { 
 			if (scanno == null)
@@ -1460,6 +1438,11 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	@Override
 	public ScanInformation getCurrentScanInformation() {
 		return getScanInformation(currentScan);
+	}
+	
+	@Override
+	public boolean isFinishEarlyRequested() {
+		return currentScan.isFinishEarlyRequested();
 	}
 
 	@Override
@@ -1514,7 +1497,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public JythonServerStatus getJythonServerStatus() {
-		return new JythonServerStatus(scriptStatus, scanStatus);
+		return new JythonServerStatus(scriptStatus, getScanStatus(null));
 	}
 
 	public void showUsers() {
@@ -1557,5 +1540,4 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public void exec(String s) {
 		interp.getInterp().exec(s);
 	}
-
 }

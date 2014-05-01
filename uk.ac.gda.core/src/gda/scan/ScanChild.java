@@ -16,24 +16,20 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.actions;
+package gda.scan;
 
-import gda.jython.JythonServerFacade;
+public interface ScanChild { 
+	
+	/**
+	 * @return The parent scan if this scan is nested
+	 */
+	NestableScan getParent();
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-
-public class HaltScanHandler extends AbstractHandler {
-
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		try {
-			JythonServerFacade.getInstance().requestFinishEarly();
-			return Boolean.TRUE;
-		} catch (Exception ne) {
-			throw new ExecutionException(ne.getMessage(), ne);
-		}
-	}
+	/**
+	 * @param parent
+	 *            The parent of this scan if this scan is nested
+	 */
+	void setParent(NestableScan parent);
+	
 
 }

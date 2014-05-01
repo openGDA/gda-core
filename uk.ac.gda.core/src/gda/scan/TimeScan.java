@@ -168,73 +168,64 @@ public class TimeScan extends ScanBase implements Scan {
 
 	/**
 	 * Collect the data
+	 * @throws Exception 
 	 * 
 	 * @see gda.scan.Scan#doCollection()
-	 * @throws InterruptedException
 	 */
 	@Override
-	public void doCollection() throws InterruptedException {
-		try {
-			// work out the total number of collection iterations
-			// int stepTimeInSeconds = new Long(Math
-			// .round(pauseTime + collectTime)).intValue();
+	public void doCollection() throws Exception {
+		// work out the total number of collection iterations
+		// int stepTimeInSeconds = new Long(Math
+		// .round(pauseTime + collectTime)).intValue();
 
-			double stepTimeInSeconds = pauseTime + collectTime;
+		double stepTimeInSeconds = pauseTime + collectTime;
 
-			// add DummyScannable relativeTime to allScannables it's list of
-			// scannables on the first run through only to prevent a build
-			// up of
-			// relativeTime fields in the data point.
-			if (!relativeTimeAdded) {
-				relativeTimeAdded = true;
-				allScannables.add(relativeTime);
+		// add DummyScannable relativeTime to allScannables it's list of
+		// scannables on the first run through only to prevent a build
+		// up of
+		// relativeTime fields in the data point.
+		if (!relativeTimeAdded) {
+			relativeTimeAdded = true;
+			allScannables.add(relativeTime);
+		}
+
+		for (Detector detector : allDetectors) {
+			detector.setCollectionTime(collectTime);
+		}
+
+		// work out the time now
+		Date startTime = new Date();
+
+		// report start time to user
+		logger.debug("Starting scan at " + df.format(startTime) + "\n");
+
+		// work out the maximum time that we must not go past
+		long maxTime = new Double(startTime.getTime() + (numberOfPoints * stepTimeInSeconds * 1000)).longValue();
+
+		// loop
+		for (long i = 0; i < numberOfPoints; ++i) {
+			Date rightNow = new Date();
+
+			// perform data collection
+			collectData();
+			// wait until time for next iteration to start
+			// this is based on the fixed point when the start scan, so the
+			// time
+			// after collection finished to write out data etc. will not
+			// extend
+			// the total time
+			if (pauseTime > 0.0) {
+				long targetTime = new Double(startTime.getTime() + ((((i + 1) * stepTimeInSeconds) * 1000)))
+						.longValue();
+				waitUntil(targetTime);
 			}
-
-			for (Detector detector : allDetectors) {
-				detector.setCollectionTime(collectTime);
-			}
-
-			// work out the time now
-			Date startTime = new Date();
-
-			// report start time to user
-			logger.debug("Starting scan at " + df.format(startTime) + "\n");
-
-			// work out the maximum time that we must not go past
-			long maxTime = new Double(startTime.getTime() + (numberOfPoints * stepTimeInSeconds * 1000)).longValue();
-
-			// loop
-			for (long i = 0; i < numberOfPoints; ++i) {
-				Date rightNow = new Date();
-
-				// perform data collection
-				checkForInterrupts();
-				collectData();
-				// wait until time for next iteration to start
-				// this is based on the fixed point when the start scan, so the
-				// time
-				// after collection finished to write out data etc. will not
-				// extend
-				// the total time
-				checkForInterrupts();
-				if (pauseTime > 0.0) {
-					long targetTime = new Double(startTime.getTime() + ((((i + 1) * stepTimeInSeconds) * 1000)))
-							.longValue();
-					waitUntil(targetTime);
-				}
-				checkForInterrupts();
-				// change the scannable which is holding the relative time
-				relativeTime.moveTo((Double) relativeTime.getPosition() + new Double(stepTimeInSeconds));
-				// make sure we have not passed the max time
-				rightNow = new Date();
-				if (rightNow.getTime() > maxTime) {
-					break;
-				}
-			}
-		} catch (Exception ex1) {
-			interrupted = true;
-			if (ex1 instanceof InterruptedException) {
-				throw (InterruptedException) ex1;
+			waitIfPaused();
+			// change the scannable which is holding the relative time
+			relativeTime.moveTo((Double) relativeTime.getPosition() + new Double(stepTimeInSeconds));
+			// make sure we have not passed the max time
+			rightNow = new Date();
+			if (rightNow.getTime() > maxTime) {
+				break;
 			}
 		}
 	}
@@ -253,7 +244,6 @@ public class TimeScan extends ScanBase implements Scan {
 		long now = rightNow.getTime();
 		// loop while we have not got to that point
 		while (now < targetTime) {
-			checkForInterrupts();
 			if ((targetTime - now) > 10000) {
 				Thread.sleep((targetTime - now) - 8000);
 			} else {

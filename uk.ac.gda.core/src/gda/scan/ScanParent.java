@@ -1,6 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -17,14 +16,22 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.jython;
+package gda.scan;
+
+import gda.scan.Scan.ScanStatus;
 
 /**
- *
+ * An interface to allow child scans to access their parant.
+ * <p>
+ * Note: most scans will end up implementing this, even though a particular instance may be a child.
  */
-public interface IPanicStop {
+interface ScanParent { // TODO: Ideally this should not extend Scan
+
 	/**
-	 * @see Jython#panicStop(String)
+	 * To allow nests of scans to share a common status with each other.
+	 * 
+	 * @param status
 	 */
-	public void panicStop();
+	public void setStatus(ScanStatus status);
+
 }

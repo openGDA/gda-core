@@ -87,7 +87,7 @@ public class JythonServerTest {
 	
 	@Test
 	public void testLocateStringUsesScriptPathsObject() {
-		ScriptProject realProject = new ScriptProject("testfiles/gda/jython/JythonServerTest", "Real Project", ScriptProjectType.CONFIG);
+		ScriptProject realProject = new ScriptProject("test/gda/jython/testfiles", "Real Project", ScriptProjectType.CONFIG);
 		ScriptPaths realPath = new ScriptPaths(Collections.singletonList(realProject));
 		jythonServer.setJythonScriptPaths(realPath);
 		Assert.assertNotNull(jythonServer.locateScript("exists"));
@@ -99,7 +99,7 @@ public class JythonServerTest {
 	}
 	
 	@Test
-	public void testBeamlineHalt_StopsMotors() throws MotorException, InterruptedException {
+	public void testPanicStop_StopsMotors() throws MotorException, InterruptedException {
 		Factory factory = mock(Factory.class);
 		Motor mockMotor1 = mock(Motor.class);
 		Motor mockMotor2 = mock(Motor.class);
@@ -107,7 +107,7 @@ public class JythonServerTest {
 		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
 		Finder.getInstance().addFactory(factory );
 		
-		jythonServer.beamlineHalt("Unused JSFIdentifier");
+		jythonServer.panicStop("Unused JSFIdentifier");
 		Thread.sleep(1000);
 		verify(mockMotor1).stop();
 		verify(mockMotor2).stop();
@@ -115,7 +115,7 @@ public class JythonServerTest {
 	}
 	
 	@Test
-	public void testBeamlineHalt_StopsMotorsDespiteADelayAndExceptionFromOne() throws MotorException, InterruptedException {
+	public void testPanicStop_StopsMotorsDespiteADelayAndExceptionFromOne() throws MotorException, InterruptedException {
 		Factory factory = mock(Factory.class);
 		Motor mockMotor1 = mock(Motor.class);
 		Motor mockMotor2 = mock(Motor.class);
@@ -135,7 +135,7 @@ public class JythonServerTest {
 		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
 		Finder.getInstance().addFactory(factory );
 		
-		jythonServer.beamlineHalt("Unused JSFIdentifier");
+		jythonServer.panicStop("Unused JSFIdentifier");
 		Thread.sleep(3000);
 		verify(mockMotor1).stop();
 		verify(mockMotor2).stop();

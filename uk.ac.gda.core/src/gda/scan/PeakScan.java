@@ -21,10 +21,9 @@ package gda.scan;
 
 import gda.data.scan.datawriter.DataWriterBase;
 import gda.device.Detector;
-import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
-import gda.jython.JythonServerFacade;
+import gda.jython.InterfaceProvider;
 
 import java.util.Vector;
 
@@ -152,40 +151,21 @@ public class PeakScan extends ConcurrentScan implements Scan {
 	}
 
 	@Override
-	public void doCollection() throws InterruptedException {
-		try {
-			logger.debug("Starting scan...\n");
-			// move to initial movements
-			acquirePoint(true, false);
+	public void doCollection() throws Exception {
+		logger.debug("Starting scan...\n");
+		// move to initial movements
+		acquirePoint(true, false);
+		// then collect data
+		collect();
+		// loop through the number of steps
+		for (int step = 0; step < numberSteps; step++) {
+			// make all these increments
+			acquirePoint(false, false);
 			// then collect data
 			collect();
-			// loop through the number of steps
-			for (int step = 0; step < numberSteps; step++) {
-				// make all these increments
-				acquirePoint(false, false);
-				// then collect data
-				collect();
-			}
-			// perform calculation
-			determinePeak();
-		} catch (Exception ex1) {
-			interrupted = true;
-			if (ex1 instanceof InterruptedException) {
-				throw (InterruptedException) ex1;
-			}
 		}
-		// at end of scan remove all the observers of the detectors which were
-		// registered through this scan
-		finally {
-			try {
-				endScan();
-			} catch (DeviceException ex) {
-				String message = "Exception raised of type: " + ex.getClass() + " during scan.";
-				logger.error(message);
-				JythonServerFacade.getInstance().print(message);
-				interrupted = true;
-			}
-		}
+		// perform calculation
+		determinePeak();
 	}
 
 	private void collect() throws Exception {
@@ -200,7 +180,7 @@ public class PeakScan extends ConcurrentScan implements Scan {
 		getDataWriter().addData(point);
 		// notify IObservers of this scan (e.g. GUI panels)
 		// notifyIObservers(this, currentData);
-		notifyServer(point);
+		InterfaceProvider.getJythonServerNotifer().notifyServer(this,point);
 		// extract the numbers for the calculation
 		xValues.add(theScannable.getPosition().toString());
 		yValues.add(DataWriterBase.getDetectorData(point.getDetectorData().get(0), true));

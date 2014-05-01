@@ -82,7 +82,7 @@ public class MultiScan extends ScanBase implements ContiguousScan{
 	}
 
 	@Override
-	protected void endScan() throws DeviceException {
+	protected void endScan() throws DeviceException, InterruptedException {
 		logger.info("endScan");
 		super.endScan();
 	}

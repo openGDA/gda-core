@@ -20,7 +20,6 @@ package gda.device.detector.nexusprocessor;
 
 import gda.data.nexus.FileNameBufToStrings;
 import gda.data.nexus.extractor.NexusGroupData;
-import gda.scan.ScanBase;
 
 import java.io.File;
 import java.util.List;
@@ -80,10 +79,11 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 					if(data == null){ 
 						//TODO if( data == null)
 						//	logger.warn("Unable to find data at '" + path + "' within existing file:'" + path +"'");
-						if(ScanBase.isInterrupted())
-							throw new Exception("Interrupted whilst reading '" + path + "' from within existing file:'" + path +"'");
-						
-						Thread.sleep(1000);
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							throw new InterruptedException("Interrupted whilst reading '" + path + "' from within existing file:'" + path +"'");
+						}
 					}
 				}
 				return DatasetUtils.convertToAbstractDataset(data.getDataset(dataset_index));

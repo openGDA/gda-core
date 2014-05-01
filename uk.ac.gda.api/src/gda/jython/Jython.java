@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -191,16 +191,13 @@ public interface Jython extends Findable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void haltCurrentScan(String JSFIdentifier);
-
+	public void requestFinishEarly(String JSFIdentifier);
+	
+	
 	/**
-	 * Stops all scans, scripts and commands from the command server, but unlike the panicStop method, this does not
-	 * operate any devices.
-	 * 
-	 * @param JSFIdentifier
-	 *            - the unique ID of the JythonServerFacade calling this method.
+	 * @return true if the current scan has had requestFinishEarly called on it.
 	 */
-	public void haltCurrentScript(String JSFIdentifier);
+	public boolean isFinishEarlyRequested();
 
 	/**
 	 * Stops all scripts, scans, and commands immediately. Also calls the stop method on all motors.
@@ -208,7 +205,16 @@ public interface Jython extends Findable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void panicStop(String JSFIdentifier);
+	public void beamlineHalt(String JSFIdentifier);
+	
+	
+	/**
+	 * Stops all scripts, scans, and commands running from the Jython Server immediately.
+	 * 
+	 * @param JSFIdentifier
+	 *            - the unique ID of the JythonServerFacade calling this method.
+	 */
+	public void abortCommands(String JSFIdentifier);
 
 	/**
 	 * Pauses the current scan
@@ -269,16 +275,6 @@ public interface Jython extends Findable {
 	 * @return int
 	 */
 	public int getScriptStatus(String JSFIdentifier);
-
-	/**
-	 * Sets the scan status.
-	 * 
-	 * @param status
-	 *            int
-	 * @param JSFIdentifier
-	 *            - the unique ID of the JythonServerFacade calling this method.
-	 */
-	public void setScanStatus(int status, String JSFIdentifier);
 
 	/**
 	 * Sets the script status.
