@@ -1430,7 +1430,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	private CommandThreadInfo extractCommandThreadInfo(CommandThreadType comtype, Thread thread) {
 		CommandThreadInfo info = new CommandThreadInfo();
-		info.setCommandThreadType(comtype.getLabel());
+		info.setCommandThreadType(comtype);
 		return info;
 	}
 

@@ -30,6 +30,7 @@ import gda.jython.authoriser.AuthoriserProvider;
 import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.commandinfo.ICommandThreadInfoProvider;
 import gda.jython.commandinfo.ICommandThreadObserver;
@@ -554,7 +555,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			} else if (data instanceof BatonLeaseRenewRequest){
 				amIBatonHolder();
 				notifyIObservers(this, data);
-			} else if (data instanceof CommandThreadInfoEvent) {
+			} else if (data instanceof CommandThreadEvent) {
 				for (ICommandThreadObserver observer: commandThreadObservers) {
 					observer.update(this,data);
 				}
