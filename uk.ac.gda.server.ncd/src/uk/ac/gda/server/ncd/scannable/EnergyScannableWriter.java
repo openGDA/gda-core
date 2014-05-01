@@ -71,7 +71,7 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		public void writeComponent(NeXusFileInterface file, int[] start, String path, String scannableName,
 				String componentName, Object pos) throws NexusException {
 			super.writeComponent(file, start, uncertaintiesPath, scannableName, null, pos);
-			trueEnergyWriter.writeComponent(file, start, scannableName, scannableName, componentName, pos); 
+			trueEnergyWriter.writeComponent(file, start, path, scannableName, componentName, pos); 
 		}
 	}
 
