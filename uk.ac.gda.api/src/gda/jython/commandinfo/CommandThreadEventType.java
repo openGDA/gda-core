@@ -19,7 +19,9 @@
 package gda.jython.commandinfo;
 
 public enum CommandThreadEventType {
-	CREATE,
-	INTERRUPT,
-	FINISH
+	CLEAR,    // All command threads cleared
+	REFRESH,  // Notify observers to call for refresh
+	START,    // start a new command thread (supplied)
+	UPDATE,   // update an existing command thread (supplied)
+	TERMINATE // terminate a command thread (supplied)
 }

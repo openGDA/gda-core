@@ -18,11 +18,16 @@
 
 package gda.jython.commandinfo;
 
+import java.lang.Thread.State;
+
 import gda.jython.commandinfo.ICommandThreadInfo;
 
 public class CommandThreadInfo implements ICommandThreadInfo {
 	
 	private CommandThreadType threadType;
+	private long id;
+	private int priority;
+	private State state;
 	private String date;
 	private String time;
 	private String queue;
@@ -31,12 +36,18 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 
 	public CommandThreadInfo(
 			CommandThreadType commandThreadType, 
+			long   id,
+			int    priority,
+			State  state,
 			String date, 
 			String time, 
 			String queue, 
 			String interrupt,
 			String command) {
 		this.threadType = commandThreadType;
+		this.id = id;
+		this.priority = priority;
+		this.state = state;
 		this.date = date;
 		this.time = time;
 		this.queue = queue;
@@ -60,6 +71,11 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	public String getDate() {
 		return date;
 	}
+	
+	@Override
+	public long getId() {
+		return id;
+	}
 
 	@Override
 	public String getInterrupt() {
@@ -67,8 +83,18 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	}
 
 	@Override
+	public int getPriority() {
+		return priority;
+	}
+
+	@Override
 	public String getQueue() {
 		return queue;
+	}
+
+	@Override
+	public State getState() {
+		return state;
 	}
 
 	@Override
@@ -92,13 +118,28 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	}
 
 	@Override
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	@Override
 	public void setInterrupt(String interrupt) {
 		this.interrupt = interrupt;
 	}
 
 	@Override
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+
+	@Override
 	public void setQueue(String queue) {
 		this.queue = queue;
+	}
+
+	@Override
+	public void setState(State state) {
+		this.state = state;
 	}
 
 	@Override

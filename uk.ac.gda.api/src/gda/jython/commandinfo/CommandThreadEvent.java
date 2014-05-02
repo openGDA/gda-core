@@ -25,6 +25,11 @@ public class CommandThreadEvent implements Serializable{
 	private CommandThreadEventType event;
 	private ICommandThreadInfo info;
 	
+	public CommandThreadEvent(CommandThreadEventType event, ICommandThreadInfo info) {
+		this.event = event;
+		this.info = info;
+	}
+
 	public CommandThreadEventType getEventType() {
 		return event;
 	}
