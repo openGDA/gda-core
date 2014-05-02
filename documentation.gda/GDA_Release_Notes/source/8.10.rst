@@ -1,0 +1,37 @@
+GDA 8.10  (released 6/Dec/2010)
+===============================
+
+- Devices that used to be configured as ``Gdhist`` need to be converted according to their open command:
+
+  +----------------------------------+------------------------+
+  | open command                     | new class              |
+  +==================================+========================+
+  | ``scaler*|tfg open-cc*|*header`` | ``Scaler``             |
+  +----------------------------------+------------------------+
+  | ``gdascaler*``                   | ``Gdscaler``           |
+  +----------------------------------+------------------------+
+  | ``vvhist open*``                 | ``Vvhist``             |
+  +----------------------------------+------------------------+
+  | ``*`` (anything else)            | ``Gdhist`` (no change) |
+  +----------------------------------+------------------------+
+
+  All classes are in the ``gda.device.memory`` package in the ``uk.ac.gda.core`` plugin (no change). So simply change
+  ``Ghist`` into the new class name in your Spring config.
+
+- Java properties have been made less ambiguous. The ``gda.users`` and ``gda.data.numtracker`` properties have been
+  dropped. They have been replaced by ``gda.data``, ``gda.var`` and ``gda.logs.dir`` to explicitly state the top of the
+  data folder structure, the var folder and the logs folder respectively.
+- The ICAT connection details stored previously in the XML configuration of the GDAMetadata object have been moved into
+  ``java.properties``. New properties:
+
+  ::
+
+   gda.data.metadata.icat.type            = <gda.data.metadata.icat.DLSIcat or gda.data.metadata.icat.XMLIcat or gda.data.metadata.icat.NullIcat>
+   gda.data.metadata.icat.url             = <filename or database connection url >
+   gda.data.metadata.icat.shift_tolerance = 1440
+   # for use by DLS ICAT database
+   gda.data.metadata.dlsicat.user         = username
+   gda.data.metadata.dlsicat.password     = password
+
+- The launcher options ``--profile`` and ``--profileport`` have been renamed to ``--profiler`` and ``--profilerport``
+  respectively.

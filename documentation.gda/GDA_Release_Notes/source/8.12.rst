@@ -1,0 +1,76 @@
+GDA 8.12  (not externally released)
+===================================
+
+- Removed DataVector and ScanPlot Views using Swing Bridge. Scan plots are handled by the XYScanPlot. Plotting existing data is down using 
+  RCPPlotter command which sends data to DataSetPlotter objects. 
+
+- Add Command Queue to allow Scripts and Commands to be executed in a queue. See commandQueueProcessor.xml in example-config for information
+  on enabling this in a client.
+
+- The ``FindableNameSetterPostProcessor`` now always attempts to set a ``Findable``'s name, even if the name has already
+  been set (i.e. is not ``null`` or an empty string). This is to ensure consistency between the Spring bean ID (set
+  using the ``id="..."`` attribute in Spring XML) and the name returned by the ``getName()`` method.
+
+  - Note that if you do not specify a bean ID, Spring will create one for you.
+
+- The ``AcquisitionPanel`` class (used in Swing GUIs) now has a ``label`` property. Panels in the GUI are identified by
+  their label.
+
+  - Some subclasses of ``AcquisitionPanel`` provide a default label. If no default is provided, and you do not specify
+    a label, the panel's name (Spring bean ID) is used instead, which is typically not desirable.
+  - Note that every panel must have a unique label.
+
+- Documentation on the new-style configuration layout that permits use of the ``--profile`` and ``--mode`` parameters
+  has been added to the "GDA configuration" section in the Developer Guide.
+
+- The ``gda.jython.JythonServer`` class been modified to take a single ``jythonScriptPaths`` property instead of   
+  separate ``userScriptDirectory``, ``gdaScriptDirectory``  and ``gdaScriptLibraryDirectory`` properties. 
+  The ``jythonScriptPaths`` property expects a ``gda.jython.ScriptPaths`` bean which defines a ``startupScript``
+  property and a ``projects`` property containing a list of ``gda.jython.ScriptProject`` beans.  
+
+  For instance::
+
+    <bean id="command_server" class="gda.jython.JythonServer">
+      <property name="jythonScriptPaths">
+        <bean class="gda.jython.ScriptPaths">
+          <property name="projects">
+            <list>
+              <bean class="gda.jython.ScriptProject">
+                <property name="path" value="${gda.config}/users/scripts" />
+                <property name="name" value="Scripts: User" />
+                <property name="type" value="USER" />
+              </bean>
+              <bean class="gda.jython.ScriptProject">
+                <property name="path" value="${gda.config}/scripts" />
+                <property name="name" value="Scripts: Config" />
+                <property name="type" value="CONFIG" />
+              </bean>
+              <bean class="gda.jython.ScriptProject">
+                <property name="path" value="${gda.root}/uk.ac.gda.core/scripts" />
+                <property name="name" value="Scripts: Core" />
+                <property name="type" value="CORE" />
+              </bean>
+            </list>
+          </property>
+          <property name="startupScript" value="${gda.config}/scripts/localStation.py" />
+        </bean>
+      </property>
+      <property name="gdaVarDirectory" value="${gda.config}/var" />
+      <property name="cacheDirectory" value="${gda.config}/var/jythonCache" />
+      <property name="remotePort" value="9999" />
+    </bean>
+
+  would be equivalent to::
+
+    <bean id="command_server" class="gda.jython.JythonServer">
+      <property name="userScriptDirectory" value="${gda.config}/users/scripts" />
+      <property name="gdaScriptDirectory" value="${gda.config}/scripts" />
+      <property name="gdaScriptLibraryDirectory" value="${gda.root}/uk.ac.gda.core/scripts" />
+      <property name="gdaVarDirectory" value="${gda.config}/var" />
+      <property name="cacheDirectory" value="${gda.config}/var/jythonCache" />
+      <property name="remotePort" value="9999" />
+    </bean>
+
+- Single data points from an ETLDetector were being interpreted as an array, resulting in an unnecessary extra dimension 
+  in Nexus data. Now only a single value is stored, but this does mean that the format of the data is different to
+  previous versions of GDA.

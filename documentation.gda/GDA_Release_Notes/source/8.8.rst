@@ -1,0 +1,32 @@
+GDA 8.8  (released 21/Sep/2010)
+===============================
+
+- Remove ``NamedSimpleConverter``, which looks up its underlying converter by name using the ``Finder``.
+  ``SimpleConverter`` should be used instead; this has a ``converter`` property for the underlying converter.
+
+- CounterTimer interface as been refactored. Now a detector returning an array of doubles should implement the Detector
+  interface and define the number of expected doubles through its extraNames array. The CounterTimer interface is now only for
+  detector classes whose timing is controlled by an external Timer object (i.e. at the moment this is only TFG driven detectors).
+  The following classes have been moved up a level out of the countertimer package:
+  
+  - NI6602
+  - Counter6602GUI
+  - CounterTimerPanel
+  - AsynEpicsScaler
+  - Epics8512CounterTimer
+  - EpicsMCACounterTimer
+  - EpicsScaler
+  
+  For simulation purposes DummyConutertImer should not be used unless you wish to simulate a matching DummyTFG class. Instead
+  use DummyDetector and define arrays of extraNames and outputFormats.
+  For classes remaining in the CounterTimer package the attributes tfg and tfgName have been renamed to timer and TimerName as 
+  these names are more correct as it is via the Timer interface that the object is used. 
+
+SwingGui Changes
+----------------
+
+- To close the GUI down automatically when the server dies there are properties to set for gda.gui.BatonPanel:
+
+  - closeDownOnBatonRenewTimeout - set to True
+  - closeDownOnBatonRenewTimeoutTimeMinutes - e.g. 2.0
+  - closeDownOnBatonRenewUserPromptTimeMinutes - e.g. 0.1

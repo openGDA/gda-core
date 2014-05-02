@@ -1,0 +1,63 @@
+config
+	|-- bin
+	|	|-- GDA_RemoteStart_Lin
+	|	|-- GDA_ShowLogFile
+	|	|-- GDA_StartClient
+	|	|-- GDA_StartLogPanel
+	|	|-- GDA_StartLogServers
+	|	|-- GDA_StartRCP
+	|	|-- GDA_StartServers
+	|	|-- GDA_Start_GTK
+	|	|-- GDA_StopServers
+	|	|-- gda_command
+	|	|-- gdaclient
+	|	|-- gdalog
+	|	|-- gdaservers
+	|	|-- lookForFile.sh
+	|	|-- remotestartupscript.sh
+	|	|-- set_facl.sh
+	|-- Desktop
+	|	|-- DataDispenser.desktop
+	|	|-- gda-beamline-manual.desktop
+	|	|-- gda-client.desktop
+	|	|-- gda-logfile.desktop
+	|	|-- gda-logpanel.desktop
+	|	|-- gda-servers.desktop
+	|	|-- gda-startup-guide.desktop
+	|	|-- gda-user-guide.desktop
+	|	|-- gda.directory
+	|	|-- gda.menu
+	|-- doc
+	|	|-- images
+	|	|	|-- gdadesktoplaunchers.png
+	|	|	|-- gdamenulaunchers.png
+	|	|-- BLS-I11-MAN-001-v0.5.html
+	|	|-- Starting_GDA_Help.html
+	|	|-- mythen.doc
+	|-- etc
+	|	|-- README
+	|	|-- gda_environment.sh
+	|	|-- i11_profile.sh
+	|-- launcherInstaller
+	|	|-- beamline.sh
+	|	|-- gda_launchers.sh
+	|	|-- install-gda-launchers.sh
+	|	|-- install-launchers.sh
+	|	|-- logout.sh
+	|-- launchers
+	|	|-- EventServer.launch
+	|	|-- Gui.launch
+	|	|-- LogPanel.launch
+	|	|-- LogServer.launch
+	|	|-- NameServer.launch
+	|	|-- ObjectServer.launch
+	|	|-- RcpPorduct.launch
+	|-- pytools
+	|	|-- src
+	|		|-- fileappender.py
+	|		|-- mergecolumns.py
+	|		|-- mythenbin.py
+	|		|-- mythensum.py
+	|		|-- rebin.py
+	|		|-- rebin_idl.py
+

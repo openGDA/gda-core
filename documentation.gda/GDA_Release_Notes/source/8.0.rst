@@ -1,0 +1,262 @@
+GDA 8.0
+=======
+
+``gda.gui.oemove.plugins.EpicsShutterControlPlugin`` has been renamed
+``gda.gui.oemove.plugins.ControlPointPlugin`` and is in ``uk.ac.gda.oe``
+
+The usedByDefalt flag in the Detector interface has been removed. If a
+detector is to be used in every scan it should be added to the list of
+default scannables by adding a line in localStation.py which uses the
+add_default command.
+
+Changes involved in splitting code into plugins
+-----------------------------------------------
+
+ - gda.px.util.VisitPath moved to gda.util.VisitPath
+ - Unable to create metadata just from string id of type. Need to use
+   Spring configuration.
+ - MetadataEntry no longer observable
+
+The following need to be added to localstation::
+
+   from gda.epics import CAClient
+   from gda.epics.CAClient import *
+   from gda.device.epicsdevice import IEpicsDevice
+   from gda.device.monitor import EpicsBeamMonitor
+   
+   vararg_alias cvscan
+   vararg_alias robotscan2d
+   vararg_alias robotscan
+   vararg_alias stagescan"
+   vararg_alias tempscan"
+
+The following classes are now in uk.ac.gda.epics::
+
+   gda.data.metadata.EpicsMetadataEntry
+   gda.spring.EpicsPositionerFactoryBean
+   gda.spring.FindableEpicsDeviceFactoryBean
+   gda.spring.EpicsMonitorFactoryBean
+   gda.spring.EpicsConfigurationFactoryBeanBase
+   gda.spring.EpicsMotorFactoryBean
+   gda.gui.text.parameter.EpicsParameterMonitor
+   gda.gui.text.parameter.EpicsPanelParameterListener
+   gda.gui.oemove.plugins.EpicsShutterControlPlugin
+   gda.gui.oemove.plugins.EpicsTwoStateControl
+   gda.gui.epics.SimpleStateAndButton
+   gda.gui.epics.EpicsStringLabel
+   gda.gui.epics.ActionEventRunnerObserver
+   gda.gui.epics.EpicsAnalogueLabel
+   gda.gui.epics.SimpleEnumActionHandler
+   gda.gui.epics.ActionEventRunner
+   gda.gui.epics.SimpleNativeActionHandler
+   gda.gui.epics.ShutterActionHandler
+   gda.gui.epics.SimpleEpicsButtonListener
+   gda.gui.epics.EpicsTestAcquisitionPanel
+   gda.gui.epics.ComponentEnabler
+   gda.gui.epics.EpicsMonitorListener
+   gda.gui.epics.EpicsMonitor
+   gda.gui.mca.MCATableModel
+   gda.gui.mca.McaGUI
+   gda.gui.mca.McaCalibrationPanel
+   gda.gui.mca.AdcPanel
+   gda.gui.mca.TcaPanel
+   gda.gui.beans.PVScannableBean
+   gda.gui.beans.BeanPanel
+   gda.gui.beans.PVBean
+   gda.factory.EpicsDeviceObjectCreator
+   gda.hrpd.data.MacDataWriter
+   gda.hrpd.scan.RobotScan2D
+   gda.hrpd.scan.StageScan
+   gda.hrpd.scan.RobotScan
+   gda.hrpd.scan.CVScan
+   gda.hrpd.scan.CVScanBase
+   gda.hrpd.scan.TemperatureScan
+   gda.epics.Epics
+   gda.epics.interfaceSpec.Field
+   gda.epics.interfaceSpec.GDAEpicsInterfaceReader
+   gda.epics.interfaceSpec.Xml
+   gda.epics.interfaceSpec.utils
+   gda.epics.interfaceSpec.Device
+   gda.epics.interfaceSpec.Attribute
+   gda.epics.interfaceSpec.SimpleReader
+   gda.epics.interfaceSpec.InterfaceException
+   gda.epics.interfaceSpec.Reader
+   gda.epics.util.EpicsGlobals
+   gda.epics.util.EpicsPVs
+   gda.epics.util.JCAUtils
+   gda.epics.EpicsException
+   gda.epics.AccessControl
+   gda.epics.xml.TypesParser
+   gda.epics.xml.EpicsRecord
+   gda.epics.xml.DevicesParser
+   gda.epics.cmdline.JCAGet
+   gda.epics.cmdline.AsynPut2
+   gda.epics.cmdline.JCAPut
+   gda.epics.cmdline.JCAMonitor
+   gda.epics.cmdline.AsynPut
+   gda.epics.CAClient
+   gda.epics.EpicsBase
+   gda.epics.connection.EpicsControllerForScript
+   gda.epics.connection.GRHandler
+   gda.epics.connection.EpicsController
+   gda.epics.connection.CTRLHandler
+   gda.epics.connection.CompoundDataTypeHandler
+   gda.epics.connection.TIMEHandler
+   gda.epics.connection.STSHandler
+   gda.epics.connection.InitializationListener
+   gda.epics.connection.EpicsChannelManager
+   gda.scan.Trajectory
+   gda.scan.PolarimeterGridScan
+   gda.scan.PolarimeterConcurrentScan
+   gda.scan.TrajScanBuildEpicsMCACounterTimer
+   gda.scan.EpicsTrajectoryScanController
+   gda.device.qbpm.corba.impl.QbpmAdapter
+   gda.device.qbpm.corba.impl.QbpmImpl
+   gda.device.qbpm.EpicsQbpm
+   gda.device.filterarray.EpicsFilterArray
+   gda.device.scannable.PVScannable
+   gda.device.monitor.EpicsQuadrantBeamPositionMointor
+   gda.device.monitor.EpicsBeamMonitor
+   gda.device.monitor.EpicsBpmController
+   gda.device.monitor.EpicsBeamPositionMonitor
+   gda.device.monitor.IonChamberBeamMonitor
+   gda.device.monitor.DummyEpicsMonitor
+   gda.device.monitor.EpicsMonitor
+   gda.device.epicsdevice.corba.impl.EpicsdeviceAdapter
+   gda.device.epicsdevice.corba.impl.EpicsdeviceImpl
+   gda.device.epicsdevice.EpicsDouble
+   gda.device.epicsdevice.EpicsDBR
+   gda.device.epicsdevice.ReturnType
+   gda.device.epicsdevice.IEpicsDevice
+   gda.device.epicsdevice.EpicsTime
+   gda.device.epicsdevice.EpicsDetector
+   gda.device.epicsdevice.EpicsDeviceEvent
+   gda.device.epicsdevice.EpicsDeviceFactory
+   gda.device.epicsdevice.EpicsRegistrationRequest
+   gda.device.epicsdevice.EpicsEnum
+   gda.device.epicsdevice.EpicsGR
+   gda.device.epicsdevice.FindableEpicsDevice
+   gda.device.epicsdevice.EpicsSTS
+   gda.device.epicsdevice.EpicsCTRL
+   gda.device.epicsdevice.EpicsRecord
+   gda.device.epicsdevice.EpicsValuedEnum
+   gda.device.epicsdevice.EpicsDevice
+   gda.device.epicsdevice.IEpicsChannel
+   gda.device.epicsdevice.EpicsMonitorEvent
+   gda.device.epicsdevice.EpicsCtrlEnum
+   gda.device.epicsdevice.EpicsInterfaceDevice
+   gda.device.epicsdevice.EpicsCAStatus
+   gda.device.epicsdevice.EpicsDeviceCorbaAdapter
+   gda.device.epicsdevice.EpicsSimpleEnum
+   gda.device.epicsdevice.EpicsLabelsEnum
+   gda.device.AsynEpicsTca
+   gda.device.spin.Spin
+   gda.device.spin.SpeedController
+   gda.device.spin.EnablerController
+   gda.device.detector.etldetector.ETLDetector
+   gda.device.detector.etldetector.EpicsETLController
+   gda.device.detector.analyser.EpicsMCAPresets
+   gda.device.detector.analyser.EpicsMcaController
+   gda.device.detector.analyser.EpicsMCASimple
+   gda.device.detector.analyser.EpicsMCARegionOfInterest
+   gda.device.detector.analyser.EpicsMCA
+   gda.device.detector.analyser.EpicsMCA2
+   gda.device.detector.analyser.EpicsMCACalibration
+   gda.device.detector.analyser.EpicsMCAAdc
+   gda.device.detector.multichannelscaler.corba.impl.MultichannelscalerAdapter
+   gda.device.detector.multichannelscaler.corba.impl.MultichannelscalerImpl
+   gda.device.detector.multichannelscaler.EpicsMultiChannelScaler
+   gda.device.detector.multichannelscaler.EpicsMcsSis3820
+   gda.device.detector.multichannelscaler.EpicsDlsMcsSis3820Controller
+   gda.device.detector.countertimer.Epics8512CounterTimer
+   gda.device.detector.countertimer.EpicsScaler
+   gda.device.detector.countertimer.TfgEpicsMCACounterTimer
+   gda.device.detector.countertimer.AsynEpicsScaler
+   gda.device.detector.countertimer.EpicsMCACounterTimer
+   gda.device.detector.xmap.EpicsXmapController
+   gda.device.motor.EpicsMotor
+   gda.device.motor.PolarimeterEpicsMotor
+   gda.device.temperature.EpicsLakeshore340Controller
+   gda.device.temperature.EpicsEurotherm2kController
+   gda.device.temperature.CryoController
+   gda.device.temperature.OxfordCryostream700
+   gda.device.temperature.Eurotherm2K
+   gda.device.temperature.GdaLakeshore340
+   gda.device.enumpositioner.EpicsEnumPositioner
+   gda.device.enumpositioner.EpicsQuadraCurrentAmplifier
+   gda.device.enumpositioner.EpicsPositioner
+   gda.device.enumpositioner.EpicsPneumaticCallback
+   gda.device.enumpositioner.EpicsPneumatic
+   gda.device.enumpositioner.EpicsSimpleMbbinary
+   gda.device.enumpositioner.EpicsSimpleBinary
+   gda.device.enumpositioner.PolarimeterPinholeEnumPositioner
+   gda.device.enumpositioner.EpicsCurrAmpQuadController
+   gda.device.enumpositioner.EpicsValve
+   gda.device.enumpositioner.DummyValve
+   gda.device.robot.CurrentSamplePosition
+   gda.device.robot.RobotSampleState
+   gda.device.robot.NextSamplePosition
+   gda.device.robot.I11Robot
+   gda.device.robot.RobotNX100Controller
+   gda.device.currentamplifier.EpicsCurrAmpSingle
+   gda.device.currentamplifier.EpicsStanfordCurrentAmp
+   gda.device.controlpoint.EpicsControlPoint
+   gda.device.EpicsTca
+   gda.device.attenuator.EpicsAttenuator
+   gda.device.adc.EpicsADC
+   gda.configuration.epics.Configurator
+   gda.configuration.epics.ConfigurationNotFoundException
+   gda.configuration.epics.EpicsConfiguration
+   gov.aps.jca.event.LatestMonitorOnlyQueuedEventDispatcher
+   gov.aps.jca.event.SplitQueuedEventDispatcher
+
+
+epics objects can be configured using an additional xmlObjectCreator::
+    
+   <bean id="epicsServerXmlObjectCreatorId" class="gda.factory.ServerXmlObjectCreator">
+      <property name="xmlFile" value="${gda.config}/xml/epics_objects.xml"/>
+      <property name="doPropertySubstitution" value="True"/>
+      <property name="useDefaultSchema" value="False"/>
+      <property name="buildProxies" value="${gda.accesscontrol.useAccessControl}"/>
+      <property name="mappingFile" value="classpath:gda/factory/mapping_epics.xml"/>
+   </bean>
+                
+
+icat and metadata need to be configured using Spring e.g.::
+
+    <bean id="GDAMetadata" class="gda.data.metadata.GdaMetadata">
+        
+        <property name="icat">
+            <bean class="gda.data.metadata.Icat">
+                <property name="name" value="icat" />
+                <property name="url" value="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(HOST=${oracle.host})(PROTOCOL=tcp)(PORT=${oracle.port}))(CONNECT_DATA=(SID=xe)))" />
+                <property name="user" value="${icat.username}" />
+                <property name="password" value="${icat.password}" />
+                <property name="shiftTolerance" value="1440" />
+            </bean>
+        </property>
+        
+        <property name="metadataEntries">
+            <list>
+                
+                <bean class="gda.data.metadata.PropertyMetadataEntry">
+                    <property name="name" value="instrument" />
+                    <property name="accessName" value="gda.instrument" />
+                </bean>
+                <bean class="gda.data.metadata.PropertyMetadataEntry">
+                    <property name="name" value="defVisit" />
+                    <property name="accessName" value="gda.defVisit" />
+                </bean>
+                <bean class="gda.data.metadata.IcatMetadataEntry">
+                    <property name="name" value="visit" />
+                    <property name="accessName" value="lower(visit_id)visit_id:investigation:id" />
+                    <property name="defEntryName" value="defVisit" />
+                </bean>
+                <bean class="gda.data.metadata.ScannableMetadataEntry">
+                    <property name="name" value="instrument.monochromator.energy" />
+                    <property name="scannableName" value="MonoEnergy" />
+                </bean>
+                
+            </list>
+        </property>
+    </bean> 

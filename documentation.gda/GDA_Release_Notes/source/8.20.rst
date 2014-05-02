@@ -1,0 +1,8 @@
+GDA 8.20  (Jan/2012)
+=====================
+
+New plugin uk.ac.gda.analysis. This contains the analysis code from uk.ac.gda.core 
+and uk.ac.gda.api which depends on uk.ac.diamond.scisoft.* plugins.
+
+import scisoftpy  will return "module not found" unless you update the cspec for the configuration to include
+uk.ac.diamond.scisoft.python
