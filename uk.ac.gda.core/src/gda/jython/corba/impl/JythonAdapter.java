@@ -28,6 +28,7 @@ import gda.factory.corba.util.NetService;
 import gda.jython.Jython;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.corba.CorbaJython;
 import gda.jython.corba.CorbaJythonHelper;
 import gda.observable.IObserver;
@@ -35,6 +36,7 @@ import gda.scan.ScanDataPointClient;
 import gda.scan.ScanDataPointVar;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -725,6 +727,26 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		return new ClientDetails[0];
 	}
 
+	@Override
+	public List<ICommandThreadInfo> getCommandThreadInfo() {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				Any any = jythonServer.getCommandThreadInfo();
+				List<ICommandThreadInfo> infos = (List<ICommandThreadInfo>) any.extract_Value();
+				return infos;
+			} catch (COMM_FAILURE cf) {
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (org.omg.CORBA.TRANSIENT ct) {
+				// This exception is thrown when the ORB failed to connect to
+				// the object primarily when the server has failed.
+				break;
+			} catch (CorbaDeviceException ex) {
+				// throw new DeviceException(ex.message);
+			}
+		}
+		return new ArrayList<ICommandThreadInfo>(0);
+	}
+	
 	@Override
 	public boolean requestBaton(String uniqueIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {

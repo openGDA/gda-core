@@ -25,6 +25,7 @@ import gda.factory.corba.util.EventService;
 import gda.jython.Jython;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.corba.CorbaJythonPOA;
 import gda.observable.IObserver;
 import gda.scan.ScanDataPoint;
@@ -568,4 +569,15 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 		}
 	}
 
+	@Override
+	public Any getCommandThreadInfo() throws CorbaDeviceException {
+		try {
+			List<ICommandThreadInfo> infos = jythonServer.getCommandThreadInfo();
+			org.omg.CORBA.Any any = org.omg.CORBA.ORB.init().create_any();
+			any.insert_Value((Serializable) infos);
+			return any;
+		} catch (Exception de) {
+			throw new CorbaDeviceException(de.getMessage());
+		}
+	}
 }
