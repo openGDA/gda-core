@@ -70,7 +70,7 @@ public abstract class ScriptBase {
 		checkForInterruption();
 	}
 
-	private static void checkForInterruption() throws InterruptedException {
+	public static void checkForInterruption() throws InterruptedException {
 		if (Thread.interrupted()) { // clears as read
 			logger.info("Raising InterruptedException as thread was interrupted:", Thread.currentThread()
 					.getName());

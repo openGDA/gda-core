@@ -107,7 +107,7 @@ public class JythonServerTest {
 		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
 		Finder.getInstance().addFactory(factory );
 		
-		jythonServer.panicStop("Unused JSFIdentifier");
+		jythonServer.beamlineHalt("Unused JSFIdentifier");
 		Thread.sleep(1000);
 		verify(mockMotor1).stop();
 		verify(mockMotor2).stop();
@@ -135,7 +135,7 @@ public class JythonServerTest {
 		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
 		Finder.getInstance().addFactory(factory );
 		
-		jythonServer.panicStop("Unused JSFIdentifier");
+		jythonServer.beamlineHalt("Unused JSFIdentifier");
 		Thread.sleep(3000);
 		verify(mockMotor1).stop();
 		verify(mockMotor2).stop();
