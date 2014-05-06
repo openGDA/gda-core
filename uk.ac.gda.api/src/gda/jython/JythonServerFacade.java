@@ -30,6 +30,10 @@ import gda.jython.authoriser.AuthoriserProvider;
 import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.CommandThreadEvent;
+import gda.jython.commandinfo.ICommandThreadInfo;
+import gda.jython.commandinfo.ICommandThreadInfoProvider;
+import gda.jython.commandinfo.ICommandThreadObserver;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
@@ -85,6 +89,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	Vector<INamedScanDataPointObserver> namedSDPObservers = new Vector<INamedScanDataPointObserver>();
 	
 	Vector<IScanDataPointObserver> allSDPObservers = new Vector<IScanDataPointObserver>();
+	
+	Vector<ICommandThreadObserver> commandThreadObservers = new Vector<ICommandThreadObserver>();
 
 	String name = "";
 
@@ -413,7 +419,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 */
 	@Override
 	public void requestFinishEarly() {
-		// TODO GDA-5863 this will need to be renamed to requestFinishEarly
 		commandServer.requestFinishEarly(name);
 	}
 
@@ -549,7 +554,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			} else if (data instanceof BatonLeaseRenewRequest){
 				amIBatonHolder();
 				notifyIObservers(this, data);
-			} 
+			} else if (data instanceof CommandThreadEvent) {
+				for (ICommandThreadObserver observer: commandThreadObservers) {
+					observer.update(this,data);
+				}
+			}
 			// fan out all other messages
 			else {
 				notifyIObservers(this, data);
@@ -990,6 +999,21 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			logger.info("Setting JythonServerFacade singleton to Spring-instantiated instance " + this);
 			theInstance = this;
 		}
+	}
+
+	@Override
+	public void addCommandThreadObserver(ICommandThreadObserver anObserver) {
+		commandThreadObservers.add(anObserver);
+	}
+
+	@Override
+	public void deleteCommandThreadObserver(ICommandThreadObserver anObserver) {
+		commandThreadObservers.removeElement(anObserver);
+	}
+
+	@Override
+	public List<ICommandThreadInfo> getCommandThreadInfo() {
+		return commandServer.getCommandThreadInfo();
 	}
 
 	@Override

@@ -36,6 +36,11 @@ import gda.jython.authoriser.Authoriser;
 import gda.jython.authoriser.AuthoriserProvider;
 import gda.jython.batoncontrol.BatonManager;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.CommandThreadEvent;
+import gda.jython.commandinfo.CommandThreadEventType;
+import gda.jython.commandinfo.CommandThreadInfo;
+import gda.jython.commandinfo.CommandThreadType;
+import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.corba.impl.JythonImpl;
 import gda.jython.socket.SocketServer;
 import gda.jython.socket.SocketServer.ServerType;
@@ -473,6 +478,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				// start the thread and return immediately.
 				runner.start();
 				clearThreads();
+				notifyRefreshCommandThreads();
 			} catch (Exception ex) {
 				logger.info("Command Terminated." + ex.getMessage(), ex);
 			}
@@ -506,6 +512,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			// start the thread and return immediately.
 			runner.start();
 			clearThreads();
+			notifyRefreshCommandThreads();
 		} catch (Exception ex) {
 			logger.info("Command Terminated." + ex.getMessage(), ex);
 		}
@@ -522,6 +529,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			// start the thread and return immediately.
 			runner.start();
 			clearThreads();
+			notifyRefreshCommandThreads();
 		} catch (Exception ex) {
 			logger.info("Command Terminated." + ex.getMessage(), ex);
 		}
@@ -538,6 +546,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			// start the thread and return immediately.
 			runner.start();
 			clearThreads();
+			notifyRefreshCommandThreads();
 		} catch (Exception ex) {
 			logger.error("Command Terminated." + ex.getMessage(), ex);
 		}
@@ -579,7 +588,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			runner.setName(nameThread(command));
 			runsourceThreads.add(runner);
 			runner.start();
+			CommandThreadInfo info = notifyStartCommandThread(CommandThreadType.SOURCE,runner);
 			runner.join();
+			this.notifyTerminateCommandThread(info);
 			return runner.result;
 		} catch (Exception ex) {
 			logger.info("Command terminated." + ex.getMessage(), ex);
@@ -1135,6 +1146,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		}
 
 		clearThreads();
+		notifyRefreshCommandThreads();
 	}
 
 	/**
@@ -1393,6 +1405,62 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	public InteractiveConsole getInterp() {
 		return interp.getInterp();
+	}
+
+	private CommandThreadInfo extractCommandThreadInfo(CommandThreadType comtype, Thread thread) {
+		CommandThreadInfo info = new CommandThreadInfo();
+		info.setCommandThreadType(comtype);
+		info.setCommand(thread.getName());
+		info.setId(thread.getId());
+		info.setPriority(thread.getPriority());
+		//info.setDescriptor(thread.toString());
+		info.setState(thread.getState());
+		logger.debug("thread state = " + thread.getState().name());
+		logger.debug("thread name = " + thread.getName());
+		logger.debug("thread descriptor = " + thread.toString());
+		
+		return info;
+	}
+
+	private void notifyClearCommandThreads() {
+		this.updateIObservers(new CommandThreadEvent(CommandThreadEventType.CLEAR,null));
+	}
+
+	private void notifyRefreshCommandThreads() {
+		this.updateIObservers(new CommandThreadEvent(CommandThreadEventType.REFRESH,null));
+	}
+
+	private CommandThreadInfo notifyStartCommandThread(CommandThreadType comType, Thread thread) {
+		return this.notifyCommandThreadEvent(CommandThreadEventType.START, comType, thread);
+	}
+
+	private void notifyTerminateCommandThread(CommandThreadInfo info) {
+		this.updateIObservers(new CommandThreadEvent(CommandThreadEventType.TERMINATE,info));
+	}
+
+	private CommandThreadInfo notifyUpdateCommandThread(CommandThreadType comType, Thread thread) {
+		return this.notifyCommandThreadEvent(CommandThreadEventType.UPDATE, comType, thread);
+	}
+
+	private CommandThreadInfo notifyCommandThreadEvent(CommandThreadEventType eType, CommandThreadType comType, Thread thread) {
+		CommandThreadInfo info = null==thread ? null : extractCommandThreadInfo(comType, thread);
+		this.updateIObservers(new CommandThreadEvent(eType,info));
+		return info;
+	}
+
+	@Override
+	public Vector<ICommandThreadInfo> getCommandThreadInfo() {
+		Vector<ICommandThreadInfo> infos = new Vector<ICommandThreadInfo>();
+		for (Thread t : runsourceThreads) {
+			infos.add(extractCommandThreadInfo(CommandThreadType.SOURCE,t));
+		}
+		for (Thread t : runCommandThreads) {
+			infos.add(extractCommandThreadInfo(CommandThreadType.COMMAND,t));
+		}
+		for (Thread t : evalThreads) {
+			infos.add(extractCommandThreadInfo(CommandThreadType.EVAL,t));
+		}
+		return infos;
 	}
 
 	public void setStopJythonScannablesOnStopAll(boolean stopJythonScannablesOnStopAll) {

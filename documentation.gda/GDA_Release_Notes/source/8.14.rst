@@ -1,0 +1,14 @@
+GDA 8.14  (Jun/2011)
+====================
+
+- upgrade GDA to support for EPICS Area Detector 1-7 interface;
+
+- simplified GDA-EPICS interface schema, add new devices components support, and upgrade to epics-5.2.11.jar from 4.1 (see doc for usage);
+
+- moved generic part of EPICS area detector support code from pco plugin to epics plugin;
+
+- created new epics.client plugin to host common area detector client codes - StatusView and CameraPreviewView (MJPEG stream)
+
+- improved MJPEG stream support to handle large and faster images.
+
+- update MYTHEN to handle summed mythen data, and improved support for "GATED" mode of acquisition

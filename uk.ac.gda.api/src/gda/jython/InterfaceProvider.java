@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.commandinfo.ICommandThreadInfoProvider;
 
 /**
  * Static methods to get current implementation for various interfaces supported by JythonServerFacade and JythonServer
@@ -50,6 +51,7 @@ public class InterfaceProvider {
 	static private JSFObserver jSFObserver;
 	static private IScanDataPointProvider scanDataPointProvider;
 	static private AliasedCommandProvider aliasedCommandProvider;
+	static private ICommandThreadInfoProvider commandInfoProvider;
 	private static IJythonServerStatusProvider jythonServerStatusProvider;
 	
 	/**
@@ -71,6 +73,16 @@ public class InterfaceProvider {
 			commandRunner = JythonServerFacade.getInstance();
 		}
 		return commandRunner;
+	}
+
+	/**
+	 * @return current selected implementation of ICommandRunner
+	 */
+	public static ICommandThreadInfoProvider getCommandThreadInfoProvider() {
+		if (commandInfoProvider == null) {
+			commandInfoProvider = JythonServerFacade.getInstance();
+		}
+		return commandInfoProvider;
 	}
 
 	/**

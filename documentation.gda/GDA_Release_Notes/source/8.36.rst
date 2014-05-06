@@ -1,0 +1,67 @@
+GDA 8.36  (Nov/2013)
+====================
+
+Changes to clearing of interrupted flag in ScanBase at end of a scan and checkForInterrupts
+-------------------------------------------------------------------------------------------
+
+The Java property ``ScanBase.GDA_SCAN_CLEAR_INTERRUPT_AT_SCAN_END`` has been changed to ``true`` by default. As a result 
+``checkForInterrupts`` will always throw ``InterruptedException`` if the ``ScanBase.interrupted`` is true. Also on discovering that
+``ScanBase.interrupted`` is ``true`` at the end of a scan ``ScanBase.interrupted`` will be set to ``false`` and an ``InterruptedException`` will be thrown.
+
+Change to how Jython interpreter output is handled
+--------------------------------------------------
+
+The default value of the ``gda.jython.GDAJythonInterpreter.useWriters`` property has been changed to ``true``. This
+means that output from the Jython interpreter is passed to GDA through a ``Writer`` rather than an ``OutputStream``.
+This fixes GDA-5479, which prevented an interrupted thread from producing output, leading to a
+``BufferOverflowException``.
+
+Persistent user-specific properties settings for Buckminster CQuery (materialize)
+---------------------------------------------------------------------------------
+
+Materializing using a Buckminster CQuery is controlled by various properties.
+Sometime you need to override the default values, e.g. if you are not connected to the Diamond Light Source network.
+
+**Previously**, you had to make the property changes or additions *every time* you referenced the CQuery, by doing this:
+
+   * If using the IDE - open the CQuery and go to the ``Properties`` tab
+   * If using the ``dawn.py`` script to invoke headless Buckminster - add changed or new properties to the command line as ``-Dpropertyname=value``
+
+**Now**, you can save property changes or additions in a file
+
+   * The file is named ``${user.home}/.<cquery name>.cquery.properties``, so it is specific to both the user and the CQuery
+   * The file is optional, but if it does exist, it will be used
+   * The saved properties file will be read every time you materialize, and override whatever is in the CQuery
+   * (properties that are not in the file will be taken from the CQuery as normal)
+   * (IDE) You can still make one-off changes by editing the CQuery, but note that saved changes still override them
+   * (``dawn.py``) You can still make one-off changes on the command line, but note that saved changes still override them (?? needs checking ??)
+   * If you are not sure where ``${user.home}`` points to, simply materialize a non-existent component and look at the console output
+
+.. rubric:: Example override files (you will need to adjust them to your specific circumstances)
+
+For developers not connected to the Diamond Light Source network:
+
+.. code-block:: bash
+
+    download.location=public
+    download.location.common=public
+
+For GDA developers who want to use authentication when cloning from GitHub (rather than anonymous clone, the default):
+
+.. code-block:: bash
+
+    github.authentication=ssh
+
+For developers where port 9418 (git protocol) is blocked:
+
+.. code-block:: bash
+
+    github.anonymous.protocol=https
+
+For developers who are connected to the Diamond Light Source network using SSH port forwarding:
+
+.. code-block:: bash
+
+    diamond.dascgit.host.port=localhost:10001
+    diamond.p2.host.port=localhost:10002
+

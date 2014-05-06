@@ -1,0 +1,22 @@
+GDA 8.6  (released 11/Jun/2010)
+===============================
+
+- GDA-3209: Removed bodges in ``ScanDataPoint`` and ``ContinuousScan`` that account for detectors with improperly set
+  ``outputFormat``\s. ``ScanDataPoint.toString()`` will magically work if ``extraNames`` returns ``String[] {"%s"}``. Better
+  still, see instructions from the :ref:`GDA 8.2 <release_8.2>` release notes to actually properly configure ``extraNames``.
+
+- GDA-3193: In ``gdascripts.scannable.detector.ProcessingDetectorWrapper`` removed
+  ``BodgedProcessingDetectorWrapperWithRobustLoading`` and ``BodgedProcessingDetectorWrapper``. Functionality can
+  be configured in ``ProcessingDetectorWrapper``'s constructor: robust loading will be used if ``fileLoadTimout``
+  is set; file paths will be bodged to numbers if ``returnPathAsImageNumberOnly`` is true.
+
+- GDA-2822: changed the ``isPositionValid`` method in ``Scannable`` to ``checkPositionValid`` - the new method returns a ``String``
+  instead of a ``boolean`` to enable better reporting of invalid positions to users.
+
+- GDA-3222: when a scan is halted prematurely by user stopping it or by an error, ``stop`` will be called on all detectors
+  in the scans as well as all scannables.
+
+- GDA-3248: The Rich Bean Framework now writes the XML files it creates to a folder called ``xml`` which is at the
+  top-level of the visit's data directory instead of being stored inside the visit's workspace folder. This
+  makes manual editing of the XML files easier and allows for deletion of the workspace should it become
+  corrupted without loss of the XML files.

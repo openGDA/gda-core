@@ -1,0 +1,161 @@
+GDA 8.24  (June/2012)
+=====================
+
+Changes to ConcurrentScan (used by standard 'scan' command and all scan wrappers)
+---------------------------------------------------------------------------------
+
+1. If LocalProperties.GDA_SCAN_CONCURRENTSCAN_READOUT_CONCURRENTLY is
+   set to true Scannables will be moved to the next point in a scan
+   while detectors from the current point are read out (e.g. if a scan
+   contains motors and detectors, the motors will be moved to the next
+   point while the detectors are read out).
+
+   CAUTION: If this feature is enabled then all the detectors on the
+   beamline must latch counts somewhere before
+   Detector.waitWhileBusy() returns so that Detector.readout() is not
+   affected by any concurrent motor or shutter movements.
+
+   More precisely, when moving to the next point, Scannables at each
+   subsequent level are moved until a level which contains a detector
+   is encountered. The scan command thread then waits until the
+   detectors from the current point have read out completely and the
+   resulting ScanDataPoint has been added to the pipeline before
+   continuing to operate devices at the level containing the a
+   detector. The scan command thread will also wait at the end of each
+   line for the Detector readout to complete before calling the
+   atScanEnd() hooks and starting the next line.
+
+   NOTE that as a consequence of using this feature, an exception
+   thrown while reading out a detector won't be thrown in the main
+   scan command thread until after the next point's 'motors' have
+   moved.
+
+   Detectors must work as follows to take advantage of this feature:
+
+   - Detector.collectData() should cause the hardware to start
+     collecting immediately and as its interface says return
+     immediately. If there is any delay then detectors used in the
+     same scan would collect over different times when beam conditions
+     may differ.
+
+   - Detector.waitWhileBusy() should return as soon as
+     the exposure completes and it is safe to move motors. i.e. counts
+     must be safely latched either in hardware or software before
+     returning.
+
+   - Detector.readout() should block until the detector is
+     ready to start collecting again. The value returned must not be
+     effected by any concurrent motor or shutter movements.
+
+2. ConcurrentScan now calls waitWhileBusy() on all Scannables not just
+   those it is moving. This means for example that a Scannable that
+   takes no inputs can be used to block the scan thread at a phase of
+   the collection squence based on its level.  For example a level 9
+   Scannable cancould block in waitWhileBusy() while the beam is down, in
+   order that level 10+ Scannable/Detectors are likely to have beam
+   when collecting.
+
+3. A new 'publishing' thread will now run concurrently with the scan
+   command thread. This thread publishes ScanDataPoints to the
+   DataWriter and  IObservers such as the GUI terminal/plot.
+
+   This change was implemented by causing ConcurrentScan to create a
+   multi-threaded pipeline to publish ScanDataPoints by default
+   (instead of only when a Scannable/Detector in the scan implemented
+   PositionCallableProvider). To disable this behaviour set the
+   LocalProperty "gda.scan.multithreadedScanDataPointPipeline.length"
+   to 0.
+
+   The default pipeline length is 4 meaning that the scan command
+   thread can get four points ahead of the publish thread before
+   blocking. ASIDE: Remember that if a Scannable/Detector implements
+   PositionCallableProvider that the Callables it returns will be
+   processed while in the pipeline using the a threadpool of size
+   configured indirectly via the
+   "gda.scan.multithreadedScanDataPointPipeline.pointsToComputeSimultaneousely"
+   LocalProperty.
+
+4. The ``SimpleHighestExistingFileMonitor`` class has moved into the
+   ``gda.device.detectorfilemonitor.impl`` package.
+
+Configuration changes when starting GDA servers
+-----------------------------------------------
+
+A number of GDA components have been moved from Subversion to Git, and consequently the location to which they are checked out has also changed.
+Any items in your beamline configuration which reference those components will also need to be updated, as described below.
+
+#. The location of python script used to launch the GDA servers has moved:
+    | ``<workspace>/plugins/uk.ac.gda.core/bin/gda`` --> ``<workspace>_git/gda-core.git/uk.ac.gda.core/bin/gda``
+
+#. The python script used to launch the GDA servers no longer passes java property ``gda.root`` to the servers.
+
+#. The python script used to launch the GDA servers now passes two new properties to the servers (java properties, not environment variables):
+    | ``gda.install.workspace.loc`` - this is the absolute path to the workspace directory (into which subversion components are checked out).
+    | ``gda.install.git.loc`` - this is the absolute path to the directory into which git repositories are checked out
+    | (*note* ``gda.install.workspace.loc`` is the parent directory of the (removed) ``gda.root`` (which pointed to the ``plugins/`` directory)
+
+   You do **not** need to add these to any properties file in a beamline configuration - they are passed by the launcher script (via ``java -D<property>=<value>`` *etc.*)
+
+   You **do** need to add these to any Eclipse IDE launchers you have set up::
+
+      -Dgda.install.workspace.loc=${workspace_loc}
+      -Dgda.install.git.loc=${workspace_loc}_git
+
+   (likewise, you should remove any ``-Dgda.root`` entry from all Eclipse IDE launchers)
+
+#. Your spring configuration needs to be updated to reflect the new properties, and any changed locations. An example:
+
+   From::
+
+      <bean id="core_script_project" class="gda.jython.ScriptProject">
+              <constructor-arg index="0" value="${gda.root}/uk.ac.gda.core/scripts" />
+              <constructor-arg index="1" value="Scripts: Core" />
+              <constructor-arg index="2" type="gda.jython.ScriptProjectType" value="CORE" />
+      </bean>
+      <bean id="epics_script_project" class="gda.jython.ScriptProject">
+              <constructor-arg index="0" value="${gda.root}/uk.ac.gda.epics/scripts" />
+              <constructor-arg index="1" value="Scripts: Core" />
+              <constructor-arg index="2" type="gda.jython.ScriptProjectType" value="CORE" />
+      </bean>
+      <bean id="scisoft_script_project" class="gda.jython.ScriptProject">
+              <constructor-arg index="0" value="${gda.root}/uk.ac.diamond.scisoft.analysis/src" />
+              <constructor-arg index="1" value="Scripts: Core" />
+              <constructor-arg index="2" type="gda.jython.ScriptProjectType" value="CORE" />
+      </bean>
+
+   To::
+
+      <bean id="core_script_project" class="gda.jython.ScriptProject">
+              <constructor-arg index="0" value="${gda.install.git.loc}/gda-core.git/uk.ac.gda.core/scripts" />
+              <constructor-arg index="1" value="Scripts: Core" />
+              <constructor-arg index="2" type="gda.jython.ScriptProjectType" value="CORE" />
+      </bean>
+      <bean id="epics_script_project" class="gda.jython.ScriptProject">
+              <constructor-arg index="0" value="${gda.install.git.loc}/gda-epics.git/uk.ac.gda.epics/scripts" />
+              <constructor-arg index="1" value="Scripts: Core" />
+              <constructor-arg index="2" type="gda.jython.ScriptProjectType" value="CORE" />
+      </bean>
+      <bean id="scisoft_script_project" class="gda.jython.ScriptProject">
+              <constructor-arg index="0" value="${gda.install.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/src" />
+              <constructor-arg index="1" value="Scripts: Core" />
+              <constructor-arg index="2" type="gda.jython.ScriptProjectType" value="CORE" />
+      </bean>
+
+New plotting system
+-------------------
+
+The 1D and 2D plotting provided by SciSoft/DAWN displayed in a PlotView has been migrated to a new plotting that uses Draw2D.
+The old 1D and 2D plotting using JReality in the PlotView are still there, and by default, the plotting system is set to use the old plotting.
+
+| To switch between the two systems, one just needs to go in the Preferences of the application:
+| :menuselection:`&Window --> &Preferences --> DAWN --> Plot View`
+| and set the ``Default plotting system`` either to ``Lightweight`` (new plotting) or ``Hardware Accelerated`` (JReality).
+
+If, in your product, you want to set the plotting system to the new one, you just need to add to your ``plugin_customization.ini`` file the following line::
+
+   uk.ac.diamond.scisoft.analysis.rcp/plotView.plottingsystem = 1
+
+Alternatively, if you want the old plotting instead::
+
+   uk.ac.diamond.scisoft.analysis.rcp/plotView.plottingsystem = 0
+
