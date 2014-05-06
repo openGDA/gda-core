@@ -2,6 +2,7 @@ from time import sleep
 import math
 
 from java.lang import InterruptedException, System
+from java.lang import Thread as JThread
 import java.lang.Exception
 
 from scan import Scan
@@ -151,9 +152,8 @@ class QexafsScan(Scan):
                     loggingbean.atCommandFailure()
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
                         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
-                        ScanBase.interrupted = False
                         # check if a panic stop has been issued, so the whole script should stop
-                        if ScriptBase.isInterrupted():
+                        if JThread.currentThread().isInterrupted():
                             raise e
                         # only wanted to skip this repetition, so absorb the exception and continue the loop
                         if numRepetitions > 1:
@@ -166,9 +166,8 @@ class QexafsScan(Scan):
                     loggingbean.atCommandFailure()
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
                         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
-                        ScanBase.interrupted = False
                         # check if a panic stop has been issued, so the whole script should stop
-                        if ScriptBase.isInterrupted():
+                        if JThread.currentThread().isInterrupted():
                             raise e
                         # only wanted to skip this repetition, so absorb the exception and continue the loop
                         if numRepetitions > 1:

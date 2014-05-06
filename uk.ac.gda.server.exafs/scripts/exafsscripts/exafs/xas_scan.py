@@ -1,4 +1,5 @@
 from java.lang import InterruptedException, System
+from java.lang import Thread as JThread
 import java.lang.Exception
 
 from gda.configuration.properties import LocalProperties
@@ -27,8 +28,6 @@ class XasScan(Scan):
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
         experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
         self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
-        ScanBase.interrupted = False
-        ScriptBase.interrupted = False
         ScriptBase.paused = False
         controller = self.ExafsScriptObserver
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath)
@@ -72,12 +71,10 @@ class XasScan(Scan):
         return XasLoggingMessage(self._getMyVisitID(), scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),scanBean,experimentFolderName, sampleName, 0)
         
     def handleScanInterrupt(self, numRepetitions, repetitionNumber):
-        ScanBase.interrupted = False
         if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
             LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
             # check if a panic stop has been issued, so the whole script should stop
-            if ScriptBase.isInterrupted():
-                ScriptBase.interrupted = False
+            if JThread.currentThread().isInterrupted():
                 raise ScanInterruptedException()
             # only wanted to skip this repetition, so absorb the exception and continue the loop
             if numRepetitions > 1:
@@ -176,7 +173,6 @@ class XasScan(Scan):
         args = self.buildScanArguments(scanBean, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean)
         # run the scan
         controller.update(None, ScriptProgressEvent("Running scan"))
-        ScanBase.interrupted = False
         thisscan = self.createScan(args, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetitionNumber,experimentFolderName, experimentFullPath)
         controller.update(None, ScanCreationEvent(thisscan.getName()))
         if (scanPlotSettings != None):

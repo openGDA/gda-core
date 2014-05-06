@@ -78,8 +78,6 @@ class RasterMap(Map):
     
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
 
-        ScanBase.interrupted = False
-
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
         experimentFullPath, experimentFolderName = self.determineExperimentPath(folderName)
