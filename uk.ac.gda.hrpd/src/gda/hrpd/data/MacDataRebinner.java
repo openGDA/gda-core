@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
@@ -91,7 +92,7 @@ public class MacDataRebinner implements IObservable, Runnable {
 	 */
 	private File rebinning(File file) {
 		File rebinnedDataFile=null;
-		if (ScanBase.interrupted) {
+		if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
 			return null;
 		}
 		JythonServerFacade.getInstance().print("Data" + file.getPath() +" rebinning started.");

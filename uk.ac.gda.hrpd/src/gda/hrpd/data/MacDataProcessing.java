@@ -23,6 +23,7 @@ import gda.analysis.Plotter;
 import gda.analysis.ScanFileHolder;
 import gda.analysis.io.MACLoader;
 import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.scan.ScanBase;
 
@@ -100,7 +101,7 @@ public class MacDataProcessing implements Serializable {
 	 */
 	public String rebinning(String filename) {
 		String rebinnedFileName=null;
-		if (ScanBase.interrupted) {
+		if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
 			return null;
 		}
 		JythonServerFacade.getInstance().print("Post-Scan data reduction - rebinning, Please Wait...");
@@ -146,7 +147,7 @@ public class MacDataProcessing implements Serializable {
 	 * @throws IllegalArgumentException
 	 */
 	public void plotData(String filename) throws IllegalArgumentException {
-		if (ScanBase.interrupted) {
+		if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
 			return;
 		}
 		if (!rebinCompleted)

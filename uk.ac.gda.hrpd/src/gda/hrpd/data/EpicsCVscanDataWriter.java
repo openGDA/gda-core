@@ -231,7 +231,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 		} catch (IOException e) {
 			String error = "Cannot write to the data file: " + file.getAbsolutePath();
 			logger.error(error, e);
-			JythonServerFacade.getInstance().haltCurrentScan();
+			JythonServerFacade.getInstance().requestFinishEarly();
 			JythonServerFacade.getInstance().print(error);
 		} finally {
 			if (i < rows) {
@@ -284,7 +284,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 		} catch (IOException e) {
 			String error = "Cannot write to the data file: " + file.getAbsolutePath();
 			logger.error(error, e);
-			JythonServerFacade.getInstance().haltCurrentScan();
+			JythonServerFacade.getInstance().requestFinishEarly();
 			JythonServerFacade.getInstance().print(error);
 		} finally {
 			if (i < rows) {

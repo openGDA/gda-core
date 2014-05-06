@@ -194,7 +194,11 @@ public class StageScan extends CVScanBase implements Scan {
 						// convert to a device exception
 						throw new DeviceException(e.getMessage(), e.getCause());
 					}
-					checkForInterrupts();
+					checkThreadInterrupted();
+					waitIfPaused();
+					if (isFinishEarlyRequested()) {
+						return;
+					}
 
 					for (double ypos = yStart; ypos <= yStop; ypos += yStep) {
 						JythonServerFacade.getInstance().print("Moving " + y.getName() + " to " + ypos);
@@ -206,11 +210,19 @@ public class StageScan extends CVScanBase implements Scan {
 							// convert to a device exception
 							throw new DeviceException(e.getMessage(), e.getCause());
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 						for (CVScan childScan : allChildScans) {
 							childScan.run();
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 					}
 					// move back to original or robot safe position when end
 					y.asynchronousMoveTo(0);
@@ -242,11 +254,19 @@ public class StageScan extends CVScanBase implements Scan {
 						throw new DeviceException(e.getMessage(), e.getCause());
 					}
 
-					checkForInterrupts();
+					checkThreadInterrupted();
+					waitIfPaused();
+					if (isFinishEarlyRequested()) {
+						return;
+					}
 					for (CVScan childScan : allChildScans) {
 						childScan.run();
 					}
-					checkForInterrupts();
+					checkThreadInterrupted();
+					waitIfPaused();
+					if (isFinishEarlyRequested()) {
+						return;
+					}
 				}
 				// move back to original or robot safe position when end
 				x.asynchronousMoveTo(0);
@@ -259,7 +279,6 @@ public class StageScan extends CVScanBase implements Scan {
 			}
 
 		} catch (Exception ex1) {
-			interrupted = true;
 			// move back to original or robot safe position when end
 			x.asynchronousMoveTo(0);
 			if (y != null) {

@@ -22,9 +22,9 @@ package gda.hrpd.data;
 import gda.analysis.Plotter;
 import gda.analysis.ScanFileHolder;
 import gda.analysis.io.MACLoader;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
-import gda.scan.ScanBase;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ public class MacDataPlotter implements IObserver {
 	 * @throws IllegalArgumentException
 	 */
 	public void plotData(String filename) throws IllegalArgumentException {
-		if (ScanBase.interrupted) {
+		if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
 			return;
 		}
 

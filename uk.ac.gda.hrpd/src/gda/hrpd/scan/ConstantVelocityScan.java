@@ -39,6 +39,7 @@ import gda.jython.JythonServerFacade;
 import gda.scan.EpicsTrajectoryScanController;
 import gda.scan.Scan;
 import gda.scan.Trajectory;
+import gda.scan.Scan.ScanStatus;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
@@ -709,7 +710,7 @@ public class ConstantVelocityScan extends CVScanBase implements Scan {
 			reader.start();
 			checkForInterruptionIgnorBeamDrop();
 
-			if (isChild() && !interrupted) {
+			if (isChild() && !Thread.interrupted()) {
 				String filename = saveRawData();
 				if (mdp.isEnabled()) {
 					String rebinnedDatafile = mdp.rebinning(filename);
@@ -816,8 +817,7 @@ public class ConstantVelocityScan extends CVScanBase implements Scan {
 	 */
 	public void checkForInterruption(boolean wait) throws InterruptedException {
 		try {
-			if (paused & !interrupted) {
-				JythonServerFacade.getInstance().setScanStatus(Jython.PAUSED);
+			if (getStatus() == ScanStatus.PAUSED & !Thread.interrupted()) {
 				if (!aborted) {
 					getTerminalPrinter().print(
 							"Current constant velocity scan will continue on XPS server until it completes.");
@@ -830,24 +830,16 @@ public class ConstantVelocityScan extends CVScanBase implements Scan {
 
 				}
 				if (wait) {
-					while (paused || aborted) {
+					while (getStatus() == ScanStatus.PAUSED || aborted) {
 						Thread.sleep(1000);
 					}
 				}
-				JythonServerFacade.getInstance().setScanStatus(Jython.RUNNING);
 			}
 		} catch (InterruptedException ex) {
-			interrupted = true;
-		}
-
-		if (interrupted) {
-
 			// terminate Beam monitor thread on interrupt
 			runScanControlThread = false;
 			// reset the abort scan flag on interrupt
 			aborted = false;
-
-			JythonServerFacade.getInstance().setScanStatus(Jython.IDLE);
 			throw new InterruptedException();
 		}
 	}
@@ -859,26 +851,14 @@ public class ConstantVelocityScan extends CVScanBase implements Scan {
 	 */
 	public void checkForInterruptionIgnorBeamDrop() throws InterruptedException {
 		try {
-			if (paused & !interrupted) {
-				JythonServerFacade.getInstance().setScanStatus(Jython.PAUSED);
-				while (paused) {
-					Thread.sleep(1000);
-				}
-				JythonServerFacade.getInstance().setScanStatus(Jython.RUNNING);
-			}
-		} catch (InterruptedException ex) {
-			interrupted = true;
-		}
-
-		if (interrupted) {
-
+			waitIfPaused();
+		} catch (InterruptedException e) {
 			// terminate cvscan Beam monitor thread on interrupt
 			runScanControlThread = false;
 			// reset the abort scan flag on interrupt
 			aborted = false;
 
-			JythonServerFacade.getInstance().setScanStatus(Jython.IDLE);
-			throw new InterruptedException();
+			throw e;
 		}
 	}
 
@@ -1048,7 +1028,7 @@ public class ConstantVelocityScan extends CVScanBase implements Scan {
 	protected void endScan() throws DeviceException {
 
 		// if the interrupt was set
-		if (interrupted) {
+		if (getStatus().isAborting()) {
 			try {
 				// stop external trajectory scan on XPS controller first
 				scanController.stop();
@@ -1118,13 +1098,7 @@ public class ConstantVelocityScan extends CVScanBase implements Scan {
 			}
 		}
 		// reset the interrupt variables
-		if (!isChild() && !interrupted) {
-			// Leaving interrupted true (if it is) allows jython scripts running
-			// Scans to checkForInterrupts and so end 'for' loops sensibly.
-			// (It is set to false at the start of a scan anyway).
-			paused = false;
-			insideMultiScan = false;
-
+		if (!isChild() && !getStatus().isAborting()) {
 			String filename = saveRawData();
 			if (mdp.isEnabled()) {
 				String rebinnedDatafile = mdp.rebinning(filename);
@@ -1132,10 +1106,6 @@ public class ConstantVelocityScan extends CVScanBase implements Scan {
 					mdp.plotData(rebinnedDatafile);
 				}
 			}
-			// inform observers that scan is complete by sending a Boolean false
-			// nb moved this until after batonTaken is false as we use the flag
-			// to check for scan end.
-			gda.jython.InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
 		}
 	}
 

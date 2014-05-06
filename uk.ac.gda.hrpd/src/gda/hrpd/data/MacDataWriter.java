@@ -329,7 +329,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 		} catch (IOException ex1) {
 			String error = "Failed to create a new data file: " + fileUrl;
 			logger.error(error);
-			JythonServerFacade.getInstance().haltCurrentScan();
+			JythonServerFacade.getInstance().requestFinishEarly();
 			JythonServerFacade.getInstance().print(error);
 		}
 		// Print informational message to console.

@@ -36,7 +36,6 @@ import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -361,10 +360,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	 * 
 	 * @return list of Profiles
 	 * @throws InterruptedException 
-	 * @throws CAException 
-	 * @throws TimeoutException 
 	 */
-	public ArrayList<String> getAvailableCVScanProfiles() throws TimeoutException, CAException, InterruptedException {
+	public ArrayList<String> getAvailableCVScanProfiles() throws InterruptedException {
 		profiles = new ArrayList<String>();
 		String[] profileNames = controller.getProfiles();
 		for (String each : profileNames) {
@@ -684,10 +681,10 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 							InterfaceProvider.getTerminalPrinter().print(
 									"Abort current CV scan/script: maximum number of retry exceeded.");
 							if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
-								JythonServerFacade.getInstance().haltCurrentScan();
+								InterfaceProvider.getCommandAborter().abortCommands();
 							}
 							if (JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING) {
-								JythonServerFacade.getInstance().haltCurrentScript();
+								InterfaceProvider.getCommandAborter().abortCommands();
 							}
 							stop();
 							InterfaceProvider
