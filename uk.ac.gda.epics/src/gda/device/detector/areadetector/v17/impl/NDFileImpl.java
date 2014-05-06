@@ -731,7 +731,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 			}
 			int counter=0;
 			while(getCapture_RBV() != 1) {
-				ScanBase.checkForInterrupts();
 				Thread.sleep(50);
 				counter++;
 				if( counter > 100) // more than 5 seconds

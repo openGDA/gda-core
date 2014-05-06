@@ -203,7 +203,6 @@ public class TFG2NXCollectionStrategy implements NXCollectionStrategyPlugin {
 		etfg.start();
 		while (etfg.getStatus() != 2) {
 			Thread.sleep(50);
-			ScanBase.checkForInterrupts();
 		}			
 		adBase.setNumImages(numberImagesPerCollection);
 		adBase.setAcquireTime(collectionTime);

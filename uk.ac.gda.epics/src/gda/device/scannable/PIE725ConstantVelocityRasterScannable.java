@@ -28,7 +28,6 @@ import gda.epics.PVWithSeparateReadback;
 import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gda.scan.ConstantVelocityRasterScan;
-import gda.scan.ScanBase;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -291,11 +290,8 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 		@Override
 		public boolean isMoving() throws DeviceException {
 			log(".isMoving() *Just returning false as EPICS gives no feedback*");
-			try {
-				ScanBase.checkForInterrupts();
-			} catch (InterruptedException e) {
-				throw new DeviceException(e);
-			}
+			if (Thread.interrupted())
+				throw new DeviceException("Thread interrupted during isMoving()");
 			if (hasBeenStarted) {
 				try {
 					Thread.sleep(1000);  // Bodge!

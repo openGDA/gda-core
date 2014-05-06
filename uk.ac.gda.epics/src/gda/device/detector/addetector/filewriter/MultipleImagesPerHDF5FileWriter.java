@@ -408,7 +408,6 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 				throw new DeviceException("Error in getCapture_RBV" + getName(), e);
 			}
 			Thread.sleep(50);
-			ScanBase.checkForInterrupts();
 		}
 		firstReadoutInScan = false;
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
