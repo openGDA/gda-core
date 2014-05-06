@@ -1165,8 +1165,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				super.run();
 				logger.info("Stop collection on GDA server");
 				try {
-					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
-					jsf.haltCurrentScan();
+					InterfaceProvider.getCurrentScanController().requestFinishEarly();
 					runningonserver = false;
 				} catch (Exception e) {
 					logger.error("exception throws on stop queue processor.", e);
