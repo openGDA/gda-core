@@ -274,7 +274,6 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 			while (readingOut.get()) {
 				// check both ways that a scan might be aborted here, by Thread abort or Scan flag
 				Thread.sleep(100);
-				ScanBase.checkForInterrupts();
 			}
 		} finally {
 			readingOut.set(false);

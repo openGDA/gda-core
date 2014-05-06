@@ -173,7 +173,7 @@ public final class ScriptExecutor implements IObserver {
 		}
 	}
 
-	static public void setupNameSpace(final Map<String, Serializable> jythonObjects){
+	static public void setupNameSpace(final Map<String, Serializable> jythonObjects) {
 		IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
 		if (jythonObjects != null) {
 			String key = "";
@@ -184,6 +184,7 @@ public final class ScriptExecutor implements IObserver {
 			}
 		}
 	}
+
 	static private final SetupRunResponse setupRun(final String scriptControllerName, IObserver anIObserver,
 			final Map<String, Serializable> jythonObjects, final boolean allowMultipleScripts) {
 
@@ -247,6 +248,38 @@ public final class ScriptExecutor implements IObserver {
 
 		scriptController.deleteIObserver(anIObserver);
 
+	}
+
+	/**
+	 * Halts the current script being run by JythonServerFacade and removes an IObserver object from the list of
+	 * IObservers of a named ScriptController
+	 * 
+	 * @param scriptControllerName
+	 *            The name of the ScriptController on the ObjectServer. The ScriptController is used as a mechanism for
+	 *            communicating between the running script and any observers of the ScriptController.
+	 * @param anIObserver
+	 *            If not null, the IObserver to be removed from the list of IObservers of the named ScriptController.
+	 */
+	static public void Stop(String scriptControllerName, IObserver anIObserver) {
+
+		if (scriptControllerName == null || scriptControllerName.equals("")) {
+			throw new IllegalArgumentException("ScriptExecutor: ScriptControllerName is null or empty");
+		}
+
+		Findable findable = Finder.getInstance().find(scriptControllerName);
+
+		if (findable == null || !(findable instanceof Scriptcontroller)) {
+			throw new IllegalArgumentException("ScriptExecutor: " + scriptControllerName
+					+ " is not the name of a findable Scriptcontroller ");
+		}
+
+		InterfaceProvider.getCommandAborter().abortCommands();
+
+		Scriptcontroller scriptController = (Scriptcontroller) findable;
+
+		if (anIObserver != null) {
+			scriptController.deleteIObserver(anIObserver);
+		}
 	}
 }
 
