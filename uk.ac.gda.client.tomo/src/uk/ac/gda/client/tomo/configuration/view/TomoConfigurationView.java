@@ -21,6 +21,7 @@ package uk.ac.gda.client.tomo.configuration.view;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.QueuedCommandSummary;
+import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
@@ -696,7 +697,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 							SCAN_STOP_MSG);
 					if (openConfirm) {
 						logger.debug("Calling stop tomo runs");
-						JythonServerFacade.getInstance().haltCurrentScan();
+						InterfaceProvider.getCurrentScanController().requestFinishEarly();
 						tomoConfigViewController.stopScan();
 						try {
 							CommandQueueViewFactory.getProcessor().stop(100);

@@ -19,6 +19,7 @@
 package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.device.DeviceException;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
@@ -142,7 +143,7 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 	@Override
 	public void stopModuleChange() throws DeviceException {
 		// XXX - Maybe this is incorrect.
-		JythonServerFacade.getInstance().panicStop();
+		InterfaceProvider.getCommandAborter().beamlineHalt();
 	}
 
 	@Override

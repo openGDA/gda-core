@@ -19,6 +19,7 @@
 package uk.ac.gda.client.tomo.alignment.view.controller;
 
 import gda.device.DeviceException;
+import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gov.aps.jca.TimeoutException;
@@ -792,7 +793,7 @@ public class TomoAlignmentController extends TomoViewController {
 
 	public void stopTiltPreparation() {
 		if (JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING) {
-			JythonServerFacade.getInstance().panicStop();
+			InterfaceProvider.getCommandAborter().abortCommands();
 		}
 	}
 

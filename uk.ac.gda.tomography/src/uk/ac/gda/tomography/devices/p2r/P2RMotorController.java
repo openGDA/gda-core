@@ -21,7 +21,6 @@ package uk.ac.gda.tomography.devices.p2r;
 import gda.device.DeviceException;
 import gda.device.motor.simplemotor.SimpleMotorController;
 import gda.io.BidiAsciiCommunicator;
-import gda.scan.ScanBase;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -135,7 +134,6 @@ public class P2RMotorController implements SimpleMotorController, InitializingBe
 		sendAndCheckReply(String.format("S%s%f", prefix, speed));
 		sendAndCheckReply(String.format("SS"));
 		while (isBusy()) {
-			ScanBase.checkForInterrupts();
 			Thread.sleep(50);
 		}
 	}

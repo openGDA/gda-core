@@ -24,7 +24,6 @@ import gda.device.scannable.PositionStreamIndexer;
 import gda.device.zebra.ZebraConstantVelocityMoveController;
 import gda.device.zebra.controller.Zebra;
 import gda.io.BidiAsciiCommunicator;
-import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +73,6 @@ public class P2RZebraConstantVelMoveController extends ZebraConstantVelocityMove
 		
 	}
 	
-	
-	
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		super.atScanLineStart();
@@ -88,15 +85,11 @@ public class P2RZebraConstantVelMoveController extends ZebraConstantVelocityMove
 		positionStreamIndexer=null;
 	}
 
-
-
 	@Override
 	public void stop() throws DeviceException {
 		super.stop();
 		positionStreamIndexer=null;
 	}
-
-
 
 	PositionStreamIndexer<Double> positionStreamIndexer=null;
 	@Override
@@ -111,7 +104,6 @@ public class P2RZebraConstantVelMoveController extends ZebraConstantVelocityMove
 						DeviceException {
 					while(!P2RZebraConstantVelMoveController.started){
 						Thread.sleep(1000);
-						ScanBase.checkForInterrupts();			
 					}				
 					List<Double> read = new ArrayList<Double>();
 					read.add(positionToReport); 
