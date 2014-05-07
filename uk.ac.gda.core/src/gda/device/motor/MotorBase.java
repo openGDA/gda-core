@@ -403,9 +403,10 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 	 * Checks if the motor is homed or not. Motor implementations should overide this method if required.
 	 * 
 	 * @return if the motor is homed. Returns false!
+	 * @throws MotorException 
 	 */
 	@Override
-	public boolean isHomed() {
+	public boolean isHomed() throws MotorException {
 		return false;
 	}
 
