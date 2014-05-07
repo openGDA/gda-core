@@ -70,8 +70,8 @@ public class XspressElements extends Elements{
 		
 		showIndividualElements = new BooleanWrapper(grid, SWT.NONE);
 		showIndividualElements.setText("Show individual elements");
-		
-		addShowIndividualElementsListener();
+		showIndividualElements.setEnabled(false);
+		//addShowIndividualElementsListener();
 		
 		Composite middleComposite = new Composite(grid, SWT.BORDER);
 		middleComposite.setLayout(new GridLayout(2, false));
@@ -97,7 +97,7 @@ public class XspressElements extends Elements{
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				widgetSelected(e);				
+				widgetSelected(e);
 			}
 		});
 		
@@ -167,7 +167,11 @@ public class XspressElements extends Elements{
 						showIndividualElements.setValue(true);
 						return;
 					}
-				updateElementsVisibility();
+				
+				//GridLayoutFactory.fillDefaults().applyTo(detectorElementsGroup);
+				//GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorElementsGroup);
+				
+				//updateElementsVisibility();
 				detectorListComposite.getDetectorElementComposite().setTotalCounts(allElementsCount);
 				detectorListComposite.getDetectorElementComposite().setTotalElementCounts(elementCount);
 				detectorListComposite.getDetectorElementComposite().getCount().setValue(inWindowCounts);
@@ -205,10 +209,10 @@ public class XspressElements extends Elements{
 		GridUtils.setVisibleAndLayout(middleComposite, currentEditIndividual);
 		GridUtils.setVisibleAndLayout(applyToAllCheckbox, currentEditIndividual);
 		GridUtils.setVisibleAndLayout(applyToAllButton, currentEditIndividual);
-		GridUtils.setVisibleAndLayout(detectorListComposite.getDetectorElementComposite().getName(), currentEditIndividual);
-		GridUtils.setVisibleAndLayout(detectorListComposite.getDetectorElementComposite().getExcluded(), currentEditIndividual);
+		//GridUtils.setVisibleAndLayout(detectorListComposite.getDetectorElementComposite().getName(), currentEditIndividual);
+		//GridUtils.setVisibleAndLayout(detectorListComposite.getDetectorElementComposite().getExcluded(), currentEditIndividual);
 		detectorListComposite.getDetectorElementComposite().setIndividualElements(currentEditIndividual);
-		GridUtils.layoutFull(detectorListComposite.getDetectorElementComposite().getExcluded().getParent());
+		//GridUtils.layoutFull(detectorListComposite.getDetectorElementComposite().getExcluded().getParent());
 		detectorListComposite.getDetectorList().setListVisible(currentEditIndividual);
 		autoApplyToAll(!currentEditIndividual);
 	}
