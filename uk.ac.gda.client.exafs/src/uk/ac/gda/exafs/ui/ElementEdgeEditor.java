@@ -199,8 +199,10 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 						@Override
 						public void run() {
 							try {
-								if (!suspendGraphUpdate && updateValueAllowed)
+								if (!suspendGraphUpdate && updateValueAllowed){
 									updatePlottedPoints();
+									updatePointsLabels();
+								}
 							} catch (Exception e1) {
 								logger.error("Cannot update plot of points.", e1);
 							}
