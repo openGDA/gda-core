@@ -1700,6 +1700,12 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			return _motorStatus;
 		}
 	}
+	@Override
+	public void reconfigure() throws FactoryException {
+		if (!isConfigured()) {
+			configure();
+		}
+	}
 }
 
 class MoveEventQueue implements Runnable {
