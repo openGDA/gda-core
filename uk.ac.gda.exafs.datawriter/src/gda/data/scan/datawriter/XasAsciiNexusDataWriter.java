@@ -210,5 +210,15 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	public void setFolderName(String folderName) {
 		this.folderName = folderName;
 	}
+
+	public Boolean getRunFromExperimentDefinition() {
+		return runFromExperimentDefinition;
+	}
+
+	public void setRunFromExperimentDefinition(Boolean runFromExperimentDefinition) {
+		this.runFromExperimentDefinition = runFromExperimentDefinition;
+	}
+	
+	
 	
 }
