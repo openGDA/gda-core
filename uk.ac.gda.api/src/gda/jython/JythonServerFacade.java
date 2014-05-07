@@ -80,7 +80,7 @@ import org.springframework.util.StringUtils;
 public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHolder, ICommandRunner,
 		ICurrentScanController, ITerminalPrinter, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider,
 		IScriptController, ICommandAborter, IBatonStateProvider, InitializingBean, AliasedCommandProvider, IJythonContext,
-		ITerminalOutputProvider {
+		ITerminalOutputProvider, ICommandThreadInfoProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServerFacade.class);
 
