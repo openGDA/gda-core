@@ -91,38 +91,32 @@ public class XspressAcquire extends Acquire {
 		grpAcquire.setText("Acquire Spectra");
 		grpAcquire.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
+		gridLayout.numColumns = 3;
 		grpAcquire.setLayout(gridLayout);
 		
-		Composite acquire = new Composite(grpAcquire, SWT.NONE);
-		GridLayout gridLayoutAcq = new GridLayout();
-		gridLayoutAcq.numColumns = 1;
-		gridLayoutAcq.marginWidth = 0;
-		acquire.setLayout(gridLayoutAcq);
-		
-		loadBtn = new Button(acquire, SWT.NONE);
-		loadBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		loadBtn = new Button(grpAcquire, SWT.NONE);
+		loadBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/folder.png"));
 		loadBtn.setText("Load Saved mca");
-		openDialog = new FileDialog(acquire.getShell(), SWT.OPEN);
+		openDialog = new FileDialog(grpAcquire.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 		
 		xspressData = new XspressData();
 		
-		acquireBtn = new Button(acquire, SWT.NONE);
+		acquireBtn = new Button(grpAcquire, SWT.NONE);
 		acquireBtn.setText("Acquire");
 		
-		acquireTime = new ScaleBox(acquire, SWT.NONE);
+		acquireTime = new ScaleBox(grpAcquire, SWT.NONE);
 		acquireTime.setMinimum(1);
 		acquireTime.setValue(1000);
 		acquireTime.setMaximum(50000);
 		acquireTime.setUnit("ms");
-		acquireTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		acquireTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		
-		autoSave = new Button(acquire, SWT.CHECK);
+		autoSave = new Button(grpAcquire, SWT.CHECK);
 		autoSave.setText("Save on Acquire");
 		autoSave.setSelection(LocalProperties.check("gda.detectors.save.single.acquire"));
-		autoSave.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		autoSave.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
 		autoSave.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -137,13 +131,14 @@ public class XspressAcquire extends Acquire {
 		});
 		autoSave.setSelection(saveMcaOnAcquire);
 		
-		acquireFileLabel = new Label(acquire, SWT.NONE);
-
-		acquireFileLabel.setText("									                                                    	                                                                        ");
+		acquireFileLabel = new Label(grpAcquire, SWT.WRAP);
+		acquireFileLabel.setText("										 ");
+		
 		acquireFileLabel.setToolTipText("The file path for the acquire data");
-//		GridData gridData = new GridData(SWT.LEFT, SWT.TOP, true, false);
-//		gridData.horizontalSpan=1;
-//		acquireFileLabel.setLayoutData(gridData);
+		GridData gridData = new GridData(SWT.LEFT, SWT.TOP, true, false);
+		gridData.horizontalSpan=3;
+		gridData.heightHint=50;
+		acquireFileLabel.setLayoutData(gridData);
 		
 		this.counts = counts;
 		xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
@@ -190,7 +185,9 @@ public class XspressAcquire extends Acquire {
 	
 	@Override
 	public void acquire(double collectionTime) throws DeviceException, InterruptedException{
+		
 		this.collectionTime = collectionTime;
+		
 		try {
 			originalResolutionGrade = xspressDetector.getResGrade();
 			originalReadoutMode = xspressDetector.getReadoutMode();
@@ -198,9 +195,12 @@ public class XspressAcquire extends Acquire {
 			logger.error("Cannot get current resolution grade", e);
 			return;
 		}
+		
 		String uiReadoutMode = (String) readoutMode.getValue();
 		String uiResolutionGrade = uiReadoutMode.equals(XspressDetector.READOUT_ROIS) ? (String) resolutionGrade.getValue() : ResGrades.NONE;
+		
 		sashPlotFormComposite.appendStatus("Collecting a single frame of MCA data with resolution grade set to '" + uiResolutionGrade + "'.", logger);
+		
 		try {
 			xspressDetector.setAttribute("readoutModeForCalibration", new String[] { uiReadoutMode, uiResolutionGrade });
 			mcaData = xspressDetector.getMCData((int) collectionTime);
@@ -208,7 +208,10 @@ public class XspressAcquire extends Acquire {
 			sashPlotFormComposite.appendStatus("Cannot read out xspress detector data", logger);
 			logger.error("Cannot read out xspress detector data", e);
 		}
+		
 		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
+		
+		//TODO why is the following here? The data has already been collected.
 		try {
 			xspressDetector.setResGrade(originalResolutionGrade);
 			xspressDetector.setReadoutMode(originalReadoutMode);
@@ -217,6 +220,7 @@ public class XspressAcquire extends Acquire {
 			logger.error("Cannot reset res grade, detector may be in an error state", e);
 		}
 		sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
+		
 	}
 	
 	@Override
