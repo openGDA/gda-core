@@ -172,7 +172,8 @@ public class VortexAcquire extends Acquire {
 	public void acquire(double collectionTime) throws DeviceException, InterruptedException{
 		xmapDetector.clearAndStart();
 		tfg.countAsync(collectionTime);
-		xmapDetector.waitWhileBusy();
+		//xmapDetector.waitWhileBusy();
+		Thread.sleep((long) collectionTime);
 		xmapDetector.stop();
 		int[][] data = xmapDetector.getData();
 		mcaData = convert2DTo3DArray(data);
