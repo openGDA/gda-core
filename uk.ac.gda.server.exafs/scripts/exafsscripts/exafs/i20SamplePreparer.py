@@ -4,7 +4,7 @@ from org.slf4j import LoggerFactory
 
 class I20SamplePreparer:
     
-    def __init__(self, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot, sample_roll, sample_pitch, filterwheel, cryostat, cryostick_pos):
+    def __init__(self, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot, sample_roll, sample_pitch, filterwheel, cryostat, cryostick_pos, rcp_controller):
         self.sample_x = sample_x
         self.sample_y = sample_y
         self.sample_z = sample_z
@@ -16,8 +16,12 @@ class I20SamplePreparer:
         self.cryostat = cryostat
         self.cryostick_pos = cryostick_pos
         self.logger = LoggerFactory.getLogger("exafsscripts.exafs.scan")
+        self.rcp_controller = rcp_controller
     
-    def prepare(self, sampleBean):  
+    def prepare(self, sampleBean):
+        print "Opening Plotting Perspective"
+        self.rcp_controller.openPerspective("org.diamond.exafs.ui.PlottingPerspective")
+        
         if sampleBean.getUseSampleWheel():
             self._moveSampleWheel(sampleBean)
         return []
@@ -32,15 +36,18 @@ class I20SamplePreparer:
     # XAS / XANES room temperature sample stage  
     def createIterator(self, sampleBean, experiment_type):
         iterator=None
-        if experiment_type != 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+        print "experiment type=", experiment_type
+        sample_environment = sampleBean.getSampleEnvironment()
+        print "sample environment",sample_environment
+        if experiment_type != 'XES' and sample_environment == I20SampleParameters.SAMPLE_ENV[1] :
             iterator = XASXANES_Roomtemp_Iterator(self.sample_x,self.sample_y,self.sample_z,self.sample_rot,self.sample_roll,self.sample_pitch)
             iterator.setSampleBean(sampleBean)
         # XES room temp sample stage
-        elif experiment_type == 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+        elif experiment_type == 'XES' and sample_environment == I20SampleParameters.SAMPLE_ENV[1] :
             iterator = XES_Roomtemp_Iterator(self.sample_x,self.sample_y,self.sample_z,self.sample_rot,self.sample_fine_rot,self.sample_roll,self.sample_pitch)
             iterator.setSampleBean(sampleBean)
         #XAS/XANES cryostat
-        elif experiment_type != 'XES' and sampleBean.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
+        elif experiment_type != 'XES' and sample_environment == I20SampleParameters.SAMPLE_ENV[2] :
             iterator = XASXANES_Cryostat_Iterator(self.cryostat, self.cryostick_pos)
             cryostatParameters = sampleBean.getCryostatParameters()
             controlMode = cryostatParameters.getControlMode()
