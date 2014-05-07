@@ -56,7 +56,7 @@ public interface Scan extends Serializable {
 		PAUSED {
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
-				return EnumSet.of(RUNNING,FINISHING_EARLY);
+				return EnumSet.of(RUNNING,FINISHING_EARLY, TIDYING_UP_AFTER_STOP);
 			}
 		},  
 		FINISHING_EARLY {

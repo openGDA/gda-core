@@ -43,19 +43,36 @@ public class PauseScanHandler extends AbstractHandler {
 
 			boolean scanRunning = InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.RUNNING;
 			boolean scriptRunning = InterfaceProvider.getScriptController().getScriptStatus() == Jython.RUNNING;
+			boolean scanPaused = InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.PAUSED;
+			boolean scriptPaused = InterfaceProvider.getScriptController().getScriptStatus() == Jython.PAUSED;
+			boolean scanIdle = InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.PAUSED;
 
-			// if one is running then pause both
-			if (scanRunning || scriptRunning) {
-				InterfaceProvider.getCurrentScanController().pauseCurrentScan();
-				InterfaceProvider.getScriptController().pauseCurrentScript();
+			boolean somethingPaused = false;
 
+			if (scanIdle) {
+				// then we are only thinking about a script here
+				if (scriptPaused) {
+					InterfaceProvider.getScriptController().resumeCurrentScript();
+				} else if (scriptRunning && !somethingPaused) {
+					InterfaceProvider.getScriptController().pauseCurrentScript();
+					somethingPaused = true;
+				}
 			} else {
-				// else resume both
-				InterfaceProvider.getCurrentScanController().resumeCurrentScan();
-				InterfaceProvider.getScriptController().resumeCurrentScript();
+				// look at the scan status first
+				if (scanPaused) {
+					InterfaceProvider.getCurrentScanController().resumeCurrentScan();
+					if (scriptPaused) {
+						InterfaceProvider.getScriptController().resumeCurrentScript();
+					}
+				} else if (scanRunning) {
+					InterfaceProvider.getCurrentScanController().pauseCurrentScan();
+					InterfaceProvider.getScriptController().pauseCurrentScript();
+					somethingPaused = true;
+				}
+
 			}
 
-			return null;
+			return !somethingPaused;
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);
 		}

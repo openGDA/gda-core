@@ -140,6 +140,7 @@ public abstract class ExperimentObjectManager implements IExperimentObjectManage
 		ob.createFilesFromTemplates();
 		ob.setRunName(scanName);
 		lines.add(ob);
+		write();
 		return ob;
 	}
 
