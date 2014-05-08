@@ -61,24 +61,10 @@ public class CommandInfoLabelProvider implements ITableLabelProvider {
 			label = String.valueOf(record.getId());
 			break;
 		case 1 : // thread type
-			CommandThreadType threadType = record.getCommandThreadType();
-			switch (threadType) {
-			case COMMAND : 
-				label = "Script";
-				break;
-			case EVAL :
-				label = "Eval";
-				break;
-			case SOURCE :
-				label = "Source";
-				break;
-			default : 
-				label = "Unknown";
-				break;
-			}
+			label = record.getCommandThreadType();
 			break;
 		case 2 : // state
-			label = record.getState().name();
+			label = record.getState();
 			break;
 		case 3 : //Priority
 			label = String.valueOf(record.getPriority());

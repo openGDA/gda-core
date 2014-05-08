@@ -73,8 +73,8 @@ public class CommandInfoController implements ICommandThreadObserver, ICommandTh
 	}
 
 	@Override
-	public List<ICommandThreadInfo> getCommandThreadInfo() {
-		return initialiseModel().getCommandList();
+	public ICommandThreadInfo[] getCommandThreadInfo() {
+		return initialiseModel().getCommandElements();
 	}
 
 	public CommandInfoModel getModel() {
@@ -83,10 +83,11 @@ public class CommandInfoController implements ICommandThreadObserver, ICommandTh
 
 	private CommandInfoModel initialiseModel() {
 		model.clear();
-		List<ICommandThreadInfo> infos = InterfaceProvider.getCommandThreadInfoProvider().getCommandThreadInfo();
+		ICommandThreadInfo[] infos = InterfaceProvider.getCommandThreadInfoProvider().getCommandThreadInfo();
 		for (ICommandThreadInfo info : infos) {
-			Long id = info.getId(); 
-			model.put(id,info);
+			if (null!=info) {
+				model.put(info.getId(),info);
+			}
 		}
 		return model;
 	}

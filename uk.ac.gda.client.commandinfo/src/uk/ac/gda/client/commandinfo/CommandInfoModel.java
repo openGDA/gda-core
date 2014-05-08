@@ -33,7 +33,7 @@ public class CommandInfoModel extends HashMap<Long,ICommandThreadInfo> {
 	}
 	
 	public ICommandThreadInfo[] getCommandElements() {
-		return this.entrySet().toArray(new ICommandThreadInfo[this.size()]);
+		return this.values().toArray(new ICommandThreadInfo[this.size()]);
 	}
 
 }
