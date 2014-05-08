@@ -36,7 +36,6 @@ import gda.scan.ScanDataPointClient;
 import gda.scan.ScanDataPointVar;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -731,11 +730,11 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	}
 
 	@Override
-	public List<ICommandThreadInfo> getCommandThreadInfo() {
+	public ICommandThreadInfo[] getCommandThreadInfo() {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				Any any = jythonServer.getCommandThreadInfo();
-				List<ICommandThreadInfo> infos = (List<ICommandThreadInfo>) any.extract_Value();
+				ICommandThreadInfo[] infos = (ICommandThreadInfo[]) any.extract_Value();
 				return infos;
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
@@ -744,10 +743,12 @@ public class JythonAdapter implements Jython, EventSubscriber {
 				// the object primarily when the server has failed.
 				break;
 			} catch (CorbaDeviceException ex) {
-				// throw new DeviceException(ex.message);
+				logger.error(ex.getMessage(), ex);
+			} catch (Exception ex) {
+				logger.error(ex.getMessage(), ex);
 			}
 		}
-		return new ArrayList<ICommandThreadInfo>(0);
+		return new ICommandThreadInfo[0];
 	}
 	
 	@Override

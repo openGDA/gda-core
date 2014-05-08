@@ -1195,6 +1195,15 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		 * The authorisation level of the user whose JythonServerFacade sent this command
 		 */
 		public int authorisationLevel;
+
+		/** 
+		 * Access the command responsible for the thread
+		 * @return command string
+		 */
+		public String getCommand() {
+			return cmd;
+		}
+
 		/**
 		 * Override flag
 		 */
@@ -1407,21 +1416,21 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return interp.getInterp();
 	}
 
-	private CommandThreadInfo extractCommandThreadInfo(CommandThreadType comtype, Thread thread) {
+	private CommandThreadInfo extractCommandThreadInfo(CommandThreadType comtype, JythonServerThread jthread) {
 		CommandThreadInfo info = new CommandThreadInfo();
-		info.setCommandThreadType(comtype);
-		info.setCommand(thread.getName());
-		info.setId(thread.getId());
-		info.setPriority(thread.getPriority());
-		//info.setDescriptor(thread.toString());
-		info.setState(thread.getState());
-		logger.debug("thread state = " + thread.getState().name());
-		logger.debug("thread name = " + thread.getName());
-		logger.debug("thread descriptor = " + thread.toString());
-		
+		info.setCommand(jthread.getCommand());
+		info.setCommandThreadType(comtype.toString());
+		info.setDate(""); //TODO
+		info.setId(jthread.getId());
+		info.setInterrupted(jthread.isInterrupted());
+		info.setName(jthread.getName());
+		info.setPriority(jthread.getPriority());
+		info.setState(jthread.getState().toString());
+		info.setTime(""); //TODO
 		return info;
 	}
 
+	@SuppressWarnings("unused") // future feature 
 	private void notifyClearCommandThreads() {
 		this.updateIObservers(new CommandThreadEvent(CommandThreadEventType.CLEAR,null));
 	}
@@ -1430,7 +1439,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		this.updateIObservers(new CommandThreadEvent(CommandThreadEventType.REFRESH,null));
 	}
 
-	private CommandThreadInfo notifyStartCommandThread(CommandThreadType comType, Thread thread) {
+	private CommandThreadInfo notifyStartCommandThread(CommandThreadType comType, JythonServerThread thread) {
 		return this.notifyCommandThreadEvent(CommandThreadEventType.START, comType, thread);
 	}
 
@@ -1438,29 +1447,36 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		this.updateIObservers(new CommandThreadEvent(CommandThreadEventType.TERMINATE,info));
 	}
 
-	private CommandThreadInfo notifyUpdateCommandThread(CommandThreadType comType, Thread thread) {
+	@SuppressWarnings("unused") // future feature 
+	private CommandThreadInfo notifyUpdateCommandThread(CommandThreadType comType, JythonServerThread thread) {
 		return this.notifyCommandThreadEvent(CommandThreadEventType.UPDATE, comType, thread);
 	}
 
-	private CommandThreadInfo notifyCommandThreadEvent(CommandThreadEventType eType, CommandThreadType comType, Thread thread) {
+	private CommandThreadInfo notifyCommandThreadEvent(CommandThreadEventType eType, CommandThreadType comType, JythonServerThread thread) {
 		CommandThreadInfo info = null==thread ? null : extractCommandThreadInfo(comType, thread);
 		this.updateIObservers(new CommandThreadEvent(eType,info));
 		return info;
 	}
 
 	@Override
-	public Vector<ICommandThreadInfo> getCommandThreadInfo() {
+	public ICommandThreadInfo[] getCommandThreadInfo() {
 		Vector<ICommandThreadInfo> infos = new Vector<ICommandThreadInfo>();
 		for (Thread t : runsourceThreads) {
-			infos.add(extractCommandThreadInfo(CommandThreadType.SOURCE,t));
+			if (t instanceof JythonServerThread) {
+				infos.add(extractCommandThreadInfo(CommandThreadType.SOURCE,(JythonServerThread) t));
+			}
 		}
 		for (Thread t : runCommandThreads) {
-			infos.add(extractCommandThreadInfo(CommandThreadType.COMMAND,t));
+			if (t instanceof JythonServerThread) {
+				infos.add(extractCommandThreadInfo(CommandThreadType.COMMAND,(JythonServerThread) t));
+			}
 		}
 		for (Thread t : evalThreads) {
-			infos.add(extractCommandThreadInfo(CommandThreadType.EVAL,t));
+			if (t instanceof JythonServerThread) {
+				infos.add(extractCommandThreadInfo(CommandThreadType.EVAL,(JythonServerThread) t));
+			}
 		}
-		return infos;
+		return infos.toArray(new ICommandThreadInfo[infos.size()]);
 	}
 
 	public void setStopJythonScannablesOnStopAll(boolean stopJythonScannablesOnStopAll) {

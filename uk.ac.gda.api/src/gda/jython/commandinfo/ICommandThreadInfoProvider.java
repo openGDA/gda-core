@@ -18,14 +18,12 @@
 
 package gda.jython.commandinfo;
 
-import java.util.List;
-
 public interface ICommandThreadInfoProvider {
 	
 	void addCommandThreadObserver(ICommandThreadObserver anObserver);
 	
 	void deleteCommandThreadObserver(ICommandThreadObserver anObserver);
 	
-	List<ICommandThreadInfo> getCommandThreadInfo();
+	ICommandThreadInfo[] getCommandThreadInfo();
 
 }

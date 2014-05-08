@@ -19,43 +19,42 @@
 package gda.jython.commandinfo;
 
 import java.io.Serializable;
-import java.lang.Thread.State;
 
 public interface ICommandThreadInfo extends Serializable {
-	
+
 	String getCommand();
 
-	CommandThreadType getCommandThreadType();
+	String getCommandThreadType();
 
 	String getDate();
 
 	long getId();
 
-	String getInterrupt();
+	String getName();
 
 	int getPriority();
 
-	String getQueue();
-
-	State getState();
+	String getState();
 
 	String getTime();
 
+	boolean isInterrupted();
+
 	void setCommand(String command);
 
-	void setCommandThreadType(CommandThreadType threadType);
+	void setCommandThreadType(String threadType);
 
 	void setDate(String date);
 
 	void setId(long id);
 
-	void setInterrupt(String interrupt);
+	void setInterrupted(boolean isInterrupted);
+
+	void setName(String name);
 
 	void setPriority(int priority);
 
-	void setQueue(String queue);
-
-	void setState(State state);
+	void setState(String state);
 
 	void setTime(String time);
 

@@ -1012,7 +1012,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	@Override
-	public List<ICommandThreadInfo> getCommandThreadInfo() {
+	public ICommandThreadInfo[] getCommandThreadInfo() {
 		return commandServer.getCommandThreadInfo();
 	}
 

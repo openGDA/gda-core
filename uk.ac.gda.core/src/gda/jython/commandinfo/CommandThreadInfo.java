@@ -18,58 +18,56 @@
 
 package gda.jython.commandinfo;
 
-import java.lang.Thread.State;
-
 import gda.jython.commandinfo.ICommandThreadInfo;
 
 public class CommandThreadInfo implements ICommandThreadInfo {
 	
-	private CommandThreadType threadType;
-	private long id;
-	private int priority;
-	private State state;
+	private String threadType;
+	private long id = -1;
+	private int priority = -1;
+	private String name;
+	private String state;
 	private String date;
 	private String time;
-	private String queue;
-	private String interrupt;
+	private boolean isInterrupted = false;
 	private String command;
 
+	public CommandThreadInfo() { }
+
 	public CommandThreadInfo(
-			CommandThreadType commandThreadType, 
+			String commandThreadType, 
 			long   id,
 			int    priority,
-			State  state,
+			String name,
+			String  state,
 			String date, 
 			String time, 
-			String queue, 
-			String interrupt,
+			boolean isInterrupted,
 			String command) {
 		this.threadType = commandThreadType;
 		this.id = id;
 		this.priority = priority;
+		this.name = name;
 		this.state = state;
 		this.date = date;
 		this.time = time;
-		this.queue = queue;
-		this.interrupt = interrupt;
+		this.isInterrupted = isInterrupted;
 		this.command = command;
 	}
 
-	public CommandThreadInfo() { }
-
 	@Override
 	public String getCommand() {
-		return command;
+		return null==command ? "" : command;
 	}
 
 	@Override
-	public CommandThreadType getCommandThreadType() {
-		return threadType;
+	public String getCommandThreadType() {
+		return null == threadType ? "" : threadType;
 	}
 
 	@Override
 	public String getDate() {
-		return date;
+		return null==date ? "" : date;
 	}
 	
 	@Override
@@ -78,8 +76,8 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	}
 
 	@Override
-	public String getInterrupt() {
-		return interrupt;
+	public String getName() {
+		return null==name ? "" : name;
 	}
 
 	@Override
@@ -88,18 +86,18 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	}
 
 	@Override
-	public String getQueue() {
-		return queue;
-	}
-
-	@Override
-	public State getState() {
-		return state;
+	public String getState() {
+		return null==state ? "unknown" : state;
 	}
 
 	@Override
 	public String getTime() {
-		return time;
+		return null==time ? "" : time;
+	}
+
+	@Override
+	public boolean isInterrupted() {
+		return isInterrupted;
 	}
 
 	@Override
@@ -108,7 +106,7 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	}
 
 	@Override
-	public void setCommandThreadType(CommandThreadType threadType) {
+	public void setCommandThreadType(String threadType) {
 		this.threadType = threadType;
 	}
 
@@ -123,8 +121,13 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	}
 
 	@Override
-	public void setInterrupt(String interrupt) {
-		this.interrupt = interrupt;
+	public void setInterrupted(boolean isInterrupted) {
+		this.isInterrupted = isInterrupted;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
@@ -133,12 +136,7 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	}
 
 	@Override
-	public void setQueue(String queue) {
-		this.queue = queue;
-	}
-
-	@Override
-	public void setState(State state) {
+	public void setState(String state) {
 		this.state = state;
 	}
 

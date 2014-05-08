@@ -572,9 +572,9 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	@Override
 	public Any getCommandThreadInfo() throws CorbaDeviceException {
 		try {
-			List<ICommandThreadInfo> infos = jythonServer.getCommandThreadInfo();
+			ICommandThreadInfo[] infos = jythonServer.getCommandThreadInfo();
 			org.omg.CORBA.Any any = org.omg.CORBA.ORB.init().create_any();
-			any.insert_Value((Serializable) infos);
+			any.insert_Value(infos);
 			return any;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());

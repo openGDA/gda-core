@@ -280,9 +280,9 @@ public interface Jython extends Findable {
 	/**
 	 * Returns information about each active command thread
 	 * 
-	 * @return List
+	 * @return Array of command thread information
 	 */
-	public List<ICommandThreadInfo> getCommandThreadInfo();
+	public ICommandThreadInfo[] getCommandThreadInfo();
 
 	/**
 	 * Sets the script status.
