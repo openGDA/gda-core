@@ -72,7 +72,7 @@ public class SubmitReconstruction implements IWorkbenchWindowActionDelegate {
     	    tBean.setName("Test Recon "+resource.getName());
     	    
     		IPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.dawnsci.commandserver.ui");
-    		final String uri        = store.getString("uk.ac.diamond.scisoft.ispybexplorer.rcp.preferences.jmsURI");
+    		final String uri        = store.getString("org.dawnsci.commandserver.URI");
     		final String queueName  = "scisoft.tomo.SUBMISSION_QUEUE";
 
     		final RemoteSubmission factory = new RemoteSubmission(uri);
