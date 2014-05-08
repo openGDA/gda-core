@@ -34,6 +34,7 @@ Export-Package: com.cosylab.epics.caj,
  com.cosylab.epics.caj.impl.sync,
  com.cosylab.epics.caj.util,
  com.cosylab.epics.caj.util.logging,
+ com.cosylab.epics.caj.util.nif,
  gda.configuration.epics,
  gda.data.metadata,
  gda.device,
@@ -104,7 +105,7 @@ Export-Package: com.cosylab.epics.caj,
 Bundle-ClassPath: .,
  jars/epics.jar,
  jars/jca-2.3.6.jar,
- jars/caj-1.1.13.jar,
+ jars/caj-1.1.14.jar,
  jars/epics-5.3.14.jar
 Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.gda.core
