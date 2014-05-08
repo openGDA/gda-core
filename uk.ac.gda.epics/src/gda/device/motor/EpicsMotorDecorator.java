@@ -65,8 +65,9 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 		if (isIocRunning()) {
 			decoratedMotor.reconfigure();
 			decoratedMotor.addIObserver(this);
-		} 
-		throw new FactoryException("Motor IOC " + getIocPv().split(":")[0] + " is not running");
+		} else {
+			throw new FactoryException("Motor IOC " + getIocPv().split(":")[0] + " is not running");
+		}
 	}
 
 	@Override
@@ -76,16 +77,19 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 			if (decoratedMotor instanceof EpicsMotor) {
 				return ((EpicsMotor) decoratedMotor).getUnitString();
 			}
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
+		return null;
 	}
 
 	@Override
 	public void setSpeed(double speed) throws MotorException {
 		if (isIocRunning()) {
 			decoratedMotor.setSpeed(speed);
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
 	@Override
@@ -100,8 +104,9 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 	public void setTimeToVelocity(double timeToVelocity) throws MotorException {
 		if (isIocRunning()) {
 			decoratedMotor.setTimeToVelocity(timeToVelocity);
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
 	@Override
@@ -142,9 +147,9 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 			if (decoratedMotor instanceof EpicsMotor) {
 				((EpicsMotor) decoratedMotor).setUserOffset(userOffset);
 			}
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
-
 	}
 
 	@Override
@@ -162,7 +167,6 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 				return ((EpicsMotor) decoratedMotor).checkStatus();
 		}
 		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
-
 	}
 
 	@Override
@@ -177,16 +181,18 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 	public void moveBy(double steps) throws MotorException {
 		if (isIocRunning()) {
 			decoratedMotor.moveBy(steps);
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
 	@Override
 	public void moveTo(double steps) throws MotorException {
 		if (isIocRunning()) {
 			decoratedMotor.moveTo(steps);
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
 	public void moveTo(double position, double timeout) throws MotorException, TimeoutException, InterruptedException {
@@ -194,8 +200,9 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 			if (decoratedMotor instanceof EpicsMotor) {
 				((EpicsMotor) decoratedMotor).moveTo(position, timeout);
 			}
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
 	public void moveTo(double position, PutListener moveListener) throws MotorException {
@@ -204,8 +211,9 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 				((EpicsMotor) decoratedMotor).moveTo(position, moveListener);
 				;
 			}
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
 	protected double getDialLowLimit() throws MotorException {
@@ -231,8 +239,9 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 			if (decoratedMotor instanceof EpicsMotor) {
 				((EpicsMotor) decoratedMotor).setMinPosition(minimumPosition);
 			}
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
 	@Override
@@ -248,8 +257,9 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 			if (decoratedMotor instanceof EpicsMotor) {
 				((EpicsMotor) decoratedMotor).setMaxPosition(maximumPosition);
 			}
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
 	@Override
@@ -264,31 +274,35 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 	public void stop() throws MotorException {
 		if (isIocRunning()) {
 			decoratedMotor.stop();
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 	public void stopGo() throws MotorException {
 		if (isIocRunning()) {
 			if (decoratedMotor instanceof EpicsMotor) {
 				((EpicsMotor) decoratedMotor).stopGo();
 			}
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
 	@Override
 	public void panicStop() throws MotorException {
 		if (isIocRunning()) {
 			decoratedMotor.panicStop();
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 	@Override
 	public void moveContinuously(int direction) throws MotorException {
 		if (isIocRunning()) {
 			decoratedMotor.moveContinuously(direction);
+		} else {
+			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
 	@Override
@@ -316,10 +330,12 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 	public boolean isHomedFromMSTAValue(double msta) {
 		if (isIocRunning()) {
 			if (decoratedMotor instanceof EpicsMotor) {
-				((EpicsMotor) decoratedMotor).isHomedFromMSTAValue(msta);
+				return ((EpicsMotor) decoratedMotor).isHomedFromMSTAValue(msta);
 			}
+		} else {
+			throw new IllegalStateException("Motor IOC " + getIocPv().split(":")[0] + " is not running");
 		}
-		throw new IllegalStateException("Motor IOC " + getIocPv().split(":")[0] + " is not running");
+		return false;
 	}
 	
 	@Override
