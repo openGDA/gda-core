@@ -28,6 +28,10 @@ public interface ISAXSProgress {
 	public static final String REDUCTION_STATUS_INFO = "reductionStatusInfo";
 	public static final String ANALYSIS_STATUS_INFO = "analysisStatusInfo";
 
+	public void setExperimentId(long id);
+	
+	public long getExperimentId();
+	
 	public void setDataCollectionId(long id);
 
 	public long getDataCollectionId();

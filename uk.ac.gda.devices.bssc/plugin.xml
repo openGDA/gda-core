@@ -151,6 +151,12 @@
                  label="Import Excel Spreadsheet"
                  mode="FORCE_TEXT"
                  style="push">
+                       <visibleWhen
+        checkEnabled="false">
+        <reference
+          definitionId="uk.ac.gda.devices.bssc.perspectives.isBioSAXSPerspectiveDefinition">
+        </reference>
+      </visibleWhen>
            </command>
         </toolbar>
      </menuContribution>
@@ -163,7 +169,7 @@
            name="Edit Queued Item">
      </command>
      <command
-           defaultHandler="uk.ac.gda.devices.bssc.ui.handlers.LoadExperimentHandler"
+           defaultHandler="uk.ac.gda.devices.bssc.ui.handlers.ImportSpreadsheetHandler"
            id="uk.ac.gda.devices.bssc.LoadExperiment"
            name="Load Experiment">
      </command>
@@ -172,6 +178,35 @@
            id="uk.ac.gda.devices.bssc.LoadRedSettings"
            name="Load New Reduction Settings">
      </command>
+  </extension>
+  <extension
+        point="org.eclipse.core.expressions.propertyTesters">
+     <propertyTester
+           class="uk.ac.gda.devices.bssc.perspectives.PerspectivePropertyTester"
+           id="uk.ac.gda.devices.bssc.perspectives.PerspectivePropertyTester"
+           namespace="uk.ac.gda.devices.bssc.perspectives.PerspectivePropertyTester"
+           properties="isKnownPerspective"
+           type="java.lang.Object">
+     </propertyTester>
+  </extension>
+  <extension
+        point="org.eclipse.core.expressions.definitions">
+     <definition
+           id="uk.ac.gda.devices.bssc.perspectives.isBioSAXSPerspectiveDefinition">
+        <with
+              variable="activeWorkbenchWindow.activePerspective">
+           <test
+                 forcePluginActivation="true"
+                 property="uk.ac.gda.devices.bssc.perspectives.PerspectivePropertyTester.isKnownPerspective">
+           </test>
+        </with>
+     </definition>
+  </extension>
+  <extension
+        point="org.eclipse.ui.startup">
+     <startup
+           class="uk.ac.gda.devices.bssc.perspectives.BioSAXSStartUp">
+     </startup>
   </extension>
   <!--<extension
         id="uk.ac.gda.devices.bssc.hideperspective"

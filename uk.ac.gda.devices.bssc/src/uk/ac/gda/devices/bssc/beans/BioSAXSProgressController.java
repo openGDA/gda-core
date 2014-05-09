@@ -57,7 +57,6 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	private List<ISAXSDataCollection> saxsDataCollections;
 	private Device simpleUDPServer;
 	ObservableComponent obsComp = new ObservableComponent();
-	private boolean stopPolling;
 	protected BioSAXSProgressView view;
 	private String udpListenerName;
 
@@ -69,10 +68,11 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		}
 		try {
 			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-			blSessionId = bioSAXSISPyB.getSessionForVisit(/* visit */"nt20-13");
+			blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
 		} catch (DeviceException e) {
 			logger.error("DeviceException getting visit", e);
-		} catch (SQLException e) {
+		} 
+		catch (SQLException e) {
 			logger.error("SQLEXception getting session id", e);
 		}
 	}
@@ -84,7 +84,6 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	public void startPolling() {
 		if (bioSAXSProgressModel == null)
 			throw new RuntimeException("Model is null");
-		stopPolling = false;
 		final Job pollingJob = new Job("Polling ISpyB") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -95,7 +94,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 						Display.getDefault().asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								loadModel(saxsDataCollections);
+								loadModelFromISpyB(saxsDataCollections);
 							}
 						});
 					}
@@ -107,18 +106,11 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 					logger.error("Error polling ispyb", e);
 					return Status.CANCEL_STATUS;
 				} finally {
-					// start job again after specified time has elapsed
-					// if (!stopPolling)
-					// schedule(90000);
+
 				}
 			}
 		};
-		/*
-		 * job.addJobChangeListener(new JobChangeAdapter() {
-		 * @Override public void done(IJobChangeEvent event) { if (event.getResult().isOK())
-		 * System.out.println("Job completed successfully"); else
-		 * System.out.println("Job did not complete successfully"); } }); start as soon as possible
-		 */pollingJob.schedule();
+		pollingJob.schedule();
 	}
 
 	public List<ISAXSDataCollection> getDataCollectionsFromISPyB() {
@@ -130,97 +122,85 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		return saxsDataCollections;
 	}
 
-	public void updateStatusInfoFromISpyB(final long dataCollectionId) {
-		try {
-			final ISAXSDataCollection dataCollection = bioSAXSISPyB.getSAXSDataCollection(dataCollectionId);
-			final ISpyBStatusInfo collectionStatusInfo = bioSAXSISPyB.getDataCollectionStatus(dataCollectionId);
-			final ISpyBStatusInfo reductionStatusInfo = bioSAXSISPyB.getDataReductionStatus(dataCollectionId);
-			final ISpyBStatusInfo analysisStatusInfo = bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId);
-
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					ISAXSProgress progress = getProgressItemFromModel(bioSAXSProgressModel, dataCollectionId);
-					if (progress != null) {
-						System.out.println("UDP update received, updating model");
-						System.out.println("collection progress is : " + collectionStatusInfo.getProgress());
-						System.out.println("collection status is : " + collectionStatusInfo.getStatus());
-						System.out.println("reduction progress is : " + reductionStatusInfo.getProgress());
-						System.out.println("reduction status is : " + reductionStatusInfo.getStatus());
-						System.out.println("analysis progress is : " + analysisStatusInfo.getProgress());
-						System.out.println("analysis status is : " + analysisStatusInfo.getStatus());
-						progress.setCollectionStatusInfo(collectionStatusInfo);
-						progress.setReductionStatusInfo(reductionStatusInfo);
-						progress.setAnalysisStatusInfo(analysisStatusInfo);
-					} else {
-						System.out.println("UDP update received, adding to model");
-						addToModel(dataCollectionId, dataCollection.getSampleName(), collectionStatusInfo,
-								reductionStatusInfo, analysisStatusInfo);
-					}
-
-					final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-
-					view = (BioSAXSProgressView) window.getActivePage().findView(BioSAXSProgressView.ID);
-
-					if (view != null) {
-						view.reveal();
-					}
-				}
-			});
-
-		} catch (SQLException e) {
-			logger.error("SQLException", e);
-		}
-	}
-
-	public List<ISAXSProgress> loadModel(List<ISAXSDataCollection> saxsDataCollections) {
+	public List<ISAXSProgress> loadModelFromISpyB(List<ISAXSDataCollection> saxsDataCollections) {
 		for (ISAXSDataCollection saxsDataCollection : saxsDataCollections) {
 			if (saxsDataCollection != null) {
+				long experimentId = saxsDataCollection.getExperimentId();
 				long dataCollectionId = saxsDataCollection.getId();
 				String sampleName = saxsDataCollection.getSampleName();
 				ISpyBStatusInfo collectionStatusInfo = saxsDataCollection.getCollectionStatus();
 				ISpyBStatusInfo reductionStatusInfo = saxsDataCollection.getReductionStatus();
 				ISpyBStatusInfo analysisStatusInfo = saxsDataCollection.getAnalysisStatus();
 
-				System.out.println("loadModel dataCollectionId is : " + dataCollectionId);
-
 				ISAXSProgress progress = getProgressItemFromModel(bioSAXSProgressModel, dataCollectionId);
 				if (progress != null) {
-					System.out.println("Updating Model");
-					System.out.println("collection progress is : " + collectionStatusInfo.getProgress());
-					System.out.println("reduction progress is : " + reductionStatusInfo.getProgress());
-					System.out.println("analysis progress is : " + analysisStatusInfo.getProgress());
-					progress.setCollectionStatusInfo(collectionStatusInfo);
-					progress.setReductionStatusInfo(reductionStatusInfo);
-					progress.setAnalysisStatusInfo(analysisStatusInfo);
+					updateModel(progress, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
 				} else {
-					System.out.println("Adding to Model");
-					addToModel(dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo,
+					
+					addToModel(experimentId, dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo,
 							analysisStatusInfo);
 				}
 			}
 		}
-
+		
 		return bioSAXSProgressModel;
 	}
+	
+	public void updateStatusInfoFromISpyB(final long dataCollectionId) {
+		try {
+			final ISAXSDataCollection dataCollection = bioSAXSISPyB.getSAXSDataCollection(dataCollectionId);
+			final long experimentId = dataCollection.getExperimentId();
+			final ISpyBStatusInfo collectionStatusInfo = bioSAXSISPyB.getDataCollectionStatus(dataCollectionId);
+			final ISpyBStatusInfo reductionStatusInfo = bioSAXSISPyB.getDataReductionStatus(dataCollectionId);
+			final ISpyBStatusInfo analysisStatusInfo = bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId);
 
-	private void addToModel(long dataCollectionId, String sampleName, ISpyBStatusInfo collectionStatusInfo,
-			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
-		final ISAXSProgress progress = new BioSAXSProgress(dataCollectionId, sampleName, collectionStatusInfo,
-				reductionStatusInfo, analysisStatusInfo);
+			ISAXSProgress progress = getProgressItemFromModel(bioSAXSProgressModel, dataCollectionId);
+			if (progress != null) {
+				updateModel(progress, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+			} else {
+				addToModel(experimentId, dataCollectionId, dataCollection.getSampleName(), collectionStatusInfo,
+						reductionStatusInfo, analysisStatusInfo);
+			}
+
+			scrollToUpdatedItem();
+
+		} catch (SQLException e) {
+			logger.error("SQLException", e);
+		}
+	}
+	
+	private void updateModel(ISAXSProgress progress, ISpyBStatusInfo collectionStatusInfo, ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
 		progress.setCollectionStatusInfo(collectionStatusInfo);
 		progress.setReductionStatusInfo(reductionStatusInfo);
 		progress.setAnalysisStatusInfo(analysisStatusInfo);
 
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				bioSAXSProgressModel.add(progress);
-			}
-		});
-
+		scrollToUpdatedItem();
 	}
 
+	private void addToModel(long experimentId, long dataCollectionId, String sampleName,
+			ISpyBStatusInfo collectionStatusInfo, ISpyBStatusInfo reductionStatusInfo,
+			ISpyBStatusInfo analysisStatusInfo) {
+		final ISAXSProgress progress = new BioSAXSProgress(experimentId, dataCollectionId, sampleName,
+				collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+		progress.setCollectionStatusInfo(collectionStatusInfo);
+		progress.setReductionStatusInfo(reductionStatusInfo);
+		progress.setAnalysisStatusInfo(analysisStatusInfo);
+
+		bioSAXSProgressModel.add(progress);
+
+		scrollToUpdatedItem();
+	}
+
+	private void scrollToUpdatedItem() {
+		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+		view = (BioSAXSProgressView) window.getActivePage().findView(BioSAXSProgressView.ID);
+
+		if (view != null) {
+			view.reveal();
+		}
+	}
+	
 	protected ISAXSProgress getProgressItemFromModel(List<ISAXSProgress> list, long id) {
 		for (ISAXSProgress progressItem : list) {
 			if (progressItem.getDataCollectionId() == id) {
@@ -241,17 +221,11 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
 		obsComp.deleteIObserver(anIObserver);
-		if (!obsComp.IsBeingObserved()) {
-			stopPolling = true;
-		}
 	}
 
 	@Override
 	public void deleteIObservers() {
 		obsComp.deleteIObservers();
-		if (!obsComp.IsBeingObserved()) {
-			stopPolling = true;
-		}
 	}
 
 	public void setModel(final List<ISAXSProgress> list) {
@@ -263,24 +237,24 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		});
 	}
 
+	public List<ISAXSProgress> getModel() {
+		return bioSAXSProgressModel;
+	}
+
+	public void setUDPListenerName(String simpleUDPServer) {
+		this.udpListenerName = simpleUDPServer;
+	}
+	
+	public String getUDPListenerName() {
+		return udpListenerName;
+	}
+
 	public void disconnectFromISpyB() {
 		try {
 			bioSAXSISPyB.disconnect();
 		} catch (SQLException e) {
 			logger.error("Error disconnecting from ISpyB", e);
 		}
-	}
-
-	public List<ISAXSProgress> getModel() {
-		return bioSAXSProgressModel;
-	}
-
-	public String getUDPListenerName() {
-		return udpListenerName;
-	}
-
-	public void setUDPListenerName(String simpleUDPServer) {
-		this.udpListenerName = simpleUDPServer;
 	}
 }
 
@@ -293,9 +267,15 @@ class SimpleUDPReceiver implements IObserver {
 
 	@Override
 	public void update(Object theObserved, Object dataCollectionId) {
-		long saxsDataCollectionId = Long.valueOf((String) dataCollectionId);
+		final long saxsDataCollectionId = Long.valueOf((String) dataCollectionId);
 		System.out.println("UDP update recieved for Sample : " + saxsDataCollectionId);
 
-		controller.updateStatusInfoFromISpyB(saxsDataCollectionId);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				controller.updateStatusInfoFromISpyB(saxsDataCollectionId);
+			}
+		});
+
 	}
 }
