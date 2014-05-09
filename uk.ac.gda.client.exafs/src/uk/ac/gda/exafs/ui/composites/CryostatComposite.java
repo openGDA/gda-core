@@ -219,7 +219,7 @@ public class CryostatComposite extends FieldBeanComposite {
 		heaterLabel.setText("Heater Range");
 
 		heaterRange = new SpinnerWrapper(advanced, SWT.BORDER);
-		heaterRange.setMinimum(1);
+		heaterRange.setMinimum(0);
 		heaterRange.setMaximum(5);
 		heaterRange.setLayoutData(new GridData());
 

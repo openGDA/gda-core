@@ -76,30 +76,32 @@ public class Vortex extends Detector{
 		vortexAcquire.addAcquireListener(gridListEditor, detectorElementComposite);
 		vortexAcquire.addLoadListener(gridListEditor, detectorElementComposite, detectorList);
 		tableViewer = gridListEditor.getTableViewer();
-		tableViewer.setCellModifier(new ICellModifier() {
-			@Override
-			public boolean canModify(Object element, String property) {
-				final int col = Integer.parseInt(property);
-				int selectedIndex = gridListEditor.getElementIndex(element, col, gridListEditor.getGridOrder(), gridListEditor.getColumns(), gridListEditor.getRows(), gridListEditor.getGridMap());
-				gridListEditor.setSelectedIndex(selectedIndex);
-				tableViewer.refresh();
-				int[][][] mcaData = vortexAcquire.getMcaData();
-				if(mcaData!=null){
-					plot.plot(selectedIndex,mcaData, false, null);
-					detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectedIndex, mcaData));
-					detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
-					vortexElements.configureUI(vortexAcquire.getMcaData(), selectedIndex);
+		if(tableViewer!=null){
+			tableViewer.setCellModifier(new ICellModifier() {
+				@Override
+				public boolean canModify(Object element, String property) {
+					final int col = Integer.parseInt(property);
+					int selectedIndex = gridListEditor.getElementIndex(element, col, gridListEditor.getGridOrder(), gridListEditor.getColumns(), gridListEditor.getRows(), gridListEditor.getGridMap());
+					gridListEditor.setSelectedIndex(selectedIndex);
+					tableViewer.refresh();
+					int[][][] mcaData = vortexAcquire.getMcaData();
+					if(mcaData!=null){
+						plot.plot(selectedIndex,mcaData, false, null);
+						detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectedIndex, mcaData));
+						detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
+						vortexElements.configureUI(vortexAcquire.getMcaData(), selectedIndex);
+					}
+					return false;
 				}
-				return false;
-			}
-			@Override
-			public Object getValue(Object element, String property) {
-				return null;
-			}
-			@Override
-			public void modify(Object item, String property, Object value) {
-			}
-		});
+				@Override
+				public Object getValue(Object element, String property) {
+					return null;
+				}
+				@Override
+				public void modify(Object item, String property, Object value) {
+				}
+			});
+		}
 	}
 
 	public VortexAcquire getVortexAcquire() {

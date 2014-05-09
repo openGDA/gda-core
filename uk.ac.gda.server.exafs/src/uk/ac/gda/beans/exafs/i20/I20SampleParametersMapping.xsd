@@ -51,21 +51,21 @@
 							<xsd:element name="sample_description" type="xsd:string"
 								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="numberOfRepetitions" type="xsd:integer"
-								maxOccurs="1" minOccurs="1" />
+								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="samXEnabled" type="xsd:boolean" 
-								maxOccurs="1" minOccurs="1" />
+								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="samYEnabled" type="xsd:boolean" 
-								maxOccurs="1" minOccurs="1" />
+								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="samZEnabled" type="xsd:boolean" 
-								maxOccurs="1" minOccurs="1" />
+								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="rotEnabled" type="xsd:boolean" 
-								maxOccurs="1" minOccurs="1" />
+								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="rollEnabled" type="xsd:boolean" 
-								maxOccurs="1" minOccurs="1" />
+								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="pitchEnabled" type="xsd:boolean" 
-								maxOccurs="1" minOccurs="1" />
+								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="fineRotEnabled" type="xsd:boolean" 
-								maxOccurs="1" minOccurs="1" />	
+								maxOccurs="1" minOccurs="0" />	
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
@@ -104,6 +104,7 @@
 								minOccurs="1">
 								<xsd:simpleType>
 									<xsd:restriction base="xsd:string">
+										<xsd:enumeration value="Off" />
 										<xsd:enumeration value="4mW" />
 										<xsd:enumeration value="40mW" />
 										<xsd:enumeration value="400mW" />

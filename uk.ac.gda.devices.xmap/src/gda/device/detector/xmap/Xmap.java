@@ -178,7 +178,6 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	@Override
 	public void collectData() throws DeviceException {
 		this.clearAndStart();
-
 	}
 
 	@Override
@@ -194,6 +193,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	@Override
 	public void atScanStart() throws DeviceException {
 		inAScan = true;
+		controller.stop();
 		super.atScanStart();
 	}
 	

@@ -2,6 +2,8 @@ from java.lang import InterruptedException, System
 from java.lang import Thread as JThread
 import java.lang.Exception
 
+from uk.ac.gda.beans import BeansFactory
+
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import XasAsciiDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter, XasAsciiNexusDataWriter
 from gda.device.scannable import XasScannable, XasScannableWithDetectorFramesSetup, JEPScannable
@@ -26,20 +28,30 @@ class XasScan(Scan):
         self.handleGapConverter=handleGapConverter
 
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
-        experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
         self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
         ScriptBase.paused = False
-        controller = self.ExafsScriptObserver
-        sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath)
+        self.runFromXml(sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions, validation)
+        
+    def runFromBeansAndScanXml(self, sampleBean, scanFileName, detectorBean, outputBean, experimentFullPath, numRepetitions= 1, validation=True):
+        scanBean = BeansFactory.getBeanObject(experimentFullPath, scanFileName)
+        self.runFromBeans(sampleBean, scanBean, detectorBean, outputBean, experimentFullPath, numRepetitions, validation)
+        
+    def runFromBeans(self, sampleBean, scanBean, detectorBean, outputBean, experimentFullPath, numRepetitions= 1, validation=True):
         # create unique ID for this scan (all repetitions will share the same ID)
         scriptType = "Exafs"
         if isinstance(scanBean, XanesScanParameters):
             scriptType = "Xanes"
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
-        self.log("Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+self.energy_scannable.getName()+"'...")
+        #self.log("Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+self.energy_scannable.getName()+"'...")
         # give the beans to the xasdatawriter class to help define the folders/filenames 
+        controller = self.ExafsScriptObserver
+        experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
         beanGroup = self._createBeanGroup(experimentFolderName, validation, controller, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean)
         self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean)
+    
+    def runFromXml(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
+        sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath,  sampleFileName, scanFileName, detectorFileName, outputFileName)
+        self.runFromBeans(sampleBean, scanBean, detectorBean, outputBean, experimentFullPath, numRepetitions, validation)
     
     # reset the properties used to control repetition behaviour
     def setQueuePropertiesStart(self, numRepetitions):
@@ -197,7 +209,7 @@ class XasScan(Scan):
 
     def createScan(self, args, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName, experimentFullPath):
         thisscan = ConcurrentScan(args)
-        thisscan = self._setUpDataWriter(thisscan, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions, repetition, experimentFolderName, experimentFullPath)
+        self._setUpDataWriterSetFilenames(thisscan, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions, repetition, experimentFolderName, experimentFullPath)
         thisscan.setReturnScannablesToOrginalPositions(False)
         return thisscan
     

@@ -8,10 +8,7 @@ from gdascripts.metadata.metadata_commands import meta_clear_alldynamical, meta_
 from gda.factory import Finder
 from gda.data.scan.datawriter import NexusDataWriter
 from java.util import HashSet 
-# from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
-# from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
-# from gda.data.scan.datawriter import NexusFileMetadata
-# from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
+
         
 class I20OutputPreparer:
     
@@ -62,11 +59,10 @@ class I20OutputPreparer:
         addList=[]
         if (isinstance(scanBean, XesScanParameters)):
             addList = addListXes
-        elif isinstance(scanBean,XasScanParameters) or isinstance(scanBean,XanesScanParameters):
-            addList = addListXas      
+            addList = addListXas
+        
         self.meta.addNexusMetadataList(addList)
-                    
-                    
+                         
     def getXasNexusMetadataList(self):
         addListXas = ["atn5_filter5_name", "atn5_filter5", "atn5_filter6_name", "atn5_filter6", "atn5_filter7_name", "atn5_filter7",
                        "atn5_filter8_name", "atn5_filter8", "i0_stanford_offset_current", "i0_stanford_offset", "i0_stanford_offset_units",
@@ -122,4 +118,3 @@ class I20OutputPreparer:
                     sps.setUnlistedColumnBehaviour(2)
                     return sps
         return None
-    

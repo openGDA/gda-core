@@ -113,13 +113,13 @@ class XASXANES_Roomtemp_Iterator(SampleIterator):
         i = self._determineSample()
         sample = self.sampleBean.get(i)
         
-        samXEnabled = sample.getSamXEnabled;
-        samYEnabled = sample.getSamYEnabled;
-        samZEnabled = sample.getSamZEnabled;
-        rotEnabled = sample.getRotEnabled;
-        rollEnabled = sample.getRollEnabled;
-        pitchEnabled = sample.getPitchEnabled;
-        fineRotEnabled = sample.getFineRotEnabled;
+        samXEnabled = sample.isSamXEnabled();
+        samYEnabled = sample.isSamYEnabled();
+        samZEnabled = sample.isSamZEnabled();
+        rotEnabled = sample.isRotEnabled();
+        rollEnabled = sample.isRollEnabled();
+        pitchEnabled = sample.isPitchEnabled();
+        fineRotEnabled = sample.isFineRotEnabled();
         
         print "samXEnabled ", samXEnabled
         print "samYEnabled ", samYEnabled

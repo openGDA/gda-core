@@ -31,12 +31,13 @@ class QexafsScan(Scan):
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= -1, validation=True):
         experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
+        print "qexafs XML file names",sampleFileName, scanFileName, detectorFileName, outputFileName
         self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
 
         if self.cirrusEnabled:
             self.t = None
 
-        sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath) 
+        sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath,  sampleFileName, scanFileName, detectorFileName, outputFileName) 
         controller = self.ExafsScriptObserver
 
         outputBean.setAsciiFileName(sampleBean.getName())
@@ -129,7 +130,7 @@ class QexafsScan(Scan):
                 print "running QEXAFS scan:", self.energy_scannable.getName(), start, end, numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
                 thisscan = ContinuousScan(self.energy_scannable , start, end, numberPoints, scan_time, detectorList)
-                thisscan = self._setUpDataWriter(thisscan, scanBean, detectorBean, sampleBean, outputBean, sampleBean.getName(), sampleBean.getDescriptions(), repetitionNumber, experimentFolderName, experimentFullPath)
+                thisscan = self._setUpDataWriter(thisscan, scanBean, detectorBean, sampleBean, outputBean, sampleBean.getName(), sampleBean.getDescriptions(), repetitionNumber, experimentFolderName, experimentFullPath, detectorFileName, outputFileName, sampleFileName, scanFileName)
                 controller.update(None, ScanCreationEvent(thisscan.getName()))
                 try:
                     if numRepetitions > 1:
