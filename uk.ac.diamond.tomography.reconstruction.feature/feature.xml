@@ -43,4 +43,25 @@
          version="2.8.1.v20130125-0546"
          unpack="false"/>
 
+   <plugin
+         id="org.dawnsci.commandserver"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.dawnsci.commandserver.tomo"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.dawnsci.commandserver.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
