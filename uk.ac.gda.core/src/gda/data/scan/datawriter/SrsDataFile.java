@@ -147,9 +147,9 @@ public class SrsDataFile extends IncrementalFile {
 			Calendar rightNow = Calendar.getInstance();
 
 			int year = rightNow.get(Calendar.YEAR);
-			int month = rightNow.get(Calendar.MONTH);
+			int month = rightNow.get(Calendar.MONTH)+1; //Calender.MONTH for January  is 0.
 			int day = rightNow.get(Calendar.DAY_OF_MONTH);
-			int hour = rightNow.get(Calendar.HOUR);
+			int hour = rightNow.get(Calendar.HOUR_OF_DAY);
 			int minute = rightNow.get(Calendar.MINUTE);
 			int second = rightNow.get(Calendar.SECOND);
 			/* For testing we want to ensure files are identical and so we need to override the time line */
