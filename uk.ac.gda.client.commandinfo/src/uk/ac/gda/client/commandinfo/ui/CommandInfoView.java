@@ -18,6 +18,9 @@
 
 package uk.ac.gda.client.commandinfo.ui;
 
+import gda.jython.commandinfo.CommandThreadEvent;
+import gda.jython.commandinfo.ICommandThreadObserver;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 import org.eclipse.jface.viewers.*;
@@ -29,13 +32,22 @@ import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
 
-public class CommandInfoView extends ViewPart {
+import uk.ac.gda.client.commandinfo.CommandInfoController;
+
+public class CommandInfoView extends ViewPart implements ICommandThreadObserver {
 
 	public static final String ID = "uk.ac.gda.client.commandinfo.ui.CommandInfoView";
 	
+	private CommandInfoController controller = null;
 	private CommandInfoComposite comCommandInfo = null;
+	private boolean eventsEnabled = false;
 
 	public CommandInfoView() {
+	}
+
+	private void configureController() {
+		this.controller = CommandInfoController.getInstance();
+		this.controller.addCommandThreadObserver(this);
 	}
 
 	public void createPartControl(Composite parent) {
@@ -46,14 +58,39 @@ public class CommandInfoView extends ViewPart {
 
 		int style = SWT.FILL;
 		comCommandInfo = new CommandInfoComposite(container, style);
-		comCommandInfo.configure();
-		comCommandInfo.loadInput();
+		initialiseData();
 
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(comCommandInfo.getViewer().getControl(), "uk.ac.gda.client.commandinfo.viewer");
 		hookContextMenu();
 		hookDoubleClickAction();
 		contributeToolbars();
+		
+	}
+	
+	private void disableEvents() {
+		eventsEnabled = false;
+	}
+	
+	private void enableEvents() {
+		eventsEnabled = true;
+	}
+	
+	private void initialiseData() {
+		disableEvents();
+		if(null==controller) {
+			this.configureController();
+		}
+		comCommandInfo.setInput(controller.getModel());
+		enableEvents();
+	}
+
+	public void dispose() {
+		if (null!=controller) {
+			this.controller.deleteCommandThreadObserver(this);
+			this.controller = null;
+		}
+		super.dispose();
 	}
 
 	private void hookContextMenu() {
@@ -112,5 +149,20 @@ public class CommandInfoView extends ViewPart {
 	 */
 	public void setFocus() {
 		comCommandInfo.getViewer().getControl().setFocus();
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		if (eventsEnabled && arg instanceof CommandThreadEvent) {
+			final CommandThreadEvent event = (CommandThreadEvent) arg;
+			this.getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					comCommandInfo.update(null,event);
+					@SuppressWarnings("unused")
+					int debug = 0;
+				}
+			});	
+		}
 	}
 }

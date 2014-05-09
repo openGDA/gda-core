@@ -18,10 +18,7 @@
 
 package uk.ac.gda.client.commandinfo.ui;
 
-import java.util.List;
-
 import gda.jython.commandinfo.CommandThreadEvent;
-import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.commandinfo.ICommandThreadObserver;
 
 import org.eclipse.jface.viewers.TableViewer;
@@ -33,7 +30,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
-import uk.ac.gda.client.commandinfo.CommandInfoController;
 import uk.ac.gda.client.commandinfo.CommandInfoModel;
 import uk.ac.gda.client.commandinfo.ui.CommandInfoContentProvider;
 import uk.ac.gda.client.commandinfo.ui.CommandInfoLabelProvider;
@@ -43,10 +39,11 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 	static public final String CLASS_NAME = "CommandInfoComposite";
 
 	static public enum CiColumn {
-		_id (0,"ID",30,""),
-		_threadType (1,"Type",30,""),
-		_state (2,"State",30,""),
-		_priority (3,"Priority",30,"");
+		_id (0,"ID",60,""),
+		_threadType (1,"Type",90,""),
+		_state (2,"State",100,""),
+		_priority (3,"Priority",50,""),
+		_command(4,"Command",250,"");
 		static public CiColumn getColumnByIndex(int index) {
 			CiColumn result = null;
 			for (CiColumn column : CiColumn.values()) {
@@ -69,7 +66,6 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 		}
 	}
 	
-	private CommandInfoController controller = null;
 	private CommandInfoContentProvider contentProvider= new CommandInfoContentProvider();
 	private CommandInfoLabelProvider labelProvider= new CommandInfoLabelProvider();
 	private TableViewer viewer = null;
@@ -80,11 +76,6 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 	}
 
 	private void addInternalListeners() { }
-
-	public void configure() {
-		this.controller = CommandInfoController.getInstance();
-		this.controller.addCommandThreadObserver(this);
-	}
 
 	public void createLayout(Composite parent, int style) {
 		GridData   masterData = new GridData(SWT.FILL,SWT.FILL,true,true);
@@ -142,33 +133,36 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 	public void dispose() {
 		this.contentProvider = null;;
 		this.labelProvider = null;
-		this.controller.deleteCommandThreadObserver(this);
-		this.controller = null;
 		super.dispose();
-	}
-
-	public CommandInfoController getController() {
-		return controller;
 	}
 
 	public TableViewer getViewer() {
 		return viewer;
 	}
+	
+	public void refresh() {
+		viewer.refresh();
+	}
 
+	public void setInput(Object input) {
+		if(null!=viewer) {
+			if (input instanceof CommandInfoModel) {
+				viewer.setInput(input);
+			}
+		}
+	}
+	
+	// Respond to Command Info events
 	@Override
 	public void update(Object source, Object arg) {
+		@SuppressWarnings("unused") // can extend behaviour for different events
+		CommandThreadEvent event = (CommandThreadEvent) arg;
 		if (arg instanceof CommandThreadEvent) {
-			viewer.refresh(true);
+			event = (CommandThreadEvent) arg;
+			viewer.refresh();
+			@SuppressWarnings("unused")
+			int debug = 0;
 		}
 	}
 
-	public void loadInput() {
-		if(null==controller) {
-			this.configure();
-		}
-		if(null!=viewer) {
-			CommandInfoModel input = controller.getModel();
-			viewer.setInput(input);
-		}
-	}
 }

@@ -18,12 +18,13 @@
 
 package uk.ac.gda.client.commandinfo.ui;
 
-import gda.jython.commandinfo.CommandThreadType;
 import gda.jython.commandinfo.ICommandThreadInfo;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.graphics.Image;
+
+import uk.ac.gda.client.commandinfo.ui.CommandInfoComposite.CiColumn;
 
 public class CommandInfoLabelProvider implements ITableLabelProvider {
 
@@ -54,19 +55,22 @@ public class CommandInfoLabelProvider implements ITableLabelProvider {
 		} else {
 			return "-";
 		}
-		//CiColumn column = CiColumn.getColumnByIndex(columnIndex);
+		CiColumn column = CiColumn.getColumnByIndex(columnIndex);
 		String label = "-";
-		switch (columnIndex) {
-		case 0 : // ID
+		switch (column) {
+		case _id : // ID
 			label = String.valueOf(record.getId());
 			break;
-		case 1 : // thread type
+		case _threadType : // thread type
 			label = record.getCommandThreadType();
 			break;
-		case 2 : // state
+		case _state : // state
 			label = record.getState();
 			break;
-		case 3 : //Priority
+		case _command : // Command
+			label = record.getCommand();
+			break;
+		case _priority : // Priority
 			label = String.valueOf(record.getPriority());
 			break;
 		default : break;

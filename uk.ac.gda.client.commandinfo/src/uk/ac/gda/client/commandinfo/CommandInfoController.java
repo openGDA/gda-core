@@ -23,6 +23,7 @@ import java.util.List;
 
 import gda.jython.InterfaceProvider;
 import gda.jython.commandinfo.CommandThreadEvent;
+import gda.jython.commandinfo.CommandThreadEventType;
 import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.commandinfo.ICommandThreadInfoProvider;
 import gda.jython.commandinfo.ICommandThreadObserver;
@@ -51,7 +52,9 @@ public class CommandInfoController implements ICommandThreadObserver, ICommandTh
 	}
 
 	public void clearCommandList() {
-		model.clear();
+		CommandThreadEvent event = new CommandThreadEvent(CommandThreadEventType.CLEAR,null);
+		this.updateModel(event);
+		this.updateObservers(event);
 	}
 	
 	public void configure() {
@@ -92,8 +95,16 @@ public class CommandInfoController implements ICommandThreadObserver, ICommandTh
 		return model;
 	}
 
+	private void updateObservers(CommandThreadEvent event) {
+		for (ICommandThreadObserver observer : localObservers) {
+			observer.update(this,event);
+		}
+	}
+	
 	public int refreshCommandList() {
-		this.initialiseModel();
+		CommandThreadEvent event = new CommandThreadEvent(CommandThreadEventType.REFRESH,null);
+		this.updateModel(event);
+		this.updateObservers(event);
 		return model.size();
 	}
 
@@ -102,9 +113,7 @@ public class CommandInfoController implements ICommandThreadObserver, ICommandTh
 		if (arg instanceof CommandThreadEvent) {
 			CommandThreadEvent event = (CommandThreadEvent) arg;
 			updateModel(event);
-			for (ICommandThreadObserver observer : localObservers) {
-				observer.update(this,event);
-			}
+			updateObservers(event);
 		}
 	}
 
