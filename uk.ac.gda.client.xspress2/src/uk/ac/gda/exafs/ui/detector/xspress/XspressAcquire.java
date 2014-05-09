@@ -72,19 +72,17 @@ public class XspressAcquire extends Acquire {
 	private Counts counts;
 	private ComboWrapper readoutMode;
 	private ComboAndNumberWrapper resolutionGrade;
-	private DirtyContainer dirtyContainer;
 	private Plot plot;
 	private XspressData xspressData;
 	private Button loadBtn;
 	private FileDialog openDialog;
 	
-	public XspressAcquire(Composite parent, final SashFormPlotComposite sashPlotFormComposite, Display display, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, final DirtyContainer dirtyContainer, XspressDetector xspressDetector, Counts counts){
+	public XspressAcquire(Composite parent, final SashFormPlotComposite sashPlotFormComposite, Display display, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, XspressDetector xspressDetector, Counts counts){
 		super(display);
 		this.display = display;
 		this.sashPlotFormComposite = sashPlotFormComposite;
 		this.readoutMode = readoutMode;
 		this.resolutionGrade = resolutionGrade;
-		this.dirtyContainer = dirtyContainer;
 		this.plot = plot;
 		this.xspressDetector = xspressDetector;
 		
@@ -231,7 +229,6 @@ public class XspressAcquire extends Acquire {
 			saveMca(sashPlotFormComposite, xspressSaveDir);
 		detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
 		plot.plot(detectorList.getSelectedIndex(), mcaData, false, resolutionGrade);
-		dirtyContainer.setDirty(true);
 	}
 	
 	public int[][][] getMcaData(){

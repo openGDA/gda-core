@@ -55,7 +55,6 @@ import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditorUIAdapter;
 import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
-import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
@@ -74,7 +73,7 @@ public class Xspress extends Detector{
 	private DetectorListComposite detectorListComposite;
 	private List<DetectorElement> detectorList;
 	
-	public Xspress(String path, IWorkbenchPartSite site, Composite parent, XspressDetector xspressDetector, DirtyContainer dirtyContainer, List<DetectorElement> detectorList) {
+	public Xspress(String path, IWorkbenchPartSite site, Composite parent, XspressDetector xspressDetector, List<DetectorElement> detectorList) {
 		super("xspressConfig", site, parent, path);
 		this.detectorList = detectorList;
 		regionSynchronizer = new RegionSynchronizer();
@@ -95,7 +94,7 @@ public class Xspress extends Detector{
 		readoutMode = new ReadoutMode(topComposite);
 		regionType = new RegionType(topComposite);
 		boolean showRoi = readoutMode.getReadoutMode().getValue().toString().equals("Regions Of Interest");
-		xspressAcquire = new XspressAcquire(left, sashPlotFormComposite, site.getShell().getDisplay(), readoutMode.getReadoutMode(), resolutionGrade.getResolutionGradeCombo(), plot, dirtyContainer, xspressDetector, counts);
+		xspressAcquire = new XspressAcquire(left, sashPlotFormComposite, site.getShell().getDisplay(), readoutMode.getReadoutMode(), resolutionGrade.getResolutionGradeCombo(), plot, xspressDetector, counts);
 		xspressElements = new XspressElements(left, site.getShell(), sashPlotFormComposite, detectorList, counts, showRoi);
 		detectorListComposite = xspressElements.getDetectorListComposite();
 		gridListEditor = detectorListComposite.getDetectorList();
