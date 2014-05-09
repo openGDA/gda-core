@@ -1462,17 +1462,17 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public ICommandThreadInfo[] getCommandThreadInfo() {
 		Vector<ICommandThreadInfo> infos = new Vector<ICommandThreadInfo>();
 		for (Thread t : runsourceThreads) {
-			if (t instanceof JythonServerThread) {
+			if (t.isAlive() && t instanceof JythonServerThread) {
 				infos.add(extractCommandThreadInfo(CommandThreadType.SOURCE,(JythonServerThread) t));
 			}
 		}
 		for (Thread t : runCommandThreads) {
-			if (t instanceof JythonServerThread) {
+			if (t.isAlive() && t instanceof JythonServerThread) {
 				infos.add(extractCommandThreadInfo(CommandThreadType.COMMAND,(JythonServerThread) t));
 			}
 		}
 		for (Thread t : evalThreads) {
-			if (t instanceof JythonServerThread) {
+			if (t.isAlive() && t instanceof JythonServerThread) {
 				infos.add(extractCommandThreadInfo(CommandThreadType.EVAL,(JythonServerThread) t));
 			}
 		}
