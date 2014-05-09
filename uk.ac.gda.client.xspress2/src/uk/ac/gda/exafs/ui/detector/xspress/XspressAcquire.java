@@ -24,7 +24,6 @@ import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
-import gda.factory.Finder;
 
 import java.io.File;
 
@@ -45,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
-import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.exafs.ui.detector.Acquire;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
@@ -55,7 +53,6 @@ import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
-import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -72,20 +69,19 @@ public class XspressAcquire extends Acquire {
 	private Counts counts;
 	private ComboWrapper readoutMode;
 	private ComboAndNumberWrapper resolutionGrade;
-	private DirtyContainer dirtyContainer;
 	private Plot plot;
 	private XspressData xspressData;
 	private Button loadBtn;
 	private FileDialog openDialog;
 	
-	public XspressAcquire(Composite parent, final SashFormPlotComposite sashPlotFormComposite, Display display, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, final DirtyContainer dirtyContainer, XspressParameters xspressParameters, Counts counts){
+	public XspressAcquire(Composite parent, final SashFormPlotComposite sashPlotFormComposite, Display display, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, XspressDetector xspressDetector, Counts counts){
 		super(display);
 		this.display = display;
 		this.sashPlotFormComposite = sashPlotFormComposite;
 		this.readoutMode = readoutMode;
 		this.resolutionGrade = resolutionGrade;
-		this.dirtyContainer = dirtyContainer;
 		this.plot = plot;
+		this.xspressDetector = xspressDetector;
 		
 		Group grpAcquire = new Group(parent, SWT.NONE);
 		grpAcquire.setText("Acquire Spectra");
@@ -141,7 +137,6 @@ public class XspressAcquire extends Acquire {
 		acquireFileLabel.setLayoutData(gridData);
 		
 		this.counts = counts;
-		xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
 	}
 	
 	public void addLoadListener(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int detectorListLength){
@@ -231,7 +226,6 @@ public class XspressAcquire extends Acquire {
 			saveMca(sashPlotFormComposite, xspressSaveDir);
 		detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
 		plot.plot(detectorList.getSelectedIndex(), mcaData, false, resolutionGrade);
-		dirtyContainer.setDirty(true);
 	}
 	
 	public int[][][] getMcaData(){

@@ -26,14 +26,12 @@ import java.util.List;
 
 import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
+import org.dawnsci.plotting.jreality.util.PlotColorUtility;
 import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPartSite;
@@ -41,7 +39,6 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
-import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
@@ -71,16 +68,15 @@ public class Xspress extends Detector{
 	private XspressPreferences xspressPreferences;
 	private XspressElements xspressElements;
 	private RegionSynchronizer regionSynchronizer;
-	private XspressParameters xspressParameters;
 	private TableViewer tableViewer;
 	private GridListEditor gridListEditor;
 	private DetectorElementComposite detectorElementComposite;
 	private DetectorListComposite detectorListComposite;
-	private int selectedElement = 0;
+	private List<DetectorElement> detectorList;
 	
-	public Xspress(String path, IWorkbenchPartSite site, Composite parent, final XspressParameters xspressParameters, DirtyContainer dirtyContainer) {
+	public Xspress(String path, IWorkbenchPartSite site, Composite parent, XspressDetector xspressDetector, List<DetectorElement> detectorList) {
 		super("xspressConfig", site, parent, path);
-		this.xspressParameters = xspressParameters;
+		this.detectorList = detectorList;
 		regionSynchronizer = new RegionSynchronizer();
 		try {
 			sashPlotFormComposite = new SashFormPlotComposite(parent, site.getPart(), regionSynchronizer, createUpLoadAction(path));
@@ -90,35 +86,25 @@ public class Xspress extends Detector{
 		plot = new Plot(sashPlotFormComposite);
 		sashPlotFormComposite.setWeights(new int[] { 30, 74 });
 		Composite left = sashPlotFormComposite.getLeft();
-		
 		Composite topComposite = new Composite(left, SWT.NONE);
 		topComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		GridLayout gridLayout_1 = new GridLayout();
-		gridLayout_1.numColumns = 1;
+		gridLayout_1.numColumns = 2;
 		topComposite.setLayout(gridLayout_1);
 		resolutionGrade = new ResolutionGrade(topComposite);
 		readoutMode = new ReadoutMode(topComposite);
 		regionType = new RegionType(topComposite);
-		
 		boolean showRoi = readoutMode.getReadoutMode().getValue().toString().equals("Regions Of Interest");
-		xspressAcquire = new XspressAcquire(left, sashPlotFormComposite, site.getShell().getDisplay(), readoutMode.getReadoutMode(), resolutionGrade.getResolutionGradeCombo(), plot, dirtyContainer, xspressParameters, counts);
-		xspressElements = new XspressElements(left, site.getShell(), sashPlotFormComposite, xspressParameters, counts, showRoi);
+		xspressAcquire = new XspressAcquire(left, sashPlotFormComposite, site.getShell().getDisplay(), readoutMode.getReadoutMode(), resolutionGrade.getResolutionGradeCombo(), plot, xspressDetector, counts);
+		xspressElements = new XspressElements(left, site.getShell(), sashPlotFormComposite, detectorList, counts, showRoi);
 		detectorListComposite = xspressElements.getDetectorListComposite();
 		gridListEditor = detectorListComposite.getDetectorList();
 		if(!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS) && !ScanObjectManager.isXESOnlyMode())
 			xspressPreferences = new XspressPreferences(left);
 		xspressElements.configureUI(xspressAcquire.getMcaData(), gridListEditor.getSelectedIndex());
 		detectorElementComposite = detectorListComposite.getDetectorElementComposite();
-		int size = xspressParameters.getDetectorList().size();
 		xspressAcquire.addAcquireListener(gridListEditor, detectorElementComposite);
-		xspressAcquire.addLoadListener(gridListEditor, detectorElementComposite, size);
-		
-		detectorListComposite.getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
-			@Override
-			public void selectionChanged(BeanSelectionEvent evt) {
-				System.out.println(evt);
-			}
-		});
+		xspressAcquire.addLoadListener(gridListEditor, detectorElementComposite, detectorList.size());
 		
 		gridListEditor.addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
@@ -130,8 +116,8 @@ public class Xspress extends Detector{
 					detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
 					xspressElements.setAllElementsCount(counts.getTotalCounts(mcaData));
 					xspressElements.setElementCount(counts.getTotalElementCounts(evt.getSelectionIndex(), mcaData));
-					int windowStart = getBeanDetectorList().get(evt.getSelectionIndex()).getWindowStart();
-					int windowEnd = getBeanDetectorList().get(evt.getSelectionIndex()).getWindowEnd();
+					int windowStart = Xspress.this.detectorList.get(evt.getSelectionIndex()).getWindowStart();
+					int windowEnd = Xspress.this.detectorList.get(evt.getSelectionIndex()).getWindowEnd();
 					RectangularROI rectangularROI = (RectangularROI)sashPlotFormComposite.getRegionOnDisplay().getROI();
 					if(rectangularROI!=null){
 						double[] point = rectangularROI.getPoint();
@@ -194,11 +180,6 @@ public class Xspress extends Detector{
 			public boolean canModify(Object element, String property) {
 				int col = Integer.parseInt(property);
 				int selectedIndex = gridListEditor.getElementIndex(element, col, gridListEditor.getGridOrder(), gridListEditor.getColumns(), gridListEditor.getRows(), gridListEditor.getGridMap());
-				updateElement(selectedIndex);
-				return false;
-			}
-			private void updateElement(int selectedIndex) {
-				selectedElement = selectedIndex;
 				gridListEditor.setSelectedIndex(selectedIndex);
 				tableViewer.refresh();
 				int[][][] mcaData = xspressAcquire.getMcaData();
@@ -209,17 +190,7 @@ public class Xspress extends Detector{
 					xspressElements.setAllElementsCount(counts.getTotalCounts(mcaData));
 					xspressElements.setElementCount(counts.getTotalElementCounts(selectedIndex, mcaData));
 				}
-				boolean excluded = xspressParameters.getDetectorList().get(selectedIndex).isExcluded();
-				detectorElementComposite.getExcluded().setValue(excluded);
-				int numberOfElements = xspressParameters.getDetectorList().size();
-				for(int i=0;i<numberOfElements;i++){
-					boolean exc = xspressParameters.getDetectorList().get(i).isExcluded();
-					//if(i==0 && exc == true)
-					//	System.out.println("arghhh");
-					//xspressParameters.getDetectorList().get(i).setExcluded(exc);
-					tableViewer.refresh();
-				}
-				tableViewer.refresh();
+				return false;
 			}
 			@Override
 			public Object getValue(Object element, String property) {
@@ -229,37 +200,6 @@ public class Xspress extends Detector{
 			public void modify(Object item, String property, Object value) {
 			}
 		});
-		
-		final Button button = detectorElementComposite.getExcluded().getButton();
-		final boolean enabled = button.getSelection();
-		updateElementStates(enabled, true);
-		button.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				boolean enabled = button.getSelection();
-				updateElementStates(enabled, false);
-				tableViewer.refresh();
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-	}
-	
-	private void updateElementStates(boolean selection, boolean startup){
-		boolean applyToAll = xspressElements.getApplyToAllCheckbox().getSelection();
-		if(!applyToAll)
-			xspressParameters.getDetectorList().get(selectedElement).setExcluded(!selection);
-		else if(!startup){
-			int numberOfElements = xspressParameters.getDetectorList().size();
-			for(int i=0;i<numberOfElements;i++){
-				xspressParameters.getDetectorList().get(i).setExcluded(!selection);
-			}
-		}
 	}
 	
 	private void addReadoutModeListenerListener(){
@@ -292,11 +232,7 @@ public class Xspress extends Detector{
 	}
 
 	private void updateBean(int index, int start, int end){
-		xspressParameters.getDetectorList().get(index).setWindow(start, end);
-	}
-	
-	private List<DetectorElement> getBeanDetectorList(){
-		return xspressParameters.getDetectorList();
+		detectorList.get(index).setWindow(start, end);
 	}
 	
 	protected String getChannelName(int iChannel) {
@@ -324,22 +260,21 @@ public class Xspress extends Detector{
 		}
 	};
 	
-	@Override
-	protected java.awt.Color getChannelColor(int iChannel) {
+	protected java.awt.Color getChannelColor(int i) {
 		String resGrade = getResGradeAllowingForReadoutMode();
 		if (resGrade.startsWith(ResGrades.THRESHOLD)) {
-			switch (iChannel) {
+			switch (i) {
 			case 0:
 				return Color.RED; // BAD
 			case 1:
 				return Color.BLUE; // GOOD
 			default:
-				return super.getChannelColor(iChannel);
+				return PlotColorUtility.getDefaultColour(i);
 			}
 		}
-		return super.getChannelColor(iChannel);
+		return PlotColorUtility.getDefaultColour(i);
 	}
-
+	
 	public void updateVisibility(Composite composite) {
 		boolean isRoi = readoutMode.getReadoutMode().getValue().equals(XspressDetector.READOUT_ROIS);
 		detectorElementComposite.setWindowsEditable(!isRoi);
