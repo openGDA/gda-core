@@ -104,6 +104,7 @@
 								minOccurs="1">
 								<xsd:simpleType>
 									<xsd:restriction base="xsd:string">
+										<xsd:enumeration value="Off" />
 										<xsd:enumeration value="4mW" />
 										<xsd:enumeration value="40mW" />
 										<xsd:enumeration value="400mW" />
