@@ -299,4 +299,10 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void setDataCollectionStarted(long dataCollectionId) {
+		// TODO Auto-generated method stub
+		
+	}
 }
