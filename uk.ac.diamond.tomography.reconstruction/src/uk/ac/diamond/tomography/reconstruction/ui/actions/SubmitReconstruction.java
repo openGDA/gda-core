@@ -79,7 +79,7 @@ public class SubmitReconstruction implements IWorkbenchWindowActionDelegate {
     		
     		factory.submit(tBean, true);
 
-    		final String secondId = StatusQueueView.createSecondaryId("org.dawnsci.commandserver.tomo", TomoBean.class.getName(), "scisoft.tomo.STATUS_QUEUE", "scisoft.tomo.STATUS_TOPIC");
+    		final String secondId = StatusQueueView.createSecondaryId("org.dawnsci.commandserver.tomo", TomoBean.class.getName(), "scisoft.tomo.STATUS_QUEUE", "scisoft.tomo.STATUS_TOPIC", "scisoft.tomo.SUBMISSION_QUEUE");
 		    EclipseUtils.getPage().showView(StatusQueueView.ID, secondId, IWorkbenchPage.VIEW_VISIBLE);
 		
         } catch (Exception e) {
