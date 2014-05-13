@@ -14,7 +14,7 @@ from uk.ac.gda.client.microfocus.util import ScanPositionsTwoWay
 #
 class RasterMapReturnWrite(Map):
     
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, raster_xmap, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, raster_xmap, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress, traj1PositionReader, traj3PositionReader):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -38,6 +38,10 @@ class RasterMapReturnWrite(Map):
         
         self.raster_xspress = raster_xspress
         
+        self.traj1PositionReader = traj1PositionReader
+        self.traj3PositionReader = traj3PositionReader
+        self.trajPositionReader = traj1PositionReader
+
         self.beamEnabled = True
         self.finder = Finder.getInstance()
         self.mfd = None
@@ -49,11 +53,13 @@ class RasterMapReturnWrite(Map):
             self.trajtfg=self.traj1tfg
             self.trajtfg.setTtlSocket(1)
             self.trajxmap=self.traj1xmap
+            self.trajPositionReader = self.traj1PositionReader
         elif stage==3:
             self.trajSampleX = self.traj3SampleX
             self.trajtfg=self.traj3tfg
             self.trajtfg.setTtlSocket(2)
             self.trajxmap=self.traj3xmap
+            self.trajPositionReader = self.traj3PositionReader
         else:
             print "please enter 1 or 3 as a parameter where 1 is the small stage and 3 is the large stage"
 
@@ -77,7 +83,7 @@ class RasterMapReturnWrite(Map):
         tsl  = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, self.trajxmap, scanBean.getRowTime()/(nx)] )
         tsl.setScanDataPointQueueLength(10000)
         tsl.setPositionCallableThreadPoolSize(10)
-        xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl])
+        xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(), scanBean.getYStepSize(), tsl, self.trajPositionReader])
         xmapRasterscan.getScanPlotSettings().setIgnore(1)
         self._setUpTwoDDataWriter(xmapRasterscan, nx, ny, beanGroup, experimentFullPath, experimentFolderName,scanNumber)
         self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
