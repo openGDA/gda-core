@@ -9,13 +9,16 @@ plotName = "Saxs Plot"
 def load():
 #     print "\nLoading profiles"
     profileFile = Finder.getInstance().find('detectorInfoPath').getSaxsDetectorInfoPath()
-    data = dnp.io.load(profileFile)
-    if "entry" in data:
-        entry = data.entry
-        if "region" in entry:
-            loadProfiles(entry.region)
-    else:
-        print "no 'entry' in file"
+    try:
+        data = dnp.io.load(profileFile)
+        if "entry" in data:
+            entry = data.entry
+            if "region" in entry:
+                loadProfiles(entry.region)
+        else:
+            print "no 'entry' in file"
+    except:
+        pass
 
 def loadProfile(region):
 #     print "load profile"
