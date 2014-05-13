@@ -70,7 +70,7 @@ class RasterMap(Map):
         
         if(detectorType == "Silicon"):
             cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap, self.cid]) 
-            xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs])
+            xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs, self.trajPositionReader])
             xmapRasterscan.getScanPlotSettings().setIgnore(1)
         
             sampleName = sampleBean.getName()
@@ -82,7 +82,7 @@ class RasterMap(Map):
             xmapRasterscan.runScan()
         else:
             cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress, self.cid])
-            xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs])
+            xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs, self.trajPositionReader])
             xspressRasterscan.getScanPlotSettings().setIgnore(1)
         
             sampleName = sampleBean.getName()

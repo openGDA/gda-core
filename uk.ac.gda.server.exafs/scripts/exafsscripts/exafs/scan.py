@@ -25,6 +25,8 @@ class Scan:
     def determineExperimentPath(self, experimentFullPath):
         experimentFullPath = experimentFullPath + "/"
         experimentFolderName = experimentFullPath[experimentFullPath.find("xml")+4:]
+        self.log("Using data folder " + experimentFullPath)
+        self.log("Using xml subfolder " + experimentFolderName)
         return experimentFullPath, experimentFolderName
         
     def log(self,*msg):

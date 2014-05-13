@@ -6,6 +6,7 @@ from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import NexusExtraMetadataDataWriter, NexusDataWriter, XasAsciiNexusDataWriter
+from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
 from gda.device import Detector
 from gda.device.scannable import ScannableUtils
 from gda.exafs.scan import BeanGroup
@@ -35,10 +36,10 @@ class Map(Scan):
         self.detectorBeanFileName = ""
         self.beamEnabled = True
         
-    def enableBeam(self):
+    def turnOnBeamCheck(self):
         self.beamEnabled = True
     
-    def disableBeam(self):
+    def turnOffBeamCheck(self):
         self.beamEnabled = False
     
     def getMFD(self):
@@ -183,8 +184,13 @@ class Map(Scan):
             nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
             asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
 
-        # create XasAsciiNexusDataWriter object and give it the parameters
-        dataWriter = XasAsciiNexusDataWriter()
+        # Create DataWriter object and give it the parameters.
+        # Use XasAsciiNexusDatapointCompletingDataWriter as we will use a PositionCallable for raster 
+        # scans to return the real motor positions which are not available until the end of each row.
+        twoDWriter = XasAsciiNexusDatapointCompletingDataWriter()
+        twoDWriter.addDataWriterExtender(self.mfd)
+        dataWriter = twoDWriter.getXasDataWriter()
+        
         dataWriter.setRunFromExperimentDefinition(True);
         dataWriter.setScanBean(scanBean);
         dataWriter.setDetectorBean(detectorBean);
@@ -202,10 +208,8 @@ class Map(Scan):
         asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
         if asciidatawriterconfig != None :
             dataWriter.setConfiguration(asciidatawriterconfig)
-            
-        dataWriter.addDataWriterExtender(self.mfd)
         
-        thisscan.setDataWriter(dataWriter)
+        thisscan.setDataWriter(twoDWriter)
         return thisscan
 
     def _setupFromSampleParameters(self, beanGroup):

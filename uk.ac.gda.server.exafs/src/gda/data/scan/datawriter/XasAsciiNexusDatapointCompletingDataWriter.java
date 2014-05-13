@@ -68,7 +68,7 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter {
 	}
 
 	private synchronized void addPointToDataWriterAndFlush(IScanDataPoint point) throws Exception {
-		logger.info("writing point - " + point.getCurrentPointNumber());
+		logger.debug("writing point - " + point.getCurrentPointNumber());
 		sink.addData(point);
 		lastWrittenDataPoint = point.getCurrentPointNumber();
 		flushBuffer();
@@ -89,7 +89,7 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter {
 			}
 
 			IScanDataPoint pointToWrite = pointsBuffer.get(i);
-			logger.info("writing buffered point - " + pointToWrite.getCurrentPointNumber());
+			logger.debug("writing buffered point - " + pointToWrite.getCurrentPointNumber());
 			sink.addData(pointToWrite);
 			lastWrittenDataPoint = pointToWrite.getCurrentPointNumber();
 			pointsBuffer.remove(i);
