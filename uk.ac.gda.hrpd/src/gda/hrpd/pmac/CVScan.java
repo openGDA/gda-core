@@ -292,7 +292,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		paused = false;
 		try {
 			if (dataSaverThread != null) {
-				dataSaverThread.join(); // wait unitl both raw data and rebinned data files are written.
+				dataSaverThread.join(); // wait until both raw data and rebinned data files are written.
 			}
 		} catch (InterruptedException e) {
 			logger.warn("Save data thread is interrupted.", e);
@@ -541,7 +541,6 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 			saveRebinnedData();
 		}
-
 	}
 
 	@SuppressWarnings("unused")
@@ -558,7 +557,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		try {
 			monitorAverage = controller.getMonitorAvaerage();
 		} catch (Throwable e) {
-			logger.error("can not get rebinned data from {}", controller.getName(), e);
+			logger.error("can not get raw data from {}", controller.getName(), e);
 		}
 		actualpulses = controller.getRaw2ThetaSize();
 		try {
@@ -569,7 +568,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 		int[][] data = new int[2 * EpicsMcsSis3820.MAX_NUMBER_MCA][controller.getTotalNumberOfPulses()];
 		// retrieve the count data from detectors
-		InterfaceProvider.getTerminalPrinter().print("reading detector data");
+		InterfaceProvider.getTerminalPrinter().print("reading raw data from detectors");
 		for (int i = 0; i < mcsDetectors.size(); i++) {
 			for (Map.Entry<Integer, Mca> e : ((EpicsMultiChannelScaler) mcsDetectors.get(i)).getMcaList().entrySet()) {
 				try {

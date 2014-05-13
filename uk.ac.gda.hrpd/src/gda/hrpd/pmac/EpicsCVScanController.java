@@ -887,7 +887,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	}
 
 	private double[] get2Theta() {
-		double[] x1 = null;
+		double[] x1 = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 		try {
 			// logger.info("gets MAC1X");
 			x1 = getMAC1X();
@@ -901,7 +901,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		} catch (InterruptedException e) {
 			logger.error("InterruptedException while gets MAC1X", e);
 		}
-		double[] x2 = null;
+		double[] x2 = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 		try {
 			// logger.info("gets MAC2X");
 			x2 = getMAC2X();
@@ -915,7 +915,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		} catch (InterruptedException e) {
 			logger.error("InterruptedException while gets MAC2X", e);
 		}
-		double[] x3 = null;
+		double[] x3 = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 		try {
 			// logger.info("gets MAC3X");
 			x3 = getMAC3X();
@@ -929,7 +929,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		} catch (InterruptedException e) {
 			logger.error("InterruptedException while gets MAC3X", e);
 		}
-		double[] x4 = null;
+		double[] x4 = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 		try {
 			// logger.info("gets MAC4X");
 			x4 = getMAC4X();
@@ -943,7 +943,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		} catch (InterruptedException e) {
 			logger.error("InterruptedException while gets MAC4X", e);
 		}
-		double[] x5 = null;
+		double[] x5 = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 		try {
 			// logger.info("gets MAC5X");
 			x5 = getMAC5X();
@@ -963,7 +963,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	// Y1,Y2,Y3,Y4,Y5 only temperarily available in EPICS so must be get first before processing them.
 	private double[] getCount() {
-		double[] y1 = null;
+		double[] y1 = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 		try {
 			// logger.info("gets MAC1Y");
 			y1 = getMAC1Y();
@@ -977,7 +977,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		} catch (InterruptedException e) {
 			logger.error("InterruptedException while gets MAC1Y", e);
 		}
-		double[] y2 = null;
+		double[] y2 = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 		try {
 			// logger.info("gets MAC2Y");
 			y2 = getMAC2Y();
@@ -991,7 +991,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		} catch (InterruptedException e) {
 			logger.error("InterruptedException while gets MAC2Y", e);
 		}
-		double[] y3 = null;
+		double[] y3 = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 		try {
 			// logger.info("gets MAC3Y");
 			y3 = getMAC3Y();
@@ -1005,7 +1005,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		} catch (InterruptedException e) {
 			logger.error("InterruptedException while gets MAC3Y", e);
 		}
-		double[] y4 = null;
+		double[] y4 = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 		try {
 			// logger.info("gets MAC4Y");
 			y4 = getMAC4Y();
@@ -1019,7 +1019,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		} catch (InterruptedException e) {
 			logger.error("InterruptedException while gets MAC4Y", e);
 		}
-		double[] y5 = null;
+		double[] y5 = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 		try {
 			// logger.info("gets MAC5Y");
 			y5 = getMAC5Y();
