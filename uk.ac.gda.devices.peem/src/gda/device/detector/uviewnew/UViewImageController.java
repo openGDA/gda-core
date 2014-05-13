@@ -91,6 +91,11 @@ public class UViewImageController extends Observable implements Runnable {
 		*/
 		uvc.initializeTcpController(address, port);
 	}
+	
+	public void reconnect() {
+		uvc.disconnect();
+		uvc.initializeTcpController(address, port);
+	}
 
 	/**
 	 * Initialise image and create new image file

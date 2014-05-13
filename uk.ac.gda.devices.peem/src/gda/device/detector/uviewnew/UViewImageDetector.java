@@ -205,6 +205,10 @@ public class UViewImageDetector extends DetectorBase implements UViewNew {
 		throw new UnsupportedOperationException();
 
 	}
+	
+	public void reconnect() {
+		uic.reconnect();
+	}
 
 	@Override
 	public boolean isConnected() {
