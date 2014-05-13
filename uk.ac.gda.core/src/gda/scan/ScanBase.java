@@ -600,18 +600,7 @@ public abstract class ScanBase implements Scan {
 			} finally {
 				// disengage with the data handler, in case this scan is
 				// restarted
-				try {
-					if (scanDataPointPipeline != null) {
-						final int SECONDS_TO_WAIT = 10;
-						report("Scan interrupted, so allow up to " + SECONDS_TO_WAIT + "s for collected points to be written to file");
-						scanDataPointPipeline.shutdown(SECONDS_TO_WAIT * 1000);
-					}
-				} catch (DeviceException e) {
-					report(e.getMessage()); // The pipeline did not shutdown in the time provided and was harshly shutdown. No need to raise this.
-				} catch (InterruptedException e) {
-					// TODO endScan should throw InteruptedException
-					throw new DeviceException("Problem shutting down scan pipeline while completing and interurupted scan.", e);
-				}
+				shutdownScandataPipeline(false);
 			}
 
 		} else { // NOTE: Code will come through here even if there has been an exception in the run method.
@@ -632,7 +621,7 @@ public abstract class ScanBase implements Scan {
 				callDetectorsEndCollection();
 
 
-				shutdownScandataPipieline();
+				shutdownScandataPipeline(true);
 				signalScanComplete();
 
 			}
@@ -675,15 +664,16 @@ public abstract class ScanBase implements Scan {
 		getJythonServerNotifer().notifyServer(this, new ScanCompletedEvent());
 	}
 
-	protected void shutdownScandataPipieline() throws DeviceException {
+	protected void shutdownScandataPipeline(boolean waitForProcessingCompletion) throws DeviceException {
 		// shutdown the ScanDataPointPipeline (will close DataWriter)
 		try {
 			if (this.scanDataPointPipeline != null) {
-				this.scanDataPointPipeline.shutdown(Long.MAX_VALUE); // no timeout
+				this.scanDataPointPipeline.shutdown(waitForProcessingCompletion); 
 			}
-		} catch (InterruptedException e) {
-			throw new DeviceException("Interupted while shutting down ScanDataPointPipeline from scan thread", e);
-
+		} catch (DeviceException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DeviceException( e.getMessage() + " error seen shutting down scan pipeline", e);
 		}
 	}
 
