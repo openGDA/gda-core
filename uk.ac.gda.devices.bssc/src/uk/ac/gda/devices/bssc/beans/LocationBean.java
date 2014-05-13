@@ -84,12 +84,23 @@ public class LocationBean implements IRichBean {
 	}
 	
 	public boolean isValid() {
-		if (plate < 1 || plate > 3) 
+		if (!validPlate(plate)) 
 			return false;
-		if (column < 1 || column > 12) 
+		if (!validColumn(column)) 
 			return false;
-		if (row < 'A' || row > 'H') 
+		if (!validRow(row)) 
 			return false;
 		return true;
+	}
+	
+	public static boolean validPlate(int p) {
+		return (p < 4 && p > 0);
+	}
+	public static boolean validColumn(int c) {
+		return (c < 13 && c > 0);
+	}
+	public static boolean validRow(char r) {
+		char R = Character.toUpperCase(r);
+		return (!(R < 'A' || R > 'H'));
 	}
 }
