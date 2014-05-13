@@ -24,7 +24,6 @@ import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.detector.NXDetector;
-import gda.device.detector.addetector.triggering.SingleExposureUnsynchronisedExternalShutter;
 import gda.device.detector.addetector.triggering.UnsynchronisedExternalShutterNXCollectionStrategy;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
@@ -50,9 +49,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController2, 
+/* This class is a temporarily duplicate of ZebraConstantVelocityMoveController.
+ *
+ * The aim is to use this to make it clearer what the requirements are for
+ * abstracting out move controller strategies.
+ * 
+ * This should behave like a normal ZebraConstantVelocityMoveController when
+ * the multiRock property isn't explicitly set, but when multiRock is greater
+ * than 1 then the move this move controller moves the scanable axis multiRock
+ * times at multiRock times the speed.
+ * 
+ * This is a way to get around the problem of motors being asked to move too
+ * slowly when very long duration exposires are required.
+ */
+public class ZebraRockScanMoveController extends ScannableBase implements ConstantVelocityMoveController2, 
 						PositionCallableProvider<Double>, ContinuouslyScannableViaController, InitializingBean {
-	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ZebraRockScanMoveController.class);
 
 	short pcCaptureBitField = 1;
 	Zebra zebra;
@@ -72,7 +84,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	private double minimumAccelerationDistance = 0.5; // If this changes, change the setMinimumAccelerationDistance javadoc.
 
-	public ZebraConstantVelocityMoveController() {
+	public ZebraRockScanMoveController() {
 		super();
 		setExtraNames(new String[]{"Time"});
 		setInputNames(new String[]{});
@@ -664,5 +676,22 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	public double getMinimumAccelerationDistance() {
 		return minimumAccelerationDistance;
+	}
+	
+	/** When multiRock is 1 then a normal Constant Velocity scan will be
+	 *  performed.
+	 *  
+	 *  When multiRock is >1 then this controller will attempt to run this
+	 *  many scans at a consequently higher speed.
+	 */
+	private int multiRock=1;
+	
+	private int getMultiRock() {
+		return multiRock;
+	}
+
+	private void setMultiRock(int multiRock) {
+		assert(multiRock >= 1);
+		this.multiRock = multiRock;
 	}
 }

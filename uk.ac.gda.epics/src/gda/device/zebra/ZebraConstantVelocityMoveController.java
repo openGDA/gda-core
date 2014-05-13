@@ -24,7 +24,6 @@ import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.detector.NXDetector;
-import gda.device.detector.addetector.triggering.SingleExposureUnsynchronisedExternalShutter;
 import gda.device.detector.addetector.triggering.UnsynchronisedExternalShutterNXCollectionStrategy;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
