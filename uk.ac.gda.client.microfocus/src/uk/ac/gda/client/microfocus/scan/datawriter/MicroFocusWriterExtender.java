@@ -36,6 +36,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -85,7 +86,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected StringBuffer roiHeader = new StringBuffer("row  column");
 	protected Writer writer;
 	protected String[] roiNames;
-	protected double[][] scalerValuesCache; // [buffer array][element]
+	protected HashMap<String,double[]> scalerValuesCache; // now: <channel name>[buffer array] (to handle multiple TfgScalers) was:[buffer array][element]
 	protected double[][][] detectorValuesCache; // [det chan][element][buffer array]
 	protected double[] xValues;
 	protected double[] yValues;
@@ -211,7 +212,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		Vector<Detector> detFromDP = dataPoint.getDetectors();
 		if (lastDataPoint == null || dataPoint.getCurrentPointNumber() == 0) {
 			// this is the first point in the scan
-			totalPoints = deriveXYArrays(xy);
+			totalPoints = deriveXYArrays(xy,detFromDP);
 			deriveROIHeader(detFromDP);
 			// create the rgb file
 			createRgbFile((new StringTokenizer(dataPoint.getCurrentFilename(), ".")).nextToken());
@@ -251,7 +252,15 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					if (normaliseElementIndex != -1 && normaliseElementIndex < scalerData.length){
 						normaliseValue = scalerData[normaliseElementIndex];
 					}
-					scalerValuesCache[dataPoint.getCurrentPointNumber()] = scalerData;
+					
+					String[] elementNames = detector.getExtraNames();
+					
+					for (int channel = 0 ; channel < elementNames.length; channel ++){
+						String elementName = elementNames[channel];
+						double value = scalerData[channel];
+						scalerValuesCache.get(elementName)[dataPoint.getCurrentPointNumber()] = value;
+					}
+//					scalerValuesCache[dataPoint.getCurrentPointNumber()] = scalerData;
 					
 				} else if (dataObj instanceof NXDetectorData) {  // then this must be a fluorescence detector
 					// make the roiHeader once
@@ -385,6 +394,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 
 			plottedSoFar = dataPoint.getCurrentPointNumber();
+			lastDataPoint = dataPoint;
 
 			// only update plot every 500ms
 			long now = System.currentTimeMillis();
@@ -392,7 +402,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				displayPlot(selectedElement, selectedChannel);
 				lastTimePlotWasUpdate = now;
 			}
-			lastDataPoint = dataPoint;
 		}
 	}
 
@@ -448,12 +457,19 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 	}
 
-	private int deriveXYArrays(Double[] xy) {
+	private int deriveXYArrays(Double[] xy, Vector<Detector> detFromDP) {
 		firstX = xy[1];
 		firstY = xy[0];
 		int totalPoints = numberOfXPoints * numberOfYPoints;
-		scalerValuesCache = null;
-		scalerValuesCache = new double[totalPoints][];
+		
+		scalerValuesCache = new HashMap<String,double[]>();
+		for (Detector detector : detFromDP) {
+			if (detector instanceof TfgScaler) {
+				for (String detectorChannel : detector.getExtraNames())
+				scalerValuesCache.put(detectorChannel,  new double[totalPoints]);
+			}
+		}
+		
 		if (roiNameMap != null)
 			detectorValuesCache = new double[numberOfSubDetectors][roiNameMap.size()][totalPoints];
 		xValues = new double[numberOfXPoints];
@@ -532,12 +548,15 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		DoubleDataset dataSetToDisplay = new DoubleDataset(numberOfYPoints, numberOfXPoints);
 		dataSetToDisplay.fill(Double.NaN);
 
+		// nothing selected yet
+		if (selectedElement.isEmpty()){
+			return;
+		}
 		// the selected element is a scaler value displaying the map for the scaler
-		if (selectedElementIndex == -1) {
-			int scalerIndex = selectedElement.equalsIgnoreCase("i0") ? 1 : 2;
+		else if (selectedElementIndex == -1 && scalerValuesCache.containsKey(selectedElement)) {
+			double[] selectedScalerChannelData = scalerValuesCache.get(selectedElement);
 			for (int i = 0; i <= plottedSoFar; i++) {
-				dataSetToDisplay.setAbs(i,scalerValuesCache[i][scalerIndex]);
-//				dataSetToDisplay.set(scalerValuesCache[i][scalerIndex], i / numberOfXPoints, i % numberOfXPoints);
+				dataSetToDisplay.setAbs(i,selectedScalerChannelData[i]);
 			}
 			plotImage(dataSetToDisplay);
 			return;
@@ -548,7 +567,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 			plotImage(dataSetToDisplay);
 			return;
-		}
+		} 
 		throw new Exception("unable to determine the detector for the selected element ");
 	}
 
