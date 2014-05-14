@@ -77,7 +77,6 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	private Channel pulsesnumberdonechannel;
 	private Channel puslestotalnumberchannel;
 	private volatile boolean GDAScanning = false;
-	private String legend = null;
 
 	public boolean isGDAScanning() {
 		return GDAScanning;
@@ -344,7 +343,6 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 				InterfaceProvider.getTerminalPrinter().print(
 						"EPICS CVScan is busy, its current state is " + currentstate.toString());
 				logger.warn("EPICS CVScan is busy. its current state is {}", currentstate.toString());
-				legend = null;
 			}
 		} else {
 			InterfaceProvider.getTerminalPrinter().print(
@@ -609,7 +607,6 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 				busy = true;
 			} else if (value == 5) {
 				currentstate = CurrentState.Fault;
-				legend = null;
 				busy = true; // GDA must be busy as auto retry kicked in on fault, otherwise for-loop carries on
 			} else if (value == 6) {
 				currentstate = CurrentState.Reduction;
