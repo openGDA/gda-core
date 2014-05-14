@@ -23,10 +23,10 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 
 public class LineData {
-	Plot1DAppearance appearance;
-	AbstractDataset x;
-	AbstractDataset y;
-	AxisSpec yAxisSpec;
+	private Plot1DAppearance appearance;
+	private AbstractDataset x;
+	private AbstractDataset y;
+	private AxisSpec yAxisSpec;
 
 	public AbstractDataset getX() {
 		return x;

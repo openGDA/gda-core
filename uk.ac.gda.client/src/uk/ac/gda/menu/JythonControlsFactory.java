@@ -18,15 +18,9 @@
 
 package uk.ac.gda.menu;
 
-import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
-import gda.jython.JythonServerStatus;
-import gda.observable.IObserver;
-
 import org.eclipse.core.expressions.Expression;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
@@ -47,8 +41,6 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 	
 	private static ActionContributionItem pauseScan;
 	private static ActionContributionItem haltScan;
-	private static ActionContributionItem haltScript;
-	private static ActionContributionItem pauseScript;
 	private static Boolean controlsEnabled = true;
 	
 	public static void enableUIControls(){
@@ -59,8 +51,6 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 	private static void enableControls(){
 		enableControl(pauseScan);
 		enableControl(haltScan);
-		enableControl(haltScript);
-		enableControl(pauseScript);
 	}
 	
 	private static void enableControl(ActionContributionItem item) {
@@ -79,31 +69,30 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
-		haltScan = createHaltAction(serviceLocator, "Interrupt Scan Gracefully", "uk.ac.gda.client.jython.HaltScan", "/control_stop_blue.png", true);
+		haltScan = createHaltAction(serviceLocator, "Fast forward to end of scan", "uk.ac.gda.client.jython.HaltScan", "/control_fastforward_blue.png");
 		additions.addContributionItem(haltScan, Expression.TRUE);
 		
-		pauseScan = createPauseAction(serviceLocator, "Pause Scan", "uk.ac.gda.client.jython.PauseScan", "/control_pause_blue.png", true);
+		additions.addContributionItem(new Separator(), Expression.TRUE);
+
+		pauseScan = createPauseAction(serviceLocator, "Pause Current Scan/Script", "uk.ac.gda.client.jython.PauseScan", "/control_pause_blue.png");
 		additions.addContributionItem(pauseScan, Expression.TRUE);
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 		
-		haltScript = createHaltAction(serviceLocator, "Stop Script", "uk.ac.gda.client.jython.HaltScript", "/script_delete.png", false);
-		additions.addContributionItem(haltScript, Expression.TRUE);
-		
-		pauseScript = createPauseAction(serviceLocator, "Pause Script", "uk.ac.gda.client.jython.PauseScript", "/script_pause.png", false);
-		additions.addContributionItem(pauseScript, Expression.TRUE);
+		CommandContributionItemParameter abortCommandsAction = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.AbortCommands", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/control_stop_blue.png"), null, null, "Abort all running commands, scripts and scans", null, null, SWT.PUSH, null, false);
+		final CommandContributionItem    abortCommandsItem = new CommandContributionItem(abortCommandsAction);
+		additions.addContributionItem(abortCommandsItem, Expression.TRUE);
+
+		CommandContributionItemParameter beamlineHaltAction = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.StopAll", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/stop.png"), null, null, "Call stop on all beamline commands and hardware", null, null, SWT.PUSH, null, false);
+		final CommandContributionItem    beamlineHaltItem = new CommandContributionItem(beamlineHaltAction);		
+		additions.addContributionItem(beamlineHaltItem, Expression.TRUE);
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
-		
-		CommandContributionItemParameter pStop = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.StopAll", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/stop.png"), null, null, "Stop All", null, null, SWT.PUSH, null, false);
-		final CommandContributionItem    stopAll = new CommandContributionItem(pStop);
-		  
-		additions.addContributionItem(stopAll, Expression.TRUE);
-	}
-	
 
-	private HaltContributionItem createHaltAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath, final boolean isScan) {
-		final HaltContributionItem halt = new HaltContributionItem(new Action(label, SWT.NONE) {
+	}
+
+	private ActionContributionItem createHaltAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath) {
+		final ActionContributionItem halt = new ActionContributionItem(new Action(label, SWT.NONE) {
 			@Override
 			public void run() {
 				try {
@@ -112,13 +101,13 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 					e.printStackTrace();
 				}
 			}
-		}, isScan);
+		});
 		halt.getAction().setImageDescriptor(ResourceManager.getImageDescriptor(JythonControlsFactory.class, iconPath));
 		return halt;
 	}
 
-	private PauseContributionItem createPauseAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath, final boolean isScan) {
-		final PauseContributionItem pause = new PauseContributionItem(new Action(label, SWT.TOGGLE) {
+	private ActionContributionItem createPauseAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath) {
+		final ActionContributionItem pause = new ActionContributionItem(new Action(label, SWT.TOGGLE) {
 			@Override
 			public void run() {
 				try {
@@ -128,94 +117,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 					e.printStackTrace();
 				}
 			}
-		}, isScan);
+		});
 		pause.getAction().setImageDescriptor(ResourceManager.getImageDescriptor(JythonControlsFactory.class, iconPath));
 		return pause;
-	}
-
-	private class HaltContributionItem extends JythonContributionItem {
-		public HaltContributionItem(IAction action, boolean isScan) {
-			super(action, isScan);
-		}
-	}
-
-	private class PauseContributionItem extends JythonContributionItem {
-		public PauseContributionItem(IAction action, boolean isScan) {
-			super(action, isScan);
-		}
-		
-		@Override
-		public void dispose() {
-			super.dispose();
-			InterfaceProvider.getJSFObserver().deleteIObserver(this);
-		}
-
-		@Override
-		public void update(Object source, Object arg) {
-			super.update(source, arg);
-			if (arg instanceof JythonServerStatus && controlsEnabled) {
-				JythonServerStatus status = (JythonServerStatus)arg;
-				getAction().setChecked(isPaused(status));
-			}
-		}
-	}
-	
-	private abstract class JythonContributionItem extends ActionContributionItem implements IObserver {
-		protected final boolean isScan;
-
-		public JythonContributionItem(IAction action, boolean isScan) {
-			super(action);
-			this.isScan = isScan;
-			InterfaceProvider.getJSFObserver().addIObserver(this);
-//			would be nice if this worked, but it doesn't on the client...
-//			JythonServerStatus status = InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus();
-			update(this, new JythonServerStatus(InterfaceProvider.getScriptController().getScriptStatus(), InterfaceProvider.getScanStatusHolder().getScanStatus()));
-		}
-		
-		@Override
-		public void update(Object source, Object arg) {
-			if (arg instanceof JythonServerStatus) {
-				JythonServerStatus status = (JythonServerStatus)arg;
-				getAction().setEnabled(isRunning(status));
-			}
-		}
-		
-		@Override
-		public void dispose() {
-			super.dispose();
-			try {
-				InterfaceProvider.getJSFObserver().deleteIObserver(this);
-			} catch (Exception ignored) {
-				// We do not want any notification if this fails.
-			}
-		}
-		
-		public boolean isRunning(JythonServerStatus status) {
-			boolean isRunning = false;
-			if (isScan) {
-				if (status.scanStatus == Jython.PAUSED || status.scanStatus == Jython.RUNNING) {
-					isRunning = true;
-				}
-			} else {
-				if (status.scriptStatus == Jython.PAUSED || status.scriptStatus == Jython.RUNNING) {
-					isRunning = true;
-				}
-			}
-			return isRunning;
-		}
-		
-		public boolean isPaused(JythonServerStatus status) {
-			boolean isPaused = false;
-			if (isScan) {
-				if (status.scanStatus == Jython.PAUSED) {
-					isPaused = true;
-				}
-			} else {
-				if (status.scriptStatus == Jython.PAUSED) {
-					isPaused = true;
-				}
-			}
-			return isPaused;
-		}
 	}
 }

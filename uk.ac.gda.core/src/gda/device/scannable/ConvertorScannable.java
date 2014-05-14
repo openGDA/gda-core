@@ -151,6 +151,7 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 		try {
 			return theConvertor.toTarget(internalPositionQuantity);
 		} catch (Exception e) {
+			if (e instanceof IllegalArgumentException) throw e;
 			throw new Exception("Could not convert " + internalPositionQuantity.toString() + "." + theConvertor.toString(), e);
 		}
 	}
@@ -229,6 +230,9 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 		try {
 			targetPosition = internalToTarget(convertInternalPositionAmountToInternalQuantity(internalPosition));
 		} catch (Exception e) {
+			if (e instanceof IllegalArgumentException) {
+				throw new DeviceException(e);
+			}
 			throw new DeviceException("Could check position of " + getName() + ": " + e);
 		}
 		return theScannable.checkPositionValid(targetPosition);

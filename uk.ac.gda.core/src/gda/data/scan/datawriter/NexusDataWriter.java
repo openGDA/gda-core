@@ -1521,9 +1521,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			error += ")";
 			error += ". Nexus binary library was not found. Inform Data Acquisition.";
 			logger.error(error, ex);
-			if (currentScanController != null) {
-				currentScanController.haltCurrentScan();
-			}
 			if (terminalPrinter != null){
 				terminalPrinter.print(error);
 				terminalPrinter.print(ex.getMessage());
@@ -1536,9 +1533,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				}
 				error += ")";
 				logger.error(error, ex);
-				if (currentScanController != null) {
-					currentScanController.haltCurrentScan();
-				}
 				if (terminalPrinter != null){
 					terminalPrinter.print(error);
 					terminalPrinter.print(ex.getMessage());
@@ -1730,15 +1724,20 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		logger.debug("Writing data for scannable (" + scannable.getName() + ") to NeXus file.");
 
 		// Navigate to correct location in the file.
+		String nxDirName = "before_scan";
+		String nxClass = "NXcollection";
+		// Navigate to correct location in the file.
 		try {
 			try {
-				file.makegroup("start_metadata", "NXcollection");
+				if (!(file.groupdir().containsKey(nxDirName) && file.groupdir().get(nxDirName).equals(nxClass))) {
+					file.makegroup(nxDirName, nxClass);
+				} 
 			} catch (Exception e) {
 				// ignored
 			}
-			file.opengroup("start_metadata", "NXcollection");
-			file.makegroup(scannable.getName(), "NXcollection");
-			file.opengroup(scannable.getName(), "NXcollection");
+			file.opengroup(nxDirName, nxClass);
+			file.makegroup(scannable.getName(), nxClass);
+			file.opengroup(scannable.getName(), nxClass);
 
 			for (int i = 0; i < inputNames.length; i++) {
 				file.makedata(inputNames[i], NexusFile.NX_FLOAT64, 1, new int[] {1});
@@ -1763,7 +1762,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	private void makeMetadataScannables(Set<String> metadatascannablestowrite) throws NexusException {
 		for(String scannableName: metadatascannablestowrite) {
 			try {
-				Scannable scannable = (Scannable) JythonServerFacade.getInstance().getFromJythonNamespace(scannableName);
+				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 				Object position = scannable.getPosition();
 				if (weKnowTheLocationFor(scannableName)) {
 					locationmap.get(scannableName).makeScannable(file, scannable, position, new int[] {1});

@@ -26,8 +26,8 @@ import java.util.Vector;
 /**
  * Wrapper for the ConcurrentScan, except it takes start,step,number of points as arguments.
  */
-public class PointsScan extends ScanBase implements Scan {
-	ConcurrentScan concurrentScan = null;
+public class PointsScan extends PassthroughScanAdapter implements Scan {
+	
 
 	/**
 	 * Expect arguments in the format:
@@ -44,6 +44,14 @@ public class PointsScan extends ScanBase implements Scan {
 		// work through the commands and translate into start stop step
 		// then go through each in turn to work out what are args and what are
 		// Scannables
+
+			// create the internal ConcurrentScan object using the converted
+			// list
+			// of arguments
+			super(new ConcurrentScan(changeArgsToConcurrentScanArgs(args).toArray()));
+	}
+
+	static Vector<Object> changeArgsToConcurrentScanArgs(Object[] args) {
 		Vector<Object> newArgs = new Vector<Object>();
 		double firstNumberSteps = -1;
 		try {
@@ -103,18 +111,12 @@ public class PointsScan extends ScanBase implements Scan {
 					i++;
 				}
 			}
-
-			// create the internal ConcurrentScan object using the converted
-			// list
-			// of arguments
-			this.concurrentScan = new ConcurrentScan(newArgs.toArray());
 		} catch (Exception ex) {
 			throw new IllegalArgumentException(
 					"pscan usage: scannableName start step no_points [scannablename2] start [step]");
 		}
-
+		return newArgs;
 	}
-
 	/**
 	 * Creates and runs a scan.
 	 * 
@@ -128,23 +130,4 @@ public class PointsScan extends ScanBase implements Scan {
 		thisScan.runScan();
 	}
 
-	@Override
-	public void run() throws Exception {
-		// make sure the concurrent scan has the same observers
-		/*
-		 * for (Iterator i = observableComponent.iterator(); i.hasNext(); ) {
-		 * this.concurrentScan.addIObserver((IObserver) i.next()); }
-		 */
-		this.concurrentScan.run();
-	}
-
-	@Override
-	public void doCollection() throws Exception {
-		// make sure the concurrent scan has the same observers
-		/*
-		 * for (Iterator i = observableComponent.iterator(); i.hasNext(); ) {
-		 * this.concurrentScan.addIObserver((IObserver) i.next()); }
-		 */
-		this.concurrentScan.doCollection();
-	}
 }

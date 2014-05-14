@@ -28,7 +28,6 @@ import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.util.Alarm;
 import gda.util.AlarmListener;
-import gda.util.GDALogger;
 import gda.util.Sleep;
 
 import java.io.File;
@@ -37,11 +36,17 @@ import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class to implement a Cobold Time to Digital Converter for data acquisition using a Micro Channel Plate (MCP) detector
  * for Ion Imaging Spectrometry (IIS)
  */
 public class CoboldTDC extends DetectorBase implements AsynchronousDetector, CoboldDetector, AlarmListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(CoboldTDC.class);
+
 	private ArrayList<String> channelLabelList = new ArrayList<String>();
 	// the LMF name without the ".lmf" at the end
 	private DecimalFormat lmfNumFmt = new DecimalFormat("00000");
@@ -232,7 +237,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 			this.collectionTime = collectionTime;
 			collectingStatus = synchronousScan ? Detector.BUSY : Detector.MONITORING;
 			createNewAcquisitionCommand();
-			GDALogger.info("starting TDC collecting data for " + collectionTime + " milli-seconds");
+			logger.info("starting TDC collecting data for " + collectionTime + " milli-seconds");
 			startCoboldScan(newCommand);
 		}
 	}
@@ -301,7 +306,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 			}
 			lmfPath = lmfPath.replace('\\', '/');
 		} catch (IOException e1) {
-			GDALogger.error("IOException caught in CoboldExperimentPanel.updateLmfFileSeriesName");
+			logger.error("IOException caught in CoboldExperimentPanel.updateLmfFileSeriesName");
 		}
 		return lmfPath;
 	}
@@ -326,7 +331,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 			sw.append("_r");
 			sw.append(lmfNumFmt.format(srsNum.getCurrentFileNumber()));
 		} catch (IOException e1) {
-			GDALogger.error("IOException caught in CoboldExperimentPanel.appendSrsRunToString");
+			logger.error("IOException caught in CoboldExperimentPanel.appendSrsRunToString");
 		}
 
 		// finally add the extension
@@ -383,11 +388,11 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 	 *            the CoboldPC command String
 	 */
 	public void sendAsynchronousCommand(String command) {
-		GDALogger.info("CoboldTDC sending async command " + command);
+		logger.info("CoboldTDC sending async command " + command);
 		try {
 			new GdaSubProcessBuilder().runCommand(coboldPCCMD, false, command);
 		} catch (RuntimeException e) {
-			GDALogger.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -398,11 +403,11 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 	 *            String containing the CoboldPC command
 	 */
 	public synchronized void sendSynchronousCommand(String command) {
-		GDALogger.info("CoboldTDC sending sync command " + command);
+		logger.info("CoboldTDC sending sync command " + command);
 		try {
 			new GdaSubProcessBuilder().runCommand(coboldPCCMD, true, command);
 		} catch (RuntimeException e) {
-			GDALogger.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 
 	}
@@ -438,7 +443,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 					startCollecting();
 				}
 			} catch (DeviceException e) {
-				GDALogger.error("DeviceException in CoboldTDC.StartCoboldScan: " + e.getMessage());
+				logger.error("DeviceException in CoboldTDC.StartCoboldScan: " + e.getMessage());
 				notifyIObservers(this, new Integer(Detector.IDLE));
 			}
 		} else {
@@ -522,7 +527,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 				waitForStatus(Detector.IDLE, 5000);
 			}
 		} catch (DeviceException e1) {
-			GDALogger.error("stop command timed-out");
+			logger.error("stop command timed-out");
 		} finally {
 			savingFiles = true;
 			if (saveDCFsBetweenRuns)
@@ -544,7 +549,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 			wait += 200;
 		}
 		String dcfName = saveCurrentDcf();
-		GDALogger.info("Co0boldTDC saving DCF file " + dcfName);
+		logger.info("Co0boldTDC saving DCF file " + dcfName);
 		Sleep.sleep(200);
 
 		File dcf = new File(dcfName);
@@ -605,7 +610,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 		// String dcfName = lmfName.substring(0, i) + ".dcf";
 		String dcfName = lmfName.substring(0, i);
 		File dcf = new File(dcfName);
-		GDALogger.info("CoboldTDC attempting to save file " + dcfName);
+		logger.info("CoboldTDC attempting to save file " + dcfName);
 		if (!dcf.exists())
 			this.sendAsynchronousCommand("Save \"" + dcfName + "\"");
 
@@ -660,7 +665,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 	 *            String the user defined comment
 	 */
 	public void setComment(String comment) {
-		GDALogger.info("LMF: " + comment);
+		logger.info("LMF: " + comment);
 		this.comment = comment;
 	}
 

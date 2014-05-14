@@ -1,0 +1,56 @@
+GDA 8.30  (Apr/2013)
+====================
+
+Changes to Buckminster actions (such as "create.product")
+---------------------------------------------------------
+Changes have been made to the way the Buckminster ``create.product`` action (accessed from the :menuselection:`Buckminster --> Involve Action...` menu), to make it more flexible.
+Some of these changes have previously been available in Dawn products.
+
+You should review (and change as appropriate) the settings in ``buckminster.properties`` in the ``.site`` project for your product.
+
+.. rubric:: Separate action for each platform
+
+A run of ``create.product`` is always for a specific platform (a platform is a combination of a windowing system, os, and architecture; eg ``gtk.linux.x86_64``).
+Previously, to specify the platform you wanted to build for, you edited ``buckminster.properties`` in the ``.site`` project, and then ran the Buckminster ``create.product`` action.
+This was clumsy, particularly if you wanted to build the product for multiple platforms.
+
+Now, there is a separate Buckminster ``create.product-<os>.<ws>.arch>`` action for each platform.
+No editing of ``buckminster.properties`` is required to select the platform.
+You can build the product for multiple platforms together, by going to :menuselection:`Buckminster --> Involve Action...`, and selecting multiple actions to run.
+
+Additionally, there are Buckminster ``create.product.zip-<os>.<ws>.<arch>.zip`` actions, which build the product and then create a ``.zip`` of the product.
+
+.. rubric:: Output directory location(s) can be specified
+
+Previously, the ``create.product`` action wrote the result in a fixed location reached via a complex and unmemorable filesystem path.
+
+Now, you have control over where the product is written. A typical GDA example would be:
+
+.. code-block:: bash
+
+    product.parent.directory.location=${workspace.root}
+    product.directory.name=client
+
+Of course, if you build the product for more that one platform, this won't work (each successive build will overwrite the previous one).
+In that case, you might want to use something like:
+
+.. code-block:: bash
+
+    product.parent.directory.location=${workspace.root}
+    product.directory.name=${product.os}-${product.arch}
+
+More complex specifications are available. For full details, see the Infrastructure Guide.
+
+.. rubric:: Output directory group and guid can be set
+
+Previously, when the ``create.product`` action created (on Linux) a new directory, its group ownership was determined by the Linux default (usually the creating user's default group).
+In that case, no other user could delete the resulting directory, which is not always the desired behaviour.
+
+Now, you can optionally set and propagate the group ownership of the parent directories created by any Buckminster ``create.product`` action
+(equivalent to using the Linux ``chgrp`` and ``chmod g+s`` commands).
+
+.. rubric:: A JRE can be optionally included in the product
+
+Now, a JRE can optionally be included in the created product.
+The common use case is for a product distributed as a stand-alone application to users who might not have a JRE installed.
+

@@ -18,8 +18,6 @@
 
 package gda.device.detector.odccd;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +34,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 public class SphericalTransformation {
 

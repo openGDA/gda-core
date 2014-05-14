@@ -162,9 +162,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		if (LocalProperties.check("python.options.showJavaExceptions", false)) {
 			gdaCustomProperties.setProperty("python.options.showJavaExceptions", "true");
 		}
-		if (LocalProperties.check("python.options.includeJavaStackInExceptions", false)) {
-			gdaCustomProperties.setProperty("python.options.includeJavaStackInExceptions", "true");
-		}
+		
+		gdaCustomProperties.setProperty("python.options.includeJavaStackInExceptions", "false");
+		
 		if (LocalProperties.check("python.options.showPythonProxyExceptions", false)) {
 			gdaCustomProperties.setProperty("python.options.showPythonProxyExceptions", "true");
 		}
@@ -474,11 +474,17 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 * @param input
 	 *            File
 	 */
-	protected void exec(String input) throws PyException{
+	protected void exec(String input) throws PyException {
 		// translate script into true Jython line by line
 		PyString tempFile = translateScriptToGDA(input);
 		// pass entire script to interpreter
-		interp.exec(tempFile);
+		try {
+			interp.exec(tempFile);
+		} catch (PyException e) {
+			interp.showexception(e);
+			throw e;
+		}
+
 	}
 
 	/**
@@ -677,4 +683,5 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	public InteractiveConsole getInterp() {
 		return interp;
 	}
+
 }

@@ -84,7 +84,7 @@ public class Application implements IApplication {
 			// encapsulated in their own method.
 			final boolean localObjectsOnly = createLocalObjectsIfRequired();
 
-			LogbackUtils.configureLoggingForClientProcess();
+			LogbackUtils.configureLoggingForClientProcess("rcp");
 			LogbackUtils.configureLoggingForClientBeagle();
 			
 			authenticateUser(display);

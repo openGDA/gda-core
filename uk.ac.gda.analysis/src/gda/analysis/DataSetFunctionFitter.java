@@ -24,6 +24,7 @@ import gda.analysis.utils.IOptimizer;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction;
 
+@Deprecated
 public class DataSetFunctionFitter {
 	public FitterDataSetFunctionFitterResult fit(DoubleDataset xAxis, DoubleDataset yAxis,
 			 IOptimizer Optimizer, AFunction... functions) throws Exception {

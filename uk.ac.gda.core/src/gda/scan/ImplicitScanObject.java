@@ -107,7 +107,6 @@ public class ImplicitScanObject extends ScanObject {
 			pos = start;
 			((Detector) scannable).setCollectionTime(Integer.parseInt(start.toString()));
 		} else if (start != null) {
-			ScanBase.checkForInterrupts();
 			pos = points.get(0);
 			logger.debug("Moving " + scannable.getName() + " to " + pos);
 			scannable.asynchronousMoveTo(pos);
@@ -120,12 +119,10 @@ public class ImplicitScanObject extends ScanObject {
 	public ScanStepId moveStep() throws Exception {
 		Object pos = null;
 		if (step != null) {
-			ScanBase.checkForInterrupts();
 			logger.debug("Moving " + scannable.getName() + " by " + step);
 			lastCommandedPosition++;
 			pos = points.get(lastCommandedPosition);
 		} else if (start != null) {
-			ScanBase.checkForInterrupts();
 			logger.debug("Moving " + scannable.getName() + " to " + start);
 			pos = start;
 		}

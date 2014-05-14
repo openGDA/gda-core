@@ -24,10 +24,17 @@ package gda.jython;
  * Provided to ensure loose coupling between callers and command runner implementation
  */
 public interface ICurrentScanController {
+	
+	/**
+	 * Call requestFinishEarly() on the current scan.
+	 */
+	public void requestFinishEarly();
+	
 	/**
 	 * 
+	 * @return true if a request for the current scan to finish early has been made (probably via a gui).
 	 */
-	public void haltCurrentScan();
+	public boolean isFinishEarlyRequested();
 
 	/**
 	 * 

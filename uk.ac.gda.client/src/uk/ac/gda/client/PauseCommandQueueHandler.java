@@ -21,12 +21,17 @@ package uk.ac.gda.client;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PauseCommandQueueHandler extends AbstractHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(PauseCommandQueueHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
+			logger.debug("Pause queue button pressed");
 			CommandQueueViewFactory.processor.pause(500);
 			return Boolean.TRUE;
 		} catch (Exception ne) {

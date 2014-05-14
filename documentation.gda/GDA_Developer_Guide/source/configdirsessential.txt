@@ -1,0 +1,80 @@
+config
+	|-- clients
+	|  	|-- main
+	|  	|	|-- dummy
+	|  	|  	|  	|-- client.xml
+	|  	|  	|-- live
+	|  	|	|  	|-- client.xml
+	|  	|  	|-- main-common.xml
+	|  	|-- rcp
+	|  	|  	|-- dummy
+	|  	|  	|	|-- client.xml
+	|  	|  	|-- live
+	|  	|  	|  	|-- client.xml
+	|  	|  	|-- rcp-common.xml
+	|  	|-- clients-common.xml
+	|  	|-- commandQueueProcessor.xml
+	|-- epics
+	|  	|-- dummy
+	|  	|  	|-- BL11I-gda-interface.xml
+	|	|  	|-- epics.properties
+	|	|-- live
+	|	|	|-- BL11I-gda-interface.xml
+	|	|	|-- epics.properties
+	|-- jacorb
+	|  	|-- dummy
+	|  	|	|-- etc
+	|  	|	|	|-- jacorb.properties
+	|  	|-- live
+	|	|	|-- etc
+	|	|	|	|-- jacorb.properties
+	|-- jca
+	|	|-- dummy
+	|	|	|-- JCALibrary.properties
+	|	|-- live
+	|	|	|-- JCALibrary.properties
+	|-- logging
+	|	|-- dummy
+	|	|	|-- LogServer.xml
+	|	|	|-- log.properties
+	|	|-- live
+	|	|	|-- LogServer.xml
+	|	|	|-- log.properties
+	|	|-- LoggingConfiguration.xml
+	|	|-- logPanel.xml
+	|-- lookupTables
+	|-- permissions
+	|	|-- beamlinestaff.xml
+	|	|-- user_permissions.xml
+	|-- properties
+	|	|-- dummy
+	|	|	|-- java.properties
+	|	|-- live
+	|	|	|-- java.properties
+	|	|-- beamline.properties
+	|	|-- gda.properties
+	|	|-- jaas.cclrc.conf
+	|-- scripts
+	|	|-- localStation.py
+	|-- servers
+	|	|-- main
+	|	|	|-- dummy
+	|	|	|	|-- .....
+	|	|	|	|-- server.xml
+	|	|	|-- live
+	|	|	|	|-- .....
+	|	|	|	|-- server.xml
+	|	|	|-- simulation
+	|	|	|	|-- server.xml
+	|	|	|-- .....
+	|	|	|-- main_common.xml
+	|	|-- CommandServer.xml
+	|	|-- commandQueueProcessor.xml
+	|	|-- scriptControllers.xml
+	|	|-- servers_common.xml
+	|-- var
+	|	|-- limitsAndOffset
+	|	|-- motorPositions
+	|	|-- 30.tmp
+	|-- buckminster.cspec
+

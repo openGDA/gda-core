@@ -281,14 +281,14 @@
             name="Pause Script">
       </command>
       <command
-            defaultHandler="uk.ac.gda.actions.StopAllHandler"
-            id="uk.ac.gda.client.StopAll"
-            name="Stop All">
+            defaultHandler="uk.ac.gda.actions.AbortCommandsHandler"
+            id="uk.ac.gda.client.AbortCommands"
+            name="Abort all commands">
       </command>
       <command
-            defaultHandler="uk.ac.gda.actions.HaltScriptHandler"
-            id="uk.ac.gda.client.jython.HaltScript"
-            name="Halt Script">
+            defaultHandler="uk.ac.gda.actions.BeamlineHaltHandler"
+            id="uk.ac.gda.client.StopAll"
+            name="Stop All Command and Hardware">
       </command>
       <command
             defaultHandler="uk.ac.gda.actions.HaltScanHandler"
@@ -401,6 +401,11 @@
           defaultHandler="gda.rcp.views.dashboard.actions.MoveDownHandler"
           id="uk.ac.gda.client.DashDownCommand"
           name="Dash Item Down">
+    </command>
+    <command
+          defaultHandler="uk.ac.gda.client.HideOldHandler"
+          id="uk.ac.gda.client.hideoldscans"
+          name="Hide old scans">
     </command>
    </extension>
    <extension
@@ -526,6 +531,13 @@
            icon="icons/chart_curve_go.png"
            label="New"
            tooltip="New">
+     </command>
+     <command
+           commandId="uk.ac.gda.client.hideoldscans"
+           icon="icons/chart_curve_hide_old.png"
+           label="Hide old scans"
+           style="toggle"
+           tooltip="for each new scan over a threshold, hide the oldest. Threshold value set in Preferences - Visualization - Live Plot">
      </command>
 	</menuContribution>
 	
@@ -929,6 +941,12 @@
             class="gda.rcp.views.dashboard.DashboardPreferencePage"
             id="uk.ac.gda.client.dashboardPreferences"
             name="Dashboard">
+      </page>
+      <page
+            category="org.dawb.workbench.ui.visualizationPreferences"
+            class="uk.ac.gda.preference.pages.LivePlotPreferencePage"
+            id="uk.ac.gda.client.liveplot"
+            name="Live Plot">
       </page>
    </extension>
    <extension

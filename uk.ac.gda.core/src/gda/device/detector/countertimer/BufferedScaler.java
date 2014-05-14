@@ -226,8 +226,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	 * @throws DeviceException 
 	 */
 	private void switchOnExtTrigger() throws DeviceException {
-		Object test = daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
-		System.out.println(test);
+		daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
 	}
 
 	@Override
@@ -238,7 +237,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		HashMap <String,String> currentVals = new HashMap<String,String>();
 		for (String cmd : cmds){
 			currentVals.put(cmd, daserver.sendCommand("tfg read " + cmd).toString());
-			logger.info("tfg read "+ cmd + ": " + currentVals.get(cmd));
+//			logger.info("tfg read "+ cmd + ": " + currentVals.get(cmd));
 		}
 		if (currentVals.isEmpty())
 			return 0;

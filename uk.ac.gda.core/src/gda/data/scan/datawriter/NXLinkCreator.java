@@ -86,7 +86,9 @@ public class NXLinkCreator {
 						int gid = -1;
 						gid = H5.H5Gopen(fid, pathToGroup, HDF5Constants.H5P_DEFAULT);
 						
+						String oname = groupName;
 						String[] linkName = new String[2]; // file name and file path
+						H5.H5Lget_val(gid, oname, linkName, HDF5Constants.H5P_DEFAULT);
 						
 						linkInfo = "nxfile://";
 						linkInfo += linkName[1] + "#" + linkName[0];
@@ -111,7 +113,12 @@ public class NXLinkCreator {
 			}
 			
 		} finally {
-			file.flush();
+			try {
+				file.flush();
+			} catch (Throwable e) {
+				logger.error("Error flushing file",e);
+				//do not rethrow as we need to finalize
+			}
 			try {
 				file.finalize();
 			} catch (Throwable e) {

@@ -1,0 +1,88 @@
+GDA 8.18  (Nov/2011)
+====================
+
+New plugins which all GDA beamlines should be aware of:
+ - ``uk.ac.gda.api`` contains the interface classes from ``uk.ac.gda.core``. This should also improve readability of the core code.
+ - new ``uk.ac.gda.swingclient`` plugin which contains all the awt/swing code from core
+ - new ``uk.ac.gda.common.client`` plugin which contains shared client code for use by the swing (``uk.ac.gda.swingclient``) and rcp (``uk.ac.gda.client``) plugins
+ 
+   It is intended that the swingclient plugin could be deleted at some point in the future, when all beamlines have moved to an RCP client.
+
+Removed unnecessary internal polling of ``isBusy()`` from ScannableMotor when used with EpicsMotors
+ - ScannableMotor's ``waitWhileBusy`` method (called by ``ConcurrentScan``) used to be the default ScannableBase
+   implementation which polls ``isBusy()`` at 10Hz. Now if the motor is a BlockingMotor (EpicsMotor is)
+   and the old behaviour has not been reverted (see below) a proper event-driven
+   wait is performed on the Motor's status.
+ - ``EpicsMotor`` is now a ``BlockingMotor`` with a a proper event-driven ``waitWhileStatusBusy`` method.
+ - To revert to the old behaviour set the LocalProperty:
+   ``gda.device.scannable.ScannableMotor.revertToPollingMotorStatus`` to ``true`` before configuring.
+ 
+ 
+ 
+ IMPORTANT: ScanBase now calls Detectors.waitWhileBusy() methods to determine if they are busy
+ rather then polling their getStatus methods at 10Hz. All Detectors must now implement waitWhileBusy
+ properly to work in scans. In practice, all Detectors which extend DetectorBase must
+ have an isBusy() status that matches getStatus() --- as DetectorBase.waitWhileBusy() polls
+ isBusy(). This change allows detectors to override waitWhileBusy() to for example block
+ on a status monitor in a proper event driven way.
+ 
+ JythonServer.stopAll() now stops all finable Motors in parallel threads. This is to avoid a single slowly responding motor from preventing other motors from stopping.
+ 
+ General comment: In order to speed up scans, where possible Scannables and Detectors should override
+ waitWhileBusy to work in a proper event driven way, rather than depending on ScannableBase's
+ default implementation which simply polls isBusy at 10Hz (by default).
+ 
+ 
+ 
+Created a new system for logging Jython terminal output on the server side:
+
+A RedirectableLogger logs strings to a file maintained by the instance and to a standard slf4j logger. The log file's
+location will be updated upon receipt of PathChanged events from a configured {@link ObservablePathProvider}. When
+the file location changes, a note will left in the last file directing a reader to the new file, and a note will be
+made in the new file indicating where the log was transferred from.
+
+This might be used for example to create a server-side logger that mirrors everything from a Jython terminal window to a log
+file in the current visit directory. This should typically be done in Spring by wiring into a server's
+JythonServerFacade and command-server through adaptors. For example, given that a JythonServer has been made (always named
+'command_server'), try this to get a JythonServerFacade reference::
+
+   <bean id="jython_server_facade" class="gda.jython.JythonServerFacade">
+         <constructor-arg ref="command_server" />
+   </bean>
+
+and then the following to build up a typical logger::
+
+   <bean id="terminal_logger" class="gda.jython.logger.RedirectableFileLogger">
+   	     <constructor-arg ref="terminallog_path_provider" />
+   </bean>
+   <bean class="gda.jython.logger.OutputTerminalAdapter">
+   	     <constructor-arg ref="jython_server_facade" />
+   	     <constructor-arg ref="terminal_logger"/>
+   </bean>
+   <bean class="gda.jython.logger.InputTerminalAdapter">
+        <constructor-arg ref="command_server" />
+        <constructor-arg ref="terminal_logger"/>
+   </bean>
+   <bean class="gda.jython.logger.ScanDataPointAdapter">
+   	     <constructor-arg ref="jython_server_facade" />
+   	     <constructor-arg ref="terminal_logger"/>
+   </bean>
+   <bean class="gda.jython.logger.BatonChangedAdapter">
+   	     <constructor-arg ref="jython_server_facade" />
+         <constructor-arg ref="terminal_logger"/>
+   </bean>
+
+where the terminallog_path_provider bean might be a dummy::
+
+   <bean id="terminallog_path_provider" class="gda.data.SimpleObservablePathProvider">
+   	  <property name="path" value="${gda.data.scan.datawriter.datadir}/gdaterminal.log" />
+   	  <property name="local" value="true" />
+   </bean>
+
+or a one that tracks the server's visit metadata::
+
+   <bean id="terminallog_path_provider" class="gda.data.ObservablePathConstructor">
+       <property name="template" value="${gda.data.scan.datawriter.datadir}/gdaterminal.log" />
+       <property name="gdaMetadata" ref="GDAMetadata" />
+       <property name="local" value="true" />
+   </bean>

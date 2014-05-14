@@ -21,9 +21,11 @@ package gda.scan;
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
-import gda.device.scannable.ContinuouslyScannable;
+
+import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
 
 import org.slf4j.Logger;
@@ -32,36 +34,63 @@ import org.slf4j.LoggerFactory;
 public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractContinuousScanLine.class);
-	private Double start;
-	private Double stop;
-	private Double step;
+	protected Double start;
+	protected Double stop;
+	protected Double step;
 	
 
 	public ConstantVelocityScanLine(Object[] args) throws IllegalArgumentException {
 		super(args);
+		parseArgsAgain(args);
+	}
+
+	protected void parseArgsAgain(Object[] args) {
 		start = PositionConvertorFunctions.toDouble(args[1]);
 		stop = PositionConvertorFunctions.toDouble(args[2]);
 		step = PositionConvertorFunctions.toDouble(args[3]);
-		int argIndex=4;
+		checkRemainingArgs(args, 4);
+	}
+
+	// Check that any subsequent Scannables do not have target positions, i.e. that their
+	// positions will only be read.
+	protected static void checkRemainingArgs(Object[] args, int argIndex) {
+
 		boolean allowDetectorCollectionTime = false;
-		while(argIndex < args.length){
-			if( args[argIndex] instanceof ContinuouslyScannable || args[argIndex] instanceof PositionGrabbingAdapter){
-				argIndex++;
-				allowDetectorCollectionTime=false;
-				continue;
+
+		for (int i = argIndex; i < args.length; i++) {
+			
+			if (args[i] instanceof ContinuouslyScannableViaController) {
+				allowDetectorCollectionTime = false;
+		
+			} else if (args[i] instanceof Detector) {
+				allowDetectorCollectionTime = true;
+			
+			} else if (isZeroInputExtraNamesScannable(args[i])) {
+				allowDetectorCollectionTime = false;
+				
+			} else if (allowDetectorCollectionTime) {
+				// This is neither a Detector, ContinuouslyScannableViaController, or zie scannable. It is probabaly a
+				// number and is allowed based on the nature of the previous arg.
+				allowDetectorCollectionTime = false;  // i.e. for the following element
+			
+			} else {
+				throw new IllegalArgumentException("Invalid argument " + args[i]);
 			}
-			if( args[argIndex] instanceof Detector){
-				argIndex++;
-				allowDetectorCollectionTime=true;
-				continue;
-			}
-			if( allowDetectorCollectionTime ){
-				argIndex++;
-				allowDetectorCollectionTime=false;
-				continue;
-			}
-			throw new IllegalArgumentException("Invalid argument " + args[argIndex]);
+			
 		}
+		
+	}
+
+	private static boolean isZeroInputExtraNamesScannable(Object object) {
+		
+		if (object instanceof Scannable) {
+			Scannable scannable = (Scannable) object;
+			if ((scannable.getInputNames().length + scannable.getExtraNames().length) == 0) {
+				return true;
+			}
+		}
+		return false;
+		
 	}
 
 	@Override

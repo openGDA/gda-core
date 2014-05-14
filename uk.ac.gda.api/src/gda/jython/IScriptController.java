@@ -44,9 +44,4 @@ public interface IScriptController {
 	 * @see Jython#resumeCurrentScript
 	 */
 	public void resumeCurrentScript();
-	
-	/**
-	 * @see Jython#haltCurrentScript
-	 */
-	public void haltCurrentScript();	
 }

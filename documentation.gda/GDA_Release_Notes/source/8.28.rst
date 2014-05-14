@@ -1,0 +1,36 @@
+GDA 8.28  (Jan/2013)
+====================
+
+Changes to contents of uk.ac.gda.libs
+-------------------------------------
+The contents of the osgi.bundle ``uk.ac.gda.libs`` have changed, as follows:
+
+    #. JReality has been moved to its own plugin ``org.dawnsci.plotting.jreality``, located in the existing ``dawn-ui.git`` repository.
+    #. Jython has been moved to its own plugin ``uk.ac.diamond.jython``, located in a new ``diamond-jython.git`` repository.
+    #. Jython has been updated from version 2.7.2 to 2.7.3.
+
+Relocation of uk.ac.gda.libs
+----------------------------
+The location of the osgi.bundle ``uk.ac.gda.libs`` has changed.
+
+| Previously:
+| For Diamond developers, the component was checked out from subversion, and hence was materialized to
+|    ``your_workspace/plugins/uk.ac.gda.libs/``
+| For non-Diamond developers, the component was checked out from GitHub (https://github.com/openGDA/gda-libs), and hence was materialized to
+|     ``your_workspace_git/gda-libs.git/uk.ac.gda.libs/``
+
+Now, for all developers, the component will be checked out from Git (either the Diamond Git, or its mirror on GitHub), and materialized to:
+    ``your_workspace_git/gda-common.git/uk.ac.gda.libs/``
+
+NOTE: Read carefully: it's in the ``gda-common.git`` repository (not ``gda-libs.git``).
+The old ``gda-libs.git`` repository still exists, since that will continue to be used for Dawn 1.0 for non-Diamond developers,
+but the master branch in it has been deleted to make it clear that it is no longer to be used.
+
+Update of included DAWN plugins
+-------------------------------
+The components of DAWN that are included in GDA have been updated to a significantly later version, with many bug fixes and improvements.
+
+To remove issues arising from multiple plotservers, with GDA the following should be included in the configuration:
+    ``-Duk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable=true``
+
+If you see any issues arising from missing javax/vecmath/\* inside the jython scripting window, you will need to make sure that the server classpath contains the new javax.vecmath.jar which is now included in the target platform.

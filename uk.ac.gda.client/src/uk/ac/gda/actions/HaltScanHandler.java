@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -29,7 +29,7 @@ public class HaltScanHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
-			JythonServerFacade.getInstance().haltCurrentScan();
+			JythonServerFacade.getInstance().requestFinishEarly();
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);

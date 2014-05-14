@@ -1,0 +1,27 @@
+GDA 8.34  (Aug/2013)
+====================
+
+New variable for Buckminster "create.product" action
+----------------------------------------------------
+Since GDA 8.30, you have been able to customise the Buckminster ``create.product`` action (accessed from the :menuselection:`Buckminster --> Involve Action...` menu).
+This is done via the settings in ``buckminster.properties`` in the ``.site`` project for your product.
+
+An additional variable, ``${product.version.major.minor}``, is now available for use in ``buckminster.properties``.
+You might find this useful when specifying, for example, the name of the output directory.
+
+.. code-block:: none
+
+    ${product.version.full}             8.34.0.v20121118-2211
+    ${product.version.main}             8.34.0
+    ${product.version.major.minor}      8.34
+    ${product.version.qualifier}        v20121118-2211
+
+Failed ScannableMotor moves now throw exceptions in waitWhilebusy() or isBusy()
+-------------------------------------------------------------------------------
+To restore the old behaviour set  ScannableMotor.isBusyThrowsExceptionWhenMotorGoesIntoFault
+to false.
+
+After an exception in a scan thread the scan now allows 10s for the pipeline to empty
+-------------------------------------------------------------------------------------
+If the pipeline does not empty in the allowed time, it is shut down hard as it used to be.
+

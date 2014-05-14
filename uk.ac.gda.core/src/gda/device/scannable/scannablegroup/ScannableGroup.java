@@ -173,7 +173,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	/**
 	 * @return array of scannable objects in this group
 	 */
-	public ArrayList<Scannable> getGroupMembers() {
+	public List<Scannable> getGroupMembers() {
 		return this.groupMembers;
 	}
 
@@ -197,8 +197,8 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	 * @param groupMembers
 	 *            the group members
 	 */
-	public void setGroupMembers(ArrayList<Scannable> groupMembers) {
-		this.groupMembers = groupMembers;
+	public void setGroupMembers(List<Scannable> groupMembers) {
+		this.groupMembers = new ArrayList<Scannable>(groupMembers);
 		if (configured) {
 			setGroupMemberNamesArrayUsingGroupMembersList();
 			setArrays();
@@ -206,11 +206,14 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	}
 	
 	/**
-	 * Sets the members of this group
+	 * Sets the members of this group. 
+	 * <p>
+	 * This is final, as for historical reasons there are two setters on here, and it is natural to extend just one.
+	 * <p>
 	 * 
 	 * @param groupMembers
 	 */
-	public void setGroupMembers(Scannable[] groupMembers) {
+	final public void setGroupMembers(Scannable[] groupMembers) {
 		setGroupMembers(new ArrayList<Scannable>(Arrays.asList(groupMembers)));
 	}
 
@@ -253,7 +256,10 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 		// send out moves
 		for (int i = 0; i < groupMembers.size(); i++) {
-
+			// Don't try to move zero-input-extra name scannables
+			if ((groupMembers.get(i).getInputNames().length + groupMembers.get(i).getExtraNames().length) == 0) {
+				continue;
+			}
 			Double[] thisTarget = targets.get(i);
 			if (thisTarget.length == 1) {
 				if (targets.get(i)[0] != null) {
@@ -522,7 +528,20 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 			scannable.atLevelMoveStart();
 		}
 	}
+	@Override
+	public void atLevelStart() throws DeviceException {
+		for (Scannable scannable : groupMembers) {
+			scannable.atLevelStart();
+		}
+	}
+	@Override
+	public void atLevelEnd() throws DeviceException {
+		for (Scannable scannable : groupMembers) {
+			scannable.atLevelEnd();
+		}
+	}
 
+	
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		for (Scannable scannable : groupMembers) {

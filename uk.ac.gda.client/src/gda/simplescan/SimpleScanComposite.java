@@ -483,7 +483,7 @@ public final class SimpleScanComposite extends Composite {
 	}
 
 	private void performStop() {
-		JythonServerFacade.getInstance().haltCurrentScan();
+		JythonServerFacade.getInstance().requestFinishEarly(); // finish early instead of a quick stop with exception
 	}
 	
 	public SimpleScan getBean() {

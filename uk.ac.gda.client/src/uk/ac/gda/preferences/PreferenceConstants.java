@@ -33,6 +33,8 @@ public class PreferenceConstants {
 	public static final String DASHBOARD_DESCRIPTION = "gda.client.dashboard.dummy";
 
 	public static final String NEW_WORKSPACE = "gda.client.new.workspace";
+	
+	public static final String HIDE_SCAN_THRESHOLD = "uk.ac.gda.client.liveplot.threshold";
 
 	/**
 	 * Comma separated list of integers used to construct Color(int rgb). Def = PlotColorUtility.getDefaultColour(nr);

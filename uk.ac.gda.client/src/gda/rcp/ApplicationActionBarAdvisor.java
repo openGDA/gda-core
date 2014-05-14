@@ -30,6 +30,8 @@ import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.rcp.views.GdaImages;
+import gda.scan.Scan;
+import gda.scan.ScanCompletedEvent;
 
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.jface.action.Action;
@@ -238,10 +240,11 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private void makeTestActions() {
 		// Action to use for testing. Modify it as needed.
 		if (USE_TEST_ACTION) {
+			final Display display = window.getShell().getDisplay();
 			testAction = new Action() {
 				@Override
 				public void run() {
-					Display.getDefault().asyncExec(new Runnable() {
+					display.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							// Help determine where properties are coming from
@@ -252,7 +255,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 							msg += "\nzzz=" + zzzVal;
 							msg += "\nyyy=" + yyyVal;
 							// Bring up a MessageDialog
-							MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Information", msg);
+							MessageDialog.openInformation(display.getActiveShell(), "Information", msg);
 						}
 					});
 				}
@@ -507,6 +510,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 						} else if (changeCode instanceof BatonLeaseRenewRequest) {
 							InterfaceProvider.getBatonStateProvider().amIBatonHolder();
 						} else if (changeCode instanceof JythonServerStatus) {
+							updateScanStatus(scanStatus);
+							updateScriptStatus(scriptStatus);
+						} else if (changeCode instanceof ScanCompletedEvent) {
+							updateScanStatus(scanStatus);
+							updateScriptStatus(scriptStatus);
+						} else if (changeCode instanceof Scan.ScanStatus) {
 							updateScanStatus(scanStatus);
 							updateScriptStatus(scriptStatus);
 						}

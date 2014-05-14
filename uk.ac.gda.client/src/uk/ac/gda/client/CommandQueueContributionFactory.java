@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -32,14 +32,13 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.ExtensionContributionFactory;
 import org.eclipse.ui.menus.IContributionRoot;
 import org.eclipse.ui.services.IServiceLocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.menu.JythonControlsFactory;
 
 import com.swtdesigner.ResourceManager;
 
-/**
- *
- */
 public class CommandQueueContributionFactory extends ExtensionContributionFactory {
 
 	public static final String UK_AC_GDA_CLIENT_PAUSE_COMMAND_QUEUE = "uk.ac.gda.client.PauseCommandQueue";
@@ -48,9 +47,8 @@ public class CommandQueueContributionFactory extends ExtensionContributionFactor
 	public static final String UK_AC_GDA_CLIENT_STOP_COMMAND_QUEUE = "uk.ac.gda.client.StopCommandQueue";
 	public static final String UK_AC_GDA_CLIENT_STOP_AFTER_CURRENT_COMMAND_QUEUE = "uk.ac.gda.client.StopAfterCurrentCommandQueue";
 
-	/**
-	 * 
-	 */
+	private static final Logger logger = LoggerFactory.getLogger(CommandQueueContributionFactory.class);
+
 	public CommandQueueContributionFactory() {
 	}
 
@@ -108,15 +106,16 @@ public class CommandQueueContributionFactory extends ExtensionContributionFactor
 		((IHandlerService) serviceLocator.getService(IHandlerService.class)).executeCommand(commandId, new Event());
 	}
 
-	private Action createAction(final IServiceLocator serviceLocator, String label, final String commandId,
+	private Action createAction(final IServiceLocator serviceLocator, final String label, final String commandId,
 			String imagePath) {
 		Action action = new Action(label, SWT.NONE) {
 			@Override
 			public void run() {
 				try {
+					logger.debug(label + " button pressed");
 					executeCommand(serviceLocator, commandId);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("Exception while running " + label, e);
 				}
 			}
 		};

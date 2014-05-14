@@ -46,7 +46,10 @@ try:
     showtime=showtimeClass('showtime')
     inctime=showincrementaltimeClass('inctime')
     actualTime=actualTimeClass("actualTime")
-    
+
+    # add ScisoftPy
+    sys.path.append(LocalProperties.getParentGitDir() + "scisoft-core.git/uk.ac.diamond.scisoft.python/src")
+
     #run user editable startup script 
     if isLive():
         run("localStationUser.py")

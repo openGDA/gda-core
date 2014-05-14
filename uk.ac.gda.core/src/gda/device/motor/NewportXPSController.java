@@ -416,7 +416,7 @@ public class NewportXPSController extends DeviceBase implements Findable {
 				JythonServerFacade.getInstance().print(
 						"XPS Motor failure. Error code (" + errnum + "): " + errorString.get(Integer.valueOf(errnum))
 								+ " ");
-				JythonServerFacade.getInstance().panicStop();
+				JythonServerFacade.getInstance().beamlineHalt();
 				// JythonServerFacade.getInstance().haltCurrentScan();
 				// JythonServerFacade.getInstance().haltCurrentScript();
 				// JythonServerFacade.getInstance().print("Panic Stopping");

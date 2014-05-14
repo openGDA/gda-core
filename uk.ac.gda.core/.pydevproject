@@ -19,5 +19,7 @@
 <path>${gda_root}/workspace_git/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin</path>
 <path>${gda_root}/workspace/tp/plugins/org.apache.commons.math3_3.2.0.jar</path>
 <path>${gda_root}/workspace_git/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/org.springframework.beans-3.2.2.RELEASE.jar</path>
+<path>${gda_root}/workspace/tp/plugins/org.apache.commons.configuration_1.10.0.jar</path>
+<path>${gda_root}/workspace/tp/plugins/org.apache.commons.lang_2.6.0.jar</path>
 </pydev_pathproperty>
 </pydev_project>

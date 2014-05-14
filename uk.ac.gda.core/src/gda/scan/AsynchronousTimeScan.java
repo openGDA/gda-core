@@ -87,49 +87,35 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 	 */
 	@Override
 	public void doCollection() throws InterruptedException, DeviceException {
-		try {
-			if (!relativeTimeAdded) {
-				relativeTimeAdded = true;
-				allScannables.add(relativeTime);
-			}
-
-			Date startTime = new Date();
-			// long maxTime = (long) (startTime.getTime() + (totalTime *
-			// 1000));
-			logger.debug("AsynchronousTimeScan: Starting scan at " + df.format(startTime) + "\n");
-
-			checkForInterrupts();
-
-			Date rightNow = new Date();
-			logger.debug("Collecting data at " + df.format(rightNow) + "\n");
-
-			// start data Collection
-			for (Detector detector : asynchronousDetectors) {
-				checkForInterrupts();
-
-				// start the counting
-				((AsynchronousDetector) detector).countAsync(totalTime);
-			}
-			checkForInterrupts();
-		} catch (Exception ex1) {
-			interrupted = true;
-			if (ex1 instanceof InterruptedException) {
-				throw (InterruptedException) ex1;
-			}
+		if (!relativeTimeAdded) {
+			relativeTimeAdded = true;
+			allScannables.add(relativeTime);
 		}
-		// at end of scan remove all the observers of the detectors which were
-		// registered through this scan
-		finally {
-			endScan();
+
+		Date startTime = new Date();
+		// long maxTime = (long) (startTime.getTime() + (totalTime *
+		// 1000));
+		logger.debug("AsynchronousTimeScan: Starting scan at " + df.format(startTime) + "\n");
+
+		Date rightNow = new Date();
+		logger.debug("Collecting data at " + df.format(rightNow) + "\n");
+
+		// start data Collection
+		
+		waitIfPaused();
+		for (Detector detector : asynchronousDetectors) {
+			checkThreadInterrupted();
+			// start the counting
+			((AsynchronousDetector) detector).countAsync(totalTime);
 		}
+		checkThreadInterrupted();
 	}
 
 	@Override
-	public void endScan() throws DeviceException {
+	public void endScan() throws DeviceException, InterruptedException {
 		for (Detector det : asynchronousDetectors)
 			det.endCollection();
 		super.endScan();
-
 	}
 
 	/**
@@ -169,7 +155,6 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 		long now = rightNow.getTime();
 		// loop while we have not got to that point
 		while (now < targetTime) {
-			checkForInterrupts();
 			if ((targetTime - now) > 10000) {
 				Thread.sleep((targetTime - now) - 8000);
 			} else {

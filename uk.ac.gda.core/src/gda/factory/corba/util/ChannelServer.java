@@ -58,7 +58,7 @@ public class ChannelServer {
 	 */
 	public static void main(String[] args) {
 		LoggingUtils.setLogDirectory();
-		LogbackUtils.configureLoggingForServerProcess();
+		LogbackUtils.configureLoggingForServerProcess("eventserver");
 
 		String eventChannelName = null;
 		String property;

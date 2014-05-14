@@ -20,6 +20,8 @@
 package gda.data.scan.datawriter;
 
 import gda.configuration.properties.LocalProperties;
+import gda.jython.IJythonNamespace;
+import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 
 import java.io.IOException;
@@ -189,6 +191,7 @@ public class SixdSrsDataWriter extends IncrementalFile {
 			// to the header of the SRS file.
 
 			try {
+				IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
 				SRSWriteAtFileCreation = (String) jythonNamespace.getFromJythonNamespace("SRSWriteAtFileCreation");
 				jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", null);
 				// runCommand("SRSWriteAtFileCreation=None");
@@ -254,6 +257,7 @@ public class SixdSrsDataWriter extends IncrementalFile {
 		String CustomerisedUserCommand;
 
 		try {
+			IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
 			CustomerisedUserCommand = (String) jythonNamespace.getFromJythonNamespace("CustomerisedUserCommand");
 			jythonNamespace.placeInJythonNamespace("CustomerisedUserCommand", null);
 		} catch (Exception e) {
