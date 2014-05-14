@@ -49,6 +49,8 @@ public class LogbackUtils {
 	
 	private static final String DEFAULT_CLIENT_CONFIG = "configurations/client-default.xml";
 	
+	public static final String SOURCE_PROPERTY_NAME = "GDA_SOURCE";
+	
 	/**
 	 * Returns the default Logback logger context.
 	 * 
@@ -210,17 +212,13 @@ public class LogbackUtils {
 	public static final String GDA_SERVER_LOGGING_XML = "gda.server.logging.xml";
 	
 	/**
-	 * Old property that specifies the logging configuration file to use for server-side processes.
-	 * Superseded by {@link #GDA_SERVER_LOGGING_XML}.
-	 */
-	private static final String LEGACY_GDA_LOGGER_IMPL_SERVER = "gda.logger.impl.server";
-	
-	/**
 	 * Configures Logback for a server-side process.
+	 * 
+	 * @param processName the name of the process for which logging is being configured
 	 */
-	public static void configureLoggingForServerProcess() {
+	public static void configureLoggingForServerProcess(String processName) {
 		URL defaultServerConfigFile = LogbackUtils.class.getResource(DEFAULT_SERVER_CONFIG);
-		configureLoggingForProcess(defaultServerConfigFile, GDA_SERVER_LOGGING_XML, LEGACY_GDA_LOGGER_IMPL_SERVER);
+		configureLoggingForProcess(processName, defaultServerConfigFile, GDA_SERVER_LOGGING_XML);
 	}
 	
 	/**
@@ -229,35 +227,35 @@ public class LogbackUtils {
 	public static final String GDA_CLIENT_LOGGING_XML = "gda.client.logging.xml";
 	
 	/**
-	 * Old property that specifies the logging configuration file to use for client-side processes.
-	 * Superseded by {@link #GDA_CLIENT_LOGGING_XML}.
-	 */
-	private static final String LEGACY_GDA_LOGGER_IMPL_CLIENT = "gda.logger.impl.client";
-	
-	/**
 	 * Configures Logback for a client-side process.
+	 * 
+	 * @param processName the name of the process for which logging is being configured
 	 */
-	public static void configureLoggingForClientProcess() {
+	public static void configureLoggingForClientProcess(String processName) {
 		URL defaultClientConfigFile = LogbackUtils.class.getResource(DEFAULT_CLIENT_CONFIG);
-		configureLoggingForProcess(defaultClientConfigFile, GDA_CLIENT_LOGGING_XML, LEGACY_GDA_LOGGER_IMPL_CLIENT);
+		configureLoggingForProcess(processName, defaultClientConfigFile, GDA_CLIENT_LOGGING_XML);
 	}
 	
 	/**
 	 * Name of property that specifies the hostname/IP address of the log server.
 	 */
 	public static final String GDA_LOGSERVER_HOST = "gda.logserver.host";
+	
+	public static final String GDA_LOGSERVER_HOST_DEFAULT = "localhost";
 
 	/**
 	 * Name of property that specifies the port on which the log server appends logging events.
 	 */
 	public static final String GDA_LOGSERVER_OUT_PORT = "gda.logserver.out.port";
 
+	public static final int GDA_LOGSERVER_OUT_PORT_DEFAULT = 6750;
+
 	/**
 	 * Configures forwarding of logging events from log server to Beagle plugin view in own context.
 	 */
 	public static void configureLoggingForClientBeagle() {
 		final String logServerHost = LocalProperties.get(GDA_LOGSERVER_HOST);
-		final int logServerOutPort = LocalProperties.getInt(GDA_LOGSERVER_OUT_PORT, 6750);
+		final int logServerOutPort = LocalProperties.getInt(GDA_LOGSERVER_OUT_PORT, GDA_LOGSERVER_OUT_PORT_DEFAULT);
 
 		if (logServerHost != null) {
 
@@ -295,31 +293,23 @@ public class LogbackUtils {
 	 * a specified configuration file (using the value of a property, or falling back to the value of a legacy
 	 * property).
 	 * 
+	 * @param processName the name of the process for which logging is being configured
 	 * @param defaultConfigFile the default logging configuration file, which will be applied first
-	 * @param newPropertyName the preferred property name to use for the custom logging configuration file
-	 * @param legacyPropertyName legacy property name that can be used instead
+	 * @param propertyName the property name to use for the custom logging configuration file
 	 */
-	protected static void configureLoggingForProcess(URL defaultConfigFile, String newPropertyName, String legacyPropertyName) {
+	protected static void configureLoggingForProcess(String processName, URL defaultConfigFile, String propertyName) {
 		
 		LoggerContext context = getLoggerContext();
 		
-		boolean oldPropertyIsBeingUsed = false;
+		// Look for the property
+		String configFile = LocalProperties.get(propertyName);
 		
-		// Look for the new property first
-		String configFile = LocalProperties.get(newPropertyName);
-		
-		// If it isn't present, look for the old property instead
-		if (configFile == null) {
-			configFile = LocalProperties.get(legacyPropertyName);
-			oldPropertyIsBeingUsed = (configFile != null);
-		}
-		
-		// If the old property isn't found either, log an error. Treat this as non-fatal, because Logback will still
+		// If the property isn't found, log an error. Treat this as non-fatal, because Logback will still
 		// be in its default state (so log messages will still be displayed on the console).
 		if (configFile == null) {
 			final String msg = String.format(
 				"Please set the %s property, to specify the logging configuration file",
-				newPropertyName);
+				propertyName);
 			logger.error(msg);
 			return;
 		}
@@ -348,11 +338,24 @@ public class LogbackUtils {
 			throw new RuntimeException(msg, e);
 		}
 		
-		// Emit warning if old property is being used
-		if (oldPropertyIsBeingUsed) {
-			final String msg = "You are using the old '{}' property. Please rename it to '{}'. " +
-				"Support for the old property may be removed in a future release of GDA.";
-			logger.warn(msg, legacyPropertyName, newPropertyName);
+		context.putProperty(SOURCE_PROPERTY_NAME, processName);
+		
+		setEventDelayToZeroInAllSocketAppenders(context);
+	}
+	
+	public static void setEventDelayToZeroInAllSocketAppenders(LoggerContext context) {
+		// Force event delay to zero for all SocketAppenders.
+		// Prevents 100 ms delay per log event when a SocketAppender's queue fills up
+		// (this happens if the SocketAppender can't connect to the remote host)
+		for (Logger logger : context.getLoggerList()) {
+			final Iterator<Appender<ILoggingEvent>> appenderIterator = logger.iteratorForAppenders();
+			while (appenderIterator.hasNext()) {
+				final Appender<ILoggingEvent> appender = appenderIterator.next();
+				if (appender instanceof SocketAppender) {
+					final SocketAppender sockAppender = (SocketAppender) appender;
+					sockAppender.setEventDelayLimit(Duration.buildByMilliseconds(0));
+				}
+			}
 		}
 	}
 	

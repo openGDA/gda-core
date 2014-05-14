@@ -47,7 +47,7 @@ public class LocalProperties {
 	 * <p>
 	 * At Diamond, the folder structure is, by convention:
 	 * </p>
-	 * <code>
+	 * <pre>
 	 * <folder named after GDA release version>/
 	 *   |
 	 *   |-> workspace/                      # GDA_WORKSPACE_LOC relates to this folder
@@ -57,8 +57,8 @@ public class LocalProperties {
 	 *   |
 	 *   |->workspace_loc/                   # {@link #GDA_GIT_LOC} relates to this folder
 	 *          |->gda-xas-core.git/         # folders of each git repository used in this installation at this level
-	 *   				|->uk.ac.gda.core/   # each plugin project within this git repository at this level
-	 * </code>
+	 *                  |->uk.ac.gda.core/   # each plugin project within this git repository at this level
+	 * </pre>
 	 * <p>
 	 * It should not be assumed that the configuration files are relative to this location. This is defined by
 	 * GDA_CONFIG

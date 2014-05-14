@@ -44,7 +44,7 @@ public class LibGdaCommon {
 		if (LIBRARY_AVAILABLE) {
 			return _getFullNameOfUser(username);
 		}
-		return null;
+		return username; // We may well have the right user name originally. (Fix for windows.)
 	}
 	
 	private static native String _getFullNameOfUser(String username);
