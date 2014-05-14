@@ -68,7 +68,7 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 		ScanInformation scanInfo = mock(ScanInformation.class);
 		ICurrentScanInformationHolder currentScanHolder = mock(ICurrentScanInformationHolder.class);
 		when(currentScanHolder.getCurrentScanInformation()).thenReturn(scanInfo);
-		when(scanInfo.getScanNumber()).thenReturn((long) 12345);
+		when(scanInfo.getScanNumber()).thenReturn(12345);
 		InterfaceProvider.setCurrentScanInformationHolderForTesting(currentScanHolder);
 	}
 	

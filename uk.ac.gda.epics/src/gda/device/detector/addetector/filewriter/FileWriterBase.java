@@ -329,7 +329,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	 */
 	protected long getScanNumber() throws Exception{
 		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
-		if (scanInformation == null || scanInformation.getScanNumber() == null ){
+		if (scanInformation == null || scanInformation.getScanNumber() <= 0 ){
 			throw new Exception(MessageFormat.format("ScanNumber not available, scanInformation= {0} - If null, check that gda.scan.sets.scannumber = True", scanInformation));
 		}
 		return scanInformation.getScanNumber();
