@@ -73,7 +73,7 @@ public class ScanDataPointHandlerTester implements Runnable {
 	private Boolean addData = false;
 	private Object obj = new Object();
 	private String currentFileName;
-	Integer numberOfRestarts = 1;
+	int numberOfRestarts = 1;
 
 
 	/**
@@ -180,7 +180,7 @@ public class ScanDataPointHandlerTester implements Runnable {
 					}
 
 					ScanDataPoint scanDataPoint = new ScanDataPoint();
-					scanDataPoint.setUniqueName("scanName" + numberOfRestarts.toString());
+					scanDataPoint.setUniqueName("scanName" + numberOfRestarts);
 					if (scannables != null) {
 						// do the getPosition/readout here as work should not be done inside the SDP.
 						// This should be the only place these methods are called in the scan.
@@ -195,7 +195,7 @@ public class ScanDataPointHandlerTester implements Runnable {
 					scanDataPoint.setNumberOfPoints(childScan ? totalPointsWithChild : xLoops[0]);
 					scanDataPoint.setInstrument("instrument");
 					scanDataPoint.setCommand("blah blah");
-					scanDataPoint.setScanIdentifier(numberOfRestarts.toString());
+					scanDataPoint.setScanIdentifier(numberOfRestarts);
 					scanDataPoint.setCurrentFilename(currentFileName);
 					scanDataPoint.setNumberOfChildScans(childScan ? xLoops.length-1 : 0);
 					if( childScan ){
