@@ -19,6 +19,7 @@
 
 package gda.hrpd.scan;
 
+import static gda.jython.InterfaceProvider.getTerminalPrinter;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.scan.datawriter.DataWriter;
@@ -32,12 +33,10 @@ import gda.device.monitor.IonChamberBeamMonitor;
 import gda.factory.Finder;
 import gda.hrpd.data.MacDataProcessing;
 import gda.hrpd.data.MacDataWriter;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.scan.EpicsTrajectoryScanController;
 import gda.scan.Scan;
 import gda.scan.Trajectory;
-import gov.aps.jca.CAException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -684,7 +683,7 @@ public class CVScan extends CVScanBase implements Scan {
 			}
 			checkForInterruptionIgnorBeamDrop();
 
-			if (isChild() && !interrupted) {
+			if (isChild() && !Thread.interrupted()) {
 				String filename = saveRawData();
 				if (mdp.isEnabled()) {
 					String rebinnedDatafile = mdp.rebinning(filename);
@@ -744,38 +743,29 @@ public class CVScan extends CVScanBase implements Scan {
 	 */
 	public void checkForInterruption(boolean wait) throws InterruptedException {
 		try {
-			if (paused & !interrupted) {
-				JythonServerFacade.getInstance().setScanStatus(Jython.PAUSED);
+			if (getStatus() == ScanStatus.PAUSED & !Thread.interrupted()) {
 				if (!aborted) {
-					JythonServerFacade.getInstance().print(
+					getTerminalPrinter().print(
 							"Current constant velocity scan will continue on XPS server until it completes.");
-					JythonServerFacade.getInstance().print("To stop CVScan, press Halt or StopAll");
+					getTerminalPrinter().print("To stop CVScan, press Halt or StopAll");
 				} else {
-					JythonServerFacade.getInstance().print(
+					getTerminalPrinter().print(
 							"Current constant velocity scan is aborted and will restart once beam recovered.");
 					logger.info("Current constant velocity scan is aborted and will restart once beam recovered.");
-					JythonServerFacade.getInstance().print("To stop CVScan, press Halt or StopAll");
+					getTerminalPrinter().print("To stop CVScan, press Halt or StopAll");
 
 				}
 				if (wait) {
-					while (paused || aborted) {
+					while (getStatus() == ScanStatus.PAUSED || aborted) {
 						Thread.sleep(1000);
 					}
 				}
-				JythonServerFacade.getInstance().setScanStatus(Jython.RUNNING);
 			}
 		} catch (InterruptedException ex) {
-			interrupted = true;
-		}
-
-		if (interrupted) {
-
 			// terminate Beam monitor thread on interrupt
 			runScanControlThread = false;
 			// reset the abort scan flag on interrupt
 			aborted = false;
-
-			JythonServerFacade.getInstance().setScanStatus(Jython.IDLE);
 			throw new InterruptedException();
 		}
 	}
@@ -787,26 +777,14 @@ public class CVScan extends CVScanBase implements Scan {
 	 */
 	public void checkForInterruptionIgnorBeamDrop() throws InterruptedException {
 		try {
-			if (paused & !interrupted) {
-				JythonServerFacade.getInstance().setScanStatus(Jython.PAUSED);
-				while (paused) {
-					Thread.sleep(1000);
-				}
-				JythonServerFacade.getInstance().setScanStatus(Jython.RUNNING);
-			}
-		} catch (InterruptedException ex) {
-			interrupted = true;
-		}
-
-		if (interrupted) {
-
+			waitIfPaused();
+		} catch (InterruptedException e) {
 			// terminate cvscan Beam monitor thread on interrupt
 			runScanControlThread = false;
 			// reset the abort scan flag on interrupt
 			aborted = false;
 
-			JythonServerFacade.getInstance().setScanStatus(Jython.IDLE);
-			throw new InterruptedException();
+			throw e;
 		}
 	}
 
@@ -968,10 +946,10 @@ public class CVScan extends CVScanBase implements Scan {
 	}
 
 	@Override
-	protected void endScan() throws DeviceException {
+	protected void endScan() throws DeviceException, InterruptedException {
 
 		// if the interrupt was set
-		if (interrupted) {
+		if (Thread.interrupted()) {
 			try {
 				// stop external trajectory scan on XPS controller first
 				controller.stop();
@@ -985,7 +963,7 @@ public class CVScan extends CVScanBase implements Scan {
 			}
 		}
 		super.endScan();
-		if (!isChild() && !interrupted) {
+		if (!isChild() && !Thread.interrupted()) {
 			String filename = saveRawData();
 			if (mdp.isEnabled()) {
 				String rebinnedDatafile = mdp.rebinning(filename);

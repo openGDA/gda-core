@@ -458,7 +458,11 @@ public class TemperatureScan extends CVScanBase implements Scan {
 							// convert to a device exception
 							throw new DeviceException(e.getMessage(), e.getCause());
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 						if (this.waitTime != 0) {
 							try {
 								Thread.sleep(this.waitTime * 1000);
@@ -466,7 +470,11 @@ public class TemperatureScan extends CVScanBase implements Scan {
 								// noop
 							}
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 						if (xStart < xStop) {
 							if (xStep < 0) {
 								throw new IllegalArgumentException(x.getName()
@@ -482,11 +490,19 @@ public class TemperatureScan extends CVScanBase implements Scan {
 									// convert to a device exception
 									throw new DeviceException(e.getMessage(), e.getCause());
 								}
-								checkForInterrupts();
+								checkThreadInterrupted();
+								waitIfPaused();
+								if (isFinishEarlyRequested()) {
+									return;
+								}
 								for (CVScan childScan : allChildScans) {
 									childScan.run();
 								}
-								checkForInterrupts();
+								checkThreadInterrupted();
+								waitIfPaused();
+								if (isFinishEarlyRequested()) {
+									return;
+								}
 							}
 						} else {
 							if (xStep < 0) {
@@ -503,11 +519,19 @@ public class TemperatureScan extends CVScanBase implements Scan {
 									// convert to a device exception
 									throw new DeviceException(e.getMessage(), e.getCause());
 								}
-								checkForInterrupts();
+								checkThreadInterrupted();
+								waitIfPaused();
+								if (isFinishEarlyRequested()) {
+									return;
+								}
 								for (CVScan childScan : allChildScans) {
 									childScan.run();
 								}
-								checkForInterrupts();
+								checkThreadInterrupted();
+								waitIfPaused();
+								if (isFinishEarlyRequested()) {
+									return;
+								}
 							}
 
 						}
@@ -538,7 +562,11 @@ public class TemperatureScan extends CVScanBase implements Scan {
 							// convert to a device exception
 							throw new DeviceException(e.getMessage(), e.getCause());
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 						if (this.waitTime != 0) {
 							try {
 								Thread.sleep(this.waitTime * 1000);
@@ -546,7 +574,11 @@ public class TemperatureScan extends CVScanBase implements Scan {
 								// noop
 							}
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 						if (xStart < xStop) {
 							if (xStep < 0) {
 								throw new IllegalArgumentException(x.getName()
@@ -562,11 +594,19 @@ public class TemperatureScan extends CVScanBase implements Scan {
 									// convert to a device exception
 									throw new DeviceException(e.getMessage(), e.getCause());
 								}
-								checkForInterrupts();
+								checkThreadInterrupted();
+								waitIfPaused();
+								if (isFinishEarlyRequested()) {
+									return;
+								}
 								for (CVScan childScan : allChildScans) {
 									childScan.run();
 								}
-								checkForInterrupts();
+								checkThreadInterrupted();
+								waitIfPaused();
+								if (isFinishEarlyRequested()) {
+									return;
+								}
 							}
 						} else {
 							if (xStep < 0) {
@@ -583,11 +623,19 @@ public class TemperatureScan extends CVScanBase implements Scan {
 									// convert to a device exception
 									throw new DeviceException(e.getMessage(), e.getCause());
 								}
-								checkForInterrupts();
+								checkThreadInterrupted();
+								waitIfPaused();
+								if (isFinishEarlyRequested()) {
+									return;
+								}
 								for (CVScan childScan : allChildScans) {
 									childScan.run();
 								}
-								checkForInterrupts();
+								checkThreadInterrupted();
+								waitIfPaused();
+								if (isFinishEarlyRequested()) {
+									return;
+								}
 							}
 
 						}
@@ -620,7 +668,11 @@ public class TemperatureScan extends CVScanBase implements Scan {
 							// convert to a device exception
 							throw new DeviceException(e.getMessage(), e.getCause());
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 						// wait for temperature equilibrium on sample
 						if (this.waitTime != 0) {
 							try {
@@ -629,12 +681,20 @@ public class TemperatureScan extends CVScanBase implements Scan {
 								// noop
 							}
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 						// constant velocity scan
 						for (CVScan childScan : allChildScans) {
 							childScan.run();
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 					}
 				} else {
 					// ramp down
@@ -652,7 +712,11 @@ public class TemperatureScan extends CVScanBase implements Scan {
 							// convert to a device exception
 							throw new DeviceException(e.getMessage(), e.getCause());
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 						// wait for temperature equilibrium on sample
 						if (this.waitTime != 0) {
 							try {
@@ -661,17 +725,24 @@ public class TemperatureScan extends CVScanBase implements Scan {
 								// noop
 							}
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 						// constant velocity scan
 						for (CVScan childScan : allChildScans) {
 							childScan.run();
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 					}
 				}
 			}
 		} catch (Exception ex1) {
-			interrupted = true;
 			// move back to original or robot safe position when end
 			if (x != null) {
 				x.asynchronousMoveTo(0);

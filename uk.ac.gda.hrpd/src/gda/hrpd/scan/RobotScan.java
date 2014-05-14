@@ -268,7 +268,11 @@ public class RobotScan extends CVScanBase implements Scan {
 						// convert to a device exception
 						throw new DeviceException(e.getMessage(), e.getCause());
 					}
-					checkForInterrupts();
+					checkThreadInterrupted();
+					waitIfPaused();
+					if (isFinishEarlyRequested()) {
+						return;
+					}
 				}
 				for (int i = start; i <= stop; i = i + step) {
 					JythonServerFacade.getInstance().print("Scan sample number : " + i);
@@ -280,7 +284,11 @@ public class RobotScan extends CVScanBase implements Scan {
 						// convert to a device exception
 						throw new DeviceException(e.getMessage(), e.getCause());
 					}
-					checkForInterrupts();
+					checkThreadInterrupted();
+					waitIfPaused();
+					if (isFinishEarlyRequested()) {
+						return;
+					}
 					if (robot.getSampleState() != SampleState.DIFF) {
 						// no sample on diffractometer, do next sample
 						continue;
@@ -295,11 +303,19 @@ public class RobotScan extends CVScanBase implements Scan {
 							// convert to a device exception
 							throw new DeviceException(e.getMessage(), e.getCause());
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 						for (CVScan childScan : allChildScans) {
 							childScan.run();
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 					}
 					// make sure sample position is at 0 for robot sample
 					// changer
@@ -314,7 +330,11 @@ public class RobotScan extends CVScanBase implements Scan {
 							// convert to a device exception
 							throw new DeviceException(e.getMessage(), e.getCause());
 						}
-						checkForInterrupts();
+						checkThreadInterrupted();
+						waitIfPaused();
+						if (isFinishEarlyRequested()) {
+							return;
+						}
 					}
 				}
 			} else {
@@ -331,16 +351,23 @@ public class RobotScan extends CVScanBase implements Scan {
 					if (robot.getSampleState() != SampleState.DIFF) {
 						continue;
 					}
-					checkForInterrupts();
+					checkThreadInterrupted();
+					waitIfPaused();
+					if (isFinishEarlyRequested()) {
+						return;
+					}
 					for (CVScan childScan : allChildScans) {
 						childScan.run();
 					}
-					checkForInterrupts();
+					checkThreadInterrupted();
+					waitIfPaused();
+					if (isFinishEarlyRequested()) {
+						return;
+					}
 
 				}
 			}
 		} catch (Exception ex1) {
-			interrupted = true;
 			throw ex1;
 		}
 	}

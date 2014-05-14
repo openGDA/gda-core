@@ -22,8 +22,8 @@ package gda.hrpd.data;
 import gda.analysis.Plotter;
 import gda.analysis.ScanFileHolder;
 import gda.analysis.io.MACLoader;
-import gda.analysis.io.ScanFileHolderException;
 import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.scan.ScanBase;
 
@@ -33,6 +33,8 @@ import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  * Class provides function and controls for post MAC data collection processing, covering data rebin and plotting.
@@ -99,7 +101,7 @@ public class MacDataProcessing implements Serializable {
 	 */
 	public String rebinning(String filename) {
 		String rebinnedFileName=null;
-		if (ScanBase.interrupted) {
+		if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
 			return null;
 		}
 		JythonServerFacade.getInstance().print("Post-Scan data reduction - rebinning, Please Wait...");
@@ -145,7 +147,7 @@ public class MacDataProcessing implements Serializable {
 	 * @throws IllegalArgumentException
 	 */
 	public void plotData(String filename) throws IllegalArgumentException {
-		if (ScanBase.interrupted) {
+		if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
 			return;
 		}
 		if (!rebinCompleted)
