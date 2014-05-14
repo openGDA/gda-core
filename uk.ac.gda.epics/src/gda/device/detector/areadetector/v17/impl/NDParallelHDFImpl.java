@@ -18,10 +18,11 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import org.springframework.beans.factory.InitializingBean;
-
+import gda.device.Detector;
 import gda.device.detector.areadetector.v17.NDParallelHDF;
 import gda.epics.CachedLazyPVFactory;
+
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * class to implement the Area Detector Parallel-HDF plugin 
@@ -237,5 +238,10 @@ public class NDParallelHDFImpl extends NDFileImpl implements NDParallelHDF, Init
 	public void setRoiPos2(int value) throws Exception {
 		dev.getPVInteger(ROI_POS2).putWait(value);
 	}
-
+	
+	@Override
+	public void stopCapture() throws Exception {
+		logger.error("stopCapture called on parallel hdf plugin. Doing nothing as it leads to errors in FEM comms");
+		setStatus(Detector.IDLE);
+	}
 }

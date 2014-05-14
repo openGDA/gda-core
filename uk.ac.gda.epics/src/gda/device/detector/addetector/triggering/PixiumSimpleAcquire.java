@@ -39,34 +39,28 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 	 * To allow for detectors with prefix acquire give option to read it at prepareForCollection
 	 */
 	private boolean readAcquireTimeFromHardware = true;
+	private String prefix;
 	
-	private String calibrationRequiredPVName = "BL12I-EA-DET-10:CAM:CalibrationRequired_RBV";
+	private String calibrationRequiredPVName = "CalibrationRequired_RBV";
 	private PV<Integer> calibrationRequiredPV;
 	
-	private String numberExposuresPerImagePVName = "BL12I-EA-DET-10:CAM:NumExposures";
+	private String numberExposuresPerImagePVName = "NumExposures";
 	private PV<Integer> numberExposuresPerImagePV;
 	
 	public PixiumSimpleAcquire(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
-		
-		if (calibrationRequiredPV == null) {
-			calibrationRequiredPV = LazyPVFactory.newIntegerPV(calibrationRequiredPVName);
-		}
-		if (numberExposuresPerImagePV == null) {
-			numberExposuresPerImagePV = LazyPVFactory.newIntegerPV(numberExposuresPerImagePVName);
-		}
 	}
 	
 	public PV<Integer> getCalibrationRequiredPV() {
 		if (calibrationRequiredPV == null) {
-			calibrationRequiredPV = LazyPVFactory.newIntegerPV(calibrationRequiredPVName);
+			calibrationRequiredPV = LazyPVFactory.newIntegerPV(getPrefix()+calibrationRequiredPVName);
 		}
 		return calibrationRequiredPV;
 	}
 	
 	public PV<Integer> getNumberExposuresPerImagePV() {
 		if (numberExposuresPerImagePV == null) {
-			numberExposuresPerImagePV = LazyPVFactory.newIntegerPV(numberExposuresPerImagePVName);
+			numberExposuresPerImagePV = LazyPVFactory.newIntegerPV(getPrefix()+numberExposuresPerImagePVName);
 		}
 		return numberExposuresPerImagePV;
 	}
@@ -147,6 +141,16 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 			throw new IllegalArgumentException("Unable to set exposures-per-image to " + numExposuresPerImage);
 		}
 	}
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (calibrationRequiredPV == null) {
+			calibrationRequiredPV = LazyPVFactory.newIntegerPV(getPrefix()+calibrationRequiredPVName);
+		}
+		if (numberExposuresPerImagePV == null) {
+			numberExposuresPerImagePV = LazyPVFactory.newIntegerPV(getPrefix()+numberExposuresPerImagePVName);
+		}
+		super.afterPropertiesSet();
+	}
 	
 	/**
 	 * method to print message to the Jython Terminal console.
@@ -157,5 +161,13 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 		if (InterfaceProvider.getTerminalPrinter() != null) {
 			InterfaceProvider.getTerminalPrinter().print(msg);
 		}
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 }

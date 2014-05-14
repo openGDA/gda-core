@@ -27,6 +27,7 @@ import gda.device.Scannable;
 import gda.device.currentamplifier.EpicsCurrAmpSingle;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.jython.ScriptBase;
@@ -209,8 +210,6 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 				if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
 					// only pause if scan running and value fall below the threshold
 					JythonServerFacade.getInstance().pauseCurrentScan();
-					JythonServerFacade.getInstance().setScanStatus(Jython.PAUSED);
-					ScanBase.paused = true;
 					pausedByBeamMonitor = true;
 					JythonServerFacade.getInstance().print("SCAN PAUSED - NO BEAM ON SAMPLE. ");
 					logger.warn("SCAN PAUSED WAITING FOR BEAM ON SAMPLE.");
@@ -234,8 +233,6 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 						} else {
 							JythonServerFacade.getInstance().restartCurrentScan();
 						}
-						JythonServerFacade.getInstance().setScanStatus(Jython.RUNNING);
-						ScanBase.paused = false;
 						JythonServerFacade.getInstance().print("Beam is back, resume or restart scan.");
 						logger.info("Beam is back, resume or restart scan.");
 						pausedByBeamMonitor = false;
@@ -323,10 +320,8 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 		if (monitorOn)
 			setMonitorOn(false);
 		if (pausedByBeamMonitor) {
-			if (ScanBase.paused)
-				ScanBase.paused = false;
-			if (ScriptBase.isPaused())
-				ScriptBase.setPaused(false);
+			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
+			InterfaceProvider.getScriptController().resumeCurrentScript();
 		}
 	}
 

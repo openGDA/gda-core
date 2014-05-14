@@ -61,7 +61,7 @@ public class MinCallbackTimeComposite extends Composite {
 		grpMaxUpdateRate.setLayout(gl_grpMaxUpdateRate);
 		
 		valueBox = new ValueBox(grpMaxUpdateRate, SWT.NONE);
-		valueBox.setLabelWidth(30);
+//		valueBox.setLabelWidth(30);
 		valueBox.setLabel("Time");
 		valueBox.setDecimalPlaces(1);
 		valueBox.setMaximum(Double.MAX_VALUE);

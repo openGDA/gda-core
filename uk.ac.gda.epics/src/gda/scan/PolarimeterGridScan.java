@@ -27,6 +27,7 @@ import gda.device.enumpositioner.PolarimeterPinholeEnumPositioner;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.ScriptAdapter;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 
 import java.util.Vector;
 
@@ -259,51 +260,52 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 			// add half a step to round to neartest integer
 			numberSteps = (int) ((difference / step) + 0.5);
 		}
-		try {
-			double time = Double.parseDouble(this.time.toString());
-			for (Detector detector : allDetectors) {
-				detector.setCollectionTime(time);
+
+		double time = Double.parseDouble(this.time.toString());
+		for (Detector detector : allDetectors) {
+			detector.setCollectionTime(time);
+		}
+
+		// make first step
+		logger.debug("Started a scan over {} \n", theScannable.getName());
+		checkThreadInterrupted();
+		moveToStart();
+		checkThreadInterrupted();
+		
+		if (isFinishEarlyRequested()){
+			return;
+		}
+		waitIfPaused();		
+		
+		if (this.childScan != null) {
+			// The following line is required to ensure that the data file has the
+			// the required columns and headers.
+			runChildScan();
+		} else {
+			// then collect data
+			// first need to read and store flux value here if required
+			if (monitorFlux) {
+				measureFluxValue();
 			}
+			collectData();
+		}
 
-			// make first step
-			logger.debug("Started a scan over {} \n", theScannable.getName());
-			checkForInterrupts();
-
-			moveToStart();
+		// make subsequent steps
+		for (int i = 1; i <= numberSteps; ++i) {
+			if (isFinishEarlyRequested()){
+				return;
+			}
+			waitIfPaused();
+			
+			checkThreadInterrupted();
+			moveStepIncrement(i);
+			checkThreadInterrupted();
+			
 			if (this.childScan != null) {
-				checkForInterrupts();
-				// The following line is required to ensure that the data file has the
-				// the required columns and headers.
 				runChildScan();
 			} else {
-				checkForInterrupts();
-				// then collect data
-				// first need to read and store flux value here if required
-				if (monitorFlux) {
-					measureFluxValue();
-				}
 				collectData();
 			}
-
-			// make subsequent steps
-			for (int i = 1; i <= numberSteps; ++i) {
-				checkForInterrupts();
-				moveStepIncrement(i);
-
-				if (this.childScan != null) {
-					checkForInterrupts();
-					runChildScan();
-				} else {
-					checkForInterrupts();
-					collectData();
-				}
-			}
-		}
-		// if anything typed in which cannot convert to a number,
-		// skip the rest of the scan
-		catch (Exception e) {
-			interrupted = true;
-			throw e;
 		}
 
 		resetUnits();
@@ -321,19 +323,17 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 		try {
 			// collect data
 			for (Detector detector : allDetectors) {
-				checkForInterrupts();
+				checkThreadInterrupted();
 				detector.collectData();
 			}
-			checkForInterrupts();
+			checkThreadInterrupted();
 
 			// check that all detectors have completed data collection
 			for (Detector detector : allDetectors) {
 				while (detector.getStatus() == Detector.BUSY) {
 					Thread.sleep(100);
-					checkForInterrupts();
 				}
 			}
-			checkForInterrupts();
 
 			// now can collate the data by creating a DataPoint
 			ScanDataPoint point = new ScanDataPoint();
@@ -351,7 +351,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 			point.setCurrentFilename(getDataWriter().getCurrentFileName());
 			point.setHasChild(hasChild());
-			checkForInterrupts();
+			checkThreadInterrupted();
 
 			// If required swap the previously measured flux monitor value in the
 			// ScanDataPoint object
@@ -367,7 +367,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 			point.setCurrentFilename(getDataWriter().getCurrentFileName());
 
 			// then notify IObservers of this scan (e.g. GUI panels)
-			notifyServer(point);
+			InterfaceProvider.getJythonServerNotifer().notifyServer(this, point);
 		} catch (DeviceException ex) {
 			logger.error("PolarimeterGridScan.collectData(): Device Exception: " + ex.getMessage());
 			throw ex;
@@ -547,10 +547,10 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 			// Measure flux
 			for (Detector detector : allDetectors) {
-				checkForInterrupts();
+				checkThreadInterrupted();
 				detector.collectData();
 			}
-			checkForInterrupts();
+			checkThreadInterrupted();
 			// Put appropriate value in local storage
 			ScanDataPoint point = new ScanDataPoint();
 			point.setUniqueName(name);

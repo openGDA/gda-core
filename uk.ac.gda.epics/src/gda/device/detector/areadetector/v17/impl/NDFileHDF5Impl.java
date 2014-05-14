@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
+	/* Note  NDFileHDF5Impl doesn't extend NDBaseImpl since it 'contains an' NDFile rather than being an NDFile. */
 
 	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
@@ -777,7 +778,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	@Override
 	public void stopCapture() throws Exception {
-		if (getPluginBase().isCallbackEnabled()) {
+		if (getFile().getPluginBase().isCallbackEnabled()) {
 			file.stopCapture();
 		}
 	}
@@ -865,11 +866,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public String getFullFileName_RBV() throws Exception {
 		return file.getFullFileName_RBV();
-	}
-
-	@Override
-	public NDPluginBase getPluginBase() {
-		return getFile().getPluginBase();
 	}
 
 	@Override
@@ -1014,6 +1010,4 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 		}
 		return EPICS_CONTROLLER.cagetInt(getChannel(BoundaryAlign_RBV));
 	}
-
-
 }

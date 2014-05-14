@@ -18,18 +18,26 @@
 
 package gda.device.detector.addetector.triggering;
 
+import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
 import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
+import java.util.ArrayList;
+import java.util.List;
 
-public class TFG2NXCollectionStrategy extends HardwareTriggeredStandard {
 
+public class TFG2NXCollectionStrategy implements NXCollectionStrategyPlugin {
+
+	private static final ArrayList<String> EMPTY_LIST = new ArrayList<String>();
 	private Etfg etfg;
 	// The port value used to trigger the camera in live mode
 	private short exposeTriggerOutVal = 64; // TFG2 USER6 PCO TriggerIn
+	private ADBase adBase;
+	private String name;
 
 	public short getExposeTriggerOutVal() {
 		return exposeTriggerOutVal;
@@ -40,17 +48,143 @@ public class TFG2NXCollectionStrategy extends HardwareTriggeredStandard {
 	}
 	
 	
-	public TFG2NXCollectionStrategy(ADBase adBase, double readoutTime, Etfg etfg) throws Exception {
-		super(adBase, readoutTime);
+	public TFG2NXCollectionStrategy(ADBase adBase, Etfg etfg) throws Exception {
+		this.adBase = adBase;
+		if( adBase == null)
+			throw new Exception("adBase==null");
 		this.etfg = etfg;
 		if( etfg == null)
 			throw new Exception("etfg==null");
 	}
 	
 	
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	
+
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
-		getAdBase().stopAcquiring();
+	public void waitWhileBusy() throws InterruptedException, DeviceException {
+		return;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public boolean willRequireCallbacks() {
+		return false; //not EPICS areaDetector plugin
+	}
+
+	@Override
+	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		
+	}
+
+	@Override
+	public void prepareForLine() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void completeLine() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void completeCollection() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void atCommandFailure() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void stop() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<String> getInputStreamNames() {
+		return EMPTY_LIST;
+	}
+
+	@Override
+	public List<String> getInputStreamFormats() {
+		return EMPTY_LIST;
+	}
+
+
+
+	@Override
+	public double getAcquireTime() throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getAcquirePeriod() throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getStatus() throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setGenerateCallbacks(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isGenerateCallbacks() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean requiresAsynchronousPlugins() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	@Deprecated
+	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void collectData() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
+			throws Exception {
+		adBase.stopAcquiring();
 		
 		etfg.stop();
 		etfg.getDaServer().sendCommand("tfg setup-trig ttl0 debounce 1.0e-6");
@@ -69,21 +203,11 @@ public class TFG2NXCollectionStrategy extends HardwareTriggeredStandard {
 		etfg.start();
 		while (etfg.getStatus() != 2) {
 			Thread.sleep(50);
-			ScanBase.checkForInterrupts();
 		}			
-		super.prepareForCollection(collectionTime, numImages,scanInfo);
-	}
-
-	@Override
-	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		getAdBase().setAcquirePeriod(0.0);
-		getAdBase().setAcquireTime(collectionTime);
-	}	
-	
-	@Override
-	public void collectData() throws Exception {
-		super.collectData();
-		Thread.sleep(2000); // without this the first trigger seems to be ignored			
+		adBase.setNumImages(numberImagesPerCollection);
+		adBase.setAcquireTime(collectionTime);
+		adBase.setAcquirePeriod(collectionTime);
+		
 	}	
 
 }

@@ -376,15 +376,12 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 				value = ((DBR_Enum) dbr).getEnumValue()[0];
 			}
 			if (statusPvIndicatesPositionOnly) {
-				try {
-					// See GDA-5822 - wait for status positions field being initialised before calling getPosition().
-					while (statuspositions.size() < value) {
-						Sleep.sleep(100);
-					}
-					notifyIObservers(EpicsPneumaticCallback.this, new ScannablePositionChangeEvent(getPosition()));
-				} catch (DeviceException e) {
-					logger.error("Error getting position of " + getName(), e);
+				// See GDA-5822 - wait for status positions field being initialised before calling getPosition().
+				while (statuspositions.size() < value) {
+					Sleep.sleep(100);
 				}
+				notifyIObservers(EpicsPneumaticCallback.this,
+						new ScannablePositionChangeEvent(statuspositions.get(value)));
 
 			} else {
 				if (value == 0) {

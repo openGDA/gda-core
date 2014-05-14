@@ -21,7 +21,6 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
@@ -39,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class NDStatsImpl implements InitializingBean, NDStats {
+public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats {
 
 	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
@@ -51,18 +50,7 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	
 	private String deviceName;
 
-	private NDPluginBase pluginBase;
-
 	static final Logger logger = LoggerFactory.getLogger(NDStatsImpl.class);
-
-	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
-	}
-
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.pluginBase = pluginBase;
-	}
 
 	public String getDeviceName() {
 		return deviceName;
@@ -793,11 +781,14 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	@Override
 	public void setComputeHistogram(int computehistogram) throws Exception {
 		try {
+			Channel channel;
 			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getComputeHistogram().getPv()), computehistogram);
+				channel = createChannel(config.getComputeHistogram().getPv());
 			} else {
-				EPICS_CONTROLLER.caput(getChannel(ComputeHistogram), computehistogram);
+				channel = getChannel(ComputeHistogram);
 			}
+			EPICS_CONTROLLER.caput(channel, computehistogram);
+			logger.debug("Set Compute Histogram to "+computehistogram+" on "+channel.getName());
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setComputeHistogram", ex);
 			throw ex;
@@ -842,11 +833,14 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	@Override
 	public void setHistSize(int histsize) throws Exception {
 		try {
+			Channel channel;
 			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getHistSize().getPv()), histsize);
+				channel = createChannel(config.getHistSize().getPv());
 			} else {
-				EPICS_CONTROLLER.caput(getChannel(HistSize), histsize);
+				channel = getChannel(HistSize);
 			}
+			EPICS_CONTROLLER.caput(channel, histsize);
+			logger.debug("Set History Size to "+histsize+" on "+channel.getName());
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setHistSize", ex);
 			throw ex;
@@ -891,11 +885,14 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	@Override
 	public void setHistMin(double histmin) throws Exception {
 		try {
+			Channel channel;
 			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getHistMin().getPv()), histmin);
+				channel = createChannel(config.getHistMin().getPv());
 			} else {
-				EPICS_CONTROLLER.caput(getChannel(HistMin), histmin);
+				channel = getChannel(HistMin);
 			}
+			EPICS_CONTROLLER.caput(channel, histmin);
+			logger.debug("Set History Min to "+histmin+" on "+channel.getName());
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setHistMin", ex);
 			throw ex;
@@ -940,11 +937,14 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	@Override
 	public void setHistMax(double histmax) throws Exception {
 		try {
+			Channel channel;
 			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getHistMax().getPv()), histmax);
+				channel = createChannel(config.getHistMax().getPv());
 			} else {
-				EPICS_CONTROLLER.caput(getChannel(HistMax), histmax);
+				channel = getChannel(HistMax);
 			}
+			EPICS_CONTROLLER.caput(channel, histmax);
+			logger.debug("Set History Max to "+histmax+" on "+channel.getName());
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setHistMax", ex);
 			throw ex;
@@ -1020,11 +1020,14 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	@Override
 	public void setMaxSizeX(int maxsizex) throws Exception {
 		try {
+			Channel channel;
 			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getMaxSizeX().getPv()), maxsizex);
+				channel = createChannel(config.getMaxSizeX().getPv());
 			} else {
-				EPICS_CONTROLLER.caput(getChannel(MaxSizeX), maxsizex);
+				channel = getChannel(MaxSizeX);
 			}
+			EPICS_CONTROLLER.caput(channel, maxsizex);
+			logger.debug("Set History Max Size X to "+maxsizex+" on "+channel.getName());
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setMaxSizeX", ex);
 			throw ex;
@@ -1086,11 +1089,14 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	@Override
 	public void setMaxSizeY(int maxsizey) throws Exception {
 		try {
+			Channel channel;
 			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getMaxSizeY().getPv()), maxsizey);
+				channel = createChannel(config.getMaxSizeY().getPv());
 			} else {
-				EPICS_CONTROLLER.caput(getChannel(MaxSizeY), maxsizey);
+				channel = getChannel(MaxSizeY);
 			}
+			EPICS_CONTROLLER.caput(channel, maxsizey);
+			logger.debug("Set History Max Y Size to "+maxsizey+" on "+channel.getName());
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setMaxSizeY", ex);
 			throw ex;
@@ -1207,7 +1213,7 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 
 	@Override
 	public void reset() throws Exception {
-		pluginBase.reset();
+		getPluginBase().reset();
 	}
 
 

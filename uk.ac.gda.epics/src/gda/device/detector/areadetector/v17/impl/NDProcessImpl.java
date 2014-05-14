@@ -21,7 +21,6 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
@@ -39,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class NDProcessImpl implements InitializingBean, NDProcess {
+public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDProcess {
 
 	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
@@ -107,18 +106,7 @@ public class NDProcessImpl implements InitializingBean, NDProcess {
 
 	private String deviceName;
 
-	private NDPluginBase pluginBase;
-
 	static final Logger logger = LoggerFactory.getLogger(NDProcessImpl.class);
-
-	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
-	}
-
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.pluginBase = pluginBase;
-	}
 
 	public String getDeviceName() {
 		return deviceName;
@@ -2064,7 +2052,7 @@ public class NDProcessImpl implements InitializingBean, NDProcess {
 
 	@Override
 	public void reset() throws Exception {
-		pluginBase.reset();
+		getPluginBase().reset();
 		if (initialEnableBackground != null) {
 			setEnableBackground(initialEnableBackground.shortValue());
 		}

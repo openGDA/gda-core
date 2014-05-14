@@ -18,6 +18,8 @@
 
 package uk.ac.gda.epics.adviewer;
 
+import java.lang.reflect.Array;
+
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;

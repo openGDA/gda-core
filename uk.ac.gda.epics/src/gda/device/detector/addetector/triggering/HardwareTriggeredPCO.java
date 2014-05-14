@@ -23,7 +23,6 @@ import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
-import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
 public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
@@ -31,7 +30,7 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 	private final ADDriverPco adDriverPco;
 	private Integer adcMode=1; //2 ADCs
 	private Integer timeStamp=1; // BCD
-	private PcoTriggerMode triggerMode = PcoTriggerMode.EXTERNAL_AND_SOFTWARE; //To allow PcoEdge to run at 100Hz. PcoTriggerMode.EXTERNAL_PULSE;
+	private PcoTriggerMode triggerMode = PcoTriggerMode.EXTERNAL_ONLY; //_AND_SOFTWARE; //To allow PcoEdge to run at 100Hz. PcoTriggerMode.EXTERNAL_PULSE;
 	private Etfg etfg;
 
 	// The port value used to trigger the camera in live mode
@@ -140,7 +139,6 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 			etfg.start();
 			while (etfg.getStatus() != 2) {
 				Thread.sleep(50);
-				ScanBase.checkForInterrupts();
 			}			
 		}
 		

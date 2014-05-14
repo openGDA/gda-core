@@ -25,18 +25,20 @@ import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.epicsdevice.EpicsInterfaceDevice;
 import gda.epics.connection.EpicsChannelManager;
-import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.BpmType;
 import gda.factory.FactoryException;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_CTRL_Double;
+import gov.aps.jca.dbr.DBRType;
+import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * EpicsBpmController Class
@@ -45,29 +47,36 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsBeamPositionMonitor.class);
 
-	private DoubleValueMonitorListener intensityMonitor, xMonitor, yMonitor;
+	private DoubleValueMonitorListener intensityMonitorListener, xMonitorListener, yMonitorListener;
+
+	private EpicsChannelManager channelManager;
 
 	/**
 	 * GDA device Name
 	 */
-
-	private EpicsChannelManager channelManager;
-
 	private String deviceName;
 	
 	protected EpicsConfiguration epicsConfiguration;
+	
+	private boolean poll=false;
+
+	private gov.aps.jca.Monitor intensityMonitor, xMonitor, yMonitor;
+
+	private Channel intensityCh;
+	private Channel xCh;
+	private Channel yCh;
+	private EpicsController controller;
 
 	/**
 	 * Constructor
 	 */
 	public EpicsBeamPositionMonitor() {
 		setInputNames(new String[0]);
+		controller=EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
-		intensityMonitor = new DoubleValueMonitorListener();
-		xMonitor = new DoubleValueMonitorListener();
-		yMonitor = new DoubleValueMonitorListener();
-		
-		
+		intensityMonitorListener = new DoubleValueMonitorListener();
+		xMonitorListener = new DoubleValueMonitorListener();
+		yMonitorListener = new DoubleValueMonitorListener();
 	}
 
 	@Override
@@ -98,7 +107,7 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 	private void modifyExtraNames(){
 		setInputNames(new String[0]);
 		String preName=this.getName()+"_";
-		setExtraNames(new String[]{ preName+"intensity", preName+"x", preName+"y", preName+"current1", preName+"current2", preName+"current3", preName+"current4"});
+		setExtraNames(new String[]{ preName+"intensity", preName+"x", preName+"y"});
 
 		outputFormat = new String[inputNames.length + extraNames.length];
 		
@@ -111,9 +120,9 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 
 	private void createChannelAccess(String intensityRec, String xPosRec, String yPosRec) throws FactoryException {
 		try {
-			channelManager.createChannel(intensityRec, intensityMonitor, MonitorType.CTRL, false);
-			channelManager.createChannel(xPosRec, xMonitor, MonitorType.CTRL, false);
-			channelManager.createChannel(yPosRec, yMonitor, MonitorType.CTRL, false);
+			intensityCh = channelManager.createChannel(intensityRec, false);
+			xCh=channelManager.createChannel(xPosRec, false);
+			yCh=channelManager.createChannel(yPosRec, false);
 			channelManager.creationPhaseCompleted();
 		} catch (Throwable th) {
 			throw new FactoryException("failed to connect to all channels", th);
@@ -141,7 +150,7 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				value = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				value = ((DBR_Double) dbr).getDoubleValue()[0];
 				notifyIObservers(this, value);
 			} else {
 				logger.error("Error: .RBV should return DOUBLE type value.");
@@ -156,31 +165,103 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 	
 	/**
 	 * @return intensity total
+	 * @throws DeviceException 
 	 */
-	public double getIntensity() {
-		return intensityMonitor.getValue();
+	public double getIntensity() throws DeviceException {
+		if (isPoll()) {
+			try {
+				return controller.cagetDouble(intensityCh);
+			} catch (Throwable e) {
+				throw new DeviceException(getName() + ": Cannot get current value from " + intensityCh.getName(), e);
+			}
+		}
+		return intensityMonitorListener.getValue();
 	}
 	
 	/**
 	 * @return x position
+	 * @throws DeviceException 
 	 */
-	public double getXPosition() {
-		return xMonitor.getValue();
+	public double getXPosition() throws DeviceException {
+		if (isPoll()) {
+			try {
+				return controller.cagetDouble(xCh);
+			} catch (Throwable e) {
+				throw new DeviceException(getName() + ": Cannot get current value from " + xCh.getName(), e);
+			}
+		}
+		return xMonitorListener.getValue();
 	}
 	
 	/**
 	 * @return y position
+	 * @throws DeviceException 
 	 */
-	public double getYPosition() {
-		return yMonitor.getValue();
+	public double getYPosition() throws DeviceException {
+		if (isPoll()) {
+			try {
+				return controller.cagetDouble(yCh);
+			} catch (Throwable e) {
+				throw new DeviceException(getName() + ": Cannot get current value from " + yCh.getName(), e);
+			}
+		}
+		return yMonitorListener.getValue();
 	}
 	
 	@Override
 	public void initializationCompleted() {
-		// TODO Auto-generated method stub
+		if (isPoll()) {
+			enablePoll();
+		} else {
+			disablePoll();
+		}
 		
 	}
 	
+	public void disablePoll() {
+		setPoll(false);
+		if (intensityCh != null && intensityMonitorListener != null) {
+			try {
+				intensityMonitor = intensityCh.addMonitor(DBRType.DOUBLE, 0, gov.aps.jca.Monitor.VALUE, intensityMonitorListener);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + intensityCh.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + intensityCh.getName(), e);
+			}
+		}
+		if (xCh != null && xMonitorListener != null) {
+			try {
+				xMonitor = xCh.addMonitor(DBRType.DOUBLE, 0, gov.aps.jca.Monitor.VALUE, xMonitorListener);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + xCh.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + xCh.getName(), e);
+			}
+		}
+		if (yCh != null && yMonitorListener != null) {
+			try {
+				yMonitor = yCh.addMonitor(DBRType.DOUBLE, 0, gov.aps.jca.Monitor.VALUE, yMonitorListener);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + yCh.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + yCh.getName(), e);
+			}
+		}
+	}
+
+	public void enablePoll() {
+		setPoll(true);
+		if (intensityMonitor != null && intensityMonitorListener != null) {
+			intensityMonitor.removeMonitorListener(intensityMonitorListener);
+		}
+		if (xMonitor != null && xMonitorListener != null) {
+			xMonitor.removeMonitorListener(xMonitorListener);
+		}
+		if (yMonitor != null && yMonitorListener != null) {
+			yMonitor.removeMonitorListener(yMonitorListener);
+		}
+	}
+
 	@Override
 	public String getDeviceName() {
 		return deviceName;
@@ -198,5 +279,13 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 	 */
 	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
 		this.epicsConfiguration = epicsConfiguration;
+	}
+
+	public boolean isPoll() {
+		return poll;
+	}
+
+	public void setPoll(boolean poll) {
+		this.poll = poll;
 	}
 }

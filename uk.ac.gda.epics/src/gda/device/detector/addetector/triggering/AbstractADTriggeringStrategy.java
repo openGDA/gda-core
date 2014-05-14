@@ -36,7 +36,7 @@ abstract public class AbstractADTriggeringStrategy implements AsyncNXCollectionS
 
 	private final ADBase adBase;
 
-	private double readoutTime = 0.1; // TODO: Should default to 0
+	private double readoutTime = 0.1; // TODO: Should default to 0, change setReadoutTime javadoc if this changes.
 	
 	private boolean readAcquisitionTime = true;
 
@@ -51,7 +51,7 @@ abstract public class AbstractADTriggeringStrategy implements AsyncNXCollectionS
 	/**
 	 * Sets the required readout/dwell time (t_period - t_acquire).
 	 * <p>
-	 * Defaults to 0.
+	 * Defaults to 0.1 (Should be 0)
 	 * 
 	 * @param readoutTime
 	 */

@@ -26,21 +26,14 @@ import gda.observable.ObservableUtil;
 /**
  * Simulation of NDFile for testing.
  */
-public class NDFileSimulator implements NDFile{
+public class NDFileSimulator extends NDBaseImpl implements NDFile{
 
-	NDPluginBase pluginBase;
-
-	public NDFileSimulator(NDPluginBase pluginBase){
-		this.pluginBase = pluginBase;
+	public NDFileSimulator(NDPluginBase pluginBase) {
+		setPluginBase(pluginBase);
 	}
 	public NDFileSimulator(){
 	}
 
-	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
-	}	
-	
 	String filePath="";
 	@Override
 	public String getFilePath() throws Exception {

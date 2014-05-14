@@ -19,32 +19,21 @@
 package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDArray;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 
 /*
  * class that returns data from a file rather than EPICS.
  */
-public class DummyNDArray implements NDArray {
+public class DummyNDArray extends NDBaseImpl implements NDArray {
 
 
 	public DummyNDArray()  {
 		super();
 	}
 
-	NDPluginBase pluginBase;
 	private float[] floatArrayData;
 	private int[] intArrayData;
 	private short[] shortArrayData;
 	private byte[] byteArrayData;
-
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.pluginBase = pluginBase;
-	}
-
-	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
-	}
 
 	@Override
 	public byte[] getByteArrayData(int numberOfElements) throws Exception {

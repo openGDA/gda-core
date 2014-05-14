@@ -95,8 +95,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 			}
 			parent.setLayout(new FillLayout());
 
-			twoDArray = new TwoDArray(this, parent, SWT.NONE);
-			twoDArray.setADController(adController);
+			twoDArray = new TwoDArray(this, parent, SWT.NONE, adController);
 			twoDArray.showLeft(true);
 			partListener = new IPartListener2() {
 

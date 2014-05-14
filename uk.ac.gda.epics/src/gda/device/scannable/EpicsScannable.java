@@ -224,21 +224,21 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 			if (value instanceof Double) {
 				controller.caput(getChannel(), (Double) value, putListener);
 			} else if (value instanceof Integer) {
-				controller.caput(channel, (Integer) value, putListener);
+				controller.caput(getChannel(), (Integer) value, putListener);
 			} else if (value instanceof Float) {
-				controller.caput(channel, (Float) value, putListener);
+				controller.caput(getChannel(), (Float) value, putListener);
 			} else if (value instanceof Short) {
-				controller.caput(channel, (Short) value, putListener);
+				controller.caput(getChannel(), (Short) value, putListener);
 			} else if (value instanceof double[]) {
-				controller.caput(channel, (double[]) value, putListener);
+				controller.caput(getChannel(), (double[]) value, putListener);
 			} else if (value instanceof int[]) {
-				controller.caput(channel, (int[]) value, putListener);
+				controller.caput(getChannel(), (int[]) value, putListener);
 			} else if (value instanceof float[]) {
-				controller.caput(channel, (float[]) value, putListener);
+				controller.caput(getChannel(), (float[]) value, putListener);
 			} else if (value instanceof short[]) {
-				controller.caput(channel, (short[]) value, putListener);
+				controller.caput(getChannel(), (short[]) value, putListener);
 			} else {
-				controller.caput(channel, value.toString(), putListener);
+				controller.caput(getChannel(), value.toString(), putListener);
 			}
 		} catch (Exception e) {
 			busy = false;

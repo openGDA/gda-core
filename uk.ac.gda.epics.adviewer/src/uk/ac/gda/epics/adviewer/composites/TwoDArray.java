@@ -68,7 +68,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -161,10 +160,9 @@ public class TwoDArray extends Composite {
 
 	// id used in DataBinding
 	static final String showOptionName = "showOption";
-	private Composite composite;
 	private Button btnSnapshot;
 	
-	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) throws Exception {
+	public TwoDArray(IViewPart parentViewPart, Composite parent, int style, ADController adController) throws Exception {
 		super(parent, style);
 
 		this.setLayout(new GridLayout(3,false));
@@ -185,9 +183,12 @@ public class TwoDArray extends Composite {
 		statusComposite.setLayoutData(gd_statusComposite);
 
 		minCallbackTimeComposite = new MinCallbackTimeComposite(left, SWT.NONE);
+		GridData gd_minCallbackTimeComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_minCallbackTimeComposite.widthHint = 151;
+		minCallbackTimeComposite.setLayoutData(gd_minCallbackTimeComposite);
 		Group stateGroup = new Group(left, SWT.NONE);
 		GridData gd_stateGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_stateGroup.widthHint = 150;
+		gd_stateGroup.widthHint = 151;
 		stateGroup.setLayoutData(gd_stateGroup);
 		stateGroup.setText("Array View");
 		stateGroup.setLayout(new GridLayout(2, false));
@@ -199,56 +200,37 @@ public class TwoDArray extends Composite {
 		GridData gd_arrayMonitoringBtn = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
 		gd_arrayMonitoringBtn.widthHint = 48;
 		arrayMonitoringBtn.setLayoutData(gd_arrayMonitoringBtn);
-
-		composite = new Composite(left, SWT.NONE);
-		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_composite.widthHint = 155;
-		composite.setLayoutData(gd_composite);
-		RowLayout rl_composite = new RowLayout(SWT.HORIZONTAL);
-		rl_composite.justify = true;
-		rl_composite.center = true;
-		rl_composite.wrap = false;
-		composite.setLayout(rl_composite);
-
-		grpStores = new Group(composite, SWT.NONE);
-		grpStores.setLayoutData(new RowData(64, SWT.DEFAULT));
-		grpStores.setLayout(new RowLayout(SWT.HORIZONTAL));
-		grpStores.setText("Store As");
-
-		btnA = new Button(grpStores, SWT.NONE);
-		btnA.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				AbstractDataset clone = ads.clone();
-				clone.setName("A");
-				TwoDArray.this.setupStores("A", clone);
-			}
-		});
-		btnA.setText("A");
-
-		btnB = new Button(grpStores, SWT.NONE);
-		btnB.setText("B");
-
-		btnB.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				AbstractDataset clone = ads.clone();
-				clone.setName("B");
-				TwoDArray.this.setupStores("B", clone);
-			}
-		});
-		btnSnapshot = new Button(composite, SWT.NONE);
-		btnSnapshot.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					updateArrayJob.snapShot();
-				} catch (Exception e1) {
-					logger.error("Error taking snapshot", e1);
-				}
-			}
-		});
-		btnSnapshot.setText("Snapshot");
+		
+				grpStores = new Group(left, SWT.NONE);
+				GridData gd_grpStores = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+				gd_grpStores.widthHint = 151;
+				grpStores.setLayoutData(gd_grpStores);
+				RowLayout rl_grpStores = new RowLayout(SWT.HORIZONTAL);
+				grpStores.setLayout(rl_grpStores);
+				grpStores.setText("Store I as");
+				
+						btnA = new Button(grpStores, SWT.NONE);
+						btnA.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								AbstractDataset clone = ads.clone();
+								clone.setName("A");
+								TwoDArray.this.setupStores("A", clone);
+							}
+						});
+						btnA.setText("A");
+						
+								btnB = new Button(grpStores, SWT.NONE);
+								btnB.setText("B");
+								
+										btnB.addSelectionListener(new SelectionAdapter() {
+											@Override
+											public void widgetSelected(SelectionEvent e) {
+												AbstractDataset clone = ads.clone();
+												clone.setName("B");
+												TwoDArray.this.setupStores("B", clone);
+											}
+										});
 
 		grpShow = new Group(left, SWT.NONE);
 		GridData gd_grpShow = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -274,7 +256,7 @@ public class TwoDArray extends Composite {
 
 		ShowOption[] showOption = new ShowOption[] { showOptionDefault, new ShowOption("I-A", OptionIndex.I_MINUS_A),
 				new ShowOption("I/A", OptionIndex.I_OVER_A), new ShowOption("I-B", OptionIndex.I_MUNIS_B),
-				new ShowOption("I/B", OptionIndex.I_OVER_B), new ShowOption("I-B/A-B", OptionIndex.I_NORMALISED),
+				new ShowOption("I/B", OptionIndex.I_OVER_B), new ShowOption("(I-B)/(A-B)", OptionIndex.I_NORMALISED),
 				new ShowOption("A", OptionIndex.A), new ShowOption("B", OptionIndex.B) };
 		comboShow.setInput(showOption);
 
@@ -284,9 +266,22 @@ public class TwoDArray extends Composite {
 		DataBindingContext bindingContext = new DataBindingContext();
 		bindingContext.bindValue(comboShowObservableValue, showOptionObserveValue);
 		showOptionObserveValue.setValue(showOptionDefault);
+		btnSnapshot = new Button(left, SWT.NONE);
+		btnSnapshot.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		btnSnapshot.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					updateArrayJob.snapShot();
+				} catch (Exception e1) {
+					logger.error("Error taking snapshot", e1);
+				}
+			}
+		});
+		btnSnapshot.setText("Snapshot");
 
 		btnAutoscale = new Button(left, SWT.CHECK);
-		btnAutoscale.setText("Fast Colour Map");
+		btnAutoscale.setText("Auto. scale");
 		btnAutoscale.addSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -299,7 +294,11 @@ public class TwoDArray extends Composite {
 		autoScale = true;
 		btnAutoscale.setSelection(autoScale);
 
+		setADController(left, adController);
+
 		left.setSize(left.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
+
 		
 		middle = new Button(this,SWT.PUSH | SWT.TOP);
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.BEGINNING).applyTo(middle);
@@ -338,6 +337,8 @@ public class TwoDArray extends Composite {
 		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setTitle("");
 		}
+		
+		
 		addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -384,11 +385,13 @@ public class TwoDArray extends Composite {
 		AbstractDataset storeB = stores.get("B");
 		stores.remove("A-B");
 		if (storeA != null && storeB != null && Arrays.equals(storeA.getShape(), storeB.getShape())) {
-			stores.put("A-B", new DoubleDataset(storeA.isubtract(storeB)));
+			DoubleDataset storeAMinusB = new DoubleDataset(Maths.subtract(storeA, storeB));
+			storeAMinusB.setName("A-B");
+			stores.put("A-B", storeAMinusB);
 		}
 	}
 
-	public void setADController(ADController config) throws Exception {
+	private void setADController(Composite left2, ADController config) throws Exception {
 		this.config = config;
 
 		// Configure AreaDetector
@@ -443,11 +446,12 @@ public class TwoDArray extends Composite {
 		NDROI imageNDROI = config.getImageNDROI();
 		if (imageNDROI != null) {
 			TwoDArrayROI twoDArrayROI;
-			twoDArrayROI = new TwoDArrayROI(left, SWT.NONE);
-			twoDArrayROI.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(twoDArrayROI);
+			twoDArrayROI = new TwoDArrayROI(left2, SWT.NONE);
+			GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+			gd.widthHint = 151;
+			twoDArrayROI.setLayoutData(gd);
 			twoDArrayROI.setVisible(true);
-			layout(true);
+//			layout(true);
 
 			try {
 				twoDArrayROI.setNDRoi(imageNDROI, getPlottingSystem());
@@ -515,6 +519,8 @@ public class TwoDArray extends Composite {
 
 	public void setShowOption(ShowOption showOption) {
 		this.showOption = showOption;
+		if(updateArrayJob != null )
+			updateArrayJob.schedule();
 	}
 
 	public void start() throws Exception {
@@ -768,7 +774,12 @@ public class TwoDArray extends Composite {
 							} else {
 								if (Arrays.equals(store.getShape(), ads.getShape())) {
 									boolean isOver = showIndex == OptionIndex.I_OVER_B;
-									dsToShow = isOver ? Maths.divide(ads, store) : ads.isubtract(store);
+									if( isOver){
+										DoubleDataset doubleDataset = new DoubleDataset(store);
+										dsToShow = Maths.divide(ads,doubleDataset );
+									} else {
+										dsToShow = Maths.subtract(ads,store);
+									}
 									dsToShow.setName(ads.getName() + (isOver ? " / " : " - ") + store.getName());
 								} else {
 									explanation = new String("B does not match current image");
@@ -789,7 +800,12 @@ public class TwoDArray extends Composite {
 							} else {
 								if (Arrays.equals(store.getShape(), ads.getShape())) {
 									boolean isOver = showIndex == OptionIndex.I_OVER_A;
-									dsToShow = isOver ? Maths.divide(ads, store) : ads.isubtract(store);
+									if( isOver){
+										DoubleDataset doubleDataset = new DoubleDataset(store);
+										dsToShow = Maths.divide(ads,doubleDataset );
+									} else {
+										dsToShow = Maths.subtract(ads,store);
+									}
 									dsToShow.setName(ads.getName() + (isOver ? " / " : " - ") + store.getName());
 								} else {
 									explanation = new String("A does not match current image");
@@ -805,7 +821,7 @@ public class TwoDArray extends Composite {
 						AbstractDataset storeB = stores.get("B");
 						DoubleDataset storeA_B = (DoubleDataset) stores.get("A-B");
 						if (storeB != null && storeA_B != null && Arrays.equals(storeB.getShape(), ads.getShape())) {
-							DoubleDataset ds = new DoubleDataset(ads.isubtract(storeB));
+							DoubleDataset ds = new DoubleDataset(Maths.subtract(ads, storeB));
 							dsToShow = Maths.dividez(ds, storeA_B);
 							dsToShow.setName("(" + ads.getName() + "-B)/(A-B)");
 						} else {

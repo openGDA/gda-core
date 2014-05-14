@@ -25,13 +25,11 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDFileType;
 import gda.factory.FactoryException;
 import gda.observable.Observable;
-import gda.scan.ScanBase;
 import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -49,7 +47,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.util.FilePathConverter;
 
-public class NDFileImpl implements InitializingBean, NDFile {
+public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 
 	private volatile int status = Detector.IDLE;
 
@@ -143,8 +141,6 @@ public class NDFileImpl implements InitializingBean, NDFile {
 	private String initialFileName;
 	private String initialFileTemplate;
 	private Integer initialFileNumber;
-
-	private NDPluginBase ndPluginBase;
 
 	private NDFileType config;
 	private String deviceName;
@@ -735,7 +731,6 @@ public class NDFileImpl implements InitializingBean, NDFile {
 			}
 			int counter=0;
 			while(getCapture_RBV() != 1) {
-				ScanBase.checkForInterrupts();
 				Thread.sleep(50);
 				counter++;
 				if( counter > 100) // more than 5 seconds
@@ -869,7 +864,7 @@ public class NDFileImpl implements InitializingBean, NDFile {
 		if (deviceName == null && basePVName == null && pvProvider == null) {
 			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
 		}
-		if (ndPluginBase == null) {
+		if (getPluginBase() == null) {
 			logger.warn(getDeviceName() + " : 'ndPluginBase' not declared");
 			// TODO: The pilatus driver contains an NDFile with no associated NDPluginBase
 			// throw new IllegalArgumentException("'ndPluginBase' needs to be declared");
@@ -934,23 +929,10 @@ public class NDFileImpl implements InitializingBean, NDFile {
 	}
 
 	@Override
-	public NDPluginBase getPluginBase() {
-		return ndPluginBase;
-	}
-
-	/**
-	 * @param ndPluginBase
-	 *            The ndPluginBase to set.
-	 */
-	public void setPluginBase(NDPluginBase ndPluginBase) {
-		this.ndPluginBase = ndPluginBase;
-	}
-
-	@Override
 	public void reset() throws Exception {
 		// Reset the plugin base variables.
-		if (ndPluginBase != null) {
-			ndPluginBase.reset();
+		if (getPluginBase() != null) {
+			getPluginBase().reset();
 		}
 		if( resetToInitialValues){
 			// Reset local variables.
@@ -1101,12 +1083,12 @@ public class NDFileImpl implements InitializingBean, NDFile {
 	public void waitWhileStatusBusy() throws InterruptedException {
 		synchronized (statusMonitor) {
 			while (status == Detector.BUSY) { 
-				statusMonitor.wait(1000);
-				//if interrupted clear the status state as the IOC may have crashed
-				if( ScanBase.isInterrupted()){
+				try {
+					statusMonitor.wait(1000);
+				} catch (InterruptedException e) {
 					setStatus(0);
+					throw e;
 				}
-				ScanBase.checkForInterrupts();
 			}
 		}
 	}

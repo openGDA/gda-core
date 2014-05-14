@@ -27,7 +27,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * ADBase represents the AreaDetector driver - commonly the first tab in edm
  */
-public interface ADBase  {
+public interface ADBase extends ADCommon {
 
 	public enum ImageMode {
 		SINGLE, MULTIPLE, CONTINUOUS
@@ -207,11 +207,6 @@ public interface ADBase  {
 	public final String Temperature = "Temperature";
 
 	public final String Temperature_RBV = "Temperature_RBV";
-
-	/**
-	 *
-	 */
-	String getPortName_RBV() throws Exception;
 
 	/**
 	 *

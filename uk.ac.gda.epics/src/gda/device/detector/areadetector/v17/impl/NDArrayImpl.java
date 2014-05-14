@@ -22,7 +22,6 @@ import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDArray;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDStdArraysType;
 import gda.factory.FactoryException;
@@ -35,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class NDArrayImpl implements NDArray, InitializingBean {
+public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean {
 
 	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
@@ -44,7 +43,6 @@ public class NDArrayImpl implements NDArray, InitializingBean {
 	 */
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
 
-	private NDPluginBase pluginBase;
 	private String basePVName;
 	private IPVProvider pvProvider;
 	private NDStdArraysType config;
@@ -71,20 +69,6 @@ public class NDArrayImpl implements NDArray, InitializingBean {
 			}
 		}
 	}
-
-	@Override
-	public NDPluginBase getPluginBase() {
-		return pluginBase;
-	}
-
-	/**
-	 * @param pluginBase
-	 *            The pluginBase to set.
-	 */
-	public void setPluginBase(NDPluginBase pluginBase) {
-		this.pluginBase = pluginBase;
-	}
-
 
 	@Override
 	public byte[] getByteArrayData() throws Exception {
@@ -134,7 +118,7 @@ public class NDArrayImpl implements NDArray, InitializingBean {
 		if (deviceName == null && basePVName == null && pvProvider == null) {
 			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
 		}
-		if (pluginBase == null) {
+		if (getPluginBase() == null) {
 			throw new IllegalArgumentException("'pluginBase' needs to be declared");
 		}
 
@@ -221,7 +205,7 @@ public class NDArrayImpl implements NDArray, InitializingBean {
 
 	@Override
 	public void reset() throws Exception {
-		pluginBase.reset();
+		getPluginBase().reset();
 	}
 
 	@Override

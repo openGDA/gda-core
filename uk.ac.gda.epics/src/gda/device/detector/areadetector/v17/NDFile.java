@@ -23,7 +23,7 @@ import gda.observable.Observable;
 /**
  *
  */
-public interface NDFile {
+public interface NDFile extends GetPluginBaseAvailable {
 
 	public enum FileWriteMode {
 		SINGLE, CAPTURE, STREAM
@@ -89,8 +89,6 @@ public interface NDFile {
 	public final String NumCapture_RBV = "NumCapture_RBV";
 
 	public final String NumCaptured_RBV = "NumCaptured_RBV";
-
-	NDPluginBase getPluginBase();
 
 	String getFilePath() throws Exception;
 

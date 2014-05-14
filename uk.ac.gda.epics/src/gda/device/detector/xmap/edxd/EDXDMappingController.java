@@ -169,7 +169,9 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	
 	@Override
 	public void stop() throws DeviceException {
-		xmap.setValueNoWait(STOPALL,"",1);
+		if (xmap != null && xmap.isConfigured()) {
+			xmap.setValueNoWait(STOPALL,"",1);
+		}
 	}
 	
 	/**
@@ -226,10 +228,15 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		 xmap.setValue(PIXELSPERRUN, "", number);
 	}
 	
+	public int getPixelsPerRun() throws DeviceException {
+		int number = (Integer) xmap.getValue(ReturnType.DBR_NATIVE, PIXELSPERRUN, "");
+		return number;
+	}
+	
 	//hdf5 commands
 	public void resetCounters() throws Exception {
-		hdf5.getPluginBase().setDroppedArrays(0);
-		hdf5.getPluginBase().setArrayCounter(0);
+		hdf5.getFile().getPluginBase().setDroppedArrays(0);
+		hdf5.getFile().getPluginBase().setArrayCounter(0);
 	}
 
 	public void startRecording() throws Exception {
@@ -256,7 +263,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		}
 		hdf5.stopCapture();
 		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all we be ok in the end.");
-		if (hdf5.getPluginBase().getDroppedArrays_RBV() > 0)
+		if (hdf5.getFile().getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");
 	}
 
@@ -352,5 +359,4 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 			return true;
 		return false;
 	}
-	
 }

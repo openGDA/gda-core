@@ -29,10 +29,10 @@ import gda.device.detector.nxdata.NXDetectorDataFileLinkAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.jython.InterfaceProvider;
-import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 import gov.aps.jca.TimeoutException;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -274,6 +274,15 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		getNdFile().setFileName(getFileName());
 		getNdFile().setFileTemplate(getFileTemplate());
 		String filePath = getFilePath();
+		
+		if (!filePath.endsWith(File.separator))
+			filePath += File.separator;
+		File f = new File(filePath);
+		if (!f.exists()) {
+			if (!f.mkdirs())
+				throw new Exception("Folder does not exist and cannot be made:" + filePath);
+		}		
+		
 		getNdFile().setFilePath(filePath);
 		if( !getNdFile().filePathExists())
 			if (isPathErrorSuppressed())
@@ -331,13 +340,12 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	
 	private void endRecording() throws Exception {
 		while (getNdFileHDF5().getFile().getCapture_RBV() != 0) {
-			ScanBase.checkForInterrupts();
 			Thread.sleep(1000);
 		}
 		getNdFileHDF5().stopCapture();
 		
 //		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all we be ok in the end.");
-		if (getNdFileHDF5().getPluginBase().getDroppedArrays_RBV() > 0)
+		if (getNdFileHDF5().getFile().getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");
 	}
 	
@@ -400,7 +408,6 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 				throw new DeviceException("Error in getCapture_RBV" + getName(), e);
 			}
 			Thread.sleep(50);
-			ScanBase.checkForInterrupts();
 		}
 		firstReadoutInScan = false;
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
@@ -418,7 +425,6 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 					String filename = "";
 					do{
 						Thread.sleep(1000);
-						ScanBase.checkForInterrupts();
 						filename=getFullFileName();
 					}
 					while(!StringUtils.hasLength(filename));

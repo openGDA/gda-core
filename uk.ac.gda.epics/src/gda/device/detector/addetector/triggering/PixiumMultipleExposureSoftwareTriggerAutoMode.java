@@ -43,23 +43,24 @@ import java.io.IOException;
 public class PixiumMultipleExposureSoftwareTriggerAutoMode extends MultipleExposureSoftwareTriggerAutoMode {
 
 	int numberExposuresPerImage = 1;
+	private String prefix;
 	
-	private String calibrationRequiredPVName = "BL12I-EA-DET-10:CAM:CalibrationRequired_RBV";
+	private String calibrationRequiredPVName = "CalibrationRequired_RBV";
 	private PV<Integer> calibrationRequiredPV;
 	
-	private String numberExposuresPerImagePVName = "BL12I-EA-DET-10:CAM:NumExposures";
+	private String numberExposuresPerImagePVName = "NumExposures";
 	private PV<Integer> numberExposuresPerImagePV;
 	
 	public PV<Integer> getCalibrationRequiredPV() {
 		if (calibrationRequiredPV == null) {
-			calibrationRequiredPV = LazyPVFactory.newIntegerPV(calibrationRequiredPVName);
+			calibrationRequiredPV = LazyPVFactory.newIntegerPV(getPrefix()+calibrationRequiredPVName);
 		}
 		return calibrationRequiredPV;
 	}
 	
 	public PV<Integer> getNumberExposuresPerImagePV() {
 		if (numberExposuresPerImagePV == null) {
-			numberExposuresPerImagePV = LazyPVFactory.newIntegerPV(numberExposuresPerImagePVName);
+			numberExposuresPerImagePV = LazyPVFactory.newIntegerPV(getPrefix()+numberExposuresPerImagePVName);
 		}
 		return numberExposuresPerImagePV;
 	}
@@ -69,11 +70,18 @@ public class PixiumMultipleExposureSoftwareTriggerAutoMode extends MultipleExpos
 		this.maxExposureTime = maxExposureTime;
 		exposureTime = maxExposureTime;
 		
-		if (calibrationRequiredPV == null) {
-			calibrationRequiredPV = LazyPVFactory.newIntegerPV(calibrationRequiredPVName);
-		}
 	}
-
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (calibrationRequiredPV == null) {
+			calibrationRequiredPV = LazyPVFactory.newIntegerPV(getPrefix()+calibrationRequiredPVName);
+		}
+		if (numberExposuresPerImagePV == null) {
+			numberExposuresPerImagePV = LazyPVFactory.newIntegerPV(getPrefix()+numberExposuresPerImagePVName);
+		}
+		
+		super.afterPropertiesSet();
+	}
 	
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages_IGNORED, ScanInformation scanInfo_IGNORED) throws Exception {
@@ -183,5 +191,13 @@ public class PixiumMultipleExposureSoftwareTriggerAutoMode extends MultipleExpos
 		} else {
 			throw new IllegalArgumentException("Unable to set exposures-per-image to " + numExposuresPerImage);
 		}
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 }
