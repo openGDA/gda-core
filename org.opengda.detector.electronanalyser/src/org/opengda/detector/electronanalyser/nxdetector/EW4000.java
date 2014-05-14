@@ -151,7 +151,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 			throw new DeviceException("Cannot create Number tracker instance", e);
 		}
 		InterfaceProvider.getTerminalPrinter().print("This is not a scan, so no scan file will be written");
-		long scannumber = numTracker.incrementNumber();
+		int scannumber = numTracker.incrementNumber();
 		collectionStrategy.setSequence(sequence);
 		collectionStrategy.createDataWriter(scannumber);
 		collectionStrategy.setScanDataPoint(0);
@@ -183,7 +183,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		Long scannumber =InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
+		int scannumber =InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
 		String dataDir=PathConstructor.createFromDefaultProperty();
 		if (!dataDir.endsWith(File.separator)) {
 			dataDir += File.separator;

@@ -39,12 +39,12 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	private static final Logger logger = LoggerFactory
 			.getLogger(NexusDataWriterExtension.class);
 
-	public NexusDataWriterExtension(Long scannumber) {
+	public NexusDataWriterExtension(int scannumber) {
 		super(scannumber);
 	}
 
 	@Override
-	public void configureScanNumber(Long _scanNumber) throws Exception {
+	public void configureScanNumber(int _scanNumber) throws Exception {
 		super.configureScanNumber(_scanNumber);
 		files.clear();
 	}
@@ -101,7 +101,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 		String regionNexusFileName;
 		String filenameFormat = sequence.getSpectrum().getFilenameFormat();
 		String filenamePrefix = sequence.getSpectrum().getFilenamePrefix();
-		if (scanNumber == null) {
+		if (scanNumber <= 0) {
 			scanNumber=new NumTracker(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)).getCurrentFileNumber();
 		}
 		if (filenamePrefix!=null && !filenamePrefix.isEmpty()) {

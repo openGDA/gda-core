@@ -57,7 +57,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 
 	private boolean sourceSelectable=false;
 	private double XRaySourceEnergyLimit=2100;
-	private Long scannumber;
+	private int scannumber;
 	private Sequence sequence;
 	private AtomicInteger scanDatapoint=new AtomicInteger(0);
 
@@ -78,7 +78,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 		setActiveRegionNames(getRegionNames());
 	}
 
-	public void createDataWriter(Long scannumber) {
+	public void createDataWriter(int scannumber) {
 		if (nexusDataWriter!= null && !nexusDataWriter.getFiles().isEmpty()) {
 			nexusDataWriter.releaseFile();
 		}
