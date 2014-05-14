@@ -63,7 +63,7 @@ public class BioSAXSProgressModelTest {
 		model.clear();
 		iSpyBSAXSDataCollections = controller.getDataCollectionsFromISPyB();
 		List<ISAXSProgress> progressList = controller
-				.loadModel(iSpyBSAXSDataCollections);
+				.loadModelFromISpyB(iSpyBSAXSDataCollections);
 		model.addAll(progressList);
 	}
 
@@ -84,50 +84,50 @@ public class BioSAXSProgressModelTest {
 			// in ISpyB
 			ISpyBStatus expectedCollectionStatus = (ISpyBStatus) iSpyBSAXSDataCollections
 					.get(i).getCollectionStatus().getStatus();
-			ISpyBStatus modelCollectionStatus = ((ISpyBStatus) modelProgressItem
-					.getCollectionStatus());
-			assertEquals(expectedCollectionStatus, modelCollectionStatus);
+			ISpyBStatusInfo modelCollectionStatus = ((ISpyBStatusInfo) modelProgressItem
+					.getCollectionStatusInfo());
+			assertEquals(expectedCollectionStatus, modelCollectionStatus.getStatus());
 
 			// Check reduction status of model object is the same as the status
 			// in ISpyB
 			ISpyBStatus expectedReductionStatus = (ISpyBStatus) iSpyBSAXSDataCollections
 					.get(i).getReductionStatus().getStatus();
-			ISpyBStatus modelReductionStatus = ((ISpyBStatus) modelProgressItem
-					.getReductionStatus());
-			assertEquals(expectedReductionStatus, modelReductionStatus);
+			ISpyBStatusInfo modelReductionStatus = ((ISpyBStatusInfo) modelProgressItem
+					.getReductionStatusInfo());
+			assertEquals(expectedReductionStatus, modelReductionStatus.getStatus());
 
 			// Check analysis status of model object is the same as the status
 			// in ISpyB
 			ISpyBStatus expectedAnalysisStatus = (ISpyBStatus) iSpyBSAXSDataCollections
 					.get(i).getAnalysisStatus().getStatus();
-			ISpyBStatus modelAnalysisStatus = ((ISpyBStatus) modelProgressItem
-					.getAnalysisStatus());
-			assertEquals(expectedAnalysisStatus, modelAnalysisStatus);
+			ISpyBStatusInfo modelAnalysisStatus = ((ISpyBStatusInfo) modelProgressItem
+					.getAnalysisStatusInfo());
+			assertEquals(expectedAnalysisStatus, modelAnalysisStatus.getStatus());
 
 			// Check collection progress in model is same as collection progress
 			// in ISpyB
 			double expectedCollectionProgress = iSpyBSAXSDataCollections.get(i)
 					.getCollectionStatus().getProgress();
-			double modelCollectionProgress = modelProgressItem
-					.getCollectionProgress();
-			assertEquals(expectedCollectionProgress, modelCollectionProgress,
+			ISpyBStatusInfo modelCollectionProgress = modelProgressItem
+					.getCollectionStatusInfo();
+			assertEquals(expectedCollectionProgress, modelCollectionProgress.getProgress(),
 					0.0);
 
 			// Check reduction progress in model is same as reduction progress
 			// in ISpyB
 			double expectedReductionProgress = iSpyBSAXSDataCollections.get(i)
 					.getReductionStatus().getProgress();
-			double modelReductionProgress = modelProgressItem
-					.getReductionProgress();
-			assertEquals(expectedReductionProgress, modelReductionProgress, 0.0);
+			ISpyBStatusInfo modelReductionProgress = modelProgressItem
+					.getReductionStatusInfo();
+			assertEquals(expectedReductionProgress, modelReductionProgress.getProgress(), 0.0);
 
 			// Check analysis progress in model is same as analysis progress in
 			// ISpyB
 			double expectedAnalysisProgress = iSpyBSAXSDataCollections.get(i)
 					.getAnalysisStatus().getProgress();
-			double modelAnalysisProgress = modelProgressItem
-					.getAnalysisProgress();
-			assertEquals(expectedAnalysisProgress, modelAnalysisProgress, 0.0);
+			ISpyBStatusInfo modelAnalysisProgress = modelProgressItem
+					.getAnalysisStatusInfo();
+			assertEquals(expectedAnalysisProgress, modelAnalysisProgress.getProgress(), 0.0);
 		}
 	}
 
@@ -145,9 +145,9 @@ public class BioSAXSProgressModelTest {
 
 		// assert model is updated with new value from ISpyB
 		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
-		assertEquals(33, modelProgressItem.getCollectionProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getReductionProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getAnalysisProgress(), 0.0);
+		assertEquals(33, modelProgressItem.getCollectionStatusInfo().getProgress(), 0.0);
+		assertEquals(0, modelProgressItem.getReductionStatusInfo().getProgress(), 0.0);
+		assertEquals(0, modelProgressItem.getAnalysisStatusInfo().getProgress(), 0.0);
 	}
 
 	@Test
@@ -163,9 +163,9 @@ public class BioSAXSProgressModelTest {
 				sampleFile, samplePath);
 
 		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
-		assertEquals(66, modelProgressItem.getCollectionProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getReductionProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getAnalysisProgress(), 0.0);
+		assertEquals(66, modelProgressItem.getCollectionStatusInfo().getProgress(), 0.0);
+		assertEquals(0, modelProgressItem.getReductionStatusInfo().getProgress(), 0.0);
+		assertEquals(0, modelProgressItem.getAnalysisStatusInfo().getProgress(), 0.0);
 	}
 
 	@Test
@@ -182,9 +182,9 @@ public class BioSAXSProgressModelTest {
 
 		// assert model is updated with new value from ISpyB
 		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
-		assertEquals(100, modelProgressItem.getCollectionProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getReductionProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getAnalysisProgress(), 0.0);
+		assertEquals(100, modelProgressItem.getCollectionStatusInfo().getProgress(), 0.0);
+		assertEquals(0, modelProgressItem.getReductionStatusInfo().getProgress(), 0.0);
+		assertEquals(0, modelProgressItem.getAnalysisStatusInfo().getProgress(), 0.0);
 	}
 
 	@Test
@@ -203,9 +203,9 @@ public class BioSAXSProgressModelTest {
 
 		// assert model is updated with new value from ISpyB
 		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
-		assertEquals(66, modelProgressItem.getCollectionProgress(), 0.0);
-		assertEquals(100, modelProgressItem.getReductionProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getAnalysisProgress(), 0.0);
+		assertEquals(66, modelProgressItem.getCollectionStatusInfo().getProgress(), 0.0);
+		assertEquals(100, modelProgressItem.getReductionStatusInfo().getProgress(), 0.0);
+		assertEquals(0, modelProgressItem.getAnalysisStatusInfo().getProgress(), 0.0);
 	}
 
 	@Test
@@ -223,9 +223,9 @@ public class BioSAXSProgressModelTest {
 
 		// assert model is updated with new value from ISpyB
 		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
-		assertEquals(66, modelProgressItem.getCollectionProgress(), 0.0);
-		assertEquals(100, modelProgressItem.getReductionProgress(), 0.0);
-		assertEquals(100, modelProgressItem.getAnalysisProgress(), 0.0);
+		assertEquals(66, modelProgressItem.getCollectionStatusInfo().getProgress(), 0.0);
+		assertEquals(100, modelProgressItem.getReductionStatusInfo().getProgress(), 0.0);
+		assertEquals(100, modelProgressItem.getAnalysisStatusInfo().getProgress(), 0.0);
 	}
 
 	@AfterClass

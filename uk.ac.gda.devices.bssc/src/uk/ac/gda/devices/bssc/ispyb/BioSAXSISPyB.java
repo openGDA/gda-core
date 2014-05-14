@@ -51,8 +51,8 @@ public interface BioSAXSISPyB {
 	 * @param viscosity
 	 * @return saxsDataCollectionID
 	 */
-	public long createSaxsDataCollection(long experimentID, short plate, short row, short column, String sampleName,
-			short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
+	public long createSaxsDataCollection(long experimentID, short plate, short row, short column, String sampleName, double sampleConcentrationMgMl,
+			double molecularMassKda, short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity) throws SQLException;
 
 	/**
@@ -77,8 +77,8 @@ public interface BioSAXSISPyB {
 	 * @param previousDataCollectionId
 	 * @return saxsDataCollectionID
 	 */
-	public long createSaxsDataCollectionUsingPreviousBuffer(long experimentID, short plate, short row, short column, String sampleName,
-			short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
+	public long createSaxsDataCollectionUsingPreviousBuffer(long experimentID, short plate, short row, short column, String sampleName, double sampleConcentrationMgMl,
+			double molecularMassKda, short bufferPlate, short bufferRow, short bufferColumn, float exposureTemperature, int numFrames,
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, long previousDataCollectionId) throws SQLException;
 
 	/**
@@ -183,6 +183,13 @@ public interface BioSAXSISPyB {
 	public void setDataCollectionStatus(long dataCollectionId, ISpyBStatusInfo status);
 
 	/**
+	 * Changes the status of the data collection from NOT_STARTED to RUNNING
+	 * @param dataCollectionId
+	 * @throws SQLException 
+	 */
+	public void setDataCollectionStarted(long dataCollectionId) throws SQLException;
+	
+	/**
 	 * Returns the status of the data collection for the sample/data collection
 	 * 
 	 * @param dataCollectionId
@@ -256,10 +263,13 @@ public interface BioSAXSISPyB {
 	public ISpyBStatusInfo getDataAnalysisStatus(long dataCollectionId) throws SQLException;
 
 	/**
-	 * Return the id of the data collection run previously to the collection with id dataCollectionId
 	 * 
 	 * @param dataCollectionId
-	 * @return id of the collection which was run before data collection with id dataCollectionId
+	 * @return ISAXSDataCollection
 	 */
-	public int getPreviousCollectionId(long dataCollectionId);
+	public ISAXSDataCollection getSAXSDataCollection(long dataCollectionId);
+
+	public void setExperimentFinished(long experimentId);
+
+	public void setExperimentAborted(long experimentId);
 }
