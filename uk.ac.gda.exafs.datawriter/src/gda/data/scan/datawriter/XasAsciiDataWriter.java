@@ -50,7 +50,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	private String outputParametersName;
 	private String folderName;
 	
-	public XasAsciiDataWriter(Long fileNumber) throws InstantiationException {
+	public XasAsciiDataWriter(int fileNumber) throws InstantiationException {
 		super();
 		thisFileNumber = fileNumber;
 		fileNumberConfigured = true;

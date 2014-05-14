@@ -26,7 +26,7 @@ import java.util.ArrayList;
 public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
 
 	@Override
-	public void configureScanNumber(Long scanNumber) throws Exception {
+	public void configureScanNumber(int scanNumber) throws Exception {
 	}
 
 	DatapointCompletingDataWriter sink;
@@ -82,7 +82,7 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
 	}
 
 	@Override
-	public String getCurrentScanIdentifier() {
+	public int getCurrentScanIdentifier() {
 		return sink.getCurrentScanIdentifier();
 	}
 

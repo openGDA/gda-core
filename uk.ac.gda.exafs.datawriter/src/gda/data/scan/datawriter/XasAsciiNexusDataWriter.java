@@ -67,7 +67,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	}
 
 	@Override
-	public String getCurrentScanIdentifier() {
+	public int getCurrentScanIdentifier() {
 		return nexus.getCurrentScanIdentifier();
 	}
 
@@ -79,7 +79,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	@Override
 	public void addData(IScanDataPoint newData) throws Exception {
 		if (firstData) {
-			ascii = new XasAsciiDataWriter(Long.parseLong(newData.getScanIdentifier()));
+			ascii = new XasAsciiDataWriter(newData.getScanIdentifier());
 			ascii.setRunFromExperimentDefinition(runFromExperimentDefinition);
 			ascii.setDescriptions(descriptions);
 			ascii.setSampleName(sampleName);
@@ -92,7 +92,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			ascii.setOutputParametersName(outputParametersName);
 			ascii.setFolderName(folderName);
 			
-			nexus = new XasNexusDataWriter(Long.parseLong(newData.getScanIdentifier()));
+			nexus = new XasNexusDataWriter(newData.getScanIdentifier());
 			setFileNameTemplates();
 			firstData = false;
 		}
