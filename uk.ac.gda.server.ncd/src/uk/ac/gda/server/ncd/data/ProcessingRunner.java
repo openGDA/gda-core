@@ -30,12 +30,23 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import uk.ac.gda.server.ncd.beans.StoredDetectorInfo;
+
 public class ProcessingRunner implements Findable, Map<String, String> {
 
 	private String name;
 	private String executablePath;
 	private Map<String, String> environment = new HashMap<String, String>();
+	private StoredDetectorInfo detectorInfo;
 	
+	public StoredDetectorInfo getDetectorInfo() {
+		return detectorInfo;
+	}
+
+	public void setDetectorInfo(StoredDetectorInfo detectorInfo) {
+		this.detectorInfo = detectorInfo;
+	}
+
 	@Override
 	public void setName(String name) {
 		this.name = name;
@@ -46,7 +57,7 @@ public class ProcessingRunner implements Findable, Map<String, String> {
 		return name;
 	}
 	
-	public void triggerProcessing(String datafilepath, String backgroundfilepath) throws IOException {
+	public void triggerProcessing(String datafilepath, String backgroundfilepath, String dataCollectionId) throws IOException {
 		if (executablePath == null)
 			throw new IOException("executablePath not set");
 		if (! new File(executablePath).canExecute())
@@ -55,7 +66,13 @@ public class ProcessingRunner implements Findable, Map<String, String> {
 			throw new IllegalArgumentException("need datafilepath");
 		if (backgroundfilepath == null)
 			backgroundfilepath = "";
-		OSCommandRunner.runNoWait(Arrays.asList(new String[] {executablePath, datafilepath, backgroundfilepath}), OSCommandRunner.LOGOPTION.ONLY_ON_ERROR, "/dev/null", environment, new Vector<String>());
+		
+		if (detectorInfo != null) {
+			environment.put("NCDREDXML", detectorInfo.getDataCalibrationReductionSetupPath());
+			environment.put("PERSISTENCEFILE", detectorInfo.getSaxsDetectorInfoPath());
+		}
+		
+		OSCommandRunner.runNoWait(Arrays.asList(new String[] {executablePath, datafilepath, backgroundfilepath, dataCollectionId}), OSCommandRunner.LOGOPTION.ONLY_ON_ERROR, "/dev/null", environment, new Vector<String>());
 	}
 
 		

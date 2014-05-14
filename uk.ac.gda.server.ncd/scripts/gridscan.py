@@ -21,7 +21,7 @@ import scisoftpy as dnp
 from uk.ac.diamond.scisoft.analysis.io import Metadata
 from uk.ac.diamond.scisoft.analysis.roi import GridPreferences
 from uk.ac.diamond.scisoft.analysis import SDAPlotter as RCPPlotter
-
+from java.util import HashMap
 class Grid(DataWriterExtenderBase):
 	
 	def __init__(self, cameraPanel, gridPanel, camera, positioner, ncddetectors):
@@ -52,7 +52,9 @@ class Grid(DataWriterExtenderBase):
 		try:
 			image =  self.camera.readLastImage()
 			if not self.gridpreferences == None:
-				image.setMetadata(Metadata({"GDA_GRID_METADATA" : self.gridpreferences}))
+				metadataMap = HashMap()
+				metadataMap.put("GDA_GRID_METADATA", self.gridpreferences)
+				image.setMetadata(Metadata(metadataMap))
 				xs = image.getShape()[1]
 				ys = image.getShape()[0]
 				xbs = self.getBeamCentreX()

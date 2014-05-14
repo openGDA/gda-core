@@ -19,27 +19,9 @@
 package uk.ac.gda.server.ncd.optimiser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optim.ConvergenceChecker;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.MaxIter;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleValueChecker;
-import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateOptimizer;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.AbstractSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
-import org.apache.derby.iapi.services.io.ArrayUtil;
-
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
  * 	# find base line
@@ -50,66 +32,209 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
  */
 public class LadderSampleFinder {
 	
+	private List<Point> points;
 	private String plotPanel;
-	private int len;
-	private double max, min;
-	
+
 	public void setPlotPanel(String plotPanel) {
 		this.plotPanel = plotPanel;
 	}
 	
-	protected double findBaseLine(final double[] y) {
-		MultivariateFunction mf = new MultivariateFunction() {
-			
-			@Override
-			public double value(double[] arg0) {
-				double sum = 0, x;
-				double base = arg0[0];
-				double spread = Math.abs(arg0[1]);
-				if (spread < Double.MIN_VALUE*1e10) {
-					spread = Double.MIN_VALUE*1e10;
-				}
-				
-				for(double d: y) {
-					x = Math.abs(base-d);
-					if (x<spread) {
-						sum += (spread - x) / spread;
-					}
-				}
-				return sum;
-			}
-		};
+	public List<Double> process(double[] x, double[] y) {
+		setPoints(x,y);
+		int[] normal = getNormalisedArray(); 
+		List<Peak> peaks = getAllPeaks(normal);
+		List<Double> regularPositions = getRegularPeakPositions(peaks);
 		
-		MultivariateOptimizer o = new SimplexOptimizer(new SimpleValueChecker(0, 0, 1000));
-		AbstractSimplex worstAPIever = new NelderMeadSimplex(2);
-		PointValuePair pair;
-		pair = o.optimize(worstAPIever, 
-				new ObjectiveFunction(mf), 
-				new InitialGuess(new double[] {max, (max-min)/1000}),
-				new MaxIter(1000),
-				new MaxEval(1000));
-		return pair.getKey()[0];
+		return validPeakList(regularPositions, peaks);
 	}
 	
-	protected void initMaxMin(double[] y) {
-		len = y.length;
-		max = min = y[0];
-		for(double d : y) {
-			if (d>max) max = d;
-			if (d<min) min = d;
+	private void setPoints(double[] x, double[] y) {
+		if (x.length != y.length) {
+			throw new IllegalArgumentException("Arrays not equal lengths");
+		}
+		points = new ArrayList<LadderSampleFinder.Point>();
+		for (int i = 0; i < y.length; i++) {
+			points.add(new Point(x[i], y[i]));
+		}
+		Collections.sort(points);
+	}
+	
+	private double maxY() {
+		double max = Double.MIN_VALUE;
+		for (Point p : points) {
+			max = Math.max(max, p.y);
+		}
+		return max;
+	}
+	
+	private double minY() {
+		double min = Double.MAX_VALUE;
+		for (Point p : points) {
+			min = Math.min(min, p.y);
+		}
+		return min;
+	}
+	
+	private int[] getNormalisedArray() {
+		int len = points.size();
+		double base = findBaseValue();
+		double halfSD = 0.5 * findSD();
+		int[] normal = new int[len];
+		for (int i = 0; i < len; i++) {
+			if (Math.abs(points.get(i).y - base) < Math.abs(halfSD)) {
+				normal[i] = 0;
+			} else {
+				normal[i] = 1;
+			}
+		}
+		return normal;
+	}
+	
+	private double findBaseValue() {
+		double span = maxY() - minY();
+		double step = span / 100;
+		
+		DescriptiveStatistics ds = new DescriptiveStatistics();
+		for (Point p : points) {
+			ds.addValue(Math.round(p.y / step)*step);
+		}
+		return ds.getPercentile(50);
+	}
+
+	private double findSD() {
+		DescriptiveStatistics ds = new DescriptiveStatistics();
+		for (Point p : points) {
+			ds.addValue(p.y);
+		}
+		return ds.getStandardDeviation();
+	}
+	
+	private List<Peak> getAllPeaks(int[] normal) {
+		List<Peak> peaks = new ArrayList<Peak>();
+		int peakStart = 0;
+		for (int i = 0; i < normal.length; i++) {
+			if (peakStart == i && normal[i] == 0) { //base line
+				peakStart++;
+			} else if (peakStart < i && normal[i] == 0) { //end of peak
+				int end = i - 1;
+				int peakCentre = end - (end - peakStart)/2;
+				peaks.add(new Peak(points.get(peakStart), points.get(end), points.get(peakCentre)));
+				peakStart = i + 1;
+			}
+		}
+		return peaks;
+	}
+	
+	private List<Double> getRegularPeakPositions(List<Peak> peaks) {
+		double spacing = findMedianGap(peaks);
+		double[] optimised = optimiseSpacing(peaks, spacing);
+		int basePos = (int) optimised[0];
+		spacing = optimised[1];
+		Peak basePeak = peaks.get(basePos);
+		
+		List<Double> regularPeakPositions = calculateRegularPeaks(basePeak, spacing, peaks.get(0).left.x, peaks.get(peaks.size() - 1).right.x);
+
+		return regularPeakPositions;
+	}
+	
+	private double findMedianGap(List<Peak> peaks) {
+		DescriptiveStatistics ds = new DescriptiveStatistics();
+		Peak prev = peaks.get(0);
+		for (int gap = 0; gap < peaks.size() - 1; gap++) {
+			Peak peak = peaks.get(gap+1);
+			ds.addValue(peak.centre.x - prev.centre.x);
+			prev = peak;
+		}
+		return ds.getPercentile(50);
+	}
+	
+	private double[] optimiseSpacing(List<Peak> peaks, double spacing) {
+		double variation = spacing * 0.2; //ARGH MAGIC NUMBERS
+		double spacingStep = spacing * 0.01;
+		double lowerSpacingBound = spacing - variation;
+		double upperSpacingBound = spacing + variation;
+		int optimalBase = 0;
+		double optimalSpacing = 0;
+		double minimumError = Double.MAX_VALUE;
+		for (spacing = lowerSpacingBound; Math.abs(spacing) < Math.abs(upperSpacingBound); spacing += spacingStep) {
+			for (int i = 0; i < peaks.size(); i++) {
+				double offset = peaks.get(i).centre.x;
+				double sum = 0;
+				for (int j = 0; j < peaks.size(); j++) {
+					double error = Math.abs((j - i) * spacing - peaks.get(j).centre.x + offset);
+					sum += error;
+				}
+				if (sum < minimumError) {
+					minimumError = sum;
+					optimalBase = i;
+					optimalSpacing = spacing;
+				}
+			}
+		}
+		return new double[] {optimalBase, optimalSpacing};
+	}
+	
+	private List<Double> calculateRegularPeaks(Peak basePeak, double spacing, double lowerLimit, double upperLimit) {
+		List<Double> regularPeaks = new ArrayList<Double>();
+//		double lowerLimit = points.get(0).x;
+//		double upperLimit = points.get(points.size() - 1).x;
+		int count = (int) ((upperLimit - lowerLimit) / spacing);
+		
+		for (int i = -count; i < count; i++) {
+			double newPeak = basePeak.centre.x - i * spacing;
+			if (newPeak > lowerLimit && newPeak < upperLimit) {
+				regularPeaks.add(newPeak);
+			}
+		}
+		return regularPeaks;
+	}
+	
+	private List<Double> validPeakList(List<Double> regularPeaks, List<Peak> peaks) {
+		Collections.sort(regularPeaks);
+		int i = 0;
+		for (int j = 0; j < regularPeaks.size(); j++) {
+			double d = regularPeaks.get(j);
+			while (i <  peaks.size() - 1 && peaks.get(i).right.x < d) {
+				i++;
+			}
+			Peak peak = peaks.get(i);
+			if (d > peak.left.x) {
+				regularPeaks.set(j, peak.centre.x);
+			}
+		}
+		
+		return regularPeaks;
+	}
+	
+	private class Point implements Comparable<Point> {
+		double x;
+		double y;
+		Point(double x, double y) {
+			this.x = x;
+			this.y = y;
+		}
+		@Override
+		public int compareTo(Point o) {
+			return ((Double)x).compareTo(o.x);
 		}
 	}
 	
-	public List<Double> process(double[] x, double[] y) {
-		
-		initMaxMin(y);
-		
-		double baseLine = findBaseLine(y);
-		
-		List<Double> list = new ArrayList<Double>();
-		list.add((double) 0);
-		list.add((double) 100);
-		return list;
+	private class Peak implements Comparable<Peak> {
+		Point left;
+		Point right;
+		Point centre;
+		Peak(Point l, Point r, Point c) {
+			left = l;
+			right = r;
+			centre = c;
+		}
+		@Override
+		public int compareTo(Peak o) {
+			return ((Double)centre.x).compareTo(o.centre.x);
+		}
+		@Override
+		public String toString() {
+			return String.format("%.1f",centre.x);
+		}
 	}
-
 }
