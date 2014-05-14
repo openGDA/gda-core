@@ -53,7 +53,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	private String lastPercentComplete = "0%";
 	private String uniqueName;
 	private String sampleName;
-	private Integer scanNumber;
+	private int scanNumber;
 
 	public XasProgressUpdater(LoggingScriptController controller, XasLoggingMessage msg, long timeRepetitionsStarted) {
 		this.controller = controller;
@@ -154,7 +154,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 			if (uniqueName == null || uniqueName.equals(sdp.getUniqueName())) {
 				uniqueName = sdp.getUniqueName();
 				// always update as it probably was not set before getting any SDPs via this method
-				scanNumber = Integer.parseInt(sdp.getScanIdentifier());
+				scanNumber = sdp.getScanIdentifier();
 				long now = System.currentTimeMillis();
 				int percentComplete = determinePercentComplete(sdp, false);
 				lastPercentComplete = percentComplete + "%";
