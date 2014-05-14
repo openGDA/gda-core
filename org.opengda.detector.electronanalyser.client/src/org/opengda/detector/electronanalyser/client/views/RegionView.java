@@ -55,6 +55,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
+import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
@@ -212,7 +213,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 		passEnergy = new Combo(grpPassEnergy, SWT.READ_ONLY);
 		passEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		passEnergy.setToolTipText("List opf available pass energy to select");
+		passEnergy.setToolTipText("Select a pass energy to use");
 
 		Group grpRunMode = new Group(modeComposite, SWT.NONE);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -1030,6 +1031,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * passEnergyIntValue));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_PassEnergy(), passEnergyIntValue);
 			updateEnergyStep();
+			fireSelectionChanged(new EnergyChangedSelection(region));
 		}
 	}
 
@@ -1160,6 +1162,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		if (btnFixed.getSelection()) {
 			fixedCentreEnergy = Double.parseDouble(txtCenter.getText());
 		}
+		fireSelectionChanged(new EnergyChangedSelection(region));
 	}
 
 	private void updateEnergyFields(Text txt) {

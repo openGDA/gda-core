@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
@@ -60,7 +62,9 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ISelection;
@@ -71,6 +75,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
@@ -78,6 +83,7 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -88,6 +94,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -104,6 +111,7 @@ import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin
 import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.opengda.detector.electronanalyser.client.jobs.RegionJob;
 import org.opengda.detector.electronanalyser.client.jobs.RegionJobRule;
+import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
@@ -115,7 +123,9 @@ import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewL
 import org.opengda.detector.electronanalyser.client.viewextensionfactories.RegionViewExtensionFactory;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
+import org.opengda.detector.electronanalyser.lenstable.TwoDimensionalLookupTable;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
@@ -131,6 +141,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.ui.dialog.VisitIDDialog;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Maps;
 
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 	private static final Logger logger = LoggerFactory.getLogger(SequenceView.class);
@@ -199,13 +213,49 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
-			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
+			TableViewerColumn tableViewerColumn = new TableViewerColumn(
+					tableViewer, SWT.None);
 			TableColumn column = tableViewerColumn.getColumn();
 			column.setResizable(columnLayouts[i].resizable);
 			column.setText(columnHeaders[i]);
 			column.setToolTipText(columnHeaders[i]);
 
 			column.setWidth(columnLayouts[i].minimumWidth);
+			if (i == 0) {
+				tableViewerColumn.setLabelProvider(new ColumnLabelProvider() {
+					public String getText(Object element) {
+						Region p = (Region) element;
+						return p.getName();
+					}
+
+					@Override
+					public String getToolTipText(Object element) {
+						Region region = (Region) element;
+						if (invalidRefgions.containsKey(region)) {
+							return region.getName()
+									+ " setting is outside energy range "
+									+ invalidRefgions.get(region);
+						} else {
+							return null;
+						}
+					}
+
+					@Override
+					public Point getToolTipShift(Object object) {
+						return new Point(5, 5);
+					}
+
+					@Override
+					public int getToolTipDisplayDelayTime(Object object) {
+						return 100; // msec
+					}
+
+					@Override
+					public int getToolTipTimeDisplayed(Object object) {
+						return 5000; // msec
+					}
+				});
+			}
 
 			tableViewerColumn.setEditingSupport(new SequenceColumnEditingSupport(tableViewer, tableViewerColumn));
 		}
@@ -249,10 +299,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		GridData gd1 = new GridData(GridData.FILL_BOTH);
 		gd1.widthHint = 500;
 		sequenceTableViewer.getTable().setLayoutData(gd1);
+		ColumnViewerToolTipSupport.enableFor(sequenceTableViewer, ToolTip.NO_RECREATE); 
 		createColumns(sequenceTableViewer, null);
-
-		GridData layoutData5 = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		tableViewerContainer.setLayoutData(layoutData5);
+		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(regionDefinitionResourceUtil));
 		SequenceViewLabelProvider labelProvider = new SequenceViewLabelProvider();
@@ -271,7 +320,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		} catch (Exception e2) {
 			logger.error("Cannot load resouce from file: "+regionDefinitionResourceUtil.getFileName(), e2);
 		}
-
+		
 		Composite controlArea = new Composite(rootComposite, SWT.None);
 		// Contains region actions, sequence parameters, file saving info and
 		// comments.
@@ -547,7 +596,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			}
 		});
-		GridData gd_txtFilename = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+//		GridData gd_txtFilename = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
 //		gd_txtFilename.widthHint = 104;
 //		txtPrefix.setLayoutData(gd_txtFilename);
 		txtPrefix.setText("Filename Prefix");
@@ -692,6 +741,19 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		btnConfirmAfterEachInteration.setEnabled(false);
 
 		new Label(grpSequnceRunMode, SWT.NONE);
+		
+		Group grpElementset = new Group(rightArea, SWT.NONE);
+		GridData gd_grpElementset = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData.widthHint = 250;
+		grpElementset.setLayoutData(gd_grpElementset);
+		grpElementset.setLayout(new GridLayout());
+		grpElementset.setText("Element Set");
+		
+		comboElementSet = new Combo(grpElementset, SWT.READ_ONLY);
+		comboElementSet.setItems(new String[] {"Low","High"});
+		comboElementSet.setToolTipText("Select an element set");
+		comboElementSet.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		comboElementSet.setText(comboElementSet.getItem(0));
 
 		Composite actionArea = new Composite(rootComposite, SWT.None);
 		// Contains region editing, sequence parameters, file saving info and
@@ -866,6 +928,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 			if (selection instanceof TotalTimeSelection) {
 				updateCalculatedData();
+			} else if (selection instanceof EnergyChangedSelection) {
+				Region region=((EnergyChangedSelection)selection).getRegion();
+				if (region.isEnabled()) {
+					checkRegionValidation(region);
+				}
 			} else if (selection instanceof IStructuredSelection) {
 				IStructuredSelection sel = (IStructuredSelection) selection;
 				Object firstElement = sel.getFirstElement();
@@ -890,7 +957,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private EpicsChannelManager channelmanager;
 
-//	private Device ew4000;
+	private Action stopRunOnServerAction;
+
+	private String energyLensTableDir
+	;
+	
+	//	private Device ew4000;
 
 	private Region getSelectedRegion() {
 		ISelection selection = getSelection();
@@ -904,8 +976,34 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		return null;
 	}
+	
+	private IVGScientaAnalyser analyser;
+
+	private SelectionAdapter elementSetSelAdaptor = new SelectionAdapter() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (e.getSource().equals(comboElementSet)) {
+				updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), comboElementSet.getText());
+				validateRegions();
+			}
+		}
+	};;
 
 	private void initialisation() {
+		try {
+			comboElementSet.removeAll();
+			comboElementSet.setItems(getAnalyser().getElementSet());
+		} catch (DeviceException e) {
+			logger.error("Cannot get element set list from analyser.", e);
+			e.printStackTrace();
+		}
+		try {
+			comboElementSet.setText(getAnalyser().getElement());
+		} catch (Exception e) {
+			logger.error("Cannot get the current element set from analyser.", e);
+			e.printStackTrace();
+		}
+
 		try {
 			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
 		} catch (Exception e) {
@@ -1000,6 +1098,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		} catch (CAException | TimeoutException e1) {
 			logger.error("failed to create required spectrum channels", e1);
 		}
+		comboElementSet.addSelectionListener(elementSetSelAdaptor);
+	}
+
+	public IVGScientaAnalyser getAnalyser() {
+		return analyser;
 	}
 
 	private void createChannels() throws CAException, TimeoutException {
@@ -1009,7 +1112,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		logger.debug("analyser state channel and monitor are created");
 	}
 
-	private Action stopRunOnServerAction;
 
 	private void prepareRunOnServerActions() {
 		startRunOnServerAction = new Action() {
@@ -1063,8 +1165,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				super.run();
 				logger.info("Stop collection on GDA server");
 				try {
-					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
-					jsf.haltCurrentScan();
+					InterfaceProvider.getCurrentScanController().requestFinishEarly();
 					runningonserver = false;
 				} catch (Exception e) {
 					logger.error("exception throws on stop queue processor.", e);
@@ -1201,12 +1302,31 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
 						fireSelectionChanged(new RegionActivationSelection());
 						updateCalculatedData();
+						//BLIX-96
+						Region region = (Region)element;
+						if (region.isEnabled()) {
+							checkRegionValidation(region);
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
 			}
 		}
+	}
+
+	private void checkRegionValidation(Region region) {
+		if (!isValidRegion(region)){
+			String message="Region '" + region.getName()+"' is outside the energy range (" + invalidRefgions.get(region)+") \npermitted in the Lens Table for Element Set '"+comboElementSet.getText()+"' and Pass Energy '"+region.getPassEnergy()+"'.\n";
+			openMessageBox(message);
+		}
+	}
+
+	private void openMessageBox(String message) {
+		MessageBox dialog=new MessageBox(getSite().getShell(), SWT.ICON_ERROR |SWT.OK);
+		dialog.setText("Invalid Regions");
+		dialog.setMessage(message);
+		dialog.open();
 	}
 
 	protected void runCommand(final Command rmCommand) throws Exception {
@@ -1305,6 +1425,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		try {
+			validateRegions();
+			if (!invalidRefgions.isEmpty()) {
+				return;
+			}
 			regionDefinitionResourceUtil.getResource().save(null);
 			isDirty = false;
 			firePropertyChange(PROP_DIRTY);
@@ -1315,8 +1439,122 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 	}
 
+	private Map<Region, String> invalidRefgions=Maps.newConcurrentMap();
+	private void validateRegions() {
+		invalidRefgions.clear();
+		try {
+			for (Region region : regionDefinitionResourceUtil.getRegions()) {
+				if (region.isEnabled()) {
+					// only check enabled regions.
+					isValidRegion(region);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Failed to get all regions from resource util, so no region is checked for validation.", e);
+		}
+		if (!invalidRefgions.isEmpty()) {
+			String message = "Following region(s) are outside the energy range given in the Lend Table for the given Element Set and Pass Energy.\n";
+			int longestnamelength=0;
+			for (Region region : invalidRefgions.keySet()) {
+				if (longestnamelength<region.getName().length()) {
+					longestnamelength=region.getName().length();
+				}
+			}
+			String formatString="%"+longestnamelength+"s\t%10s\t%10s\t%4d\n";
+			message+=String.format(formatString,"Region","Energy Range","Element Set","Pass Energy");
+			for (Entry<Region, String> entry : invalidRefgions.entrySet()) {
+				// open message box to warn users
+				message += String.format(formatString,entry.getKey().getName(),entry.getValue(),comboElementSet.getText().trim(),entry.getKey().getPassEnergy());
+			}
+			openMessageBox(message);
+		}
+	}
+	/**
+	 * update the data model Status field according to region valid or not
+	 * @param region
+	 * @return
+	 */
+	private boolean isValidRegion(Region region) {
+		String elementset = comboElementSet.getText().trim().toLowerCase();
+		if (isValidRegion(elementset, region)) {
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Status(), STATUS.READY);
+			return true;
+		} else {
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Status(), STATUS.INVALID);
+			return false;
+		}
+	}
+	/**
+	 * check to see if the given region is valid or not in the given element_set.
+	 * @param elementset
+	 * @param region
+	 * @return
+	 */
+	private boolean isValidRegion(String elementset, Region region) {
+		com.google.common.collect.Table<String, String, String> lookupTable = getLookupTable(elementset);
+		if (lookupTable==null) {
+			// no validation required.
+			return true;
+		}
+		String energyrange=lookupTable.get(elementset, String.valueOf(region.getPassEnergy()));
+		List<String> limits=Splitter.on("-").splitToList(energyrange);
+		if (region.getEnergyMode()==ENERGY_MODE.KINETIC) {
+			if (!(region.getLowEnergy()>=Double.parseDouble(limits.get(0)) && region.getHighEnergy()<=Double.parseDouble(limits.get(1)))) {
+				invalidRefgions.put(region, energyrange);
+				return false;
+			}
+		} else {
+			double startEnergy=region.getExcitationEnergy()-region.getHighEnergy();
+			double endEnergy=region.getExcitationEnergy()-region.getLowEnergy();
+			if (startEnergy<endEnergy) {
+				if (!(startEnergy>=Double.parseDouble(limits.get(0)) && endEnergy<=Double.parseDouble(limits.get(1)))) {
+					invalidRefgions.put(region, energyrange);
+					return false;
+				}
+			} else {
+				if (!(endEnergy>=Double.parseDouble(limits.get(0)) && startEnergy<=Double.parseDouble(limits.get(1)))) {
+					invalidRefgions.put(region, energyrange);
+					return false;
+				}
+			}
+		}
+		if (invalidRefgions.containsKey(region)) {
+			invalidRefgions.remove(region);
+		}
+		return true;
+		
+	}
+	/**
+	 * create lens table for lookup energy range limits
+	 * @param elementset
+	 * @return
+	 */
+	private com.google.common.collect.Table<String, String, String> getLookupTable(String elementset) {
+		String tablePath;
+		Joiner pathJoiner = Joiner.on("/").skipNulls();
+		Joiner filenameJoiner = Joiner.on("_").skipNulls();
+		String filename = filenameJoiner.join(elementset, "energy","table.txt");
+		if (getEnergyLensTableDir() == null) {
+			String configDir = LocalProperties.get(LocalProperties.GDA_CONFIG);
+			tablePath = pathJoiner.join(configDir, "lookupTables", filename);
+		} else {
+			
+			tablePath = pathJoiner.join(getEnergyLensTableDir(), filename);
+		}
+		File file = new File(tablePath);
+		if (!file.exists()) {
+			throw new IllegalArgumentException("Cannot find the lookup table : " + tablePath);
+		} else {
+			return new TwoDimensionalLookupTable().createTable(file);
+		}
+	}
+
 	@Override
 	public void doSaveAs() {
+		validateRegions();
+		if (!invalidRefgions.isEmpty()) {
+			return;
+		}
 		Resource resource = null;
 		try {
 			resource = regionDefinitionResourceUtil.getResource();
@@ -1372,7 +1610,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private Action startSequenceAction;
 
-	private IVGScientaAnalyser analyser;
 
 //	private Device regionScannable;
 
@@ -1509,6 +1746,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private boolean first = true;
 
+	private Combo comboElementSet;
+
 	private class AnalyserStateListener implements MonitorListener {
 
 		private boolean running=false;
@@ -1625,5 +1864,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 	}
 
+	public String getEnergyLensTableDir() {
+		return energyLensTableDir;
+	}
 
+	public void setEnergyLensTableDir(String energyLensTableDir) {
+		this.energyLensTableDir = energyLensTableDir;
+	}
 }

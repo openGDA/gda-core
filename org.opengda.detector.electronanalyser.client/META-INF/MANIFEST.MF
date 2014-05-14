@@ -24,13 +24,17 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.ide;bundle-version="3.8.2",
  org.opengda.detector.electronanalyser;bundle-version="1.0.0",
  org.dawnsci.plotting.api;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
- org.apache.commons.io;bundle-version="[2.4.0,2.5.0)",
- org.dawnsci.plotting.histogram;bundle-version="1.1.0"
+ org.apache.commons.lang;bundle-version="2.6.0",
+ org.dawnsci.plotting.histogram;bundle-version="1.1.0",
+ org.apache.commons.io;bundle-version="2.4.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.eclipse.ui.dialogs,
- org.slf4j;version="[1.7.6,1.7.7)",
+Import-Package: com.google.common.base;version="15.0.0",
+ com.google.common.collect;version="15.0.0",
+ gda.configuration.properties,
+ org.apache.commons.io,
+ org.eclipse.ui.dialogs,
+ org.slf4j,
  uk.ac.gda.ui.dialog
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: org.opengda.detector.electronanalyser.client,

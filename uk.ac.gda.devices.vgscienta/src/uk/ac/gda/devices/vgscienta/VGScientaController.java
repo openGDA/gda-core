@@ -22,7 +22,9 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.epics.connection.EpicsController;
 import gda.factory.Configurable;
+import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -202,8 +204,14 @@ public class VGScientaController implements Configurable {
 	}
 	
 	public void zeroSupplies() throws Exception {
-		EPICS_CONTROLLER.caputWait(getChannel(ZERO_SUPPLIES), 1);
-		EPICS_CONTROLLER.caput(getChannel(ZERO_SUPPLIES), 0);
+		try {
+			EPICS_CONTROLLER.caputWait(getChannel(ZERO_SUPPLIES), 1);
+			EPICS_CONTROLLER.caput(getChannel(ZERO_SUPPLIES), 0);
+			logger.debug("looks like we successfully set the volates to zero");
+		} catch (Exception e) {
+			logger.error("exception received while zeroing voltages: ", e);
+			throw e;
+		} 
 	}
 
 	public int getSweepSteps() throws Exception {

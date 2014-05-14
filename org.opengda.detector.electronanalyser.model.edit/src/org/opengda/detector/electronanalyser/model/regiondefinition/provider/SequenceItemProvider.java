@@ -68,6 +68,7 @@ public class SequenceItemProvider
 			addNumInterationOptionPropertyDescriptor(object);
 			addRepeatUntilStoppedPropertyDescriptor(object);
 			addConfirmAfterEachIterationPropertyDescriptor(object);
+			addElementSetPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -205,6 +206,28 @@ public class SequenceItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Element Set feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addElementSetPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sequence_elementSet_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_elementSet_feature", "_UI_Sequence_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.SEQUENCE__ELEMENT_SET,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
 	 * This adds a property descriptor for the Filename feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -301,6 +324,7 @@ public class SequenceItemProvider
 			case RegiondefinitionPackage.SEQUENCE__NUM_INTERATION_OPTION:
 			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
 			case RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION:
+			case RegiondefinitionPackage.SEQUENCE__ELEMENT_SET:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 			case RegiondefinitionPackage.SEQUENCE__REGION:

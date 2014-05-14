@@ -21,7 +21,7 @@ package uk.ac.gda.arpes.ui.views;
 import gda.device.Device;
 import gda.device.MotorStatus;
 import gda.factory.Finder;
-import gda.jython.JythonServerFacade;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 
 import org.eclipse.swt.SWT;
@@ -117,7 +117,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		btnStop.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				JythonServerFacade.getInstance().haltCurrentScan();
+				InterfaceProvider.getCommandAborter().abortCommands();
 				analyser.setMaximumFrame(analyser.getCurrentFrame());
 			}
 			@Override

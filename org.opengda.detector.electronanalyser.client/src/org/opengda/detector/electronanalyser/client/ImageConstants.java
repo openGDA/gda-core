@@ -73,6 +73,8 @@ public class ImageConstants {
 	public static final String ICON_RUN_ON_SERVER = "icons/run_on_server.gif";
 	public static final String ICON_STOP_SERVER = "icons/server_stop.png";
 
+	public static final String ICON_INVALID_REGION = "icons/error.png";
+
 	public static String[] IMAGES = new String[] { ICON_RESET_DETECTOR,
 			ICON_HORIZONTAL_FLIP, ICON_PITCH_ROTATE, ICON_ROLL_ROTATE,
 			ICON_VERTICAL_FLIP, ICON_RAW_IMAGE, ICON_TOMO_ALIGNMENT,
