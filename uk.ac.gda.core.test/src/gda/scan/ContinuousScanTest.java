@@ -72,7 +72,7 @@ public class ContinuousScanTest {
 		Scan scan = beforeEachTest();
 		assertEquals(null,scan.getScanNumber());
 		scan.runScan();
-		assertEquals(Long.valueOf(ScanBaseFirstScanNumber),scan.getScanNumber());
+		assertEquals(ScanBaseFirstScanNumber,scan.getScanNumber());
 
 		// check that the detector has been operated the expected number of times.
 		int[][] data = (int[][]) detector.readAllFrames();
@@ -233,7 +233,7 @@ public class ContinuousScanTest {
 
 		assertEquals(null,mainScan.getScanNumber());
 		mainScan.runScan();
-		assertEquals(Long.valueOf(ScanBaseFirstScanNumber),mainScan.getScanNumber());
+		assertEquals(ScanBaseFirstScanNumber,mainScan.getScanNumber());
 		// but check that the detector has been triggered 150 times
 //		verify(detector, times(30)).addPoint();
 		assertEquals(10,detector.getNumberFrames());

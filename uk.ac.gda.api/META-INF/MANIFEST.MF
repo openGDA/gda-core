@@ -104,8 +104,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
  org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
-Bundle-ClassPath: .,
- jars/gda-corba.jar
+Bundle-ClassPath: jars/gda-corba.jar,
+ .
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.gda.libs

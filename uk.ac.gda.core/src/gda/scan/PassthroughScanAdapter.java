@@ -168,7 +168,7 @@ public class PassthroughScanAdapter implements NestableScan {
 	}
 
 	@Override
-	public Long getScanNumber() {
+	public int getScanNumber() {
 		return delegate.getScanNumber();
 	}
 
