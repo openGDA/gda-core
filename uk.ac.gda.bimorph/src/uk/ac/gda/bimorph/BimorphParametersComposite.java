@@ -20,7 +20,9 @@ package uk.ac.gda.bimorph;
 
 import gda.data.NumTracker;
 import gda.jython.JythonServerFacade;
+
 import java.io.IOException;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -31,6 +33,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
@@ -335,7 +338,7 @@ public final class BimorphParametersComposite extends Composite {
 		if(scannumberProperty.equals("True")){
 			try {
 				NumTracker numTracker = new NumTracker("scanbase_numtracker");
-				currentScanNumber = (int) numTracker.getCurrentFileNumber();
+				currentScanNumber = numTracker.getCurrentFileNumber();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -343,7 +346,7 @@ public final class BimorphParametersComposite extends Composite {
 		else{
 			try {
 			NumTracker numTracker = new NumTracker();
-			currentScanNumber = (int) numTracker.getCurrentFileNumber();
+			currentScanNumber = numTracker.getCurrentFileNumber();
 			} catch (IOException e) {
 			e.printStackTrace();
 			}
