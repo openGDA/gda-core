@@ -325,7 +325,7 @@ public final class BimorphParametersComposite extends Composite {
 		
 		String command = "bimorph.runOptimisation(" + bimorphScannable + "," + "\"" + mirror_type + "\"" + ","
 				+ String.valueOf(noOfElectrodes) + "," + voltageInc + "," + files + "," + error_file + ","
-				+ desiredFocSize + "," + "\"" + user_offset + "\"" + "," + bm_voltages + "," + beamOffsetValue + "," + autoDist + "," + scalingFactor  +  ",'" + selectedDir + "'," + minSlitPos.getValue().toString() + "," +  maxSlitPos.getValue().toString() + "," + slitToScanPos + ")";
+				+ desiredFocSize + "," + "\"" + user_offset + "\"" + "," + bm_voltages + "," + beamOffsetValue + "," + autoDist + "," + scalingFactor  +  ",'" + selectedDir + "'," + minSlitPos.getValue().toString() + "," +  maxSlitPos.getValue().toString() + ",'" + slitToScanPos + "')";
 
 		JythonServerFacade.getInstance().runCommand(command);
 	}
@@ -333,7 +333,7 @@ public final class BimorphParametersComposite extends Composite {
 	private int determineCurrentScanFileNumber(){
 		int currentScanNumber = 0;
 		JythonServerFacade.getInstance().runCommand("from gda.data import NumTracker");
-		String scannumberProperty = JythonServerFacade.getInstance().evaluateCommand("LocalProperties.get(\"gda.scan.sets.scannumber\", \"False\")");
+		String scannumberProperty = JythonServerFacade.getInstance().evaluateCommand("LocalProperties.check(\"gda.scan.sets.scannumber\")");
 		//String scannumberProperty = LocalProperties.get("gda.scan.sets.scannumber", "False");
 		if(scannumberProperty.equals("True")){
 			try {

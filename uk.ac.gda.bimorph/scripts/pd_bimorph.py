@@ -25,6 +25,7 @@ class Bimorph(ScannableMotionBase):
 	sleepdInS - time to wait after sending changes to EPICS for the bimorph to respond fully	
 	"""
 	def __init__(self, name, startChan,numofChans, pvPrefix, sleepInS):
+        # eembimorph = EemBimorph("eembimorph", 0, 8, "EEM_Bimorph:", sleepInS=0)
 		self.numOfChans=numofChans
 		self.startChan=startChan
 		self.channelIndexes = tuple(range(startChan, startChan+numofChans))
@@ -62,7 +63,7 @@ class Bimorph(ScannableMotionBase):
 		self.IAmBusy=True
 		try:
 			for i in range(self.startChan,self.startChan+self.numOfChans):
-				self.beamline.setValue(None,"Top",self.pvPrefix+`i`+"D",new_position[i-self.startChan], 20)
+				self.beamline.setValue(None,"Top",self.pvPrefix+`i`+"D",new_position[i-self.startChan], 60)
 			sleep(self.sleepInS)
 		except:
 			pass
@@ -119,6 +120,7 @@ class DynamicPvManager(object):
 		self.clients[pvname] = CAClient(self.pvroot + pvname)
 		self.clients[pvname].configure()
 		
+APPLY_TARGET_PROFILE = True
 
 class EemBimorph(Bimorph):
 	"""
@@ -131,10 +133,10 @@ class EemBimorph(Bimorph):
 	def rawGetPosition(self):
 		target = []
 		for i in self.channelIndexes:
-			target.append(self.__getChannelTarget(i))
+			target.append(self._getChannelTarget(i))
 		output = []
 		for i in self.channelIndexes:
-			output.append(self.__readOutput(i))
+			output.append(self._readOutput(i))
 		return target + output
 	
 	def rawAsynchronousMoveTo(self, targetArray):
@@ -145,15 +147,15 @@ class EemBimorph(Bimorph):
 		self.__checkTargetSafe(targetArray)
 		for (i, target) in zip (self.channelIndexes, targetArray):
 			time.sleep(1)
-			self.__setChannelTarget(i, target)
+			self._setChannelTarget(i, target)
 		self.__waitForTargetSet(targetArray);
 		time.sleep(5)
-		self.__applyTargetProfile()
+		self._applyTargetProfile()
 		time.sleep(15)
 		
 	def rawIsBusy(self):
 		for i in self.channelIndexes:
-			if self.__isTargetStatusBusy(i): return True
+			if self._isTargetStatusBusy(i): return True
 		return False
 	
 	def moveOne(self, motor, new_position):
@@ -183,24 +185,90 @@ class EemBimorph(Bimorph):
 
 	def __isTargetSet(self, targetArray):
 		for (i, target) in zip(self.channelIndexes, targetArray):	
-			if float(target) != self.__getChannelTarget(i):
+			if float(target) != self._getChannelTarget(i):
 				return False
 		return True
 	
-	def __readOutput(self, i):
+	def _readOutput(self, i):
 		return float(self.pvs['GET-VOUT%02i'%i].caget())
 	
-	def __setChannelTarget(self, i, target):
+	def _setChannelTarget(self, i, target):
+###		print "Setting first batch", i, target
 		self.pvs['SET-VTRGT%02i' % i].caput(target)
 		
-	def __getChannelTarget(self, i):
+	def _getChannelTarget(self, i):
 		return float(self.pvs['GET-VTRGT%02i'%i].caget())
 	
-	def __applyTargetProfile(self):
-		self.pvs['SET-ALLTRGT'].caput(1)
+	def _applyTargetProfile(self):
+		if APPLY_TARGET_PROFILE:
+			self.pvs['SET-ALLTRGT'].caput(1)
+		else:
+			print "*** Not applying target profile. change with"
+			print ">>> pd_bimorph.APPLY_TARGET_PROFILE = True"
 		
-	def __isTargetStatusBusy(self, i):
+	def _isTargetStatusBusy(self, i):
 		return int(self.pvs['GET-STATUS%02i'%i].caget())!=1
+
+
+class SixteenChannelEemBimorph(EemBimorph):
+	""" MADNESS!:
+$ caget EEM_Bimorph:GET-VTRGT07
+EEM_Bimorph:GET-VTRGT07        -55
+$ caget EEM_Bimorph:GET-VTRGT08
+Channel connect timed out: 'EEM_Bimorph:GET-VTRGT08' not found.
+$ caget Spare_8:GET-VTRGT00
+Spare_8:GET-VTRGT00            0
+
+	"""
+
+	def __init__(self, name, startChan,numofChans, pvPrefix, pvPrefix2, sleepInS):
+		assert startChan == 0
+		assert numofChans == 16
+		
+		self.pvPrefix2 = pvPrefix2
+		EemBimorph.__init__(self, name, startChan, numofChans, pvPrefix, sleepInS)
+		
+	def configure(self):
+		EemBimorph.configure(self)
+   		self.pvs2 = DynamicPvManager(self.pvPrefix2)
+   		
+	def _applyTargetProfile(self):
+		print "bimorph moving first block of 8"
+		EemBimorph._applyTargetProfile(self)
+		sleep(15)
+
+		if APPLY_TARGET_PROFILE:
+			self.waitWhileBusy()
+			print "bimorph moving second block of 8"
+			sleep(5)
+			self.pvs2['SET-ALLTRGT'].caput(1)
+		
+
+   	def _readOutput(self, i):
+   		if i >= 8:
+   			return float(self.pvs2['GET-VOUT%02i' % (i - 8)].caget())
+   		else:
+   			return EemBimorph._readOutput(self, i)
+	
+	def _setChannelTarget(self, i, target):
+		if i >= 8:
+###			print "Setting second batch", i, target
+			self.pvs2['SET-VTRGT%02i' % (i - 8)].caput(target)
+		else:
+			EemBimorph._setChannelTarget(self, i, target)
+		
+	def _getChannelTarget(self, i):
+		if i >= 8:
+			return float(self.pvs2['GET-VTRGT%02i' % (i - 8)].caget())
+		else:
+			return EemBimorph._getChannelTarget(self, i)
+	
+	def _isTargetStatusBusy(self, i):
+		if i >= 8:
+			return int(self.pvs2['GET-STATUS%02i' % (i - 8)].caget()) != 1
+		else:
+			return EemBimorph._isTargetStatusBusy(self, i)
+	
 
 class Bimorph_HFM(Bimorph):
 	def __init__(self):
