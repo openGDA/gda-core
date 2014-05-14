@@ -194,7 +194,7 @@ public class PeakScan extends ConcurrentScan implements Scan {
 		theDetector.collectData();
 		// write data to data handler
 		ScanDataPoint point = new ScanDataPoint();
-		point.setScanIdentifier(name);
+		point.setScanIdentifier(getScanNumber());
 		point.addScannablesAndDetectors(allScannables, allDetectors);
 		point.setCurrentFilename(getDataWriter().getCurrentFileName());
 		getDataWriter().addData(point);

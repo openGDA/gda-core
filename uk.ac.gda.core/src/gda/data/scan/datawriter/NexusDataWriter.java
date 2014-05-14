@@ -142,10 +142,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	/**
 	 * The current run number.
 	 */
-	protected Long scanNumber;
+	protected int scanNumber = -1;
 
-	Long getScanNumber() throws Exception {
-		configureScanNumber(null); // ensure it has been configured
+	int getScanNumber() throws Exception {
+		configureScanNumber(-1); // ensure it has been configured
 		return scanNumber;
 	}
 
@@ -170,7 +170,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		super();
 	}
 
-	public NexusDataWriter(Long fileNumber) {
+	public NexusDataWriter(int fileNumber) {
 		scanNumber = fileNumber;
 	}
 
@@ -227,13 +227,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	@Override
-	public synchronized void configureScanNumber(Long _scanNumber) throws Exception {
+	public synchronized void configureScanNumber(int _scanNumber) throws Exception {
 		if (!fileNumberConfigured) {
-			if (_scanNumber != null) {
+			if (_scanNumber > 0) {
 				// the scan or other datawriter has set the id
 				scanNumber = _scanNumber;
 			} else {
-				if (scanNumber == null) {
+				if (scanNumber <= 0) {
 					setupProperties();
 					// not set in a constructor so get from num tracker
 					try {
@@ -1661,13 +1661,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	@Override
-	public String getCurrentScanIdentifier() {
+	public int getCurrentScanIdentifier() {
 		try {
-			return String.valueOf(getScanNumber());
+			return getScanNumber();
 		} catch (Exception e) {
 			logger.error("Error getting scanIdentifier", e);
 		}
-		return "unknown";
+		return -1;
 	}
 
 	/**

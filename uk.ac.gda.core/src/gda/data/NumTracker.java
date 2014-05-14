@@ -92,11 +92,9 @@ public class NumTracker {
 	}
 
 	/**
-	 * Returns the current file number.
-	 * 
 	 * @return the current file number
 	 */
-	public long getCurrentFileNumber() {
+	public int getCurrentFileNumber() {
 		return findBiggestNumber();
 	}
 
@@ -105,8 +103,8 @@ public class NumTracker {
 	 * 
 	 * @return the new number (or zero if a problem occurs)
 	 */
-	public long incrementNumber() {
-		long nextNum = findBiggestNumber() + 1;
+	public int incrementNumber() {
+		int nextNum = findBiggestNumber() + 1;
 		if (writeNewFile(nextNum)) {
 			deleteNumberedFile(nextNum - 1);
 			return nextNum;
@@ -184,15 +182,15 @@ public class NumTracker {
 	 * 
 	 * @return the largest number found, or zero if the directory doesn't exist, or no files are found
 	 */
-	private long findBiggestNumber() {
+	private int findBiggestNumber() {
 		if (!dir.exists()) {
 			return 0;
 		}
 
-		long largestNumber = 0;
+		int largestNumber = 0;
 
 		for (String filename : dir.list(filter)) {
-			long number = Long.parseLong(filename.substring(0, filename.indexOf('.')));
+			Integer number = Integer.parseInt(filename.substring(0, filename.indexOf('.')));
 			largestNumber = Math.max(largestNumber, number);
 		}
 

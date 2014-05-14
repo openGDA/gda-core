@@ -242,7 +242,7 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 		return TotalNumberOfPoints;
 	}
 	@Override
-	public Long getScanNumber() {
+	public int getScanNumber() {
 		return first.getScanNumber();
 	}
 	@Override

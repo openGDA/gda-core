@@ -28,19 +28,19 @@ import java.util.List;
 public class ScanInformation {
 
 	private int[] dimensions;
-	private final Long scanNumber;
+	private final int scanNumber;
 	private String[] scannableNames;
 	private String[] detectorNames;
 	
 	
-	public ScanInformation(int[] dimensions, Long scanNumber, String[] ScannableNames, String[] DetectorNames) {
+	public ScanInformation(int[] dimensions, int scanNumber, String[] ScannableNames, String[] DetectorNames) {
 		this.dimensions = dimensions;
 		this.scanNumber = scanNumber;
 		scannableNames = ScannableNames;
 		detectorNames = DetectorNames;
 	}
 	
-	public ScanInformation(List<Integer> dimensions, Long scanNumber, String[] ScannableNames, String[] DetectorNames) {
+	public ScanInformation(List<Integer> dimensions, int scanNumber, String[] ScannableNames, String[] DetectorNames) {
 		this.scanNumber = scanNumber;
 		int len = dimensions.size();
 		this.dimensions = new int[len];
@@ -55,7 +55,7 @@ public class ScanInformation {
 		return dimensions;
 	}
 	
-	public Long getScanNumber() {
+	public int getScanNumber() {
 		return scanNumber;
 	}
 	

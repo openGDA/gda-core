@@ -1447,10 +1447,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		}
 		String[] scannables = ScannableUtils.getScannableNames(scan.getScannables()).toArray(new String[] {});
 		String[] detectors = ScannableUtils.getScannableNames(scan.getDetectors()).toArray(new String[] {});
-		Long scanno = topscan.getScanNumber();
+		int scanno = topscan.getScanNumber();
 		try { 
-			if (scanno == null)
-				scanno = Long.valueOf(topscan.getDataWriter().getCurrentScanIdentifier());
+			if (scanno <= 0)
+				scanno = topscan.getDataWriter().getCurrentScanIdentifier();
 		} catch (Exception e) {
 			// we tried so hard, but in the end it didn't even matter...
 		}

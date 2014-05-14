@@ -58,7 +58,7 @@ public class ScanToElogExtender extends DataWriterExtenderBase {
 		String filename = lastScanDataPoint.getCurrentFilename();
 		int points = lastScanDataPoint.getCurrentPointNumber() + 1;
 		String command = lastScanDataPoint.getCommand();
-		String scannumber = lastScanDataPoint.getScanIdentifier();
+		int scannumber = lastScanDataPoint.getScanIdentifier();
 		String title = "";
 		String visit = LocalProperties.get(LocalProperties.GDA_DEF_VISIT, "cm0-0");
 		String userID = "gda";

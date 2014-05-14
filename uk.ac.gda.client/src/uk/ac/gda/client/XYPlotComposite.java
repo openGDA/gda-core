@@ -374,7 +374,7 @@ public class XYPlotComposite extends Composite {
 	 * @param visible
 	 * @param reload
 	 */
-	public void addData(String scanIdentifier, String fileName, String label, DoubleDataset xData, DoubleDataset yData,
+	public void addData(int scanIdentifier, String fileName, String label, DoubleDataset xData, DoubleDataset yData,
 			boolean visible, boolean reload) {
 		if (!isDisposed())
 			plotter.addData(scanIdentifier, fileName, null, xData, yData, xData.getName(), label, visible, reload, null);
@@ -409,7 +409,7 @@ public class XYPlotComposite extends Composite {
 					String uniquename = thisScan.getString(MEMENTO_XYDATA_NAME);
 					String dataFileName = thisScan.getString(MEMENTO_XYDATA_DATAFILENAME);
 
-					String scanIdentifier = thisScan.getString(MEMENTO_XYDATA_SCANNUMBER);
+					int scanIdentifier = thisScan.getInteger(MEMENTO_XYDATA_SCANNUMBER);
 					boolean visible = thisScan.getBoolean(MEMENTO_XYDATA_VISIBLE);
 					String xAxisHeader = thisScan.getString(MEMENTO_XYDATA_XAXISHEADER);
 					String yAxisHeader = thisScan.getString(MEMENTO_XTDATA_YAXISHEADER);

@@ -189,21 +189,20 @@ public abstract class ScanBase implements Scan {
 	protected int TotalNumberOfPoints = 0;
 
 	/**
-	 * The unique number for this scan. Set in direct call to prepareScanNumber and
-	 * in prepareScanForCollection.
+	 * The unique number for this scan. Set in direct call to prepareScanNumber and in prepareScanForCollection.
 	 */
-	private Long _scanNumber=null;
-	
+	private int scanNumber = -1;
+
 	protected boolean callCollectDataOnDetectors = true;
 
 	
 	@Override
-	public Long getScanNumber() {
-		return _scanNumber;
+	public int getScanNumber() {
+		return scanNumber;
 	}
 	
-	public void setScanNumber(long scanNumber){
-		_scanNumber = scanNumber;
+	public void setScanNumber(int scanNumber){
+		this.scanNumber = scanNumber;
 	}
 
 	/**
@@ -433,7 +432,7 @@ public abstract class ScanBase implements Scan {
 		//the scanIdentifier returned by getDataWriter().getCurrentScanIdentifier() should match this.scanNumber
 		if(LocalProperties.isScanSetsScanNumber() ){
 			//the scan number is setup in the outermost scan
-			point.setScanIdentifier(Long.toString(getOuterMostScan().getScanNumber()));
+			point.setScanIdentifier(getOuterMostScan().getScanNumber());
 		} else {
 			//otherwise leave to the first datawriter to set the scanIdentifer as it determines the scan number
 			point.setScanIdentifier(getDataWriter().getCurrentScanIdentifier());
@@ -1020,16 +1019,16 @@ public abstract class ScanBase implements Scan {
 	}
 
 
-	protected void prepareScanNumber() throws IOException{
-		if( getScanNumber() == null && !isChild()){
-			if(LocalProperties.isScanSetsScanNumber()){
+	protected void prepareScanNumber() throws IOException {
+		if (getScanNumber() <= 0 && !isChild()) {
+			if (LocalProperties.isScanSetsScanNumber()) {
 				NumTracker runNumber = new NumTracker("scanbase_numtracker");
-				//Allow tests to set the scanNumber
+				// Allow tests to set the scanNumber
 				int int1 = LocalProperties.getInt(GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST, -1);
-				if( int1 != -1){
-					runNumber.setFileNumber(int1-1);
+				if (int1 != -1) {
+					runNumber.setFileNumber(int1 - 1);
 				}
-				_scanNumber = runNumber.incrementNumber();
+				scanNumber = runNumber.incrementNumber();
 			}
 		}
 	}

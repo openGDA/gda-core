@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class DummyDataWriter extends DataWriterBase {
 	private static final Logger logger = LoggerFactory.getLogger(DummyDataWriter.class);
-	String scanId;
+	int scanId;
 
 	@Override
 	public String getCurrentFileName() {
@@ -34,7 +34,7 @@ public class DummyDataWriter extends DataWriterBase {
 	}
 
 	@Override
-	public String getCurrentScanIdentifier() {
+	public int getCurrentScanIdentifier() {
 		return scanId;
 	}
 
@@ -52,9 +52,8 @@ public class DummyDataWriter extends DataWriterBase {
 	}
 	
 	@Override
-	public void configureScanNumber(Long scanNumber) {
-		if( scanNumber != null)
-			scanId = scanNumber.toString();
+	public void configureScanNumber(int scanNumber) {
+		scanId = scanNumber;
 	}	
 
 }

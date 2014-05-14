@@ -44,7 +44,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	
 	// the number of the file being written to
 	// (format is 0001.dat, new files have an incremental increase)
-	protected long thisFileNumber = 0;
+	protected int thisFileNumber = 0;
 	
 	protected boolean fileNumberConfigured=false;
 	
@@ -124,9 +124,9 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	
 
 	@Override
-	public void configureScanNumber(Long scanNumber) throws Exception {
+	public void configureScanNumber(int scanNumber) throws Exception {
 		if( !fileNumberConfigured){
-			if(scanNumber != null){
+			if(scanNumber > 0){
 				thisFileNumber = scanNumber;
 			}
 			else {
@@ -261,11 +261,11 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	/**
 	 * Returns the number of the last file written to.
 	 * 
-	 * @return int
+	 * @return Long
 	 * @throws Exception 
 	 */
-	public long getFileNumber() throws Exception {
-		configureScanNumber(null); //ensure it has been configured
+	public int getFileNumber() throws Exception {
+		configureScanNumber(-1); //ensure it has been configured
 		return thisFileNumber;
 	}
 
@@ -275,7 +275,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	}
 	
 	@Override
-	public String getCurrentScanIdentifier() {
-		return String.valueOf(thisFileNumber);
+	public int getCurrentScanIdentifier() {
+		return thisFileNumber;
 	}
 }

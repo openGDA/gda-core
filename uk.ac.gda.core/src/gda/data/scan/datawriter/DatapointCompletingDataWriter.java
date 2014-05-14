@@ -122,7 +122,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 	}
 
 	@Override
-	public String getCurrentScanIdentifier() {
+	public int getCurrentScanIdentifier() {
 		return sink.getCurrentScanIdentifier();
 	}
 
@@ -198,7 +198,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 
 
 	@Override
-	public void configureScanNumber(Long scanNumber) throws Exception {
+	public void configureScanNumber(int scanNumber) throws Exception {
 		sink.configureScanNumber(scanNumber);
 	}
 	

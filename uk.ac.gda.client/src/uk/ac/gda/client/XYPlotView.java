@@ -37,7 +37,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IPath;
@@ -393,12 +396,20 @@ public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver, 
 			DoubleDataset xData = sfh.getAxis(xyDataSetNames.get(0));
 			for (int i = 1; i < xyDataSetNames.size(); i++) {
 				DoubleDataset yData = sfh.getAxis(xyDataSetNames.get(i));
-				xyPlot.addData(path, path, xyDataSetNames.get(i) + "/" + xyDataSetNames.get(0), xData, yData, true, true);
+				int scanNumberFromPath = deriveScanNumberFromPath(path);
+				xyPlot.addData(scanNumberFromPath, path, xyDataSetNames.get(i) + "/" + xyDataSetNames.get(0), xData, yData, true, true);
 			}
 		} else {
 			logger.warn("Unrecognized file type - " + path);
 		}
 	}
+	
+	private int deriveScanNumberFromPath(String path) {
+		String filename = FilenameUtils.getName(path);
+		Matcher matcher = Pattern.compile("(\\d+)").matcher(filename);
+		return Integer.parseInt(matcher.group(0));
+	}
+
 
 	/**
 	 * Call this method to open a new view with a unique id

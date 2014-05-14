@@ -220,5 +220,5 @@ public interface Scan extends Serializable {
 	/**
 	 * @return The unique id of the scan. Null if not set
 	 */
-	public Long getScanNumber();
+	public int getScanNumber();
 }

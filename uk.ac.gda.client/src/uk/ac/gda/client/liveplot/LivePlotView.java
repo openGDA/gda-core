@@ -39,7 +39,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -408,14 +411,21 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 					if( yAxisName != null)
 						axisSpec = new AxisSpec(yAxisName);
 				}
-				xyPlot.addData(path, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData, true, true, axisSpec);
+				int scanNumberFromPath = deriveScanNumberFromPath(path);
+				xyPlot.addData(scanNumberFromPath, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData, true, true, axisSpec);
 			}
 		} else {
 			logger.warn("Unrecognized file type - " + path);
 		}
 	}
 	
-	public void addData(String scanIdentifier, String fileName, String label, DoubleDataset xData, DoubleDataset yData,
+	private int deriveScanNumberFromPath(String path) {
+		String filename = FilenameUtils.getName(path);
+		Matcher matcher = Pattern.compile("(\\d+)").matcher(filename);
+		return Integer.parseInt(matcher.group(0));
+	}
+
+	public void addData(int scanIdentifier, String fileName, String label, DoubleDataset xData, DoubleDataset yData,
 			boolean visible, boolean reload, AxisSpec yAxisName) {
 		xyPlot.addData(scanIdentifier, fileName, label, xData, yData, visible, reload, yAxisName);
 	}

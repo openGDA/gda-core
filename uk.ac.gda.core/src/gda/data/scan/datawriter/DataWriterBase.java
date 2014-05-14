@@ -233,7 +233,7 @@ public abstract class DataWriterBase implements DataWriter, IDataWriterExtender 
 	 * @throws InstantiationException 
 	 */
 	@Override
-	public void configureScanNumber(Long scanNumber) throws Exception {
+	public void configureScanNumber(int scanNumber) throws Exception {
 		// do nothing - provide base implementation
 		
 	}	
