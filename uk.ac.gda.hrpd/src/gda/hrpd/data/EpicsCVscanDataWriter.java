@@ -67,7 +67,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 	/**
 	 * the current file number being written to, which is managed by the NumTracker Class
 	 */
-	protected long thisFileNumber = 0;
+	protected int thisFileNumber = 0;
 	/**
 	 * file extension to use
 	 */
@@ -570,10 +570,10 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 	 * 
 	 * @return long
 	 */
-	public long getFileNumber() {
+	public int getFileNumber() {
 		return thisFileNumber=beamlineInfo.getFileNumber();
 	}
-	public long incrementFileNumber() {
+	public int incrementFileNumber() {
 		return thisFileNumber=beamlineInfo.getNextFileNumber();
 	}
 	/**
@@ -612,8 +612,8 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 	}
 
 	@Override
-	public String getCurrentScanIdentifier() {
-		return String.valueOf(thisFileNumber);
+	public int getCurrentScanIdentifier() {
+		return thisFileNumber;
 	}
 
 	@Override
@@ -640,7 +640,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 	}
 
 	@Override
-	public void configureScanNumber(Long scanNumber) throws Exception {
+	public void configureScanNumber(int scanNumber) throws Exception {
 		//do nothing as this class does not use the scanNumber but gets the fileNumber from beamlineInfo
 	}
 

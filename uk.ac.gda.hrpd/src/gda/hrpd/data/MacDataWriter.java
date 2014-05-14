@@ -70,7 +70,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 	/**
 	 * the current file number being written to, which is managed by the NumTracker Class
 	 */
-	protected long thisFileNumber = 0;
+	protected int thisFileNumber = 0;
 	/**
 	 * file extension to use
 	 */
@@ -599,9 +599,9 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 	/**
 	 * Returns the number of the last file written to.
 	 * 
-	 * @return long
+	 * @return int
 	 */
-	public long getFileNumber() {
+	public int getFileNumber() {
 		return thisFileNumber;
 	}
 
@@ -628,8 +628,8 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 	}
 
 	@Override
-	public String getCurrentScanIdentifier() {
-		return String.valueOf(thisFileNumber);
+	public int getCurrentScanIdentifier() {
+		return thisFileNumber;
 	}
 
 }
