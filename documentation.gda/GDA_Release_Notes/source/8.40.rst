@@ -35,7 +35,7 @@ Important
  - Changes to interface and method names in the InterfaceProvider sub-interfaces
  - Javadoc explaining the difference between atScanEnd and atCommandFailure improved 
 
-
+* GDA-5883 Scan.getScanNumber() and ScanDataPoint.getScanIdentifier() now both return ints. Before Scan used a Long and ScanDataPoint used a String for the same information.
 
 How to create notes
 ~~~~~~~~~~~~~~~~~~~
