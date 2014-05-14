@@ -18,8 +18,6 @@
 
 package uk.ac.gda.hrpd.cvscan;
 
-import gda.analysis.Plotter;
-import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
@@ -36,8 +34,6 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
@@ -45,12 +41,8 @@ import gov.aps.jca.event.PutListener;
 
 import java.util.Vector;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class EpicsCVScan extends DeviceBase implements InitializationListener, Configurable, Findable {
 
@@ -354,6 +346,11 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 				logger.warn("EPICS CVScan is busy. its current state is {}", currentstate.toString());
 				legend = null;
 			}
+		} else {
+			InterfaceProvider.getTerminalPrinter().print(
+					"There is a scan or script already running on the command server");
+			logger.warn("command server status: scan status = {}, script status = {}.", InterfaceProvider
+					.getScanStatusHolder().getScanStatus(), InterfaceProvider.getScriptController().getScriptStatus());
 		}
 	}
 
@@ -697,6 +694,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 			try {
 				if ((currentstate = getCurrentState()) == CurrentState.Done) {
 					busy = false;
+					InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
 				}
 			} catch (TimeoutException e) {
 				logger.error("Timeout on getting current state from " + currentstatechannel.getName(), e);
@@ -741,6 +739,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 			}
 			try {
 				busy = false;
+				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
 				currentstate = getCurrentState();
 			} catch (TimeoutException e) {
 				logger.error("Timeout on getting current state from " + currentstatechannel.getName(), e);
