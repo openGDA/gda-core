@@ -868,7 +868,7 @@ public class DataSet extends DoubleDataset {
 		} else if (data instanceof DoubleDataset) {
 			dds = (DoubleDataset) data;
 		} else {
-			dds = (DoubleDataset) DatasetUtils.cast(DatasetUtils.convertToAbstractDataset(data), AbstractDataset.FLOAT64);
+			dds = (DoubleDataset) DatasetUtils.cast(DatasetUtils.convertToAbstractDataset(data), Dataset.FLOAT64);
 		}
 		result = new DataSet(dds.getData(), dds.getShape());
 		result.setName(data.getName());
@@ -1283,7 +1283,7 @@ public class DataSet extends DoubleDataset {
 	 */
 	@Deprecated
 	public static DataSet linspace(double start, double stop, int length) {
-		return convertToDataSet(DatasetUtils.linSpace(start, stop, length, AbstractDataset.FLOAT64));
+		return convertToDataSet(DatasetUtils.linSpace(start, stop, length, Dataset.FLOAT64));
 	}
 
 	public static DataSet arange(double stop) {
@@ -1313,7 +1313,7 @@ public class DataSet extends DoubleDataset {
 	}
 
 	public static DataSet arange(double start, double stop, double step) {
-		return convertToDataSet(AbstractDataset.arange(start, stop, step, AbstractDataset.FLOAT64));
+		return convertToDataSet(AbstractDataset.arange(start, stop, step, Dataset.FLOAT64));
 	}
 
 	/**

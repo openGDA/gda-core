@@ -23,7 +23,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -57,10 +57,10 @@ public class MonteCarlo implements IOptimizer {
 		final int numCoords = coords.length;
 		DoubleDataset[] newCoords = new DoubleDataset[numCoords];
 		for (int i = 0; i < numCoords; i++) {
-			newCoords[i] = (DoubleDataset) DatasetUtils.convertToAbstractDataset(coords[i]).cast(AbstractDataset.FLOAT64);
+			newCoords[i] = (DoubleDataset) DatasetUtils.convertToAbstractDataset(coords[i]).cast(Dataset.FLOAT64);
 		}
 
-		DoubleDataset dataValues = (DoubleDataset) DatasetUtils.convertToAbstractDataset(data).cast(AbstractDataset.FLOAT64);
+		DoubleDataset dataValues = (DoubleDataset) DatasetUtils.convertToAbstractDataset(data).cast(Dataset.FLOAT64);
 
 		Optimize(newCoords, dataValues, function);
 	}

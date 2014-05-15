@@ -29,6 +29,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
@@ -99,7 +100,7 @@ public class RawBinarySaver implements IFileSaver {
 			}
 			
 			AbstractDataset adata = DatasetUtils.convertToAbstractDataset(dh.getDataset(i));
-			DoubleDataset data = (DoubleDataset)adata.cast(AbstractDataset.FLOAT64);
+			DoubleDataset data = (DoubleDataset)adata.cast(Dataset.FLOAT64);
 			byte dtype = -1;
 			byte isize = 1;
 			String dataName = data.getName();

@@ -38,7 +38,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -109,7 +109,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 		if (data.isEmpty())
 			throw new Exception("Data should not be empty!");
 		for (IDataset d : data.values()) {
-			DoubleDataset oldD = (DoubleDataset) DatasetUtils.convertToAbstractDataset(d).cast(AbstractDataset.FLOAT64);
+			DoubleDataset oldD = (DoubleDataset) DatasetUtils.convertToAbstractDataset(d).cast(Dataset.FLOAT64);
 			if (oldD.getSize() != checkSize)
 				throw new Exception("Data (size = " + oldD.getSize() + ") should be same size as plotted data (size = "
 						+ checkSize + ").");

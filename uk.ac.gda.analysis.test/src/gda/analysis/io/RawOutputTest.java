@@ -25,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.io.CBFLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -74,7 +75,7 @@ public class RawOutputTest {
 	@Test
 	public void testSaveFile() throws ScanFileHolderException {
 		DataHolder dh = new DataHolder();
-		data = DatasetUtils.linSpace(0, 5760000, range, AbstractDataset.FLOAT64);
+		data = DatasetUtils.linSpace(0, 5760000, range, Dataset.FLOAT64);
 		data.setShape(sizex, sizey);
 		try {
 			dh.addDataset("testing data", data);
