@@ -32,7 +32,7 @@ import org.python.core.PySlice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.ADataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIteratorWithPosition;
@@ -2430,7 +2430,7 @@ public class DataSet extends DoubleDataset {
 	}
 
 	@Override
-	public DataSet getByBoolean(ADataset selection) {
+	public DataSet getByBoolean(Dataset selection) {
 		return convertToDataSet(super.getByBoolean(selection));
 	}
 
