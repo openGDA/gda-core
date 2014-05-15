@@ -54,7 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.components.scalebox.DemandBox;
@@ -711,7 +711,7 @@ class SWTImageDataConverter {
 			return null;
 		}
 		if( idataset == null){
-			idataset = SWTImageUtils.createRGBDataset(imageData).createGreyDataset(AbstractDataset.FLOAT32);
+			idataset = SWTImageUtils.createRGBDataset(imageData).createGreyDataset(Dataset.FLOAT32);
 		}
 		return idataset;
 	}
