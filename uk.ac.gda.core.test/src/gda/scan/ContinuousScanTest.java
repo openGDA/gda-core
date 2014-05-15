@@ -35,7 +35,7 @@ import org.junit.Test;
  */
 public class ContinuousScanTest {
 
-	private static final String ScanBaseFirstScanNumber = "100";
+	private static final int ScanBaseFirstScanNumber = 100;
 	/**
 	 * 
 	 */
@@ -68,9 +68,9 @@ public class ContinuousScanTest {
 
 		String dir = TestHelpers.setUpTest(ContinuousScanTest.class, "simpleScanScanBaseSetsScanNumber", true);
 		LocalProperties.setScanSetsScanNumber(true);
-		LocalProperties.set("gda.scanbase.firstScanNumber", ScanBaseFirstScanNumber);
+		LocalProperties.set("gda.scanbase.firstScanNumber", Integer.toString(ScanBaseFirstScanNumber));
 		Scan scan = beforeEachTest();
-		assertEquals(null,scan.getScanNumber());
+		assertEquals(-1,scan.getScanNumber());
 		scan.runScan();
 		assertEquals(ScanBaseFirstScanNumber,scan.getScanNumber());
 
@@ -88,16 +88,16 @@ public class ContinuousScanTest {
 		String dir = TestHelpers.setUpTest(ContinuousScanTest.class, "simpleScanDataWriterSetsScanNumber", true);
 		LocalProperties.setScanSetsScanNumber(false);
 		Scan scan = beforeEachTest();
-		assertEquals(null,scan.getScanNumber());
+		assertEquals(-1,scan.getScanNumber());
 		scan.runScan();
 		Thread.sleep(5000);
-		assertEquals(null,scan.getScanNumber());
+		assertEquals(-1,scan.getScanNumber());
 
 		// check that the detector has been operated the expected number of times.
 		int[][] data = (int[][]) detector.readAllFrames();
 		assertEquals(10, data.length);
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
-		assertEquals("1", point.getScanIdentifier());
+		assertEquals(1, point.getScanIdentifier());
 		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
 	}
 	
@@ -151,11 +151,11 @@ public class ContinuousScanTest {
 		mon01.setName("mon01");
 
 		ConcurrentScan mainScan = new ConcurrentScan(new Object[] { temp01, 10, 20, 5, mon01 });
-		assertEquals(null,mainScan.getScanNumber());
+		assertEquals(-1,mainScan.getScanNumber());
 		mainScan.runScan();
-		assertEquals(null,mainScan.getScanNumber());
+		assertEquals(-1,mainScan.getScanNumber());
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
-		assertEquals("1", point.getScanIdentifier());
+		assertEquals(1, point.getScanIdentifier());
 		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
 
 	}
@@ -211,7 +211,7 @@ public class ContinuousScanTest {
 	public void multiDimensionalScanCount() throws Exception{
 		String dir = TestHelpers.setUpTest(ContinuousScanTest.class, "multiDimensionalScanCount", true);
 		LocalProperties.setScanSetsScanNumber(true);
-		LocalProperties.set(ScanBase.GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST, ScanBaseFirstScanNumber);
+		LocalProperties.set(ScanBase.GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST, Integer.toString(ScanBaseFirstScanNumber));
 		beforeEachTest();
 
 		DummyBufferedDetector detector = new DummyBufferedDetector();
@@ -231,7 +231,7 @@ public class ContinuousScanTest {
 
 		ConcurrentScan mainScan = new ConcurrentScan(new Object[] { temp01, 10, 20, 5, scan, mon01 });
 
-		assertEquals(null,mainScan.getScanNumber());
+		assertEquals(-1,mainScan.getScanNumber());
 		mainScan.runScan();
 		assertEquals(ScanBaseFirstScanNumber,mainScan.getScanNumber());
 		// but check that the detector has been triggered 150 times
@@ -271,14 +271,14 @@ public class ContinuousScanTest {
 
 		ConcurrentScan mainScan = new ConcurrentScan(new Object[] { temp01, 10, 20, 5, scan, mon01 });
 
-		assertEquals(null,mainScan.getScanNumber());
+		assertEquals(-1,mainScan.getScanNumber());
 		mainScan.runScan();
-		assertEquals(null,mainScan.getScanNumber());
+		assertEquals(-1,mainScan.getScanNumber());
 		// but check that the detector has been triggered 150 times
 //		verify(detector, times(30)).addPoint();
 		assertEquals(10,detector.getNumberFrames());
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
-		assertEquals("1", point.getScanIdentifier());
+		assertEquals(1, point.getScanIdentifier());
 		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
 	}
 
