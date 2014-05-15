@@ -6,23 +6,32 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: uk.ac.gda.client.hrpd.Activator
 Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.gda.client.experimentdefinition
-Require-Bundle: uk.ac.gda.core;bundle-version="1.0.0",
- uk.ac.gda.libs;bundle-version="1.0.0",
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.client;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.common.rcp;bundle-version="1.0.0",
- uk.ac.gda.client.experimentdefinition;bundle-version="1.0.0",
  org.eclipse.core.resources;bundle-version="3.6.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
- org.eclipse.core.runtime,
- org.eclipse.ui,
  uk.ac.gda.hrpd;bundle-version="1.0.0",
  uk.ac.gda.dls.client;bundle-version="1.0.0",
  org.python.pydev
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: com.artenum.jyconsole,
+ gda.epics.connection,
+ gov.aps.jca,
+ gov.aps.jca.dbr,
+ gov.aps.jca.event,
+ org.apache.commons.lang;version="2.6.0",
+ org.apache.commons.math3.util;version="3.2.0",
+ org.dawnsci.plotting.api,
+ org.dawnsci.plotting.api.axis,
  org.eclipse.debug.ui,
+ org.eclipse.draw2d,
  org.eclipse.search.ui,
- org.eclipse.ui.console
+ org.eclipse.ui.console,
+ org.slf4j;version="1.7.6",
+ org.springframework.beans.factory;version="3.2.2.RELEASE"
