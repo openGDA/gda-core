@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class XspressMonitorView extends MonitorViewBase {
@@ -112,7 +113,7 @@ public class XspressMonitorView extends MonitorViewBase {
 			AbstractDataset dsDeadTime = new DoubleDataset(dts);
 			dsDeadTime.setName("Deadtime (%)");
 			
-			AbstractDataset x =  AbstractDataset.arange(numElements, AbstractDataset.FLOAT32);
+			AbstractDataset x =  AbstractDataset.arange(numElements, Dataset.FLOAT32);
 			x.setName("Element");
 			
 			myPlotter.clear();
