@@ -21,6 +21,7 @@ package gda.device.detector.addetector.triggering;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.scan.ScanInformation;
 
+@Deprecated // Decorate MultipleExposureSoftwareTriggerAutoMode with UnsynchronisedExternalShutterDecorator
 public final class MultipleExposureSoftwareTriggerAutoModeUnsynchronisedExternalShutter extends MultipleExposureSoftwareTriggerAutoMode
 		implements UnsynchronisedExternalShutterNXCollectionStrategy {
 
