@@ -277,7 +277,7 @@ public class EpicsMultiChannelScaler extends DetectorBase implements Configurabl
 	public void update(Object theObserved, Object changeCode) {
 		if (theObserved == EpicsDlsMcsSis3820Controller.AcquisitionProperty.ELAPSEDTIME) {
 			elapsedRealTime = Double.parseDouble(changeCode.toString());
-			logger.debug("Elapsed Time of {} is {}", getName(), elapsedRealTime);
+			//logger.debug("Elapsed Time of {} is {}", getName(), elapsedRealTime);
 		} else if (theObserved instanceof Channel) {
 			for (int i = 0; i < EpicsDlsMcsSis3820Controller.MAXIMUM_NUMBER_OF_MCA; i++) {
 				if ((Channel) theObserved == controller.getDataChannel(i)) {
@@ -295,7 +295,7 @@ public class EpicsMultiChannelScaler extends DetectorBase implements Configurabl
 			} else if ((MCAStatus) changeCode == MCAStatus.FAULT) {
 				status = Detector.FAULT;
 			}
-			logger.debug("MCS detector {} status update to {}", getName(), status);
+			//logger.debug("MCS detector {} status update to {}", getName(), status);
 		}
 	}
 

@@ -800,7 +800,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 				logger.error("expecting ENUM but got {} type.", dbr.getType());
 			}
 			notifyIObservers(AcquisitionProperty.STATUS, getStatus());
-			logger.debug("acquisition status updated to {}", getStatus().value());
+			logger.debug("{}: acquisition status updated to {}", getName(), getStatus().value());
 		}
 	}
 
@@ -820,12 +820,12 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 				logger.error("Expecting double or float but got {} type. ", dbr.getType());
 			}
 			notifyIObservers(AcquisitionProperty.ELAPSEDTIME, elapsedRealTimeValue);
-			logger.debug("Elapsed time updated to {}", elapsedRealTimeValue);
+			logger.debug("{}: Elapsed time updated to {}", getName(), elapsedRealTimeValue);
 		}
 	}
 
 	/**
-	 * monitor value array
+	 * monitor value array - ????could this be removed as no observer is add to handle this event after sending to EpicsDlsMcsSis3820?????
 	 */
 	public class DataMonitor implements MonitorListener {
 
