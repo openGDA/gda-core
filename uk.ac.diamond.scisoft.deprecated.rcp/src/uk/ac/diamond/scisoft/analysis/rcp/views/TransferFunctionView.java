@@ -36,6 +36,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.volimage.CommandClient;
@@ -245,7 +246,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 	{
 		IDataset histogram = histograms.get(0);
 		xAxis.clear();
-		xAxis.setValues(AbstractDataset.arange(histogram.getSize(), AbstractDataset.FLOAT64));
+		xAxis.setValues(AbstractDataset.arange(histogram.getSize(), Dataset.FLOAT64));
 		histogramPlotter.clearZoomHistory();
 		histogramPlotter.setXAxisValues(xAxis, 1);
 		updateChannelGraphs();
@@ -263,7 +264,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 		histograms.clear();
 		AbstractDataset newHisto = data.getSlice(new int[]{startPos},new int[]{endPos}, new int[]{1});
 		xAxis.clear();
-		xAxis.setValues(AbstractDataset.arange(newHisto.getSize(), AbstractDataset.ARRAYFLOAT64));
+		xAxis.setValues(AbstractDataset.arange(newHisto.getSize(), Dataset.ARRAYFLOAT64));
 		histograms.add(newHisto);
 		histogramPlotter.setXAxisValues(xAxis,1);
 

@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
@@ -329,7 +330,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 		if (currentDataSet == null || currentDataSet.getSize() < 1)
 			return null;
 		length = currentDataSet.getSize();
-		return Generic1DFitter.findPeaks(AbstractDataset.arange(length, AbstractDataset.INT), currentDataSet, (int) (length *0.1));
+		return Generic1DFitter.findPeaks(AbstractDataset.arange(length, Dataset.INT), currentDataSet, (int) (length *0.1));
 
 	}
 

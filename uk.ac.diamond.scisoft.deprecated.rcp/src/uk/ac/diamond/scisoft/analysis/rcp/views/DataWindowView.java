@@ -71,6 +71,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
@@ -459,14 +460,14 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			final IDataset displayData = newData.getSlice(startPos, endPos, step);
 			if (inXAxis == null || inXAxis.size() == 0)
 			{
-				xAxis.setValues(AbstractDataset.arange(0, xSize, xSamplingRate, AbstractDataset.INT32));
+				xAxis.setValues(AbstractDataset.arange(0, xSize, xSamplingRate, Dataset.INT32));
 				inXAxis = xAxis;
 			} else {
 				xAxis.setValues(inXAxis.subset(0, xSize, xSamplingRate).toDataset());
 			}
 			if (inYAxis == null || inYAxis.size() == 0)
 			{
-				yAxis.setValues(AbstractDataset.arange(0, ySize, ySamplingRate, AbstractDataset.INT32));
+				yAxis.setValues(AbstractDataset.arange(0, ySize, ySamplingRate, Dataset.INT32));
 				inYAxis = yAxis;
 			} else {
 				yAxis.setValues(inYAxis.subset(0, ySize, ySamplingRate).toDataset());

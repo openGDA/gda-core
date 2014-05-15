@@ -64,6 +64,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Stats;
@@ -689,7 +690,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 			logger.warn("Number of stored histograms is over expected levels, now at {}",histograms.size());
 		}
 		
-		xAxis.setValues(DatasetUtils.linSpace(min, max, Math.max(1,histogram.getSize()+1), AbstractDataset.FLOAT64));
+		xAxis.setValues(DatasetUtils.linSpace(min, max, Math.max(1,histogram.getSize()+1), Dataset.FLOAT64));
 		histogramPlotter.setXAxisValues(xAxis, 1);
 		generateHistogramUpdate();
 		updateChannelGraphs();
