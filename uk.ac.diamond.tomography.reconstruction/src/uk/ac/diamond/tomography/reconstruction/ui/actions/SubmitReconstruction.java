@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.tomography.reconstruction.ui.actions;
 
+import java.net.URI;
+
 import org.dawb.common.ui.util.EclipseUtils;
 import org.dawnsci.commandserver.core.consumer.RemoteSubmission;
 import org.dawnsci.commandserver.tomo.beans.TomoBean;
@@ -74,7 +76,7 @@ public class SubmitReconstruction implements IWorkbenchWindowActionDelegate {
     		final String uri        = store.getString("org.dawnsci.commandserver.URI");
     		final String queueName  = "scisoft.tomo.SUBMISSION_QUEUE";
 
-    		final RemoteSubmission factory = new RemoteSubmission(uri);
+    		final RemoteSubmission factory = new RemoteSubmission(new URI(uri));
     		factory.setQueueName(queueName);
     		
     		factory.submit(tBean, true);
