@@ -19,6 +19,7 @@
 package uk.ac.gda.server.ncd.subdetector;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -40,7 +41,7 @@ public class BackgroundSubtraction extends ReductionDetectorBase {
 	}
 
 	public void setBackground(AbstractDataset ds) {
-		background = (FloatDataset) ds.cast(AbstractDataset.FLOAT32);
+		background = (FloatDataset) ds.cast(Dataset.FLOAT32);
 	}
 
 	public FloatDataset getBackground() {

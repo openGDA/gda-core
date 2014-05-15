@@ -35,7 +35,7 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.MARLoader;
 import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
@@ -434,7 +434,7 @@ public class Mar165Detector extends DetectorBase {
 			throw new DeviceException("error reading mar file", e);
 		}
 		
-		float[] data = (float[]) dataHolder.getDataset(0).cast(AbstractDataset.FLOAT32).getBuffer();
+		float[] data = (float[]) dataHolder.getDataset(0).cast(Dataset.FLOAT32).getBuffer();
 		
 		file.delete();
 		return data;
