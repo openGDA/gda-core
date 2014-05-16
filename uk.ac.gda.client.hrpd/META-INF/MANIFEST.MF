@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
  uk.ac.gda.hrpd;bundle-version="1.0.0",
  uk.ac.gda.dls.client;bundle-version="1.0.0",
- org.python.pydev
+ org.python.pydev,
+ org.dawnsci.plotting.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: com.artenum.jyconsole,
@@ -35,3 +36,7 @@ Import-Package: com.artenum.jyconsole,
  org.eclipse.ui.console,
  org.slf4j;version="1.7.6",
  org.springframework.beans.factory;version="3.2.2.RELEASE"
+Bundle-ClassPath: jars/javatuples-1.2.jar,
+ .
+Export-Package: org.javatuples,
+ org.javatuples.valueintf

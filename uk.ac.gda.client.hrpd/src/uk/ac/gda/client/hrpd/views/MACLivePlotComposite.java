@@ -22,11 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.math3.util.Pair;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.PlottingFactory;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -35,19 +34,20 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
+import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 
 public class MACLivePlotComposite extends Composite {
+	private Logger logger = LoggerFactory.getLogger(MACLivePlotComposite.class);
+	private String PLOT_TITLE = "MAC Live Data";
 
 	private IPlottingSystem plottingSystem;
-	private String PLOT_TITLE = "MAC";
-	private List<Pair<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> listeners=new ArrayList<Pair<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>>();
-	private Logger logger = LoggerFactory.getLogger(MACLivePlotComposite.class);
+	private List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> dataListeners = new ArrayList<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>>();
 
 	public MACLivePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
@@ -79,10 +79,13 @@ public class MACLivePlotComposite extends Composite {
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
-		for (Pair<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> listener : listeners) {
-			listener.getKey().dispose();
-			listener.getValue().dispose();
+		for (Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> listener : getDataListeners()) {
+			listener.getValue1().dispose();
+			listener.getValue2().dispose();
 		}
+		dataDisplayers.clear();
+		dataListeners.clear();
+		plottingSystem.dispose();
 		super.dispose();
 	}
 
@@ -96,47 +99,66 @@ public class MACLivePlotComposite extends Composite {
 			}
 		});
 	}
-	// #TODO what triggers the plot update or replot?
-	//#TODO resolve potential race condition in setPlotted(boolean) call?
-	class LivePlotUpdater implements Runnable {
 
-		@Override
-		public void run() {
-			if (!getDisplay().isDisposed()) {
-				getDisplay().asyncExec(new Runnable() {
+	@Override
+	public boolean setFocus() {
+		plottingSystem.setFocus();
+		return super.setFocus();
+	}
 
-					@Override
-					public void run() {
-						boolean visible = MACLivePlotComposite.this.isVisible();
-						if (visible) {
-							for (Pair<EpicsDoubleDataArrayListener,EpicsDoubleDataArrayListener> listener : listeners) {
-								EpicsDoubleDataArrayListener x = listener.getKey();
-								EpicsDoubleDataArrayListener y = listener.getValue();
-								if (!y.isPlotted()) {
-									if (x.getName().contains("mac1")) {
-										plot(ArrayUtils.subarray(x.getValue(), 16501, 65000),
-												ArrayUtils.subarray(y.getValue(), 16501, 65000),true);
-									} else {
-										plot(x.getValue(), y.getValue(), false);
-									}
-									y.setPlotted(true);
-								}
-							}
-						}
+	private void createTraces() {
+		if (!getDisplay().isDisposed()) {
+			getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					for (Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> item : getDataListeners()) {
+						ILineTrace trace = plottingSystem.createLineTrace(item.getValue0());
+						Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace> with = item.add(trace);
+						plottingSystem.addTrace(trace);
+						dataDisplayers.add(with);
 					}
-				});
-			}
-		}
-
-		private void plot(double[] x, double[] y, boolean clear) {
-			DoubleDataset x2 = new DoubleDataset(x, new int[] { x.length });
-			List<AbstractDataset> plotDatasets = new ArrayList<AbstractDataset>();
-			DoubleDataset y2 = new DoubleDataset(y, new int[] { y.length });
-			plotDatasets.add(y2);
-			if (clear) {
-				plottingSystem.clear();
-			}
-			plottingSystem.createPlot1D(x2, plotDatasets, new NullProgressMonitor());
+				}
+			});
 		}
 	}
+
+	public List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> getDataListeners() {
+		return dataListeners;
+	}
+
+	public void setDataListeners(
+			List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> dataListeners) {
+		this.dataListeners = dataListeners;
+	}
+
+	private List<Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace>> dataDisplayers = new ArrayList<Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace>>();
+
+	private void updatePlot() {
+		if (!getDisplay().isDisposed()) {
+			getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					boolean visible = MACLivePlotComposite.this.isVisible();
+					if (visible) {
+						for (Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace> listener : dataDisplayers) {
+							String traceName = listener.getValue0();
+							EpicsDoubleDataArrayListener x = listener.getValue1();
+							EpicsDoubleDataArrayListener y = listener.getValue2();
+							ILineTrace trace = listener.getValue3();
+							if (traceName.equalsIgnoreCase("mac1")) {
+								trace.setData(new DoubleDataset(ArrayUtils.subarray(x.getValue(), 16501, 65000)),
+										new DoubleDataset(ArrayUtils.subarray(y.getValue(), 16501, 65000)));
+							} else {
+								trace.setData(new DoubleDataset(x.getValue()), new DoubleDataset(y.getValue()));
+							}
+							
+						}
+						plottingSystem.repaint();
+					}
+				}
+			});
+		}
+	}
+
 }

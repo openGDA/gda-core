@@ -29,6 +29,9 @@ import gda.epics.connection.InitializationListener;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -48,21 +51,21 @@ import gov.aps.jca.event.MonitorListener;
  * <li>The default mode is monitoring on.</li>
  * 
  */
-public class EpicsDoubleDataArrayListenerFullImpl implements MonitorListener, InitializationListener, Configurable, InitializingBean, Findable {
+public abstract class EpicsPVListener implements MonitorListener, InitializationListener, Configurable, InitializingBean, Findable, IObservable {
 
-	protected double[] value;
-	private Logger logger = LoggerFactory.getLogger(EpicsDoubleDataArrayListenerFullImpl.class);
-	private boolean first=true;
-	private String name;
+	private Logger logger = LoggerFactory.getLogger(EpicsPVListener.class);
+	protected boolean first=true;
+	protected String name;
+	protected ObservableComponent observers=new ObservableComponent();
 	
-	private Channel pvchannel;
-	private String pvName;
-	private EpicsChannelManager channelManager;
-	private Monitor pvmonitor;
-	private boolean poll=false;
-	private EpicsController controller;
+	protected Channel pvchannel;
+	protected String pvName;
+	protected EpicsChannelManager channelManager;
+	protected Monitor pvmonitor;
+	protected boolean poll=false;
+	protected EpicsController controller;
 	
-	public EpicsDoubleDataArrayListenerFullImpl() {
+	public EpicsPVListener() {
 		channelManager=new EpicsChannelManager(this);
 		controller=EpicsController.getInstance();
 	}
@@ -81,18 +84,7 @@ public class EpicsDoubleDataArrayListenerFullImpl implements MonitorListener, In
 		}
 	}
 	
-	public void disablePoll() {
-		if (pvchannel != null) {
-			try {
-				pvmonitor = pvchannel.addMonitor(DBRType.DOUBLE, pvchannel.getElementCount(), Monitor.VALUE, this);
-				setPoll(false);
-			} catch (IllegalStateException e) {
-				logger.error("Fail to add monitor to channel " + pvchannel.getName(), e);
-			} catch (CAException e) {
-				logger.error("Fail to add monitor to channel " + pvchannel.getName(), e);
-			}
-		}
-	}
+	public abstract void disablePoll();
 
 	public void enablePoll() {
 		if (pvmonitor != null) {
@@ -101,29 +93,7 @@ public class EpicsDoubleDataArrayListenerFullImpl implements MonitorListener, In
 		}
 	}
 
-	@Override
-	public void monitorChanged(MonitorEvent ev) {
-		Channel ch = (Channel) ev.getSource();
-		if (first) {
-			first = false;
-			logger.debug("Data listener is added to channel {}.", ch.getName());
-		}
-		DBR dbr = ev.getDBR();
-		if (dbr.isDOUBLE()) {
-			value = ((DBR_Double) dbr).getDoubleValue();
-		}
-	}
-	
-	public double[] getValue() {
-		if (isPoll()) {
-			try {
-				return controller.cagetDoubleArray(pvchannel);
-			} catch (TimeoutException | CAException | InterruptedException e) {
-				logger.error(getName()+ ": failed to get values from PV "+pvchannel.getName(), e);
-			}
-		}
-		return this.value;
-	}
+	public abstract Object getValue();
 
 	public String getPvName() {
 		return pvName;
@@ -174,5 +144,22 @@ public class EpicsDoubleDataArrayListenerFullImpl implements MonitorListener, In
 	public void setPoll(boolean poll) {
 		this.poll = poll;
 	}
+	@Override
+	public void addIObserver(IObserver observer) {
+		observers.addIObserver(observer);		
+	}
+
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		observers.deleteIObserver(observer);		
+	}
+
+	@Override
+	public void deleteIObservers() {
+		observers.deleteIObservers();
+	}
+
+	@Override
+	public abstract void monitorChanged(MonitorEvent ev);
 
 }
