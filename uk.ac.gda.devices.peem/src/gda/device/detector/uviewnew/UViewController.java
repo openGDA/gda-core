@@ -185,4 +185,5 @@ public interface UViewController {
 	public void defineRoi(final RegionOfInterest roi) throws DeviceException;
 	public double getRoiData(int roiId) throws DeviceException;
 
+	public void setPixelClock(int MHz) throws DeviceException;
 }

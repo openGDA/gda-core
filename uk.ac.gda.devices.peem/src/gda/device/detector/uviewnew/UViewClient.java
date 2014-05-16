@@ -754,4 +754,7 @@ public class UViewClient {
 		return controller.getVersion();
 	}
 
+	public void setPixelClock( int MHz) throws DeviceException{
+		controller.setPixelClock( MHz );
+	}
 }

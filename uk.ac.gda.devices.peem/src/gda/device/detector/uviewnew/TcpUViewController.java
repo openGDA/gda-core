@@ -275,4 +275,16 @@ public class TcpUViewController implements UViewController {
 		return new GrayAdjustment(values[1], values[0]);
 		
 	}
+
+	@Override
+	public void setPixelClock(int MHz) throws DeviceException {
+		if (MHz != 40 && MHz != 10) {
+			throw new DeviceException("Invalid clock settins; valid settings are 10 and 40 MHz");
+		}
+		String cmd = "spx " + MHz;
+		String reply = socket.send(cmd);
+		if ( !reply.equals("0") ) {
+			throw new DeviceException("Unexpected response from TCP socket: '" + reply + "'");
+		}
+	}
 }

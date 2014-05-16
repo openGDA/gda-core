@@ -136,4 +136,9 @@ public class CorbaUViewController implements UViewController {
 		return null;
 	}
 
+	@Override
+	public void setPixelClock(int MHz) {
+		// TODO Auto-generated method stub
+	}
+
 }
