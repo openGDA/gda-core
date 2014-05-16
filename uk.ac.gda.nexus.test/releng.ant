@@ -1,0 +1,51 @@
+<project name="plugin-uk.ac.gda.nexus.test" basedir=".">
+
+	<dirname property="plugin.basedir" file="${ant.file}" />
+	<pathconvert property="workspace.loc" setonempty="false">
+		<regexpmapper from="(.*)_git/.+" to="\1"/>
+		<path><pathelement location="${plugin.basedir}" /></path>
+	</pathconvert>
+	<fail message="ERROR: Could not determine workspace.loc" unless="workspace.loc" />
+	<property name="workspace.git.loc" value="${workspace.loc}_git" />
+	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/common.ant" />
+
+	<!-- ====================================================================
+		   JUnit tests
+		 ==================================================================== -->
+
+	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/test-common.ant" />
+	<target name="junit-tests" depends="set-test-base-GDA">
+		<loadfile property="redhat_release" srcFile="/etc/redhat-release" failonerror="false" />
+		<property name="redhat_release" value="probably not 5" />
+		<condition property="exclude_if_RH5" value="" else="SuffixToNullifyExclude">
+			<or>
+				<contains string="${redhat_release}" substring="Red Hat Enterprise Linux Server release 5." />
+				<contains string="${redhat_release}" substring="Red Hat Enterprise Linux Client release 5." />
+			</or>
+		</condition>
+		<junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1536m">
+			<formatter type="xml" />
+			<classpath>
+				<pathelement location="${junitjar.loc}" />
+				<pathelement location="${plugin.basedir}/bin" />
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.diamond.test.runners/logging" />  <!-- to pick up logback-test.xml -->
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
+				<pathelement location="${plugin.host.basedir}/bin" />
+				<pathelement location="${plugin.host.basedir}/jars/*" />
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+				<path refid="libs.jars.path" />
+				<path refid="tp.slf4j.path" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+				<pathelement location="${workspace.loc}/tp/plugins/*" />
+			</classpath>
+			<batchtest todir="@{report.dir}">
+				<fileset dir="${plugin.basedir}/src">
+					<include name="**/*Test.java" />
+					<exclude name="**/NexusExtractorTest.java${exclude_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
+					<exclude name="**/NexusReadinTest.java${exclude_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
+					<exclude name="**/NexusTreeBuilderTest.java" />  <!-- excluded, see GDA-5474 -->
+				</fileset>
+			</batchtest>
+		</junit-call>
+	</target>
+
+</project>
