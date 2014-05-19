@@ -47,6 +47,8 @@ class I18XasScan(XasScan):
             self.detectorFillingMonitor.setPauseBeforeLine(False)
             self.detectorFillingMonitor.setCollectionTime(collectionTime)
             ScannableCommands.add_default([self.detectorFillingMonitor])
+        else :
+            ScannableCommands.remove_default([self.detectorFillingMonitor])
 
         if self.trajBeamMonitor!=None:
             self.trajBeamMonitor.setActive(False)
