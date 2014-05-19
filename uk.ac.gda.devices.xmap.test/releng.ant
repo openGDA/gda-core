@@ -1,4 +1,4 @@
-<project name="plugin-uk.ac.gda.server.exafs.epics.test" basedir=".">
+<project name="plugin-uk.ac.gda.devices.xmap.test" basedir=".">
 
 	<dirname property="plugin.basedir" file="${ant.file}" />
 	<pathconvert property="workspace.loc" setonempty="false">
