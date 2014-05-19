@@ -22,6 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: com.artenum.jyconsole,
+ com.google.common.base;version="15.0.0",
  gda.epics.connection,
  gov.aps.jca,
  gov.aps.jca.dbr,

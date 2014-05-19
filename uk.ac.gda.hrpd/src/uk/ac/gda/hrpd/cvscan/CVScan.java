@@ -19,6 +19,7 @@
 package uk.ac.gda.hrpd.cvscan;
 
 import gda.analysis.Plotter;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -36,6 +37,8 @@ import gda.hrpd.pmac.UnsafeOperationException;
 import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
@@ -49,7 +52,10 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-
+import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
+/**
+ *  * <li>Specify {@link Scriptcontroller} instance to handle data file name changed event {@link FileNumberEvent} which facilitate server to client communication</li>
+ */
 public class CVScan extends ScannableMotionBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(CVScan.class);
@@ -82,6 +88,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	private Thread dataSaverThread;
 	private Scannable psdScannableMotor;
 	private SafePosition psdSafePosition;
+	private Scriptcontroller scriptController;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -114,7 +121,11 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			configured = true;
 		}
 	}
-
+	private void fireNewDataFile() {
+		 if (getScriptController()!=null && getScriptController() instanceof ScriptControllerBase) {
+		 ((ScriptControllerBase)getScriptController()).update(this, new FileNumberEvent(getDataWriter().getCurrentFileName(), collectionNumber));
+		 }
+	}
 	@Override
 	public void rawAsynchronousMoveTo(Object time) throws DeviceException {
 		checkForCollision();
@@ -125,6 +136,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			// must increment file number for manual collection, i.e. not in a scan, but in a pos
 			controller.setFileNumber(getDataWriter().incrementFileNumber());
 			createFilesToWriteTo();
+			fireNewDataFile();
 		}
 		pausedCounter = 0; // initialise counter for paused flag for this cvscan
 		this.totaltime = Double.valueOf(time.toString()).doubleValue();
@@ -262,6 +274,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		}
 		controller.setCollectionNumber(collectionNumber);
 		retrycount = 0;
+		fireNewDataFile();
 	}
 
 	private void filesToWriteTo() {
@@ -855,5 +868,12 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	public void setPlotPanelName(String plotPanelName) {
 		this.plotPanelName = plotPanelName;
+	}
+
+	public Scriptcontroller getScriptController() {
+		return scriptController;
+	}
+	public void setScriptController(Scriptcontroller scriptController) {
+		this.scriptController = scriptController;
 	}
 }

@@ -38,6 +38,7 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+import gda.jython.scriptcontroller.Scriptcontroller;
 
 import java.util.Vector;
 
@@ -53,7 +54,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	private String pv_root = null;
 
 	/* cached data - volatile as they are updated potentially by multiple threads */
-	private volatile CurrentState currentstate = CurrentState.Done;
+	private volatile EpicsCVScanState currentstate = EpicsCVScanState.Done;
 	private volatile String message = null;
 	private volatile int numberofpulsedone;
 	private volatile int totalnumberofpulse;
@@ -77,6 +78,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	private Channel pulsesnumberdonechannel;
 	private Channel puslestotalnumberchannel;
 	private volatile boolean GDAScanning = false;
+	
 
 	public boolean isGDAScanning() {
 		return GDAScanning;
@@ -84,10 +86,6 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	public void setGDAScanning(boolean gDAScanning) {
 		GDAScanning = gDAScanning;
-	}
-
-	public enum CurrentState {
-		Done, Aborted, Executing, Flyback, Paused, Fault, Reduction, LVIO
 	}
 
 	/**
@@ -333,8 +331,8 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	 */
 	public void start() throws CAException, InterruptedException {
 		if (InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus().areScriptAndScanIdle()) {
-			if (currentstate == CurrentState.Done || currentstate == CurrentState.Aborted
-					|| currentstate == CurrentState.Paused || currentstate == CurrentState.Fault) {
+			if (currentstate == EpicsCVScanState.Done || currentstate == EpicsCVScanState.Aborted
+					|| currentstate == EpicsCVScanState.Paused || currentstate == EpicsCVScanState.Fault) {
 				busy = true;
 				controller.caput(start, 1, startcallbacklistener);
 				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.RUNNING);
@@ -382,24 +380,24 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	 * @throws CAException
 	 * @throws InterruptedException
 	 */
-	public CurrentState getCurrentState() throws TimeoutException, CAException, InterruptedException {
+	public EpicsCVScanState getCurrentState() throws TimeoutException, CAException, InterruptedException {
 		short value = controller.cagetEnum(currentstatechannel);
 		if (value == 0) {
-			currentstate = CurrentState.Done;
+			currentstate = EpicsCVScanState.Done;
 		} else if (value == 1) {
-			currentstate = CurrentState.Aborted;
+			currentstate = EpicsCVScanState.Aborted;
 		} else if (value == 2) {
-			currentstate = CurrentState.Executing;
+			currentstate = EpicsCVScanState.Executing;
 		} else if (value == 3) {
-			currentstate = CurrentState.Flyback;
+			currentstate = EpicsCVScanState.Flyback;
 		} else if (value == 4) {
-			currentstate = CurrentState.Paused;
+			currentstate = EpicsCVScanState.Paused;
 		} else if (value == 5) {
-			currentstate = CurrentState.Fault;
+			currentstate = EpicsCVScanState.Fault;
 		} else if (value == 6) {
-			currentstate = CurrentState.Reduction;
+			currentstate = EpicsCVScanState.Reduction;
 		} else if (value == 7) {
-			currentstate = CurrentState.LVIO;
+			currentstate = EpicsCVScanState.LVIO;
 		} else {
 			logger.error("{} reports UNKNOWN state value: {}", getName(), value);
 			throw new IllegalStateException(getName() + " in a unknown state.");
@@ -499,7 +497,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	 * 
 	 * @return the cached {@link #currentstate}
 	 */
-	public CurrentState getState() {
+	public EpicsCVScanState getState() {
 		return currentstate;
 	}
 
@@ -591,28 +589,28 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 				logger.error("{} : StateListener expect Enum type but got {} type.", getName(), dbr.getType());
 			}
 			if (value == 0) {
-				currentstate = CurrentState.Done;
+				currentstate = EpicsCVScanState.Done;
 				busy = false;
 			} else if (value == 1) {
-				currentstate = CurrentState.Aborted;
+				currentstate = EpicsCVScanState.Aborted;
 				busy = false;
 			} else if (value == 2) {
-				currentstate = CurrentState.Executing;
+				currentstate = EpicsCVScanState.Executing;
 				busy = true;
 			} else if (value == 3) {
-				currentstate = CurrentState.Flyback;
+				currentstate = EpicsCVScanState.Flyback;
 				busy = true;
 			} else if (value == 4) {
-				currentstate = CurrentState.Paused;
+				currentstate = EpicsCVScanState.Paused;
 				busy = true;
 			} else if (value == 5) {
-				currentstate = CurrentState.Fault;
+				currentstate = EpicsCVScanState.Fault;
 				busy = true; // GDA must be busy as auto retry kicked in on fault, otherwise for-loop carries on
 			} else if (value == 6) {
-				currentstate = CurrentState.Reduction;
+				currentstate = EpicsCVScanState.Reduction;
 				busy = true;
 			} else if (value == 7) {
-				currentstate = CurrentState.LVIO;
+				currentstate = EpicsCVScanState.LVIO;
 				busy = true;
 			} else {
 				logger.error("{} reports UNKNOWN state value: {}", getName(), value);
@@ -625,7 +623,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 		}
 	}
 
-	private void notifyIObservers(CurrentState currentstate) {
+	private void notifyIObservers(EpicsCVScanState currentstate) {
 		notifyIObservers(this, currentstate);
 	}
 
@@ -689,7 +687,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 			}
 			// always update current state
 			try {
-				if ((currentstate = getCurrentState()) == CurrentState.Done) {
+				if ((currentstate = getCurrentState()) == EpicsCVScanState.Done) {
 					busy = false;
 					InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.IDLE);
 				}
