@@ -28,6 +28,7 @@ import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR_Enum;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,21 +197,16 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	public void clearAndStart()throws DeviceException{
 		 xmap.setValueNoWait(ERASESTART  ,"",1);
 	}
-	 
-	@Override
-	public void setAquisitionTime(double collectionTime)throws DeviceException {
-		//removed as some versions of Epics interface does not have this SETPRESETREAL
-		//xmap.setValue(SETPRESETREAL ,"",collectionTime);
-	}
 	
 	public void setCollectionMode(COLLECTION_MODES mode) throws DeviceException{
 		xmap.setValueNoWait(COLLECTIONMODE, "", mode.ordinal());
 	}
-	 
+	
+	
 	public void setPixelAdvanceMode(PIXEL_ADVANCE_MODE mode) throws DeviceException{
 		xmap.setValueNoWait(PIXELADVANCEMODE, "", mode.ordinal());
-	 }
-	 
+	}
+
 	public void setIgnoreGate(boolean yes) throws DeviceException{
 		if (yes)
 			xmap.setValueNoWait(IGNOREGATE, "", 1);
