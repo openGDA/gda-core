@@ -7,7 +7,6 @@
 	</pathconvert>
 	<fail message="ERROR: Could not determine workspace.loc" unless="workspace.loc" />
 	<property name="workspace.git.loc" value="${workspace.loc}_git" />
-	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/common.ant" />
 
 	<!-- ====================================================================
 		   JUnit tests
