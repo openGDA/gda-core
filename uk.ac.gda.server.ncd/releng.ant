@@ -28,7 +28,7 @@
 				<pathelement location="${junitjar.loc}" />
 				<path refid="libs.jars.path" />
 				<pathelement location="${plugin.basedir}/bin" />
-				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.diamond.test.runners/logging" />  <!-- to pick up logback-test.xml -->
+				<pathelement location="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/logging" />  <!-- to pick up logback-test.xml -->
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
