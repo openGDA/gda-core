@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -23,75 +23,75 @@ import gda.factory.FactoryException;
 
 import java.util.ArrayList;
 
-//TODO Explain the meaning of this class
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Returns the actual motor readback positions in an EPICS trajectory scan.
+ * <p>
+ * This buffers all the motor positions in the scan. This will only work in 1D or 2D scans properly.
+ * <p>
+ * As the motor positions can only be read out at the end of a trajectory this returns a RealPositionCallable for a
+ * delayed retrun of the motor positions.
+ */
 public class EpicsTrajectoryScanRealPositionReader extends EpicsSingleTrajectoryScannable implements RealPositionReader {
 
-	private int lastIndex = -1;
-	private int numberOfScanPointsPerRow =-1;
-	public ArrayList <double[]> positions = new ArrayList<double[]>() ;
-	
+	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryScanRealPositionReader.class);
+
+	private int lastReadPointIndex = -1;
+	private int indexOfLastPointInRow = -1;
+	public ArrayList<double[]> positions = new ArrayList<double[]>();
+
 	@Override
-	public void atScanStart() throws DeviceException{
-		positions = new ArrayList<double[]>() ;
+	public void atScanStart() throws DeviceException {
+		// reset the arrays
+		positions = new ArrayList<double[]>();
+		this.lastReadPointIndex = -1;
 	}
+
 	@Override
-	public void atScanLineStart() throws DeviceException{
-		this.lastIndex = -1;
-	}
-	
-	@Override
-	public void atScanLineEnd() throws DeviceException{
+	public void atScanLineEnd() throws DeviceException {
 		try {
-			double tempPositions[]= tracController.getMActual(trajectoryIndex);
-			int stopPulseElement = tracController.getStopPulseElement();
-			//for the first scan line end get the total number of points per row
-			if(numberOfScanPointsPerRow == -1)
-			{				
-				numberOfScanPointsPerRow = stopPulseElement;
-			}
-			int lineIndex = ((lastIndex )/numberOfScanPointsPerRow);
-			if(positions.size()==0)
+			double tempPositions[] = tracController.getMActual(trajectoryIndex);
+			indexOfLastPointInRow = tracController.getActualPulses() - 1;
+			int lineIndex = ((lastReadPointIndex) / indexOfLastPointInRow);
+			if (positions.size() == 0)
 				positions.add(tempPositions);
-			else if(positions.size()<lineIndex+1)
-				positions.add(lineIndex ,tempPositions);
+			else if (positions.size() < lineIndex + 1)
+				positions.add(lineIndex, tempPositions);
 		} catch (Exception e) {
-			throw new DeviceException(getName() + " exception in atScanLineEnd",e);
+			throw new DeviceException(getName() + " exception in atScanLineEnd", e);
 		}
 	}
-	
+
 	@Override
-	public Object getPosition()
-	{
-		return new RealPositionCallable(this, ++lastIndex);
+	public Object getPosition() {
+		return new RealPositionCallable(this, ++lastReadPointIndex);
 	}
-	
+
 	@Override
 	public Object get(int index) {
 		try {
-			int lineNumber = index / numberOfScanPointsPerRow;
-			int pointNumber = index % numberOfScanPointsPerRow;
-			if(lineNumber < 0)
+			int lineNumber = index / indexOfLastPointInRow;
+			int pointNumber = index % indexOfLastPointInRow;
+			if (lineNumber < 0)
 				lineNumber = 0;
-			while(lineNumber >= positions.size())
-			{
-				//InterfaceProvider.getTerminalPrinter().print("Waiting for traj to complete " + index);
+
+			// wait here as getPosition() will be called before atScanLineEnd() fills the array
+			while (lineNumber >= positions.size()) {
 				Thread.sleep(100);
-				lineNumber = index / numberOfScanPointsPerRow;
-				pointNumber = index % numberOfScanPointsPerRow;
+				lineNumber = index / indexOfLastPointInRow;
+				pointNumber = index % indexOfLastPointInRow;
 			}
-			
-			//TODO after a gda servers restart the instance of this (realX for i18) has an empty list of positions
-			//so the scan fails. Run again and it's fine.
-			//this is because get() is called before atScanLineEnd() where positions are added.
-			//return null if there are no positions to return.
-			if(positions.size()>0)
+
+			// return null if there are no positions to return.
+			if (positions.size() > lineNumber)
 				return positions.get(lineNumber)[pointNumber];
-			
+
 			return null;
-	
+
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("InterruptedException waiting for positions to be retrieved for this row. Returning null for the real motor position.");
 		}
 		return null;
 	}
@@ -99,6 +99,6 @@ public class EpicsTrajectoryScanRealPositionReader extends EpicsSingleTrajectory
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-		this.setInputNames(new String[]{this.getName()});
+		this.setInputNames(new String[] { this.getName() });
 	}
 }
