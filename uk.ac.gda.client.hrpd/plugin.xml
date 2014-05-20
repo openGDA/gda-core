@@ -66,6 +66,14 @@
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/chart_curve.png"
             id="uk.ac.gda.client.hrpd.views.MACPlotView"
+            name="MAC_old"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory:macliveplotviewfactory"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.hrpd.views.liveplotview"
             name="MAC"
             restorable="true">
       </view>

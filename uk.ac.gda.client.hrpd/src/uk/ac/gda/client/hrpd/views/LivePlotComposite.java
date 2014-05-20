@@ -25,7 +25,6 @@ import gda.observable.IObserver;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.PlottingFactory;
@@ -76,18 +75,20 @@ public class LivePlotComposite extends Composite implements IObserver {
 	private String plotName="DetectorData";
 	private double xAxisMin=0.000;
 	private double xAxisMax=150.000;
-	private IPlottingSystem plottingSystem;
 	private List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> liveDataListeners = new ArrayList<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>>();
 	private EpicsIntegerDataListener dataUpdatedListener;
-	
-	private Pair<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> finalDataListener;
+	private Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener,EpicsDoubleDataArrayListener> finalDataListener;
+	public Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> getFinalDataListener() {
+		return finalDataListener;
+	}
+
 	private EpicsEnumDataListener detectorStateListener;
-	
 	private Scriptcontroller scriptController; //used for passing event from server to client without the need to CORBArise this class.
 	private String dataFilenameObserverName;
 	private int lowDataBound;
 	private int highDataBound;
 	
+	private IPlottingSystem plottingSystem;
 	
 	public LivePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
@@ -113,7 +114,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 		plottingSystem.setShowLegend(true);
 		plottingSystem.getSelectedXAxis().setRange(getxAxisMin(), getxAxisMax());
 	}
-	public void initialize() {
+	public void initialise() {
 		if (getDataFilenameObserverName()!=null) {
 			//optional file name observing
 			scriptController = Finder.getInstance().find(getDataFilenameObserverName());
@@ -141,21 +142,10 @@ public class LivePlotComposite extends Composite implements IObserver {
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
-		for (Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> listener : getLiveDataListeners()) {
-			listener.getValue1().dispose();
-			listener.getValue2().dispose();
-		}
-		if (finalDataListener!=null) {
-			finalDataListener.getValue0().dispose();
-			finalDataListener.getValue1().dispose();
-		}
-		dataUpdatedListener.dispose();
-		if (detectorStateListener!=null) {
-			detectorStateListener.dispose();
-		}
+		plottingSystem.dispose();
+		//remove reference
 		dataDisplayers.clear();
 		liveDataListeners.clear();
-		plottingSystem.dispose();
 		super.dispose();
 	}
 
@@ -234,8 +224,10 @@ public class LivePlotComposite extends Composite implements IObserver {
 					if (visible) {
 						plottingSystem.clear();
 						plottingSystem.setTitle(PLOT_TITLE);
-						DoubleDataset x = new DoubleDataset(finalDataListener.getValue0().getValue());
-						DoubleDataset y = new DoubleDataset(finalDataListener.getValue1().getValue());
+						DoubleDataset x = new DoubleDataset(getFinalDataListener().getValue0().getValue());
+						DoubleDataset y = new DoubleDataset(getFinalDataListener().getValue1().getValue());
+						DoubleDataset error = new DoubleDataset(getFinalDataListener().getValue2().getValue());
+						y.setError(error);
 						y.setName(legend);
 						List<AbstractDataset> plotDatasets=new ArrayList<AbstractDataset>();
 						plotDatasets.add(y);
@@ -294,7 +286,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 			plottingSystem.setTitle(PLOT_TITLE);
 		} else if(detectorStateListener!=null && source==detectorStateListener && arg instanceof Short) {
 			short shortValue = ((Short)arg).shortValue();
-			if (EpicsCVScanState.values()[shortValue]==EpicsCVScanState.Flyback && finalDataListener != null){
+			if (EpicsCVScanState.values()[shortValue]==EpicsCVScanState.Flyback && getFinalDataListener() != null){
 				String legend=PLOT_TITLE;
 				PLOT_TITLE="Reduced MAC Data";
 				plotFinalData(legend);
@@ -302,13 +294,6 @@ public class LivePlotComposite extends Composite implements IObserver {
 		}
 	}
 	
-	public Pair<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> getFinalDataListener() {
-		return finalDataListener;
-	}
-	public void setFinalDataListener(Pair<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> finalDataListener) {
-		this.finalDataListener = finalDataListener;
-	}
-
 	public EpicsEnumDataListener getDetectorStateListener() {
 		return detectorStateListener;
 	}
@@ -339,6 +324,9 @@ public class LivePlotComposite extends Composite implements IObserver {
 	}
 	public void setHighDataBound(int highDataBound) {
 		this.highDataBound = highDataBound;
+	}
+	public void setFinalDataListener(Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener,EpicsDoubleDataArrayListener> finalDataListener) {
+		this.finalDataListener = finalDataListener;
 	}
 
 

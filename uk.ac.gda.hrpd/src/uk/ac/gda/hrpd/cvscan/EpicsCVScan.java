@@ -110,7 +110,6 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	@SuppressWarnings("unused")
 	private boolean local;
 	private long collectionNumber;
-	private boolean live = true;
 	private long fileNumber;
 
 	public long getFileNumber() {
@@ -120,14 +119,6 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	public void setFileNumber(long fileNumber) {
 		this.fileNumber = fileNumber;
 
-	}
-
-	public boolean isLive() {
-		return live;
-	}
-
-	public void setLive(boolean live) {
-		this.live = live;
 	}
 
 	public long getCollectionNumber() {
@@ -195,7 +186,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 		}
 	}
 
-	public double getMonitorAvaerage() throws TimeoutException, CAException, InterruptedException {
+	public double getMonitorAverage() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetDouble(mav);
 	}
 
@@ -573,11 +564,13 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	public void setBusy(boolean b) {
 		busy = b;
 	}
+	private boolean first=true;
 
 	/**
 	 * Monitor Current State in EPICS, and update cached state variable.
 	 */
 	private class StateListener implements MonitorListener {
+
 
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
@@ -618,7 +611,11 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 			}
 			logger.info("Current State from EPICS {} update to {}", ((Channel) arg0.getSource()).getName(),
 					currentstate);
-
+			
+			if (first) { // do not propagate 1st connection event to the observer
+				first=false;
+				return;
+			}
 			notifyIObservers(currentstate);
 		}
 	}
