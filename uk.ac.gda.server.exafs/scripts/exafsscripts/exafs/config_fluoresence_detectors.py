@@ -53,8 +53,9 @@ class XspressConfig():
         try:
             self.xpressUtils.createXMLfromBean(xspress, xspressBean)
             print "Wrote new Xspress Parameters to: ", xmap.getConfigFileName()
+
         except java.lang.Exception, e:
-            print "Could not save XspressParameters bean ", e
+#             print "Could not save XspressParameters bean ", e
             raise e
         self.xpressUtils.createXMLfromBean(xspress, xspressBean)
     
@@ -88,10 +89,15 @@ class XspressConfig():
         self.xspress2system.setDeadtimeCalculationEnergy(energy)
     
     def configure(self, xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum):
+<<<<<<< HEAD
         self.configuration.setOnlyShowFF(onlyShowFF)
         self.configuration.setShowDTRawValues(showDTRawValues)
         self.configuration.setSaveRawSpectrum(saveRawSpectrum)
         self.configuration.configure(xmlFileName)
+=======
+        print "Configure Xspress using: ", xmlFileName
+        self.configuration.configure(xmlFileName, onlyShowFF, showDTRawValues, saveRawSpectrum)
+>>>>>>> refs/remotes/origin/8.36
     
     def getConfigureResult(self):
         return self.configuration.getMessage();
@@ -140,8 +146,8 @@ class VortexConfig():
         
         if (OutputParametersToLoad != None and isinstance(OutputParametersToLoad,I20OutputParameters)):
             saveRawSpectrum = OutputParametersToLoad.isVortexSaveRawSpectrum()
-        print "XMLFileNameToLoad=", XMLFileNameToLoad
-        print "isSaveRawSpectrum", saveRawSpectrum
+#         print "XMLFileNameToLoad=", XMLFileNameToLoad
+#         print "isSaveRawSpectrum", saveRawSpectrum
         self.configure(XMLFileNameToLoad, saveRawSpectrum)
 
     def createBeanFromXML(self, xmlPath):
@@ -153,17 +159,28 @@ class VortexConfig():
         
     def createXMLfromBean(self, xmap, vortexBean):
         try:
+<<<<<<< HEAD
             self.vortexUtils.createXMLfromBean(xmap, vortexBean)
             print "Wrote new Vortex Parameters to: ", xmap.getConfigFileName()
+=======
+            self.configuration.createXMLfromBean(vortexBean)
+#             print "Wrote new Vortex Parameters to: ", xmap.getConfigFileName()
+>>>>>>> refs/remotes/origin/8.36
         except java.lang.Exception, e:
             print "Could not save VortexParameters bean ", e
             raise e
 
+<<<<<<< HEAD
     def configure(self, xmlFileName, saveRawSpectrum):
         print "xmlFileName=", xmlFileName
         print "isSaveRawSpectrum", saveRawSpectrum
         self.configuration.setSaveRawSpectrum(saveRawSpectrum)
         self.configuration.configure(xmlFileName)
+=======
+    def configure(self, xmlFileName, isSaveRawSpectrum):
+        print "Configure Vortex using: ", xmlFileName
+        self.configuration.configure(xmlFileName, isSaveRawSpectrum)
+>>>>>>> refs/remotes/origin/8.36
         
     def getConfigureResult(self):
         return self.configuration.getMessage();

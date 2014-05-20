@@ -32,8 +32,8 @@ class Scan:
     def determineExperimentPath(self, experimentFullPath):
         experimentFullPath = experimentFullPath + "/"
         experimentFolderName = experimentFullPath[experimentFullPath.find("xml")+4:]
-        print "experimentFullPath=", experimentFullPath
-        print "experimentFolderName=", experimentFolderName
+        self.log("Using data folder " + experimentFullPath)
+        self.log("Using xml subfolder " + experimentFolderName)
         return experimentFullPath, experimentFolderName
     
     def setXmlFileNames(self, sampleFileName, scanFileName, detectorFileName, outputFileName):

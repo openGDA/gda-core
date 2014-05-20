@@ -442,10 +442,10 @@ public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
 //		}
 //	}
 	
-	@Override
-	protected void writeRgbHeader(String string) throws IOException {
-		writer.addHeader(string);
-	}
+//	@Override
+//	protected void writeRgbHeader(String string) throws IOException {
+//		writer.addHeader(string);
+//	}
 
 	
 	@Override

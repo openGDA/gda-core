@@ -30,6 +30,10 @@ class QexafsScan(Scan):
         self.additional_channels_enabled = False
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= -1, validation=True):
+
+        print ""
+        self.log("Starting QEXAFS scan...")
+        
         experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
         print "qexafs XML file names",sampleFileName, scanFileName, detectorFileName, outputFileName
         self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
@@ -44,15 +48,13 @@ class QexafsScan(Scan):
         beanGroup = self._createBeanGroup(experimentFolderName, validation, controller, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean)
         # work out which detectors to use (they will need to have been configured already by the GUI)
         detectorList = self._getQEXAFSDetectors(detectorBean, outputBean, scanBean) 
-        print "detectors to be used:", str(detectorList)
+        self.log("Detectors: " + str(detectorList))
         
         # send initial message to the log
         loggingcontroller = self.XASLoggingScriptController
         scriptType = "Qexafs"
         unique_id  = LoggingScriptController.createUniqueID(scriptType);
         outputFolder = outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
-
-        print "Starting Qexafs scan..."
 
         # reset the properties used to control repetition behaviour
         LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
@@ -94,25 +96,15 @@ class QexafsScan(Scan):
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
             
-                if (LocalProperties.get("gda.mode") == 'live'):
-                    if self.beamCheck==True:
-                        feAbsPV = "FE18B-RS-ABSB-02:STA"
-                        feAbsStatus = int(CAClient().caget(feAbsPV))
-                        print "feAbsStatus=",feAbsStatus
-                        while feAbsStatus!=1 and self.beamCheck==True:
-                            feAbsStatus = int(CAClient().caget(feAbsPV))
-                            print "Checking whether front end absorber is open. Currently "+str(feAbsStatus)
-                            sleep(2)
-            
                 current_energy = self.energy_scannable();
                 dist_to_init = math.fabs(initial_energy - current_energy)
                 dist_to_final = math.fabs(final_energy - current_energy)
 
-                print "energy currently at ", current_energy
-                print "initial_energy ", initial_energy
-                print "final_energy", final_energy
-                print "dist_to_init", dist_to_init
-                print "dist_to_final", dist_to_final
+                self.log( "Current energy: "             + str(current_energy))
+                self.log( "Initial energy:  "            + str( initial_energy))
+                self.log( "Final energy: "               + str( final_energy))
+                self.log( "Distance to initial energy: " + str( dist_to_init))
+                self.log( "Distance to final energy: "   + str( dist_to_final))
                 
                 start=initial_energy
                 end=final_energy
@@ -127,7 +119,7 @@ class QexafsScan(Scan):
                         start=final_energy
                         end=initial_energy
                 
-                print "running QEXAFS scan:", self.energy_scannable.getName(), start, end, numberPoints, scan_time, detectorList
+                self.log( "Scan: " + str(self.energy_scannable.getName()) + " " + str(start) + " " + str(end) + " " + str(numberPoints) + " " + str(scan_time) + " " + str(detectorList))
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
                 thisscan = ContinuousScan(self.energy_scannable , start, end, numberPoints, scan_time, detectorList)
                 thisscan = self._setUpDataWriter(thisscan, scanBean, detectorBean, sampleBean, outputBean, sampleBean.getName(), sampleBean.getDescriptions(), repetitionNumber, experimentFolderName, experimentFullPath, detectorFileName, outputFileName, sampleFileName, scanFileName)
@@ -135,19 +127,12 @@ class QexafsScan(Scan):
                 try:
                     if numRepetitions > 1:
                         print ""
-                        print "Starting repetition", str(repetitionNumber), "of", numRepetitions
+                        self.log("Starting repetition " + str(repetitionNumber) + " of " + str(numRepetitions))
                     loggingbean.atScanStart()
                     thisscan.runScan()
                     controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
                     loggingbean.atScanEnd()            
-#                except java.lang.Exception, e:
-#                    #print "abort due to other Java exception"
-#                    self._resetHeader()
-#                    loggingbean.atCommandFailure()
-#                    raise e
-                # handle every Java exception through this code, as sometimes an interrupt gets 
-                # encapsulated in a DeviceException (which should not happen)
-                
+                    
                 except java.lang.Exception, e:
                     self._resetHeader()
                     loggingbean.atCommandFailure()
@@ -158,7 +143,7 @@ class QexafsScan(Scan):
                             raise e
                         # only wanted to skip this repetition, so absorb the exception and continue the loop
                         if numRepetitions > 1:
-                            print "Repetition", str(repetitionNumber),"skipped."
+                            self.log("Repetition " + str(repetitionNumber), + " skipped.")
                     else:
                         print e
                         raise # any other exception we are not expecting so raise whatever this is to abort the script
@@ -172,7 +157,7 @@ class QexafsScan(Scan):
                             raise e
                         # only wanted to skip this repetition, so absorb the exception and continue the loop
                         if numRepetitions > 1:
-                            print "Repetition", str(repetitionNumber),"skipped."
+                            self.log("Repetition " + str(repetitionNumber), + " skipped.")
                     else:
                         print e
                         raise
@@ -182,33 +167,28 @@ class QexafsScan(Scan):
                 
                 #check if halt after current repetition set to true
                 if LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
-                    print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
+                    self.log("Paused scan after repetition " + str(repetitionNumber) + ". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.")
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
-#                     self.commandQueueProcessor.pause(500)
                     ScriptBase.setPaused(True)#
                     ScriptBase.checkForPauses()
                 
                 #check if the number of repetitions has been altered and we should now end the loop
                 numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
                 if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
-                    print "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end."
+                    self.log("The number of repetitions has been reset to " + str(numRepsFromProperty) + ". As " + str(repetitionNumber) + "repetitions have been completed this scan will now end.")
                     self._resetHeader()
                     break
                 elif numRepsFromProperty <= (repetitionNumber):
                     self._resetHeader()
                     break
         finally:
-            #self.energy_scannable.stop()
-            # repetition loop completed, so reset things
-            # TODO remove metadata enteries
             LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
-            #remove added metadata from default metadata list to avoid multiple instances of the same metadata
             self._resetHeader()
             if self.cirrusEnabled:
                 self.t.stop
             
-            print "qexafs finished"
+            self.log("QEXAFS finished.")
                 
 
     def _getQEXAFSDetectors(self, detectorBean, outputBean, scanBean):
@@ -224,11 +204,8 @@ class QexafsScan(Scan):
                 return self._createDetArray(["qexafs_counterTimer01"], scanBean)
         else:
             if detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon":
-                print "This scan will use the vortex detector"
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap", "VortexQexafsFFI0"], scanBean)
-                #return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap"], scanBean)
             else:
-                print "This scan will use the Xspress detector"
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "QexafsFFI0"], scanBean)
 
     def isBeamCheck(self):
