@@ -26,6 +26,7 @@ import gda.device.Scannable;
 import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.ScannableUtils;
+import gda.jython.InterfaceProvider;
 
 import java.util.HashMap;
 
