@@ -25,6 +25,10 @@ import java.io.IOException;
 
 public interface ADDriverMerlinThresholdSweep {
 
+	public enum MerlinThresholdSweepTriggerMode {
+		INTERNAL, TRIGGER_ENABLE, TRIGGER_START_RISING, TRIGGER_START_FALLING, TRIGGER_BOTH_RISING, SOFTWARE
+	}
+
 	public void setStep(Double step) throws IOException;
 
 	public Double getStep() throws IOException;
@@ -45,4 +49,5 @@ public interface ADDriverMerlinThresholdSweep {
 
 	public NoCallbackPV<Boolean> getStartThresholdScanningPV();
 
+	public boolean isUseTriggerModeNotStartThresholdScanning();
 }
