@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -20,13 +20,12 @@ package gda.data.scan.datawriter;
 
 import gda.scan.IScanDataPoint;
 
-public class TwoDScanRowReverser implements DataIndexer {
+public class TwoDScanRowReverser {
 	private int noOfRows;
 	private int noOfColumns;
 	private boolean reverseOdd;
 	private boolean reverseEven;
 
-	@Override
 	public void indexData(IScanDataPoint sdp) {
 		int currentRowNumber = findRowNumber(sdp.getCurrentPointNumber());
 		if (isOdd(currentRowNumber) && isReverseOdd())
@@ -61,27 +60,6 @@ public class TwoDScanRowReverser implements DataIndexer {
 		if (currentRowNumber % 2 == 0)
 			return false;
 		return true;
-	}
-
-	public static void main(String args[]) {
-		TwoDScanRowReverser reverser = new TwoDScanRowReverser();
-		reverser.setNoOfColumns(11);
-		reverser.setNoOfRows(4);
-		for (int j = 0; j < 4; j++) {
-			for (int i = 0; i < 11; i++)
-				System.out.print(reverser.reversePointNumber(j * 11 + i) + "\t");
-			System.out.println();
-		}
-		reverser.setNoOfColumns(10);
-		reverser.setNoOfRows(4);
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		for (int j = 0; j < 4; j++) {
-			for (int i = 0; i < 10; i++)
-				System.out.print(reverser.reversePointNumber(j * 10 + i) + "\t");
-			System.out.println();
-		}
 	}
 
 	public int getNoOfRows() {
