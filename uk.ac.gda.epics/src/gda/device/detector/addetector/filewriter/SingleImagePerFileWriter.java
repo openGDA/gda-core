@@ -190,7 +190,9 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		NDPluginBase pluginBase = getNdFile().getPluginBase();
 		if (pluginBase != null) {
 			pluginBase.enableCallbacks();
-			logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
+			if (blocking) {
+				logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
+			} 
 			pluginBase.setBlockingCallbacks((short)(blocking? 1:0));
 			// It should be possible to avoid blocking the acquisition thread
 			// and use the pipeline by setting BlockingCallbacks according to
