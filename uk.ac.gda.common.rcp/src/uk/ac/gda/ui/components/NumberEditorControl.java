@@ -84,7 +84,7 @@ public class NumberEditorControl extends Composite {
 	private static final int LARGE_INCREMENT_WIDTH_PADDING = 6;
 	private static final int MIN_STEP_LABEL_WIDTH = 43;
 	
-	protected static final int DEFAULT_DECIMAL_PLACES = 6;
+	protected static final int DEFAULT_DECIMAL_PLACES = 3;
 	protected Object targetObject;
 	
 	private String propertyName;
@@ -195,7 +195,7 @@ public class NumberEditorControl extends Composite {
 		if (this.modelToTargetValidator != null) {
 			modelToTargetUpdateValueStrategy.setBeforeSetValidator(modelToTargetValidator);
 		}
-		numberLabelValueBinding = ctx.bindValue(textValue, objectValue, modelToTargetUpdateValueStrategy, null);
+		numberLabelValueBinding = ctx.bindValue(textValue, objectValue, null, modelToTargetUpdateValueStrategy);
 		if (useSpinner) {
 			incrementLabelBinding = ctx.bindValue(
 					WidgetProperties.text().observe(incrementText),
