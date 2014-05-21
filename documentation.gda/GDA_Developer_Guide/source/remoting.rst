@@ -59,6 +59,8 @@ A few points:
 
  * Input parameters must be prefixed with ``in``; for example:
 
+ * ``.idl`` files are in the project's source tree under ``src/idl.``
+
 ::
 
    double getDemandVoltage(in long electrodeNumber) raises (device::corba::CorbaDeviceException);
@@ -68,19 +70,49 @@ A few points:
 Compile the IDL to create CORBA classes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-(It is no longer necessary to add the IDL file to an Ant script; the
-``make-corba-jar`` target automatically picks up all IDLs.)
+To build the CORBA ``.jar`` for a project, first build the workspace (IDE or command line), and then either
 
-From the root of the GDA project, type::
+Use the Eclipse IDE
 
-   $ ant make-corba-jar
+   * Right-click on ``releng.ant`` at the root of the project directory
+   * Select :menuselection:`&Run As --> Ant Build...`
+   * On the :menuselection:`Targets` tab, select ``corba-make-jar`` and :menuselection:`Run` 
 
-Or if this fails, try::
-   
-   ant -f build-classic.xml make-corba-jar 
+**OR**
 
-which will create a new ``gda-corba.jar`` that will include new classes
-for your object. For Phantom these classes include:
+Use the command line and ``dawn.py`` (requires Ant version 1.8+)::
+
+      if [[ "$(uname -n)" == *diamond.ac.uk ]]; then
+          module load ant
+      fi
+      ant -version
+
+      dawn.py --workspace=/path/to/workspace/ --include=name.of.project corba-make-jar
+
+**OR**
+
+Use the command line and native ``ant`` (requires Ant version 1.8+)::
+
+      if [[ "$(uname -n)" == *diamond.ac.uk ]]; then
+          module load ant
+      fi
+      ant -version
+
+      cd /path/to/workspace_git/plugin_name/
+      ant -logger org.apache.tools.ant.NoBannerLogger -buildfile releng.ant corba-make-jar
+
+The CORBA compilation does the following steps
+
+   #. Deletes  ``src/corba/java``, ``bin/corba``
+   #. Compiles ``src/idl``         to  ``src/corba/java``
+   #. Compiles ``src/corba/java``  to  ``bin/corba``
+   #. Jars     ``bin/corba``       to  ``jars/${corba.jar.name}``
+
+The result is a new ``.jar`` named ``/plugin_name/jars/gda-corba.jar`` (or similar).
+You check this ``.jar`` into version control, along with the Java interface, implementation, and IDL,
+but *not* the intermediate files in ``src/corba/java`` and ``bin/corba`` (these should be excluded by ``.gitignore``).
+
+The new ``.jar`` will include new classes for your object. For Phantom these classes include:
 
  * ``CorbaPhantomOperations`` - interface containing the Phantom-specific
    operations (e.g. ``setupForCollection``)
@@ -90,6 +122,7 @@ for your object. For Phantom these classes include:
    remote requests
  * ``CorbaPhantomHelper`` - various utility methods for working with
    ``CorbaPhantom`` objects
+
 
 Write the CORBA implementation/adapter classes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -171,17 +204,9 @@ The way this is handled is as follows:
 Validating CORBA JARs
 ---------------------
 
-The compiled code in a CORBA JAR can get out of sync with the IDL file that was used to generate the code. A CORBA JAR
-can be validated using ``gda-build.py``. For example:
-
-::
-
-  # validate the CORBA JAR in all plugins
-  gda-build.py corba-validate-jar
+The compiled code in a CORBA JAR can get out of sync with the IDL files that were used to generate the code. A CORBA JAR
+can be validated using any of the methods for building the jar, but replacing ``corba-make-jar`` with ``corba-validate-jar``.
   
-  # validate the CORBA JAR in the specified plugins only
-  gda-build.py -i core corba-validate-jar
-
 This recompiles the IDL file to produce Java source code, then compiles the Java source code to produce class files.
 The newly-compiled class files are compared to those inside the CORBA JAR. Any mismatches are reported.
 
