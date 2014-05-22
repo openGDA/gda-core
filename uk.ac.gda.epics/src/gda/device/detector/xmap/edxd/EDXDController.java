@@ -68,7 +68,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	
 	// TODO these are accessed directly and shouldn't be
 	public enum COLLECTION_MODES {MCA_SPECTRA, MCA_MAPPING, SCA_MAPPING , LIST_MAPPING}
-	public enum PRESET_MODES {NO_PRESET, REAL_TIME, LIVE_TIME , EVENTS, TRIGGERS}
+	public enum PRESET_TYPES {NO_PRESET, REAL_TIME, LIVE_TIME , EVENTS, TRIGGERS}
 	public enum PIXEL_ADVANCE_MODE { GATE, SYNC}
 	public enum NEXUS_FILE_MODE {SINGLE, CAPTURE, STREAM}
 	
@@ -205,7 +205,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	
-	public int getPresetMode() throws DeviceException {
+	public int getPresetType() throws DeviceException {
 		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE,GETPRESETTYPE ,"");
 	}
 
@@ -534,7 +534,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @param mode
 	 * @throws DeviceException
 	 */
-	public void setPresetMode(PRESET_MODES mode) throws DeviceException{
+	public void setPresetType(PRESET_TYPES mode) throws DeviceException{
 		xmap.setValueNoWait(SETPRESETTYPE, "", mode.ordinal());
 	}
 	/**
