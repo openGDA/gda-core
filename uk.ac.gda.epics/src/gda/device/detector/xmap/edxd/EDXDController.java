@@ -66,9 +66,10 @@ public class EDXDController extends DetectorBase implements Configurable {
 	protected static String SETPRESETTYPE = "SETPRESETTYPE";
 	protected static String SCAELEMENTS = "SCAELEMENTS";
 	
+	
 	// TODO these are accessed directly and shouldn't be
 	public enum COLLECTION_MODES {MCA_SPECTRA, MCA_MAPPING, SCA_MAPPING , LIST_MAPPING}
-	public enum PRESET_MODES {NO_PRESET, REAL_TIME, LIVE_TIME , EVENTS, TRIGGERS}
+	public enum PRESET_TYPES {NO_PRESET, REAL_TIME, LIVE_TIME , EVENTS, TRIGGERS}
 	public enum PIXEL_ADVANCE_MODE { GATE, SYNC}
 	public enum NEXUS_FILE_MODE {SINGLE, CAPTURE, STREAM}
 	
@@ -188,8 +189,9 @@ public class EDXDController extends DetectorBase implements Configurable {
 	@Override
 	public int getStatus() throws DeviceException {
 		return getStatusObject();
-	}	
+	}
 	
+
 	/**
 	 * Get the acquisition/collection/preset  time in the hardware
 	 * @return collection time
@@ -199,7 +201,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 		return (Double) xmap.getValue(ReturnType.DBR_NATIVE,GETPRESETVALUE  ,"");
 	}
 
-	public int getPresetMode() throws DeviceException {
+	public int getPresetType() throws DeviceException {
 		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE,GETPRESETTYPE ,"");
 	}
 
@@ -522,7 +524,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 		xmap.setValue(SETPRESETVALUE ,"",collectionTime);
 	}
 	
-	public void setPresetMode(PRESET_MODES mode) throws DeviceException{
+	public void setPresetType(PRESET_TYPES mode) throws DeviceException{
 		xmap.setValueNoWait(SETPRESETTYPE, "", mode.ordinal());
 	}
 	

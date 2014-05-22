@@ -62,6 +62,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	private static final String FILENUMBER = "NEXUS:FileNumber";
 	private static final String NEXUSTEMPFILENAME = "TemplateFileName";
 	private static final String NEXUSTEMPFILEPATH = "TemplateFilePath";
+	private boolean aquisitionTimeOn = false;
 	
 	protected NDFileHDF5 hdf5;
 	
@@ -79,6 +80,13 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		this.elementOffset = elementOffset;
 	}
 
+	public boolean getAquisitionTimeOn() {
+		return aquisitionTimeOn;
+	}
+
+	public void setAquisitionTimeOn(boolean aquisitionTimeOn) {
+		this.aquisitionTimeOn = aquisitionTimeOn;
+	}
 	/**
 	 * Basic constructor, nothing done in here, waiting for configure
 	 */
@@ -202,6 +210,13 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		xmap.setValueNoWait(COLLECTIONMODE, "", mode.ordinal());
 	}
 	
+	@Override
+	public void setAquisitionTime(double collectionTime)throws DeviceException {
+		if (aquisitionTimeOn == true) super.setAquisitionTime(collectionTime);
+		
+		//removed as some versions of Epics interface does not have this SETPRESETREAL
+		//xmap.setValue(SETPRESETREAL ,"",collectionTime);
+	}
 	
 	public void setPixelAdvanceMode(PIXEL_ADVANCE_MODE mode) throws DeviceException{
 		xmap.setValueNoWait(PIXELADVANCEMODE, "", mode.ordinal());
@@ -364,4 +379,5 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 			return true;
 		return false;
 	}
+	
 }
