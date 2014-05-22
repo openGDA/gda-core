@@ -178,15 +178,17 @@ public class NDFileHDF5Simulator implements NDFileHDF5 {
 
 	@Override
 	public void startCapture() throws Exception {
+		getFile().startCapture();
 	}
 
 	@Override
 	public short getCapture() throws Exception {
-		return 0;
+		return getFile().getCapture();
 	}
 
 	@Override
 	public void stopCapture() throws Exception {
+		getFile().stopCapture();
 	}
 
 	@Override

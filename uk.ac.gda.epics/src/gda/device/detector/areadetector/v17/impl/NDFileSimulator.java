@@ -181,6 +181,9 @@ public class NDFileSimulator extends NDBaseImpl implements NDFile{
 		return fileWriteMode;
 	}
 
+	/*For simulated scans, it is necessary to finish the scan use
+	stopCapture() otherwise it is waiting for the getCapture_RBV to be 1
+	*/
 	short capture=0;
 	@Override
 	public short getCapture() throws Exception {
@@ -248,6 +251,7 @@ public class NDFileSimulator extends NDBaseImpl implements NDFile{
 
 	@Override
 	public void startCaptureSynchronously() throws Exception {
+		capture=1;
 		//
 	}
 
