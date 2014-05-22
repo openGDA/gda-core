@@ -1,6 +1,8 @@
 from gda.device.scannable import ScannableBase, PseudoDevice
 import time
 import java.lang.Exception  # @UnresolvedImport
+from gdascripts.metadata.metadata_commands import setTitle, getTitle, meta_add, meta_ll, meta_ls, meta_rm
+from gda.factory import Finder
 
 KEY = 'SRSWriteAtFileCreation'
 
@@ -26,7 +28,7 @@ class MetadataCollector(ScannableBase):
     >>>mdb = MetadataCollector("mdb", globals(), [enf,hkl,euler])  # make a big one
     >>>scan x 1 10 1 mds mdb
     """
-    def __init__(self, name, rootNamespace=None, scannablesToRead=[]):
+    def __init__(self, name, rootNamespace=None, scannablesToRead=[], readFromNexus=False):
         """Create a MetadataCollector Scannable, for use with SRSDataWriters
         """
         self.name = name
@@ -34,6 +36,7 @@ class MetadataCollector(ScannableBase):
         self.extraNames = []
         self.outputFormat = []
 
+        self.readFromNexus = readFromNexus
         self.rootNamespaceDict = rootNamespace
         self.scannables_to_read = scannablesToRead
         self.verbose = False
@@ -41,22 +44,30 @@ class MetadataCollector(ScannableBase):
         self.prepend_keys_with_scannable_names = True
 
     def set(self, *args):  # @ReservedAssignment
+        if self.readFromNexus:
+            raise Exception("Unsupported with readFromNexus == True")
         _check_all_scannable(args)
         self.scannables_to_read = list(args)
         return self.ls()
 
     def ls(self):
+        metascannables = Finder.getInstance().find("metashop").getMetaScannables() \
+            if self.readFromNexus else self.scannables_to_read
         names = []
-        for scn in self.scannables_to_read:
+        for scn in metascannables:
             names.append(scn.name)
         return ' '.join(names)
 
     def add(self, *args):
+        if self.readFromNexus:
+            raise Exception("Unsupported with readFromNexus == True")
         _check_all_scannable(args)
         self.scannables_to_read.extend(args)
         return self.ls()
 
     def rm(self, *args):
+        if self.readFromNexus:
+            raise Exception("Unsupported with readFromNexus == True")
         _check_all_scannable(args)
         for arg in args:
             try:
@@ -163,7 +174,10 @@ class MetadataCollector(ScannableBase):
 
     def _createHeaderStringForScannables(self, fmt='%s=%s\n'):
         s = ""
-        for scn in self.scannables_to_read:
+        metascannables = Finder.getInstance().find("metashop").getMetaScannables() \
+            if self.readFromNexus else self.scannables_to_read
+
+        for scn in metascannables:
             pairs = self._createNamePositionPairs(scn)
             for key, value in pairs:
                 s += fmt % (key, value)
