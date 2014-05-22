@@ -109,6 +109,7 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 		if (positions.contains(positionString) ) {
 			if( !getPosition().equals(positionString)){
 				currentPositionIndex = positions.indexOf(positionString);
+				this.notifyIObservers(this, getStatus());
 				this.notifyIObservers(this, getPosition());
 				this.notifyIObservers(this, new ScannablePositionChangeEvent(getPosition()));
 			}

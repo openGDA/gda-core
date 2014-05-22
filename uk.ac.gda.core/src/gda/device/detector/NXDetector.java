@@ -209,7 +209,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	 */
 	@Override
 	public PyString __str__() {
-		String string = toFormattedString();
+		String string = toFormattedString() + "\n";
 		for (NXPluginBase plugin : getPluginList()) {
 			string += "  " + plugin.getName() + ": " + plugin.toString() + "\n";
 		}
