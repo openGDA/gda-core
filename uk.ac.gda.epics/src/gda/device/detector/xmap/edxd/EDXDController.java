@@ -57,15 +57,18 @@ public class EDXDController extends DetectorBase implements Configurable {
 	protected List<EDXDElement> subDetectors = new ArrayList<EDXDElement>();
 	protected DeviceException collectData_Exception;
 	protected String GETPRESETVALUE = "GETPRESETVALUE";
+	protected String GETPRESETTYPE = "GETPRESETTYPE";
 	protected IEpicsChannel statusChannel;
 	protected static String STATUS = "ACQUIRING";
 	protected static String RESUMEMODE = "SETRESUME";
 	protected static String SCAACTIVATE = "SCAACTIVATE";
 	protected static String SETPRESETVALUE = "SETPRESETVALUE";
+	protected static String SETPRESETTYPE = "SETPRESETTYPE";
 	protected static String SCAELEMENTS = "SCAELEMENTS";
 	
 	// TODO these are accessed directly and shouldn't be
 	public enum COLLECTION_MODES {MCA_SPECTRA, MCA_MAPPING, SCA_MAPPING , LIST_MAPPING}
+	public enum PRESET_MODES {NO_PRESET, REAL_TIME, LIVE_TIME , EVENTS, TRIGGERS}
 	public enum PIXEL_ADVANCE_MODE { GATE, SYNC}
 	public enum NEXUS_FILE_MODE {SINGLE, CAPTURE, STREAM}
 	
@@ -196,6 +199,15 @@ public class EDXDController extends DetectorBase implements Configurable {
 		return (Double) xmap.getValue(ReturnType.DBR_NATIVE,GETPRESETVALUE  ,"");
 	}
 
+	/**
+	 * Get the acquisition mode in the hardware
+	 * @return mode
+	 * @throws DeviceException
+	 */
+	
+	public int getPresetMode() throws DeviceException {
+		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE,GETPRESETTYPE ,"");
+	}
 
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
@@ -516,6 +528,15 @@ public class EDXDController extends DetectorBase implements Configurable {
 		xmap.setValue(SETPRESETVALUE ,"",collectionTime);
 	}
 
+	
+	/**
+	 * set the acquisition mode defined in PRESET_MODES in the controller
+	 * @param mode
+	 * @throws DeviceException
+	 */
+	public void setPresetMode(PRESET_MODES mode) throws DeviceException{
+		xmap.setValueNoWait(SETPRESETTYPE, "", mode.ordinal());
+	}
 	/**
 	 * Start data acquisition in the controller. Uses the exisiting resume mode
 	 * @throws DeviceException
