@@ -27,19 +27,17 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import uk.ac.gda.client.logpanel.view.Logpanel;
 import uk.ac.gda.client.logpanel.view.LogpanelView;
 
-/**
- * TODO using IElementUpdater(?) synchronise state with other instances of command and return value of Logpanel.createScrollLockPanel
- */
 public class ScrollLockHandler extends AbstractHandler {
+
+	public static final String SCROLL_LOCK_TOGGLE_STATE_ID = "uk.ac.gda.client.logpanel.commands.scrollLock.toggleState";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		LogpanelView logpanelView = (LogpanelView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView("uk.ac.gda.client.logpanel.view");
-		Logpanel logpanel = logpanelView.getLogpanel();
-		State state = event.getCommand().getState("uk.ac.gda.client.logpanel.commands.scrollLock.toggleState"); 
+		State state = event.getCommand().getState(SCROLL_LOCK_TOGGLE_STATE_ID); 
 		state.setValue(!(Boolean) state.getValue());
+		Logpanel logpanel = ((LogpanelView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView(LogpanelView.ID)).getLogpanel();
 		logpanel.setScrollLockChecked((Boolean) state.getValue());
-		return null;
+		return null;	// TODO using IElementUpdater(?) synchronise state with other instances of command and return value of Logpanel.createScrollLockPanel
 	}
 
 }
