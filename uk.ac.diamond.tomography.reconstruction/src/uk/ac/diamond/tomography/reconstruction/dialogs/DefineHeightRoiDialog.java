@@ -53,11 +53,11 @@ public class DefineHeightRoiDialog extends BaseRoiDialog {
 		try {
 			selectedRegion = plottingSystem.createRegion(REGION_NAME_START, RegionType.YAXIS);
 			int height = image.getShape()[1];
+			selectedRegion.setROI(new RectangularROI(0, height / 4, image.getShape()[0], height / 4, 0));
 			selectedRegion.setShowPosition(true);
 			selectedRegion.setLabel(REGION_NAME_START);
 			selectedRegion.setLineWidth(4);
 			plottingSystem.addRegion(selectedRegion);
-			selectedRegion.setROI(new RectangularROI(0, height / 4, image.getShape()[0], height / 4, 0));
 		} catch (Exception e) {
 			logger.error("Problem creating Region 'start'", e);
 		}
