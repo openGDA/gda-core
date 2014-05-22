@@ -292,7 +292,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 
 		// make SQL to create table
 		String createString = "CREATE TABLE " + tableName + " ( " + PK_COLUMNNAME + " VARCHAR(50) PRIMARY KEY,";
-		createString += SK_COLUMNNAME + " VARCHAR(50),";
+		createString += SK_COLUMNNAME + " VARCHAR(80),";
 
 		for (String columnName : columnGetters.values()) {
 			columnName = columnName.replace(" ", "_");

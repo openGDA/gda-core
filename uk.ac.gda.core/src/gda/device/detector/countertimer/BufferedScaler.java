@@ -77,8 +77,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		
-		double[][] frame = readData(startFrame, finalFrame);
+		double[][] frame = readoutFrames(startFrame, finalFrame);
 		framesRead=frame;
 		return frame;
 	}
@@ -89,76 +88,11 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 			Integer numFrames = getNumberFrames();
 			// if nothing collected, so 0 frames, then view the contents of the first frame anyway
 			if (numFrames == 0) {
-				return readData(0, 0)[0];
+				return readoutFrames(0, 0)[0];
 			}
-			return readData(numFrames -1 , numFrames -1)[0];
-
+			return readoutFrames(numFrames -1 , numFrames -1)[0];
 		}
-		return readData(0,0)[0];
-	}
-
-	/**
-	 * @param startFrame - as known by TFG i.e. first frame is 0
-	 * @param finalFrame
-	 * @return double[][]
-	 * @throws DeviceException
-	 */
-	private double[][] readData(int startFrame, int finalFrame) throws DeviceException {
-
-		// readout everything for those frames
-		int numberOfFrames = (finalFrame - startFrame) + 1;
-		double[] scalerReadings;
-		if (numChannelsToRead == null){
-			scalerReadings = scaler.read(0, 0, startFrame, scaler.getDimension()[0], 1, numberOfFrames);
-		} else {
-			scalerReadings = scaler.read(0, 0, startFrame, numChannelsToRead, 1, numberOfFrames);
-		}
-		int numberOfValuesPerFrame = this.getExtraNames().length; //assuming the instance is properly setup
-		
-		// loop over frames, extract each frame and add log values to the end
-		double[][] output = new double[numberOfFrames][];
-		for (int i = 0; i < numberOfFrames; i++) {
-			
-			// get the slice from the readings array
-			int numScalers = numChannelsToRead == null ?scaler.getDimension()[0]:numChannelsToRead;
-			int entryNumber = i;
-			double[] slice = new double[numScalers];
-			for (int scaNum = 0; scaNum < numScalers; scaNum++){
-				slice[scaNum] = scalerReadings[entryNumber];
-				entryNumber += numberOfFrames;
-			}
-//			int startSlice = i * scaler.getDimension()[0];
-//			int endSlice = startSlice + scaler.getDimension()[0];
-//			double[] slice = ArrayUtils.subarray(scalerReadings, startSlice, endSlice);
-
-			double[] thisFrame = new double[numberOfValuesPerFrame];
-			if (isTFGv2 && !timeChannelRequired) {
-				// for TFGv2 always get the number of live time clock counts as the first scaler item
-				thisFrame = ArrayUtils.subarray(slice, 1, slice.length);
-			} else if (isTFGv2 && timeChannelRequired) {
-				// convert the live time clock counts into seconds (TFG has a 100MHz clock cycle)
-				thisFrame = ArrayUtils.subarray(slice, 0, slice.length);
-				thisFrame[0] = thisFrame[0] / 100000000;
-				
-				// convert all values to rates
-				if (this.returnCountRates && thisFrame[0] > 0.0) {
-					for (int scaNum = 1; scaNum < numScalers; scaNum++) {
-						thisFrame[scaNum] /= thisFrame[0];
-					}
-				}
-				
-			} else if (!isTFGv2 && timeChannelRequired) {
-				throw new DeviceException("Invalid parameter options for " + getName()
-						+ ": cannot add a time channel when using TFGv1! Set timeChannelRequired to false");
-			} else {
-				thisFrame = slice;
-			}
-			if(isOutputLogValues())
-				thisFrame = appendLogValues(thisFrame);
-			output[i] = thisFrame;
-		}
-
-		return output;
+		return readoutFrames(0,0)[0];
 	}
 
 	@Override
@@ -187,9 +121,6 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		buffer.append("-1 0 0 0 0 0 0");
 		daserver.sendCommand(buffer.toString());
 		daserver.sendCommand("tfg arm");
-		/*daserver.sendCommand("tfg setup-groups ext-start cycles 1");
-		daserver.sendCommand(parameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 " + ttlSocket + 8);
-		daserver.sendCommand("-1 0 0 0 0 0 0");*/
 	}
 
 	@Override

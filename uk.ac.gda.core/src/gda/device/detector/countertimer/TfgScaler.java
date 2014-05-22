@@ -421,8 +421,8 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 		double[][] unpacked = new double[numFrames][channelCount];
 		int iterator = 0;
 
-		for (int frame = 0; frame < numFrames; frame++) {
-			for (int datum = 0; datum < channelCount; datum++) {
+		for (int datum = 0; datum < channelCount; datum++) {
+			for (int frame = 0; frame < numFrames; frame++) {
 				unpacked[frame][datum] = scalerData[iterator];
 				iterator++;
 			}

@@ -137,11 +137,19 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 		// readout everything for those frames
 		int numberOfFrames = (finalFrame - startFrame) + 1;
 		double[] scalerReadings;
+		int numberOfChannelsToRead;
 		if (numChannelsToRead == null) {
-			scalerReadings = scaler.read(0, 0, startFrame, scaler.getDimension()[0], 1, numberOfFrames);
+			numberOfChannelsToRead = scaler.getDimension()[0];
 		} else {
-			scalerReadings = scaler.read(0, 0, startFrame, numChannelsToRead, 1, numberOfFrames);
+			numberOfChannelsToRead = numChannelsToRead;
+			// add on the time channel 
+			if (isTFGv2){
+				numberOfChannelsToRead++;
+			}
 		}
+		
+		scalerReadings = scaler.read(0, 0, startFrame, numberOfChannelsToRead, 1, numberOfFrames);
+		
 		int numberOfValuesPerFrame = this.getExtraNames().length; // assuming the instance is properly setup
 
 		// loop over frames, extract each frame and add log values to the end

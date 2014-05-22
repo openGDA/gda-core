@@ -112,7 +112,6 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 	@Override
 	public void doCollection() throws Exception {
-		InterfaceProvider.getTerminalPrinter().print("Continuous Scan doCollection");
 		acquirePoint(true, false);
 		ContinuousParameters params = new ContinuousParameters();
 		params.setStartPosition(start);
@@ -167,7 +166,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 						}
 						logger.debug("Frame number for  " + qscanDetectors[k].getName() + " " + framesReachedArray[k]);
 					} catch (DeviceException e) {
-						logger.warn("Problem getting number of frames from TFG.");
+						logger.warn("Problem getting number of frames from " + qscanDetectors[k].getName());
 					}
 				}
 				frameNumberReached = findLowest(framesReachedArray);

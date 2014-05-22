@@ -414,8 +414,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			out.flush();
 			reply = getReply(multiline);
 		} catch (Exception ex) {
-			// logger.error(getName() + ": sendCommand: " + ex.getMessage());
-			throw new DeviceException(getName() + ": sendCommand: " + ex.getMessage());
+			throw new DeviceException(getName() + ": sendCommand: " + ex.getMessage(),ex);
 		} finally {
 			unlock();
 		}
@@ -623,6 +622,17 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			logger.debug(getName() + " getBinaryDataBuffer(): socket connection established");
 
 			while (dataSocket.read(bb) > 0) {
+			}
+			// try again?
+			if (bb.hasRemaining()) {
+				try {
+					Thread.sleep(loopWaitTimeInMilliseconds);
+				} catch (InterruptedException e) {
+					throw new InterruptedException("Interrupted while waiting for da.server to make a data connection.");
+				}
+				while (dataSocket.read(bb) > 0) {
+				}
+				
 			}
 
 			dataSocket.close();
