@@ -14,11 +14,10 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.client.experimentdefinition;bundle-version="8.32.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
- org.apache.commons.beanutils;bundle-version="1.8.3"
+ org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: gda.data.scan.datawriter,
- gda.device.detector,
+Export-Package: gda.device.detector,
  gda.device.detector.countertimer,
  gda.device.scannable,
  gda.exafs.mucal,
@@ -35,7 +34,6 @@ Export-Package: gda.data.scan.datawriter,
  uk.ac.gda.beans.microfocus,
  uk.ac.gda.server.exafs
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
-Import-Package: gda.data.scan.datawriter,
- gda.factory,
+Import-Package: gda.factory,
  org.slf4j;version="[1.7.6,1.7.7)"
 Bundle-Vendor: Diamond Light Source
