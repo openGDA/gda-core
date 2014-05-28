@@ -48,7 +48,7 @@ public class MerlinThresholdSweepTrigger extends SimpleAcquire {
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
-		/* This belt and bracers check doesn't always seem necessary. Should probably be configurable.
+		/* TODO: Is this belt and bracers check now needed? If so it should probably be configurable.
 		String dataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat");
 		if (dataFormat != "NexusDataWriter") {
 			throw new IllegalStateException("gda.data.scan.datawriter.dataFormat LocalProperty must be 'NexusDataWriter', not: '" + dataFormat + "'");
@@ -60,8 +60,7 @@ public class MerlinThresholdSweepTrigger extends SimpleAcquire {
 		getAdBase().setNumImages(1);  // the threshold scan itself creates multiple images
 		
 		if (sweepDriver.isUseTriggerModeNotStartThresholdScanning()) {
-			// TODO: Is setting Trigger mode to TRIGGER_ENABLE correct?
-			getAdBase().setTriggerMode(ADDriverMerlinThresholdSweep.MerlinThresholdSweepTriggerMode.TRIGGER_ENABLE.ordinal());
+			getAdBase().setImageMode(ADDriverMerlinThresholdSweep.MerlinThresholdSweepImageMode.THRESHOLD.ordinal());
 		}
 	}
 	
@@ -70,8 +69,8 @@ public class MerlinThresholdSweepTrigger extends SimpleAcquire {
 		if (sweepDriver.isUseTriggerModeNotStartThresholdScanning()) {
 			// TODO: Test if this is sufficient:
 			super.collectData();
-			// TODO: Is setting Trigger mode back to INTERNAL afterwards needed? Is INTERNAL the correct mode to return it to?
-			getAdBase().setTriggerMode(ADDriverMerlinThresholdSweep.MerlinThresholdSweepTriggerMode.INTERNAL.ordinal());
+			// TODO: Is setting Image mode back to SINGLE afterwards needed? Is SINGLE the correct mode to return it to?
+			getAdBase().setImageMode(ADDriverMerlinThresholdSweep.MerlinThresholdSweepImageMode.SINGLE.ordinal());
 			return;
 			// In theory, with the new Merlin AD behaviour, we only need to set the trigger mode and do an ordinary collection.
 			// Thus the rest of this function should not be needed.
