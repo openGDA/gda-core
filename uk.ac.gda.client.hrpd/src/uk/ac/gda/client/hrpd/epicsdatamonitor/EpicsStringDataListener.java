@@ -18,20 +18,18 @@
 
 package uk.ac.gda.client.hrpd.epicsdatamonitor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import gda.device.DeviceException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /** 
  * A named Spring-configurable {@link MonitorListener} for an EPICS PV of type {@link DBRType#DOUBLE}.
  * This listener stores a double data array which updated via {@link MonitorEvent} from the EPICS PV by default,
@@ -42,10 +40,9 @@ import gov.aps.jca.event.MonitorListener;
  * <li>The default mode is monitoring on.</li>
  * 
  */
-public class EpicsEnumDataListener extends EpicsPVListener {
-	private short value;
-	private Logger logger=LoggerFactory.getLogger(EpicsEnumDataListener.class);
-	private String[] positions;
+public class EpicsStringDataListener extends EpicsPVListener {
+	private String value;
+	private Logger logger=LoggerFactory.getLogger(EpicsStringDataListener.class);
 	@Override
 	public void disablePoll() {
 		if (pvchannel != null) {
@@ -61,10 +58,10 @@ public class EpicsEnumDataListener extends EpicsPVListener {
 	}
 
 	@Override
-	public Short getValue() {
+	public String getValue() {
 		if (isPoll()) {
 			try {
-				return controller.cagetEnum(pvchannel);
+				return controller.cagetString(pvchannel);
 			} catch (TimeoutException | CAException | InterruptedException e) {
 				logger.error(getName() + ": failed to get values from PV " + pvchannel.getName(), e);
 			}
@@ -80,36 +77,12 @@ public class EpicsEnumDataListener extends EpicsPVListener {
 			logger.debug("Data listener is added to channel {}.", ch.getName());
 		}
 		DBR dbr = ev.getDBR();
-		if (dbr.isENUM()) {
-			value = ((DBR_Enum) dbr).getEnumValue()[0];
+		if (dbr.isSTRING()) {
+			value = ((DBR_String) dbr).getStringValue()[0];
 			if (observers.IsBeingObserved()) {
-				observers.notifyIObservers(this, Short.valueOf(value));
+				observers.notifyIObservers(this, value);
 			}
 		}
-	}
-	/**
-	 * return current enum position name in String.
-	 * @return current position name
-	 */
-	public String getPosition() {
-		return positions[getValue()];
-	}
-	
-	private String[] getEnumPositions() throws DeviceException {
-		try {
-			return controller.cagetLabels(pvchannel);
-		} catch (TimeoutException | CAException | InterruptedException e) {
-			logger.error(getName()+": failed to initialise Enum Positions from "+pvchannel.getName(), e);
-			throw new DeviceException(getName()+": failed to initialise Enum Positions from "+pvchannel.getName(), e);
-		}
-	}
-	public String[] getPositions() {
-		return this.positions;
-	}
-	@Override
-	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
-		positions=getEnumPositions();
-		super.initializationCompleted();
 	}
 
 }

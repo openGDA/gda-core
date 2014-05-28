@@ -18,12 +18,16 @@
 
 package uk.ac.gda.client.hrpd.viewfactories;
 
+import gda.device.scannable.EpicsScannable;
+import gda.rcp.views.FindableExecutableExtension;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.javatuples.Pair;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.ui.ExtensionFactory;
 import org.javatuples.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +35,76 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
+import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
+import uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory;
 import uk.ac.gda.client.hrpd.views.LivePlotView;
-import gda.rcp.views.FindableExecutableExtension;
 /**
  * a factory for creating {@link LivePlotView} instance. 
+ * 
+ * This class enables that an {@link LivePlotView} instance is Spring XML configurable before workbench itself starts.
+ * It is wired into application's workbench using the {@link LivePlotViewExtensionFactory} - an implementation of 
+ * {@link ExtensionFactory}mechanism as extension to {@link org.eclipse.ui.views} extension-point, i.e.
+ * {@code uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory:macliveplotviewfactory}
+ * <p>
+ * Example of Spring configuration:
+ * <pre>
+ * {@code
+ * 	<bean id="macliveplotfactory" class="uk.ac.gda.client.hrpd.viewfactories.LivePlotViewFactory">
+	<property name="plotName" value="MAC"/>
+	<property name="xAxisMin" value="0.000"/>
+	<property name="xAxisMax" value="150.000"/>
+	<property name="liveDataListeners">
+		<list>
+			<bean class="org.javatuples.Triplet">
+				<constructor-arg index="0" value="mac1"/>
+				<constructor-arg index="1" ref="mac1x"/>
+				<constructor-arg index="2" ref="mac1y"/>
+			</bean>
+			<bean class="org.javatuples.Triplet">
+				<constructor-arg index="0" value="mac2"/>
+				<constructor-arg index="1" ref="mac2x"/>
+				<constructor-arg index="2" ref="mac2y"/>
+			</bean>
+			<bean class="org.javatuples.Triplet">
+				<constructor-arg index="0" value="mac3"/>
+				<constructor-arg index="1" ref="mac3x"/>
+				<constructor-arg index="2" ref="mac3y"/>
+			</bean>
+			<bean class="org.javatuples.Triplet">
+				<constructor-arg index="0" value="mac4"/>
+				<constructor-arg index="1" ref="mac4x"/>
+				<constructor-arg index="2" ref="mac4y"/>
+			</bean>
+			<bean class="org.javatuples.Triplet">
+				<constructor-arg index="0" value="mac5"/>
+				<constructor-arg index="1" ref="mac5x"/>
+				<constructor-arg index="2" ref="mac5y"/>
+			</bean>
+		</list>
+	</property>
+	<property name="dataUpdatedListener" ref="pulsedone"/>
+	<property name="finalDataListener">
+		<bean class="org.javatuples.Triplet">
+			<constructor-arg index="0" ref="allx"/>
+			<constructor-arg index="1" ref="ally"/>
+			<constructor-arg index="2" ref="allye"/>
+		</bean>
+	</property>
+	<property name="detectorStateToPlotReducedData" value="Flyback"/>
+	<property name="detectorStateToRunProgressService" value="Executing"/>
+	<property name="detectorStateListener" ref="state"/>
+	<property name="dataFilenameObserverName" value="dataFilenameObserver"/>
+	<property name="lowDataBound" value="16501"/>
+	<property name="highDataBound" value="65000"/>
+	<property name="epicsProgressMonitor" ref="epicsprogressmonitor"/>
+	<property name="totalWorkListener" ref="totalworklistener"/>
+	<property name="workListener" ref="worklistener"/>
+	<property name="messageListener" ref="messagelistener"/>
+	<property name="stopScannable" ref="stopscannable"/>
+ </bean>
+	}
+ *</pre>
+ *</p>
  * @see LivePlotView 
  */
 public class LivePlotViewFactory implements FindableExecutableExtension {
@@ -42,17 +112,26 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 	private String plotName;
 	private double xAxisMin=0.000;
 	private double xAxisMax=150.000;
+
 	private List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> liveDataListeners = new ArrayList<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>>();
 	private EpicsIntegerDataListener dataUpdatedListener;
+
 	private Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> finalDataListener;
 	private EpicsEnumDataListener detectorStateListener;
+	private String detectorStateToPlotReducedData;
+	private String detectorStateToRunProgressService;
+
 	private String dataFilenameObserverName;
+	private IRunnableWithProgress epicsProgressMonitor;
 	private int lowDataBound;
 	private int highDataBound;
-	
+
 	private String name;
 	
-
+	private EpicsIntegerDataListener totalWorkListener;
+	private EpicsIntegerDataListener workListener;
+	private EpicsStringDataListener messageListener;
+	private EpicsScannable stopScannable;	
 
 	@Override
 	public void setName(String name) {
@@ -75,9 +154,18 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		liveplotview.setDataUpdatedListener(getDataUpdatedListener());
 		liveplotview.setFinalDataListener(getFinalDataListener());
 		liveplotview.setDetectorStateListener(getDetectorStateListener());
+		liveplotview.setDetectorStateToPlotReducedData(getDetectorStateToPlotReducedData());
+		liveplotview.setDetectorStateToRunProgressService(getDetectorStateToRunProgressService());
+		liveplotview.setEpicsProgressMonitor(getEpicsProgressMonitor());
 		liveplotview.setDataFilenameObserverName(getDataFilenameObserverName());
 		liveplotview.setLowDataBound(getLowDataBound());
 		liveplotview.setHighDataBound(getHighDataBound());
+		
+		liveplotview.setTotalWorkListener(getTotalWorkListener());
+		liveplotview.setWorkListener(getWorkListener());
+		liveplotview.setMessageListener(getMessageListener());
+		liveplotview.setStopScannable(getStopScannable());
+		
 		return liveplotview;
 	}
 
@@ -178,5 +266,61 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 
 	public void setHighDataBound(int highDataBound) {
 		this.highDataBound = highDataBound;
+	}
+
+	public IRunnableWithProgress getEpicsProgressMonitor() {
+		return epicsProgressMonitor;
+	}
+
+	public void setEpicsProgressMonitor(IRunnableWithProgress epicsProgressMonitor) {
+		this.epicsProgressMonitor = epicsProgressMonitor;
+	}
+
+	public EpicsIntegerDataListener getTotalWorkListener() {
+		return totalWorkListener;
+	}
+
+	public void setTotalWorkListener(EpicsIntegerDataListener totalWorkListener) {
+		this.totalWorkListener = totalWorkListener;
+	}
+
+	public EpicsIntegerDataListener getWorkListener() {
+		return workListener;
+	}
+
+	public void setWorkListener(EpicsIntegerDataListener workListener) {
+		this.workListener = workListener;
+	}
+
+	public EpicsStringDataListener getMessageListener() {
+		return messageListener;
+	}
+
+	public void setMessageListener(EpicsStringDataListener messageListener) {
+		this.messageListener = messageListener;
+	}
+
+	public EpicsScannable getStopScannable() {
+		return stopScannable;
+	}
+
+	public void setStopScannable(EpicsScannable stopScannable) {
+		this.stopScannable = stopScannable;
+	}
+
+	public String getDetectorStateToPlotReducedData() {
+		return detectorStateToPlotReducedData;
+	}
+
+	public void setDetectorStateToPlotReducedData(String detectorStateToPlotReducedData) {
+		this.detectorStateToPlotReducedData = detectorStateToPlotReducedData;
+	}
+
+	public String getDetectorStateToRunProgressService() {
+		return detectorStateToRunProgressService;
+	}
+
+	public void setDetectorStateToRunProgressService(String detectorStateToRunProgressService) {
+		this.detectorStateToRunProgressService = detectorStateToRunProgressService;
 	}
 }

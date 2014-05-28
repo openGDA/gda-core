@@ -18,10 +18,6 @@
 
 package uk.ac.gda.client.hrpd.epicsdatamonitor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
@@ -36,11 +32,13 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 /** 
  * A named Spring-configurable {@link MonitorListener} for an EPICS PV of type {@link DBRType#DOUBLE}.
  * This listener stores a double data array which updated via {@link MonitorEvent} from the EPICS PV by default,

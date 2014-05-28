@@ -22,6 +22,7 @@ import gda.factory.Finder;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import org.dawnsci.plotting.api.PlottingFactory;
 import org.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -38,7 +40,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
-import org.javatuples.Pair;
+import org.eclipse.ui.progress.IProgressService;
 import org.javatuples.Quartet;
 import org.javatuples.Triplet;
 import org.slf4j.Logger;
@@ -53,45 +55,64 @@ import uk.ac.gda.hrpd.cvscan.EpicsCVScanState;
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 
 import com.google.common.base.Joiner;
+
 /**
- * Live plotting of detector data while acquiring. It plots multiple traces of data from specified EPICS detector data listeners of {@link EpicsDoubleDataArrayListener} type.
- * All traces are updated at the same time in the plot triggered by another PV listener of {@link EpicsIntegerDataListener} type.
- * It also plots the final reduced data set at end of a collection process, triggered by a specified detector state {@link EpicsCVScanState#Flyback} if reduced data listener exists.
- * <li>view name is configurable {@link #setPlotName(String)}</li>
- * <li>X-axis limits are configurable using {@link #setxAxisMin(double)} (defualt 0.0) and {@link #setxAxisMax(double)} (default 150.0)</li>
- * <li><b>MUST</b> specify live traces using {@link #setLiveDataListeners(List)} list of {@link Triplet} of {@link String} trace name, {@link EpicsDoubleDataArrayListener} x dataset, and {@link EpicsDoubleDataArrayListener} y dataset</li>
- * <li><b>MUST</b> specify live plot update control using {@link EpicsIntegerDataListener} instance</li>
- * <li>Specify <b>OPTIONAL</b> reduced dataset using {@link Pair} of {@link EpicsDoubleDataArrayListener} x dataset, and {@link EpicsDoubleDataArrayListener} y dataset</li>
- * <li>specify <b>OPTIONAL</b> reduced data plotting using {@link EpicsEnumDataListener} instance</li>
- * <li>Specify <b>OPTIONAL</b> data filename observer of {@link String} type to handle data file name changed event {@link FileNumberEvent} for title/legend display</li>
+ * Live plotting of detector data while acquiring. It is capable of plotting <b>multiple</b> traces of data from 
+ * specified EPICS data listeners of {@link EpicsDoubleDataArrayListener} type. 
  * 
- * for MAC data, stage 'mac1' requires special data slice to get ride of negative detector positions. These slice limits can be set by
- * <li> {@link #setLowDataBound(int)}</li>
- * <li> {@link #setHighDataBound(int)}</li>
+ * All traces are updated at the same time in the plot triggered by another PV listener of 
+ * {@link EpicsIntegerDataListener} type signalling all traces are updated in the data listener list. 
+ * 
+ * It also provides <b>option</b> to plot the final reduced dataset at end of a collection. The available of this
+ * reduced data is signalled by the detector state {@link EpicsCVScanState#Flyback} if reduced data listener exists. 
+ * <p>
+ * <li>view name is configurable using <code>setPlotName(String)</code> method;</li> 
+ * <li>X-axis limits are configurable using <code>setxAxisMin(double)</code> (defualt 0.0) and 
+ * <code>setxAxisMax(double)</code> (default 150.0);</li>
+ * <li><b>MUST</b>specify live traces using <code>setLiveDataListeners(List)</code> list of {@link Triplet} of {@link String} trace name,
+ * {@link EpicsDoubleDataArrayListener} x dataset, and {@link EpicsDoubleDataArrayListener} y dataset;</li> 
+ * <li><b>MUST</b> specify live plot update control using <code>setDataUpdatedListener(EpicsIntegerDataListener)</code>;</li> 
+ * <li>Specify <b>OPTIONAL</b> reduced dataset using <code>setFinalDataListener(Triplet)</code> of 
+ * {@link EpicsDoubleDataArrayListener} x dataset, * {@link EpicsDoubleDataArrayListener} y dataset, 
+ * and {@link EpicsDoubleDataArrayListener} error dataset</li> 
+ * <li>specify <b>OPTIONAL</b> reduced data plotting using <code>setDetectorStateListener(EpicsEnumDataListener)</code>;</li> 
+ * <li>Specify <b>OPTIONAL</b> data filename observer using <code>setDataFilenameObserverName(String)</code> 
+ * to handle data file name changed event {@link FileNumberEvent} from an {@link Scriptcontroller} instance on the server
+ * for title/legend display if required;</li>
+ * <li><b>OPTIONAL</b> special data trimming or truncation also available for trace named 'mac1' to filter-out unwanted data using 
+ * <code>setLowDataBound(int)</code> and <code>setHighDataBound(int)</code> methods;</li>
+ * <li><b>OPTIONAL</b> EPICS progress monitor to be displayed on the status bar using {@link IProgressService} interface.</li>
+ * </p>
  */
 public class LivePlotComposite extends Composite implements IObserver {
 	private Logger logger = LoggerFactory.getLogger(LivePlotComposite.class);
 	private String PLOT_TITLE = "Live Detector Data";
-	private String plotName="DetectorData";
-	private double xAxisMin=0.000;
-	private double xAxisMax=150.000;
+	private String plotName = "DetectorData";
+	private double xAxisMin = 0.000;
+	private double xAxisMax = 150.000;
+	
 	private List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> liveDataListeners = new ArrayList<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>>();
 	private EpicsIntegerDataListener dataUpdatedListener;
-	private Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener,EpicsDoubleDataArrayListener> finalDataListener;
-	public Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> getFinalDataListener() {
-		return finalDataListener;
-	}
 
+	private Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> finalDataListener;
 	private EpicsEnumDataListener detectorStateListener;
-	private Scriptcontroller scriptController; //used for passing event from server to client without the need to CORBArise this class.
+	private String detectorStateToPlotReducedData;
+	private String detectorStateToRunProgressService;
+
 	private String dataFilenameObserverName;
+	private IRunnableWithProgress epicsProgressMonitor;
+
+	private Scriptcontroller scriptController; // used for passing event from server to client without the need to
+												// CORBArise this class.
 	private int lowDataBound;
 	private int highDataBound;
-	
+
 	private IPlottingSystem plottingSystem;
-	
+	private IWorkbenchPart workbenchpart;
+
 	public LivePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
+		this.workbenchpart = part;
 		this.setBackground(ColorConstants.white);
 
 		GridLayout layout = new GridLayout();
@@ -114,36 +135,38 @@ public class LivePlotComposite extends Composite implements IObserver {
 		plottingSystem.setShowLegend(true);
 		plottingSystem.getSelectedXAxis().setRange(getxAxisMin(), getxAxisMax());
 	}
+
 	public void initialise() {
-		if (getDataFilenameObserverName()!=null) {
-			//optional file name observing
+		if (getDataFilenameObserverName() != null) {
+			// optional file name observing
 			scriptController = Finder.getInstance().find(getDataFilenameObserverName());
-			if (scriptController!=null) {
-				scriptController.addIObserver(this); //observe server cvscan process for data file name changes.
+			if (scriptController != null) {
+				scriptController.addIObserver(this); // observe server cvscan process for data file name changes.
 				logger.debug("Data filename observer added via script controller {}", getDataFilenameObserverName());
 			} else {
-				logger.debug("Cannot find the script controller {} to add data filename observer", getDataFilenameObserverName());
+				logger.debug("Cannot find the script controller {} to add data filename observer",
+						getDataFilenameObserverName());
 			}
 		}
-		if(detectorStateListener!=null) {
-			//optional reduced data observing
+		if (detectorStateListener != null) {
+			// optional reduced data observing
 			detectorStateListener.addIObserver(this);
 			logger.debug("detector state observer {} added", detectorStateListener.getName());
 		} else {
 			logger.debug("No detector state observer added");
 		}
-		//must have live updated data available observing 
+		// must have live updated data available observing
 		dataUpdatedListener.addIObserver(this);
 	}
 
 	@Override
 	public void dispose() {
-		//clean up resources used.
+		// clean up resources used.
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
 		plottingSystem.dispose();
-		//remove reference
+		// remove reference
 		dataDisplayers.clear();
 		liveDataListeners.clear();
 		super.dispose();
@@ -174,7 +197,8 @@ public class LivePlotComposite extends Composite implements IObserver {
 					plottingSystem.clear();
 					for (Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> item : getLiveDataListeners()) {
 						ILineTrace trace = plottingSystem.createLineTrace(item.getValue0());
-						Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace> with = item.add(trace);
+						Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace> with = item
+								.add(trace);
 						plottingSystem.addTrace(trace);
 						dataDisplayers.add(with);
 					}
@@ -200,12 +224,14 @@ public class LivePlotComposite extends Composite implements IObserver {
 							EpicsDoubleDataArrayListener y = listener.getValue2();
 							ILineTrace trace = listener.getValue3();
 							if (traceName.equalsIgnoreCase("mac1")) {
-								trace.setData(new DoubleDataset(x.getValue()).getSlice(new int[] {getLowDataBound()}, new int[] {getHighDataBound()}, new int[] {1}),
-										new DoubleDataset(y.getValue()).getSlice(new int[] {getLowDataBound()}, new int[] {getHighDataBound()}, new int[] {1}));
+								trace.setData(new DoubleDataset(x.getValue()).getSlice(new int[] { getLowDataBound() },
+										new int[] { getHighDataBound() }, new int[] { 1 }),
+										new DoubleDataset(y.getValue()).getSlice(new int[] { getLowDataBound() },
+												new int[] { getHighDataBound() }, new int[] { 1 }));
 							} else {
 								trace.setData(new DoubleDataset(x.getValue()), new DoubleDataset(y.getValue()));
 							}
-							
+
 						}
 						plottingSystem.repaint();
 					}
@@ -213,7 +239,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 			});
 		}
 	}
-	
+
 	private void plotFinalData(final String legend) {
 		if (!getDisplay().isDisposed()) {
 			getDisplay().asyncExec(new Runnable() {
@@ -229,14 +255,14 @@ public class LivePlotComposite extends Composite implements IObserver {
 						DoubleDataset error = new DoubleDataset(getFinalDataListener().getValue2().getValue());
 						y.setError(error);
 						y.setName(legend);
-						List<AbstractDataset> plotDatasets=new ArrayList<AbstractDataset>();
+						List<AbstractDataset> plotDatasets = new ArrayList<AbstractDataset>();
 						plotDatasets.add(y);
 						plottingSystem.createPlot1D(x, plotDatasets, PLOT_TITLE, new NullProgressMonitor());
 					}
 				}
 			});
 		}
-		
+
 	}
 
 	public String getPlotName() {
@@ -274,60 +300,106 @@ public class LivePlotComposite extends Composite implements IObserver {
 	@Override
 	public void update(Object source, Object arg) {
 		if (source == dataUpdatedListener && arg instanceof Integer) {
-			int intValue = ((Integer)arg).intValue();
-			if (intValue==0) {
+			int intValue = ((Integer) arg).intValue();
+			if (intValue == 0) {
 				createTraces();
 			} else {
 				updateLivePlot();
 			}
-		} else if (scriptController!=null && source==scriptController && arg instanceof FileNumberEvent) {
+		} else if (scriptController != null && source == scriptController && arg instanceof FileNumberEvent) {
 			Joiner stringJoiner = Joiner.on("-").skipNulls();
-			PLOT_TITLE=stringJoiner.join(((FileNumberEvent)arg).getFilename(),String.format("%03d", ((FileNumberEvent)arg).getCollectionNumber()));
+			PLOT_TITLE = stringJoiner.join(((FileNumberEvent) arg).getFilename(),
+					String.format("%03d", ((FileNumberEvent) arg).getCollectionNumber()));
 			plottingSystem.setTitle(PLOT_TITLE);
-		} else if(detectorStateListener!=null && source==detectorStateListener && arg instanceof Short) {
-			short shortValue = ((Short)arg).shortValue();
-			if (EpicsCVScanState.values()[shortValue]==EpicsCVScanState.Flyback && getFinalDataListener() != null){
-				String legend=PLOT_TITLE;
-				PLOT_TITLE="Reduced MAC Data";
+		} else if (detectorStateListener != null && source == detectorStateListener && arg instanceof Short) {
+			short shortValue = ((Short) arg).shortValue();
+			if (detectorStateListener.getPositions()[shortValue].equals(getDetectorStateToPlotReducedData()) && getFinalDataListener() != null) {
+				String legend = PLOT_TITLE;
+				PLOT_TITLE = "Reduced MAC Data";
 				plotFinalData(legend);
+			} else if (detectorStateListener.getPositions()[shortValue].equals(getDetectorStateToRunProgressService())) {
+				if (getEpicsProgressMonitor() != null) {
+					try { 
+						IProgressService service = (IProgressService) workbenchpart.getSite().getService(IProgressService.class);
+						service.run(true, true, getEpicsProgressMonitor());
+					} catch (InvocationTargetException | InterruptedException e) {
+						logger.error("TODO put description of error here", e);
+					}
+				}
 			}
 		}
 	}
-	
+
 	public EpicsEnumDataListener getDetectorStateListener() {
 		return detectorStateListener;
 	}
+
 	public void setDetectorStateListener(EpicsEnumDataListener detectorStateListener) {
 		this.detectorStateListener = detectorStateListener;
 	}
+
 	public String getDataFilenameObserverName() {
 		return dataFilenameObserverName;
 	}
+
 	public void setDataFilenameObserverName(String dataFilenameObserverName) {
 		this.dataFilenameObserverName = dataFilenameObserverName;
 	}
+
 	public List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> getLiveDataListeners() {
 		return liveDataListeners;
 	}
-	public void setLiveDataListeners(List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> liveDataListeners) {
+
+	public void setLiveDataListeners(
+			List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> liveDataListeners) {
 		this.liveDataListeners = liveDataListeners;
 	}
 
 	public int getLowDataBound() {
 		return lowDataBound;
 	}
+
 	public void setLowDataBound(int lowDataBound) {
 		this.lowDataBound = lowDataBound;
 	}
+
 	public int getHighDataBound() {
 		return highDataBound;
 	}
+
 	public void setHighDataBound(int highDataBound) {
 		this.highDataBound = highDataBound;
 	}
-	public void setFinalDataListener(Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener,EpicsDoubleDataArrayListener> finalDataListener) {
+
+	public void setFinalDataListener(
+			Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> finalDataListener) {
 		this.finalDataListener = finalDataListener;
 	}
+	public Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> getFinalDataListener() {
+		return finalDataListener;
+	}
 
+	public IRunnableWithProgress getEpicsProgressMonitor() {
+		return epicsProgressMonitor;
+	}
 
+	public void setEpicsProgressMonitor(IRunnableWithProgress epicsProgressMonitor) {
+		this.epicsProgressMonitor = epicsProgressMonitor;
+	}
+
+	public String getDetectorStateToPlotReducedData() {
+		return detectorStateToPlotReducedData;
+	}
+
+	public void setDetectorStateToPlotReducedData(String detectorStateToPlotReducedData) {
+		this.detectorStateToPlotReducedData = detectorStateToPlotReducedData;
+	}
+
+	public String getDetectorStateToRunProgressService() {
+		return detectorStateToRunProgressService;
+	}
+
+	public void setDetectorStateToRunProgressService(String detectorStateToRunProgressService) {
+		this.detectorStateToRunProgressService = detectorStateToRunProgressService;
+	}
 }

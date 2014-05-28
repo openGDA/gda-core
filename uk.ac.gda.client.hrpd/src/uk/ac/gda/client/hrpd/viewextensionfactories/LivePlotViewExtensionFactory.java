@@ -18,8 +18,18 @@
 
 package uk.ac.gda.client.hrpd.viewextensionfactories;
 
-import gda.rcp.views.ViewFactory;
+import org.eclipse.ui.ExtensionFactory;
 
+import uk.ac.gda.client.hrpd.viewfactories.LivePlotViewFactory;
+import uk.ac.gda.client.hrpd.views.LivePlotView;
+import gda.rcp.views.ViewFactory;
+/**
+ * an implementation of {@link ExtensionFactory} mechanism to delegate the {@link LivePlotView} extension 
+ * contribution to {@link org.eclipse.ui.views} extension-point to its {@link LivePlotViewFactory} factory 
+ * instance as 
+ * {@code uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory:macliveplotviewfactory}
+ * where {@code macliveplotviewfactory} is a Spring bean of {@link LivePlotViewFactory} type.
+ */
 public class LivePlotViewExtensionFactory extends ViewFactory {
 	public static final String ID = "uk.ac.gda.client.hrpd.views.liveplotview";
 }

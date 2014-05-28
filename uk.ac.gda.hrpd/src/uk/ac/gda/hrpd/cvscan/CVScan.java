@@ -78,9 +78,7 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 	// variables to cache the various states of objects
 	private volatile boolean isBeamMonitorRunning = false;
 	public volatile boolean paused;
-	// private volatile CurrentState state;
 	private volatile int pausedCounter = 0;
-	// private volatile boolean firstTime = true;
 	private volatile boolean isGDAScanning = false;
 	private volatile long collectionNumber = 1;
 	private double totaltime;
@@ -94,7 +92,6 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 
 	private static final int NTHREDS = 2;
 	private ExecutorService executor = Executors.newFixedThreadPool(NTHREDS);
-//	private Thread dataSaverThread;
 	// collision prevention objects
 	private Scannable psdScannableMotor;
 	private SafePosition psdSafePosition;
@@ -244,6 +241,7 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 		checkForCollision();
 		// any preparation works here.
 		paused = false;
+		pausedCounter=0;
 		isGDAScanning = true;
 		collectionNumber = 1;
 		controller.setCollectionNumber(collectionNumber);
