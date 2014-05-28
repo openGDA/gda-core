@@ -22,7 +22,6 @@ import gda.device.zebra.controller.SoftInputChangedEvent;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.PV;
-import gda.epics.PVValueCache;
 import gda.epics.ReadOnlyPV;
 import gda.observable.Observable;
 import gda.observable.ObservableUtil;
