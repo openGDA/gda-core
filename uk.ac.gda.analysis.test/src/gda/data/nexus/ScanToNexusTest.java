@@ -141,6 +141,7 @@ public class ScanToNexusTest {
 
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter");
 		LocalProperties.set("gda.nexus.createSRS", "true");
+		LocalProperties.set("gda.data.scan.datawriter.dataFormat.SrsDataFile.aligncolumns", "True");
 		Metadata metadata = new GdaMetadata();
 		GDAMetadataProvider.setInstanceForTesting(metadata);
 		metadata.addMetadataEntry(new StoredMetadataEntry(GDAMetadataProvider.COLLECTION_DESCRIPTION,
@@ -177,7 +178,7 @@ public class ScanToNexusTest {
 				new File(asciiOutputFile));
 
 		String srsDataFile = testScratchDirectoryName + "/Data/" + "1.dat";
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanFile_NexusWriterAscii_expected.dat"),
+		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanToAlignedSRSFile_expected.dat"),
 				new File(srsDataFile));
 	}
 
