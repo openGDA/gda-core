@@ -99,9 +99,12 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 			
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				String hideScanThreshold = event.getNewValue().toString();
-				int hideScanThresholdVal = Integer.parseInt(hideScanThreshold);
-				model.setNumberOfScansBeforeHiding(hideScanThresholdVal);
+				//TODO Im not sure if the contents of this if statement are needed as it isn't called for the hide old button.
+				if(event.getProperty().equals("uk.ac.gda.client.hideoldscans")){
+					String hideScanThreshold = event.getNewValue().toString();
+					int hideScanThresholdVal = Integer.parseInt(hideScanThreshold);
+					model.setNumberOfScansBeforeHiding(hideScanThresholdVal);
+				}
 			}
 		});
 		
