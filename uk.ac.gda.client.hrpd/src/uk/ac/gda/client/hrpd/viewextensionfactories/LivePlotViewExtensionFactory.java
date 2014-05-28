@@ -20,6 +20,15 @@ package uk.ac.gda.client.hrpd.viewextensionfactories;
 
 import gda.rcp.views.ViewFactory;
 
+import org.eclipse.ui.ExtensionFactory;
+
+import uk.ac.gda.client.hrpd.viewfactories.LivePlotViewFactory;
+/**
+ * an implementation of {@link ExtensionFactory} to register an instance of {@link LivePlotViewFactory} to
+ * the extension-point {@link org.eclipse.ui.views}. The format for this extension contribution is
+ * {@code uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory:macliveplotviewfactory}
+ * where variable {@code macliveplotviewfactory} is an instance of {@link LivePlotViewFactory}.
+ */
 public class LivePlotViewExtensionFactory extends ViewFactory {
 	public static final String ID = "uk.ac.gda.client.hrpd.views.liveplotview";
 }

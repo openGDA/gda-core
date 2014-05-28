@@ -78,9 +78,7 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 	// variables to cache the various states of objects
 	private volatile boolean isBeamMonitorRunning = false;
 	public volatile boolean paused;
-	// private volatile CurrentState state;
 	private volatile int pausedCounter = 0;
-	// private volatile boolean firstTime = true;
 	private volatile boolean isGDAScanning = false;
 	private volatile long collectionNumber = 1;
 	private double totaltime;
@@ -94,7 +92,6 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 
 	private static final int NTHREDS = 2;
 	private ExecutorService executor = Executors.newFixedThreadPool(NTHREDS);
-//	private Thread dataSaverThread;
 	// collision prevention objects
 	private Scannable psdScannableMotor;
 	private SafePosition psdSafePosition;
@@ -109,7 +106,7 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 			if (controller != null) {
 				controller.addIObserver(this);
 			} else {
-				throw new FactoryException("EpicsCVScanController object is not defined.");
+				throw new FactoryException("EpicsCVScan object is not defined.");
 			}
 
 			this.setInputNames(new String[] { "tth" });
@@ -244,6 +241,7 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 		checkForCollision();
 		// any preparation works here.
 		paused = false;
+		pausedCounter=0;
 		isGDAScanning = true;
 		collectionNumber = 1;
 		controller.setCollectionNumber(collectionNumber);
@@ -668,9 +666,6 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 				list.add(submit);
 			} else if ((CurrentState) arg == CurrentState.Flyback) {
 				logger.info("{}: flyback", getName());
-				Callable<String> worker = new SaveRebinnedData();
-				Future<String> submit = executor.submit(worker);
-				list.add(submit);
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
 				}
@@ -681,6 +676,10 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 						logger.error("{}: Failed to close fast shutter", getName());
 					}
 				}
+				// save reduced data
+				Callable<String> worker = new SaveRebinnedData();
+				Future<String> submit = executor.submit(worker);
+				list.add(submit);
 			} else if ((CurrentState) arg == CurrentState.Paused) {
 					InterfaceProvider.getTerminalPrinter().print(getName() + ": Paused");
 					logger.info("{}: paused", getName());
