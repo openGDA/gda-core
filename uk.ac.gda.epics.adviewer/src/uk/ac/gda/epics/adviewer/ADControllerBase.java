@@ -44,6 +44,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 	protected int imageHistSize = 256;
 	private double arrayMinCallbackTime = 1.0;
 	private double histogramMinCallbackTime = 1.0;
+	private String imageNDArrayPortInput;
 
 	private String serviceName;
 
@@ -447,7 +448,11 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 
 	@Override
 	public String getImageNDArrayPortInput() throws Exception {
-		return getAdBase().getPortName_RBV();
+		return imageNDArrayPortInput != null ? imageNDArrayPortInput : getAdBase().getPortName_RBV();
+	}
+
+	public void setImageNDArrayPortInput(String imageNDArrayPortInput) {
+		this.imageNDArrayPortInput = imageNDArrayPortInput;
 	}
 
 	@Override
