@@ -472,7 +472,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public void encCopyMotorPosToZebra(int posNum) throws Exception {
 		Preconditions.checkArgument(1 <= posNum && posNum <= 4, "posNum must be between 1 and 4 inclusive");
 		final String pvSuffix = String.format("M%d:SETPOS.PROC", posNum);
-		final PVValueCache<Integer> pv = dev.getIntegerPVValueCache(pvSuffix);
+		final PV<Integer> pv = dev.getPVInteger(pvSuffix);
 		pv.putWait(1);
 	}
 
