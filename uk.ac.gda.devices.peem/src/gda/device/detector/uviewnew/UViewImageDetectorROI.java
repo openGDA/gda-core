@@ -19,6 +19,7 @@
 
 package gda.device.detector.uviewnew;
 
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.UViewROINew;
 import gda.device.detector.DetectorBase;
@@ -79,7 +80,8 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROINew {
 
 	@Override
 	public int getStatus() throws DeviceException {
-		return uvid.getStatus();
+		//return uvid.getStatus();
+		return Detector.IDLE; // ROI should just readout
 	}
 
 	@Override
@@ -89,8 +91,9 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROINew {
 
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
-
-		uvid.setCollectionTime(collectionTime);
+		//uvid.setCollectionTime(collectionTime);
+		//ROI scannables should not change collection time
+		return;
 	}
 
 	@Override
