@@ -647,6 +647,15 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		else if (e.stateMask == SWT.CTRL && e.keyCode == 'u') {
 			txtInput.setText("");
 		}
+		
+		else if (e.stateMask == SWT.CTRL && (e.keyCode == 'd' || e.keyCode == 'z')) {
+			txtInput.setText("");
+			currentCmd = "";
+			txtPrompt.setText(NORMALPROMPT);
+			appendOutput("KeyboardInterrupt");
+			appendOutput(">>> \n");
+//			run();
+		}
 	}
 
 	private void txtInput_ActionPerformed() {
