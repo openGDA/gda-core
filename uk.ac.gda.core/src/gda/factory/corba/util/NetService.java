@@ -107,12 +107,12 @@ public class NetService {
 			}
 
 		} catch (AdapterInactive ex) {
-			throw new FactoryException("NetService: init " + ex.toString());
+			throw new FactoryException("Could not initialise NetService: " + ex.toString(), ex);
 		} catch (org.omg.CORBA.ORBPackage.InvalidName ex) {
-			throw new FactoryException("NetService: init " + ex.toString());
+			throw new FactoryException("Could not initialise NetService: " + ex.toString(), ex);
 		} catch (SystemException ex) {
 			logger.debug(ex.getStackTrace().toString());
-			throw new FactoryException("NetService:init " + ex.toString());
+			throw new FactoryException("Could not initialise NetService: " + ex.toString(), ex);
 		}
 	}
 
