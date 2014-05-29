@@ -19,7 +19,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
  org.apache.commons.io;bundle-version="[2.4.0,2.5.0)",
- org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)"
+ org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
+ com.google.guava;bundle-version="[15.0.0,16.0.0)"
 Export-Package: com.cosylab.epics.caj,
  com.cosylab.epics.caj.cas,
  com.cosylab.epics.caj.cas.handlers,
