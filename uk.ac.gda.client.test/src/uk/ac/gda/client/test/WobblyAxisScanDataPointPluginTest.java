@@ -21,6 +21,7 @@ package uk.ac.gda.client.test;
 
 import gda.rcp.GDAClientActivator;
 import gda.rcp.views.scan.AbstractScanPlotView;
+import gda.rcp.views.scan.MultipleScanPlotView;
 import gda.scan.IScanDataPoint;
 
 import java.net.URL;
@@ -28,7 +29,6 @@ import java.net.URL;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.gda.ClientManager;
@@ -52,7 +52,6 @@ public class WobblyAxisScanDataPointPluginTest implements ViewTestObject.AscciLi
 	/**
 	 * This test shows up the wobbly axis problem visually at the moment run as plugin test.
 	 */
-	@Ignore
 	@Test
 	public void testWobblyAxes() throws Exception {
 		
@@ -101,7 +100,7 @@ public class WobblyAxisScanDataPointPluginTest implements ViewTestObject.AscciLi
 		this.testObject = new ViewTestObject(this, data);
 
 		// The way this view is set up hangs the graph - it should not be so.
-		final AbstractScanPlotView part = (AbstractScanPlotView)testObject.openView("gda.rcp.views.scan.MultipleScanPlotView");
+		final AbstractScanPlotView part = (AbstractScanPlotView)testObject.openView(MultipleScanPlotView.ID);
 		testObject.createAndMonitorPoints();
 		
 		System.out.println("Sent "+testObject.getLineIndex()+" ScanDataPoints to "+part.getClass().getName());
