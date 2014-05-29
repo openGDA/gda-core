@@ -66,6 +66,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	protected static String SETPRESETTYPE = "SETPRESETTYPE";
 	protected static String SCAELEMENTS = "SCAELEMENTS";
 	
+	
 	// TODO these are accessed directly and shouldn't be
 	public enum COLLECTION_MODES {MCA_SPECTRA, MCA_MAPPING, SCA_MAPPING , LIST_MAPPING}
 	public enum PRESET_TYPES {NO_PRESET, REAL_TIME, LIVE_TIME , EVENTS, TRIGGERS}
@@ -188,8 +189,9 @@ public class EDXDController extends DetectorBase implements Configurable {
 	@Override
 	public int getStatus() throws DeviceException {
 		return getStatusObject();
-	}	
+	}
 	
+
 	/**
 	 * Get the acquisition/collection/preset  time in the hardware
 	 * @return collection time
@@ -204,7 +206,6 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @return mode
 	 * @throws DeviceException
 	 */
-	
 	public int getPresetType() throws DeviceException {
 		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE,GETPRESETTYPE ,"");
 	}
@@ -528,7 +529,6 @@ public class EDXDController extends DetectorBase implements Configurable {
 		xmap.setValue(SETPRESETVALUE ,"",collectionTime);
 	}
 
-	
 	/**
 	 * set the acquisition mode defined in PRESET_MODES in the controller
 	 * @param mode
@@ -537,6 +537,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	public void setPresetType(PRESET_TYPES mode) throws DeviceException{
 		xmap.setValueNoWait(SETPRESETTYPE, "", mode.ordinal());
 	}
+
 	/**
 	 * Start data acquisition in the controller. Uses the exisiting resume mode
 	 * @throws DeviceException

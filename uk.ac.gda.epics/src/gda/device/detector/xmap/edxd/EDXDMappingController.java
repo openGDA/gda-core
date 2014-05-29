@@ -28,6 +28,7 @@ import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR_Enum;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	public void setAquisitionTimeOn(boolean aquisitionTimeOn) {
 		this.aquisitionTimeOn = aquisitionTimeOn;
 	}
-	
+
 	/**
 	 * Basic constructor, nothing done in here, waiting for configure
 	 */
@@ -214,11 +215,12 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		//removed as some versions of Epics interface does not have this SETPRESETREAL
 		//xmap.setValue(SETPRESETREAL ,"",collectionTime);
 	}
-	 
+	
+	
 	public void setPixelAdvanceMode(PIXEL_ADVANCE_MODE mode) throws DeviceException{
 		xmap.setValueNoWait(PIXELADVANCEMODE, "", mode.ordinal());
-	 }
-	 
+	}
+
 	public void setIgnoreGate(boolean yes) throws DeviceException{
 		if (yes)
 			xmap.setValueNoWait(IGNOREGATE, "", 1);
@@ -372,4 +374,5 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 			return true;
 		return false;
 	}
+	
 }
