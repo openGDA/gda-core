@@ -88,11 +88,10 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.plotserver.OneDDataFilePlotDefinition;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.gda.client.ScanPlotView;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 @SuppressWarnings("deprecation")
-public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver,ScanPlotView {
+public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver {
 	private static final String MEMENTO_GROUP = "LivePlotView";
 
 	/**
@@ -512,7 +511,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	/**
 	 * Hide all scans
 	 */
-	@Override
+
 	public void hideAll() {
 		xyPlot.hideAll();
 	}
@@ -520,7 +519,6 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	/**
 	 * Clear the graph
 	 */
-	@Override
 	public void clearGraph() {
 		xyPlot.clearGraph();
 	}

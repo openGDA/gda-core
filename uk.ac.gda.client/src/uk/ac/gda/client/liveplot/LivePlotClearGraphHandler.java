@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client;
+package uk.ac.gda.client.liveplot;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -29,19 +29,19 @@ import org.eclipse.ui.handlers.HandlerUtil;
 /**
  *
  */
-public class XYPlotClearGraphHandler extends AbstractHandler {
+public class LivePlotClearGraphHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbenchPart view = HandlerUtil.getActivePartChecked(event);
-		if (view instanceof ScanPlotView) {
+		if (view instanceof LivePlotView) {
 			boolean b = MessageDialog.openQuestion(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 					"Clearing all plots",
 					"This will clear all the plots in the graph.\n Are you sure you want to do this?");
 			if (b) {
-				if( view instanceof ScanPlotView){
-					ScanPlotView xYPlotView = (ScanPlotView) view;
-					xYPlotView.clearGraph();
+				if( view instanceof LivePlotView){
+					LivePlotView livePlotView = (LivePlotView) view;
+					livePlotView.clearGraph();
 				}
 			}
 		}

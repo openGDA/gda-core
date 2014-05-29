@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client;
+package uk.ac.gda.client.liveplot;
 
 import gda.rcp.GDAClientActivator;
 
@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.preferences.PreferenceConstants;
 
-public class OpenXYScanPlotHandler extends AbstractHandler {
-	static final Logger logger = LoggerFactory.getLogger(OpenXYScanPlotHandler.class);
+public class OpenLivePlotHandler extends AbstractHandler {
+	static final Logger logger = LoggerFactory.getLogger(OpenLivePlotHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {

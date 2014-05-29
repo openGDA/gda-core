@@ -67,7 +67,6 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -99,7 +98,6 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.client.scripting.JythonPerspective;
 import uk.ac.gda.client.scripting.ScriptProjectCreator;
@@ -327,11 +325,12 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 							PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 								@Override
 								public void run() {
+									String id = ((RCPOpenViewCommand) arg).getId();
 									try {
 										PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-												.showView(((RCPOpenViewCommand) arg).getId());
+												.showView(id);
 									} catch (PartInitException e) {
-										logger.error("Error opening " + XYPlotView.ID, e);
+										logger.error("Error opening " + id, e);
 									}
 								}
 							});

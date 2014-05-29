@@ -28,10 +28,11 @@ import java.net.URL;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.gda.ClientManager;
-import uk.ac.gda.client.XYPlotView;
+import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
 
@@ -51,6 +52,7 @@ public class WobblyAxisScanDataPointPluginTest implements ViewTestObject.AscciLi
 	/**
 	 * This test shows up the wobbly axis problem visually at the moment run as plugin test.
 	 */
+	@Ignore
 	@Test
 	public void testWobblyAxes() throws Exception {
 		
@@ -58,7 +60,7 @@ public class WobblyAxisScanDataPointPluginTest implements ViewTestObject.AscciLi
 		this.testObject = new ViewTestObject(this, data);
 		
 		testObject.setPointPause(150);
-		final XYPlotView part = (XYPlotView)testObject.openView("uk.ac.gda.client.xyplotview");
+		final LivePlotView part = (LivePlotView)testObject.openView(LivePlotView.getID());
 		testObject.createAndMonitorPoints();
 		
 		System.out.println("Sent "+testObject.getLineIndex()+" ScanDataPoints to "+part.getClass().getName());
@@ -81,7 +83,7 @@ public class WobblyAxisScanDataPointPluginTest implements ViewTestObject.AscciLi
 		this.testObject = new ViewTestObject(this, data);
 		
 		testObject.setPointPause(150);
-		final XYPlotView part = (XYPlotView)testObject.openView("uk.ac.gda.client.xyplotview");
+		final LivePlotView part = (LivePlotView)testObject.openView(LivePlotView.getID());
 		testObject.createAndMonitorPoints();
 		
 		System.out.println("Sent "+testObject.getLineIndex()+" ScanDataPoints to "+part.getClass().getName());

@@ -96,7 +96,6 @@ import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
-import uk.ac.gda.client.LineAppearanceProvider;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
 /**
@@ -476,7 +475,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	 * Entry in scans array that is to contain the next XYData
 	 */
 	int nextUnInitialisedLine = 0;
-	private LiveData scans[] = new LiveData[0];
+	protected LiveData scans[] = new LiveData[0];
 	private UpdatePlotQueue updateQueue = new UpdatePlotQueue();
 	private IPositionListener plottingSystemPositionListener;
 	
