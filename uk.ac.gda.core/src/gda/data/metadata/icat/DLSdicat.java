@@ -96,6 +96,7 @@ public class DLSdicat extends IcatBase {
 						"inner join icatdls42.user_ u on u.id = iu.user_id "+
 						"where u.name = ? and ins.name = ? " +
 						"and systimestamp between s.startdate-? and s.enddate+? "+
+						"and s.\"COMMENT\" <> 'Cancelled' " +
 						"order by s.startdate");
 
 			prepared.setString(1, user);
