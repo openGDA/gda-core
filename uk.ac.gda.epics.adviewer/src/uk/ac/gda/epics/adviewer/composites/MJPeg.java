@@ -25,7 +25,9 @@ import gda.observable.Observable;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Graphics;
@@ -73,6 +75,8 @@ public class MJPeg extends Composite {
 	private ScrolledComposite leftScrolledComposite;
 
 	private Button middle;
+
+	protected List<NewImageListener> newImageListeners = new ArrayList<NewImageListener>();
 
 	public MJPeg(Composite parent, int style) {
 		super(parent, style);
@@ -192,6 +196,10 @@ public class MJPeg extends Composite {
 				txtTime.setText(df.format(new Date(ctime)));
 				txtRate.setText(String.format("%3.3g", 1000.0 / (ctime - timeOfLastImage)));
 				timeOfLastImage = ctime;
+				
+				for(NewImageListener listener : newImageListeners ){
+					listener.handlerNewImageNotification(lastImage2);
+				}
 			}
 		});
 		cameraComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
@@ -255,6 +263,13 @@ public class MJPeg extends Composite {
 			cameraComposite.getViewer().getPositionTool().removeImagePositionListener(listener);
 	}
 
+	public void addNewImageListener(NewImageListener listener){
+		newImageListeners.add(listener);
+	}
+	public void removeNewImageListener(NewImageListener listener){
+		newImageListeners.remove(listener);
+	}
+	
 	public void setADController(ADController config) {
 		this.config = config;
 		try {
