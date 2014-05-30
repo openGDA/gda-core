@@ -137,7 +137,7 @@ class Scan:
             meta_add(sampleFileName, BeansFactory.getXMLString(sampleBean))
             print "meta_add scanFileName", scanFileName
             meta_add(scanFileName, BeansFactory.getXMLString(scanBean))
-            #meta_add("xmlFolderName", experimentFullPath)
+            meta_add("xmlFolderName", experimentFullPath)
             xmlFilename = self._determineDetectorFilename(detectorBean)
             if ((xmlFilename != None) and (experimentFullPath != None)):
                 detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath, xmlFilename)
