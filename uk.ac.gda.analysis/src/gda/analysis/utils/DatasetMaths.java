@@ -701,7 +701,7 @@ public class DatasetMaths {
 	 * @return linear interpolation
 	 */
 	public static double getLinear(final DataSet d, final double x0) {
-		return Maths.interpolate(d, x0);
+		return Maths.getLinear(d, x0);
 	}
 
 	/**
@@ -713,7 +713,7 @@ public class DatasetMaths {
 	 * @return bilinear interpolation
 	 */
 	public static double getBilinear(final DataSet d, final double x0, final double x1) {
-		return Maths.interpolate(d, x0, x1);
+		return Maths.getBilinear(d, x0, x1);
 	}
 
 	/**
