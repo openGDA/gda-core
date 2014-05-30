@@ -20,6 +20,7 @@ package gda.device.detector.addetector.triggering;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.scan.ScanInformation;
 
 
@@ -39,6 +40,7 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 		}
 		configureAcquireAndPeriodTimes(collectionTime);
 		getAdBase().setNumImages(numImages);
+		getAdBase().setImageMode(ImageMode.SINGLE.ordinal());
 	}
 
 	@Override
