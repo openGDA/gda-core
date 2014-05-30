@@ -230,7 +230,6 @@
                minimized="false"
                ratio="0.4"
                relationship="stack"
-               relative="uk.ac.gda.client.xyplotview"
                visible="true">
          </view>
        <!--  <view
