@@ -32,10 +32,9 @@ public interface ScanDataPointPipeline {
 	 * from the scan itself) and adds it to a datawriter.
 	 * 
 	 * @param point scannablePositions or detectorData may contain Callables
-	 * @throws DeviceException
-	 * @throws Exception
+	 * @throws DeviceException 
 	 */
-	void put(IScanDataPoint point) throws DeviceException, Exception;
+	void put(IScanDataPoint point) throws DeviceException;
 
 	/**
 	 * Retrieves the data writer from the pipeline.
@@ -48,14 +47,15 @@ public interface ScanDataPointPipeline {
 	 * Blocks while waiting for pipeline to empty, stops all threads and closes data writer.
 	 * If the pipeline does not empty in the specified time then the callable tasks are cancelled.
 	 * 
-	 * @throws InterruptedException 
-	 * @throws DeviceException if the pipeline did not shutdown gracefully and required forceful interruption
+	 * @throws Exception 
 	 */
-	void shutdown(long timeoutMillis) throws DeviceException, InterruptedException;
+	void shutdown(boolean waitForProcessingCompletion) throws Exception;
 	
 	/**
 	 * Throws exception if an exception occurred in the processing of the pipeline
 	 * The main Scan thread can check this regularly 
+	 * @throws Exception 
 	 */
 	void checkForException() throws Exception;
+
 }

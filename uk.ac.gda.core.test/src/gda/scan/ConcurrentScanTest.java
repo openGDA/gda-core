@@ -42,6 +42,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DetectorWithReadout;
 import gda.device.scannable.DummyScannable;
+import gda.device.scannable.PositionCallableProvider;
 
 import java.io.File;
 import java.util.Arrays;
@@ -54,12 +55,38 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class to test writing of nexus files during a scan
  */
 public class ConcurrentScanTest {
+	private static final Logger logger = LoggerFactory.getLogger(ConcurrentScanTest.class);
+	@SuppressWarnings("rawtypes")
+	interface PositionCallableProvidingScannable extends PositionCallableProvider, Scannable {
+	}
 
+	@SuppressWarnings("rawtypes")
+	interface PositionCallableProvidingDetector extends PositionCallableProvider, Detector {
+	}
+
+	class NamedObject {
+		private String name;
+
+		NamedObject(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+	
+	
+	
+	
 	interface DetectorWithReadoutDetector extends Detector, DetectorWithReadout{}
 	static String testScratchDirectoryName;
 
@@ -93,6 +120,65 @@ public class ConcurrentScanTest {
 		setLocalProperties();
 	}
 
+	@Test
+	public void testExceptionInPositionCallables()throws Exception{
+		testScratchDirectoryName = TestHelpers.setUpTest(this.getClass(),
+				"testExceptionInPositionCallables", true);
+		setLocalProperties();
+		
+		Scannable ix = MockFactory.createMockScannable("ix");
+		PositionCallableProvidingScannable scn1 = MockFactory.createMockScannable(PositionCallableProvidingScannable.class, "s1",
+				new String[] { "scn1" }, new String[] {}, new String[] { "formatc" }, 5, null);
+
+		/*		PositionCallableProvidingScannable scn2 = MockFactory.createMockScannable(PositionCallableProvidingScannable.class, "s1",
+				new String[] { "scn2" }, new String[] {}, new String[] { "formatc" }, 5, null);
+*/
+		
+
+
+		
+		Callable<Double> myCallable = new Callable<Double>() {
+
+			@Override
+			public Double call() throws Exception {
+//				Thread.sleep(5000);
+				throw new Exception("Error in call");
+			}
+			
+		};
+/*		NamedObject posc1 = new NamedObject("posc1");
+		NamedObject posc2 = new NamedObject("posc2");
+		NamedObject posc3 = new NamedObject("posc3");
+		@SuppressWarnings("rawtypes")
+		Callable callablec3 = mock(Callable.class);
+		when(callablec3.call()).thenThrow(new Exception("callablec3 throws exception in call method"));
+		Callable callablec3a = mock(Callable.class);
+		when(callablec3a.call()).thenThrow(new Exception("callablec3 throws exception in call method"));
+		when(scn1.getPositionCallable()).thenReturn(callablec3);		
+		when(scn2.getPositionCallable()).thenReturn(callablec3a);		
+*/		
+		when(scn1.getPositionCallable()).thenReturn(myCallable);		
+		
+		final ConcurrentScan scan = new ConcurrentScan(new Object[] { ix, 0., 100., 1., scn1});
+		Thread thread = new Thread( new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					scan.runScan();
+				} catch (Exception e) {
+					logger.error("Exception seen in runScan", e);
+				}
+				
+			}});
+		
+		thread.start();
+		thread.join();
+		System.out.println("end");
+			
+	}	
+	
+	
 	/**
 	 * Verify the appropriate bits on a scannable are called in a scan for command: scan smoved 0 10 1 sread
 	 * 

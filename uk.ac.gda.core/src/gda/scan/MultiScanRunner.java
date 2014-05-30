@@ -87,14 +87,18 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 				scan.callScannablesAtScanEnd();
 				scan.callDetectorsEndCollection();
 			}
-			
+			if( lastscan != null){
+				lastscan.shutdownScandataPipeline(true);
+			}
 
 		} catch (Exception e){
 			logger.error("Error running multiScan",e);
+			if( lastscan != null){
+				lastscan.shutdownScandataPipeline(false);
+			}
 			throw e;
 		}	finally {
 			if( lastscan != null){
-				lastscan.shutdownScandataPipieline();
 				lastscan.signalScanComplete();
 			}
 		}

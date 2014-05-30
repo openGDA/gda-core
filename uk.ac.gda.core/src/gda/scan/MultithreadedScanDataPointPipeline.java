@@ -22,7 +22,6 @@ import gda.data.scan.datawriter.DataWriter;
 import gda.device.DeviceException;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -34,11 +33,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,8 +112,6 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 	private static final Logger logger = LoggerFactory.getLogger(MultithreadedScanDataPointPipeline.class);
 
-	private Throwable exception; // Guarded by 'this'
-
 	/**
 	 * Pool used to compute individual Scannable's positions from their position Callables.
 	 */
@@ -125,7 +120,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	/**
 	 * Single threaded, fixed length service used to populate and broadcast ScanDataPoints.
 	 */
-	private ThreadPoolExecutor broadcasterQueue;
+	private NoExceptionThreadPoolExecutor broadcasterQueue;
 
 	private ScanDataPointPublisher broadcaster;
 
@@ -153,35 +148,43 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		if (positionCallableThreadPoolSize > 0) {
 			positionCallableService = new ScannableSpecificExecutorService(positionCallableThreadPoolSize, threadFactory);
 		} // else leave it null.
-		createScannablePopulatorAndBroadcasterQueueAndThread(scanName);
-	}
 
-	/**
-	 * Uses a ThreadPoolExecutor with a custom queue designed to block rather than throw a RejectedExecutionException if
-	 * the thread is busy and queue is full. The total number of points in the Pipeline is the number of points in the
-	 * workQueue plus the one being worked on in the single thread.
-	 */
-	private void createScannablePopulatorAndBroadcasterQueueAndThread(String scanName) {
+		/**
+		 * Uses a ThreadPoolExecutor with a custom queue designed to block rather than throw a RejectedExecutionException if
+		 * the thread is busy and queue is full. The total number of points in the Pipeline is the number of points in the
+		 * workQueue plus the one being worked on in the single thread.
+		 * @param positionCallableService 
+		 */
 		BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
-		broadcasterQueue = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, workQueue,  
-				new NamedThreadFactory(" scan-" + scanName + "-MSDPP.broadcaster"));
+		broadcasterQueue = new NoExceptionThreadPoolExecutor(workQueue,  
+				new NamedThreadFactory(" scan-" + scanName + "-MSDPP.broadcaster"), positionCallableService )  ;
 	}
 
 	/**
 	 * Computes ScanDataPoints and broadcasts them using internally managed threads.
+	 * @throws DeviceException 
 	 */
 	@Override
-	public void put(IScanDataPoint point) throws DeviceException, Exception {
+	public void put(IScanDataPoint point) throws DeviceException {
 		logger.debug("'{}': added to pipeline. Points already waiting in queue: {}", point.toString(),
 				broadcasterQueue.getQueue().size());
-		throwException();
+
+		//check if an exception has already been seen and if so throw it
+		try {
+			broadcasterQueue.raiseExceptionIfSeen();
+		} catch (Throwable e1) {
+			if( e1 instanceof DeviceException)
+				throw (DeviceException)e1;
+			throw new DeviceException(e1);
+		}
+
 		if (positionCallableService != null) {
 			// If this has not been created we need not look for Callables
 			convertPositionCallablesToFutures(point);
 		}
+		
 		try {
-			broadcasterQueue.execute(new ScanDataPointPopulatorAndPublisher(getBroadcaster(),
-					point, this));
+			broadcasterQueue.submit(new ScanDataPointPopulatorAndPublisher(getBroadcaster(),point));
 		} catch (RejectedExecutionException e) {
 			if (broadcasterQueue.isShutdown()) {
 				throw new DeviceException(
@@ -208,137 +211,41 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		}
 	}
 	
-	/**
-	 * If an exception has been caught then throw it.
-	 * 
-	 * @throws DeviceException
-	 */
-	private void throwException() throws DeviceException {
-		Throwable e = getException();
-		if (e != null) {
-			throw wrappedException(e);
-		}
-	}
 
-	protected static DeviceException wrappedException(Throwable e) {
-		String message;
-		if (e instanceof NullPointerException) {
-			message = "NullPointerException";
-		} else {
-			message = (e instanceof PyException) ? e.toString() : e.getMessage();
-		}
-		return new DeviceException("Unable to publish scan data point because: " + e.getClass().getSimpleName() + " : " + message, e);
-	}
-
-	synchronized Throwable getException() {
-		return exception;
-	}
-
-	/**
-	 * Called by a DataPointPopulatorAndBroadcaster runnable to indicate thet there was a problem computing a position
-	 * form a scan data point. This will store the exception and shutdownNow.
-	 * 
-	 * @param e
-	 */
-	synchronized void setExceptionAndShutdownNow(Throwable e) {
-		exception = e;
-		String message = (e instanceof PyException) ? e.toString() : e.getMessage();
-		logger.info("Storing an Exception caught computing a point (and then shutting down pipeline): " + message);
-		try {
-			shutdownNow();
-		} catch (Exception e1) {
-			logger.warn("While handling exception from thread, caught another Exception shutting down pipeline: " + e1.getMessage(), e1);
-		}
-
-	}
-
-	void shutdownNow() throws InterruptedException {
-		logger.info("Shutting down MultithreadedScanDataPointPipeline NOW.");
-		int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
-		if (numberOfDumpedPoints > 0) {
-			logger.warn("The MultithreadedScanDataPointPipeline was shutdown with " + numberOfDumpedPoints
-					+ " points still to record and broadcast.");
-		}
-		logger.info("Awaiting positionCallableService shutdown");
-		positionCallableService.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-		logger.info("Awaiting broadcasterQueue shutdown");
-		broadcasterQueue.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-		
-	}
-
-	private int shutdownNowAndGetNumberOfDumpedPoints() {
-		if (positionCallableService != null) {
-			positionCallableService.shutdownNow();  // This depends on the tasks being cancelable.
-		}
-		List<Runnable> remainingPointsInQueue = broadcasterQueue.shutdownNow();
-		try {
-			/**
-			 * This call clears the interrupted flag.
-			 * This is important so that the normal completeCollection() and 
-			 * other ordinary cleanup code can run and do file and terminal 
-			 * I/O which would fail (by design) in interrupted state. 
-			 */
-			boolean interrupted = Thread.interrupted();
-			getBroadcaster().shutdown();
-			if(interrupted)
-				Thread.currentThread().interrupt();
-		} catch (Exception e) {
-			// TODO: Why are we absorbing this?
-		}
-		return remainingPointsInQueue.size();
-
-	}
 
 	/**
 	 * Politely shutdown the pipeline. Blocks until processing is complete. Calls shutdownNow if there is any problem or
 	 * if interrupted.
 	 * 
-	 * @param timeoutMillis
 	 * @throws DeviceException
-	 * @throws InterruptedException
 	 */
 	@Override
-	public void shutdown(long timeoutMillis) throws DeviceException, InterruptedException {
+	public void shutdown(boolean waitForProcessingCompletion) throws Exception {
+
 		try {
-			// 1. Shutdown the populate-and-broadcast Executor
-			if (positionCallableService != null) {
-				positionCallableService.shutdown();
-				boolean shutdownOkay = positionCallableService.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS);
-				if (!shutdownOkay) {
-					int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
-					throw new DeviceException("positionCallableExecutor did not shutdown politely before " + timeoutMillis
-							+ "ms timeout. The Pipeline has been stopped and " + numberOfDumpedPoints + " points lost.");
+			broadcasterQueue.shutdown();//do not allow any more tasks are to be added 
+			if(waitForProcessingCompletion) {
+				while( !broadcasterQueue.awaitTermination(1, TimeUnit.SECONDS)) {
+					checkForException();
 				}
 			}
-
-			// 2. Shutdown the now empty position callable executor
-			broadcasterQueue.shutdown();
-			boolean shutdownOkay = broadcasterQueue.awaitTermination(1200000, TimeUnit.MILLISECONDS);
-			// (timeout is to broadcast last point only as its callables will have all returned.)
-			if (!shutdownOkay) {
-				int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
-				throw new DeviceException(
-						"scannablePopulatorAndBroadcasterExecutor did not shutdown politely before 20 min timeout.  The Pipeline has been stopped and "
+		} finally {
+			// 2. Force shutdown
+			int numberOfDumpedPoints = broadcasterQueue.shutdownNow().size();
+			if(numberOfDumpedPoints > 0) {
+				logger.error("Error in scan. The Pipeline has been stopped and "
 								+ numberOfDumpedPoints + " points lost.");
 			}
 
-			// 3. Shutdown the Broadcaster (DataWriter)
-			try {
-				getBroadcaster().shutdown();
-			} catch (Exception e) {
-				throw new DeviceException("problem shutting down broadcaster (datawriter).", e);
+			if (positionCallableService != null) {
+				positionCallableService.shutdownNow();
 			}
+			
+			// 3. Shutdown the Broadcaster (DataWriter)
+			getBroadcaster().shutdown();
 
-		} catch (InterruptedException e) {
-
-			int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
-
-			throw new DeviceException(
-					"Interupted while shutting down MultithreadedScanDataPointPipeline. The Pipeline has been stopped and "
-							+ numberOfDumpedPoints + " points dumped.");
+			checkForException();
 		}
-		// If everything stopped normally then throw exception from Runnable if there were any.
-		throwException();
 	}
 
 	@Override
@@ -374,7 +281,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 	@Override
 	public void checkForException() throws Exception {
-		throwException();
+		broadcasterQueue.raiseExceptionIfSeen();
 	}
 
 }

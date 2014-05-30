@@ -21,6 +21,7 @@ package gda.scan;
 import gda.device.DeviceException;
 
 import java.util.Vector;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -28,50 +29,38 @@ import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ScanDataPointPopulatorAndPublisher implements Runnable {
+public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanDataPointPopulatorAndPublisher.class);
-
-	private MultithreadedScanDataPointPipeline pipeline; // for access to setException() and the queue;
 
 	private IScanDataPoint point;
 
 	private ScanDataPointPublisher broadcaster;
 
-	public ScanDataPointPopulatorAndPublisher(ScanDataPointPublisher broadcaster, IScanDataPoint point,
-			MultithreadedScanDataPointPipeline pipeline) {
+	public ScanDataPointPopulatorAndPublisher(ScanDataPointPublisher broadcaster, IScanDataPoint point) {
 		this.broadcaster = broadcaster;
-		this.pipeline = pipeline;
 		this.point = point;
 		if( logger.isDebugEnabled())
 			logger.debug("'{}': created", point.toString());
 	}
 
 	@Override
-	public void run() {
+	public Void call() throws Exception {
 		if( logger.isDebugEnabled())
 			logger.debug("'{}': running", point.toString());
 	
-		try {
-			convertPositionFuturesToPositions(point);
-		} catch (Exception e) {
-			logger.error("Exception populating data point", e);
-			pipeline.setExceptionAndShutdownNow(e);
-			return ; // don't move on to publish
-		}
+		convertPositionFuturesToPositions(point);
 		
-		if( logger.isDebugEnabled())
+		if( logger.isDebugEnabled()){
 			logger.debug("'{}': futures converted", point.toString());
-
-		try {
 			logger.debug("'{}' publishing", point.getUniqueName());
-			broadcaster.publish(point);
-		} catch (Throwable e) {
-			logger.error("Exception broadcasting data point", e);
-			pipeline.setExceptionAndShutdownNow(e);
 		}
-		if( logger.isDebugEnabled())
+
+		broadcaster.publish(point);
+		if( logger.isDebugEnabled()){
 			logger.debug("'{}' published", point.toString());
+		}
+		return null;
 	}
 
 	private void convertPositionFuturesToPositions(IScanDataPoint point) throws Exception {
