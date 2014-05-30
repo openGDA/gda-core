@@ -64,6 +64,7 @@ public class JythonServerStatus implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Command Server status: script=" + scriptStatus + ", scan=" + scanStatus;
+		return "Command Server status: script=" + scriptStatus + ", scan=" + scanStatus +
+			" (" + Jython.IDLE + "=IDLE, " + Jython.PAUSED + "=PAUSED, " + Jython.RUNNING + "=RUNNING)";
 	}
 }
