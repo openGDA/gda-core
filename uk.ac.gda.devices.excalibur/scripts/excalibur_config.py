@@ -307,7 +307,7 @@ class ExcaliburConfigurator():
         self.configMst=self.config.get("mst")
         self.configMstBase = self.configMst.getPluginBase()
         self.configHdf=self.config.get("hdf")
-        self.configHdfBase = self.configHdf.getPluginBase()
+        self.configHdfBase = self.configHdf.getFile().getPluginBase()
         self.configPhdf=self.config.get("phdf")
         self.configPhdfBase = self.configPhdf.getPluginBase()
 
