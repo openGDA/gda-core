@@ -22,6 +22,8 @@ import gda.rcp.util.OSGIServiceRegister;
 
 import java.util.Dictionary;
 
+import org.springframework.util.StringUtils;
+
 import uk.ac.gda.epics.adviewer.views.ADUtils;
 import uk.ac.gda.util.dictionary.MapBasedDictionary;
 
@@ -29,12 +31,7 @@ import uk.ac.gda.util.dictionary.MapBasedDictionary;
 public class ADControllerFactory {
 	
 	//TODO Make the following match convention
-	private static final String MPG_PROC_PLUGIN_SUFFIX = "PRO1:";
-	private static final String ROI_PLUGIN_SUFFIX = "ROI1";
-	private static final String MPG_PLUGIN_SUFFIX = "MPG1:";
-	private static final String ARRAY_PLUGIN_SUFFIX = "ARR:";
-	private static final String STAT_PLUGIN_SUFFIX = "STAT:";//"STAT1:";
-	private static final String ADBASE_SUFFIX = "CAM:";
+
 	private static ADControllerFactory instance;
 	
 	
@@ -47,8 +44,16 @@ public class ADControllerFactory {
 	public void registerADController(String serviceName) throws Exception{
 		
 		String detectorName = ADUtils.getDetectorNameFromPVServiceName(serviceName);
-		DynamicADControllerImpl impl = new DynamicADControllerImpl(serviceName, detectorName, ADUtils.getPVFromPVServiceName(serviceName), ADBASE_SUFFIX, STAT_PLUGIN_SUFFIX, ARRAY_PLUGIN_SUFFIX,
-				MPG_PLUGIN_SUFFIX, ROI_PLUGIN_SUFFIX, MPG_PROC_PLUGIN_SUFFIX);
+		String suffixType = ADUtils.getSuffixTypeFromPVServiceName(serviceName);
+		//from pv prefix get plugin suffices
+		ADPVSuffices adPVSuffices=null;;
+		if( StringUtils.hasText(suffixType)){
+			adPVSuffices = (ADPVSuffices)Activator.getNamedService(ADPVSuffices.class, suffixType);
+		}
+		if (adPVSuffices == null)
+			adPVSuffices = new DLSADPVSuffices();
+		
+		DynamicADControllerImpl impl = new DynamicADControllerImpl(serviceName, detectorName, ADUtils.getPVFromPVServiceName(serviceName), adPVSuffices);
 		
 		OSGIServiceRegister modelReg = new OSGIServiceRegister();
 		modelReg.setClass(ADController.class);

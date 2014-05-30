@@ -450,15 +450,38 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		return Arrays.asList();
 	}
 
+	private int numToBeCaptured;
+
+	private int numCaptured;	
+	
+	
 	@Override
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		NXDetectorDataAppender dataAppender;
+		//wait until the NumCaptured_RBV is equal to or exceeds maxToRead.
+		checkErrorStatus();
+		try {
+			getNdFile().getPluginBase().checkDroppedFrames();
+		} catch (Exception e) {
+			throw new DeviceException("Error in " + getName(), e);
+		}
 		if (firstReadoutInScan) {
 			dataAppender = new NXDetectorDataFileLinkAppender(expectedFullFileName);
+			numToBeCaptured=1;
+			numCaptured=0;
 		}
 		else {
 			dataAppender = new NXDetectorDataNullAppender();
+			numToBeCaptured++;
+		}
+		while( numCaptured< numToBeCaptured){
+			try {
+				numCaptured = getNdFilePHDF5().getNumCaptured_RBV();
+			} catch (Exception e) {
+				throw new DeviceException("Error in getCapture_RBV" + getName(), e);
+			}
+			Thread.sleep(50);
 		}
 		firstReadoutInScan = false;
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();

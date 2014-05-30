@@ -539,7 +539,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	}
 
 	/**
-	 * Start data acquisition in the controller. Uses the exisiting resume mode
+	 * Start data acquisition in the controller. Uses the existing resume mode
 	 * @throws DeviceException
 	 */
 	public void start() throws DeviceException {

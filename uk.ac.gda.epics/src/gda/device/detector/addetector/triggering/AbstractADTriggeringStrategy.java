@@ -41,6 +41,48 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 
 	private Boolean generateCallbacks = null;
 	
+	/**
+	 * Each exposure lasts for acc_expo_time. Exp per Image is set to int(collection_time/acc_expo_time + 0.5)
+	 */
+	boolean accumlationMode = false;
+	
+	/**
+	 * @see gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy#accumlationMode
+	 */
+	public boolean isAccumlationMode() {
+		return accumlationMode;
+	}
+
+	/**
+	 * @see gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy#accumlationMode
+	 */
+	public void setAccumlationMode(boolean accumlationMode) {
+		this.accumlationMode = accumlationMode;
+	}
+
+	/**
+	 * @see gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy#accumlationMode
+	 * 
+	 * default value is 10ms
+	 */
+	double acc_expo_time=0.01; 
+	
+	/**
+	 * 
+	 * @see gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy#accumlationMode
+	 */
+	public double getAcc_expo_time() {
+		return acc_expo_time;
+	}
+
+	/**
+	 * 
+	 * @see gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy#accumlationMode
+	 */
+	public void setAcc_expo_time(double acc_expo_time) {
+		this.acc_expo_time = acc_expo_time;
+	}
+
 	AbstractADTriggeringStrategy(ADBase adBase) {
 		this.adBase = adBase;
 	}
@@ -114,12 +156,14 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		double expoTime = isAccumlationMode() ? acc_expo_time : collectionTime;
 		if (getReadoutTime() < 0) {
 			getAdBase().setAcquirePeriod(0.0);
 		} else {
-			getAdBase().setAcquirePeriod(collectionTime + getReadoutTime());
+			getAdBase().setAcquirePeriod(expoTime + getReadoutTime());
 		}
-		getAdBase().setAcquireTime(collectionTime);
+		getAdBase().setAcquireTime(expoTime);
+		getAdBase().setNumExposures(isAccumlationMode() ? (int)(collectionTime / acc_expo_time + 0.5) : 1);
 	}
 	
 	

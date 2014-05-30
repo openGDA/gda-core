@@ -18,7 +18,6 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import gda.device.Detector;
 import gda.device.detector.areadetector.v17.NDParallelHDF;
 import gda.epics.CachedLazyPVFactory;
 
@@ -55,8 +54,6 @@ public class NDParallelHDFImpl extends NDFileImpl implements NDParallelHDF, Init
 	private static final String CHUNK_MODE_SIZE_RBV = "ChunkModeSize_RBV";
 	private static final String IO_SPEED = "IOSpeed";
 	private static final String RUNTIME = "Runtime";
-	private static final String STORE_PERFORM = "StorePerform";
-	private static final String STORE_ATTR = "StoreAttr";
 	private static final String CONN_STAT = "ConnStat";
 	private static final String TRANSFER_RATE_AVG = "TransferRate_AVG";
 	private static final String TRANSFER_RATE_RBV = "TransferRate_RBV";
@@ -239,9 +236,4 @@ public class NDParallelHDFImpl extends NDFileImpl implements NDParallelHDF, Init
 		dev.getPVInteger(ROI_POS2).putWait(value);
 	}
 	
-	@Override
-	public void stopCapture() throws Exception {
-		logger.error("stopCapture called on parallel hdf plugin. Doing nothing as it leads to errors in FEM comms");
-		setStatus(Detector.IDLE);
-	}
 }

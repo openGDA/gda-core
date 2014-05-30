@@ -29,12 +29,7 @@ import gda.spring.V17FactoryBeanBase;
 public class DynamicADControllerImpl extends ADControllerBase {
 
 	final private String pvPrefix;
-	final private String statSuffix;
-	final private String camSuffix;
-	final private String arraySuffix;
-	final private String mpgSuffix;
-	final private String imageROISuffix;
-	final private String procSuffix;
+	ADPVSuffices adPVSuffices;
 	final static int imageMin=0;
 	final static int imageMax=65535; //TODO allow the user to change this as it is not appropriate for most cameras
 
@@ -49,15 +44,9 @@ public class DynamicADControllerImpl extends ADControllerBase {
 	private NDProcess ndProc;
 
 	
-	public DynamicADControllerImpl(String serviceName, String detectorName, String pvPrefix, String camSuffix, String statSuffix,
-			String arraySuffix, String mpgSuffix, String imageROISuffix, String procSuffix) throws Exception {
+	public DynamicADControllerImpl(String serviceName, String detectorName, String pvPrefix, ADPVSuffices adPVSuffices) throws Exception {
 		this.pvPrefix = pvPrefix;
-		this.statSuffix = statSuffix;
-		this.camSuffix = camSuffix;
-		this.arraySuffix = arraySuffix;
-		this.mpgSuffix = mpgSuffix;
-		this.imageROISuffix = imageROISuffix;
-		this.procSuffix = procSuffix;
+		this.adPVSuffices = adPVSuffices;
 		this.detectorName = detectorName;
 		setServiceName(serviceName);
 		super.afterPropertiesSet();
@@ -71,7 +60,7 @@ public class DynamicADControllerImpl extends ADControllerBase {
 	@Override
 	public NDStats getImageNDStats() throws Exception {
 		if( ndStats == null){
-			ndStats = getFromFactory(new gda.spring.V17NDStatsFactoryBean(), statSuffix);
+			ndStats = getFromFactory(new gda.spring.V17NDStatsFactoryBean(), adPVSuffices.getStatSuffix());
 		}
 		return ndStats;
 	}
@@ -79,7 +68,7 @@ public class DynamicADControllerImpl extends ADControllerBase {
 	@Override
 	public NDProcess getLiveViewNDProc() throws Exception {
 		if( ndProc == null){
-			ndProc = getFromFactory(new gda.spring.V17NDProcessFactoryBean(), procSuffix);
+			ndProc = getFromFactory(new gda.spring.V17NDProcessFactoryBean(), adPVSuffices.getMPGProcSuffix());
 		}
 		return ndProc;
 	}
@@ -87,7 +76,7 @@ public class DynamicADControllerImpl extends ADControllerBase {
 	@Override
 	public NDArray getImageNDArray() throws Exception {
 		if( imageNDArray == null){
-			imageNDArray = getFromFactory(new gda.spring.V17NDArrayFactoryBean(), arraySuffix);
+			imageNDArray = getFromFactory(new gda.spring.V17NDArrayFactoryBean(), adPVSuffices.getArraySuffix());
 		}
 		return imageNDArray;
 	}
@@ -96,7 +85,7 @@ public class DynamicADControllerImpl extends ADControllerBase {
 	@Override
 	public ADBase getAdBase() throws Exception {
 		if( adBase == null){
-			adBase = getFromFactory(new gda.spring.V17ADBaseFactoryBean(), camSuffix);
+			adBase = getFromFactory(new gda.spring.V17ADBaseFactoryBean(), adPVSuffices.getADBaseSuffix());
 		}
 		return adBase;
 	}
@@ -104,14 +93,14 @@ public class DynamicADControllerImpl extends ADControllerBase {
 	@Override
 	public FfmpegStream getFfmpegStream() throws Exception {
 		if( ffmpegStream == null){
-			ffmpegStream = getFromFactory(new gda.spring.V17FfmpegStreamFactoryBean(), mpgSuffix);
+			ffmpegStream = getFromFactory(new gda.spring.V17FfmpegStreamFactoryBean(), adPVSuffices.getMPGSuffix());
 		}
 		return ffmpegStream;
 	}
 	@Override
 	public NDROI getImageNDROI() throws Exception {
 		if( nDROI == null){
-			nDROI = getFromFactory(new gda.spring.V17NDROIFactoryBean(), imageROISuffix);
+			nDROI = getFromFactory(new gda.spring.V17NDROIFactoryBean(), adPVSuffices.getArrayROISuffix());
 		}
 		return nDROI;
 	}
