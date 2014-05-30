@@ -26,20 +26,22 @@ public class ADOpenViewOption implements OpenViewOption {
 
 	private String pvPrefix;
 	private String detectorName;
+	private String suffixType;
 
 	ViewType viewType;
 	private String label;
 
-	public ADOpenViewOption(String label, String detectorName, ViewType viewType, String pvPrefix) {
+	public ADOpenViewOption(String label, String detectorName, ViewType viewType, String pvPrefix, String suffixType) {
 		this.label = label;
 		this.detectorName = detectorName;
 		this.viewType = viewType;
 		this.pvPrefix = pvPrefix;
+		this.suffixType = suffixType;
 	}
 
 	@Override
 	public ViewDefinition getViewDefinition() {
-		return new ViewDefinition(ADUtils.getViewId(viewType), ADUtils.getPVServiceName(detectorName, pvPrefix));
+		return new ViewDefinition(ADUtils.getViewId(viewType), ADUtils.getPVServiceName(detectorName, pvPrefix, suffixType));
 	}
 
 
