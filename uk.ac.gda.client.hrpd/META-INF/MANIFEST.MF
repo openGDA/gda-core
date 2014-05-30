@@ -38,4 +38,5 @@ Import-Package: com.artenum.jyconsole,
 Bundle-ClassPath: jars/javatuples-1.2.jar,
  .
 Export-Package: org.javatuples,
- org.javatuples.valueintf
+ org.javatuples.valueintf,
+ uk.ac.gda.client.hrpd.epicsdatamonitor
