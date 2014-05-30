@@ -164,6 +164,7 @@ public class TwoDArray extends Composite {
 	
 	public TwoDArray(IViewPart parentViewPart, Composite parent, int style, ADController adController) throws Exception {
 		super(parent, style);
+		this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
 
 		this.setLayout(new GridLayout(3,false));
 		
@@ -331,7 +332,6 @@ public class TwoDArray extends Composite {
 		}		
 
 
-		this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
 		plottingSystem.createPlotPart(plotArea, "", parentViewPart.getViewSite().getActionBars(), PlotType.IMAGE,
 				parentViewPart);
 		for (IAxis axis : plottingSystem.getAxes()) {
@@ -889,8 +889,10 @@ public class TwoDArray extends Composite {
 								String title = dataToPlot.getName();
 								trace.setName(title);
 
-								trace.setMin(getMin());
-								trace.setMax(getMax());
+								if(setMinMax){
+									trace.setMin(getMin());
+									trace.setMax(getMax());
+								}
 								trace.setRescaleHistogram(false);
 								plottingSystem.setTitle(title);
 								plottingSystem.updatePlot2D(dataToPlot, null, null);
