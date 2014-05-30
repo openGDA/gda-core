@@ -129,7 +129,7 @@ public class MapToPolarAndIntegrate implements IDataSetFunction {
 				phi = sphi + p * dphi;
 				x = cx + rad * Math.cos(phi);
 				y = cy + rad * Math.sin(phi);
-				final double v = rdphi * Maths.getBilinear(inDS, y, x);
+				final double v = rdphi * Maths.interpolate(inDS, y, x);
 				csum += v;
 				sumr.set(v + sumr.get(p), p);
 			}

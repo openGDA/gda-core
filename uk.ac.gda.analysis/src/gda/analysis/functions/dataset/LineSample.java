@@ -74,7 +74,7 @@ public class LineSample implements IDataSetFunction {
 		for (int r=0; r<nr; r++) {
 			x = sx + step*r*Math.cos(phi);
 			y = sy + step*r*Math.sin(phi);
-			linsample.set(Maths.getBilinear(inDS, y, x), r);
+			linsample.set(Maths.interpolate(inDS, y, x), r);
 		}
 
 		ArrayList<DataSet> result = new ArrayList<DataSet>();

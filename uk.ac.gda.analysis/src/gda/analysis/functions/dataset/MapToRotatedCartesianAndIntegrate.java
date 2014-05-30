@@ -106,7 +106,7 @@ public class MapToRotatedCartesianAndIntegrate implements IDataSetFunction {
 				cx = ox + x * cp - y * sp;
 				cy = oy + x * sp + y * cp;
 
-				final double v = Maths.getBilinear(inDS, cy, cx);
+				final double v = Maths.interpolate(inDS, cy, cx);
 				sumy.set(v + sumy.getDouble(x), x);
 				csum += v;
 			}

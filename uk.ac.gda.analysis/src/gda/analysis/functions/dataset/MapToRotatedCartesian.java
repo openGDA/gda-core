@@ -103,7 +103,7 @@ public class MapToRotatedCartesian implements IDataSetFunction {
 				cx = ox + x * cp - y * sp;
 				cy = oy + x * sp + y * cp;
 
-				newmap.set(Maths.getBilinear(inDS, cy, cx), y, x);
+				newmap.set(Maths.interpolate(inDS, cy, cx), y, x);
 			}
 		}
 
