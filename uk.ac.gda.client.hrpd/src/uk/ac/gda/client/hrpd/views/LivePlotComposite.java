@@ -57,13 +57,21 @@ import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 import com.google.common.base.Joiner;
 
 /**
+<<<<<<< HEAD
  * Live plot composite for plotting detector data while acquiring. It is capable of plotting <b>multiple</b> traces of data from 
+=======
+ * Live plotting of detector data while acquiring. It is capable of plotting <b>multiple</b> traces of data from 
+>>>>>>> branch '1.5' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-hrpd.git
  * specified EPICS data listeners of {@link EpicsDoubleDataArrayListener} type. 
  * 
  * All traces are updated at the same time in the plot triggered by another PV listener of 
  * {@link EpicsIntegerDataListener} type signalling all traces are updated in the data listener list. 
  * 
+<<<<<<< HEAD
  * It also provides <b>option</b> to plot the final reduced data at end of a collection. The available of this
+=======
+ * It also provides <b>option</b> to plot the final reduced dataset at end of a collection. The available of this
+>>>>>>> branch '1.5' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-hrpd.git
  * reduced data is signalled by the detector state {@link EpicsCVScanState#Flyback} if reduced data listener exists. 
  * <p>
  * <li>view name is configurable using <code>setPlotName(String)</code> method;</li> 

@@ -61,6 +61,7 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
  * <li> a STOP scannable using <code>setStopScannable(EpicsScannable)</code> if you want the CANCEL operation to stop EPICS process;</li>
  *  
  */
+
 public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements IObserver, InitializingBean{
 	private static final Logger logger = LoggerFactory.getLogger(EpicsProcessProgressMonitor.class);
 	private EpicsIntegerDataListener totalWorkListener; //must have

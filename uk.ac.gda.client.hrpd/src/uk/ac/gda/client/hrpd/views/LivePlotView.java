@@ -23,7 +23,6 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 /**
  * Live plotting of detector data during acquisition. 
- * 
  * It consists of two parts:
  * <p>
  * <ol>
