@@ -483,6 +483,10 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 									+ ex.getMessage());
 						}
 						try {
+							logger.debug("Sleeping for 5 sec to allow rsync to copy images");
+							//logger.debug("Camera distance changed to {}", cameraDistance);
+							Sleep.sleep(5*1000);
+							
 							// Loading the first image
 							img = new Image(tomoAlignmentView.getLeftWindowImageViewer().getDisplay(),
 									firstImageLocation);
