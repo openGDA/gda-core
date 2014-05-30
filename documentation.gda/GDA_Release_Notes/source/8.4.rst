@@ -1,0 +1,38 @@
+GDA 8.4  (released 30/Mar/2010)
+===============================
+
+- Changes to Scannable base classes
+
+ - GDA-3030 Default user and hardware unit are now the dimensionless ONE. Setting a new hardware
+   unit that is incompatable with the current user unit will cause the user unit to change to the
+   hardware unit.
+ - GDA-3031   Setting the user unit will can longer effect the hardware unit.
+ - GDA-3064   Fixing this caused a behaviour change: in classes that extend ScannableMotionUnitsBase the
+   limits are now configured with external (user) units rather than internal (hardware) units.
+ - GDA-3071   ScannableMotor.getOffset now returns an array of Doubles rather than double.
+
+
+- DataWriter.getCurrentfileName now returns the  full path to the file rather than just the filename. This
+  is to make it compatible with NexusWriter and as the full path is more useful. This affects SrsDataFile.
+
+- The ``--Xms`` and ``--Xmx`` options for the ``gda`` command-line launcher have been removed. The ``JAVA_OPTS``
+  environment variable can be used to specify arbitrary VM arguments, including ``-Xms``/``-Xmx``. For example:
+  ::
+
+    JAVA_OPTS="-Xms512m -Xmx1024m" /path/to/gda options...
+
+- ScannableMotion, ScannableMotionUnits and ScannableMotor have been refactored to a cleaner hierarchy.
+  ScannableMotion builds on Scannable to add offsets and scaling between external and internal representation and
+  ScannableMotionUnits builds on this to add units. The inputs of ScannableMotion and above are expected to be 
+  representations on real numbers , e.g. Double.
+
+- getAttribute("limits") has been made consistent with the introduction of a static final String
+  ScannableMotion.FIRSTINPUTLIMITS. The value returned is the effective limits of the first input of the Scannable.
+  as Double[2] where the first element is the minimum and the second is the maximum. The array or individual entries 
+  could be null to indicate no limit. Note that this means for ScannableMotor the limits are the inner limits of the 
+  external representation of the scannable and the limits of the motor itself. 
+  This is a breaking change as in previous versions of GDA the value returned was a mixture of Double[2] and double[2]
+  depending on the type of object and was sometimes null or sometimes Double.NAN. 
+
+- In PyObject ScannableBase.__call__() return type that matches the type of the object returned by getPosition  
+  e.g. for Integer return PyInteger not PyFloat

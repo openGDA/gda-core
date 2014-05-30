@@ -20,7 +20,6 @@ package gda.device.detector.nexusprocessor;
 
 import gda.data.nexus.FileNameBufToStrings;
 import gda.data.nexus.extractor.NexusGroupData;
-import gda.scan.ScanBase;
 
 import java.io.File;
 import java.util.List;
@@ -28,7 +27,8 @@ import java.util.List;
 import org.nexusformat.NexusFile;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 /**
@@ -73,19 +73,20 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 				if( !(new File(path)).exists()){
 					Thread.sleep(1000);
 				}
-				DataHolder data=null;
+				IDataHolder data=null;
 				while( data == null){
 					data = LoaderFactory.getData(path);
 					if(data == null){ 
 						//TODO if( data == null)
 						//	logger.warn("Unable to find data at '" + path + "' within existing file:'" + path +"'");
-						if(ScanBase.isInterrupted())
-							throw new Exception("Interrupted whilst reading '" + path + "' from within existing file:'" + path +"'");
-						
-						Thread.sleep(1000);
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							throw new InterruptedException("Interrupted whilst reading '" + path + "' from within existing file:'" + path +"'");
+						}
 					}
 				}
-				return data.getDataset(dataset_index);
+				return DatasetUtils.convertToAbstractDataset(data.getDataset(dataset_index));
 			}
 		}
 		return null;

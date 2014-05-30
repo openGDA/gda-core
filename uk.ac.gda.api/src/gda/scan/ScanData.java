@@ -31,7 +31,7 @@ public class ScanData implements Serializable {
 	public Integer numberOfPoints;
 	public String instrument;
 	public String command;
-	public String scanIdentifier;
+	public int scanIdentifier;
 	public String creatorPanelName;
 	public String currentFilename;
 	public Integer numberOfChildScans;

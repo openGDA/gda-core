@@ -19,13 +19,6 @@
 
 package gda.data.scan.datawriter;
 
-import gda.jython.ICommandRunner;
-import gda.jython.ICurrentScanController;
-import gda.jython.ICurrentScanInformationHolder;
-import gda.jython.IDefaultScannableProvider;
-import gda.jython.IJythonNamespace;
-import gda.jython.IJythonServerNotifer;
-import gda.jython.IScanStatusHolder;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
@@ -54,14 +47,7 @@ public abstract class DataWriterBase implements DataWriter, IDataWriterExtender 
 
 	protected ArrayList<String> header = new ArrayList<String>();
 
-	final protected ICurrentScanInformationHolder currentScanHolder;
-	final protected IJythonServerNotifer jythonServerNotifer;
-	final protected IDefaultScannableProvider defaultScannableProvider;
-	final protected ICommandRunner commandRunner;
-	final protected ICurrentScanController currentScanController;
 	final protected ITerminalPrinter terminalPrinter;
-	final protected IScanStatusHolder scanStatusHolder;
-	final protected IJythonNamespace jythonNamespace;
 
 	private DataWriterExtenderBase extender; 
 	
@@ -69,14 +55,7 @@ public abstract class DataWriterBase implements DataWriter, IDataWriterExtender 
 	 * 
 	 */
 	public DataWriterBase(){
-		currentScanHolder = InterfaceProvider.getCurrentScanInformationHolder();
-		jythonServerNotifer = InterfaceProvider.getJythonServerNotifer();
-		defaultScannableProvider = InterfaceProvider.getDefaultScannableProvider();
-		commandRunner = InterfaceProvider.getCommandRunner();
-		currentScanController = InterfaceProvider.getCurrentScanController();
 		terminalPrinter = InterfaceProvider.getTerminalPrinter();
-		scanStatusHolder = InterfaceProvider.getScanStatusHolder();
-		jythonNamespace = InterfaceProvider.getJythonNamespace();
 		extender = new DataWriterExtenderBase();
 	}
 
@@ -233,7 +212,7 @@ public abstract class DataWriterBase implements DataWriter, IDataWriterExtender 
 	 * @throws InstantiationException 
 	 */
 	@Override
-	public void configureScanNumber(Long scanNumber) throws Exception {
+	public void configureScanNumber(int scanNumber) throws Exception {
 		// do nothing - provide base implementation
 		
 	}	

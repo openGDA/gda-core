@@ -19,6 +19,8 @@
 package uk.ac.gda.client.test;
 
 import gda.TestHelpers;
+import gda.device.Scannable;
+import gda.device.scannable.DummyScannable;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
@@ -27,6 +29,7 @@ import gda.observable.ObservableComponent;
 import gda.rcp.util.UIScanDataPointEventService;
 import gda.rcp.views.scan.AbstractScanPlotView;
 import gda.scan.IScanDataPoint;
+import gda.scan.ScanDataPoint;
 
 import java.io.File;
 import java.net.URL;
@@ -38,7 +41,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -52,8 +55,10 @@ public class ViewTestObject implements IScanDataPointProvider {
 	private long pointPause = 50;
 	private List<String> fileData;
 	private int lineIndex;
+	private AscciLineParser handler;
 
 	public ViewTestObject(final AscciLineParser handler, final URL data) throws Exception {
+		this.handler = handler;
 		TestHelpers.setUpTest(handler.getClass(), "setUp", true);
 
 		InterfaceProvider.setScanDataPointProviderForTesting(this);
@@ -77,7 +82,38 @@ public class ViewTestObject implements IScanDataPointProvider {
 	}
 
 	public void createAndMonitorPoints() throws Exception {
+		createPoints();
 		monitorPoints();
+	}
+
+	private ScanDataPointGenerator createPoints() throws Exception {
+
+		final ScanDataPointGenerator queue = new ScanDataPointGenerator() {
+			@Override
+			public Scannable getScannable() {
+				return new DummyScannable("x axis") {
+
+					@Override
+					public Object rawGetPosition() {
+						if (lineIndex >= fileData.size())
+							return 0d;
+						final String line = fileData.get(lineIndex);
+						final String[] d = line.split(" ");
+						currentPosition = Double.parseDouble(d[0]);
+						return currentPosition;
+					}
+				};
+			}
+		};
+
+		comp.notifyIObservers(this, new JythonServerStatus(1, 0));
+
+		if (UIScanDataPointEventService.getInstance().getCurrentDataPoints().size() != 0)
+			throw new Exception("There are points in the service and there should be none.");
+
+		queue.start();
+
+		return queue;
 	}
 
 	private void monitorPoints() throws Exception {
@@ -109,7 +145,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 		if (data.isEmpty())
 			throw new Exception("Data should not be empty!");
 		for (IDataset d : data.values()) {
-			DoubleDataset oldD = (DoubleDataset) DatasetUtils.convertToAbstractDataset(d).cast(AbstractDataset.FLOAT64);
+			DoubleDataset oldD = (DoubleDataset) DatasetUtils.convertToAbstractDataset(d).cast(Dataset.FLOAT64);
 			if (oldD.getSize() != checkSize)
 				throw new Exception("Data (size = " + oldD.getSize() + ") should be same size as plotted data (size = "
 						+ checkSize + ").");
@@ -133,8 +169,8 @@ public class ViewTestObject implements IScanDataPointProvider {
 
 	@Override
 	public void update(Object dataSource, Object data) {
-		if( data instanceof IScanDataPoint)
-			lastScanDataPoint = (IScanDataPoint)data;
+		if (data instanceof IScanDataPoint)
+			lastScanDataPoint = (IScanDataPoint) data;
 		comp.notifyIObservers(dataSource, data);
 	}
 
@@ -149,6 +185,59 @@ public class ViewTestObject implements IScanDataPointProvider {
 
 	public boolean isDataComplete() {
 		return lineIndex >= fileData.size();
+	}
+
+	private abstract class ScanDataPointGenerator {
+
+		public abstract Scannable getScannable();
+
+		public void start() {
+
+			Thread thread = new Thread() {
+				@Override
+				public void run() {
+					for (String line : fileData) {
+
+						try {
+							if (Thread.interrupted())
+								return;
+							if (isDataComplete())
+								return;
+
+							++lineIndex;
+							if (line.startsWith("#"))
+								continue;
+
+							final ScanDataPoint scanDataPoint = new ScanDataPoint();
+							scanDataPoint.setUniqueName("scanName");
+							scanDataPoint.setScanIdentifier(1);
+
+							final Scannable scannable = getScannable();
+
+							scanDataPoint.addScannable(scannable);
+							scanDataPoint.addScannablePosition(scannable.getPosition(), scannable.getOutputFormat());
+
+							scanDataPoint.setCurrentPointNumber(lineIndex);
+							scanDataPoint.setNumberOfPoints(1);
+							scanDataPoint.setInstrument("instrument");
+							scanDataPoint.setCommand("blah blah");
+							scanDataPoint.setCurrentFilename("fred.nxs");
+							scanDataPoint.setNumberOfChildScans(0);
+
+							handler.parseLine(scanDataPoint, line);
+
+							update(this, scanDataPoint);
+							Thread.sleep(pointPause);
+
+						} catch (Exception ne) {
+							ne.printStackTrace();
+						}
+					}
+				}
+			};
+			thread.start();
+		}
+
 	}
 
 	public interface AscciLineParser {

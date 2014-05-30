@@ -99,9 +99,11 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 			
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				String hideScanThreshold = event.getNewValue().toString();
-				int hideScanThresholdVal = Integer.parseInt(hideScanThreshold);
-				model.setNumberOfScansBeforeHiding(hideScanThresholdVal);
+				if( event.getProperty().equals(PreferenceConstants.HIDE_SCAN_THRESHOLD)) {
+					String hideScanThreshold = event.getNewValue().toString();
+					int hideScanThresholdVal = Integer.parseInt(hideScanThreshold);
+					model.setNumberOfScansBeforeHiding(hideScanThresholdVal);
+				}
 			}
 		});
 		

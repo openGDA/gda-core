@@ -173,7 +173,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	/**
 	 * @return array of scannable objects in this group
 	 */
-	public ArrayList<Scannable> getGroupMembers() {
+	public List<Scannable> getGroupMembers() {
 		return this.groupMembers;
 	}
 
@@ -197,8 +197,8 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	 * @param groupMembers
 	 *            the group members
 	 */
-	public void setGroupMembers(ArrayList<Scannable> groupMembers) {
-		this.groupMembers = groupMembers;
+	public void setGroupMembers(List<Scannable> groupMembers) {
+		this.groupMembers = new ArrayList<Scannable>(groupMembers);
 		if (configured) {
 			setGroupMemberNamesArrayUsingGroupMembersList();
 			setArrays();
@@ -206,11 +206,14 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	}
 	
 	/**
-	 * Sets the members of this group
+	 * Sets the members of this group. 
+	 * <p>
+	 * This is final, as for historical reasons there are two setters on here, and it is natural to extend just one.
+	 * <p>
 	 * 
 	 * @param groupMembers
 	 */
-	public void setGroupMembers(Scannable[] groupMembers) {
+	final public void setGroupMembers(Scannable[] groupMembers) {
 		setGroupMembers(new ArrayList<Scannable>(Arrays.asList(groupMembers)));
 	}
 

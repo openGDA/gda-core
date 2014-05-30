@@ -23,6 +23,7 @@ import ncsa.hdf.hdf5lib.HDF5Constants;
 import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
 import ncsa.hdf.object.h5.H5Datatype;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class Hdf5HelperData {
@@ -97,31 +98,31 @@ public class Hdf5HelperData {
 	private static int getH5DataType(AbstractDataset ads) {
 		int dtype = ads.getDtype();
 		switch (dtype) {
-		case AbstractDataset.BOOL:
+		case Dataset.BOOL:
 			throw new IllegalArgumentException("BOOL not yet supported");
-		case AbstractDataset.INT8:
-		case AbstractDataset.ARRAYINT8:
+		case Dataset.INT8:
+		case Dataset.ARRAYINT8:
 			return HDF5Constants.H5T_NATIVE_INT8;
-		case AbstractDataset.INT16:
-		case AbstractDataset.ARRAYINT16:
+		case Dataset.INT16:
+		case Dataset.ARRAYINT16:
 			return HDF5Constants.H5T_NATIVE_INT16;
-		case AbstractDataset.RGB:
+		case Dataset.RGB:
 			throw new IllegalArgumentException("RGB not yet supported");
-		case AbstractDataset.INT32:
-		case AbstractDataset.ARRAYINT32:
+		case Dataset.INT32:
+		case Dataset.ARRAYINT32:
 			return HDF5Constants.H5T_NATIVE_INT32;
-		case AbstractDataset.INT64:
-		case AbstractDataset.ARRAYINT64:
+		case Dataset.INT64:
+		case Dataset.ARRAYINT64:
 			return HDF5Constants.H5T_NATIVE_INT64;
-		case AbstractDataset.FLOAT32:
-		case AbstractDataset.ARRAYFLOAT32:
+		case Dataset.FLOAT32:
+		case Dataset.ARRAYFLOAT32:
 			return HDF5Constants.H5T_NATIVE_FLOAT;
-		case AbstractDataset.FLOAT64:
-		case AbstractDataset.ARRAYFLOAT64:
+		case Dataset.FLOAT64:
+		case Dataset.ARRAYFLOAT64:
 			return HDF5Constants.H5T_NATIVE_DOUBLE;
-		case AbstractDataset.COMPLEX64:
+		case Dataset.COMPLEX64:
 			throw new IllegalArgumentException("COMPLEX64 not yet supported");
-		case AbstractDataset.COMPLEX128:
+		case Dataset.COMPLEX128:
 			throw new IllegalArgumentException("COMPLEX128 not yet supported");
 		default:
 			throw new IllegalArgumentException(dtype + " not yet supported");

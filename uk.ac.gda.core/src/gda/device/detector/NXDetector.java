@@ -36,7 +36,6 @@ import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
 import gda.device.scannable.PositionStreamIndexer;
 import gda.jython.InterfaceProvider;
-import gda.scan.ScanBase;
 import gda.scan.ScanInformation;
 
 import java.text.SimpleDateFormat;
@@ -209,7 +208,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	 */
 	@Override
 	public PyString __str__() {
-		String string = toFormattedString();
+		String string = toFormattedString() + "\n";
 		for (NXPluginBase plugin : getPluginList()) {
 			string += "  " + plugin.getName() + ": " + plugin.toString() + "\n";
 		}
@@ -581,7 +580,6 @@ class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
 		synchronized (lock) {
 			while (!called) {
 				lock.wait(1000);
-				ScanBase.checkForInterrupts();
 			}
 		}
 	}	

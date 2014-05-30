@@ -166,7 +166,7 @@ public class ScanTest {
 		configurator.setContext(lc);
 		lc.reset();
 		try {
-			configurator.doConfigure(LocalProperties.get("gda.logger.impl.server"));
+			configurator.doConfigure(LocalProperties.get("gda.server.logging.xml"));
 		} catch (JoranException e) {
 			e.printStackTrace();
 		}
@@ -194,7 +194,6 @@ public class ScanTest {
 			hashtable.putBoolean(FindableHashtable.SRB_STORE, true);
 			printTime("Starting a scan");
 			scan.run();
-			ScanBase.waitForScanEnd();
 			printTime("Completed a scan");
 		} catch (Exception e) {
 			System.out.println("Error in scan " + e.getMessage());

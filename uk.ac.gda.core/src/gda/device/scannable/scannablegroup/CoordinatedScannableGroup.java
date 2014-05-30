@@ -136,12 +136,12 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 	}
 	
 	@Override
-	public void setGroupMembers(Scannable[] groupMembers) {
+	public void setGroupMembers(List<Scannable> groupMembers) {
 		ArrayList<Scannable> wrappedGroupMembers = new ArrayList<Scannable>();
 		for (Scannable scannable : groupMembers) {
 			wrappedGroupMembers.add(wrapScannable(scannable));
 		}
-		super.setGroupMembers(wrappedGroupMembers.toArray(new Scannable[] {}));
+		super.setGroupMembers(wrappedGroupMembers);
 		setMembersInCoordinatedScannableComponent();
 	}
 

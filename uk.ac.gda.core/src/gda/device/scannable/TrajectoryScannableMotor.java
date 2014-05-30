@@ -73,7 +73,12 @@ public class TrajectoryScannableMotor extends ScannableMotor implements Continuo
 	@Override
 	public Object getPosition() throws DeviceException {
 		if (isOperatingContinously()) {
-			Object[] pos = (Object[]) internalToExternal(new Double[]{controller.getLastPointAdded()[controllerMotorIndex]});
+			Double[] lastPointAdded = controller.getLastPointAdded();
+			if (lastPointAdded == null) {
+				// First point is in process of being added
+				return super.getPosition();
+			}
+			Object[] pos = (Object[]) internalToExternal(new Double[]{lastPointAdded[controllerMotorIndex]});
 			if (pos == null) {
 				// First point is in process of being added
 				return super.getPosition();

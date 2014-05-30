@@ -1,0 +1,312 @@
+GDA 8.38  (Mar/2014)
+====================
+
+User Highlights
+---------------
+
+New Features
+~~~~~~~~~~~~
+
+* Completed GDA views for interacting with Epics Area Detectors. These show live data from area detectors during a scan or while free running. These live images can be analysed with DAWN's analysis tools. There is an MJPG viewer. (This system is now easy to configure if the 'controls/daq standard' set of AreaDetectors plugins is deployed by the controls group.) 
+* Merged our Nexus metadata solutions to allow the collection of both permanent well-categorised metadata and sources configured from the command line. [Ramos - 6ca8be9] 
+* Added a toolbar button to the live scan plot view to limit the number of displayed scans (to mitigate performance issues) [Chris Coles]
+* Removed unused preference pages from RCP client. Users should now be more able to discover relevant properties for themselves. [Chris Coles]
+* Created a generic mechanism for fast raster scanning. Integrated PI's (very portable) "High precision xyz nanopositioning system" used on many beamlines. This might be used to locate small samples mounted on a diffractometer stage (ask Gareth Nisbet to borrow it). [Robert Walton]
+* Added support for suffix in application title (via LocalProperties.GDA_GUI_TITLEBAR_SUFFIX) [Fajin Yuan - a6fd531] 
+* Updated the ROI selection mechanism on the area detector image view to reduce the chance of critical ROI's being moved by accident whilst using a DAWN tool like e.g. line fitting.
+* Created a ScannableToggler class which can be configured to toggle a scannable at the start and end of the scan, line, point, or motor moves. E.g.::
+  
+  >>> scan motor 1 10 1 detector fastshutter # might open during exposure
+  >>> scan motor 1 10 1 detector slowshutter # might open during scan
+  >>> scan energy 1 10 1 close_shutter_while_moving
+  >>> scan motor 1 10 1 detector move_screen_out_while_counting
+
+Fixes
+~~~~~
+* A script which calls another script will now stop when one of the stop buttins is pressed. [GDA-5854 Ramos - 43cd478] 
+* Fix race condition that could cause metadata not to be written during very short/quick scans [Rob Walton - ab69680] 
+* Fix the problem where scans fail with a Capture failed exception if the HDF5 writer plugin has not been used outside of a scan since the Area Detector IOC was restarted. [Mark Booth - 78c65d0] (Ensure that HDF5 factory bean sets LazyOpen after Properties set.)  
+* Update the command line scan data processing to use newer SciSoft methods for fitting e.g. Gaussian peaks, edges and pairs of edges (for wirescans)[Peter Holloway - c2fde8c] [Rob Walton - ab76370]
+* Never show the reduced GUI if the baton management system is disabled (via 'gda.accesscontrol.useBatonControl' property).[Rob Walton - 174cc5a]
+* When typing commands the TAB key now properly inserts tabs at the cursor position rather than the end of line. [Peter Holloway - 6bcdcd8] 
+ 
+Developer
+---------
+
+Important
+~~~~~~~~~
+
+* Change to how Jython interpreter output is handled
+  In GDA 8.36 the default value of the ``gda.jython.GDAJythonInterpreter.useWriters`` property was changed to ``true``.
+  In GDA 8.38 this option has been removed. Output from the Jython interpreter is now always passed to GDA through a ``Writer`` rather than an ``OutputStream``.
+* NexusDataWriterMetadataTree removed
+  The code and functionality has been integrated into NexusDataWriter (which it extended).
+* SLF4J and Logback logging libraries upgraded
+  The logging libraries used by GDA have been upgraded. GDA now uses `SLF4J <http://www.slf4j.org/>`_ 1.7.6 and `Logback <http://logback.qos.ch/>`_ 1.1.1.
+* This may be important: Added needed plotting services plugin start level for example client [Peter Chang - 7fced0c] 
+* CORE - Add checkForException in ScanDataPointPipeline [Paul Gibbons - 282b5d2] The main Scan thread can check this regularly 
+* MTGDA (8.34) Add .hooks/post-checkout to correct core/bin/gda execute perms. [Mark Booth - ad82a53] Note that this will only be copied into .git/hooks on deployment and will only be run on a command line git checkout. Checking out or switching branches from egit may still leave files without group and other execute permissions.
+* fix logic when deciding to plot or not lines based on the ScanPlotSettings [Richard Woolliscroft - 5b4d50f] There seems to be some duplication here which should be resolved
+* Add bin to pydev project path and a gda_root based external path for jca. [Mark Booth - 3feed05] This should allow jython unit tests to run without project specific project external paths being set.
+  To set up the gda_root variable (needed only once per workspace):
+  
+  Window > Preferences > Pydev > Interpreter - Jython >
+    String Substitution Variables tab > Add variable
+      Key:   gda_root
+      Value: /dls_sw/iXX/software/gda_versions/gda_X.YY/
+  
+  Project paths based on gda_root assume that a standard deployment is in use
+* SCATTER-147 [Tobias Richter - f173cd5] avoid too much processing in Java (that's the reason for having a database)
+   This will also return the latest commissioning visit for staff (in case defVisit isn't up to date)
+* GDA (8.34) Default ORBClass and ORBSingletonClass to the only classes we use. [Mark Booth - b7ca7a3] Also make the default event channel name local.eventChannel and tidy up the test cases.
+   
+Epics AreaDetector
+~~~~~~~~~~~~~~~~~~
+
+* BLXV-26 BLXV-73 BLXV-81 BLXV-82 BLXV-83 (8.36) Refactor AD v17. [Mark Booth - be1381a] 
+* Add the ADcommon and GetPluginBaseAvailable interfaces. Together these  interfaces allow plugins to take either another plugin or a driver as
+  an input.
+* Implement the ADCommon interface on the ADBase and NDPluginBase interfaces.
+* Extend all ND plugin interfaces to use GetPluginBaseAvailable instead of
+  just having a local copy of getPluginBase().
+* Implement a new abstract base class
+* EPICS (8.34) ADDetector default filewriter now does not support write status [Rob Walton - c6d8b92] 
+* EPIC (8.30) Create SoftwareSynchronisedMultipleExposure NXDetector triggering strategy [Rob Walton - b467e64] 
+* EPICS CollectionStrategy and CVMoveController using TFG2 [Paul Gibbons - b715f3f] 
+* EPICS - Allow filewriter to be re-used in same scan. Add checkPathExists [Paul Gibbons - 1f71b9c] 
+* GDA-5386 (8.34) Add oneTimeSeriesCollectionPerLine parameter to ADTimeSeriesStatsPlugin and associated factory [Rob Walton - af6f07d] 
+* GDA-5386 (8.34) Add a todo to ZebraScannableMotor indicating a logical error (that has no impact but is confusing) [Rob Walton - 66b7dc3] 
+* GDA-5386 (8.34) Modify ADRectangualROIPlugin to close rois down to zero size when unused [Rob Walton - 590c7fe] ... As a side effect this will cause linked overlay plugins not to show their overlay
+* GDA-5840 Allow sub-classing of AD Views rather than need for ViewCreator [Paul Gibbons - 3469397] 
+* PCO should use EXTERNAL_AND_SOFTWARE trigger mode [Paul Gibbons - 96f8855] This allows rolling shutter on PCOEdge
+* GDA-5840 Support plugin naming convention in AD GUI [chris.coles@diamond.ac.uk - cd0ca22] 
+* BLXV-82 (8.36) Add SingleExposureUnsynchronisedExternalShutter trigger strategy. [Mark Booth - 85c1390] 
+* GDA-5840: Created a dynamic AD controller implementation so that cameras can be added dynamically. Still in development but working for histogram. [chris.coles@diamond.ac.uk - 8b1a771] 
+* New Pixium classes [Paul Gibbons - 37cefe4] 
+* Add check that startAcquiring leads to a new image being acquired [Paul Gibbons - 8db546a] 
+* Ensure PCO AcquirePeriod is 0. [Paul Gibbons - c0a7f0a] 
+* EPICS - Allow filewriter to be used in a multiscan [Paul Gibbons - 242ded2] 
+* GDA-5840 Create MJPegView [Paul Gibbons - 50be638] 
+* GDA-5840 Use secondary id to identify ADController for HistogramView [chris.coles@diamond.ac.uk - 76db5d2] 
+* BLXV-82 (8.36) Add new constructor to MultipleExposureSoftwareTriggerAutoMode. [Mark Booth - 836b70b] This allows you to omit the maxExposureTime constructor argument.
+* BLXV-69 (8.36) Add support for multiple filewriters in additionalPluginList. [Mark Booth - cb9089f] The SingleImagePerFileWriter
+* EPICS - Support CreateDirectory functionality in ADPlugin [Paul Gibbons - 9ab8e18] 
+* MT-GDA (8.36) Add option to suppress Path does not exist on IOC errors. [Mark Booth - 38ed0a0] Several of the Area Detectors on MT beamlines incorrectly report that a path does not exist when it does so in order to use these area detectors these errors must be suppressed.
+* EPICS - CollectionStrategy for Pixium [Kaz Wanelik - 9bc350f] 
+* Add TFG2 based collection strategy [Paul Gibbons - 7ab48e4] 
+* EPICS - MulitpleImagesPerHDF5FileWriter - check for errors during scans [Paul Gibbons - 08c1030] 
+* EPICS - FileWriterBase - support checkErrorStatus [Paul Gibbons - 3fba51d] 
+* EPICS - NDFileImpl Add timeout to startCapure [Paul Gibbons - 8776346] 
+* EPICS - Add checkDroppedFrames to NDPluginBase [Paul Gibbons - 1e01967] 
+* EPICS (8.34) Create AreaDetector Merlin driver that triggers a an energy threshold sweep at each point in scan. [Rob Walton - 47f24aa] 
+* BLVII (8.34) Fix Epics time series code to read current data. [Rob Walton - a1fe264] It used to read out the data from the previous scan!
+* ADViewer - Do not update the plot whilst the roi is being changed [Paul Gibbons - 7dd0172] 
+* EPICS (8.36) Ensure that HDF5 factory bean sets LazyOpen after Properties set. [Mark Booth - 78c65d0] This fixes the problem where scans fail with a Capture failed exception if the HDF5 writer plugin has not been used outside of a scan since the Area Detector IOC was restarted.
+* BLXV-26 BLXV-73 BLXV-81 BLXV-82 BLXV-83 (8.36) ADControllerImpl improvements [Mark Booth - 55e2c8f]
+* Add support for UInt32 in ADControllerImpl. 
+* GDA-5836 (8.36.GDA-5836) Make NexusDetectorProcessor a HardwareTriggerableDetector [Rob Walton - 5e4dec0] 
+ 
+Epics ZEBRA
+~~~~~~~~~~~
+
+* BLXV-26 BLXV-73 BLXV-81 BLXV-82 BLXV-83 (8.36) Zebra CV move ctr improvements. [Mark Booth - 5f1c0a7] 
+
+  * Calculate minimumAccelerationTime from getCollectionExtensionTimeS for detectors implementing the UnsynchronisedExternalShutterNXCollectionStrategy   interface.
+  * Add checks for minimum acceleration distance taking too long
+  * Added a note that the setMinimumAccelerationDistance should never be smaller   than the deadband of the motor. 
+  * Added a getMinimumAccelerationDistance() method. 
+
+* BLXV-26 BLXV-73 BLXV-81 BLXV-82 BLXV-83 (8.36) EpicsController improvements.
+
+  * Add a warning when the count of elements returned from a channel is different to the count requested. [Mark Booth - 9b90ae6]
+  * IMPORTANT: This immediately highlights a variety of Epics failure modes which would otherwise go unnoticed!
+  * Add length of timeout used to timeout exceptions.
+
+* Add ZebraShutterPositioner
+* Add setPCArmInput to Zebra [Paul Gibbons - e87d3e1] 
+* BLXV-82 (8.36) Support collection times greater than 214 seconds. [Mark Booth - 656e7e1] Using TIMEUNIT_MS the maximum PC times are 214881.9984ms or 214s
+* BLXV-82 (8.36) Reset Zebra before each Arm. [Mark Booth - 0f08776] 
+* Make Zebra findable and add method to allow setting of various pvs [Paul Gibbons - c96d527] 
+* BLXV-82 (8.36) Add pcPulseTriggerNotGate to ZebraConstantVelocityMoveController [Mark Booth - 0c3e05e] This allows you to take the PCPulseWidth from maxCollectionTimeFromDetectors rather than using an arbitrary hard coded time.
+* Improvement to Zebra soft input support - add getSoftInputObservable method to avoid Zebra having to extend IObservable [Richard Fearn - 23d587d] 
+* Zebra - support calls to set PULSE block parameters. Use PVValueCache [Paul Gibbons - e5b0cd6] 
+
+
+Hardware (not AD or Zebra)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+* MXGDA-1641 Add setUserOffset method to EpicsMotor [Richard Fearn - 46239c9] 
+* Only stop configured motors - do not waste time trying to stop an unconnected motor [Richard Woolliscroft - 6cb3aaf] 
+* new EPICS motor position Comapare script allow to set motor Limits [Fajin Yuan - ceb7aaf] 
+* implement IBeamMonitor for RCP GUI access via RMI [Fajin Yuan - 892f70c] 
+* if a traj scan is aborted then leave Epics in a state where the next scan can be restarted by clearing the readback state when calling stop [Richard Woolliscroft - 4382180] 
+
+
+GUI
+~~~
+* GDA-5386 (8.34) Fix TwoDScanPlotter to deregestister as an SDP listener only after recieving te last point rather than atScanEnd(). Also deregister in atCommandFailure() and stop(). [Rob Walton - b278aba] Now we have multiple scan threads atScanEnd can be called before the pipeline has been emptied.
+* GDA-5838 Update id for GDA navigator [Paul Hathaway - 97fa7fd] - View extension was moved from u.a.g.pydev.extension plug-in
+
+  * updated id in extension for u.a.g.client
+  * updated reference in JythonPerspective
+
+* GDA-5838 - Moved JythonPerspective to uk.ac.gda.client.scripting [Peter Holloway - f1b4b03] From uk.ac.gda.pydev.extension
+  Includes changes to prefence handling and references to ID.
+* Updated the way limited are validated. [Phyo Kyaw - 769ef49] 
+* Remove new Activator class and replacing references to it to use pre-existing GDAClientActivator instead [Ramos - 5eaf349] 
+* GDA-5605 Include Logback Beagle in uk.ac.gda.client.feature [Richard Fearn - 7c63ad7] (plus the Nebula Grid plugin that it depends on)
+  Don't remove the old Logback plugin just yet
+* RotationViewer: allow access to top-level Composite after createControls has been called [Richard Fearn - bb34692] 
+* RotationViewer: allow Move to zero button to appear independently of the fixed step buttons [Richard Fearn - 504585d] Until now
+* XAS-160 add log messages when buttons are pressed [Richard Woolliscroft - f5447ca] 
+* XAS-160 add debug log messages whenever Jython Console and Command Queue buttons pressed [Richard Woolliscroft - 59a039e] 
+* pause the queue when it is empty and pauseWhenQueueEmpty boolean attribute set to True [Richard Woolliscroft - 6c8e1af] 
+* do not enable controls when command queue is empty [Richard Woolliscroft - 6fe8477] Also have the queue stop button greyed out when the queue is empty for consistency
+* BLXVIIIB-125 improve Simple Scan view usability and error handling [Richard Woolliscroft - d82c295] 
+* GDA-5788 make the addData method public to allow plots to be added programmatically [Richard Woolliscroft - b1d2eec] 
+* GDA-5838 - Remove dependency on pydev.extension [Peter Holloway - a92d58c] 
+* CORE: updates to synoptic productt and perspective [chris.coles@diamond.ac.uk - adcbdf5]
+
+
+Generic EPICS
+~~~~~~~~~~~~~
+* EPICS - add caputStringAsWaveform to CAClient [Paul Gibbons - ac8bd35]
+* to support automatic configuration of GDA temperature objects when EPICS enabled such devices. [Fajin Yuan - 9073457] 
+* Epics: changed timeout for epics from 30 seconds to 5. [chris.coles@diamond.ac.uk - 1fc6d93] 
+* EPICs - EpicsMotor - use caputWait when setting the speed [Paul Gibbons - adeb916] 
+* EPICS - PVValueCache Class to act as buffer to EPICS. [Paul Gibbons - a05a916] putWait - send updates over channel access if the value to send is different from the value in the IOC. get - returns value sent in last monitor callback
+* GDA (8.34) Fix EpicsTrajectoryMoveController to work with multinput scannables with an offset onjust one input [Rob Walton - d10b263] 
+* minor changes to prevent occasional errors during traj scans [Richard Woolliscroft - 5d69ab9] 
+
+
+Help system
+~~~~~~~~~~~
+* Add help_contents.xml to built plugin [Paul Gibbons - 125d947] 
+* HelpHandler - add support for using Eclipse Help system [Paul Gibbons - 2ec488f] 
+* Client - add help_contexts to client [Paul Gibbons - 55daa13] 
+* HelpHandler - support gda_command topic types [Paul Gibbons - 5a921ac] 
+* Client - Add use of HelpHandler to JythonTerminal [Paul Gibbons - 6613b6c] 
+
+
+Logging
+~~~~~~~
+* Set eventDelay property to zero for all SocketAppenders defined for log server [Richard Fearn - 3899b61] 
+* Add uk.ac.gda.client.logging
+* Add GDA_SOURCE property to logging context for server-side/client-side processes [Richard Fearn - 1807419] 
+* DASCTEST-214 Switch uk.ac.gda.core to Logback 1.1.1 [Richard Fearn - 885d65b] 
+* GDA-5000 / GDA-5769 Update features to use new SLF4J & Logback bundles [Richard Fearn - 27242b0] 
+* GDA-5000 / GDA-5769 Update uk.ac.gda.core PyDev path to use new SLF4J/Logback JARs [Richard Fearn - f1dac64] 
+* GDA-5000 / GDA-5769 Change uk.ac.gda.client to depend on new SLF4J bridge JARs [Richard Fearn - dda30d0] 
+* GDA-5000 / GDA-5780 / GDA-5771 Switch uk.ac.gda.core to Logback 1.1.0 [Richard Fearn - 5b2d1ad]* Update RedirectableFileLogger & ElogAppender following introduction of ILoggingEvent interface
+* Add layout field to ElogAppender because AppenderBase no longer has one
+
+
+Platform
+~~~~~~~~
+* DASCTEST-204 use org.apache.{mina|sshd} from tp/ not uk.a.c.gda.libs [Matthew Webber - 511f5d3] 
+* DASCTEST-191 Update PyDev in target platform to 3.3.3 [Matthew Webber - 270a454] 
+* DASCTEST-191 Update PyDev in target platform to 3.3.3 [Matthew Webber - 8160577] 
+* ADMIN: update org.apache.commons.lang and remove from uk.ac.gda.libs also specify version dependency [Matthew Webber - f10e752] 
+* ADMIN: update org.apache.commons.beanutils and remove from uk.ac.gda.libs [Matthew Webber - 936fe65] 
+* ADMIN: remove org.apache.commons.io from uk.ac.gda.libs
+* ADMIN: switch from uk.ac.diamond.guava --> com.google.guava [Matthew Webber - 2fc367c] 
+* DASCTEST-187 Replace com.springsource.org.apache.commons.beanutils with org.apache.commons.beanutils
+* DASCTEST-185 Move org.apache.commons.{configuration/jxpath} from uk.ac.gda.libs to tp/
+* GDA-5000 Switch to SLF4J 1.7.5 [Richard Fearn - 7d67876] (this time for plugins importing org.slf4j with no version constraints)
+* GDA-5000 Switch to SLF4J 1.7.5 [Richard Fearn - f374fc3] 
+* GDA-5859 Replace SLF4J JAR filenames with Ant paths [Richard Fearn - aed9f45] 
+
+
+Refactoring
+~~~~~~~~~~~
+* Live Plot: Further refactoring. Generally the same sort of thing mentioned in the last commit. [Chris Coles - ebcd37c] 
+* Live Plot View: Refactored for the following reasons: 1)This is a well used class and must be up to standard. 2)suppression of unused- this holds back progress. I want to know if method parameters arent used because removing them simplifies code. Hence we can be more efficient in using it. 3)direct calls to inner class attributes. Inner classes can have getter and setter clases just like normal classes. Doing it this way provides a mechanism to controll access to those attributes. And it's a standard coding practice. 4)class attributes at the top of the class. This makes our team more efficient at reading code. imagine the time it takes to find an attribute (small amount of time but unnesesery) but times that by no. team members that look at it and times that by the number of times they look at it. [Chris Coles - 6e3a17a] 
+* Reduce code duplication in LogServer [Richard Fearn - c895d61] Comparing LogServer.main and SimpleSocketServer.doMain:
+* LogServer.main calls configureAndStartLogServer
+* Reduce code duplication in LogServer [Richard Fearn - d0835f6] Both the main method and the configure method call configureLogging()
+* GDA-5840: Changed MJPEGView to use ADActionUtils. Some code tidyup [chris.coles@diamond.ac.uk - 9c3a39e]
+
+
+Scanning
+~~~~~~~~
+* Prevent error if ScannableMotor has units but the DummyMotor underneath it doesn't [Richard Fearn - 4cc969a] This is a follow up to b32127a. If a ScannableMotor has units set explicitly
+* improve messages to user and prevent errors when shutting down a pipeline already shutdown [Richard Woolliscroft - f616394] 
+* GDASCRIPTS: Fix regression in scan data processing system which broke it with SRS files [Rob Walton - 5f81cc8] The breaking changes were to move toward better Nexus support and were not unexpected.
+* APRES-196 allow to persist subdirectory [Tobias Richter - 4c23324] Now you can swap StoredMetadataEntry to PersistantMetadataEntry (sic) and the directories are kept over restarts
+* fix plotting for scanprocessors by using scisoftpy jython methods [Tobias Richter - 8d9bb89] and not SDAPlotter
+* GDA-5906 Add atLevelEnd() to Scannables [Charles Mita - e47acfc] 
+
+
+Testing
+~~~~~~~
+* TESTING: move test data files out of source tree also general tidy of test code [Matthew Webber - 9d14123] 
+* TESTING: remove never-passing tests from core; cleanup runner [Matthew Webber - ebbc36e] 
+* GDA-5848 part of moving test helpers to their own plugin Removed old and obsolete test helpers that are no longer required [Matthew Webber - 28d97de] 
+* DASCTEST-168 Rationalize test environment [Matthew Webber - 9565128] 
+* ADMIN: convert uk.ac.gda.example.test to a fragment
+
+
+Generic
+~~~~~~~
+* BLXV (8.36) Improved logging in ScannableBase:checkPositionLength() [Mark Booth - 474cc81] The exception now reports the name of the scannable which failed the check.
+* BLXVIB (8.34) - BLBXVI-40 DummyMotor implements Unit String [Charles Mita - b32127a] 
+* Added public interface QueueEntry to allow access to QueuedCommandSummary [Conor Lehane - d9d4ae8] 
+* add beam monitor interface [Fajin Yuan - deb3e98] 
+* remove iWorkbenchPartSite parameter from CompositeFactory.createComposite interface [Jonathan Blakes - 77d430b] Most implementations use this to get a Display
+* MXGDA-1248 allow MotorPositionViewer to have a callback which is invoked in preference to commandFormat when demand changed [Jonathan Blakes - 1eeee3c] 
+* BLXV-83 (8.36) Add a PvManagerWithMockCAClients for testing. [Mark Booth - 6dc6911] This allows you to pass a PvManagerWithMockCAClients into a class you
+  want to test in place of a real PvManager. This implements all of the
+  CAClients as assertable Mock objects.
+  Also add a Python standard __repr__.
+* DASCTEST-217: add .site project for building stand-alone logpanel [Matthew Webber - f31360a] 
+* Replace use of RotationViewer with MotorPositionEditorControl [Paul Gibbons - 3ee60b3] 
+* GDA - Fix bug in reading limits in ScannableWrapper [Paul Gibbons - c9a88c9] 
+* Shutdown pipeline in event of run time exception [Paul Gibbons - 86e1efe] 
+* GDA-5840 Simplify specification of options for OpenViewListBox [Paul Gibbons - cea5681] 
+* Client - handle lowerGDALimits in ScannableMotor [Paul Gibbons - 6e6dfa3] 
+* Provider an implementation of MvcExampleModel that handles scannables on the server [Paul Gibbons - dede4d1] 
+* MvcExampleView - make use of new ObservableMap listening cell content providers. [Paul Gibbons - 3dc00da] 
+* MvcExample - Use CellLabelProviders to display model data as a progress bar [Paul Gibbons - a8935de] 
+* Example - Add dummyNXDetector [Paul Gibbons - a54f7da] 
+* Add MotorPositionEditorControl ( currently a copy from exafs.ui.data) [Paul Gibbons - 7bd0ed2] 
+* Core - Support ConstantVelocityMoveController2 [Paul Gibbons - b82f10c] 
+* Core - MultiScanRunner run scan in runScan to allow exceptions to be raised. [Paul Gibbons - 02403de] 
+* Deprecated DataSetFunctionFitter [Peter Holloway - 96a0072] Relied heavily on other deprecated functions and scisoftpy offers similar functionality
+* Add Activator class to uk.ac.gda.client [Peter Holloway - effdf49] Change imports from uk.ac.pydev.extension to new Activator
+  Deleted pydev.extension plug-in
+* GDA-5479 Remove the option to get Jython interpreter output through an OutputStream [Richard Fearn - 404eb28] 
+* EXAMPLE: make name server/event server/log server launchers work [Richard Fearn - 8b9bb22] Getting the object server launcher to work is more difficult.
+* Add calculator view for GDA training [Richard Fearn - 848e967] 
+* DiCAT: throw more useful exception if username/password properties aren't set [Richard Fearn - ca14f00] 
+* Add handy command-line program for listing objects in the RMI registry [Richard Fearn - 0e708dd] 
+* GDA-5479 Add test program to reproduce Jython server problems by interrupting threads [Richard Fearn - 5164cfb]* Strip stuff out of GDAJythonInterpreter to allow it to be used in a test program
+* update to the example config for the updated Jython course [Richard Woolliscroft - 14ee4b5] 
+* do not broadcast a PAUSE when the queue is emptied [Richard Woolliscroft - e3500b9] This leaves the system in an incorrect state as it puts the ScanBase.paused flag to true
+* GDASCRIPTS: add dependencies to PYTHONPATH (relative to ${gda_root}) [Rob Walton - 4cbe909] 
+* GDA-5836 (8.36.GDA-5836.v2) [NEEDS TESTING on i13] Remove references to ScanPositionRecorder and ScanPositionRecordable. [Rob Walton - cacfcc9] 
+* GDA-5543 (8.34) Fix NXDetector to properly throw InterruptedException from waitWhileBusy in order to allow concurrentScanWrapper to continue with processing after a manual halt [Rob Walton - 10376ca] 
+* BLXVI (8.34) Properly clear cached readout value in HardwareTriggeredNXDetector [Rob Walton - 0ec1bef] 
+* Create nicer data for 3d volumes. [Tobias Richter - a3b3887] 
+* GDA-5858 enable ScanFileHolder to retrieve lazy datasets [Tobias Richter - 695a590] 
+* synchronise configureScanNumber to prevent skipping numbers [Tobias Richter - dfc0f2c] 
+* GDA-5808 chunk size needs to be smaller than datasize [Tobias Richter - 6030336] this should ensure that
+* simplify configuration where you don't want to record all extra names [Tobias Richter - f98877b] even leaves open how many of them your scannable may have
+* GDA-5657 stops oarcle's interest in a set timezone [Tobias Richter - e4d735e]
+
+How these notes were created
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Run the git command:``git log --no-merges --pretty=format:\%aD\, \%an\, \* %s [%an - %h] %b\ 8.36rel..HEAD > /tmp/reponame.version.csv``
+
+2. Open up in excel or the likes,
+   
+   a. Sort by name, as we tend to work in our pet areas and this makes categorisation simpler (also message quality is likewise correlated).
+   b. Add an empty column to fill with single character tags. These will become component headings. e.g.  'u' for user 'dz' for developer+zebra.
+   c. Sort by the tab columns
+
+3. Cut each tag group paste to the release notes file under the appriopriate heading.
+
+4. Fixup the reStructuredText.
+
+5. Tweak the text of the user highlights at the top.
+
+--- Rob Walton

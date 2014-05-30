@@ -548,6 +548,9 @@ where task can be:
 		make_config_subdir = lambda subdir: abspath(self.options.gda_config, subdir)
 		test_dirs = map(make_config_subdir, ("clients", "jacorb", "servers"))
 		self.is_new_style_layout = reduce(operator.and_, map(os.path.isdir, test_dirs))
+		if self.options.gda_mode and not self.is_new_style_layout:
+			self.logger.critical("You specified --mode=%s, but an old-style configuration was found at %s" % (self.options.gda_mode, os.path.abspath(self.options.gda_config)))
+			sys.exit(1)
 
 		# default profile is "main"
 		if self.is_new_style_layout and not self.options.profile:

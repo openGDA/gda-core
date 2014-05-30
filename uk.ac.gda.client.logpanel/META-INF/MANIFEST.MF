@@ -5,7 +5,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Diamond Light Source
 Bundle-Name: GDA Logpanel Composite, View and RCP Application
 Bundle-SymbolicName: uk.ac.gda.client.logpanel;singleton:=true
-Bundle-Version: 8.38.0.qualifier
+Bundle-Version: 8.40.0.qualifier
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  slf4j.api;bundle-version="[1.7.6,1.7.7)",
@@ -14,7 +14,9 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.common,
  org.eclipse.core.databinding;bundle-version="1.4.1",
  org.eclipse.core.databinding.property;bundle-version="1.4.100",
+ org.eclipse.swt,
  org.eclipse.jface.databinding;bundle-version="1.6.0",
- org.eclipse.jface
+ org.eclipse.jface,
+ com.google.guava
 Export-Package: uk.ac.gda.client.logpanel.view
 Bundle-Activator: uk.ac.gda.client.logpanel.Activator

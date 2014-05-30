@@ -1,0 +1,20 @@
+GDA 8.26  (Aug/2012)
+====================
+
+Changes to ConcurrentScan (used by standard 'scan' command and all scan wrappers)
+---------------------------------------------------------------------------------
+
+1. The DetectorWithReadout interface has been deprecated (this was used only on I18).
+   Set gda.scan.concurrentScan.readoutConcurrently to true instead (after reading the 8.24 release note).
+
+Changes to materialize directory layout
+---------------------------------------
+Previously, Git repositories were materialized to:
+
+    | ``${workspace}_git/${repo-name}.git`` (repositories other than SciSoft)
+    | ``${workspace}_git/scisoft/${repo-name}.git`` (SciSoft repositories)
+
+Since the name of most SciSoft repositories starts with ``scisoft-`` anyhow, the extra level in the directory hierarchy for those repositories was deemed unnecessary, and has been removed.
+Now, all Git repositories are materialized to:
+
+    | ``${workspace}_git/${repo-name}.git``

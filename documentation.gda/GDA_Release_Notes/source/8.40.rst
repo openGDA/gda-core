@@ -1,0 +1,57 @@
+GDA 8.40  (Jun/2014)
+====================
+
+User Highlights
+---------------
+
+New Features
+~~~~~~~~~~~~
+
+* JythonConsoleView buttons simplified.
+
+ - Now single button to pause scans and scripts.
+ - New button to complete scans after current data point
+ - New button to abort all scans, scripts and commands without calling stop on all beamline hardware
+
+* Improvements to the underlying mechanisms which abort scans and hold the beamline's scan/script status.
+
+Fixes
+~~~~~
+
+Developer
+---------
+
+Important
+~~~~~~~~~
+
+* GDA-5691 and sub-tickets: significant refactoring to how Scan status is stored, and how scans and other commands are stopped/halted/aborted:
+
+ - global scan status has been removed, now each scan instance holds its own state. The Jython Server will return the status of the last scan run
+ - Scan status made much richer, and now has a state machine to enforce allowed transitions
+ - Scans now have a 'requestFinishEarly' method to make the scan finish after the current data point but still go through the normal shutdown mechanism
+ - PanicStop replaced by a beamlineHalt command which does the same thing as before, but also there is a abortCommands method whichstops scans and scripts but does not call stop on all beamline hardware
+ - GUI buttons simplified for users, script and scan buttons merged.
+ - Script interrupt static boolean replaced. Now Scripts can only be aborted using the abortCommands or beamlineHalt methods.
+ - Changes to interface and method names in the InterfaceProvider sub-interfaces
+ - Javadoc explaining the difference between atScanEnd and atCommandFailure improved 
+
+* GDA-5883 Scan.getScanNumber() and ScanDataPoint.getScanIdentifier() now both return ints. Before Scan used a Long and ScanDataPoint used a String for the same information.
+
+How to create notes
+~~~~~~~~~~~~~~~~~~~
+
+1. Run the git command:``git log --no-merges --pretty=format:\%aD\, \%an\, \* %s [%an - %h] %b\ 8.40rel..HEAD > /tmp/reponame.version.csv``
+
+2. Open up in excel or the likes,
+   
+   a. Sort by name, as we tend to work in our pet areas and this makes categorisation simpler (also message quality is likewise correlated).
+   b. Add an empty column to fill with single character tags. These will become component headings. e.g.  'u' for user 'dz' for developer+zebra.
+   c. Sort by the tab columns
+
+3. Cut each tag group paste to the release notes file under the appropriate heading.
+
+4. Fixup the reStructuredText.
+
+5. Tweak the text of the user highlights at the top.
+
+

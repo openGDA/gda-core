@@ -1,0 +1,25 @@
+.. _release_8.2:
+
+GDA 8.2  (released 1/Mar/2010)
+==============================
+
+General improvements to many aspects of the GUI.
+
+Changes made to the gda.scan package:
+
+ - Scans have had their list of Monitors removed (Monitors are Scannables so 
+   should always have been included in that list)
+ - Code in Scans and DataHandlers which treat CounterTimers as special cases
+   of detectors has been removed. CounterTimers should populate their extraNames
+   attribute properly. Now all Detectors are expected to return data from their 
+   readout method either by:
+
+     1. returning a string of the name of the file they create (and have a 
+        single element in their extraNames array)
+     2. be a NexusDetector and so return a self-describing object
+     3. return an array of values whose elements are described by the extraNames array
+     
+   (This has always been the case but this rule has been reinforced by recent changes)
+ - ScanDataPoint class has the various constructors removed: now more bean-like
+ - ScanDataPoint no longer makes calls to getPosition of Scannables and readout 
+   of Detectors. This information should be added using the accessor functions. 

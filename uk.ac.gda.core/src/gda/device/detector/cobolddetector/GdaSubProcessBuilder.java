@@ -19,7 +19,6 @@
 
 package gda.device.detector.cobolddetector;
 
-import gda.util.GDALogger;
 import gda.util.Sleep;
 
 import java.io.BufferedReader;
@@ -27,10 +26,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Initiate a secondary process to GDA
  */
 public class GdaSubProcessBuilder {
+
+	private static final Logger logger = LoggerFactory.getLogger(GdaSubProcessBuilder.class);
+
 	private ArrayList<String> args = new ArrayList<String>();
 	private ProcessBuilder pb;
 	private String reply = "";
@@ -53,7 +58,7 @@ public class GdaSubProcessBuilder {
 	 * @throws RuntimeException
 	 */
 	public synchronized String runCommand(String proc, final boolean sync, String... options) throws RuntimeException {
-		GDALogger.info("GdaSubProcessBuilder spawning process " + proc);
+		logger.info("GdaSubProcessBuilder spawning process " + proc);
 		args.add(proc);
 		for (int i = 0; i < options.length; i++)
 			args.add(options[i]);
@@ -71,15 +76,15 @@ public class GdaSubProcessBuilder {
 					Sleep.sleep(200);
 					p.waitFor();
 					if (br.ready())
-						GDALogger.info("GdaSubProcessBuilder: " + args.get(0) + ", reply = ");
+						logger.info("GdaSubProcessBuilder: " + args.get(0) + ", reply = ");
 					else
-						GDALogger.info("GdaSubProcessBuilder: no reply from " + args.get(0));
+						logger.info("GdaSubProcessBuilder: no reply from " + args.get(0));
 
 					int i = 0;
 					while (br.ready() && i++ < 20) {
 						line = br.readLine();
 						reply = reply.concat(line);
-						GDALogger.info(line);
+						logger.info(line);
 					}
 					p.getInputStream().close();
 					br.close();
@@ -105,7 +110,7 @@ public class GdaSubProcessBuilder {
 
 		if (reply.toLowerCase().contains("exception") || reply.toLowerCase().contains("error")
 				|| reply.toLowerCase().contains("overflow")) {
-			GDALogger.error(reply);
+			logger.error(reply);
 		}
 		return reply;
 	}

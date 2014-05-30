@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -339,8 +339,13 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 			
 		} catch (Exception e) {
 			//Log here as the exception will not be passed fully to GDA from Jython
-			logger.error("Error while creating scan: " + e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName(), e);
-			throw new IllegalArgumentException("Error while creating scan: " + e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName(), e);
+			String message = e.getMessage();
+			if (message == null){
+				message = e.getClass().getSimpleName();
+			}
+			message = "Error while creating scan: " + message;
+			logger.error(message, e);
+			throw new IllegalArgumentException(message, e);
 		}
 		
 		ScannableCommands.configureScanPipelineParameters(this);
@@ -397,15 +402,20 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 			// *** First point in this scan ***
 			setPointPositionInLine(PointPositionInLine.FIRST);
 			if (getChild() == null) {
-				
 				callAtPointStartHooks();
 				// move to initial movements
 				currentPointCount++;
 				acquirePoint(true, true);  // start point, collect detectors
-				checkForInterruptsIgnoreIdle();
-				readDevicesAndPublishScanDataPoint();
+				checkThreadInterrupted();
 				
+				readDevicesAndPublishScanDataPoint();
 				callAtPointEndHooks();
+				
+				checkThreadInterrupted();
+				waitIfPaused();
+				if (isFinishEarlyRequested()) {
+					return;
+				}
 			} else {
 				// move the Scannable operated by this scan and then run the child scan
 				ScanObject principleScanObject = this.allScanObjects.get(0);
@@ -414,15 +424,25 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				principleScanObject.scannable.atLevelStart();
 				principleScanObject.scannable.atLevelMoveStart();
 				stepId = principleScanObject.moveToStart();
+				checkThreadInterrupted();
 				checkAllMovesComplete();
+				waitIfPaused();
+				if (isFinishEarlyRequested()) {
+					return;
+				}
 				principleScanObject.scannable.atLevelEnd();
 				runChildScan();
+				checkThreadInterrupted();
 				// note that some scan hooks not called (atPointStart,atLevelMoveStart,atPointEnd) as this scannable is ot part of the child scan
 			}
 
 			// *** Subsequent points in this scan ***
 			
 			for (int step = 0; step < numberSteps; step++) {
+				waitIfPaused();
+				if (isFinishEarlyRequested()) {
+					return;
+				}
 				
 				setPointPositionInLine((step == (numberSteps - 1)) ? PointPositionInLine.LAST : PointPositionInLine.MIDDLE);
 				
@@ -431,8 +451,9 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					// make all these increments
 					currentPointCount++;
 					acquirePoint(false, true);  // step point, collect detectors
-					checkForInterruptsIgnoreIdle();
+					checkThreadInterrupted();
 					readDevicesAndPublishScanDataPoint();
+					checkThreadInterrupted();
 					callAtPointEndHooks();
 				} else {
 					ScanObject principleScanObject = this.allScanObjects.get(0);
@@ -440,13 +461,18 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					principleScanObject.scannable.atLevelMoveStart();
 					stepId = principleScanObject.moveStep();
 					checkAllMovesComplete();
+					checkThreadInterrupted();
 					principleScanObject.scannable.atLevelEnd();
 					runChildScan();
+					checkThreadInterrupted();
 				}
 			}
-		} catch (Exception ex1) {
-			setInterrupted(true);
-			throw ex1;
+		} catch (InterruptedException e) {
+			setStatus(ScanStatus.TIDYING_UP_AFTER_STOP);
+			throw new ScanInterruptedException(e.getMessage(),e.getStackTrace());
+		} catch (Exception e) {
+			setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
+			throw e;
 		}
 	}
 
@@ -498,7 +524,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 	}
 
 	@Override
-	protected void endScan() throws DeviceException {
+	protected void endScan() throws DeviceException, InterruptedException {
 		if (!isChild && isReturnScannablesToOrginalPositions()) {
 			// return all scannables to original positions
 			try {

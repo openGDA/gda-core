@@ -44,8 +44,8 @@ interface CorbaBeamlineInfo : _factory::corba::CorbaFindable
     void setFileExtension(in string ext);
     string getFileExtension();
 
-    long long getFileNumber();
-    long long getNextFileNumber();
+    long getFileNumber();
+    long getNextFileNumber();
 
     void setProjectName(in string project);
     string getProjectName();

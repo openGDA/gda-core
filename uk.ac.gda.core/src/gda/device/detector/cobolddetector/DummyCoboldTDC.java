@@ -19,15 +19,19 @@
 
 package gda.device.detector.cobolddetector;
 
-import gda.util.GDALogger;
-
 import java.io.File;
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DummyCoboldTDC Class
  */
 public class DummyCoboldTDC extends CoboldTDC {
+
+	private static final Logger logger = LoggerFactory.getLogger(DummyCoboldTDC.class);
+
 	private String dummyDataFile = null;
 
 	/**
@@ -51,7 +55,7 @@ public class DummyCoboldTDC extends CoboldTDC {
 			try {
 				new File(lmfName).createNewFile();
 			} catch (IOException e) {
-				GDALogger.warn("DummyCoboldTDEC: error creating dummy LMF file ");
+				logger.warn("DummyCoboldTDEC: error creating dummy LMF file ");
 			}
 		super.startCoboldScan("new \"" + dummyDataFile + "\"");
 	}

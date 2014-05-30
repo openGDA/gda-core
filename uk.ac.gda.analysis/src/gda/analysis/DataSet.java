@@ -32,7 +32,7 @@ import org.python.core.PySlice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.ADataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIteratorWithPosition;
@@ -868,7 +868,7 @@ public class DataSet extends DoubleDataset {
 		} else if (data instanceof DoubleDataset) {
 			dds = (DoubleDataset) data;
 		} else {
-			dds = (DoubleDataset) DatasetUtils.cast(DatasetUtils.convertToAbstractDataset(data), AbstractDataset.FLOAT64);
+			dds = (DoubleDataset) DatasetUtils.cast(DatasetUtils.convertToAbstractDataset(data), Dataset.FLOAT64);
 		}
 		result = new DataSet(dds.getData(), dds.getShape());
 		result.setName(data.getName());
@@ -1114,7 +1114,7 @@ public class DataSet extends DoubleDataset {
 	 * and ready, but could be useful
 	 * 
 	 * @return The dataset containing the derivative.
-	 * @deprecated Use {@link #getIndices()} and {@link Maths#derivative(AbstractDataset, AbstractDataset, int)}
+	 * @deprecated Use {@link #getIndices()} and {@link Maths#derivative(Dataset, Dataset, int)}
 	 */
 	@Deprecated
 	public DataSet diff() {
@@ -1128,7 +1128,7 @@ public class DataSet extends DoubleDataset {
 	 * @param n
 	 *            The spread on either side of the derivative calculation
 	 * @return The dataset containing the derivative.
-	 * @deprecated Use {@link #getIndices()} and {@link Maths#derivative(AbstractDataset, AbstractDataset, int)}
+	 * @deprecated Use {@link #getIndices()} and {@link Maths#derivative(Dataset, Dataset, int)}
 	 */
 	@Deprecated
 	public DataSet diff(int n) {
@@ -1143,7 +1143,7 @@ public class DataSet extends DoubleDataset {
 	 * @param xValues
 	 *            the associated x values.
 	 * @return The dataset containing the derivative
-	 * @deprecated Use {@link Maths#derivative(AbstractDataset, AbstractDataset, int)}
+	 * @deprecated Use {@link Maths#derivative(Dataset, Dataset, int)}
 	 */
 	@Deprecated
 	public DataSet diff(DataSet xValues) {
@@ -1158,7 +1158,7 @@ public class DataSet extends DoubleDataset {
 	 * @param n
 	 *            The spread on either side of the derivative calculation
 	 * @return The dataset containing the derivative
-	 * @deprecated Use {@link Maths#derivative(AbstractDataset, AbstractDataset, int)}
+	 * @deprecated Use {@link Maths#derivative(Dataset, Dataset, int)}
 	 */
 	@Deprecated
 	public DataSet diff(DataSet xValues, int n) {
@@ -1283,7 +1283,7 @@ public class DataSet extends DoubleDataset {
 	 */
 	@Deprecated
 	public static DataSet linspace(double start, double stop, int length) {
-		return convertToDataSet(DatasetUtils.linSpace(start, stop, length, AbstractDataset.FLOAT64));
+		return convertToDataSet(DatasetUtils.linSpace(start, stop, length, Dataset.FLOAT64));
 	}
 
 	public static DataSet arange(double stop) {
@@ -1313,7 +1313,7 @@ public class DataSet extends DoubleDataset {
 	}
 
 	public static DataSet arange(double start, double stop, double step) {
-		return convertToDataSet(AbstractDataset.arange(start, stop, step, AbstractDataset.FLOAT64));
+		return convertToDataSet(AbstractDataset.arange(start, stop, step, Dataset.FLOAT64));
 	}
 
 	/**
@@ -1582,7 +1582,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#add(AbstractDataset, AbstractDataset)}
+	 * @deprecated Use {@link Maths#add(Dataset, Dataset)}
 	 */
 	@Deprecated
 	public DataSet __add__(DataSet other) {
@@ -1592,7 +1592,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#add(AbstractDataset, Object)}
+	 * @deprecated Use {@link Maths#add(Dataset, Object)}
 	 */
 	@Deprecated
 	public DataSet __add__(double other) {
@@ -1602,7 +1602,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#add(AbstractDataset, Object)}
+	 * @deprecated Use {@link Maths#add(Dataset, Object)}
 	 */
 	@Deprecated
 	public DataSet __radd__(double other) {
@@ -1622,7 +1622,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#subtract(AbstractDataset, AbstractDataset)}
+	 * @deprecated Use {@link Maths#subtract(Dataset, Dataset)}
 	 */
 	@Deprecated
 	public DataSet __sub__(DataSet other) {
@@ -1661,7 +1661,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#multiply(AbstractDataset, AbstractDataset)}
+	 * @deprecated Use {@link Maths#multiply(Dataset, Dataset)}
 	 */
 	@Deprecated
 	public DataSet __mul__(DataSet other) {
@@ -1671,7 +1671,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#multiply(AbstractDataset, Object)}
+	 * @deprecated Use {@link Maths#multiply(Dataset, Object)}
 	 */
 	@Deprecated
 	public DataSet __mul__(double other) {
@@ -1681,7 +1681,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#multiply(AbstractDataset, Object)}
+	 * @deprecated Use {@link Maths#multiply(Dataset, Object)}
 	 */
 	@Deprecated
 	public DataSet __rmul__(double other) {
@@ -1701,7 +1701,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#divide(AbstractDataset, AbstractDataset)}
+	 * @deprecated Use {@link Maths#divide(Dataset, Dataset)}
 	 */
 	@Deprecated
 	public DataSet __div__(DataSet other) {
@@ -1741,7 +1741,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#power(AbstractDataset, AbstractDataset)}
+	 * @deprecated Use {@link Maths#power(Dataset, Dataset)}
 	 */
 	@Deprecated
 	public DataSet __pow__(DataSet other) {
@@ -1773,7 +1773,7 @@ public class DataSet extends DoubleDataset {
 	 * This returns a new dataset with values of opposite sign
 	 *
 	 * @return negative dataset
-	 * @deprecated Use {@link Maths#negative(AbstractDataset)}
+	 * @deprecated Use {@link Maths#negative(Dataset)}
 	 */
 	@Deprecated
 	public DataSet __neg__() {
@@ -2430,7 +2430,7 @@ public class DataSet extends DoubleDataset {
 	}
 
 	@Override
-	public DataSet getByBoolean(ADataset selection) {
+	public DataSet getByBoolean(Dataset selection) {
 		return convertToDataSet(super.getByBoolean(selection));
 	}
 

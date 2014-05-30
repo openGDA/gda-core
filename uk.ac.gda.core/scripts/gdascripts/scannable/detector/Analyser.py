@@ -8,7 +8,6 @@ from java.util import ArrayList;
 #from gda.device import Detector;
 from gda.device.detector import DetectorBase
 #
-#from gda.analysis.io import ScanFileHolderException
 from gda.analysis.io import JPEGLoader, TIFFImageLoader, PNGLoader
 
 from gda.analysis import ScanFileHolder

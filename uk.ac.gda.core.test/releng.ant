@@ -1,0 +1,89 @@
+<project name="plugin-uk.ac.gda.core.test" basedir=".">
+
+	<dirname property="plugin.basedir" file="${ant.file}" />
+	<pathconvert property="workspace.loc" setonempty="false">
+		<regexpmapper from="(.*)_git/.+" to="\1"/>
+		<path><pathelement location="${plugin.basedir}" /></path>
+	</pathconvert>
+	<fail message="ERROR: Could not determine workspace.loc" unless="workspace.loc" />
+	<property name="workspace.git.loc" value="${workspace.loc}_git" />
+	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/common.ant" />
+
+	<!-- ====================================================================
+		   JUnit tests
+		 ==================================================================== -->
+
+	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/test-common.ant" />
+	<target name="junit-tests" depends="set-test-base-GDA">
+		<junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m">
+			<jvmarg value="-Dgda.install.workspace.loc=${workspace.loc}" />
+			<jvmarg value="-Dgda.install.git.loc=${workspace.git.loc}" />
+			<sysproperty key="basedir" value="${plugin.basedir}" />
+			<sysproperty key="gda.tests" value = "${plugin.basedir}/src"/>  <!-- read by plugins/uk.ac.gda.core/src/gda/util/TestsUtil.java -->
+			<sysproperty key="gda.propertiesFiles" value = "${plugin.basedir}/src/java.properties"/>
+			<sysproperty key="gov.aps.jca.JCALibrary.properties" value="${plugin.basedir}/src/${gov.aps.jca.JCALibrary.properties}"/>
+			<formatter type="xml" />
+			<classpath>
+				<pathelement location="${junitjar.loc}" />
+				<pathelement location="${jythonjar.loc}" />
+				<pathelement location="${plugin.basedir}/bin" />
+				<pathelement location="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/logging" />  <!-- to pick up logback-test.xml -->
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
+				<pathelement location="${plugin.host.basedir}/classes/main" />
+				<pathelement location="${plugin.host.basedir}/classes/test" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/jars/*" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
+				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis.api/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis.dataset/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis.plotserver/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.common.util/bin" />
+				<pathelement location="${workspace.git.loc}/diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/jacorb.jar" />
+				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
+				<pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!--ensure that 2.0.2 appears first in classpath -->
+				<path refid="tp.slf4j.path" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+				<fileset dir="${workspace.loc}/tp/plugins">
+					<include name="*.jar" />
+					<exclude name="*.source_*" />
+					<exclude name="org.eclipse.swt.*" />  <!-- Not needed. -->
+					<exclude name="org.apache.batik*" />  <!-- org.apache.batik.pdf has it's own copy of org.apache.commons.io so exclude it -->
+				</fileset>
+				<path refid="libs.jars.path" />
+			</classpath>
+			<batchtest todir="@{report.dir}">
+				<fileset dir="${plugin.basedir}/src">
+					<include name="**/*Test.java" />
+					<exclude name="**/*PluginTest.java" />
+					<!--the excludes below are temporary -->
+					<exclude name="**/EditPermissionsTest.java" />
+					<exclude name="**/ObjectFactoryValidationTest.java" />
+					<exclude name="**/DummyKeithleyTest.java" />
+					<exclude name="**/KeithleyRemoteTest.java" />
+					<exclude name="**/KeithleyTest.java" />
+					<exclude name="**/ODCCDControllerTest.java" />
+					<exclude name="**/DottedAccessScannableMotionBaseTest.java" />
+					<exclude name="**/DummyTemperatureTest.java" />
+					<exclude name="**/XspressSystemTest.java" />
+					<exclude name="**/ChooseVisitIDFrameTest.java" />
+					<exclude name="**/ScanPlotPanelTest.java" />
+					<exclude name="**/ParametersPanelBuilderTest.java" />
+					<exclude name="**/SimpleXYSeriesTest.java" />
+					<exclude name="**/LdapAuthoriserTest.java" />
+					<exclude name="**/CommandSocketTest.java" />
+					<exclude name="**/SimplePlotFrameTest.java" />
+					<exclude name="**/NewClassTest.java" />
+					<exclude name="**/AboutTest.java" />
+					<exclude name="**/util/LocalPropertiesTest.java" /> <!-- there is also a LocalPropertiesTest in gda/configuration/properties-->
+					<exclude name="**/OSCommandRunnerTest.java" />
+				</fileset>
+			</batchtest>
+		</junit-call>
+	</target>
+
+</project>

@@ -165,10 +165,10 @@ public class BeamlineAdapter implements BeamlineInfo, EventSubscriber {
 	}
 
 	@Override
-	public long getFileNumber() {
+	public int getFileNumber() {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				long result = paramsObj.getFileNumber();
+				int result = paramsObj.getFileNumber();
 				return result;
 			} catch (COMM_FAILURE cf) {
 				paramsObj = CorbaBeamlineInfoHelper.narrow(netService.reconnect(name));
@@ -225,10 +225,10 @@ public class BeamlineAdapter implements BeamlineInfo, EventSubscriber {
 	}
 
 	@Override
-	public long getNextFileNumber() {
+	public int getNextFileNumber() {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				long result = paramsObj.getNextFileNumber();
+				int result = paramsObj.getNextFileNumber();
 				return result;
 			} catch (COMM_FAILURE cf) {
 				paramsObj = CorbaBeamlineInfoHelper.narrow(netService.reconnect(name));

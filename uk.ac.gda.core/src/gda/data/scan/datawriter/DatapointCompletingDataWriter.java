@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -55,15 +55,19 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 		}
 		return false;
 	}
+	
+	@Override
+	public void addDataWriterExtender(IDataWriterExtender dataWriterExtender) {
+		// don't hold it here but pass it to the sink so that super.addData(point) is called at the right point
+		sink.addDataWriterExtender(dataWriterExtender);
+	}
 
 	@Override
 	public void addData(IScanDataPoint point) throws Exception {
 		throwException();
-		super.addData(point); // runs extenders
 		if (pointContainsCallablePosition(point)) {
 			DatapointCompleterTask task = new DatapointCompleterTask(sink, point, this);
 			datapointCompleterSingleThreadpool.execute(task);
-
 		} else {
 			sink.addData(point);
 		}
@@ -94,19 +98,20 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 	}
 	
 	private void shutdown() {
-//		InterfaceProvider.getTerminalPrinter().print("Shutting down datapointCompleterThreadPool gently.");
 		if (datapointCompleterSingleThreadpool.isShutdown())
 			return;
+		
 		logger.debug("Shutting down datapointCompleterThreadPool gently.");
 		datapointCompleterSingleThreadpool.shutdown();
+		
 		try {
 			datapointCompleterSingleThreadpool.awaitTermination(10, TimeUnit.MINUTES);
 		} catch (InterruptedException e) {
-			logger.warn("InterruptedException during shutdown - there may be orphaned threads", e.getStackTrace());
+			logger.warn("InterruptedException during shutdown - there may be orphaned threads", (Object[]) e.getStackTrace());
 		}
 		logger.debug("Shutting down datapointCompleterThreadPool gently - completed");
-		}
-		
+	}
+
 	@Override
 	public void completeCollection() throws Exception {
 		logger.debug("DAtapointcmDW complete collection is called");
@@ -122,7 +127,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 	}
 
 	@Override
-	public String getCurrentScanIdentifier() {
+	public int getCurrentScanIdentifier() {
 		return sink.getCurrentScanIdentifier();
 	}
 
@@ -186,20 +191,17 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 				}
 			}
 			try {
-				InterfaceProvider.getTerminalPrinter().print("Writing data point " + point.getCurrentPointNumber());
+				logger.info("Writing queued data point " + point.getCurrentPointNumber());
 				taskSink.addData(point);
 			} catch (Exception e) {
 				owner.setExceptionAndShutdownNow(e);
 				return;
 			}
 		}
-
 	}
-
 
 	@Override
-	public void configureScanNumber(Long scanNumber) throws Exception {
+	public void configureScanNumber(int scanNumber) throws Exception {
 		sink.configureScanNumber(scanNumber);
 	}
-	
 }

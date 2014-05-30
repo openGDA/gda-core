@@ -241,9 +241,9 @@ public interface IScanDataPoint {
 	public Vector<Object> getPositions();
 
 	/**
-	 * @return String - unique ID of the scan
+	 * @return int - unique ID of the scan
 	 */
-	public String getScanIdentifier();
+	public int getScanIdentifier();
 
 	/**
 	 * @return Vector<String> - the names of the Scannables in the scan
@@ -319,7 +319,7 @@ public interface IScanDataPoint {
 
 	public void setNumberOfPoints(int numberOfPoints);
 
-	public void setScanIdentifier(String scanIdentifier);
+	public void setScanIdentifier(int scanIdentifier);
 
 	public String[][] getScannableFormats();
 

@@ -1,0 +1,4 @@
+GDA 8.32  (Jun/2013)
+====================
+
+Although this release incorporates many fixes and improvements, there are no changes that require special attention.

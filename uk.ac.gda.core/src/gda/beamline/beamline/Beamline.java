@@ -146,12 +146,12 @@ public class Beamline implements BeamlineInfo, Configurable, Localizable {
 	}
 
 	@Override
-	public long getFileNumber() {
+	public int getFileNumber() {
 		return runs.getCurrentFileNumber();
 	}
 
 	@Override
-	public long getNextFileNumber() {
+	public int getNextFileNumber() {
 		return runs.incrementNumber();
 	}
 

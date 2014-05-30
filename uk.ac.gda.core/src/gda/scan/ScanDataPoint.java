@@ -136,7 +136,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * The scan identifier, such as the scan number.
 	 */
-	private String scanIdentifier = "";
+	private int scanIdentifier = -1;
 
 	/**
 	 * The scannables which are part of the scan.
@@ -703,7 +703,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * @return String
 	 */
 	@Override
-	public String getScanIdentifier() {
+	public int getScanIdentifier() {
 		return scanIdentifier;
 	}
 
@@ -814,7 +814,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	public String toString() {
 		
 		String identifier = getCurrentFilename() != null ?  getCurrentFilename() : uniqueName;
-		return "point " + (currentPointNumber + 1) + " of " + numberOfPoints + " for scan " + identifier;
+		return "point " + (currentPointNumber) + " of " + numberOfPoints + " for scan " + identifier;
 	}
 
 	/**
@@ -912,89 +912,51 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return true;
 	}
 
-	/**
-	 * @return Returns the stepIds.
-	 */
 	@Override
 	public List<IScanStepId> getStepIds() {
 		return stepIds;
 	}
 
-	/**
-	 * @param stepIds
-	 *            The stepIds to set.
-	 */
 	@Override
 	public void setStepIds(List<IScanStepId> stepIds) {
 		this.stepIds = stepIds;
 	}
 
-	/**
-	 * @return Returns the uniqueName.
-	 */
 	@Override
 	public String getUniqueName() {
 		return uniqueName;
 	}
 
-	/**
-	 * @param uniqueName
-	 *            The uniqueName to set.
-	 */
 	@Override
 	public void setUniqueName(String uniqueName) {
 		this.uniqueName = uniqueName;
 	}
 
-	/**
-	 * @param command
-	 *            The command to set.
-	 */
 	@Override
 	public void setCommand(String command) {
 		this.command = command;
 	}
 
-	/**
-	 * @param creatorPanelName
-	 *            The creatorPanelName to set.
-	 */
 	@Override
 	public void setCreatorPanelName(String creatorPanelName) {
 		this.creatorPanelName = creatorPanelName;
 	}
 
-	/**
-	 * @param currentFilename
-	 *            The currentFilename to set.
-	 */
 	@Override
 	public void setCurrentFilename(String currentFilename) {
 		this.currentFilename = currentFilename;
 	}
 
-	/**
-	 * @param currentPointNumber
-	 *            The currentPointNumber to set.
-	 */
 	@Override
 	public void setCurrentPointNumber(int currentPointNumber) {
 		this.currentPointNumber = currentPointNumber;
 	}
 
-	/**
-	 * @param hasChild
-	 *            The hasChild to set.
-	 */
 	@Override
 	public void setHasChild(boolean hasChild) {
 		this.hasChild = hasChild;
 	}
-
-	/**
-	 * @param instrument
-	 *            The instrument to set.
-	 */
+	
 	@Override
 	public void setInstrument(String instrument) {
 		this.instrument = instrument;
@@ -1009,21 +971,13 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		this.numberOfChildScans = numberOfChildScans;
 	}
 
-	/**
-	 * @param numberOfPoints
-	 *            The numberOfPoints to set.
-	 */
 	@Override
 	public void setNumberOfPoints(int numberOfPoints) {
 		this.numberOfPoints = numberOfPoints;
 	}
 
-	/**
-	 * @param scanIdentifier
-	 *            The scanIdentifier to set.
-	 */
 	@Override
-	public void setScanIdentifier(String scanIdentifier) {
+	public void setScanIdentifier(int scanIdentifier) {
 		this.scanIdentifier = scanIdentifier;
 	}
 

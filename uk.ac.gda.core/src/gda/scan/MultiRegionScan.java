@@ -21,13 +21,9 @@ package gda.scan;
 
 import gda.device.Detector;
 import gda.device.Scannable;
-import gda.util.exceptionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A scan which holds a collection of scans. It runs them all, making sure that they use the same datahandler.
@@ -38,36 +34,33 @@ import org.slf4j.LoggerFactory;
  * using the addScan method. The order is important the make sure the scans do not create their own datahandler objects.
  */
 public class MultiRegionScan extends ScanBase {
-	private static final Logger logger = LoggerFactory.getLogger(MultiRegionScan.class);
-
+	
 	private List<ScanBase> listOfScans;
 
-//	private final boolean useOnlyDefaultDetectors;
-	
 	private int pointCount = -1;
 	
 	private double totalTime = 0;
 
 	/**
 	 * @param createScanDataPointPipeline 
+	 * @throws Exception 
 	 */
-	public MultiRegionScan(boolean createScanDataPointPipeline) {
+	public MultiRegionScan(boolean createScanDataPointPipeline) throws Exception {
 		super();
 		this.name = generateRandomName();
 		try {
 			listOfScans = new ArrayList<ScanBase>();
 			if (createScanDataPointPipeline) createScanDataPointPipeline();
-			insideMultiScan = true;
 		} catch (Exception ex) {
-			exceptionUtils.logException(logger, "Error during MultiRegionScan setup", ex);
-			gda.jython.InterfaceProvider.getCurrentScanController().haltCurrentScan();
+			throw new Exception("Error during MultiRegionScan setup", ex);
 		}
 	}
 
 	/**
 	 * Constructor
+	 * @throws Exception 
 	 */
-	public MultiRegionScan() {
+	public MultiRegionScan() throws Exception {
 		this(true);
 	}
 	
@@ -145,7 +138,7 @@ public class MultiRegionScan extends ScanBase {
 	public void doCollection() throws Exception {
 		try {
 			boolean first = true;
-			for (Scan scan : listOfScans) {
+			for (ScanBase scan : listOfScans) {
 				// For nested multiregion scans, notify the GeneralDataHandler
 				// that
 				// the inner scan is complete and the display graph should
@@ -167,11 +160,11 @@ public class MultiRegionScan extends ScanBase {
 				scan.setScanDataPointPipeline(scanDataPointPipeline);
 
 				// run the scan
-				((ScanBase)scan).currentPointCount = pointCount;
-				((ScanBase)scan).TotalNumberOfPoints = TotalNumberOfPoints;
-				((ScanBase)scan).name = name;
+				scan.currentPointCount = pointCount;
+				scan.TotalNumberOfPoints = TotalNumberOfPoints;
+				scan.name = name;
 				scan.doCollection();
-				pointCount = ((ScanBase)scan).currentPointCount;
+				pointCount = scan.currentPointCount;
 			}
 		} catch (Exception e) {
 			if (e instanceof InterruptedException) {

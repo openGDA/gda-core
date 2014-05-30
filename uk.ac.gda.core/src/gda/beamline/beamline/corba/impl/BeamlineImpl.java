@@ -100,7 +100,7 @@ public class BeamlineImpl extends CorbaBeamlineInfoPOA implements IObserver {
 	}
 
 	@Override
-	public long getFileNumber() {
+	public int getFileNumber() {
 		return theObject.getFileNumber();
 	}
 
@@ -120,7 +120,7 @@ public class BeamlineImpl extends CorbaBeamlineInfoPOA implements IObserver {
 	}
 
 	@Override
-	public long getNextFileNumber() {
+	public int getNextFileNumber() {
 		return theObject.getNextFileNumber();
 	}
 

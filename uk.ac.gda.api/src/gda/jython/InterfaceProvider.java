@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.commandinfo.ICommandThreadInfoProvider;
 
 /**
  * Static methods to get current implementation for various interfaces supported by JythonServerFacade and JythonServer
@@ -42,7 +43,7 @@ public class InterfaceProvider {
 	static private IScriptController scriptController;
 	static private IJythonNamespace jythonNamespace;
 	static private IAuthorisationHolder authorisationHolder;
-	static private IPanicStop panicStop;
+	static private ICommandAborter commandAborter;
 	static private ICurrentScanInformationHolder currentScanHolder;
 	static private IJythonServerNotifer jythonServerNotifer;
 	static private IDefaultScannableProvider defaultScannableProvider;
@@ -50,6 +51,7 @@ public class InterfaceProvider {
 	static private JSFObserver jSFObserver;
 	static private IScanDataPointProvider scanDataPointProvider;
 	static private AliasedCommandProvider aliasedCommandProvider;
+	static private ICommandThreadInfoProvider commandInfoProvider;
 	private static IJythonServerStatusProvider jythonServerStatusProvider;
 	
 	/**
@@ -71,6 +73,16 @@ public class InterfaceProvider {
 			commandRunner = JythonServerFacade.getInstance();
 		}
 		return commandRunner;
+	}
+
+	/**
+	 * @return current selected implementation of ICommandRunner
+	 */
+	public static ICommandThreadInfoProvider getCommandThreadInfoProvider() {
+		if (commandInfoProvider == null) {
+			commandInfoProvider = JythonServerFacade.getInstance();
+		}
+		return commandInfoProvider;
 	}
 
 	/**
@@ -117,11 +129,11 @@ public class InterfaceProvider {
 	/**
 	 * @return current selected implementation of IScriptStatusHolder
 	 */
-	public static IPanicStop getPanicStop() {
-		if (panicStop == null) {
-			panicStop = JythonServerFacade.getInstance();
+	public static ICommandAborter getCommandAborter() {
+		if (commandAborter == null) {
+			commandAborter = JythonServerFacade.getInstance();
 		}
-		return panicStop;
+		return commandAborter;
 	}		
 	/**
 	 * @return current selected implementation of IJythonNamespace
@@ -272,9 +284,9 @@ public class InterfaceProvider {
 	 * 
 	 * @param panicStop
 	 */
-	public static void setPanicStopForTesting(IPanicStop panicStop) {
+	public static void setPanicStopForTesting(ICommandAborter panicStop) {
 		logger.warn("setPanicStopForTesting called");
-		InterfaceProvider.panicStop = panicStop;
+		InterfaceProvider.commandAborter = panicStop;
 	}	
 	
 	/**

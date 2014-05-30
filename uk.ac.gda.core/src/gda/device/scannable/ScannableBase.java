@@ -19,9 +19,6 @@
 package gda.device.scannable;
 
 import static java.lang.String.format;
-
-import java.util.Arrays;
-
 import gda.configuration.properties.LocalProperties;
 import gda.device.Device;
 import gda.device.DeviceBase;
@@ -29,7 +26,8 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.jython.accesscontrol.MethodAccessProtected;
-import gda.scan.ScanBase;
+
+import java.util.Arrays;
 
 import org.python.core.Py;
 import org.python.core.PyArray;
@@ -503,7 +501,6 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		while (isBusy()) {
-			ScanBase.checkForInterrupts();
 			Thread.sleep(pollTimeMillis);
 		}
 	}

@@ -18,19 +18,18 @@
 
 package gda.scan;
 
-import static gda.jython.InterfaceProvider.getScanStatusHolder;
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
-import gda.jython.Jython;
 
 import java.util.List;
 import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-public class MultiScanRunner implements Scan, ContiguousScan{
+
+public class MultiScanRunner implements NestableScan, ContiguousScan{
 	private static final Logger logger = LoggerFactory.getLogger(MultiScanRunner.class);
 	List<MultiScanItem> scans;
 	private int TotalNumberOfPoints=0;
@@ -45,6 +44,7 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 	
 	@Override
 	public void runScan() throws InterruptedException, Exception {
+
 		try{
 			
 			for (MultiScanItem item : scans) {
@@ -58,7 +58,7 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 			
 			for (MultiScanItem item : scans) {
 				ScanBase scan = item.scan;
-				for( Detector det : scan.allDetectors){
+				for( Detector det : scan.getDetectors()){
 					if( det instanceof HardwareTriggeredDetector){
 						((HardwareTriggeredDetector)det).setNumberImagesToCollect(scan.getTotalNumberOfPoints());
 					}
@@ -97,11 +97,9 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 				lastscan.shutdownScandataPipieline();
 				lastscan.signalScanComplete();
 			}
-			getScanStatusHolder().setScanStatus(Jython.IDLE);
 		}
-		
-
 	}
+	
 	@Override
 	public
 	void run(){
@@ -112,11 +110,6 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 			logger.error("Error running scans", e);
 		}
 	
-	}
-	@Override
-	public void stop() {
-		// TODO Auto-generated method stub
-		
 	}
 	@Override
 	public void pause() {
@@ -194,12 +187,12 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 		return null;
 	}
 	@Override
-	public Scan getParent() {
+	public NestableScan getParent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
-	public void setParent(Scan parent) {
+	public void setParent(NestableScan parent) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -242,12 +235,32 @@ public class MultiScanRunner implements Scan, ContiguousScan{
 		return TotalNumberOfPoints;
 	}
 	@Override
-	public Long getScanNumber() {
+	public int getScanNumber() {
 		return first.getScanNumber();
 	}
 	@Override
 	public int getNumberOfContiguousPoints() {
 		// TODO Auto-generated method stub
 		return TotalNumberOfPoints;
+	}
+	@Override
+	public void requestFinishEarly() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public boolean isFinishEarlyRequested() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	@Override
+	public ScanStatus getStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setStatus(ScanStatus status) {
+		// TODO Auto-generated method stub
+		
 	}
 }

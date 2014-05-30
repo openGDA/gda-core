@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,8 +18,8 @@
 
 package uk.ac.gda.actions;
 
+import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -28,29 +28,51 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PauseScanHandler extends AbstractHandler {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PauseScanHandler.class);
 
 	/**
-	 * Returns if the button should be checked (ie something was pause), true or
-	 * if there was nothing to pause or a resume happened then false.
+	 * Returns if the button should be checked (ie something was pause), true or if there was nothing to pause or a
+	 * resume happened then false.
 	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
-			
+
 			logger.debug("Pause/Resume Scan button pressed");
-			
-			final JythonServerFacade facade = JythonServerFacade.getCurrentInstance();
-			if (facade.getScanStatus()==Jython.IDLE) {
-				return Boolean.FALSE;
+
+			boolean scanRunning = InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.RUNNING;
+			boolean scriptRunning = InterfaceProvider.getScriptController().getScriptStatus() == Jython.RUNNING;
+			boolean scanPaused = InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.PAUSED;
+			boolean scriptPaused = InterfaceProvider.getScriptController().getScriptStatus() == Jython.PAUSED;
+			boolean scanIdle = InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.PAUSED;
+
+			boolean somethingPaused = false;
+
+			if (scanIdle) {
+				// then we are only thinking about a script here
+				if (scriptPaused) {
+					InterfaceProvider.getScriptController().resumeCurrentScript();
+				} else if (scriptRunning && !somethingPaused) {
+					InterfaceProvider.getScriptController().pauseCurrentScript();
+					somethingPaused = true;
+				}
+			} else {
+				// look at the scan status first
+				if (scanPaused) {
+					InterfaceProvider.getCurrentScanController().resumeCurrentScan();
+					if (scriptPaused) {
+						InterfaceProvider.getScriptController().resumeCurrentScript();
+					}
+				} else if (scanRunning) {
+					InterfaceProvider.getCurrentScanController().pauseCurrentScan();
+					InterfaceProvider.getScriptController().pauseCurrentScript();
+					somethingPaused = true;
+				}
+
 			}
-			if (facade.getScanStatus()!=Jython.PAUSED) {
-				facade.pauseCurrentScan();
-				return Boolean.TRUE;
-			} 
-			facade.resumeCurrentScan();
-			return Boolean.FALSE;
+
+			return !somethingPaused;
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);
 		}

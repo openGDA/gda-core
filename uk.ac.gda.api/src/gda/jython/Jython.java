@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -29,6 +29,7 @@ import org.python.core.PyObject;
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.observable.IObserver;
 
 /**
@@ -191,16 +192,13 @@ public interface Jython extends Findable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void haltCurrentScan(String JSFIdentifier);
-
+	public void requestFinishEarly(String JSFIdentifier);
+	
+	
 	/**
-	 * Stops all scans, scripts and commands from the command server, but unlike the panicStop method, this does not
-	 * operate any devices.
-	 * 
-	 * @param JSFIdentifier
-	 *            - the unique ID of the JythonServerFacade calling this method.
+	 * @return true if the current scan has had requestFinishEarly called on it.
 	 */
-	public void haltCurrentScript(String JSFIdentifier);
+	public boolean isFinishEarlyRequested();
 
 	/**
 	 * Stops all scripts, scans, and commands immediately. Also calls the stop method on all motors.
@@ -208,7 +206,16 @@ public interface Jython extends Findable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void panicStop(String JSFIdentifier);
+	public void beamlineHalt(String JSFIdentifier);
+	
+	
+	/**
+	 * Stops all scripts, scans, and commands running from the Jython Server immediately.
+	 * 
+	 * @param JSFIdentifier
+	 *            - the unique ID of the JythonServerFacade calling this method.
+	 */
+	public void abortCommands(String JSFIdentifier);
 
 	/**
 	 * Pauses the current scan
@@ -271,14 +278,11 @@ public interface Jython extends Findable {
 	public int getScriptStatus(String JSFIdentifier);
 
 	/**
-	 * Sets the scan status.
+	 * Returns information about each active command thread
 	 * 
-	 * @param status
-	 *            int
-	 * @param JSFIdentifier
-	 *            - the unique ID of the JythonServerFacade calling this method.
+	 * @return Array of command thread information
 	 */
-	public void setScanStatus(int status, String JSFIdentifier);
+	public ICommandThreadInfo[] getCommandThreadInfo();
 
 	/**
 	 * Sets the script status.

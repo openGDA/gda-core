@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: uk.ac.gda.api plugin
 Bundle-SymbolicName: uk.ac.gda.api;singleton:=true
-Bundle-Version: 8.38.0.qualifier
+Bundle-Version: 8.40.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gda.analysis.numerical.optimization.optimizers,
  gda.analysis.plotmanager.corba,
@@ -86,6 +86,7 @@ Export-Package: gda.analysis.numerical.optimization.optimizers,
  gda.jython.authenticator,
  gda.jython.authoriser,
  gda.jython.batoncontrol,
+ gda.jython.commandinfo,
  gda.jython.corba,
  gda.jython.scriptcontroller,
  gda.jython.scriptcontroller.corba,
@@ -103,8 +104,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
  org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
-Bundle-ClassPath: .,
- jars/gda-corba.jar
+Bundle-ClassPath: jars/gda-corba.jar,
+ .
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.gda.libs

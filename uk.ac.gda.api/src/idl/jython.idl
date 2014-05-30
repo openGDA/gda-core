@@ -78,13 +78,18 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
     void removeFacade(in string name)
       raises (device::corba::CorbaDeviceException);
 
-    void haltCurrentScan(in string JSFIdentifier)
+    void switchUser(in string uniqueFacadeName, in string username, in string visitID) raises (device::corba::CorbaDeviceException);
+
+    void requestFinishEarly(in string JSFIdentifier)
       raises (device::corba::CorbaDeviceException);
 
-    void haltCurrentScript(in string JSFIdentifier)
+    boolean isFinishEarlyRequested()
       raises (device::corba::CorbaDeviceException);
 
-    void panicStop(in string JSFIdentifier)
+    void beamlineHalt(in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void abortCommands(in string JSFIdentifier)
       raises (device::corba::CorbaDeviceException);
 
     void pauseCurrentScan(in string JSFIdentifier)
@@ -105,8 +110,6 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
     long getScanStatus(in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
 
     long getScriptStatus(in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
-
-    void setScanStatus(in long status,in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
 
     void setScriptStatus(in long status,in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
     
@@ -144,8 +147,6 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
 	
 	long getAuthorisationLevel(in long index) raises (device::corba::CorbaDeviceException);	
 	
-	void switchUser(in string uniqueFacadeName, in string username, in string visitID) raises (device::corba::CorbaDeviceException);
-	
 	void sendMessage(in string uniqueFacadeName, in string message) raises (device::corba::CorbaDeviceException);
 	
 	any getMessageHistory(in string uniqueFacadeName) raises (device::corba::CorbaDeviceException);
@@ -163,6 +164,8 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
     boolean projectIsConfigType(in string path) raises (device::corba::CorbaDeviceException);
     
     boolean projectIsCoreType(in string path) raises (device::corba::CorbaDeviceException);
+    
+    any getCommandThreadInfo() raises  (device::corba::CorbaDeviceException);
 };
 
 };};};

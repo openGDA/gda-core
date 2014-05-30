@@ -173,7 +173,7 @@ public final class ScriptExecutor implements IObserver {
 		}
 	}
 
-	static public void setupNameSpace(final Map<String, Serializable> jythonObjects){
+	static public void setupNameSpace(final Map<String, Serializable> jythonObjects) {
 		IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
 		if (jythonObjects != null) {
 			String key = "";
@@ -184,6 +184,7 @@ public final class ScriptExecutor implements IObserver {
 			}
 		}
 	}
+
 	static private final SetupRunResponse setupRun(final String scriptControllerName, IObserver anIObserver,
 			final Map<String, Serializable> jythonObjects, final boolean allowMultipleScripts) {
 
@@ -272,7 +273,7 @@ public final class ScriptExecutor implements IObserver {
 					+ " is not the name of a findable Scriptcontroller ");
 		}
 
-		InterfaceProvider.getScriptController().haltCurrentScript();
+		InterfaceProvider.getCommandAborter().abortCommands();
 
 		Scriptcontroller scriptController = (Scriptcontroller) findable;
 
@@ -280,7 +281,6 @@ public final class ScriptExecutor implements IObserver {
 			scriptController.deleteIObserver(anIObserver);
 		}
 	}
-
 }
 
 class SetupRunResponse {

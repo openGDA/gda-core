@@ -135,7 +135,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 
 		if (currentScanUniqueName == null || currentScanUniqueName.isEmpty()) {
 			currentScanUniqueName = sdp.getUniqueName();
-			scanNumber = Integer.parseInt(sdp.getScanIdentifier());
+			scanNumber = sdp.getScanIdentifier();
 		}
 
 		if (currentScanUniqueName != sdp.getUniqueName()) {
@@ -144,7 +144,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 			cachedX.clear();
 			cachedY.clear();
 			currentScanUniqueName = sdp.getUniqueName();
-			scanNumber = Integer.parseInt(sdp.getScanIdentifier());
+			scanNumber = sdp.getScanIdentifier();
 		}
 
 		if (!scanning) {

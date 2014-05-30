@@ -23,18 +23,13 @@ import gda.jython.JythonServerFacade;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HaltScanHandler extends AbstractHandler {
-
-	private static final Logger logger = LoggerFactory.getLogger(HaltScanHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
-			logger.debug("Halt scan button pressed");
-			JythonServerFacade.getInstance().haltCurrentScan();
+			JythonServerFacade.getInstance().requestFinishEarly();
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);

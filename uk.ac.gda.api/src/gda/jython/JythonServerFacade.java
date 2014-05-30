@@ -30,6 +30,10 @@ import gda.jython.authoriser.AuthoriserProvider;
 import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.CommandThreadEvent;
+import gda.jython.commandinfo.ICommandThreadInfo;
+import gda.jython.commandinfo.ICommandThreadInfoProvider;
+import gda.jython.commandinfo.ICommandThreadObserver;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
@@ -43,7 +47,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +59,7 @@ import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 /**
  * Provides a single point of access for the Jython package for all Java classes. This will work whether the Java is
@@ -75,8 +79,8 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHolder, ICommandRunner,
 		ICurrentScanController, ITerminalPrinter, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider,
-		IScriptController, IPanicStop, IBatonStateProvider, InitializingBean, AliasedCommandProvider, IJythonContext,
-		ITerminalOutputProvider {
+		IScriptController, ICommandAborter, IBatonStateProvider, InitializingBean, AliasedCommandProvider, IJythonContext,
+		ITerminalOutputProvider, ICommandThreadInfoProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServerFacade.class);
 
@@ -85,6 +89,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	Vector<INamedScanDataPointObserver> namedSDPObservers = new Vector<INamedScanDataPointObserver>();
 	
 	Vector<IScanDataPointObserver> allSDPObservers = new Vector<IScanDataPointObserver>();
+	
+	Vector<ICommandThreadObserver> commandThreadObservers = new Vector<ICommandThreadObserver>();
 
 	String name = "";
 
@@ -155,9 +161,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			// register with the Command Server and validate login information supplied by the user
 			try {
 				originalUsername = UserAuthentication.getUsername();
-				final String fullName = LibGdaCommon.getFullNameOfUser(originalUsername);
-				indexNumberInJythonServer = commandServer.addFacade(this, name, localHost, UserAuthentication
-						.getUsername(), fullName, "");
+				String fullName = null;
+				// username is an empty string on the GDA server
+				if (StringUtils.hasText(originalUsername)) {
+					fullName = LibGdaCommon.getFullNameOfUser(originalUsername);
+				}
+				indexNumberInJythonServer = commandServer.addFacade(this, name, localHost, originalUsername, fullName, "");
 				originalAuthorisationLevel = commandServer.getAuthorisationLevel(indexNumberInJythonServer);
 			} catch (DeviceException e) {
 				final String msg = "Login failed for user: " + UserAuthentication.getUsername();
@@ -406,13 +415,19 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	/**
-	 * @see Jython#haltCurrentScan
+	 * @see Jython#requestFinishEarly
 	 */
 	@Override
-	public void haltCurrentScan() {
-		commandServer.haltCurrentScan(name);
+	public void requestFinishEarly() {
+		commandServer.requestFinishEarly(name);
 	}
 
+
+	@Override
+	public boolean isFinishEarlyRequested() {
+		return commandServer.isFinishEarlyRequested();
+	}
+	
 	/**
 	 * @see Jython#pauseCurrentScan
 	 */
@@ -438,27 +453,21 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	/**
-	 * @see Jython#panicStop(String)
+	 * @see Jython#beamlineHalt(String)
 	 */
 	@Override
-	public void panicStop() {
-		commandServer.panicStop(name);
+	public void beamlineHalt(){
+		commandServer.beamlineHalt(name);
 	}
-
+	
 	/**
-	 * @see Jython#haltCurrentScript
+	 * @see Jython#abortCommands(String)
 	 */
 	@Override
-	public void haltCurrentScript() {
-		commandServer.haltCurrentScript(name);
+	public void abortCommands(){
+		commandServer.abortCommands(name);
 	}
 
-	/**
-	 * @param theObserved
-	 *            Object
-	 * @param changeCode
-	 *            Object
-	 */
 	private void notifyIObservers(Object theObserved, Object changeCode) {
 		myIObservers.notifyIObservers(theObserved, changeCode);
 	}
@@ -545,7 +554,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			} else if (data instanceof BatonLeaseRenewRequest){
 				amIBatonHolder();
 				notifyIObservers(this, data);
-			} 
+			} else if (data instanceof CommandThreadEvent) {
+				for (ICommandThreadObserver observer: commandThreadObservers) {
+					observer.update(this,data);
+				}
+			}
 			// fan out all other messages
 			else {
 				notifyIObservers(this, data);
@@ -592,16 +605,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public int getScanStatus() {
 		return commandServer.getScanStatus(name);
-	}
-
-	/**
-	 * @see Jython#setScanStatus
-	 * @param status
-	 *            int
-	 */
-	@Override
-	public void setScanStatus(int status) {
-		commandServer.setScanStatus(status, name);
 	}
 
 	/**
@@ -996,6 +999,21 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			logger.info("Setting JythonServerFacade singleton to Spring-instantiated instance " + this);
 			theInstance = this;
 		}
+	}
+
+	@Override
+	public void addCommandThreadObserver(ICommandThreadObserver anObserver) {
+		commandThreadObservers.add(anObserver);
+	}
+
+	@Override
+	public void deleteCommandThreadObserver(ICommandThreadObserver anObserver) {
+		commandThreadObservers.removeElement(anObserver);
+	}
+
+	@Override
+	public ICommandThreadInfo[] getCommandThreadInfo() {
+		return commandServer.getCommandThreadInfo();
 	}
 
 	@Override

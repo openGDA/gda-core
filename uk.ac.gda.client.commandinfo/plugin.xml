@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="Command info View"
+            icon="icons/sample.gif"
+            category="uk.ac.gda.client.general.category"
+            class="uk.ac.gda.client.commandinfo.ui.CommandInfoView"
+            id="uk.ac.gda.client.commandinfo.ui.CommandInfoView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="uk.ac.gda.client.commandinfo.category"
+            defaultHandler="uk.ac.gda.client.commandinfo.handler.RefreshCommandInfoHandler"
+            id="uk.ac.gda.client.commandinfo.command.RefreshCommandInfo"
+            name="Refresh Command Info">
+      </command>
+      <category
+            id="uk.ac.gda.client.commandinfo.category"
+            name="Command Info">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.client.commandinfo.ui.CommandInfoView">
+         <command
+               commandId="uk.ac.gda.client.commandinfo.command.RefreshCommandInfo"
+               icon="icons/refresh.gif"
+               label="Refresh"
+               style="push"
+               tooltip="Refresh list of command information from server">
+         </command>
+      </menuContribution>
+   </extension>
+
+</plugin>

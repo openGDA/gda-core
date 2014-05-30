@@ -62,7 +62,7 @@ public interface DataWriter {
 	 * 
 	 * @return String
 	 */
-	public String getCurrentScanIdentifier();
+	public int getCurrentScanIdentifier();
 
 	/**
 	 * header is a publicly accessible string which will be written to the file (or saved to a database) during the
@@ -108,5 +108,5 @@ public interface DataWriter {
 	 * @param scanNumber
 	 * @throws Exception 
 	 */
-	void configureScanNumber(Long scanNumber) throws Exception;
+	void configureScanNumber(int scanNumber) throws Exception;
 }

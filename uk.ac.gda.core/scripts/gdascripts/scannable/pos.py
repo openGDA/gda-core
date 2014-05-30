@@ -8,9 +8,7 @@ allSGMembersInNamespace=[]
 
 #loop through the current namespace
 try:
-    # clear the flag at the start of this method
-    ScriptBase.interrupted = False
-    
+
     for ii in dir(): 
         thisevaluatedscannable = eval(ii)
         

@@ -25,6 +25,7 @@ import gda.factory.corba.util.EventService;
 import gda.jython.Jython;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.corba.CorbaJythonPOA;
 import gda.observable.IObserver;
 import gda.scan.ScanDataPoint;
@@ -115,9 +116,9 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	}
 
 	@Override
-	public void haltCurrentScan(String JSFIdentifier) throws CorbaDeviceException {
+	public void requestFinishEarly(String JSFIdentifier) throws CorbaDeviceException {
 		try {
-			jythonServer.haltCurrentScan(JSFIdentifier);
+			jythonServer.requestFinishEarly(JSFIdentifier);
 			return;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
@@ -125,9 +126,18 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	}
 
 	@Override
-	public void haltCurrentScript(String JSFIdentifier) throws CorbaDeviceException {
+	public boolean isFinishEarlyRequested() throws CorbaDeviceException {
 		try {
-			jythonServer.haltCurrentScript(JSFIdentifier);
+			return jythonServer.isFinishEarlyRequested();
+		} catch (Exception de) {
+			throw new CorbaDeviceException(de.getMessage());
+		}
+	}
+
+	@Override
+	public void beamlineHalt(String JSFIdentifier) throws CorbaDeviceException {
+		try {
+			jythonServer.beamlineHalt(JSFIdentifier);
 			return;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
@@ -135,9 +145,9 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	}
 
 	@Override
-	public void panicStop(String JSFIdentifier) throws CorbaDeviceException {
+	public void abortCommands(String JSFIdentifier) throws CorbaDeviceException {
 		try {
-			jythonServer.panicStop(JSFIdentifier);
+			jythonServer.abortCommands(JSFIdentifier);
 			return;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
@@ -237,15 +247,6 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	public int getScriptStatus(String JSFIdentifier) throws CorbaDeviceException {
 		try {
 			return jythonServer.getScriptStatus(JSFIdentifier);
-		} catch (Exception de) {
-			throw new CorbaDeviceException(de.getMessage());
-		}
-	}
-
-	@Override
-	public void setScanStatus(int status, String JSFIdentifier) throws CorbaDeviceException {
-		try {
-			jythonServer.setScanStatus(status, JSFIdentifier);
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
@@ -568,4 +569,15 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 		}
 	}
 
+	@Override
+	public Any getCommandThreadInfo() throws CorbaDeviceException {
+		try {
+			ICommandThreadInfo[] infos = jythonServer.getCommandThreadInfo();
+			org.omg.CORBA.Any any = org.omg.CORBA.ORB.init().create_any();
+			any.insert_Value(infos);
+			return any;
+		} catch (Exception de) {
+			throw new CorbaDeviceException(de.getMessage());
+		}
+	}
 }

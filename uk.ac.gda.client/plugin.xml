@@ -104,15 +104,6 @@
       <view
             allowMultiple="true"
             category="uk.ac.gda.client.general.category"
-            class="uk.ac.gda.client.XYPlotView"
-            icon="icons/chart_curve.png"
-            id="uk.ac.gda.client.xyplotview"
-            name="XYScanPlot"
-            restorable="true">
-      </view>
-      <view
-            allowMultiple="true"
-            category="uk.ac.gda.client.general.category"
             class="uk.ac.gda.client.liveplot.LivePlotView"
             icon="icons/chart_curve.png"
             id="uk.ac.gda.client.liveplotview"
@@ -281,14 +272,14 @@
             name="Pause Script">
       </command>
       <command
-            defaultHandler="uk.ac.gda.actions.StopAllHandler"
-            id="uk.ac.gda.client.StopAll"
-            name="Stop All">
+            defaultHandler="uk.ac.gda.actions.AbortCommandsHandler"
+            id="uk.ac.gda.client.AbortCommands"
+            name="Abort all commands">
       </command>
       <command
-            defaultHandler="uk.ac.gda.actions.HaltScriptHandler"
-            id="uk.ac.gda.client.jython.HaltScript"
-            name="Halt Script">
+            defaultHandler="uk.ac.gda.actions.BeamlineHaltHandler"
+            id="uk.ac.gda.client.StopAll"
+            name="Stop All Command and Hardware">
       </command>
       <command
             defaultHandler="uk.ac.gda.actions.HaltScanHandler"
@@ -378,17 +369,17 @@
             name="Rebuild">
       </command>
     <command
-      defaultHandler="uk.ac.gda.client.XYPlotHideAllHandler"
+      defaultHandler="uk.ac.gda.client.liveplot.LivePlotHideAllHandler"
       id="uk.ac.gda.client.xyPlotHideAllCommand"
       name="Hide all scans">
 </command>
     <command
-      defaultHandler="uk.ac.gda.client.XYPlotClearGraphHandler"
+      defaultHandler="uk.ac.gda.client.liveplot.LivePlotClearGraphHandler"
       id="uk.ac.gda.client.xyPlotClearGraphCommand"
       name="Remove all scans">
 </command>
     <command
-      defaultHandler="uk.ac.gda.client.XYPlotNewHandler"
+      defaultHandler="uk.ac.gda.client.liveplot.LivePlotNewHandler"
       id="uk.ac.gda.client.xyPlotNewCommand"
       name="New">
 </command>
@@ -403,7 +394,7 @@
           name="Dash Item Down">
     </command>
     <command
-          defaultHandler="uk.ac.gda.client.HideOldHandler"
+          defaultHandler="uk.ac.gda.client.liveplot.HideOldHandler"
           id="uk.ac.gda.client.hideoldscans"
           name="Hide old scans">
     </command>
@@ -476,7 +467,7 @@
       </command>
       <command
             categoryId="uk.ac.gda.client.category"
-            defaultHandler="uk.ac.gda.client.OpenXYScanPlotHandler"
+            defaultHandler="uk.ac.gda.client.liveplot.OpenLivePlotHandler"
             id="uk.ac.gda.client.OpenXYScanPlotCommand"
             name="OpenXYScanPlotCommand">
       </command>
@@ -493,26 +484,6 @@
                style="push">
          </command>
       </menuContribution>
-	<menuContribution
-	        locationURI="toolbar:uk.ac.gda.client.xyplotview">
-	    <command
-           commandId="uk.ac.gda.client.xyPlotHideAllCommand"
-           icon="icons/chart_curve_hide.png"
-           label="Hide All"
-           tooltip="Hide all scans">
-	    </command>
-     <command
-           commandId="uk.ac.gda.client.xyPlotClearGraphCommand"
-           icon="icons/chart_curve_remove.png"
-           tooltip="Clear plots">
-     </command>
-     <command
-           commandId="uk.ac.gda.client.xyPlotNewCommand"
-           icon="icons/chart_curve_go.png"
-           label="New"
-           tooltip="New">
-     </command>
-	</menuContribution>
 	<menuContribution
 	        locationURI="toolbar:uk.ac.gda.client.liveplotview">
 	    <command

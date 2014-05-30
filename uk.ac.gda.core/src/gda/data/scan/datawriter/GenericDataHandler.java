@@ -262,8 +262,8 @@ public class GenericDataHandler extends DataWriterBase implements DataWriter {
 	}
 
 	@Override
-	public String getCurrentScanIdentifier() {
-		return String.valueOf(mRuns.getCurrentFileNumber());
+	public int getCurrentScanIdentifier() {
+		return mRuns.getCurrentFileNumber();
 	}
 
 }

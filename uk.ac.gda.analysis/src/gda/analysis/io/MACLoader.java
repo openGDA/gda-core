@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  * This class should be used to load MAC (Multi-channel Analyser Crystal) data files into the ScanFileHolder object

@@ -20,7 +20,6 @@ package gda.scan;
 
 import gda.device.DeviceException;
 
-import java.text.MessageFormat;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

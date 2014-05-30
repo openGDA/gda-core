@@ -171,7 +171,7 @@ public class ScanDataPointPlotter {
 	 * @param xAxisHeader 
 	 * 
 	 */
-	public int createNewLines(String scanIdentifier, String currentFilename, 
+	public int createNewLines(int scanIdentifier, String currentFilename, 
 			Vector<String> stepIdsStrings, List<ConfigLine> linesToAdd, Double xVal,
 			Double[] dataPoints, boolean makeGroupAlways, String xAxisHeader, boolean reload) {
 		
@@ -218,7 +218,7 @@ public class ScanDataPointPlotter {
 		plot.setLineVisibility(lineNumber, visible);
 	}
 
-	public int addData(String scanIdentifier, String currentFileName, 
+	public int addData(int scanIdentifier, String currentFileName, 
 			Vector<String> stepIdsStrings, DoubleDataset xData, DoubleDataset yData, String xAxisHeader, String yAxisHeader, boolean visible, boolean reload, AxisSpec yAxisSpec) {
 		String sourceToLineKey = scanIdentifier + yAxisHeader;
 		Vector<ConfigLine> linesToAdd = new Vector<ConfigLine>();

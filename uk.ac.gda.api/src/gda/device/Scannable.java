@@ -194,7 +194,10 @@ public interface Scannable extends Device {
 	public void atScanStart() throws DeviceException;
 
 	/**
-	 * Called for every Scannable at the end of a group of nested scans (or a single scan if that is the case)
+	 * Called for every Scannable at the end of a group of nested scans (or a single scan if that is the case).
+	 * <p>
+	 * Note that this is only called if the Scan finishes normally, or has been requested to finish early. This will not
+	 * be called if the scan finishes due to an exception of any kind.  See {@link #atCommandFailure()}
 	 * 
 	 * @throws DeviceException
 	 */
@@ -268,9 +271,12 @@ public interface Scannable extends Device {
 	public void atLevelEnd() throws DeviceException;
 
 	/**
-	 * Hook to be used by commands moving the scannable if the command fails. Used by pos and scan. Useful for telling
-	 * scannables which hold state during a scan for example, to reset themselves. Used for example by
-	 * CoordinatedMotionScannables. This hook should be used not in the same way as the stop hook.
+	 * Hook to be used by Scan and pos commands to inform the Scannable that an exception, such as a DeviceExcpetion,
+	 * has occurred. However not called when the command is aborted using an InterruptionException. If a Scan is aborted
+	 * then only {@link #stop()} will be called by the Scan or pos command.
+	 * <p>
+	 * Useful for telling Scannables which hold state during a scan for example, to reset themselves. Used for example
+	 * by CoordinatedMotionScannables. This hook should be used not in the same way as the stop hook.
 	 * 
 	 * @throws DeviceException
 	 */

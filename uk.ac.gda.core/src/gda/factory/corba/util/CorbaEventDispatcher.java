@@ -45,9 +45,8 @@ import org.omg.CosEventComm.PushSupplierPOA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * An event dispatcher class
- */
+import com.google.common.base.Optional;
+
 public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispatcher, Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(CorbaEventDispatcher.class);
@@ -56,7 +55,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 
 	private ProxyPushConsumer consumer;
 
-	boolean batchMode;
+	private boolean batchMode;
 
 	private ExecutorCompletionService<Void> execCompletionService;
 	
@@ -72,33 +71,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	
 	private Object previousEvent;
 	
-	class TimedStructuredEvent {
-
-		public StructuredEvent event;
-
-		public long timeReceivedMs;
-
-		public TimedStructuredEvent(StructuredEvent event, long timeReceivedMS) {
-			this.event = event;
-			this.timeReceivedMs = timeReceivedMS;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("TimedStructuredEvent(time=%d, source=%s, type=%s)", timeReceivedMs,
-					event.eventHeader.eventName, event.eventHeader.typeName);
-		}
-	}
-	
-	/**
-	 * Create an event dispatcher for the specified channel.
-	 * 
-	 * @param channel
-	 *            the event channel
-	 * @param orb
-	 *            the orb
-	 */
-	public CorbaEventDispatcher(EventChannel channel, ORB orb, boolean batchMode) {
+	public CorbaEventDispatcher(EventChannel eventChannel, ORB orb, boolean batchMode) {
 		this.batchMode = batchMode;
 
 		if(batchMode){
@@ -107,7 +80,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 			execCompletionService = new ExecutorCompletionService<Void>(Executors.newFixedThreadPool(threadPoolSize));
 		}
 		
-		supplierAdmin = channel.for_suppliers();
+		supplierAdmin = eventChannel.for_suppliers();
 		consumer = supplierAdmin.obtain_push_consumer();
 		try {
 			consumer.connect_push_supplier(_this(orb));
@@ -118,57 +91,8 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	}
 
 	@Override
-	public void disconnect_push_supplier() {
-		try {
-			consumer.disconnect_push_consumer();
-		} catch (org.omg.CORBA.TRANSIENT ex) {
-			logger.error("EventDispatcher.disconnect_push_supplier() ", ex);
-		} finally {
-			consumer = null;
-		}
-	}
-
-	/**
-	 * Push the event to all event channels
-	 * 
-	 * @param timeEvent
-	 *            the event.
-	 */
-	public void publish(TimedStructuredEvent timeEvent) {
-		Any any = ORB.init().create_any();
-		StructuredEventHelper.insert(any, timeEvent.event);
-
-		try {
-			if (consumer != null) {
-				consumer.push(any);
-				if (logger.isDebugEnabled()) {
-					long timeAfterDispatch = System.currentTimeMillis();
-					long timeToDispatch = timeAfterDispatch - timeEvent.timeReceivedMs;
-					if (timeToDispatch > 100) {
-						logger.debug(String.format("Event took %dms to publish %s", timeToDispatch, timeEvent.toString()));
-					}
-				}
-			}
-		} catch (Disconnected ex) {
-			logger.error("EventDispatcher.publish()", ex);
-		} catch (org.omg.CORBA.COMM_FAILURE ex) {
-			logger.error("EventDispatcher.publish()", ex);
-			disconnect_push_supplier();
-		} catch (org.omg.CORBA.TRANSIENT ex) {
-			logger.error("EventDispatcher.publish()", ex);
-			disconnect_push_supplier();
-		} catch (org.omg.CORBA.UNKNOWN ex) {
-			// do nothing here see bugzilla bug #
-		}
-	}
-
-	@Override
 	public void publish(String sourceName, Object message) {
 		try {
-			/**
-			 * Enter batchMode if allowed AND either sourceEventsMap != null OR sequential messages are to
-			 * the same source
-			 */
 			if (batchMode) {
 				synchronized (lock) {
 					if (sourceEventsMap == null)
@@ -199,13 +123,10 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 
 				}
 			} else {
-				String id = NameFilter.MakeEventChannelName(sourceName);
-				String argClass = (message == null) ? "null" : message.getClass().toString();
-				EventHeader eventHeader = new EventHeader(argClass, id);
-				StructuredEvent event = new StructuredEvent(eventHeader, Serializer.toByte(message));
-				final TimedStructuredEvent timeEvent = new TimedStructuredEvent(event,
-						logger.isDebugEnabled() ? System.currentTimeMillis() : 0);
-				publish(timeEvent);
+				final Optional<OutgoingTimedStructuredEvent> timeEvent = makeTimedStructuredEvent(sourceName, message);
+				if (timeEvent.isPresent()) {
+					publish(timeEvent.get());
+				}
 			}
 
 		} catch (Exception e) {
@@ -213,7 +134,81 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 		}
 	}
 
-	public Callable<Void> createPublishCallable(final TimedStructuredEvent timeEvent) {
+	@Override
+	public void run() {
+		while (!killed) {
+			Map<String,EventCollection> sourceEventsMapToHandle;
+			synchronized (lock) {
+				if (!killed && sourceEventsMap == null || sourceEventsMap.isEmpty()) {
+					try {
+						lock.wait();
+					} catch (InterruptedException e) {
+						// ignore
+					}
+				}
+				sourceEventsMapToHandle = sourceEventsMap;
+				sourceEventsMap = null;
+			}
+			int numberCallablesSubmitted=0;
+			if (sourceEventsMapToHandle != null) {
+				for (Entry<String,EventCollection> mapEntry : sourceEventsMapToHandle.entrySet()) {
+					try{
+						Object objectForSource;
+						{
+							Vector<Object> objectsForSource = mapEntry.getValue();
+							if(objectsForSource.size()==1){
+								objectForSource = objectsForSource.get(0);
+							} else {
+								objectForSource = objectsForSource;
+							}
+						}
+						final String sourceName = mapEntry.getKey();
+						final Optional<OutgoingTimedStructuredEvent> timeEvent = makeTimedStructuredEvent(sourceName, objectForSource);
+						if (timeEvent.isPresent()) {
+							Callable<Void> publishCallable = createPublishCallable(timeEvent.get());
+							execCompletionService.submit(publishCallable);
+							numberCallablesSubmitted++;
+						}
+					}
+					catch (Throwable th){
+						logger.error("Error dispatch event:" + mapEntry.getKey(),th);
+					}
+				}
+			}
+			try {
+				while(numberCallablesSubmitted > 0){
+					if( execCompletionService.poll(10,TimeUnit.SECONDS) == null){
+						logger.error("An event has taken more than 10s to send to event server");
+					}
+					//always decrease so eventually we will return
+					numberCallablesSubmitted--;
+				}
+			} catch (InterruptedException e) {
+				logger.error("execCompletionService.poll interrupted",e);
+			}
+		}
+	}
+
+	private static Optional<OutgoingTimedStructuredEvent> makeTimedStructuredEvent(String sourceName, Object message) {
+		
+		final byte[] byteData = Serializer.toByte(message);
+		if (byteData == null) {
+			logger.error("Error dispatch event:" + sourceName + " serializer returned null");
+			return Optional.absent();
+		}
+		
+		final String argClass = (message == null) ? "null" : message.getClass().toString();
+		final String id = NameFilter.MakeEventChannelName(sourceName);
+		final EventHeader eventHeader = new EventHeader(argClass, id);
+		
+		final StructuredEvent event = new StructuredEvent(eventHeader, byteData);
+		
+		final long timeReceived = logger.isDebugEnabled() ? System.currentTimeMillis() : 0;
+		final OutgoingTimedStructuredEvent timeEvent = new OutgoingTimedStructuredEvent(event, timeReceived);
+		return Optional.of(timeEvent);
+	}
+
+	private Callable<Void> createPublishCallable(final OutgoingTimedStructuredEvent timeEvent) {
 		return new Callable<Void>() {
 
 			@Override
@@ -247,72 +242,42 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 		};
 	}
 
-	public void dispose() {
-		killed = true;
+	private void publish(OutgoingTimedStructuredEvent timeEvent) {
+		Any any = ORB.init().create_any();
+		StructuredEventHelper.insert(any, timeEvent.event);
+
+		try {
+			if (consumer != null) {
+				consumer.push(any);
+				if (logger.isDebugEnabled()) {
+					long timeAfterDispatch = System.currentTimeMillis();
+					long timeToDispatch = timeAfterDispatch - timeEvent.timeReceivedMs;
+					if (timeToDispatch > 100) {
+						logger.debug(String.format("Event took %dms to publish %s", timeToDispatch, timeEvent.toString()));
+					}
+				}
+			}
+		} catch (Disconnected ex) {
+			logger.error("EventDispatcher.publish()", ex);
+		} catch (org.omg.CORBA.COMM_FAILURE ex) {
+			logger.error("EventDispatcher.publish()", ex);
+			disconnect_push_supplier();
+		} catch (org.omg.CORBA.TRANSIENT ex) {
+			logger.error("EventDispatcher.publish()", ex);
+			disconnect_push_supplier();
+		} catch (org.omg.CORBA.UNKNOWN ex) {
+			// do nothing
+		}
 	}
 
 	@Override
-	public void run() {
-		while (!killed) {
-			Map<String,EventCollection> sourceEventsMapToHandle;
-			synchronized (lock) {
-				if (!killed && sourceEventsMap == null || sourceEventsMap.isEmpty()) {
-					try {
-						lock.wait();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				sourceEventsMapToHandle = sourceEventsMap;
-				sourceEventsMap = null;
-			}
-			int numberCallablesSubmitted=0;
-			if (sourceEventsMapToHandle != null) {
-				for (Entry<String,EventCollection> mapEntry : sourceEventsMapToHandle.entrySet()) {
-					try{
-						String id = NameFilter.MakeEventChannelName(mapEntry.getKey());
-						Object objectForSource;
-						{
-							Vector<Object> objectsForSource = mapEntry.getValue();
-							if(objectsForSource.size()==1){
-								objectForSource = objectsForSource.get(0);
-							} else {
-								objectForSource = objectsForSource;
-							}
-						}
-						String argClass = (objectForSource == null) ? "null" : objectForSource.getClass().toString();
-						EventHeader eventHeader = new EventHeader(argClass, id);
-						byte[] byte1 = Serializer.toByte(objectForSource);
-						if( byte1 != null){
-							StructuredEvent event = new StructuredEvent(eventHeader, byte1);
-							final TimedStructuredEvent timeEvent = new TimedStructuredEvent(event,
-									logger.isDebugEnabled() ? System.currentTimeMillis() : 0);
-
-							Callable<Void> publishCallable = createPublishCallable(timeEvent);
-							execCompletionService.submit(publishCallable);
-							numberCallablesSubmitted++;
-						} else {
-							logger.error("Error dispatch event:" + mapEntry.getKey() + " serializer returned null");
-						}
-						
-					}
-					catch (Throwable th){
-						logger.error("Error dispatch event:" + mapEntry.getKey(),th);
-					}
-				}
-			}
-			try {
-				while(numberCallablesSubmitted > 0){
-					if( execCompletionService.poll(10,TimeUnit.SECONDS) == null){
-						logger.error("An event has taken more than 10s to send to event server");
-					}
-					//always decrease so eventually we will return
-					numberCallablesSubmitted--;
-				}
-			} catch (InterruptedException e) {
-				logger.error("execCompletionService.poll interrupted",e);
-			}
+	public void disconnect_push_supplier() {
+		try {
+			consumer.disconnect_push_consumer();
+		} catch (org.omg.CORBA.TRANSIENT ex) {
+			logger.error("EventDispatcher.disconnect_push_supplier() ", ex);
+		} finally {
+			consumer = null;
 		}
 	}
 }

@@ -93,14 +93,14 @@ public interface BeamlineInfo extends Findable, IObservable, Serializable {
 	 * 
 	 * @return the current file number
 	 */
-	public abstract long getFileNumber();
+	public abstract int getFileNumber();
 
 	/**
 	 * returns the next file number. This causes the NumTracker to increment the file number for the system.
 	 * 
 	 * @return the next file number
 	 */
-	public abstract long getNextFileNumber();
+	public abstract int getNextFileNumber();
 
 	/**
 	 * gets the extension name for the data file name

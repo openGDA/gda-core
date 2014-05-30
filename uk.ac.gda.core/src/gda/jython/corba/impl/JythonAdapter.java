@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2014 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -28,6 +28,7 @@ import gda.factory.corba.util.NetService;
 import gda.jython.Jython;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.corba.CorbaJython;
 import gda.jython.corba.CorbaJythonHelper;
 import gda.observable.IObserver;
@@ -46,6 +47,7 @@ import org.omg.CORBA.TRANSIENT;
 import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * A client side implementation of the adapter pattern for the Jython class
@@ -109,7 +111,6 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		return name;
 	}
 
-	// to fulfil the ScriptingInterface interface
 	@Override
 	public String evaluateCommand(String command, String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -134,10 +135,52 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	}
 
 	@Override
-	public void haltCurrentScan(String JSFIdentifier) {
+	public void requestFinishEarly(String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				jythonServer.haltCurrentScan(JSFIdentifier);
+				jythonServer.requestFinishEarly(JSFIdentifier);
+				return;
+			} catch (COMM_FAILURE cf) {
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (org.omg.CORBA.TRANSIENT ct) {
+				// This exception is thrown when the ORB failed to connect to
+				// the object
+				// primarily when the server has failed.
+				break;
+			} catch (CorbaDeviceException ex) {
+				// throw new DeviceException(ex.message);
+			}
+		}
+	}
+	
+	@Override
+	public boolean isFinishEarlyRequested() {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				return jythonServer.isFinishEarlyRequested();
+			} catch (COMM_FAILURE cf) {
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (TRANSIENT ct) {
+				// This exception is thrown when the ORB failed to connect to
+				// the object
+				// primarily when the server has failed.
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (Exception ex) {
+				//the command failed but ran successfully so do not rerun
+				logger.error("Error evaluating command 'isFinishEarlyRequested'",ex );
+				break;
+				// other exceptions will be recorded by JythonServer, so no need to duplicate. Only log comms exceptions
+				// in this method.,otherwsie users get longer error messages and this may confuse
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public void beamlineHalt(String JSFIdentifier) {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				jythonServer.beamlineHalt(JSFIdentifier);
 				return;
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
@@ -153,29 +196,10 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	}
 
 	@Override
-	public void haltCurrentScript(String JSFIdentifier) {
+	public void abortCommands(String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				jythonServer.haltCurrentScript(JSFIdentifier);
-				return;
-			} catch (COMM_FAILURE cf) {
-				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
-			} catch (org.omg.CORBA.TRANSIENT ct) {
-				// This exception is thrown when the ORB failed to connect to
-				// the object
-				// primarily when the server has failed.
-				break;
-			} catch (CorbaDeviceException ex) {
-				// throw new DeviceException(ex.message);
-			}
-		}
-	}
-
-	@Override
-	public void panicStop(String JSFIdentifier) {
-		for (int i = 0; i < NetService.RETRY; i++) {
-			try {
-				jythonServer.panicStop(JSFIdentifier);
+				jythonServer.abortCommands(JSFIdentifier);
 				return;
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
@@ -328,6 +352,26 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		terminal = anIObserver;
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
+				logger.info("JSFIdentifier = " + StringUtils.quote(JSFIdentifier));
+				logger.info("hostName = " + StringUtils.quote(hostName));
+				logger.info("username = " + StringUtils.quote(username));
+				logger.info("fullname = " + StringUtils.quote(fullname));
+				logger.info("visitID = " + StringUtils.quote(visitID));
+				if (JSFIdentifier == null) {
+					JSFIdentifier = "";
+				}
+				if (hostName == null) {
+					hostName = "";
+				}
+				if (username == null) {
+					username = "";
+				}
+				if (fullname == null) {
+					fullname = "";
+				}
+				if (visitID == null) {
+					visitID = "";
+				}
 				return jythonServer.addFacade(JSFIdentifier, hostName, username, fullname, visitID);
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
@@ -379,25 +423,6 @@ public class JythonAdapter implements Jython, EventSubscriber {
 			}
 		}
 		return -99;
-	}
-
-	@Override
-	public void setScanStatus(int status, String JSFIdentifier) {
-		for (int i = 0; i < NetService.RETRY; i++) {
-			try {
-				jythonServer.setScanStatus(status, JSFIdentifier);
-			} catch (COMM_FAILURE cf) {
-				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
-			} catch (org.omg.CORBA.TRANSIENT ct) {
-				// This exception is thrown when the ORB failed to connect to
-				// the object
-				// primarily when the server has failed.
-				break;
-			} catch (CorbaDeviceException ex) {
-				// throw new DeviceException(ex.message);
-			}
-		}
-		return;
 	}
 
 	@Override
@@ -704,6 +729,28 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		return new ClientDetails[0];
 	}
 
+	@Override
+	public ICommandThreadInfo[] getCommandThreadInfo() {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				Any any = jythonServer.getCommandThreadInfo();
+				ICommandThreadInfo[] infos = (ICommandThreadInfo[]) any.extract_Value();
+				return infos;
+			} catch (COMM_FAILURE cf) {
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (org.omg.CORBA.TRANSIENT ct) {
+				// This exception is thrown when the ORB failed to connect to
+				// the object primarily when the server has failed.
+				break;
+			} catch (CorbaDeviceException ex) {
+				logger.error(ex.getMessage(), ex);
+			} catch (Exception ex) {
+				logger.error(ex.getMessage(), ex);
+			}
+		}
+		return new ICommandThreadInfo[0];
+	}
+	
 	@Override
 	public boolean requestBaton(String uniqueIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
