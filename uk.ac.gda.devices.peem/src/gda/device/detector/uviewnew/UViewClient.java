@@ -162,6 +162,13 @@ public class UViewClient {
 		return ret;
 	}
 
+	public void disconnect() {
+		msImpl = null;
+		bridge = null;
+		corbaBridgeName = null;
+		controller = null;
+	}
+
 	public void initializeTcpController(String address, int port) {
 		controller = new TcpUViewController(address, port);
 	}
@@ -747,4 +754,7 @@ public class UViewClient {
 		return controller.getVersion();
 	}
 
+	public void setPixelClock( int MHz) throws DeviceException{
+		controller.setPixelClock( MHz );
+	}
 }

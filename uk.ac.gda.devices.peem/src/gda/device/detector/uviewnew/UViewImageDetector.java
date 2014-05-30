@@ -43,7 +43,7 @@ public class UViewImageDetector extends DetectorBase implements UViewNew {
 	int port;
 
 	UViewImageController uic = null;
-	
+
 	protected String tracker = null;
 	protected String imageDir = null;
 	
@@ -205,6 +205,10 @@ public class UViewImageDetector extends DetectorBase implements UViewNew {
 		throw new UnsupportedOperationException();
 
 	}
+	
+	public void reconnect() {
+		uic.reconnect();
+	}
 
 	@Override
 	public boolean isConnected() {
@@ -336,6 +340,10 @@ public class UViewImageDetector extends DetectorBase implements UViewNew {
 
 	public String getVersion() throws DeviceException {
 		return uic.getUViewClient().getVersion();
+	}
+
+	public void setPixelClock(int MHz) throws DeviceException {
+		uic.uvc.setPixelClock(MHz);
 	}
 
 }
