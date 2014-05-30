@@ -328,17 +328,21 @@ perform a simple tomography scan
 def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=180., step=0.1, darkFieldInterval=0, flatFieldInterval=0,
               imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, pattern="default", tomoRotationAxis=0, addNXEntry=True, autoAnalyse=True, additionalScannables=[]):
     """
-    Function to collect a tomogram
+    Function to collect a tomography step scan
     Arguments:
-    description - description of the scan(or the sample that is being scanned. This is generally user-specific information that may be used to map to this scan later and is available in the NeXus file)
+    description - description of the scan or the sample that is being scanned. This is generally user-specific information that may be used to map to this scan later and is available in the NeXus file)
     inBeamPosition - position of X drive to move sample into the beam to take a projection
     outOfBeamPosition - position of X drive to move sample out of the beam to take a flat field image
-    exposureTime - exposure time in seconds (default = 1.0)
+    exposureTime - exposure time in seconds (default=1.0)
     start - first rotation angle (default=0.0)
     stop  - last rotation angle (default=180.0)
-    step - rotation step size (default = 0.1)
-    darkFieldInterval - number of projections between each dark-field sub-sequence. NOTE: at least 1 dark is ALWAYS taken both at the start and end of a tomogram (default=0: use this value if you DON'T want to take any darks between projections)
-    flatFieldInterval - number of projections between each flat-field sub-sequence. NOTE: at least 1 flat is ALWAYS taken both at the start and end of a tomogram (default=0: use this value if you DON'T want to take any flats between projections)
+    step - rotation step size (default=0.1)
+    darkFieldInterval - number of projections between each dark-field sub-sequence. 
+        NOTE: at least 1 dark is ALWAYS taken both at the start and end of the scan provided imagesPerDark>0 
+        (default=0: use this value if you DON'T want to take any darks between projections)
+    flatFieldInterval - number of projections between each flat-field sub-sequence. 
+        NOTE: at least 1 flat is ALWAYS taken both at the start and end the scan provided imagesPerFlat>0 
+        (default=0: use this value if you DON'T want to take any flats between projections)
     imagesPerDark - number of images to be taken for each dark-field sub-sequence (default=10)
     imagesPerFlat - number of images to be taken for each flat-field sub-sequence (default=10)
     
@@ -489,10 +493,10 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         positionProvider = tomoScan_positions(start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat, \
                                                inBeamPosition, outOfBeamPosition, optimizeBeamInterval, scan_points) 
         scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime, tomography_camera_stage, tomography_sample_stage]
-        scan_args.append(RotationAxisScannable("approxCOR", tomoRotationAxis))
-        meta_add(RotationAxisScannable("approxCOR", tomoRotationAxis))
+        #scan_args.append(RotationAxisScannable("approxCOR", tomoRotationAxis))
+        #meta_add(RotationAxisScannable("approxCOR", tomoRotationAxis))
         #meta_add("RotationCoord_as_list", [tomoRotationAxis])
-        meta_add("RotationCoord_as_number", tomoRotationAxis)
+        meta_add("approxCOR", tomoRotationAxis)
         for scannable in additionalScannables:
             scan_args.append(scannable)
         for scannable in tomo_additional_scannables:
