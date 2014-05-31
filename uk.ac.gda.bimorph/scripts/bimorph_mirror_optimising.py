@@ -8,6 +8,9 @@
 #   scanAborter
 #   pos
 #   scan
+#
+#        If you need to use a peak2d with another name, then specify a peak2dName parameter
+#        to the constructor of SlitScanner.
 
 import java.lang.InterruptedException
 from gda.device.scannable import PseudoDevice
@@ -170,15 +173,15 @@ def getData(mirror,
                     # and try again from start
 
 
-#This class is for use with the rich bean editor for bimorph optimization (BimorphParameters).
-#This depricates the getData method above.
+#This class is for use with the rich bean editor for bimorph optimisation (BimorphParameters).
+#This deprecates the getData method above.
 #It can also be used from the console as follows.
 #from gdascripts.bimorph.bimorph_mirror_optimising import SlitScanner
 #slitscanner = SlitScanner()
 #slitscanner.run(globals(),"bm",50.0,"slits1_size","slits1_pos",1.0,"slits2_size","slits2_pos",-3.89,-5.21,-0.04,"det",35.0,5.0,1.0,False,None,"1-3,4,5,6,7")
 class SlitScanner():
     
-    def __init__(self):
+    def __init__(self, peak2dName="peak2d"):
         self.namespace = None
         self.mirror = None
         self.increment = None
@@ -196,6 +199,7 @@ class SlitScanner():
         self.otherSlitSizeValue = None
         self.otherSlitPosValue = None
         self.peak2d = None
+        self.peak2dName = peak2dName
         self.doOptimization = None
         self.grouped = None
         self.groups_string = None
@@ -226,7 +230,7 @@ class SlitScanner():
         self.settleTime = settleTime
         self.otherSlitSizeValue = otherSlitSizeValue
         self.otherSlitPosValue = otherSlitPosValue
-        self.peak2d = self.namespace.get("peak2d")
+        self.peak2d = self.namespace.get(self.peak2dName)
         self.grouped = grouped
         self.groups_string = groups_string
         number_electrodes = len(self.mirror.inputNames)
