@@ -262,7 +262,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		logger.info("Awaiting positionCallableService shutdown");
 		positionCallableService.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 		logger.info("Awaiting broadcasterQueue shutdown");
-		broadcasterQueue.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+//		broadcasterQueue.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 		
 	}
 
