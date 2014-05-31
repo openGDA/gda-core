@@ -56,7 +56,7 @@ class RasterGenerator():
             rows = ymax - ymin + 1
 
         #verify the parameters
-        if rate > 50:
+        if rate > 100:
             raise(Exception("Error: rate too high. Motor lag approaches .5"
                             " microns over 20Hz"))
         if xmax < xmin or \
@@ -82,11 +82,11 @@ class RasterGenerator():
 
         # calculated values for wave table generation
         # step size in motor micrometers
-        self.xstepSize = (self.xmax - self.xmin + 1) / float(self.cols)
-        self.ystepSize = (self.ymax - self.ymin + 1) / float(self.rows)
+        self.xstepSize = (self.xmax - self.xmin) / (float(self.cols) - 1)
+        self.ystepSize = (self.ymax - self.ymin) / (float(self.rows) -1)
 
-        self.eguToPts = self.points / (xmax - xmin + 1)
-        self.waveTableRate = ((xmax - xmin + 1) / self.rate / 
+        self.eguToPts = self.points / (xmax - xmin)
+        self.waveTableRate = ((xmax - xmin) / self.rate / 
                               servocycle / self.points)
 
         if self.xmin < self.xstepSize / 2.0 or \
@@ -185,7 +185,11 @@ class RasterGenerator():
             cmdr = "TWS "
             for col in range(10):  # @UnusedVariable
                 # note the +1 because the triggers table is indexed from 1
-                cmdr += "1 %4d 1 " % ((pos - start) * self.eguToPts + 1)
+                # but also note this can cause a 2001 trigger so special case this (todo review rounding in the math)
+                nextpos = ((pos - start) * self.eguToPts + 1)
+                if nextpos > wavepoints:
+                    nextpos = wavepoints
+                cmdr += "1 %4d 1 " % nextpos
                 pos += self.xstepSize
                 if round(pos, 5) > stop:
                     break
