@@ -234,8 +234,31 @@ class RunOptimisation:
         for file in files:
             data = ScanFileLoader(file, self.scanDir).getSFH()
             print columnNames
-            centroids = data.getLazyDataset(columnNames["data_centroid"]).getSlice(None).getBuffer()
-            error_centroids = errorData.getLazyDataset(columnNames["err_centroid"]).getSlice(None).getBuffer()
+            # *********** RobW 17 May 2014 7pm : its not finding the column in here. I've added some debig stuff. If had time I would have dived into ScanFileHolder, and/or debugged it on the server.
+            print "file: " + str(file)
+            print "self.scanDir: " + self.scanDir
+            print "scan file holder: " + str(data)
+            print "scan file holder (DataHolder) contains names:" + str(data.getNames())
+            column_name = columnNames["data_centroid"]
+            print "using column for the data_centroid the column named: " + column_name
+            ds = data.getLazyDataset(column_name)
+            if ds == None:
+                print "No dataset found for column '" + column_name + "' trying generic 'peaky'..."
+                ds = data.getLazyDataset('peaky')
+            print "dataset: " + str(ds)
+            centroids = ds.getSlice(None).getBuffer()
+            
+            print "errorData: " + str(errorData)
+            print "errorData (DataHolder) contains names:" + str(data.getNames())
+            column_name = columnNames["err_centroid"]
+            print "using column for the err_centroid the column named: " + column_name
+            ds = errorData.getLazyDataset(column_name)
+            if ds == None:
+                print "No dataset found for column '" + column_name + "' trying generic 'peaky'..."
+                ds = errorData.getLazyDataset('peaky')
+            print "dataset: " + str(ds)
+            error_centroids = ds.getSlice(None).getBuffer()
+            
             if self.hasSlitPosLimit():
                 centroids = centroids[limit[0]:limit[1]]
                 error_centroids = error_centroids[limit[0]:limit[1]]
