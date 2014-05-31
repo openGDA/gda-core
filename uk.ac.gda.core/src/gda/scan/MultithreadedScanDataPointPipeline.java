@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.python.core.PyException;
+import org.python.modules.synchronize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -261,8 +262,10 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		}
 		logger.info("Awaiting positionCallableService shutdown");
 		positionCallableService.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-		logger.info("Awaiting broadcasterQueue shutdown");
-		broadcasterQueue.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+//		logger.info("Awaiting broadcasterQueue shutdown");
+//		broadcasterQueue.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		//epg 17/4/2014 This waits for the ThreadPoolExecutor to shutdown but this code is actually running in the broadcaster thread that the ThreadPoolExecutor is waiting on
+		//This is now shutdown at the end of a scan in ScanBase.shutdownScandataPipieline so no need to do it here
 		
 	}
 
