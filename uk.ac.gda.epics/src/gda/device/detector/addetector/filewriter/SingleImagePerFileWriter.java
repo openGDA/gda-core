@@ -73,6 +73,8 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	private FileWriteMode fileWriteMode = FileWriteMode.SINGLE;
 
+	private boolean filePathInaccessibleFromServer = false;
+
 	@Override
 	public String getName() {
 		return "tifwriter"; // TODO: Multiple filewriters require different names.
@@ -169,10 +171,13 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if( alreadyPrepared)
 			return;
 		// Create filePath directory if required
-		File f = new File(getFilePath());
-		if (!f.exists()) {
-			if (!f.mkdirs())
-				throw new Exception("Folder does not exist and cannot be made:" + getFilePath());
+		
+		if (!isFilePathInaccessibleFromServer()) {
+			File f = new File(getFilePath());
+			if (!f.exists()) {
+				if (!f.mkdirs())
+					throw new Exception("Folder does not exist and cannot be made:" + getFilePath());
+			}
 		}
 
 		if (isSetFileNameAndNumber()) {
@@ -241,9 +246,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if (!filePathUsed.endsWith(File.separator))
 			filePathUsed += File.separator;
 		File f = new File(filePathUsed);
-		if (!f.exists()) {
-			if (!f.mkdirs())
-				throw new Exception("Folder does not exist and cannot be made:" + filePathUsed);
+		if (!filePathInaccessibleFromServer) {
+			if (!f.exists()) {
+				if (!f.mkdirs())
+					throw new Exception("Folder does not exist and cannot be made:" + filePathUsed);
+			}
 		}
 		getNdFile().setFilePath(filePathUsed);
 
@@ -391,6 +398,14 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	public void setReturnPathRelativeToDatadir(boolean returnPathRelativeToDatadir) {
 		this.returnPathRelativeToDatadir = returnPathRelativeToDatadir;
+	}
+
+	public boolean isFilePathInaccessibleFromServer() {
+		return filePathInaccessibleFromServer;
+	}
+
+	public void setFilePathInaccessibleFromServer(boolean filePathNotVisibleFromServer) {
+		this.filePathInaccessibleFromServer = filePathNotVisibleFromServer;
 	}
 
 }
