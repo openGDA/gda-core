@@ -41,6 +41,8 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 
 	private Boolean generateCallbacks = null;
 	
+	private String timeFormat = "%.2f"; 
+	
 	AbstractADTriggeringStrategy(ADBase adBase) {
 		this.adBase = adBase;
 	}
@@ -163,10 +165,10 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	public List<String> getInputStreamFormats() {
 		List<String> formats = new ArrayList<String>();
 		if (isReadAcquisitionTime()) {
-			formats.add("%.2f");
+			formats.add(getTimeFormat());
 		}
 		if (isReadAcquisitionPeriod()) {
-			formats.add("%.2f");
+			formats.add(getTimeFormat());
 		}
 		return formats;
 	}
@@ -195,6 +197,14 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	@Override
 	public boolean requiresAsynchronousPlugins() {
 		return false; //This is fine for software triggered cameras
+	}
+
+	public String getTimeFormat() {
+		return timeFormat;
+	}
+
+	public void setTimeFormat(String timeFormat) {
+		this.timeFormat = timeFormat;
 	}
 
 }
