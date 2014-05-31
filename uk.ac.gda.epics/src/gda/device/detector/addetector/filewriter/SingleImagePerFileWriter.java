@@ -69,11 +69,15 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	private boolean waitForFileArrival = true;
 
+	private boolean waitForFileArrivalInCompleteCollection = false;
+
 	private String keyNameForMetadataPathTemplate = "";
 
 	private FileWriteMode fileWriteMode = FileWriteMode.SINGLE;
-
+	
 	private boolean filePathInaccessibleFromServer = false;
+	
+	private String lastExpectedFullFilepath = null;
 
 	@Override
 	public String getName() {
@@ -113,6 +117,14 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	public boolean isWaitForFileArrival() {
 		return waitForFileArrival;
+	}
+
+	public boolean isWaitForFileArrivalInCompleteCollection() {
+		return waitForFileArrivalInCompleteCollection;
+	}
+
+	public void setWaitForFileArrivalInCompleteCollection(boolean waitForFileArrivalInCompleteCollection) {
+		this.waitForFileArrivalInCompleteCollection = waitForFileArrivalInCompleteCollection;
 	}
 
 	/**
@@ -290,6 +302,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		alreadyPrepared=false;
 		if (!isEnabled())
 			return;
+		
+		if (isWaitForFileArrivalInCompleteCollection() && (lastExpectedFullFilepath != null)) {
+			checkErrorStatus();
+			waitForFile(lastExpectedFullFilepath);
+		}
 		disableFileWriting();
 	}
 
@@ -363,33 +380,36 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
-
+		lastExpectedFullFilepath = returnRelativePath ? getAbsoluteFilePath(filepath) : filepath;
 		checkErrorStatus();
 		if( isWaitForFileArrival()){
 			// Now check that the file exists
-			String fullFilePath = returnRelativePath ? getAbsoluteFilePath(filepath) : filepath;
-			try {
-				File f = new File(fullFilePath);
-				long numChecks = 0;
-				while (!f.exists()) {
-					numChecks++;
-					Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
-					checkErrorStatus();
-					// checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
-					if (ScanBase.isInterrupted())
-						throw new Exception("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
-					if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
-						InterfaceProvider.getTerminalPrinter().print(
-								"Waiting for file '" + fullFilePath + "' to be created");
-						numChecks = 0;
-					}
-				}
-			} catch (Exception e) {
-				throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'",e);
-			}
+			waitForFile(lastExpectedFullFilepath);
 		}
 
 		return new NXDetectorDataFileAppenderForSrs(filepath, FILEPATH_EXTRANAME);
+	}
+
+	private void waitForFile(String fullFilePath) throws DeviceException {
+		try {
+			File f = new File(fullFilePath);
+			long numChecks = 0;
+			while (!f.exists()) {
+				numChecks++;
+				Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
+				checkErrorStatus();
+				// checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
+				if (ScanBase.isInterrupted())
+					throw new Exception("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
+				if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
+					InterfaceProvider.getTerminalPrinter().print(
+							"Waiting for file '" + fullFilePath + "' to be created");
+					numChecks = 0;
+				}
+			}
+		} catch (Exception e) {
+			throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'",e);
+		}
 	}
 
 	public boolean isReturnPathRelativeToDatadir() {
