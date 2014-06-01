@@ -119,25 +119,19 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	// file names
 	private String nexusFileNameTemplate = null;
-	//private String txtFileNameTemplate = null;
+
 	protected String nexusFileName = null;
-	//protected String txtFileName = null;
 
 	// Fully qualified filenames
 	protected String nexusFileUrl = null;
-	//protected String txtFileUrl = null;
 
 	// Relative filenames
 	protected String nexusRelativeUrl = null;
-	//protected String txtRelativeUrl = null;
 
 	// NeXus entry name
 	protected String entryName = "entry1";
 
-	/** File Handle for NeXus file */
 	protected NeXusFileInterface file;
-	/** File Handle for text file */
-	//protected FileWriter txtfile;
 	
 	protected SrsDataFile srsFile;
 
@@ -391,8 +385,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 		try {
 			if (createSrsFile) {
-				//txtfile.write(dataPoint.toFormattedString() + "\n");
-				//txtfile.flush();
 				try {
 					srsFile.addData(dataPoint);
 				} catch (Exception ex) {
@@ -760,12 +752,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (createSrsFile) {
 				srsFile.releaseFile();
 			}
-			/*
-			if (txtfile != null) {
-				txtfile.flush();
-				txtfile.close();
-			}
-			*/
 		} catch (NexusException ne) {
 			String error = "NeXusException occurred when closing file: ";
 			logger.error(error + ne.getMessage());
@@ -778,7 +764,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			terminalPrinter.print(et.getMessage());
 		} finally {
 			file = null;
-			//txtfile = null;
 		}
 	}
 
@@ -1457,20 +1442,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				}
 			}
 
-			/*
-			if (txtfile != null) {
-				try {
-					txtfile.flush();
-					txtfile.close();
-				} catch (Throwable et) {
-					String error = "Error closing ascii data file.";
-					logger.error(error + et.getMessage());
-					terminalPrinter.print(error);
-					terminalPrinter.print(et.getMessage());
-				}
-			}
-			*/
-
 			// set the entry name
 			// this.entryName = "scan_" + run;
 			this.entryName = "entry1";
@@ -1490,17 +1461,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 			nexusFileUrl = dataDir + nexusFileName;
 
-			/*
-			if (txtFileNameTemplate != null) {
-				txtFileName = String.format(txtFileNameTemplate, scanNumber);
-			} else if (LocalProperties.check(GDA_NEXUS_BEAMLINE_PREFIX)) {
-				txtFileName = beamline + "-" + scanNumber + ".dat";
-			} else {
-				txtFileName = scanNumber + ".dat";
-			}
-			txtFileUrl = dataDir + txtFileName;
-			*/
-
 			// Check to see if the file(s) already exists!
 			if (new File(nexusFileUrl).exists()) {
 				throw new Exception("The file " + nexusFileUrl + " already exists.");
@@ -1508,36 +1468,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 			// create nexus file and return handle
 			file = createFile();
-			if (createSrsFile) {
-				// SrsFiles call createNextFile() within addData() (just to be confusing)
-				//srsFile.createNextFile();
-				//srsFile.writeHeader();
-				
-				/*
-				// Check to see if the file(s) already exists!
-				final File textFile = new File(txtFileUrl);
-				if (textFile.exists()) {
-					throw new Exception("The file " + txtFileUrl + " already exists.");
-				}
-				textFile.getParentFile().mkdirs();
-				if (!textFile.getParentFile().exists()) {
-					throw new Exception("Cannot create text file folder: " + textFile.getParentFile());
-				}
-				txtfile = new FileWriter(txtFileUrl);
-				// Now create the SRS header
-				txtfile.write(" &SRS\n");
-				// Write all the metadata items to the file.
-				if (metadata != null) {
-					for (IMetadataEntry entry : metadata.getMetadataEntries()) {
-						txtfile.write(entry.getName() + "=" + entry.getMetadataValue() + "\n");
-					}
-				}
-				txtfile.write(" &END\n");
-				// now write the column headings
-				txtfile.write(thisPoint.getHeaderString());
-				txtfile.write("\n");
-				*/
-			}
 
 			// If we have been return a null file reference then there was
 			// some problem creating the file.
@@ -1548,13 +1478,11 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			// Print informational message to console.
 			terminalPrinter.print("Writing data to file (NeXus): " + nexusFileUrl);
 			if (createSrsFile) {
-				//terminalPrinter.print("Also creating file (txt): " + txtFileUrl);
 				terminalPrinter.print("Also creating file (txt): " + srsFile.fileUrl);
 			}
 		} catch (Error ex) {
 			String error = "Failed to create file (" + nexusFileUrl;
 			if (createSrsFile) {
-				//error += " or " + txtFileUrl;
 				error += " or " + srsFile.fileUrl;
 			}
 			error += ")";
@@ -1568,7 +1496,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		} catch (Exception ex) {
 				String error = "Failed to create file (" + nexusFileUrl;
 				if (createSrsFile) {
-					//error += " or " + txtFileUrl;
 					error += " or " + srsFile.fileUrl;
 				}
 				error += ")";
