@@ -18,7 +18,7 @@ class ScanFileLoader:
 		self.beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", "tmp")
 		if (self.format == "NexusDataWriter"):
 			#really should use scanFileName prefix rather than forcing to beamline-
-			self.prefix = LocalProperties.get("gda.nexus.beamlinePrefix",self.beamline + "-")
+			self.prefix = LocalProperties.get("gda.data.filePrefix",self.beamline + "-")
 			self.ext = "nxs"
 			if filespec==None:
 				filespec = "%d" % NumTracker(self.beamline).currentFileNumber

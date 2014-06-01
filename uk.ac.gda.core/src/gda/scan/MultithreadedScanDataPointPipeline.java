@@ -36,6 +36,11 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+<<<<<<< HEAD
+=======
+import org.python.core.PyException;
+import org.python.modules.synchronize;
+>>>>>>> refs/remotes/origin/8.38
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,8 +215,6 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			}
 		}
 	}
-	
-
 
 	/**
 	 * Politely shutdown the pipeline. Blocks until processing is complete. Calls shutdownNow if there is any problem or

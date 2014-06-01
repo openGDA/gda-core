@@ -18,6 +18,9 @@
 
 package uk.ac.gda.components.wrappers;
 
+import java.util.Map;
+
+import gda.device.DeviceException;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 
@@ -146,11 +149,18 @@ public class FindableNameWrapper extends TextWrapper {
 								setRightName(name);
 							}
 						} else {
-							Object jythonServerResult = JythonServerFacade.getInstance().evaluateCommand(name);
-							if (jythonServerResult != null)
-								setRightName(name);
-							else
-								setNotFindableError(name);
+							try {
+								Map<String, Object> allFromJythonNamespace = JythonServerFacade.getInstance().getAllFromJythonNamespace();
+								if(allFromJythonNamespace.containsKey(name)){
+									Object jythonServerResult = JythonServerFacade.getInstance().evaluateCommand(name);
+									if (jythonServerResult != null)
+										setRightName(name);
+									else
+										setNotFindableError(name);
+								}
+							} catch (DeviceException e) {
+								text.setToolTipText("Expression has invalid syntax");
+							}
 						}
 					}
 				}
