@@ -255,7 +255,10 @@ public class EpicsMultiChannelScaler extends DetectorBase implements Configurabl
 	}
 
 	@Override
-	public double getElapsedTime() {
+	public double getElapsedTime() throws DeviceException {
+		if (controller.isPollElapsedRealTime()) {
+			elapsedRealTime=controller.getRealTime();
+		}
 		return elapsedRealTime;
 	}
 
@@ -279,6 +282,7 @@ public class EpicsMultiChannelScaler extends DetectorBase implements Configurabl
 			elapsedRealTime = Double.parseDouble(changeCode.toString());
 			//logger.debug("Elapsed Time of {} is {}", getName(), elapsedRealTime);
 		} else if (theObserved instanceof Channel) {
+			//#TODO remove? - not used as no data monitor is added in configure().
 			for (int i = 0; i < EpicsDlsMcsSis3820Controller.MAXIMUM_NUMBER_OF_MCA; i++) {
 				if ((Channel) theObserved == controller.getDataChannel(i)) {
 					data[i] = (int[]) changeCode;

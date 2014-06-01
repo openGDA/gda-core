@@ -79,9 +79,15 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	private boolean waitForFileArrival = true;
 
+	private boolean waitForFileArrivalInCompleteCollection = false;
+
 	private String keyNameForMetadataPathTemplate = "";
 
 	private FileWriteMode fileWriteMode = FileWriteMode.SINGLE;
+	
+	private boolean filePathInaccessibleFromServer = false;
+	
+	private String lastExpectedFullFilepath = null;
 
 	@Override
 	public String getName() {
@@ -125,6 +131,14 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	public boolean isWaitForFileArrival() {
 		return waitForFileArrival;
+	}
+
+	public boolean isWaitForFileArrivalInCompleteCollection() {
+		return waitForFileArrivalInCompleteCollection;
+	}
+
+	public void setWaitForFileArrivalInCompleteCollection(boolean waitForFileArrivalInCompleteCollection) {
+		this.waitForFileArrivalInCompleteCollection = waitForFileArrivalInCompleteCollection;
 	}
 
 	/**
@@ -183,10 +197,13 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if( alreadyPrepared)
 			return;
 		// Create filePath directory if required
-		File f = new File(getFilePath());
-		if (!f.exists()) {
-			if (!f.mkdirs())
-				throw new Exception("Folder does not exist and cannot be made:" + getFilePath());
+		
+		if (!isFilePathInaccessibleFromServer()) {
+			File f = new File(getFilePath());
+			if (!f.exists()) {
+				if (!f.mkdirs())
+					throw new Exception("Folder does not exist and cannot be made:" + getFilePath());
+			}
 		}
 
 		if (isSetFileNameAndNumber()) {
@@ -204,7 +221,9 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		NDPluginBase pluginBase = getNdFile().getPluginBase();
 		if (pluginBase != null) {
 			pluginBase.enableCallbacks();
-			logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
+			if (blocking) {
+				logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
+			} 
 			pluginBase.setBlockingCallbacks((short)(blocking? 1:0));
 			// It should be possible to avoid blocking the acquisition thread
 			// and use the pipeline by setting BlockingCallbacks according to
@@ -253,9 +272,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if (!filePathUsed.endsWith(File.separator))
 			filePathUsed += File.separator;
 		File f = new File(filePathUsed);
-		if (!f.exists()) {
-			if (!f.mkdirs())
-				throw new Exception("Folder does not exist and cannot be made:" + filePathUsed);
+		if (!filePathInaccessibleFromServer) {
+			if (!f.exists()) {
+				if (!f.mkdirs())
+					throw new Exception("Folder does not exist and cannot be made:" + filePathUsed);
+			}
 		}
 		getNdFile().setFilePath(filePathUsed);
 
@@ -295,6 +316,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		alreadyPrepared=false;
 		if (!isEnabled())
 			return;
+		
+		if (isWaitForFileArrivalInCompleteCollection() && (lastExpectedFullFilepath != null)) {
+			checkErrorStatus();
+			waitForFile(lastExpectedFullFilepath);
+		}
 		disableFileWriting();
 	}
 
@@ -369,36 +395,38 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
-
+		lastExpectedFullFilepath = returnPathIsRelative ? getAbsoluteFilePath(filepath) : filepath;
 		checkErrorStatus();
 		if( isWaitForFileArrival()){
 			// Now check that the file exists
-			String fullFilePath = returnPathIsRelative ? getAbsoluteFilePath(filepath) : filepath;
-			try {
-				File f = new File(fullFilePath);
-				long numChecks = 0;
-				while (!f.exists()) {
-					numChecks++;
-					Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
-					checkErrorStatus();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						throw new InterruptedException("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
-					}
-					if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
-						InterfaceProvider.getTerminalPrinter().print(
-								"Waiting for file '" + fullFilePath + "' to be created");
-						numChecks = 0;
-					}
-				}
-			} catch (Exception e) {
-				throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'",e);
-			}
+			waitForFile(lastExpectedFullFilepath);
 		}
 
 		// Multiple filewriters require different file writer names and extra names
 		return new NXDetectorDataFileAppenderForSrs(filepath, getInputStreamNames().get(0));
+	}
+
+	private void waitForFile(String fullFilePath) throws DeviceException {
+		try {
+			File f = new File(fullFilePath);
+			long numChecks = 0;
+			while (!f.exists()) {
+				numChecks++;
+				try {
+					Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
+				} catch (InterruptedException e) {
+					throw new InterruptedException("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
+				}
+				checkErrorStatus();
+				if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
+					InterfaceProvider.getTerminalPrinter().print(
+							"Waiting for file '" + fullFilePath + "' to be created");
+					numChecks = 0;
+				}
+			}
+		} catch (Exception e) {
+			throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'",e);
+		}
 
 	}
 
@@ -428,4 +456,13 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 			logger.warn("Getting full Filename from Epics RBV value: This will not work for continuous scanning.");
 		this.fullFileNameFromRBV = fullFileNameFromRBV;
 	}
+
+	public boolean isFilePathInaccessibleFromServer() {
+		return filePathInaccessibleFromServer;
+	}
+
+	public void setFilePathInaccessibleFromServer(boolean filePathNotVisibleFromServer) {
+		this.filePathInaccessibleFromServer = filePathNotVisibleFromServer;
+	}
+
 }

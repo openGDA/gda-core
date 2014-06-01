@@ -26,6 +26,7 @@ import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.scan.ScanInformation;
 
+//TODO: This class is far specific than its generic name suggests. See MultipleExposurePerCollectionStandard
 /*
  * Implementation of ADTriggeringStrategy that is used when multiple exposures are to be taken per
  * acquisition.
