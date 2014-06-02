@@ -236,7 +236,7 @@ class RunOptimisation:
             print columnNames
             # *********** RobW 17 May 2014 7pm : its not finding the column in here. I've added some debig stuff. If had time I would have dived into ScanFileHolder, and/or debugged it on the server.
             print "file: " + str(file)
-            print "self.scanDir: " + self.scanDir
+            print "self.scanDir: " + str(self.scanDir)
             print "scan file holder: " + str(data)
             print "scan file holder (DataHolder) contains names:" + str(data.getNames())
             column_name = columnNames["data_centroid"]
