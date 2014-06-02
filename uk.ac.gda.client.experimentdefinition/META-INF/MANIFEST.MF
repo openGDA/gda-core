@@ -24,8 +24,7 @@ Export-Package: uk.ac.gda.beans.validation,
  uk.ac.gda.client.experimentdefinition.components,
  uk.ac.gda.client.experimentdefinition.ui.handlers
 Bundle-Vendor: Diamond Light Source
-Import-Package: javax.mail;version="1.4.1",
- org.eclipse.core.commands,
+Import-Package: org.eclipse.core.commands,
  org.eclipse.core.commands.common,
  org.eclipse.core.filesystem,
  org.eclipse.core.resources,
