@@ -35,8 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import uk.ac.gda.devices.mythen.epics.MythenEpicsClient.Setting;
-
 public class MythenEpicsClient implements MythenClient, InitializingBean {
 	static final Logger logger = LoggerFactory.getLogger(MythenEpicsClient.class);
 

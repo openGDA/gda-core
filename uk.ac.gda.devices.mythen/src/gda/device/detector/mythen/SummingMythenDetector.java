@@ -18,7 +18,6 @@
 
 package gda.device.detector.mythen;
 
-import gda.analysis.DataSet;
 import gda.analysis.Plotter;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;

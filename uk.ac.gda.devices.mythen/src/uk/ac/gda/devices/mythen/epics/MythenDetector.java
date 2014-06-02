@@ -60,7 +60,7 @@ public class MythenDetector extends MythenDetectorImpl {
 		if (!isConfigured()) {
 			super.configure();
 			try { // default configuration for software triggered acquisition
-				configureDetectorForAutoModeAcquisition();
+//				configureDetectorForAutoModeAcquisition();
 				setConfigured(true);
 			} catch (Exception e) {
 				logger.error("Failed to configure detector parameters", e);

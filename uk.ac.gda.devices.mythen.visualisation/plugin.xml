@@ -10,14 +10,6 @@
             name="Mythen data control"
             restorable="true">
       </view>
-      <view
-            allowMultiple="false"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
-            icon="icons/chart_curve.png"
-            id="uk.ac.gda.devices.mythen.visualisation.MythenPlotView"
-            name="Mythen"
-            restorable="true">
-      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
