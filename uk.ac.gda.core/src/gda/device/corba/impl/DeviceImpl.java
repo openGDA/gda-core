@@ -66,7 +66,7 @@ public class DeviceImpl extends CorbaDevicePOA implements IObserver {
 	public DeviceImpl(Device device, POA poa) {
 		this.device = device;
 		this.poa = poa;
-		name = ((DeviceBase) device).getName();
+		name = device.getName();
 		dispatcher = EventService.getInstance().getEventDispatcher();
 		device.addIObserver(this);
 	}
