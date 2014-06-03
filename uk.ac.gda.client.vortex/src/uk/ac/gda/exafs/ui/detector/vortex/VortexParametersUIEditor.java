@@ -64,7 +64,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		String tfgName = vortexParameters.getTfgName();
 		Detector xmapDetector = Finder.getInstance().find(detectorName);
 		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-		this.vortex = new Vortex(path, this.getSite(), parent, detectorList, xmapDetector, tfg);
+		this.vortex = new Vortex(path, this.getSite(), parent, detectorList, xmapDetector, tfg, vortexParameters);
 	}
 
 	@Override
