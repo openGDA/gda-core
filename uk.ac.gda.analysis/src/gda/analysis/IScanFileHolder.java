@@ -21,6 +21,7 @@ package gda.analysis;
 import java.util.List;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -197,14 +198,14 @@ public interface IScanFileHolder {
 
 	/**
 	 * @see #getInterpolatedX(String, String, double)
-	 * @deprecated Use {@link DatasetUtils#crossings(AbstractDataset, AbstractDataset, double)}
+	 * @deprecated Use {@link DatasetUtils#crossings(Dataset, Dataset, double)}
 	 */
 	@Deprecated
 	public List<Double> getInterpolatedX(AbstractDataset XAxis, AbstractDataset YAxis, double yPosition);
 
 	/**
 	 * @see #getInterpolatedX(String, String, double, double)
-	 * @deprecated Use {@link DatasetUtils#crossings(AbstractDataset, AbstractDataset, double, double)}
+	 * @deprecated Use {@link DatasetUtils#crossings(Dataset, Dataset, double, double)}
 	 */
 	@Deprecated
 	public List<Double> getInterpolatedX(AbstractDataset XAxis, AbstractDataset YAxis, double yPosition,

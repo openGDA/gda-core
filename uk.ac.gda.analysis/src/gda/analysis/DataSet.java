@@ -971,7 +971,7 @@ public class DataSet extends DoubleDataset {
 	 * @return The 2D array of doubles
 	 * @throws IllegalArgumentException
 	 *             This is thrown if the dataset can't be passed as a Matrix
-	 * @deprecated {@link DatasetUtils#createJavaArray(AbstractDataset)}
+	 * @deprecated {@link DatasetUtils#createJavaArray(Dataset)}
 	 */
 	@Deprecated
 	public synchronized double[][] doubleMatrix() throws IllegalArgumentException {
@@ -1456,7 +1456,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param data
 	 * @return dataset with axes reversed
-	 * @deprecated Use {@link DatasetUtils#transpose(AbstractDataset, int...)}
+	 * @deprecated Use {@link DatasetUtils#transpose(IDataset, int...)}
 	 */
 	@Deprecated
 	public static DataSet transpose(DataSet data) {
@@ -1467,7 +1467,7 @@ public class DataSet extends DoubleDataset {
 	 * @param data
 	 * @param axes
 	 * @return dataset with axes permuted
-	 * @deprecated Use {@link DatasetUtils#transpose(AbstractDataset, int...)}
+	 * @deprecated Use {@link DatasetUtils#transpose(IDataset, int...)}
 	 */
 	@Deprecated
 	public static DataSet transpose(DataSet data, int... axes) {
@@ -1491,7 +1491,7 @@ public class DataSet extends DoubleDataset {
 	 * @param a
 	 * @param repeats 
 	 * @return tiled dataset
-	 * @deprecated Use {@link DatasetUtils#repeat(AbstractDataset, int[], int)}
+	 * @deprecated Use {@link DatasetUtils#repeat(Dataset, int[], int)}
 	 */
 	@Deprecated
 	public static DataSet repeat(DataSet a, int repeats) {
@@ -1503,7 +1503,7 @@ public class DataSet extends DoubleDataset {
 	 * @param a
 	 * @param repeats 
 	 * @return tiled dataset
-	 * @deprecated Use {@link DatasetUtils#repeat(AbstractDataset, int[], int)}
+	 * @deprecated Use {@link DatasetUtils#repeat(Dataset, int[], int)}
 	 */
 	@Deprecated
 	public static DataSet repeat(DataSet a, int[] repeats) {
@@ -1516,7 +1516,7 @@ public class DataSet extends DoubleDataset {
 	 * @param repeats 
 	 * @param axis 
 	 * @return tiled dataset
-	 * @deprecated Use {@link DatasetUtils#repeat(AbstractDataset, int[], int)}
+	 * @deprecated Use {@link DatasetUtils#repeat(Dataset, int[], int)}
 	 */
 	@Deprecated
 	public static DataSet repeat(DataSet a, int repeats, int axis) {
@@ -1534,7 +1534,7 @@ public class DataSet extends DoubleDataset {
 	 * @param repeats 
 	 * @param axis
 	 * @return dataset
-	 * @deprecated Use {@link DatasetUtils#repeat(AbstractDataset, int[], int)}
+	 * @deprecated Use {@link DatasetUtils#repeat(Dataset, int[], int)}
 	 */
 	@Deprecated
 	public static DataSet repeat(DataSet a, int[] repeats, int axis) {
@@ -1548,7 +1548,7 @@ public class DataSet extends DoubleDataset {
 	 * @param A
 	 * @param reps 
 	 * @return tiled dataset
-	 * @deprecated Use {@link DatasetUtils#tile(AbstractDataset, int...)}
+	 * @deprecated Use {@link DatasetUtils#tile(Dataset, int...)}
 	 */
 	@Deprecated
 	public static DataSet tile(DataSet A, int... reps) {
@@ -1570,7 +1570,7 @@ public class DataSet extends DoubleDataset {
 	 * @param data
 	 * @param axisPermutation
 	 * @return remapped copy of data
-	 * @deprecated Use {@link DatasetUtils#transpose(AbstractDataset, int...)}
+	 * @deprecated Use {@link DatasetUtils#transpose(IDataset, int...)}
 	 */
 	@Deprecated
 	public static DataSet permuteAxes(DataSet data, int... axisPermutation) {
