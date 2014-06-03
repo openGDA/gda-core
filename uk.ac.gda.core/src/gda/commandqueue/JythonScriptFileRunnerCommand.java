@@ -28,8 +28,6 @@ import gda.observable.IObserver;
 import java.io.File;
 import java.io.Serializable;
 
-import javax.mail.MethodNotSupportedException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -213,7 +211,7 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 
 	@Override
 	public void setDetails(String details) throws Exception {
-		throw new MethodNotSupportedException();
+		throw new UnsupportedOperationException();
 	}
 
 	public void setSettingsPath(String settingsPath) {

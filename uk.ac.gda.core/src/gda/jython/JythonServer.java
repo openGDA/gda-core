@@ -646,26 +646,31 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public synchronized void requestFinishEarly(String JSFIdentifier) {
-		currentScan.requestFinishEarly();
+		if (currentScan != null)
+			currentScan.requestFinishEarly();
 	}
 
 	@Override
 	public void pauseCurrentScan(String JSFIdentifier) {
-		currentScan.pause();
+		if (currentScan != null)
+			currentScan.pause();
 	}
 
 	@Override
 	public void resumeCurrentScan(String JSFIdentifier) {
-		currentScan.resume();
+		if (currentScan != null)
+			currentScan.resume();
 	}
 
 	@Override
 	public void restartCurrentScan(String JSFIdentifier) {
 		// if the last scan has finished and was aborted for some reason, then re-run it
-		ScanStatus status = currentScan.getStatus();
-		if (status == ScanStatus.COMPLETED_AFTER_FAILURE || status == ScanStatus.COMPLETED_AFTER_STOP) {
-			this.placeInJythonNamespace("the_restarted_scan", this.currentScan, JSFIdentifier);
-			runCommand("the_restarted_scan.runScan()", JSFIdentifier);
+		if (currentScan != null) {
+			ScanStatus status = currentScan.getStatus();
+			if (status == ScanStatus.COMPLETED_AFTER_FAILURE || status == ScanStatus.COMPLETED_AFTER_STOP) {
+				this.placeInJythonNamespace("the_restarted_scan", this.currentScan, JSFIdentifier);
+				runCommand("the_restarted_scan.runScan()", JSFIdentifier);
+			}
 		}
 	}
 
