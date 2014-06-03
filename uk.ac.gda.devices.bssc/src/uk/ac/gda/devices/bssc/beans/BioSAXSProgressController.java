@@ -24,6 +24,8 @@ import gda.device.DeviceException;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.jython.IBatonStateProvider;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -67,7 +69,11 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 			simpleUDPServer.addIObserver(new SimpleUDPReceiver(this));
 		}
 		try {
-			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
+			IBatonStateProvider bsp = InterfaceProvider.getBatonStateProvider();
+			visit = bsp.getMyDetails().getVisitID();
+			if (visit.equals("")) {
+				visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
+			}
 			blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
 		} catch (DeviceException e) {
 			logger.error("DeviceException getting visit", e);
