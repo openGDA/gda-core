@@ -32,8 +32,6 @@ import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
 
 public class VortexView extends ViewPart {
-	public VortexView() {
-	}
 
 //	<DetectorElement>
 //  <name>Element1</name>
@@ -79,7 +77,7 @@ public class VortexView extends ViewPart {
 		String tfgName = "tfg";
 		XmapDetector xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
 		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-		new Vortex(path, this.getSite(), parent, detectorList, xmapDetector, tfg);
+		new Vortex(path, this.getSite(), parent, detectorList, xmapDetector, tfg, null);
 	}
 
 	@Override
