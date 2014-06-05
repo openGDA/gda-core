@@ -36,7 +36,6 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
-import uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory;
 import uk.ac.gda.client.hrpd.views.LivePlotView;
 /**
  * a factory for creating a {@link LivePlotView} instance. 

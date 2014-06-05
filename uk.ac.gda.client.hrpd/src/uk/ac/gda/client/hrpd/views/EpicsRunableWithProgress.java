@@ -119,6 +119,7 @@ public class EpicsRunableWithProgress implements IRunnableWithProgress, Initiali
 					lastWorked = work;
 				}
 				Thread.sleep(1000);
+				work = getWorkedSoFarListener().getValue();
 			}
 		} finally {
 			monitor.done();
