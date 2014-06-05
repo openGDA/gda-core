@@ -161,8 +161,8 @@ class VortexConfig():
             raise e
 
     def configure(self, xmlFileName, saveRawSpectrum):
-        print "xmlFileName=", xmlFileName
-        print "isSaveRawSpectrum", saveRawSpectrum
+        #print "xmlFileName=", xmlFileName
+        #print "isSaveRawSpectrum", saveRawSpectrum
         self.configuration.setSaveRawSpectrum(saveRawSpectrum)
         self.configuration.configure(xmlFileName)
 

@@ -180,29 +180,29 @@ class B18SamplePreparer:
 			offset = bean.getCalibHeight()
 			height = offset + (float(sample - 1) * -15.5)
 			targetPosition = [height, bean.getRot()]
-		print "moving sxcryostage (" + self.sxcryo_scannable.name + ") to ", targetPosition
+		self.log( "moving sxcryostage (" + self.sxcryo_scannable.name + ") to " + str( targetPosition))
 		self.sxcryo_scannable(targetPosition);
-		print "sxcryostage move complete."
+		self.log(  "sxcryostage move complete.")
 			
 	def _control_xytheta_stage(self, bean):	
 		targetPosition = [bean.getX(), bean.getY(), bean.getTheta()]
-		print "moving xythetastage (" + self.xytheta_scannable.name + ") to ", targetPosition
+		self.log( "moving xythetastage (" + self.xytheta_scannable.name + ") to " + str(targetPosition))
 		self.xytheta_scannable(targetPosition);
-		print "xythetastage move complete."
+		self.log(  "xythetastage move complete.")
 		
 	def _control_user_stage(self, bean):	
 		targetPosition = [bean.getAxis2(), bean.getAxis4(), bean.getAxis5(), bean.getAxis6(), bean.getAxis7(), bean.getAxis8()]
-		print "moving userstage (" + self.user_scannable.name + ") to ", targetPosition
+		self.log(  "moving userstage (" + self.user_scannable.name + ") to " + str( targetPosition))
 		self.user_scannable(targetPosition);
-		print "userstage move complete."
+		self.log(  "userstage move complete.")
 
 	def _control_ln2cryo_stage(self, bean):
 		manual = bean.isManual()
 		if manual:
 			targetPosition = [bean.getHeight(), bean.getAngle()]
-			print "moving ln2cryostage (" + self.ln2cryo_scannable.name + ") to ", targetPosition
+			self.log(  "moving ln2cryostage (" + self.ln2cryo_scannable.name + ") to " + str( targetPosition))
 			self.ln2cryo_scannable(targetPosition);
-			print "ln2cryostage move complete."
+			self.log(  "ln2cryostage move complete.")
 		else:
 			sampleNumberA = bean.getSampleNumberA()
 			sampleNumberB = bean.getSampleNumberB()
@@ -226,10 +226,10 @@ class B18SamplePreparer:
 		manual = bean.isManual()
 		if manual:
 			demand = bean.getDemand()
-			print "moving sample wheel to ", demand
+			self.log("moving sample wheel to " + str( demand))
 			self.samplewheel_scannable(demand)
 		else:
 			filter = bean.getFilter()
-			print "moving sample wheel to ", filter
+			self.log( "moving sample wheel to " + str(filter))
 			self.samplewheel_scannable.moveToFilter(filter)
 		print "sample wheel move complete"

@@ -162,7 +162,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		return sampleName;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Scan", refresh = false, columnIndex = 1)
+	@ScriptControllerLogColumn(columnName = "Scan", refresh = true, columnIndex = 1)
 	public int getScanNumber() {
 		return scanNumber;
 	}

@@ -35,7 +35,7 @@ class QexafsScan(Scan):
         self.log("Starting QEXAFS scan...")
         
         experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
-        print "qexafs XML file names",sampleFileName, scanFileName, detectorFileName, outputFileName
+        #print "qexafs XML file names",sampleFileName, scanFileName, detectorFileName, outputFileName
         self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
 
         if self.cirrusEnabled:
@@ -74,7 +74,7 @@ class QexafsScan(Scan):
                 final_energy = scanBean.getFinalEnergy()
                 step_size = scanBean.getStepSize()
                 self.outputPreparer.prepare(outputBean, scanBean)
-                print 'Prepare output'
+                #print 'Prepare output'
                 if len(outputBean.getCheckedSignalList()) > 0:
                     print "Signal parameters not available with QEXAFS"
                 if self.energy_scannable == None:
@@ -195,7 +195,7 @@ class QexafsScan(Scan):
         expt_type = detectorBean.getExperimentType()
         detectorList = []
         if expt_type == "Transmission":
-            print "This is a transmission scan"
+            #print "This is a transmission scan"
             if self.gmsd_enabled==True:
                 return self._createDetArray(["qexafs_counterTimer01_gmsd"], scanBean)
             elif self.additional_channels_enabled==True:
