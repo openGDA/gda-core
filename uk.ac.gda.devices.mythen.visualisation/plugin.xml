@@ -10,6 +10,13 @@
             name="Mythen data control"
             restorable="true">
       </view>
+      <view
+            class="uk.ac.gda.devices.mythen.visualisation.viewextensionfactories.LivePlotViewExtensionFactory:mythenliveplotviewfactory"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.devices.mythen.visualisation.views.liveplotview"
+            name="Mythen"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
