@@ -72,12 +72,12 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	@Override
 	public Object[] readAllFrames() throws DeviceException {
 		Integer lastFrame = getNumberFrames() - 1;
-		return readFrames(0, lastFrame);
+		return readoutCorrectedFrames(0, lastFrame);
 	}
 	
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		double[][] frame = readoutFrames(startFrame, finalFrame);
+		double[][] frame = readoutCorrectedFrames(startFrame, finalFrame);
 		framesRead=frame;
 		return frame;
 	}
@@ -88,11 +88,20 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 			Integer numFrames = getNumberFrames();
 			// if nothing collected, so 0 frames, then view the contents of the first frame anyway
 			if (numFrames == 0) {
-				return readoutFrames(0, 0)[0];
+				return readoutCorrectedFrames(0, 0)[0];
 			}
-			return readoutFrames(numFrames -1 , numFrames -1)[0];
+			return readoutCorrectedFrames(numFrames -1 , numFrames -1)[0];
 		}
-		return readoutFrames(0,0)[0];
+		return readoutCorrectedFrames(0,0)[0];
+	}
+	
+	private double[][] readoutCorrectedFrames(int startFrame, int finalFrame) throws DeviceException {
+		// make sure performCorrections from TfgScalerWithLogValues is called on every frame
+		double[][] frames = readoutFrames(startFrame, finalFrame);
+		for (int frame = 0; frame < frames.length; frame++){
+			frames[frame] = performCorrections(frames[frame]);
+		}
+		return frames;
 	}
 
 	@Override
