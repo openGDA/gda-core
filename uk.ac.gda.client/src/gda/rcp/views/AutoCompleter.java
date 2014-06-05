@@ -63,7 +63,8 @@ public class AutoCompleter {
 
 	private String prefixOfLastWord;
 
-	private ContentProposalAdapter adapter;
+	private ContentProposalAdapter ctrlSpaceAdapter;
+	private ContentProposalAdapter tabAdapter;
 
 	public AutoCompleter(final Text txtInput) {
 		this.txtInput = txtInput;
@@ -71,7 +72,7 @@ public class AutoCompleter {
 		txtInput.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(final org.eclipse.swt.events.KeyEvent e) {
-				if (((e.stateMask & SWT.CTRL) != 0) && e.keyCode == ' ') {
+				if ((((e.stateMask & SWT.CTRL) != 0) && e.keyCode == ' ') || e.keyCode == SWT.TAB) {
 					List<IContentProposal> proposals = getProposals();
 					if (proposals != null && proposals.size() == 1) {
 						if (!txtInput.getText().trim().equals(proposals.get(0).getContent())) {
@@ -79,14 +80,6 @@ public class AutoCompleter {
 						}
 					} else {
 						handleModify();
-					}
-				} else if (e.keyCode == ' ' && adapter.isProposalPopupOpen()) {
-					// If the "space" key is pressed when the proposal popup is open then autocomplete it with the top
-					// most entry.
-					List<IContentProposal> proposals = getProposals();
-					if (!proposals.isEmpty()) {
-						contentProposalListener.proposalAccepted(proposals.get(0));
-						adapter.closeProposalPopup();
 					}
 				}
 			}
@@ -100,24 +93,31 @@ public class AutoCompleter {
 	}
 
 	void installContentProposalAdapter(Control control, IControlContentAdapter contentAdapter) throws ParseException {
-		boolean propagate = true;
 		char[] autoActivationCharacters = null;
-		int autoActivationDelay = 0;
+		KeyStroke tabStroke = KeyStroke.getInstance("Tab");
+		tabAdapter = new ContentProposalAdapter(control, contentAdapter, getContentProposalProvider(), tabStroke,
+				autoActivationCharacters);
+		setupContentPropoasalAdapter(tabAdapter);
 
 		KeyStroke ctrlSpaceKeyStroke = KeyStroke.getInstance("Ctrl+Space");
-
-		adapter = new ContentProposalAdapter(control, contentAdapter, getContentProposalProvider(), ctrlSpaceKeyStroke,
+		ctrlSpaceAdapter = new ContentProposalAdapter(control, contentAdapter, getContentProposalProvider(), ctrlSpaceKeyStroke,
 				autoActivationCharacters);
-		adapter.setInfoPopupRequired(false);
-		adapter.addContentProposalListener(contentProposalListener);
-		adapter.setLabelProvider(prv);
-		adapter.setAutoActivationDelay(autoActivationDelay);
-		adapter.setPropagateKeys(propagate);
-		adapter.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_IGNORE);
+		setupContentPropoasalAdapter(ctrlSpaceAdapter);
+
+	}
+	
+	private void setupContentPropoasalAdapter(ContentProposalAdapter cpa) {
+		boolean propagate = true;
+		int autoActivationDelay = 0;
+		cpa.setInfoPopupRequired(false);
+		cpa.addContentProposalListener(contentProposalListener);
+		cpa.setLabelProvider(prv);
+		cpa.setAutoActivationDelay(autoActivationDelay);
+		cpa.setPropagateKeys(propagate);
+		cpa.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_IGNORE);
 	}
 
 	private IContentProposalListener contentProposalListener = new IContentProposalListener() {
-
 		@Override
 		public void proposalAccepted(IContentProposal proposal) {
 			finishAutoCompletion(proposal.getLabel());
@@ -207,18 +207,17 @@ public class AutoCompleter {
 				postFix = currentInput.substring(caretPos);
 				currentInput = currentInput.substring(0, caretPos);
 			}
-			String[] parts = currentInput.split(" ");
-			if (parts.length == 0) {
+
+			int lastWhiteSpace = Math.max(currentInput.lastIndexOf(' '), currentInput.lastIndexOf('\t'));
+			if (currentInput.length() == 0) {
 				return null;
+			} else if(lastWhiteSpace == -1) {
+				wordsBefore = "";
+				lastWord = currentInput;
+			} else {
+				wordsBefore = currentInput.substring(0, lastWhiteSpace + 1); //+1 to not include white space
+				lastWord = currentInput.substring(lastWhiteSpace + 1);
 			}
-			// set the string of words up to the last word
-			wordsBefore = "";
-			if (parts.length > 1) {
-				for (int i = 0; i < parts.length - 1; i++) {
-					wordsBefore += parts[i] + " ";
-				}
-			}
-			lastWord = parts[parts.length - 1];
 		}
 
 		/* split the last word if it contains open parenthesis i.e. '(' */
@@ -260,13 +259,12 @@ public class AutoCompleter {
 	/*
 	 * called by either the popup menu or directly
 	 */
-	private void finishAutoCompletion(String name) {
-		if (name != null) {
-			String replacement = name;
-			final String newtext = wordsBefore + prefixOfLastWord + replacement + postFix;
-			txtInput.setText(newtext);
+	private void finishAutoCompletion(String replacement) {
+		if (replacement != null) {
+			final String toCaret = wordsBefore + prefixOfLastWord + replacement;
+			txtInput.setText(toCaret + postFix);
 			txtInput.setFocus();
-			txtInput.setSelection(txtInput.getCharCount() + 1, txtInput.getCharCount() + 1);
+			txtInput.setSelection(toCaret.length(), toCaret.length());
 		}
 	}
 
@@ -321,8 +319,11 @@ public class AutoCompleter {
 	}
 
 	public void dispose() {
-		if (adapter != null) {
-			adapter.removeContentProposalListener(contentProposalListener);
+		if (ctrlSpaceAdapter != null) {
+			ctrlSpaceAdapter.removeContentProposalListener(contentProposalListener);
+		}
+		if (tabAdapter != null) {
+			tabAdapter.removeContentProposalListener(contentProposalListener);
 		}
 	}
 }

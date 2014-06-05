@@ -16,33 +16,42 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client;
+package uk.ac.gda.client.liveplot;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.client.liveplot.LivePlotView;
 
 /**
- *
+ * Handler to disconnect the current XYPlotView and create a new one
  */
-public class XYPlotHideAllHandler extends AbstractHandler {
-	
-	/**
-	 * ID of command
-	 */
-	public static final String ID = "uk.ac.gda.client.xyPlotHideAllCommand";
-
+public class LivePlotNewHandler extends AbstractHandler{
+	private static final Logger logger = LoggerFactory.getLogger(LivePlotNewHandler.class);		
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
-		
+		try{
 			IWorkbenchPart view = HandlerUtil.getActivePartChecked(event);
-			if(view instanceof ScanPlotView){
-				ScanPlotView xYPlotView = (ScanPlotView)view;
-				xYPlotView.hideAll();
+			if(view instanceof LivePlotView){
+				LivePlotView xyview = (LivePlotView)view;
+				if(!xyview.isDisconnected()){
+					xyview.setConnect(false);
+				}
+				final IWorkbenchPage page = HandlerUtil.getActiveSite(event).getPage();
+				final IViewPart      part = page.showView(LivePlotView.ID, LivePlotView.getUniqueSecondaryId(), IWorkbenchPage.VIEW_VISIBLE);
+				page.activate(part);
 			}
+		}
+		catch (Exception e){
+			logger.error(e.getMessage(),e);
+		}
 		return null;
 	}
 }

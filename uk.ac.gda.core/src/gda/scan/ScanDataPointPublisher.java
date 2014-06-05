@@ -39,7 +39,9 @@ public class ScanDataPointPublisher {
 	}
 
 	protected void publish(IScanDataPoint point) throws Exception {
-		dataWriter.addData(point);
+		synchronized(dataWriter) {
+			dataWriter.addData(point);
+		}
 	
 		// update the filename (if this was the first data point and so
 		// filename would never be defined until first data added
@@ -56,7 +58,9 @@ public class ScanDataPointPublisher {
 	public void shutdown() throws DeviceException {
 		try {
 			logger.debug("Calling data writer complete collection from SDPPL");
-			dataWriter.completeCollection();
+			synchronized(dataWriter) {
+				dataWriter.completeCollection();
+			}
 		} catch (Exception e) {
 			throw new DeviceException("problem shutting down datawriter",e);
 		}

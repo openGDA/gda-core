@@ -29,7 +29,9 @@ The GDA project is an open-source framework for creating customised data acquisi
 -XX:+DisableExplicitGC
 -Xms256m
 -Xmx1280m
--XX:PermSize=512m -XX:MaxPermSize=1024m</vmArgs>
+-XX:PermSize=512m -XX:MaxPermSize=1024m
+-Xdebug
+-Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 

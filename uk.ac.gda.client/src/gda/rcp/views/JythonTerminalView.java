@@ -253,21 +253,30 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 						handleTxtInputKeyEvent(e);
 					}
 				});
-
 				txtInput.addTraverseListener(new TraverseListener() {
 					@Override
 					public void keyTraversed(TraverseEvent e) {
+						e.doit = false;
 						switch (e.detail) {
 						case SWT.TRAVERSE_TAB_NEXT:
-						case SWT.TRAVERSE_TAB_PREVIOUS:
-							e.doit = false;
 							PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 								@Override
 								public void run() {
-									txtInput.insert(String.valueOf(SWT.TAB)); // also grab the focus back!
-
+//									//don't insert tab if cursor is after text - let autocomplete work
+									String toCaret = txtInput.getText(0, txtInput.getCaretPosition()-1);
+									if (toCaret.trim().length() == 0) {
+										txtInput.insert(String.valueOf(SWT.TAB));
+									}
 								}
 							});
+							break;
+						case SWT.TRAVERSE_TAB_PREVIOUS:
+							int caret = txtInput.getCaretPosition();
+							if (txtInput.getText(caret-1, caret-1).equals(String.valueOf(SWT.TAB))) {
+								txtInput.setText(txtInput.getText().replaceFirst("\t", ""));
+								txtInput.setSelection(caret-1);
+							}
+							break;
 						}
 					}
 				});
@@ -649,6 +658,15 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		// Ctrl-U clears the text box
 		else if (e.stateMask == SWT.CTRL && e.keyCode == 'u') {
 			txtInput.setText("");
+		}
+		
+		else if (e.stateMask == SWT.CTRL && (e.keyCode == 'd' || e.keyCode == 'z')) {
+			txtInput.setText("");
+			currentCmd = "";
+			txtPrompt.setText(NORMALPROMPT);
+			appendOutput("KeyboardInterrupt");
+			appendOutput(">>> \n");
+//			run();
 		}
 	}
 

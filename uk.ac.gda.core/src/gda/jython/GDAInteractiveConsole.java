@@ -23,7 +23,6 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyJavaType;
 import org.python.core.PyObject;
-import org.python.core.PySyntaxError;
 import org.python.core.PySystemState;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
@@ -74,7 +73,7 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 	 */
 	@Override
 	public void showexception(PyException arg0) {
-		if (arg0 instanceof PySyntaxError) {
+		if (arg0.match(Py.SyntaxError) || arg0.match(Py.IndentationError)) {
 			if( logger.isTraceEnabled() )
 				super.showexception(arg0);
 			InterfaceProvider.getTerminalPrinter().print(arg0.toString());

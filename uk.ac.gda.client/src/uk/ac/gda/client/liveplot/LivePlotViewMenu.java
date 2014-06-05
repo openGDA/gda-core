@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client;
+package uk.ac.gda.client.liveplot;
 
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.swt.SWT;
@@ -27,13 +27,13 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ToolBar;
 
-public class XYPlotviewMenu extends ContributionItem {
+public class LivePlotViewMenu extends ContributionItem {
 
-	public XYPlotviewMenu() {
+	public LivePlotViewMenu() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public XYPlotviewMenu(String id) {
+	public LivePlotViewMenu(String id) {
 		super(id);
 	}
 	private boolean state;

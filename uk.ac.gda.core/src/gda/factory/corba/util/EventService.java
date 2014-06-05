@@ -20,10 +20,13 @@
 package gda.factory.corba.util;
 
 import gda.configuration.properties.LocalProperties;
+import gda.factory.FactoryException;
 
 import org.omg.CosEventChannelAdmin.EventChannel;
 import org.omg.CosEventChannelAdmin.EventChannelHelper;
 import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +45,7 @@ public class EventService {
 
 	private String eventChannelName = "eventchannel.example";
 
-	private static EventService instance = new EventService();
+	private static EventService instance = null;
 
 	private EventDispatcher eventDispatcher = null;
 
@@ -55,31 +58,31 @@ public class EventService {
 	 * 
 	 * @return the EventService
 	 */
-	public static EventService getInstance() {
+	public synchronized static EventService getInstance() {
+		if( instance == null){
+			try {
+				instance = new EventService();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 		return instance;
 	}
 
-	private EventService() {
+	private EventService() throws FactoryException, NotFound, CannotProceed, InvalidName {
 		String property;
 
 		if ((property = NameFilter.getEventChannelName()) != null) {
 			eventChannelName = property;
 		}
 
-		try {
-			NetService netService = NetService.getInstance();
-			orb = netService.getOrb();
-			nc = netService.getNamingContextExt();
+		NetService netService = NetService.getInstance();
+		orb = netService.getOrb();
+		nc = netService.getNamingContextExt();
 
-			eventChannel = EventChannelHelper.narrow(nc.resolve(nc.to_name(eventChannelName)));
+		eventChannel = EventChannelHelper.narrow(nc.resolve(nc.to_name(eventChannelName)));
 
-			logger.debug("Successfully configured EventService using name '{}'", eventChannelName);
-			configured = true;
-		} catch (NotFound nfe) {
-			logger.error("Could not find EventService using name '{}'", eventChannelName);
-		} catch (Exception ex) {
-			logger.error("Could not configure EventService", ex);
-		}
+		configured = true;
 	}
 	
 	public boolean isConfigured() {

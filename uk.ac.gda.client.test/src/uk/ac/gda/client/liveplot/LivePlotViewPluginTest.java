@@ -17,7 +17,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client;
+package uk.ac.gda.client.liveplot;
 
 import gda.TestHelpers;
 import gda.gui.scanplot.ScanDataPointHandler;
@@ -48,18 +48,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.gda.ClientManager;
+import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.preferences.PreferenceConstants;
 
-public class XYPlotViewPluginTest implements IScanDataPointProvider, ScanDataPointHandler {
-	private XYPlotView view;
+public class LivePlotViewPluginTest implements IScanDataPointProvider, ScanDataPointHandler {
+	private LivePlotView view;
 	String scratchFolder;
 	URL testdataFile;
 	@Before
 	public void setUp() throws Exception {
 
 		ClientManager.setTestingMode(true);
-		scratchFolder=TestHelpers.setUpTest(XYPlotViewPluginTest.class, "setUp", true);
-		testdataFile = XYPlotViewPluginTest.class.getResource("XYPlotViewTestTestData.nxs");
+		scratchFolder=TestHelpers.setUpTest(LivePlotViewPluginTest.class, "setUp", true);
+		testdataFile = LivePlotViewPluginTest.class.getResource("LivePlotViewTestTestData.nxs");
 		GDAClientActivator.getDefault().getPreferenceStore().setValue(PreferenceConstants.MAX_SIZE_CACHED_DATA_POINTS,1);	
 		
 		InterfaceProvider.setScanDataPointProviderForTesting(this);
@@ -85,7 +86,7 @@ public class XYPlotViewPluginTest implements IScanDataPointProvider, ScanDataPoi
 	@Test
 	public void test1() throws IOException, PartInitException {
 		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		this.view = (XYPlotView)window.getActivePage().showView(XYPlotView.getID());
+		this.view = (LivePlotView)window.getActivePage().showView(LivePlotView.getID());
 		window.getActivePage().activate(view);
 		
 		ActionFactory.IWorkbenchAction  maximizeAction = ActionFactory.MAXIMIZE.create(window);
@@ -112,11 +113,11 @@ public class XYPlotViewPluginTest implements IScanDataPointProvider, ScanDataPoi
 				 */
 				Assert.assertNotNull(this.view.xyPlot.plotView.scans[23]);
 				Assert.assertNull(this.view.xyPlot.plotView.scans[24]);
-				XYData scanLine24 = this.view.xyPlot.plotView.scans[23];
-				Assert.assertEquals("Scan:1 ,0=2,,1=1, YY1", scanLine24.name);
-				Assert.assertEquals(100, scanLine24.archive.getyVals().getSize());
-				Assert.assertEquals(5.0, scanLine24.archive.getxAxis().getValue(5), 0.001);
-				Plot1DAppearance appearance = scanLine24.archive.getAppearance();
+				LiveData scanLine24 = this.view.xyPlot.plotView.scans[23];
+				Assert.assertEquals("Scan:1 ,0=2,,1=1, YY1", scanLine24.getName());
+				Assert.assertEquals(100, scanLine24.getArchive().getyVals().getSize());
+				Assert.assertEquals(5.0, scanLine24.getArchive().getxAxis().getValue(5), 0.001);
+				Plot1DAppearance appearance = scanLine24.getArchive().getAppearance();
 				Assert.assertEquals(1, appearance.getLineWidth());
 				Assert.assertTrue(appearance.isVisible());
 				}
@@ -128,14 +129,14 @@ public class XYPlotViewPluginTest implements IScanDataPointProvider, ScanDataPoi
 				 */
 				Assert.assertNotNull(this.view.xyPlot.plotView.scans[24]);
 				Assert.assertNull(this.view.xyPlot.plotView.scans[25]);
-				XYData scanLine24 = this.view.xyPlot.plotView.scans[23];
-				XYData scanLine25 = this.view.xyPlot.plotView.scans[24];
-				Assert.assertEquals("Scan:2  Y0", scanLine25.name);
-				Assert.assertEquals(100, scanLine25.archive.getyVals().getSize());
-				Assert.assertEquals(5.0, scanLine25.archive.getxAxis().getValue(5), 0.001);
-				Plot1DAppearance appearance = scanLine25.archive.getAppearance();
+				LiveData scanLine24 = this.view.xyPlot.plotView.scans[23];
+				LiveData scanLine25 = this.view.xyPlot.plotView.scans[24];
+				Assert.assertEquals("Scan:2  Y0", scanLine25.getName());
+				Assert.assertEquals(100, scanLine25.getArchive().getyVals().getSize());
+				Assert.assertEquals(5.0, scanLine25.getArchive().getxAxis().getValue(5), 0.001);
+				Plot1DAppearance appearance = scanLine25.getArchive().getAppearance();
 				Assert.assertTrue(appearance.isVisible());
-				Assert.assertFalse(scanLine24.archive.getAppearance().isVisible());
+				Assert.assertFalse(scanLine24.getArchive().getAppearance().isVisible());
 				}
 				break;
 			case 2:
@@ -144,8 +145,8 @@ public class XYPlotViewPluginTest implements IScanDataPointProvider, ScanDataPoi
 				 */
 				Assert.assertNotNull(this.view.xyPlot.plotView.scans[48]);
 				Assert.assertNull(this.view.xyPlot.plotView.scans[49]);
-				XYData scanLine48 = this.view.xyPlot.plotView.scans[48];
-				Assert.assertEquals("Scan:3 ,0=2,,1=1, YY1", scanLine48.name);
+				LiveData scanLine48 = this.view.xyPlot.plotView.scans[48];
+				Assert.assertEquals("Scan:3 ,0=2,,1=1, YY1", scanLine48.getName());
 				}
 				break;
 			}
