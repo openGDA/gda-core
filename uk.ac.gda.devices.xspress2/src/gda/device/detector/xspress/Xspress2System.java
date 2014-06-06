@@ -23,20 +23,16 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.Timer;
-import gda.device.detector.DAServer;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NexusDetector;
-import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
+import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.detector.xspress.xspress2data.Xspress2SystemData;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -74,37 +70,16 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public static final String ONLY_DISPLAY_FF_ATTR = "ff_only";
 	public static final String ADD_DT_VALUES_ATTR = "add_dt_values";
 
-	// These are used to calculate the size of the data
-	private Integer maxNumberOfFrames = 0; // the number of frames which TFG has
-											// space for, based on the current
-											// config in TFG
-
-	// These are the objects this must know about.
-	private String daServerName;
-	protected DAServer daServer = null;
-	private String tfgName;
-	protected Timer tfg = null;
-
-	// Values used in DAServer commands
-	private String mcaOpenCommand = null;
-	private String scalerOpenCommand = null;
-	private String startupScript = null;
-	protected final int numberOfScalers = 4; // number of values from each hardware scaler (e.g. total, resets, originalWindowed, time)
-	private int mcaHandle = -1;
-	private int scalerHandle = -1;
-	private String xspressSystemName;
-
 	// Full path to config file
 	private String configFileName = null;
 	protected int lastFrameCollected = 0;
 	// mode override property, when set to true the xspress is always set in SCAlers and MCA Mode
 	// does not change with the value in the parameters file, no rois are set
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
-	// this is only when using resgrades, when resgrades separated and 'extra' ascii columns are requested
-	private TfgScaler ionChambersCounterTimer = null;
 	private String dtcConfigFileName;
 	private Xspress2SystemData xspress2SystemData;
 	private Xspress2CurrentSettings settings;
+	protected Xspress2DAServerController controller;
 
 
 	public Xspress2System() {
@@ -115,19 +90,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	@Override
 	public void configure() throws FactoryException {
-		// A real system needs a connection to a real da.server via a DAServer
-		// object.
-		if (daServer == null) {
-			logger.debug("Xspress2System.configure(): finding: " + daServerName);
-			if ((daServer = (DAServer) Finder.getInstance().find(daServerName)) == null)
-				logger.error("Xspress2System.configure(): Server " + daServerName + " not found");
-		}
-		// Both dummy and real systems should have a tfg
-		if (tfg == null) {
-			logger.debug("Xspress2System.configure(): finding " + tfgName);
-			if ((tfg = (Timer) Finder.getInstance().find(tfgName)) == null)
-				logger.error("Xspress2System.configure(): TimeFrameGenerator " + tfgName + " not found");
-		}
+		// A real system needs a connection to a real da.server via a DAServer object.
 		try {
 			loadAndInitializeDetectors(configFileName, dtcConfigFileName);
 		} catch (Exception e) {
@@ -140,18 +103,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		if (!ResGrades.isResGrade(settings.getParameters().getResGrade()))
 			throw new FactoryException("resGrade " + settings.getParameters().getResGrade() + " is not an acceptable string");
 
-		// If everything has been found send the format, region of interest, windows & open commands.
-		if (tfg != null && (daServer != null)) {
-			try {
-				close();
-				doStartupScript();
-				doFormatRunCommand(determineNumberOfBits());
-				configureDetectorFromParameters();
-				open();
-			} catch (DeviceException e) {
-				throw new FactoryException(e.getMessage(), e);
-			}
-		}
+		controller.configure();
+
 		configured = true;
 	}
 
@@ -194,19 +147,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		settings.setXspressParameters(xspressParameters);
 	}
 
-	private void configureDetectorFromParameters() throws DeviceException {
-		// always remove all rois first
-		if (modeOverride)
-			settings.getParameters().setReadoutMode(READOUT_MCA);
-		else
-			doRemoveROIs();
-		
-		for (DetectorElement detector : settings.getDetectorElements()) {
-			doSetWindowsCommand(detector);
-			if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS))
-				doSetROICommand(detector);
-		}
-	}
+
 
 	@Override
 	public Double getDeadtimeCalculationEnergy() throws DeviceException {
@@ -217,39 +158,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public void setDeadtimeCalculationEnergy(Double energy) throws DeviceException {
 		settings.setDeadtimeEnergy(energy);
 	}
-
-	public int getMcaHandle() {
-		return mcaHandle;
-	}
-
-	public int getScalerHandle() {
-		return scalerHandle;
-	}
-
-	public void setDaServerName(String daServerName) {
-		this.daServerName = daServerName;
-	}
-
-	public String getDaServerName() {
-		return daServerName;
-	}
-
-	public DAServer getDaServer() {
-		return daServer;
-	}
-
-	public void setDaServer(DAServer daServer) {
-		this.daServer = daServer;
-	}
-
-	public Timer getTfg() {
-		return tfg;
-	}
-
-	public void setTfg(Timer tfg) {
-		this.tfg = tfg;
-	}
-
+	
 	/**
 	 * This is all detectors (elements), both included and excluded.
 	 */
@@ -295,16 +204,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			throw new DeviceException("resGrade " + resGrade + " is not an acceptable string");
 		}
 
-		setResolutionGrade(resGrade, determineNumberOfBits());
-	}
-
-	private void setResolutionGrade(String resGrade, int numberOfBits) throws DeviceException {
-		settings.getParameters().setResGrade(resGrade);
-		if (configured) {
-			close();
-			doFormatRunCommand(numberOfBits);
-			open();
-		}
+		controller.setResolutionGrade(resGrade);
 	}
 
 	/**
@@ -320,7 +220,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		DetectorElement detectorElement = settings.getParameters().getDetector(detector);
 		detectorElement.setRegionList(regionList);
 		if (configured)
-			doSetROICommand(detectorElement);
+			controller.doSetROICommand(detectorElement);
 	}
 
 	/**
@@ -335,15 +235,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		DetectorElement detectorElement = settings.getParameters().getDetector(detector);
 		detectorElement.setWindow(windowStart, windowEnd);
 		if (configured)
-			doSetWindowsCommand(detectorElement);
-	}
-
-	public String getTfgName() {
-		return tfgName;
-	}
-
-	public void setTfgName(String tfgName) {
-		this.tfgName = tfgName;
+			controller.doSetWindowsCommand(detectorElement);
 	}
 
 	public String getConfigFileName() {
@@ -356,10 +248,9 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-		if (!daServer.isConnected())
-			daServer.connect();
+		controller.checkIsConnected();
 		// if this class was used to define framesets, then memory is only cleared at the start of the scan
-		if (!tfg.getAttribute("TotalFrames").equals(0)) {
+		if (controller.getTotalFrames() != 0) {
 			stop();
 			clear();
 			start();
@@ -369,8 +260,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		if (!daServer.isConnected())
-			daServer.connect();
+		controller.checkIsConnected();
 		stop();
 		clear();
 		start();
@@ -403,68 +293,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		return settings.getChannelLabels();
 	}
 
-	/**
-	 * Sets the da.server command which should be used to open the mca
-	 * connection.
-	 * 
-	 * @param mcaOpenCommand
-	 *            the command
-	 */
-	public void setMcaOpenCommand(String mcaOpenCommand) {
-		this.mcaOpenCommand = mcaOpenCommand;
-	}
-
-	/**
-	 * Gets the da.server command which is used to open the mca connection.
-	 * 
-	 * @return the command
-	 */
-	public String getMcaOpenCommand() {
-		return mcaOpenCommand;
-	}
-
-	/**
-	 * Sets the da.server command which should be used to open the scaler
-	 * connection.
-	 * 
-	 * @param scalerOpenCommand
-	 *            the command
-	 */
-	public void setScalerOpenCommand(String scalerOpenCommand) {
-		this.scalerOpenCommand = scalerOpenCommand;
-	}
-
-	/**
-	 * Gets the da.server command which is used to open the scaler connection.
-	 * 
-	 * @return the command
-	 */
-	public String getScalerOpenCommand() {
-		return scalerOpenCommand;
-	}
-
-	/**
-	 * Sets startupScript which is a start up command to send to daserver.
-	 * 
-	 * @param startupScript
-	 *            the startup command
-	 */
-	public void setStartupScript(String startupScript) {
-		this.startupScript = startupScript;
-	}
-
-	public String getStartupScript() {
-		return startupScript;
-	}
-
-	public String getXspressSystemName() {
-		return xspressSystemName;
-	}
-
-	public void setXspressSystemName(String xspressSystemName) {
-		this.xspressSystemName = "'" + xspressSystemName + "'";
-	}
-
 	public Boolean getAddDTScalerValuesToAscii() {
 		return settings.isAddDTScalerValuesToAscii();
 	}
@@ -490,11 +318,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	public void setFullMCABits(int fullMCABits) throws DeviceException {
 		settings.setFullMCABits(fullMCABits);
-		if (configured) {
-			close();
-			doFormatRunCommand(determineNumberOfBits());
-			open();
-		}
+		if (configured)
+			controller.setFullMCABits(fullMCABits);
 	}
 
 	/**
@@ -510,12 +335,12 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public void setReadoutMode(String readoutMode) throws DeviceException {
 		if (modeOverride && !readoutMode.equals(settings.getParameters().getReadoutMode())) {
 			settings.getParameters().setReadoutMode(XspressDetector.READOUT_MCA);
-			configureDetectorFromParameters();
+			controller.configureDetectorFromParameters();
 		} else if ((readoutMode.equals(XspressDetector.READOUT_SCALERONLY)
 				|| readoutMode.equals(XspressDetector.READOUT_MCA) || readoutMode.equals(XspressDetector.READOUT_ROIS))
 				&& !readoutMode.equals(settings.getParameters().getReadoutMode())) {
 			settings.getParameters().setReadoutMode(readoutMode);
-			configureDetectorFromParameters();
+			controller.configureDetectorFromParameters();
 		}
 	}
 
@@ -535,7 +360,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			// as before
 			setReadoutMode(readoutMode);
 			// like setResGrade but the numberOfBits MUST be 12
-			setResolutionGrade(resGrade, 12);
+			controller.setResolutionGrade(resGrade, 12);
 		} else if (attribute.equals(ONLY_DISPLAY_FF_ATTR)) {
 			Boolean ffonly = Boolean.parseBoolean(value.toString());
 			setOnlyDisplayFF(ffonly);
@@ -559,27 +384,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		return settings.getParameters().getDetectorList();
 	}
 
-	/**
-	 * @return the maximum number of time frames possible based on the result of
-	 *         the last format-run command. This will be 0 when using
-	 *         DummyDaServer.
-	 */
-	public int getMaxNumberOfFrames() {
-		return maxNumberOfFrames;
-	}
-
-	public void setMaxNumberOfFrames(int maxNumberOfFrames) {
-		this.maxNumberOfFrames = maxNumberOfFrames;
-	}
-
-	public TfgScaler getIonChambersCounterTimer() {
-		return ionChambersCounterTimer;
-	}
-
-	public void setIonChambersCounterTimer(TfgScaler ionChambersCounterTimer) {
-		this.ionChambersCounterTimer = ionChambersCounterTimer;
-	}
-
 	public boolean isAlwaysRecordRawMCAs() {
 		return xspress2SystemData.isAlwaysRecordRawMCAs();
 	}
@@ -596,12 +400,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	@Override
 	public void clear() throws DeviceException {
-		if (mcaHandle < 0 || scalerHandle < 0)
-			open();
-		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
-			sendCommand("clear ", mcaHandle);
-		if (scalerHandle >= 0 && daServer != null && daServer.isConnected())
-			sendCommand("clear ", scalerHandle);
+		controller.clear();
 	}
 
 	/**
@@ -612,83 +411,25 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	@Override
 	public void start() throws DeviceException {
-		if (mcaHandle < 0 || scalerHandle < 0)
-			open();
-		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				logger.error("Error sleeping for 100ms", e);
-			}
-			sendCommand("enable ", mcaHandle);
-		}
-		if (scalerHandle >= 0 && daServer != null && daServer.isConnected())
-			sendCommand("enable ", scalerHandle);
+		controller.start();
 	}
 
 	@Override
 	public void atScanEnd() throws DeviceException {
 		// if this class was used to define framesets, then ensure they are cleared at the end of the scan
-		if (tfg.getAttribute("TotalFrames").equals(0))
+		if (controller.getTotalFrames() == 0)
 			stop(); // stops the TFG - useful if scan aborted and so TFG still in a PAUSE state rather than an IDLE state
 	}
 
 	@Override
 	public void stop() throws DeviceException {
-		if (mcaHandle < 0 || scalerHandle < 0)
-			open();
-		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
-			sendCommand("disable ", mcaHandle);
-		if (scalerHandle >= 0 && daServer != null && daServer.isConnected())
-			sendCommand("disable ", scalerHandle);
+		controller.stop();
 		lastFrameCollected = -1;
-		close();
 	}
 
 	@Override
 	public void close() throws DeviceException {
-		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
-			daServer.sendCommand("close " + mcaHandle);
-			mcaHandle = -1;
-		}
-		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
-			daServer.sendCommand("close " + scalerHandle);
-			scalerHandle = -1;
-		}
-	}
-
-	/**
-	 * @return int - the size in bits of the MCA array based on the readout mode
-	 *         and region of interest options.
-	 */
-	private int determineNumberOfBits() {
-
-		if (!settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS))
-			return settings.getFullMCABits();
-
-		int channels = findLargestChannelReadout();
-		int order = 0;
-		do
-			order++;
-		while (Math.pow(2, order) <= channels);
-
-		return order;
-	}
-
-	private int findLargestChannelReadout() {
-		int maxSize = 0;
-		for (DetectorElement element : settings.getParameters().getDetectorList()) {
-			int thisMcasize = 1; // always get an extra values for the out of window counts
-			for (XspressROI roi : element.getRegionList()) {
-				if (settings.getParameters().getRegionType().equals(XspressParameters.VIRTUALSCALER))
-					thisMcasize++;
-				else
-					thisMcasize += roi.getRoiEnd() - roi.getRoiStart() + 1;
-			}
-			if (maxSize < thisMcasize)
-				maxSize = thisMcasize;
-		}
-		return maxSize;
+		controller.close();
 	}
 
 	/**
@@ -702,130 +443,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public int getCurrentMCABits() {
 		return settings.getFullMCABits();
 	}
-
-	/**
-	 * execute the startup script on da.server
-	 * 
-	 * @throws DeviceException
-	 */
-	private void doStartupScript() throws DeviceException {
-		Object obj = null;
-		if (daServer != null && daServer.isConnected()) {
-			if (startupScript != null) {
-				String newResGrade = settings.getParameters().getResGrade();
-				// override the res-grade if the readout mode is scalers only or saclers + mca
-				if (!settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS))
-					newResGrade = ResGrades.NONE;
-				startupScript = "xspress2 format-run 'xsp1' " + newResGrade;
-				if ((obj = daServer.sendCommand(startupScript)) == null)
-					throw new DeviceException("Null reply received from daserver during " + startupScript);
-				else if (((Integer) obj).intValue() == -1)
-					throw new DeviceException(getName() + ": " + startupScript + " failed");
-				else {
-					maxNumberOfFrames = ((Integer) obj).intValue();
-					logger.info("Xspress2System startup script - reply  was: " + maxNumberOfFrames);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Execute the format-run command on da.server. This sets the resgrade.
-	 */
-	private void doFormatRunCommand(int numberOfBits) throws DeviceException {
-		String newResGrade = settings.getParameters().getResGrade();
-		// override the res-grade if the readout mode is scalers only or saclers + mca
-		if (!settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS))
-			newResGrade = ResGrades.NONE;
-		String formatCommand = "xspress2 format-run " + xspressSystemName + " " + numberOfBits + " " + newResGrade;
-		if (daServer != null && daServer.isConnected()) {
-			Integer numFrames = ((Integer) daServer.sendCommand(formatCommand)).intValue();
-			if (numFrames == null)
-				throw new DeviceException("Null reply received from daserver during " + formatCommand);
-			else if (numFrames == -1)
-				throw new DeviceException(getName() + ": " + formatCommand + " failed");
-			else if (numFrames < maxNumberOfFrames) {
-				maxNumberOfFrames = numFrames;
-				logger.info("Xspress2System formatCommand - maximum time frames achievable: " + maxNumberOfFrames);
-			} else
-				logger.info("Xspress2System formatCommand - maximum time frames achievable: " + numFrames
-						+ " but limited to " + maxNumberOfFrames + " by startupscript");
-		}
-	}
-
-	private void doRemoveROIs() throws DeviceException {
-		Object obj;
-		int rc;
-		String roiCommand = "xspress2 set-roi " + xspressSystemName + " -1";
-		if ((obj = daServer.sendCommand(roiCommand)) != null)
-			if ((rc = ((Integer) obj).intValue()) < 0)
-				throw new DeviceException("Xspress2System error removing regions of interest: " + rc);
-
-	}
-
-	private void doSetROICommand(DetectorElement detector) throws DeviceException {
-		Object obj;
-		int rc;
-		String roiCommand = "xspress2 set-roi " + xspressSystemName + " " + detector.getNumber();
-		List<XspressROI> regionList = detector.getRegionList();
-		if (regionList.isEmpty())
-			return; // No regions for detector element.
-		for (XspressROI region : regionList)
-			roiCommand += " " + region.getRoiStart() + " " + region.getRoiEnd() + " " + calculateRegionBins(region);
-		if ((obj = daServer.sendCommand(roiCommand)) != null)
-			if ((rc = ((Integer) obj).intValue()) < 0)
-				throw new DeviceException("Xspress2System error setting regions of interest: " + rc);
-	}
-
-	private int calculateRegionBins(XspressROI region) {
-		int regionBins = 1; // 1 means a virtual scaler
-		if (settings.getParameters().getRegionType() != null && settings.getParameters().getRegionType().equals(XspressROI.MCA))
-			// else regionBins should be the size of the MCA. (DAserver will not accept any other values).
-			regionBins = region.getRoiEnd() - region.getRoiStart() + 1;
-		return regionBins;
-	}
-
-	private void doSetWindowsCommand(DetectorElement detector) throws DeviceException {
-		Object obj;
-		int rc;
-		String windowCommand = "xspress2 set-window " + xspressSystemName + " " + detector.getNumber() + " "
-				+ detector.getWindowStart() + " " + detector.getWindowEnd();
-		if ((obj = daServer.sendCommand(windowCommand)) != null)
-			if ((rc = ((Integer) obj).intValue()) < 0)
-				throw new DeviceException("Xspress2System error setting windows: " + rc);
-	}
-
-	/*
-	 * Opens the connections to daServer.
-	 */
-	private void open() throws DeviceException {
-		Object obj;
-		if (daServer != null && daServer.isConnected()) {
-			if (mcaOpenCommand != null) {
-				if ((obj = daServer.sendCommand(mcaOpenCommand)) != null) {
-					mcaHandle = ((Integer) obj).intValue();
-					if (mcaHandle < 0)
-						throw new DeviceException("Failed to create the mca handle");
-					logger.info("Xspress2System: open() using mcaHandle " + mcaHandle);
-				}
-			}
-
-			if (scalerOpenCommand != null) {
-				if ((obj = daServer.sendCommand(scalerOpenCommand)) != null) {
-					scalerHandle = ((Integer) obj).intValue();
-					if (scalerHandle < 0)
-						throw new DeviceException("Failed to create the scaler handle");
-					logger.info("Xspress2System: open() using scalerHandle " + scalerHandle);
-				}
-			}
-
-			if ((obj = daServer.sendCommand("xspress2 get-res-bins " + xspressSystemName)) != null) {
-				settings.setMcaGrades(((Integer) obj).intValue());
-				logger.info("Xspress2System: mcaGrades " + settings.getMcaGrades());
-			}
-		}
-	}
-
+	
 	/**
 	 * Reads the detector windows, gains etc from file.
 	 * 
@@ -903,26 +521,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	@Override
 	public int[][][] getMCData(int time) throws DeviceException {
-		if (!daServer.isConnected())
-			daServer.connect();
-		clear();
-		start();
-		tfg.clearFrameSets(); // we only want to collect a frame at a time
-		tfg.countAsync(time); // run tfg for time
-		do {
-			synchronized (this) {
-				try {
-					wait(100);
-				} catch (InterruptedException e) {
-				}
-			}
-		} while (tfg.getStatus() == Timer.ACTIVE);
-
-		// stop();
-
-		int[] data = null;
-		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
-			data = readoutMca(0, 1, 4096); // NOTE 1 time frame
+		
+		int[] data = controller.runOneFrame(time);
 
 		if (data != null) {
 			try {
@@ -978,15 +578,15 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public NexusTreeProvider[] readout(int startFrame, int finalFrame) throws DeviceException {
 		int numberOfFrames = finalFrame - startFrame + 1;
 
-		int[] rawHardwareScalerData = readoutHardwareScalers(startFrame, numberOfFrames);
+		int[] rawHardwareScalerData = controller.readoutHardwareScalers(startFrame, numberOfFrames);
 
 		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_SCALERONLY)) {
 			return xspress2SystemData.unpackScalerData(numberOfFrames, rawHardwareScalerData);
 		}
 
-		int[] mcaData = readoutMca(startFrame, numberOfFrames, getCurrentMCASize());
+		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, getCurrentMCASize());
 		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawHardwareScalerData, mcaData, true,
-				getI0());
+				controller.getI0());
 
 		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS))
 			return xspress2SystemData.readoutROIData(numberOfFrames, rawHardwareScalerData, mcaData,
@@ -998,7 +598,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	@Override
 	public int[] getRawScalerData() throws DeviceException {
-		return readoutHardwareScalers(0, 1);
+		return controller.readoutHardwareScalers(0, 1);
 	}
 
 	/**
@@ -1014,13 +614,13 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	@Override
 	@Deprecated
 	public double[] readoutScalerData() throws DeviceException {
-		if (tfg.getAttribute("TotalFrames").equals(0))
+		if (controller.getTotalFrames() == 0)
 			return readoutScalerData(0, 0, true, getRawScalerData(), getCurrentMCASize())[0];
 		return readoutScalerData(lastFrameCollected, lastFrameCollected, true, getRawScalerData(), getCurrentMCASize())[0];
 	}
 
 	public double[] readoutScalerDataNoCorrection() throws DeviceException {
-		if (tfg.getAttribute("TotalFrames").equals(0))
+		if (controller.getTotalFrames() == 0)
 			return readoutScalerData(0, 0, false, getRawScalerData(), getCurrentMCASize())[0];
 		return readoutScalerData(lastFrameCollected, lastFrameCollected, false, getRawScalerData(), getCurrentMCASize())[0];
 	}
@@ -1028,97 +628,28 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public double[][] readoutScalerData(int startFrame, int finalFrame, boolean performCorrections,
 			int[] rawscalerData, int currentMcaSize) throws DeviceException {
 		int numberOfFrames = finalFrame - startFrame + 1;
-		int[] mcaData = readoutMca(startFrame, numberOfFrames, currentMcaSize);
-		return xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawscalerData, mcaData, performCorrections, getI0());
-	}
-
-	private Double getI0() {
-		Double I0 = 1.0;
-		if (settings.getMcaGrades() == Xspress2System.ALL_RES && ionChambersCounterTimer != null) {
-			try {
-				I0 = ionChambersCounterTimer.readout()[0];
-			} catch (DeviceException e) {
-				logger.error("Exception while trying to fetch I0 to normalise scalers for each res grade", e);
-			}
-		}
-		return I0;
-	}
-
-	/**
-	 * Readout full mca for every detector element and specified time frame
-	 * 
-	 * @param startFrame
-	 *            time frame to read
-	 * @param numberOfFrames
-	 * @return mca data
-	 * @throws DeviceException
-	 */
-	private synchronized int[] readoutMca(int startFrame, int numberOfFrames, int mcaSize) throws DeviceException {
-		int[] value = null;
-		if (mcaHandle < 0)
-			open();
-		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
-			try {
-				value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + mcaSize + " " + settings.getNumberOfDetectors()
-						* settings.getMcaGrades() + " " + numberOfFrames + " from " + mcaHandle + " raw motorola", settings.getNumberOfDetectors()
-						* settings.getMcaGrades() * mcaSize * numberOfFrames);
-			} catch (Exception e) {
-				throw new DeviceException(e.getMessage(), e);
-			}
-		}
-		return value;
-	}
-
-	private synchronized int[] readoutHardwareScalers(int startFrame, int numberOfFrames) throws DeviceException {
-		int[] value = null;
-		if (scalerHandle < 0)
-			open();
-		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
-			try {
-				value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + numberOfScalers + " "
-						+ settings.getNumberOfDetectors() + " " + numberOfFrames + " from " + scalerHandle + " raw motorola",
-						settings.getNumberOfDetectors() * numberOfScalers * numberOfFrames);
-			} catch (Exception e) {
-				throw new DeviceException(e.getMessage(), e);
-			}
-		}
-		return value;
+		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, currentMcaSize);
+		return xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawscalerData, mcaData, performCorrections, controller.getI0());
 	}
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		// A real system needs a connection to a real da.server via a DAServer
-		// object.
-		logger.debug("Xspress2System.reconfigure(): reconnecting to: " + daServerName);
-		try {
-			daServer.reconnect();
-			// does not reconfigure the tfg -- need to check if it is needed
-			// If everything has been found send the open commands.
-			if (tfg != null && (daServer != null))
-				open();
-		} catch (DeviceException e) {
-			throw new FactoryException(e.getMessage(), e);
-		}
+		controller.reconfigure();
 	}
 
 	@Override
 	public void collectData() throws DeviceException {
-		if (!daServer.isConnected())
-			daServer.connect();
-		// if tfg not running with frames then clear and start the xspress
-		// memory
-		if (tfg.getAttribute("TotalFrames").equals(0)) {
-			clear();
-			start();
+		controller.collectData();
+		if (controller.getTotalFrames() == 0){
 			lastFrameCollected = 0;
-		} else
-			lastFrameCollected++;// so all readout methods will read from the
-									// same frame
+		} else {
+			lastFrameCollected++;
+		}
 	}
 
 	@Override
 	public int getStatus() throws DeviceException {
-		return tfg.getStatus();
+		return controller.getStatus();
 	}
 
 	@Override
@@ -1141,29 +672,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		return "Xspress2System";
 	}
 
-	// this method is only for Junit testing
-	/**
-	 * for use by junit tests
-	 * 
-	 * @throws DeviceException
-	 */
-	protected void setFail() throws DeviceException {
-		if (daServer != null && daServer.isConnected()) {
-			daServer.sendCommand("Fail");
-		}
-	}
-
-	private synchronized void sendCommand(String command, int handle) throws DeviceException {
-		Object obj;
-		if ((obj = daServer.sendCommand(command + handle)) == null) {
-			throw new DeviceException("Null reply received from daserver during " + command);
-		} else if (((Integer) obj).intValue() == -1) {
-			logger.error(getName() + ": " + command + " failed");
-			close();
-			throw new DeviceException("Xspress2System " + getName() + " " + command + " failed");
-		}
-	}
-
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
 		if (attributeName.equals("liveStats"))
@@ -1181,7 +689,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	private Object calculateLiveStats() throws DeviceException {
 		int[] rawData = getRawScalerData();
 		long[] rawDataLong = xspress2SystemData.convertUnsignedIntToLong(rawData);
-		// TODO should saveRawSpectrum flag be checked here???
 		double[] dtcs = xspress2SystemData.getDeadtimeCorrectionFactors(rawDataLong);
 		Double[] results = new Double[3 * this.getNumberOfDetectors()];
 		for (int element = 0; element < this.getNumberOfDetectors(); element++) {
@@ -1247,64 +754,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		settings.getParameters().setSaveRawSpectrum(saveRawSpectrum);
 	}
 
-	public int getNumberFrames() throws DeviceException {
-		// this value will be non-zero if collecting from a series of time
-		// frames outside of the continuous scan mechanism
-		if (tfg.getAttribute("TotalFrames").equals(0))
-			return 0;
-		return getNumberFramesFromTFGStatus();
-	}
-
-	public int getNumberFramesFromTFGStatus() throws DeviceException {
-		String[] cmds = new String[] { "status show-armed", "progress", "status", "full", "lap", "frame" };
-		HashMap<String, String> currentVals = new HashMap<String, String>();
-		for (String cmd : cmds) {
-			currentVals.put(cmd, runDAServerCommand("tfg read " + cmd).toString());
-			logger.info("tfg read " + cmd + ": " + currentVals.get(cmd));
-		}
-
-		if (currentVals.isEmpty())
-			return 0;
-
-		// else either scan not started (return -1) or has finished (return
-		// continuousParameters.getNumberDataPoints())
-
-		// if started but nothing collected yet
-		if (currentVals.get("status show-armed").equals("EXT-ARMED"))
-			return 0;
-
-		// if frame is non-0 then work out the current frame
-		if (!currentVals.get("frame").equals("0")) {
-			String numFrames = currentVals.get("frame");
-			return extractCurrentFrame(Integer.parseInt(numFrames));
-		}
-
-		return Integer.parseInt(tfg.getAttribute("TotalFrames").toString());
-	}
-
-	private int extractCurrentFrame(int frameValue) {
-		if (isEven(frameValue)) {
-			Integer numFrames = frameValue / 2;
-			return numFrames;
-		}
-		Integer numFrames = (frameValue - 1) / 2;
-		return numFrames;
-	}
-
-	private boolean isEven(int x) {
-		return (x % 2) == 0;
-	}
-
-	private Object runDAServerCommand(String command) throws DeviceException {
-		Object obj = null;
-		if (getDaServer() != null && getDaServer().isConnected()) {
-			if ((obj = getDaServer().sendCommand(command)) == null)
-				throw new DeviceException("Null reply received from daserver during " + command);
-			return obj;
-		}
-		return null;
-	}
-
 	public String getDtcConfigFileName() {
 		return dtcConfigFileName;
 	}
@@ -1313,5 +762,20 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		this.dtcConfigFileName = dtcConfigFileName;
 	}
 
-	
+	public Xspress2CurrentSettings getCurrentSettings() {
+		return settings;
+	}
+
+	public void setCurrentSettings(Xspress2CurrentSettings settings) {
+		this.settings = settings;
+	}
+
+	public Xspress2DAServerController getController() {
+		return controller;
+	}
+
+	public void setController(Xspress2DAServerController controller) {
+		this.controller = controller;
+		controller.setCurrentSettings(settings);
+	}
 }

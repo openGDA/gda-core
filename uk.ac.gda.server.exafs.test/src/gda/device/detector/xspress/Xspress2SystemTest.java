@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,6 +24,7 @@ import gda.device.DeviceException;
 import gda.device.detector.DUMMY_XSPRESS2_MODE;
 import gda.device.detector.DummyDAServer;
 import gda.device.detector.xspress.xspress2data.ResGrades;
+import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
 import gda.util.TestUtils;
@@ -47,6 +48,8 @@ public class Xspress2SystemTest {
 	private Xspress2System xspress;
 	private static String testScratchDirectoryName;
 	final String TestFileFolder = "testfiles/gda/device/detector/xspress/";
+	private DummyDAServer daserver;
+	private Xspress2DAServerController controller;
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
@@ -62,27 +65,29 @@ public class Xspress2SystemTest {
 	@Before
 	public void setUpEachTest() {
 		xspress = new Xspress2System();
-		
-		DummyDAServer daserver = new DummyDAServer();
+		controller = new Xspress2DAServerController();
+		xspress.setController(controller);
+
+		daserver = new DummyDAServer();
 		daserver.setName("DummyDAServer");
 		daserver.setXspressMode(DUMMY_XSPRESS2_MODE.XSPRESS2_FULL_MCA);
 		daserver.connect();
 		daserver.setNonRandomTestData(true);
 		Etfg tfg = new Etfg();
 		tfg.setName("tfg");
+		
 		try {
-//			xspress.setNumberOfDetectors(9);
-			xspress.setDaServer(daserver);
-			xspress.setTfg(tfg);
+			controller.setDaServer(daserver);
+			controller.setTfg(tfg);
 			xspress.setConfigFileName(TestFileFolder + "xspressConfig.xml");
 			xspress.setDtcConfigFileName(TestFileFolder + "Xspress_DeadTime_Parameters.xml");
 			xspress.setName("xspressTest");
-			xspress.setDaServerName("DummyDAServer");
-			xspress.setTfgName("tfg");
-			xspress.setMcaOpenCommand("xspress open-mca");
-			xspress.setScalerOpenCommand("xspress open-scalers");
-			xspress.setStartupScript("xspress2 format-run 'xsp1' res-none");
-			xspress.setXspressSystemName("xsp1");
+			controller.setDaServer(daserver);
+			controller.setTfg(tfg);
+			controller.setMcaOpenCommand("xspress open-mca");
+			controller.setScalerOpenCommand("xspress open-scalers");
+			controller.setStartupScript("xspress2 format-run 'xsp1' res-none");
+			controller.setXspressSystemName("xsp1");
 			xspress.setFullMCABits(8);
 			xspress.configure();
 		} catch (DeviceException e) {
@@ -100,27 +105,25 @@ public class Xspress2SystemTest {
 		XspressROI roi = new XspressROI("1st_peak", 100, 1122);
 		ArrayList<XspressROI> regions = new ArrayList<XspressROI>();
 		regions.add(roi);
-		DetectorElement[] expected = {
-				new DetectorElement("Element0", 0, 0, 4000,  false, regions),
-				new DetectorElement("Element1", 1, 85, 2047,  false, regions),
-				new DetectorElement("Element2", 2, 34, 2439,  false, regions),
-				new DetectorElement("Element3", 3, 31, 2126,  false, regions),
+		DetectorElement[] expected = { new DetectorElement("Element0", 0, 0, 4000, false, regions),
+				new DetectorElement("Element1", 1, 85, 2047, false, regions),
+				new DetectorElement("Element2", 2, 34, 2439, false, regions),
+				new DetectorElement("Element3", 3, 31, 2126, false, regions),
 				new DetectorElement("Element4", 4, 0, 4000, true, regions),
-				new DetectorElement("Element5", 5, 85, 2047,  false, regions),
+				new DetectorElement("Element5", 5, 85, 2047, false, regions),
 				new DetectorElement("Element6", 6, 34, 2439, false, regions),
 				new DetectorElement("Element7", 7, 31, 2126, false, regions),
 				new DetectorElement("Element8", 8, 31, 2126, false, regions) };
-		DetectorDeadTimeElement[] expectedDT = {
-				new DetectorDeadTimeElement("Element0", 0,3.4E-7, 0.0, 3.4E-7),
-				new DetectorDeadTimeElement("Element1", 1,3.8E-7, 0.0, 3.8E-7),
-				new DetectorDeadTimeElement("Element2", 2,3.7E-7, 0.0, 3.7E-7),
-				new DetectorDeadTimeElement("Element3", 3,3.0E-7, 0.0, 3.0E-7),
-				new DetectorDeadTimeElement("Element4", 4,3.4E-7, 0.0, 3.4E-7),
-				new DetectorDeadTimeElement("Element5", 5,3.5E-7, 0.0, 3.5E-7),
+		DetectorDeadTimeElement[] expectedDT = { new DetectorDeadTimeElement("Element0", 0, 3.4E-7, 0.0, 3.4E-7),
+				new DetectorDeadTimeElement("Element1", 1, 3.8E-7, 0.0, 3.8E-7),
+				new DetectorDeadTimeElement("Element2", 2, 3.7E-7, 0.0, 3.7E-7),
+				new DetectorDeadTimeElement("Element3", 3, 3.0E-7, 0.0, 3.0E-7),
+				new DetectorDeadTimeElement("Element4", 4, 3.4E-7, 0.0, 3.4E-7),
+				new DetectorDeadTimeElement("Element5", 5, 3.5E-7, 0.0, 3.5E-7),
 				new DetectorDeadTimeElement("Element6", 6, 3.3E-7, 0.0, 3.3E-7),
-				new DetectorDeadTimeElement("Element7", 7,3.0E-7, 0.0, 3.0E-7),
-				new DetectorDeadTimeElement("Element8", 8, 3.3E-7, 0.0, 3.3E-7)};
-		
+				new DetectorDeadTimeElement("Element7", 7, 3.0E-7, 0.0, 3.0E-7),
+				new DetectorDeadTimeElement("Element8", 8, 3.3E-7, 0.0, 3.3E-7) };
+
 		for (int i = 0; i < expected.length; i++) {
 			try {
 				DetectorElement xspressElement = xspress.getDetector(i);
@@ -156,7 +159,7 @@ public class Xspress2SystemTest {
 	 */
 	@Test(expected = DeviceException.class)
 	public void testClearException() throws DeviceException {
-		xspress.setFail();
+		daserver.sendCommand("Fail");
 		xspress.clear();
 	}
 
@@ -181,26 +184,26 @@ public class Xspress2SystemTest {
 	 */
 	@Test(expected = DeviceException.class)
 	public void testStartException() throws DeviceException {
-		xspress.setFail();
+		daserver.sendCommand("Fail");
 		xspress.start();
 	}
 
 	/**
 	 * Test method for {@link gda.device.detector.xspress.Xspress2System#stop()}.
 	 */
-	
-	//disabled test so that b18 can run scans without memory clear failures.
-	
-//	@Test
-//	public void testStop() {
-//		try {
-//			xspress.stop();
-//			xspress.close();
-//			xspress.stop();
-//		} catch (DeviceException e) {
-//			fail("DeviceException should not happen");
-//		}
-//	}
+
+	// disabled test so that b18 can run scans without memory clear failures.
+
+	// @Test
+	// public void testStop() {
+	// try {
+	// xspress.stop();
+	// xspress.close();
+	// xspress.stop();
+	// } catch (DeviceException e) {
+	// fail("DeviceException should not happen");
+	// }
+	// }
 
 	/**
 	 * Test method for {@link gda.device.detector.xspress.Xspress2System#stop()}.
@@ -209,7 +212,7 @@ public class Xspress2SystemTest {
 	 */
 	@Test(expected = DeviceException.class)
 	public void testStopException() throws DeviceException {
-		xspress.setFail();
+		daserver.sendCommand("Fail");
 		xspress.stop();
 	}
 
@@ -219,10 +222,10 @@ public class Xspress2SystemTest {
 	@Test
 	public void testSaveDetectors() {
 		xspress.saveDetectors(testScratchDirectoryName + "xspressConfig-saved.xml");
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "xspressConfig.xml"), 
-				new File(testScratchDirectoryName + "xspressConfig-saved.xml"));
+		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "xspressConfig.xml"), new File(
+				testScratchDirectoryName + "xspressConfig-saved.xml"));
 	}
-	
+
 	/**
 	 * Test method for {@link gda.device.detector.xspress.Xspress2System#stop()}.
 	 */
@@ -236,7 +239,7 @@ public class Xspress2SystemTest {
 			fail("DeviceException should not happen");
 		}
 	}
-	
+
 	/**
 	 * Test method for {@link gda.device.detector.xspress.Xspress2System#setResGrade(String)}.
 	 */
@@ -288,7 +291,6 @@ public class Xspress2SystemTest {
 
 	@Test
 	public void testBitSize() {
-		assertEquals(0, xspress.getMaxNumberOfFrames());  // 0 when ran against dummy daserver
 		assertEquals(8, xspress.getFullMCABits());
 		assertEquals(256, xspress.getCurrentMCASize());
 		try {

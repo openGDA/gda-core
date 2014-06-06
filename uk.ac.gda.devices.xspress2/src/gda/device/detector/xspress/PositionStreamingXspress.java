@@ -57,11 +57,11 @@ public class PositionStreamingXspress extends Xspress2System implements Position
 	@Override
 	public List<NexusTreeProvider> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
 		List<NexusTreeProvider> listOfTress = new ArrayList<NexusTreeProvider>();
-		if (tfg.getAttribute("TotalFrames").equals(0)) {
+		if (controller.getTotalFrames() == 0) {
 			listOfTress.add(readout());
 			return listOfTress;
 		}
-		int highestFrameNumAvailable = getNumberFrames() - 1;
+		int highestFrameNumAvailable = controller.getNumberFrames() - 1;
 		if (highestFrameNumAvailable < nextFrameToRead)
 			highestFrameNumAvailable = nextFrameToRead;
 		logger.info("readout from " + nextFrameToRead + " to " + highestFrameNumAvailable);

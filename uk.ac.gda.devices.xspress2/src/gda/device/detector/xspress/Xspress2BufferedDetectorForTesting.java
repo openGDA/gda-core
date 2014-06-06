@@ -33,13 +33,13 @@ public class Xspress2BufferedDetectorForTesting extends Xspress2BufferedDetector
 			// liveTime (seconds, double) pause (integer). The incoming time is in mS.
 			double totalExptTime = continuousParameters.getTotalTime();
 			double timePerPoint = totalExptTime / continuousParameters.getNumberDataPoints();
-			xspress2system.getDaServer().sendCommand("tfg generate 1 " + continuousParameters.getNumberDataPoints() + " 0.001 " + timePerPoint / 1000. + " 1");
+			daserver.sendCommand("tfg generate 1 " + continuousParameters.getNumberDataPoints() + " 0.001 " + timePerPoint / 1000. + " 1");
 		}
 	}
 
 	@Override
 	public void addPoint() throws DeviceException {
-		xspress2system.getDaServer().sendCommand("tfg cont");	
+		daserver.sendCommand("tfg cont");	
 	}
 
 }
