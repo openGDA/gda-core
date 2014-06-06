@@ -38,6 +38,7 @@ import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_CTRL_Double;
+import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
@@ -312,7 +313,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				current1 = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				current1 = ((DBR_Double) dbr).getDoubleValue()[0];
 				notifyIObservers(this, current1);
 			} else {
 				logger.error("Error: .RBV should return DOUBLE type value.");
@@ -326,7 +327,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				current2 = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				current2 = ((DBR_Double) dbr).getDoubleValue()[0];
 				notifyIObservers(this, current2);
 			} else {
 				logger.error("Error: .RBV should return DOUBLE type value.");
@@ -340,7 +341,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				current3 = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				current3 = ((DBR_Double) dbr).getDoubleValue()[0];
 				notifyIObservers(this, current3);
 			} else {
 				logger.error("Error: .RBV should return DOUBLE type value.");
@@ -354,7 +355,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				current4 = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				current4 = ((DBR_Double) dbr).getDoubleValue()[0];
 
 				/*
 				 * synchronized (motorProperty) { motorProperty.put(MotorProperty.POSITION, new Double(
