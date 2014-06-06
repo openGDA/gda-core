@@ -38,7 +38,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-import gda.jython.scriptcontroller.Scriptcontroller;
 
 import java.util.Vector;
 
@@ -74,9 +73,9 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	private Channel pause;
 	private Channel abort;
 	private Channel currentstatechannel;
-	private Channel statusmessagechannel;
-	private Channel pulsesnumberdonechannel;
-	private Channel puslestotalnumberchannel;
+//	private Channel statusmessagechannel;
+//	private Channel pulsesnumberdonechannel;
+//	private Channel puslestotalnumberchannel;
 	private volatile boolean GDAScanning = false;
 	
 
@@ -397,41 +396,6 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 		return currentstate;
 	}
 
-	/**
-	 * pulls the status message from EPICS and update cached {@link #message} value
-	 * 
-	 * @return the status message as String
-	 * @throws TimeoutException
-	 * @throws CAException
-	 * @throws InterruptedException
-	 */
-	public String getStatusMessage() throws TimeoutException, CAException, InterruptedException {
-		return message = controller.cagetString(statusmessagechannel);
-	}
-
-	/**
-	 * pulls the number of pulse done from EPICS and update cached {@link #numberofpulsedone} value
-	 * 
-	 * @return the status message as String
-	 * @throws TimeoutException
-	 * @throws CAException
-	 * @throws InterruptedException
-	 */
-	public int getNumberOfPulsesDone() throws TimeoutException, CAException, InterruptedException {
-		return numberofpulsedone = controller.cagetInt(pulsesnumberdonechannel);
-	}
-
-	/**
-	 * pulls the total number of pulse from EPICS and update cached {@link #totalnumberofpulse} value
-	 * 
-	 * @return the status message as String
-	 * @throws TimeoutException
-	 * @throws CAException
-	 * @throws InterruptedException
-	 */
-	public int getTotalNumberPulses() throws TimeoutException, CAException, InterruptedException {
-		return totalnumberofpulse = controller.cagetInt(puslestotalnumberchannel);
-	}
 
 	/****************** Access CVScan data *****************************/
 	/**
@@ -546,13 +510,6 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 			logger.error("Timeout on initialising Current State of " + getName(), e);
 		} catch (CAException e) {
 			logger.error("CAException on initialising Current State of " + getName(), e);
-		}
-		try {
-			this.message = getStatusMessage();
-		} catch (TimeoutException e) {
-			logger.error("Timeout on initialising Status Message of " + getName(), e);
-		} catch (CAException e) {
-			logger.error("CAException on initialising Status Message of " + getName(), e);
 		}
 		logger.info("{} is initialised", this.getName());
 	}
