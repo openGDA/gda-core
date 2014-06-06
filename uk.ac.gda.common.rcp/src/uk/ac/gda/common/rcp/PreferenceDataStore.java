@@ -19,8 +19,6 @@
 package uk.ac.gda.common.rcp;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -75,5 +73,9 @@ public class PreferenceDataStore {
 		} catch (BackingStoreException e) {
 			logger.error("Unable to store preference", e);
 		}
+	}
+	
+	public void removeConfiguration(String key) {
+		prefs.remove(key);
 	}
 }
