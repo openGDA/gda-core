@@ -30,6 +30,8 @@ import org.springframework.util.StringUtils;
 
 /**
  * Spring {@link FactoryBean} for creating {@link FindableEpicsDevice}s.
+ * 
+ * Either recordPvs or deviceName must be specified, setting both or neither will cause an exception.
  */
 public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpicsDevice>, InitializingBean, BeanNameAware {
 
@@ -41,6 +43,7 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 	}
 
 	protected HashMap<String, String> recordPvs;
+	private String deviceName;
 	
 	boolean local=false;
 	
@@ -63,6 +66,10 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 		this.recordPvs = recordPvs;
 	}
 	
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
+	
 	/**
 	 * Sets whether the EPICS device should be in dummy mode.
 	 * 
@@ -76,14 +83,25 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (recordPvs == null) {
-			throw new IllegalStateException("You have not set the PVs for EPICS device " + StringUtils.quote(name));
+		if (recordPvs == null && deviceName == null) {
+			throw new IllegalStateException("Neither recordPVs nor deviceName have been set for EPICS device " + StringUtils.quote(name));
 		}
-		EpicsDevice epicsDevice = new EpicsDevice(name, recordPvs, dummyMode);
+		if (recordPvs != null && deviceName != null) {
+			throw new IllegalStateException("Both recordPVs and deviceName have been set for EPICS device " + StringUtils.quote(name));
+		}
 		
 		String safeName = name.replace(".", "_");
-		findableEpicsDevice = new FindableEpicsDevice(safeName, epicsDevice);
-		findableEpicsDevice.setRecordPVs(this.recordPvs);
+		if (deviceName != null) {
+			findableEpicsDevice = new FindableEpicsDevice();
+			findableEpicsDevice.setName(safeName);
+			findableEpicsDevice.setDeviceName(deviceName);
+			findableEpicsDevice.setDummy(dummyMode);
+		}
+		if (recordPvs != null) {
+			EpicsDevice epicsDevice = new EpicsDevice(name, recordPvs, dummyMode);
+			findableEpicsDevice = new FindableEpicsDevice(safeName, epicsDevice);
+			findableEpicsDevice.setRecordPVs(this.recordPvs);
+		}
 		findableEpicsDevice.setLocal(local);
 	}
 
