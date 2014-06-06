@@ -172,6 +172,7 @@ public class DummyDAServer extends DAServer {
 		else if (command.contains("clear")) {
 			count = 0;
 			xspressFullMcaCommandReceived = false;
+			xspressMcaCommandReceived = false;
 			xspressScalerCommandReceived = false;
 			rc = (fail) ? -1 : 0;
 		} 
@@ -185,6 +186,7 @@ public class DummyDAServer extends DAServer {
 			handles.clear();
 			count = 0;
 			xspressFullMcaCommandReceived = false;
+			xspressMcaCommandReceived = false;
 			xspressScalerCommandReceived = false;
 			rc = (fail) ? -1 : 0;
 		} 
@@ -194,6 +196,8 @@ public class DummyDAServer extends DAServer {
 			int handle = Integer.valueOf(tokenizer.nextToken());
 			handles.remove(handle);
 			count = 0;
+			xspressFullMcaCommandReceived = false;
+			xspressMcaCommandReceived = false;
 			xspressScalerCommandReceived = false;
 			rc = (fail) ? -1 : 0;
 		}
@@ -582,6 +586,7 @@ public class DummyDAServer extends DAServer {
 		timeFrameGenerator = null;
 		count = 0;
 		xspressFullMcaCommandReceived = false;
+		xspressMcaCommandReceived = false;
 		xspressScalerCommandReceived = false;
 		handles.clear();
 		key = 0;
