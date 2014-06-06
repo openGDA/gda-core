@@ -60,7 +60,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * scale both types of ROI using total counts / counts in rois This needs
  * refactoring so that roi when all are selected are also corrected.
  */
-public class Xspress2Detector extends DetectorBase implements NexusDetector, XspressDetector, Scannable, Configurable {
+public class Xspress2Detector extends DetectorBase implements NexusDetector, XspressDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2Detector.class);
 
