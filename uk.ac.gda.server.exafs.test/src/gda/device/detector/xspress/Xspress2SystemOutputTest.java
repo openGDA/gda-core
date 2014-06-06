@@ -25,6 +25,7 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.DUMMY_XSPRESS2_MODE;
 import gda.device.detector.DummyDAServer;
+import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -47,8 +48,6 @@ public class Xspress2SystemOutputTest {
 	private static final int NUM_ENABLED_ELEMENTS = 8;
 	private static final int SIZE_SCALER_DATA = NUM_ENABLED_ELEMENTS + 1; // for FF
 
-	/**
-	 */
 	@BeforeClass
 	public static void setUpBeforeClass() {
 		DummyDAServer daserver = new DummyDAServer();

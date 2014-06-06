@@ -28,6 +28,7 @@ import gda.device.detector.DAServer;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
+import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 

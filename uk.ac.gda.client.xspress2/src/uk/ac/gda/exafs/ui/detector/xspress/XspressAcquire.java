@@ -22,8 +22,8 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
-import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
+import gda.device.detector.xspress.xspress2data.ResGrades;
 
 import java.io.File;
 

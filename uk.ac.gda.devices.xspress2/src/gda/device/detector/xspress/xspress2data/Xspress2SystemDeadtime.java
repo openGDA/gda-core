@@ -1,4 +1,4 @@
-package gda.device.detector.xspress;
+package gda.device.detector.xspress.xspress2data;
 
 import java.util.List;
 
@@ -8,6 +8,12 @@ import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.util.CorrectionUtils;
 
+/**
+ * Provides tools to calculate the deadtime in Xspress2.
+ * 
+ * @author rjw82
+ *
+ */
 public class Xspress2SystemDeadtime {
 	/**
 	 * Given an array of the hardwareScalerReadings (4 values per element) for a given frame, this calculates the

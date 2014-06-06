@@ -18,7 +18,7 @@
 
 package uk.ac.gda.exafs.ui.detector.xspress;
 
-import gda.device.detector.xspress.ResGrades;
+import gda.device.detector.xspress.xspress2data.ResGrades;
 
 import java.util.Arrays;
 import java.util.HashMap;

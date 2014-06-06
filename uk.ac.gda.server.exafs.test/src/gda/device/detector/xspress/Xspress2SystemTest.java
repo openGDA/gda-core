@@ -23,6 +23,7 @@ import static org.junit.Assert.fail;
 import gda.device.DeviceException;
 import gda.device.detector.DUMMY_XSPRESS2_MODE;
 import gda.device.detector.DummyDAServer;
+import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
 import gda.util.TestUtils;
@@ -70,7 +71,7 @@ public class Xspress2SystemTest {
 		Etfg tfg = new Etfg();
 		tfg.setName("tfg");
 		try {
-			xspress.setNumberOfDetectors(9);
+//			xspress.setNumberOfDetectors(9);
 			xspress.setDaServer(daserver);
 			xspress.setTfg(tfg);
 			xspress.setConfigFileName(TestFileFolder + "xspressConfig.xml");
@@ -296,14 +297,15 @@ public class Xspress2SystemTest {
 			XspressROI roi2 = new XspressROI("roi2", 150, 174);
 			regionList.add(roi);
 			regionList.add(roi2);
-			for (int i = 0; i < xspress.numberOfDetectors; i++) {
+			for (int i = 0; i < xspress.getNumberOfDetectors(); i++) {
 				xspress.setRegionOfInterest(i, regionList);
 			}
 			xspress.setReadoutMode(XspressDetector.READOUT_ROIS);
 			xspress.setResGrade(ResGrades.NONE);
 
-			assertEquals(2, xspress.getCurrentMCABits());
-			assertEquals(4, xspress.getCurrentMCASize());
+			// as test sets res grade to RESGrades.NONE, then the default/full values are used
+			assertEquals(8, xspress.getCurrentMCABits());
+			assertEquals(256, xspress.getCurrentMCASize());
 		} catch (DeviceException e) {
 			fail(e.getMessage());
 		}
