@@ -85,11 +85,11 @@ public class Xspress2Detector extends DetectorBase implements NexusDetector, Xsp
 	public Xspress2Detector() {
 		this.inputNames = new String[] {};
 		settings = new Xspress2CurrentSettings();
-		xspress2SystemData = new Xspress2NexusTreeProvider(getName(),settings);
 	}
 
 	@Override
 	public void configure() throws FactoryException {
+		xspress2SystemData = new Xspress2NexusTreeProvider(getName(),settings);
 		// A real system needs a connection to a real da.server via a DAServer object.
 		try {
 			loadAndInitializeDetectors(configFileName, dtcConfigFileName);
