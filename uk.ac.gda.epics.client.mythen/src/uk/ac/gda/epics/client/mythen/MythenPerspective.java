@@ -14,10 +14,9 @@ import org.python.pydev.ui.wizards.files.PythonPackageWizard;
 import org.python.pydev.ui.wizards.files.PythonSourceFolderWizard;
 import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
-import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.client.scripting.JythonPerspective;
-import uk.ac.gda.epics.client.mythen.views.MythenView;
+import uk.ac.gda.epics.client.mythen.viewextensionfactories.LivePlotViewExtensionFactory;
 
 
 public class MythenPerspective implements IPerspectiveFactory {
@@ -28,8 +27,8 @@ public class MythenPerspective implements IPerspectiveFactory {
 	private static final String PROJ_FOLDER = "projFolder";
 	private static final String Scan_PLOT_FOLDER = "scanPlotFolder";
 	private static final String DETECTOR_PLOT_FOLDER = "detectorPlotFolder";
-	//the following two ID recorded here as they use generic PartView Classes
-	private static final String MYTHEN_PLOT_VIEW_ID = "uk.ac.gda.epics.client.mythen.views.mythenView";
+	private static final String MYTHEN_PLOT_VIEW_ID = LivePlotViewExtensionFactory.ID;
+	//the following ID recorded here as they use generic PartView Classes
 	private static final String GDA_NAVIGATOR_VIEW_ID = "uk.ac.gda.client.navigator";
 	@Override
 	public void createInitialLayout(IPageLayout layout) {

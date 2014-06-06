@@ -9,6 +9,12 @@
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/chart_curve.png"
             id="uk.ac.gda.epics.client.mythen.views.mythenView"
+            name="Mythen_old"
+            restorable="true">
+      </view>
+      <view
+            class="uk.ac.gda.epics.client.mythen.viewextensionfactories.LivePlotViewExtensionFactory:mythenliveplotviewfactory"
+            id="uk.ac.gda.epics.client.mythen.views.liveplotview"
             name="Mythen"
             restorable="true">
       </view>
