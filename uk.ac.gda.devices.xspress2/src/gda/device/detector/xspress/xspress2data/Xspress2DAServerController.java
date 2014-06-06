@@ -5,7 +5,7 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.DAServer;
 import gda.device.detector.countertimer.TfgScaler;
-import gda.device.detector.xspress.Xspress2System;
+import gda.device.detector.xspress.Xspress2Detector;
 import gda.device.detector.xspress.XspressDetector;
 import gda.factory.FactoryException;
 
@@ -67,7 +67,7 @@ public class Xspress2DAServerController {
 	public void configureDetectorFromParameters() throws DeviceException {
 		// always remove all rois first
 		if (LocalProperties.check("gda.xspress.mode.override"))
-			settings.getParameters().setReadoutMode(Xspress2System.READOUT_MCA);
+			settings.getParameters().setReadoutMode(Xspress2Detector.READOUT_MCA);
 		else
 			doRemoveROIs();
 
@@ -376,7 +376,7 @@ public class Xspress2DAServerController {
 
 	public Double getI0() {
 		Double I0 = 1.0;
-		if (settings.getMcaGrades() == Xspress2System.ALL_RES && ionChambersCounterTimer != null) {
+		if (settings.getMcaGrades() == Xspress2Detector.ALL_RES && ionChambersCounterTimer != null) {
 			try {
 				I0 = ionChambersCounterTimer.readout()[0];
 			} catch (DeviceException e) {

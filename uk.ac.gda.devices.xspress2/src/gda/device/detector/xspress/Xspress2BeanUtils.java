@@ -28,7 +28,7 @@ public class Xspress2BeanUtils {
 		return (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, new File(xmlPath));
 	}
 	
-	public void createXMLfromBean(Xspress2System xspress2System, XspressParameters xspressBean) throws Exception{
+	public void createXMLfromBean(Xspress2Detector xspress2System, XspressParameters xspressBean) throws Exception{
 		File file = new File(xspress2System.getConfigFileName());
 		XMLHelpers.writeToXML(XspressParameters.mappingURL, xspressBean, file);
 	}

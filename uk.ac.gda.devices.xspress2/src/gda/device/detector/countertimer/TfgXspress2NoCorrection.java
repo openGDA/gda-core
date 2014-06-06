@@ -21,7 +21,7 @@ package gda.device.detector.countertimer;
 import org.apache.commons.lang.ArrayUtils;
 
 import gda.device.DeviceException;
-import gda.device.detector.xspress.Xspress2System;
+import gda.device.detector.xspress.Xspress2Detector;
 
 /**
  * Version of TFGXspress2 which does not perform deadtime corrections on the values it returns
@@ -32,7 +32,7 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 	
 	@Override
 	public Object readout() throws DeviceException {
-		Xspress2System xspress2system = (Xspress2System) xspress;
+		Xspress2Detector xspress2system = (Xspress2Detector) xspress;
 		double[] scalerDataNoCorrection = xspress2system.readoutScalerDataNoCorrection();
 		if (xspress2system.isOnlyDisplayFF())
 			return scalerDataNoCorrection[scalerDataNoCorrection.length-1];
@@ -44,8 +44,8 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 		String readoutMode="";
 		String resGrade="";
 		try {
-			readoutMode = ((Xspress2System) xspress).getReadoutMode();
-			resGrade = ((Xspress2System) xspress).getResGrade();
+			readoutMode = ((Xspress2Detector) xspress).getReadoutMode();
+			resGrade = ((Xspress2Detector) xspress).getResGrade();
 		} catch (DeviceException e) {
 		}
 		

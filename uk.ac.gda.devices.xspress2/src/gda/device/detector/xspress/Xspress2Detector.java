@@ -28,7 +28,7 @@ import gda.device.detector.NexusDetector;
 import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
-import gda.device.detector.xspress.xspress2data.Xspress2SystemData;
+import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 
@@ -60,9 +60,9 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * scale both types of ROI using total counts / counts in rois This needs
  * refactoring so that roi when all are selected are also corrected.
  */
-public class Xspress2System extends DetectorBase implements NexusDetector, XspressDetector, Scannable, Configurable {
+public class Xspress2Detector extends DetectorBase implements NexusDetector, XspressDetector, Scannable, Configurable {
 
-	private static final Logger logger = LoggerFactory.getLogger(Xspress2System.class);
+	private static final Logger logger = LoggerFactory.getLogger(Xspress2Detector.class);
 
 	public static final int NO_RES_GRADE = 1;
 	public static final int RES_THRES = 2;
@@ -77,15 +77,15 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	// does not change with the value in the parameters file, no rois are set
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 	private String dtcConfigFileName;
-	private Xspress2SystemData xspress2SystemData;
+	private Xspress2NexusTreeProvider xspress2SystemData;
 	private Xspress2CurrentSettings settings;
 	protected Xspress2DAServerController controller;
 
 
-	public Xspress2System() {
+	public Xspress2Detector() {
 		this.inputNames = new String[] {};
 		settings = new Xspress2CurrentSettings();
-		xspress2SystemData = new Xspress2SystemData(getName(),settings);
+		xspress2SystemData = new Xspress2NexusTreeProvider(getName(),settings);
 	}
 
 	@Override
@@ -777,5 +777,9 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public void setController(Xspress2DAServerController controller) {
 		this.controller = controller;
 		controller.setCurrentSettings(settings);
+	}
+
+	public Xspress2NexusTreeProvider getSystemData() {
+		return xspress2SystemData;
 	}
 }

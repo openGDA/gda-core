@@ -14,7 +14,7 @@ import uk.ac.gda.util.CorrectionUtils;
  * @author rjw82
  *
  */
-public class Xspress2SystemDeadtime {
+public class Xspress2DeadtimeTools {
 	/**
 	 * Given an array of the hardwareScalerReadings (4 values per element) for a given frame, this calculates the
 	 * deadtime correction factor for each element.
