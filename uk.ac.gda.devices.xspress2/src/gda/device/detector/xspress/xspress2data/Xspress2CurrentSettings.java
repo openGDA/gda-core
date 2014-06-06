@@ -25,7 +25,7 @@ public class Xspress2CurrentSettings {
 	int mcaGrades;
 	private int fullMCABits = 12;
 	private XspressParameters xspressParameters;
-	private Double deadtimeEnergy;
+	private Double deadtimeEnergy; // in keV NOT eV!
 	private boolean addDTScalerValuesToAscii = false;
 	private String[] defaultOutputFormat = new String[] { "%5.4g" };
 

@@ -75,8 +75,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public static final String ADD_DT_VALUES_ATTR = "add_dt_values";
 
 	// These are used to calculate the size of the data
-//	private int fullMCABits = 12;
-//	private int mcaGrades = 1; // reset during every open()
 	private Integer maxNumberOfFrames = 0; // the number of frames which TFG has
 											// space for, based on the current
 											// config in TFG
@@ -91,7 +89,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	private String mcaOpenCommand = null;
 	private String scalerOpenCommand = null;
 	private String startupScript = null;
-//	protected int numberOfDetectors;
 	protected final int numberOfScalers = 4; // number of values from each hardware scaler (e.g. total, resets, originalWindowed, time)
 	private int mcaHandle = -1;
 	private int scalerHandle = -1;
@@ -99,10 +96,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	// Full path to config file
 	private String configFileName = null;
-//	private Double deadtimeEnergy = null; // in keV NOT eV!
 	protected int lastFrameCollected = 0;
-	// mode override property, when set to true the xspress is always set in
-	// SCAlers and MCA Mode
+	// mode override property, when set to true the xspress is always set in SCAlers and MCA Mode
 	// does not change with the value in the parameters file, no rois are set
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 	// this is only when using resgrades, when resgrades separated and 'extra' ascii columns are requested
@@ -114,18 +109,9 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	public Xspress2System() {
 		this.inputNames = new String[] {};
-//		updateSettings();
 		settings = new Xspress2CurrentSettings();
 		xspress2SystemData = new Xspress2SystemData(getName(),settings);
 	}
-	
-//	private void updateSettings() {
-//		ArrayList<String> filteredChannels = getChannelLabels();
-//		getChannelLabels(filteredChannels, true);
-//		detectorSettings = new Xspress2CurrentSettings(getChannelLabels(), filteredChannels,
-//				getExtraNames(), getOutputFormat(), getDetectorList(), mcaGrades, getCurrentMCASize(),
-//				xspressParameters, deadtimeEnergy);
-//	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -166,7 +152,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 				throw new FactoryException(e.getMessage(), e);
 			}
 		}
-//		updateSettings();
 		configured = true;
 	}
 
@@ -373,8 +358,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public void atScanLineStart() throws DeviceException {
 		if (!daServer.isConnected())
 			daServer.connect();
-		// if this class was used to define framesets, then memeory is only
-		// cleared at the start of the scan
+		// if this class was used to define framesets, then memory is only cleared at the start of the scan
 		if (!tfg.getAttribute("TotalFrames").equals(0)) {
 			stop();
 			clear();
@@ -644,11 +628,9 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		// if this class was used to define framesets, then ensure they are
-		// cleared at the end of the scan
+		// if this class was used to define framesets, then ensure they are cleared at the end of the scan
 		if (tfg.getAttribute("TotalFrames").equals(0))
-			stop(); // stops the TFG - useful if scan aborted and so TFG still
-					// in a PAUSE state rather than an IDLE state
+			stop(); // stops the TFG - useful if scan aborted and so TFG still in a PAUSE state rather than an IDLE state
 	}
 
 	@Override
@@ -696,8 +678,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	private int findLargestChannelReadout() {
 		int maxSize = 0;
 		for (DetectorElement element : settings.getParameters().getDetectorList()) {
-			int thisMcasize = 1; // always get an extra values for the out of
-									// window counts
+			int thisMcasize = 1; // always get an extra values for the out of window counts
 			for (XspressROI roi : element.getRegionList()) {
 				if (settings.getParameters().getRegionType().equals(XspressParameters.VIRTUALSCALER))
 					thisMcasize++;
@@ -732,9 +713,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		if (daServer != null && daServer.isConnected()) {
 			if (startupScript != null) {
 				String newResGrade = settings.getParameters().getResGrade();
-				// override the res-grade if the readout mode is scalers only or
-				// saclers + mca
-				// This might not be the best place to do this
+				// override the res-grade if the readout mode is scalers only or saclers + mca
 				if (!settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS))
 					newResGrade = ResGrades.NONE;
 				startupScript = "xspress2 format-run 'xsp1' " + newResGrade;
@@ -755,9 +734,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	private void doFormatRunCommand(int numberOfBits) throws DeviceException {
 		String newResGrade = settings.getParameters().getResGrade();
-		// override the res-grade if the readout mode is scalers only or saclers
-		// + mca
-		// This might not be the best place to do this
+		// override the res-grade if the readout mode is scalers only or saclers + mca
 		if (!settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS))
 			newResGrade = ResGrades.NONE;
 		String formatCommand = "xspress2 format-run " + xspressSystemName + " " + numberOfBits + " " + newResGrade;
@@ -803,8 +780,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	private int calculateRegionBins(XspressROI region) {
 		int regionBins = 1; // 1 means a virtual scaler
 		if (settings.getParameters().getRegionType() != null && settings.getParameters().getRegionType().equals(XspressROI.MCA))
-			// else regionBins should be the size of the MCA. (DAserver will not
-			// accept any other values).
+			// else regionBins should be the size of the MCA. (DAserver will not accept any other values).
 			regionBins = region.getRoiEnd() - region.getRoiStart() + 1;
 		return regionBins;
 	}
@@ -861,10 +837,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public void loadAndInitializeDetectors(String filename) throws Exception {
 		settings.setXspressParameters((XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL,
 				XspressParameters.class, XspressParameters.schemaURL, filename));
-//		if (detectorSettings.getXspressParameters() != null)
-//			numberOfDetectors = xspressParameters.getDetectorList().size();
-		// if mode override is set as a property ignore all the parameter file
-		// settings
+		// if mode override is set as a property ignore all the parameter file settings
 		if (modeOverride)
 			settings.getParameters().setReadoutMode(READOUT_MCA);
 	}
