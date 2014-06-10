@@ -71,7 +71,7 @@
       </view>
       <view
             category="uk.ac.gda.client.hrpd.views.hrpdCategory"
-            class="uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory:macliveplotviewfactory"
+            class="uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory:macliveplotfactory"
             icon="icons/chart_curve.png"
             id="uk.ac.gda.client.hrpd.views.liveplotview"
             name="MAC"
