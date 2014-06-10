@@ -36,26 +36,16 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
-import uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory;
 import uk.ac.gda.client.hrpd.views.LivePlotView;
 /**
-<<<<<<< HEAD
  * a factory for creating a {@link LivePlotView} instance. 
  * 
  * an instance of this class can be configured in a Spring bean and contribute to {@link org.eclipse.ui.views} extension-point
  * before workbench itself has started (which required for a view component) using eclipse's {@link ExtensionFactory} mechanism.
  * 
- * Its sole purpose is to deliver the actual view alter after the eclipse workbench has started and hold the Spring configuration 
+ * Its sole purpose is to deliver the actual view after the eclipse workbench has started and hold the Spring configuration 
  * properties for the actual view to be created.
  *  
-=======
- * a factory for creating {@link LivePlotView} instance. 
- * 
- * This class enables that an {@link LivePlotView} instance is Spring XML configurable before workbench itself starts.
- * It is wired into application's workbench using the {@link LivePlotViewExtensionFactory} - an implementation of 
- * {@link ExtensionFactory}mechanism as extension to {@link org.eclipse.ui.views} extension-point, i.e.
- * {@code uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory:macliveplotviewfactory}
->>>>>>> branch '1.5' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-hrpd.git
  * <p>
  * Example of Spring configuration:
  * <pre>

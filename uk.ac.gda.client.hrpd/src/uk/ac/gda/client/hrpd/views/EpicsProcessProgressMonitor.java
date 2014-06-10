@@ -174,7 +174,19 @@ public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements 
 			messageListener.addIObserver(this);
 		}
 	}
-	
+	@Override
+	public void dispose() {
+		if (totalWorkListener!=null) {
+			totalWorkListener.deleteIObserver(this);
+		}
+		if (workedSoFarListener!=null) {
+			workedSoFarListener.deleteIObserver(this);
+		}
+		if (messageListener!=null) {
+			messageListener.deleteIObserver(this);
+		}
+		super.dispose();
+	}
 	int lastWorkedTo=0;
 	int totalWork=0;
 	@Override

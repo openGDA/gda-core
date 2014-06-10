@@ -5,7 +5,6 @@ Bundle-SymbolicName: uk.ac.gda.client.hrpd;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: uk.ac.gda.client.hrpd.Activator
 Bundle-Vendor: Diamond Light Source
-Eclipse-RegisterBuddy: uk.ac.gda.client.experimentdefinition
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  uk.ac.gda.core;bundle-version="1.0.0",
@@ -42,5 +41,9 @@ Import-Package: com.artenum.jyconsole,
  org.springframework.beans.factory;version="3.2.2.RELEASE"
 Bundle-ClassPath: jars/javatuples-1.2.jar,
  .
+Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
+ uk.ac.gda.client.experimentdefinition, uk.ac.gda.api,
+ uk.ac.diamond.org.springframework
 Export-Package: org.javatuples,
- org.javatuples.valueintf
+ org.javatuples.valueintf,
+ uk.ac.gda.client.hrpd.epicsdatamonitor

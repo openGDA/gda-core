@@ -49,10 +49,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 
@@ -62,7 +63,7 @@ import com.google.common.base.Joiner;
  * * <li>Specify {@link Scriptcontroller} instance to handle data file name changed event {@link FileNumberEvent} which
  * facilitate server to client communication</li>
  */
-public class CVScan extends ScannableMotionBase implements IObserver, InitializingBean {
+public class CVScan extends ScannableMotionBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(CVScan.class);
 
@@ -91,7 +92,7 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 	private int retrycount = 0;
 
 	private static final int NTHREDS = 2;
-	private ExecutorService executor = Executors.newFixedThreadPool(NTHREDS);
+	private ExecutorService executor;
 	// collision prevention objects
 	private Scannable psdScannableMotor;
 	private SafePosition psdSafePosition;
@@ -103,12 +104,6 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 	@Override
 	public void configure() throws FactoryException {
 		if (!configured) {
-			if (controller != null) {
-				controller.addIObserver(this);
-			} else {
-				throw new FactoryException("EpicsCVScan object is not defined.");
-			}
-
 			this.setInputNames(new String[] { "tth" });
 			this.setOutputFormat(new String[] { "%s" });
 			try {
@@ -142,6 +137,12 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 			controller.setFileNumber(getDataWriter().incrementFileNumber());
 			createFilesToWriteTo();
 			fireNewDataFile();
+			executor = Executors.newFixedThreadPool(NTHREDS);
+			if (controller != null) {
+				controller.addIObserver(this);
+			} else {
+				throw new DeviceException("EpicsCVScan object is not defined.");
+			}
 		}
 		pausedCounter = 0; // initialise counter for paused flag for this cvscan
 		this.totaltime = Double.valueOf(time.toString()).doubleValue();
@@ -223,12 +224,43 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 	public Object rawGetPosition() throws DeviceException {
 		// TODO define inputName[getName()], extraName[getFilename()] to support scansReturnToOriginalPositions=1
 		// so that at scan end an extra CVScan will be called.
+		if(!isGDAScanning) {
+			String datafile = null;
+			for (Future<String> future : list) {
+				try {
+					datafile = future.get();
+				} catch (InterruptedException e) {
+					logger.error("Data saving to "+datafile+" is interrupted.", e);
+					throw new DeviceException("Data saving to " +datafile+" is interrupted.", e);
+				} catch (ExecutionException e) {
+					logger.error("Data saving to "+ datafile +" throws ExecutionException.", e);
+					throw new DeviceException("Data saving to "+datafile+ " throws ExecutionException.", e);
+				}
+				logger.info("Data {} saving completed.", datafile);
+			}
+			executor.shutdown();
+			boolean terminated;
+			try {
+				terminated = executor.awaitTermination(1, TimeUnit.MINUTES);
+				if (!terminated) {
+					throw new java.util.concurrent.TimeoutException("data saving shutdown timeout.");
+				}
+			} catch (InterruptedException |java.util.concurrent.TimeoutException e) {
+				logger.error("Data saving executor failed in shutdown.", e);
+				throw new DeviceException("Data saving executor failed in shutdown.", e);
+			}
+			if (controller != null) {
+				controller.deleteIObserver(this);
+			} else {
+				throw new DeviceException("EpicsCVScan object is not defined.");
+			}
+			return FilenameUtils.getName(datafile);
+		}
 		return getFilename();
 	}
 
 	private String getFilename() {
-		int end = rebinnedfile.getName().indexOf(".");
-		return rebinnedfile.getName().substring(0, end);
+		return rebinnedfile.getName();
 	}
 
 	@Override
@@ -241,8 +273,14 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 		checkForCollision();
 		// any preparation works here.
 		paused = false;
-		pausedCounter=0;
+		pausedCounter = 0;
 		isGDAScanning = true;
+		executor=Executors.newFixedThreadPool(NTHREDS);
+		if (controller != null) {
+			controller.addIObserver(this);
+		} else {
+			throw new DeviceException("EpicsCVScan object is not defined.");
+		}
 		collectionNumber = 1;
 		controller.setCollectionNumber(collectionNumber);
 		controller.setGDAScanning(true);
@@ -254,13 +292,29 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 	}
 
 	@Override
-	public void atScanEnd() {
+	public void atScanEnd() throws DeviceException {
 		paused = false;
 		isGDAScanning = false;
 		collectionNumber = 1;
 		controller.setCollectionNumber(collectionNumber);
 		controller.setGDAScanning(false);
-		// kick off other post processes
+		
+		executor.shutdown();
+		boolean terminated;
+		try {
+			terminated = executor.awaitTermination(1, TimeUnit.MINUTES);
+			if (!terminated) {
+				throw new java.util.concurrent.TimeoutException("data saving shutdown timeout.");
+			}
+		} catch (InterruptedException |java.util.concurrent.TimeoutException e) {
+			logger.error("Data saving executor failed in shutdown.", e);
+			throw new DeviceException("Data saving executor failed in shutdown.", e);
+		}
+		if (controller != null) {
+			controller.deleteIObserver(this);
+		} else {
+			throw new DeviceException("EpicsCVScan object is not defined.");
+		}
 	}
 
 	@Override
@@ -314,17 +368,17 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 			((EpicsMultiChannelScaler) mcsDetectors.get(0)).closeShutter();
 		}
 		// need to ensure paused flag cleared on emergency stop.
-		String datafile;
 		paused = false;
+		String datafile = null;
 		for (Future<String> future : list) {
 			try {
-				datafile=future.get();
+				datafile = future.get();
 			} catch (InterruptedException e) {
-				logger.error("Data saving is interrupted.", e);
-				throw new DeviceException("Data saving is interrupted.",e);
+				logger.error("Data saving to "+datafile+" is interrupted.", e);
+				throw new DeviceException("Data saving to " +datafile+" is interrupted.", e);
 			} catch (ExecutionException e) {
-				logger.error("Data saving throwsExecutionException.", e);
-				throw new DeviceException("Data saving throwsExecutionException.",e);
+				logger.error("Data saving to "+ datafile +" throws ExecutionException.", e);
+				throw new DeviceException("Data saving to "+datafile+ " throws ExecutionException.", e);
 			}
 			logger.info("Data {} saving completed.", datafile);
 		}
@@ -552,25 +606,32 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 	private class SaveRawData implements Callable<String> {
 		@Override
 		public String call() throws Exception {
-			return saveRawData();
+			if (pausedCounter == 0) {
+				return saveRawData();
+			}
+			InterfaceProvider.getTerminalPrinter().print(
+					"CVScan had been paused " + pausedCounter + " times. No raw data file created");
+			logger.info("CVScan had been paused {} times. No raw data file created.", pausedCounter);
+
+			return null;
 		}
 	}
 
-	private String saveRawData() throws Exception  {
+	private String saveRawData() throws Exception {
 		double[] raw2theta = null;
 		double monitorAverage = 0;
 		try {
 			monitorAverage = controller.getMonitorAverage();
 		} catch (TimeoutException | CAException | InterruptedException e1) {
-			logger.error(getName()+" cannot get monitor avarge data from "+controller.getName(),e1);
-			throw new Exception(getName()+" cannot get monitor avarge data from "+controller.getName(),e1);
+			logger.error(getName() + " cannot get monitor avarge data from " + controller.getName(), e1);
+			throw new Exception(getName() + " cannot get monitor avarge data from " + controller.getName(), e1);
 		}
 		actualpulses = controller.getRaw2ThetaSize();
 		try {
 			raw2theta = controller.getRaw2ThetaPositions();
 		} catch (TimeoutException | CAException | InterruptedException e1) {
-			logger.error(getName()+" cannot get raw two-theta positions data from "+controller.getName(),e1);
-			throw new Exception(getName()+" cannot get raw two-theta positions data from "+controller.getName(),e1);
+			logger.error(getName() + " cannot get raw two-theta positions data from " + controller.getName(), e1);
+			throw new Exception(getName() + " cannot get raw two-theta positions data from " + controller.getName(), e1);
 		}
 
 		int[][] data = new int[2 * EpicsMcsSis3820.MAX_NUMBER_MCA][controller.getTotalNumberOfPulses()];
@@ -582,10 +643,10 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 					data[e.getKey().intValue() - 1] = ((EpicsMultiChannelScaler) mcsDetectors.get(i)).getData(e
 							.getValue().getScalerChannel());
 				} catch (DeviceException e1) {
-					logger.error(getName()+" cannot get detector data from " + mcsDetectors.get(i).getName() + " "
+					logger.error(getName() + " cannot get detector data from " + mcsDetectors.get(i).getName() + " "
 							+ e.getValue().getName(), e1);
-					throw new Exception(getName()+" cannot get detector data from " + mcsDetectors.get(i).getName() + " "
-							+ e.getValue().getName(), e1);
+					throw new Exception(getName() + " cannot get detector data from " + mcsDetectors.get(i).getName()
+							+ " " + e.getValue().getName(), e1);
 				}
 			}
 		}
@@ -611,26 +672,27 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 		try {
 			monitorAverage = controller.getMonitorAverage();
 		} catch (TimeoutException | CAException | InterruptedException e) {
-			logger.error(getName()+" cannot get monitor average data from "+controller.getName(),e);
-			throw new Exception(getName()+" cannot get monitor average data from "+controller.getName(),e);
+			logger.error(getName() + " cannot get monitor average data from " + controller.getName(), e);
+			throw new Exception(getName() + " cannot get monitor average data from " + controller.getName(), e);
 		}
 		try {
 			rebinned2theta = controller.getRebinned2ThetaPositions();
 		} catch (TimeoutException | CAException | InterruptedException e) {
-			logger.error(getName()+" cannot get rebinned two-theta positions data from "+controller.getName(),e);
-			throw new Exception(getName()+" cannot get rebinned two-theta positions data from "+controller.getName(),e);
+			logger.error(getName() + " cannot get rebinned two-theta positions data from " + controller.getName(), e);
+			throw new Exception(getName() + " cannot get rebinned two-theta positions data from "
+					+ controller.getName(), e);
 		}
 		try {
 			rebinnedCounts = controller.getRebinnedCounts();
 		} catch (TimeoutException | CAException | InterruptedException e) {
-			logger.error(getName()+" cannot get rebinned counts data from "+controller.getName(),e);
-			throw new Exception(getName()+" cannot get rebinned counts data from "+controller.getName(),e);
+			logger.error(getName() + " cannot get rebinned counts data from " + controller.getName(), e);
+			throw new Exception(getName() + " cannot get rebinned counts data from " + controller.getName(), e);
 		}
 		try {
 			rebinnedCountErrors = controller.getRebinnedCountErrors();
 		} catch (TimeoutException | CAException | InterruptedException e) {
-			logger.error(getName()+" cannot get rebinned count errors data from "+controller.getName(),e);
-			throw new Exception(getName()+" cannot get rebinned count errors data from "+controller.getName(),e);
+			logger.error(getName() + " cannot get rebinned count errors data from " + controller.getName(), e);
+			throw new Exception(getName() + " cannot get rebinned count errors data from " + controller.getName(), e);
 		}
 		numberOfElements = controller.getRebinned2ThetaSize();
 		rebinfilename = getDataWriter().addRebinnedData(rebinnedfile, numberOfElements, scannables, rebinned2theta,
@@ -646,7 +708,7 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 	 */
 	@Override
 	public void update(Object source, Object arg) {
-		if (source==controller && arg instanceof CurrentState) {
+		if (source == controller && arg instanceof CurrentState) {
 			if ((CurrentState) arg == CurrentState.Reduction) {
 				// sometime can not receive this from EPICS, so move raw data writer to FLYBACK
 				logger.info("{}: data reduction", getName());
@@ -681,63 +743,63 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 				Future<String> submit = executor.submit(worker);
 				list.add(submit);
 			} else if ((CurrentState) arg == CurrentState.Paused) {
-					InterfaceProvider.getTerminalPrinter().print(getName() + ": Paused");
-					logger.info("{}: paused", getName());
+				InterfaceProvider.getTerminalPrinter().print(getName() + ": Paused");
+				logger.info("{}: paused", getName());
 			} else if ((CurrentState) arg == CurrentState.Fault) {
-					String message = controller.getMessage();
-					InterfaceProvider.getTerminalPrinter().print(getName() + ": Status=Fault, " + "message=" + message);
-					logger.error("Current State at {}, message = {}", ((CurrentState) arg).toString(), message);
-					try {
-						InterfaceProvider.getTerminalPrinter().print("try to restart scan...");
-						if (retrycount > 3) {
-							InterfaceProvider.getTerminalPrinter().print(
-									"Abort current CV scan/script: maximum number of retry exceeded.");
-							if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
-								JythonServerFacade.getInstance().abortCommands();
-							}
-							if (JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING) {
-								JythonServerFacade.getInstance().abortCommands();
-							}
-							stop();
-							InterfaceProvider
-									.getTerminalPrinter()
-									.print("Please click 'STOP ALL' button to abort current scan and solve the EPICS FAULT problem before restart scan.");
-							retrycount = 0;
+				String message = controller.getMessage();
+				InterfaceProvider.getTerminalPrinter().print(getName() + ": Status=Fault, " + "message=" + message);
+				logger.error("Current State at {}, message = {}", ((CurrentState) arg).toString(), message);
+				try {
+					InterfaceProvider.getTerminalPrinter().print("try to restart scan...");
+					if (retrycount > 3) {
+						InterfaceProvider.getTerminalPrinter().print(
+								"Abort current CV scan/script: maximum number of retry exceeded.");
+						if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
+							JythonServerFacade.getInstance().abortCommands();
 						}
-						retrycount++;
-						restart();
-					} catch (DeviceException e) {
-						logger.error(getName() + ": retry cvscan on Fault state failed.", e);
+						if (JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING) {
+							JythonServerFacade.getInstance().abortCommands();
+						}
+						stop();
+						InterfaceProvider
+								.getTerminalPrinter()
+								.print("Please click 'STOP ALL' button to abort current scan and solve the EPICS FAULT problem before restart scan.");
+						retrycount = 0;
 					}
+					retrycount++;
+					restart();
+				} catch (DeviceException e) {
+					logger.error(getName() + ": retry cvscan on Fault state failed.", e);
+				}
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
 				}
 			} else if ((CurrentState) arg == CurrentState.Done) {
-					InterfaceProvider.getTerminalPrinter().print(getName() + ": Completed");
-					logger.info("{}: completed", getName());
+				InterfaceProvider.getTerminalPrinter().print(getName() + ": Completed");
+				logger.info("{}: completed", getName());
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
 				}
 				retrycount = 0;
 			} else if ((CurrentState) arg == CurrentState.Aborted) {
-					InterfaceProvider.getTerminalPrinter().print(getName() + ": Aborted");
-					logger.info("{}: aborted", getName());
+				InterfaceProvider.getTerminalPrinter().print(getName() + ": Aborted");
+				logger.info("{}: aborted", getName());
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
 				}
 				retrycount = 0;
 			} else if ((CurrentState) arg == CurrentState.Executing) {
-					InterfaceProvider.getTerminalPrinter().print(getName() + ": Executing");
-					logger.info("{}: executing", getName());
+				InterfaceProvider.getTerminalPrinter().print(getName() + ": Executing");
+				logger.info("{}: executing", getName());
 			} else if ((CurrentState) arg == CurrentState.LVIO) {
-					InterfaceProvider.getTerminalPrinter().print(getName() + ": Limit Violation");
-					InterfaceProvider
-							.getTerminalPrinter()
-							.print("Please click 'STOP ALL' button to abort current scan and solve limit problem before restart scan.");
-					logger.info("{}: Limit Violation", getName());
+				InterfaceProvider.getTerminalPrinter().print(getName() + ": Limit Violation");
+				InterfaceProvider
+						.getTerminalPrinter()
+						.print("Please click 'STOP ALL' button to abort current scan and solve limit problem before restart scan.");
+				logger.info("{}: Limit Violation", getName());
 			}
 		}
-		if (source==controller && arg instanceof String) {
+		if (source == controller && arg instanceof String) {
 			try {
 				if (getAvailableCVScanProfiles().contains(arg)) {
 					logger.info("{}: Profile updated to {}", getName(), arg);
@@ -840,19 +902,4 @@ public class CVScan extends ScannableMotionBase implements IObserver, Initializi
 		this.scriptController = scriptController;
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if (controller != null) {
-			throw new IllegalStateException("EpicsCVScan object is not defined.");
-		}
-		if (mcsDetectors == null || mcsDetectors.isEmpty()) {
-			throw new IllegalStateException("Detector objects are not defined.");
-		}
-		if (dataWriter == null) {
-			throw new IllegalStateException("Data Writer object is not defined.");
-		}
-		if (beamMonitor == null) {
-			throw new IllegalStateException("Beam monitor object is not defined.");
-		}
-	}
 }
