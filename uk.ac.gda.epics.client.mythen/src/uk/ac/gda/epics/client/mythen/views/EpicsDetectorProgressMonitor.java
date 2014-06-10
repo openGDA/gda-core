@@ -91,6 +91,7 @@ public class EpicsDetectorProgressMonitor extends Composite implements IObserver
 			logger.error("EPICS detector monitor failed in executor shutdown.", e);
 			throw new RuntimeException("EPICS detector monitor fail in executor shutdown.", e);
 		}
+		getStartListener().deleteIObserver(this);
 		super.dispose();
 	}
 	//using Callable instead of Runnable as progress cancel is expected to throw InterruptedException.

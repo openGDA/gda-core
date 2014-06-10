@@ -131,6 +131,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 			logger.error("Unable to plot data", e);
 			throw new RuntimeException("Unable to plot data from data file.", e);
 		} 
+		eventAdmin.deleteIObserver(this);
 		// clean up resources used.
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
