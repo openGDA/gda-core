@@ -13,7 +13,7 @@
             restorable="true">
       </view>
       <view
-            class="uk.ac.gda.epics.client.mythen.viewextensionfactories.LivePlotViewExtensionFactory:mythenliveplotviewfactory"
+            class="uk.ac.gda.epics.client.mythen.viewextensionfactories.LivePlotViewExtensionFactory:mythenliveplotfactory"
             id="uk.ac.gda.epics.client.mythen.views.liveplotview"
             name="Mythen"
             restorable="true">
