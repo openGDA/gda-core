@@ -197,6 +197,11 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 
 	@Override
 	public Object getPosition() throws DeviceException {
+		
+		if (!configured) {
+			return null;
+		}
+		
 		try {
 			waitForInitialisation();
 		} catch (Exception e) {
