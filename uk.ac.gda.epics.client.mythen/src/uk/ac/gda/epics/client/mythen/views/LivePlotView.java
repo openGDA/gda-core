@@ -54,6 +54,7 @@ public class LivePlotView extends ViewPart {
 		rootComposite.setLayout(layout);
 
 		try {
+			logger.debug("create plot composite.");
 			plotComposite = new LivePlotComposite(this, rootComposite, SWT.None);
 			plotComposite.setPlotName(getPlotName());
 			plotComposite.setxAxisMin(getxAxisMin());

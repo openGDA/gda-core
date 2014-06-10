@@ -104,6 +104,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 	}
 
 	public void initialise() {
+		logger.debug("initialise plot composite.");
 		if (getEventAdminName() != null) {
 			// optional file name observing
 			eventAdmin = Finder.getInstance().find(getEventAdminName());
