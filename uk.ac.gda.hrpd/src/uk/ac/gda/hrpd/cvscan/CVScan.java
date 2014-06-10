@@ -49,7 +49,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +92,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	private int retrycount = 0;
 
 	private static final int NTHREDS = 2;
-	private ExecutorService executor = Executors.newFixedThreadPool(NTHREDS);
+	private ExecutorService executor;
 	// collision prevention objects
 	private Scannable psdScannableMotor;
 	private SafePosition psdSafePosition;
@@ -102,12 +104,6 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	@Override
 	public void configure() throws FactoryException {
 		if (!configured) {
-			if (controller != null) {
-				controller.addIObserver(this);
-			} else {
-				throw new FactoryException("EpicsCVScan object is not defined.");
-			}
-
 			this.setInputNames(new String[] { "tth" });
 			this.setOutputFormat(new String[] { "%s" });
 			try {
@@ -141,6 +137,12 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			controller.setFileNumber(getDataWriter().incrementFileNumber());
 			createFilesToWriteTo();
 			fireNewDataFile();
+			executor = Executors.newFixedThreadPool(NTHREDS);
+			if (controller != null) {
+				controller.addIObserver(this);
+			} else {
+				throw new DeviceException("EpicsCVScan object is not defined.");
+			}
 		}
 		pausedCounter = 0; // initialise counter for paused flag for this cvscan
 		this.totaltime = Double.valueOf(time.toString()).doubleValue();
@@ -222,12 +224,43 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	public Object rawGetPosition() throws DeviceException {
 		// TODO define inputName[getName()], extraName[getFilename()] to support scansReturnToOriginalPositions=1
 		// so that at scan end an extra CVScan will be called.
+		if(!isGDAScanning) {
+			String datafile = null;
+			for (Future<String> future : list) {
+				try {
+					datafile = future.get();
+				} catch (InterruptedException e) {
+					logger.error("Data saving to "+datafile+" is interrupted.", e);
+					throw new DeviceException("Data saving to " +datafile+" is interrupted.", e);
+				} catch (ExecutionException e) {
+					logger.error("Data saving to "+ datafile +" throws ExecutionException.", e);
+					throw new DeviceException("Data saving to "+datafile+ " throws ExecutionException.", e);
+				}
+				logger.info("Data {} saving completed.", datafile);
+			}
+			executor.shutdown();
+			boolean terminated;
+			try {
+				terminated = executor.awaitTermination(1, TimeUnit.MINUTES);
+				if (!terminated) {
+					throw new java.util.concurrent.TimeoutException("data saving shutdown timeout.");
+				}
+			} catch (InterruptedException |java.util.concurrent.TimeoutException e) {
+				logger.error("Data saving executor failed in shutdown.", e);
+				throw new DeviceException("Data saving executor failed in shutdown.", e);
+			}
+			if (controller != null) {
+				controller.deleteIObserver(this);
+			} else {
+				throw new DeviceException("EpicsCVScan object is not defined.");
+			}
+			return FilenameUtils.getName(datafile);
+		}
 		return getFilename();
 	}
 
 	private String getFilename() {
-		int end = rebinnedfile.getName().indexOf(".");
-		return rebinnedfile.getName().substring(0, end);
+		return rebinnedfile.getName();
 	}
 
 	@Override
@@ -242,6 +275,12 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		paused = false;
 		pausedCounter = 0;
 		isGDAScanning = true;
+		executor=Executors.newFixedThreadPool(NTHREDS);
+		if (controller != null) {
+			controller.addIObserver(this);
+		} else {
+			throw new DeviceException("EpicsCVScan object is not defined.");
+		}
 		collectionNumber = 1;
 		controller.setCollectionNumber(collectionNumber);
 		controller.setGDAScanning(true);
@@ -253,13 +292,29 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	}
 
 	@Override
-	public void atScanEnd() {
+	public void atScanEnd() throws DeviceException {
 		paused = false;
 		isGDAScanning = false;
 		collectionNumber = 1;
 		controller.setCollectionNumber(collectionNumber);
 		controller.setGDAScanning(false);
-		// kick off other post processes
+		
+		executor.shutdown();
+		boolean terminated;
+		try {
+			terminated = executor.awaitTermination(1, TimeUnit.MINUTES);
+			if (!terminated) {
+				throw new java.util.concurrent.TimeoutException("data saving shutdown timeout.");
+			}
+		} catch (InterruptedException |java.util.concurrent.TimeoutException e) {
+			logger.error("Data saving executor failed in shutdown.", e);
+			throw new DeviceException("Data saving executor failed in shutdown.", e);
+		}
+		if (controller != null) {
+			controller.deleteIObserver(this);
+		} else {
+			throw new DeviceException("EpicsCVScan object is not defined.");
+		}
 	}
 
 	@Override
@@ -313,17 +368,17 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			((EpicsMultiChannelScaler) mcsDetectors.get(0)).closeShutter();
 		}
 		// need to ensure paused flag cleared on emergency stop.
-		String datafile;
 		paused = false;
+		String datafile = null;
 		for (Future<String> future : list) {
 			try {
 				datafile = future.get();
 			} catch (InterruptedException e) {
-				logger.error("Data saving is interrupted.", e);
-				throw new DeviceException("Data saving is interrupted.", e);
+				logger.error("Data saving to "+datafile+" is interrupted.", e);
+				throw new DeviceException("Data saving to " +datafile+" is interrupted.", e);
 			} catch (ExecutionException e) {
-				logger.error("Data saving throwsExecutionException.", e);
-				throw new DeviceException("Data saving throwsExecutionException.", e);
+				logger.error("Data saving to "+ datafile +" throws ExecutionException.", e);
+				throw new DeviceException("Data saving to "+datafile+ " throws ExecutionException.", e);
 			}
 			logger.info("Data {} saving completed.", datafile);
 		}

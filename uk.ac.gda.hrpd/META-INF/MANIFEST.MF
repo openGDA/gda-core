@@ -22,6 +22,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
  jars/gda_hrpd-corba.jar
 Import-Package: com.google.common.base;version="15.0.0",
+ org.apache.commons.io,
  org.slf4j;version="[1.7.6,1.7.7)",
  org.springframework.beans.factory;version="3.2.2.RELEASE"
 Export-Package: uk.ac.gda.hrpd.cvscan,
