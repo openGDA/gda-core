@@ -162,6 +162,20 @@ public class LivePlotComposite extends Composite implements IObserver {
 	@Override
 	public void dispose() {
 		// clean up resources used.
+		if (scriptController != null) {
+			scriptController.deleteIObserver(this); 
+			logger.debug("Data filename observer removed from {}", getDataFilenameObserverName());
+		} else {
+			logger.debug("Cannot find the script controller {} to remove data filename observer",
+					getDataFilenameObserverName());
+		}
+		if (detectorStateListener != null) {
+			detectorStateListener.deleteIObserver(this);
+			logger.debug("detector state observer removed from {}", detectorStateListener.getName());
+		} else {
+			logger.debug("No detector state observer removed");
+		}
+		dataUpdatedListener.deleteIObserver(this);
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
