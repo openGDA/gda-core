@@ -31,8 +31,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.UIObservableModel;
-import uk.ac.gda.common.rcp.UIHelper;
 
 public class ScannableWrapper extends UIObservableModel implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(ScannableWrapper.class);
