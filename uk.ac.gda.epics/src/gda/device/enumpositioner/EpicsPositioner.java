@@ -45,6 +45,8 @@ import gov.aps.jca.event.PutListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+
 /**
  * This class maps to EPICS positioner template.
  * 
@@ -271,10 +273,29 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 				int target = positions.indexOf(position.toString());
 				try {
 					if (getStatus() == EnumPositionerStatus.MOVING) {
-						logger.warn("{} is busy", getName());
-						return;
+						if (acceptNewMoveToPositionWhileMoving) {
+							// prepare to move elsewhere
+							logger.warn("{} is busy; stopping...", getName());
+							// stop synchronously
+							controller.caput(stop, 1, 0.0); // 0.0 means no timeout
+							// flag idle
+							synchronized (lock) {
+								positionerStatus = EnumPositionerStatus.IDLE;
+							}
+						}
+						else {
+							// reject new moveTo position
+							logger.warn("{} is busy", getName());
+							return;
+						}
 					}
-					positionerStatus = EnumPositionerStatus.MOVING;
+					// ensure idle
+					Preconditions.checkArgument(getStatus() == EnumPositionerStatus.IDLE);
+					// flag moving
+					synchronized (lock) {
+						positionerStatus = EnumPositionerStatus.MOVING;
+					}
+					// move
 					controller.caput(select, target, putCallbackListener);
 				} catch (Throwable th) {
 					positionerStatus = EnumPositionerStatus.ERROR;
@@ -287,6 +308,17 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 		throw new DeviceException("Position called: " + position.toString()+ " not found.");
 
 	}
+	
+	private boolean acceptNewMoveToPositionWhileMoving;
+	
+	public boolean getAcceptNewMoveToPositionWhileMoving() {
+		return this.acceptNewMoveToPositionWhileMoving;
+	}
+	
+	public void setAcceptNewMoveToPositionWhileMoving(boolean acceptNewMoveToPositionWhileMoving) {
+		this.acceptNewMoveToPositionWhileMoving = acceptNewMoveToPositionWhileMoving;
+	}
+	
 
 	@Override
 	public void stop() throws DeviceException {
