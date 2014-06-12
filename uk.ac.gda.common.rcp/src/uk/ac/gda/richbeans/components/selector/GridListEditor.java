@@ -215,20 +215,7 @@ public final class GridListEditor extends ListEditor {
 		tableViewer.setCellModifier(new ICellModifier() {
 			@Override
 			public boolean canModify(Object element, String property) {
-				if (!GridListEditor.this.isOn()) 
-					return false;
-				final Integer row = (Integer)element;
-				final int col = Integer.parseInt(property);
-				selectedIndex = getElementIndex(row, col);
-				final BeanWrapper bean = beans.get(selectedIndex);
-				setSelectedBean(bean, false);
-				tableViewer.refresh();
-				if (listeners!=null) {
-					final BeanSelectionEvent evt = new BeanSelectionEvent(this, selectedIndex, bean.getBean());
-					for (BeanSelectionListener l : listeners) 
-						l.selectionChanged(evt);
-				}
-				return false;
+				return updateElement(element, property);
 			}
 			@Override
 			public Object getValue(Object element, String property) {
@@ -240,6 +227,23 @@ public final class GridListEditor extends ListEditor {
 		});
 	}	
 
+	public boolean updateElement(Object element, String property){
+		if (!GridListEditor.this.isOn()) 
+			return false;
+		final Integer row = (Integer)element;
+		final int col = Integer.parseInt(property);
+		selectedIndex = getElementIndex(row, col);
+		final BeanWrapper bean = beans.get(selectedIndex);
+		setSelectedBean(bean, false);
+		tableViewer.refresh();
+		if (listeners!=null) {
+			final BeanSelectionEvent evt = new BeanSelectionEvent(this, selectedIndex, bean.getBean());
+			for (BeanSelectionListener l : listeners) 
+				l.selectionChanged(evt);
+		}
+		return false;
+	}
+	
 	private void createContentProvider() {
 		if (tableViewer==null) 
 			return;
