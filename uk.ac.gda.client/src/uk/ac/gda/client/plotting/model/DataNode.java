@@ -48,7 +48,6 @@ public abstract class DataNode extends ObservableModel {
 	public abstract void removeChild(DataNode dataNode);
 
 	public void disposeResources() {
-		// TODO Auto-generated method stub
-
+		// Nothing to dispose
 	}
 }

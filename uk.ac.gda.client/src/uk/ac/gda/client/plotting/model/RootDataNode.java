@@ -44,7 +44,7 @@ public class RootDataNode extends DataNode implements IScanDataPointObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootDataNode.class);
 
-	public static final long DELAY_TO_PLOT_SCAN_DATA_POINTS_IN_MILLI = 400L;
+	public static final long DELAY_TO_PLOT_SCAN_DATA_POINTS_IN_MILLI = 200L;
 	public static final int MAX_SCANS_HISTORY = 100;
 	public static final int MAX_SCANS_WITH_CACHED_DATA = 10;
 

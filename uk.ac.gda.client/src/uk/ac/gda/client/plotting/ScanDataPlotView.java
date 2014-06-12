@@ -36,7 +36,7 @@ import uk.ac.gda.client.plotting.model.DataNode;
 import uk.ac.gda.client.plotting.model.RootDataNode;
 
 public class ScanDataPlotView extends ViewPart {
-	public static String ID = "uk.ac.gda.exafs.ui.views.scandataplotview";
+	public static String ID = "uk.ac.gda.client.plotting.scandataplotview";
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanDataPlotView.class);
 
