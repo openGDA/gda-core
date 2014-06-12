@@ -446,18 +446,13 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 		this.connectToPlotServer = connectToPlotServer;
 	}	
 
-	String imageNDarrayPortInput;
 	@Override
 	public String getImageNDArrayPortInput() throws Exception {
-		return StringUtils.hasText(imageNDarrayPortInput) ? imageNDarrayPortInput : getAdBase().getPortName_RBV();
+		return StringUtils.hasText(imageNDArrayPortInput) ? imageNDArrayPortInput : getAdBase().getPortName_RBV();
 	}
 
-	public String getImageNDarrayPortInput() {
-		return imageNDarrayPortInput;
-	}
-
-	public void setImageNDarrayPortInput(String imageNDarrayPortInput) {
-		this.imageNDarrayPortInput = imageNDarrayPortInput;
+	public void setImageNDArrayPortInput(String imageNDarrayPortInput) {
+		this.imageNDArrayPortInput = imageNDarrayPortInput;
 	}
 
 	@Override

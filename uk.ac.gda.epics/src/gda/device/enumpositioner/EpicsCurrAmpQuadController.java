@@ -120,7 +120,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 		outputFormat = new String[inputNames.length + extraNames.length];
 
-		for (int i = 0; i < outputFormat.length + 1; i++) {
+		for (int i = 0; i < outputFormat.length; i++) {
 			outputFormat[i] = "%4.10f";
 		}
 		setOutputFormat(outputFormat);
