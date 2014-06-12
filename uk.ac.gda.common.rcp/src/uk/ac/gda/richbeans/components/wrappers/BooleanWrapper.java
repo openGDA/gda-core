@@ -36,9 +36,6 @@ import uk.ac.gda.richbeans.event.ValueEvent;
  */
 public class BooleanWrapper extends FieldComposite{
 	
-	/**
-	 *
-	 */
 	public enum BOOLEAN_MODE {
 		/**
 		 * Default
@@ -127,7 +124,9 @@ public class BooleanWrapper extends FieldComposite{
 		checkBox.setToolTipText(string);
 	}
 	
-	
+	public Button getButton(){
+		return checkBox;
+	}
 }
 
 	
