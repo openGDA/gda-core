@@ -88,27 +88,8 @@ public class Vortex extends Detector{
 			tableViewer.setCellModifier(new ICellModifier() {
 				@Override
 				public boolean canModify(Object element, String property) {
-					final int col = Integer.parseInt(property);
-					int selectedIndex = gridListEditor.getElementIndex(element, col, gridListEditor.getGridOrder(), gridListEditor.getColumns(), gridListEditor.getRows(), gridListEditor.getGridMap());
-					selectedElement = selectedIndex;
-					gridListEditor.setSelectedIndex(selectedIndex);
-					tableViewer.refresh();
-					int[][][] mcaData = vortexAcquire.getMcaData();
-					if(mcaData!=null){
-						plot.plot(selectedIndex,mcaData, false, null);
-						detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectedIndex, mcaData));
-						detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
-						//vortexElements.configureUI(vortexAcquire.getMcaData(), selectedIndex);
-					}
-					
-					boolean excluded = vortexParameters.getDetectorList().get(selectedIndex).isExcluded();
-					detectorElementComposite.getExcluded().setValue(excluded);
-					int numberOfElements = vortexParameters.getDetectorList().size();
-					for(int i=0;i<numberOfElements;i++)
-						tableViewer.refresh();
-					tableViewer.refresh();
-					
-					return false;
+					updateElement(element, property);
+					return gridListEditor.updateElement(element, property);
 				}
 				
 				@Override
@@ -142,6 +123,30 @@ public class Vortex extends Detector{
 		});
 	}
 
+	public boolean updateElement(Object element, String property){
+		final int col = Integer.parseInt(property);
+		int selectedIndex = gridListEditor.getElementIndex(element, col, gridListEditor.getGridOrder(), gridListEditor.getColumns(), gridListEditor.getRows(), gridListEditor.getGridMap());
+		selectedElement = selectedIndex;
+		gridListEditor.setSelectedIndex(selectedIndex);
+		tableViewer.refresh();
+		int[][][] mcaData = vortexAcquire.getMcaData();
+		if(mcaData!=null){
+			plot.plot(selectedIndex,mcaData, false, null);
+			detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectedIndex, mcaData));
+			detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
+			//vortexElements.configureUI(vortexAcquire.getMcaData(), selectedIndex);
+		}
+		
+		boolean excluded = vortexParameters.getDetectorList().get(selectedIndex).isExcluded();
+		detectorElementComposite.getExcluded().setValue(excluded);
+		int numberOfElements = vortexParameters.getDetectorList().size();
+		for(int i=0;i<numberOfElements;i++)
+			tableViewer.refresh();
+		tableViewer.refresh();
+		
+		return false;
+	}
+	
 	private void updateElementStates(boolean selection, boolean startup){
 		vortexParameters.getDetectorList().get(selectedElement).setExcluded(!selection);
 	}
