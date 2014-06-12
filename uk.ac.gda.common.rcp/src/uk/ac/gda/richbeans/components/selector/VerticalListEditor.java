@@ -92,7 +92,8 @@ public final class VerticalListEditor extends ListEditor {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				final BeanWrapper bean = (BeanWrapper) selection.getFirstElement();
 				VerticalListEditor.super.setSelectedBean(bean, true);
-				if (requireSelectionPack) VerticalListEditor.this.pack(true);
+				if (requireSelectionPack) 
+					VerticalListEditor.this.pack(true);
 			}
 		};
 		listViewer.addSelectionChangedListener(selectionChangedListener);
@@ -277,7 +278,6 @@ public final class VerticalListEditor extends ListEditor {
 		listViewer.getControl().setFocus();
 		updateEditingUIVisibility();
 		notifyValueListeners();
-
 	}
 
 	/**
