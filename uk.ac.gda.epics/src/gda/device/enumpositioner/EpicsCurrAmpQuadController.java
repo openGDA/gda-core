@@ -32,9 +32,13 @@ import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.CurrAmpQuadType;
 import gda.epics.interfaces.ElementType;
 import gda.factory.FactoryException;
+import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_CTRL_Double;
+import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
@@ -57,8 +61,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	private EpicsController controller;
 
-
-//	private boolean poll = false;
+	private boolean poll = false;
 
 	private volatile double current1 = Double.NaN;
 
@@ -72,26 +75,30 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	private Object lock = new Object();
 
-	private Current1MonitorListener i1Monitor;
+	private Current1MonitorListener i1MonitorListener;
 
-	private Current2MonitorListener i2Monitor;
+	private Current2MonitorListener i2MonitorListener;
 
-	private Current3MonitorListener i3Monitor;
+	private Current3MonitorListener i3MonitorListener;
 
-	private Current4MonitorListener i4Monitor;
+	private Current4MonitorListener i4MonitorListener;
+
+	private gov.aps.jca.Monitor i1Monitor;
+
+	private gov.aps.jca.Monitor i2Monitor;
+
+	private gov.aps.jca.Monitor i3Monitor;
+
+	private gov.aps.jca.Monitor i4Monitor;
 
 	private RangeMonitorListener rangeMonitor;
 
-	@SuppressWarnings("unused")
 	private Channel current1Ch = null;
 
-	@SuppressWarnings("unused")
 	private Channel current2Ch = null;
 
-	@SuppressWarnings("unused")
 	private Channel current3Ch = null;
 
-	@SuppressWarnings("unused")
 	private Channel current4Ch = null;
 
 	private Channel range_rbv;
@@ -101,26 +108,23 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	 */
 	public EpicsCurrAmpQuadController() {
 		
-		inputNames =  new String[]{ "current1", "current2", "current3", "current4", "rangeValue" };
-
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
-		i1Monitor = new Current1MonitorListener();
-		i2Monitor = new Current2MonitorListener();
-		i3Monitor = new Current3MonitorListener();
-		i4Monitor = new Current4MonitorListener();
+		i1MonitorListener = new Current1MonitorListener();
+		i2MonitorListener = new Current2MonitorListener();
+		i3MonitorListener = new Current3MonitorListener();
+		i4MonitorListener = new Current4MonitorListener();
 		rangeMonitor = new RangeMonitorListener();
-		/*
-		 * String[] names={"Current1", "Current2", "Current3", "Current4", "Range"}; setExtraNames(names);
-		 */
-		String[] outputFormat = new String[inputNames.length + 1];
+		
+		setInputNames(new String[]{"rangeValue"});
+		setExtraNames(new String[]{ "current1", "current2", "current3", "current4"});
 
-		for (int i = 0; i < inputNames.length + 1; i++) {
+		outputFormat = new String[inputNames.length + extraNames.length];
+
+		for (int i = 0; i < outputFormat.length; i++) {
 			outputFormat[i] = "%4.10f";
 		}
-
 		setOutputFormat(outputFormat);
-
 	}
 
 	/**
@@ -173,10 +177,10 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 			if ((rangeReadback != null) && rangeReadback.getPv().isEmpty()) {
 				range_rbv = channelManager.createChannel(currAmpConfig.getRANGE_READBACK().getPv(), rangeMonitor, MonitorType.CTRL, true);
 			}
-			current1Ch = channelManager.createChannel(currAmpConfig.getI1().getPv(), i1Monitor, MonitorType.CTRL, false);
-			current2Ch = channelManager.createChannel(currAmpConfig.getI2().getPv(), i2Monitor, MonitorType.CTRL, false);
-			current3Ch = channelManager.createChannel(currAmpConfig.getI3().getPv(), i3Monitor, MonitorType.CTRL, false);
-			current4Ch = channelManager.createChannel(currAmpConfig.getI4().getPv(), i4Monitor, MonitorType.CTRL, false);
+			current1Ch = channelManager.createChannel(currAmpConfig.getI1().getPv(), false);
+			current2Ch = channelManager.createChannel(currAmpConfig.getI2().getPv(), false);
+			current3Ch = channelManager.createChannel(currAmpConfig.getI3().getPv(), false);
+			current4Ch = channelManager.createChannel(currAmpConfig.getI4().getPv(), false);
 			channelManager.creationPhaseCompleted();
 
 		} catch (Throwable th) {
@@ -193,6 +197,69 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 			if (position[i] != null || position[i] != "") {
 				super.positions.add(position[i]);
 			}
+		}
+		
+		if (isPoll()) {
+			disablePoll();
+		} else {
+			enablePoll();
+		}
+		logger.info("{} initialisation completed", getName());
+	}
+	
+	public void disablePoll() {
+		setPoll(false);
+		if (current1Ch != null && i1MonitorListener != null) {
+			try {
+				i1Monitor = current1Ch.addMonitor(DBRType.DOUBLE, 0, gov.aps.jca.Monitor.VALUE, i1MonitorListener);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + current1Ch.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + current1Ch.getName(), e);
+			}
+		}
+		if (current2Ch != null && i2MonitorListener != null) {
+			try {
+				i2Monitor = current2Ch.addMonitor(DBRType.DOUBLE, 0, gov.aps.jca.Monitor.VALUE, i2MonitorListener);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + current2Ch.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + current2Ch.getName(), e);
+			}
+		}
+		if (current3Ch != null && i3MonitorListener != null) {
+			try {
+				i3Monitor = current3Ch.addMonitor(DBRType.DOUBLE, 0, gov.aps.jca.Monitor.VALUE, i3MonitorListener);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + current3Ch.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + current3Ch.getName(), e);
+			}
+		}
+		if (current4Ch != null && i4MonitorListener != null) {
+			try {
+				i4Monitor = current4Ch.addMonitor(DBRType.DOUBLE, 0, gov.aps.jca.Monitor.VALUE, i4MonitorListener);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + current4Ch.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + current4Ch.getName(), e);
+			}
+		}
+	}
+
+	public void enablePoll() {
+		setPoll(true);
+		if (i1Monitor != null && i1MonitorListener != null) {
+			i1Monitor.removeMonitorListener(i1MonitorListener);
+		}
+		if (i2Monitor != null && i2MonitorListener != null) {
+			i2Monitor.removeMonitorListener(i2MonitorListener);
+		}
+		if (i3Monitor != null && i3MonitorListener != null) {
+			i3Monitor.removeMonitorListener(i3MonitorListener);
+		}
+		if (i4Monitor != null && i4MonitorListener != null) {
+			i4Monitor.removeMonitorListener(i4MonitorListener);
 		}
 	}
 
@@ -246,7 +313,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				current1 = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				current1 = ((DBR_Double) dbr).getDoubleValue()[0];
 				notifyIObservers(this, current1);
 			} else {
 				logger.error("Error: .RBV should return DOUBLE type value.");
@@ -260,7 +327,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				current2 = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				current2 = ((DBR_Double) dbr).getDoubleValue()[0];
 				notifyIObservers(this, current2);
 			} else {
 				logger.error("Error: .RBV should return DOUBLE type value.");
@@ -274,7 +341,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				current3 = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				current3 = ((DBR_Double) dbr).getDoubleValue()[0];
 				notifyIObservers(this, current3);
 			} else {
 				logger.error("Error: .RBV should return DOUBLE type value.");
@@ -288,7 +355,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				current4 = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				current4 = ((DBR_Double) dbr).getDoubleValue()[0];
 
 				/*
 				 * synchronized (motorProperty) { motorProperty.put(MotorProperty.POSITION, new Double(
@@ -350,29 +417,89 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	}
 	/**
 	 * @return current1
+	 * @throws DeviceException 
 	 */
-	public double getCurrent1() {
+	public double getCurrent1() throws DeviceException {
+		if (isPoll()) {
+			try {
+				return controller.cagetDouble(current1Ch);
+			} catch (TimeoutException e) {
+				logger.error("Timeout Exception on get intensity from" + current1Ch.getName(), e);
+				throw new DeviceException("Timeout Exception on get intensity from" + current1Ch.getName(), e);
+			} catch (CAException e) {
+				logger.error("CAException on get intensity from" + current1Ch.getName(), e);
+				throw new DeviceException("CAException on get intensity from" + current1Ch.getName(), e);
+			} catch (InterruptedException e) {
+				logger.error("Interrupted Exception on get intensity from" + current1Ch.getName(), e);
+				throw new DeviceException("Interrupted Exception on get intensity from" + current1Ch.getName(), e);
+			}
+		}
 		return this.current1;
 	}
 
 	/**
 	 * @return current2
+	 * @throws DeviceException 
 	 */
-	public double getCurrent2() {
+	public double getCurrent2() throws DeviceException {
+		if (isPoll()) {
+			try {
+				return controller.cagetDouble(current2Ch);
+			} catch (TimeoutException e) {
+				logger.error("Timeout Exception on get intensity from" + current2Ch.getName(), e);
+				throw new DeviceException("Timeout Exception on get intensity from" + current2Ch.getName(), e);
+			} catch (CAException e) {
+				logger.error("CAException on get intensity from" + current2Ch.getName(), e);
+				throw new DeviceException("CAException on get intensity from" + current2Ch.getName(), e);
+			} catch (InterruptedException e) {
+				logger.error("Interrupted Exception on get intensity from" + current2Ch.getName(), e);
+				throw new DeviceException("Interrupted Exception on get intensity from" + current2Ch.getName(), e);
+			}
+		}
 		return this.current2;
 	}
 
 	/**
 	 * @return current3
+	 * @throws DeviceException 
 	 */
-	public double getCurrent3() {
+	public double getCurrent3() throws DeviceException {
+		if (isPoll()) {
+			try {
+				return controller.cagetDouble(current3Ch);
+			} catch (TimeoutException e) {
+				logger.error("Timeout Exception on get intensity from" + current3Ch.getName(), e);
+				throw new DeviceException("Timeout Exception on get intensity from" + current3Ch.getName(), e);
+			} catch (CAException e) {
+				logger.error("CAException on get intensity from" + current3Ch.getName(), e);
+				throw new DeviceException("CAException on get intensity from" + current3Ch.getName(), e);
+			} catch (InterruptedException e) {
+				logger.error("Interrupted Exception on get intensity from" + current3Ch.getName(), e);
+				throw new DeviceException("Interrupted Exception on get intensity from" + current3Ch.getName(), e);
+			}
+		}
 		return this.current3;
 	}
 
 	/**
 	 * @return current4
+	 * @throws DeviceException 
 	 */
-	public double getCurrent4() {
+	public double getCurrent4() throws DeviceException {
+		if (isPoll()) {
+			try {
+				return controller.cagetDouble(current4Ch);
+			} catch (TimeoutException e) {
+				logger.error("Timeout Exception on get intensity from" + current4Ch.getName(), e);
+				throw new DeviceException("Timeout Exception on get intensity from" + current4Ch.getName(), e);
+			} catch (CAException e) {
+				logger.error("CAException on get intensity from" + current4Ch.getName(), e);
+				throw new DeviceException("CAException on get intensity from" + current4Ch.getName(), e);
+			} catch (InterruptedException e) {
+				logger.error("Interrupted Exception on get intensity from" + current4Ch.getName(), e);
+				throw new DeviceException("Interrupted Exception on get intensity from" + current4Ch.getName(), e);
+			}
+		}
 		return this.current4;
 	}
 
@@ -454,5 +581,13 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 		return currentPosition;
 
+	}
+
+	public boolean isPoll() {
+		return poll;
+	}
+
+	public void setPoll(boolean poll) {
+		this.poll = poll;
 	}
 }

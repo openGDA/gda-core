@@ -18,7 +18,6 @@
 
 package gda.device.detector.addetector.triggering;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverMerlinThresholdSweep;
@@ -49,18 +48,33 @@ public class MerlinThresholdSweepTrigger extends SimpleAcquire {
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
+		/* TODO: Is this belt and bracers check now needed? If so it should probably be configurable.
 		String dataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat");
 		if (dataFormat != "NexusDataWriter") {
 			throw new IllegalStateException("gda.data.scan.datawriter.dataFormat LocalProperty must be 'NexusDataWriter', not: '" + dataFormat + "'");
 		}
+		*/
 		enableOrDisableCallbacks();
 		logger.info("images per sweep = " + numImages);
 		configureAcquireAndPeriodTimes(collectionTime);
 		getAdBase().setNumImages(1);  // the threshold scan itself creates multiple images
+		
+		if (sweepDriver.isUseTriggerModeNotStartThresholdScanning()) {
+			getAdBase().setImageMode(ADDriverMerlinThresholdSweep.MerlinThresholdSweepImageMode.THRESHOLD.ordinal());
+		}
 	}
 	
 	@Override
 	public void collectData() throws Exception {
+		if (sweepDriver.isUseTriggerModeNotStartThresholdScanning()) {
+			// TODO: Test if this is sufficient:
+			super.collectData();
+			// TODO: Is setting Image mode back to SINGLE afterwards needed? Is SINGLE the correct mode to return it to?
+			getAdBase().setImageMode(ADDriverMerlinThresholdSweep.MerlinThresholdSweepImageMode.SINGLE.ordinal());
+			return;
+			// In theory, with the new Merlin AD behaviour, we only need to set the trigger mode and do an ordinary collection.
+			// Thus the rest of this function should not be needed.
+		}
 		String msg = "Sleeping for 2s before starting threshold scan to allow detector to steady itself after previous scan";
 		logger.warn(msg);
 		//InterfaceProvider.getTerminalPrinter().print(msg);
