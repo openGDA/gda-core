@@ -44,11 +44,6 @@ public class EpicsXmapController extends DeviceBase implements XmapController, I
 			throw new FactoryException(getName()
 					+ " (EpicsXmapControllerROI) must be given the EDXD object or object name to be able to configure");
 		}
-
-		if (edxdController == null) {
-			edxdController = (EDXDMappingController) Finder.getInstance().find(edxdControllerName);
-		}
-
 		numberOfElements = edxdController.getNumberOfElements();
 		edxdController.addIObserver(this);
 	}
