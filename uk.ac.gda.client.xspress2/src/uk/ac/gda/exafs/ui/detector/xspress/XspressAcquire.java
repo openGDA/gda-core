@@ -181,7 +181,7 @@ public class XspressAcquire extends Acquire {
 	@Override
 	public void acquire(double collectionTime) throws DeviceException, InterruptedException{	
 		this.collectionTime = collectionTime;
-		
+
 		String uiReadoutMode = (String) readoutMode.getValue();
 		String uiResolutionGrade = uiReadoutMode.equals(XspressDetector.READOUT_ROIS) ? (String) resolutionGrade.getValue() : ResGrades.NONE;
 		
