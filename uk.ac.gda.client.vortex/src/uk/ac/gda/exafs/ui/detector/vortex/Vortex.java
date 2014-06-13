@@ -46,6 +46,7 @@ import uk.ac.gda.exafs.ui.detector.DetectorListComposite;
 import uk.ac.gda.exafs.ui.detector.Plot;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
+import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 
 public class Vortex extends Detector{
 	public Label acquireFileLabel;
@@ -102,25 +103,27 @@ public class Vortex extends Detector{
 				}
 			});
 		}
-		
-		final Button button = detectorElementComposite.getExcluded().getButton();
-		final boolean enabled = button.getSelection();
-		updateElementStates(enabled, true);
-		button.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				boolean enabled = button.getSelection();
-				updateElementStates(enabled, false);
-				tableViewer.refresh();
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
+		BooleanWrapper excluded = detectorElementComposite.getExcluded();
+		if(excluded!=null){
+			final Button button = excluded.getButton();
+			final boolean enabled = button.getSelection();
+			updateElementStates(enabled, true);
+			button.addSelectionListener(new SelectionListener() {
 				
-			}
-		});
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					boolean enabled = button.getSelection();
+					updateElementStates(enabled, false);
+					tableViewer.refresh();
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+		}
 	}
 
 	public boolean updateElement(Object element, String property){
