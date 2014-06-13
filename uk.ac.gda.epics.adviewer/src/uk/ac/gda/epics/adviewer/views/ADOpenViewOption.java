@@ -31,6 +31,9 @@ public class ADOpenViewOption implements OpenViewOption {
 	ViewType viewType;
 	private String label;
 
+	public ADOpenViewOption(String label, String detectorName, ViewType viewType, String pvPrefix) {
+		this(label,detectorName,viewType, pvPrefix, "");
+	}
 	public ADOpenViewOption(String label, String detectorName, ViewType viewType, String pvPrefix, String suffixType) {
 		this.label = label;
 		this.detectorName = detectorName;
