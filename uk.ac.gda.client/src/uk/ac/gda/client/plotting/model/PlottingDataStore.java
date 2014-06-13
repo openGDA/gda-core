@@ -23,14 +23,9 @@ import uk.ac.gda.common.rcp.PreferenceDataStore;
 public enum PlottingDataStore {
 	INSTANCE;
 	private static final String PLOTTING_DATA_STORE_PERFERENCES = "uk.ac.gda.plotting.data";
-	private final PreferenceDataStore preferenceDataStore;
-
-	private PlottingDataStore() {
-		preferenceDataStore = new PreferenceDataStore(PLOTTING_DATA_STORE_PERFERENCES);
-	}
+	private final PreferenceDataStore preferenceDataStore = new PreferenceDataStore(PLOTTING_DATA_STORE_PERFERENCES);
 
 	public PreferenceDataStore getPreferenceDataStore() {
 		return preferenceDataStore;
 	}
-
 }
