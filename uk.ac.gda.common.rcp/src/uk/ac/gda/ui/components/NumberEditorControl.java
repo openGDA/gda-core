@@ -131,6 +131,8 @@ public class NumberEditorControl extends Composite {
 	private Binding incrementButtonEditableBinding;
 	private IConverter modelToTargetConverter;
 	private IConverter targetToModelConverter;
+	private IValidator modelToTargetValidator;
+	private IValidator targetToModelValidator;
 
 	public NumberEditorControl(final Composite parent, int style, Object targetObject, String propertyName, boolean useSpinner) throws Exception {
 		this(parent, style, targetObject, propertyName, useSpinner, false);
@@ -150,6 +152,7 @@ public class NumberEditorControl extends Composite {
 		if (this.useSpinner) {
 			setupIncrementCompWidthHint();
 		}
+		this.setTabList(new Control[]{editorComposite});
 	}
 
 	public NumberEditorControl(final Composite parent, int style, boolean useSpinner) throws Exception {
@@ -180,7 +183,7 @@ public class NumberEditorControl extends Composite {
 	private void bind() {
 		IObservableValue objectValue = BeanProperties.value(propertyName).observe(targetObject);
 		ISWTObservableValue textValue = WidgetProperties.text().observe(numberLabel);
-		numberLabelValueBinding = ctx.bindValue(textValue, objectValue, null, new UpdateValueStrategy() {
+		UpdateValueStrategy modelToTargetUpdateValueStrategy = new UpdateValueStrategy() {
 			@Override
 			public Object convert(Object value) {
 				if (modelToTargetConverter != null) {
@@ -188,7 +191,11 @@ public class NumberEditorControl extends Composite {
 				}
 				return getFormattedText(value);
 			}
-		});
+		};
+		if (this.modelToTargetValidator != null) {
+			modelToTargetUpdateValueStrategy.setBeforeSetValidator(modelToTargetValidator);
+		}
+		numberLabelValueBinding = ctx.bindValue(textValue, objectValue, null, modelToTargetUpdateValueStrategy);
 		if (useSpinner) {
 			incrementLabelBinding = ctx.bindValue(
 					WidgetProperties.text().observe(incrementText),
@@ -369,6 +376,11 @@ public class NumberEditorControl extends Composite {
 		this.modelToTargetConverter = modelToTargetConverter;
 		this.targetToModelConverter = targetToModelConverter;
 	}
+	
+	public void setValidators(IValidator modelToTargetValidator, IValidator targetToModelValidator) {
+		this.modelToTargetValidator = modelToTargetValidator;
+		this.targetToModelValidator = targetToModelValidator;
+	}
 
 	public boolean isEditable() {
 		return controlModel.isEditable();
@@ -515,6 +527,20 @@ public class NumberEditorControl extends Composite {
 			stepLayout.topControl = incrementText;
 		}
 		layout.topControl = editorComposite;
+//		
+//		numberLabel.addFocusListener(new FocusListener() {
+//			
+//			@Override
+//			public void focusLost(FocusEvent e) {
+//				// TODO Auto-generated method stub
+//				System.out.println("test");
+//			}
+//			
+//			@Override
+//			public void focusGained(FocusEvent e) {
+//				openEditor();
+//			}
+//		});
 	}
 
 	int getCompositeWidth(Composite cmp, String text){
@@ -542,10 +568,8 @@ public class NumberEditorControl extends Composite {
 	}
 	@Override
 	public boolean setFocus() {
-		if (!numberLabel.isDisposed()) {
-			return numberLabel.setFocus();
-		}
-		return false;
+		System.out.println(this.numberLabel.getText());
+			return false;
 	}
 
 	private class StepListener implements Listener {
@@ -612,26 +636,30 @@ public class NumberEditorControl extends Composite {
 	private final Listener openEditorListener = new Listener() {
 		@Override
 		public void handleEvent(Event event) {
-			if (controlModel.isEditable()) {
-				motorPositionEditorText = new NumberEditorText(NumberEditorControl.this, SWT.None);
-				GridData gridData = new GridData(SWT.FILL,SWT.BEGINNING, true, false);
-				motorPositionEditorText.setLayoutData(gridData);
-				layout.topControl = motorPositionEditorText;
-				NumberEditorControl.this.layout();
-				motorPositionEditorText.addDisposeListener(new DisposeListener() {
-					@Override
-					public void widgetDisposed(DisposeEvent e) {
-						isEditing = false;
-						motorPositionEditorText = null;
-						layout.topControl = editorComposite;
-						NumberEditorControl.this.layout(true, true);
-					}
-				});
-				isEditing = true;
-			}
+			openEditor();
 		}
 	};
 
+	private void openEditor() {
+		if (controlModel.isEditable()) {
+			motorPositionEditorText = new NumberEditorText(NumberEditorControl.this, SWT.None);
+			GridData gridData = new GridData(SWT.FILL,SWT.BEGINNING, true, false);
+			motorPositionEditorText.setLayoutData(gridData);
+			layout.topControl = motorPositionEditorText;
+			NumberEditorControl.this.layout();
+			motorPositionEditorText.addDisposeListener(new DisposeListener() {
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					isEditing = false;
+					motorPositionEditorText = null;
+					layout.topControl = editorComposite;
+					NumberEditorControl.this.layout(true, true);
+				}
+			});
+			isEditing = true;
+		}
+	}
+	
 	private final Listener openStepEditorListener = new Listener() {
 		@Override
 		public void handleEvent(Event event) {
@@ -921,25 +949,29 @@ public class NumberEditorControl extends Composite {
 			ISWTObservableValue textValue = WidgetProperties.text().observe(editorText);
 
 			UpdateValueStrategy targetToModelUpdateValueStrategy = new UpdateValueStrategy(UpdateValueStrategy.POLICY_ON_REQUEST);
-			if (controlModel.isRangeSet()) {
-				targetToModelUpdateValueStrategy.setBeforeSetValidator(new IValidator() {
-					@Override
-					public IStatus validate(Object value) {
-						if (targetToModelConverter != null)
-							value = targetToModelConverter.convert(value);
-						// TODO Max and min are int, review
-						if (controlModel.getBindingPropertyType().equals(double.class)) {
-							if (((Number) value).doubleValue() >= controlModel.getMinValue().doubleValue() & ((Number) value).doubleValue() <= controlModel.getMaxValue().doubleValue())
-								return ValidationStatus.ok();
-							return ValidationStatus.error("Out of range");
-						} else if (controlModel.getBindingPropertyType().equals(int.class)) {
-							if (((Number) value).intValue() >= controlModel.getMinValue().intValue() & ((Number) value).intValue() <= controlModel.getMaxValue().intValue())
-								return ValidationStatus.ok();
-							return ValidationStatus.error("Out of range");
+			if (targetToModelValidator != null) {
+				targetToModelUpdateValueStrategy.setBeforeSetValidator(targetToModelValidator);
+			} else {
+				if (controlModel.isRangeSet()) {
+					targetToModelUpdateValueStrategy.setBeforeSetValidator(new IValidator() {
+						@Override
+						public IStatus validate(Object value) {
+							if (targetToModelConverter != null)
+								value = targetToModelConverter.convert(value);
+							// TODO Max and min are int, review
+							if (controlModel.getBindingPropertyType().equals(double.class)) {
+								if (((Number) value).doubleValue() >= controlModel.getMinValue().doubleValue() & ((Number) value).doubleValue() <= controlModel.getMaxValue().doubleValue())
+									return ValidationStatus.ok();
+								return ValidationStatus.error("Out of range");
+							} else if (controlModel.getBindingPropertyType().equals(int.class)) {
+								if (((Number) value).intValue() >= controlModel.getMinValue().intValue() & ((Number) value).intValue() <= controlModel.getMaxValue().intValue())
+									return ValidationStatus.ok();
+								return ValidationStatus.error("Out of range");
+							}
+							return ValidationStatus.error("Unknown type");
 						}
-						return ValidationStatus.error("Unknown type");
-					}
-				});
+					});
+				}
 			}
 			if (targetToModelConverter != null) {
 				targetToModelUpdateValueStrategy.setConverter(targetToModelConverter);
@@ -976,7 +1008,7 @@ public class NumberEditorControl extends Composite {
 				@Override
 				public void handleValueChange(ValueChangeEvent event) {
 					IStatus status = (IStatus) binding.getValidationStatus().getValue();
-					editorAcceptButton.setEnabled(status.isOK());
+					editorAcceptButton.setEnabled(status.isOK() || status.getSeverity() == IStatus.INFO);
 				}
 			});
 		}
@@ -997,7 +1029,7 @@ public class NumberEditorControl extends Composite {
 			else
 				binding.updateModelToTarget();
 			IStatus status = (IStatus) binding.getValidationStatus().getValue();
-			if (status.isOK())
+			if (status.isOK() || status.getSeverity() == IStatus.INFO)
 				NumberEditorText.this.dispose();
 		}
 	}
