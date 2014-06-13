@@ -207,14 +207,14 @@ public class XspressAcquire extends Acquire {
 		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
 		
 		//TODO why is the following here? The data has already been collected.
-		try {
-			xspressDetector.setResGrade(originalResolutionGrade);
-			xspressDetector.setReadoutMode(originalReadoutMode);
-		} catch (DeviceException e) {
-			sashPlotFormComposite.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
-			logger.error("Cannot reset res grade, detector may be in an error state", e);
-		}
-		sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
+//		try {
+//			xspressDetector.setResGrade(originalResolutionGrade);
+//			xspressDetector.setReadoutMode(originalReadoutMode);
+//		} catch (DeviceException e) {
+//			sashPlotFormComposite.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
+//			logger.error("Cannot reset res grade, detector may be in an error state", e);
+//		}
+//		sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
 		
 	}
 	
