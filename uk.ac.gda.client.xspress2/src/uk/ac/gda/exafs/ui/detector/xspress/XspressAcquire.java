@@ -183,13 +183,13 @@ public class XspressAcquire extends Acquire {
 		
 		this.collectionTime = collectionTime;
 		
-		try {
-			originalResolutionGrade = xspressDetector.getResGrade();
-			originalReadoutMode = xspressDetector.getReadoutMode();
-		} catch (DeviceException e) {
-			logger.error("Cannot get current resolution grade", e);
-			return;
-		}
+//		try {
+//			originalResolutionGrade = xspressDetector.getResGrade();
+//			originalReadoutMode = xspressDetector.getReadoutMode();
+//		} catch (DeviceException e) {
+//			logger.error("Cannot get current resolution grade", e);
+//			return;
+//		}
 		
 		String uiReadoutMode = (String) readoutMode.getValue();
 		String uiResolutionGrade = uiReadoutMode.equals(XspressDetector.READOUT_ROIS) ? (String) resolutionGrade.getValue() : ResGrades.NONE;
