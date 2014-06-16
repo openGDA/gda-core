@@ -20,14 +20,15 @@ package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDPluginBase;
 
+
 public class NDUtils {
 	
 	/**
 	 * 
 	 * @return Max pixel value given the dataType of the camera e.g. for UINT8 returns 256
 	 */
-	static public double getImageMaxFromDataType(short dataType) throws Exception{
-		switch (dataType) {
+	static public double getImageMaxFromDataType(gda.device.detector.areadetector.v17.NDPluginBase.DataType dataType) throws Exception{
+		switch (dataType.ordinal()) {
 		case NDPluginBase.Int8:
 			return 127;
 		case NDPluginBase.UInt8:		
