@@ -47,8 +47,27 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	private static final Logger logger = LoggerFactory.getLogger(NXDetectorData.class);
 	private INexusTree tree = null;
 	private Double[] doubleData = new Double[] { }; //must be empty on construction
-	protected String[] extraNames = new String[] {},
-			outputFormat = new String[] {};
+	protected String[] extraNames = new String[] {};
+	protected String[] outputFormat = new String[] {};
+
+	public NXDetectorData(String[] extraNames, String[] outputFormat, String detectorName) {
+		this();
+		this.extraNames = extraNames;
+		if (this.extraNames == null || this.extraNames.length == 0) {
+			this.extraNames = new String[] { detectorName };
+		}
+
+		this.outputFormat = outputFormat;
+		if (this.outputFormat == null || this.outputFormat.length == 0) {
+			logger.info("Detector " + detectorName + " does not provide outputFormat");
+			outputFormat = new String[] { "%5.5g" };
+		}
+
+		doubleData = new Double[this.extraNames.length];
+		for (int i = 0; i < doubleData.length; i++) {
+			doubleData[i] = null;
+		}
+	}
 
 	/**
 	 * Passing in the detector helps setting up the plotable data array and does some 
@@ -56,23 +75,8 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param detector
 	 */
 	public NXDetectorData(Scannable detector) {
-		this();
+		this(detector.getExtraNames(),detector.getOutputFormat(),detector.getName());
 		if (detector.getInputNames() != null && detector.getInputNames().length > 0) logger.warn("Dubious detector "+detector.getName()+" with input names.\nAnticipate plotting problems.");
-		this.extraNames = detector.getExtraNames();
-		if (this.extraNames == null || this.extraNames.length == 0) {
-			this.extraNames = new String[] { detector.getName() };
-		}
-		
-		this.outputFormat = detector.getOutputFormat(); 
-		if (this.outputFormat == null || this.outputFormat.length == 0) {
-			logger.info("Detector "+detector.getName()+" does not provide outputFormat");
-			outputFormat = new String[] {"%5.5g"};
-		} 
-		
-		doubleData = new Double[this.extraNames.length];
-		for (int i = 0; i < doubleData.length; i++) {
-			doubleData[i]=null;
-		}
 	}
 	
 	/**
@@ -534,36 +538,34 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 	@Override
 	public GDANexusDetectorData mergeIn(GDANexusDetectorData ntp) {
-			if( ntp != null){
-				for(INexusTree branch : ntp.getNexusTree()){
-					if( branch.getNxClass().equals(NexusExtractor.NXDetectorClassName)){
-						INexusTree detTree = getDetTree(branch.getName());
-						for(INexusTree detTreeBranch : branch){
-							detTree.addChildNode(detTreeBranch);
-						}
+		if (ntp != null) {
+			for (INexusTree branch : ntp.getNexusTree()) {
+				if (branch.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
+					INexusTree detTree = getDetTree(branch.getName());
+					for (INexusTree detTreeBranch : branch) {
+						detTree.addChildNode(detTreeBranch);
 					}
-				}
-				Double[] extraValstoAdd = ntp.getDoubleVals();
-				if (extraValstoAdd != null) {
-					Double[] existingVals = getDoubleVals();
-					Double[] extendedVals = Arrays
-							.copyOf(existingVals, existingVals.length + extraValstoAdd.length);
-					for (int i = 0; i < extraValstoAdd.length; i++) {
-						extendedVals[i + existingVals.length] = extraValstoAdd[i];
-					}
-					setDoubleVals(extendedVals);
-				}
-				String[] outputFormatstoAdd = ntp.getOutputFormat();
-				if (outputFormatstoAdd != null) {
-					String[] existingVals = getOutputFormat();
-					String[] extendedVals = Arrays
-							.copyOf(existingVals, existingVals.length + outputFormatstoAdd.length);
-					for (int i = 0; i < outputFormatstoAdd.length; i++) {
-						extendedVals[i + existingVals.length] = outputFormatstoAdd[i];
-					}
-					setOutputFormat(extendedVals);
 				}
 			}
-		return this;
+			Double[] extraValstoAdd = ntp.getDoubleVals();
+			if (extraValstoAdd != null) {
+				Double[] existingVals = getDoubleVals();
+				Double[] extendedVals = Arrays.copyOf(existingVals, existingVals.length + extraValstoAdd.length);
+				for (int i = 0; i < extraValstoAdd.length; i++) {
+					extendedVals[i + existingVals.length] = extraValstoAdd[i];
+				}
+				setDoubleVals(extendedVals);
+			}
+			String[] outputFormatstoAdd = ntp.getOutputFormat();
+			if (outputFormatstoAdd != null) {
+				String[] existingVals = getOutputFormat();
+				String[] extendedVals = Arrays.copyOf(existingVals, existingVals.length + outputFormatstoAdd.length);
+				for (int i = 0; i < outputFormatstoAdd.length; i++) {
+					extendedVals[i + existingVals.length] = outputFormatstoAdd[i];
+				}
+				setOutputFormat(extendedVals);
+			}
 		}
+		return this;
+	}
 }
