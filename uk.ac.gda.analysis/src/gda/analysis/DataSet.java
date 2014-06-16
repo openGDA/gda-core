@@ -29,13 +29,11 @@ import org.python.core.PyInteger;
 import org.python.core.PyNone;
 import org.python.core.PySequence;
 import org.python.core.PySlice;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIteratorWithPosition;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DiscontiguousIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
@@ -60,10 +58,6 @@ import Jama.Matrix;
  */
 @Deprecated
 public class DataSet extends DoubleDataset {
-	/**
-	 * Setup the logging facilities
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(DataSet.class);
 
 	private static final long updateInterval = 100; // period in milliseconds between issuing log info
 	transient private static long nextTime = 0;
@@ -2435,8 +2429,8 @@ public class DataSet extends DoubleDataset {
 	}
 
 	@Override
-	public DataSet getByIndex(IntegerDataset index) {
-		return convertToDataSet(super.getByIndex(index));
+	public DataSet getBy1DIndex(IntegerDataset index) {
+		return convertToDataSet(super.getBy1DIndex(index));
 	}
 
 	public Double max() {
