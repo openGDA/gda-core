@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractCompoundDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.CompoundDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -510,14 +511,14 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 			for (AbstractDataset data : datasets) { 
 				useRGB &= 
 					(data instanceof RGBDataset) ||
-	 	  	  	    (data instanceof AbstractCompoundDataset &&
+	 	  	  	    (data instanceof CompoundDataset &&
 					(((AbstractCompoundDataset)data).getElementsPerItem() == 3 ||
 			 		 ((AbstractCompoundDataset)data).getElementsPerItem() == 4));
 			}
 			if (!useRGB) {
 				for (AbstractDataset data : datasets) {
 					if (!(data instanceof RGBDataset) &&
-						!(data instanceof AbstractCompoundDataset)) {
+						!(data instanceof CompoundDataset)) {
 //						histoUpdate = new HistogramDataUpdate(data);
 						break;
 					}
