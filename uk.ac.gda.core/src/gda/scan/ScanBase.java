@@ -544,65 +544,74 @@ public abstract class ScanBase implements NestableScan {
 	protected void endScan() throws DeviceException, InterruptedException {
 
 		// if the interrupt was set
-		if (getStatus().isAborting()) {
-			// stop all scannables
-			try {
-				logger.info("ScanBase stopping " + allScannables.size() + " Scannables involved in interupted Scan");
-				for (Scannable scannable : allScannables) {
-					scannable.stop();
-				}
-				logger.info("ScanBase stopping " + allDetectors.size() + " Detectors involved in interupted Scan");
-				for (Scannable scannable : allDetectors) {
-					scannable.stop();
-				}
-			} finally {
-				// disengage with the data handler, in case this scan is
-				// restarted
-				shutdownScandataPipeline(false);
-			}
-
-		} else { // NOTE: Code will come through here even if there has been an exception in the run method.
-			if (getChild() == null) {
-				// wait for the last point to readout
+		try{
+			if (getStatus().isAborting()) {
+				// stop all scannables
 				try {
-					waitForDetectorReadoutAndPublishCompletion();
-				} catch (Exception e) {
-					throw new DeviceException(e);
-				}
-				callScannablesAtScanLineEnd();
-			}
-
-			// if a standalone scan, or the top-level scan in a nest of scans
-			if (!isChild() ) { // FIXME: Move all !isChild() logic up into runScan
-				callScannablesAtScanEnd();
-
-				callDetectorsEndCollection();
-
-
-				shutdownScandataPipeline(true);
-				signalScanComplete();
-
-			}
-		}
-		if (!isChild()) {  // FIXME: Move all !isChild() logic up into runScan
-
-			// See if we want to kick-off an end-of-scan process
-			String endOfScanName = LocalProperties.get("gda.scan.executeAtEnd");
-			if (endOfScanName != null) {
-				final String command = endOfScanName + " " + getDataWriter().getCurrentFileName();
-				logger.info("running gda.scan.executeAtEnd {}", command);
-
-				final String[] commands = command.split(" ");
-				Thread commandThread = ThreadManager.getThread(new Runnable() {
-					@Override
-					public void run() {
-						logger.debug("Running command (scan end) - \'" + command + "\'.");
-						OSCommandRunner os = new OSCommandRunner(commands, true, null, null);
-						os.logOutput();
+					logger.info("ScanBase stopping " + allScannables.size() + " Scannables involved in interupted Scan");
+					for (Scannable scannable : allScannables) {
+						scannable.stop();
 					}
-				}, command);
-				commandThread.start();
+					logger.info("ScanBase stopping " + allDetectors.size() + " Detectors involved in interupted Scan");
+					for (Scannable scannable : allDetectors) {
+						scannable.stop();
+					}
+				} finally {
+					// disengage with the data handler, in case this scan is
+					// restarted
+					shutdownScandataPipeline(false);
+				}
+
+			} else { // NOTE: Code will come through here even if there has been an exception in the run method.
+				if (getChild() == null) {
+					// wait for the last point to readout
+					try {
+						waitForDetectorReadoutAndPublishCompletion();
+					} catch (Exception e) {
+						throw new DeviceException(e);
+					}
+					callScannablesAtScanLineEnd();
+				}
+
+				// if a standalone scan, or the top-level scan in a nest of scans
+				if (!isChild() ) { // FIXME: Move all !isChild() logic up into runScan
+					callScannablesAtScanEnd();
+
+					callDetectorsEndCollection();
+
+
+					shutdownScandataPipeline(true);
+					signalScanComplete();
+
+				}
 			}
+			if (!isChild()) {  // FIXME: Move all !isChild() logic up into runScan
+
+				// See if we want to kick-off an end-of-scan process
+				String endOfScanName = LocalProperties.get("gda.scan.executeAtEnd");
+				if (endOfScanName != null) {
+					final String command = endOfScanName + " " + getDataWriter().getCurrentFileName();
+					logger.info("running gda.scan.executeAtEnd {}", command);
+
+					final String[] commands = command.split(" ");
+					Thread commandThread = ThreadManager.getThread(new Runnable() {
+						@Override
+						public void run() {
+							logger.debug("Running command (scan end) - \'" + command + "\'.");
+							OSCommandRunner os = new OSCommandRunner(commands, true, null, null);
+							os.logOutput();
+						}
+					}, command);
+					commandThread.start();
+				}
+			}
+		} finally{
+			/*
+			 * If any of the above throws an exception such as an InterruptedException due 
+			 * to the thread being interrupted as a result of the user requesting an abort
+			 * due to the position providers hanging then we need to ensure the pipeline is closed down.
+			 */
+			shutdownScandataPipeline(false);
 		}
 	}
 
@@ -625,8 +634,9 @@ public abstract class ScanBase implements NestableScan {
 	protected void shutdownScandataPipeline(boolean waitForProcessingCompletion) throws DeviceException {
 		// shutdown the ScanDataPointPipeline (will close DataWriter)
 		try {
-			if (this.scanDataPointPipeline != null) {
-				this.scanDataPointPipeline.shutdown(waitForProcessingCompletion); 
+			if (scanDataPointPipeline != null) {
+				scanDataPointPipeline.shutdown(waitForProcessingCompletion); 
+				scanDataPointPipeline = null;
 			}
 
 		} catch (DeviceException e) {
