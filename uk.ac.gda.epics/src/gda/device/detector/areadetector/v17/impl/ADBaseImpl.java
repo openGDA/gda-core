@@ -1405,7 +1405,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		} finally {
 			// If the acquisition state is busy then wait for it to complete.
 			while (getAcquireState() == 1) {
-				logger.info("sleeping for 25");
 				Sleep.sleep(25);
 			}
 			setStatus(Detector.IDLE);
