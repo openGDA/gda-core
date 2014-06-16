@@ -18,6 +18,8 @@
 
 package gda.device.enumpositioner;
 
+import java.util.LinkedHashMap;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -347,7 +349,86 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 				super.positions.add(position[i]);
 			}
 		}
+		
+		// establish channel names with which to get values
+		gChannelManager = new EpicsChannelManager(this);
+		String basePV = recordName;
+		if (recordName == null && epicsRecordName != null) {
+			EpicsRecord epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName);
+			basePV = epicsRecord.getFullRecordName();
+		}
+		if (basePV != null) {
+			gChannelNamePrefix = basePV.substring(0, basePV.lastIndexOf(":")) + ":P:VAL";
+			gChannelNames = new String[super.positions.size()];
+			for (int i = 0; i < gChannelNames.length; i++) {
+				char letter = UPPERCASE_ALPHABET.charAt(i);
+				gChannelNames[i] = gChannelNamePrefix + letter;
+			}
+		}
+		if (gChannelNames == null) {
+			logger.warn(COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING);
+		}
+		
 		logger.info("EpicsPositioner " + getName() + " is initialised");
+	}
+	
+	private EpicsChannelManager gChannelManager;
+	private Channel gChannel;
+	protected String gChannelNamePrefix;
+	protected String[] gChannelNames;
+	public static final String COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING = "could not establish channel names for values";
+	private static final String UPPERCASE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	
+	/**
+	 * @return the physical motor value for the supplied position string.
+	 */
+	public Double getPositionValue(String position) throws DeviceException {
+		if (gChannelNames == null) {
+			throw new DeviceException(COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING);
+		}
+		for (int i = 0; i < positions.size(); i++) {
+			if (positions.get(i).equals(position)) {
+				// Need to create a channel for the :P.VAL value, get it then destroy it
+				try {
+					gChannel = gChannelManager.createChannel(gChannelNames[i], false);
+					Thread.sleep(100);
+					return controller.cagetDouble(gChannel);
+				} catch (Exception e) {//(TimeoutException | CAException | InterruptedException e) {
+					logger.error("error getting position value", e);
+					throw new DeviceException(e);
+				}
+				finally {
+					controller.destroy(gChannel);
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * O(|positions|^2) as getPositionValue O(|positions|) but safer than caching 
+	 * as values can change.
+	 * 
+	 * @return positions mapped to values in position order
+	 */
+	public LinkedHashMap<String,Double> getPositionsMap() throws DeviceException {
+		LinkedHashMap<String,Double> positionsMap = new LinkedHashMap<String,Double>();
+		for (String position : positions) {
+			positionsMap.put(position, getPositionValue(position));
+		}
+		return positionsMap;
+	}
+	
+	/**
+	 * Potentially flawed reverse lookup because several positions may have the same value.
+	 */
+	public String getPositionFromValue(double value) throws DeviceException {
+		for (java.util.Map.Entry<String, Double> entry : getPositionsMap().entrySet()) {
+			if (entry.getValue() == value) {
+				return entry.getKey();
+			}
+		}
+		return null;
 	}
 
 	/**
