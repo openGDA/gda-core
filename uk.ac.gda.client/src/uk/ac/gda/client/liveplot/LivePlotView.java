@@ -409,6 +409,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	private int deriveScanNumberFromPath(String path) {
 		String filename = FilenameUtils.getName(path);
 		Matcher matcher = Pattern.compile("(\\d+)").matcher(filename);
+		matcher.find();
 		return Integer.parseInt(matcher.group(0));
 	}
 
