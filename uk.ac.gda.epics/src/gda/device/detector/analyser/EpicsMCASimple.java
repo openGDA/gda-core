@@ -818,17 +818,23 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 					acquisitionDone = ((DBR_Enum) dbr).getEnumValue()[0] == 0;
 					logger.debug("update acquisitionDone =" + acquisitionDone);
 					if (acquisitionDone) {
-						try {
-							if( readingDoneIfNotAquiring){
-								setReadingDone(true);
-							} else {
-								// now ask for a read and set ReadingDone false
-								setIntFieldValue(readField, 1);
-								readingDone = false;
-							}
-						} catch (Exception e) {
-							exceptionUtils.logException(logger,
-									"Error setting read to 1 in response to acquisition done", e);
+						if(readingDoneIfNotAquiring){
+							setReadingDone(true);
+						} else {
+							// don't do the CA put on the JCA event dispatch thread
+							new Thread(new Runnable() {
+								@Override
+								public void run() {
+									try {
+										// now ask for a read and set ReadingDone false
+										setIntFieldValue(readField, 1);
+										readingDone = false;
+									} catch (Exception e) {
+										exceptionUtils.logException(logger,
+												"Error setting read to 1 in response to acquisition done", e);
+									}
+								}
+							}).start();
 						}
 					}
 				} else if (((EpicsRegistrationRequest) theObserved).field.equals(readingField) && dbr.isENUM()) {
