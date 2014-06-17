@@ -19,7 +19,6 @@
 package uk.ac.gda.epics.client.mythen.views;
 
 import gda.device.DeviceException;
-import gda.device.scannable.EpicsScannable;
 import gda.observable.IObserver;
 
 import java.util.concurrent.Callable;
@@ -29,13 +28,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jface.wizard.ProgressMonitorPart;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
+import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 /**
  * A progress monitor composite for monitoring and reporting an EPICS area detector acquiring progress.
  * 
@@ -53,14 +56,14 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
  *  
  */
 
-public class EpicsDetectorProgressMonitor extends Composite implements IObserver, InitializingBean{
+public class EpicsDetectorProgressMonitor extends Composite implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsDetectorProgressMonitor.class);
 	//Spring configurable properties
 	private EpicsEnumDataListener startListener;
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
-	private EpicsScannable stopScannable;  
+	private EpicsEnumPVScannable stopScannable;  
 	private String taskName;
 	
 	private ProgressMonitorPart monitor;
@@ -69,12 +72,14 @@ public class EpicsDetectorProgressMonitor extends Composite implements IObserver
 	
 	public EpicsDetectorProgressMonitor(Composite parent, int style) {
 		super(parent, style);
-		monitor=new ProgressMonitorPart(parent, null, true);
+
 	}
 	
 	public void initialise() {
 		if (getStartListener()!=null) {
 			getStartListener().addIObserver(this);
+		} else {
+			throw new IllegalStateException("Detector start listener is required, but not set.");
 		}
 		executor= Executors.newSingleThreadExecutor();
 	}
@@ -91,7 +96,9 @@ public class EpicsDetectorProgressMonitor extends Composite implements IObserver
 			logger.error("EPICS detector monitor failed in executor shutdown.", e);
 			throw new RuntimeException("EPICS detector monitor fail in executor shutdown.", e);
 		}
-		getStartListener().deleteIObserver(this);
+		if (getStartListener()!=null) {
+			getStartListener().deleteIObserver(this);
+		}
 		super.dispose();
 	}
 	//using Callable instead of Runnable as progress cancel is expected to throw InterruptedException.
@@ -148,31 +155,12 @@ public class EpicsDetectorProgressMonitor extends Composite implements IObserver
 		return this.taskName;
 	}
 
-	public EpicsScannable getStopScannable() {
+	public EpicsEnumPVScannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsScannable stopScannable) {
+	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
 		this.stopScannable = stopScannable;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if (getStartListener()==null) {
-			throw new IllegalArgumentException("startListener must not be null.");
-		}
-		if (getExposureTimeListener()==null) {
-			throw new IllegalArgumentException("exposureTimeListener must not be null.");
-		}
-		if (getTimeRemainingListener()==null) {
-			throw new IllegalArgumentException("timeRemainingListener must not be null.");
-		}
-		if (stopScannable==null) {
-			throw new IllegalArgumentException("stopScannable must not be null.");
-		}
-		if (getTaskName()== null) {
-			throw new IllegalArgumentException("task name must not be null.");
-		}
 	}
 
 	public EpicsDoubleDataListener getExposureTimeListener() {

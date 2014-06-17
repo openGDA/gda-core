@@ -51,7 +51,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
+import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 import uk.ac.gda.devices.mythen.visualisation.event.PlotDataFileEvent;
 
 /**
@@ -76,23 +78,30 @@ public class LivePlotComposite extends Composite implements IObserver {
 												// CORBArise this class.
 	private IPlottingSystem plottingSystem;
 	private ExecutorService executor;
+	
+	private EpicsDetectorProgressMonitor progressMonitor;
+	private EpicsDoubleDataListener exposureTimeListener;
+	private EpicsDoubleDataListener timeRemainingListener;
+	private EpicsEnumPVScannable stopScannable; 
+	private String taskName;
 
 	public LivePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
 		this.workbenchpart=part;
 		this.setBackground(ColorConstants.white);
+		
+		GridLayout gridLayout = new GridLayout ();
+		gridLayout.marginWidth = 0;
+		gridLayout.marginHeight = 0;
+		gridLayout.horizontalSpacing = 0;
+		gridLayout.verticalSpacing = 0;
+		this.setLayout (gridLayout);
 
-		GridLayout layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		layout.verticalSpacing = 0;
-		layout.horizontalSpacing = 0;
-		this.setLayout(layout);
-
+		
 		Composite plotComposite = new Composite(this, SWT.None);
-		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridData data = new GridData (SWT.FILL, SWT.FILL, true, true);
+		plotComposite.setLayoutData(data);
 		plotComposite.setLayout(new FillLayout());
-
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, getPlotName(), part instanceof IViewPart ? ((IViewPart) part)
 				.getViewSite().getActionBars() : null, PlotType.XY, part);
@@ -101,6 +110,17 @@ public class LivePlotComposite extends Composite implements IObserver {
 		plottingSystem.getSelectedXAxis().setFormatPattern("###.###");
 		plottingSystem.setShowLegend(true);
 		plottingSystem.getSelectedXAxis().setRange(getxAxisMin(), getxAxisMax());
+		
+		Composite progressComposite=new Composite(this, SWT.None);
+		data = new GridData (SWT.FILL, SWT.CENTER, true, false);
+		progressComposite.setLayoutData(data);
+		progressComposite.setBackground(ColorConstants.cyan);
+		progressMonitor=new EpicsDetectorProgressMonitor(progressComposite, SWT.None);
+		progressMonitor.setStartListener(getStartListener());
+		progressMonitor.setExposureTimeListener(getExposureTimeListener());
+		progressMonitor.setTimeRemainingListener(getTimeRemainingListener());
+		progressMonitor.setStopScannable(getStopScannable());
+		progressMonitor.setTaskName(getTaskName());
 	}
 
 	public void initialise() {
@@ -116,7 +136,10 @@ public class LivePlotComposite extends Composite implements IObserver {
 				logger.debug("Cannot find the script controller {} to add data filename observer",
 						getEventAdminName());
 			}
+		} else {
+			throw new IllegalStateException("event admin is required for plotting live data, but not set.");
 		}
+		progressMonitor.initialise();
 	}
 
 	@Override
@@ -257,6 +280,38 @@ public class LivePlotComposite extends Composite implements IObserver {
 
 	public void setStartListener(EpicsEnumDataListener startListener) {
 		this.startListener = startListener;
+	}
+
+	public EpicsEnumPVScannable getStopScannable() {
+		return stopScannable;
+	}
+
+	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+		this.stopScannable = stopScannable;
+	}
+
+	public EpicsDoubleDataListener getExposureTimeListener() {
+		return exposureTimeListener;
+	}
+
+	public void setExposureTimeListener(EpicsDoubleDataListener exposureTimeListener) {
+		this.exposureTimeListener = exposureTimeListener;
+	}
+
+	public EpicsDoubleDataListener getTimeRemainingListener() {
+		return timeRemainingListener;
+	}
+
+	public void setTimeRemainingListener(EpicsDoubleDataListener timeRemainingListener) {
+		this.timeRemainingListener = timeRemainingListener;
+	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
 	}
 
 }
