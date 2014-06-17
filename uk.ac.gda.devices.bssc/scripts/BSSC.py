@@ -9,20 +9,28 @@ from uk.ac.gda.devices.bssc.ispyb import BioSAXSDBFactory, BioSAXSISPyBUtils, IS
 class BSSCRun:
     
     def __init__(self, beanFile):
+        finder = gda.factory.Finder.getInstance()
+        find = finder.find
         self.samplevolume = 20
         self.bean = uk.ac.gda.devices.bssc.beans.BSSCSessionBean.createFromXML(beanFile)
-        self.bssc = gda.factory.Finder.getInstance().listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
-        self.tfg = gda.factory.Finder.getInstance().listAllLocalObjects("gda.device.Timer")[0]
-        self.detector = gda.factory.Finder.getInstance().listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
-        self.shutter = gda.factory.Finder.getInstance().find("shutter")
-        self.bsscscannable = gda.factory.Finder.getInstance().find("bsscscannable")
-        self.processing = gda.factory.Finder.getInstance().find("biosaxsprocessingrunner")
-        self.energy = float(gda.factory.Finder.getInstance().find("dcm_energy").getPosition())
+        self.bssc = finder.listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
+        self.tfg = finder.listAllLocalObjects("gda.device.Timer")[0]
+        self.detector = finder.listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
+        self.shutter = find("shutter")
+        self.bsscscannable = find("bsscscannable")
+        self.processing = find("biosaxsprocessingrunner")
+        self.energy = float(find("dcm_energy").getPosition())
+        self.sampleConcentration = find("sample_concentration")
+        self.sampleName = find("sample_name")
+
+        #need to remove hardcoding
+        find("sample_thickness").asynchronousMoveTo(1.6)
+
         self.progresscounter = 0
         self.overheadsteps = 5
         self.stepspersample = 8
         self.stepsperbuffer = 3
-        
+
         try: 
             self.isSimulation = True
             # in simulation temperature control does not work
@@ -147,7 +155,10 @@ class BSSCRun:
             self.loadWell(titration.getBufferLocation())
             self.reportSampleProgress(titration, "Exposing Buffer")
             self.setTitle("Buffer for next and preceding sample measurement")
-            #sample_name.asynchronousMoveTo("buffer")
+            
+            self.sampleName.asynchronousMoveTo("%s-buffer" %(titration.getSampleName()))
+            self.sampleConcentration.asynchronousMoveTo(0)
+
             filename = self.expose(duration)
             #print "Create buffer run dataCollectionIndex " + str(self.dataCollectionIndex)
             self.ispyb.createBufferRun(self.dataCollectionIds[self.dataCollectionIndex], titration.getTimePerFrame(), self.getStorageTemperature(), self.getExposureTemperature(), self.energy, titration.getFrames(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, filename, "/entry1/detector/data")
@@ -161,7 +172,10 @@ class BSSCRun:
             self.loadWell(titration.getLocation())
             self.reportSampleProgress(titration, "Exposing Sample")
             self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
-            #sample_name.asynchronousMoveTo(titration.getSampleName())
+
+            self.sampleName.asynchronousMoveTo(titration.getSampleName())
+            self.sampleConcentration.asynchronousMoveTo(titration.getConcentration())
+
             filename = self.expose(duration)
             #print "Create sample run dataCollectionIndex " + str(self.dataCollectionIndex)
             self.ispyb.createSampleRun(self.dataCollectionIds[self.dataCollectionIndex], titration.getTimePerFrame(), self.getStorageTemperature(), self.getExposureTemperature(), self.energy, titration.getFrames(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, filename, "/entry1/detector/data");
