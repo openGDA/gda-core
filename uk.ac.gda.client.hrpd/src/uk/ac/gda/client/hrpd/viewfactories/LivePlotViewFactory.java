@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.hrpd.viewfactories;
 
-import gda.device.scannable.EpicsScannable;
 import gda.rcp.views.FindableExecutableExtension;
 
 import java.util.ArrayList;
@@ -36,6 +35,7 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
+import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 import uk.ac.gda.client.hrpd.views.LivePlotView;
 /**
  * a factory for creating a {@link LivePlotView} instance. 
@@ -132,7 +132,7 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 	private EpicsIntegerDataListener totalWorkListener;
 	private EpicsIntegerDataListener workListener;
 	private EpicsStringDataListener messageListener;
-	private EpicsScannable stopScannable;	
+	private EpicsEnumPVScannable stopScannable;	
 
 	@Override
 	public void setName(String name) {
@@ -301,11 +301,11 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		this.messageListener = messageListener;
 	}
 
-	public EpicsScannable getStopScannable() {
+	public EpicsEnumPVScannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsScannable stopScannable) {
+	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 

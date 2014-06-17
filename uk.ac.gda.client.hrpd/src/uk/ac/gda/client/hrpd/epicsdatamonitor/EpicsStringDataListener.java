@@ -47,7 +47,7 @@ public class EpicsStringDataListener extends EpicsPVListener {
 	public void disablePoll() {
 		if (pvchannel != null) {
 			try {
-				pvmonitor = pvchannel.addMonitor(DBRType.DOUBLE, pvchannel.getElementCount(), Monitor.VALUE, this);
+				pvmonitor = pvchannel.addMonitor(DBRType.STRING, pvchannel.getElementCount(), Monitor.VALUE, this);
 				setPoll(false);
 			} catch (IllegalStateException e) {
 				logger.error("Fail to add monitor to channel " + pvchannel.getName(), e);

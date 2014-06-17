@@ -32,6 +32,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
+import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 /**
  * An implementation of <code>IRunnableWithProgress</code> interface whose instances 
  * are intended to be used to monitor a long-running operation in EPICS IOC.
@@ -84,7 +85,7 @@ public class EpicsRunableWithProgress implements IRunnableWithProgress, Initiali
 	private EpicsIntegerDataListener workedSoFarListener; // must have
 	private EpicsStringDataListener messageListener; // optional, must handle null
 	private String epicsProcessName; //task name
-	private EpicsScannable stopScannable; // optional if no Cancel,
+	private EpicsEnumPVScannable stopScannable; // optional if no Cancel,
 	
 	private int totalWork;
 	private int work;
@@ -144,11 +145,11 @@ public class EpicsRunableWithProgress implements IRunnableWithProgress, Initiali
 		this.epicsProcessName = epicsProcessName;
 	}
 
-	public EpicsScannable getStopScannable() {
+	public EpicsEnumPVScannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsScannable stopScannable) {
+	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 
