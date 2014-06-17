@@ -1319,8 +1319,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		startAcquiring();
 		while (getStatus() != Detector.IDLE && getStatus() != Detector.FAULT) {
 			Sleep.sleep(100);
-			if( getAcquireState()==0)
-				throw new Exception("Camera is not acquiring but putListener has not been called");
+//			if( getAcquireState()==0)
+//				throw new Exception("Camera is not acquiring but putListener has not been called");
 		}
 		if (getStatus() == Detector.FAULT) {
 			logger.debug("detector in a fault state");
