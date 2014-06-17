@@ -33,8 +33,10 @@ import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.exceptionUtils;
+import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.Severity;
@@ -59,6 +61,24 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	 * logger
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPositioner.class);
+
+	public static final String COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING = "could not establish channel names of position values";
+	
+	private LinkedHashMap<String,Channel> positionValueChannels = new LinkedHashMap<String,Channel>(16);
+	
+	/**
+	 * flag to set in Spring
+	 */
+	private boolean allowPositionValueReads = false;
+	
+	public boolean getAllowPositionValueReads() {
+		return allowPositionValueReads;
+	}
+	
+	public void setAllowPositionValueReads(boolean allowPositionValueReads) {
+		this.allowPositionValueReads = allowPositionValueReads;
+	}
+	
 
 	private String epicsRecordName;
 
@@ -276,8 +296,6 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 				try {
 					if (getStatus() == EnumPositionerStatus.MOVING) {
 						if (acceptNewMoveToPositionWhileMoving) {
-							// prepare to move elsewhere
-							logger.warn("{} is busy; stopping...", getName());
 							// stop synchronously
 							controller.caput(stop, 1, 0.0); // 0.0 means no timeout
 							// flag idle
@@ -342,7 +360,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	}
 
 	@Override
-	public void initializationCompleted() throws DeviceException  {
+	public void initializationCompleted() throws DeviceException, InterruptedException  {
 		String[] position = getPositions();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
@@ -350,77 +368,76 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 			}
 		}
 		
-		// establish channel names with which to get values
-		gChannelManager = new EpicsChannelManager(this);
-		String basePV = recordName;
-		if (recordName == null && epicsRecordName != null) {
-			EpicsRecord epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName);
-			basePV = epicsRecord.getFullRecordName();
-		}
-		if (basePV != null) {
-			gChannelNamePrefix = basePV.substring(0, basePV.lastIndexOf(":")) + ":P:VAL";
-			gChannelNames = new String[super.positions.size()];
-			for (int i = 0; i < gChannelNames.length; i++) {
-				char letter = UPPERCASE_ALPHABET.charAt(i);
-				gChannelNames[i] = gChannelNamePrefix + letter;
+		if (allowPositionValueReads) {
+			// establish position value channels
+			String basePV = recordName;
+			if (recordName == null && epicsRecordName != null) {
+				EpicsRecord epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName);
+				basePV = epicsRecord.getFullRecordName();
 			}
-		}
-		if (gChannelNames == null) {
-			logger.warn(COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING);
+			if (basePV != null) {
+				String positionValueChannelNamePrefix = basePV.substring(0, basePV.lastIndexOf(":")) + ":P:VAL";
+				CharSequence positionValueChannelNameSuffixes = "ABCDEFGHIJKLMNOP";
+				for (int i = 0; i < super.positions.size(); i++) {
+					char letter = positionValueChannelNameSuffixes.charAt(i);
+					String positionValueChannelName = positionValueChannelNamePrefix + letter;
+					try {
+						Channel positionValueChannel = channelManager.createChannel(positionValueChannelName, false);
+						Thread.sleep(100);
+						positionValueChannels.put(super.positions.get(i), positionValueChannel);
+					}
+					catch (CAException e) {
+						logger.error("could not create channel {}", positionValueChannelName);
+						
+						logger.info("destroying any position value channels that were created");
+						for (Channel positionValueChannel : positionValueChannels.values()) {
+							controller.destroy(positionValueChannel);
+						}
+						
+						throw new DeviceException(e);
+					}
+				}
+			}
+			else {
+				logger.warn(COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING);
+			}
 		}
 		
 		logger.info("EpicsPositioner " + getName() + " is initialised");
 	}
 	
-	private EpicsChannelManager gChannelManager;
-	private Channel gChannel;
-	protected String gChannelNamePrefix;
-	protected String[] gChannelNames;
-	public static final String COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING = "could not establish channel names for values";
-	private static final String UPPERCASE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	
 	/**
 	 * @return the physical motor value for the supplied position string.
+	 * @throws DeviceException 
 	 */
 	public Double getPositionValue(String position) throws DeviceException {
-		if (gChannelNames == null) {
+		if (!allowPositionValueReads) {
+			throw new DeviceException("object not configured to allow reading of position values");
+		}
+		if (positionValueChannels.isEmpty()) {
 			throw new DeviceException(COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING);
 		}
-		for (int i = 0; i < positions.size(); i++) {
-			if (positions.get(i).equals(position)) {
-				// Need to create a channel for the :P.VAL value, get it then destroy it
-				try {
-					gChannel = gChannelManager.createChannel(gChannelNames[i], false);
-					Thread.sleep(100);
-					return controller.cagetDouble(gChannel);
-				} catch (Exception e) {//(TimeoutException | CAException | InterruptedException e) {
-					logger.error("error getting position value", e);
-					throw new DeviceException(e);
-				}
-				finally {
-					controller.destroy(gChannel);
-				}
-			}
+		try {
+			Channel positionValueChannel = positionValueChannels.get(position);
+			return controller.cagetDouble(positionValueChannel);
+		} catch (Exception e) {
+			throw new DeviceException("could not get value of position " + position, e);
 		}
-		return null;
 	}
 	
 	/**
-	 * O(|positions|^2) as getPositionValue O(|positions|) but safer than caching 
-	 * as values can change.
-	 * 
 	 * @return positions mapped to values in position order
 	 */
 	public LinkedHashMap<String,Double> getPositionsMap() throws DeviceException {
 		LinkedHashMap<String,Double> positionsMap = new LinkedHashMap<String,Double>();
-		for (String position : positions) {
+		for (String position : positionValueChannels.keySet()) {
 			positionsMap.put(position, getPositionValue(position));
 		}
 		return positionsMap;
 	}
 	
 	/**
-	 * Potentially flawed reverse lookup because several positions may have the same value.
+	 * Reverse lookup - potentially flawed because several positions may have the same value.
 	 */
 	public String getPositionFromValue(double value) throws DeviceException {
 		for (java.util.Map.Entry<String, Double> entry : getPositionsMap().entrySet()) {
