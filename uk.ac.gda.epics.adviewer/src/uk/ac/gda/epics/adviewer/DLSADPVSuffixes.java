@@ -18,13 +18,13 @@
 
 package uk.ac.gda.epics.adviewer;
 
-public class DLSADPVSuffices implements ADPVSuffices {
-	private static final String MPG_PROC_PLUGIN_SUFFIX = "PROC:";
-	private static final String ROI_PLUGIN_SUFFIX = "ROI";
-	private static final String MPG_PLUGIN_SUFFIX = "MJPG:";
-	private static final String ARRAY_PLUGIN_SUFFIX = "ARR:";
-	private static final String STAT_PLUGIN_SUFFIX = "STAT:";//"STAT1:";
-	private static final String ADBASE_SUFFIX = "CAM:";
+public class DLSADPVSuffixes implements ADPVSuffixes {
+	public static final String MPG_PROC_PLUGIN_SUFFIX = "PROC:";
+	public static final String ROI_PLUGIN_SUFFIX = "ROI:";
+	public static final String MPG_PLUGIN_SUFFIX = "MJPG:";
+	public static final String ARRAY_PLUGIN_SUFFIX = "ARR:";
+	public static final String STAT_PLUGIN_SUFFIX = "STAT:";
+	public static final String ADBASE_SUFFIX = "CAM:";
 	
 	@Override
 	public String getADBaseSuffix() {

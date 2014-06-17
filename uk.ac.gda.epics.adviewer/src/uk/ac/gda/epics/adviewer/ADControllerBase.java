@@ -393,7 +393,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 
 	@Override
 	public double getImageMax() throws Exception {
-		return NDUtils.getImageMaxFromDataType(getAdBase().getDataType_RBV());
+		return NDUtils.getImageMaxFromDataType(getAdBase().getDataType_RBV2());
 	}
 
 	@Override

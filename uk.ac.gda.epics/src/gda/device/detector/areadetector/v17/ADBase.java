@@ -20,6 +20,7 @@ package gda.device.detector.areadetector.v17;
 
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
+import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
 import gda.observable.Observable;
 
 import java.util.concurrent.TimeoutException;
@@ -229,7 +230,7 @@ public interface ADBase extends ADCommon {
 	int getMaxSizeY_RBV() throws Exception;
 
 	/**
-	 *
+	 * Returns the value of the PV - this is not the same as the NDDataType_t value. Use getDataType_RBV2 instead
 	 */
 	short getDataType() throws Exception;
 
@@ -239,10 +240,14 @@ public interface ADBase extends ADCommon {
 	void setDataType(String datatype) throws Exception;
 
 	/**
-	 *
+	 * Returns the value of the PV - this is not the same as the NDDataType_t value. Use getDataType_RBV2 instead
 	 */
 	short getDataType_RBV() throws Exception;
 
+	
+	DataType getDataType_RBV2() throws Exception;
+	
+	
 	/**
 	 *
 	 */
