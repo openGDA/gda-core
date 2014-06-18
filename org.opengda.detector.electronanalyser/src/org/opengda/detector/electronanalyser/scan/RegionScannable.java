@@ -42,7 +42,6 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	private boolean sourceSelectable=false;
 	private double XRaySourceEnergyLimit=2100;
 
-	// private Scriptcontroller scriptController;
 	private boolean busy;
 	private AtomicInteger count=new AtomicInteger(); // enabled region position count
 	private boolean firstInScan;

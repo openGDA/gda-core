@@ -1494,10 +1494,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private boolean isValidRegion(String elementset, Region region) {
 		com.google.common.collect.Table<String, String, String> lookupTable = getLookupTable(elementset);
 		if (lookupTable==null) {
-			// no validation required.
+			logger.warn("Analyser Kinetic energy range lookup table for {} element set is is available.",elementset);
 			return true;
 		}
-		String energyrange=lookupTable.get(elementset, String.valueOf(region.getPassEnergy()));
+		String energyrange=lookupTable.get(region.getLensMode(), String.valueOf(region.getPassEnergy()));
 		List<String> limits=Splitter.on("-").splitToList(energyrange);
 		if (region.getEnergyMode()==ENERGY_MODE.KINETIC) {
 			if (!(region.getLowEnergy()>=Double.parseDouble(limits.get(0)) && region.getHighEnergy()<=Double.parseDouble(limits.get(1)))) {
@@ -1523,7 +1523,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			invalidRefgions.remove(region);
 		}
 		return true;
-		
 	}
 	/**
 	 * create lens table for lookup energy range limits
