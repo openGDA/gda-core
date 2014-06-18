@@ -103,7 +103,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected String normaliseElement = "I0";
 	protected int normaliseElementIndex = -1;
 	protected double normaliseValue = 1.0;
-//	protected boolean active = false;
 
 	public MicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize,
 			String detectorFileName, Detector[] detectors2) {
@@ -602,7 +601,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	protected void addToRgbFile(@SuppressWarnings("unused") int lineNumber, String string) throws IOException {
-//		active = true;
 		if (writer != null) {
 			writer.write(string + "\n");
 			writer.flush();
@@ -653,10 +651,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	public void setSelectedChannel(int selectedChannel) {
 		this.selectedChannel = selectedChannel;
 	}
-
-//	public void setDetectorBeanFileName(String detectorBeanFileName) {
-//		this.detectorBeanFileName = detectorBeanFileName;
-//	}
 
 	public String getDetectorBeanFileName() {
 		return detectorBeanFileName;

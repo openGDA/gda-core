@@ -2,6 +2,7 @@ from jarray import array
 import time
 
 from exafsscripts.exafs.scan import Scan
+from gdascripts.metadata.metadata_commands import meta_add
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 
 from gda.configuration.properties import LocalProperties
@@ -14,7 +15,7 @@ from gda.factory import Finder
 from gda.jython.commands import ScannableCommands
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
-from gdascripts.metadata.metadata_commands import meta_add
+
 
 class Map(Scan):
 

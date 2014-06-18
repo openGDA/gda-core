@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.microfocus.controller;
 
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
@@ -29,11 +27,9 @@ import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.client.microfocus.util.MicroFocusMappableDataProvider;
 import uk.ac.gda.client.microfocus.util.MicroFocusMappableDataProviderFactory;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
-import uk.ac.gda.client.microfocus.util.ObjectStateManager;
 
 public class MicroFocusDisplayController {
-	private MicroFocusMappableDataProvider detectorProvider;
-	private MicroFocusMappableDataProvider currentDetectorProvider;
+	private MicroFocusMappableDataProvider fileDataProvider;
 	private MicroFocusNexusPlotter plotter = new MicroFocusNexusPlotter();
 	private String[] trajectoryScannableName;
 	private String xScannableName = "sc_MicroFocusSampleX";
@@ -41,6 +37,7 @@ public class MicroFocusDisplayController {
 	private String zScannableName = "sc_sample_z";
 	private String detectorFile;
 	private String trajectoryCounterTimerName;
+	private boolean fileIsDataSource = false;
 
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusDisplayController.class);
 
@@ -77,43 +74,22 @@ public class MicroFocusDisplayController {
 
 	}
 
-	private void setDataProviderForElement(String selectedElement) {
-		if (detectorProvider.hasPlotData(selectedElement))
-			currentDetectorProvider = detectorProvider;
-		else
-			currentDetectorProvider = null;
-	}
-
 	public void displayMap(String selectedElement, Integer selectedChannel) {
-		// check whether map scan is running
-		String mfd = JythonServerFacade.getInstance().evaluateCommand("map.getMFD()");
-		String active = null;
-		if (mfd != null && !mfd.equals("None"))
-			active = JythonServerFacade.getInstance().evaluateCommand("map.getMFD().isActive()");
-
-		// if a map scan is running then disable the provider but what does provider provide? Names are important!
-		if (active != null) {
-			if (active.equals("True")) {
-				disableProvider();
-			}
-		}
-
 		if (selectedElement.equals("I0")) {
-			if (detectorProvider != null) {
-				plotter.plotDataset(detectorProvider.getI0data());
+			if (fileDataProvider != null && fileIsDataSource) {
+				plotter.plotDataset(fileDataProvider.getI0data());
 			} else {
 				plotter.plotMapFromServer("I0",0);
 			}
 		} else if (selectedElement.equals("It")) {
-			if (detectorProvider != null) {
-				plotter.plotDataset(detectorProvider.getItdata());
+			if (fileDataProvider != null && fileIsDataSource) {
+				plotter.plotDataset(fileDataProvider.getItdata());
 			} else {
 				plotter.plotMapFromServer("It",0);
 			}
-		} else if (ObjectStateManager.isActive(detectorProvider)) {
+		} else if (fileIsDataSource) {
 			if (plotter != null) {
-				setDataProviderForElement(selectedElement);
-				plotter.setDataProvider(currentDetectorProvider);
+				plotter.setDataProvider(fileDataProvider);
 				plotter.plotElement(selectedElement, selectedChannel);
 			}
 		} else {
@@ -124,46 +100,39 @@ public class MicroFocusDisplayController {
 	public void displayMap(String selectedElement, String filePath, IRichBean bean, Integer channelToDisplay) {
 		if (plotter == null)
 			plotter = new MicroFocusNexusPlotter();
-		detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(bean);
-		ObjectStateManager.register(detectorProvider);
-		detectorProvider.setXScannableName(xScannableName);
-		detectorProvider.setYScannableName(yScannableName);
-		detectorProvider.setTrajectoryScannableName(trajectoryScannableName);
-		detectorProvider.setZScannableName(zScannableName);
-		detectorProvider.setTrajectoryCounterTimerName(trajectoryCounterTimerName);
+		fileDataProvider = MicroFocusMappableDataProviderFactory.getInstance(bean);
+		fileDataProvider.setXScannableName(xScannableName);
+		fileDataProvider.setYScannableName(yScannableName);
+		fileDataProvider.setTrajectoryScannableName(trajectoryScannableName);
+		fileDataProvider.setZScannableName(zScannableName);
+		fileDataProvider.setTrajectoryCounterTimerName(trajectoryCounterTimerName);
 
-		detectorProvider.loadBean(bean);
-		detectorProvider.loadData(filePath);
-		ObjectStateManager.setActive(detectorProvider);
-		// hack warning!!
-		// (Need to refactor so there is a single, distributed object which controls the map plotting instead of having
-		// two competing methods)
-		JythonServerFacade.getInstance().runCommand("map.getMFD().setActive(False)");
+		fileDataProvider.loadBean(bean);
+		fileDataProvider.loadData(filePath);
+		setFileIsDataSource(true);
 		displayMap(selectedElement,channelToDisplay);
 		
-		logger.debug("displayed map for " + selectedElement + " using " + currentDetectorProvider.getClass());
+		logger.debug("displayed map for " + selectedElement + " using " + fileDataProvider.getClass());
 	}
 
 	public void displayMap(String selectedElement, String filePath, Integer channelToDisplay) {
 		if (plotter == null)
 			plotter = new MicroFocusNexusPlotter();
 
-
-		if (detectorProvider == null) {
-			detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(detectorFile);
-			ObjectStateManager.register(detectorProvider);
-			detectorProvider.setXScannableName(xScannableName);
-			detectorProvider.setYScannableName(yScannableName);
-			detectorProvider.setTrajectoryScannableName(trajectoryScannableName);
-			detectorProvider.setZScannableName(zScannableName);
-			detectorProvider.setTrajectoryCounterTimerName(trajectoryCounterTimerName);
+		if (fileDataProvider == null) {
+			fileDataProvider = MicroFocusMappableDataProviderFactory.getInstance(detectorFile);
+			fileDataProvider.setXScannableName(xScannableName);
+			fileDataProvider.setYScannableName(yScannableName);
+			fileDataProvider.setTrajectoryScannableName(trajectoryScannableName);
+			fileDataProvider.setZScannableName(zScannableName);
+			fileDataProvider.setTrajectoryCounterTimerName(trajectoryCounterTimerName);
 		}
-		detectorProvider.loadBean();
-		detectorProvider.loadData(filePath);
-		ObjectStateManager.setActive(detectorProvider);
+		fileDataProvider.loadBean();
+		fileDataProvider.loadData(filePath);
+		setFileIsDataSource(true);
 		displayMap(selectedElement,channelToDisplay);
 
-		logger.debug("displayed map for " + selectedElement + " using " + currentDetectorProvider.getClass());
+		logger.debug("displayed map for " + selectedElement + " using " + fileDataProvider.getClass());
 	}
 
 	public void setDetectorFile(String filename) {
@@ -171,14 +140,21 @@ public class MicroFocusDisplayController {
 	}
 
 	public Double getZ() {
-		if (ObjectStateManager.isActive(detectorProvider)) {
-			return currentDetectorProvider.getZValue();
+		if (isFileIsDataSource()) {
+			return fileDataProvider.getZValue();
 		}
 		return plotter.getZValueFromServer();
-
 	}
 
-	public void disableProvider() {
-		ObjectStateManager.setInactive(detectorProvider);
+	public void disableFileDataProvider() {
+		setFileIsDataSource(false);
+	}
+
+	public boolean isFileIsDataSource() {
+		return fileIsDataSource;
+	}
+
+	public void setFileIsDataSource(boolean fileIsDataSource) {
+		this.fileIsDataSource = fileIsDataSource;
 	}
 }
