@@ -161,7 +161,6 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		liveplotview.setDataFilenameObserverName(getDataFilenameObserverName());
 		liveplotview.setLowDataBound(getLowDataBound());
 		liveplotview.setHighDataBound(getHighDataBound());
-		
 		liveplotview.setTotalWorkListener(getTotalWorkListener());
 		liveplotview.setWorkListener(getWorkListener());
 		liveplotview.setMessageListener(getMessageListener());

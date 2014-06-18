@@ -99,11 +99,12 @@ public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements 
 				}
 			} catch (DeviceException e1) {
 				logger.error("Failed to stop EPICS operation.", e1);
+			} finally {
+				// on cancel operation, must finish beginTask
+				done();
+				lastWorkedTo = 0;
+				totalWork = 0;
 			}
-			// on cancel operation, must finish beginTask
-			done();
-			lastWorkedTo = 0;
-			totalWork = 0;
 		}
 	};
 
