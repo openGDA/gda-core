@@ -140,6 +140,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 		} else {
 			throw new IllegalStateException("event admin is required for plotting live data, but not set.");
 		}
+		//observer for IProgressService
 		if (getStartListener()!=null) {
 			getStartListener().addIObserver(this);
 		}
