@@ -72,7 +72,7 @@ public class EpicsDetectorProgressMonitor extends Composite implements IObserver
 	
 	public EpicsDetectorProgressMonitor(Composite parent, int style) {
 		super(parent, style);
-
+		monitor=new ProgressMonitorPart(parent, null, true);
 	}
 	
 	public void initialise() {
