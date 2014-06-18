@@ -115,9 +115,15 @@ class ScanDataProcessor(ScanListener):
 			lines = []
 			for processor in self.processors:
 				sdpr = processor.process(xDataSet, yDataSet)
-				sdpr = ScanDataProcessorResult(sdpr, self.sfh, allscannables, xfieldname, yfieldname)
-				self.results[sdpr.name] = sdpr
-				lines.append('   ' + (sdpr.name+':').ljust(8) + sdpr.report)
+				if type(sdpr) == type(list()):
+					for each in sdpr:
+						sdpr = ScanDataProcessorResult(each, self.sfh, allscannables, xfieldname, yfieldname)
+						self.results[each.name] = each
+						lines.append('   ' + (each.name+':').ljust(8) + each.report)
+				else:
+					sdpr = ScanDataProcessorResult(sdpr, self.sfh, allscannables, xfieldname, yfieldname)
+					self.results[sdpr.name] = sdpr
+					lines.append('   ' + (sdpr.name+':').ljust(8) + sdpr.report)
 			report = '\n'.join(lines)
 			# add results to root namespace dictionary
 			d = self.rootNamespaceDict
