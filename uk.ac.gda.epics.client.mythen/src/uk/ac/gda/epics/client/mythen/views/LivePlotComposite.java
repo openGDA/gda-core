@@ -140,6 +140,9 @@ public class LivePlotComposite extends Composite implements IObserver {
 		} else {
 			throw new IllegalStateException("event admin is required for plotting live data, but not set.");
 		}
+		if (getStartListener()!=null) {
+			getStartListener().addIObserver(this);
+		}
 		progressMonitor.initialise();
 	}
 
@@ -253,7 +256,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 					IProgressService service = (IProgressService) workbenchpart.getSite().getService(IProgressService.class);
 					service.run(true, true, getEpicsProgressMonitor());
 				} catch (InvocationTargetException | InterruptedException e) {
-					logger.error("TODO put description of error here", e);
+					logger.error("Fail to start progress service.", e);
 				}
 			}
 		}
