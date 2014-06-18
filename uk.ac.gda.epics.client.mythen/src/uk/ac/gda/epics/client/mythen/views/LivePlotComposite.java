@@ -149,18 +149,23 @@ public class LivePlotComposite extends Composite implements IObserver {
 
 	@Override
 	public void dispose() {
-		executor.shutdown();
-		boolean terminated;
-		try {
-			terminated = executor.awaitTermination(1, TimeUnit.MINUTES);
-			if (!terminated) {
-				throw new TimeoutException("Timed out waiting for plotting data file.t");
-			}
-		} catch (InterruptedException | TimeoutException e) {
-			logger.error("Unable to plot data", e);
-			throw new RuntimeException("Unable to plot data from data file.", e);
-		} 
-		eventAdmin.deleteIObserver(this);
+		if (eventAdmin!=null) {
+			eventAdmin.deleteIObserver(this);
+			executor.shutdown();
+			boolean terminated;
+			try {
+				terminated = executor.awaitTermination(1, TimeUnit.MINUTES);
+				if (!terminated) {
+					throw new TimeoutException("Timed out waiting for plotting data file.t");
+				}
+			} catch (InterruptedException | TimeoutException e) {
+				logger.error("Unable to plot data", e);
+				throw new RuntimeException("Unable to plot data from data file.", e);
+			} 
+		}
+		if (getStartListener()!=null) {
+			getStartListener().deleteIObserver(this);
+		}
 		// clean up resources used.
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
