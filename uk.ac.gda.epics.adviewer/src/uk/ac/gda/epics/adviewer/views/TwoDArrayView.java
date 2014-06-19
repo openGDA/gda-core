@@ -172,8 +172,8 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 		{
 			actions.add(ADActionUtils.addShowViewAction("Show Stats", HistogramView.Id, adController.getServiceName(),
 					"Show stats view for selected camera", Activator.getHistogramViewImage()));
-			actions.add(ADActionUtils.addShowViewAction("Show MPeg", MJPegView.Id, adController.getServiceName(),
-					"Show MPeg view for selected camera", Activator.getMJPegViewImage()));
+			actions.add(ADActionUtils.addShowViewAction("Show MJPeg", MJPegView.Id, adController.getServiceName(),
+					"Show MJPeg view for selected camera", Activator.getMJPegViewImage()));
 
 		}
 		for (IAction iAction : actions) {
