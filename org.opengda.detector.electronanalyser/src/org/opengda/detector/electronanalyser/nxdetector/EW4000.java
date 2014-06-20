@@ -16,8 +16,6 @@ import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.InterfaceProvider;
 import gda.jython.accesscontrol.MethodAccessProtected;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
 import gda.util.Sleep;
 
 import java.io.File;
@@ -27,7 +25,6 @@ import java.util.Collections;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
@@ -43,14 +40,13 @@ import org.springframework.beans.factory.InitializingBean;
  */
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
-public class EW4000 extends NXDetector implements InitializingBean, NexusDetector,PositionCallableProvider<NexusTreeProvider>, IObserver {
+public class EW4000 extends NXDetector implements InitializingBean, NexusDetector,PositionCallableProvider<NexusTreeProvider> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1155203719584202094L;
 
 	private static final Logger logger = LoggerFactory.getLogger(EW4000.class);
-	private ObservableComponent oc = new ObservableComponent();
 	private String sequenceFilename;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	EW4000CollectionStrategy collectionStrategy;
@@ -65,7 +61,6 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 				collectionStrategy = (EW4000CollectionStrategy)getCollectionStrategy();
 				collectionStrategy.setSourceSelectable(regionDefinitionResourceUtil.isSourceSelectable());
 				collectionStrategy.setXRaySourceEnergyLimit(regionDefinitionResourceUtil.getXRaySourceEnergyLimit());
-				collectionStrategy.addIObserver(this);
 			}
 			setConfigured(true);
 		}
@@ -101,7 +96,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public String getDescription() throws DeviceException {
-		return "EW4000 container";
+		return "VGH Scienta Electron Analyser EW4000";
 	}
 	@Override
 	public String getDetectorID() throws DeviceException {
@@ -109,12 +104,12 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public String getDetectorType() throws DeviceException {
-		return "EW4000";
+		return "Electron Analyser";
 	}
 	@Override
 	public Object getPosition() throws DeviceException {
 		try {
-			// return a list of total intensities - one from each region
+			// return a list of total intensities - one from each active region
 			return collectionStrategy.getTotalIntensity();
 		} catch (Exception e) {
 			logger.error("getposition() failed with exception",e);
@@ -198,6 +193,16 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		super.atScanStart();		
 	}
 
+	@Override
+	public void atPointStart() throws DeviceException {
+		// TODO Auto-generated method stub
+		super.atPointStart();
+	}
+	@Override
+	public void atPointEnd() throws DeviceException {
+		// TODO Auto-generated method stub
+		super.atPointEnd();
+	}
 	public Sequence loadSequenceData(String sequenceFilename) throws DeviceException {
 		Sequence sequence;
 		logger.debug("Sequence file changed to {}{}",
@@ -232,33 +237,12 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		this.sequenceFilename = sequenceFilename;
 	}
 
-	@Override
-	public void addIObserver(IObserver observer) {
-		oc.addIObserver(observer);
-	}
-
-	@Override
-	public void deleteIObserver(IObserver observer) {
-		oc.deleteIObserver(observer);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		oc.deleteIObservers();
-	}
 	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
 		return regionDefinitionResourceUtil;
 	}
 	public void setRegionDefinitionResourceUtil(
 			RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
 		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
-	}
-	@Override
-	public void update(Object source, Object arg) {
-		if (source instanceof EW4000CollectionStrategy && arg instanceof RegionChangeEvent) {
-			logger.debug("new region is set to : {}", ((RegionChangeEvent)arg).getRegionName());
-			oc.notifyIObservers(this, arg);
-		}		
 	}
 	public void createSingleFile(boolean b){
 		collectionStrategy.setSingleDataFile(b);
