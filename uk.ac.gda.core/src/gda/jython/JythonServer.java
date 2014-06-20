@@ -22,6 +22,7 @@ package gda.jython;
 import static java.text.MessageFormat.format;
 import gda.commandqueue.IFindableQueueProcessor;
 import gda.configuration.properties.LocalProperties;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.Scannable;
@@ -641,6 +642,29 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	@Override
 	public synchronized void haltCurrentScan(String JSFIdentifier) {
 		logger.info("Halting current scan from thread: " + Thread.currentThread().getName());
+		if (LocalProperties.check("uk.ac.gda.scan.halt.stopdevices.immediately", false)) {
+			uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
+				@Override
+				public void run() {
+					if (currentScan != null) {
+						for (Scannable s : currentScan.getScannables()) {
+							try {
+								s.stop();
+							} catch (DeviceException e) {
+								logger.error("Halt current scan failed to stop " + s.getName(), e);
+							}
+						}
+						for (Detector d : currentScan.getDetectors()) {
+							try {
+								d.stop();
+							} catch (DeviceException e) {
+								logger.error("Halt current scan failed to stop " + d.getName(), e);
+							}
+						}
+					}
+				}
+			}).start();
+		}
 		ScanBase.setInterrupted(true);
 		ScanBase.setPaused(false);
 		ScanBase.explicitlyHalted = true;
