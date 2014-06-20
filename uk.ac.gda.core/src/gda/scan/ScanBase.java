@@ -541,6 +541,7 @@ public abstract class ScanBase implements NestableScan {
 	 * 
 	 * @throws DeviceException
 	 */
+	@SuppressWarnings("unused")
 	protected void endScan() throws DeviceException, InterruptedException {
 
 		// if the interrupt was set
@@ -605,13 +606,16 @@ public abstract class ScanBase implements NestableScan {
 					commandThread.start();
 				}
 			}
-		} finally{
+		} catch( DeviceException  th){
 			/*
 			 * If any of the above throws an exception such as an InterruptedException due 
 			 * to the thread being interrupted as a result of the user requesting an abort
 			 * due to the position providers hanging then we need to ensure the pipeline is closed down.
 			 */
-			shutdownScandataPipeline(false);
+			if( !(th instanceof RedoScanLineThrowable)){
+				shutdownScandataPipeline(false);
+			}
+			throw th;
 		}
 	}
 
@@ -635,8 +639,9 @@ public abstract class ScanBase implements NestableScan {
 		// shutdown the ScanDataPointPipeline (will close DataWriter)
 		try {
 			if (scanDataPointPipeline != null) {
-				scanDataPointPipeline.shutdown(waitForProcessingCompletion); 
-				scanDataPointPipeline = null;
+				scanDataPointPipeline.shutdown(waitForProcessingCompletion);
+				//note we cannot set scanDataPointPipeline to null as
+				//code using it to get the datawriter after scan completion
 			}
 
 		} catch (DeviceException e) {
@@ -644,7 +649,7 @@ public abstract class ScanBase implements NestableScan {
 			throw e;
 		} catch (Exception e) {
 			setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
-			throw new DeviceException( e.getMessage() + " error seen shutting down scan pipeline", e);
+			throw new DeviceException( "Error seen shutting down scan pipeline", e);
 		}
 	}
 
