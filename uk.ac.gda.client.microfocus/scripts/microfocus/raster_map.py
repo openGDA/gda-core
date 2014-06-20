@@ -33,7 +33,6 @@ class RasterMap(Map):
 
         self.mfd = None
         self.finder = Finder.getInstance()
-        self.beamEnabled = True
         
         self.cid = cid
 
@@ -103,18 +102,15 @@ class RasterMap(Map):
         
         if (LocalProperties.get("gda.mode") == 'live'):
             topupMonitor1 = command_server.getFromJythonNamespace("topupMonitor", None)    
-            beam = command_server.getFromJythonNamespace("beam", None)
+            beamMonitor = command_server.getFromJythonNamespace("beamMonitor", None)
             detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
-            trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-            if not (trajBeamMonitor == None):
-                trajBeamMonitor.setActive(True)
-            if(not (topupMonitor1 == None)):
+            if topupMonitor1 != None:
                 topupMonitor1.setPauseBeforePoint(False)
                 topupMonitor1.setPauseBeforeLine(True)
                 topupMonitor1.setCollectionTime(collectionTime)
-            if(not (beam == None) and self.beamEnabled==True):
-                beam.setPauseBeforePoint(False)
-                beam.setPauseBeforeLine(True)
+            if beamMonitor != None:
+                beamMonitor.setPauseBeforePoint(False)
+                beamMonitor.setPauseBeforeLine(True)
             if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
                 if detectorFillingMonitor != None :
                     detectorFillingMonitor.setPauseBeforePoint(False)
