@@ -47,11 +47,11 @@ If the PV's for the EPICS Area Detector plugins accessed by the ADViewer views f
 
 	ADBase PV = <Prefix>CAM:*
 	Array Plugin PV = <Prefix>ARR:*
-	ROI Plugin PV = <Prefix>ROI1:*
-	MPG Plugin PV =  <Prefix>MPG1:*
-	MPG's PROC Plugin PV = <Prefix>PRO1:*
-	STAT Plogin PV = <Prefix>STAT:*
-	
+	ROI Plugin PV = <Prefix>ROI:*
+	MPG Plugin PV =  <Prefix>MJPG:*
+	MPG's PROC Plugin PV = <Prefix>PROC:*
+	STAT Plugin PV = <Prefix>STAT:*
+
 Then simply add code to call the command org.eclipse.ui.views.showView with parameter org.eclipse.ui.views.showView.viewId set to one of 
 uk.ac.gda.epics.adviewer.mpegview, uk.ac.gda.epics.adviewer.histogramview or uk.ac.gda.epics.adviewer.twodArrayView, and parameter 
 org.eclipse.ui.views.showView.secondaryId set to the string "pv//<label>//<Prefix with colons replaced by @ symbol". The value of <label> 
@@ -66,7 +66,7 @@ It is normal to add the following snippet to a plugin.xml file to make the view 
             label="Area Detectors">
          <command
                commandId="org.eclipse.ui.views.showView"
-               label="epg"
+               label="Pilatus4M"
                style="push">
             <parameter
                   name="org.eclipse.ui.views.showView.viewId"
@@ -74,20 +74,69 @@ It is normal to add the following snippet to a plugin.xml file to make the view 
             </parameter>
             <parameter
                   name="org.eclipse.ui.views.showView.secondaryId"
-                  value="pv//epg//EPG-EA-DET-02@">
+                  value="pv//Pilatus4M//BLXXI-EA-DET-02@">
             </parameter>
          </command>
       </menu>
    </menuContribution>  
 
-In the snippet above the addition menu "Area Detectors" will be added to the Window menu. This new menu will have an item named "epg" which will
-open the MPEG viewer connected to PV "EPG-EA-DET:\*"
-
-
+In the snippet above the addition menu "Area Detectors" will be added to the Window menu. This new menu will have an item named "Pilatus4M" which will
+open the MPEG viewer connected to PV "BLXXI-EA-DET-02:\*"
 
 
 How to Add ADViewer views to a GUI when the plugins do not conform to the DLS AreaDetector Plugin Standard
 ----------------------------------------------------------------------------------------------------------
+
+If one or more plugin suffix does not match the convention listed above then you need to do two things. Firstly register  a service that 
+supports the interface uk.ac.gda.epics.adviewer.ADPVSuffixes; a simple way is to use uk.ac.gda.epics.adviewer.SimpleADPVSuffixes and
+override one or mroe of its suffix propertiies. This is done in the example below where the MPG Plugin PV suffix is set to FFMPEG: ::
+ 
+
+	<bean class="gda.rcp.util.OSGIServiceRegister">
+		<property name="class" value="uk.ac.gda.epics.adviewer.ADPVSuffixes" />
+		<property name="service">
+			<bean class="uk.ac.gda.epics.adviewer.SimpleADPVSuffixes">
+				<property name="mpgSuffix" value="FFMPEG:" />
+			</bean>
+		</property>
+		<property name="properties">
+			<bean class="uk.ac.gda.util.dictionary.MapBasedDictionary">
+				<property name="map">
+					<map>
+						<entry key="SERVICE_NAME" value="diagnosticCameraType" />
+					</map>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+Secondly you need to append the name of the new service to the secondary id, separately with a '/'  when declaring the menu contribution::
+
+   <menuContribution
+         allPopups="false"
+         locationURI="menu:window?after=showView">
+      <menu
+            label="Area Detectors">
+         <command
+               commandId="org.eclipse.ui.views.showView"
+               label="Pilatus4M"
+               style="push">
+            <parameter
+                  name="org.eclipse.ui.views.showView.viewId"
+                  value="uk.ac.gda.epics.adviewer.mpegview">
+            </parameter>
+            <parameter
+                  name="org.eclipse.ui.views.showView.secondaryId"
+                  value="pv//Pilatus4M//BLXXI-EA-DET-02@/diagnosticCameraType">
+            </parameter>
+         </command>
+      </menu>
+   </menuContribution>  
+
+
+
+How to Add ADViewer views to a GUI be defining a detector specific ADController
+-------------------------------------------------------------------------------
 
 If the PV's for the EPICS Area Detector plugins accessed by the ADViewer views DO NOT follow the convention above then you need to tell the system the PVs. Currently this is
 done by provided an instance of a class through which the PV's are accessed. This class is of type uk.ac.gda.epics.adviewer.ADController. The 
@@ -165,8 +214,30 @@ Using the gda.rcp.views.OpenViewListBoxComposite
 
 A simply way to provide a list of AD Viewer views to the user is by using the OpenViewListBoxComposite with the
 views described in instance of either gda.rcp.views.OpenViewOptionImpl with the secondaryId property set to the name of the 
-OSGi service that implements ADController or uk.ac.gda.epics.adviewer.views.ADOpenViewOption if there is a common PVPrefix for the plugins.
+OSGi service that implements ADController or uk.ac.gda.epics.adviewer.views.ADOpenViewOption if there is a common PVPrefix for the plugins::
 
+				<bean class="gda.rcp.views.OpenViewListBoxCompositeFactory">
+					<property name="label" value="Cameras"></property>
+					<property name="tooltipText"
+						value="Open the live view for the selected camera"></property>
+					<property name="options">
+						<list>
+							<bean class="gda.rcp.views.OpenViewOptionImpl">
+								<constructor-arg value="Select a camera" />
+								<constructor-arg value="" />
+								<constructor-arg value="" />
+							</bean>
+							<bean class="uk.ac.gda.epics.adviewer.views.ADOpenViewOption">
+								<constructor-arg value="d5" />
+								<constructor-arg value="d5" />
+								<constructor-arg value="MPEG"/>
+								<constructor-arg value="BL13J-DI-PHDGN-05:"/>
+								<constructor-arg value="diagnosticCameraType"/>
+							</bean>
+						</list>
+					</property>
+				</bean>	
+				
 ..
    Local Variables:
    mode: indented-text
