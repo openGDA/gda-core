@@ -138,11 +138,13 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 								NeXusFileInterface file = nexusDataWriter.getNXFile(region.getName(), scanDatapoint.get());
 								getAnalyser().setNexusFile(file);
 							}
+							//TODO open/close fast shutter according to beam used
 							getAnalyser().collectData();
 							Sleep.sleep(1000);
 							getAnalyser().waitWhileBusy();
 							if (!isSingleDataFile()) {
 								getAnalyser().writeOut(scanDatapoint.get());
+								getTotalIntensity().add(getAnalyser().getTotalIntensity());
 							} else {
 								if (scanDatapoint.get()==1) {
 									regionDataList.add(getAnalyser().createRegionNodeWithFirstData(region.getName()));
