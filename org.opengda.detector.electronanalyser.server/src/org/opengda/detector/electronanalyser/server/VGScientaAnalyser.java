@@ -394,6 +394,15 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			logger.error("Failed to get NDArray data from EPICS plugin. ",e);
 		}
 	}
+	@Override
+	public void stop() throws DeviceException {
+		try {
+			getAdBase().stopAcquiring();
+		} catch (Exception e) {
+			throw new DeviceException("Failed to stop acquiring", e);
+		}
+		super.stop();
+	}
 	private void createSpectrumData(INexusTree regionNode) {
 		try {
 			int size = getEnergyAxis().length;
