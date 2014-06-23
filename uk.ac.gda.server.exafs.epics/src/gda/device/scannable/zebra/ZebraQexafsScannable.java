@@ -50,7 +50,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	private String pulseStartPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_START";
 	private String pulseWidthPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_WID";
 	private String pulseStepPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_STEP";
-
+	
 	private String positionTrigPV = "BL18B-OP-DCM-01:ZEBRA:PC_ENC";
 	private String positionDirectionPV = "BL18B-OP-DCM-01:ZEBRA:PC_DIR";
 	
@@ -155,7 +155,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			controller.caput(pulseTrigSourceChnl, "Position");
 			controller.caput(pulseStartChnl, 0.0);
 			controller.caput(pulseWidthChnl, 0.0020);
-			controller.caput(positionTrigChnl, "EncSum");
+			controller.caput(positionTrigChnl, "Enc1-4Av");
 
 			// variable settings
 			double startDeg = radToDeg(startAngle);
@@ -163,9 +163,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			double stepDeg = Math.abs(radToDeg(stepSize));
 			double width = Math.abs(stopDeg - startDeg);
 			String positionDirection = stopDeg > startDeg ? "Positive" : "Negative";
-			controller.caput(gateStartChnl, startDeg * 4);
-			controller.caput(gateWidthChnl, width * 4);
-			controller.caput(pulseStepChnl, stepDeg * 4);
+			controller.caput(gateStartChnl, startDeg);
+			controller.caput(gateWidthChnl, width);
+			controller.caput(pulseStepChnl, stepDeg);
 			controller.caputWait(positionDirectionChnl, positionDirection);
 
 			long timeAtMethodEnd = System.currentTimeMillis();
@@ -275,12 +275,12 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	private double calculateFrameEnergyFromZebraReadback(int frameIndex) throws TimeoutException, CAException,
 			InterruptedException {
 		// calculate the energy of the frame based on the readback of step size from Zebra (as encoder will use integer number of steps which may not match demanded step size).
-		double startReadback_deg = controller.cagetDouble(startReadback_deg_Chnl) / 4;
+		double startReadback_deg = controller.cagetDouble(startReadback_deg_Chnl);
 		// double startReadback_counts =  controller.cagetDouble(startReadback_counts_Chnl) / 4;
 		// double stepSize_deg = controller.cagetDouble(stepSize_deg_Chnl) / 4;
-		double stepSize_counts = controller.cagetDouble(stepSize_counts_Chnl) / 4;
-		double width_deg =controller.cagetDouble(width_deg_Chnl) / 4;
-		double width_counts = controller.cagetDouble(width_counts_Chnl) / 4;
+		double stepSize_counts = controller.cagetDouble(stepSize_counts_Chnl);
+		double width_deg =controller.cagetDouble(width_deg_Chnl);
+		double width_counts = controller.cagetDouble(width_counts_Chnl);
 
 		double countsPerDegree = width_deg / width_counts;
 
