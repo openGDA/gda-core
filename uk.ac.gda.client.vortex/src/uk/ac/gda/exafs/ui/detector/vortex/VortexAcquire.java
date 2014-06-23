@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.vortex.DetectorElement;
+import uk.ac.gda.devices.detector.xspress3.FluorescenceAcquire;
 import uk.ac.gda.exafs.ui.detector.Acquire;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
@@ -64,7 +65,7 @@ import com.swtdesigner.SWTResourceManager;
 public class VortexAcquire extends Acquire {
 	private int[][][] mcaData;
 	private static final Logger logger = LoggerFactory.getLogger(VortexAcquire.class);
-	private XmapDetector xmapDetector;
+	private FluorescenceAcquire xmapDetector;
 	private Timer tfg;
 	private SashFormPlotComposite sashPlotFormComposite;
 	private FileDialog openDialog;
@@ -82,7 +83,7 @@ public class VortexAcquire extends Acquire {
 	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, Detector xmapDetector, Timer tfg, Display display, final Plot plot, Counts counts){
 		super(display);
 		this.sashPlotFormComposite = sashPlotFormComposite;
-		this.xmapDetector = (XmapDetector)xmapDetector;
+		this.xmapDetector = (FluorescenceAcquire)xmapDetector;
 		this.tfg = tfg;
 		this.plot = plot;
 		this.counts = counts;
@@ -106,7 +107,7 @@ public class VortexAcquire extends Acquire {
 				
 				Double[] liveStats = null;
 				try {
-					liveStats = (Double[]) xmapDetector.getAttribute("countRates");
+					liveStats = (Double[]) xmapDetector.getCountRates();
 				} catch (DeviceException e) {
 					logger.error("Problem getting attribute countRates from xmap", e);
 				}

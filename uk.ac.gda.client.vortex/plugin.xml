@@ -26,6 +26,12 @@
             name="Xmap Monitor"
             restorable="true">
       </view>
+      <view
+            class="uk.ac.gda.exafs.ui.detector.vortex.Xspress3View"
+            id="uk.ac.gda.client.vortex.xspress3"
+            name="Xspress 3"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.editors">

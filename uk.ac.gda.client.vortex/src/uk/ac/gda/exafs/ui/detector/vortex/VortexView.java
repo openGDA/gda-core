@@ -49,31 +49,19 @@ public class VortexView extends ViewPart {
 //  <excluded>false</excluded>
 //	</DetectorElement>
 	
-	private DetectorElement createElement(int number){
-		DetectorElement element1 = new DetectorElement();
-		element1.setName("Element " + number);
-		element1.setNumber(number);
-		element1.setGain(2.0);
-		element1.setPeakingTime(1.04);
-		element1.setOffset(-21.0);
-		element1.setExcluded(false);
-		VortexROI vortexROI = new VortexROI();
-		vortexROI.setRoiName("ROI 1");
-		vortexROI.setWindowStart(690);
-		vortexROI.setWindowEnd(890);
-		element1.addRegion(vortexROI);
-		return element1;
-	}
+	
 	
 	@Override
 	public void createPartControl(Composite parent) {
 		String path = null;
 		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
 		
-		detectorList.add(createElement(1));
-		detectorList.add(createElement(2));
-		detectorList.add(createElement(3));
-		detectorList.add(createElement(4));
+		DetectorViewUtils detectorViewUtils = new DetectorViewUtils();
+		
+		detectorList.add(detectorViewUtils.createElement(1));
+		detectorList.add(detectorViewUtils.createElement(2));
+		detectorList.add(detectorViewUtils.createElement(3));
+		detectorList.add(detectorViewUtils.createElement(4));
 		
 		String detectorName = "xmapMca";
 		String tfgName = "tfg";
