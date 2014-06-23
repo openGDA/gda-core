@@ -141,8 +141,11 @@ public class RedirectableFileLogger implements LineLogger, IObserver {
 	public void log(String msg) {
 		String lines[] = msg.split("\\r?\\n");
 		for (String line : lines) {
-			logger.info(" | " + StringUtils.stripEnd(line, null));
-			localLogger.info(StringUtils.stripEnd(line, null));
+			String stripEnd = StringUtils.stripEnd(line, null);
+			if(logger.isDebugEnabled()){
+				logger.debug(" | " + stripEnd);
+			}
+			localLogger.info(stripEnd);
 		}
 	}
 

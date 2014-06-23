@@ -16,6 +16,7 @@ import gda.util.logging.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.util.StringUtils;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -158,6 +159,8 @@ public class LogServer implements Configurable, BeanNameAware {
 	}
 
 	void configureAndStartLogServer() throws JoranException {
+		//Use stdout as use of logger is no good if the logging configuration is wrong
+		System.out.println("Configure logserver using file " + StringUtils.quote(configFile));
 		SimpleSocketServer.configureLC(lc, configFile);
 		lc.putProperty(LogbackUtils.SOURCE_PROPERTY_NAME, "logserver");
 		LogbackUtils.setEventDelayToZeroInAllSocketAppenders(lc);
