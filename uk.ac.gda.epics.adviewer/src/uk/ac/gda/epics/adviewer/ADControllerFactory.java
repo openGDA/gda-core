@@ -46,14 +46,14 @@ public class ADControllerFactory {
 		String detectorName = ADUtils.getDetectorNameFromPVServiceName(serviceName);
 		String suffixType = ADUtils.getSuffixTypeFromPVServiceName(serviceName);
 		//from pv prefix get plugin suffices
-		ADPVSuffices adPVSuffices=null;;
+		ADPVSuffixes adPVSuffixes=null;;
 		if( StringUtils.hasText(suffixType)){
-			adPVSuffices = (ADPVSuffices)Activator.getNamedService(ADPVSuffices.class, suffixType);
+			adPVSuffixes = (ADPVSuffixes)Activator.getNamedService(ADPVSuffixes.class, suffixType);
 		}
-		if (adPVSuffices == null)
-			adPVSuffices = new DLSADPVSuffices();
+		if (adPVSuffixes == null)
+			adPVSuffixes = new DLSADPVSuffixes();
 		
-		DynamicADControllerImpl impl = new DynamicADControllerImpl(serviceName, detectorName, ADUtils.getPVFromPVServiceName(serviceName), adPVSuffices);
+		DynamicADControllerImpl impl = new DynamicADControllerImpl(serviceName, detectorName, ADUtils.getPVFromPVServiceName(serviceName), adPVSuffixes);
 		
 		OSGIServiceRegister modelReg = new OSGIServiceRegister();
 		modelReg.setClass(ADController.class);

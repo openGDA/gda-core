@@ -19,5 +19,5 @@
 package uk.ac.gda.epics.adviewer;
 
 public interface ADPVSufficesProvider {
-	ADPVSuffices getSuffices(String detectorName);
+	ADPVSuffixes getSuffices(String detectorName);
 }

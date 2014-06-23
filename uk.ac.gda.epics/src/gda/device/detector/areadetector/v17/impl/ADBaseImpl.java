@@ -49,6 +49,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 public class ADBaseImpl implements InitializingBean, ADBase {
 
@@ -109,6 +110,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	private PV<Integer> pvDetectorState_RBV;
 
+	private Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> dataTypeRBV_Map;
+	
 	/**
 	*
 	*/
@@ -236,6 +239,65 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getDataType_RBV", ex);
 			throw ex;
 		}
+	}	
+	
+	/**
+	*
+	*/
+	@Override
+	public gda.device.detector.areadetector.v17.NDPluginBase.DataType getDataType_RBV2() throws Exception {
+		try {
+			Channel channel;
+			if (config != null) {
+				channel = createChannel(config.getDataType_RBV().getPv());
+			} else{
+				channel = getChannel(DataType_RBV);
+			}
+			short val=EPICS_CONTROLLER.cagetEnum(channel);
+			if( dataTypeRBV_Map == null){
+				dataTypeRBV_Map = createDataTypeMap(channel);
+			}
+			return dataTypeRBV_Map.get(val);
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getDataType_RBV", ex);
+			throw ex;
+		}
+	}
+
+	private Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> createDataTypeMap(Channel channel) throws TimeoutException, CAException, InterruptedException,
+			Exception {
+		Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> map = new HashMap<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType>();
+		String [] labels = EPICS_CONTROLLER.cagetLabels(channel);
+		for(int i=0; i< labels.length; i++){
+			if( labels[i].equals("Int8")){
+				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.INT8);
+			} else 
+			if( labels[i].equals("UInt8")){
+				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.UINT8);
+			} else 
+			if( labels[i].equals("Int16")){
+				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.INT16);
+			} else 
+			if( labels[i].equals("UInt16")){
+				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.UINT16);
+			} else 
+			if( labels[i].equals("Int32")){
+				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.INT32);
+			} else 
+			if( labels[i].equals("UInt32")){
+				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.UINT32);
+			} else 
+			if( labels[i].equals("Float64")){
+				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.FLOAT64);
+			} else 
+			if( labels[i].equals("Float32")){
+					map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.FLOAT32);
+			} else 
+			{
+				throw new Exception("Inavalid data type label " + StringUtils.quote(labels[i]));
+			}
+		}
+		return map;
 	}
 
 	/**
@@ -1343,7 +1405,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		} finally {
 			// If the acquisition state is busy then wait for it to complete.
 			while (getAcquireState() == 1) {
-				logger.info("sleeping for 25");
 				Sleep.sleep(25);
 			}
 			setStatus(Detector.IDLE);
