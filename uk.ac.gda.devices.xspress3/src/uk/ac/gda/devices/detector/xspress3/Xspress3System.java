@@ -200,6 +200,7 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 			tfg.addFrameSet(1, 0, getCollectionTime() * 1000);
 			tfg.setAttribute(Tfg.SOFTWARE_START_AND_TRIG_ATTR_NAME,
 					Boolean.FALSE);
+			tfg.loadFrameSets();
 			super.atScanLineStart();
 			setNumberOfFramesToCollect(1);
 			startRunningXspress3FrameSet();

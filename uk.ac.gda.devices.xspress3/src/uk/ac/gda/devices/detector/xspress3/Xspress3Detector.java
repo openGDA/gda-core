@@ -6,10 +6,12 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.Timer;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
+import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
@@ -29,7 +31,7 @@ import org.nexusformat.NexusFile;
  * @author rjw82
  * 
  */
-public class Xspress3Detector extends DetectorBase implements NexusDetector {
+public class Xspress3Detector extends DetectorBase implements NexusDetector, FluorescenceAcquire {
 
 	public static int SUM_ALL_ROI = 0;
 	public static int SUM_FIRST_ROI = 1;
@@ -326,6 +328,59 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		}
 		return rois;
 	}
+	
+	public void clearAndStart() throws DeviceException {
+		controller.doErase();
+		controller.doStart();
+	}
+	
+	public int[][] getData() throws DeviceException{
+		Double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
+		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
+		for(int i=0;i<deadTimeCorrectedData.length;i++){
+			for(int j=0;j<deadTimeCorrectedData[0].length;j++){
+				deadTimeCorrectedDataInt[i][j]= deadTimeCorrectedDataInt[i][j];
+			}
+		}
+		return deadTimeCorrectedDataInt;
+	}
+	
+	/**
+	 * @param time - milliseconds
+	 * @return
+	 * @throws DeviceException
+	 */
+	public Double[][] getMCData(int time) throws DeviceException {
+		controller.doErase();
+		controller.doStart();
+		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
+		((Timer) Finder.getInstance().find("tfg")).countAsync(time); //run tfg for time
+		do {
+			synchronized (this) {
+				try {
+					wait(100);
+				} catch (InterruptedException e) {
+				}
+			}
+		} while (((Timer) Finder.getInstance().find("tfg")).getStatus() == Timer.ACTIVE);
+
+		controller.doStop();
+
+//		int[] data = null;
+//		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
+//			data = readoutMca(0, 1, 4096); // NOTE 1 time frame
+//
+//		if (data != null) {
+//			try {
+//				int[][][][] fourD = unpackRawDataTo4D(data, 1, numResGrades(), 4096);
+//				return fourD[0];
+//			} catch (Exception e) {
+//				throw new DeviceException("Error while unpacking MCA Data. Data length was " + data.length, e);
+//			}
+//		}
+
+		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
+	}
 
 	public int getFirstChannelToRead() {
 		return firstChannelToRead;
@@ -428,6 +483,12 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	public void setNumTrackerExtension(String numTrackerExtension) {
 		this.numTrackerExtension = numTrackerExtension;
 		createNumTracker();
+	}
+
+	@Override
+	public Object getCountRates() throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
