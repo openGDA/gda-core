@@ -1,11 +1,14 @@
 from map import Map
 
+from gdascripts.metadata.metadata_commands import meta_add
+
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import TwoDScanRowReverser, NexusDataWriter
 from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
 from gda.factory import Finder
 from gda.jython.commands import ScannableCommands
 from gda.scan import TrajectoryScanLine
+from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.client.microfocus.util import ScanPositionsTwoWay
 
 
@@ -121,16 +124,37 @@ class RasterMapReturnWrite(Map):
         
         xasWriter = twoDWriter.getXasDataWriter()
         
-        xasWriter.setRunFromExperimentDefinition(True);
-        xasWriter.setScanBean(scanBean);
-        xasWriter.setDetectorBean(detectorBean);
-        xasWriter.setSampleBean(sampleBean);
-        xasWriter.setOutputBean(outputBean);
-        xasWriter.setSampleName(sampleName);
-        xasWriter.setXmlFolderName(experimentFullPath)
+#         xasWriter.setRunFromExperimentDefinition(True);
+#         xasWriter.setScanBean(scanBean);
+#         xasWriter.setDetectorBean(detectorBean);
+#         xasWriter.setSampleBean(sampleBean);
+#         xasWriter.setOutputBean(outputBean);
+#         xasWriter.setSampleName(sampleName);
+#         xasWriter.setXmlFolderName(experimentFullPath)
+        
+        
+        if (Finder.getInstance().find("metashop") != None):
+            meta_add(self.detectorFileName, BeansFactory.getXMLString(detectorBean))
+            meta_add(self.outputFileName, BeansFactory.getXMLString(outputBean))
+            meta_add(self.sampleFileName, BeansFactory.getXMLString(sampleBean))
+            meta_add(self.scanFileName, BeansFactory.getXMLString(scanBean))
+            meta_add("xmlFolderName", experimentFullPath)
+            xmlFilename = self._determineDetectorFilename(detectorBean)
+            if ((xmlFilename != None) and (experimentFullPath != None)):
+                detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath, xmlFilename)
+                meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
+        else: 
+            self.logger.info("Metashop not found")
+            
+               
+        xasWriter.setFolderName(experimentFullPath)
+        xasWriter.setScanParametersName(self.scanFileName)
+        xasWriter.setDetectorParametersName(self.detectorFileName)
+        xasWriter.setSampleParametersName(self.sampleFileName)
+        xasWriter.setOutputParametersName(self.outputFileName)
         
         # add the detector configuration file to the metadata
-        xasWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+#         xasWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
         xasWriter.setDescriptions(descriptions);
         xasWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         xasWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);

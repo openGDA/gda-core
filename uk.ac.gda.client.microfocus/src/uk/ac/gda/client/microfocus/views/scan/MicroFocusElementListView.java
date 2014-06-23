@@ -422,8 +422,12 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
+				// this update is coming from a MicroFocusWrieterExtender on the server during an active map scan, so
+				// tell the displayController not to use any old opened Nexus file as its source now but to assume data
+				// is coming from the server-side object
 				populateLists(detectorConfig);
 				displayController.setDetectorFile(detectorConfig);
+				displayController.setFileIsDataSource(false);
 			}
 		});
 

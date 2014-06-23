@@ -2,6 +2,7 @@ from gda.device.detector.xspress import Xspress2DetectorConfiguration
 from gda.device.detector.xmap import VortexDetectorConfiguration
 from gda.exafs.scan import BeanGroup, BeanGroups
 from gda.device.detector.xspress import XspressDetector
+from gda.jython import InterfaceProvider
 from gda.jython.commands.ScannableCommands import scan, add_default
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
@@ -38,11 +39,11 @@ class I18DetectorPreparer:
             self._control_all_ionc(transmissionParameters.getIonChamberParameters())
 
     def completeCollection(self):
+        pass
         # this will be called at the end of a loop of scans, or after an abort
-        command_server = self.finder.find("command_server")
-        detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
-        if detectorFillingMonitor != None:
-            self.finder.find("command_server").removeDefault(detectorFillingMonitor);
+#        detectorFillingMonitor = InterfaceProvider.getJythonNamespace().getFromJythonNamespace("detectorFillingMonitor")
+#        if detectorFillingMonitor != None:
+#            self.finder.find("command_server").removeDefault(detectorFillingMonitor);
 
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
