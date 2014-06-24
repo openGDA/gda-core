@@ -50,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
+import  gda.device.detector.areadetector.v17.NDPluginBase;
 
 public class ADBaseImpl implements InitializingBean, ADBase {
 
@@ -269,32 +270,35 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> map = new HashMap<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType>();
 		String [] labels = EPICS_CONTROLLER.cagetLabels(channel);
 		for(int i=0; i< labels.length; i++){
-			if( labels[i].equals("Int8")){
-				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.INT8);
-			} else 
-			if( labels[i].equals("UInt8")){
-				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.UINT8);
-			} else 
-			if( labels[i].equals("Int16")){
-				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.INT16);
-			} else 
-			if( labels[i].equals("UInt16")){
-				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.UINT16);
-			} else 
-			if( labels[i].equals("Int32")){
-				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.INT32);
-			} else 
-			if( labels[i].equals("UInt32")){
-				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.UINT32);
-			} else 
-			if( labels[i].equals("Float64")){
-				map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.FLOAT64);
-			} else 
-			if( labels[i].equals("Float32")){
-					map.put((short) i, gda.device.detector.areadetector.v17.NDPluginBase.DataType.FLOAT32);
-			} else 
-			{
-				throw new Exception("Inavalid data type label " + StringUtils.quote(labels[i]));
+			String label = labels[i].toUpperCase();
+			short key = (short) i;
+			switch(label){
+			case "INT8":
+				map.put(key,NDPluginBase.DataType.INT8);
+				break;
+			case "INT16":
+				map.put(key,NDPluginBase.DataType.INT16);
+				break;
+			case "INT32":
+				map.put(key,NDPluginBase.DataType.INT32);
+				break;
+			case "UINT8":
+				map.put(key,NDPluginBase.DataType.UINT8);
+				break;
+			case "UINT16":
+				map.put(key,NDPluginBase.DataType.UINT16);
+				break;
+			case "UINT32":
+				map.put(key,NDPluginBase.DataType.UINT32);
+				break;
+			case "FLOAT32":
+				map.put(key,NDPluginBase.DataType.FLOAT32);
+				break;
+			case "FLOAT64":
+				map.put(key,NDPluginBase.DataType.FLOAT64);
+				break;
+			default:
+				throw new Exception("Inavalid data type label " + StringUtils.quote(label));
 			}
 		}
 		return map;
