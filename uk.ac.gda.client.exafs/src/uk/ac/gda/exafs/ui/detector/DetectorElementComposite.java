@@ -66,7 +66,7 @@ public class DetectorElementComposite extends Composite {
 	protected Class<? extends DetectorROI> regionClass;
 	
 	public DetectorElementComposite(final Composite parent, final int style, boolean isMultipleElements,
-	final Class<? extends DetectorROI> regionClass, boolean showRoi) {
+			final Class<? extends DetectorROI> regionClass) {
 		super(parent, style);
 		this.isMultipleElements = isMultipleElements;
 		this.regionClass = regionClass;
@@ -80,11 +80,10 @@ public class DetectorElementComposite extends Composite {
 		mainComposite.setLayout(gridLayout);
 		if (isMultipleElements)
 			createWindoControl();
-		if(showRoi)
-			createRegionList();
+		createRegionList();
 		GridUtils.layoutFull(mainComposite);
 	}
-	
+
 	private void createWindoControl(){
 		Composite topComposite = new Composite(mainComposite, SWT.NONE);
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -149,6 +148,7 @@ public class DetectorElementComposite extends Composite {
 		regionList.setTemplateName("ROI");
 		regionList.setNameField("roiName");
 		regionList.setListHeight(100);
+		regionList.setListWidth(270);
 	}
 
 	@Override

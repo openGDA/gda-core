@@ -38,7 +38,7 @@ public class DetectorListComposite extends Composite {
 	public DetectorElementComposite detectorElementComposite;
 
 	public DetectorListComposite(final Composite parent, final Class<? extends IDetectorElement> editorClass,
-			final int elementListSize, final Class<? extends DetectorROI> regionClass, boolean showRoi) {
+			final int elementListSize, final Class<? extends DetectorROI> regionClass) {
 		super(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(this);
 
@@ -62,7 +62,7 @@ public class DetectorListComposite extends Composite {
 		detectorList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		detectorList.setEditorClass(editorClass);
 		detectorElementComposite = new DetectorElementComposite(detectorList, SWT.NONE, elementListSize > 1,
-				regionClass, showRoi);
+				regionClass);
 		detectorElementComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		detectorList.setEditorUI(detectorElementComposite);
 		detectorList.setGridWidth(200);

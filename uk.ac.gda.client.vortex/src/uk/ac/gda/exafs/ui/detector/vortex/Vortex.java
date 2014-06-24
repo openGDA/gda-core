@@ -40,6 +40,8 @@ import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorListComposite;
 import uk.ac.gda.exafs.ui.detector.Plot;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
+import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
+import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 
 public class Vortex extends Detector{
@@ -75,6 +77,7 @@ public class Vortex extends Detector{
 			vortexElements.addOutputPreferences(left);
 		vortexAcquire.addAcquireListener(gridListEditor, detectorElementComposite);
 		vortexAcquire.addLoadListener(gridListEditor, detectorElementComposite, detectorList);
+		
 		tableViewer = gridListEditor.getTableViewer();
 		if(tableViewer!=null){
 			tableViewer.setCellModifier(new ICellModifier() {
@@ -90,6 +93,11 @@ public class Vortex extends Detector{
 						detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectedIndex, mcaData));
 						detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
 						vortexElements.configureUI(vortexAcquire.getMcaData(), selectedIndex);
+						// what we added to xspress
+//						vortexAcquire.setDetectorElementComposite(detectorElementComposite);
+//						vortexAcquire.setVortexElements(vortexElements);
+//						vortexAcquire.dataUpdate(selectedIndex, mcaData);
+
 					}
 					return false;
 				}
@@ -102,8 +110,15 @@ public class Vortex extends Detector{
 				}
 			});
 		}
+		
+		detectorElementComposite.getRegionList().addBeanSelectionListener(new BeanSelectionListener() {
+			@Override
+			public void selectionChanged(BeanSelectionEvent evt) {
+				vortexElements.updateROIAfterElementCompositeChange();
+			}
+		});
 	}
-
+	
 	public VortexAcquire getVortexAcquire() {
 		return vortexAcquire;
 	}

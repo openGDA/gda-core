@@ -43,22 +43,17 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		return super.getAdapter(clazz);
 	}
 
-	protected abstract String getDataXMLName();
-
 	@Override
 	public void createPartControl(Composite parent) {
 		detector = new Detector(serverCommand, this.getSite(), parent, path);
 	}
+	
 
 	@Override
 	public void dispose() {
-//		if (detectorListComposite != null && !detectorListComposite.isDisposed())
-//			detectorListComposite.removeExpansionListener(expansionListener);
 		if(detector!=null)
 			if (detector.getSashPlotFormComposite() != null)
 				detector.getSashPlotFormComposite().dispose();
-		//if (autoApplyToAllListener != null)
-		//	autoApplyToAll(false); // remove all auto-apply to all listeners
 		super.dispose();
 	}
 

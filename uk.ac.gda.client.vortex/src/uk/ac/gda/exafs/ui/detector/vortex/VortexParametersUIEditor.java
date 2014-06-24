@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector.vortex;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.Timer;
 import gda.factory.Finder;
@@ -81,12 +80,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 			return;
 		comp.getDetectorType().setValue("Silicon");
 		comp.getConfigFileName().setValue(file.getAbsolutePath());
-	}
-
-	@Override
-	protected String getDataXMLName() {
-		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
-		return varDir + "/vortex_editor_data.xml";
 	}
 
 	@Override

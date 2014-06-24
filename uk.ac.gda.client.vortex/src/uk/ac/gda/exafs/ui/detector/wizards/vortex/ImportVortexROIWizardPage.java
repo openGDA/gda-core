@@ -105,7 +105,7 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 	
 	@Override
 	protected void createSourceControls(Composite parent) {
-		detectorListComposite = new DetectorListComposite(parent, DetectorElement.class, elementListSize, VortexROI.class, true);
+		detectorListComposite = new DetectorListComposite(parent, DetectorElement.class, elementListSize, VortexROI.class);
 		GridListEditor detectorListGridEditor = detectorListComposite.getDetectorList();
 		VortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
 		importFileRegionList = detectorListComposite.getDetectorElementComposite().getRegionList();

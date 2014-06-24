@@ -55,7 +55,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	@Override
 	public void createPartControl(Composite parent) {
 		XspressDetector xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
-		xspress = new Xspress(xmlPath, this.getSite(), parent, xspressDetector, xspressParameters.getDetectorList());
+		xspress = new Xspress(xmlPath, this.getSite(), parent, xspressDetector, xspressParameters.getDetectorList(), xspressParameters);
 	}
 
 	@Override
@@ -70,12 +70,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			return;
 		fluorescenceComposite.getDetectorType().setValue("Germanium");
 		fluorescenceComposite.getConfigFileName().setValue(file.getAbsolutePath());
-	}
-
-	@Override
-	protected String getDataXMLName() {
-		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
-		return varDir + "/xspress_editor_data.xml";
 	}
 	
 	public XMLCommandHandler getXMLCommandHandler() {

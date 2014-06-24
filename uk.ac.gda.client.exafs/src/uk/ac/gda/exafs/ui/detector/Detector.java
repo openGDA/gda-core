@@ -54,13 +54,13 @@ public class Detector {
 	protected Counts counts;
 	protected Plot plot;
 	private IWorkbenchPartSite site;
-	
+
 	public Detector(String serverCommand, IWorkbenchPartSite site, Composite parent, String path) {
 		counts = new Counts();
 		this.site = site;
 		this.serverCommand = serverCommand;
 	}
-
+	
 	protected Action createUpLoadAction(final String path) {
 		uploadAction = new Action("Configure") {
 			@Override

@@ -107,7 +107,8 @@ public class Elements {
 			}
 		}
 		
-		this.dirtyContainer.setDirty(true);
+		if(dirtyContainer!=null)
+			this.dirtyContainer.setDirty(true);
 		return true;
 	}
 	
@@ -149,9 +150,9 @@ public class Elements {
 	
 	protected DetectorListComposite createDetectorList(final Composite parent,
 	final Class<? extends IDetectorElement> editorClass, final int elementListSize,
-	final Class<? extends DetectorROI> regionClass, boolean showRoi) {
+	final Class<? extends DetectorROI> regionClass) {
 		
-		detectorListComposite = new DetectorListComposite(parent, editorClass, elementListSize, regionClass, showRoi);
+		detectorListComposite = new DetectorListComposite(parent, editorClass, elementListSize, regionClass);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(detectorListComposite);
 
 		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {

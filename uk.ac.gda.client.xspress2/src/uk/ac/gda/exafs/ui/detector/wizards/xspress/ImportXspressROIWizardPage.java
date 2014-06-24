@@ -109,7 +109,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 
 	@Override
 	protected void createSourceControls(Composite parent) {
-		detectorListComposite = new DetectorListComposite(parent,DetectorElement.class, elementListSize, XspressROI.class, true);
+		detectorListComposite = new DetectorListComposite(parent,DetectorElement.class, elementListSize, XspressROI.class);
 		GridListEditor detectorListGridEditor = detectorListComposite.getDetectorList();
 		XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
 

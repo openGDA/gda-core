@@ -102,7 +102,7 @@ public class VortexElements extends Elements{
 			detectorElementsLabel.setText(" Regions of Interest");
 		try {
 			createImportButton(grid, detectorList.size());
-			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class, true);
+			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class);
 			detectorListComposite.getDetectorElementComposite().setWindowsEditable(false);
 			detectorListComposite.getDetectorElementComposite().setMinimumRegions(VortexParametersUIHelper.INSTANCE.getMinimumRegions());
 			detectorListComposite.getDetectorElementComposite().setMaximumRegions(VortexParametersUIHelper.INSTANCE.getMaximumRegions());

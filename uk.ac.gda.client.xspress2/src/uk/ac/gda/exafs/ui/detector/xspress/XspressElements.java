@@ -60,13 +60,11 @@ public class XspressElements extends Elements{
 	private int elementCount;
 	private int inWindowCounts;
 	protected DetectorElementComposite detectorElementComposite;
-	private boolean showRoi;
 	
-	public XspressElements(final Composite parent, Shell shell, SashFormPlotComposite sashPlotFormComposite, List<DetectorElement> detectorList, final Counts counts, boolean showRoi) {
+	public XspressElements(final Composite parent, Shell shell, SashFormPlotComposite sashPlotFormComposite, List<DetectorElement> detectorList, final Counts counts, boolean showRoi, XspressParameters xspressParameters) {
 		super(shell, sashPlotFormComposite, counts);
 		Composite grid = new Composite(parent, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(grid);
-		//GridDataFactory.fillDefaults().span(1, 1).grab(false, false).applyTo(grid);
 		
 		showIndividualElements = new BooleanWrapper(grid, SWT.NONE);
 		showIndividualElements.setText("Show individual elements");
@@ -75,7 +73,6 @@ public class XspressElements extends Elements{
 		
 		Composite middleComposite = new Composite(grid, SWT.BORDER);
 		middleComposite.setLayout(new GridLayout(2, false));
-		//GridDataFactory.fillDefaults().applyTo(middleComposite);
 		
 		applyToAllCheckbox = new Button(middleComposite, SWT.CHECK);
 		applyToAllCheckbox.setText("Apply Changes To All Elements ");
@@ -122,7 +119,7 @@ public class XspressElements extends Elements{
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorElementsGroup);
 		
 		try {
-			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class, showRoi);
+			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class);
 			XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListComposite.getDetectorList());
 			if(showRoi){
 				detectorListComposite.getDetectorElementComposite().setMinimumRegions(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
@@ -167,9 +164,6 @@ public class XspressElements extends Elements{
 						return;
 					}
 				
-				//GridLayoutFactory.fillDefaults().applyTo(detectorElementsGroup);
-				//GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorElementsGroup);
-				
 				//updateElementsVisibility();
 				detectorListComposite.getDetectorElementComposite().setTotalCounts(allElementsCount);
 				detectorListComposite.getDetectorElementComposite().setTotalElementCounts(elementCount);
@@ -195,7 +189,7 @@ public class XspressElements extends Elements{
 		DetectorElementComposite detectorElementComposite = detectorListComposite.getDetectorElementComposite();
 		detectorElementComposite.getWindowStart().addValueListener(detectorElementCompositeValueListener);
 		detectorElementComposite.getWindowEnd().addValueListener(detectorElementCompositeValueListener);
-		if(showRoi)
+		if(detectorElementComposite.getRegionList()!=null)
 			detectorElementComposite.getRegionList().addValueListener(detectorElementCompositeValueListener);
 	}
 
@@ -208,10 +202,7 @@ public class XspressElements extends Elements{
 		GridUtils.setVisibleAndLayout(middleComposite, currentEditIndividual);
 		GridUtils.setVisibleAndLayout(applyToAllCheckbox, currentEditIndividual);
 		GridUtils.setVisibleAndLayout(applyToAllButton, currentEditIndividual);
-		//GridUtils.setVisibleAndLayout(detectorListComposite.getDetectorElementComposite().getName(), currentEditIndividual);
-		//GridUtils.setVisibleAndLayout(detectorListComposite.getDetectorElementComposite().getExcluded(), currentEditIndividual);
 		detectorListComposite.getDetectorElementComposite().setIndividualElements(currentEditIndividual);
-		//GridUtils.layoutFull(detectorListComposite.getDetectorElementComposite().getExcluded().getParent());
 		detectorListComposite.getDetectorList().setListVisible(currentEditIndividual);
 		autoApplyToAll(!currentEditIndividual);
 	}

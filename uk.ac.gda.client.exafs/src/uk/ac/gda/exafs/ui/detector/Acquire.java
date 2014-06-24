@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 
-public class Acquire {
+public abstract class Acquire {
 	private static final Logger logger = LoggerFactory.getLogger(Acquire.class);
 	protected Button acquireBtn;
 	protected boolean saveMcaOnAcquire;
@@ -57,35 +57,25 @@ public class Acquire {
 		this.display = display;
 	}
 	
-	public void acquire(double collectionTime) throws DeviceException, InterruptedException{
-		
-	}
+	public abstract void acquire(double collectionTime) throws DeviceException, InterruptedException;
 	
-	public void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) throws DeviceException, InterruptedException {
-			
-	}
+	public abstract void plotData(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) throws DeviceException, InterruptedException;
 	
-	public void writeToDisk() throws IOException{
-		
-	}
+	public abstract void writeToDisk() throws IOException;
 	
-	public void updateStats(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
-		
-	}
+	public abstract void updateStats(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex);
+	
+	public abstract String getDataXMLName();
 	
 	public void acquireAndPlotAndUpdateStats(double acquireTime, final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex){
 		try {
 			acquire(acquireTime);
-		} catch (DeviceException e) {
-			logger.error("Cannot acquire", e);
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			logger.error("Cannot acquire", e);
 		}
 		try {
 			plotData(detectorList, detectorElementComposite, currentSelectedElementIndex);
-		} catch (DeviceException e) {
-			logger.error("Cannot plot", e);
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			logger.error("Cannot plot", e);
 		}
 		updateStats(detectorList, detectorElementComposite, currentSelectedElementIndex);
