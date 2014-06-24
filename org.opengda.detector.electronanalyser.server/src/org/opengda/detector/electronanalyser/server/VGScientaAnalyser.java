@@ -64,7 +64,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	private String cachedEnergyMode;
 
-	private Double totalIntensity;
+	private Double totalIntensity=new Double(0.0);
 
 
 	@Override
@@ -384,7 +384,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 			double[] s = getImage();
 			NexusGroupData image_data=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
-			INexusTree image_data_node=new NexusTreeNode("image_data", NexusExtractor.SDSClassName, null,image_data);
+			NexusTreeNode image_data_node=new NexusTreeNode("image_data", NexusExtractor.SDSClassName, null,image_data);
+			image_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(image_data_node);
 		} catch (NexusException e) {
 			logger.error("Error writing image data to nexus file. ", e);
@@ -409,11 +410,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of spectrum from " + getName() + " are zero length");
 				return;
 			}
-
 			double[] s = getSpectrum(dims[0]);
 			NexusGroupData spectrum_data=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
-			INexusTree spectrum_data_node=new NexusTreeNode("spectrum_data", NexusExtractor.SDSClassName, null,spectrum_data);
+			NexusTreeNode spectrum_data_node=new NexusTreeNode("spectrum_data", NexusExtractor.SDSClassName, null,spectrum_data);
+			spectrum_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(spectrum_data_node);
+			this.totalIntensity=(Double) new DoubleDataset(s).sum();
 		} catch (NexusException e) {
 			logger.error("Error writing spectrum data to nexus file. ", e);
 		} catch (Exception e) {
@@ -437,7 +439,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	
 			double[] s = getExternalIOData(dims[0]);
 			NexusGroupData external_io_data=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
-			INexusTree external_io_data_node=new NexusTreeNode("external_io_data", NexusExtractor.SDSClassName, null,external_io_data);
+			NexusTreeNode external_io_data_node=new NexusTreeNode("external_io_data", NexusExtractor.SDSClassName, null,external_io_data);
+			external_io_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(external_io_data_node);
 		} catch (NexusException e) {
 			logger.error("Error writing external IO data to nexus file. ", e);
@@ -450,7 +453,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			int[] dims=new int[] {1};
 			double[] s = new double[] {getExcitationEnergy()};
 			NexusGroupData excitation_energy=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
-			INexusTree excitation_energy_node=new NexusTreeNode("excitation_energy", NexusExtractor.SDSClassName, null,excitation_energy);
+			NexusTreeNode excitation_energy_node=new NexusTreeNode("excitation_energy", NexusExtractor.SDSClassName, null,excitation_energy);
+			excitation_energy_node.setIsPointDependent(true);
 			regionNode.addChildNode(excitation_energy_node);
 		} catch (NexusException e) {
 			logger.error("Error writing excitation energy to nexus file. ", e);
