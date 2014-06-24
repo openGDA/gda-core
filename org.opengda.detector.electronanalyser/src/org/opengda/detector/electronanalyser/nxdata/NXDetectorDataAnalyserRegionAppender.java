@@ -25,8 +25,7 @@ public class NXDetectorDataAnalyserRegionAppender implements
 		NXDetectorDataAppender {
 	// region name
 	private List<INexusTree> regionDataList;
-	private Logger logger = LoggerFactory
-			.getLogger(NXDetectorDataAnalyserRegionAppender.class);
+	private Logger logger = LoggerFactory.getLogger(NXDetectorDataAnalyserRegionAppender.class);
 	private boolean firstInScan;
 	private List<Double> totalIntensity=new ArrayList<Double>();
 
@@ -42,27 +41,23 @@ public class NXDetectorDataAnalyserRegionAppender implements
 		INexusTree detTree = data.getDetTree(detectorName);
 		synchronized (regionDataList) {
 			if (firstInScan) {
-				for (int i = 0; i < regionDataList.size(); i++) {
-					detTree.addChildNode(regionDataList.get(i));
-					String regionName = regionDataList.get(i).getName();
-					Double regionIntensity = totalIntensity.get(i);
-					data.setPlottableValue(regionName, regionIntensity);
-				}
-			} else {
-				for (int i = 0; i < regionDataList.size(); i++) {
-					INexusTree regionData=regionDataList.get(i);
-					NexusTreeNode regionTree = (NexusTreeNode) detTree.getChildNode(regionData.getName(),NexusExtractor.NXDetectorClassName);
-					for (INexusTree item : regionData) {
-						for (INexusTree child : item) {
-							logger.debug("add {} to region node {} in detector tree.",child.getName(), item.getName());
-							data.addData(regionTree, child.getName(),child.getData().dimensions, child.getData().type,child.getData().getBuffer(), "", null);
-						}
-					}
-					String regionName = regionData.getName();
-					Double regionIntensity = totalIntensity.get(i);
-					data.setPlottableValue(regionName, regionIntensity);
+				for (INexusTree regiontree : regionDataList) {
+					NexusTreeNode regionNode=new NexusTreeNode(regiontree.getName(), regiontree.getNxClass(), null);
+					detTree.addChildNode(regionNode);
 				}
 			}
+			for (int i = 0; i < regionDataList.size(); i++) {
+				INexusTree regiontree=regionDataList.get(i);
+				NexusTreeNode regionNode = (NexusTreeNode) detTree.getChildNode(regiontree.getName(),regiontree.getNxClass());
+				for (INexusTree regionchild : regiontree) {
+					logger.debug("add {} to region node {} in detector tree.",regionchild.getName(), regiontree.getName());
+					data.addData(regionNode, regionchild.getName(),regionchild.getData().dimensions, regionchild.getData().type,regionchild.getData().getBuffer(), null, null);
+				}
+				String regionName = regiontree.getName();
+				Double regionIntensity = totalIntensity.get(i);
+				data.setPlottableValue(regionName, regionIntensity);
+			}
+			
 //			data.setDoubleVals(totalIntensity.toArray(new Double[] {}));
 		}
 	}

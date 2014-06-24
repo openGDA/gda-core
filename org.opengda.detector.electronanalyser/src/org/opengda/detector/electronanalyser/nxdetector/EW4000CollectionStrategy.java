@@ -20,6 +20,7 @@ import gda.scan.ScanInformation;
 import gda.util.Sleep;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -64,10 +65,11 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	private VGScientaAnalyser analyser;
 	private Scannable dcmenergy;
 	private Scannable pgmenergy;
-	private boolean singleDataFile=false;
+	private boolean singleDataFile=true;
 	private String name = "ew4000_collection_strategy";
 	private Scriptcontroller scriptcontroller;
 	protected Region lastregion=null;
+	private volatile boolean called=true;
 	
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection,	ScanInformation scanInfo) throws Exception {
@@ -108,16 +110,20 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 		}
 	}
 	
-	List<INexusTree> regionDataList= new ArrayList<INexusTree>();
-	private List<Double> totalIntensity=new ArrayList<Double>();
+	Vector<INexusTree> regionDataList= new Vector<INexusTree>();
+	private Vector<Double> totalIntensity=new Vector<Double>();
 
 	private boolean stillHaveDataToWrite=false;
 	protected void beforeCollectData() {
 		busy.getAndSet(true);
 		scanDatapoint.incrementAndGet();
+		while (!called){
+			Sleep.sleep(100);
+		}
+		called=false;
 		if (!regionDataList.isEmpty()) {
 			regionDataList.clear();
-			getTotalIntensity().clear();
+			totalIntensity.clear();
 		}
 	}
 	@Override
@@ -144,14 +150,14 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 							getAnalyser().waitWhileBusy();
 							if (!isSingleDataFile()) {
 								getAnalyser().writeOut(scanDatapoint.get());
-								getTotalIntensity().add(getAnalyser().getTotalIntensity());
+								totalIntensity.add(getAnalyser().getTotalIntensity());
 							} else {
 								if (scanDatapoint.get()==1) {
 									regionDataList.add(getAnalyser().createRegionNodeWithFirstData(region.getName()));
-									getTotalIntensity().add(getAnalyser().getTotalIntensity());
+									totalIntensity.add(getAnalyser().getTotalIntensity());
 								} else {
 									regionDataList.add(getAnalyser().createRegionNodeWithNewData(region.getName()));
-									getTotalIntensity().add(getAnalyser().getTotalIntensity());
+									totalIntensity.add(getAnalyser().getTotalIntensity());
 								}
 							}
 						} catch (InterruptedException e) {
@@ -179,11 +185,30 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 						}
 					}
 				}
+				afterCollectData();
 				busy.getAndSet(false);
 			}
 		};
 		collectionThread=new Thread(target, "ew4000collectionstrategy");
 		collectionThread.start();
+	}
+	// synced data
+	List<INexusTree> copyofregiondatalist;
+	List<Double> copyoftotalintensity;
+	// temp copy of data
+	ArrayList<INexusTree> lastRegionDataList;
+	ArrayList<Double> lastTotalIntensityList;
+	private void afterCollectData(){
+		lastRegionDataList = new ArrayList<INexusTree>();
+		for (INexusTree item : regionDataList) {
+			lastRegionDataList.add(item);
+		}
+		copyofregiondatalist=Collections.synchronizedList(new ArrayList<INexusTree>(lastRegionDataList));
+		lastTotalIntensityList= new ArrayList<Double>();
+		for (Double item : totalIntensity) {
+			lastTotalIntensityList.add(item);
+		}
+		copyoftotalintensity=Collections.synchronizedList(new ArrayList<Double>(lastTotalIntensityList));
 	}
 
 	@Override
@@ -195,6 +220,13 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 //				Sleep.sleep(100);
 //			}
 			regionDataList.clear();
+			lastRegionDataList.clear();
+			copyofregiondatalist.clear();
+			totalIntensity.clear();
+			lastTotalIntensityList.clear();
+			copyoftotalintensity.clear();
+			
+			called=true;
 		}
 	}
 
@@ -207,8 +239,11 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	public void stop() throws Exception {
 		Thread mythread=collectionThread;
 		collectionThread=null;
-		mythread.interrupt();
-		waitWhileBusy();
+		if (mythread!=null) {
+			mythread.interrupt();
+		}
+		getAnalyser().stop();
+//		waitWhileBusy();
 		completeCollection();		
 	}
 	
@@ -246,7 +281,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			if (getRegionNames().size() != extraValues.size()) {
 				throw new DeviceException(getName()+" : Names size = "+getRegionNames().size()+" and values size = "+extraValues.size()+" are different.");
 			}
-			appenders.add(new NXDetectorDataFilenamesAppender(getRegionNames(), extraValues, getTotalIntensity()));
+			appenders.add(new NXDetectorDataFilenamesAppender(getRegionNames(), extraValues, copyoftotalintensity));
 		} else {
 			boolean firstInScan;
 			if (scanDatapoint.get()==1) {
@@ -254,7 +289,8 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			} else {
 				firstInScan=false;
 			}
-			appenders.add(new NXDetectorDataAnalyserRegionAppender(regionDataList,firstInScan, getTotalIntensity()));
+			appenders.add(new NXDetectorDataAnalyserRegionAppender(copyofregiondatalist,firstInScan, copyoftotalintensity));
+			called=true;
 		}
 		return appenders;
 	}
@@ -556,11 +592,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	}
 
 	public List<Double> getTotalIntensity() {
-		return totalIntensity;
-	}
-
-	public void setTotalIntensity(List<Double> totalIntensity) {
-		this.totalIntensity = totalIntensity;
+		return copyoftotalintensity;
 	}
 
 	@Override
