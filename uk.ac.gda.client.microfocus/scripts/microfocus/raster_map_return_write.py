@@ -60,7 +60,7 @@ class RasterMapReturnWrite(Map):
         elif stage==3:
             self.trajSampleX = self.traj3SampleX
             self.trajtfg=self.traj3tfg
-            self.trajtfg.setTtlSocket(2)
+            self.trajtfg.setTtlSocket(1)
             self.trajxmap=self.traj3xmap
             self.trajPositionReader = self.traj3PositionReader
         else:
@@ -68,13 +68,13 @@ class RasterMapReturnWrite(Map):
 
     def _runMap(self,beanGroup, xScannable, yScannable, zScannable, detectorList,scanNumber,experimentFolderName,experimentFullPath,nx,ny):
         scanBean = beanGroup.getScan()
-        detectorBean = beanGroup.getDetector()
-        detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
         
-        if detectorBean.getExperimentType() != "Fluorescence" or detectorType != "Silicon":
-            print "*** Faster maps may only be performed using the Xmap Vortex detector! ***"
-            print "*** Change detector type in XML or mapping mode by typing map.disableFasterRaster()"
-            return
+#         detectorBean = beanGroup.getDetector()
+#         detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
+#         if detectorBean.getExperimentType() != "Fluorescence" or detectorType != "Silicon":
+#             print "*** Faster maps may only be performed using the Xmap Vortex detector! ***"
+#             print "*** Change detector type in XML or mapping mode by typing map.disableFasterRaster()"
+#             return
         
         point_collection_time = scanBean.getRowTime() / nx
         self.trajtfg.setIntegrateBetweenPoints(True)

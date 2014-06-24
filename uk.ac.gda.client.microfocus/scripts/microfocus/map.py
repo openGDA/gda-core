@@ -263,7 +263,6 @@ class Map(Scan):
                 self.finder.find("command_server").addDefault(detectorFillingMonitor);
                 detectorFillingMonitor.setPauseBeforePoint(True)
                 detectorFillingMonitor.setPauseBeforeLine(False)
-                detectorFillingMonitor.setCollectionTime(collectionTime)
 
         self._setupFromSampleParameters(beanGroup)
         

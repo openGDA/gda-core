@@ -115,7 +115,6 @@ class RasterMap(Map):
                 if detectorFillingMonitor != None :
                     detectorFillingMonitor.setPauseBeforePoint(False)
                     detectorFillingMonitor.setPauseBeforeLine(True)
-                    detectorFillingMonitor.setCollectionTime(collectionTime)
            
                 fullFileName = beanGroup.getXmlFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
                 bean = BeansFactory.getBean(File(fullFileName));
