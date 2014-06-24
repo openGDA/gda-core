@@ -381,9 +381,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of image data from " + getName() + " are zero length");
 				return;
 			}
+//			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0], dims[1] };
 
 			double[] s = getImage();
 			NexusGroupData image_data=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
+			image_data.isDetectorEntryData=true;
 			NexusTreeNode image_data_node=new NexusTreeNode("image_data", NexusExtractor.SDSClassName, null,image_data);
 			image_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(image_data_node);
@@ -410,8 +412,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of spectrum from " + getName() + " are zero length");
 				return;
 			}
+//			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
+			
 			double[] s = getSpectrum(dims[0]);
 			NexusGroupData spectrum_data=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
+			spectrum_data.isDetectorEntryData=true;
 			NexusTreeNode spectrum_data_node=new NexusTreeNode("spectrum_data", NexusExtractor.SDSClassName, null,spectrum_data);
 			spectrum_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(spectrum_data_node);
@@ -436,9 +441,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of external IO data from " + getName() + " are zero length");
 				return;
 			}
+//			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
 	
 			double[] s = getExternalIOData(dims[0]);
 			NexusGroupData external_io_data=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
+			external_io_data.isDetectorEntryData=true;
 			NexusTreeNode external_io_data_node=new NexusTreeNode("external_io_data", NexusExtractor.SDSClassName, null,external_io_data);
 			external_io_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(external_io_data_node);
@@ -451,8 +458,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private void createExciationEnergy(INexusTree regionNode) {
 		try {
 			int[] dims=new int[] {1};
+//			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
 			double[] s = new double[] {getExcitationEnergy()};
 			NexusGroupData excitation_energy=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
+			excitation_energy.isDetectorEntryData=true;
 			NexusTreeNode excitation_energy_node=new NexusTreeNode("excitation_energy", NexusExtractor.SDSClassName, null,excitation_energy);
 			excitation_energy_node.setIsPointDependent(true);
 			regionNode.addChildNode(excitation_energy_node);
@@ -465,6 +474,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	public INexusTree createRegionNodeWithNewData(String name) {
 		INexusTree regionNode=new NexusTreeNode(name, NexusExtractor.NXDetectorClassName, null);
+
 		createImageData(regionNode);
 		createSpectrumData(regionNode);
 		createExternalIOData(regionNode);
