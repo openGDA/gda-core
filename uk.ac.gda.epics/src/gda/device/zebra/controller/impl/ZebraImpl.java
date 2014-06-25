@@ -445,12 +445,25 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		dev.getIntegerPVValueCache("PULSE"+pulseId+"_PRE").putWait(timeunit);
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	@Override
 	public void setOutTTL(int outId, int outputSignal) throws Exception {
 		assert(SysSignalMin <= outputSignal && outputSignal <= SysSignalMax);
 		dev.getIntegerPVValueCache("OUT"+outId+"_TTL").putWait(outputSignal);
 	}
 	
+	@Override
+	public boolean getTtlOutputState(int output) throws IOException {
+		Preconditions.checkArgument(1 <= output && output <= 4);
+		final String pvSuffix = String.format("OUT%d_TTL:STA", output);
+		final PV<Integer> pv = dev.getPVInteger(pvSuffix);
+		final int value = pv.get();
+		return (value == 1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	public void setValue(String beforeUnderscore, int beforeUnderscoreId, String afterUnderscore, int afterUnderscoreId,int val) throws Exception {
 		String pvSuffix = beforeUnderscore;
 		if (beforeUnderscoreId > 0) {
