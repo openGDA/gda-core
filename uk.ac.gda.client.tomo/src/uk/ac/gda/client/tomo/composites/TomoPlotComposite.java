@@ -639,7 +639,7 @@ public class TomoPlotComposite extends Composite {
 					int min = 0;
 					ds.setName(HISTOGRAM_DATASET_lbl);
 
-					IntegerDataset xaxisRange = IntegerDataset.arange(min, 65536, 64);
+					IntegerDataset xaxisRange = IntegerDataset.createRange(min, 65536, 64);
 					xaxisRange.setName(INTENSITIES_lbl);
 
 					if (histogramTrace == null) {
@@ -752,7 +752,7 @@ public class TomoPlotComposite extends Composite {
 
 					}
 
-					IntegerDataset xaxisRange = IntegerDataset.arange(min, max, 255);
+					IntegerDataset xaxisRange = IntegerDataset.createRange(min, max, 255);
 					xaxisRange.setName(INTENSITIES_lbl);
 
 					if (histogramTrace == null) {
