@@ -53,6 +53,7 @@ import gda.observable.ObservableComponent;
 import gda.scan.NestableScan;
 import gda.scan.Scan;
 import gda.scan.Scan.ScanStatus;
+import gda.scan.ScanChild;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
 import gda.util.exceptionUtils;
@@ -1493,13 +1494,14 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	public static ScanInformation getScanInformation(Scan topscan) {
-		// TODO GDA-5863 we should change the scan interface to getDimensions(int[])
 
 		if (topscan == null)
 			return null;
 		
 		List<Integer> dims = new Vector<Integer>();
-
+		while (topscan.isChild()) {
+			topscan = ((ScanChild)topscan).getParent();
+		}
 		// hack warning!!!
 		// hack warning!!! should change the scan interface to getDimensions(int[]) and drop this part of code
 		if (topscan instanceof NestableScan) {
