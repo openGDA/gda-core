@@ -35,7 +35,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	private int TotalNumberOfPoints=0;
 	private ScanBase first;
 	private ScanBase lastscan;
-	
+	protected ParentScanComponent parentComponent = new ParentScanComponent(ScanStatus.NOTSTARTED);
 	
 	public MultiScanRunner(List<MultiScanItem> scans) {
 		super();
@@ -46,7 +46,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	public void runScan() throws InterruptedException, Exception {
 
 		try{
-			
+			setStatus(ScanStatus.RUNNING);
 			for (MultiScanItem item : scans) {
 				TotalNumberOfPoints += item.scan.getTotalNumberOfPoints();
 			}			
@@ -58,6 +58,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 			
 			for (MultiScanItem item : scans) {
 				ScanBase scan = item.scan;
+				lastscan=scan;
 				for( Detector det : scan.getDetectors()){
 					if( det instanceof HardwareTriggeredDetector){
 						((HardwareTriggeredDetector)det).setNumberImagesToCollect(scan.getTotalNumberOfPoints());
@@ -80,7 +81,6 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 				scan.callScannablesAtScanStart();
 				scan.run();
 				pointCount = scan.currentPointCount;
-				lastscan=scan;
 			}
 			for (MultiScanItem item : scans) {
 				ScanBase scan = item.scan;
@@ -249,22 +249,20 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	}
 	@Override
 	public void requestFinishEarly() {
-		// TODO Auto-generated method stub
+		parentComponent.requestFinishEarly();
 		
 	}
 	@Override
 	public boolean isFinishEarlyRequested() {
-		// TODO Auto-generated method stub
-		return false;
+		return parentComponent.isFinishEarlyRequested();
 	}
 	@Override
 	public ScanStatus getStatus() {
-		// TODO Auto-generated method stub
-		return null;
+		return parentComponent.getStatus();
 	}
 	@Override
 	public void setStatus(ScanStatus status) {
-		// TODO Auto-generated method stub
+		parentComponent.setStatus(status);
 		
 	}
 }
