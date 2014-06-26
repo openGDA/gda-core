@@ -565,8 +565,8 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		}
 
 		public void createTrace() {
-			IntegerDataset x = IntegerDataset.arange(5);
-			IntegerDataset y = IntegerDataset.arange(5);
+			IntegerDataset x = IntegerDataset.createRange(5);
+			IntegerDataset y = IntegerDataset.createRange(5);
 			x.setName("Energy (eV)");
 			y.setName("\u0394E (eV)");
 			List<ITrace> traces = plottingsystem.createPlot1D(x, Arrays.asList(new AbstractDataset[] { y }), null);
