@@ -154,7 +154,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			controller.caput(numGatesChnl, 1);
 			controller.caput(pulseTrigSourceChnl, "Position");
 			controller.caput(pulseStartChnl, 0.0);
-			controller.caput(pulseWidthChnl, 0.0020);
+//			controller.caput(pulseWidthChnl, 0.0020);
 			controller.caput(positionTrigChnl, "Enc1-4Av");
 
 			// variable settings
