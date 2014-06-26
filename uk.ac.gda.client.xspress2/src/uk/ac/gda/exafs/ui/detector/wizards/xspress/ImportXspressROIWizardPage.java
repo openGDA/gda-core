@@ -37,11 +37,11 @@ import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizardPage;
-import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersUIHelper;
+import uk.ac.gda.exafs.ui.detector.xspress.NewXspressParametersUIHelper;
 import uk.ac.gda.exafs.ui.detectorviews.DetectorListComposite;
 import uk.ac.gda.exafs.ui.detectorviews.DetectorROIComposite;
 import uk.ac.gda.exafs.ui.detectorviews.XspressROIComposite;
+import uk.ac.gda.exafs.ui.detectorviews.wizards.ImportROIWizardPage;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.selector.ListEditor;
@@ -95,7 +95,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			addButton.setEnabled(false);
 			addToAllButton.setEnabled(false);
 		}
-		else if (getBeansToAdd().size() >= XspressParametersUIHelper.INSTANCE.getMaximumRegions()) {
+		else if (getBeansToAdd().size() >= NewXspressParametersUIHelper.INSTANCE.getMaximumRegions()) {
 			setMessage("Maximum number of Regions reached. Please select Finish, or Delete existing items to copy more");
 			addButton.setEnabled(false);
 			addToAllButton.setEnabled(false);
@@ -111,7 +111,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 	protected void createSourceControls(Composite parent) {
 		detectorListComposite = new DetectorListComposite(parent,DetectorElement.class, elementListSize, XspressROI.class);
 		GridListEditor detectorListGridEditor = detectorListComposite.getDetectorList();
-		XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
+		NewXspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
 
 		importFileRegionList = detectorListComposite.getDetectorElementComposite().getRegionList();
 		importFileRegionList.setListEditorUI(new ListEditorUI() {
@@ -159,8 +159,8 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			regionList.setTemplateName("ROI");
 			regionList.setNameField("roiName");
 			regionList.setListHeight(250);
-			regionList.setMinItems(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
-			regionList.setMaxItems(XspressParametersUIHelper.INSTANCE.getMaximumRegions());
+			regionList.setMinItems(NewXspressParametersUIHelper.INSTANCE.getMinimumRegions());
+			regionList.setMaxItems(NewXspressParametersUIHelper.INSTANCE.getMaximumRegions());
 			regionList.addValueListener(new ValueAdapter("Xspress Region List Listener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {

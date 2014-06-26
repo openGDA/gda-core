@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.detector.wizards;
+package uk.ac.gda.exafs.ui.detectorviews.wizards;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -35,7 +35,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 
 public class ImportExperimentWizardPage extends WizardPage {
-
 	private IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 	private IWorkspace workspace = ResourcesPlugin.getWorkspace();
 	private String rootPath;
@@ -74,35 +73,23 @@ public class ImportExperimentWizardPage extends WizardPage {
 
 	@Override
 	public void createControl(Composite parent) {
-
 		rootPath = LocalProperties.get(LocalProperties.GDA_DATA);
 		File yearDir = new File(rootPath);
-
 		String[] yearsList = yearDir.list();
-
 		Composite chooseVisitArea = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(chooseVisitArea);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(chooseVisitArea);
-
 		years = new List(chooseVisitArea, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
 		visits = new List(chooseVisitArea, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
 		experiments = new List(chooseVisitArea, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-
 		visits.setBounds(0, 0, 100, 500);
-
-		for (int i = 0; i < yearsList.length; i++) {
+		for (int i = 0; i < yearsList.length; i++)
 			years.add(yearsList[i]);
-		}
-
-		for (int i = 0; i < 10 - yearsList.length; i++) {
+		for (int i = 0; i < 10 - yearsList.length; i++)
 			years.add("                                ");
-		}
-
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 10; i++)
 			visits.add("                                 ");
 			experiments.add("                                  ");
-		}
-
 		years.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -115,9 +102,8 @@ public class ImportExperimentWizardPage extends WizardPage {
 				String[] visitList = visitDir.list();
 				visits.removeAll();
 				experiments.removeAll();
-				for (int i = 0; i < visitList.length; i++) {
+				for (int i = 0; i < visitList.length; i++)
 					visits.add(visitList[i]);
-				}
 			}
 		});
 
@@ -133,10 +119,9 @@ public class ImportExperimentWizardPage extends WizardPage {
 				File experimentDir = new File(visitPath);
 				String[] experimentList = experimentDir.list();
 				experiments.removeAll();
-				for (int i = 0; i < experimentList.length; i++) {
+				for (int i = 0; i < experimentList.length; i++)
 					if (!experimentList[i].startsWith("."))
 						experiments.add(experimentList[i]);
-				}
 			}
 		});
 		
@@ -156,4 +141,5 @@ public class ImportExperimentWizardPage extends WizardPage {
 		setMessage(null);
 		setControl(parent);
 	}
+	
 }

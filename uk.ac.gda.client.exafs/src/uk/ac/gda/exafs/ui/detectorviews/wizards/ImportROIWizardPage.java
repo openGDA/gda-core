@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.detector.wizards;
+package uk.ac.gda.exafs.ui.detectorviews.wizards;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -44,21 +44,11 @@ import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
 public abstract class ImportROIWizardPage extends WizardPage {
-
 	protected Button addButton;
 	protected Button addToAllButton;
 	protected Composite mainComposite;
 	protected ScrolledComposite scrolledComp;
 	protected GridListEditor currentDetectorList;
-
-	
-	public ImportROIWizardPage() {
-		super("Import Regions Of Interest");
-		setDescription("Import Regions Of Interest");
-	}
-
-	public abstract List<? extends DetectorROI> getBeansToAdd();
-
 	protected abstract void createSourceControls(Composite parent);
 	protected abstract void createDestinationControls(Composite parent);
 	protected abstract void newSourceSelected(IPath path);
@@ -66,6 +56,13 @@ public abstract class ImportROIWizardPage extends WizardPage {
 	protected abstract void performAddAll();
 	protected abstract boolean currentSourceValid();
 	protected abstract void updateEnables();
+	
+	public ImportROIWizardPage() {
+		super("Import Regions Of Interest");
+		setDescription("Import Regions Of Interest");
+	}
+
+	public abstract List<? extends DetectorROI> getBeansToAdd();
 	
 	/**
 	 * Override to set an initial value for the file source box. 
@@ -85,22 +82,16 @@ public abstract class ImportROIWizardPage extends WizardPage {
 	public void createControl(Composite incoming) {
 		scrolledComp = new ScrolledComposite(incoming, SWT.H_SCROLL | SWT.V_SCROLL);
 		GridLayoutFactory.swtDefaults().applyTo(scrolledComp);
-		
 		mainComposite = new Composite(scrolledComp, SWT.NONE);
 		GridLayoutFactory.swtDefaults().applyTo(mainComposite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).applyTo(mainComposite);
 		setControl(mainComposite);
-		
-
 		Composite fileSelectionArea = new Composite(mainComposite, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(fileSelectionArea);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(fileSelectionArea);
-
-
 		Label configLabel = new Label(fileSelectionArea, SWT.NONE);
 		configLabel.setText("Select Detector File to import");
-		
-		final FileBox configFileName = new FileBox(fileSelectionArea, SWT.NONE);
+		FileBox configFileName = new FileBox(fileSelectionArea, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(configFileName);
 		configFileName.setChoiceType(ChoiceType.FULL_PATH);
 		configFileName.setFilterExtensions(new String[] { "*.xml" });
@@ -113,37 +104,26 @@ public abstract class ImportROIWizardPage extends WizardPage {
 			}	
 		});
 		configFileName.on();
-		
 		Composite main = new Composite(mainComposite, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).applyTo(main);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(main);
-
-
 		Composite left = new Composite(main, SWT.NONE);
 		GridLayoutFactory.swtDefaults().applyTo(left);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(false, true).applyTo(left);
-
-
 		Composite centre = new Composite(main, SWT.NONE);
 		GridLayoutFactory.swtDefaults().applyTo(centre);		
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(false, true).applyTo(centre);
-
-
 		Composite right = new Composite(main, SWT.NONE);
 		GridLayoutFactory.swtDefaults().applyTo(right);		
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, true).applyTo(right);
-
-		
 		createSourceControls(left);
 		createControlButtons(centre);
 		createDestinationControls(right);
-		
 		scrolledComp.setContent(mainComposite);
 		scrolledComp.setExpandHorizontal(true);
 		scrolledComp.setExpandVertical(true);
 		mainComposite.layout(true, true);
 		scrolledComp.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-	
 		// set an initial value for the import wizard.
 		// this is where you may want to point at a pre-existing file stored for the entire beamline
 		configFileName.setText(getInitialSourceValue());
@@ -170,14 +150,12 @@ public abstract class ImportROIWizardPage extends WizardPage {
 		});
 	}
 
-
 	protected void setEnables(Control control, boolean enabled) {
 		control.setEnabled(enabled);
 		if (control instanceof Composite) {
 			Composite composite = (Composite)control;
-			for (Control child : composite.getChildren()) {
+			for (Control child : composite.getChildren())
 				setEnables(child, enabled);
-			}
 		}
 	}
 
@@ -185,6 +163,5 @@ public abstract class ImportROIWizardPage extends WizardPage {
 		this.currentDetectorList = detectorList;
 		
 	}
-	
 	
 }

@@ -120,10 +120,10 @@ public class XspressElements extends Elements{
 		
 		try {
 			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class);
-			XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListComposite.getDetectorList());
+			NewXspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListComposite.getDetectorList());
 			if(showRoi){
-				detectorListComposite.getDetectorElementComposite().setMinimumRegions(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
-				detectorListComposite.getDetectorElementComposite().setMaximumRegions(XspressParametersUIHelper.INSTANCE.getMaximumRegions());
+				detectorListComposite.getDetectorElementComposite().setMinimumRegions(NewXspressParametersUIHelper.INSTANCE.getMinimumRegions());
+				detectorListComposite.getDetectorElementComposite().setMaximumRegions(NewXspressParametersUIHelper.INSTANCE.getMaximumRegions());
 			}
 		} catch (Exception e1) {
 			logger.error("Cannot create region editor.", e1);

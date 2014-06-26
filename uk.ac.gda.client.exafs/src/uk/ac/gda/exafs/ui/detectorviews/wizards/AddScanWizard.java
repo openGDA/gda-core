@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.detector.wizards;
+package uk.ac.gda.exafs.ui.detectorviews.wizards;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -26,57 +26,52 @@ import org.eclipse.ui.IWorkbench;
 
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
+import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 
-public class SwitchScanWizard extends Wizard implements INewWizard {
-
-	@SuppressWarnings("unused")
-	private IStructuredSelection initialSelection;
-
-	SwitchScanWizardPageOne page1;
-	SwitchScanWizardPageTwo page2;
-
+public class AddScanWizard extends Wizard implements INewWizard{
+	private AddScanWizardPageOne page1;
+	private AddScanWizardPageTwo page2;
+	private IExperimentEditorManager controller = null;
+	
+	protected IExperimentEditorManager getController() {
+		if (controller == null)
+			this.controller = ExperimentFactory.getExperimentEditorManager();
+		return controller;
+	}
+	
 	@Override
 	public boolean performFinish() {
-
+		final IExperimentObjectManager man = getController().getSelectedMultiScan();
+		if (man == null)
+			return false;
+		final IExperimentObject ob = getController().getSelectedScan();
+		final ScanObject created = (ScanObject) man.insertNewExperimentAfter(ob);
+		if (getController().getActiveRunEditor() != null)
+			getController().getActiveRunEditor().editRunName(created);
+		else if (getController().getViewer() != null) {
+			getController().refreshViewers();
+			getController().setSelected(created);
+		}
 		IFile newScanFile = page2.getNewScanFile();
-		IFile newSampleFile = page2.getNewSampleFile();
-		IFile newDetectorFile = page2.getNewDetectorFile();
-		IFile newOutputFile = page2.getNewOutputFile();
-
-		ScanObject selected = page2.getSelected();
-		IExperimentEditorManager controller = page2.getController();
-
-		selected.setScanFileName(newScanFile.getName());
-		selected.setSampleFileName(newSampleFile.getName());
-		selected.setDetectorFileName(newDetectorFile.getName());
-		selected.setOutputFileName(newOutputFile.getName());
-
-		IExperimentObjectManager man = ExperimentFactory.getManager(selected);
-		man.write();
-
-		controller.openDefaultEditors(selected, true);
-
+		created.setScanFileName(newScanFile.getName());
+		ExperimentFactory.getManager(ob).write();
+		controller.openDefaultEditors(created, true);
 		return true;
 	}
-
+	
 	@Override
 	public void addPages() {
-		setWindowTitle("Switch Scan Type");
-		page1 = new SwitchScanWizardPageOne();
+		setWindowTitle("Add Scan");
+		page1 = new AddScanWizardPageOne();
 		addPage(page1);
-		page2 = new SwitchScanWizardPageTwo();
+		page2 = new AddScanWizardPageTwo();
 		addPage(page2);
 	}
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		initialSelection = selection;
 	}
 
-	@Override
-	public boolean canFinish() {
-		return getContainer().getCurrentPage().equals(page2);
-	}
 }

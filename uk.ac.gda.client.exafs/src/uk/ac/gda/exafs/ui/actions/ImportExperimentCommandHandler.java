@@ -26,7 +26,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.gda.client.experimentdefinition.ui.handlers.AbstractExperimentCommandHandler;
-import uk.ac.gda.exafs.ui.detector.wizards.ImportExperimentWizard;
+import uk.ac.gda.exafs.ui.detectorviews.wizards.ImportExperimentWizard;
 
 public class ImportExperimentCommandHandler extends AbstractExperimentCommandHandler {
 

@@ -41,12 +41,12 @@ import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
-public class XspressParametersUIEditor extends DetectorEditor {
+public class NewXspressParametersUIEditor extends DetectorEditor {
 	private XspressParameters xspressParameters;
 	private String xmlPath;
 	private Xspress xspress;
 	
-	public XspressParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+	public NewXspressParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(xmlPath, mappingURL, dirtyContainer, editingBean, "xspressConfig");
 		this.xmlPath = xmlPath;
 		this.xspressParameters = (XspressParameters) editingBean;

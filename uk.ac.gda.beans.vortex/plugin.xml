@@ -3,23 +3,6 @@
 <plugin>
 
    <extension
-         id="application"
-         point="org.eclipse.core.runtime.applications">
-      <application>
-         <run
-               class="uk.ac.gda.beans.vortex.Application">
-         </run>
-      </application>
-   </extension>
-   <extension
-         point="org.eclipse.ui.perspectives">
-      <perspective
-            name="RCP Perspective"
-            class="uk.ac.gda.beans.vortex.Perspective"
-            id="uk.ac.gda.beans.vortex.perspective">
-      </perspective>
-   </extension>
-   <extension
          point="uk.ac.gda.richbeans.beantypes">
       <describer
             bean="uk.ac.gda.beans.vortex.VortexParameters"

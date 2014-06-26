@@ -26,8 +26,7 @@ import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.exafs.ui.ExafsBeanFileSelectionEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public class XspressParametersEditor extends ExafsBeanFileSelectionEditor {
-	public static final String ID = "org.diamond.exafs.ui.XspressParametersEditor";
+public class NewXspressParametersEditor extends ExafsBeanFileSelectionEditor {
 
 	@Override
 	public Class<?> getBeanClass() {
@@ -41,7 +40,7 @@ public class XspressParametersEditor extends ExafsBeanFileSelectionEditor {
 
 	@Override
 	protected RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new XspressParametersUIEditor(path, getMappingUrl(), this, editingBean);
+		return new NewXspressParametersUIEditor(path, getMappingUrl(), this, editingBean);
 	}
 
 	@Override

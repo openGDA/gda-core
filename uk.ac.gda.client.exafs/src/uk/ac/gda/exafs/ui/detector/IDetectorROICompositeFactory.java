@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2010 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,24 +16,10 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.describers;
+package uk.ac.gda.exafs.ui.detector;
 
+import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
-
-/**
- *
- */
-public class XspressDescriber extends XMLBeanContentDescriber {
-	
-	@Override
-	protected String getBeanName() {
-		return XspressParameters.class.getName();
-	}
-	@Override
-	public String getEditorId() {
-		return "uk.ac.gda.exafs.ui.NewXspressParametersEditor";
-	}
-
+public interface IDetectorROICompositeFactory {
+	public DetectorROIComposite createDetectorROIComposite(Composite parent, int style);
 }
