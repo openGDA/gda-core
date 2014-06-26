@@ -93,7 +93,7 @@
             class="uk.ac.gda.epics.adviewer.views.MJPegView"
             icon="icons/AreaDetectorLiveView.gif"
             id="uk.ac.gda.epics.adviewer.mpegview"
-            name="MPeg View"
+            name="MJPeg View"
             restorable="true">
       </view>
       <view

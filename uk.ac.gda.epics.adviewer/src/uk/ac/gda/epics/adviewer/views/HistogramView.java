@@ -113,8 +113,8 @@ public class HistogramView extends ViewPart {
 	protected void createShowViewAction() {
 		List<IAction> actions = new Vector<IAction>();
 		{
-			actions.add(ADActionUtils.addShowViewAction("Show MPeg", MJPegView.Id, adController.getServiceName(),
-					"Show MPeg view for selected camera", Activator.getMJPegViewImage()));
+			actions.add(ADActionUtils.addShowViewAction("Show MJPeg", MJPegView.Id, adController.getServiceName(),
+					"Show MJPeg view for selected camera", Activator.getMJPegViewImage()));
 			actions.add(ADActionUtils.addShowViewAction("Show Array", TwoDArrayView.Id, adController.getServiceName(),
 					"Show array view for selected camera",Activator.getTwoDArrayViewImage()));
 		}
