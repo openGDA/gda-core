@@ -77,7 +77,7 @@ public class VortexView extends ViewPart {
 		String tfgName = "tfg";
 		XmapDetector xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
 		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-		new Vortex(path, this.getSite(), parent, detectorList, xmapDetector, tfg, null);
+		new Vortex(path, this.getSite(), parent, detectorList, xmapDetector, tfg);
 	}
 
 	@Override
