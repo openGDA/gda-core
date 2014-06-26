@@ -23,7 +23,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.data.nexus.INeXusInfoWriteable;
 import gda.data.nexus.NeXusUtils;
@@ -43,11 +42,9 @@ import gda.device.detector.NexusDetector;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
@@ -1059,11 +1056,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		}
 	}
 
-	/**
-	 * @param detector
-	 * @throws DeviceException
-	 * @throws NexusException
-	 */
 	private void makeDetectorEntry(Detector detector) throws DeviceException, NexusException {
 		logger.debug("Making NXdetector for " + detector.getName() + " in NeXus file.");
 
@@ -1097,10 +1089,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	/**
 	 * Helper routine to create and write string based data items into the current position in a NeXus file.
-	 * 
-	 * @param dataName
-	 * @param dataValue
-	 * @throws NexusException
 	 */
 	private void makeCreateStringData(String dataName, String dataValue) throws NexusException {
 		int[] arr = { dataValue.length() };
@@ -1221,9 +1209,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	/**
 	 * Creates an NXdetector for a generic detector (ie one without a special create routine).
-	 * 
-	 * @param detector
-	 * @throws NexusException
 	 */
 	private void makeGenericDetector(String detectorName, int[] dataDimensions, int type, Object detector,
 			INexusTree detectorData) throws NexusException {
@@ -1343,10 +1328,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	/**
 	 * Creates an NXdetector for a CounterTimer.
-	 * 
-	 * @param detector
-	 * @throws NexusException
-	 * @throws DeviceException
 	 */
 	private void makeCounterTimer(Detector detector) throws NexusException, DeviceException {
 		SelfCreatingLink detectorID;
@@ -1531,9 +1512,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	/**
 	 * Not used in this implementation.
-	 * 
-	 * @param header
-	 *            String
 	 */
 	@Override
 	public void setHeader(String header) {
@@ -1551,9 +1529,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	
 	/**
 	 * Writes the data for a given scannable to an existing NXpositioner.
-	 * 
-	 * @param scannable
-	 * @throws NexusException
 	 */
 	protected void writePlainDoubleScannable(Scannable scannable) throws NexusException {
 		int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
@@ -1642,19 +1617,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		return -1;
 	}
 
-	/**
-	 * @param txtFileNameTemplate
-	 *            the txtFileNameTemplate to set
-	 */
-	public void setTxtFileNameTemplate(String txtFileNameTemplate) {
-		//this.txtFileNameTemplate = txtFileNameTemplate;
+	public void setTxtFileNameTemplate(@SuppressWarnings("unused") String txtFileNameTemplate) {
+		// do nothing
 	}
 
-	/**
-	 * @param nexusFileNameTemplate
-	 *            the nexusFileNameTemplate to set
-	 * @throws Exception
-	 */
 	public void setNexusFileNameTemplate(String nexusFileNameTemplate) throws Exception {
 		this.nexusFileNameTemplate = nexusFileNameTemplate;
 		// We calculate some probable paths now so that the probable
