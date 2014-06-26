@@ -103,7 +103,7 @@ public class GaussianFitter implements Serializable {
 				end = i + width;
 
 			sliceData = (DoubleDataset) data.getSlice(new Slice(i, end));
-			DoubleDataset xAxis = DoubleDataset.arange(i, end, 1);
+			DoubleDataset xAxis = DoubleDataset.createRange(i, end, 1);
 			pos = xAxis.get(sliceData.maxPos()[0]);
 			FWHM = xAxis.peakToPeak().doubleValue() / 4.0;
 			area = FWHM * sliceData.peakToPeak().doubleValue();
@@ -283,8 +283,8 @@ public class GaussianFitter implements Serializable {
 		double fittedSig1;
 
 		int[] shape = data.getShape();
-		DoubleDataset c0 = DoubleDataset.arange(shape[0]);
-		DoubleDataset c1 = DoubleDataset.arange(shape[1]);
+		DoubleDataset c0 = DoubleDataset.createRange(shape[0]);
+		DoubleDataset c1 = DoubleDataset.createRange(shape[1]);
 		try {
 			double [] dataArray = data.getData();
 			Arrays.sort(dataArray);

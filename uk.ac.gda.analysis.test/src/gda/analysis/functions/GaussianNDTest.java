@@ -36,8 +36,8 @@ public class GaussianNDTest {
 		GaussianND g2 = new GaussianND(2., min, max, 20.);
 
 		g2.setParameterValues(new double[] {4, 6, 1, 4, 4, 0});
-		DoubleDataset axis0 = DoubleDataset.arange(8);
-		DoubleDataset axis1 = DoubleDataset.arange(12);
+		DoubleDataset axis0 = DoubleDataset.createRange(8);
+		DoubleDataset axis1 = DoubleDataset.createRange(12);
 		DoubleDataset d2 = g2.makeDataSet(axis0, axis1);
 		System.out.println(d2);
 

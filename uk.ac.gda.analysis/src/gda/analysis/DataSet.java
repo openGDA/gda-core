@@ -349,7 +349,7 @@ public class DataSet extends DoubleDataset {
 	}
 
 	@Override
-	protected int get1DIndex(final int... n) {
+	public int get1DIndex(final int... n) {
 		if (stride != null)
 			return super.get1DIndex(n);
 
@@ -1288,7 +1288,7 @@ public class DataSet extends DoubleDataset {
 	 * @param start
 	 * @param stop
 	 * @return dataset spaced by 1.0 in semi-open interval given by parameters
-	 * @deprecated Use {@link DoubleDataset#arange(double, double, double)}
+	 * @deprecated Use {@link DoubleDataset#createRange(double, double, double)}
 	 */
 	@Deprecated
 	public static DataSet arange(double start, double stop) {
@@ -1299,7 +1299,7 @@ public class DataSet extends DoubleDataset {
 	 * @param start
 	 * @param stop
 	 * @return dataset spaced by 1.0 in semi-open interval given by parameters
-	 * @deprecated Use {@link DoubleDataset#arange(double, double, double)}
+	 * @deprecated Use {@link DoubleDataset#createRange(double, double, double)}
 	 */
 	@Deprecated
 	public static DataSet arange(double start, int stop) { // needed to stop AbstractDataset.arange being called by Jython

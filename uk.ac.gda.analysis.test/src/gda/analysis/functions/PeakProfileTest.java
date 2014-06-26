@@ -46,7 +46,7 @@ public class PeakProfileTest {
 		"Huge Area - small FWHM - shifted Right, 0.01, 0.0, 100.0, 70.0, 1000.0, 1.0",})
 	public void testGaussian(String description, double step, double min, double max, double mean, double area, double fwhm) {
 		
-		DoubleDataset axis = DoubleDataset.arange(min, max, step);
+		DoubleDataset axis = DoubleDataset.createRange(min, max, step);
 		Gaussian gaussian = new Gaussian(mean, fwhm, area);
 		DoubleDataset data = gaussian.calculateValues(axis);
 		
@@ -82,7 +82,7 @@ public class PeakProfileTest {
 	public void testLorentzian(String description, double step, double min, double max, double mean ,double area ,double fwhm) {
 		
 		
-		DoubleDataset axis = DoubleDataset.arange(min, max, step);
+		DoubleDataset axis = DoubleDataset.createRange(min, max, step);
 		Lorentzian lorentzian = new Lorentzian(mean, fwhm, area);
 		DoubleDataset data = lorentzian.calculateValues(axis);
 		
@@ -112,7 +112,7 @@ public class PeakProfileTest {
 		"Equal mix - small FWHM, 0.01, 0.0, 10000.0, 5000.0, 10.0, 2.0, 2.0, 0.5",})
 	public void testPseudoVoigt(String description, double step ,double min ,double max ,double mean ,double area ,double gfwhm ,double lfwhm ,double mix) {
 		
-		DoubleDataset axis = DoubleDataset.arange(min, max, step);
+		DoubleDataset axis = DoubleDataset.createRange(min, max, step);
 		PseudoVoigt pseudoVoigt = new PseudoVoigt(mean, gfwhm, lfwhm, area, mix);
 		DoubleDataset data = pseudoVoigt.calculateValues(axis);
 		
@@ -141,7 +141,7 @@ public class PeakProfileTest {
 	public void testPearsonVII(String description, double step, double min, double max, double mean, double area,
 			double fwhm, double power) {
 
-		DoubleDataset axis = DoubleDataset.arange(min, max, step);
+		DoubleDataset axis = DoubleDataset.createRange(min, max, step);
 		PearsonVII pearsonVII = new PearsonVII(new double[] {mean, fwhm, area, power} );
 		DoubleDataset data = pearsonVII.calculateValues(axis);
 		
