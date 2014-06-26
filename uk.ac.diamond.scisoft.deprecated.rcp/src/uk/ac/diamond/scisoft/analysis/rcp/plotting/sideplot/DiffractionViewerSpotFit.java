@@ -299,7 +299,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 	}
 
 	private void plotDataSets(IDataset[] dataSets) {
-		DoubleDataset axis = DoubleDataset.arange(dataSets[0].getSize());
+		DoubleDataset axis = DoubleDataset.createRange(dataSets[0].getSize());
 		axis.imultiply(DiffractionViewer.lineStep);
 		this.axis.setValues(axis);
 
@@ -356,7 +356,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 				compFunc.addFunction(fp);
 			}
 			plottingData.add(dataSets);
-			plottingData.add(compFunc.calculateValues(DoubleDataset.arange(dataSets.getSize())));
+			plottingData.add(compFunc.calculateValues(DoubleDataset.createRange(dataSets.getSize())));
 
 			try {
 				lpPlotter.replaceAllPlots(plottingData);

@@ -56,7 +56,7 @@ public class ComparisonPlotUtils {
 		
 		if (ys.isEmpty()) {
 			ys.add(x);
-			x = DoubleDataset.arange(ys.get(0).getSize());
+			x = DoubleDataset.createRange(ys.get(0).getSize());
 			x.setName("Index");
 		}
 

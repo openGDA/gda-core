@@ -698,7 +698,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 
 		if (ys.isEmpty()) {
 			ys.add(x);
-			x = DoubleDataset.arange(ys.get(0).getSize());
+			x = DoubleDataset.createRange(ys.get(0).getSize());
 			x.setName("Index");
 		}
 
