@@ -847,6 +847,17 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	protected Collection<Scannable> makeConfiguredScannablesAndMonitors(Collection<Scannable> scannablesAndMonitors) {
 		Set<String> metadatascannablestowrite = new HashSet<String>(metadatascannables);
 		
+		for (Detector det : thisPoint.getDetectors()) {
+			logger.info("found detector named: "+det.getName());
+			String detname = det.getName();
+			if (metadataScannablesPerDetector.containsKey(detname)) {
+				HashSet<String> metasPerDet = metadataScannablesPerDetector.get(detname);
+				if (metasPerDet != null && !metasPerDet.isEmpty()) {
+					metadatascannablestowrite.addAll(metasPerDet);
+				}
+			}
+		}
+		
 		try {
 			file.opengroup(this.entryName, "NXentry");
 
@@ -1671,6 +1682,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	private static Set<String> metadatascannables = new HashSet<String>();
 
 	private static Map<String, ScannableWriter> locationmap = new HashMap<String, ScannableWriter>();
+	
+	private static Map<String, HashSet<String>> metadataScannablesPerDetector = new HashMap<String, HashSet<String>>();
 
 	private boolean weKnowTheLocationFor(String scannableName) {
 		return locationmap.containsKey(scannableName);
@@ -1765,5 +1778,17 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			NexusDataWriter.locationmap = new HashMap<String, ScannableWriter>();
 		else 
 			NexusDataWriter.locationmap = locationmap;
+	}
+	
+	public static Map<String, HashSet<String>> getMetadataScannablesPerDetector() {
+		return metadataScannablesPerDetector;
+	}
+
+	public static void setMetadataScannablesPerDetector(Map<String, HashSet<String>> metadataScannablesPerDetector) {
+		if (metadataScannablesPerDetector == null) {
+			NexusDataWriter.metadataScannablesPerDetector = new HashMap<String, HashSet<String>>();
+		} else {
+			NexusDataWriter.metadataScannablesPerDetector = metadataScannablesPerDetector;
+		}
 	}
 }
