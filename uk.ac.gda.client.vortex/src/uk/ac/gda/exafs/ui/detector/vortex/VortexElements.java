@@ -39,9 +39,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.exafs.ui.detector.Counts;
-import uk.ac.gda.exafs.ui.detector.Elements;
 import uk.ac.gda.exafs.ui.detector.wizards.vortex.ImportVortexROIWizard;
+import uk.ac.gda.exafs.ui.detectorviews.Counts;
+import uk.ac.gda.exafs.ui.detectorviews.Elements;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 
 import com.swtdesigner.SWTResourceManager;

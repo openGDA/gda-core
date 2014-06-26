@@ -24,8 +24,8 @@ import org.eclipse.jface.wizard.Wizard;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizardPage;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorElementComposite;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
 

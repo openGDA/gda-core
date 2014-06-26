@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.detector;
+package uk.ac.gda.exafs.ui.detectorviews;
 
 public class Counts {
 	
