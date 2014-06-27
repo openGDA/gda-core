@@ -31,15 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import ncsa.hdf.object.Dataset;
-import ncsa.hdf.object.Datatype;
-
 import org.dawb.hdf5.HierarchicalDataFactory;
 import org.dawb.hdf5.HierarchicalDataFileUtils;
 import org.dawb.hdf5.IHierarchicalDataFile;
 import org.dawb.hdf5.Nexus;
 import org.dawnsci.io.h5.H5LazyDataset;
-import org.dawnsci.io.h5.H5Utils;
 import org.dawnsci.plotting.api.IPlottingSystem;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.PlottingFactory;
@@ -85,8 +81,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.ByteDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
@@ -589,7 +585,7 @@ public class TwoDArray extends Composite {
 		setStarted(arrayMonitoring);
 	}
 
-	private ncsa.hdf.object.Group createParentEntry(IHierarchicalDataFile file, String fullEntry) throws Exception {
+	private String createParentEntry(IHierarchicalDataFile file, String fullEntry) throws Exception {
 		return HierarchicalDataFileUtils.createParentEntry(file, fullEntry, Nexus.DATA);
 	}
 
@@ -598,13 +594,11 @@ public class TwoDArray extends Composite {
 			String fileName = Activator.getDefault().getStateLocation().append(name + ".hdf").toOSString();
 			IHierarchicalDataFile writer = HierarchicalDataFactory.getWriter(fileName);
 			try {
-				ncsa.hdf.object.Group parent = createParentEntry(writer, "/entry/stores");
+				String parent = createParentEntry(writer, "/entry/stores");
 				for (Entry<String, AbstractDataset> store : stores.entrySet()) {
 					AbstractDataset data = store.getValue();
 					String dataName = store.getKey();
-					final Datatype datatype = H5Utils.getDatatype(data);
-					final long[] shape = H5Utils.getLong(data.getShape());
-					final Dataset dataset = writer.replaceDataset(dataName, datatype, shape, data.getBuffer(), parent);
+					final String dataset = writer.replaceDataset(dataName, data, parent);
 					writer.setNexusAttribute(dataset, Nexus.SDS);
 				}
 			} finally {
@@ -629,10 +623,9 @@ public class TwoDArray extends Composite {
 					for (String fullPath : fullPaths) {
 						String[] entries = fullPath.split("/");
 						String dsName = entries[entries.length - 1];
-						if (dsName.equals("A-B"))
-							continue;
-						Dataset set = (Dataset) reader.getData(fullPath);
-						LazyDataset lazy = new H5LazyDataset(set);
+						if (dsName.equals("A-B")) continue;
+						
+						ILazyDataset lazy = new H5LazyDataset(reader, fullPath);
 						AbstractDataset store = DatasetUtils.convertToAbstractDataset(lazy.getSlice((Slice) null));
 						store.setName(dsName);
 						setupStores(dsName, store);
