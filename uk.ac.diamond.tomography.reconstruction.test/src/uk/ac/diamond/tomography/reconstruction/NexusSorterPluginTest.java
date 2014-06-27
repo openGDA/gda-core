@@ -96,7 +96,7 @@ public class NexusSorterPluginTest {
 		final String absolutePath = file.getRawLocation().toOSString();
 		// Create a file and verify it
 		IHierarchicalDataFile writer = HierarchicalDataFactory.getWriter(absolutePath);
-		writer.createDataset(name, value, writer.getRoot());
+		writer.createStringDataset(name, value, writer.getRoot());
 		writer.close();
 
 		HierarchicalDataFileModel model = new HierarchicalDataFileModel(new IHierarchicalDataFileGetReader() {
