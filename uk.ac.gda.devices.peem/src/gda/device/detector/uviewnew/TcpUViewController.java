@@ -287,4 +287,17 @@ public class TcpUViewController implements UViewController {
 			throw new DeviceException("Unexpected response from TCP socket: '" + reply + "'");
 		}
 	}
+	
+	@Override
+	public void setTriggerMode(int mode) throws DeviceException {
+		if (mode < 0 || mode > 1) {
+			throw new DeviceException("Invalid trigger mode settings; valid settings are 0 and 1");
+		}
+		String cmd = "str " + mode;
+		String reply = socket.send(cmd);
+		if ( !reply.equals("0") ) {
+			throw new DeviceException("Unexpected response from TCP socket: '" + reply + "'");
+		}
+	}
+
 }
