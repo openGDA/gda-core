@@ -141,6 +141,12 @@ public class LocalProperties {
 	 */
 	public static final String GDA_OE_FACTORY = "gda.oe.oefactory";
 
+
+	/**
+	 * Boolean property that indicates whether GDA is using the dummy mode configuration.
+	 */
+	public static final String GDA_DUMMY_MODE_ENABLED = "gda.dummy.mode";
+
 	/**
 	 * Boolean property that indicates whether GDA access control is enabled.
 	 */
@@ -532,6 +538,16 @@ public class LocalProperties {
 	 */
 	public static void set(String propertyName, String value) {
 		propConfig.setString(value, propertyName);
+	}
+
+
+	/**
+	 * Determines whether GDA is using the dummy mode configuration.
+	 * 
+	 * @return true if GDA is using the dummy mode configuration; false otherwise. False is default to make dummy mode the exception.
+	 */
+	public static boolean isDummyModeEnabled() {
+		return check(LocalProperties.GDA_DUMMY_MODE_ENABLED, false);
 	}
 
 	/**
