@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
-import uk.ac.diamond.scisoft.ncd.rcp.views.SaxsQAxisCalibration;
+import uk.ac.diamond.scisoft.ncd.calibration.rcp.views.SaxsQAxisCalibration;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 
