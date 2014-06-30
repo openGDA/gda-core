@@ -91,9 +91,6 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	}
 
 
-	/**
-	 * @see gda.device.DeviceBase#configure()
-	 */
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
@@ -123,17 +120,10 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		}
 	}
 
-	/**
-	 * @return the pvName
-	 */
 	public String getPvName() {
 		return pvName;
 	}
 
-	/**
-	 * @param pvName
-	 *            the pvName to set
-	 */
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
 	}
@@ -145,62 +135,34 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		return deadband;
 	}
 
-	/**
-	 * @param deadband
-	 *            the deadband to set
-	 */
 	public void setDeadband(double deadband) {
 		this.deadband = deadband;
 	}
 
-	/**
-	 * @return the canMove
-	 */
 	public boolean isCanMove() {
 		return canMove;
 	}
 
-	/**
-	 * @param canMove
-	 *            the canMove to set
-	 */
 	public void setCanMove(boolean canMove) {
 		this.canMove = canMove;
 	}
 
-	/**
-	 * @return the unitsPvName
-	 */
 	public String getUnitsPvName() {
 		return unitsPvName;
 	}
 
-	/**
-	 * @param unitsPvName
-	 *            the unitsPvName to set
-	 */
 	public void setUnitsPvName(String unitsPvName) {
 		this.unitsPvName = unitsPvName;
 	}
 
-	/**
-	 * @return the units
-	 */
 	public String getUnits() {
 		return units;
 	}
 
-	/**
-	 * @param units
-	 *            the units to set
-	 */
 	public void setUnits(String units) {
 		this.units = units;
 	}
 
-	/**
-	 * @see gda.device.Scannable#asynchronousMoveTo(java.lang.Object)
-	 */
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		if (canMove) {
@@ -215,9 +177,6 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		}
 	}
 
-	/**
-	 * @see gda.device.Scannable#getPosition()
-	 */
 	@Override
 	public Object getPosition() throws DeviceException {
 		try {
@@ -232,9 +191,6 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 
 	}
 
-	/**
-	 * @see gda.device.Scannable#isBusy()
-	 */
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return isBusy;
@@ -267,26 +223,17 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		this.notifyIObservers(this, new ScannablePositionChangeEvent(newPosition));
 	}
 
-	/**
-	 * @see gda.epics.connection.InitializationListener#initializationCompleted()
-	 */
 	@Override
 	public void initializationCompleted() {
 		// do nothing
 	}
 
-	/**
-	 * @see gov.aps.jca.event.PutListener#putCompleted(gov.aps.jca.event.PutEvent)
-	 */
 	@Override
 	public void putCompleted(PutEvent arg0) {
 		// get here the callbacks from caputs made in asynchronousMoveTo
 		isBusy = false;
 	}
 
-	/**
-	 * @see gda.device.DeviceBase#getAttribute(java.lang.String)
-	 */
 	@Override
 	public Object getAttribute(String attributename) throws DeviceException {
 		if (attributename == UNITSATTRIBUTE && unitsPvName != "") {
