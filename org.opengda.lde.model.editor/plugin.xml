@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <!-- @generated sampledefinition -->
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsModelWizardID"
+            name="%_UI_LDEExperimentsModelWizard_label"
+            class="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/LDEExperimentsModelFile.gif">
+         <description>%_UI_LDEExperimentsModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <!-- @generated sampledefinition -->
+      <editor
+            id="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsEditorID"
+            name="%_UI_LDEExperimentsEditor_label"
+            icon="icons/full/obj16/LDEExperimentsModelFile.gif"
+            extensions="ldeexperiments"
+            class="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsEditor"
+            contributorClass="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsActionBarContributor">
+      </editor>
+   </extension>
+
+</plugin>
