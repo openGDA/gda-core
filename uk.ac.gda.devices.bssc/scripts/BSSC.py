@@ -21,7 +21,7 @@ class BSSCRun:
         self.processing = find("biosaxsprocessingrunner")
         self.energy = float(find("dcm_energy").getPosition())
         self.sampleConcentration = find("sample_concentration")
-        self.sampleName = find("sample_name")
+        self.sampleName = find("samplename")
 
         #need to remove hardcoding
         find("sample_thickness").asynchronousMoveTo(1.6)
@@ -156,7 +156,7 @@ class BSSCRun:
             self.reportSampleProgress(titration, "Exposing Buffer")
             self.setTitle("Buffer for next and preceding sample measurement")
             
-            self.sampleName.asynchronousMoveTo("%s-buffer" %(titration.getSampleName()))
+            self.sampleName.setValue("%s-buffer" %(titration.getSampleName()))
             self.sampleConcentration.asynchronousMoveTo(0)
 
             filename = self.expose(duration)
@@ -173,7 +173,7 @@ class BSSCRun:
             self.reportSampleProgress(titration, "Exposing Sample")
             self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
 
-            self.sampleName.asynchronousMoveTo(titration.getSampleName())
+            self.sampleName.setValue(titration.getSampleName())
             self.sampleConcentration.asynchronousMoveTo(titration.getConcentration())
 
             filename = self.expose(duration)
