@@ -112,9 +112,9 @@ class RasterMap(Map):
                 beamMonitor.setPauseBeforePoint(False)
                 beamMonitor.setPauseBeforeLine(True)
             if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
-                if detectorFillingMonitor != None :
-                    detectorFillingMonitor.setPauseBeforePoint(False)
-                    detectorFillingMonitor.setPauseBeforeLine(True)
+                self.finder.find("command_server").addDefault(detectorFillingMonitor);
+                detectorFillingMonitor.setPauseBeforePoint(False)
+                detectorFillingMonitor.setPauseBeforeLine(True)
            
                 fullFileName = beanGroup.getXmlFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
                 bean = BeansFactory.getBean(File(fullFileName));
