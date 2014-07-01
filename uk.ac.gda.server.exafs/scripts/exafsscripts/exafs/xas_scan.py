@@ -174,6 +174,7 @@ class XasScan(Scan):
         self._runScript(outputBean.getBeforeScriptName())
         # work out which detectors to use (they will need to have been configured already by the GUI)
         detectorList = self._getDetectors(detectorBean, scanBean) 
+        self.log("Using detectors" + str(detectorList))
         # work out extra scannables to include
         sampleScannables, outputScannables, scanPlotSettings = self.runPreparers(beanGroup, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean)
         signalParameters = self._getSignalList(outputBean)
