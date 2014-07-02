@@ -16,7 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getSampleID <em>Sample ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getStatus <em>Status</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#isEnabled <em>Enabled</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#isActive <em>Active</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCellID <em>Cell ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getVisitID <em>Visit ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getEmail <em>Email</em>}</li>
@@ -70,9 +70,11 @@ public interface Sample extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Sample ID</em>' attribute.
+	 * @see #isSetSampleID()
+	 * @see #unsetSampleID()
 	 * @see #setSampleID(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_SampleID()
-	 * @model default=""
+	 * @model default="" unsettable="true"
 	 * @generated
 	 */
 	String getSampleID();
@@ -82,10 +84,35 @@ public interface Sample extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Sample ID</em>' attribute.
+	 * @see #isSetSampleID()
+	 * @see #unsetSampleID()
 	 * @see #getSampleID()
 	 * @generated
 	 */
 	void setSampleID(String value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getSampleID <em>Sample ID</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetSampleID()
+	 * @see #getSampleID()
+	 * @see #setSampleID(String)
+	 * @generated
+	 */
+	void unsetSampleID();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getSampleID <em>Sample ID</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Sample ID</em>' attribute is set.
+	 * @see #unsetSampleID()
+	 * @see #getSampleID()
+	 * @see #setSampleID(String)
+	 * @generated
+	 */
+	boolean isSetSampleID();
 
 	/**
 	 * Returns the value of the '<em><b>Status</b></em>' attribute.
@@ -99,9 +126,11 @@ public interface Sample extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Status</em>' attribute.
 	 * @see org.opengda.lde.model.ldeexperiment.STATUS
+	 * @see #isSetStatus()
+	 * @see #unsetStatus()
 	 * @see #setStatus(STATUS)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Status()
-	 * @model default="READY" transient="true"
+	 * @model default="READY" unsettable="true" transient="true"
 	 * @generated
 	 */
 	STATUS getStatus();
@@ -112,36 +141,62 @@ public interface Sample extends EObject {
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Status</em>' attribute.
 	 * @see org.opengda.lde.model.ldeexperiment.STATUS
+	 * @see #isSetStatus()
+	 * @see #unsetStatus()
 	 * @see #getStatus()
 	 * @generated
 	 */
 	void setStatus(STATUS value);
 
 	/**
-	 * Returns the value of the '<em><b>Enabled</b></em>' attribute.
+	 * Unsets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getStatus <em>Status</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetStatus()
+	 * @see #getStatus()
+	 * @see #setStatus(STATUS)
+	 * @generated
+	 */
+	void unsetStatus();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getStatus <em>Status</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Status</em>' attribute is set.
+	 * @see #unsetStatus()
+	 * @see #getStatus()
+	 * @see #setStatus(STATUS)
+	 * @generated
+	 */
+	boolean isSetStatus();
+
+	/**
+	 * Returns the value of the '<em><b>Active</b></em>' attribute.
+	 * The default value is <code>"true"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Enabled</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Active</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Enabled</em>' attribute.
-	 * @see #setEnabled(boolean)
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Enabled()
-	 * @model
+	 * @return the value of the '<em>Active</em>' attribute.
+	 * @see #setActive(boolean)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Active()
+	 * @model default="true"
 	 * @generated
 	 */
-	boolean isEnabled();
+	boolean isActive();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#isEnabled <em>Enabled</em>}' attribute.
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#isActive <em>Active</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Enabled</em>' attribute.
-	 * @see #isEnabled()
+	 * @param value the new value of the '<em>Active</em>' attribute.
+	 * @see #isActive()
 	 * @generated
 	 */
-	void setEnabled(boolean value);
+	void setActive(boolean value);
 
 	/**
 	 * Returns the value of the '<em><b>Cell ID</b></em>' attribute.

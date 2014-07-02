@@ -11,5 +11,6 @@ Export-Package: org.opengda.lde.model.ldeexperiment,
  org.opengda.lde.model.ldeexperiment.impl,
  org.opengda.lde.model.ldeexperiment.util
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.emf.ecore;visibility:=reexport
+ org.eclipse.emf.ecore;visibility:=reexport,
+ org.eclipse.emf.ecore.xmi;visibility:=reexport
 Bundle-ActivationPolicy: lazy

@@ -28,7 +28,7 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSampleID <em>Sample ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getStatus <em>Status</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#isEnabled <em>Enabled</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#isActive <em>Active</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCellID <em>Cell ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getVisitID <em>Visit ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEmail <em>Email</em>}</li>
@@ -85,6 +85,15 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected String sampleID = SAMPLE_ID_EDEFAULT;
 
 	/**
+	 * This is true if the Sample ID attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean sampleIDESet;
+
+	/**
 	 * The default value of the '{@link #getStatus() <em>Status</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -105,24 +114,33 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected STATUS status = STATUS_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #isEnabled() <em>Enabled</em>}' attribute.
+	 * This is true if the Status attribute has been set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isEnabled()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final boolean ENABLED_EDEFAULT = false;
+	protected boolean statusESet;
 
 	/**
-	 * The cached value of the '{@link #isEnabled() <em>Enabled</em>}' attribute.
+	 * The default value of the '{@link #isActive() <em>Active</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isEnabled()
+	 * @see #isActive()
 	 * @generated
 	 * @ordered
 	 */
-	protected boolean enabled = ENABLED_EDEFAULT;
+	protected static final boolean ACTIVE_EDEFAULT = true;
+
+	/**
+	 * The cached value of the '{@link #isActive() <em>Active</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isActive()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean active = ACTIVE_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getCellID() <em>Cell ID</em>}' attribute.
@@ -361,8 +379,33 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	public void setSampleID(String newSampleID) {
 		String oldSampleID = sampleID;
 		sampleID = newSampleID;
+		boolean oldSampleIDESet = sampleIDESet;
+		sampleIDESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__SAMPLE_ID, oldSampleID, sampleID));
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__SAMPLE_ID, oldSampleID, sampleID, !oldSampleIDESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetSampleID() {
+		String oldSampleID = sampleID;
+		boolean oldSampleIDESet = sampleIDESet;
+		sampleID = SAMPLE_ID_EDEFAULT;
+		sampleIDESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, LDEExperimentsPackage.SAMPLE__SAMPLE_ID, oldSampleID, SAMPLE_ID_EDEFAULT, oldSampleIDESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetSampleID() {
+		return sampleIDESet;
 	}
 
 	/**
@@ -382,8 +425,10 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	public void setStatus(STATUS newStatus) {
 		STATUS oldStatus = status;
 		status = newStatus == null ? STATUS_EDEFAULT : newStatus;
+		boolean oldStatusESet = statusESet;
+		statusESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__STATUS, oldStatus, status));
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__STATUS, oldStatus, status, !oldStatusESet));
 	}
 
 	/**
@@ -391,8 +436,13 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean isEnabled() {
-		return enabled;
+	public void unsetStatus() {
+		STATUS oldStatus = status;
+		boolean oldStatusESet = statusESet;
+		status = STATUS_EDEFAULT;
+		statusESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, LDEExperimentsPackage.SAMPLE__STATUS, oldStatus, STATUS_EDEFAULT, oldStatusESet));
 	}
 
 	/**
@@ -400,11 +450,29 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setEnabled(boolean newEnabled) {
-		boolean oldEnabled = enabled;
-		enabled = newEnabled;
+	public boolean isSetStatus() {
+		return statusESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isActive() {
+		return active;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setActive(boolean newActive) {
+		boolean oldActive = active;
+		active = newActive;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__ENABLED, oldEnabled, enabled));
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__ACTIVE, oldActive, active));
 	}
 
 	/**
@@ -665,8 +733,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getSampleID();
 			case LDEExperimentsPackage.SAMPLE__STATUS:
 				return getStatus();
-			case LDEExperimentsPackage.SAMPLE__ENABLED:
-				return isEnabled();
+			case LDEExperimentsPackage.SAMPLE__ACTIVE:
+				return isActive();
 			case LDEExperimentsPackage.SAMPLE__CELL_ID:
 				return getCellID();
 			case LDEExperimentsPackage.SAMPLE__VISIT_ID:
@@ -706,8 +774,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__STATUS:
 				setStatus((STATUS)newValue);
 				return;
-			case LDEExperimentsPackage.SAMPLE__ENABLED:
-				setEnabled((Boolean)newValue);
+			case LDEExperimentsPackage.SAMPLE__ACTIVE:
+				setActive((Boolean)newValue);
 				return;
 			case LDEExperimentsPackage.SAMPLE__CELL_ID:
 				setCellID((String)newValue);
@@ -752,13 +820,13 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				setName(NAME_EDEFAULT);
 				return;
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
-				setSampleID(SAMPLE_ID_EDEFAULT);
+				unsetSampleID();
 				return;
 			case LDEExperimentsPackage.SAMPLE__STATUS:
-				setStatus(STATUS_EDEFAULT);
+				unsetStatus();
 				return;
-			case LDEExperimentsPackage.SAMPLE__ENABLED:
-				setEnabled(ENABLED_EDEFAULT);
+			case LDEExperimentsPackage.SAMPLE__ACTIVE:
+				setActive(ACTIVE_EDEFAULT);
 				return;
 			case LDEExperimentsPackage.SAMPLE__CELL_ID:
 				setCellID(CELL_ID_EDEFAULT);
@@ -802,11 +870,11 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
-				return SAMPLE_ID_EDEFAULT == null ? sampleID != null : !SAMPLE_ID_EDEFAULT.equals(sampleID);
+				return isSetSampleID();
 			case LDEExperimentsPackage.SAMPLE__STATUS:
-				return status != STATUS_EDEFAULT;
-			case LDEExperimentsPackage.SAMPLE__ENABLED:
-				return enabled != ENABLED_EDEFAULT;
+				return isSetStatus();
+			case LDEExperimentsPackage.SAMPLE__ACTIVE:
+				return active != ACTIVE_EDEFAULT;
 			case LDEExperimentsPackage.SAMPLE__CELL_ID:
 				return CELL_ID_EDEFAULT == null ? cellID != null : !CELL_ID_EDEFAULT.equals(cellID);
 			case LDEExperimentsPackage.SAMPLE__VISIT_ID:
@@ -864,11 +932,11 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(" (name: ");
 		result.append(name);
 		result.append(", sampleID: ");
-		result.append(sampleID);
+		if (sampleIDESet) result.append(sampleID); else result.append("<unset>");
 		result.append(", status: ");
-		result.append(status);
-		result.append(", enabled: ");
-		result.append(enabled);
+		if (statusESet) result.append(status); else result.append("<unset>");
+		result.append(", active: ");
+		result.append(active);
 		result.append(", cellID: ");
 		result.append(cellID);
 		result.append(", visitID: ");

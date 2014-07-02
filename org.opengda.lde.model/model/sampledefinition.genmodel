@@ -5,8 +5,8 @@
     importerID="org.eclipse.emf.importer.ecore" complianceLevel="7.0" copyrightFields="false"
     operationReflection="true" importOrganizing="true">
   <foreignModel>sampledefinition.ecore</foreignModel>
-  <genPackages prefix="LDEExperiments" basePackage="org.opengda.lde.model" disposableProviderFactory="true"
-      ecorePackage="sampledefinition.ecore#/">
+  <genPackages prefix="LDEExperiments" basePackage="org.opengda.lde.model" resource="XML"
+      disposableProviderFactory="true" ecorePackage="sampledefinition.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="sampledefinition.ecore#//STATUS">
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/READY"/>
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/RUNNING"/>

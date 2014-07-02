@@ -19,6 +19,8 @@ public interface SampleValidator {
 	boolean validateName(String value);
 	boolean validateSampleID(String value);
 	boolean validateStatus(STATUS value);
+	boolean validateActive(boolean value);
+
 	boolean validateEnabled(boolean value);
 	boolean validateCellID(String value);
 	boolean validateVisitID(String value);

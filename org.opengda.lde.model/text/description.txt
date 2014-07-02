@@ -20,7 +20,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute name : EString
     Attribute sampleID : EString
     Attribute status : STATUS
-    Attribute enabled : EBoolean
+    Attribute active : EBoolean
     Attribute cellID : EString
     Attribute visitID : EString
     Attribute email : EString

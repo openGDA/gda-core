@@ -63,7 +63,7 @@ public class SampleItemProvider
 			addNamePropertyDescriptor(object);
 			addSampleIDPropertyDescriptor(object);
 			addStatusPropertyDescriptor(object);
-			addEnabledPropertyDescriptor(object);
+			addActivePropertyDescriptor(object);
 			addCellIDPropertyDescriptor(object);
 			addVisitIDPropertyDescriptor(object);
 			addEmailPropertyDescriptor(object);
@@ -144,19 +144,19 @@ public class SampleItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Enabled feature.
+	 * This adds a property descriptor for the Active feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addEnabledPropertyDescriptor(Object object) {
+	protected void addActivePropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sample_enabled_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_enabled_feature", "_UI_Sample_type"),
-				 LDEExperimentsPackage.Literals.SAMPLE__ENABLED,
+				 getString("_UI_Sample_active_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_active_feature", "_UI_Sample_type"),
+				 LDEExperimentsPackage.Literals.SAMPLE__ACTIVE,
 				 true,
 				 false,
 				 false,
@@ -404,7 +404,7 @@ public class SampleItemProvider
 			case LDEExperimentsPackage.SAMPLE__NAME:
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
 			case LDEExperimentsPackage.SAMPLE__STATUS:
-			case LDEExperimentsPackage.SAMPLE__ENABLED:
+			case LDEExperimentsPackage.SAMPLE__ACTIVE:
 			case LDEExperimentsPackage.SAMPLE__CELL_ID:
 			case LDEExperimentsPackage.SAMPLE__VISIT_ID:
 			case LDEExperimentsPackage.SAMPLE__EMAIL:

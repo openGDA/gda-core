@@ -197,13 +197,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int SAMPLE__STATUS = 2;
 
 	/**
-	 * The feature id for the '<em><b>Enabled</b></em>' attribute.
+	 * The feature id for the '<em><b>Active</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__ENABLED = 3;
+	int SAMPLE__ACTIVE = 3;
 
 	/**
 	 * The feature id for the '<em><b>Cell ID</b></em>' attribute.
@@ -477,15 +477,15 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getSample_Status();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#isEnabled <em>Enabled</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#isActive <em>Active</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Enabled</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#isEnabled()
+	 * @return the meta object for the attribute '<em>Active</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#isActive()
 	 * @see #getSample()
 	 * @generated
 	 */
-	EAttribute getSample_Enabled();
+	EAttribute getSample_Active();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getCellID <em>Cell ID</em>}'.
@@ -764,12 +764,12 @@ public interface LDEExperimentsPackage extends EPackage {
 		EAttribute SAMPLE__STATUS = eINSTANCE.getSample_Status();
 
 		/**
-		 * The meta object literal for the '<em><b>Enabled</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Active</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute SAMPLE__ENABLED = eINSTANCE.getSample_Enabled();
+		EAttribute SAMPLE__ACTIVE = eINSTANCE.getSample_Active();
 
 		/**
 		 * The meta object literal for the '<em><b>Cell ID</b></em>' attribute feature.

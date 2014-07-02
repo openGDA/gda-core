@@ -4,24 +4,17 @@ package org.opengda.lde.model.ldeexperiment.tests;
 
 import java.io.File;
 import java.io.IOException;
-
 import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.URI;
-
 import org.eclipse.emf.ecore.EObject;
-
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-
 import org.eclipse.emf.ecore.util.Diagnostician;
-
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsResourceFactoryImpl;
 
 /**
  * <!-- begin-user-doc -->
@@ -46,7 +39,7 @@ public class LDEExperimentsExample {
 		//
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put
 			(Resource.Factory.Registry.DEFAULT_EXTENSION, 
-			 new XMIResourceFactoryImpl());
+			 new LDEExperimentsResourceFactoryImpl());
 
 		// Register the package to ensure it is available during loading.
 		//
