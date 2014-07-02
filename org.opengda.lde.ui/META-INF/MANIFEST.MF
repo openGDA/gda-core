@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: User Interface
+Bundle-SymbolicName: org.opengda.lde.ui;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: org.opengda.lde.ui.Activator
+Bundle-Vendor: Diamond Light Source Ltd
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ uk.ac.gda.core,
+ org.eclipse.draw2d,
+ org.opengda.lde.model,
+ org.eclipse.emf.edit,
+ org.opengda.lde.model.edit,
+ uk.ac.gda.common
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Import-Package: org.slf4j
