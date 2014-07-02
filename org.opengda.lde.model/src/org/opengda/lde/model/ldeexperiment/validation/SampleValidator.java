@@ -4,6 +4,7 @@
  */
 package org.opengda.lde.model.ldeexperiment.validation;
 
+import java.util.Date;
 import org.opengda.lde.model.ldeexperiment.STATUS;
 
 /**
@@ -24,4 +25,12 @@ public interface SampleValidator {
 	boolean validateEmail(String value);
 	boolean validateCommand(String value);
 	boolean validateComment(String value);
+
+	boolean validateStartDate(Date value);
+
+	boolean validateEndDate(Date value);
+
+	boolean validateMailCount(int value);
+
+	boolean validateDataFileCount(int value);
 }

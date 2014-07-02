@@ -32,7 +32,7 @@ import org.opengda.lde.model.ldeexperiment.SampleList;
  * The following features are implemented:
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleListImpl#getFilename <em>Filename</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleListImpl#getSample <em>Sample</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleListImpl#getSamples <em>Samples</em>}</li>
  * </ul>
  * </p>
  *
@@ -60,14 +60,14 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	protected String filename = FILENAME_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getSample() <em>Sample</em>}' containment reference list.
+	 * The cached value of the '{@link #getSamples() <em>Samples</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getSample()
+	 * @see #getSamples()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<Sample> sample;
+	protected EList<Sample> samples;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -114,11 +114,11 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList<Sample> getSample() {
-		if (sample == null) {
-			sample = new EObjectContainmentEList.Unsettable<Sample>(Sample.class, this, LDEExperimentsPackage.SAMPLE_LIST__SAMPLE);
+	public EList<Sample> getSamples() {
+		if (samples == null) {
+			samples = new EObjectContainmentEList.Unsettable<Sample>(Sample.class, this, LDEExperimentsPackage.SAMPLE_LIST__SAMPLES);
 		}
-		return sample;
+		return samples;
 	}
 
 	/**
@@ -126,8 +126,8 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void unsetSample() {
-		if (sample != null) ((InternalEList.Unsettable<?>)sample).unset();
+	public void unsetSamples() {
+		if (samples != null) ((InternalEList.Unsettable<?>)samples).unset();
 	}
 
 	/**
@@ -135,8 +135,8 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean isSetSample() {
-		return sample != null && ((InternalEList.Unsettable<?>)sample).isSet();
+	public boolean isSetSamples() {
+		return samples != null && ((InternalEList.Unsettable<?>)samples).isSet();
 	}
 
 	/**
@@ -169,8 +169,8 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLE:
-				return ((InternalEList<?>)getSample()).basicRemove(otherEnd, msgs);
+			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+				return ((InternalEList<?>)getSamples()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -185,8 +185,8 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 		switch (featureID) {
 			case LDEExperimentsPackage.SAMPLE_LIST__FILENAME:
 				return getFilename();
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLE:
-				return getSample();
+			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+				return getSamples();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -203,9 +203,9 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 			case LDEExperimentsPackage.SAMPLE_LIST__FILENAME:
 				setFilename((String)newValue);
 				return;
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLE:
-				getSample().clear();
-				getSample().addAll((Collection<? extends Sample>)newValue);
+			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+				getSamples().clear();
+				getSamples().addAll((Collection<? extends Sample>)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -222,8 +222,8 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 			case LDEExperimentsPackage.SAMPLE_LIST__FILENAME:
 				setFilename(FILENAME_EDEFAULT);
 				return;
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLE:
-				unsetSample();
+			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+				unsetSamples();
 				return;
 		}
 		super.eUnset(featureID);
@@ -239,8 +239,8 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 		switch (featureID) {
 			case LDEExperimentsPackage.SAMPLE_LIST__FILENAME:
 				return FILENAME_EDEFAULT == null ? filename != null : !FILENAME_EDEFAULT.equals(filename);
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLE:
-				return isSetSample();
+			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+				return isSetSamples();
 		}
 		return super.eIsSet(featureID);
 	}

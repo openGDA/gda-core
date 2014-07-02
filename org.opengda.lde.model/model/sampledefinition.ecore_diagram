@@ -54,7 +54,7 @@
         <layoutConstraint xmi:type="notation:Location" xmi:id="_Q0WacQAxEeS9oY2j_Yakxw"/>
       </children>
       <children xmi:type="notation:Node" xmi:id="_4c-8EAAyEeS9oY2j_Yakxw" type="3001">
-        <element xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/enabled"/>
+        <element xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/active"/>
         <layoutConstraint xmi:type="notation:Location" xmi:id="_4c-8EQAyEeS9oY2j_Yakxw"/>
       </children>
       <children xmi:type="notation:Node" xmi:id="_eJYP8AAzEeS9oY2j_Yakxw" type="3001">
@@ -68,6 +68,34 @@
       <children xmi:type="notation:Node" xmi:id="_VGjIEAA0EeS9oY2j_Yakxw" type="3001">
         <element xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/comment"/>
         <layoutConstraint xmi:type="notation:Location" xmi:id="_VGjIEQA0EeS9oY2j_Yakxw"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="_JUH7YAG_EeS0ZM7uUGr84w" type="3001">
+        <element xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/sampleID"/>
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_JUH7YQG_EeS0ZM7uUGr84w"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="_JUH7YgG_EeS0ZM7uUGr84w" type="3001">
+        <element xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/cellID"/>
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_JUH7YwG_EeS0ZM7uUGr84w"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="_JUIicAG_EeS0ZM7uUGr84w" type="3001">
+        <element xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/visitID"/>
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_JUIicQG_EeS0ZM7uUGr84w"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="__tdGoAG_EeS0ZM7uUGr84w" type="3001">
+        <element xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/startDate"/>
+        <layoutConstraint xmi:type="notation:Location" xmi:id="__tdGoQG_EeS0ZM7uUGr84w"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="_uqam8AHAEeS0ZM7uUGr84w" type="3001">
+        <element xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/endDate"/>
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_uqam8QHAEeS0ZM7uUGr84w"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="_-iPbQAHAEeS0ZM7uUGr84w" type="3001">
+        <element xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/mailCount"/>
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_-iPbQQHAEeS0ZM7uUGr84w"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="_OVkKEAHBEeS0ZM7uUGr84w" type="3001">
+        <element xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/dataFileCount"/>
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_OVkKEQHBEeS0ZM7uUGr84w"/>
       </children>
       <styles xmi:type="notation:SortingStyle" xmi:id="_2m09oQAwEeS9oY2j_Yakxw"/>
       <styles xmi:type="notation:FilteringStyle" xmi:id="_2m09ogAwEeS9oY2j_Yakxw"/>
@@ -85,7 +113,7 @@
       <styles xmi:type="notation:FilteringStyle" xmi:id="_2m09qAAwEeS9oY2j_Yakxw"/>
     </children>
     <element xmi:type="ecore:EClass" href="sampledefinition.ecore#//Sample"/>
-    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_2m0WkQAwEeS9oY2j_Yakxw" x="520" y="630" width="271" height="281"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_2m0WkQAwEeS9oY2j_Yakxw" x="520" y="525" width="366" height="386"/>
   </children>
   <children xmi:type="notation:Shape" xmi:id="_s8gX8AAxEeS9oY2j_Yakxw" type="2005" fontName="Sans">
     <children xmi:type="notation:DecorationNode" xmi:id="_s8g_AAAxEeS9oY2j_Yakxw" type="5005"/>

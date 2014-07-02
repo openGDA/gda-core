@@ -115,13 +115,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int SAMPLE_LIST__FILENAME = 0;
 
 	/**
-	 * The feature id for the '<em><b>Sample</b></em>' containment reference list.
+	 * The feature id for the '<em><b>Samples</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_LIST__SAMPLE = 1;
+	int SAMPLE_LIST__SAMPLES = 1;
 
 	/**
 	 * The number of structural features of the '<em>Sample List</em>' class.
@@ -251,13 +251,49 @@ public interface LDEExperimentsPackage extends EPackage {
 	int SAMPLE__COMMENT = 8;
 
 	/**
+	 * The feature id for the '<em><b>Start Date</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__START_DATE = 9;
+
+	/**
+	 * The feature id for the '<em><b>End Date</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__END_DATE = 10;
+
+	/**
+	 * The feature id for the '<em><b>Mail Count</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__MAIL_COUNT = 11;
+
+	/**
+	 * The feature id for the '<em><b>Data File Count</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__DATA_FILE_COUNT = 12;
+
+	/**
 	 * The number of structural features of the '<em>Sample</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_FEATURE_COUNT = 9;
+	int SAMPLE_FEATURE_COUNT = 13;
 
 	/**
 	 * The operation id for the '<em>Build Data File Path</em>' operation.
@@ -367,15 +403,15 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getSampleList_Filename();
 
 	/**
-	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.SampleList#getSample <em>Sample</em>}'.
+	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.SampleList#getSamples <em>Samples</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Sample</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.SampleList#getSample()
+	 * @return the meta object for the containment reference list '<em>Samples</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.SampleList#getSamples()
 	 * @see #getSampleList()
 	 * @generated
 	 */
-	EReference getSampleList_Sample();
+	EReference getSampleList_Samples();
 
 	/**
 	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.SampleList#getSampleById(java.lang.String) <em>Get Sample By Id</em>}' operation.
@@ -507,6 +543,50 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getSample_Comment();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getStartDate <em>Start Date</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Start Date</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#getStartDate()
+	 * @see #getSample()
+	 * @generated
+	 */
+	EAttribute getSample_StartDate();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getEndDate <em>End Date</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>End Date</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#getEndDate()
+	 * @see #getSample()
+	 * @generated
+	 */
+	EAttribute getSample_EndDate();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Mail Count</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#getMailCount()
+	 * @see #getSample()
+	 * @generated
+	 */
+	EAttribute getSample_MailCount();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount <em>Data File Count</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Data File Count</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount()
+	 * @see #getSample()
+	 * @generated
+	 */
+	EAttribute getSample_DataFileCount();
+
+	/**
 	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Sample#buildDataFilePath(java.lang.String) <em>Build Data File Path</em>}' operation.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -626,12 +706,12 @@ public interface LDEExperimentsPackage extends EPackage {
 		EAttribute SAMPLE_LIST__FILENAME = eINSTANCE.getSampleList_Filename();
 
 		/**
-		 * The meta object literal for the '<em><b>Sample</b></em>' containment reference list feature.
+		 * The meta object literal for the '<em><b>Samples</b></em>' containment reference list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference SAMPLE_LIST__SAMPLE = eINSTANCE.getSampleList_Sample();
+		EReference SAMPLE_LIST__SAMPLES = eINSTANCE.getSampleList_Samples();
 
 		/**
 		 * The meta object literal for the '<em><b>Get Sample By Id</b></em>' operation.
@@ -730,6 +810,38 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute SAMPLE__COMMENT = eINSTANCE.getSample_Comment();
+
+		/**
+		 * The meta object literal for the '<em><b>Start Date</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SAMPLE__START_DATE = eINSTANCE.getSample_StartDate();
+
+		/**
+		 * The meta object literal for the '<em><b>End Date</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SAMPLE__END_DATE = eINSTANCE.getSample_EndDate();
+
+		/**
+		 * The meta object literal for the '<em><b>Mail Count</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SAMPLE__MAIL_COUNT = eINSTANCE.getSample_MailCount();
+
+		/**
+		 * The meta object literal for the '<em><b>Data File Count</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SAMPLE__DATA_FILE_COUNT = eINSTANCE.getSample_DataFileCount();
 
 		/**
 		 * The meta object literal for the '<em><b>Build Data File Path</b></em>' operation.

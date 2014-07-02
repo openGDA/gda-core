@@ -69,6 +69,10 @@ public class SampleItemProvider
 			addEmailPropertyDescriptor(object);
 			addCommandPropertyDescriptor(object);
 			addCommentPropertyDescriptor(object);
+			addStartDatePropertyDescriptor(object);
+			addEndDatePropertyDescriptor(object);
+			addMailCountPropertyDescriptor(object);
+			addDataFileCountPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -272,6 +276,94 @@ public class SampleItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Start Date feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addStartDatePropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_startDate_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_startDate_feature", "_UI_Sample_type"),
+				 LDEExperimentsPackage.Literals.SAMPLE__START_DATE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the End Date feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addEndDatePropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_endDate_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_endDate_feature", "_UI_Sample_type"),
+				 LDEExperimentsPackage.Literals.SAMPLE__END_DATE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Mail Count feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addMailCountPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_mailCount_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_mailCount_feature", "_UI_Sample_type"),
+				 LDEExperimentsPackage.Literals.SAMPLE__MAIL_COUNT,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Data File Count feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addDataFileCountPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_dataFileCount_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_dataFileCount_feature", "_UI_Sample_type"),
+				 LDEExperimentsPackage.Literals.SAMPLE__DATA_FILE_COUNT,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
 	 * This returns Sample.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -318,6 +410,10 @@ public class SampleItemProvider
 			case LDEExperimentsPackage.SAMPLE__EMAIL:
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
+			case LDEExperimentsPackage.SAMPLE__START_DATE:
+			case LDEExperimentsPackage.SAMPLE__END_DATE:
+			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}

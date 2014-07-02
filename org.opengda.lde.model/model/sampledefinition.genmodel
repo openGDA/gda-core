@@ -19,7 +19,7 @@
     </genClasses>
     <genClasses ecoreClass="sampledefinition.ecore#//SampleList">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//SampleList/filename"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//SampleList/sample"/>
+      <genFeatures children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//SampleList/samples"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//SampleList/getSampleById">
         <genParameters ecoreParameter="sampledefinition.ecore#//SampleList/getSampleById/regionID"/>
       </genOperations>
@@ -31,12 +31,16 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sampleID"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/status"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/enabled"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/active"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/cellID"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/visitID"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/email"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/command"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/comment"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/startDate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/endDate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/mailCount"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/dataFileCount"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//Sample/buildDataFilePath">
         <genParameters ecoreParameter="sampledefinition.ecore#//Sample/buildDataFilePath/filePath"/>
       </genOperations>

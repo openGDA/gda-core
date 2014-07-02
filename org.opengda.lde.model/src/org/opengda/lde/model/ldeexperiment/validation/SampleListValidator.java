@@ -18,5 +18,7 @@ public interface SampleListValidator {
 	boolean validate();
 
 	boolean validateFilename(String value);
+	boolean validateSamples(EList<Sample> value);
+
 	boolean validateSample(EList<Sample> value);
 }

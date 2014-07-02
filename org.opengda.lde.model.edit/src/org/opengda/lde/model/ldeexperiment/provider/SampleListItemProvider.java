@@ -64,6 +64,7 @@ public class SampleListItemProvider
 			super.getPropertyDescriptors(object);
 
 			addFilenamePropertyDescriptor(object);
+			addSamplesPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -91,6 +92,28 @@ public class SampleListItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Samples feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addSamplesPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_SampleList_samples_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_SampleList_samples_feature", "_UI_SampleList_type"),
+				 LDEExperimentsPackage.Literals.SAMPLE_LIST__SAMPLES,
+				 true,
+				 false,
+				 false,
+				 null,
+				 null,
+				 null));
+	}
+
+	/**
 	 * This specifies how to implement {@link #getChildren} and is used to deduce an appropriate feature for an
 	 * {@link org.eclipse.emf.edit.command.AddCommand}, {@link org.eclipse.emf.edit.command.RemoveCommand} or
 	 * {@link org.eclipse.emf.edit.command.MoveCommand} in {@link #createCommand}.
@@ -102,7 +125,7 @@ public class SampleListItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(LDEExperimentsPackage.Literals.SAMPLE_LIST__SAMPLE);
+			childrenFeatures.add(LDEExperimentsPackage.Literals.SAMPLE_LIST__SAMPLES);
 		}
 		return childrenFeatures;
 	}
@@ -161,7 +184,7 @@ public class SampleListItemProvider
 			case LDEExperimentsPackage.SAMPLE_LIST__FILENAME:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLE:
+			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -181,7 +204,7 @@ public class SampleListItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(LDEExperimentsPackage.Literals.SAMPLE_LIST__SAMPLE,
+				(LDEExperimentsPackage.Literals.SAMPLE_LIST__SAMPLES,
 				 LDEExperimentsFactory.eINSTANCE.createSample()));
 	}
 

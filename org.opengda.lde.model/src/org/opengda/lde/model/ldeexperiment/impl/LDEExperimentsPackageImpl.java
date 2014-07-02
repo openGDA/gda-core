@@ -154,7 +154,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getSampleList_Sample() {
+	public EReference getSampleList_Samples() {
 		return (EReference)sampleListEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -271,6 +271,42 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getSample_StartDate() {
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(9);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getSample_EndDate() {
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(10);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getSample_MailCount() {
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(11);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getSample_DataFileCount() {
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(12);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EOperation getSample__BuildDataFilePath__String() {
 		return sampleEClass.getEOperations().get(0);
 	}
@@ -353,7 +389,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		sampleListEClass = createEClass(SAMPLE_LIST);
 		createEAttribute(sampleListEClass, SAMPLE_LIST__FILENAME);
-		createEReference(sampleListEClass, SAMPLE_LIST__SAMPLE);
+		createEReference(sampleListEClass, SAMPLE_LIST__SAMPLES);
 		createEOperation(sampleListEClass, SAMPLE_LIST___GET_SAMPLE_BY_ID__STRING);
 		createEOperation(sampleListEClass, SAMPLE_LIST___GET_SAMPLE_BY_NAME__STRING);
 
@@ -367,6 +403,10 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(sampleEClass, SAMPLE__EMAIL);
 		createEAttribute(sampleEClass, SAMPLE__COMMAND);
 		createEAttribute(sampleEClass, SAMPLE__COMMENT);
+		createEAttribute(sampleEClass, SAMPLE__START_DATE);
+		createEAttribute(sampleEClass, SAMPLE__END_DATE);
+		createEAttribute(sampleEClass, SAMPLE__MAIL_COUNT);
+		createEAttribute(sampleEClass, SAMPLE__DATA_FILE_COUNT);
 		createEOperation(sampleEClass, SAMPLE___BUILD_DATA_FILE_PATH__STRING);
 		createEOperation(sampleEClass, SAMPLE___BUILD_FILENAME__STRING);
 		createEOperation(sampleEClass, SAMPLE___EXECUTE_COMMAND__STRING);
@@ -412,7 +452,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		initEClass(sampleListEClass, SampleList.class, "SampleList", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getSampleList_Filename(), ecorePackage.getEString(), "filename", "samples", 0, 1, SampleList.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getSampleList_Sample(), this.getSample(), null, "sample", null, 0, -1, SampleList.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getSampleList_Samples(), this.getSample(), null, "samples", null, 0, -1, SampleList.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		EOperation op = initEOperation(getSampleList__GetSampleById__String(), this.getSample(), "getSampleById", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "regionID", 0, 1, IS_UNIQUE, IS_ORDERED);
@@ -430,6 +470,10 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getSample_Email(), ecorePackage.getEString(), "email", "", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Command(), ecorePackage.getEString(), "command", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Comment(), ecorePackage.getEString(), "comment", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_StartDate(), ecorePackage.getEDate(), "startDate", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_EndDate(), ecorePackage.getEDate(), "endDate", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_MailCount(), ecorePackage.getEInt(), "mailCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_DataFileCount(), ecorePackage.getEInt(), "dataFileCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		op = initEOperation(getSample__BuildDataFilePath__String(), ecorePackage.getEString(), "buildDataFilePath", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "filePath", 0, 1, IS_UNIQUE, IS_ORDERED);

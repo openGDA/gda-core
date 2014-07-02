@@ -2,6 +2,7 @@
  */
 package org.opengda.lde.model.ldeexperiment;
 
+import java.util.Date;
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -21,6 +22,10 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getEmail <em>Email</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCommand <em>Command</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getComment <em>Comment</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getStartDate <em>Start Date</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getEndDate <em>End Date</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount <em>Data File Count</em>}</li>
  * </ul>
  * </p>
  *
@@ -270,6 +275,112 @@ public interface Sample extends EObject {
 	 * @generated
 	 */
 	void setComment(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Start Date</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Start Date</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Start Date</em>' attribute.
+	 * @see #setStartDate(Date)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_StartDate()
+	 * @model
+	 * @generated
+	 */
+	Date getStartDate();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getStartDate <em>Start Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Start Date</em>' attribute.
+	 * @see #getStartDate()
+	 * @generated
+	 */
+	void setStartDate(Date value);
+
+	/**
+	 * Returns the value of the '<em><b>End Date</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>End Date</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>End Date</em>' attribute.
+	 * @see #setEndDate(Date)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_EndDate()
+	 * @model
+	 * @generated
+	 */
+	Date getEndDate();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getEndDate <em>End Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>End Date</em>' attribute.
+	 * @see #getEndDate()
+	 * @generated
+	 */
+	void setEndDate(Date value);
+
+	/**
+	 * Returns the value of the '<em><b>Mail Count</b></em>' attribute.
+	 * The default value is <code>"0"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Mail Count</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Mail Count</em>' attribute.
+	 * @see #setMailCount(int)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_MailCount()
+	 * @model default="0"
+	 * @generated
+	 */
+	int getMailCount();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Mail Count</em>' attribute.
+	 * @see #getMailCount()
+	 * @generated
+	 */
+	void setMailCount(int value);
+
+	/**
+	 * Returns the value of the '<em><b>Data File Count</b></em>' attribute.
+	 * The default value is <code>"0"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Data File Count</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Data File Count</em>' attribute.
+	 * @see #setDataFileCount(int)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_DataFileCount()
+	 * @model default="0"
+	 * @generated
+	 */
+	int getDataFileCount();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount <em>Data File Count</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Data File Count</em>' attribute.
+	 * @see #getDataFileCount()
+	 * @generated
+	 */
+	void setDataFileCount(int value);
 
 	/**
 	 * <!-- begin-user-doc -->

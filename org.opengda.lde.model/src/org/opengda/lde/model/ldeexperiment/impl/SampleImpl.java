@@ -4,6 +4,7 @@ package org.opengda.lde.model.ldeexperiment.impl;
 
 import java.lang.reflect.InvocationTargetException;
 
+import java.util.Date;
 import org.eclipse.emf.common.notify.Notification;
 
 import org.eclipse.emf.common.util.EList;
@@ -33,6 +34,10 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEmail <em>Email</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCommand <em>Command</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getComment <em>Comment</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getStartDate <em>Start Date</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEndDate <em>End Date</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getMailCount <em>Mail Count</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFileCount <em>Data File Count</em>}</li>
  * </ul>
  * </p>
  *
@@ -218,6 +223,86 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @ordered
 	 */
 	protected String comment = COMMENT_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getStartDate()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final Date START_DATE_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getStartDate()
+	 * @generated
+	 * @ordered
+	 */
+	protected Date startDate = START_DATE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getEndDate() <em>End Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getEndDate()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final Date END_DATE_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getEndDate() <em>End Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getEndDate()
+	 * @generated
+	 * @ordered
+	 */
+	protected Date endDate = END_DATE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getMailCount() <em>Mail Count</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getMailCount()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int MAIL_COUNT_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getMailCount() <em>Mail Count</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getMailCount()
+	 * @generated
+	 * @ordered
+	 */
+	protected int mailCount = MAIL_COUNT_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getDataFileCount() <em>Data File Count</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDataFileCount()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int DATA_FILE_COUNT_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getDataFileCount() <em>Data File Count</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDataFileCount()
+	 * @generated
+	 * @ordered
+	 */
+	protected int dataFileCount = DATA_FILE_COUNT_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -432,6 +517,90 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setStartDate(Date newStartDate) {
+		Date oldStartDate = startDate;
+		startDate = newStartDate;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__START_DATE, oldStartDate, startDate));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setEndDate(Date newEndDate) {
+		Date oldEndDate = endDate;
+		endDate = newEndDate;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__END_DATE, oldEndDate, endDate));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public int getMailCount() {
+		return mailCount;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setMailCount(int newMailCount) {
+		int oldMailCount = mailCount;
+		mailCount = newMailCount;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__MAIL_COUNT, oldMailCount, mailCount));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public int getDataFileCount() {
+		return dataFileCount;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setDataFileCount(int newDataFileCount) {
+		int oldDataFileCount = dataFileCount;
+		dataFileCount = newDataFileCount;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT, oldDataFileCount, dataFileCount));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public String buildDataFilePath(String filePath) {
 		// TODO: implement this method
 		// Ensure that you remove @generated or mark it @generated NOT
@@ -508,6 +677,14 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getCommand();
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				return getComment();
+			case LDEExperimentsPackage.SAMPLE__START_DATE:
+				return getStartDate();
+			case LDEExperimentsPackage.SAMPLE__END_DATE:
+				return getEndDate();
+			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
+				return getMailCount();
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
+				return getDataFileCount();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -546,6 +723,18 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				setComment((String)newValue);
+				return;
+			case LDEExperimentsPackage.SAMPLE__START_DATE:
+				setStartDate((Date)newValue);
+				return;
+			case LDEExperimentsPackage.SAMPLE__END_DATE:
+				setEndDate((Date)newValue);
+				return;
+			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
+				setMailCount((Integer)newValue);
+				return;
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
+				setDataFileCount((Integer)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -586,6 +775,18 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				setComment(COMMENT_EDEFAULT);
 				return;
+			case LDEExperimentsPackage.SAMPLE__START_DATE:
+				setStartDate(START_DATE_EDEFAULT);
+				return;
+			case LDEExperimentsPackage.SAMPLE__END_DATE:
+				setEndDate(END_DATE_EDEFAULT);
+				return;
+			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
+				setMailCount(MAIL_COUNT_EDEFAULT);
+				return;
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
+				setDataFileCount(DATA_FILE_COUNT_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -616,6 +817,14 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return COMMAND_EDEFAULT == null ? command != null : !COMMAND_EDEFAULT.equals(command);
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				return COMMENT_EDEFAULT == null ? comment != null : !COMMENT_EDEFAULT.equals(comment);
+			case LDEExperimentsPackage.SAMPLE__START_DATE:
+				return START_DATE_EDEFAULT == null ? startDate != null : !START_DATE_EDEFAULT.equals(startDate);
+			case LDEExperimentsPackage.SAMPLE__END_DATE:
+				return END_DATE_EDEFAULT == null ? endDate != null : !END_DATE_EDEFAULT.equals(endDate);
+			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
+				return mailCount != MAIL_COUNT_EDEFAULT;
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
+				return dataFileCount != DATA_FILE_COUNT_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -670,6 +879,14 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(command);
 		result.append(", comment: ");
 		result.append(comment);
+		result.append(", startDate: ");
+		result.append(startDate);
+		result.append(", endDate: ");
+		result.append(endDate);
+		result.append(", mailCount: ");
+		result.append(mailCount);
+		result.append(", dataFileCount: ");
+		result.append(dataFileCount);
 		result.append(')');
 		return result.toString();
 	}

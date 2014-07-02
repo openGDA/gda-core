@@ -15,7 +15,7 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.SampleList#getFilename <em>Filename</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.SampleList#getSample <em>Sample</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.SampleList#getSamples <em>Samples</em>}</li>
  * </ul>
  * </p>
  *
@@ -52,43 +52,43 @@ public interface SampleList extends EObject {
 	void setFilename(String value);
 
 	/**
-	 * Returns the value of the '<em><b>Sample</b></em>' containment reference list.
+	 * Returns the value of the '<em><b>Samples</b></em>' containment reference list.
 	 * The list contents are of type {@link org.opengda.lde.model.ldeexperiment.Sample}.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Sample</em>' containment reference list isn't clear,
+	 * If the meaning of the '<em>Samples</em>' containment reference list isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Sample</em>' containment reference list.
-	 * @see #isSetSample()
-	 * @see #unsetSample()
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSampleList_Sample()
+	 * @return the value of the '<em>Samples</em>' containment reference list.
+	 * @see #isSetSamples()
+	 * @see #unsetSamples()
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSampleList_Samples()
 	 * @model containment="true" unsettable="true"
 	 * @generated
 	 */
-	EList<Sample> getSample();
+	EList<Sample> getSamples();
 
 	/**
-	 * Unsets the value of the '{@link org.opengda.lde.model.ldeexperiment.SampleList#getSample <em>Sample</em>}' containment reference list.
+	 * Unsets the value of the '{@link org.opengda.lde.model.ldeexperiment.SampleList#getSamples <em>Samples</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isSetSample()
-	 * @see #getSample()
+	 * @see #isSetSamples()
+	 * @see #getSamples()
 	 * @generated
 	 */
-	void unsetSample();
+	void unsetSamples();
 
 	/**
-	 * Returns whether the value of the '{@link org.opengda.lde.model.ldeexperiment.SampleList#getSample <em>Sample</em>}' containment reference list is set.
+	 * Returns whether the value of the '{@link org.opengda.lde.model.ldeexperiment.SampleList#getSamples <em>Samples</em>}' containment reference list is set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Sample</em>' containment reference list is set.
-	 * @see #unsetSample()
-	 * @see #getSample()
+	 * @return whether the value of the '<em>Samples</em>' containment reference list is set.
+	 * @see #unsetSamples()
+	 * @see #getSamples()
 	 * @generated
 	 */
-	boolean isSetSample();
+	boolean isSetSamples();
 
 	/**
 	 * <!-- begin-user-doc -->

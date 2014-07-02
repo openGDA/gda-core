@@ -12,7 +12,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
 
   Class SampleList
     Attribute filename : EString
-    Reference sample : Sample<<0..*>>
+    Reference samples : Sample<<0..*>>
     Operation getSampleById(EString) : Sample
     Operation getSampleByName(EString) : Sample
 
@@ -26,6 +26,10 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute email : EString
     Attribute command : EString
     Attribute comment : EString
+    Attribute startDate : EDate
+    Attribute endDate : EDate
+    Attribute mailCount : EInt
+    Attribute dataFileCount : EInt
     Operation buildDataFilePath(EString) : EString
     Operation buildFilename(EString) : EString
     Operation executeCommand(EString) : STATUS
