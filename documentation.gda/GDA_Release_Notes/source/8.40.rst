@@ -7,6 +7,17 @@ User Highlights
 New Features
 ~~~~~~~~~~~~
 
+* Jython Console
+
+ - Ctrl-d and ctrl-z can be used to clear the current command without executing. Can be used to stop entering multiline commands and will escape the "stuck on '...'" problem seen when loops/blocks are not entered correctly.
+
+* Jython Autocomplete
+
+ - Tab will also autocomplete with similar behaviour to ctrl-space in previous releases.
+ - Tab will still insert tab character when after only whitespace.
+ - Autocomplete is now available from anywhere on a line (rather than just first word)
+ - Tab/space/enter can all be used to enter currently selected completion (rather than top option being used for all but enter).
+
 * JythonConsoleView buttons simplified.
 
  - Now single button to pause scans and scripts.
@@ -36,6 +47,27 @@ Important
  - Javadoc explaining the difference between atScanEnd and atCommandFailure improved 
 
 * GDA-5883 Scan.getScanNumber() and ScanDataPoint.getScanIdentifier() now both return ints. Before Scan used a Long and ScanDataPoint used a String for the same information.
+
+New Features
+~~~~~~~~~~~~
+* Incremental Elog Entries
+
+ - Elog Entries can be added to before being posted using
+
+  - addText(String text)
+  - addImage(Sting imgPath)
+  - addImage(Sting imgPath, String comment)
+  - addImage(String[] imgPaths)
+
+ - and then using post() or postAsync()
+ - existing methods are left unchanged
+ - to add images, gda.elog.imageurl needs to be added to java.properties with http://rdb.pri.diamond.ac.uk/php/elog/cs_logonlyimageupload_ext_bl.php
+
+Fixes
+~~~~~
+* Event Service
+
+ - Fixed case where EventService could be returned even when it could not be configured correctly. Exceptions are now passed up rather than caught and logged.
 
 How to create notes
 ~~~~~~~~~~~~~~~~~~~
