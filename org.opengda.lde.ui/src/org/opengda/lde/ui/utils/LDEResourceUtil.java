@@ -26,38 +26,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LDEResourceUtil {
-	private final Logger logger = LoggerFactory
-			.getLogger(LDEResourceUtil.class);
-	String defaultSequenceFilename = "user.seq";
-	private double xRaySourceEnergyLimit = 2100.0;
-	private boolean sourceSelectable;
+	private final Logger logger = LoggerFactory.getLogger(LDEResourceUtil.class);
+	String defaultFilename = "operationtable.lde";
 
 	/**
-	 * returns the default sequence filename. The returned value depends on java
+	 * returns the default filename. The returned value depends on java
 	 * property {@code gda.data.scan.datawriter.datadir}. If this property is
-	 * set, it will use the path specified by this property to store the
-	 * sequence file. If this property is not set, it will use {@code use.home}
-	 * property to store the sequence file.
+	 * set, it will use the path specified by this property to store the file. 
+	 * If this property is not set, it will use {@code use.home}
+	 * property to store the file.
 	 * 
 	 * @return
 	 */
-	public String getDefaultSequenceFilename() {
-		return defaultSequenceFilename;
+	public String getDefaultFilename() {
+		return defaultFilename;
 	}
 	/**
-	 * return the default sequence file directory. 
+	 * return the default file directory. 
 	 * 
 	 * This directory must have permission for GDA client to write to.
 	 * At DLS it is always the 'xml' directory under the directory defined by
 	 * the java property {@code gda.data.scan.datawriter.datadir}. 
 	 * If this property is set, it will use the path specified by this property 
-	 * to store the sequence file. If this property is not set, it will use 
-	 * {@code use.home} property to store the sequence file.
+	 * to store the file. If this property is not set, it will use 
+	 * {@code use.home} property to store the file.
 	 * 
 	 * 
 	 * @return
 	 */
-	public String getDefaultSequenceDirectory() {
+	public String getDefaultDirectory() {
 		String dir = null;
 		String metadataValue = null;
 		Metadata metadata = GDAMetadataProvider.getInstance();
@@ -104,7 +101,7 @@ public class LDEResourceUtil {
 	 */
 	public void setFileName(String fileName) {
 		if (!fileName.startsWith(File.separator)) {
-			fileName=getDefaultSequenceDirectory()+File.separator+fileName;
+			fileName=getDefaultDirectory()+File.separator+fileName;
 		}
 		try {
 			if(getResource()!=null) {
@@ -117,12 +114,9 @@ public class LDEResourceUtil {
 	}
 
 	/**
-	 * return the resource. The filename for this resource can be set in Spring
-	 * object configuration property. If not set in Spring configuration, it is
-	 * built using GDA property
-	 * {@link gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR}
-	 * or {@code gda.data.scan.datawriter.datadir} and the default sequnece file
-	 * name {@code user.seq}. If this propery is not set this sequence file will
+	 * return the resource. The filename for this resource can be set in Spring object configuration property. 
+	 * If not set in Spring configuration, it is built using GDA property {@link gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR}
+	 * or {@code gda.data.scan.datawriter.datadir} and the default file name {@code user.seq}. If this property is not set this sequence file will
 	 * be created at {@code user.home}
 	 * 
 	 * @return
@@ -134,9 +128,9 @@ public class LDEResourceUtil {
 			fileName = getFileName();
 		}
 
-		File seqFile = new File(fileName);
-		if (!seqFile.exists()) {
-			seqFile.createNewFile();
+		File ldeFile = new File(fileName);
+		if (!ldeFile.exists()) {
+			ldeFile.createNewFile();
 			createSampleList();
 		}
 		URI fileURI = URI.createFileURI(fileName);
@@ -145,8 +139,6 @@ public class LDEResourceUtil {
 	
 	private ResourceSet getResourceSet() throws Exception {
 		EditingDomain sequenceEditingDomain = SampleGroupEditingDomain.INSTANCE.getEditingDomain();
-		//the following line only works in RCP/OSGi, not on server
-		//Activator.getDefault().getSequenceEditingDomain();
 		// Create a resource set to hold the resources.
 		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
 		
@@ -154,7 +146,7 @@ public class LDEResourceUtil {
 	}
 
 	/**
-	 * return the list of regions contained in a sequence or an empty list.
+	 * return the list of samples contained in a sample group or list or an empty list.
 	 * 
 	 * @return
 	 * @throws Exception
@@ -168,7 +160,7 @@ public class LDEResourceUtil {
 		return Collections.emptyList();
 	}
 
-	public List<Sample> getRegions(String filename) throws Exception {
+	public List<Sample> getSamples(String filename) throws Exception {
 		setFileName(filename);
 		SampleList samples = getSampelList();
 		if (samples != null) {
@@ -178,15 +170,13 @@ public class LDEResourceUtil {
 	}
 
 	public SampleList createSampleList() throws Exception {
-		final Resource newResource = getResourceSet().createResource(
-				URI.createFileURI(fileName));
-		final ExperimentDefinition root = LDEExperimentsFactory.eINSTANCE
-				.createExperimentDefinition();
+		final Resource newResource = getResourceSet().createResource(URI.createFileURI(fileName));
+		final ExperimentDefinition root = LDEExperimentsFactory.eINSTANCE.createExperimentDefinition();
 
-		SampleList seq = LDEExperimentsFactory.eINSTANCE.createSampleList();
-		Sample region=LDEExperimentsFactory.eINSTANCE.createSample();
-		seq.getSamples().add(region);
-		root.setSamplelist(seq);
+		SampleList samplelist = LDEExperimentsFactory.eINSTANCE.createSampleList();
+		Sample sample=LDEExperimentsFactory.eINSTANCE.createSample();
+		samplelist.getSamples().add(sample);
+		root.setSamplelist(samplelist);
 		newResource.getContents().add(root);
 
 		// use Transaction
@@ -226,8 +216,8 @@ public class LDEResourceUtil {
 
 	public Resource getResource(String fileName) throws Exception {
 		ResourceSet resourceSet = getResourceSet();
-		File seqFile = new File(fileName);
-		if (seqFile.exists()) {
+		File ldeFile = new File(fileName);
+		if (ldeFile.exists()) {
 			URI fileURI = URI.createFileURI(fileName);
 			return resourceSet.getResource(fileURI, true);
 		}
@@ -236,7 +226,7 @@ public class LDEResourceUtil {
 
 
 
-	public SampleList getSequence(Resource res) throws Exception {
+	public SampleList getSampleList(Resource res) throws Exception {
 		if (res != null) {
 			List<EObject> contents = res.getContents();
 			EObject eobj = contents.get(0);
@@ -248,7 +238,7 @@ public class LDEResourceUtil {
 		return null;
 	}
 
-	public List<Sample> getRegions(SampleList samplelist) throws Exception {
+	public List<Sample> getSamples(SampleList samplelist) throws Exception {
 		if (samplelist != null) {
 			return samplelist.getSamples();
 		}
@@ -262,10 +252,8 @@ public class LDEResourceUtil {
 
 	public void saveAs(Resource resource, String filename) {
 		try {
-			Resource createResource = getResourceSet().createResource(
-					URI.createFileURI(filename));
-			createResource.getContents().add(
-					EcoreUtil.copy(resource.getContents().get(0)));
+			Resource createResource = getResourceSet().createResource(URI.createFileURI(filename));
+			createResource.getContents().add(EcoreUtil.copy(resource.getContents().get(0)));
 			createResource.save(null);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -274,21 +262,5 @@ public class LDEResourceUtil {
 
 	public EditingDomain getEditingDomain() throws Exception {
 		return Activator.getDefault().getSampleGroupEditingDomain();
-	}
-
-	public boolean isSourceSelectable() {
-		return sourceSelectable;
-	}
-
-	public void setSourceSelectable(boolean sourceSelectable) {
-		this.sourceSelectable = sourceSelectable;
-	}
-
-	public double getXRaySourceEnergyLimit() {
-		return xRaySourceEnergyLimit;
-	}
-
-	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
-		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
 	}
 }
