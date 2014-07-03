@@ -13,7 +13,7 @@ import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
 
-public class SequenceViewLabelProvider extends LabelProvider implements
+public class SampleGroupViewLabelProvider extends LabelProvider implements
 		ITableLabelProvider, ITableColorProvider {
 
 	@Override
@@ -37,30 +37,24 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 		if (element instanceof Sample) {
 			Sample sample = (Sample) element;
 			if (columnIndex == SampleTableConstants.COL_ACTIVE) {
+				//TODO replace with check box 
 				if (sample.isActive()) {
-					return Activator.getDefault().getImageRegistry()
-							.get(ImageConstants.ICON_CHECKED_STATE);
+					return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_CHECKED_STATE);
 				} else {
-					return Activator.getDefault().getImageRegistry()
-							.get(ImageConstants.ICON_UNCHECKED_STATE);
+					return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_UNCHECKED_STATE);
 				}
 			} else if (columnIndex == SampleTableConstants.COL_STATUS) {
 				if (sample.isActive()) {
 					if (sample.getStatus() == STATUS.READY) {
-						return Activator.getDefault().getImageRegistry()
-								.get(ImageConstants.ICON_RUN_READY);
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_READY);
 					} else if (sample.getStatus() == STATUS.RUNNING) {
-						return Activator.getDefault().getImageRegistry()
-								.get(ImageConstants.ICON_RUNNING);
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING);
 					} else if (sample.getStatus() == STATUS.COMPLETED) {
-						return Activator.getDefault().getImageRegistry()
-								.get(ImageConstants.ICON_RUN_COMPLETE);
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_COMPLETE);
 					} else if (sample.getStatus() == STATUS.ABORTED) {
-						return Activator.getDefault().getImageRegistry()
-								.get(ImageConstants.ICON_RUN_FAILURE);
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_FAILURE);
 					} else if (sample.getStatus() == STATUS.INVALID) {
-						return Activator.getDefault().getImageRegistry()
-								.get(ImageConstants.ICON_INVALID);
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID);
 					}
 				}
 			}
@@ -91,6 +85,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 			case SampleTableConstants.COL_COMMENT:
 				return sample.getComment();
 			case SampleTableConstants.COL_START_DATE:
+				//TODO replace with Date Object
 				return DateFormat.getInstance().format(sample.getStartDate());
 			case SampleTableConstants.COL_END_DATE:
 				return DateFormat.getInstance().format(sample.getEndDate());

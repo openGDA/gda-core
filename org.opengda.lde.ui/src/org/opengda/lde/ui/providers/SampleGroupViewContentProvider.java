@@ -13,17 +13,17 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
-import org.opengda.lde.ui.utils.RegionDefinitionResourceUtil;
+import org.opengda.lde.ui.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SequenceViewContentProvider implements IStructuredContentProvider {
-	private static final Logger logger = LoggerFactory.getLogger(SequenceViewContentProvider.class);
+public class SampleGroupViewContentProvider implements IStructuredContentProvider {
+	private static final Logger logger = LoggerFactory.getLogger(SampleGroupViewContentProvider.class);
 
 	private Viewer viewer;
-	private RegionDefinitionResourceUtil resUtil;
+	private LDEResourceUtil resUtil;
 
-	public SequenceViewContentProvider(RegionDefinitionResourceUtil resUtil) {
+	public SampleGroupViewContentProvider(LDEResourceUtil resUtil) {
 		this.resUtil = resUtil;
 	}
 

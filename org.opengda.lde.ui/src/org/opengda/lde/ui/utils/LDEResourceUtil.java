@@ -25,9 +25,9 @@ import org.opengda.lde.ui.Activator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RegionDefinitionResourceUtil {
+public class LDEResourceUtil {
 	private final Logger logger = LoggerFactory
-			.getLogger(RegionDefinitionResourceUtil.class);
+			.getLogger(LDEResourceUtil.class);
 	String defaultSequenceFilename = "user.seq";
 	private double xRaySourceEnergyLimit = 2100.0;
 	private boolean sourceSelectable;
@@ -137,7 +137,7 @@ public class RegionDefinitionResourceUtil {
 		File seqFile = new File(fileName);
 		if (!seqFile.exists()) {
 			seqFile.createNewFile();
-			createSequence();
+			createSampleList();
 		}
 		URI fileURI = URI.createFileURI(fileName);
 		return resourceSet.getResource(fileURI, true);
@@ -177,7 +177,7 @@ public class RegionDefinitionResourceUtil {
 		return Collections.emptyList();
 	}
 
-	public SampleList createSequence() throws Exception {
+	public SampleList createSampleList() throws Exception {
 		final Resource newResource = getResourceSet().createResource(
 				URI.createFileURI(fileName));
 		final ExperimentDefinition root = LDEExperimentsFactory.eINSTANCE
@@ -273,7 +273,7 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	public EditingDomain getEditingDomain() throws Exception {
-		return Activator.getDefault().getSequenceEditingDomain();
+		return Activator.getDefault().getSampleGroupEditingDomain();
 	}
 
 	public boolean isSourceSelectable() {
