@@ -18,11 +18,12 @@
 
 package gda.device.detector.mythen.tasks;
 
-import gda.analysis.DataSet;
 import gda.analysis.Plotter;
 import gda.device.detector.mythen.data.MythenProcessedDataset;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 /**
  * An {@link AtPointEndTask} which plots the last frame in each scan.
@@ -47,18 +48,23 @@ public class PlotLastPointTask implements AtPointEndTask, InitializingBean {
 		double[] angles = processedData.getAngleArray();
 		double[] counts = processedData.getCountArray();
 		
-		DataSet channelsDataset = new DataSet("angle", angles);
-		DataSet countsDataset = new DataSet(filename, counts);
+		DoubleDataset channelsDataset = new DoubleDataset(angles);
+		channelsDataset.setName("angle");
+		DoubleDataset countsDataset = new DoubleDataset(counts);
+		countsDataset.setName(filename);
 		
 		Plotter.plot(panelName, channelsDataset, countsDataset);
 	}
 	
+	@Override
 	public void run(String filename, MythenProcessedDataset processedData, boolean clearFirst) {
 		double[] angles = processedData.getAngleArray();
 		double[] counts = processedData.getCountArray();
 
-		DataSet channelsDataset = new DataSet("angle", angles);
-		DataSet countsDataset = new DataSet(filename, counts);
+		DoubleDataset channelsDataset = new DoubleDataset(angles);
+		channelsDataset.setName("angle");
+		DoubleDataset countsDataset = new DoubleDataset(counts);
+		countsDataset.setName(filename);
 		if (clearFirst) {
 			Plotter.plot(panelName, channelsDataset, countsDataset);
 		} else {

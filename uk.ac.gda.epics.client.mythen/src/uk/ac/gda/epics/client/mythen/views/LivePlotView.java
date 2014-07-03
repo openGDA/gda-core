@@ -1,10 +1,10 @@
 package uk.ac.gda.epics.client.mythen.views;
 
-import gda.device.scannable.EpicsScannable;
-
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
+import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 
 
 /**
@@ -35,7 +36,7 @@ public class LivePlotView extends ViewPart {
 	private EpicsDetectorProgressMonitor progressMonitor;
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
-	private EpicsScannable stopScannable;
+	private EpicsEnumPVScannable stopScannable;
 	private String taskName;
 
 
@@ -48,12 +49,10 @@ public class LivePlotView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		setPartName(getPlotName());
 		Composite rootComposite = new Composite(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		layout.type=SWT.VERTICAL;
-		rootComposite.setLayout(layout);
+		rootComposite.setLayout(new FillLayout());
 
 		try {
+			logger.debug("create plot composite.");
 			plotComposite = new LivePlotComposite(this, rootComposite, SWT.None);
 			plotComposite.setPlotName(getPlotName());
 			plotComposite.setxAxisMin(getxAxisMin());
@@ -61,14 +60,11 @@ public class LivePlotView extends ViewPart {
 			plotComposite.setEventAdminName(eventAdminName);
 			plotComposite.setEpicsProgressMonitor(epicsProgressMonitor);
 			plotComposite.setStartListener(getStartListener());
+			plotComposite.setExposureTimeListener(getExposureTimeListener());
+			plotComposite.setTimeRemainingListener(getTimeRemainingListener());
+			plotComposite.setStopScannable(getStopScannable());
+			plotComposite.setTaskName(getTaskName());
 			plotComposite.initialise();
-			progressMonitor=new EpicsDetectorProgressMonitor(rootComposite, SWT.None);
-			progressMonitor.setStartListener(getStartListener());
-			progressMonitor.setExposureTimeListener(exposureTimeListener);
-			progressMonitor.setTimeRemainingListener(timeRemainingListener);
-			progressMonitor.setStopScannable(getStopScannable());
-			progressMonitor.setTaskName(taskName);
-			progressMonitor.initialise();
 		} catch (Exception e) {
 			logger.error("Cannot create live plot composite.", e);
 		}
@@ -111,11 +107,11 @@ public class LivePlotView extends ViewPart {
 		this.epicsProgressMonitor = epicsProgressMonitor;
 	}
 
-	public EpicsScannable getStopScannable() {
+	public EpicsEnumPVScannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsScannable stopScannable) {
+	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 

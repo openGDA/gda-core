@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
+import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 
 /**
  * An implementation of <code>IRunnableWithProgress</code> interface whose instances 
@@ -86,7 +87,7 @@ public class EpicsDetectorRunableWithProgress implements IRunnableWithProgress, 
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
 	private String epicsProcessName; //task name
-	private EpicsScannable stopScannable;
+	private EpicsEnumPVScannable stopScannable;
 	
 	public EpicsDetectorRunableWithProgress() {
 	}
@@ -157,11 +158,11 @@ public class EpicsDetectorRunableWithProgress implements IRunnableWithProgress, 
 		this.timeRemainingListener = timeRemainingListener;
 	}
 
-	public EpicsScannable getStopScannable() {
+	public EpicsEnumPVScannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsScannable stopScannable) {
+	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 }

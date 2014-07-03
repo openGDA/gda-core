@@ -144,6 +144,7 @@ public class MythenDetector extends MythenDetectorImpl {
 			throw new DeviceException("failed to set exposure time",e);
 		}
 	}
+	
 	/**
 	 * override GDA format to match SLS detector data file name format.
 	 */

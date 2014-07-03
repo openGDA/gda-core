@@ -18,7 +18,6 @@
 
 package uk.ac.gda.epics.client.mythen.viewfactories;
 
-import gda.device.scannable.EpicsScannable;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.rcp.views.FindableExecutableExtension;
 
@@ -31,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
+import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 import uk.ac.gda.epics.client.mythen.views.EpicsDetectorRunableWithProgress;
 import uk.ac.gda.epics.client.mythen.views.LivePlotView;
 /**
@@ -56,15 +56,18 @@ import uk.ac.gda.epics.client.mythen.views.LivePlotView;
 	<property name="exposureTimeListener" ref="exposureTimeListener"/>
 	<property name="timeRemainingListener" ref="timeRemainingListener"/>
 	<property name="taskName" value="Mythen acquiring"/>
-	<property name="stopScannable" ref="stopscannable"/>
+	<property name="stopScannable" ref="stopmythen"/>
  </bean>
 	}
 
  * where ref bean may look like the following:
  * {@code 
-   <bean id="stopscannable" class="gda.device.scannable.EpicsScannable">
-  	<property name="pvName" value="BL11I-EA-DET-03:DET:Acquire"/>
-   </bean>
+	<bean id="stopmythen" class="uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable">
+		<property name="name" value="stopmythen"/>
+		<property name="pvName" value="BL11I-EA-DET-03:DET:Acquire"/>
+		<property name="type" value="gda.device.detector.EpicsAreaDetectorConstants.Acquire"/>
+		<property name="local" value="true"/>
+	</bean>
    <bean id="timeRemainingListener" class="uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener">
    	<property name="pvName" value="BL11I-EA-DET-03:DET:TimeRemaining_RBV"/>
    </bean>
@@ -93,7 +96,7 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 	
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
-	private EpicsScannable stopScannable;
+	private EpicsEnumPVScannable stopScannable;
 	private String taskName;
 
 	private String name;
@@ -168,11 +171,11 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		this.epicsProgressMonitor = epicsProgressMonitor;
 	}
 
-	public EpicsScannable getStopScannable() {
+	public EpicsEnumPVScannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsScannable stopScannable) {
+	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 
