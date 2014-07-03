@@ -75,8 +75,7 @@ public class Activator extends AbstractUIPlugin {
 			// .getEditingDomain(EDITING_DOMAIN_ID);
 			return SampleGroupEditingDomain.INSTANCE.getEditingDomain();
 		} catch (Exception ex) {
-			throw new Exception("Unable to get editing domain:"
-					+ ex.getMessage());
+			throw new Exception("Unable to get editing domain:" + ex.getMessage());
 		}
 	}
 
