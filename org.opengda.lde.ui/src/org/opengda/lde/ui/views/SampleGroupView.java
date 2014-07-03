@@ -1,19 +1,29 @@
 package org.opengda.lde.ui.views;
 
 
+import java.util.List;
+
 import gda.observable.IObserver;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.part.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.nebula.jface.cdatetime.CDateTimeCellEditor;
 import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
+import org.opengda.lde.model.ldeexperiment.Sample;
+import org.opengda.lde.model.ldeexperiment.SampleList;
 import org.opengda.lde.ui.providers.SampleTableConstants;
+import org.opengda.lde.ui.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +53,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	 */
 	public static final String ID = "org.opengda.lde.ui.views.SampleGroupView";
 	private static final Logger logger = LoggerFactory.getLogger(SampleGroupView.class);
+	private List<ISelectionChangedListener> selectionChangedListeners;
+	private LDEResourceUtil resUtil;
 	
 	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
 			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.EMAIL,
@@ -55,6 +67,62 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 50, true) };
 	
 	private TableViewer viewer;
+	private List<Sample> sample;
+	private SampleList sampleList;
+	
+	private void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
+		for (int i = 0; i < columnHeaders.length; i++) {
+			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
+			TableColumn column = tableViewerColumn.getColumn();
+			column.setResizable(columnLayouts[i].resizable);
+			column.setText(columnHeaders[i]);
+			column.setToolTipText(columnHeaders[i]);
+
+			column.setWidth(columnLayouts[i].minimumWidth);
+			tableViewerColumn.setEditingSupport(new TableColumnEditingSupport(tableViewer, tableViewerColumn));
+		}
+	}
+
+	private class TableColumnEditingSupport extends EditingSupport {
+		
+		private String columnIdentifier;
+		private Table table;
+		public TableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
+			super(viewer);
+			table=((TableViewer)viewer).getTable();
+			columnIdentifier=tableViewerColumn.getColumn().getText();
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
+				return new CheckboxCellEditor(table);
+			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)){
+				return new CDateTimeCellEditor(table, SWT.CALENDAR);
+			}
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
