@@ -744,6 +744,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		try {
 			if (file != null) {
 				file.flush();
+				file.close();
 				file.finalize();
 			}
 			if (createSrsFile) {
