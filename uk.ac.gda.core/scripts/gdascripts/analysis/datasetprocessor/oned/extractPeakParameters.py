@@ -9,9 +9,16 @@ class ExtractPeakParameters(XYDataSetFunction):
         XYDataSetFunction.__init__(self, name, labelList, 'peakpos', formatString)
         self.delta=None
         self.smoothness=None
+        self.cfwhm=0.0
     
     def _process(self,xDataSet, yDataSet):
         return self.multiplePeakProcess(xDataSet, yDataSet)
+    
+    def getCFWHM(self):
+        return self.cfwhm
+    
+    def setCFWHM(self, value):
+        self.cfwhm=value
 
     def setDelta(self, delta):
         self.delta=delta
@@ -115,11 +122,11 @@ class ExtractPeakParameters(XYDataSetFunction):
         for peakx,peaky in peaks:
             leftbasey=bases[find_lt_index(basexs,peakx)][1]
             rightbasey=bases[find_gt_index(basexs,peakx)][1]
-            if abs(rightbasey-leftbasey)>delta:
-                print "\noverlapping peaks at x position %f\n" % peakx
-                base=None
-            else:
-                base=(leftbasey+rightbasey)/2
+            #if abs(rightbasey-leftbasey)>delta:
+                #print "\noverlapping peaks at x position %f\n" % peakx
+                #base=None
+            #else:
+            base=(leftbasey+rightbasey)/2
             peaksxyb.append((peakx,peaky,base))
         return peaksxyb
 
@@ -134,6 +141,7 @@ class ExtractPeakParameters(XYDataSetFunction):
                 leftcrossing=find_lt(xcrossingvalues, peakx)
                 rightcrossing=find_gt(xcrossingvalues, peakx)
                 fwhm=rightcrossing-leftcrossing
+                self.cfwhm=(rightcrossing+leftcrossing)/2
             peakdatas.append((peakx,peaky,fwhm))
         print "\nPeak Parameters (position, value, fwhm) : ", peakdatas
         return peakdatas
