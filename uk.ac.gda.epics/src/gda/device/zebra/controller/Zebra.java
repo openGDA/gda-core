@@ -180,6 +180,11 @@ public interface Zebra {
 	
 	void setOutTTL(int outId, int val) throws Exception;
 	
+	/**
+	 * Returns the state of the specified TTL output.
+	 */
+	public boolean getTtlOutputState(int output) throws IOException;
+
 	void setPCArmInput(int input) throws Exception;
 
 	/**

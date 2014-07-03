@@ -102,7 +102,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	private volatile double currentSpeed = Double.NaN;
 
-	private volatile Object _motorStatusMonitor = new Object();
+	private final Object _motorStatusMonitor = new Object();
 
 	private volatile MotorStatus _motorStatus = MotorStatus.UNKNOWN;
 
