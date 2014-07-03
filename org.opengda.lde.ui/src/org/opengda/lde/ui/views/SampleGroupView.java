@@ -98,7 +98,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
 				return new CheckboxCellEditor(table);
 			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)){
-				return new CDateTimeCellEditor(table, SWT.CALENDAR);
+				return new CDateTimeCellEditor(table);
 			}
 			// TODO Auto-generated method stub
 			return null;

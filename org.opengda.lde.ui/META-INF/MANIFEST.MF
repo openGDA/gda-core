@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.emf.edit,
  org.opengda.lde.model.edit,
  uk.ac.gda.common,
- org.eclipse.nebula.jface.cdatetime;bundle-version="0.14.0"
+ org.eclipse.nebula.jface.cdatetime;bundle-version="0.14.0",
+ org.eclipse.nebula.widgets.cdatetime;bundle-version="0.14.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: org.slf4j
