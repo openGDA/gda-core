@@ -19,7 +19,6 @@
 package uk.ac.gda.client.hrpd.views;
 
 import gda.device.DeviceException;
-import gda.device.scannable.EpicsScannable;
 import gda.observable.IObserver;
 import gov.aps.jca.event.MonitorListener;
 
@@ -47,32 +46,42 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
+import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
+
 /**
- * A progress monitor for monitoring or reporting an EPICS process progress state.
- * It provides a label displaying the task and subtask name, and a progress indicator to show progress.
- * The progress reporting is driven by EPICS events monitored via {@link MonitorListener} instances,
+ * A progress monitor for monitoring or reporting an EPICS process progress state. It provides a label displaying the
+ * task and subtask name, and a progress indicator to show progress. The progress reporting is driven by EPICS events
+ * monitored via {@link MonitorListener} instances,
  * <p>
  * To create an instance of this class, one must provide:
- * <li> a total work listener using <code>setTotalWorkListener(EpicsIntegerDataListener)</code>;</li>
- * <li> a work listener using <code>setWorkedSoFarListener(EpicsIntegerDataListener)</code>;</li>
- * <br>
+ * <li>a total work listener using <code>setTotalWorkListener(EpicsIntegerDataListener)</code>;</li>
+ * <li>a work listener using <code>setWorkedSoFarListener(EpicsIntegerDataListener)</code>;</li> <br>
  * You may optionally provide:
- * <li> a message listener using <code>setMessageListener(EpicsStringDataListener)</code> if there are messages related to the EPICS process;</li>
- * <li> a STOP scannable using <code>setStopScannable(EpicsScannable)</code> if you want the CANCEL operation to stop EPICS process;</li>
- *  
+ * <li>a message listener using <code>setMessageListener(EpicsStringDataListener)</code> if there are messages related
+ * to the EPICS process;</li>
+ * <li>a STOP scannable using <code>setStopScannable(EpicsScannable)</code> if you want the CANCEL operation to stop
+ * EPICS process;</li>
  */
 
-public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements IObserver, InitializingBean{
+public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements IObserver, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsProcessProgressMonitor.class);
-	private EpicsIntegerDataListener totalWorkListener; //must have
-	private EpicsIntegerDataListener workedSoFarListener; //must have
-	private EpicsStringDataListener messageListener; //optional, must handle null
-	private EpicsScannable stopScannable; //optional if no Cancel, 
+	private EpicsIntegerDataListener totalWorkListener; // must have
+	private EpicsIntegerDataListener workedSoFarListener; // must have
+	private EpicsStringDataListener messageListener; // optional, must handle null
+	private EpicsEnumPVScannable stopScannable; // optional if no Cancel,
 	private Button stopButton;
 	private boolean hasStopButton = false;
 
 	public EpicsProcessProgressMonitor(Composite parent, Layout layout, boolean allowStopButton) {
 		super(parent, layout);
+		if (layout == null) {
+			GridLayout l = new GridLayout();
+			l.marginWidth = 0;
+			l.marginHeight = 0;
+			layout=l;
+		}
+		this.setLayout(layout);
+
 		// cannot use base class stopButton due to additional action to stop EPICS process.
 		this.hasStopButton = allowStopButton;
 		initialize(layout, SWT.DEFAULT);
@@ -81,20 +90,21 @@ public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements 
 	SelectionAdapter listener = new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-				try {
-					if (getStopScannable()!=null) {
-						getStopScannable().moveTo(1);
-					}
-	    			if (stopButton != null) {
-	    				stopButton.setEnabled(false);
-	    			}				
-				} catch (DeviceException e1) {
-					logger.error("Failed to stop EPICS operation.", e1);
+			try {
+				if (getStopScannable() != null) {
+					getStopScannable().moveTo(1);
 				}
-    			// on cancel operation, must finish beginTask
-				done(); 
-				lastWorkedTo=0;
-				totalWork=0;
+				if (stopButton != null) {
+					stopButton.setEnabled(false);
+				}
+			} catch (DeviceException e1) {
+				logger.error("Failed to stop EPICS operation.", e1);
+			} finally {
+				// on cancel operation, must finish beginTask
+				done();
+				lastWorkedTo = 0;
+				totalWork = 0;
+			}
 		}
 	};
 
@@ -164,50 +174,53 @@ public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements 
 	}
 
 	public void addIObservers() {
-		if (totalWorkListener!=null) {
+		if (totalWorkListener != null) {
 			totalWorkListener.addIObserver(this);
 		}
-		if (workedSoFarListener!=null) {
+		if (workedSoFarListener != null) {
 			workedSoFarListener.addIObserver(this);
 		}
-		if (messageListener!=null) {
+		if (messageListener != null) {
 			messageListener.addIObserver(this);
 		}
 	}
+
 	@Override
 	public void dispose() {
-		if (totalWorkListener!=null) {
+		if (totalWorkListener != null) {
 			totalWorkListener.deleteIObserver(this);
 		}
-		if (workedSoFarListener!=null) {
+		if (workedSoFarListener != null) {
 			workedSoFarListener.deleteIObserver(this);
 		}
-		if (messageListener!=null) {
+		if (messageListener != null) {
 			messageListener.deleteIObserver(this);
 		}
 		super.dispose();
 	}
-	int lastWorkedTo=0;
-	int totalWork=0;
+
+	int lastWorkedTo = 0;
+	int totalWork = 0;
+
 	@Override
 	public void update(Object source, Object arg) {
-		if (source==totalWorkListener && arg instanceof Integer) {
-			totalWork=(int) arg;
-			if (totalWork!=0) {
+		if (source == totalWorkListener && arg instanceof Integer) {
+			totalWork = (int) arg;
+			if (totalWork != 0) {
 				beginTask(getTaskName(), totalWork);
 				stopButton.setEnabled(true);
 			}
-		} else if(source==workedSoFarListener && arg instanceof Integer) {
-			int workedSoFar=(int) arg;
-			if (workedSoFar<totalWork) {
-				worked(workedSoFar-lastWorkedTo);
-				lastWorkedTo=workedSoFar;
+		} else if (source == workedSoFarListener && arg instanceof Integer) {
+			int workedSoFar = (int) arg;
+			if (workedSoFar < totalWork) {
+				worked(workedSoFar - lastWorkedTo);
+				lastWorkedTo = workedSoFar;
 			} else {
 				done();
-				lastWorkedTo=0;
-				totalWork=0;
+				lastWorkedTo = 0;
+				totalWork = 0;
 			}
-		} else if(source==messageListener && arg instanceof String) {
+		} else if (source == messageListener && arg instanceof String) {
 			subTask(arg.toString());
 		}
 	}
@@ -232,11 +245,11 @@ public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements 
 		this.workedSoFarListener = workedSoFarListener;
 	}
 
-	public EpicsScannable getStopScannable() {
+	public EpicsEnumPVScannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsScannable stopScannable) {
+	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 
@@ -250,13 +263,13 @@ public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements 
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (totalWorkListener==null) {
+		if (totalWorkListener == null) {
 			throw new IllegalArgumentException("totalWorkListener must not be null.");
 		}
-		if (workedSoFarListener==null) {
+		if (workedSoFarListener == null) {
 			throw new IllegalArgumentException("workedSoFarListener must not be null.");
 		}
-		if (hasStopButton && stopScannable==null) {
+		if (hasStopButton && stopScannable == null) {
 			throw new IllegalArgumentException("stopScannable must not be null.");
 		}
 	}

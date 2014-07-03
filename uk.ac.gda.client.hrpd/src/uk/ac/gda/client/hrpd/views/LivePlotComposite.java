@@ -51,6 +51,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
+import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
+import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 import uk.ac.gda.hrpd.cvscan.EpicsCVScanState;
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 
@@ -109,6 +111,11 @@ public class LivePlotComposite extends Composite implements IObserver {
 
 	private IPlottingSystem plottingSystem;
 	private IWorkbenchPart workbenchpart;
+	private EpicsProcessProgressMonitor progressMonitor;
+	private EpicsIntegerDataListener totalWorkListener;
+	private EpicsIntegerDataListener workListener;
+	private EpicsStringDataListener messageListener;
+	private EpicsEnumPVScannable stopScannable;	
 
 	public LivePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
@@ -123,9 +130,9 @@ public class LivePlotComposite extends Composite implements IObserver {
 		this.setLayout(layout);
 
 		Composite plotComposite = new Composite(this, SWT.None);
-		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridData data = new GridData (SWT.FILL, SWT.FILL, true, true);
+		plotComposite.setLayoutData(data);
 		plotComposite.setLayout(new FillLayout());
-
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, getPlotName(), part instanceof IViewPart ? ((IViewPart) part)
 				.getViewSite().getActionBars() : null, PlotType.XY, part);
@@ -134,7 +141,18 @@ public class LivePlotComposite extends Composite implements IObserver {
 		plottingSystem.getSelectedXAxis().setFormatPattern("###.###");
 		plottingSystem.setShowLegend(true);
 		plottingSystem.getSelectedXAxis().setRange(getxAxisMin(), getxAxisMax());
-	}
+
+		Composite progressComposite=new Composite(this, SWT.None);
+		data = new GridData (SWT.FILL, SWT.CENTER, true, false);
+		progressComposite.setLayoutData(data);
+		progressComposite.setLayout(new FillLayout());
+		progressComposite.setBackground(ColorConstants.cyan);
+		progressMonitor=new EpicsProcessProgressMonitor(progressComposite, null, true);
+		progressMonitor.setTotalWorkListener(getTotalWorkListener());
+		progressMonitor.setWorkedSoFarListener(getWorkListener());
+		progressMonitor.setMessageListener(getMessageListener());
+		progressMonitor.setStopScannable(getStopScannable());
+}
 
 	public void initialise() {
 		if (getDataFilenameObserverName() != null) {
@@ -157,6 +175,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 		}
 		// must have live updated data available observing
 		dataUpdatedListener.addIObserver(this);
+		progressMonitor.addIObservers();
 	}
 
 	@Override
@@ -415,5 +434,37 @@ public class LivePlotComposite extends Composite implements IObserver {
 
 	public void setDetectorStateToRunProgressService(String detectorStateToRunProgressService) {
 		this.detectorStateToRunProgressService = detectorStateToRunProgressService;
+	}
+
+	public EpicsIntegerDataListener getTotalWorkListener() {
+		return totalWorkListener;
+	}
+
+	public void setTotalWorkListener(EpicsIntegerDataListener totalWorkListener) {
+		this.totalWorkListener = totalWorkListener;
+	}
+
+	public EpicsIntegerDataListener getWorkListener() {
+		return workListener;
+	}
+
+	public void setWorkListener(EpicsIntegerDataListener workListener) {
+		this.workListener = workListener;
+	}
+
+	public EpicsStringDataListener getMessageListener() {
+		return messageListener;
+	}
+
+	public void setMessageListener(EpicsStringDataListener messageListener) {
+		this.messageListener = messageListener;
+	}
+
+	public EpicsEnumPVScannable getStopScannable() {
+		return stopScannable;
+	}
+
+	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+		this.stopScannable = stopScannable;
 	}
 }

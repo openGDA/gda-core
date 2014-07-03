@@ -1,6 +1,5 @@
 package uk.ac.gda.client.hrpd.views;
 
-import gda.device.scannable.EpicsScannable;
 import gda.jython.scriptcontroller.Scriptcontroller;
 
 import java.util.ArrayList;
@@ -9,6 +8,7 @@ import java.util.List;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IProgressService;
@@ -20,6 +20,7 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
+import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 /**
  * Live plotting of detector data during acquisition. 
@@ -79,7 +80,7 @@ public class LivePlotView extends ViewPart {
 	private EpicsIntegerDataListener totalWorkListener;
 	private EpicsIntegerDataListener workListener;
 	private EpicsStringDataListener messageListener;
-	private EpicsScannable stopScannable;	
+	private EpicsEnumPVScannable stopScannable;	
 
 	public LivePlotView() {
 		setTitleToolTip("live display of 1D detector data");
@@ -90,10 +91,7 @@ public class LivePlotView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		setPartName(getPlotName());
 		Composite rootComposite = new Composite(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		layout.type=SWT.VERTICAL;
-		rootComposite.setLayout(layout);
+		rootComposite.setLayout(new FillLayout());
 
 		try {
 			plotComposite = new LivePlotComposite(this, rootComposite, SWT.None);
@@ -109,13 +107,11 @@ public class LivePlotView extends ViewPart {
 			plotComposite.setDataFilenameObserverName(getDataFilenameObserverName());
 			plotComposite.setLowDataBound(getLowDataBound());
 			plotComposite.setHighDataBound(getHighDataBound());
+			plotComposite.setTotalWorkListener(getTotalWorkListener());
+			plotComposite.setWorkListener(getWorkListener());
+			plotComposite.setMessageListener(getMessageListener());
+			plotComposite.setStopScannable(getStopScannable());
 			plotComposite.initialise();
-			progressMonitor=new EpicsProcessProgressMonitor(rootComposite, null, true);
-			progressMonitor.setTotalWorkListener(getTotalWorkListener());
-			progressMonitor.setWorkedSoFarListener(getWorkListener());
-			progressMonitor.setMessageListener(getMessageListener());
-			progressMonitor.setStopScannable(getStopScannable());
-			progressMonitor.addIObservers();
 		} catch (Exception e) {
 			logger.error("Cannot create live plot composite.", e);
 		}
@@ -238,11 +234,11 @@ public class LivePlotView extends ViewPart {
 		this.messageListener = messageListener;
 	}
 
-	public EpicsScannable getStopScannable() {
+	public EpicsEnumPVScannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsScannable stopScannable) {
+	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 

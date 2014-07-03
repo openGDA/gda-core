@@ -26,7 +26,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
  org.python.pydev,
  org.dawnsci.plotting.api,
  org.eclipse.jface,
- uk.ac.gda.epics;bundle-version="1.0.0"
+ uk.ac.gda.epics;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0",
+ uk.ac.diamond.jython;bundle-version="2.5.3"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: com.artenum.jyconsole,
@@ -38,7 +40,13 @@ Import-Package: com.artenum.jyconsole,
  org.eclipse.search.ui,
  org.eclipse.ui.console,
  org.slf4j;version="1.7.6",
- org.springframework.beans.factory;version="3.2.2.RELEASE"
+ org.springframework.beans;version="3.2.2.RELEASE",
+ org.springframework.beans.factory;version="3.2.2.RELEASE",
+ org.springframework.beans.factory.support;version="3.2.2.RELEASE",
+ org.springframework.beans.factory.xml;version="3.2.2.RELEASE",
+ org.springframework.context;version="3.2.2.RELEASE",
+ org.springframework.core;version="3.2.2.RELEASE",
+ org.springframework.util;version="3.2.2.RELEASE"
 Bundle-ClassPath: jars/javatuples-1.2.jar,
  .
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
@@ -46,4 +54,5 @@ Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.springframework
 Export-Package: org.javatuples,
  org.javatuples.valueintf,
- uk.ac.gda.client.hrpd.epicsdatamonitor
+ uk.ac.gda.client.hrpd.epicsdatamonitor,
+ uk.ac.gda.client.hrpd.typedpvscannables
