@@ -990,14 +990,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	};;
 
 	private void initialisation() {
-		try {
+		try { // populate Combo list from EPICS PV 
 			comboElementSet.removeAll();
 			comboElementSet.setItems(getAnalyser().getElementSet());
 		} catch (DeviceException e) {
 			logger.error("Cannot get element set list from analyser.", e);
 			e.printStackTrace();
 		}
-		try {
+		try { // initialise with the current PV value
 			comboElementSet.setText(getAnalyser().getElement());
 		} catch (Exception e) {
 			logger.error("Cannot get the current element set from analyser.", e);
@@ -1085,13 +1085,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 		updateCalculatedData();
 		prepareRunOnServerActions();
-		channelmanager = new EpicsChannelManager(this);
+		//server event admin or handler
 		scriptcontroller = Finder.getInstance().find("SequenceFileObserver");
 		scriptcontroller.addIObserver(this);
-//		regionScannable = Finder.getInstance().find("regions");
-//		regionScannable.addIObserver(this);
-//		ew4000 = Finder.getInstance().find("ew4000");
-//		ew4000.addIObserver(this);
+		//EPICS monitor to update current region status
+		channelmanager = new EpicsChannelManager(this);
 		analyserStateListener = new AnalyserStateListener();
 		try {
 			createChannels();
@@ -1493,10 +1491,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private boolean isValidRegion(String elementset, Region region) {
 		com.google.common.collect.Table<String, String, String> lookupTable = getLookupTable(elementset);
 		if (lookupTable==null) {
-			// no validation required.
+			logger.warn("Analyser Kinetic energy range lookup table for {} element set is is available.",elementset);
 			return true;
 		}
-		String energyrange=lookupTable.get(elementset, String.valueOf(region.getPassEnergy()));
+		String energyrange=lookupTable.get(region.getLensMode(), String.valueOf(region.getPassEnergy()));
 		List<String> limits=Splitter.on("-").splitToList(energyrange);
 		if (region.getEnergyMode()==ENERGY_MODE.KINETIC) {
 			if (!(region.getLowEnergy()>=Double.parseDouble(limits.get(0)) && region.getHighEnergy()<=Double.parseDouble(limits.get(1)))) {
@@ -1522,7 +1520,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			invalidRefgions.remove(region);
 		}
 		return true;
-		
 	}
 	/**
 	 * create lens table for lookup energy range limits
@@ -1621,6 +1618,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			regionDefinitionResourceUtil.getResource().eAdapters().remove(notifyListener);
 			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
 			stateChannel.dispose();
+			scriptcontroller.deleteIObserver(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1672,11 +1670,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						logger.debug("Sequence file changed to {}",
-								((SequenceFileChangeEvent) arg).getFilename());
-						refreshTable(
-								((SequenceFileChangeEvent) arg).getFilename(),
-								false);
+						logger.debug("Sequence file changed to {}",((SequenceFileChangeEvent) arg).getFilename());
+						refreshTable(((SequenceFileChangeEvent) arg).getFilename(),false);
 					}
 				});
 			}
@@ -1684,10 +1679,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						logger.debug("region update to {}",
-								((RegionChangeEvent) arg).getRegionName());
-						String regionId = ((RegionChangeEvent) arg)
-								.getRegionId();
+						logger.debug("region update to {}",((RegionChangeEvent) arg).getRegionName());
+						String regionId = ((RegionChangeEvent) arg).getRegionId();
 						for (Region region : regions) {
 							if (region.getRegionId().equalsIgnoreCase(regionId)) {
 								if (currentRegion != region) {
@@ -1702,36 +1695,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				});
 			}
 		}
-		//TODO why the next 2 cases does not work?
-//		if (source instanceof RegionScannable) {
-//			if (arg instanceof RegionChangeEvent) {
-//				logger.debug("region update to {}", ((RegionChangeEvent)arg).getRegionName());
-//				String regionId = ((RegionChangeEvent) arg).getRegionId();
-//				for (Region region : regions) {
-//					if (region.getRegionId().equalsIgnoreCase(regionId)) {
-//						currentRegion = region;
-//					}
-//				}
-//				fireSelectionChanged(currentRegion);
-//				// TODO auto select this region in the viewer????
-//				//sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
-//			} 
-//		}
-//		if (source instanceof EW4000) {
-//			if (arg instanceof RegionChangeEvent) {
-//				logger.debug("region update to {}", ((RegionChangeEvent)arg).getRegionName());
-//				String regionId = ((RegionChangeEvent) arg).getRegionId();
-//				for (Region region : regions) {
-//					if (region.getRegionId().equalsIgnoreCase(regionId)) {
-//						currentRegion = region;
-//					}
-//				}
-//				fireSelectionChanged(currentRegion);
-//				// TODO auto select this region in the viewer????
-////				sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
-//			} 
-//		}
-//	
 		// TODO update current region status from detector or EPICS IOC
 
 	}
