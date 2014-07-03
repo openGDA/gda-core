@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,14 +100,18 @@ public class TextClientMythenClient implements MythenClient, InitializingBean {
 		List<String> args = createCommandLineArgs(params);
 
 		MythenTextClientExecResult result = execProcess(args.toArray(new String[] {}));
-
-		Pattern p = Pattern.compile(".+?(\\.\\.\\. data written .+? \\.\\.\\.\n\n)+frame incomplete -1\n");
-		Matcher m = p.matcher(result.output);
-		if (!m.matches()) {
-			final String actualOutputEscaped = result.output.replaceAll("\n", "\\\\n");
-			final String msg = String.format("Unexpected output from Mythen client: '%s'", actualOutputEscaped);
-			throw new DeviceException(msg);
+		
+		if (result.exitValue != 0){
+			throw new DeviceException("Exception while collecting a Mythen image");
 		}
+
+//		Pattern p = Pattern.compile(".+?(\\.\\.\\. data written .+? \\.\\.\\.\n\n)\n");
+//		Matcher m = p.matcher(result.output);
+//		if (!m.matches()) {
+//			final String actualOutputEscaped = result.output.replaceAll("\n", "\\\\n");
+//			final String msg = String.format("Unexpected output from Mythen client: '%s'", actualOutputEscaped);
+//			throw new DeviceException(msg);
+//		}
 	}
 
 	private MythenTextClientExecResult execProcess(String... args) throws DeviceException {
