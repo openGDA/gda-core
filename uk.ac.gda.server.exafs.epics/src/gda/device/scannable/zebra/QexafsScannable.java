@@ -162,9 +162,10 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 
 		super.stop();
 		resetDCMSpeed();
-		if (toggleEnergyControl) {
-			toggleEnergyControl();
-		}
+		// always toggle the energy when stopping. This takes a couple of seconds but the motor wwill not be stopped
+		// otherwise
+		toggleEnergyControl();
+
 	}
 
 	protected void resetDCMSpeed() throws DeviceException {
