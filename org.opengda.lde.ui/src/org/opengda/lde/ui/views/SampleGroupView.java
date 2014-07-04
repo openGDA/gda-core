@@ -49,10 +49,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.ISharedImages;
@@ -373,6 +375,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private List<Sample> samples;
 	private Resource resource;
 	private boolean isDirty;
+	private Text txtFilePath;
 
 	/**
 	 * The constructor.
@@ -413,6 +416,22 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			logger.error("Cannot load resouce from file: "+resUtil.getFileName(), e2);
 		}
 
+		Composite statusArea=new Composite(rootComposite, SWT.NONE);
+		statusArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		statusArea.setLayout(new GridLayout(2, false));	
+		Label lblSequnceFile = new Label(statusArea, SWT.None);
+		lblSequnceFile.setText("Sequence File: ");
+
+		txtFilePath = new Text(statusArea, SWT.BORDER | SWT.READ_ONLY);
+		txtFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		//TODO implement process progress bar here.
+		
+		initialisation();
+		// register as selection provider to the SelectionService
+		getViewSite().setSelectionProvider(this);
+//		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
+		
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "org.opengda.lde.ui.viewer");
 		makeActions();
