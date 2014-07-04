@@ -13,8 +13,7 @@ import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
 
-public class SampleGroupViewLabelProvider extends LabelProvider implements
-		ITableLabelProvider, ITableColorProvider {
+public class SampleGroupViewLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 
 	@Override
 	public Color getForeground(Object element, int columnIndex) {
