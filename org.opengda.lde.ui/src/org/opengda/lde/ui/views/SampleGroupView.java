@@ -4,7 +4,9 @@ package org.opengda.lde.ui.views;
 import gda.observable.IObserver;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +15,10 @@ import javax.mail.internet.InternetAddress;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.command.Command;
+import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.action.Action;
@@ -22,10 +28,10 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.EditingSupport;
@@ -33,18 +39,15 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.window.ToolTip;
 import org.eclipse.nebula.jface.cdatetime.CDateTimeCellEditor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
@@ -59,6 +62,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.SampleList;
+import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
+import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
 import org.opengda.lde.ui.providers.SampleTableConstants;
 import org.opengda.lde.ui.utils.LDEResourceUtil;
 import org.slf4j.Logger;
@@ -110,7 +115,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private List<Sample> sample;
 	private SampleList sampleList;
 	
-	private void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
+	private void createColumns(TableViewer tableViewer) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
 			TableColumn column = tableViewerColumn.getColumn();
@@ -364,45 +369,19 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
-
-	/*
-	 * The content provider class is responsible for
-	 * providing objects to the view. It can wrap
-	 * existing objects in adapters or simply return
-	 * objects as-is. These objects may be sensitive
-	 * to the current input of the view, or ignore
-	 * it and always show the same content 
-	 * (like Task List, for example).
-	 */
-	 
-	class ViewContentProvider implements IStructuredContentProvider {
-		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-		}
-		public void dispose() {
-		}
-		public Object[] getElements(Object parent) {
-			return new String[] { "One", "Two", "Three" };
-		}
-	}
-	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
-		public String getColumnText(Object obj, int index) {
-			return getText(obj);
-		}
-		public Image getColumnImage(Object obj, int index) {
-			return getImage(obj);
-		}
-		public Image getImage(Object obj) {
-			return PlatformUI.getWorkbench().
-					getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
-		}
-	}
-	class NameSorter extends ViewerSorter {
-	}
+	
+	private List<Sample> samples;
+	private Resource resource;
+	private boolean isDirty;
 
 	/**
 	 * The constructor.
 	 */
 	public SampleGroupView() {
+		setTitleToolTip("Create a new or editing an existing sample");
+		// setContentDescription("A view for editing sample parameters");
+		setPartName("Samples");
+		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
 	}
 
 	/**
@@ -410,11 +389,29 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	 * to create the viewer and initialize it.
 	 */
 	public void createPartControl(Composite parent) {
-		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		viewer.setContentProvider(new ViewContentProvider());
-		viewer.setLabelProvider(new ViewLabelProvider());
-		viewer.setSorter(new NameSorter());
-		viewer.setInput(getViewSite());
+		Composite rootComposite = new Composite(parent, SWT.NONE);
+		rootComposite.setLayout(new GridLayout());
+		rootComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		viewer = new TableViewer(rootComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		viewer.getTable().setHeaderVisible(true);
+		viewer.getTable().setLinesVisible(true);
+		
+		ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
+		createColumns(viewer);
+		
+		viewer.setContentProvider(new SampleGroupViewContentProvider(resUtil));
+		viewer.setLabelProvider(new SampleGroupViewLabelProvider());
+		
+		samples = Collections.emptyList();
+
+		try {
+			resource = resUtil.getResource();
+			resource.eAdapters().add(notifyListener);
+			viewer.setInput(resource);
+		} catch (Exception e2) {
+			logger.error("Cannot load resouce from file: "+resUtil.getFileName(), e2);
+		}
 
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "org.opengda.lde.ui.viewer");
@@ -424,6 +421,21 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		contributeToActionBars();
 	}
 
+	private Adapter notifyListener = new EContentAdapter() {
+
+		@Override
+		public void notifyChanged(Notification notification) {
+			super.notifyChanged(notification);
+			if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null
+					&& (!notification.getFeature().equals(LDEExperimentsPackage.eINSTANCE.getSample_Status()) 
+						|| !notification.getFeature().equals(LDEExperimentsPackage.eINSTANCE.getSample_MailCount()) 
+						|| !notification.getFeature().equals(LDEExperimentsPackage.eINSTANCE.getSample_DataFileCount()))) {
+				isDirty = true;
+				firePropertyChange(PROP_DIRTY);
+			}
+		}
+	};
+	
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
