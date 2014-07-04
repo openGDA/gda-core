@@ -1,25 +1,59 @@
 package org.opengda.lde.ui.views;
 
 
-import java.util.List;
-
 import gda.observable.IObserver;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DateTime;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.ui.part.*;
+import java.io.File;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.jface.action.*;
+import org.eclipse.emf.common.command.Command;
+import org.eclipse.emf.edit.command.SetCommand;
+import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.CheckboxCellEditor;
+import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.nebula.jface.cdatetime.CDateTimeCellEditor;
-import org.eclipse.ui.*;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISaveablePart;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
+import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.SampleList;
 import org.opengda.lde.ui.providers.SampleTableConstants;
@@ -52,9 +86,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "org.opengda.lde.ui.views.SampleGroupView";
+	public static final String DATA_DRIVER="dls";
+	public static final String DATA_FOLDER="data";
 	private static final Logger logger = LoggerFactory.getLogger(SampleGroupView.class);
 	private List<ISelectionChangedListener> selectionChangedListeners;
 	private LDEResourceUtil resUtil;
+	private EditingDomain editingDomain;
 	
 	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
 			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.EMAIL,
@@ -83,6 +120,14 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 	}
 
+	private void initialisation() {
+		try {
+			editingDomain=resUtil.getEditingDomain();
+		} catch (Exception e) {
+			logger.error("Cannot get editing domain object.", e);
+			throw new RuntimeException("Cannot get editing domain object.");
+		}
+	}
 	private class TableColumnEditingSupport extends EditingSupport {
 		
 		private String columnIdentifier;
@@ -97,32 +142,215 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		protected CellEditor getCellEditor(Object element) {
 			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
 				return new CheckboxCellEditor(table);
+			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
 			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)){
 				return new CDateTimeCellEditor(table);
+			} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)){
+				return new CDateTimeCellEditor(table);
 			}
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		protected boolean canEdit(Object element) {
-			// TODO Auto-generated method stub
+			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)) {
+				return true;
+			} 
 			return false;
 		}
 
 		@Override
 		protected Object getValue(Object element) {
-			// TODO Auto-generated method stub
+			if (element instanceof Sample) {
+				Sample sample = (Sample) element;
+				if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
+					return sample.isActive();
+				} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
+					return sample.getName();
+				} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
+					return sample.getCellID();
+				} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
+					return sample.getVisitID();
+				} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
+					return sample.getEmail();
+				} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
+					return sample.getCommand();
+				} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
+					return sample.getComment();
+				} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)) {
+					return sample.getStartDate();
+				} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)) {
+					return sample.getEndDate();
+				} 
+			}
 			return null;
 		}
 
 		@Override
 		protected void setValue(Object element, Object value) {
-			// TODO Auto-generated method stub
-			
+			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
+				if (value instanceof Boolean) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Name(), value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.SAMPLE_NAME+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						if (isValidCellID((String)value)) {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_CellID(), value));
+						}
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.CELL_ID+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						if (isValidVisitID((Sample)element, (String)value)) {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_VisitID(), value));
+						}
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.VISIT_ID+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						if (isValidEmail((String)value)) {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Email(), value));
+						}
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.EMAIL+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						if (isValidCommand((String)value)) {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Command(), value));
+						}
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.COMMAND+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Comment(), value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.COMMENT+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)) {
+				if (value instanceof Date) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_StartDate(), value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.START_DATE+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)) {
+				if (value instanceof Date) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_EndDate(), value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.END_DATE+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} 
 		}
-		
+
+		private boolean isValidCommand(String value) {
+			// TODO Implement GDA command validator?
+			// validate single/multiple commands, e.g. scan, pos, scripts, etc. HOW???
+			return true;
+		}
+
+		private boolean isValidEmail(String value) {
+			String EMAIL_REGEX = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
+			if (value.matches(EMAIL_REGEX)) {
+				return true;
+			}
+			String message="Email: " + value +" is incorrectly formatted.";
+			openMessageBox(message, "Invalid Email Address");
+			return false;
+		}
+
+		private boolean isValidCellID(String value) {
+			File dir=new File(File.separator+DATA_DRIVER+File.separator+value);
+			if (dir.exists()) {
+				return true;
+			}
+			String message="Cannot find the data directory '" + dir.getAbsolutePath()+"' for this sample on data storage driver.\n";
+			openMessageBox(message, "Invalid Cell ID");
+			return false;
+		}
+
+		private boolean isValidVisitID(Sample sample, String value) {
+			if (sample.getCellID()== null || sample.getCellID().isEmpty()) {
+				String message="Cell ID must be set before visit ID.\n";
+				openMessageBox(message, "Cell ID Missing");
+				return false;
+			}
+			File dir=new File(File.separator+DATA_DRIVER+File.separator+sample.getCellID()+File.separator+DATA_FOLDER+File.separator+Calendar.getInstance().get(Calendar.YEAR)+File.separator+value);
+			if (dir.exists()) {
+				return true;
+			}
+			String message="Cannot find the data directory '" + dir.getAbsolutePath()+"' for this sample on data storage driver.\n";
+			openMessageBox(message, "Invalid Visit ID");
+			return false;
+		}
 	}
+	
+	private void openMessageBox(String message, String title) {
+		MessageBox dialog=new MessageBox(getSite().getShell(), SWT.ICON_ERROR | SWT.OK);
+		dialog.setText(title);
+		dialog.setMessage(message);
+		dialog.open();
+	}
+	
+	protected void runCommand(final Command rmCommand) throws Exception {
+		editingDomain.getCommandStack().execute(rmCommand);
+	}
+	
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
