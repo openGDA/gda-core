@@ -8,6 +8,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.edit.command.SetCommand;
@@ -307,7 +310,14 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		private boolean isValidEmail(String value) {
 			String EMAIL_REGEX = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
 			if (value.matches(EMAIL_REGEX)) {
-				return true;
+				try {
+					InternetAddress emailAddr=new InternetAddress(value);
+					return true;
+				} catch (AddressException e) {
+					String message=e.getMessage();
+					openMessageBox(message, "Invalid Email Address");
+					return false;
+				}
 			}
 			String message="Email: " + value +" is incorrectly formatted.";
 			openMessageBox(message, "Invalid Email Address");
