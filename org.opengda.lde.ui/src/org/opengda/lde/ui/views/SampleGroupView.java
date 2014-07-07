@@ -1,6 +1,7 @@
-package org.opengda.lde.ui.views;
+	package org.opengda.lde.ui.views;
 
 
+import gda.commandqueue.JythonCommandCommandProvider;
 import gda.observable.IObserver;
 
 import java.io.File;
@@ -14,6 +15,10 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
@@ -39,7 +44,6 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
@@ -52,24 +56,31 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISaveablePart;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.SampleList;
+import org.opengda.lde.ui.Activator;
+import org.opengda.lde.ui.ImageConstants;
+import org.opengda.lde.ui.jobs.SampleCollectionJob;
 import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
 import org.opengda.lde.ui.providers.SampleTableConstants;
 import org.opengda.lde.ui.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.client.CommandQueueViewFactory;
 
 
 /**
@@ -116,7 +127,281 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private TableViewer viewer;
 	private List<Sample> sample;
 	private SampleList sampleList;
+
+	private Action doubleClickAction;
+	private Action startAction;
+	private Action stopAction;
+	private boolean paused;
+	private Action pauseAction;
+	private Action resumeAction;
+	private Action skipAction;
+	private boolean running;
 	
+	private List<Sample> samples;
+	private Resource resource;
+	private boolean isDirty;
+	private Text txtFilePath;
+	private Text txtDataFilename;
+	private Text txtCurrentPosition;
+	
+
+	/**
+	 * The constructor.
+	 */
+	public SampleGroupView() {
+		setTitleToolTip("Create a new or editing an existing sample");
+		// setContentDescription("A view for editing sample parameters");
+		setPartName("Samples");
+		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
+	}
+
+	/**
+	 * This is a callback that will allow us
+	 * to create the viewer and initialize it.
+	 */
+	public void createPartControl(Composite parent) {
+		Composite rootComposite = new Composite(parent, SWT.NONE);
+		rootComposite.setLayout(new GridLayout());
+//		rootComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		viewer = new TableViewer(rootComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
+		Table table = viewer.getTable();
+		GridData gd_table = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		gd_table.heightHint = 386;
+		gd_table.widthHint = 586;
+		table.setLayoutData(gd_table);
+		viewer.getTable().setHeaderVisible(true);
+		viewer.getTable().setLinesVisible(true);
+		
+		ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
+		createColumns(viewer);
+		
+		TableColumn tblclmnNewColumn_1 = new TableColumn(table, SWT.NONE);
+		tblclmnNewColumn_1.setWidth(100);
+		tblclmnNewColumn_1.setText("New Column");
+		
+		TableColumn tblclmnNewColumn = new TableColumn(table, SWT.NONE);
+		tblclmnNewColumn.setWidth(100);
+		tblclmnNewColumn.setText("New Column");
+		
+		TableItem tableItem = new TableItem(table, SWT.NONE);
+		tableItem.setText("New TableItem");
+		
+		TableItem tableItem_1 = new TableItem(table, SWT.NONE);
+		tableItem_1.setText("New TableItem");
+		
+		viewer.setContentProvider(new SampleGroupViewContentProvider(resUtil));
+		viewer.setLabelProvider(new SampleGroupViewLabelProvider());
+		
+		samples = Collections.emptyList();
+		try {
+			resource = resUtil.getResource();
+			resource.eAdapters().add(notifyListener);
+			viewer.setInput(resource);
+		} catch (Exception e2) {
+			logger.error("Cannot load resouce from file: "+resUtil.getFileName(), e2);
+		}
+
+		Composite statusArea=new Composite(rootComposite, SWT.NONE);
+		statusArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+		statusArea.setLayout(new GridLayout(4, false));
+		Label lblSampleListFile = new Label(statusArea, SWT.None);
+		lblSampleListFile.setText("Sample List File: ");
+
+		txtFilePath = new Text(statusArea, SWT.BORDER | SWT.READ_ONLY);
+		txtFilePath.setToolTipText("show the filename holding the sample list displayed in the table above");
+		txtFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtFilePath.setEditable(false);
+		
+		Label lblDataFile = new Label(statusArea, SWT.NONE);
+		lblDataFile.setText("Current Data File:");
+		
+		txtDataFilename = new Text(statusArea, SWT.BORDER);
+		txtDataFilename.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtDataFilename.setEditable(false);
+		txtDataFilename.setToolTipText("Data file to be written for the current collection");
+		
+		Label lblProgress = new Label(statusArea, SWT.NONE);
+		lblProgress.setText("List Progress:");
+		
+		ProgressBar progressBar = new ProgressBar(statusArea, SWT.NONE);
+		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		progressBar.setToolTipText("show the data collection progress based on the list of active samples displayed in the table");
+		
+		Label lblCurrentState = new Label(statusArea, SWT.NONE);
+		lblCurrentState.setText("Current Process:");
+		
+		txtCurrentPosition = new Text(statusArea, SWT.BORDER);
+		txtCurrentPosition.setEditable(false);
+		txtCurrentPosition.setToolTipText("show the current process position out of the total number of active processes ");
+		txtCurrentPosition.setText("1/1");
+		
+		initialisation();
+		// register as selection provider to the SelectionService
+		getViewSite().setSelectionProvider(this);
+//		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
+		
+		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void done(IJobChangeEvent event) {
+				Job job = event.getJob();
+				if (job instanceof SampleCollectionJob) {
+					SampleCollectionJob regionJob = (SampleCollectionJob) job;
+					IStatus result = event.getResult();
+					if (result.isOK()) {
+						updateSampleStatus(regionJob, STATUS.COMPLETED);
+					} else if (result.getSeverity() == IStatus.CANCEL) {
+						updateSampleStatus(regionJob, STATUS.ABORTED);
+					} else if (result.getSeverity() == IStatus.ERROR) {
+						updateSampleStatus(regionJob, STATUS.ABORTED);
+					}
+
+					if (Job.getJobManager().find(SampleCollectionJob.FAMILY_SAMPLE_JOB).length == 0) {
+						logger.info("Samples {} collection completed.", resUtil.getFileName());
+						updateActionIconsState();
+					}
+				}
+				super.done(event);
+			}
+
+			@Override
+			public void running(IJobChangeEvent event) {
+				Job job = event.getJob();
+				if (job instanceof SampleCollectionJob) {
+					final SampleCollectionJob regionJob = (SampleCollectionJob) job;
+					updateSampleStatus(regionJob, STATUS.RUNNING);
+				}
+				super.running(event);
+			}
+		});
+		
+		// Create the help context id for the viewer's control
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "org.opengda.lde.ui.viewer");
+		makeActions();
+		hookContextMenu();
+		hookDoubleClickAction();
+		contributeToActionBars();
+	}
+
+	private void initialisation() {
+		try {
+			editingDomain=resUtil.getEditingDomain();
+		} catch (Exception e) {
+			logger.error("Cannot get editing domain object.", e);
+			throw new RuntimeException("Cannot get editing domain object.");
+		}
+		CommandQueueViewFactory.getProcessor().addIObserver(this);
+	}
+
+	private void makeActions() {
+		startAction= new Action() {
+
+			@Override
+			public void run() {
+				super.run();
+				logger.info("Start data collection on GDA server.");
+				running = true;
+				paused=false;
+				updateActionIconsState();
+				try {
+					for (Sample sample : samples) {
+						if (sample.isActive()) {
+							JythonCommandCommandProvider command = new JythonCommandCommandProvider(sample.getCommand(), sample.getName(), null);
+							CommandQueueViewFactory.getQueue().addToTail(command);
+						}
+					}
+				} catch (Exception e) {
+					logger.error("exception throws on start queue processor.", e);
+					running = false;
+					updateActionIconsState();
+				}
+			}
+		};
+		startAction.setText("Start");
+		startAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_START));
+		startAction.setToolTipText("Start data collection for the active samples on GDA server");
+		
+		stopAction= new Action() {
+
+			@Override
+			public void run() {
+				super.run();
+				logger.info("Stop data collection on GDA server.");
+				try {
+					CommandQueueViewFactory.getProcessor().stop(100000);
+					running=false;
+					paused=false;
+				} catch (Exception e) {
+					logger.error("exception throws on stop GDA server queue processor.", e);
+				}
+				updateActionIconsState();
+			}
+		};
+		stopAction.setText("Stop");
+		stopAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
+		stopAction.setToolTipText("Stop data collection immediately on GDA server");
+		
+		pauseAction= new Action() {
+
+			@Override
+			public void run() {
+				super.run();
+				logger.info("Pause data collection on GDA server.");
+				try {
+					CommandQueueViewFactory.getProcessor().pause(100000);
+					running=false;
+					paused=true;
+				} catch (Exception e) {
+					logger.error("exception throws on stop GDA server queue processor.", e);
+				}
+				updateActionIconsState();
+			}
+		};
+		pauseAction.setText("Pause");
+		pauseAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_PAUSE));
+		pauseAction.setToolTipText("Pause data collection on GDA server");
+		
+		resumeAction= new Action() {
+
+			@Override
+			public void run() {
+				super.run();
+				logger.info("Resume data collection on GDA server.");
+				running=true;
+				paused=false;
+				updateActionIconsState();
+				try {
+					CommandQueueViewFactory.getProcessor().start(100000);
+				} catch (Exception e) {
+					logger.error("exception throws on stop GDA server queue processor.", e);
+					running = false;
+					updateActionIconsState();
+				}
+			}
+		};
+		resumeAction.setText("Resume");
+		resumeAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_RESUME));
+		resumeAction.setToolTipText("Resume data collection on GDA server");
+		
+		skipAction= new Action() {
+
+			@Override
+			public void run() {
+				super.run();
+				logger.info("Skip the current sample data collection on GDA server.");
+				try {
+					CommandQueueViewFactory.getProcessor().skip(100000);
+				} catch (Exception e) {
+					logger.error("exception throws on stop GDA server queue processor.", e);
+				}
+				updateActionIconsState();
+			}
+		};
+		skipAction.setText("Skip");
+		skipAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_SKIP));
+		skipAction.setToolTipText("Skip the current sample data collection on GDA server");
+	}
+
 	private void createColumns(TableViewer tableViewer) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
@@ -130,14 +415,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 	}
 
-	private void initialisation() {
-		try {
-			editingDomain=resUtil.getEditingDomain();
-		} catch (Exception e) {
-			logger.error("Cannot get editing domain object.", e);
-			throw new RuntimeException("Cannot get editing domain object.");
-		}
-	}
+
 	private class TableColumnEditingSupport extends EditingSupport {
 		
 		private String columnIdentifier;
@@ -368,78 +646,41 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		editingDomain.getCommandStack().execute(rmCommand);
 	}
 	
-	private Action action1;
-	private Action action2;
-	private Action doubleClickAction;
-	
-	private List<Sample> samples;
-	private Resource resource;
-	private boolean isDirty;
-	private Text txtFilePath;
 
-	/**
-	 * The constructor.
-	 */
-	public SampleGroupView() {
-		setTitleToolTip("Create a new or editing an existing sample");
-		// setContentDescription("A view for editing sample parameters");
-		setPartName("Samples");
-		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
-	}
-
-	/**
-	 * This is a callback that will allow us
-	 * to create the viewer and initialize it.
-	 */
-	public void createPartControl(Composite parent) {
-		Composite rootComposite = new Composite(parent, SWT.NONE);
-		rootComposite.setLayout(new GridLayout());
-		rootComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		viewer = new TableViewer(rootComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		viewer.getTable().setHeaderVisible(true);
-		viewer.getTable().setLinesVisible(true);
-		
-		ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
-		createColumns(viewer);
-		
-		viewer.setContentProvider(new SampleGroupViewContentProvider(resUtil));
-		viewer.setLabelProvider(new SampleGroupViewLabelProvider());
-		
-		samples = Collections.emptyList();
-
-		try {
-			resource = resUtil.getResource();
-			resource.eAdapters().add(notifyListener);
-			viewer.setInput(resource);
-		} catch (Exception e2) {
-			logger.error("Cannot load resouce from file: "+resUtil.getFileName(), e2);
+	private void updateActionIconsState() {
+		if (running) {
+			startAction.setEnabled(false);
+			stopAction.setEnabled(true);
+			skipAction.setEnabled(true);
+			if (paused) {
+				pauseAction.setEnabled(false);
+				resumeAction.setEnabled(true);
+				
+			} else {
+				pauseAction.setEnabled(true);
+				resumeAction.setEnabled(false);
+			}
+		} else {
+			startAction.setEnabled(true);
+			stopAction.setEnabled(false);
+			pauseAction.setEnabled(false);
+			resumeAction.setEnabled(false);
+			skipAction.setEnabled(false);
 		}
-
-		Composite statusArea=new Composite(rootComposite, SWT.NONE);
-		statusArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		statusArea.setLayout(new GridLayout(2, false));	
-		Label lblSequnceFile = new Label(statusArea, SWT.None);
-		lblSequnceFile.setText("Sequence File: ");
-
-		txtFilePath = new Text(statusArea, SWT.BORDER | SWT.READ_ONLY);
-		txtFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
-		//TODO implement process progress bar here.
-		
-		initialisation();
-		// register as selection provider to the SelectionService
-		getViewSite().setSelectionProvider(this);
-//		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
-		
-		// Create the help context id for the viewer's control
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "org.opengda.lde.ui.viewer");
-		makeActions();
-		hookContextMenu();
-		hookDoubleClickAction();
-		contributeToActionBars();
 	}
+	
+	private void updateSampleStatus(final SampleCollectionJob sampleJob, final STATUS status) {
+		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
+			@Override
+			public void run() {
+				Sample sample = sampleJob.getSample();
+				sample.setStatus(status);
+				viewer.refresh();
+			}
+		});
+	}
+	
 	private Adapter notifyListener = new EContentAdapter() {
 
 		@Override
@@ -454,6 +695,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			}
 		}
 	};
+
 	
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
@@ -475,50 +717,29 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	}
 
 	private void fillLocalPullDown(IMenuManager manager) {
-		manager.add(action1);
-		manager.add(new Separator());
-		manager.add(action2);
+		manager.add(startAction);
+		manager.add(stopAction);
+		manager.add(pauseAction);
+		manager.add(resumeAction);
+		manager.add(skipAction);
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
-		manager.add(action1);
-		manager.add(action2);
+		manager.add(startAction);
+		manager.add(stopAction);
+		manager.add(pauseAction);
+		manager.add(resumeAction);
+		manager.add(skipAction);
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(action1);
-		manager.add(action2);
-	}
-
-	private void makeActions() {
-		action1 = new Action() {
-			public void run() {
-				showMessage("Action 1 executed");
-			}
-		};
-		action1.setText("Action 1");
-		action1.setToolTipText("Action 1 tooltip");
-		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		
-		action2 = new Action() {
-			public void run() {
-				showMessage("Action 2 executed");
-			}
-		};
-		action2.setText("Action 2");
-		action2.setToolTipText("Action 2 tooltip");
-		action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		doubleClickAction = new Action() {
-			public void run() {
-				ISelection selection = viewer.getSelection();
-				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				showMessage("Double-click detected on "+obj.toString());
-			}
-		};
+		manager.add(startAction);
+		manager.add(stopAction);
+		manager.add(pauseAction);
+		manager.add(resumeAction);
+		manager.add(skipAction);
 	}
 
 	private void hookDoubleClickAction() {

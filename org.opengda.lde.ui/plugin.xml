@@ -12,7 +12,7 @@
             name="Sample View"
             icon="icons/sample.gif"
             category="org.opengda.lde.ui"
-            class="org.opengda.lde.ui.views.SampleGroupView"
+            class="org.opengda.lde.ui.views.updateSampleStatus"
             id="org.opengda.lde.ui.views.SampleGroupView">
       </view>
    </extension>

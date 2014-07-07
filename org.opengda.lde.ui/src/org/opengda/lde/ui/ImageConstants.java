@@ -47,14 +47,16 @@ public class ImageConstants {
 
 	public static final String ICON_RUN_READY = "icons/runready.png";
 	public static final String ICON_RUNNING = "icons/running.png";
-	public static final String ICON_RUN_COMPLETE = "icons/runcomplete.png";
-	public static final String ICON_RUN_FAILURE = "icons/runerror.png";
-	public static final String ICON_INVALID = "icons/error.png";
+	public static final String ICON_RUN_COMPLETE = "icons/complete_status.gif";
+	public static final String ICON_RUN_FAILURE = "icons/progress_error.gif";
+	public static final String ICON_INVALID = "icons/invalid.png";
+	public static final String ICON_ERROR = "icons/errorstate.gif";
 
 	public static final String ICON_START = "icons/start_task.gif";
-	public static final String ICON_STOP = "icons/stop.gif";
-	public static final String ICON_PAUSE = "icons/pause.gif";
-	public static final String ICON_RESUME = "icons/resume.gif";
+	public static final String ICON_STOP = "icons/stop_task.gif";
+	public static final String ICON_PAUSE = "icons/pause_task.gif";
+	public static final String ICON_SKIP = "icons/skip_task.gif";
+	public static final String ICON_RESUME = "icons/resume_task.gif";
 	public static final String ICON_STATUS = "icons/status.png";
 
 	public static final String ICON_RUN_ON_SERVER = "icons/run_on_server.gif";
@@ -65,7 +67,7 @@ public class ImageConstants {
 			ICON_RESET_DETECTOR, ICON_CTRL_BTN, ICON_CHECKED_STATE, ICON_UNCHECKED_STATE, 
 			ICON_OPEN_TASK, ICON_SAVE_TASK, ICON_SAVEAS_TASK,
 			ICON_ADD_OBJ, ICON_DELETE_OBJ, ICON_UNDO_EDIT, ICON_REDO_EDIT, ICON_COPY_EDIT, ICON_PASTE_EDIT, ICON_NEW_WIZ_EDIT,
-			ICON_RUN_READY, ICON_RUNNING, ICON_RUN_COMPLETE, ICON_RUN_FAILURE, ICON_INVALID,
-			ICON_START, ICON_STOP, ICON_PAUSE, ICON_RESUME, ICON_STATUS, ICON_RUN_ON_SERVER, ICON_STOP_SERVER };
+			ICON_RUN_READY, ICON_RUNNING, ICON_RUN_COMPLETE, ICON_RUN_FAILURE, ICON_INVALID, ICON_ERROR,
+			ICON_START, ICON_STOP, ICON_PAUSE, ICON_SKIP, ICON_RESUME, ICON_STATUS, ICON_RUN_ON_SERVER, ICON_STOP_SERVER };
 
 }
