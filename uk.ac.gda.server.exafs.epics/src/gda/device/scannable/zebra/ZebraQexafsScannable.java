@@ -81,6 +81,14 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	private Channel  widthReadback_deg_Chnl;
 	private Channel  widthReadback_counts_Chnl;
 
+	private double startReadback_deg;
+
+	private double stepSize_counts;
+
+	private double width_deg;
+
+	private double width_counts;
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
@@ -116,6 +124,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	@Override
 	public void prepareForContinuousMove() throws DeviceException {
 		long timeAtMethodStart = System.currentTimeMillis();
+		super.prepareForContinuousMove();
 		if (!channelsConfigured) {
 			throw new DeviceException("Cannot set continuous mode on for " + getName()
 					+ " as Epics channels not configured");
@@ -149,6 +158,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			// TODO tidy up and move Strings to constants 
 
 			// fixed settings
+			logger.debug("Time before fixed zebra settings");
 			controller.caput(armTrigSourceChnl, "Soft");
 			controller.caput(gateTrigSourceChnl, "Position");
 			controller.caput(numGatesChnl, 1);
@@ -158,15 +168,26 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			controller.caput(positionTrigChnl, "Enc1-4Av");
 
 			// variable settings
+			logger.debug("Time before variable zebra settings");
 			double startDeg = radToDeg(startAngle);
 			double stopDeg = radToDeg(endAngle);
 			double stepDeg = Math.abs(radToDeg(stepSize));
 			double width = Math.abs(stopDeg - startDeg);
 			String positionDirection = stopDeg > startDeg ? "Positive" : "Negative";
+			controller.caput(positionDirectionChnl, positionDirection);
 			controller.caput(gateStartChnl, startDeg);
 			controller.caput(gateWidthChnl, width);
-			controller.caput(pulseStepChnl, stepDeg);
-			controller.caputWait(positionDirectionChnl, positionDirection);
+			controller.caputWait(pulseStepChnl, stepDeg);
+			logger.debug("Time before final zebra set with a wait");
+			
+			// now get the readbacks. These will be used when calculating the real energy of each step in the scan
+			logger.debug("Time before zebra readbacks");
+			startReadback_deg = controller.cagetDouble(startReadback_deg_Chnl);
+			// double startReadback_counts =  controller.cagetDouble(startReadback_counts_Chnl) / 4;
+			// double stepSize_deg = controller.cagetDouble(stepSize_deg_Chnl) / 4;
+			stepSize_counts = controller.cagetDouble(stepSizeReadback_counts_Chnl);
+			width_deg =controller.cagetDouble(widthReadback_deg_Chnl);
+			width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
 
 			long timeAtMethodEnd = System.currentTimeMillis();
 			logger.debug("Time spent in prepareForContinuousMove = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
@@ -282,14 +303,6 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	private double calculateFrameEnergyFromZebraReadback(int frameIndex) throws TimeoutException, CAException,
 			InterruptedException {
-		// calculate the energy of the frame based on the readback of step size from Zebra (as encoder will use integer number of steps which may not match demanded step size).
-		double startReadback_deg = controller.cagetDouble(startReadback_deg_Chnl);
-		// double startReadback_counts =  controller.cagetDouble(startReadback_counts_Chnl) / 4;
-		// double stepSize_deg = controller.cagetDouble(stepSize_deg_Chnl) / 4;
-		double stepSize_counts = controller.cagetDouble(stepSizeReadback_counts_Chnl);
-		double width_deg =controller.cagetDouble(widthReadback_deg_Chnl);
-		double width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
-
 		double countsPerDegree = width_deg / width_counts;
 
 		double frameCentre_offset_cts = ((stepSize_counts * frameIndex) + (0.5 * stepSize_counts));
