@@ -2,7 +2,9 @@
 
 
 import gda.commandqueue.CommandId;
+import gda.commandqueue.CommandProgress;
 import gda.commandqueue.JythonCommandCommandProvider;
+import gda.commandqueue.Processor;
 import gda.configuration.properties.LocalProperties;
 import gda.observable.IObserver;
 
@@ -348,7 +350,39 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	
 	@Override
 	public void update(Object source, Object arg) {
-		// TODO Auto-generated method stub
+		if (source == CommandQueueViewFactory.getProcessor()) {
+			if (arg instanceof Processor.STATE) {
+				Processor.STATE argState=(Processor.STATE)arg;
+				if (argState==Processor.STATE.WAITING_START){
+					
+				} else if (argState==Processor.STATE.PROCESSING_ITEMS){
+					
+				} else if (argState==Processor.STATE.WAITING_QUEUE){
+					
+				} else if (argState==Processor.STATE.UNKNOWN){
+					
+				}
+			} else if (arg instanceof gda.commandqueue.Command.STATE) {
+				gda.commandqueue.Command.STATE argState=(gda.commandqueue.Command.STATE)arg;
+				if (argState==gda.commandqueue.Command.STATE.NOT_STARTED) {
+					
+				} else if (argState==gda.commandqueue.Command.STATE.RUNNING) {
+					
+				} else if (argState==gda.commandqueue.Command.STATE.PAUSED) {
+					
+				} else if (argState==gda.commandqueue.Command.STATE.COMPLETED) {
+					
+				} else if (argState==gda.commandqueue.Command.STATE.ABORTED) {
+					
+				} else if (argState==gda.commandqueue.Command.STATE.ERROR) {
+					
+				} 
+			} else if (arg instanceof CommandProgress) {
+				CommandProgress cprog=(CommandProgress)arg;
+				cprog.getPercentDone();
+			}
+			
+		}
 		
 	}
 
