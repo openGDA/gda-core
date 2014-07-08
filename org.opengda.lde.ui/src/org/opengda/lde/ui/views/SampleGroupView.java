@@ -2,6 +2,7 @@
 
 
 import gda.commandqueue.JythonCommandCommandProvider;
+import gda.configuration.properties.LocalProperties;
 import gda.observable.IObserver;
 
 import java.io.File;
@@ -24,6 +25,9 @@ import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.edit.command.AddCommand;
+import org.eclipse.emf.edit.command.RemoveCommand;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.action.Action;
@@ -44,6 +48,7 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
@@ -66,6 +71,7 @@ import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
@@ -77,6 +83,7 @@ import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
 import org.opengda.lde.ui.providers.SampleTableConstants;
 import org.opengda.lde.ui.utils.LDEResourceUtil;
+import org.opengda.lde.ui.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,12 +144,19 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private Action skipAction;
 	private boolean running;
 	
+	private Action addAction;
+	private Action deleteAction;
+	private Action copyAction;
+	private Action undoAction;
+	private Action redoAction;
+
 	private List<Sample> samples;
 	private Resource resource;
 	private boolean isDirty;
 	private Text txtFilePath;
 	private Text txtDataFilename;
 	private Text txtCurrentPosition;
+	protected int nameCount;
 	
 
 	/**
@@ -290,6 +304,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			logger.error("Cannot get editing domain object.", e);
 			throw new RuntimeException("Cannot get editing domain object.");
 		}
+		try {
+			samples=resUtil.getSamples();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		CommandQueueViewFactory.getProcessor().addIObserver(this);
 	}
 
@@ -306,7 +326,10 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				try {
 					for (Sample sample : samples) {
 						if (sample.isActive()) {
-							JythonCommandCommandProvider command = new JythonCommandCommandProvider(sample.getCommand(), sample.getName(), null);
+							//set data file path for each sample before data collection
+							String commandString="LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, "+ getDataDirectory(sample) + ");";
+							commandString += sample.getCommand();
+							JythonCommandCommandProvider command = new JythonCommandCommandProvider(commandString, sample.getName(), null);
 							CommandQueueViewFactory.getQueue().addToTail(command);
 						}
 					}
@@ -400,6 +423,132 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		skipAction.setText("Skip");
 		skipAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_SKIP));
 		skipAction.setToolTipText("Skip the current sample data collection on GDA server");
+		
+		addAction = new Action() {
+
+			@Override
+			public void run() {
+				try {
+					Sample newSample = LDEExperimentsFactory.eINSTANCE.createSample();
+					nameCount = StringUtils.largestIntAtEndStringsWithPrefix(getSampleNames(), newSample.getName());
+					if (nameCount != -1) {
+						// increment the name
+						nameCount++;
+						newSample.setName(newSample.getName() + nameCount);
+					}
+					editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, resUtil.getSampelList(), LDEExperimentsPackage.eINSTANCE.getSampleList_Samples(), newSample));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		};
+		addAction.setText("Add");
+		addAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_ADD_OBJ));
+		addAction.setToolTipText("Add a new sample");
+		
+		copyAction = new Action() {
+
+			@Override
+			public void run() {
+				try {
+					if (getSelectedSample() != null) {
+						Sample copy = EcoreUtil.copy(getSelectedSample());
+						copy.setSampleID(EcoreUtil.generateUUID());
+						String sampleNamePrefix = StringUtils.prefixBeforeInt(copy.getName());
+						int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getSampleNames(), sampleNamePrefix);
+						if (largestIntInNames != -1) {
+							largestIntInNames++;
+							copy.setName(sampleNamePrefix + largestIntInNames);
+						}
+						editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, resUtil.getSampelList(), LDEExperimentsPackage.eINSTANCE.getSampleList_Samples(), copy));
+					} else {
+						MessageDialog msgd = new MessageDialog(getSite().getShell(), "No Sample Selected", null,
+								"You must selecte a sample to copy from.", MessageDialog.ERROR, new String[] { "OK" }, 0);
+						msgd.open();
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		};
+		copyAction.setText("Copy");
+		copyAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_COPY_EDIT));
+		copyAction.setToolTipText("Copy selected sample");
+
+		deleteAction = new Action() {
+
+			@Override
+			public void run() {
+				try {
+					Sample selectedSample = getSelectedSample();
+					if (selectedSample != null) {
+						editingDomain.getCommandStack().execute(RemoveCommand.create(editingDomain, resUtil.getSampelList(), LDEExperimentsPackage.eINSTANCE.getSampleList_Samples(), selectedSample));
+					} else {
+						MessageDialog msgd = new MessageDialog(getSite().getShell(), "No Sample Selected", null,
+								"You must selecte a sample to delete.", MessageDialog.ERROR, new String[] { "OK" }, 0);
+						msgd.open();
+					}
+				} catch (Exception e1) {
+					logger.error("Cannot not get Editing Domain object.", e1);
+				}
+			}
+		};
+		deleteAction.setText("Delete");
+		deleteAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_DELETE_OBJ));
+		deleteAction.setToolTipText("Delete selected sample");
+
+		undoAction = new Action() {
+
+			@Override
+			public void run() {
+				try {
+					editingDomain.getCommandStack().undo();
+				} catch (Exception e1) {
+					logger.error("Cannot not get Editing Domain object.", e1);
+				}
+			}
+		};
+		undoAction.setText("Undo");
+		undoAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_UNDO_EDIT));
+		undoAction.setToolTipText("Undo");
+		
+
+		redoAction = new Action() {
+
+			@Override
+			public void run() {
+				try {
+					editingDomain.getCommandStack().redo();
+				} catch (Exception e1) {
+					logger.error("Cannot not get Editing Domain object.", e1);
+				}
+			}
+		};
+		redoAction.setText("Redo");
+		redoAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_REDO_EDIT));
+		redoAction.setToolTipText("Redo");
+
+	}
+	
+	private Sample getSelectedSample() {
+		ISelection selection = getSelection();
+		if (selection instanceof IStructuredSelection) {
+			IStructuredSelection structuredSel = (IStructuredSelection) selection;
+			Object firstElement = structuredSel.getFirstElement();
+			if (firstElement instanceof Sample) {
+				Sample sample = (Sample) firstElement;
+				return sample;
+			}
+		}
+		return null;
+	}
+
+	protected List<String> getSampleNames() {
+		List<String> sampleNames=new ArrayList<String>();
+		for (Sample sample : samples) {
+			sampleNames.add(sample.getName());
+		}
+		return sampleNames;
 	}
 
 	private void createColumns(TableViewer tableViewer) {
@@ -414,7 +563,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			tableViewerColumn.setEditingSupport(new TableColumnEditingSupport(tableViewer, tableViewerColumn));
 		}
 	}
-
 
 	private class TableColumnEditingSupport extends EditingSupport {
 		
@@ -625,7 +773,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				openMessageBox(message, "Cell ID Missing");
 				return false;
 			}
-			File dir=new File(File.separator+DATA_DRIVER+File.separator+sample.getCellID()+File.separator+DATA_FOLDER+File.separator+Calendar.getInstance().get(Calendar.YEAR)+File.separator+value);
+			File dir=new File(getDataDirectory(sample));
 			if (dir.exists()) {
 				return true;
 			}
@@ -633,6 +781,10 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			openMessageBox(message, "Invalid Visit ID");
 			return false;
 		}
+	}
+	
+	private String getDataDirectory(Sample sample) {
+		return File.separator+DATA_DRIVER+File.separator+sample.getCellID()+File.separator+DATA_FOLDER+File.separator+Calendar.getInstance().get(Calendar.YEAR)+File.separator+sample.getVisitID();
 	}
 	
 	private void openMessageBox(String message, String title) {
@@ -722,6 +874,13 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		manager.add(pauseAction);
 		manager.add(resumeAction);
 		manager.add(skipAction);
+		manager.add(new Separator());
+		manager.add(addAction);
+		manager.add(deleteAction);
+		manager.add(copyAction);
+		manager.add(undoAction);
+		manager.add(redoAction);
+		
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
@@ -730,6 +889,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		manager.add(pauseAction);
 		manager.add(resumeAction);
 		manager.add(skipAction);
+		manager.add(new Separator());
+		manager.add(addAction);
+		manager.add(deleteAction);
+		manager.add(copyAction);
+		manager.add(undoAction);
+		manager.add(redoAction);
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
@@ -740,6 +905,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		manager.add(pauseAction);
 		manager.add(resumeAction);
 		manager.add(skipAction);
+		manager.add(new Separator());
+		manager.add(addAction);
+		manager.add(deleteAction);
+		manager.add(copyAction);
+		manager.add(undoAction);
+		manager.add(redoAction);
 	}
 
 	private void hookDoubleClickAction() {
@@ -807,8 +978,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	@Override
 	public ISelection getSelection() {
-		// TODO Auto-generated method stub
-		return null;
+		return viewer.getSelection();
 	}
 
 	@Override
