@@ -51,7 +51,7 @@ public class MonoScannable extends ScannableMotionUnitsBase implements Scannable
 
 	// attributes describing the crystal in use
 	private Length twoDee;
-	private double[] twoDValues = { 3.275, 3.840, 6.2695, 2.0903 };
+	private double[] twoDValues = { 3.275, 3.840, 6.271, 2.0903 };
 	private String crystalType = "unknown";
 	private String[] knownCrystalTypes = { "Si311", "Si220", "Si111", "Si333" };
 

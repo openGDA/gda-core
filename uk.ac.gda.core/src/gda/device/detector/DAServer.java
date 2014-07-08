@@ -155,17 +155,17 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			connect();
 			for (String command : getStartupCommands()) {
 				try {
-					if(null != out){
-					logger.debug("sending startup command: "+command);
-					out.write(command + "\n");
-					out.flush();
-					// another XH hack. If the initial reply is empty, because 
-					// we have been sent a prompt '>' straight away before the startup command has fully run
-					Object reply = getReply(false);
-					if (reply.toString().isEmpty()){
-						getReply(false);
+					if (null != out) {
+						logger.debug("sending startup command: " + command);
+						out.write(command + "\n");
+						out.flush();
+						// another XH hack. If the initial reply is empty, because
+						// we have been sent a prompt '>' straight away before the startup command has fully run
+						Object reply = getReply(false);
+						if (reply.toString().isEmpty()) {
+							getReply(false);
+						}
 					}
-				}
 				} catch (Exception e) {
 					throw new FactoryException("da.server config failed", e);
 				}
@@ -218,7 +218,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		lock();
 		try {
 			if (isConnected()) {
-				logger.debug("cleaning pipe");
+				logger.trace("cleaning pipe");
 				while (in.ready()) {
 					in.read();
 				}
@@ -409,7 +409,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		try {
 			ensureConnected();
 			cleanPipe();
-			logger.debug(getName() + ": sending command: " + msg);
+			logger.trace(getName() + ": sending command: " + msg);
 			out.write(command);
 			out.flush();
 			reply = getReply(multiline);
@@ -468,7 +468,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			while (true) {
 
 				String message = myReadLine();
-				logger.debug(getName() + ": getReply message received : " + message);
+				logger.trace(getName() + ": getReply message received : " + message);
 				if (isPrompt(message)) {
 					// we got a prompt, so the last message was the return value
 					return reply;
