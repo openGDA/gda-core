@@ -17,7 +17,11 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.nebula.widgets.cdatetime;bundle-version="0.14.0",
  uk.ac.gda.libs,
  org.eclipse.core.resources,
- uk.ac.gda.client
+ uk.ac.gda.client,
+ org.eclipse.swt,
+ org.eclipse.ui.ide
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Import-Package: org.slf4j
+Import-Package: org.apache.commons.io,
+ org.eclipse.emf.edit.ui.dnd,
+ org.slf4j

@@ -1,22 +1,31 @@
 	package org.opengda.lde.ui.views;
 
 
+import gda.commandqueue.CommandId;
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.configuration.properties.LocalProperties;
 import gda.observable.IObserver;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.apache.commons.io.FilenameUtils;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -30,6 +39,9 @@ import org.eclipse.emf.edit.command.AddCommand;
 import org.eclipse.emf.edit.command.RemoveCommand;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
+import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
+import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -49,12 +61,15 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.nebula.jface.cdatetime.CDateTimeCellEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -70,6 +85,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
@@ -132,8 +148,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 50, true) };
 	
 	private TableViewer viewer;
-	private List<Sample> sample;
 	private SampleList sampleList;
+	private List<Sample> samples;
 
 	private Action doubleClickAction;
 	private Action startAction;
@@ -150,7 +166,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private Action undoAction;
 	private Action redoAction;
 
-	private List<Sample> samples;
 	private Resource resource;
 	private boolean isDirty;
 	private Text txtFilePath;
@@ -204,16 +219,16 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		TableItem tableItem_1 = new TableItem(table, SWT.NONE);
 		tableItem_1.setText("New TableItem");
 		
-		viewer.setContentProvider(new SampleGroupViewContentProvider(resUtil));
+		viewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
 		viewer.setLabelProvider(new SampleGroupViewLabelProvider());
 		
 		samples = Collections.emptyList();
 		try {
-			resource = resUtil.getResource();
+			resource = getResUtil().getResource();
 			resource.eAdapters().add(notifyListener);
 			viewer.setInput(resource);
 		} catch (Exception e2) {
-			logger.error("Cannot load resouce from file: "+resUtil.getFileName(), e2);
+			logger.error("Cannot load resouce from file: "+getResUtil().getFileName(), e2);
 		}
 
 		Composite statusArea=new Composite(rootComposite, SWT.NONE);
@@ -253,7 +268,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		initialisation();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
-//		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
+		// register as selection listener of sample view if exist
+//		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
 		
 		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
 			@Override
@@ -271,7 +287,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					}
 
 					if (Job.getJobManager().find(SampleCollectionJob.FAMILY_SAMPLE_JOB).length == 0) {
-						logger.info("Samples {} collection completed.", resUtil.getFileName());
+						logger.info("Samples {} collection completed.", getResUtil().getFileName());
 						updateActionIconsState();
 					}
 				}
@@ -288,29 +304,52 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				super.running(event);
 			}
 		});
-		
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "org.opengda.lde.ui.viewer");
 		makeActions();
 		hookContextMenu();
 		hookDoubleClickAction();
 		contributeToActionBars();
+
+		updateActionIconsState();
 	}
 
 	private void initialisation() {
 		try {
-			editingDomain=resUtil.getEditingDomain();
+			editingDomain=getResUtil().getEditingDomain();
 		} catch (Exception e) {
 			logger.error("Cannot get editing domain object.", e);
 			throw new RuntimeException("Cannot get editing domain object.");
 		}
-		try {
-			samples=resUtil.getSamples();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (getResUtil() != null) {
+			try {
+				sampleList=getResUtil().getSampleList();
+			} catch (Exception e) {
+				logger.error("Cannot get sample list from resource.", e);
+			}
 		}
+		if (sampleList==null) {
+			if (getResUtil() != null) {
+				try {
+					sampleList=getResUtil().createSampleList();
+				} catch (Exception e) {
+					logger.error("Cannot create new sample list", e);
+				}
+			}
+		}
+		samples=sampleList.getSamples();
+		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(viewer));
+		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, viewer));
+		
 		CommandQueueViewFactory.getProcessor().addIObserver(this);
+	}
+
+	Map<CommandId, Sample> sampleMap=new HashMap<CommandId, Sample>();
+	
+	@Override
+	public void update(Object source, Object arg) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private void makeActions() {
@@ -319,6 +358,9 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			@Override
 			public void run() {
 				super.run();
+				if (!sampleMap.isEmpty()) {
+					sampleMap.clear();
+				}
 				logger.info("Start data collection on GDA server.");
 				running = true;
 				paused=false;
@@ -330,7 +372,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 							String commandString="LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, "+ getDataDirectory(sample) + ");";
 							commandString += sample.getCommand();
 							JythonCommandCommandProvider command = new JythonCommandCommandProvider(commandString, sample.getName(), null);
-							CommandQueueViewFactory.getQueue().addToTail(command);
+							CommandId addToTail = CommandQueueViewFactory.getQueue().addToTail(command);
+							sampleMap.put(addToTail, sample);
 						}
 					}
 				} catch (Exception e) {
@@ -436,7 +479,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						nameCount++;
 						newSample.setName(newSample.getName() + nameCount);
 					}
-					editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, resUtil.getSampelList(), LDEExperimentsPackage.eINSTANCE.getSampleList_Samples(), newSample));
+					editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, getResUtil().getSampleList(), LDEExperimentsPackage.eINSTANCE.getSampleList_Samples(), newSample));
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -460,7 +503,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 							largestIntInNames++;
 							copy.setName(sampleNamePrefix + largestIntInNames);
 						}
-						editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, resUtil.getSampelList(), LDEExperimentsPackage.eINSTANCE.getSampleList_Samples(), copy));
+						editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, getResUtil().getSampleList(), LDEExperimentsPackage.eINSTANCE.getSampleList_Samples(), copy));
 					} else {
 						MessageDialog msgd = new MessageDialog(getSite().getShell(), "No Sample Selected", null,
 								"You must selecte a sample to copy from.", MessageDialog.ERROR, new String[] { "OK" }, 0);
@@ -482,7 +525,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				try {
 					Sample selectedSample = getSelectedSample();
 					if (selectedSample != null) {
-						editingDomain.getCommandStack().execute(RemoveCommand.create(editingDomain, resUtil.getSampelList(), LDEExperimentsPackage.eINSTANCE.getSampleList_Samples(), selectedSample));
+						editingDomain.getCommandStack().execute(RemoveCommand.create(editingDomain, getResUtil().getSampleList(), LDEExperimentsPackage.eINSTANCE.getSampleList_Samples(), selectedSample));
 					} else {
 						MessageDialog msgd = new MessageDialog(getSite().getShell(), "No Sample Selected", null,
 								"You must selecte a sample to delete.", MessageDialog.ERROR, new String[] { "OK" }, 0);
@@ -920,60 +963,125 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			}
 		});
 	}
+	
 	private void showMessage(String message) {
-		MessageDialog.openInformation(
-			viewer.getControl().getShell(),
-			"Sample View",
-			message);
+		MessageDialog.openInformation(viewer.getControl().getShell(),"Sample View",	message);
 	}
 
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
 	public void setFocus() {
-		viewer.getControl().setFocus();
+		viewer.getTable().setFocus();
 	}
 
-	@Override
-	public void update(Object source, Object arg) {
-		// TODO Auto-generated method stub
-		
+	public void setViewPartName(String viewPartName) {
+		setPartName(viewPartName);
 	}
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-		
+		try {
+			resUtil.getResource().save(null);
+			isDirty = false;
+			firePropertyChange(PROP_DIRTY);
+		} catch (IOException e) {
+			logger.error("Cannot save the resource to a file.", e);
+		} catch (Exception e) {
+			logger.error("Cannot get resource from resUtil.", e);
+		}
 	}
 
 	@Override
 	public void doSaveAs() {
-		// TODO Auto-generated method stub
-		
+		Resource resource = null;
+		try {
+			resource = resUtil.getResource();
+		} catch (Exception e1) {
+			logger.error("Cannot get resource from resUtil.", e1);
+		}
+		SaveAsDialog saveAsDialog = new SaveAsDialog(getSite().getShell());
+		saveAsDialog.open();
+		IPath path = saveAsDialog.getResult();
+		if (path != null) {
+			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+			if (file != null && resource != null) {
+				String newFilename = file.getLocation().toOSString();
+				resUtil.saveAs(resource, newFilename);
+				isDirty = false;
+				firePropertyChange(PROP_DIRTY);
+				refreshTable(newFilename, false);
+			}
+		}
 	}
 
+	/**
+	 * refresh the table viewer with the sequence file name provided. If it is a new file, an empty sequence will be created.
+	 */
+	public void refreshTable(String seqFileName, boolean newFile) {
+		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
+		if (isDirty()) {
+//			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
+			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
+					"Current sample list contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
+			int result = msgDialog.open();
+			if (result == 0) {
+				doSave(new NullProgressMonitor());
+			} else {
+				isDirty = false;
+				firePropertyChange(PROP_DIRTY);
+			}
+//			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
+		}
+		try {
+			resource.eAdapters().remove(notifyListener); // remove old resource listener
+			resUtil.setFileName(seqFileName);
+			if (newFile) {
+				resUtil.createSampleList();
+			}
+			Resource sequenceRes = resUtil.getResource();
+			viewer.setInput(sequenceRes);
+			// update the resource in this view.
+			resource = sequenceRes;
+			resource.eAdapters().add(notifyListener);
+
+			// update existing regions list
+			samples = resUtil.getSamples();
+		} catch (Exception e) {
+			logger.error("Cannot refresh table.", e);
+		}
+	}
+	
+	@Override
+	public void dispose() {
+		try {
+			resUtil.getResource().eAdapters().remove(notifyListener);
+//			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
+			CommandQueueViewFactory.getProcessor().deleteIObserver(this);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		super.dispose();
+	}
 	@Override
 	public boolean isDirty() {
-		// TODO Auto-generated method stub
-		return false;
+		return isDirty;
 	}
 
 	@Override
 	public boolean isSaveAsAllowed() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isSaveOnCloseNeeded() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		// TODO Auto-generated method stub
-		
+		selectionChangedListeners.add(listener);		
 	}
 
 	@Override
@@ -982,15 +1090,20 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	}
 
 	@Override
-	public void removeSelectionChangedListener(
-			ISelectionChangedListener listener) {
-		// TODO Auto-generated method stub
-		
+	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+		selectionChangedListeners.remove(listener);		
 	}
 
 	@Override
 	public void setSelection(ISelection selection) {
-		// TODO Auto-generated method stub
-		
+		viewer.setSelection(selection);		
+	}
+
+	public LDEResourceUtil getResUtil() {
+		return resUtil;
+	}
+
+	public void setResUtil(LDEResourceUtil resUtil) {
+		this.resUtil = resUtil;
 	}
 }
