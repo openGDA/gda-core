@@ -108,6 +108,7 @@ class BSSCRun:
     
     def clean(self):
         self.monitorAsynchronousMethod(self.bssc.clean())
+        self.sampleName.setValue("")
     
     def setupTfg(self, frames, tpf):
         self.tfg.clearFrameSets()
