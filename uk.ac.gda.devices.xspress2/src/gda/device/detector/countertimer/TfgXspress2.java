@@ -111,13 +111,11 @@ public class TfgXspress2 extends TFGCounterTimer implements CounterTimer {
 
 	@Override
 	public double[] readChannel(int startFrame, int frameCount, int channel) throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public double[] readFrame(int startChannel, int channelCount, int frame) throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

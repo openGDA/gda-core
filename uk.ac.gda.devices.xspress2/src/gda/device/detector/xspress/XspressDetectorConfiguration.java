@@ -27,28 +27,28 @@ import gda.observable.ObservableComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Xspress2DetectorConfiguration implements FluorescentDetectorConfiguration{
+public class XspressDetectorConfiguration implements FluorescentDetectorConfiguration{
 
-	private Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
-	private Xspress2System xspress2System;
+	private Logger logger = LoggerFactory.getLogger(XspressDetectorConfiguration.class);
+	private XspressSystem xspressSystem;
 	private ObservableComponent observer;
 	private String message = "Xspress configuration has not been applied yet";
 	private boolean onlyShowFF = false;
 	private boolean showDTRawValues = false;
 	private boolean saveRawSpectrum = false;
 	
-	public Xspress2DetectorConfiguration(Xspress2System xspress2System, final ObservableComponent observer) {
+	public XspressDetectorConfiguration(XspressSystem xspressSystem, final ObservableComponent observer) {
 		this.observer = observer;
-		this.xspress2System = xspress2System;
+		this.xspressSystem = xspressSystem;
 	}
 	
 	public void configure(String xmlFileName) throws FactoryException {
 		try {
-			xspress2System.setConfigFileName(xmlFileName);
-			xspress2System.configure();
-			xspress2System.setOnlyDisplayFF(onlyShowFF);
-			xspress2System.setAddDTScalerValuesToAscii(showDTRawValues);
-			xspress2System.setSaveRawSpectrum(saveRawSpectrum);
+			xspressSystem.setConfigFileName(xmlFileName);
+			xspressSystem.configure();
+			xspressSystem.setOnlyDisplayFF(onlyShowFF);
+			xspressSystem.setAddDTScalerValuesToAscii(showDTRawValues);
+			xspressSystem.setSaveRawSpectrum(saveRawSpectrum);
 			message = " The Xspress detector configuration updated.";
 			observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {

@@ -50,7 +50,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	private String outputParametersName;
 	private String folderName;
 	
-	public XasAsciiDataWriter(Long fileNumber) throws InstantiationException {
+	public XasAsciiDataWriter(int fileNumber) throws InstantiationException {
 		super();
 		thisFileNumber = fileNumber;
 		fileNumberConfigured = true;
@@ -159,7 +159,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 						}
 					}
 					if (found)
-						file.write("# " + buf);
+						file.write("# " + buf + "\n");
 				} 
 				else if (dataPoint.isDetector(xmapName))
 					file.write("# Detector: Si (XIA)\n");
