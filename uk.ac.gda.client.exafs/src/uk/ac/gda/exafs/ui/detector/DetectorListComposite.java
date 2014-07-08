@@ -66,7 +66,7 @@ public class DetectorListComposite extends Composite {
 		detectorElementComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		detectorList.setEditorUI(detectorElementComposite);
 		detectorList.setGridWidth(200);
-		detectorList.setEnabled(false);
+		detectorList.setEnabled(true);
 		detectorList.setAdditionalLabelProvider(new ColumnLabelProvider() {
 			private final Color lightGray = SWTResourceManager.getColor(SWT.COLOR_GRAY);
 

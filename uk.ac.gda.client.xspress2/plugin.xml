@@ -70,5 +70,14 @@
             priority="high">
       </content-type>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="uk.ac.gda.exafs.ui.detector.xspress.XspressView"
+            id="uk.ac.gda.client.xspress2.xspress.view"
+            name="Xspress"
+            restorable="true">
+      </view>
+   </extension>
 
 </plugin>

@@ -32,8 +32,6 @@ import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
 
 public class VortexView extends ViewPart {
-	public VortexView() {
-	}
 
 //	<DetectorElement>
 //  <name>Element1</name>

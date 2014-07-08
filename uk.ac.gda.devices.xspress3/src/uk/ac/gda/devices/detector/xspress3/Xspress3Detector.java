@@ -49,7 +49,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	private String filePrefix = "";
 	private String numTrackerExtension = "nxs";
 	private NumTracker numTracker;
-	private Long currentScanNumber = -1L;
+	private int currentScanNumber = -1;
 
 	public Xspress3Detector() {
 		super();
@@ -110,7 +110,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		currentScanNumber = -1L;
+		currentScanNumber = -1;
 	}
 
 	private void prepareFileWriting() throws DeviceException {

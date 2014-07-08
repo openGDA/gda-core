@@ -274,6 +274,17 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	}
 
 	@Override
+	public String[] getOutputFormat() {
+		String[] basicFormat = super.getOutputFormat();
+		int formatLength = getInputNames().length + getExtraNames().length;
+		String[] format = new String[formatLength];
+		for (int i  = 0; i < formatLength; i++){
+			format[i] = basicFormat[0];
+		}
+		return format;
+	}
+	
+	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		return new int[] { getExtraNames().length };
 	}

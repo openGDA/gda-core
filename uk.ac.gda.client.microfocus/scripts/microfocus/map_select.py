@@ -1,6 +1,9 @@
 from uk.ac.gda.beans import BeansFactory
 from gda.data import PathConstructor
 
+#
+# This is the general 'map' command in the Jython namespace to run a map based on the given filenames in __call__
+#
 class MapSelect():
     
     def __init__(self, non_raster, raster, raster_return_write):

@@ -25,7 +25,6 @@ import gda.epics.LazyPVFactory;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.scan.ScanBase;
 
 import java.io.IOException;
 
@@ -70,7 +69,6 @@ public class ShutterChecker extends ScannableBase {
 		boolean first = true;
 		try {
 			while (!position.equals(ValveBase.OPEN)) {
-				ScanBase.checkForInterrupts();
 				if (first) {
 					updateUser("Experimental shutter closed during the scan. Waiting for it to be re-opened...");
 					first = false;
@@ -104,7 +102,6 @@ public class ShutterChecker extends ScannableBase {
 				// when PSS ready open the shutter
 				int attempts = 0;
 				while (state != 0) {
-					ScanBase.checkForInterrupts();
 					// check timeout
 					if (attempts > 120) {
 						throw new DeviceException(

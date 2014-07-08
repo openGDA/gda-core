@@ -80,7 +80,7 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 		super();
 	}
 	
-	public NexusExtraMetadataDataWriter(Long fileNumber) {
+	public NexusExtraMetadataDataWriter(int fileNumber) {
 		super(fileNumber);
 	}
 

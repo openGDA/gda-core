@@ -42,9 +42,9 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	private String predictedTotalTime;
 	private String outputFolder;
 	private String sampleName;
-	private Integer scanNumber;
+	private int scanNumber;
 	
-	protected XasLoggingMessage(String visit_id,String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder, String sampleName, Integer scanNumber) {
+	protected XasLoggingMessage(String visit_id,String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder, String sampleName, int scanNumber) {
 		super();
 		this.visitID = visit_id;
 		this.id = id;
@@ -63,7 +63,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		this.scanNumber = scanNumber;
 	}
 	
-	public XasLoggingMessage(String visit_id, String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, IScanParameters parameters, String outputFolder, String sampleName, Integer scanNumber) throws Exception {
+	public XasLoggingMessage(String visit_id, String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, IScanParameters parameters, String outputFolder, String sampleName, int scanNumber) throws Exception {
 		super();
 		this.visitID = visit_id;
 		this.id = id;
@@ -162,8 +162,8 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		return sampleName;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Scan", refresh = false, columnIndex = 1)
-	public Integer getScanNumber() {
+	@ScriptControllerLogColumn(columnName = "Scan", refresh = true, columnIndex = 1)
+	public int getScanNumber() {
 		return scanNumber;
 	}
 

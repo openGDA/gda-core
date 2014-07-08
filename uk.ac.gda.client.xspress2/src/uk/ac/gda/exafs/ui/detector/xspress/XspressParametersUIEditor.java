@@ -55,7 +55,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	@Override
 	public void createPartControl(Composite parent) {
 		XspressDetector xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
-		xspress = new Xspress(xmlPath, this.getSite(), parent, xspressDetector, dirtyContainer, xspressParameters.getDetectorList());
+		xspress = new Xspress(xmlPath, this.getSite(), parent, xspressDetector, xspressParameters.getDetectorList(), xspressParameters);
 	}
 
 	@Override

@@ -53,8 +53,9 @@ class XspressConfig():
         try:
             self.xpressUtils.createXMLfromBean(xspress, xspressBean)
             print "Wrote new Xspress Parameters to: ", xmap.getConfigFileName()
+
         except java.lang.Exception, e:
-            print "Could not save XspressParameters bean ", e
+#             print "Could not save XspressParameters bean ", e
             raise e
         self.xpressUtils.createXMLfromBean(xspress, xspressBean)
     
@@ -140,8 +141,8 @@ class VortexConfig():
         
         if (OutputParametersToLoad != None and isinstance(OutputParametersToLoad,I20OutputParameters)):
             saveRawSpectrum = OutputParametersToLoad.isVortexSaveRawSpectrum()
-        print "XMLFileNameToLoad=", XMLFileNameToLoad
-        print "isSaveRawSpectrum", saveRawSpectrum
+#         print "XMLFileNameToLoad=", XMLFileNameToLoad
+#         print "isSaveRawSpectrum", saveRawSpectrum
         self.configure(XMLFileNameToLoad, saveRawSpectrum)
 
     def createBeanFromXML(self, xmlPath):
@@ -160,10 +161,10 @@ class VortexConfig():
             raise e
 
     def configure(self, xmlFileName, saveRawSpectrum):
-        print "xmlFileName=", xmlFileName
-        print "isSaveRawSpectrum", saveRawSpectrum
+        #print "xmlFileName=", xmlFileName
+        #print "isSaveRawSpectrum", saveRawSpectrum
         self.configuration.setSaveRawSpectrum(saveRawSpectrum)
         self.configuration.configure(xmlFileName)
-        
+
     def getConfigureResult(self):
         return self.configuration.getMessage();

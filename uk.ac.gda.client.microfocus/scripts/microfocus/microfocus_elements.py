@@ -1,21 +1,21 @@
-#@PydevCodeAnalysisIgnore
+import sys
+
 from uk.ac.gda.beans import BeansFactory
 from java.io import File
 from java.lang import System
-import sys
 
-def getNumberOfDetectors(detectorFileName): 
-    detectorBean=0
-    try:
-        print detectorFileName
-        detectorBean = BeansFactory.getBean(File(detectorFileName));
-        print detectorBean
-        numberOfDetectorElements = detectorBean.getDetectorList().size()
-        return numberOfDetectorElements
-    except:
-        #must be Detector Parameters file
-        print sys.exc_info()[0]
-    return 0
+# def getNumberOfDetectors(detectorFileName): 
+#     detectorBean=0
+#     try:
+#         print detectorFileName
+#         detectorBean = BeansFactory.getBean(File(detectorFileName));
+#         print detectorBean
+#         numberOfDetectorElements = detectorBean.getDetectorList().size()
+#         return numberOfDetectorElements
+#     except:
+#         #must be Detector Parameters file
+#         print sys.exc_info()[0]
+#     return 0
 
 
 def showElementsList(detectorFileName): 
@@ -61,12 +61,12 @@ def getElementNamesfromIonChamber(detectorBean):
         elementsStr.append(ion.getName())
         print elementsStr
     return elementsStr
-def showElementsListString(detectorFileName):   
-    eleStr = showElementsList(detectorFileName)
-    retStr=""
-    for s in eleStr:
-        retStr  = retStr +  s + ","
-    return retStr
+# def showElementsListString(detectorFileName):   
+#     eleStr = showElementsList(detectorFileName)
+#     retStr=""
+#     for s in eleStr:
+#         retStr  = retStr +  s + ","
+#     return retStr
 def plotSpectrum(detNo, x,y):
     try:
         writerObj = globals()["microfocusScanWriter"]
@@ -92,15 +92,15 @@ def displayMap(selectedElement):
         print "unable to displayMap"
         return False
     
-def getSampleXYZPositions():
-    xpos = sc_MicroFocusSampleX.getPosition()
-    ypos = sc_MicroFocusSampleY.getPosition()
-    zpos = sc_sample_z.getPosition()
-    return str(xpos) + "," + str(ypos)+ ","+str(zpos)
+# def getSampleXYZPositions():
+#     xpos = sc_MicroFocusSampleX.getPosition()
+#     ypos = sc_MicroFocusSampleY.getPosition()
+#     zpos = sc_sample_z.getPosition()
+#     return str(xpos) + "," + str(ypos)+ ","+str(zpos)
 
-def getAttenuatorPositions(at1Name, at2Name):
-    at1 = finder.find(at1Name)
-    at2 = finder.find(at2Name)
-    at1Pos = at1.getPosition()
-    at2Pos = at2.getPosition()
-    return str(at1Pos) +  "," + str(at2Pos)
+# def getAttenuatorPositions(at1Name, at2Name):
+#     at1 = finder.find(at1Name)
+#     at2 = finder.find(at2Name)
+#     at1Pos = at1.getPosition()
+#     at2Pos = at2.getPosition()
+#     return str(at1Pos) +  "," + str(at2Pos)

@@ -39,7 +39,10 @@ class I18DetectorPreparer:
 
     def completeCollection(self):
         # this will be called at the end of a loop of scans, or after an abort
-        pass
+        command_server = self.finder.find("command_server")
+        detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
+        if detectorFillingMonitor != None:
+            self.finder.find("command_server").removeDefault(detectorFillingMonitor);
 
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
@@ -50,7 +53,7 @@ class I18DetectorPreparer:
         change_sensitivity = ion_chamber.getChangeSensitivity()
         if change_sensitivity == True:
             gain = ion_chamber.getGain()
-            print "setting i0 sensitivity to ", gain
+            print "I0 sensitivity: ", gain
             if ion_chamber_num==0:
                 pv = CAClient("BL18I-EA-IAMP-02:Gain.VAL")
             elif ion_chamber_num==1:

@@ -1,5 +1,8 @@
 from java.lang import InterruptedException, System
+from java.lang import Thread as JThread
 import java.lang.Exception
+
+from uk.ac.gda.beans import BeansFactory
 
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import XasAsciiDataWriter, DefaultDataWriterFactory, ConfigurableAsciiFormat, NexusDataWriter, XasAsciiNexusDataWriter
@@ -25,22 +28,30 @@ class XasScan(Scan):
         self.handleGapConverter=handleGapConverter
 
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
-        experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
         self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
-        ScanBase.interrupted = False
-        ScriptBase.interrupted = False
         ScriptBase.paused = False
-        controller = self.ExafsScriptObserver
-        sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath)
+        self.runFromXml(sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions, validation)
+        
+    def runFromBeansAndScanXml(self, sampleBean, scanFileName, detectorBean, outputBean, experimentFullPath, numRepetitions= 1, validation=True):
+        scanBean = BeansFactory.getBeanObject(experimentFullPath, scanFileName)
+        self.runFromBeans(sampleBean, scanBean, detectorBean, outputBean, experimentFullPath, numRepetitions, validation)
+        
+    def runFromBeans(self, sampleBean, scanBean, detectorBean, outputBean, experimentFullPath, numRepetitions= 1, validation=True):
         # create unique ID for this scan (all repetitions will share the same ID)
         scriptType = "Exafs"
         if isinstance(scanBean, XanesScanParameters):
             scriptType = "Xanes"
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
-        self.log("Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+self.energy_scannable.getName()+"'...")
+        #self.log("Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+self.energy_scannable.getName()+"'...")
         # give the beans to the xasdatawriter class to help define the folders/filenames 
+        controller = self.ExafsScriptObserver
+        experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
         beanGroup = self._createBeanGroup(experimentFolderName, validation, controller, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean)
         self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean)
+    
+    def runFromXml(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
+        sampleBean, scanBean, detectorBean, outputBean = self._createBeans(experimentFullPath,  sampleFileName, scanFileName, detectorFileName, outputFileName)
+        self.runFromBeans(sampleBean, scanBean, detectorBean, outputBean, experimentFullPath, numRepetitions, validation)
     
     # reset the properties used to control repetition behaviour
     def setQueuePropertiesStart(self, numRepetitions):
@@ -71,19 +82,17 @@ class XasScan(Scan):
         timeSinceRepetitionsStarted = self.calcTimeSinceRepetitionsStarted(timeRepetitionsStarted)
         return XasLoggingMessage(self._getMyVisitID(), scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1),initialPercent,str(0),str(timeSinceRepetitionsStarted),scanBean,experimentFolderName, sampleName, 0)
         
-    def handleScanInterrupt(self, numRepetitions, repetitionNumber):
-        ScanBase.interrupted = False
+    def handleScanInterrupt(self, numRepetitions, repetitionNumber,exceptionObject):
         if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
             LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
             # check if a panic stop has been issued, so the whole script should stop
-            if ScriptBase.isInterrupted():
-                ScriptBase.interrupted = False
+            if JThread.currentThread().isInterrupted():
                 raise ScanInterruptedException()
             # only wanted to skip this repetition, so absorb the exception and continue the loop
             if numRepetitions > 1:
                 self.log("Repetition", str(repetitionNumber),"skipped.")
         else:
-            print e
+            print exceptionObject
             raise # any other exception we are not expecting so raise whatever this is to abort the script
                         
     def _doItterator(self, iterator, numRepetitions, beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, repetitionNumber, experimentFolderName):
@@ -91,6 +100,7 @@ class XasScan(Scan):
         num_sample_repeats = int(iterator.getNumberOfRepeats())
         total_repeats = num_sample_repeats * numRepetitions
         for i in range(num_sample_repeats):
+            ScriptBase.checkForPauses()
             iterator.moveToNext()
             sampleName = iterator.getNextSampleName()
             descriptions = iterator.getNextSampleDescriptions()
@@ -105,7 +115,7 @@ class XasScan(Scan):
             # the iterator has already printed a message if num_sample_repeats > 1
 
             self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg)
-    
+
     def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, experimentFullPath, experimentFolderName, controller, sampleBean, scanBean, detectorBean, outputBean):
         """
         This is the basic looping based on the number of repetitions set in the UI.
@@ -116,14 +126,13 @@ class XasScan(Scan):
         if self.moveMonoToStartBeforeScan==True:
             self.moveMonoToInitialPosition(scanBean) # I20 always moves things back to initial positions after each scan. To save time, move mono to initial position here
             self.energy_scannable.waitWhileBusy()
-            
+        
         self.setQueuePropertiesStart(numRepetitions)
         repetitionNumber = 0
         timeRepetitionsStarted = System.currentTimeMillis();
         try:
             while True:
                 repetitionNumber+= 1
-                # TODO does this need to be inside the _doIterator loop?
                 self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, controller,repetitionNumber)
                 if self.handleGapConverter==True:
                     self.setupHarmonic()
@@ -136,12 +145,12 @@ class XasScan(Scan):
                         sampleName = sampleBean.getName()
                         descriptions = sampleBean.getDescriptions()
                         self.printRepetition(numRepetitions, repetitionNumber, scriptType)
-
-                        logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName, sampleName)
+                        logmsg = self.getLogMessage(numRepetitions, repetitionNumber, timeRepetitionsStarted, scan_unique_id, scriptType, scanBean, experimentFolderName,sampleName)
                         self._doScan(beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg)
-                    
+                except java.lang.Exception, e:
+                    self.handleScanInterrupt(numRepetitions, repetitionNumber, e)
                 except InterruptedException, e:
-                    self.handleScanInterrupt(numRepetitions, repetitionNumber)
+                    self.handleScanInterrupt(numRepetitions, repetitionNumber, e)
                 self._runScript(beanGroup.getOutput().getAfterScriptName())# run the after scan script
                 self.checkForPause(numRepetitions, repetitionNumber)
                 finished=self.checkIfRepetitionsFinished(numRepetitions, repetitionNumber)
@@ -151,7 +160,7 @@ class XasScan(Scan):
         finally:
             if self.moveMonoToStartBeforeScan==True:
                 self.energy_scannable.stop()
-            if self.handleGapConverter==True and gap_converter!=None:
+            if self.handleGapConverter==True:
                 gap_converter.enableAutoConversion()
             # repetition loop completed, so reset things
             self.setQueuePropertiesEnd()
@@ -160,7 +169,6 @@ class XasScan(Scan):
             ScriptBase.checkForPauses()
             
     # Runs a single XAS/XANES scan.
-
     def _doScan(self,beanGroup,scriptType,scan_unique_id, experimentFullPath, controller,timeRepetitionsStarted, sampleBean, scanBean, detectorBean, outputBean, numRepetitions, repetitionNumber, experimentFolderName,sampleName,descriptions,logmsg):
         #self.loggingcontroller.update(None,logmsg)
         self.XASLoggingScriptController.update(None,ScanStartedMessage(scanBean,detectorBean)) # informs parts of the UI about current scan
@@ -196,7 +204,7 @@ class XasScan(Scan):
 
     def createScan(self, args, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName, experimentFullPath):
         thisscan = ConcurrentScan(args)
-        thisscan = self._setUpDataWriter(thisscan, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions, repetition, experimentFolderName, experimentFullPath)
+        self._setUpDataWriterSetFilenames(thisscan, scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions, repetition, experimentFolderName, experimentFullPath)
         thisscan.setReturnScannablesToOrginalPositions(False)
         return thisscan
     
@@ -207,7 +215,6 @@ class XasScan(Scan):
         sampleScannables = self.samplePreparer.prepare(sampleBean)
         outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
         scanPlotSettings = self.outputPreparer.getPlotSettings(detectorBean,outputBean)
-        self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
         return sampleScannables, outputScannables, scanPlotSettings
 
     def buildScanArguments(self, scanBean, sampleScannables, outputScannables, detectorList, signalParameters, loggingbean):

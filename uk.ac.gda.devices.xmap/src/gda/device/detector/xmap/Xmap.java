@@ -29,7 +29,6 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
-import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,8 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.util.CorrectionUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -179,7 +178,6 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	@Override
 	public void collectData() throws DeviceException {
 		this.clearAndStart();
-
 	}
 
 	@Override
@@ -195,6 +193,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	@Override
 	public void atScanStart() throws DeviceException {
 		inAScan = true;
+		controller.stop();
 		super.atScanStart();
 	}
 	
@@ -695,7 +694,6 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 		if (controller.getStatus() != 0) {
 			logger.warn("getData() called when getData is not idle. Waiting for it to be idle before returning results");
 			while (controller.getStatus() != 0) {
-				ScanBase.checkForInterrupts();
 				Thread.sleep(100);
 			}
 			logger.warn("Now idle, results can be readout.");

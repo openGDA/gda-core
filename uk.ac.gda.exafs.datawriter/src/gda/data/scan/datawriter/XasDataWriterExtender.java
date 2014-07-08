@@ -107,8 +107,8 @@ public class XasDataWriterExtender extends AsciiWriterExtender {
 		
 		try {
 			if (parent instanceof DataWriter) {
-				final String runNum   = ((DataWriter)parent).getCurrentScanIdentifier();
-				final String fileName = String.format(filenameTemplate,  Integer.parseInt(runNum));
+				final int runNum   = ((DataWriter)parent).getCurrentScanIdentifier();
+				final String fileName = String.format(filenameTemplate,  runNum);
 				return fileName;
 			}
 		} catch (Exception ignored) {

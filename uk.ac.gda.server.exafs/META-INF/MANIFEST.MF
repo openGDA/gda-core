@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.client.experimentdefinition;bundle-version="8.32.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
- org.apache.commons.beanutils;bundle-version="1.8.3"
+ org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gda.device.detector,

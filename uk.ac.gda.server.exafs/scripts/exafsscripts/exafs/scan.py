@@ -12,7 +12,6 @@ from gda.factory import Finder
 
 class Scan:
     
-    
     def __init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, includeSampleNameInNexusName=True):
         self.detectorPreparer = detectorPreparer
         self.samplePreparer = samplePreparer
@@ -25,14 +24,16 @@ class Scan:
         self.energy_scannable = energy_scannable
         self.ionchambers=ionchambers
         self.includeSampleNameInNexusName = includeSampleNameInNexusName
-        self.sampleFilename= None
-        self.scanFilename= None
-        self.detectorFilename= None
-        self.outputFilename= None
+        self.sampleFileName= None
+        self.scanFileName= None
+        self.detectorFileName= None
+        self.outputFileName= None
         
     def determineExperimentPath(self, experimentFullPath):
         experimentFullPath = experimentFullPath + "/"
         experimentFolderName = experimentFullPath[experimentFullPath.find("xml")+4:]
+        self.log("Using data folder: " + experimentFullPath)
+        self.log("Using xml subfolder: " + experimentFolderName)
         return experimentFullPath, experimentFolderName
     
     def setXmlFileNames(self, sampleFileName, scanFileName, detectorFileName, outputFileName):
@@ -65,14 +66,15 @@ class Scan:
             dets.append(thisDetector)
         return dets
 
-    def _createBeans(self, experimentFullPath):
+    def _createBeans(self, experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName):
         if(self.sampleFileName == None):
             sampleBean = None
         else:
-            sampleBean = BeansFactory.getBeanObject(experimentFullPath, self.sampleFileName)
-        scanBean = BeansFactory.getBeanObject(experimentFullPath, self.scanFileName)
-        detectorBean = BeansFactory.getBeanObject(experimentFullPath, self.detectorFileName)
-        outputBean = BeansFactory.getBeanObject(experimentFullPath, self.outputFileName)
+            sampleBean = BeansFactory.getBeanObject(experimentFullPath+"/", sampleFileName)
+        scanBean = BeansFactory.getBeanObject(experimentFullPath+"/", scanFileName)
+        detectorBean = BeansFactory.getBeanObject(experimentFullPath+"/", detectorFileName)
+        outputBean = BeansFactory.getBeanObject(experimentFullPath+"/", outputFileName)
+        #print "beans created based on ", experimentFullPath, ", ", sampleFileName, ", ", scanFileName, ", ", detectorFileName, ", ",  outputFileName
         return sampleBean, scanBean, detectorBean, outputBean
     
     # from xas
@@ -95,15 +97,18 @@ class Scan:
         if scriptName != None and scriptName != "":
             scriptName = scriptName[scriptName.rfind("scripts/") + 8:]
             run(scriptName)
-            
+    
+    def _setUpDataWriterSetFilenames(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName, experimentFullPath):
+        self._setUpDataWriter(thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName, experimentFullPath, self.detectorFileName, self.outputFileName, self.sampleFileName, self.scanFileName)
     """
     Get the relevant datawriter config, create a datawriter and if it of the correct type then give it the config.
     Give the datawriter to the scan.
     """
-    def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName, experimentFullPath):
+    def _setUpDataWriter(self,thisscan,scanBean,detectorBean,sampleBean,outputBean,sampleName,descriptions,repetition,experimentFolderName, experimentFullPath, detectorFileName, outputFileName, sampleFileName, scanFileName):
+        
         nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
         asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
-        
+       
         if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
             nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
             asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
@@ -117,11 +122,21 @@ class Scan:
 
         # create XasAsciiNexusDataWriter object and give it the parameters
         dataWriter = XasAsciiNexusDataWriter()
-        if (Finder.getInstance().find("metashop") != None):
-            meta_add(self.detectorFileName, BeansFactory.getXMLString(detectorBean))
-            meta_add(self.outputFileName, BeansFactory.getXMLString(outputBean))
-            meta_add(self.sampleFileName, BeansFactory.getXMLString(sampleBean))
-            meta_add(self.scanFileName, BeansFactory.getXMLString(scanBean))
+        
+#        print "detectorFileName", detectorFileName
+#        print "basestring", basestring
+        
+        if (Finder.getInstance().find("metashop") != None and isinstance(detectorFileName, basestring)):
+            
+            #print "scanning... ", self.detectorFileName
+           # print "meta_add detectorFileName", detectorFileName
+            meta_add(detectorFileName, BeansFactory.getXMLString(detectorBean))
+            #print "meta_add outputFileName", outputFileName
+            meta_add(outputFileName, BeansFactory.getXMLString(outputBean))
+            #print "meta_add sampleFileName", sampleFileName
+            meta_add(sampleFileName, BeansFactory.getXMLString(sampleBean))
+            #print "meta_add scanFileName", scanFileName
+            meta_add(scanFileName, BeansFactory.getXMLString(scanBean))
             meta_add("xmlFolderName", experimentFullPath)
             xmlFilename = self._determineDetectorFilename(detectorBean)
             if ((xmlFilename != None) and (experimentFullPath != None)):
@@ -129,22 +144,27 @@ class Scan:
                 meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
         else: 
             self.logger.info("Metashop not found")
-            
+        
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
-        
-        
+        dataWriter.setRunFromExperimentDefinition(True);
         dataWriter.setFolderName(experimentFullPath)
-        dataWriter.setScanParametersName(self.scanFileName)
-        dataWriter.setDetectorParametersName(self.detectorFileName)
-        dataWriter.setSampleParametersName(self.sampleFileName)
-        dataWriter.setOutputParametersName(self.outputFileName)
+        
+        if isinstance(detectorFileName, basestring):
+            #print "add xml filenames to ascii metadata"
+            
+            dataWriter.setScanParametersName(scanFileName)
+            dataWriter.setDetectorParametersName(detectorFileName)
+            dataWriter.setSampleParametersName(sampleFileName)
+            dataWriter.setOutputParametersName(outputFileName)
         
         asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(scanBean)
         if asciidatawriterconfig != None :
             dataWriter.setConfiguration(asciidatawriterconfig)
+     
         thisscan.setDataWriter(dataWriter)
+        
         return thisscan
 
     def _determineDetectorFilename(self,detectorBean):

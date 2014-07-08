@@ -31,8 +31,8 @@ public class I20OutputParameters extends OutputParameters {
 	private boolean xspressShowDTRawValues = false;
 	private boolean xspressSaveRawSpectrum = false;
 
-	public static final URL mappingURL = OutputParameters.class.getResource("I20SampleParametersMapping.xml");
-	public static final URL schemaUrl = OutputParameters.class.getResource("I20SampleParametersMapping.xsd");
+//	public static final URL mappingURL = OutputParameters.class.getResource("I20SampleParametersMapping.xml");
+//	public static final URL schemaUrl = OutputParameters.class.getResource("I20SampleParametersMapping.xsd");
 
 	public static I20OutputParameters createFromXML(String filename) throws Exception {
 		return (I20OutputParameters) XMLHelpers.createFromXML(mappingURL, I20OutputParameters.class, schemaUrl, filename);

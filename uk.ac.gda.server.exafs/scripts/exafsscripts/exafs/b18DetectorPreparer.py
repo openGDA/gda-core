@@ -129,9 +129,4 @@ class B18DetectorPreparer:
         staticscan.setDataWriter(dataWriter)
         print "Collecting a diffraction image..."
         staticscan.run()
-        #the following two lines are to temporarily fix a bug where the jython server still thinks the mythen is in a scan after it has written data.
-        # FIXME is this still necessary in 8.36???
-        
-        from gda.jython import JythonServerFacade
-        JythonServerFacade.getInstance().setScanStatus(0)
         print "Diffraction scan complete."

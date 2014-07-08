@@ -105,7 +105,6 @@ public class AsciiDataWriterTest {
 				scannable1.moveTo(i);
 				det1.collectData();
 				ScanDataPoint point = new ScanDataPoint();
-				point.setScanIdentifier("testscan");
 				// do the getPosition/readout here as work should not be done inside the SDP.
 				// This should be the only place these methods are called in the scan.
 				for (Scannable scannable : scannables){
@@ -122,7 +121,7 @@ public class AsciiDataWriterTest {
 				point.setNumberOfPoints(11);
 				point.setInstrument("I01");
 				point.setCommand("scan energy 1000 1100 100 counts 1");
-				point.setScanIdentifier("1000");
+				point.setScanIdentifier(1000);
 				try {
 					writer.addData(point);
 				} catch (Exception e) {

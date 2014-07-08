@@ -30,7 +30,7 @@ public class XasNexusDataWriter extends NexusDataWriter {
 		setupProperties();
 	}
 
-	public XasNexusDataWriter(Long fileNumber) throws InstantiationException {
+	public XasNexusDataWriter(int fileNumber) throws InstantiationException {
 		super(fileNumber);
 		setupProperties();
 	}

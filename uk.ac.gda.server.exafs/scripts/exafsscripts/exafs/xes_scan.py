@@ -2,7 +2,7 @@ import array
 from java.lang import InterruptedException
 from java.lang import System
 from xas_scan import XasScan
-from xes import offsetsStore, setOffsets
+from xes.xes_offsets import XESOffsets
 from exafsscripts.exafs.i20.I20SampleIterators import XASXANES_Roomtemp_Iterator, XES_Roomtemp_Iterator, XASXANES_Cryostat_Iterator
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import  XasAsciiDataWriter
@@ -25,7 +25,7 @@ from uk.ac.gda.doe import DOEUtils
 
 class I20XesScan(XasScan):
     
-    def __init__(self, xas,loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController, ExafsScriptObserver, datawriterconfig, original_header, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot,twodplotter,I1,monoenergy,XESEnergy,XESBragg,includeSampleNameInNexusName=True):
+    def __init__(self, xas,loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController, ExafsScriptObserver, datawriterconfig, original_header, sample_x, sample_y, sample_z, sample_rot, sample_fine_rot,twodplotter,I1,monoenergy,XESEnergy,XESBragg,xes_offsets,includeSampleNameInNexusName=True):
         self.xas = xas
         self.includeSampleNameInNexusName=includeSampleNameInNexusName
         self.detectorPreparer = detectorPreparer
@@ -52,12 +52,13 @@ class I20XesScan(XasScan):
         self.moveMonoToStartBeforeScan=True
         self.useItterator=True
         self.handleGapConverter=False
+        self.xes_offsets = xes_offsets
         
     def __call__ (self,sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
         self.experimentFullPath, self.experimentFolderName = self.determineExperimentPath(experimentFullPath)
         self.experimentFullPath = self.experimentFullPath + "/"
+        print "xes XML file names",sampleFileName, scanFileName, detectorFileName, outputFileName
         self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
-        print "XML file names",sampleFileName, scanFileName, detectorFileName, outputFileName
         # Create the beans from the file names
         self.sampleBean = BeansFactory.getBeanObject(self.experimentFullPath, sampleFileName)
         self.scanBean = BeansFactory.getBeanObject(self.experimentFullPath, scanFileName)
@@ -79,7 +80,7 @@ class I20XesScan(XasScan):
         offsetStoreName = self.scanBean.getOffsetsStoreName()
         if offsetStoreName != None and offsetStoreName != "" :
             print "Applying offsets from store named",str(offsetStoreName)
-            offsetsStore.applyfrom(offsetStoreName)
+            self.xes_offsets.apply(offsetStoreName)
         else:
             print "Not changing the XES spectrometer calibration settings"
         # if get here then its an XES step scan
@@ -161,7 +162,6 @@ class I20XesScan(XasScan):
         print""
         self.log( "Output to",self.experimentFolderName)
         # add xes_energy, analyserAngle to the defaults and then call the xas command
-        xas_scanfilename = self.beanGroup.getScan().getScanFileName()
         self.log( "moving XES analyser stage to collect at", self.beanGroup.getScan().getXesEnergy())
         initialXESEnergy = self.xes_energy()
         self.xes_energy.waitWhileBusy()
@@ -169,7 +169,17 @@ class I20XesScan(XasScan):
         ScannableCommands.add_default([self.xes_energy,self.analyserAngle])
         try:
             self.outputPreparer.mode = "xes"
-            self.xas(self.beanGroup.getSample(), xas_scanfilename, self.beanGroup.getDetector(), self.beanGroup.getOutput(), self.experimentFullPath, numRepetitions, validation)
+            
+            scanFilename = self.beanGroup.getScan().getScanFileName()
+
+            sampleBean = self.beanGroup.getSample()
+            detectorBean = self.beanGroup.getDetector()
+            outputBean = self.beanGroup.getOutput()
+            
+            print "sample bean", sampleBean
+            
+            #self.xas(sampleFilename, xas_scanfilename, detectorFilename, outputFilename, self.experimentFullPath, numRepetitions, validation)
+            self.xas.runFromBeansAndScanXml(sampleBean, scanFilename, detectorBean, outputBean, self.experimentFullPath, numRepetitions, validation)
         finally:
             self.log( "cleaning up scan defaults")
             self.outputPreparer.mode = "xas"

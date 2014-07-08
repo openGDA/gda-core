@@ -90,15 +90,18 @@ public class DetectorElementComposite extends Composite {
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		topComposite.setLayoutData(gridData);
 		topComposite.setLayout(new GridLayout(2, false));
+		
 		name = new LabelWrapper(topComposite, SWT.NONE);
 		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		name.setLayoutData(gridData);
 		name.setText("Element100");
 		name.setTextType(TEXT_TYPE.PLAIN_TEXT);
+		
 		excluded = new BooleanWrapper(topComposite, SWT.NONE);
 		excluded.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
 		excluded.setBooleanMode(BOOLEAN_MODE.REVERSE);
 		excluded.setText("Enabled");
+		
 		totalCounts = new LabelWrapper(topComposite, SWT.NONE);
 		totalCounts.setTextType(TEXT_TYPE.PLAIN_TEXT);
 		totalCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -297,8 +300,10 @@ public class DetectorElementComposite extends Composite {
 	}
 
 	private void updateTotalCountsDisplay() {
-		elementTotalCounts.setValue("Element Total Counts " + NumberFormat.getInstance().format(thisElementTotalCountsValue));
-		totalCounts.setValue("All Element Total Counts " + NumberFormat.getInstance().format(allElementTotalCountsValue));
+		if(elementTotalCounts!=null)
+			elementTotalCounts.setValue("Element Total Counts " + NumberFormat.getInstance().format(thisElementTotalCountsValue));
+		if(totalCounts!=null)
+			totalCounts.setValue("All Element Total Counts " + NumberFormat.getInstance().format(allElementTotalCountsValue));
 	}
 
 	public void setTotalElementCounts(int total) {

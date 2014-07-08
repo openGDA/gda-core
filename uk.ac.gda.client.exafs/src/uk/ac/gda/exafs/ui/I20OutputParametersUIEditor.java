@@ -52,9 +52,10 @@ import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+import org.eclipse.swt.widgets.Control;
 
 public class I20OutputParametersUIEditor extends RichBeanEditorPart {
-
+	private TextWrapper asciiFileName;
 	private VerticalListEditor signalList;
 	private VerticalListEditor metadataList;
 	private TextWrapper nexusDirectory;
@@ -65,13 +66,11 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	private BooleanWrapper xspressOnlyShowFF;
 	private BooleanWrapper xspressShowDTRawValues;
 	private BooleanWrapper xspressSaveRawSpectrum;
-
 	private ExpandableComposite outputFoldersExpandableComposite;
 	private ExpandableComposite jythonExpandableComposite;
 	private ExpandableComposite signalExpandableComposite;
 	private ExpandableComposite metadataExpandableComposite;
 	private ExpandableComposite detectorsExpandableComposite;
-	
 	private I20OutputParameters bean;
 
 	public I20OutputParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
@@ -89,12 +88,17 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		parent.setLayout(gridLayout);
+		
 		final Composite left = new Composite(parent, SWT.NONE);
 		left.setLayout(new GridLayout(2, false));
-		left.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+		left.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true));
+
 		createExtraColumns(left);
-		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_METADATA_EDITOR))
+
+		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_METADATA_EDITOR)) {
 			createMetadata(left);
+		}
+
 		createScripts(left);
 		createOutput(left);
 		createDetectorOptions(left);
@@ -122,6 +126,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	private String findDefaultFilterPath() {
 		List<String> jythonProjectFolders = JythonServerFacade.getInstance().getAllScriptProjectFolders();
 		String filterPath = System.getenv("user.home");
+
 		for (String path : jythonProjectFolders) {
 			if (JythonServerFacade.getInstance().projectIsUserType(path)) {
 				filterPath = path;
@@ -134,7 +139,11 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	private void createExtraColumns(Composite composite){
 		signalExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		signalExpandableComposite.setText("Add extra columns of data");
-		signalExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+		GridData gd_signalExpandableComposite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_signalExpandableComposite.widthHint = 260;
+		gd_signalExpandableComposite.minimumWidth = 260;
+		gd_signalExpandableComposite.minimumHeight = 300;
+		signalExpandableComposite.setLayoutData(gd_signalExpandableComposite);
 
 		final Composite signalComp = new Composite(signalExpandableComposite, SWT.NONE);
 		GridLayout gridLayout = new GridLayout();
@@ -143,7 +152,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 
 		final Group signalParametersGroup = new Group(signalComp, SWT.NONE);
 
-		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
+		GridData gd = new GridData(SWT.LEFT, SWT.FILL, true, true);
 		gd.widthHint = 400;
 		signalParametersGroup.setLayoutData(gd);
 		gridLayout = new GridLayout();
@@ -151,13 +160,16 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		signalParametersGroup.setLayout(gridLayout);
 		
 		signalList = new VerticalListEditor(signalParametersGroup, SWT.NONE);
+		Control control = signalList.getViewer().getControl();
+		control.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		signalList.setTemplateName("Signal");
 		signalList.setEditorClass(SignalParameters.class);
 		final SignalParametersComposite signalComposite = new SignalParametersComposite(signalList, SWT.NONE);
+		signalComposite.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1));
 		signalList.setEditorUI(signalComposite);
 		signalList.setNameField("Label");
 		signalList.setVisible(true);
-		signalList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		signalList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 		signalList.addBeanSelectionListener(new BeanSelectionListener() {
 
 			@Override
@@ -193,9 +205,9 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 
 		final Group metadataGroup = new Group(metadataComp, SWT.NONE);
 
-		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd.widthHint = 400;
-		metadataGroup.setLayoutData(gd);
+		GridData gd2 = new GridData(SWT.LEFT, SWT.TOP, false, false);
+		gd2.widthHint = 400;
+		metadataGroup.setLayoutData(gd2);
 		gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		metadataGroup.setLayout(gridLayout);
@@ -227,6 +239,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		};
 		metadataExpandableComposite.addExpansionListener(metadataExpansionListener);
 		
+		
 		if(bean.getMetadataList().size()>0)
 			metadataExpandableComposite.setExpanded(true);
 	}
@@ -234,19 +247,19 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	private void createScripts(Composite composite){
 		jythonExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		jythonExpandableComposite.setText("Run scripts before and after a scan");
-		jythonExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+		jythonExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 
 		final Composite jythonComp = new Composite(jythonExpandableComposite, SWT.NONE);
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		jythonComp.setLayout(gridLayout);
 
-		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd.widthHint = 400;
-		gd.heightHint = 80;
+		GridData gd3 = new GridData(SWT.LEFT, SWT.TOP, false, false);
+		gd3.widthHint = 400;
+		gd3.heightHint = 80;
 
 		final Group jythonScriptGroup = new Group(jythonComp, SWT.NONE);
-		jythonScriptGroup.setLayoutData(gd);
+		jythonScriptGroup.setLayoutData(gd3);
 		gridLayout = new GridLayout();
 		gridLayout.numColumns = 3;
 		jythonScriptGroup.setLayout(gridLayout);
@@ -322,7 +335,10 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	private void createOutput(Composite composite){
 		outputFoldersExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		outputFoldersExpandableComposite.setText("Choose where files are saved to");
-		outputFoldersExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+		GridData gd_outputFoldersExpandableComposite = new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1);
+		gd_outputFoldersExpandableComposite.minimumWidth = 260;
+		gd_outputFoldersExpandableComposite.widthHint = 260;
+		outputFoldersExpandableComposite.setLayoutData(gd_outputFoldersExpandableComposite);
 
 		final Composite outputFoldersComp = new Composite(outputFoldersExpandableComposite, SWT.NONE);
 		GridLayout gridLayout = new GridLayout();
@@ -330,9 +346,9 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		outputFoldersComp.setLayout(gridLayout);
 
 		Group ouputFilePreferencesGroup = new Group(outputFoldersComp, SWT.NONE);
-		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd.widthHint = 400;
-		ouputFilePreferencesGroup.setLayoutData(gd);
+		GridData gd4 = new GridData(SWT.LEFT, SWT.FILL, true, false);
+		gd4.widthHint = 400;
+		ouputFilePreferencesGroup.setLayoutData(gd4);
 		gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
 		ouputFilePreferencesGroup.setLayout(gridLayout);
@@ -347,28 +363,33 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		};
 		outputFoldersExpandableComposite.addExpansionListener(outputFoldersListener);
 
-		Label asciiFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
+		final Label asciiFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
 		asciiFolderLabel.setText("Ascii Folder");
 
 		asciiDirectory = new TextWrapper(ouputFilePreferencesGroup, SWT.BORDER);
-		asciiDirectory.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		GridData gd_asciiDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gd_asciiDirectory.widthHint = 150;
+		asciiDirectory.setLayoutData(gd_asciiDirectory);
 		asciiDirectory.setToolTipText("The ascii sub-folder that will store ascii output files.");
 		asciiDirectory.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
 		
-		Label nexusFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
+		final Label nexusFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
 		nexusFolderLabel.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false));
 		nexusFolderLabel.setText("Nexus Folder");
 
 		nexusDirectory = new TextWrapper(ouputFilePreferencesGroup, SWT.BORDER);
-		nexusDirectory.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		GridData gd_nexusDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gd_nexusDirectory.widthHint = 150;
+		nexusDirectory.setLayoutData(gd_nexusDirectory);
 		nexusDirectory.setToolTipText("The sub-folder that will store nexus output files.");
 		nexusDirectory.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
+		new Label(outputFoldersComp, SWT.NONE);
 	}
 	
 	private void createDetectorOptions(Composite left) {
 		detectorsExpandableComposite = new ExpandableComposite(left, SWT.NONE);
 		detectorsExpandableComposite.setText("Fluorescence detectors output");
-		detectorsExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+		detectorsExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 
 		final Composite detFoldersComp = new Composite(detectorsExpandableComposite, SWT.NONE);
 		GridLayout gridLayout = new GridLayout();
@@ -377,16 +398,18 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 
 		Group vortexPreferencesGroup = new Group(detFoldersComp, SWT.NONE);
 		vortexPreferencesGroup.setText("Vortex (Si)");
-		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd.widthHint = 400;
-		vortexPreferencesGroup.setLayoutData(gd);
+		GridData gd5 = new GridData(SWT.LEFT, SWT.TOP, false, false);
+		gd5.widthHint = 400;
+		vortexPreferencesGroup.setLayoutData(gd5);
 		gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
 		vortexPreferencesGroup.setLayout(gridLayout);
 
 		Group xspressPreferencesGroup = new Group(detFoldersComp, SWT.NONE);
 		xspressPreferencesGroup.setText("Xspress (Ge)");
-		xspressPreferencesGroup.setLayoutData(gd);
+		GridData gd6 = new GridData(SWT.LEFT, SWT.TOP, false, false);
+		gd6.widthHint = 400;
+		xspressPreferencesGroup.setLayoutData(gd6);
 		gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
 		xspressPreferencesGroup.setLayout(gridLayout);
@@ -401,23 +424,27 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		};
 		detectorsExpandableComposite.addExpansionListener(detFoldersListener);
 		
-		vortexSaveRawSpectrum = new BooleanWrapper(vortexPreferencesGroup, SWT.NONE);
+		this.vortexSaveRawSpectrum = new BooleanWrapper(vortexPreferencesGroup, SWT.NONE);
 		vortexSaveRawSpectrum.setText("Save raw spectrum to file");
 		vortexSaveRawSpectrum.setValue(false);
+		new Label(vortexPreferencesGroup, SWT.NONE);
 		
-		xspressOnlyShowFF = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
+		this.xspressOnlyShowFF = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
 		xspressOnlyShowFF.setText("Hide individual elements");
-		xspressOnlyShowFF.setToolTipText("In ascii output, only display the total in-window counts (FF) from the Xspress detector");
+		xspressOnlyShowFF
+				.setToolTipText("In ascii output, only display the total in-window counts (FF) from the Xspress detector");
 		xspressOnlyShowFF.setValue(Boolean.FALSE);
 
-		xspressShowDTRawValues = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
+		this.xspressShowDTRawValues = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
 		xspressShowDTRawValues.setText("Show DT values");
-		xspressShowDTRawValues.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
+		xspressShowDTRawValues
+				.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
 		xspressShowDTRawValues.setValue(Boolean.FALSE);
 
 		this.xspressSaveRawSpectrum = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
 		xspressSaveRawSpectrum.setText("Save raw spectrum to file");
 		xspressSaveRawSpectrum.setValue(false);
+		new Label(xspressPreferencesGroup, SWT.NONE);
 		
 		detectorsExpandableComposite.setClient(detFoldersComp);
 
@@ -468,6 +495,10 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 	public VerticalListEditor getMetadataList() {
 		return metadataList;
 	}
+
+	public TextWrapper getAsciiFileName() {
+		return asciiFileName;
+	}	
 
 	public BooleanWrapper getVortexSaveRawSpectrum() {
 		return vortexSaveRawSpectrum;
