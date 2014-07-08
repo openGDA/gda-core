@@ -153,7 +153,7 @@ public class LDEResourceUtil {
 	 */
 	public List<Sample> getSamples() throws Exception {
 
-		SampleList samples = getSampelList();
+		SampleList samples = getSampleList();
 		if (samples != null) {
 			return samples.getSamples();
 		}
@@ -162,7 +162,7 @@ public class LDEResourceUtil {
 
 	public List<Sample> getSamples(String filename) throws Exception {
 		setFileName(filename);
-		SampleList samples = getSampelList();
+		SampleList samples = getSampleList();
 		if (samples != null) {
 			return samples.getSamples();
 		}
@@ -197,10 +197,10 @@ public class LDEResourceUtil {
 			e.printStackTrace();
 		}
 
-		return getSampelList();
+		return getSampleList();
 	}
 
-	public SampleList getSampelList() throws Exception {
+	public SampleList getSampleList() throws Exception {
 		Resource res = getResource();
 		if (res != null) {
 			List<EObject> contents = res.getContents();
