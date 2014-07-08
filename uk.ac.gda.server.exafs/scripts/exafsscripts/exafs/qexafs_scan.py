@@ -201,12 +201,13 @@ class QexafsScan(Scan):
             elif self.additional_channels_enabled==True:
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_counterTimer01_gmsd" ], scanBean)
             else:
-                return self._createDetArray(["qexafs_counterTimer01"], scanBean)
+                # when using xspress3 in qexafs scans. NB: must use the Transmission option in the UI
+                return self._createDetArray(["qexafs_FFI0_xspress3","qexafs_xspress3","qexafs_counterTimer01"], scanBean)
+#                return self._createDetArray(["qexafs_counterTimer01"], scanBean)
         else:
             if detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon":
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap", "VortexQexafsFFI0"], scanBean)
             else:
-                #return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "qexafs_xspress3", "QexafsFFI0"], scanBean)
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "QexafsFFI0"], scanBean)
 
     def isBeamCheck(self):
