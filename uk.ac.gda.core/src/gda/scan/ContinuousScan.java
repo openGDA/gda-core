@@ -200,15 +200,13 @@ public class ContinuousScan extends ConcurrentScanChild {
 		while (qscanAxis.isBusy())
 			Thread.sleep(100);
 
-		// have we read all the frames?
-		if (highestFrameNumberRead == numberScanpoints - 2)
-			return;
-
-		// collect the rest of the frames and send the resulting sdp's out
-		while (highestFrameNumberRead < numberScanpoints - 1) {
+		// Collect the rest of the frames and send the resulting sdp's out.
+		// NB: the highestFrameNumberRead is zero based, so if highestFrameNumberRead + 1 == numberScanpoints then we
+		// have read it all already and we do not need to go into this while loop.
+		while (highestFrameNumberRead + 1 < numberScanpoints) {
 			int nextFramesetEnd = highestFrameNumberRead + maxFrameRead;
-			if (nextFramesetEnd > numberScanpoints - 1)
-				nextFramesetEnd = numberScanpoints - 1;
+			if (nextFramesetEnd > numberScanpoints)
+				nextFramesetEnd = numberScanpoints;
 			createDataPoints(highestFrameNumberRead + 1, nextFramesetEnd);
 			highestFrameNumberRead = nextFramesetEnd;
 		}

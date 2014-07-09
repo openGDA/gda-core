@@ -228,21 +228,32 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 				}
 			}
 		} finally {
-			// 2. Force shutdown
-			int numberOfDumpedPoints = broadcasterQueue.shutdownNow().size();
-			if(numberOfDumpedPoints > 0) {
-				logger.error("Error in scan. The Pipeline has been stopped and "
-								+ numberOfDumpedPoints + " points lost.");
-			}
 
-			if (positionCallableService != null) {
-				positionCallableService.shutdownNow();
-			}
-			
-			// 3. Shutdown the Broadcaster (DataWriter)
-			getBroadcaster().shutdown();
-
+			//check for an existing exception as the code below may itself lead to an
+			//interrupted exception which we can ignore as we cause it
 			checkForException();
+			
+			
+			// 2. Force shutdown
+			try{
+				int numberOfDumpedPoints = broadcasterQueue.shutdownNow().size();
+				if(numberOfDumpedPoints > 0) {
+					logger.error("Error in scan. The Pipeline has been stopped and "
+									+ numberOfDumpedPoints + " points lost.");
+				}
+
+				if (positionCallableService != null) {
+					positionCallableService.shutdownNow();
+				}
+
+				// 3. Shutdown the Broadcaster (DataWriter)
+				getBroadcaster().shutdown();
+
+				checkForException();
+
+			} catch (InterruptedException e){
+				//ignore as the calls to shutdownNow will be the cause
+			}
 		}
 	}
 

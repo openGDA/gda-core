@@ -36,6 +36,7 @@ import gda.jython.UserMessage;
 import gda.jython.batoncontrol.BatonRequested;
 import gda.observable.IObserver;
 import gda.rcp.preferences.GdaRootPreferencePage;
+import gda.scan.Scan;
 import gda.util.ObjectServer;
 
 import java.lang.reflect.Field;
@@ -284,9 +285,9 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 					@Override
 					public void update(Object source, Object arg) {
-						if (arg instanceof JythonServerStatus) {
-							final JythonServerStatus status = (JythonServerStatus) arg;
-							if (status.scanStatus == Jython.RUNNING) {
+						if (arg instanceof Scan.ScanStatus) {
+							final Scan.ScanStatus status = (Scan.ScanStatus) arg;
+							if (status == Scan.ScanStatus.RUNNING) {
 								// must run sync to ensure the view is opened before a scan data point arrives
 								PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 									@Override

@@ -592,6 +592,12 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 			throw new DeviceException("Error calling getPosition on scannable " + scn.getName() + ": "
 					+ e.getMessage(), e);
 		}
+		
+		if (scnPos == null){
+			// something's wrong in the scannable! log this and call the metadata "null"
+			logger.info("Null returned when asking " + scn.getName() + " for its position");
+			scnPos = "null";
+		}
 
 		Object[] elementalGetPosObjects = separateGetPositionOutputIntoElementalPosObjects(scnPos);
 
