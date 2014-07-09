@@ -5,6 +5,7 @@ import gda.commandqueue.CommandId;
 import gda.commandqueue.CommandProgress;
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Processor;
+import gda.commandqueue.ProcessorCurrentItem;
 import gda.configuration.properties.LocalProperties;
 import gda.observable.IObserver;
 
@@ -75,6 +76,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
@@ -172,8 +174,9 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private boolean isDirty;
 	private Text txtFilePath;
 	private Text txtDataFilename;
-	private Text txtCurrentPosition;
+	private Text txtProcessorMessage;
 	protected int nameCount;
+	private ProgressBar progressBar;
 	
 
 	/**
@@ -237,7 +240,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		statusArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		statusArea.setLayout(new GridLayout(4, false));
 		Label lblSampleListFile = new Label(statusArea, SWT.None);
-		lblSampleListFile.setText("Sample List File: ");
+		lblSampleListFile.setText("Sample Definition File: ");
 
 		txtFilePath = new Text(statusArea, SWT.BORDER | SWT.READ_ONLY);
 		txtFilePath.setToolTipText("show the filename holding the sample list displayed in the table above");
@@ -245,7 +248,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtFilePath.setEditable(false);
 		
 		Label lblDataFile = new Label(statusArea, SWT.NONE);
-		lblDataFile.setText("Current Data File:");
+		lblDataFile.setText("Collecting Data File:");
 		
 		txtDataFilename = new Text(statusArea, SWT.BORDER);
 		txtDataFilename.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -253,19 +256,22 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtDataFilename.setToolTipText("Data file to be written for the current collection");
 		
 		Label lblProgress = new Label(statusArea, SWT.NONE);
-		lblProgress.setText("List Progress:");
+		lblProgress.setText("Acquisition Progress:");
 		
-		ProgressBar progressBar = new ProgressBar(statusArea, SWT.NONE);
+		progressBar = new ProgressBar(statusArea, SWT.NONE);
 		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		progressBar.setToolTipText("show the data collection progress based on the list of active samples displayed in the table");
+		progressBar.setMinimum(0);
+		progressBar.setMaximum(1000);
 		
 		Label lblCurrentState = new Label(statusArea, SWT.NONE);
-		lblCurrentState.setText("Current Process:");
+		lblCurrentState.setText("Processor Messages:");
+		lblCurrentState.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
 		
-		txtCurrentPosition = new Text(statusArea, SWT.BORDER);
-		txtCurrentPosition.setEditable(false);
-		txtCurrentPosition.setToolTipText("show the current process position out of the total number of active processes ");
-		txtCurrentPosition.setText("1/1");
+		txtProcessorMessage = new Text(statusArea, SWT.BORDER);
+		txtProcessorMessage.setEditable(false);
+		txtProcessorMessage.setToolTipText("show the current process position out of the total number of active processes ");
+		txtProcessorMessage.setText("Waiting to start");
 		
 		initialisation();
 		// register as selection provider to the SelectionService
@@ -347,45 +353,98 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	}
 
 	Map<CommandId, Sample> sampleMap=new HashMap<CommandId, Sample>();
-	
+	Processor.STATE processorState;
 	@Override
 	public void update(Object source, Object arg) {
 		if (source == CommandQueueViewFactory.getProcessor()) {
+			ProcessorCurrentItem currentItem = getProcessorCurrentItem();
+			final boolean itemBeingProcessed = currentItem != null;
 			if (arg instanceof Processor.STATE) {
-				Processor.STATE argState=(Processor.STATE)arg;
-				if (argState==Processor.STATE.WAITING_START){
-					
-				} else if (argState==Processor.STATE.PROCESSING_ITEMS){
-					
-				} else if (argState==Processor.STATE.WAITING_QUEUE){
-					
-				} else if (argState==Processor.STATE.UNKNOWN){
-					
+				processorState=(Processor.STATE)arg;
+				if (processorState==Processor.STATE.WAITING_START){
+					running=true;
+					paused=true;
+				} else if (processorState == Processor.STATE.PROCESSING_ITEMS) {
+					running = true;
+					paused = false;
+				} else if (processorState == Processor.STATE.WAITING_QUEUE) {
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							for (Sample sample : samples) {
+								if (sample.isActive()) {
+									updateSampleStatus(sample, STATUS.READY);
+								}
+							}
+							if (!itemBeingProcessed) {
+								txtProcessorMessage.setText("No command to process.");
+								progressBar.setSelection(0);
+							}
+						}
+					});
+					running=false;
+					paused=false;
+				} else if (processorState==Processor.STATE.UNKNOWN){
+					//Do nothing
 				}
+				updateActionIconsState();
 			} else if (arg instanceof gda.commandqueue.Command.STATE) {
-				gda.commandqueue.Command.STATE argState=(gda.commandqueue.Command.STATE)arg;
-				if (argState==gda.commandqueue.Command.STATE.NOT_STARTED) {
+				gda.commandqueue.Command.STATE commandState=(gda.commandqueue.Command.STATE)arg;
+				if (commandState==gda.commandqueue.Command.STATE.NOT_STARTED) {
 					
-				} else if (argState==gda.commandqueue.Command.STATE.RUNNING) {
+				} else if (commandState==gda.commandqueue.Command.STATE.RUNNING) {
 					
-				} else if (argState==gda.commandqueue.Command.STATE.PAUSED) {
+				} else if (commandState==gda.commandqueue.Command.STATE.PAUSED) {
 					
-				} else if (argState==gda.commandqueue.Command.STATE.COMPLETED) {
+				} else if (commandState==gda.commandqueue.Command.STATE.COMPLETED) {
 					
-				} else if (argState==gda.commandqueue.Command.STATE.ABORTED) {
+				} else if (commandState==gda.commandqueue.Command.STATE.ABORTED) {
 					
-				} else if (argState==gda.commandqueue.Command.STATE.ERROR) {
+				} else if (commandState==gda.commandqueue.Command.STATE.ERROR) {
 					
 				} 
 			} else if (arg instanceof CommandProgress) {
-				CommandProgress cprog=(CommandProgress)arg;
-				cprog.getPercentDone();
+				final CommandProgress cprog = (CommandProgress) arg;
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						progressBar.setSelection((int) (cprog.getPercentDone() * progressBar.getMaximum()));
+						txtProcessorMessage.setText(cprog.getMsg());
+					}
+				});
 			}
-			
 		}
-		
 	}
 
+	private ProcessorCurrentItem getProcessorCurrentItem() {
+		try {
+			return CommandQueueViewFactory.getProcessor().getCurrentItem();
+		} catch (Exception e) {
+			logger.error("Error getting processor current item", e);
+		}
+		return null;
+	}
+
+	private Processor.STATE getProcessorState() {
+		try {
+			return CommandQueueViewFactory.getProcessor().getState();
+		} catch (Exception e) {
+			logger.error("Error getting processor state", e);
+		}
+		return Processor.STATE.UNKNOWN;
+	}
+	
+	protected void updateSampleStatus(final Sample sample, final STATUS status) {
+		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				sample.setStatus(status);
+				viewer.refresh();
+			}
+		});
+	}
+	
 	private void makeActions() {
 		startAction= new Action() {
 
