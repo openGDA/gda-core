@@ -376,14 +376,16 @@ public class DummyDAServer extends DAServer {
 					StringTokenizer tokenizer = new StringTokenizer(token);
 					tokenizer.nextToken(); // tfg
 					tokenizer.nextToken(); // setup-groups
-					token = tokenizer.nextToken(); // cycles, ext-inhibit or
-					// ext-start
-					if ("cycles".equals(token)) {
-						cycles = Integer.valueOf(tokenizer.nextToken()); // cycle
-					} else if ("ext-inhibit".equals(token)) {
-						continue; // ext-inhibit
-					} else if ("ext-start".equals(token)) {
-						continue; // ext-start
+					if (tokenizer.hasMoreTokens()) { // The followings are optional
+						token = tokenizer.nextToken(); // cycles, ext-inhibit or
+						// ext-start
+						if ("cycles".equals(token)) {
+							cycles = Integer.valueOf(tokenizer.nextToken()); // cycle
+						} else if ("ext-inhibit".equals(token)) {
+							continue; // ext-inhibit
+						} else if ("ext-start".equals(token)) {
+							continue; // ext-start
+						}
 					}
 				} else if (!(token.startsWith("-1"))) {
 					StringTokenizer tokenizer = new StringTokenizer(token);
