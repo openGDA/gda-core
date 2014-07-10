@@ -69,6 +69,7 @@ public class HistogramView extends ViewPart {
 					serviceName = getViewSite().getSecondaryId();
 				if (StringUtils.isEmpty(serviceName))
 					throw new RuntimeException("No secondary id given");
+				logger.info("HistogramView.createPartControl() serviceName=" + serviceName);
 				try {
 					adController = ADControllerFactory.getInstance().getADController(serviceName);
 				} catch (Exception e) {
@@ -76,7 +77,8 @@ public class HistogramView extends ViewPart {
 					throw new RuntimeException("Error getting ADController see log for details");
 				}
 				name = adController.getDetectorName() + " Stats";
-
+			} else {
+				logger.info("HistogramView.createPartControl() adController.getServiceName=" + adController.getServiceName());
 			}
 			parent.setLayout(new FillLayout());
 
