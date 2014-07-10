@@ -52,8 +52,8 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements ITabl
 						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_COMPLETE);
 					} else if (sample.getStatus() == STATUS.ABORTED) {
 						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_FAILURE);
-					} else if (sample.getStatus() == STATUS.INVALID) {
-						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID);
+					} else if (sample.getStatus() == STATUS.ERROR) {
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_ERROR);
 					}
 				}
 			}

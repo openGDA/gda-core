@@ -494,9 +494,10 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEEnum(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.class, "STATUS");
 		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.READY);
 		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.RUNNING);
+		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.PAUSED);
 		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.COMPLETED);
 		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.ABORTED);
-		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.INVALID);
+		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.ERROR);
 
 		// Create resource
 		createResource(eNS_URI);

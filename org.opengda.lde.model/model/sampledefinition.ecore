@@ -60,8 +60,9 @@
   <eClassifiers xsi:type="ecore:EEnum" name="STATUS">
     <eLiterals name="READY" literal="READY"/>
     <eLiterals name="RUNNING" value="1"/>
-    <eLiterals name="COMPLETED" value="2"/>
-    <eLiterals name="ABORTED" value="3"/>
-    <eLiterals name="INVALID" value="4"/>
+    <eLiterals name="PAUSED" value="2"/>
+    <eLiterals name="COMPLETED" value="3"/>
+    <eLiterals name="ABORTED" value="4"/>
+    <eLiterals name="ERROR" value="5"/>
   </eClassifiers>
 </ecore:EPackage>

@@ -39,6 +39,14 @@ public enum STATUS implements Enumerator {
 	RUNNING(1, "RUNNING", "RUNNING"),
 
 	/**
+	 * The '<em><b>PAUSED</b></em>' literal object.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #PAUSED_VALUE
+	 * @generated
+	 * @ordered
+	 */
+	PAUSED(2, "PAUSED", "PAUSED"), /**
 	 * The '<em><b>COMPLETED</b></em>' literal object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -46,7 +54,7 @@ public enum STATUS implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	COMPLETED(2, "COMPLETED", "COMPLETED"),
+	COMPLETED(3, "COMPLETED", "COMPLETED"),
 
 	/**
 	 * The '<em><b>ABORTED</b></em>' literal object.
@@ -56,17 +64,17 @@ public enum STATUS implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	ABORTED(3, "ABORTED", "ABORTED"),
+	ABORTED(4, "ABORTED", "ABORTED"),
 
 	/**
-	 * The '<em><b>INVALID</b></em>' literal object.
+	 * The '<em><b>ERROR</b></em>' literal object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #INVALID_VALUE
+	 * @see #ERROR_VALUE
 	 * @generated
 	 * @ordered
 	 */
-	INVALID(4, "INVALID", "INVALID");
+	ERROR(5, "ERROR", "ERROR");
 
 	/**
 	 * The '<em><b>READY</b></em>' literal value.
@@ -99,6 +107,21 @@ public enum STATUS implements Enumerator {
 	public static final int RUNNING_VALUE = 1;
 
 	/**
+	 * The '<em><b>PAUSED</b></em>' literal value.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of '<em><b>PAUSED</b></em>' literal object isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @see #PAUSED
+	 * @model
+	 * @generated
+	 * @ordered
+	 */
+	public static final int PAUSED_VALUE = 2;
+
+	/**
 	 * The '<em><b>COMPLETED</b></em>' literal value.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -111,7 +134,7 @@ public enum STATUS implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int COMPLETED_VALUE = 2;
+	public static final int COMPLETED_VALUE = 3;
 
 	/**
 	 * The '<em><b>ABORTED</b></em>' literal value.
@@ -126,22 +149,22 @@ public enum STATUS implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int ABORTED_VALUE = 3;
+	public static final int ABORTED_VALUE = 4;
 
 	/**
-	 * The '<em><b>INVALID</b></em>' literal value.
+	 * The '<em><b>ERROR</b></em>' literal value.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of '<em><b>INVALID</b></em>' literal object isn't clear,
+	 * If the meaning of '<em><b>ERROR</b></em>' literal object isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @see #INVALID
+	 * @see #ERROR
 	 * @model
 	 * @generated
 	 * @ordered
 	 */
-	public static final int INVALID_VALUE = 4;
+	public static final int ERROR_VALUE = 5;
 
 	/**
 	 * An array of all the '<em><b>STATUS</b></em>' enumerators.
@@ -153,9 +176,10 @@ public enum STATUS implements Enumerator {
 		new STATUS[] {
 			READY,
 			RUNNING,
+			PAUSED,
 			COMPLETED,
 			ABORTED,
-			INVALID,
+			ERROR,
 		};
 
 	/**
@@ -208,9 +232,10 @@ public enum STATUS implements Enumerator {
 		switch (value) {
 			case READY_VALUE: return READY;
 			case RUNNING_VALUE: return RUNNING;
+			case PAUSED_VALUE: return PAUSED;
 			case COMPLETED_VALUE: return COMPLETED;
 			case ABORTED_VALUE: return ABORTED;
-			case INVALID_VALUE: return INVALID;
+			case ERROR_VALUE: return ERROR;
 		}
 		return null;
 	}

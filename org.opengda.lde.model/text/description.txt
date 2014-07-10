@@ -39,6 +39,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
   Enum STATUS
     Literal READY = 0
     Literal RUNNING = 1
-    Literal COMPLETED = 2
-    Literal ABORTED = 3
-    Literal INVALID = 4
+    Literal PAUSED = 2
+    Literal COMPLETED = 3
+    Literal ABORTED = 4
+    Literal ERROR = 5
