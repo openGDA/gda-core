@@ -172,6 +172,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	private int remotePort = -1;
 
+	private boolean remoteServerUsesJline;
+
 	private String gdaStationScript;
 	
 	// configure whether #panicStop() tries to stop all Scannables found in the Jython namespace
@@ -292,6 +294,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		this.remotePort = remotePort;
 	}
 
+	public void setRemoteServerUsesJline(boolean remoteServerUsesJline) {
+		this.remoteServerUsesJline = remoteServerUsesJline;
+	}
+
 	/**
 	 * Add a Pseudo Device to the list of defaults
 	 * 
@@ -392,6 +398,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				socket.setServerType(remoteServerType);
 				socket.setAuthenticator(authenticator);
 				socket.setPort(port);
+				socket.setUseJline(remoteServerUsesJline);
 				new Thread(socket, "Jython SocketServer port " + port).start();
 			}
 			configured = true;

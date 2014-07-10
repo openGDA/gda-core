@@ -37,6 +37,9 @@ public class SocketServerThread extends ServerThread {
 	 * @param socket client socket
 	 */
 	public SocketServerThread(Socket socket) {
+		
+		setUseJline(false);
+		
 		try {
 			setOutputStream(socket.getOutputStream());
 			setInputStream(socket.getInputStream());
