@@ -26,10 +26,18 @@ import java.io.Serializable;
  */
 public class ProcessorCurrentItem implements Serializable {
 	final String description;
+	private final CommandId commandID;
 
-	public ProcessorCurrentItem(String description) {
+//	public ProcessorCurrentItem(String description) {
+//		super();
+//		this.description = description;
+//		this.id=null;
+//	}
+
+	public ProcessorCurrentItem(String description, CommandId removedHeadID) {
 		super();
-		this.description = description;
+		this.description=description;
+		this.commandID=removedHeadID;
 	}
 
 	@Override
@@ -39,6 +47,10 @@ public class ProcessorCurrentItem implements Serializable {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public CommandId getCommandID() {
+		return commandID;
 	}
 	
 }
