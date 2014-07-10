@@ -1,5 +1,4 @@
-	package org.opengda.lde.ui.views;
-
+package org.opengda.lde.ui.views;
 
 import gda.commandqueue.CommandId;
 import gda.commandqueue.CommandProgress;
@@ -7,6 +6,7 @@ import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 
 import java.io.File;
@@ -109,22 +109,12 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
 
-
 /**
- * This sample class demonstrates how to plug-in a new
- * workbench view. The view shows data obtained from the
- * model. The sample creates a dummy model on the fly,
- * but a real implementation would connect to the model
- * available either in this or another plug-in (e.g. the workspace).
- * The view is connected to the model using a content provider.
+ * This sample view shows data obtained from the EMF model. 
+ * The view is connected to the model using a content provider {@link SampleGroupViewContentProvider}.
  * <p>
- * The view uses a label provider to define how model
- * objects should be presented in the view. Each
- * view can present the same model objects using
- * different labels and icons, if needed. Alternatively,
- * a single label provider can be shared between views
- * in order to ensure that objects of the same type are
- * presented in the same way everywhere.
+ * The view uses a label provider {@link SampleGroupViewLabelProvider}to define how model
+ * objects should be presented in the view. 
  * <p>
  */
 
@@ -178,7 +168,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	protected int nameCount;
 	private ProgressBar progressBar;
 	
-
 	/**
 	 * The constructor.
 	 */
@@ -190,8 +179,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	}
 
 	/**
-	 * This is a callback that will allow us
-	 * to create the viewer and initialize it.
+	 * This is a callback that will allow us to create the viewer and initialize it.
 	 */
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
@@ -345,6 +333,10 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				}
 			}
 		}
+		if (getResUtil() != null) {
+			txtFilePath.setText(getResUtil().getFileName());
+		}
+		
 		samples=sampleList.getSamples();
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(viewer));
 		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, viewer));
@@ -382,8 +374,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 								}
 							}
 							if (!itemBeingProcessed) {
-								txtProcessorMessage
-										.setText("No command to process.");
+								txtProcessorMessage.setText("No command to process.");
 								progressBar.setSelection(0);
 							}
 							running = false;
@@ -399,6 +390,9 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
+						if (currentItem == null) {
+							return;
+						}
 						commandState = (gda.commandqueue.Command.STATE) arg;
 						CommandId commandID = currentItem.getCommandID();
 						currentSample = sampleMap.get(commandID);
@@ -406,6 +400,13 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 							updateSampleStatus(currentSample, STATUS.READY);
 						} else if (commandState == gda.commandqueue.Command.STATE.RUNNING) {
 							updateSampleStatus(currentSample, STATUS.RUNNING);
+							Long scanNumber = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
+							String detectorName = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDetectorNames()[0];
+							String beamline="";
+							if (LocalProperties.check("gda.nexus.beamlinePrefix")) {
+								beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)+"-";
+							}
+							txtDataFilename.setText(getDataDirectory(currentSample)+File.separator+beamline+scanNumber+".nxs");
 						} else if (commandState == gda.commandqueue.Command.STATE.PAUSED) {
 							updateSampleStatus(currentSample, STATUS.PAUSED);
 						} else if (commandState == gda.commandqueue.Command.STATE.COMPLETED) {
@@ -415,8 +416,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						} else if (commandState == gda.commandqueue.Command.STATE.ERROR) {
 							updateSampleStatus(currentSample, STATUS.ERROR);
 						}
-						viewer.setSelection(new StructuredSelection(
-								currentSample));
+						viewer.setSelection(new StructuredSelection(currentSample));
 					}
 				});
 			} else if (arg instanceof CommandProgress) {
@@ -441,15 +441,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		return null;
 	}
 
-	private Processor.STATE getProcessorState() {
-		try {
-			return CommandQueueViewFactory.getProcessor().getState();
-		} catch (Exception e) {
-			logger.error("Error getting processor state", e);
-		}
-		return Processor.STATE.UNKNOWN;
-	}
-	
 	protected void updateSampleStatus(final Sample sample, final STATUS status) {
 		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
@@ -1156,6 +1147,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 			// update existing regions list
 			samples = resUtil.getSamples();
+			for (Sample sample : samples) {
+				if (sample.isActive()) {
+					currentSample=sample;
+					break;
+				}
+			}
 		} catch (Exception e) {
 			logger.error("Cannot refresh table.", e);
 		}
