@@ -354,55 +354,71 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	Map<CommandId, Sample> sampleMap=new HashMap<CommandId, Sample>();
 	Processor.STATE processorState;
+	gda.commandqueue.Command.STATE commandState;
+	private Sample currentSample;
 	@Override
-	public void update(Object source, Object arg) {
+	public void update(Object source, final Object arg) {
 		if (source == CommandQueueViewFactory.getProcessor()) {
-			ProcessorCurrentItem currentItem = getProcessorCurrentItem();
+			final ProcessorCurrentItem currentItem = getProcessorCurrentItem();
 			final boolean itemBeingProcessed = currentItem != null;
 			if (arg instanceof Processor.STATE) {
-				processorState=(Processor.STATE)arg;
-				if (processorState==Processor.STATE.WAITING_START){
-					running=true;
-					paused=true;
-				} else if (processorState == Processor.STATE.PROCESSING_ITEMS) {
-					running = true;
-					paused = false;
-				} else if (processorState == Processor.STATE.WAITING_QUEUE) {
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
+				// update processor action control
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						processorState = (Processor.STATE) arg;
+						if (processorState == Processor.STATE.WAITING_START) {
+							if (commandState == gda.commandqueue.Command.STATE.PAUSED) {
+								running = true;
+								paused = true;
+							}
+						} else if (processorState == Processor.STATE.PROCESSING_ITEMS) {
+							running = true;
+							paused = false;
+						} else if (processorState == Processor.STATE.WAITING_QUEUE) {
 							for (Sample sample : samples) {
 								if (sample.isActive()) {
 									updateSampleStatus(sample, STATUS.READY);
 								}
 							}
 							if (!itemBeingProcessed) {
-								txtProcessorMessage.setText("No command to process.");
+								txtProcessorMessage
+										.setText("No command to process.");
 								progressBar.setSelection(0);
 							}
+							running = false;
+							paused = false;
+						} else if (processorState == Processor.STATE.UNKNOWN) {
+							// Do nothing
 						}
-					});
-					running=false;
-					paused=false;
-				} else if (processorState==Processor.STATE.UNKNOWN){
-					//Do nothing
-				}
-				updateActionIconsState();
+						updateActionIconsState();
+					}
+				});
 			} else if (arg instanceof gda.commandqueue.Command.STATE) {
-				gda.commandqueue.Command.STATE commandState=(gda.commandqueue.Command.STATE)arg;
-				if (commandState==gda.commandqueue.Command.STATE.NOT_STARTED) {
-					
-				} else if (commandState==gda.commandqueue.Command.STATE.RUNNING) {
-					
-				} else if (commandState==gda.commandqueue.Command.STATE.PAUSED) {
-					
-				} else if (commandState==gda.commandqueue.Command.STATE.COMPLETED) {
-					
-				} else if (commandState==gda.commandqueue.Command.STATE.ABORTED) {
-					
-				} else if (commandState==gda.commandqueue.Command.STATE.ERROR) {
-					
-				} 
+				//update sample status and selection
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						commandState = (gda.commandqueue.Command.STATE) arg;
+						CommandId commandID = currentItem.getCommandID();
+						currentSample = sampleMap.get(commandID);
+						if (commandState == gda.commandqueue.Command.STATE.NOT_STARTED) {
+							updateSampleStatus(currentSample, STATUS.READY);
+						} else if (commandState == gda.commandqueue.Command.STATE.RUNNING) {
+							updateSampleStatus(currentSample, STATUS.RUNNING);
+						} else if (commandState == gda.commandqueue.Command.STATE.PAUSED) {
+							updateSampleStatus(currentSample, STATUS.PAUSED);
+						} else if (commandState == gda.commandqueue.Command.STATE.COMPLETED) {
+							updateSampleStatus(currentSample, STATUS.COMPLETED);
+						} else if (commandState == gda.commandqueue.Command.STATE.ABORTED) {
+							updateSampleStatus(currentSample, STATUS.ABORTED);
+						} else if (commandState == gda.commandqueue.Command.STATE.ERROR) {
+							updateSampleStatus(currentSample, STATUS.ERROR);
+						}
+						viewer.setSelection(new StructuredSelection(
+								currentSample));
+					}
+				});
 			} else if (arg instanceof CommandProgress) {
 				final CommandProgress cprog = (CommandProgress) arg;
 				Display.getDefault().asyncExec(new Runnable() {
