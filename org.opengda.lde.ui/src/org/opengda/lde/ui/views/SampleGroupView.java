@@ -1165,7 +1165,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 //			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
 			CommandQueueViewFactory.getProcessor().deleteIObserver(this);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		super.dispose();
