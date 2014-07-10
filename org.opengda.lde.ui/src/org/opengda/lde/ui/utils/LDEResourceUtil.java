@@ -170,6 +170,10 @@ public class LDEResourceUtil {
 	}
 
 	public SampleList createSampleList() throws Exception {
+		if (fileName == null || fileName.isEmpty()) {
+			fileName=getDefaultDirectory()+File.separator+getDefaultFilename();
+		}
+
 		final Resource newResource = getResourceSet().createResource(URI.createFileURI(fileName));
 		final ExperimentDefinition root = LDEExperimentsFactory.eINSTANCE.createExperimentDefinition();
 
