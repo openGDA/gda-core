@@ -186,4 +186,6 @@ public interface UViewController {
 	public double getRoiData(int roiId) throws DeviceException;
 
 	public void setPixelClock(int MHz) throws DeviceException;
+
+	public void setTriggerMode(int mode) throws DeviceException;
 }

@@ -346,4 +346,21 @@ public class UViewImageDetector extends DetectorBase implements UViewNew {
 		uic.uvc.setPixelClock(MHz);
 	}
 
+	public enum TriggerMode {
+		AUTO,
+		SOFT
+	}
+
+	public void setTriggerMode(TriggerMode mode) throws DeviceException {
+		int triggerMode = 0; 
+		switch (mode) {
+		case AUTO:
+			triggerMode = 0;
+			break;
+		case SOFT:
+			triggerMode = 1;
+			break;
+		}
+		uic.uvc.setTriggerMode(triggerMode);
+	}
 }

@@ -141,4 +141,9 @@ public class CorbaUViewController implements UViewController {
 		// TODO Auto-generated method stub
 	}
 
+	@Override
+	public void setTriggerMode(int mode) throws DeviceException {
+		// TODO Auto-generated method stub
+	}
+
 }
