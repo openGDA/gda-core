@@ -24,4 +24,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.commons.io,
  org.eclipse.emf.edit.ui.dnd,
- org.slf4j
+ org.slf4j,
+ org.springframework.beans.factory;version="3.2.2.RELEASE"

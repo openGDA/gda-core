@@ -128,6 +128,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	public static final String DATA_FOLDER="data";
 	private static final Logger logger = LoggerFactory.getLogger(SampleGroupView.class);
 	private List<ISelectionChangedListener> selectionChangedListeners;
+	private String dataDriver=DATA_DRIVER;
+	private String dataFolder=DATA_FOLDER;
 	private LDEResourceUtil resUtil;
 	private EditingDomain editingDomain;
 	
@@ -901,7 +903,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 
 		private boolean isValidCellID(String value) {
-			File dir=new File(File.separator+DATA_DRIVER+File.separator+value);
+			File dir=new File(File.separator+getDataDriver()+File.separator+value);
 			if (dir.exists()) {
 				return true;
 			}
@@ -927,7 +929,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	}
 	
 	private String getDataDirectory(Sample sample) {
-		return File.separator+DATA_DRIVER+File.separator+sample.getCellID()+File.separator+DATA_FOLDER+File.separator+Calendar.getInstance().get(Calendar.YEAR)+File.separator+sample.getVisitID();
+		return File.separator+getDataDriver()+File.separator+sample.getCellID()+File.separator+getDataFolder()+File.separator+Calendar.getInstance().get(Calendar.YEAR)+File.separator+sample.getVisitID();
 	}
 	
 	private void openMessageBox(String message, String title) {
@@ -1210,5 +1212,21 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	public void setResUtil(LDEResourceUtil resUtil) {
 		this.resUtil = resUtil;
+	}
+
+	public String getDataDriver() {
+		return dataDriver;
+	}
+
+	public void setDataDriver(String dataDriver) {
+		this.dataDriver = dataDriver;
+	}
+
+	public String getDataFolder() {
+		return dataFolder;
+	}
+
+	public void setDataFolder(String dataFolder) {
+		this.dataFolder = dataFolder;
 	}
 }

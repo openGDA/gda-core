@@ -5,15 +5,16 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Sample Category"
+            name="LDE"
             id="org.opengda.lde.ui">
       </category>
       <view
-            name="Sample View"
-            icon="icons/sample.gif"
             category="org.opengda.lde.ui"
-            class="org.opengda.lde.ui.views.updateSampleStatus"
-            id="org.opengda.lde.ui.views.SampleGroupView">
+            class="gda.rcp.views.ViewFactory:sampleGroupViewFactory"
+            icon="icons/table_edit.png"
+            id="org.opengda.lde.ui.views.SampleGroupView"
+            name="Samples View"
+            restorable="true">
       </view>
    </extension>
    <extension
