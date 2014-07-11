@@ -21,38 +21,40 @@ package uk.ac.gda.epics.adviewer;
 import gda.rcp.util.OSGIServiceRegister;
 
 import java.util.Dictionary;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import uk.ac.gda.epics.adviewer.views.ADUtils;
 import uk.ac.gda.util.dictionary.MapBasedDictionary;
 
-
 public class ADControllerFactory {
+	private static final Logger logger = LoggerFactory.getLogger(ADControllerFactory.class);
 	
 	//TODO Make the following match convention
 
 	private static ADControllerFactory instance;
-	
-	
+
 	public static ADControllerFactory getInstance(){
 		if( instance == null){
 			instance = new ADControllerFactory();
 		}
 		return instance;
 	}
+
 	public void registerADController(String serviceName) throws Exception{
 		
 		String detectorName = ADUtils.getDetectorNameFromPVServiceName(serviceName);
 		String suffixType = ADUtils.getSuffixTypeFromPVServiceName(serviceName);
-		//from pv prefix get plugin suffices
-		ADPVSuffixes adPVSuffixes=null;;
+		//from pv prefix get plugin suffixes
+		ADPVSuffixes adPVSuffixes=null;
 		if( StringUtils.hasText(suffixType)){
 			adPVSuffixes = (ADPVSuffixes)Activator.getNamedService(ADPVSuffixes.class, suffixType);
 		}
-		if (adPVSuffixes == null)
+		if (adPVSuffixes == null) {
+			logger.info("ADControllerFactory.registerADController() No PV suffix service '" + suffixType + "' found for detector '" + detectorName + "', assuming DLSADPVSuffixes for '" + serviceName + "'");
 			adPVSuffixes = new DLSADPVSuffixes();
-		
+		}
 		DynamicADControllerImpl impl = new DynamicADControllerImpl(serviceName, detectorName, ADUtils.getPVFromPVServiceName(serviceName), adPVSuffixes);
 		
 		OSGIServiceRegister modelReg = new OSGIServiceRegister();
@@ -62,10 +64,9 @@ public class ADControllerFactory {
 		Dictionary<String, String> properties = new MapBasedDictionary();
 		properties.put(Activator.SERVICE_NAME, serviceName);
 		modelReg.setProperties(properties);
-		modelReg.afterPropertiesSet();	
+		modelReg.afterPropertiesSet();
 	}
-	
-	
+
 	public ADController getADController(String serviceName) throws Exception {
 		ADController config = (ADController)Activator.getNamedService(ADController.class, serviceName);
 		if( config == null){
@@ -75,5 +76,5 @@ public class ADControllerFactory {
 				throw new Exception("Unable to access ADController for service '" + serviceName + "'");
 		}
 		return config;
-	}	
+	}
 }

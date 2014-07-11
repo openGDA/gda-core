@@ -73,6 +73,7 @@ public class MJPegView extends ViewPart {
 					serviceName = getViewSite().getSecondaryId();
 				if (StringUtils.isEmpty(serviceName))
 					throw new RuntimeException("No secondary id given");
+				logger.info("MJPegView.createPartControl() serviceName=" + serviceName);
 				try {
 					adController = ADControllerFactory.getInstance().getADController(serviceName);
 				} catch (Exception e) {
@@ -80,6 +81,8 @@ public class MJPegView extends ViewPart {
 					throw new RuntimeException("Error getting ADController see log for details");
 				}
 				name = adController.getDetectorName() + " MJPeg";
+			} else {
+				logger.info("MJPegView.createPartControl() adController.getServiceName=" + adController.getServiceName());
 			}
 
 			parent.setLayout(new FillLayout());
