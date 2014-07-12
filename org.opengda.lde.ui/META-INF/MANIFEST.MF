@@ -19,7 +19,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  uk.ac.gda.client,
  org.eclipse.swt,
- org.eclipse.ui.ide
+ org.eclipse.ui.ide,
+ org.eclipse.core.expressions,
+ org.eclipse.ui.navigator
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

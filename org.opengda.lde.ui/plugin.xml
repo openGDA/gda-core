@@ -35,5 +35,104 @@
             file="contexts.xml">
       </contexts>
    </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.opengda.lde.ui.commands.category"
+            id="org.opengda.lde.ui.newfile"
+            name="New File">
+      </command>
+      <command
+            categoryId="org.opengda.lde.ui.commands.category"
+            id="org.opengda.lde.ui.openFile"
+            name="Open File">
+      </command>
+      <category
+            description="LDE commands"
+            id="org.opengda.lde.ui.commands.category"
+            name="LDE">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.opengda.lde.ui.actions.NewFileHandler"
+            commandId="org.opengda.lde.ui.newfile">
+         <activeWhen>
+            <reference
+                  definitionId="org.opengda.lde.ui.samplesView.inView">
+            </reference></activeWhen>
+      </handler>
+      <handler
+            class="org.opengda.lde.ui.actions.OpenFileHandler"
+            commandId="org.opengda.lde.ui.openFile">
+         <activeWhen>
+            <reference
+                  definitionId="org.opengda.lde.ui.samplesView.inView">
+            </reference>
+         </activeWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            category="org.opengda.lde.ui.wizard.category"
+            class="org.opengda.lde.ui.dialogs.NewFileWizard"
+            icon="icons/new_file.gif"
+            id="org.opengda.lde.ui.newfilewizard"
+            name="New File Wizard"
+            project="true">
+         <selection
+               class="org.eclipse.core.resources.IResource">
+         </selection>
+      </wizard>
+      <category
+            id="org.opengda.lde.ui.wizard.category"
+            name="LDE">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="org.opengda.lde.ui.samplesView.inView">
+         <with
+               variable="activePartId">
+            <equals
+                  value="org.opengda.lde.ui.views.SampleGroupView">
+            </equals>
+         </with>
+      </definition>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <actionProvider
+            class="org.opengda.lde.ui.actions.OpenLDEFileProvider"
+            id="org.opengda.lde.ui.actions.OpenLDEFileProvider"
+            overrides="org.eclipse.ui.navigator.resources.OpenActions"
+            priority="highest">
+         <enablement>
+            <and>
+               <instanceof
+                     value="org.eclipse.core.resources.IFile">
+               </instanceof>
+               <test
+                     property="org.eclipse.core.resources.extension"
+                     value="lde">
+               </test>
+            </and>
+         </enablement>
+      </actionProvider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerActionBinding
+            viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+            <actionExtension
+                  pattern="org.opengda.lde.ui.actions.*">
+            </actionExtension>
+         </includes>
+      </viewerActionBinding>
+   </extension>
 
 </plugin>
