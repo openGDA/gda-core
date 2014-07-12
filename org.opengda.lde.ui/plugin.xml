@@ -134,5 +134,79 @@
          </includes>
       </viewerActionBinding>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.opengda.lde.ui.views.SampleGroupView">
+         <command
+               commandId="org.opengda.lde.ui.newfile"
+               icon="icons/new_file.gif"
+               label="New"
+               style="push"
+               tooltip="create new LDE file">
+         </command>
+         <command
+               commandId="org.opengda.lde.ui.openFile"
+               icon="icons/open-task.gif"
+               label="Open..."
+               style="push"
+               tooltip="Open a LDE file">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.save"
+               icon="icons/save.gif"
+               label="Save"
+               style="push"
+               tooltip="Save this sample list">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.saveAs"
+               icon="icons/saveas.gif"
+               label="SaveAs"
+               style="push"
+               tooltip="Save the sample list in another file">
+         </command>
+         <separator
+               name="org.opengda.lde.ui.separator1"
+               visible="true">
+         </separator>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.opengda.lde.ui.views.SampleGroupView">
+         <separator
+               name="org.opengda.lde.ui.separator2">
+         </separator>
+         <command
+               commandId="org.opengda.lde.ui.newfile"
+               icon="icons/new_file.gif"
+               label="New"
+               style="push"
+               tooltip="create new LDE file">
+         </command>
+         <command
+               commandId="org.opengda.lde.ui.openFile"
+               icon="icons/open-task.gif"
+               label="Open..."
+               style="push"
+               tooltip="Open a LDE file">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.save"
+               icon="icons/save.gif"
+               label="Save"
+               style="push"
+               tooltip="Overwrite current file">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.saveAs"
+               icon="icons/saveas.gif"
+               label="SaveAs"
+               style="push"
+               tooltip="Save to another file">
+         </command>
+      </menuContribution>
+   </extension>
 
 </plugin>
