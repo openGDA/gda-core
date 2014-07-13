@@ -307,6 +307,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getSample_DataFilePath() {
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(13);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EOperation getSample__BuildDataFilePath__String() {
 		return sampleEClass.getEOperations().get(0);
 	}
@@ -407,6 +416,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(sampleEClass, SAMPLE__END_DATE);
 		createEAttribute(sampleEClass, SAMPLE__MAIL_COUNT);
 		createEAttribute(sampleEClass, SAMPLE__DATA_FILE_COUNT);
+		createEAttribute(sampleEClass, SAMPLE__DATA_FILE_PATH);
 		createEOperation(sampleEClass, SAMPLE___BUILD_DATA_FILE_PATH__STRING);
 		createEOperation(sampleEClass, SAMPLE___BUILD_FILENAME__STRING);
 		createEOperation(sampleEClass, SAMPLE___EXECUTE_COMMAND__STRING);
@@ -474,6 +484,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getSample_EndDate(), ecorePackage.getEDate(), "endDate", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_MailCount(), ecorePackage.getEInt(), "mailCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_DataFileCount(), ecorePackage.getEInt(), "dataFileCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_DataFilePath(), ecorePackage.getEString(), "dataFilePath", "", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		op = initEOperation(getSample__BuildDataFilePath__String(), ecorePackage.getEString(), "buildDataFilePath", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "filePath", 0, 1, IS_UNIQUE, IS_ORDERED);

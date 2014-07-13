@@ -30,6 +30,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute endDate : EDate
     Attribute mailCount : EInt
     Attribute dataFileCount : EInt
+    Attribute dataFilePath : EString
     Operation buildDataFilePath(EString) : EString
     Operation buildFilename(EString) : EString
     Operation executeCommand(EString) : STATUS

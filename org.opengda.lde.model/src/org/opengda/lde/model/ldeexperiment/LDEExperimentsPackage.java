@@ -287,13 +287,22 @@ public interface LDEExperimentsPackage extends EPackage {
 	int SAMPLE__DATA_FILE_COUNT = 12;
 
 	/**
+	 * The feature id for the '<em><b>Data File Path</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__DATA_FILE_PATH = 13;
+
+	/**
 	 * The number of structural features of the '<em>Sample</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_FEATURE_COUNT = 13;
+	int SAMPLE_FEATURE_COUNT = 14;
 
 	/**
 	 * The operation id for the '<em>Build Data File Path</em>' operation.
@@ -587,6 +596,17 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getSample_DataFileCount();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFilePath <em>Data File Path</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Data File Path</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#getDataFilePath()
+	 * @see #getSample()
+	 * @generated
+	 */
+	EAttribute getSample_DataFilePath();
+
+	/**
 	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Sample#buildDataFilePath(java.lang.String) <em>Build Data File Path</em>}' operation.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -842,6 +862,14 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute SAMPLE__DATA_FILE_COUNT = eINSTANCE.getSample_DataFileCount();
+
+		/**
+		 * The meta object literal for the '<em><b>Data File Path</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SAMPLE__DATA_FILE_PATH = eINSTANCE.getSample_DataFilePath();
 
 		/**
 		 * The meta object literal for the '<em><b>Build Data File Path</b></em>' operation.

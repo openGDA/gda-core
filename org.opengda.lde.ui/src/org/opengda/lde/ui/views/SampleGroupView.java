@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -106,6 +107,8 @@ import org.opengda.lde.ui.utils.LDEResourceUtil;
 import org.opengda.lde.ui.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
 
@@ -412,7 +415,11 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						} else if (commandState == gda.commandqueue.Command.STATE.PAUSED) {
 							updateSampleStatus(currentSample, STATUS.PAUSED);
 						} else if (commandState == gda.commandqueue.Command.STATE.COMPLETED) {
+							currentSample.setDataFilePath(txtDataFilename.getText());
+							currentSample.setDataFileCount(currentSample.getDataFileCount()+1);
 							updateSampleStatus(currentSample, STATUS.COMPLETED);
+							//TODO send email to users
+							sendEmailToUsers(currentSample);
 						} else if (commandState == gda.commandqueue.Command.STATE.ABORTED) {
 							updateSampleStatus(currentSample, STATUS.ABORTED);
 						} else if (commandState == gda.commandqueue.Command.STATE.ERROR) {
@@ -432,6 +439,52 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				});
 			}
 		}
+	}
+
+	protected void sendEmailToUsers(final Sample sample) {
+		Job job = new Job("Send users email") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				
+				try{
+					final String subject = LocalProperties.get("org.opengda.mail.subject","Data now available to download and view");
+					final String usersEmail=sample.getEmail();
+					final String[] recipients = usersEmail.split(" ");
+					for (int i=0; i<recipients.length; i++) {
+						recipients[i] = recipients[i].trim();
+					}
+					final String senderName=LocalProperties.get("org.opengda.mail.sender.name","i11-LDE");
+					//TODO changeto i11-LDE operation email account please
+					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","dag-group@diamond.ac.uk");
+					final String description="Data for sample "+sample.getName()+" are available now for download/view at " +sample.getDataFilePath()+".";
+					
+					final String from = String.format("%s <%s>", senderName, senderEmail);
+					
+					final String beamlineName = LocalProperties.get("gda.beamline.name","Beamline Unknown");
+					final String mailSubject = String.format("[LDE Notification - %s] %s", beamlineName.toUpperCase(), subject);
+					
+					final String smtpHost = LocalProperties.get("org.opengda.mail.smtp.host","localhost");
+					
+					JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+					mailSender.setHost(smtpHost);
+					
+					SimpleMailMessage message = new SimpleMailMessage();
+					message.setFrom(from);
+					message.setTo(recipients);
+					message.setSubject(mailSubject);
+					message.setText(description);
+					
+					mailSender.send(message);
+					return Status.OK_STATUS;
+				} catch(Exception ex){
+					return new Status(IStatus.ERROR, Activator.PLUGIN_ID, 1, "Error sending email", ex);
+				}
+				
+			}
+		};
+		
+		job.schedule();
+		
 	}
 
 	private ProcessorCurrentItem getProcessorCurrentItem() {

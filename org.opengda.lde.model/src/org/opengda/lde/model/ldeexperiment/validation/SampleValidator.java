@@ -35,4 +35,6 @@ public interface SampleValidator {
 	boolean validateMailCount(int value);
 
 	boolean validateDataFileCount(int value);
+
+	boolean validateDataFilePath(String value);
 }
