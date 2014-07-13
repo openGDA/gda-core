@@ -23,8 +23,8 @@ public class ImageView extends ViewPart {
 	}
 
 	ImagePlotComposite imagePlotComposite;
-	private int xPixelSize;
-	private int yPixelSize;
+	private int xDimension;
+	private int yDimension;
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
@@ -32,8 +32,8 @@ public class ImageView extends ViewPart {
 
 		try {
 			imagePlotComposite = new ImagePlotComposite(this, rootComposite, SWT.None);
-			imagePlotComposite.setXPixelSize(getXPixelSize());
-			imagePlotComposite.setYPixelSize(getYPixelSize());
+			imagePlotComposite.setxDimension(getxDimension());
+			imagePlotComposite.setyDimension(getyDimension());
 			imagePlotComposite.setArrayPV(arrayPV);
 			imagePlotComposite.initialise();
 		} catch (Exception e) {
@@ -66,20 +66,19 @@ public class ImageView extends ViewPart {
 		this.detector = detector;
 	}
 
-	public int getXPixelSize() {
-		return xPixelSize;
+	public int getxDimension() {
+		return xDimension;
 	}
 
-	public void setxPixelSize(int xPixelSize) {
-		this.xPixelSize = xPixelSize;
+	public void setxDimension(int xDimension) {
+		this.xDimension = xDimension;
 	}
 
-	public int getYPixelSize() {
-		return yPixelSize;
+	public int getyDimension() {
+		return yDimension;
 	}
 
-	public void setyPixelSize(int yPixelSize) {
-		this.yPixelSize = yPixelSize;
+	public void setyDimension(int yDimension) {
+		this.yDimension = yDimension;
 	}
-
 }

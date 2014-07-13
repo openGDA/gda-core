@@ -62,8 +62,8 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 
 	private String arrayPV;
 	private EpicsChannelManager controller;
-	private int xPixelSize;
-	private int yPixelSize;
+	private int xDimension;
+	private int yDimension;
 	private IPlottingSystem plottingSystem;
 
 	private ImageDataListener dataListener;
@@ -104,8 +104,8 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		if (getArrayPV() == null) {
 			throw new IllegalStateException("required parameters for 'arrayPV' are missing.");
 		}
-		if (getXPixelSize() == 0 || getYPixelSize() == 0) {
-			throw new IllegalStateException("Area detector diamension cannot be 0.");
+		if (getxDimension() == 0 || getyDimension() == 0) {
+			throw new IllegalStateException("Area detector dimension cannot be 0.");
 		}
 		dataListener = new ImageDataListener();
 		try {
@@ -180,7 +180,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 	private void updateImagePlot(final IProgressMonitor monitor, final double[] value) {
 
 		try {
-			int[] dims = new int[] { getYPixelSize(), getXPixelSize() };
+			int[] dims = new int[] { getyDimension(), getxDimension() };
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;
@@ -219,19 +219,19 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 
 	}
 
-	public int getYPixelSize() {
-		return yPixelSize;
+	public int getxDimension() {
+		return xDimension;
 	}
 
-	public void setYPixelSize(int yPixelSize) {
-		this.yPixelSize = yPixelSize;
+	public void setxDimension(int xDimension) {
+		this.xDimension = xDimension;
 	}
 
-	public int getXPixelSize() {
-		return xPixelSize;
+	public int getyDimension() {
+		return yDimension;
 	}
 
-	public void setXPixelSize(int xPixelSize) {
-		this.xPixelSize = xPixelSize;
+	public void setyDimension(int yDimension) {
+		this.yDimension = yDimension;
 	}
 }
