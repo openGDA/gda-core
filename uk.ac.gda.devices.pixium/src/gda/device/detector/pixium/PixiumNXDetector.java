@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.util.UnixToWindowsFilePathConverter;
 
-public class PixiumNXDetector extends NXDetector {
+public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 
 	static final Logger logger = LoggerFactory.getLogger(PixiumNXDetector.class);
 	
@@ -137,7 +137,7 @@ public class PixiumNXDetector extends NXDetector {
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
 	}
-
+	
 	@Override
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
@@ -181,6 +181,7 @@ public class PixiumNXDetector extends NXDetector {
 			fastshutter.moveTo("CLOSE");
 		}
 	}
+	@Override
 	public void includeEarlyFrames() throws Exception {
 		if (isIdle()) {
 			dev.getPVInteger(EARLY_FRAMES).putWait(0);
@@ -202,6 +203,7 @@ public class PixiumNXDetector extends NXDetector {
 		}
 	}
 
+	@Override
 	public void excludeEarlyFrames() throws Exception {
 		if (isIdle()) {
 			dev.getPVInteger(EARLY_FRAMES).putWait(1);
@@ -234,6 +236,7 @@ public class PixiumNXDetector extends NXDetector {
 		return outVal;
 	}
 	
+	@Override
 	public void setBaseExposure(double expTime) throws Exception {
 		if (isIdle()) {
 			dev.getPVDouble(BASE_EXPOSURE).putWait(expTime);
@@ -254,10 +257,12 @@ public class PixiumNXDetector extends NXDetector {
 		}
 	}
 	
+	@Override
 	public double getBaseExposure() throws Exception {
 		return dev.getPVDouble(BASE_EXPOSURE_RBV).get();
 	}
 	
+	@Override
 	public void setBaseAcquirePeriod(double acqTime) throws Exception {
 		if (isIdle()) {
 			dev.getPVDouble(BASE_ACQUIRE_PERIOD).putWait(acqTime);
@@ -278,10 +283,12 @@ public class PixiumNXDetector extends NXDetector {
 		}
 	}
 	
+	@Override
 	public double getBaseAcquirePeriod() throws Exception {
 		return dev.getPVDouble(BASE_ACQUIRE_PERIOD_RBV).get();
 	}
 	
+	@Override
 	public void setExposuresPerImage(int numExp) throws Exception {
 		if (isIdle()) {
 			dev.getPVInteger(EXPOSURES_PER_IMAGE).putWait(numExp);
@@ -302,10 +309,12 @@ public class PixiumNXDetector extends NXDetector {
 		}
 	}
 	
+	@Override
 	public int getExposuresPerImage() throws Exception {
 		return dev.getPVInteger(EXPOSURES_PER_IMAGE_RBV).get();
 	}
 	
+	@Override
 	public void setNumImages(int numImg) throws Exception {
 		if (isIdle()) {
 			dev.getPVInteger(NUM_IMAGES).putWait(numImg);
@@ -326,10 +335,12 @@ public class PixiumNXDetector extends NXDetector {
 		}
 	}
 	
+	@Override
 	public int getNumImages() throws Exception {
 		return dev.getPVInteger(NUM_IMAGES_RBV).get();
 	}
 	
+	@Override
 	public void setPUMode(int mode) throws Exception {
 		if (allowedPUModes.contains(mode)) {
 			if (isIdle()) {
@@ -364,6 +375,7 @@ public class PixiumNXDetector extends NXDetector {
 		}
 	}
 	
+	@Override
 	public int getPUMode() throws Exception {
 		return dev.getPVInteger(PU_MODE_RBV).get();
 	}
@@ -372,6 +384,7 @@ public class PixiumNXDetector extends NXDetector {
 		print(allowedPUModes.toString());
 	}
 	
+	@Override
 	public void calibrate() throws Exception {
 		// TO-DO
 		if (useShutter) {
@@ -573,6 +586,7 @@ public class PixiumNXDetector extends NXDetector {
 		}
 	}
 	
+	@Override
 	public void acquire(double collectionTime, int numImages) throws Exception {
 		// TO-DO
 		if (numImages <= 0) {
@@ -589,6 +603,7 @@ public class PixiumNXDetector extends NXDetector {
 		psa.waitWhileBusy();
 	}
 
+	@Override
 	public void acquire(double collectionTime) throws Exception {
 		// TO-DO
 		if (collectionTime <= 0) {
