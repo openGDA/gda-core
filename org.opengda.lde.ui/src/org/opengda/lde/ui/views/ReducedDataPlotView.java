@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 public class ReducedDataPlotView extends ViewPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(ReducedDataPlotView.class);
-
+	public static final String ID = "org.opengda.lde.ui.views.reducdeddataplotview";
 	private ReducedDataPlotComposite plotComposite;
 	private Scriptcontroller eventAdmin;
 	

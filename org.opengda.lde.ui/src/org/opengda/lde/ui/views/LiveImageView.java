@@ -5,24 +5,23 @@ import gda.device.Detector;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.actions.RetargetAction;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImageView extends ViewPart {
-
-	private static final Logger logger=LoggerFactory .getLogger(ImageView.class);
+public class LiveImageView extends ViewPart {
+	public static final String ID = "org.opengda.lde.ui.views.liveimageview";
+	private static final Logger logger=LoggerFactory .getLogger(LiveImageView.class);
 	private Detector detector;
 	private String arrayPV;
 
-	public ImageView() {
+	public LiveImageView() {
 		setTitleToolTip("live display of 2D matrix as image");
 		// setContentDescription("A view for image.");
 		setPartName("Image");
 	}
 
-	ImagePlotComposite imagePlotComposite;
+	LiveImagePlotComposite imagePlotComposite;
 	private int xDimension;
 	private int yDimension;
 	@Override
@@ -31,7 +30,7 @@ public class ImageView extends ViewPart {
 		rootComposite.setLayout(new FillLayout());
 
 		try {
-			imagePlotComposite = new ImagePlotComposite(this, rootComposite, SWT.None);
+			imagePlotComposite = new LiveImagePlotComposite(this, rootComposite, SWT.None);
 			imagePlotComposite.setPlotName(getPartName());
 			imagePlotComposite.setxDimension(getxDimension());
 			imagePlotComposite.setyDimension(getyDimension());

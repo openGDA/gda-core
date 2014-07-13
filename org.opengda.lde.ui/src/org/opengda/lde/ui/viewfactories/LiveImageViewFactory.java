@@ -4,12 +4,12 @@ import gda.rcp.views.FindableExecutableExtension;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.opengda.lde.ui.views.ImageView;
+import org.opengda.lde.ui.views.LiveImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImageViewFactory implements FindableExecutableExtension {
-	private static final Logger logger=LoggerFactory.getLogger(ImageViewFactory.class);
+public class LiveImageViewFactory implements FindableExecutableExtension {
+	private static final Logger logger=LoggerFactory.getLogger(LiveImageViewFactory.class);
 	private String viewPartName;
 	private String name;
 	private String arrayPV;
@@ -18,7 +18,7 @@ public class ImageViewFactory implements FindableExecutableExtension {
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating image plot view");
-		ImageView imageView = new ImageView();
+		LiveImageView imageView = new LiveImageView();
 		imageView.setViewPartName(viewPartName);
 		imageView.setArrayPV(arrayPV);
 		imageView.setxDimension(xDimension);

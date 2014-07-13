@@ -16,6 +16,30 @@
             name="Samples View"
             restorable="true">
       </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:statusViewFactory"
+            icon="icons/status.png"
+            id="uk.ac.gda.epics.client.views.StatusView"
+            name="Detector Status"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:imageviewfactory"
+            icon="icons/image_obj.gif"
+            id="org.opengda.lde.ui.views.liveimageview"
+            name="Pixium Image"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:dataplotviewfactory"
+            icon="icons/chart_curve.png"
+            id="org.opengda.lde.ui.views.reducdeddataplotview"
+            name="Reduced Data"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">

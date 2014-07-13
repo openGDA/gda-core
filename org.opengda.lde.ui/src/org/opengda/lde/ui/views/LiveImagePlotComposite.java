@@ -54,9 +54,9 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 /**
  * Monitor and plotting live image data from the electron analyser.
  */
-public class ImagePlotComposite extends Composite implements InitializationListener {
+public class LiveImagePlotComposite extends Composite implements InitializationListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(ImagePlotComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(LiveImagePlotComposite.class);
 
 	private static final String IMAGE_PLOT = "Image plot";
 
@@ -78,7 +78,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 	 * @param style
 	 * @throws Exception
 	 */
-	public ImagePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
+	public LiveImagePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
 		this.setBackground(ColorConstants.white);
 
@@ -160,7 +160,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 
 					@Override
 					public void run() {
-						if (ImagePlotComposite.this.isVisible()) {
+						if (LiveImagePlotComposite.this.isVisible()) {
 							DBR dbr = arg0.getDBR();
 							double[] value = null;
 							if (dbr.isDOUBLE()) {

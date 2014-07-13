@@ -8,6 +8,8 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.progress.IProgressConstants;
+import org.opengda.lde.ui.views.LiveImageView;
+import org.opengda.lde.ui.views.ReducedDataPlotView;
 import org.opengda.lde.ui.views.SampleGroupView;
 import org.python.pydev.ui.wizards.files.PythonModuleWizard;
 import org.python.pydev.ui.wizards.files.PythonPackageWizard;
@@ -17,6 +19,7 @@ import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 import uk.ac.gda.beamline.i11.views.DetectorFilePlotView;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.client.scripting.JythonPerspective;
+import uk.ac.gda.epics.client.views.StatusView;
 
 public class LDEPerspective implements IPerspectiveFactory {
 
@@ -27,13 +30,16 @@ public class LDEPerspective implements IPerspectiveFactory {
 	private static final String STATUS_FOLDER = "statusFolder";
 	private static final String SAMPLE_TABLE_FOLDER = "sampleTableFolder";
 	private static final String DETECTOR_PLOT_FOLDER = "detectorPlotFolder";
+	private static final String DETECTOR_STATUS_FOLDER = "detectorStatusFolder";
 	
 	private static final String SAMPLE_GROUP_VIEW_ID = SampleGroupView.ID;
-	private static final String PIXIUM_IMAGE_VIEW_ID = "org.opengda.lde.ui.views.liveimageview";
-	private static final String PIXIUM_PLOT_VIEW_ID = "org.opengda.lde.ui.views.reducdeddataplotview";
-	private static final String DETECTOR_PLOT_VIEW_ID=DetectorFilePlotView.ID;
+	private static final String PIXIUM_IMAGE_VIEW_ID = LiveImageView.ID;
+	private static final String PIXIUM_PLOT_VIEW_ID = ReducedDataPlotView.ID;
+	private static final String DETECTOR_PLOT_VIEW_ID = DetectorFilePlotView.ID;
+	private static final String SCAN_PLOT_VIEW_ID = LivePlotView.ID;
 	private static final String GDA_NAVIGATOR_VIEW_ID = "uk.ac.gda.client.navigator";
 	private static final String STATUS_VIEW_ID = "uk.ac.gda.beamline.i11.views.statusView";
+	private static final String DETECTOR_STATUS_VIEW_ID = StatusView.ID;
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
@@ -59,9 +65,12 @@ public class LDEPerspective implements IPerspectiveFactory {
         detectorPlotFolder.addView(PIXIUM_IMAGE_VIEW_ID);
         detectorPlotFolder.addView(PIXIUM_PLOT_VIEW_ID);
         detectorPlotFolder.addView(DETECTOR_PLOT_VIEW_ID);
-        detectorPlotFolder.addView(LivePlotView.ID);
+        detectorPlotFolder.addView(SCAN_PLOT_VIEW_ID);
 
-        IFolderLayout terminalfolder= layout.createFolder(TERMINAL_FOLDER, IPageLayout.BOTTOM, (float)0.6, editorArea); //$NON-NLS-1$
+        IFolderLayout statusPlotFolder=layout.createFolder(DETECTOR_STATUS_FOLDER, IPageLayout.RIGHT, (float)0.6, SAMPLE_TABLE_FOLDER); //$NON-NLS-1$
+        statusPlotFolder.addView(DETECTOR_STATUS_VIEW_ID);
+        
+        IFolderLayout terminalfolder= layout.createFolder(TERMINAL_FOLDER, IPageLayout.BOTTOM, (float)0.5, DETECTOR_STATUS_FOLDER); //$NON-NLS-1$
         terminalfolder.addView(JythonTerminalView.ID);
         terminalfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
         terminalfolder.addPlaceholder(NewSearchUI.SEARCH_VIEW_ID);

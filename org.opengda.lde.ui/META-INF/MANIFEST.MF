@@ -28,7 +28,8 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.epics,
  org.dawnsci.plotting.api,
  org.opengda.lde,
- uk.ac.diamond.scisoft.analysis
+ uk.ac.diamond.scisoft.analysis,
+ uk.ac.gda.epics.client
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
