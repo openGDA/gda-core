@@ -42,6 +42,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/endDate"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/mailCount"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/dataFileCount"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/dataFilePath"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//Sample/buildDataFilePath">
         <genParameters ecoreParameter="sampledefinition.ecore#//Sample/buildDataFilePath/filePath"/>
       </genOperations>
