@@ -18,9 +18,7 @@
 
 package org.opengda.lde.ui.views;
 
-import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.ADBase;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -53,8 +51,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
-import com.cosylab.epics.caj.CAJChannel;
-
 /**
  * Monitor and plotting live image data from the electron analyser.
  */
@@ -66,7 +62,8 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 
 	private String arrayPV;
 	private EpicsChannelManager controller;
-	private Detector detector;
+	private int xPixelSize;
+	private int yPixelSize;
 	private IPlottingSystem plottingSystem;
 
 	private ImageDataListener dataListener;
@@ -104,8 +101,11 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 	}
 
 	public void initialise() {
-		if (getDetector()==null || getArrayPV() == null) {
-			throw new IllegalStateException("required parameters for 'detector' and/or 'arrayPV' are missing.");
+		if (getArrayPV() == null) {
+			throw new IllegalStateException("required parameters for 'arrayPV' are missing.");
+		}
+		if (getXPixelSize() == 0 || getYPixelSize() == 0) {
+			throw new IllegalStateException("Area detector diamension cannot be 0.");
 		}
 		dataListener = new ImageDataListener();
 		try {
@@ -180,15 +180,15 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 	private void updateImagePlot(final IProgressMonitor monitor, final double[] value) {
 
 		try {
-			int[] dims = getDetector().getDataDimensions();
+			int[] dims = new int[] { getYPixelSize(), getXPixelSize() };
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
 //			logger.warn("image size = {}", values.length);
-			final AbstractDataset ds = new DoubleDataset(values, dims);//.getSlice(null, null, new int[] { -1, 1 });
-			ds.setName("");
+			final AbstractDataset ds = new DoubleDataset(values, dims);
+			ds.setName("Intensity");
 			plottingSystem.clear();
 			plottingSystem.createPlot2D(ds, null, monitor);
 //			if (!getDisplay().isDisposed()) {
@@ -219,11 +219,19 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 
 	}
 
-	public Detector getDetector() {
-		return detector;
+	public int getYPixelSize() {
+		return yPixelSize;
 	}
 
-	public void setDetector(Detector detector) {
-		this.detector = detector;
+	public void setYPixelSize(int yPixelSize) {
+		this.yPixelSize = yPixelSize;
+	}
+
+	public int getXPixelSize() {
+		return xPixelSize;
+	}
+
+	public void setXPixelSize(int xPixelSize) {
+		this.xPixelSize = xPixelSize;
 	}
 }

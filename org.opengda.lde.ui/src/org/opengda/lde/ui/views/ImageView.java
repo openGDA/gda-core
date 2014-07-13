@@ -23,7 +23,8 @@ public class ImageView extends ViewPart {
 	}
 
 	ImagePlotComposite imagePlotComposite;
-	private RetargetAction energyMode;
+	private int xPixelSize;
+	private int yPixelSize;
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
@@ -31,7 +32,8 @@ public class ImageView extends ViewPart {
 
 		try {
 			imagePlotComposite = new ImagePlotComposite(this, rootComposite, SWT.None);
-			imagePlotComposite.setDetector(detector);
+			imagePlotComposite.setXPixelSize(getXPixelSize());
+			imagePlotComposite.setYPixelSize(getYPixelSize());
 			imagePlotComposite.setArrayPV(arrayPV);
 			imagePlotComposite.initialise();
 		} catch (Exception e) {
@@ -62,6 +64,22 @@ public class ImageView extends ViewPart {
 
 	public void setDetector(Detector detector) {
 		this.detector = detector;
+	}
+
+	public int getXPixelSize() {
+		return xPixelSize;
+	}
+
+	public void setxPixelSize(int xPixelSize) {
+		this.xPixelSize = xPixelSize;
+	}
+
+	public int getYPixelSize() {
+		return yPixelSize;
+	}
+
+	public void setyPixelSize(int yPixelSize) {
+		this.yPixelSize = yPixelSize;
 	}
 
 }
