@@ -32,6 +32,7 @@ public class ImageView extends ViewPart {
 
 		try {
 			imagePlotComposite = new ImagePlotComposite(this, rootComposite, SWT.None);
+			imagePlotComposite.setPlotName(getPartName());
 			imagePlotComposite.setxDimension(getxDimension());
 			imagePlotComposite.setyDimension(getyDimension());
 			imagePlotComposite.setArrayPV(arrayPV);

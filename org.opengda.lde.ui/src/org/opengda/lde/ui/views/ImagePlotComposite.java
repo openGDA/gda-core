@@ -65,6 +65,8 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 	private int xDimension;
 	private int yDimension;
 	private IPlottingSystem plottingSystem;
+	
+	private String plotName;
 
 	private ImageDataListener dataListener;
 	private Channel dataChannel;
@@ -93,7 +95,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		plotComposite.setLayout(new FillLayout());
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "Image", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars() : null,
+		plottingSystem.createPlotPart(plotComposite, getPlotName(), part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars() : null,
 				PlotType.IMAGE, part);
 		plottingSystem.setTitle(IMAGE_PLOT);
 		plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
@@ -233,5 +235,13 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 
 	public void setyDimension(int yDimension) {
 		this.yDimension = yDimension;
+	}
+
+	public String getPlotName() {
+		return plotName;
+	}
+
+	public void setPlotName(String plotName) {
+		this.plotName = plotName;
 	}
 }
