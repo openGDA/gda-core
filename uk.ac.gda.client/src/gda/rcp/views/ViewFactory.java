@@ -30,7 +30,19 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 /**
- * Abstract class to aid creation of views from views configured in Spring
+ * Abstract class to aid creation of views from its view factory configured in Spring.
+ * <p>
+ * This class allows extension providers to provide the instances to extension-points by referring to the factory instead of referring to a class. 
+ * <pre>
+ *For example, the following extension to the views extension-point uses a factory called ViewFactory.<br/>
+ *{@code  
+ * <extension point="org.eclipse.ui.views">
+ *    <view  name="..."  class="gda.rcp.views.ViewFactory:sampleGroupViewFactory", id="..."/>
+ * </extension>
+ * }
+ * </pre>
+ * Effectively, factories give full control over the create executable extension process.
+ * The factories are responsible for handling the case where the concrete instance {@code sampleGroupViewFactory} implement IExecutableExtension.
  */
 public class ViewFactory implements IExecutableExtensionFactory, IExecutableExtension {
 	String nameOfFindableExecutableExtension="";
