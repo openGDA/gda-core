@@ -43,11 +43,11 @@ import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
-public class VortexParametersUIEditor extends DetectorEditor {
+public class NewVortexParametersUIEditor extends DetectorEditor {
 	private VortexParameters vortexParameters;
 	private Vortex vortex;
 	
-	public VortexParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+	public NewVortexParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(xmlPath, mappingURL, dirtyContainer, editingBean, "vortexConfig");
 		vortexParameters = (VortexParameters) editingBean;
 	}

@@ -39,7 +39,7 @@ import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ui.detector.DetectorListComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
-import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIHelper;
+import uk.ac.gda.exafs.ui.detector.vortex.NewVortexParametersUIHelper;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizardPage;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
@@ -91,7 +91,7 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 			addButton.setEnabled(false);
 			addToAllButton.setEnabled(false);
 		} 
-		else if (getBeansToAdd().size() >= VortexParametersUIHelper.INSTANCE.getMaximumRegions()) {
+		else if (getBeansToAdd().size() >= NewVortexParametersUIHelper.INSTANCE.getMaximumRegions()) {
 			setMessage("Maximum number of Regions reached. Please select Finish, or Delete existing items to copy more");
 			addButton.setEnabled(false);
 			addToAllButton.setEnabled(false);
@@ -107,7 +107,7 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 	protected void createSourceControls(Composite parent) {
 		detectorListComposite = new DetectorListComposite(parent, DetectorElement.class, elementListSize, VortexROI.class, true);
 		GridListEditor detectorListGridEditor = detectorListComposite.getDetectorList();
-		VortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
+		NewVortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListGridEditor);
 		importFileRegionList = detectorListComposite.getDetectorElementComposite().getRegionList();
 		importFileRegionList.setListEditorUI(new ListEditorUI() {
 			
@@ -145,15 +145,15 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 			regionList = new VerticalListEditor(this, SWT.BORDER);
 			regionList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			regionList.setEditorClass(VortexROI.class);
-			DetectorROIComposite detectorROIComposite = VortexParametersUIHelper.INSTANCE.getDetectorROICompositeFactory().createDetectorROIComposite(regionList, SWT.NONE);
+			DetectorROIComposite detectorROIComposite = NewVortexParametersUIHelper.INSTANCE.getDetectorROICompositeFactory().createDetectorROIComposite(regionList, SWT.NONE);
 			detectorROIComposite.getFieldWidgetsForDetectorElementsComposite().getRoiEnd().setMaximum(maximum);
 			regionList.setEditorUI(detectorROIComposite);
 			detectorROIComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			regionList.setTemplateName("ROI");
 			regionList.setNameField("roiName");
 			regionList.setListHeight(250);
-			regionList.setMinItems(VortexParametersUIHelper.INSTANCE.getMinimumRegions());
-			regionList.setMaxItems(VortexParametersUIHelper.INSTANCE.getMaximumRegions());
+			regionList.setMinItems(NewVortexParametersUIHelper.INSTANCE.getMinimumRegions());
+			regionList.setMaxItems(NewVortexParametersUIHelper.INSTANCE.getMaximumRegions());
 			regionList.addValueListener(new ValueAdapter("Vortex Region List Listener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {

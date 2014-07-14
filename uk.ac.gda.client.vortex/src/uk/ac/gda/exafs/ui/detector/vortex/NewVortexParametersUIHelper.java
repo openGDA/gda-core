@@ -26,7 +26,7 @@ import uk.ac.gda.exafs.ui.detector.VortexROIComposite;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.selector.GridListEditor.GRID_ORDER;
 
-public enum VortexParametersUIHelper {
+public enum NewVortexParametersUIHelper {
 	INSTANCE;
 	
 	public IDetectorROICompositeFactory getDetectorROICompositeFactory() {

@@ -26,7 +26,7 @@ import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.exafs.ui.ExafsBeanFileSelectionEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public class VortexParametersEditor extends ExafsBeanFileSelectionEditor {
+public class NewVortexParametersEditor extends ExafsBeanFileSelectionEditor {
 
 	@Override
 	public Class<?> getBeanClass() {
@@ -40,7 +40,7 @@ public class VortexParametersEditor extends ExafsBeanFileSelectionEditor {
 
 	@Override
 	protected RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new VortexParametersUIEditor(path, getMappingUrl(), this, editingBean);
+		return new NewVortexParametersUIEditor(path, getMappingUrl(), this, editingBean);
 	}
 
 	@Override
