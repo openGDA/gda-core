@@ -215,6 +215,7 @@ public class Application implements IApplication {
 	 * sets the chosenVisit attribute to the default visit  java property
 	 */
 	private void setToDefaultVisit() {
+		//TODO show popup explaining that DICAT may be down and that it will use 0-0 unless local contact sets defVisit to correct value and add them to the $BEAMLINE-config/xml/beamlinestaff.xml
 		LocalProperties.set(LocalProperties.RCP_APP_VISIT,LocalProperties.get("gda.defVisit", "0-0"));
 	}
 
