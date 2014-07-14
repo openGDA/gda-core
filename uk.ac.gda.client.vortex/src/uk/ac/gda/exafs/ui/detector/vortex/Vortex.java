@@ -26,9 +26,6 @@ import org.dawnsci.plotting.api.region.IROIListener;
 import org.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPartSite;
@@ -36,7 +33,6 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.detector.Counts;
 import uk.ac.gda.exafs.ui.detector.Detector;
@@ -54,12 +50,9 @@ public class Vortex extends Detector{
 	private TableViewer tableViewer;
 	private GridListEditor gridListEditor;
 	private DetectorElementComposite detectorElementComposite;
-	private  VortexParameters vortexParameters;
-	private int selectedElement = 0;
 	
-	public Vortex(String path, IWorkbenchPartSite site, Composite parent, List<DetectorElement> detectorList, gda.device.Detector xmapDetector, Timer tfg, final VortexParameters vortexParameters) {
+	public Vortex(String path, IWorkbenchPartSite site, Composite parent, List<DetectorElement> detectorList, gda.device.Detector xmapDetector, Timer tfg) {
 		super("vortexConfig", site, parent, path);
-		this.vortexParameters = vortexParameters;
 		regionSynchronizer = new RegionSynchronizer();
 		try {
 			sashPlotFormComposite = new SashFormPlotComposite(parent, site.getPart(), regionSynchronizer, createUpLoadAction(path));
@@ -87,69 +80,30 @@ public class Vortex extends Detector{
 			tableViewer.setCellModifier(new ICellModifier() {
 				@Override
 				public boolean canModify(Object element, String property) {
-					updateElement(element, property);
-					return gridListEditor.updateElement(element, property);
+					final int col = Integer.parseInt(property);
+					int selectedIndex = gridListEditor.getElementIndex(element, col, gridListEditor.getGridOrder(), gridListEditor.getColumns(), gridListEditor.getRows(), gridListEditor.getGridMap());
+					gridListEditor.setSelectedIndex(selectedIndex);
+					tableViewer.refresh();
+					int[][][] mcaData = vortexAcquire.getMcaData();
+					if(mcaData!=null){
+						plot.plot(selectedIndex,mcaData, false, null);
+						detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectedIndex, mcaData));
+						detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
+						vortexElements.configureUI(vortexAcquire.getMcaData(), selectedIndex);
+					}
+					return false;
 				}
-				
 				@Override
 				public Object getValue(Object element, String property) {
 					return null;
 				}
-				
 				@Override
 				public void modify(Object item, String property, Object value) {
 				}
 			});
 		}
-		
-		final Button button = detectorElementComposite.getExcluded().getButton();
-		final boolean enabled = button.getSelection();
-		updateElementStates(enabled, true);
-		button.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				boolean enabled = button.getSelection();
-				updateElementStates(enabled, false);
-				tableViewer.refresh();
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
 	}
 
-	public boolean updateElement(Object element, String property){
-		final int col = Integer.parseInt(property);
-		int selectedIndex = gridListEditor.getElementIndex(element, col, gridListEditor.getGridOrder(), gridListEditor.getColumns(), gridListEditor.getRows(), gridListEditor.getGridMap());
-		selectedElement = selectedIndex;
-		gridListEditor.setSelectedIndex(selectedIndex);
-		tableViewer.refresh();
-		int[][][] mcaData = vortexAcquire.getMcaData();
-		if(mcaData!=null){
-			plot.plot(selectedIndex,mcaData, false, null);
-			detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectedIndex, mcaData));
-			detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
-			//vortexElements.configureUI(vortexAcquire.getMcaData(), selectedIndex);
-		}
-		
-		boolean excluded = vortexParameters.getDetectorList().get(selectedIndex).isExcluded();
-		detectorElementComposite.getExcluded().setValue(excluded);
-		int numberOfElements = vortexParameters.getDetectorList().size();
-		for(int i=0;i<numberOfElements;i++)
-			tableViewer.refresh();
-		tableViewer.refresh();
-		
-		return false;
-	}
-	
-	private void updateElementStates(boolean selection, boolean startup){
-		vortexParameters.getDetectorList().get(selectedElement).setExcluded(!selection);
-	}
-	
 	public VortexAcquire getVortexAcquire() {
 		return vortexAcquire;
 	}

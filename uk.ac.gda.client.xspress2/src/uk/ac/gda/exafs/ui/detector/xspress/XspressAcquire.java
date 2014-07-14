@@ -179,18 +179,9 @@ public class XspressAcquire extends Acquire {
 	}
 	
 	@Override
-	public void acquire(double collectionTime) throws DeviceException, InterruptedException{
-		
+	public void acquire(double collectionTime) throws DeviceException, InterruptedException{	
 		this.collectionTime = collectionTime;
-		
-		try {
-			originalResolutionGrade = xspressDetector.getResGrade();
-			originalReadoutMode = xspressDetector.getReadoutMode();
-		} catch (DeviceException e) {
-			logger.error("Cannot get current resolution grade", e);
-			return;
-		}
-		
+
 		String uiReadoutMode = (String) readoutMode.getValue();
 		String uiResolutionGrade = uiReadoutMode.equals(XspressDetector.READOUT_ROIS) ? (String) resolutionGrade.getValue() : ResGrades.NONE;
 		
@@ -205,17 +196,6 @@ public class XspressAcquire extends Acquire {
 		}
 		
 		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
-		
-		//TODO why is the following here? The data has already been collected.
-		try {
-			xspressDetector.setResGrade(originalResolutionGrade);
-			xspressDetector.setReadoutMode(originalReadoutMode);
-		} catch (DeviceException e) {
-			sashPlotFormComposite.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
-			logger.error("Cannot reset res grade, detector may be in an error state", e);
-		}
-		sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
-		
 	}
 	
 	@Override
