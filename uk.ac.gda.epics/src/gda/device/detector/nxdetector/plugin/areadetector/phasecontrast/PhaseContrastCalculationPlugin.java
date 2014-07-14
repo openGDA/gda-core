@@ -27,18 +27,17 @@ import gda.device.detector.nxdetector.plugin.NullNXPlugin;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Vector;
 
 public class PhaseContrastCalculationPlugin extends NullNXPlugin {
 
+	private String roi1Name = "quadrant1";
 
+	private String roi2Name = "quadrant2";
 
-	private String roi1StatName = "roi1_Total"; // TODO just a guess, depends on how you configure the four roi/stat pairs
+	private String roi3Name = "quadrant3";
 
-	private String roi2StatName = "roi2_Total"; 
-	
-	private String roi3StatName = "roi3_Total"; 
-	
-	private String roi4StatName = "roi4_Total"; 
+	private String roi4Name = "quadrant4";
 
 	@Override
 	public String getName() {
@@ -47,12 +46,12 @@ public class PhaseContrastCalculationPlugin extends NullNXPlugin {
 
 	@Override
 	public List<String> getInputStreamNames() {
-		return Arrays.asList("a", "b", "c"); // TODO: -> transmission, horizontal, vertical (or similar)
+		return Arrays.asList("Horizontal", "Vertical");
 	}
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		return Arrays.asList("%f", "%f", "f");
+		return Arrays.asList("%f", "%f");
 	}
 
 	@Override
@@ -66,31 +65,50 @@ public class PhaseContrastCalculationPlugin extends NullNXPlugin {
 
 		@Override
 		public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
-			
+
 			// Read the relevant stats added by the four roi/stats pairs
-			// TODO: Throw an exception if not found stating that the four plugins are expected to be in the detectr's list
-			//       of additional plugins, and that they must proceed this one. Also say that the roi1StatName - roi4StatName
-			// attributes must be configured to match whatever fieldname the four plugins are writing to. It wopuld be helpful
-			// to print the available fieldnames if you can work out how!
 			
-			double sum1 = readValue(data, detectorName, roi1StatName);
-			double sum2 = readValue(data, detectorName, roi2StatName);
-			double sum3 = readValue(data, detectorName, roi3StatName);
-			double sum4 = readValue(data, detectorName, roi4StatName);
-			
-			// TODO: math here!
-			double a = sum1 + sum2 +sum3 +sum4;
-			double b = sum1 + sum2;
-			double c = sum3 + sum4;
-			
+			double quad1;
+			double quad2;
+			double quad3;
+			double quad4;
+			try {
+				// we want the totals of the ROIs, so add _total to the end of each roi name
+				quad1 = readValue(data, roi1Name + "_total");
+				quad2 = readValue(data, roi2Name + "_total");
+				quad3 = readValue(data, roi3Name + "_total");
+				quad4 = readValue(data, roi4Name + "_total");
+			} catch (Exception e) {
+				throw new DeviceException(createErrorMessage(), e);
+			}
+
+			double total = quad1 + quad2 + quad3 + quad4;
+			double top_pair = quad1 + quad2;
+			double bottom_pair = quad3 + quad4;
+
+			double left_pair = quad1 + quad3;
+			double right_pair = quad2 + quad4;
+
+			double horizontal = Math.abs((top_pair - bottom_pair) / total);
+			double vertical = Math.abs((left_pair - right_pair) / total);
+
+			List<Double> values = new Vector<Double>();
+			values.add(horizontal);
+			values.add(vertical);
+
 			// Make double appender and it use it for the actual appending
-			NXDetectorDataDoubleAppender doubleAppender = new NXDetectorDataDoubleAppender(getInputStreamNames(), null);
+			NXDetectorDataDoubleAppender doubleAppender = new NXDetectorDataDoubleAppender(getInputStreamNames(),
+					values);
 			doubleAppender.appendTo(data, detectorName);
-			
+
 		}
-		
-		// TODO: Won't work fisrt time. Tobias might help a bit.
-		double readValue(NXDetectorData data, String detectorName, String fieldName) {
+
+		private String createErrorMessage() {
+			return "Exception reading out quadrant totals from NXDetectorData structure.\\nWas expecting four rois with names: "
+					+ roi1Name + ", " + roi2Name + ", " + roi3Name + ", and " + roi4Name + ".";
+		}
+
+		double readValue(NXDetectorData data, String fieldName) {
 			Double[] values = data.getDoubleVals();
 			String[] extraNames = data.getExtraNames();
 			int ourValueIndex = Arrays.asList(extraNames).indexOf(fieldName);
@@ -98,37 +116,35 @@ public class PhaseContrastCalculationPlugin extends NullNXPlugin {
 		}
 	}
 
-	////
-	
-	public String getRoi1StatName() {
-		return roi1StatName;
+	public String getRoi1Name() {
+		return roi1Name;
 	}
 
-	public void setRoi1StatName(String roi1StatName) {
-		this.roi1StatName = roi1StatName;
+	public void setRoi1Name(String roi1Name) {
+		this.roi1Name = roi1Name;
 	}
 
-	public String getRoi2StatName() {
-		return roi2StatName;
+	public String getRoi2Name() {
+		return roi2Name;
 	}
 
-	public void setRoi2StatName(String roi2StatName) {
-		this.roi2StatName = roi2StatName;
+	public void setRoi2Name(String roi2Name) {
+		this.roi2Name = roi2Name;
 	}
 
-	public String getRoi3StatName() {
-		return roi3StatName;
+	public String getRoi3Name() {
+		return roi3Name;
 	}
 
-	public void setRoi3StatName(String roi3StatName) {
-		this.roi3StatName = roi3StatName;
+	public void setRoi3Name(String roi3Name) {
+		this.roi3Name = roi3Name;
 	}
 
-	public String getRoi4StatName() {
-		return roi4StatName;
+	public String getRoi4Name() {
+		return roi4Name;
 	}
 
-	public void setRoi4StatName(String roi4StatName) {
-		this.roi4StatName = roi4StatName;
+	public void setRoi4Name(String roi4Name) {
+		this.roi4Name = roi4Name;
 	}
 }
