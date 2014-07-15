@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector.vortex;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.Timer;
 import gda.factory.Finder;
@@ -35,8 +34,8 @@ import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
-import uk.ac.gda.exafs.ui.detector.DetectorEditor;
-import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorEditor;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorElementComposite;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
@@ -64,7 +63,7 @@ public class NewVortexParametersUIEditor extends DetectorEditor {
 		String tfgName = vortexParameters.getTfgName();
 		Detector xmapDetector = Finder.getInstance().find(detectorName);
 		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-		this.vortex = new Vortex(path, this.getSite(), parent, detectorList, xmapDetector, tfg, vortexParameters);
+		this.vortex = new Vortex(path, this.getSite(), parent, detectorList, xmapDetector, tfg);
 	}
 
 	@Override
@@ -81,12 +80,6 @@ public class NewVortexParametersUIEditor extends DetectorEditor {
 			return;
 		comp.getDetectorType().setValue("Silicon");
 		comp.getConfigFileName().setValue(file.getAbsolutePath());
-	}
-
-	@Override
-	protected String getDataXMLName() {
-		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
-		return varDir + "/vortex_editor_data.xml";
 	}
 
 	@Override
