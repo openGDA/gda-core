@@ -22,7 +22,7 @@ class BSSCRun:
         self.energy = float(find("dcm_energy").getPosition())
         self.sampleConcentration = find("sample_concentration")
         self.sampleName = find("samplename")
-        self.backgroundFileName = find("backroundDataFile")
+        self.backgroundFileName = find("backgroundDataFile")
         self.collectionID = find("dataCollectionId")
 
         #need to remove hardcoding
@@ -235,7 +235,6 @@ class BSSCRun:
             if not self.titrationsCanUseSameBufferMeasurement(lastTitration, titration):
                 print "\n= Buffer before"
                 backgroundfile = self.measureBuffer(titration, duration)
-                self.backgroundFileName.setValue(backgroundfile)
             else:
                 print "\n= Skipping Buffer before (reusing last)"
                 self.ispyBStatusInfo = ISpyBStatusInfo()
@@ -245,12 +244,12 @@ class BSSCRun:
 
             print "\n= SAMPLE "
             self.collectionID.setValue(str(self.dataCollectionIds[self.dataCollectionIndex]))
+            self.backgroundFileName.setValue(backgroundfile)
             samplefile = self.measureSample(titration, duration)
             self.clearBackgroundAndId()
 
             print "\n= Buffer after"
             backgroundfile = self.measureBuffer(titration, duration)
-            self.backgroundFileName.setValue(backgroundfile)
             lastTitration = titration
             self.dataCollectionIndex += 1
 
@@ -262,4 +261,3 @@ class BSSCRun:
         self.bssc.setViscosityLevel("high")
         self.clean()
         self.ispyb.disconnect()
-        self.clearBackgroundAndId()
