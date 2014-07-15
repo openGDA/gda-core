@@ -29,12 +29,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.dawnsci.plotting.api.region.IROIListener;
-import org.dawnsci.plotting.api.region.IRegion;
-import org.dawnsci.plotting.api.region.IRegionListener;
-import org.dawnsci.plotting.api.region.IRegionSystem;
-import org.dawnsci.plotting.api.region.ROIEvent;
-import org.dawnsci.plotting.api.region.RegionEvent;
+import org.eclipse.dawnsci.plotting.api.region.IROIListener;
+import org.eclipse.dawnsci.plotting.api.region.IRegion;
+import org.eclipse.dawnsci.plotting.api.region.IRegionListener;
+import org.eclipse.dawnsci.plotting.api.region.IRegionSystem;
+import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
+import org.eclipse.dawnsci.plotting.api.region.RegionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

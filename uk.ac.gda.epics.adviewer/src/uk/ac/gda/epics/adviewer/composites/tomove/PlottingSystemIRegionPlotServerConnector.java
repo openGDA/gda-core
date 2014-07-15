@@ -18,7 +18,7 @@
 
 package uk.ac.gda.epics.adviewer.composites.tomove;
 
-import org.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 
 public class PlottingSystemIRegionPlotServerConnector {
 
