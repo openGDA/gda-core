@@ -1576,7 +1576,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#add(Dataset, Dataset)}
+	 * @deprecated Use {@link Maths#add(Object, Object)}
 	 */
 	@Deprecated
 	public DataSet __add__(DataSet other) {
@@ -1586,7 +1586,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#add(Dataset, Object)}
+	 * @deprecated Use {@link Maths#add(Object, Object)}
 	 */
 	@Deprecated
 	public DataSet __add__(double other) {
@@ -1596,7 +1596,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#add(Dataset, Object)}
+	 * @deprecated Use {@link Maths#add(Object, Object)}
 	 */
 	@Deprecated
 	public DataSet __radd__(double other) {
@@ -1616,7 +1616,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#subtract(Dataset, Dataset)}
+	 * @deprecated Use {@link Maths#subtract(Object, Object)}
 	 */
 	@Deprecated
 	public DataSet __sub__(DataSet other) {
@@ -1655,7 +1655,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#multiply(Dataset, Dataset)}
+	 * @deprecated Use {@link Maths#multiply(Object, Object)}
 	 */
 	@Deprecated
 	public DataSet __mul__(DataSet other) {
@@ -1665,7 +1665,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#multiply(Dataset, Object)}
+	 * @deprecated Use {@link Maths#multiply(Object, Object)}
 	 */
 	@Deprecated
 	public DataSet __mul__(double other) {
@@ -1675,7 +1675,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#multiply(Dataset, Object)}
+	 * @deprecated Use {@link Maths#multiply(Object, Object)}
 	 */
 	@Deprecated
 	public DataSet __rmul__(double other) {
@@ -1695,7 +1695,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#divide(Dataset, Dataset)}
+	 * @deprecated Use {@link Maths#divide(Object, Object)}
 	 */
 	@Deprecated
 	public DataSet __div__(DataSet other) {
@@ -1735,7 +1735,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param other
 	 * @return DataSet
-	 * @deprecated Use {@link Maths#power(Dataset, Dataset)}
+	 * @deprecated Use {@link Maths#power(Object, Object)}
 	 */
 	@Deprecated
 	public DataSet __pow__(DataSet other) {
@@ -1767,7 +1767,7 @@ public class DataSet extends DoubleDataset {
 	 * This returns a new dataset with values of opposite sign
 	 *
 	 * @return negative dataset
-	 * @deprecated Use {@link Maths#negative(Dataset)}
+	 * @deprecated Use {@link Maths#negative(Object)}
 	 */
 	@Deprecated
 	public DataSet __neg__() {
