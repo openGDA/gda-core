@@ -21,9 +21,9 @@ package uk.ac.gda.client.microfocus.util;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
-import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.axis.ClickEvent;
-import org.dawnsci.plotting.api.axis.IClickListener;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.axis.ClickEvent;
+import org.eclipse.dawnsci.plotting.api.axis.IClickListener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;

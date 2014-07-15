@@ -20,7 +20,7 @@ package uk.ac.gda.exafs.ui.detectorviews;
 
 import java.net.URL;
 
-import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.richbeans.editors.DirtyContainer;
