@@ -23,9 +23,9 @@ import gda.analysis.DataSet;
 import java.util.Collections;
 import java.util.List;
 
-import org.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
-import org.dawnsci.plotting.api.histogram.functions.ConstMapFunction;
-import org.dawnsci.plotting.api.histogram.functions.SquareRootMapFunction;
+import org.eclipse.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
+import org.eclipse.dawnsci.plotting.api.histogram.functions.ConstMapFunction;
+import org.eclipse.dawnsci.plotting.api.histogram.functions.SquareRootMapFunction;
 import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.dawnsci.plotting.jreality.impl.SurfPlotStyles;
 import org.eclipse.swt.layout.FormAttachment;
