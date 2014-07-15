@@ -1,9 +1,9 @@
 package uk.ac.diamond.tomography.reconstruction;
 
-import org.dawb.hdf5.HierarchicalDataFactory;
-import org.dawb.hdf5.HierarchicalDataUtils;
-import org.dawb.hdf5.model.IHierarchicalDataModel;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.dawnsci.hdf5.HierarchicalDataFactory;
+import org.eclipse.dawnsci.hdf5.HierarchicalDataUtils;
+import org.eclipse.dawnsci.hdf5.model.IHierarchicalDataModel;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -36,7 +36,7 @@ public class NexusFilter extends ViewerFilter {
 	 * Zero-argument constructor for extension point instantiation
 	 */
 	public NexusFilter() {
-		this(NexusFilterPreferencesCache.CACHE, org.dawb.hdf5.Activator.getPlugin().getHierarchicalDataModel());
+		this(NexusFilterPreferencesCache.CACHE, org.eclipse.dawnsci.hdf5.Activator.getPlugin().getHierarchicalDataModel());
 	}
 
 	public NexusFilter(INexusFilterPreferencesCache nexusFilterPreferencesCache, IHierarchicalDataModel model) {

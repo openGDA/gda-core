@@ -22,11 +22,11 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.dawb.hdf5.model.IHierarchicalDataFileModel;
-import org.dawb.hdf5.model.IHierarchicalDataModel;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.dawnsci.hdf5.model.IHierarchicalDataFileModel;
+import org.eclipse.dawnsci.hdf5.model.IHierarchicalDataModel;
 import org.junit.Before;
 import org.junit.Test;
 

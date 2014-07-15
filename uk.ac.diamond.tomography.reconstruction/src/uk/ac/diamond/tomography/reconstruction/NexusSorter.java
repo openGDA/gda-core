@@ -18,10 +18,10 @@
 
 package uk.ac.diamond.tomography.reconstruction;
 
-import org.dawb.hdf5.HierarchicalDataFactory;
-import org.dawb.hdf5.HierarchicalDataUtils;
-import org.dawb.hdf5.model.IHierarchicalDataModel;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.dawnsci.hdf5.HierarchicalDataFactory;
+import org.eclipse.dawnsci.hdf5.HierarchicalDataUtils;
+import org.eclipse.dawnsci.hdf5.model.IHierarchicalDataModel;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
@@ -36,7 +36,7 @@ public class NexusSorter extends ViewerSorter {
 	 * Zero-argument constructor for extension point instantiation
 	 */
 	public NexusSorter() {
-		this(NexusSorterPreferencesCache.CACHE, org.dawb.hdf5.Activator.getPlugin().getHierarchicalDataModel());
+		this(NexusSorterPreferencesCache.CACHE, org.eclipse.dawnsci.hdf5.Activator.getPlugin().getHierarchicalDataModel());
 	}
 
 	public NexusSorter(INexusSorterPreferencesCache nexusSorterPreferencesCache, IHierarchicalDataModel model) {
