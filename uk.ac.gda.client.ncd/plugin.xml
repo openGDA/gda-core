@@ -249,7 +249,7 @@
       </sideplot>
       </extension>
       <extension
-            point="org.dawnsci.plotting.api.toolPageAction">
+            point="org.eclipse.dawnsci.plotting.api.toolPageAction">
          <tool_page_action
                action_type="TOOLBAR"
                command_id="uk.ac.gda.client.ncd.updatescanmaskfile"
