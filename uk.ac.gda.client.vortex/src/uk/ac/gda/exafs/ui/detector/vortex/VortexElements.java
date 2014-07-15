@@ -39,9 +39,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.exafs.ui.detector.Counts;
-import uk.ac.gda.exafs.ui.detector.Elements;
 import uk.ac.gda.exafs.ui.detector.wizards.vortex.ImportVortexROIWizard;
+import uk.ac.gda.exafs.ui.detectorviews.Counts;
+import uk.ac.gda.exafs.ui.detectorviews.Elements;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 
 import com.swtdesigner.SWTResourceManager;
@@ -102,7 +102,7 @@ public class VortexElements extends Elements{
 			detectorElementsLabel.setText(" Regions of Interest");
 		try {
 			createImportButton(grid, detectorList.size());
-			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class, true);
+			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class);
 			detectorListComposite.getDetectorElementComposite().setWindowsEditable(false);
 			detectorListComposite.getDetectorElementComposite().setMinimumRegions(NewVortexParametersUIHelper.INSTANCE.getMinimumRegions());
 			detectorListComposite.getDetectorElementComposite().setMaximumRegions(NewVortexParametersUIHelper.INSTANCE.getMaximumRegions());

@@ -40,18 +40,15 @@ class I18XasScan(XasScan):
         if self.beam!=None:
             self.beam.setPauseBeforePoint(True)
             self.beam.setPauseBeforeLine(True)
-            ScannableCommands.add_default([self.beam])
 
         if self.detectorFillingMonitor!=None and beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium": 
             self.detectorFillingMonitor.setPauseBeforePoint(True)
             self.detectorFillingMonitor.setPauseBeforeLine(False)
-            self.detectorFillingMonitor.setCollectionTime(collectionTime)
+            self.log("Adding the detectorFillingMonitor to the list of defaults")
             ScannableCommands.add_default([self.detectorFillingMonitor])
         else :
             ScannableCommands.remove_default([self.detectorFillingMonitor])
-
-        if self.trajBeamMonitor!=None:
-            self.trajBeamMonitor.setActive(False)
+            
         
     def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, controller, repNum):
         times = []

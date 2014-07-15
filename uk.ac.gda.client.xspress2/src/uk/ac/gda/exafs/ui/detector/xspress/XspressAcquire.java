@@ -26,7 +26,9 @@ import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -44,11 +46,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
-import uk.ac.gda.exafs.ui.detector.Acquire;
-import uk.ac.gda.exafs.ui.detector.Counts;
-import uk.ac.gda.exafs.ui.detector.DetectorEditor;
-import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
-import uk.ac.gda.exafs.ui.detector.Plot;
+import uk.ac.gda.beans.ElementCountsData;
+import uk.ac.gda.exafs.ui.detectorviews.Acquire;
+import uk.ac.gda.exafs.ui.detectorviews.Counts;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorEditor;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detectorviews.Plot;
+import uk.ac.gda.richbeans.components.data.DataWrapper;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
@@ -73,6 +77,11 @@ public class XspressAcquire extends Acquire {
 	private XspressData xspressData;
 	private Button loadBtn;
 	private FileDialog openDialog;
+	private DetectorElementComposite detectorElementComposite;
+	private XspressElements xspressElements;
+	private TableViewer tableViewer;
+//	private DataWrapper dataWrapper;
+//	private Data data;
 	
 	public XspressAcquire(Composite parent, final SashFormPlotComposite sashPlotFormComposite, Display display, final ComboWrapper readoutMode, final ComboAndNumberWrapper resolutionGrade, final Plot plot, XspressDetector xspressDetector, Counts counts){
 		super(display);
@@ -82,6 +91,8 @@ public class XspressAcquire extends Acquire {
 		this.resolutionGrade = resolutionGrade;
 		this.plot = plot;
 		this.xspressDetector = xspressDetector;
+//		this.dataWrapper = dataWrapper;
+//		this.data = data;
 		
 		Group grpAcquire = new Group(parent, SWT.NONE);
 		grpAcquire.setText("Acquire Spectra");
@@ -98,6 +109,11 @@ public class XspressAcquire extends Acquire {
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 		
 		xspressData = new XspressData();
+		DataWrapper storedData = xspressData.readStoredData(getDataXMLName());
+		if (storedData.getValue() != null){
+			ElementCountsData[] ecData = (ElementCountsData[]) storedData.getValue();
+			plot.plot(0, ElementCountsData.getDataFrom(ecData), false, resolutionGrade);
+		}
 		
 		acquireBtn = new Button(grpAcquire, SWT.NONE);
 		acquireBtn.setText("Acquire");
@@ -190,12 +206,49 @@ public class XspressAcquire extends Acquire {
 		try {
 			xspressDetector.setAttribute("readoutModeForCalibration", new String[] { uiReadoutMode, uiResolutionGrade });
 			mcaData = xspressDetector.getMCData((int) collectionTime);
+			xspressData.writeStoredData(getDataXMLName(), ElementCountsData.getDataFor(mcaData));
 		} catch (DeviceException e) {
 			sashPlotFormComposite.appendStatus("Cannot read out xspress detector data", logger);
 			logger.error("Cannot read out xspress detector data", e);
 		}
 		
 		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
+		
+		//TODO why is the following here? The data has already been collected.
+		try {
+			xspressDetector.setResGrade(originalResolutionGrade);
+			xspressDetector.setReadoutMode(originalReadoutMode);
+		} catch (DeviceException e) {
+			sashPlotFormComposite.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
+			logger.error("Cannot reset res grade, detector may be in an error state", e);
+		}
+		sashPlotFormComposite.appendStatus("Reset detector to resolution grade '" + originalResolutionGrade + "'.", logger);
+		
+		dataUpdate(0, mcaData);
+		tableViewer.refresh();
+	}
+
+	public String getDataXMLName() {
+		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
+		return varDir + "/xspress_editor_data.xml";
+	}
+
+	public void setDetectorElementComposite(
+			DetectorElementComposite detectorElementComposite) {
+		this.detectorElementComposite = detectorElementComposite;
+	}
+
+	public void setXspressElements(XspressElements xspressElements) {
+		this.xspressElements = xspressElements;
+	}
+
+	public void dataUpdate(int selectedIndex, int[][][] mcaData) {
+		plot.plot(selectedIndex,mcaData, false, null);
+		detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectedIndex, mcaData));
+		detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
+		xspressElements.setAllElementsCount(counts.getTotalCounts(mcaData));
+		xspressElements.setElementCount(counts.getTotalElementCounts(selectedIndex, mcaData));
+		xspressElements.configureUI(mcaData, selectedIndex);
 	}
 	
 	@Override
@@ -238,6 +291,23 @@ public class XspressAcquire extends Acquire {
 	
 	public double getCollectionTime(){
 		return collectionTime;
+	}
+
+	public void setTableViewer(TableViewer tableViewer) {
+		this.tableViewer = tableViewer;
+	}
+
+	@Override
+	public void writeToDisk() throws IOException {
+		saveMca(sashPlotFormComposite, xspressSaveDir);
+	}
+
+	@Override
+	public void updateStats(GridListEditor detectorList,
+			DetectorElementComposite detectorElementComposite,
+			int currentSelectedElementIndex) {
+		// not for this class
+		
 	}
 	
 }

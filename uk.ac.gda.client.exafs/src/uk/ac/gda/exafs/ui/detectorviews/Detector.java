@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.detector;
+package uk.ac.gda.exafs.ui.detectorviews;
 
 import gda.jython.InterfaceProvider;
 import gda.jython.gui.JythonGuiConstants;
@@ -54,13 +54,13 @@ public class Detector {
 	protected Counts counts;
 	protected Plot plot;
 	private IWorkbenchPartSite site;
-	
+
 	public Detector(String serverCommand, IWorkbenchPartSite site, Composite parent, String path) {
 		counts = new Counts();
 		this.site = site;
 		this.serverCommand = serverCommand;
 	}
-
+	
 	protected Action createUpLoadAction(final String path) {
 		uploadAction = new Action("Configure") {
 			@Override

@@ -6,10 +6,12 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.Timer;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
+import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
@@ -29,7 +31,7 @@ import org.nexusformat.NexusFile;
  * @author rjw82
  * 
  */
-public class Xspress3Detector extends DetectorBase implements NexusDetector {
+public class Xspress3Detector extends DetectorBase implements NexusDetector, FluorescenceAcquire {
 
 	public static int SUM_ALL_ROI = 0;
 	public static int SUM_FIRST_ROI = 1;
@@ -112,6 +114,13 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	public void atScanEnd() throws DeviceException {
 		currentScanNumber = -1;
 	}
+	
+	@Override
+	public void atPointEnd() throws DeviceException {
+		if (controller.getNumFramesToAcquire() > 1) {
+			framesRead++;
+		}
+	}
 
 	private void prepareFileWriting() throws DeviceException {
 		if (writeHDF5Files) {
@@ -128,9 +137,9 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 				if (!scanNumber.isEmpty()) {
 					scanNumber = "_" + scanNumber;
 				}
-				controller.setFilePrefix(filePrefix + scanNumber);
+				controller.setFilePrefix(filePrefix + scanNumber + "_");
 			} else {
-				controller.setFilePrefix("xspress3");
+				controller.setFilePrefix("xspress3_");
 			}
 
 			controller.setNextFileNumber(0);
@@ -176,6 +185,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		return false; // false as this will return data for the GDA to write
 						// itself.
 	}
+	
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
@@ -203,9 +213,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 
 		// get all various info and add to a NexusTreeProvider
 		NexusTreeProvider tree = readoutFrames(framesRead, framesRead)[0];
-		if (controller.getNumFramesToAcquire() > 1) {
-			framesRead++;
-		}
+
 		return tree;
 	}
 
@@ -238,17 +246,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 						+ firstChannelToRead - 1);
 		// calc FF from ROI
 		int numFramesRead = lastFrame - firstFrame + 1;
-		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector
-																			// channel]
-		for (int frame = 0; frame < numFramesRead; frame++) {
-			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
-				if (summingMethod == 1) {
-					FFs[frame][chan] = data[frame][chan][0];
-				} else {
-					FFs[frame][chan] = sumArray(data[frame][chan]);
-				}
-			}
-		}
+		Double[][] FFs = calculateFFs(data, numFramesRead);
 
 		// create trees
 		NexusTreeProvider[] results = new NexusTreeProvider[numFramesRead];
@@ -263,9 +261,42 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 				thisFrame.setPlottableValue(getExtraNames()[chan],
 						FFs[frame][chan]);
 			}
+			thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
+			
 			results[frame] = thisFrame;
 		}
 		return results;
+	}
+	
+	public Double[] readoutFF() throws DeviceException {
+		// assume that this is readout before the full readout() is called!!
+		Double[][][] data = controller.readoutDTCorrectedROI(framesRead,
+				framesRead, firstChannelToRead, numberOfChannelsToRead
+						+ firstChannelToRead - 1);
+		return calculateFFs(data,1)[0];
+	}
+
+	private Double[][] calculateFFs(Double[][][] data, int numFramesRead) {
+		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector
+																			// channel]
+		for (int frame = 0; frame < numFramesRead; frame++) {
+			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
+				if (summingMethod == 1) {
+					FFs[frame][chan] = data[frame][chan][0];
+				} else {
+					FFs[frame][chan] = sumArray(data[frame][chan]);
+				}
+			}
+		}
+		return FFs;
+	}
+
+	private String deriveFilename() throws DeviceException {
+		String path = controller.getFilePath();
+		String prefix = controller.getFilePrefix();
+		String scanNumber = Integer.toString(controller.getNextFileNumber());
+		String xspress3File =  path + prefix + scanNumber + ".hdf5";
+		return xspress3File;
 	}
 
 	@Override
@@ -325,6 +356,60 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 			rois[roiNum].setEnd(limits[1]);
 		}
 		return rois;
+	}
+	
+	public void clearAndStart() throws DeviceException {
+		controller.doErase();
+		controller.doStart();
+	}
+	
+	public int[][] getData() throws DeviceException{
+		
+		Double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
+		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
+		for(int i=0;i<deadTimeCorrectedData.length;i++){
+			for(int j=0;j<deadTimeCorrectedData[0].length;j++){
+				deadTimeCorrectedDataInt[i][j]= (int) Math.round(deadTimeCorrectedData[i][j]);
+			}
+		}
+		return deadTimeCorrectedDataInt;
+	}
+	
+	/**
+	 * @param time - milliseconds
+	 * @return
+	 * @throws DeviceException
+	 */
+	public Double[][] getMCData(int time) throws DeviceException {
+		controller.doErase();
+		controller.doStart();
+		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
+		((Timer) Finder.getInstance().find("tfg")).countAsync(time); //run tfg for time
+		do {
+			synchronized (this) {
+				try {
+					wait(100);
+				} catch (InterruptedException e) {
+				}
+			}
+		} while (((Timer) Finder.getInstance().find("tfg")).getStatus() == Timer.ACTIVE);
+
+		controller.doStop();
+
+//		int[] data = null;
+//		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
+//			data = readoutMca(0, 1, 4096); // NOTE 1 time frame
+//
+//		if (data != null) {
+//			try {
+//				int[][][][] fourD = unpackRawDataTo4D(data, 1, numResGrades(), 4096);
+//				return fourD[0];
+//			} catch (Exception e) {
+//				throw new DeviceException("Error while unpacking MCA Data. Data length was " + data.length, e);
+//			}
+//		}
+
+		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
 	}
 
 	public int getFirstChannelToRead() {
@@ -428,6 +513,12 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	public void setNumTrackerExtension(String numTrackerExtension) {
 		this.numTrackerExtension = numTrackerExtension;
 		createNumTracker();
+	}
+
+	@Override
+	public Object getCountRates() throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

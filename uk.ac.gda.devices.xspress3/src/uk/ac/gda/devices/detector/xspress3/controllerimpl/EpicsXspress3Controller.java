@@ -548,8 +548,8 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	@Override
 	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) throws DeviceException {
 		try {
-			pvProvider.pvsROILLM[roiNumber][channel].putWait(lowHighMCAChannels[0]);
 			pvProvider.pvsROIHLM[roiNumber][channel].putWait(lowHighMCAChannels[1]);
+			pvProvider.pvsROILLM[roiNumber][channel].putWait(lowHighMCAChannels[0]);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting ROI limits", e);
 		}
