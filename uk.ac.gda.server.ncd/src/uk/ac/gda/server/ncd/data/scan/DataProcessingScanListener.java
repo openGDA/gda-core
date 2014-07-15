@@ -41,6 +41,32 @@ public class DataProcessingScanListener extends DataWriterExtenderBase {
 	private Scannable detector;
 	private ProcessingRunner runner;
 	private String filepath;
+	StoredScanMetadataEntry background;
+	StoredScanMetadataEntry collectionId;
+
+	public Scannable getDetector() {
+		return detector;
+	}
+
+	public ProcessingRunner getRunner() {
+		return runner;
+	}
+
+	public StoredScanMetadataEntry getBackground() {
+		return background;
+	}
+
+	public StoredScanMetadataEntry getCollectionId() {
+		return collectionId;
+	}
+
+	public void setBackground(StoredScanMetadataEntry background) {
+		this.background = background;
+	}
+
+	public void setCollectionId(StoredScanMetadataEntry collectionId) {
+		this.collectionId = collectionId;
+	}
 
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) {
@@ -69,26 +95,20 @@ public class DataProcessingScanListener extends DataWriterExtenderBase {
 	public void completeCollection(IDataWriterExtender parent) {
 		super.completeCollection(parent);
 		try {
-			if (scanInformation == null) {
-				scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
-			}
+			scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		
 			String[] detectors = scanInformation.getDetectorNames();
 			if (Arrays.asList(detectors).contains(detector.getName())) {
-				StoredScanMetadataEntry background = Finder.getInstance().find("backgroundDataFile");
-				StoredScanMetadataEntry collection = Finder.getInstance().find("dataCollectionId");
 				String backgroundPath = background.getMetadataValue();
-				String collectionId = collection.getMetadataValue();
+				String collection = collectionId.getMetadataValue();
 	
-				logger.info("Processing running with '{}', background '{}' and id '{}'", filepath, backgroundPath, collectionId);
 				try {
-					runner.triggerProcessing(filepath, backgroundPath, collectionId);
+					logger.info("Processing running with '{}', background '{}' and id '{}'", filepath, backgroundPath, collection);
+					runner.triggerProcessing(filepath, backgroundPath, collection);
 				} catch (IOException e) {
 					logger.error("Couldn't run data reduction/processing", e);
 				}
 			}
-		} catch (NullPointerException npe) { //unfindable findables
-			logger.error("Could not start processing: Could not get required metadata");
 		} finally {
 			scanInformation = null;
 			filepath = null;
