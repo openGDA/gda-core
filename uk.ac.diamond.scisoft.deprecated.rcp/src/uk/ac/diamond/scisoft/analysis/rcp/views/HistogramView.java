@@ -30,9 +30,9 @@ import java.util.List;
 
 import org.apache.commons.collections.map.AbstractReferenceMap;
 import org.apache.commons.collections.map.ReferenceMap;
-import org.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
-import org.dawnsci.plotting.api.histogram.functions.GlobalColourMaps;
-import org.dawnsci.plotting.api.histogram.functions.SpecialExposureFunction;
+import org.eclipse.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
+import org.eclipse.dawnsci.plotting.api.histogram.functions.GlobalColourMaps;
+import org.eclipse.dawnsci.plotting.api.histogram.functions.SpecialExposureFunction;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 import org.dawnsci.plotting.jreality.core.ScaleType;
 import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;

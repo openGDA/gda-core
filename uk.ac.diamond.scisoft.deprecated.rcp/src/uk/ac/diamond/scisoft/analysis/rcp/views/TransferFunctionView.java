@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
-import org.dawnsci.plotting.api.histogram.functions.GlobalColourMaps;
-import org.dawnsci.plotting.api.histogram.functions.UserCustomFunction;
+import org.eclipse.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
+import org.eclipse.dawnsci.plotting.api.histogram.functions.GlobalColourMaps;
+import org.eclipse.dawnsci.plotting.api.histogram.functions.UserCustomFunction;
 import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
 import org.dawnsci.plotting.jreality.overlay.Overlay1DProvider;
 import org.dawnsci.plotting.jreality.overlay.OverlayProvider;

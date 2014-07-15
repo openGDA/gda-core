@@ -32,7 +32,7 @@ import javax.swing.JApplet;
 import javax.swing.JPanel;
 
 import org.dawb.common.ui.printing.PrintSettings;
-import org.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
+import org.eclipse.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
 import org.dawnsci.plotting.jreality.compositing.CompositeEntry;
 import org.dawnsci.plotting.jreality.compositing.CompositeOp;
 import org.dawnsci.plotting.jreality.compositing.CompositingControl;

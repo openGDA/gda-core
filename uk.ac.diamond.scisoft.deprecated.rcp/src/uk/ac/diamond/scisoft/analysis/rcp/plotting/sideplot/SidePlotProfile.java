@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.roi.data.IRowData;
 import org.dawb.common.ui.plot.roi.data.ROIData;
-import org.dawnsci.plotting.api.region.IRegionService;
+import org.eclipse.dawnsci.plotting.api.region.IRegionService;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DProvider;
 import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
