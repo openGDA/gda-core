@@ -104,7 +104,7 @@ public class ServerThread extends Thread implements Terminal {
 			if (useJline) {
 				new JlineServerListenThread(this.in, this.out).start();
 			} else {
-				new ServerListenThread(this.in).start();
+				new ServerListenThread(this.in, this.out).start();
 			}
 		} catch (IOException e) {
 			logger.error("Unable to create thread to listen to client", e);
