@@ -380,7 +380,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	 * @return
 	 * @throws DeviceException
 	 */
-	public Double[][] getMCData(int time) throws DeviceException {
+	public Double[][] getMCData(double time) throws DeviceException {
 		controller.doErase();
 		controller.doStart();
 		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time

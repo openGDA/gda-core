@@ -1,5 +1,7 @@
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
+import java.util.Random;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -438,14 +440,16 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		int numChannels = finalChannel - startChannel + 1;
 		int[] rawData = daServer.getIntBinaryData("read 0 0 0 " + 4096 + " "
 				+ 1 + " " + 1 + " from " + mcaHandle + " raw motorola", 4096);
-
+		
 		Double[][] results = new Double[numChannels][4096];
+		Random generator = new Random();
+		
 		for (int chan = 0; chan < numChannels; chan++) {
 			for (int mcaChan = 0; mcaChan < 4096; mcaChan++) {
-				results[chan][mcaChan] = (double) rawData[mcaChan];
+				results[chan][mcaChan] = (double) generator.nextInt(new Double(1000.0).intValue() * 10000);
 			}
 		}
-
+		
 		return results;
 	}
 
