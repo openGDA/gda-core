@@ -28,8 +28,7 @@ import java.net.Socket;
  * Thread for dealing with a client connected to the Jython server through a
  * socket.
  */
-public class SocketServerThread extends ServerThread {
-	Socket socket = null;
+public class SocketServerThread extends SocketServerThreadBase {
 
 	/**
 	 * Creates a server thread.
@@ -37,6 +36,8 @@ public class SocketServerThread extends ServerThread {
 	 * @param socket client socket
 	 */
 	public SocketServerThread(Socket socket) {
+		
+		super(socket);
 		
 		setUseJline(false);
 		

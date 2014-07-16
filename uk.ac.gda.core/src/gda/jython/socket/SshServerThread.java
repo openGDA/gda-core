@@ -18,28 +18,23 @@
 
 package gda.jython.socket;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 
-public class ServerListenThread extends ServerListenThreadBase {
+import org.apache.sshd.server.ShellFactory.ExitCallback;
 
-	private BufferedReader in;
-	private PrintWriter out;
+public class SshServerThread extends ServerThread implements SessionClosedCallback {
 
-	public ServerListenThread(InputStream in, PrintWriter out, SessionClosedCallback sessionClosedCallback) {
-		super(sessionClosedCallback);
-		this.in = new BufferedReader(new InputStreamReader(in));
-		this.out = out;
+	private ExitCallback exitCallback;
+
+	protected SshServerThread(InputStream in, OutputStream out, ExitCallback exitCallback) {
+		super(in, out);
+		this.exitCallback = exitCallback;
 	}
 
 	@Override
-	protected String readLine(String prompt) throws IOException {
-		out.print(prompt);
-		out.flush();
-		return in.readLine();
+	public void sessionClosed() {
+		exitCallback.onExit(0);
 	}
 
 }

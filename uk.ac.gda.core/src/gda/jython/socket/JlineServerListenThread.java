@@ -32,7 +32,9 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 
 	private ConsoleReader cr;
 
-	public JlineServerListenThread(InputStream in, PrintWriter out) throws IOException {
+	public JlineServerListenThread(InputStream in, PrintWriter out, SessionClosedCallback sessionClosedCallback) throws IOException {
+		
+		super(sessionClosedCallback);
 		
 		Terminal.setupTerminal();
 		

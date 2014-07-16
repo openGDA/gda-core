@@ -39,7 +39,7 @@ import org.springframework.util.FileCopyUtils;
 /**
  * Thread for dealing with a client connected to the Jython server.
  */
-public class ServerThread extends Thread implements Terminal {
+public abstract class ServerThread extends Thread implements Terminal, SessionClosedCallback {
 
 	private static final Logger logger = LoggerFactory.getLogger(ServerThread.class);
 	
@@ -102,9 +102,9 @@ public class ServerThread extends Thread implements Terminal {
 		out.printf(WELCOME_BANNER, Version.RELEASE_VER);
 		try {
 			if (useJline) {
-				new JlineServerListenThread(this.in, this.out).start();
+				new JlineServerListenThread(this.in, this.out, this).start();
 			} else {
-				new ServerListenThread(this.in, this.out).start();
+				new ServerListenThread(this.in, this.out, this).start();
 			}
 		} catch (IOException e) {
 			logger.error("Unable to create thread to listen to client", e);
