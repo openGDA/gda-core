@@ -107,8 +107,6 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		super(path, mappingURL, dirtyContainer, editingBean, path);
 		this.xspress3Parameters = (Xspress3Parameters) editingBean;
 		detectorName = xspress3Parameters.getDetectorName();
-		//detector = getDetector(detectorName);
-		// TODO Auto-generated constructor stub
 	}
 	
 	
@@ -116,11 +114,6 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		return "Xspress3";
 	}
 	
-	
-	/*public String getDetectorName() {
-		return Xspress3Parameters.getDetectorName();
-	}*/
-
 	@Override
 	public void createPartControl(Composite parent) {
 
@@ -134,11 +127,6 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 
 		sashPlotForm.setWeights(new int[] { 35, 74 });
 
-		/*if (!ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS)) {
-			addOutputPreferences(left);
-		}*/
-		
 		configureUI();
 	}
 
@@ -339,50 +327,17 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		if (monitor != null)
 			monitor.beginTask("Acquire Xspress3 data", numWorkUnits);
 
-		//String detectorName = xspress3Parameters.getDetectorName();
+		
 		if (getDetector(detectorName) == null)
 			throw new Exception("Unable to find Xmapdetector called :'" + detectorName + "'");
-		/*String tfgName = xspress3Parameters.getTfgName();
-		final Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-		if (tfg == null)
-			throw new Exception("Unable to find tfg called :'" + tfgName + "'");*/
-
+	
 		try {
-			/*getDetector(detectorName).clearAndStart();
-			if (monitor != null)
-				monitor.worked(1);
-			tfg.countAsync(collectionTimeValue);
-			if (monitor != null)
-				monitor.worked(10);
-			while (tfg.getStatus() == Timer.ACTIVE) {
-				try {
-					Thread.sleep(loopSleepTimeInMillis);
-					if (monitor != null) {
-						if (monitor.isCanceled()) {
-							getDetector(detectorName).stop();
-							return;
-						}
-						monitor.worked(1);
-					}
-				} catch (InterruptedException e) {
-				}
-			}*/
-			/*if (monitor != null)
-				if (monitor.isCanceled())
-					return;*/
-
-			/*if (monitor != null)
-				logger.debug("Stopping Xspress3 detector " + tfg.getStatus());
-			getDetector(detectorName).stop();
-			getDetector(detectorName).waitWhileBusy();
-			if (monitor != null)
-				monitor.worked(1);*/
+			
 			
 			final Double[][] MCData = getDetector(detectorName).getMCData(collectionTimeValue);
 			final int[][] data = getDetector(detectorName).getData();
 			if (monitor != null)
 				monitor.worked(1);
-			//private String detectorName;
 
 			final int[][][] data3d = get3DArray(data);
 			getDataWrapper().setValue(ElementCountsData.getDataFor(data3d));
