@@ -24,24 +24,19 @@ import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.factory.IObjectCreator;
 import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.ImplFactory;
 import gda.factory.corba.util.NetService;
 import gda.util.logging.LogbackUtils;
 import gda.util.logging.LoggingUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -201,86 +196,6 @@ public abstract class ObjectServer implements Runnable {
 		return objectServer;
 	}
 
-	/**
-	 * Type of an XML file.
-	 */
-	enum XmlFileType {
-		
-		/** An object factory XML file. */
-		OBJECT_FACTORY,
-		
-		/** A Spring beans file. */
-		SPRING_BEANS,
-		
-		/** Unknown type. */
-		UNKNOWN
-	}
-	
-	/**
-	 * Determines the type of an XML file within the {@code gda.config/xml}
-	 * directory
-	 * 
-	 * @param file the XML file
-	 * 
-	 * @return the file's type
-	 */
-	private static XmlFileType determineXmlFileType(File file) {
-		// TODO read the whole file and examine the top-level element to find the type
-		XmlFileType type = XmlFileType.UNKNOWN;
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-			String line;
-			for (int i=1; i<=50; i++) {
-				line = br.readLine();
-				if (line != null) {
-					if (line.contains("<beans")) {
-						type = XmlFileType.SPRING_BEANS;
-						break;
-					} else if (line.contains("<ObjectFactory")) {
-						type = XmlFileType.OBJECT_FACTORY;
-						break;
-					}
-				}
-			}
-			br.close();
-		} catch (IOException ioe) {
-			throw new RuntimeException("Could not determine type of file", ioe);
-		}
-		return type;
-	}
-	
-	/**
-	 * Determine whether a Spring application context (represented by the supplied
-	 * {@link BeanDefinitionRegistry} is an object creators context.
-	 * 
-	 * @param registry the Spring bean definition registry
-	 * 
-	 * @return whether the context is an object creators context
-	 */
-	private static boolean isObjectCreatorsApplicationContext(BeanDefinitionRegistry registry) throws FactoryException {
-		
-		// Look for object creators in the top level of the context first
-		for (String beanName : registry.getBeanDefinitionNames()) {
-			final BeanDefinition beanDef = registry.getBeanDefinition(beanName);
-			final String beanClassName = beanDef.getBeanClassName();
-			try {
-				if (beanClassName != null) {
-					final Class<?> beanClass = Class.forName(beanClassName);
-					if (IObjectCreator.class.isAssignableFrom(beanClass)) {
-						return true;
-					}
-				}
-			} catch (ClassNotFoundException e) {
-				throw new FactoryException("Unable to find class " + beanClassName, e);
-			}catch (NoClassDefFoundError e) {
-				throw new FactoryException("Unable to find class " + beanClassName, e);
-			}
-		}
-		
-		// If there are none in the top level, look for a list of object creators instead
-		return registry.containsBeanDefinition(ObjectCreatorsObjectServer.OBJECT_CREATORS_BEAN_NAME);
-	}
-
 	private static ObjectServer createObjectServer(String xmlFile, String mappingFile, boolean serverSide, boolean localObjectsOnly) throws FactoryException {
 		File file = getAbsoluteFilePath(xmlFile);
 		logger.info("Starting ObjectServer using file " + xmlFile);
@@ -289,33 +204,7 @@ public abstract class ObjectServer implements Runnable {
 			throw new FactoryException(String.format("File does not exist: %s", file));
 		}
 		
-		// Get the file's type
-		final XmlFileType type = determineXmlFileType(file);
-		
-		// If the file contains an object factory, create a default list of
-		// object creators, but use the specified XML file to create the
-		// ObjectFactory
-		if (type == XmlFileType.OBJECT_FACTORY) {
-			return new ObjectCreatorsObjectServer(file, mappingFile, serverSide, localObjectsOnly);
-		}
-		
-		// If the file looks like a Spring beans file, load the context
-		else if (type == XmlFileType.SPRING_BEANS) {
-			
-			// Load the bean definitions without instantiating the objects
-			BeanDefinitionRegistry beanDefReg = loadBeanDefinitions(file);
-			
-			if (isObjectCreatorsApplicationContext(beanDefReg)) {
-				return new ObjectCreatorsObjectServer(file, serverSide, localObjectsOnly);
-			}
-			
-			return new SpringObjectServer(file, localObjectsOnly);
-		}
-		
-		// Otherwise the file can't be processed
-		else {
-			throw new FactoryException("XML file " + file + " has an unknown type");
-		}
+		return new SpringObjectServer(file, localObjectsOnly);
 	}
 	
 	protected static BeanDefinitionRegistry loadBeanDefinitions(File file) {
