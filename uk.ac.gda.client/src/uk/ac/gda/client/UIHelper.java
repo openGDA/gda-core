@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client;
 
+import java.util.Random;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -128,5 +130,18 @@ public class UIHelper {
 			blueHexadecimal = "0" + blueHexadecimal;
 		}
 		return "#" + redHexadecimal + greenHexadecimal + blueHexadecimal;
+	}
+	
+	public static String getRandomColor() {
+		Random rand = new Random();
+		float r = rand.nextFloat();
+		float g = rand.nextFloat();
+		float b = rand.nextFloat();
+		String hex = Integer.toHexString(new java.awt.Color(r,g,b).getRGB() & 0xffffff);
+		if (hex.length() < 6) {
+		    hex = "0" + hex;
+		}
+		hex = "#" + hex;
+		return hex;
 	}
 }
