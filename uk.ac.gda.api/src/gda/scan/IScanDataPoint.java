@@ -373,4 +373,6 @@ public interface IScanDataPoint {
 	 */
 	public boolean isDetector(String name);
 
+	public ScanInformation getScanInformation();
+
 }

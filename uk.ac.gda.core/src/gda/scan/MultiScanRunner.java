@@ -29,6 +29,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,15 +133,31 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	}
 	
 	@Override
-	public
-	void run(){
+	public ScanInformation getScanInformation() {
+		ScanInformation info = first.getScanInformation();
+		
+		int[] dimensions = info.getDimensions();
+		dimensions = ArrayUtils.add(dimensions, 0, scans.size());
+		info.setDimensions(dimensions);
+		
+		int points = 0;
+		for(MultiScanItem scan : scans){
+			points += scan.scan.getScanInformation().getNumberOfPoints();
+		}
+		info.setNumberOfPoints(points);
+		
+		return info;
+	}
+
+	@Override
+	public void run() {
 		try {
 			logger.error("Do not use run method of MultiScanRunner - use execute instead as it can throw exceptions");
 			runScan();
 		} catch (Exception e) {
 			logger.error("Error running scans", e);
 		}
-	
+
 	}
 	@Override
 	public void pause() {

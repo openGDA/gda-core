@@ -23,7 +23,6 @@ import gda.data.DetectorDataWrapper;
 import gda.data.PlottableDetectorData;
 import gda.data.PlottableDetectorDataClone;
 import gda.data.nexus.tree.NexusTreeProvider;
-import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DataWriterBase;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -50,6 +49,8 @@ import uk.ac.gda.util.map.MapUtils;
 public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanDataPoint.class);
+	
+	private ScanInformation scanInfo = new ScanInformation();
 
 	/**
 	 * The delimiter used by toString() method.
@@ -67,12 +68,12 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	private String creatorPanelName = "";
 
-	/**
-	 * The result of calling {@link DataWriter#getCurrentFileName() getCurrentFilename()} on the {@link DataWriter}
-	 * owned by the scan which created this point. Could be used to uniquely identify where this data is being recorded
-	 * by the {@link DataWriter}.
-	 */
-	private String currentFilename = "";
+//	/**
+//	 * The result of calling {@link DataWriter#getCurrentFileName() getCurrentFilename()} on the {@link DataWriter}
+//	 * owned by the scan which created this point. Could be used to uniquely identify where this data is being recorded
+//	 * by the {@link DataWriter}.
+//	 */
+//	private String currentFilename = "";
 
 	/**
 	 * The current point number.
@@ -90,10 +91,10 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	private String[] detectorHeader = new String[0];
 
-	/**
-	 * The detectors used in the scan.
-	 */
-	private String[] detectorNames = new String[0];
+//	/**
+//	 * The detectors used in the scan.
+//	 */
+//	private String[] detectorNames = new String[0];
 
 	/**
 	 * The {@link gda.device.Detector} detectors that participate in the scan.
@@ -106,15 +107,15 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	private String[][] detectorFormats = new String[0][];
 
-	/**
-	 * beamline name
-	 */
-	private String instrument = "";
-
-	/**
-	 * total number of points in the scan
-	 */
-	private int numberOfPoints = -1;
+//	/**
+//	 * beamline name
+//	 */
+//	private String instrument = "";
+//
+//	/**
+//	 * total number of points in the scan
+//	 */
+//	private int numberOfPoints = -1;
 
 	/**
 	 * The expanded header names for scannable position in which the names are composed of the scannable name plus its
@@ -133,15 +134,15 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	private String[][] scannableFormats = new String[0][];
 
-	/**
-	 * The scan identifier, such as the scan number.
-	 */
-	private int scanIdentifier = -1;
+//	/**
+//	 * The scan identifier, such as the scan number.
+//	 */
+//	private int scanIdentifier = -1;
 
-	/**
-	 * The scannables which are part of the scan.
-	 */
-	private String[] scannableNames = new String[0];
+//	/**
+//	 * The scannables which are part of the scan.
+//	 */
+//	private String[] scannableNames = new String[0];
 
 	/**
 	 * The {@link gda.device.Scannable} scannables that participate in the scan.
@@ -179,20 +180,21 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	protected ScanDataPoint(ScanData point, ScanDataPointVar sdpt) {
 		uniqueName = point.uniqueName;
-		scannableNames = point.scannableNames;
-		detectorNames = point.detectorNames;
+		scanInfo = point.scanInfo;
+//		scannableNames = point.scannableNames;
+//		detectorNames = point.detectorNames;
 		scannableHeader = point.scannableHeader;
 		detectorHeader = point.detectorHeader;
 		hasChild = point.hasChild;
-		scanIdentifier = point.scanIdentifier;
+//		scanIdentifier = point.scanIdentifier;
 		creatorPanelName = point.creatorPanelName;
-		currentFilename = point.currentFilename;
+//		currentFilename = point.currentFilename;
 		numberOfChildScans = point.numberOfChildScans;
-		instrument = point.instrument;
-		numberOfPoints = point.numberOfPoints;
+//		instrument = point.instrument;
+//		numberOfPoints = point.numberOfPoints;
 		command = point.command;
 		scanPlotSettings = point.scanPlotSettings;
-		scanDimensions = point.scanDimensions;
+//		scanDimensions = point.scanDimensions;
 
 		currentPointNumber = sdpt.getCurrentPointNumber();
 		detectorFormats = point.detectorFormats;
@@ -376,7 +378,8 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public void addDetector(Detector det) {
-		detectorNames = (String[]) ArrayUtils.add(detectorNames, det.getName());
+//		detectorNames = (String[]) ArrayUtils.add(detectorNames, det.getName());
+		scanInfo.setDetectorNames((String[]) ArrayUtils.add(scanInfo.getDetectorNames(), det.getName()));
 		String[] extraNames = det.getExtraNames();
 		if (extraNames != null && extraNames.length > 0) {
 			detectorHeader = (String[]) ArrayUtils.addAll(detectorHeader, extraNames);
@@ -395,7 +398,8 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public void addScannable(Scannable scannable) {
-		scannableNames = (String[]) ArrayUtils.add(scannableNames, scannable.getName());
+//		scannableNames = (String[]) ArrayUtils.add(scannableNames, scannable.getName());
+		scanInfo.setScannableNames((String[]) ArrayUtils.add(scanInfo.getScannableNames(), scannable.getName()));
 		scannableHeader = (String[]) ArrayUtils.addAll(scannableHeader, scannable.getInputNames());
 		scannableHeader = (String[]) ArrayUtils.addAll(scannableHeader, scannable.getExtraNames());
 		scannables.add(scannable);
@@ -424,7 +428,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public String getCurrentFilename() {
-		return currentFilename;
+		return scanInfo.getFilename();
 	}
 
 	/**
@@ -512,7 +516,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public Vector<String> getDetectorNames() {
-		return new Vector<String>(Arrays.asList(detectorNames));
+		return new Vector<String>(Arrays.asList(scanInfo.getDetectorNames()));
 	}
 
 	/**
@@ -525,9 +529,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return detectors;
 	}
 
-	/**
-	 * @return hasChild
-	 */
 	@Override
 	public boolean getHasChild() {
 		return hasChild;
@@ -648,17 +649,11 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	}
 
-	/**
-	 * @return String
-	 */
 	@Override
 	public String getInstrument() {
-		return instrument;
+		return scanInfo.getInstrument();
 	}
 
-	/**
-	 * @return Vector<String>
-	 */
 	@Override
 	public Vector<String> getNames() {
 		Vector<String> allNames = new Vector<String>();
@@ -667,52 +662,34 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return allNames;
 	}
 
-	/**
-	 * @return int
-	 */
 	@Override
 	public int getNumberOfChildScans() {
 		return numberOfChildScans;
 	}
 
-	/**
-	 * @return int
-	 */
 	@Override
 	public int getNumberOfPoints() {
-		return numberOfPoints;
+		return scanInfo.getNumberOfPoints();
 	}
 
-	/**
-	 * @return Vector<String>
-	 */
 	@Override
 	public Vector<String> getPositionHeader() {
 		return new Vector<String>(Arrays.asList(scannableHeader));
 	}
 
-	/**
-	 * @return Vector<String>
-	 */
 	@Override
 	public Vector<Object> getPositions() {
 		return scannablePositions;
 	}
 
-	/**
-	 * @return String
-	 */
 	@Override
 	public int getScanIdentifier() {
-		return scanIdentifier;
+		return scanInfo.getScanNumber();
 	}
 
-	/**
-	 * @return Vector<String>
-	 */
 	@Override
 	public Vector<String> getScannableNames() {
-		return new Vector<String>(Arrays.asList(scannableNames));
+		return new Vector<String>(Arrays.asList(scanInfo.getScannableNames()));
 	}
 
 	/**
@@ -773,35 +750,21 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return scannables;
 	}
 
-	/**
-	 * @return ScanPlotSettings
-	 */
 	@Override
 	public ScanPlotSettings getScanPlotSettings() {
 		return scanPlotSettings;
 	}
 
-	/**
-	 * @param scanPlotSettings
-	 *            The scanPlotSettings to set.
-	 */
 	@Override
 	public void setScanPlotSettings(ScanPlotSettings scanPlotSettings) {
 		this.scanPlotSettings = scanPlotSettings;
 	}
 
-	/**
-	 * @return Returns the scanDimensions.
-	 */
 	@Override
 	public int[] getScanDimensions() {
 		return scanDimensions;
 	}
 
-	/**
-	 * @param scanDimensions
-	 *            The scanDimensions to set.
-	 */
 	@Override
 	public void setScanDimensions(int[] scanDimensions) {
 		this.scanDimensions = scanDimensions;
@@ -814,7 +777,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	public String toString() {
 		
 		String identifier = getCurrentFilename() != null ?  getCurrentFilename() : uniqueName;
-		return "point " + (currentPointNumber) + " of " + numberOfPoints + " for scan " + identifier;
+		return "point " + (currentPointNumber) + " of " + scanInfo.getNumberOfPoints() + " for scan " + identifier;
 	}
 
 	/**
@@ -944,7 +907,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public void setCurrentFilename(String currentFilename) {
-		this.currentFilename = currentFilename;
+		scanInfo.setFilename(currentFilename);
 	}
 
 	@Override
@@ -959,7 +922,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	
 	@Override
 	public void setInstrument(String instrument) {
-		this.instrument = instrument;
+		scanInfo.setInstrument(instrument);
 	}
 
 	/**
@@ -973,12 +936,12 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public void setNumberOfPoints(int numberOfPoints) {
-		this.numberOfPoints = numberOfPoints;
+		scanInfo.setNumberOfPoints(numberOfPoints);
 	}
 
 	@Override
 	public void setScanIdentifier(int scanIdentifier) {
-		this.scanIdentifier = scanIdentifier;
+		scanInfo.setScanNumber(scanIdentifier);
 	}
 
 	@Override
@@ -1094,5 +1057,14 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 				return true;
 		}
 		return getDetector(name) != null;
+	}
+
+	@Override
+	public ScanInformation getScanInformation() {
+		return scanInfo;
+	}
+	
+	public void setScanInformation(ScanInformation newScanInfo){
+		scanInfo = newScanInfo;
 	}
 }

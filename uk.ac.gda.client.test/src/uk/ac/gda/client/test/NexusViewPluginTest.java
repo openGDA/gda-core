@@ -22,6 +22,7 @@ package uk.ac.gda.client.test;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
 import gda.scan.IScanDataPoint;
 
 import java.io.File;
@@ -99,13 +100,18 @@ public class NexusViewPluginTest implements IScanDataPointProvider {
 	}
 
 	@Override
-	public void update(Object dataSource, Object data) {
-		//  Intentional do nothing
+	public IScanDataPoint getLastScanDataPoint() {
+		return null;
 	}
 
 	@Override
-	public IScanDataPoint getLastScanDataPoint() {
-		return null;
+	public void addScanEventObserver(IObserver anObserver) {
+		// Intentional do nothing
+	}
+
+	@Override
+	public void deleteScanEventObserver(IObserver anObserver) {
+		// Intentional do nothing
 	}
 	
 }

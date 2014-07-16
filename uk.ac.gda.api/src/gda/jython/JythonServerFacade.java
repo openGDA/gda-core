@@ -91,6 +91,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	Vector<IScanDataPointObserver> allSDPObservers = new Vector<IScanDataPointObserver>();
 	
 	Vector<ICommandThreadObserver> commandThreadObservers = new Vector<ICommandThreadObserver>();
+	
+	ObservableComponent scanEventObservers = new ObservableComponent();
 
 	String name = "";
 
@@ -270,28 +272,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		return indexNumberInJythonServer;
 	}
 
-	/**
-	 * @param scriptName
-	 *            String
-	 * @param sourceName
-	 *            String
-	 * @see Jython#runCommand(String, String)
-	 */
 	public void runScript(String scriptName, String sourceName) {
 		// open up a new file
 		File file = new File(locateScript(scriptName));
 		runScript(file, sourceName);
 	}
 
-	/**
-	 * @param scriptName
-	 *            String
-	 * @param sourceName
-	 *            String
-	 * @param scan
-	 * @throws Exception 
-	 * @see Jython#runCommand(String, String)
-	 */
 	public void runScript(String scriptName, String sourceName, Scan scan) throws Exception {
 		// open up a new file
 		String filePath = locateScript(scriptName);
@@ -301,13 +287,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		runScript(file, sourceName, scan);
 	}
 
-	/**
-	 * @param script
-	 *            File
-	 * @param sourceName
-	 *            String
-	 * @see Jython#runCommand(String,String)
-	 */
 	@Override
 	public void runScript(File script, String sourceName) {
 		try {
@@ -325,15 +304,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		}
 	}
 
-	/**
-	 * @param script
-	 *            File
-	 * @param sourceName
-	 *            String
-	 * @param scan
-	 * @throws Exception 
-	 * @see Jython#runCommand(String,String)
-	 */
 	public void runScript(File script, String sourceName, Scan scan) throws Exception {
 		// slurp!
 		String commands = slurp(script);
@@ -346,13 +316,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		}
 	}
 
-	/**
-	 * @param script
-	 *            {@link InputStream}
-	 * @param sourceName
-	 *            String
-	 * @see Jython#runCommand(String,String)
-	 */
 	public void runScript(InputStream script, String sourceName) {
 		// slurp!
 		String commands = slurp(script);
@@ -363,14 +326,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		}
 	}
 
-	/**
-	 * @param script
-	 *            {@link InputStream}
-	 * @param sourceName
-	 *            String
-	 * @param scan
-	 * @see Jython#runCommand(String,String)
-	 */
 	public void runScript(InputStream script, String sourceName, Scan scan) {
 		// slurp!
 		String commands = slurp(script);
@@ -381,88 +336,51 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		}
 	}
 
-	/**
-	 * @param command
-	 *            String
-	 * @see Jython#runCommand(String,String)
-	 */
 	@Override
 	public void runCommand(String command) {
 		commandServer.runCommand(command, name);
 	}
 
-	/**
-	 * @param command
-	 *            String
-	 * @param scanObserver
-	 *            String
-	 * @see Jython#runCommand(String, String,String)
-	 */
 	@Override
 	public void runCommand(String command, String scanObserver) {
 		commandServer.runCommand(command, scanObserver, name);
 	}
 
-	/**
-	 * @param command
-	 *            String commandserver
-	 * @return String
-	 * @see Jython#evaluateCommand(String,String)
-	 */
 	@Override
 	public String evaluateCommand(String command) {
 		return commandServer.evaluateCommand(command, name);
 	}
 
-	/**
-	 * @see Jython#requestFinishEarly
-	 */
 	@Override
 	public void requestFinishEarly() {
 		commandServer.requestFinishEarly(name);
 	}
-
 
 	@Override
 	public boolean isFinishEarlyRequested() {
 		return commandServer.isFinishEarlyRequested();
 	}
 	
-	/**
-	 * @see Jython#pauseCurrentScan
-	 */
 	@Override
 	public void pauseCurrentScan() {
 		commandServer.pauseCurrentScan(name);
 	}
 
-	/**
-	 * @see Jython#resumeCurrentScan
-	 */
 	@Override
 	public void resumeCurrentScan() {
 		commandServer.resumeCurrentScan(name);
 	}
 
-	/**
-	 * @see Jython#restartCurrentScan(String)
-	 */
 	@Override
 	public void restartCurrentScan() {
 		commandServer.restartCurrentScan(name);
 	}
 
-	/**
-	 * @see Jython#beamlineHalt(String)
-	 */
 	@Override
 	public void beamlineHalt(){
 		commandServer.beamlineHalt(name);
 	}
 	
-	/**
-	 * @see Jython#abortCommands(String)
-	 */
 	@Override
 	public void abortCommands(){
 		commandServer.abortCommands(name);
@@ -472,17 +390,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		myIObservers.notifyIObservers(theObserved, changeCode);
 	}
 
-	/**
-	 * @see Jython#pauseCurrentScript
-	 */
 	@Override
 	public void pauseCurrentScript() {
 		commandServer.pauseCurrentScript(name);
 	}
 
-	/**
-	 * @see Jython#resumeCurrentScript
-	 */
 	@Override
 	public void resumeCurrentScript() {
 		commandServer.resumeCurrentScript(name);
@@ -568,50 +480,25 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		}
 	}
 
-	/**
-	 * @param command
-	 *            String
-	 * @param source
-	 *            String
-	 * @return boolean
-	 * @see Jython#runsource
-	 */
 	@Override
 	public boolean runsource(String command, String source) {
 		return commandServer.runsource(command, source, name);
 	}
 
-	/**
-	 * @see Jython#getScriptStatus
-	 * @return int
-	 */
 	@Override
 	public int getScriptStatus() {
 		return commandServer.getScriptStatus(name);
 	}
 
-	/**
-	 * @see Jython#setRawInput
-	 * @param theRawInput
-	 */
 	public void setRawInput(String theRawInput) {
 		commandServer.setRawInput(theRawInput, name);
 	}
 
-	/**
-	 * @see Jython#getScanStatus
-	 * @return int
-	 */
 	@Override
 	public int getScanStatus() {
 		return commandServer.getScanStatus(name);
 	}
 
-	/**
-	 * @see Jython#setScriptStatus
-	 * @param status
-	 *            int
-	 */
 	@Override
 	public void setScriptStatus(int status) {
 		commandServer.setScriptStatus(status, name);
@@ -663,21 +550,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		allSDPObservers.removeAllElements();
 	}
 
-	/**
-	 * @param objectName
-	 * @param obj
-	 * @see Jython#placeInJythonNamespace(String, Object,String)
-	 */
 	@Override
 	public void placeInJythonNamespace(String objectName, Object obj) {
 		commandServer.placeInJythonNamespace(objectName, obj, name);
 	}
 
-	/**
-	 * @param objectName
-	 * @return Object
-	 * @see Jython#getFromJythonNamespace(String,String)
-	 */
 	@Override
 	public Object getFromJythonNamespace(String objectName) {
 		try {
@@ -706,6 +583,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		text = "print\"" + text + "\"";
 		commandServer.runCommand(text, name);
 	}
+	
 	/**
 	 * Makes it easy for strings to be printed on the console and not anywhere else. Also this method fixes awkward
 	 * strings which have \n or double- quotes in them which could cause a syntax error at run time.
@@ -824,20 +702,10 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		return randomString.toString();
 	}
 
-	/**
-	 * Add a new aliased command.
-	 * 
-	 * @param commandName
-	 */
 	public void addAliasedCommand(String commandName) {
 		commandServer.addAliasedCommand(commandName, name);
 	}
 
-	/**
-	 * Add a new vararg aliased command
-	 * 
-	 * @param commandName
-	 */
 	public void addAliasedVarargCommand(String commandName) {
 		commandServer.addAliasedVarargCommand(commandName, name);
 	}
@@ -852,10 +720,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		commandServer.returnBaton(name);
 	}
 
-	/**
-	 * @param index
-	 * @see gda.jython.Jython#assignBaton(String,int)
-	 */
 	@Override
 	public void assignBaton(int index) {
 		commandServer.assignBaton(name, index);
@@ -949,10 +813,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		return commandServer.isBatonHeld();
 	}
 
-	/**
-	 * @param message
-	 * @see gda.jython.Jython#sendMessage(String,String)
-	 */
 	@Override
 	public void sendMessage(String message) {
 		commandServer.sendMessage(name, message);
@@ -1001,6 +861,16 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		}
 	}
 
+	@Override
+	public void addScanEventObserver(IObserver anObserver) {
+		scanEventObservers.addIObserver(anObserver);
+	}
+
+	@Override
+	public void deleteScanEventObserver(IObserver anObserver) {
+		scanEventObservers.deleteIObserver(anObserver);
+	}
+	
 	@Override
 	public void addCommandThreadObserver(ICommandThreadObserver anObserver) {
 		commandThreadObservers.add(anObserver);
@@ -1110,5 +980,4 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public void exec(String s) throws PyException {
 		commandServer.exec(s);
 	}
-	
 }

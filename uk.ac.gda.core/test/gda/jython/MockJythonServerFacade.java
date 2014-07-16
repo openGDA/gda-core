@@ -200,6 +200,8 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	public void addBatonChangedObserver(IObserver anObserver) {
 		
 	}
+	
+	
 
 	@Override
 	public boolean amIBatonHolder() {
@@ -328,5 +330,13 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	public String locateScript(String scriptToRun) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void addScanEventObserver(IObserver anObserver) {
+	}
+
+	@Override
+	public void deleteScanEventObserver(IObserver anObserver) {
 	}	
 }
