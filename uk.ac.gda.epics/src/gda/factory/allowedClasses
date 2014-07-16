@@ -28,7 +28,6 @@ gda.gui.mca.AdcPanel
 gda.gui.mca.TcaPanel
 gda.gui.beans.PVScannableBean
 gda.gui.beans.PVBean
-gda.factory.EpicsDeviceObjectCreator
 gda.hrpd.data.MacDataWriter
 gda.hrpd.scan.RobotScan2D
 gda.hrpd.scan.StageScan
