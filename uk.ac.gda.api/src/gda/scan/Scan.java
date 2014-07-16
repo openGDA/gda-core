@@ -305,4 +305,6 @@ public interface Scan extends Serializable {
 	 * @return The {@link ScanStatus}
 	 */
 	public ScanStatus getStatus();
+
+	public ScanInformation getScanInformation();
 }

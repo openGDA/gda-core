@@ -25,6 +25,7 @@ import gda.gui.scanplot.ScanDataPointHandlerTester;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.rcp.GDAClientActivator;
 import gda.rcp.util.UIScanDataPointEventService;
@@ -206,7 +207,6 @@ public class LivePlotViewPluginTest implements IScanDataPointProvider, ScanDataP
 		comp.deleteIObserver(anObserver);
 	}
 
-	@Override
 	public void update(Object dataSource, Object data) {
 		if( data instanceof IScanDataPoint)
 			lastScanDataPoint = (IScanDataPoint)data;
@@ -221,5 +221,13 @@ public class LivePlotViewPluginTest implements IScanDataPointProvider, ScanDataP
 	@Override
 	public void handlePoint(IScanDataPoint point) {
 		update(this, point);
+	}
+
+	@Override
+	public void addScanEventObserver(IObserver anObserver) {
+	}
+
+	@Override
+	public void deleteScanEventObserver(IObserver anObserver) {
 	}	
 }

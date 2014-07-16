@@ -31,7 +31,7 @@ import gda.rcp.views.dashboard.DashboardView;
 import gda.rcp.views.dashboard.SimpleScannableObject;
 import gda.scan.IScanDataPoint;
 import gda.scan.Scan;
-import gda.scan.ScanCompletedEvent;
+import gda.scan.ScanEvent;
 import gda.scan.ScanDataPointFormatter;
 import gda.util.PropertyUtils;
 
@@ -381,16 +381,18 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 				default:
 					JythonControlsFactory.disableUIControls();
 			}
-		} else if (theObserved instanceof JythonServerFacade && changeCode instanceof ScanCompletedEvent) {
-			// BEEP to info users scan completed.
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				
-				@Override
-				public void run() {
-					logger.debug("======= system beep =======");
-					PlatformUI.getWorkbench().getDisplay().beep();
-				}
-			});
+		} else if (theObserved instanceof JythonServerFacade && changeCode instanceof ScanEvent) {
+			if (((ScanEvent) changeCode).getType() == ScanEvent.EventType.FINISHED) {
+				// BEEP to info users scan has finished.
+				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						logger.debug("======= system beep =======");
+						PlatformUI.getWorkbench().getDisplay().beep();
+					}
+				});
+			}
 		} else if (changeCode instanceof String) {
 			String message = (String) changeCode;
 

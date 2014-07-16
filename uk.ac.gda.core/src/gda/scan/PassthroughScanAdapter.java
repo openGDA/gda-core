@@ -192,4 +192,9 @@ public class PassthroughScanAdapter implements NestableScan {
 		delegate.setStatus(status);
 	}
 
+	@Override
+	public ScanInformation getScanInformation() {
+		return delegate.getScanInformation();
+	}
+
 }

@@ -31,7 +31,7 @@ import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.rcp.views.GdaImages;
 import gda.scan.Scan;
-import gda.scan.ScanCompletedEvent;
+import gda.scan.ScanEvent;
 
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.jface.action.Action;
@@ -512,7 +512,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 						} else if (changeCode instanceof JythonServerStatus) {
 							updateScanStatus(scanStatus);
 							updateScriptStatus(scriptStatus);
-						} else if (changeCode instanceof ScanCompletedEvent) {
+						} else if (changeCode instanceof ScanEvent) {
 							updateScanStatus(scanStatus);
 							updateScriptStatus(scriptStatus);
 						} else if (changeCode instanceof Scan.ScanStatus) {

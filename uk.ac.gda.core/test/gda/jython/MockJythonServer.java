@@ -43,7 +43,7 @@ public class MockJythonServer implements IJythonServerNotifer, ICurrentScanInfor
 	public void notifyServer(Object source, Object data) {
 		if( data instanceof ScanDataPoint){
 			((ScanDataPoint)data).setCreatorPanelName(scanObserverName);
-			InterfaceProvider.getScanDataPointProvider().update(source, data);
+			InterfaceProvider.getJythonServerNotifer().notifyServer(source, data);
 		}
 	}
 
@@ -55,7 +55,7 @@ public class MockJythonServer implements IJythonServerNotifer, ICurrentScanInfor
 
 	@Override
 	public ScanInformation getCurrentScanInformation() {
-		return JythonServer.getScanInformation(currentScan);
+		return currentScan.getScanInformation();
 	}
 
 	/**
