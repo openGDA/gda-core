@@ -177,18 +177,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			controller.caput(positionDirectionChnl, positionDirection);
 			controller.caput(gateStartChnl, startDeg);
 			controller.caput(gateWidthChnl, width);
-			controller.caputWait(pulseStepChnl, stepDeg);
-			logger.debug("Time before final zebra set with a wait");
+			controller.caput(pulseStepChnl, stepDeg);
+			logger.debug("Time after final zebra set");
 			
-			// now get the readbacks. These will be used when calculating the real energy of each step in the scan
-			logger.debug("Time before zebra readbacks");
-			startReadback_deg = controller.cagetDouble(startReadback_deg_Chnl);
-			// double startReadback_counts =  controller.cagetDouble(startReadback_counts_Chnl) / 4;
-			// double stepSize_deg = controller.cagetDouble(stepSize_deg_Chnl) / 4;
-			stepSize_counts = controller.cagetDouble(stepSizeReadback_counts_Chnl);
-			width_deg =controller.cagetDouble(widthReadback_deg_Chnl);
-			width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
-
 			long timeAtMethodEnd = System.currentTimeMillis();
 			logger.debug("Time spent in prepareForContinuousMove = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 		} catch (DeviceException e) {
@@ -232,7 +223,18 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				}
 
 				// prepare zebra to send pulses
-				controller.caput(armChnl, 1);
+				logger.debug("Time before zebra arm with callback");
+				controller.caputWait(armChnl, 1);
+
+				// TODO test that the readbacks are correct, they should be as we do the callback on the arm put
+				// now get the readbacks. These will be used when calculating the real energy of each step in the scan
+				logger.debug("Time before zebra readbacks");
+				startReadback_deg = controller.cagetDouble(startReadback_deg_Chnl);
+				// double startReadback_counts =  controller.cagetDouble(startReadback_counts_Chnl) / 4;
+				// double stepSize_deg = controller.cagetDouble(stepSize_deg_Chnl) / 4;
+				stepSize_counts = controller.cagetDouble(stepSizeReadback_counts_Chnl);
+				width_deg =controller.cagetDouble(widthReadback_deg_Chnl);
+				width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
 
 				// do the move asynchronously to this thread
 				if (runDownOn) {
