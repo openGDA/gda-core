@@ -382,7 +382,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		logStatus.setImage(GdaImages.getImage("user_gray.png"));
 		manager.add(logStatus);
 
-		final LinkContributionItem batonStatus = new LinkContributionItem("uk.ac.gda.baton.status");
+		final LinkContributionItem batonStatus = new LinkContributionItem("uk.ac.gda.baton.status",20);
 		batonStatus.setToolTipText("Double click status to bring up baton manager.");
 		batonStatus.setText("GDA-Baton");
 		manager.add(batonStatus);
@@ -399,10 +399,10 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			}
 		});
 
-		final StatusLineContributionItem scanStatus = new StatusLineContributionItem("GDA-ScanStatus", true, 30);
+		final StatusLineContributionItem scanStatus = new StatusLineContributionItem("GDA-ScanStatus", true, 50);
 		manager.add(scanStatus);
 
-		final StatusLineContributionItem scriptStatus = new StatusLineContributionItem("GDA-ScriptStatus", true, 30);
+		final StatusLineContributionItem scriptStatus = new StatusLineContributionItem("GDA-ScriptStatus", true, 20);
 		manager.add(scriptStatus);
 
 		/*
@@ -411,7 +411,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		Queue queue = CommandQueueViewFactory.getQueue();
 		final Processor processor = CommandQueueViewFactory.getProcessor();
 		if (queue != null && processor != null) {
-			final LinkContributionItem queueStatus = new LinkContributionItem("uk.ac.gda.queue.status");
+			final LinkContributionItem queueStatus = new LinkContributionItem("uk.ac.gda.queue.status",20);
 			queueStatus.setToolTipText("Double click status to bring up command queue.");
 			queueStatus.setText("GDA-QueueStatus");
 			manager.add(queueStatus);
@@ -510,13 +510,14 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 						} else if (changeCode instanceof BatonLeaseRenewRequest) {
 							InterfaceProvider.getBatonStateProvider().amIBatonHolder();
 						} else if (changeCode instanceof JythonServerStatus) {
-							updateScanStatus(scanStatus);
+//							updateScanStatus(scanStatus);
 							updateScriptStatus(scriptStatus);
 						} else if (changeCode instanceof ScanEvent) {
-							updateScanStatus(scanStatus);
+//							updateScanStatus(scanStatus);
+							updateScanDetails(scanStatus,(ScanEvent)changeCode);
 							updateScriptStatus(scriptStatus);
 						} else if (changeCode instanceof Scan.ScanStatus) {
-							updateScanStatus(scanStatus);
+//							updateScanStatus(scanStatus);
 							updateScriptStatus(scriptStatus);
 						}
 					}
@@ -550,6 +551,33 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		});
 	}
 
+	private void updateScanDetails(StatusLineContributionItem status, ScanEvent changeCode) {
+		String message = changeCode.toProgressString();
+		switch (changeCode.getLatestStatus()) {
+		case COMPLETED_AFTER_FAILURE:
+		case COMPLETED_AFTER_STOP:
+		case COMPLETED_EARLY:
+			setStatusLineText(status, message, "control_stop_blue.png");
+			break;
+		case PAUSED:
+			setStatusLineText(status, message, "control_pause_blue.png");
+			break;
+		case RUNNING:
+			setStatusLineText(status, message, "computer_go.png");
+			break;
+		case FINISHING_EARLY:
+		case TIDYING_UP_AFTER_FAILURE:
+		case TIDYING_UP_AFTER_STOP:
+			setStatusLineText(status, message, null);
+			break;
+		case COMPLETED_OKAY:
+		case NOTSTARTED:
+		default:
+			setStatusLineText(status, "No Scan running", null);
+			break;
+		}
+	}
+	
 	private void updateScanStatus(StatusLineContributionItem status) {
 		final int scan = InterfaceProvider.getScanStatusHolder().getScanStatus();
 		updateStatus(status, scan, "Scan");

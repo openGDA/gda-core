@@ -50,13 +50,135 @@ public class ScanEvent implements Serializable {
 	private ScanStatus latestStatus;
 	private int currentPointNumber;
 	private EventType type;
-	
+
 	public ScanEvent(EventType type, ScanInformation latestInformation, ScanStatus latestStatus, int currentPointNumber) {
 		super();
-		this.type = type;								// why are we sending this event
-		this.latestInformation = latestInformation;		// static info about the scan
-		this.latestStatus = latestStatus;				// current status
-		this.currentPointNumber = currentPointNumber;	// current point number
+		this.type = type; // why are we sending this event
+		this.latestInformation = latestInformation; // static info about the scan
+		this.latestStatus = latestStatus; // current status
+		this.currentPointNumber = currentPointNumber; // current point number
+	}
+
+	@Override
+	public String toString() {
+		return type.toString() + " event from scan " + latestInformation.getScanNumber();
+	}
+
+	/**
+	 * For the ApplicationActionBarAdvisor
+	 * 
+	 * @return String
+	 */
+	public String toProgressString() {
+		String output = "";
+		switch (latestStatus) {
+		case COMPLETED_AFTER_FAILURE:
+			output = getScanCompletedMessagePrefix() + "failed.";
+			break;
+		case COMPLETED_AFTER_STOP:
+			output = getScanCompletedMessagePrefix() + " was aborted.";
+			break;
+		case COMPLETED_EARLY:
+			output = getScanCompletedMessagePrefix() + " finished early.";
+			break;
+		case COMPLETED_OKAY:
+			output = getScanCompletedMessagePrefix() + " complete.";
+			break;
+		case FINISHING_EARLY:
+			output = addScanRunningOutput();
+			output += " FINISHING";
+			break;
+		case PAUSED:
+			output = addScanRunningOutput();
+			output += " PAUSED";
+			break;
+		case TIDYING_UP_AFTER_FAILURE:
+			output = addScanRunningOutput();
+			output += " ERROR";
+			break;
+		case TIDYING_UP_AFTER_STOP:
+			output = addScanRunningOutput();
+			output += " ABORTING";
+			break;
+		default:
+			output = addScanRunningOutput();
+			break;
+		}
+		return output;
+	}
+
+	private String getScanCompletedMessagePrefix() {
+		return "No Scan running. Last scan (#" + latestInformation.getScanNumber() + ")";
+	}
+
+	private String addScanRunningOutput() {
+		String output;
+		output = "Scan running (" + (currentPointNumber + 1) + "/" + latestInformation.getNumberOfPoints() + ")";
+		output = addDimensionToProgressString(output);
+		return output;
+	}
+
+	private String addDimensionToProgressString(String output) {
+		if (latestInformation.getDimensions().length > 1) {
+			output += " " + latestInformation.getDimensions().length + "D";
+		}
+		return output;
+	}
+
+	/**
+	 * For the Command Queue progress bar
+	 * 
+	 * @return String
+	 */
+	public String toShortProgressString() {
+		String output = "";
+		switch (type) {
+		case FINISHED:
+			switch (latestStatus) {
+			case COMPLETED_AFTER_FAILURE:
+				output = "failed.";
+				break;
+			case COMPLETED_AFTER_STOP:
+				output = "aborted.";
+				break;
+			case COMPLETED_EARLY:
+				output = "finished early.";
+				break;
+			case COMPLETED_OKAY:
+				output = "complete.";
+				break;
+			default:
+				break;
+			}
+			break;
+		case STARTED:
+			output = "running";
+			break;
+		case UPDATED:
+			output = "(" + (currentPointNumber + 1) + "/" + latestInformation.getNumberOfPoints() + ")";
+			output = addDimensionToProgressString(output);
+			switch (latestStatus) {
+			case FINISHING_EARLY:
+				output += " FINISHING";
+				break;
+			case PAUSED:
+				output += " PAUSED";
+				break;
+			case TIDYING_UP_AFTER_FAILURE:
+				output += " ERROR";
+				break;
+			case TIDYING_UP_AFTER_STOP:
+				output += " ABORTING";
+				break;
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+
+		}
+		return output;
 	}
 
 	public ScanInformation getLatestInformation() {
@@ -70,7 +192,7 @@ public class ScanEvent implements Serializable {
 	public int getCurrentPointNumber() {
 		return currentPointNumber;
 	}
-	
+
 	public EventType getType() {
 		return type;
 	}

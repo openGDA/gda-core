@@ -446,7 +446,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				}
 				
 				setPointPositionInLine((step == (numberSteps - 1)) ? PointPositionInLine.LAST : PointPositionInLine.MIDDLE);
-				
+			 
 				if (getChild() == null) {
 					callAtPointStartHooks();
 					// make all these increments

@@ -45,7 +45,7 @@ public class PauseScanHandler extends AbstractHandler {
 			boolean scriptRunning = InterfaceProvider.getScriptController().getScriptStatus() == Jython.RUNNING;
 			boolean scanPaused = InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.PAUSED;
 			boolean scriptPaused = InterfaceProvider.getScriptController().getScriptStatus() == Jython.PAUSED;
-			boolean scanIdle = InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.PAUSED;
+			boolean scanIdle =   InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE;
 
 			boolean somethingPaused = false;
 
@@ -72,7 +72,7 @@ public class PauseScanHandler extends AbstractHandler {
 
 			}
 
-			return !somethingPaused;
+			return somethingPaused;
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);
 		}
