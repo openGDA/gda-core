@@ -22,6 +22,7 @@ import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.Queue;
 import gda.configuration.properties.LocalProperties;
+import gda.jython.IJythonServerStatusObserver;
 import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerStatus;
@@ -377,12 +378,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	@Override
 	protected void fillStatusLine(final IStatusLineManager manager) {
 
-		final StatusLineContributionItem logStatus = new StatusLineContributionItem("GDA-LoggedInUser", true, 20);
+		final StatusLineContributionItem logStatus = new StatusLineContributionItem("GDA-LoggedInUser", true, 15);
 		logStatus.setText(UserAuthentication.getUsername());
 		logStatus.setImage(GdaImages.getImage("user_gray.png"));
 		manager.add(logStatus);
 
-		final LinkContributionItem batonStatus = new LinkContributionItem("uk.ac.gda.baton.status",20);
+		final LinkContributionItem batonStatus = new LinkContributionItem("uk.ac.gda.baton.status",18);
 		batonStatus.setToolTipText("Double click status to bring up baton manager.");
 		batonStatus.setText("GDA-Baton");
 		manager.add(batonStatus);
@@ -399,7 +400,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			}
 		});
 
-		final StatusLineContributionItem scanStatus = new StatusLineContributionItem("GDA-ScanStatus", true, 50);
+		final StatusLineContributionItem scanStatus = new StatusLineContributionItem("GDA-ScanStatus", true, 55);
 		manager.add(scanStatus);
 
 		final StatusLineContributionItem scriptStatus = new StatusLineContributionItem("GDA-ScriptStatus", true, 20);
@@ -499,7 +500,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			}
 		}
 
-		final IObserver serverObserver = new IObserver() {
+		final IJythonServerStatusObserver serverObserver = new IJythonServerStatusObserver() {
 			@Override
 			public void update(Object theObserved, final Object changeCode) {
 				Display.getDefault().asyncExec(new Runnable() {
@@ -529,6 +530,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// If throw exception from fillStatusLine(...) whole client fails.
 		try {
 			InterfaceProvider.getJSFObserver().addIObserver(serverObserver);
+			InterfaceProvider.getScanDataPointProvider().addScanEventObserver(serverObserver);
 			updateBatonStatus(batonStatus);
 			updateScanStatus(scanStatus);
 			updateScriptStatus(scriptStatus);
@@ -562,6 +564,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		case PAUSED:
 			setStatusLineText(status, message, "control_pause_blue.png");
 			break;
+		case NOTSTARTED:
 		case RUNNING:
 			setStatusLineText(status, message, "computer_go.png");
 			break;
@@ -571,7 +574,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			setStatusLineText(status, message, null);
 			break;
 		case COMPLETED_OKAY:
-		case NOTSTARTED:
 		default:
 			setStatusLineText(status, "No Scan running", null);
 			break;

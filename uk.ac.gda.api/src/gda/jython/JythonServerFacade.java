@@ -38,6 +38,7 @@ import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
 import gda.scan.Scan;
+import gda.scan.ScanEvent;
 import gda.util.LibGdaCommon;
 
 import java.io.BufferedReader;
@@ -470,6 +471,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				for (ICommandThreadObserver observer: commandThreadObservers) {
 					observer.update(this,data);
 				}
+			} else if (data instanceof ScanEvent){
+				scanEventObservers.notifyIObservers(this, data);
 			}
 			// fan out all other messages
 			else {

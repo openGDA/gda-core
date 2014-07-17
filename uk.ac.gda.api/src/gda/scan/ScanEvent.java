@@ -79,7 +79,7 @@ public class ScanEvent implements Serializable {
 			output = getScanCompletedMessagePrefix() + " was aborted.";
 			break;
 		case COMPLETED_EARLY:
-			output = getScanCompletedMessagePrefix() + " finished early.";
+			output = getScanCompletedMessagePrefix() + " was fast forwarded.";
 			break;
 		case COMPLETED_OKAY:
 			output = getScanCompletedMessagePrefix() + " complete.";
@@ -131,54 +131,7 @@ public class ScanEvent implements Serializable {
 	 * @return String
 	 */
 	public String toShortProgressString() {
-		String output = "";
-		switch (type) {
-		case FINISHED:
-			switch (latestStatus) {
-			case COMPLETED_AFTER_FAILURE:
-				output = "failed.";
-				break;
-			case COMPLETED_AFTER_STOP:
-				output = "aborted.";
-				break;
-			case COMPLETED_EARLY:
-				output = "finished early.";
-				break;
-			case COMPLETED_OKAY:
-				output = "complete.";
-				break;
-			default:
-				break;
-			}
-			break;
-		case STARTED:
-			output = "running";
-			break;
-		case UPDATED:
-			output = "(" + (currentPointNumber + 1) + "/" + latestInformation.getNumberOfPoints() + ")";
-			output = addDimensionToProgressString(output);
-			switch (latestStatus) {
-			case FINISHING_EARLY:
-				output += " FINISHING";
-				break;
-			case PAUSED:
-				output += " PAUSED";
-				break;
-			case TIDYING_UP_AFTER_FAILURE:
-				output += " ERROR";
-				break;
-			case TIDYING_UP_AFTER_STOP:
-				output += " ABORTING";
-				break;
-			default:
-				break;
-			}
-			break;
-		default:
-			break;
-
-		}
-		return output;
+		return "Scan " + latestInformation.getScanNumber() + " " + latestStatus.toString();
 	}
 
 	public ScanInformation getLatestInformation() {

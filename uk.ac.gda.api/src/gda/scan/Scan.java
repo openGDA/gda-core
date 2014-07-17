@@ -37,7 +37,7 @@ public interface Scan extends Serializable {
 	public enum ScanStatus {
 		
 		// Before runScan()
-		NOTSTARTED {
+		NOTSTARTED ("Not started"){
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
 				return EnumSet.of(RUNNING);
@@ -45,7 +45,7 @@ public interface Scan extends Serializable {
 		},
 
 		// Entered from runScan
-		RUNNING {
+		RUNNING ("Running"){
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
 				return EnumSet.of(PAUSED, FINISHING_EARLY, TIDYING_UP_AFTER_STOP, TIDYING_UP_AFTER_FAILURE, COMPLETED_OKAY);
@@ -53,39 +53,39 @@ public interface Scan extends Serializable {
 		},
 		
 		// When the scan code has noticed the request from a static somewhere
-		PAUSED {
+		PAUSED ("Paused") {
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
 				return EnumSet.of(RUNNING,FINISHING_EARLY, TIDYING_UP_AFTER_STOP);
 			}
 		},  
-		FINISHING_EARLY {
+		FINISHING_EARLY ("Finishing") {
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
 				return EnumSet.of(COMPLETED_EARLY);
 			}
 		},  // When a bit of the code has noticed the request from a static somewhere
 		
-		TIDYING_UP_AFTER_STOP {
+		TIDYING_UP_AFTER_STOP ("Stopping") {
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
 				return EnumSet.of(TIDYING_UP_AFTER_STOP, COMPLETED_AFTER_STOP);
 			}
 		},
-		TIDYING_UP_AFTER_FAILURE {
+		TIDYING_UP_AFTER_FAILURE ("Failing") {
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
 				return EnumSet.of(TIDYING_UP_AFTER_FAILURE, COMPLETED_AFTER_FAILURE);
 			}
 		},
 		
-		COMPLETED_OKAY,
+		COMPLETED_OKAY ("Complete"),
 		
-		COMPLETED_EARLY,
+		COMPLETED_EARLY ("Completed early"),
 		
-		COMPLETED_AFTER_STOP,
+		COMPLETED_AFTER_STOP ("Aborted"),
 		
-		COMPLETED_AFTER_FAILURE;
+		COMPLETED_AFTER_FAILURE ("Failed");
 		
 		public Set<ScanStatus> possibleFollowUps() {
 			return EnumSet.noneOf(ScanStatus.class);
@@ -115,6 +115,17 @@ public interface Scan extends Serializable {
 			}
 		}
 		
+		private final String string;
+
+		private ScanStatus(final String text) {
+			this.string = text;
+		}
+
+		@Override
+		public String toString() {
+			return string;
+		}
+
 	}
 	
 	/**
