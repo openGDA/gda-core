@@ -11,6 +11,6 @@ Export-Package: org.opengda.detector.electronanalyser.model.regiondefinition.api
  org.opengda.detector.electronanalyser.model.regiondefinition.impl,
  org.opengda.detector.electronanalyser.model.regiondefinition.util
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.emf.ecore;visibility:=reexport;bundle-version="[2.9.1,2.9.2)",
+ org.eclipse.emf.ecore;visibility:=reexport;bundle-version="[2.9.2,2.9.3)",
  org.eclipse.emf.ecore.xmi;visibility:=reexport;bundle-version="[2.9.1,2.9.2)"
 Bundle-ActivationPolicy: lazy
