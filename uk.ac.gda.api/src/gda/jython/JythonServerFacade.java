@@ -511,7 +511,9 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				boolean panelUpdated = false;
 				IScanDataPoint point = (IScanDataPoint) data;
 				lastScanDataPoint = point;
-				for (IScanDataPointObserver observer : allSDPObservers) {
+				// Take a copy of this list as observers may deregsiter from other threads resulting a ConcurrentModificationException.
+				ArrayList<IScanDataPointObserver> allSDPObserversTempCopy = new ArrayList<IScanDataPointObserver>(allSDPObservers);
+				for (IScanDataPointObserver observer : allSDPObserversTempCopy) {
 					try {
 						observer.update(this, point);
 						panelUpdated = true;
@@ -522,9 +524,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				}
 
 				// if source of scan command named, then send the SDP to the named panel
+				
 				String panelName = point.getCreatorPanelName();
 				if (panelName != null) {
-					for (INamedScanDataPointObserver observer : namedSDPObservers) {
+					// Take a copy of this list as observers may deregsiter from other threads resulting a ConcurrentModificationException.
+					ArrayList<INamedScanDataPointObserver> namedSDPObserversTempCopy = new ArrayList<INamedScanDataPointObserver>(namedSDPObservers);
+					for (INamedScanDataPointObserver observer : namedSDPObserversTempCopy) {
 						String name = observer.getName();
 						if (name.contains(panelName)) {
 							try {

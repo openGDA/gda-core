@@ -91,6 +91,7 @@ class ConcurrentScanWrapper(object):
         self.scanListeners = scanListeners
         self.scanListenerResults = []
         self.yaxis = None
+        self.xaxis = None
         self.dataVectorPlotNameForSecondaryScans = None
         self.lastScan=None
 
@@ -135,6 +136,8 @@ class ConcurrentScanWrapper(object):
             scan.setScanPlotSettings(self.settings)
             if self.yaxis is not None:
                 self.settings.setYAxesShown([self.yaxis])
+            if self.xaxis is not None:
+                self.settings.setXAxisName(self.xaxis)
 
         self.lastScan = scan # for later debugging
         
