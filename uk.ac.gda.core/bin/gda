@@ -630,21 +630,17 @@ where task can be:
 		plugin_locations = {}  # key=plugin name, value=list of paths where this plug can be fouund (should only be 1)
 
 		parents = []  # a list of directories whose subdirectories might be plugins
-		if self.gda_install_git_loc:
-			parents.append(self.gda_install_git_loc)
-			for repo in os.listdir(self.gda_install_git_loc):
-				pathToRepo = abspath(self.gda_install_git_loc, repo)
-				if os.path.isdir(pathToRepo):
-					parents.append(pathToRepo)
-					for repo1 in os.listdir(pathToRepo):
-						if repo1.startswith("."):
-							continue
-						child = abspath(pathToRepo, repo1)
-						if os.path.isdir(child):
-							parents.append(child)
-		subversion_plugins = abspath(self.gda_install_workspace_loc, 'plugins')
-		if os.path.isdir(subversion_plugins):
-			parents.append(subversion_plugins)
+		parents.append(self.gda_install_git_loc)
+		for repo in os.listdir(self.gda_install_git_loc):
+			pathToRepo = abspath(self.gda_install_git_loc, repo)
+			if os.path.isdir(pathToRepo):
+				parents.append(pathToRepo)
+				for repo1 in os.listdir(pathToRepo):
+					if repo1.startswith("."):
+						continue
+					child = abspath(pathToRepo, repo1)
+					if os.path.isdir(child):
+						parents.append(child)
 
 		for parent in parents:
 			for plugin in os.listdir(parent):
