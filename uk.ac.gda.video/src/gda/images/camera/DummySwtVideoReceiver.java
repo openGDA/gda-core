@@ -35,6 +35,12 @@ public class DummySwtVideoReceiver extends DummyVideoReceiverBase<ImageData>{
 		this.drawGridlines = drawGridlines;
 	}
 	
+	private boolean showBottomRight;
+	
+	public void setShowBottomRight(boolean showBottomRight) {
+		this.showBottomRight = showBottomRight;
+	}
+	
 	private Image image;
 	
 	private GC gc;
@@ -98,6 +104,18 @@ public class DummySwtVideoReceiver extends DummyVideoReceiverBase<ImageData>{
 				gc.drawLine(0, y, imageSize.width, y);
 				gc.drawText(String.format("y=%d", y), 30, y+2);
 			}
+		}
+		
+		if (showBottomRight) {
+			
+			// arrow pointing to bottom right corner
+			gc.drawLine(imageSize.width-30, imageSize.height-30, imageSize.width-10, imageSize.height-10);
+			gc.setBackground(gridLineColour);
+			gc.fillPolygon(new int[] {imageSize.width-5, imageSize.height-20, imageSize.width-20, imageSize.height-5, imageSize.width-5, imageSize.height-5});
+			
+			// coordinates of bottom right
+			gc.setBackground(backgroundColour);
+			gc.drawText(String.format("(%d, %d)", imageSize.width, imageSize.height), imageSize.width-80, imageSize.height-50);
 		}
 		
 		return image.getImageData();
