@@ -156,7 +156,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	// values useful for plotting tools
 	private List<IScanStepId> stepIds = new Vector<IScanStepId>();
-	private int[] scanDimensions = new int[0];
 	private int numberOfChildScans = 0;
 	private ScanPlotSettings scanPlotSettings;
 	/**
@@ -762,12 +761,12 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public int[] getScanDimensions() {
-		return scanDimensions;
+		return scanInfo.getDimensions();
 	}
 
 	@Override
 	public void setScanDimensions(int[] scanDimensions) {
-		this.scanDimensions = scanDimensions;
+		scanInfo.setDimensions(scanDimensions);
 	}
 
 	/**

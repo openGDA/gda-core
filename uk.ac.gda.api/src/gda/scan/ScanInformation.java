@@ -18,12 +18,13 @@
 
 package gda.scan;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Object that provides information about a scan, but not its data.
  */
-public class ScanInformation {
+public class ScanInformation implements Serializable{
 
 	private int[] dimensions;
 	private int scanNumber;

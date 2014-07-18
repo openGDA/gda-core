@@ -647,8 +647,11 @@ public abstract class ScanBase implements NestableScan {
 	public ScanInformation getScanInformation() {
 		ScanInformation currentInfo = new ScanInformation();
 		currentInfo.setDimensions(getDimensions());
-		currentInfo.setScanNumber(scanNumber);
-		currentInfo.setFilename(getDataWriter().getCurrentFileName());
+		// might not be defined at start of scan
+		if (scanDataPointPipeline != null || manuallySetDataWriter != null) {
+			currentInfo.setScanNumber(scanNumber);
+			currentInfo.setFilename(getDataWriter().getCurrentFileName());
+		}
 		currentInfo.setInstrument(instrument);
 		currentInfo.setNumberOfPoints(getTotalNumberOfPoints()); // TODO is this correct??
 		String[] scannables = ScannableUtils.getScannableNames(getScannables()).toArray(new String[] {});
