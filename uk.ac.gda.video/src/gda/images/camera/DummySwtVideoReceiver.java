@@ -41,6 +41,8 @@ public class DummySwtVideoReceiver extends DummyVideoReceiverBase<ImageData>{
 	
 	private Color backgroundColour;
 	
+	private Color gridLineColour;
+	
 	private Color circleColour;
 	
 	@Override
@@ -50,6 +52,7 @@ public class DummySwtVideoReceiver extends DummyVideoReceiverBase<ImageData>{
 		gc = new GC(image);
 		
 		backgroundColour = display.getSystemColor(SWT.COLOR_GRAY);
+		gridLineColour = display.getSystemColor(SWT.COLOR_BLACK);
 		circleColour = display.getSystemColor(SWT.COLOR_RED);
 		
 		gc.setBackground(backgroundColour);
@@ -83,6 +86,7 @@ public class DummySwtVideoReceiver extends DummyVideoReceiverBase<ImageData>{
 		
 		if (drawGridlines) {
 			
+			gc.setForeground(gridLineColour);
 			gc.setBackground(backgroundColour);
 			
 			for (int x=0; x<=imageSize.width; x+=100) {
