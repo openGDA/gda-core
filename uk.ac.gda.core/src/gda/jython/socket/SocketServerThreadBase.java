@@ -18,28 +18,29 @@
 
 package gda.jython.socket;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.net.Socket;
 
-public class ServerListenThread extends ServerListenThreadBase {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-	private BufferedReader in;
-	private PrintWriter out;
+public abstract class SocketServerThreadBase extends ServerThread implements SessionClosedCallback {
 
-	public ServerListenThread(InputStream in, PrintWriter out, SessionClosedCallback sessionClosedCallback) {
-		super(sessionClosedCallback);
-		this.in = new BufferedReader(new InputStreamReader(in));
-		this.out = out;
+	private static final Logger logger = LoggerFactory.getLogger(SocketServerThreadBase.class);
+
+	protected Socket socket;
+
+	protected SocketServerThreadBase(Socket socket) {
+		this.socket = socket;
 	}
 
 	@Override
-	protected String readLine(String prompt) throws IOException {
-		out.print(prompt);
-		out.flush();
-		return in.readLine();
+	public void sessionClosed() {
+		try {
+			socket.close();
+		} catch (IOException ioe) {
+			logger.error("Unable to close socket", ioe);
+		}
 	}
 
 }

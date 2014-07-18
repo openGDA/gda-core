@@ -25,9 +25,11 @@ import java.net.Socket;
 
 import nvt4j.impl.Terminal;
 
-public class SocketServerWithTelnetNegotiationThread extends ServerThread {
+public class SocketServerWithTelnetNegotiationThread extends SocketServerThreadBase {
 
 	public SocketServerWithTelnetNegotiationThread(Socket socket) throws IOException {
+		
+		super(socket);
 		
 		setUseJline(true);
 		

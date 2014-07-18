@@ -18,28 +18,8 @@
 
 package gda.jython.socket;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+public interface SessionClosedCallback {
 
-public class ServerListenThread extends ServerListenThreadBase {
-
-	private BufferedReader in;
-	private PrintWriter out;
-
-	public ServerListenThread(InputStream in, PrintWriter out, SessionClosedCallback sessionClosedCallback) {
-		super(sessionClosedCallback);
-		this.in = new BufferedReader(new InputStreamReader(in));
-		this.out = out;
-	}
-
-	@Override
-	protected String readLine(String prompt) throws IOException {
-		out.print(prompt);
-		out.flush();
-		return in.readLine();
-	}
+	public void sessionClosed();
 
 }

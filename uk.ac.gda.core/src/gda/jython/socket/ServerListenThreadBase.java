@@ -34,6 +34,12 @@ public abstract class ServerListenThreadBase extends Thread {
 
 	JythonServerFacade command_server = JythonServerFacade.getInstance();
 
+	private SessionClosedCallback sessionClosedCallback;
+
+	protected ServerListenThreadBase(SessionClosedCallback sessionClosedCallback) {
+		this.sessionClosedCallback = sessionClosedCallback;
+	}
+
 	@Override
 	public void run() {
 		boolean needMore = false;
@@ -56,6 +62,8 @@ public abstract class ServerListenThreadBase extends Thread {
 		} catch (IOException ex) {
 			logger.error("Error while communicating with CommandServer via socket: " + ex.getMessage());
 		}
+		
+		sessionClosedCallback.sessionClosed();
 	}
 
 	protected abstract String readLine(String prompt) throws IOException;
