@@ -66,7 +66,6 @@ public class ProcessingRunner implements Findable, Map<String, String> {
 			throw new IllegalArgumentException("need datafilepath");
 		if (backgroundfilepath == null)
 			backgroundfilepath = "";
-		
 		if (detectorInfo != null) {
 			environment.put("NCDREDXML", detectorInfo.getDataCalibrationReductionSetupPath());
 			environment.put("PERSISTENCEFILE", detectorInfo.getSaxsDetectorInfoPath());
