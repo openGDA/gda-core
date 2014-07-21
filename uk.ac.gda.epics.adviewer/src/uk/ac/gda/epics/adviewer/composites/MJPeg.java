@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.dawnsci.plotting.jreality.tool.ImagePositionListener;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
@@ -56,10 +57,9 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.viewer.SWT2DOverlayProvider;
 import uk.ac.gda.epics.adviewer.ADController;
-import uk.ac.gda.epics.adviewer.composites.imageviewer.ImagePositionListener;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.NewImageListener;
-import uk.ac.gda.epics.adviewer.composites.imageviewer.SWT2DOverlayProvider;
 
 public class MJPeg extends Composite {
 

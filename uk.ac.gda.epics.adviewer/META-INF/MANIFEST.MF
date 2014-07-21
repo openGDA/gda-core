@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.dawnsci.hdf5;bundle-version="1.2.0",
  org.dawnsci.io;bundle-version="1.2.0",
  org.dawnsci.plotting.services;bundle-version="1.0.0",
- uk.ac.gda.client
+ uk.ac.gda.client,
+ org.dawnsci.plotting.jreality.utils;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.draw2d,
