@@ -1719,6 +1719,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				} 
 			} catch (Exception e) {
 				// ignored
+				logger.debug(e.getMessage());
 			}
 			file.opengroup(nxDirName, nxClass);
 			file.makegroup(scannable.getName(), nxClass);
