@@ -435,7 +435,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 		this.imageMin = imageMin;
 	}
 
-	boolean connectToPlotServer = false;
+	boolean connectToPlotServer = true;
 
 	@Override
 	public boolean isConnectToPlotServer() {
