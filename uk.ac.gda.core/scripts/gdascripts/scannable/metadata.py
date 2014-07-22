@@ -58,6 +58,9 @@ class MetadataCollector(ScannableBase):
             names.append(scn.name)
         return ' '.join(names)
 
+    def getMeta(self):
+        return Finder.getInstance().find("metashop").getMetaScannables() if self.readFromNexus else self.scannables_to_read
+
     def add(self, *args):
         if self.readFromNexus:
             raise Exception("Unsupported with readFromNexus == True")
