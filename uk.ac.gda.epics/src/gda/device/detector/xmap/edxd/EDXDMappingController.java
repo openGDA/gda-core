@@ -192,9 +192,10 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		 xmap.setValueNoWait(ERASESTART  ,"",1);
 	}
 	 
-	@Override
-	public void setAquisitionTime(double collectionTime)throws DeviceException {
-	}
+//	@Override
+//	public void setAquisitionTime(double collectionTime)throws DeviceException {
+//		// TAKE NEWER VERSION OF THIS FIX (from 8.40 or master)
+//	}
 	
 	public void setCollectionMode(COLLECTION_MODES mode) throws DeviceException{
 		xmap.setValueNoWait(COLLECTIONMODE, "", mode.ordinal());
