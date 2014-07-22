@@ -20,9 +20,8 @@ package gda.data.metadata;
 
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
-import gda.jython.JythonServerStatus;
 import gda.observable.IObserver;
+import gda.scan.Scan.ScanStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +44,10 @@ public class StoredScanMetadataEntry extends StoredMetadataEntry implements IObs
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (arg instanceof JythonServerStatus) {
-			JythonServerStatus jss = (JythonServerStatus) arg;
-			logger.debug("received {}", jss);
-			boolean nowIdle = (jss.scanStatus == Jython.IDLE);
+		if (arg instanceof ScanStatus) {
+			logger.debug("scan status: {} in {}", arg, getName());
+			ScanStatus ss = (ScanStatus) arg;
+			boolean nowIdle = ss.isComplete();
 			if (scanRunning && nowIdle) {
 				setValue(resetValue);
 			}
