@@ -1658,16 +1658,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	/**
-	 * @param txtFileNameTemplate
-	 *            the txtFileNameTemplate to set
-	 */
-	public void setTxtFileNameTemplate(String txtFileNameTemplate) {
-		// TODO: below
-		throw new UnsupportedOperationException("Broken as of c4f58d0 -- Will bring back for 8.40 if used");
-		//this.txtFileNameTemplate = txtFileNameTemplate;
-	}
-
-	/**
 	 * @param nexusFileNameTemplate
 	 *            the nexusFileNameTemplate to set
 	 * @throws Exception
