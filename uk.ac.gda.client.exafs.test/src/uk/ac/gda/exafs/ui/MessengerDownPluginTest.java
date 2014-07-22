@@ -23,7 +23,6 @@ import gda.TestHelpers;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
 import gda.rcp.util.UIScanDataPointEventService;
 import gda.scan.IScanDataPoint;
@@ -101,15 +100,11 @@ public class MessengerDownPluginTest implements IScanDataPointProvider {
 	}
 
 	@Override
+	public void update(Object dataSource, Object data) {
+	}
+
+	@Override
 	public IScanDataPoint getLastScanDataPoint() {
 		return null;
-	}
-
-	@Override
-	public void addScanEventObserver(IObserver anObserver) {
-	}
-
-	@Override
-	public void deleteScanEventObserver(IObserver anObserver) {
 	}
 }
