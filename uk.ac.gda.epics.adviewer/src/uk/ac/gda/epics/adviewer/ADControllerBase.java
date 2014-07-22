@@ -163,6 +163,10 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 		return data;
 	}
 
+	/**
+	 * Sets the exposure time *and* starts a free-running acquisition.
+	 */
+	// TODO: Change name to reflect function
 	@Override
 	public void setExposure(double d) throws Exception {
 
