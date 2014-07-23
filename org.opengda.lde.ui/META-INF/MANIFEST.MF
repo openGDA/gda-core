@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.ui,
  org.opengda.lde,
  uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.epics.client,
- uk.ac.diamond.org.springframework
+ uk.ac.diamond.org.springframework,
+ uk.ac.diamond.scisoft.analysis.dataset
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
@@ -40,5 +41,13 @@ Import-Package: org.apache.commons.io,
  org.eclipse.emf.edit.ui.dnd,
  org.eclipse.search.ui,
  org.slf4j,
- org.springframework.beans.factory;version="3.2.2.RELEASE",
- uk.ac.diamond.scisoft.analysis.dataset
+ org.springframework.beans.factory;version="3.2.2.RELEASE"
+Export-Package: org.opengda.lde.ui,
+ org.opengda.lde.ui.actions,
+ org.opengda.lde.ui.dialogs,
+ org.opengda.lde.ui.jobs,
+ org.opengda.lde.ui.providers,
+ org.opengda.lde.ui.utils,
+ org.opengda.lde.ui.viewextensionfactories,
+ org.opengda.lde.ui.viewfactories,
+ org.opengda.lde.ui.views
