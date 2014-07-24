@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Synoptics
 Bundle-SymbolicName: uk.ac.gda.beamline.synoptics
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0
 Bundle-Activator: uk.ac.gda.beamline.synoptics.Activator
 Bundle-Vendor: Diamond Light Source Ltd
 Require-Bundle: org.eclipse.ui,
