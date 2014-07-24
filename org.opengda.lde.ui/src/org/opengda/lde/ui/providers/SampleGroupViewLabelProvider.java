@@ -77,6 +77,8 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements ITabl
 				return sample.getCellID();
 			case SampleTableConstants.COL_VISIT_ID:
 				return sample.getVisitID();
+			case SampleTableConstants.COL_CALIBRANT_NAME:
+				return sample.getCalibrant();
 			case SampleTableConstants.COL_EMAIL:
 				return sample.getEmail();
 			case SampleTableConstants.COL_COMMAND:

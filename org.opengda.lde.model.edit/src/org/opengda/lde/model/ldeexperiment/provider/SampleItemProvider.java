@@ -74,6 +74,7 @@ public class SampleItemProvider
 			addMailCountPropertyDescriptor(object);
 			addDataFileCountPropertyDescriptor(object);
 			addDataFilePathPropertyDescriptor(object);
+			addCalibrantPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -387,6 +388,28 @@ public class SampleItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Calibrant feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addCalibrantPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_calibrant_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrant_feature", "_UI_Sample_type"),
+				 LDEExperimentsPackage.Literals.SAMPLE__CALIBRANT,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
 	 * This returns Sample.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -438,6 +461,7 @@ public class SampleItemProvider
 			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
+			case LDEExperimentsPackage.SAMPLE__CALIBRANT:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}

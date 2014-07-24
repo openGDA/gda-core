@@ -7,7 +7,8 @@ public interface SampleTableConstants {
 	static final int COL_SAMPLE_NAME = COL_ACTIVE + 1;
 	static final int COL_CELL_ID = COL_SAMPLE_NAME + 1;
 	static final int COL_VISIT_ID = COL_CELL_ID + 1;
-	static final int COL_EMAIL = COL_VISIT_ID + 1;
+	static final int COL_CALIBRANT_NAME= COL_VISIT_ID + 1;
+	static final int COL_EMAIL = COL_CALIBRANT_NAME + 1;
 	static final int COL_COMMAND = COL_EMAIL + 1;
 	static final int COL_COMMENT = COL_COMMAND + 1;
 	static final int COL_START_DATE = COL_COMMENT + 1;
@@ -20,6 +21,7 @@ public interface SampleTableConstants {
 	static final String SAMPLE_NAME = "Sample Name";
 	static final String CELL_ID = "Cell ID";
 	static final String VISIT_ID = "Visit ID";
+	static final String CALIBRANT_NAME = "Calibrant";
 	static final String EMAIL = "Email";
 	static final String COMMAND = "Command";
 	static final String COMMENT = "Comment";

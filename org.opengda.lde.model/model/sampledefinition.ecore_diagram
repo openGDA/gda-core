@@ -134,14 +134,6 @@
         <element xmi:type="ecore:EEnumLiteral" href="sampledefinition.ecore#//STATUS/ABORTED"/>
         <layoutConstraint xmi:type="notation:Location" xmi:id="__dgN8QAxEeS9oY2j_Yakxw"/>
       </children>
-      <children xmi:type="notation:Node" xmi:id="_XH8C8AAyEeS9oY2j_Yakxw" type="3009">
-        <element xmi:type="ecore:EEnumLiteral" href="sampledefinition.ecore#//STATUS/INVALID"/>
-        <layoutConstraint xmi:type="notation:Location" xmi:id="_XH8C8QAyEeS9oY2j_Yakxw"/>
-      </children>
-      <children xmi:type="notation:Node" xmi:id="_kAJzoAgWEeSLrMKxeWdBhg" type="3009">
-        <element xmi:type="ecore:EEnumLiteral" href="sampledefinition.ecore#//STATUS/PAUSE"/>
-        <layoutConstraint xmi:type="notation:Location" xmi:id="_kAJzoQgWEeSLrMKxeWdBhg"/>
-      </children>
       <styles xmi:type="notation:SortingStyle" xmi:id="_s8g_AgAxEeS9oY2j_Yakxw"/>
       <styles xmi:type="notation:FilteringStyle" xmi:id="_s8g_AwAxEeS9oY2j_Yakxw"/>
     </children>

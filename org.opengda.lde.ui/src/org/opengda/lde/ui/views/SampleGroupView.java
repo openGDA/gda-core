@@ -137,12 +137,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private EditingDomain editingDomain;
 	
 	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
-			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.EMAIL,
+			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.CALIBRANT_NAME, SampleTableConstants.EMAIL,
 			SampleTableConstants.COMMAND, SampleTableConstants.COMMENT, SampleTableConstants.START_DATE,
 			SampleTableConstants.END_DATE, SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT };
 
 	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 30, false), new ColumnWeightData(10, 30, false),new ColumnWeightData(80, 100, true), 
-			new ColumnWeightData(70, 90, false), new ColumnWeightData(40, 50, false), new ColumnWeightData(40, 50, true), 
+			new ColumnWeightData(70, 90, false), new ColumnWeightData(40, 50, false), new ColumnWeightData(40, 50, false),new ColumnWeightData(40, 50, true), 
 			new ColumnWeightData(40, 80, false), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 70, true), 
 			new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 50, true) };
 	
@@ -203,19 +203,19 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
 		createColumns(viewer);
 		
-		TableColumn tblclmnNewColumn_1 = new TableColumn(table, SWT.NONE);
-		tblclmnNewColumn_1.setWidth(100);
-		tblclmnNewColumn_1.setText("New Column");
-		
-		TableColumn tblclmnNewColumn = new TableColumn(table, SWT.NONE);
-		tblclmnNewColumn.setWidth(100);
-		tblclmnNewColumn.setText("New Column");
-		
-		TableItem tableItem = new TableItem(table, SWT.NONE);
-		tableItem.setText("New TableItem");
-		
-		TableItem tableItem_1 = new TableItem(table, SWT.NONE);
-		tableItem_1.setText("New TableItem");
+//		TableColumn tblclmnNewColumn_1 = new TableColumn(table, SWT.NONE);
+//		tblclmnNewColumn_1.setWidth(100);
+//		tblclmnNewColumn_1.setText("New Column");
+//		
+//		TableColumn tblclmnNewColumn = new TableColumn(table, SWT.NONE);
+//		tblclmnNewColumn.setWidth(100);
+//		tblclmnNewColumn.setText("New Column");
+//		
+//		TableItem tableItem = new TableItem(table, SWT.NONE);
+//		tableItem.setText("New TableItem");
+//		
+//		TableItem tableItem_1 = new TableItem(table, SWT.NONE);
+//		tableItem_1.setText("New TableItem");
 		
 		viewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
 		viewer.setLabelProvider(new SampleGroupViewLabelProvider());
@@ -782,6 +782,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
+			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
 			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
@@ -805,6 +807,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
 				return true;
 			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
 				return true;
 			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
 				return true;
@@ -832,6 +836,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					return sample.getCellID();
 				} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
 					return sample.getVisitID();
+				} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
+					return sample.getCalibrant();
 				} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
 					return sample.getEmail();
 				} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
@@ -883,6 +889,14 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						}
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.VISIT_ID+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Calibrant(), value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.CALIBRANT_NAME+" field for sample "+((Sample)element).getName(), e);
 					}
 				}
 			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {

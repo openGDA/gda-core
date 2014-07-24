@@ -36,6 +36,7 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getMailCount <em>Mail Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFileCount <em>Data File Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFilePath <em>Data File Path</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCalibrant <em>Calibrant</em>}</li>
  * </ul>
  * </p>
  *
@@ -339,6 +340,26 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @ordered
 	 */
 	protected String dataFilePath = DATA_FILE_PATH_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getCalibrant() <em>Calibrant</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCalibrant()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String CALIBRANT_EDEFAULT = "Si";
+
+	/**
+	 * The cached value of the '{@link #getCalibrant() <em>Calibrant</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCalibrant()
+	 * @generated
+	 * @ordered
+	 */
+	protected String calibrant = CALIBRANT_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -709,6 +730,27 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getCalibrant() {
+		return calibrant;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setCalibrant(String newCalibrant) {
+		String oldCalibrant = calibrant;
+		calibrant = newCalibrant;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__CALIBRANT, oldCalibrant, calibrant));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public String buildDataFilePath(String filePath) {
 		// TODO: implement this method
 		// Ensure that you remove @generated or mark it @generated NOT
@@ -795,6 +837,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getDataFileCount();
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				return getDataFilePath();
+			case LDEExperimentsPackage.SAMPLE__CALIBRANT:
+				return getCalibrant();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -848,6 +892,9 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				setDataFilePath((String)newValue);
+				return;
+			case LDEExperimentsPackage.SAMPLE__CALIBRANT:
+				setCalibrant((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -903,6 +950,9 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				setDataFilePath(DATA_FILE_PATH_EDEFAULT);
 				return;
+			case LDEExperimentsPackage.SAMPLE__CALIBRANT:
+				setCalibrant(CALIBRANT_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -943,6 +993,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return dataFileCount != DATA_FILE_COUNT_EDEFAULT;
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				return DATA_FILE_PATH_EDEFAULT == null ? dataFilePath != null : !DATA_FILE_PATH_EDEFAULT.equals(dataFilePath);
+			case LDEExperimentsPackage.SAMPLE__CALIBRANT:
+				return CALIBRANT_EDEFAULT == null ? calibrant != null : !CALIBRANT_EDEFAULT.equals(calibrant);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -1007,6 +1059,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(dataFileCount);
 		result.append(", dataFilePath: ");
 		result.append(dataFilePath);
+		result.append(", calibrant: ");
+		result.append(calibrant);
 		result.append(')');
 		return result.toString();
 	}

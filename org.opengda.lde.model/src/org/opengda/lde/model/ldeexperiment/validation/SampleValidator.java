@@ -37,4 +37,6 @@ public interface SampleValidator {
 	boolean validateDataFileCount(int value);
 
 	boolean validateDataFilePath(String value);
+
+	boolean validateCalibrant(String value);
 }

@@ -27,6 +27,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount <em>Data File Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFilePath <em>Data File Path</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrant <em>Calibrant</em>}</li>
  * </ul>
  * </p>
  *
@@ -465,6 +466,33 @@ public interface Sample extends EObject {
 	 * @generated
 	 */
 	void setDataFilePath(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Calibrant</b></em>' attribute.
+	 * The default value is <code>"Si"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Calibrant</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Calibrant</em>' attribute.
+	 * @see #setCalibrant(String)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Calibrant()
+	 * @model default="Si"
+	 * @generated
+	 */
+	String getCalibrant();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrant <em>Calibrant</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Calibrant</em>' attribute.
+	 * @see #getCalibrant()
+	 * @generated
+	 */
+	void setCalibrant(String value);
 
 	/**
 	 * <!-- begin-user-doc -->
