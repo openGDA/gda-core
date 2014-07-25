@@ -21,5 +21,10 @@ Import-Package: org.apache.commons.io,
  org.slf4j,
  org.springframework.beans.factory;version="3.2.2.RELEASE",
  uk.ac.diamond.scisoft.analysis.dataset
-Export-Package: uk.ac.gda.beamline.synoptics.api,
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Export-Package: uk.ac.gda.beamline.synoptics,
+ uk.ac.gda.beamline.synoptics.api,
+ uk.ac.gda.beamline.synoptics.composites,
+ uk.ac.gda.beamline.synoptics.events,
+ uk.ac.gda.beamline.synoptics.utils,
  uk.ac.gda.beamline.synoptics.views
