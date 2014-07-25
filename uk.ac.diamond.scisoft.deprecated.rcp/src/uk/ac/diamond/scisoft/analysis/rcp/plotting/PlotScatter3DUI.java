@@ -120,7 +120,6 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 			 histogramView = (HistogramView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView",
 					id, IWorkbenchPage.VIEW_CREATE);
 			plotWindow.addIObserver(histogramView);
-			histogramView.addIObserver(plotWindow);
 		} catch (PartInitException e) {
 			e.printStackTrace();
 		}		

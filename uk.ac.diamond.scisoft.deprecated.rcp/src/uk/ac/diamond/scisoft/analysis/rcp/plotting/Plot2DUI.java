@@ -49,9 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractCompoundDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
@@ -174,7 +172,6 @@ public class Plot2DUI extends AbstractPlotUI {
 //			 SidePlotUtils.bringToTop(page, histogramView);		 
 			 
 			 plotWindow.addIObserver(histogramView);
-			 histogramView.addIObserver(plotWindow);
 		} catch (PartInitException e) {
 			logger.error("Failed to initialized histogram View");
 		}		
