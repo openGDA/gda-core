@@ -1,6 +1,8 @@
 package org.opengda.lde.ui.providers;
 
 import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -86,10 +88,15 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements ITabl
 			case SampleTableConstants.COL_COMMENT:
 				return sample.getComment();
 			case SampleTableConstants.COL_START_DATE:
-				//TODO replace with Date Object
-				return DateFormat.getInstance().format(sample.getStartDate());
+				if (sample.getStartDate()!= null ){
+					return DateFormat.getInstance().format(sample.getStartDate());
+				}
+				return DateFormat.getInstance().format(new Date());
 			case SampleTableConstants.COL_END_DATE:
-				return DateFormat.getInstance().format(sample.getEndDate());
+				if (sample.getEndDate()!= null){
+					return DateFormat.getInstance().format(sample.getEndDate());
+				} 
+				return DateFormat.getInstance().format(new Date());
 			case SampleTableConstants.COL_MAIL_COUNT:
 				return Integer.toString(sample.getMailCount());
 			case SampleTableConstants.COL_DATA_FILE_COUNT:

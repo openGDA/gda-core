@@ -138,13 +138,13 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	
 	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
 			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.CALIBRANT_NAME, SampleTableConstants.EMAIL,
-			SampleTableConstants.COMMAND, SampleTableConstants.COMMENT, SampleTableConstants.START_DATE,
-			SampleTableConstants.END_DATE, SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT };
+			SampleTableConstants.COMMAND, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, 
+			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 30, false), new ColumnWeightData(10, 30, false),new ColumnWeightData(80, 100, true), 
-			new ColumnWeightData(70, 90, false), new ColumnWeightData(40, 50, false), new ColumnWeightData(40, 50, false),new ColumnWeightData(40, 50, true), 
-			new ColumnWeightData(40, 80, false), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 70, true), 
-			new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 50, true) };
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 55, false), new ColumnWeightData(10, 55, false),new ColumnWeightData(80, 110, true), 
+			new ColumnWeightData(40, 60, true), new ColumnWeightData(40, 60, true), new ColumnWeightData(40, 70, true),new ColumnWeightData(40, 200, true), 
+			new ColumnWeightData(40, 400, true),  new ColumnWeightData(50, 100, true), new ColumnWeightData(50, 100, true), 
+			new ColumnWeightData(10, 85, false), new ColumnWeightData(10, 85, false),new ColumnWeightData(50, 300, true) };
 	
 	private TableViewer viewer;
 	private SampleList sampleList;
@@ -184,18 +184,18 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	}
 
 	/**
-	 * This is a callback that will allow us to create the viewer and initialize it.
+	 * This is a callback that will allow us to create the viewer and initialise it.
 	 */
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(new GridLayout());
 //		rootComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
-		viewer = new TableViewer(rootComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
+		viewer = new TableViewer(rootComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		Table table = viewer.getTable();
-		GridData gd_table = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		GridData gd_table = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_table.heightHint = 386;
-		gd_table.widthHint = 586;
+		gd_table.widthHint = 1000;
 		table.setLayoutData(gd_table);
 		viewer.getTable().setHeaderVisible(true);
 		viewer.getTable().setLinesVisible(true);
@@ -232,6 +232,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		Composite statusArea=new Composite(rootComposite, SWT.NONE);
 		statusArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		statusArea.setLayout(new GridLayout(4, false));
+		
 		Label lblSampleListFile = new Label(statusArea, SWT.None);
 		lblSampleListFile.setText("Sample Definition File: ");
 
@@ -244,7 +245,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		lblDataFile.setText("Collecting Data File:");
 		
 		txtDataFilename = new Text(statusArea, SWT.BORDER);
-		txtDataFilename.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtDataFilename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtDataFilename.setEditable(false);
 		txtDataFilename.setToolTipText("Data file to be written for the current collection");
 		
@@ -259,10 +260,10 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		
 		Label lblCurrentState = new Label(statusArea, SWT.NONE);
 		lblCurrentState.setText("Processor Messages:");
-		lblCurrentState.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
 		
 		txtProcessorMessage = new Text(statusArea, SWT.BORDER);
 		txtProcessorMessage.setEditable(false);
+		txtProcessorMessage.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtProcessorMessage.setToolTipText("show the current process position out of the total number of active processes ");
 		txtProcessorMessage.setText("Waiting to start");
 		
@@ -980,6 +981,9 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 
 		private boolean isValidVisitID(Sample sample, String value) {
+			if (value.contentEquals("0-0")){
+				return true;
+			}
 			if (sample.getCellID()== null || sample.getCellID().isEmpty()) {
 				String message="Cell ID must be set before visit ID.\n";
 				openMessageBox(message, "Cell ID Missing");

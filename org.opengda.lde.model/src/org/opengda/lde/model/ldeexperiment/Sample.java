@@ -257,7 +257,7 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Email</b></em>' attribute.
-	 * The default value is <code>""</code>.
+	 * The default value is <code>"chiu.tang@diamond.ac.uk"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Email</em>' attribute isn't clear,
@@ -267,7 +267,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Email</em>' attribute.
 	 * @see #setEmail(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Email()
-	 * @model default="" unique="false"
+	 * @model default="chiu.tang@diamond.ac.uk" unique="false"
 	 * @generated
 	 */
 	String getEmail();
@@ -284,6 +284,7 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Command</b></em>' attribute.
+	 * The default value is <code>"scan x 1 10 1 pixium 1.5"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Command</em>' attribute isn't clear,
@@ -293,7 +294,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Command</em>' attribute.
 	 * @see #setCommand(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Command()
-	 * @model
+	 * @model default="scan x 1 10 1 pixium 1.5"
 	 * @generated
 	 */
 	String getCommand();
@@ -310,6 +311,7 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Comment</b></em>' attribute.
+	 * The default value is <code>"Please add your comment here"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Comment</em>' attribute isn't clear,
@@ -319,7 +321,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Comment</em>' attribute.
 	 * @see #setComment(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Comment()
-	 * @model
+	 * @model default="Please add your comment here"
 	 * @generated
 	 */
 	String getComment();

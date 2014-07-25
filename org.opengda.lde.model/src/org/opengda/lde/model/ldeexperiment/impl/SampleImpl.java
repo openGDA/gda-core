@@ -189,7 +189,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String EMAIL_EDEFAULT = "";
+	protected static final String EMAIL_EDEFAULT = "chiu.tang@diamond.ac.uk";
 
 	/**
 	 * The cached value of the '{@link #getEmail() <em>Email</em>}' attribute.
@@ -209,7 +209,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String COMMAND_EDEFAULT = null;
+	protected static final String COMMAND_EDEFAULT = "scan x 1 10 1 pixium 1.5";
 
 	/**
 	 * The cached value of the '{@link #getCommand() <em>Command</em>}' attribute.
@@ -229,7 +229,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String COMMENT_EDEFAULT = null;
+	protected static final String COMMENT_EDEFAULT = "Please add your comment here";
 
 	/**
 	 * The cached value of the '{@link #getComment() <em>Comment</em>}' attribute.
