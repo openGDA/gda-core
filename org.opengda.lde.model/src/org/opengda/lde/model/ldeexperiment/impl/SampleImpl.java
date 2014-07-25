@@ -149,7 +149,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String CELL_ID_EDEFAULT = "i11-0";
+	protected static final String CELL_ID_EDEFAULT = "i11-1";
 
 	/**
 	 * The cached value of the '{@link #getCellID() <em>Cell ID</em>}' attribute.

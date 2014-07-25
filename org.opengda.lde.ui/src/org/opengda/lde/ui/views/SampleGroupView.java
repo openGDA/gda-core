@@ -70,7 +70,6 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.window.ToolTip;
-import org.eclipse.nebula.jface.cdatetime.CDateTimeCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
@@ -84,7 +83,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISaveablePart;
@@ -99,6 +97,7 @@ import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.SampleList;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
+import org.opengda.lde.ui.cdatetime.CDateTimeCellEditor;
 import org.opengda.lde.ui.jobs.SampleCollectionJob;
 import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
@@ -143,8 +142,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 55, false), new ColumnWeightData(10, 55, false),new ColumnWeightData(80, 110, true), 
 			new ColumnWeightData(40, 60, true), new ColumnWeightData(40, 60, true), new ColumnWeightData(40, 70, true),new ColumnWeightData(40, 200, true), 
-			new ColumnWeightData(40, 400, true),  new ColumnWeightData(50, 100, true), new ColumnWeightData(50, 100, true), 
-			new ColumnWeightData(10, 85, false), new ColumnWeightData(10, 85, false),new ColumnWeightData(50, 300, true) };
+			new ColumnWeightData(40, 400, true),  new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), 
+			new ColumnWeightData(10, 90, false), new ColumnWeightData(10, 90, false),new ColumnWeightData(50, 300, true) };
 	
 	private TableViewer viewer;
 	private SampleList sampleList;
@@ -202,20 +201,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		
 		ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
 		createColumns(viewer);
-		
-//		TableColumn tblclmnNewColumn_1 = new TableColumn(table, SWT.NONE);
-//		tblclmnNewColumn_1.setWidth(100);
-//		tblclmnNewColumn_1.setText("New Column");
-//		
-//		TableColumn tblclmnNewColumn = new TableColumn(table, SWT.NONE);
-//		tblclmnNewColumn.setWidth(100);
-//		tblclmnNewColumn.setText("New Column");
-//		
-//		TableItem tableItem = new TableItem(table, SWT.NONE);
-//		tableItem.setText("New TableItem");
-//		
-//		TableItem tableItem_1 = new TableItem(table, SWT.NONE);
-//		tableItem_1.setText("New TableItem");
 		
 		viewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
 		viewer.setLabelProvider(new SampleGroupViewLabelProvider());
@@ -859,7 +844,13 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
 				if (value instanceof Boolean) {
 					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
+						if ((boolean)value==true) {
+							if (isDatesValid((Sample)element)) {
+								runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
+							}
+						} else {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
+						}
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
 					}
@@ -945,6 +936,24 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					}
 				}
 			} 
+		}
+
+		private boolean isDatesValid(Sample sample) {
+			Date now=new Date();
+			boolean startLessEnd = sample.getStartDate().compareTo(sample.getEndDate())<0;
+			boolean nowInBetween = now.compareTo(sample.getStartDate())>=0 && now.compareTo(sample.getEndDate())<0;
+			if (startLessEnd && nowInBetween) {
+				return true;
+			}
+			String message="";
+			if (!startLessEnd) {
+				message="Sample start date must be before the end date.";
+			}
+			if (!nowInBetween) {
+				message="Cannot active this sample because the current date time is outside its date time range set.";
+			}
+			openMessageBox(message, "Activation Failed - Invalid dates ");
+			return false;
 		}
 
 		private boolean isValidCommand(String value) {
