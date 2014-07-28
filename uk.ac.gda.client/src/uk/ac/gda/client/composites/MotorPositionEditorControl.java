@@ -36,7 +36,6 @@ public class MotorPositionEditorControl extends NumberEditorControl {
 	public MotorPositionEditorControl(Composite parent, int style, ScannableWrapper scannableWrapper, boolean userSpinner) throws Exception {
 		this(parent, style, scannableWrapper, userSpinner, true );
 	}
-
 	public MotorPositionEditorControl(Composite parent, int style, ScannableWrapper scannableWrapper, boolean userSpinner,
 			boolean horizonalSpinner) throws Exception {
 		super(parent, style, scannableWrapper, ScannableWrapper.POSITION_PROP_NAME, userSpinner, horizonalSpinner);
@@ -54,18 +53,28 @@ public class MotorPositionEditorControl extends NumberEditorControl {
 			this.setUnit(((ScannableMotionUnits) scannableWrapper.getScannable()).getUserUnits());
 		}
 		this.setCommitOnOutOfFocus(false);
-		this.setDigits(NumberEditorControl.DEFAULT_DECIMAL_PLACES);
 		Double lowerLimit = scannableWrapper.getLowerLimit();
 		Double upperLimit = scannableWrapper.getUpperLimit();
 		if (lowerLimit != null && upperLimit != null) {
 			this.setRange(lowerLimit, upperLimit);
-			this.setToolTipText(String.format("Lower limit: %s Upper limit: %s",
-					roundDoubletoString(lowerLimit, NumberEditorControl.DEFAULT_DECIMAL_PLACES),
-					roundDoubletoString(upperLimit, NumberEditorControl.DEFAULT_DECIMAL_PLACES)));
 		}
+		//as setDigits update the tooltip to display the range ensure the range is set first
+		setDigits(NumberEditorControl.DEFAULT_DECIMAL_PLACES);
 
 	}
 
+
+	@Override
+	public void setDigits(int value) throws NumberFormatException {
+		super.setDigits(value);
+		Number lowerLimit = getMinValue();
+		Number upperLimit = getMaxValue();
+		if (lowerLimit != null && upperLimit != null ) {
+			this.setToolTipText(String.format("Lower limit: %s Upper limit: %s",
+					roundDoubletoString(lowerLimit.doubleValue(), value),
+					roundDoubletoString(upperLimit.doubleValue(), value)));
+		}
+	}
 
 	public void setPosition(double value) throws DeviceException {
 		((ScannableWrapper) targetObject).setPosition(value);
