@@ -141,7 +141,6 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 				 histogramView = (HistogramView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView",
 						this.id, IWorkbenchPage.VIEW_CREATE);
 				plotWindow.addIObserver(histogramView);
-				histogramView.addIObserver(plotWindow);
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}

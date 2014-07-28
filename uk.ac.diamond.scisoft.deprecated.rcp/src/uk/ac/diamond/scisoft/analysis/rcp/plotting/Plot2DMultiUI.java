@@ -141,7 +141,6 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 				 histogramView = (HistogramView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView",
 						id, IWorkbenchPage.VIEW_CREATE);
 				plotWindow.addIObserver(histogramView);
-				histogramView.addIObserver(plotWindow);
 			} catch (PartInitException e) {
 				logger.error("Failed to initialized histogram View");
 				e.printStackTrace();

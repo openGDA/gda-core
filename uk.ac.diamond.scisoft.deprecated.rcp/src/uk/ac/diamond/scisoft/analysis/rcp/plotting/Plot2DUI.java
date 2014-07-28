@@ -169,7 +169,6 @@ public class Plot2DUI extends AbstractPlotUI {
 //			 SidePlotUtils.bringToTop(page, histogramView);		 
 			 
 			 plotWindow.addIObserver(histogramView);
-			 histogramView.addIObserver(plotWindow);
 		} catch (PartInitException e) {
 			logger.error("Failed to initialized histogram View");
 		}		
