@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.gda.epics.adviewer.composites.imageviewer.ImageViewer;
+import uk.ac.gda.client.viewer.ImageViewer;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.NewImageListener;
 
 

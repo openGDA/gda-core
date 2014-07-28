@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.dawnsci.plotting.jreality.tool.ImagePositionListener;
+import org.eclipse.dawnsci.plotting.api.jreality.tool.ImagePositionListener;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
