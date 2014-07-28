@@ -24,9 +24,9 @@ import gda.device.detector.xspress.XspressDetector;
 import java.awt.Color;
 import java.util.List;
 
+import org.eclipse.dawnsci.plotting.api.jreality.util.PlotColorUtility;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
-import org.dawnsci.plotting.jreality.util.PlotColorUtility;
 import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;

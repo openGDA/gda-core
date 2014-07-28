@@ -18,12 +18,12 @@
 
 package uk.ac.gda.exafs.ui.detectorviews;
 
-import org.dawnsci.plotting.jreality.overlay.Overlay1DProvider;
-import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
-import org.dawnsci.plotting.jreality.overlay.OverlayType;
 import org.dawnsci.plotting.jreality.overlay.events.AbstractOverlayConsumer;
 import org.dawnsci.plotting.jreality.overlay.events.OverlayDrawingEvent;
-import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay1DProvider;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayProvider;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
 import org.eclipse.swt.widgets.Display;
 
 public class ROIWindowOverlay extends AbstractOverlayConsumer {
