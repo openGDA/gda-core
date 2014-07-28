@@ -940,7 +940,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 		private boolean isDatesValid(Sample sample) {
 			Date now=new Date();
-			boolean startLessEnd = sample.getStartDate().compareTo(sample.getEndDate())<0;
+			boolean startLessEnd = sample.getStartDate().compareTo(sample.getEndDate())<=0;
 			boolean nowInBetween = now.compareTo(sample.getStartDate())>=0 && now.compareTo(sample.getEndDate())<0;
 			if (startLessEnd && nowInBetween) {
 				return true;
