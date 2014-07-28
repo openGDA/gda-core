@@ -17,16 +17,16 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 
-import org.dawnsci.plotting.jreality.core.AxisMode;
-import org.dawnsci.plotting.jreality.impl.PlotException;
+import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
+import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 @Deprecated
 public class DiffractionPeakViewer extends Composite {

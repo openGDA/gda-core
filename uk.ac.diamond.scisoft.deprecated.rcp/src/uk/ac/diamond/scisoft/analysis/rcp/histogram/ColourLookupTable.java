@@ -17,9 +17,9 @@
 package uk.ac.diamond.scisoft.analysis.rcp.histogram;
 
 import org.eclipse.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
-import org.dawnsci.plotting.jreality.core.ScaleType;
-import org.dawnsci.plotting.jreality.data.ColourImageData;
-import org.dawnsci.plotting.jreality.util.ScalingUtility;
+import org.eclipse.dawnsci.plotting.api.jreality.core.ScaleType;
+import org.eclipse.dawnsci.plotting.api.jreality.data.ColourImageData;
+import org.eclipse.dawnsci.plotting.api.jreality.util.ScalingUtility;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;

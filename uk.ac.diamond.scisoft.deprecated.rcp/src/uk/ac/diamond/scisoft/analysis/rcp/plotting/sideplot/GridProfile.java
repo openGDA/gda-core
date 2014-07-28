@@ -22,10 +22,10 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.roi.data.GridROIData;
 import org.dawb.common.ui.plot.roi.data.ROIData;
-import org.dawnsci.plotting.jreality.overlay.OverlayType;
-import org.dawnsci.plotting.jreality.overlay.VectorOverlayStyles;
-import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
-import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.VectorOverlayStyles;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
+import org.eclipse.dawnsci.plotting.api.jreality.tool.IImagePositionEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;

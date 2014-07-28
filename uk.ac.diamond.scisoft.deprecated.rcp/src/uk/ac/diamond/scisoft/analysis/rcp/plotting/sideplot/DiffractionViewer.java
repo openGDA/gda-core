@@ -17,7 +17,6 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 import java.awt.Color;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,11 +26,11 @@ import javax.vecmath.Vector3d;
 import org.dawb.common.ui.plot.roi.ResolutionRingList;
 import org.dawb.common.ui.plot.roi.data.ROIData;
 import org.dawnsci.plotting.jreality.impl.DataSet3DPlot3D;
-import org.dawnsci.plotting.jreality.overlay.OverlayType;
-import org.dawnsci.plotting.jreality.overlay.VectorOverlayStyles;
-import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
-import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
 import org.dawnsci.plotting.jreality.tool.ImagePositionEvent;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.VectorOverlayStyles;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
+import org.eclipse.dawnsci.plotting.api.jreality.tool.IImagePositionEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
@@ -59,8 +58,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;

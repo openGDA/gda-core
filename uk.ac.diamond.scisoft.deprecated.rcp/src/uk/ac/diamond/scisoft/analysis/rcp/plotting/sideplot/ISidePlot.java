@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
-import org.dawnsci.plotting.jreality.overlay.OverlayConsumer;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayConsumer;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;

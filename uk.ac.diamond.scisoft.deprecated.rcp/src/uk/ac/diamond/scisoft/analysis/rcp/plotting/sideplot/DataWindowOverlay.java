@@ -24,14 +24,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.dawnsci.plotting.jreality.impl.DataSet3DPlot3D;
-import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
-import org.dawnsci.plotting.jreality.overlay.Overlay2DProvider;
-import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
-import org.dawnsci.plotting.jreality.overlay.OverlayType;
-import org.dawnsci.plotting.jreality.overlay.VectorOverlayStyles;
-import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
-import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
 import org.dawnsci.plotting.roi.SurfacePlotROI;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DConsumer;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DProvider;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayProvider;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.VectorOverlayStyles;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
+import org.eclipse.dawnsci.plotting.api.jreality.tool.IImagePositionEvent;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;

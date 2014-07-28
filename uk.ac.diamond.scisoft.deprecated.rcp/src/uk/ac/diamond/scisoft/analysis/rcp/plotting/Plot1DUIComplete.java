@@ -23,13 +23,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.dawnsci.plotting.jreality.core.AxisMode;
-import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
-import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
-import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.dawnsci.plotting.jreality.tool.PlotActionComplexEvent;
 import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
-import org.dawnsci.plotting.jreality.util.PlotColorUtility;
+import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
+import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
+import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DGraphTable;
+import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
+import org.eclipse.dawnsci.plotting.api.jreality.util.PlotColorUtility;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -46,9 +46,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotDataTableDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
 

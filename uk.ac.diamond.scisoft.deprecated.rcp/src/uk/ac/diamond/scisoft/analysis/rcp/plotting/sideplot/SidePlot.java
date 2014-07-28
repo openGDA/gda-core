@@ -22,10 +22,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IMainPlot;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 
 /**
  * A side plot control to populate the tab folder
