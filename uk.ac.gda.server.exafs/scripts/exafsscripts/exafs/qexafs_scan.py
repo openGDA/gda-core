@@ -206,7 +206,7 @@ class QexafsScan(Scan):
             if detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon":
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap", "VortexQexafsFFI0"], scanBean)
             else:
-                return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "qexafs_xspress3", "QexafsFFI0"], scanBean)
+                return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "QexafsFFI0"], scanBean)
 
     def isBeamCheck(self):
         return self.beamCheck
