@@ -30,6 +30,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute endDate : EDate
     Attribute mailCount : EInt
     Attribute dataFileCount : EInt
+    Attribute dataFilePath : EString
     Operation buildDataFilePath(EString) : EString
     Operation buildFilename(EString) : EString
     Operation executeCommand(EString) : STATUS
@@ -39,6 +40,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
   Enum STATUS
     Literal READY = 0
     Literal RUNNING = 1
-    Literal COMPLETED = 2
-    Literal ABORTED = 3
-    Literal INVALID = 4
+    Literal PAUSED = 2
+    Literal COMPLETED = 3
+    Literal ABORTED = 4
+    Literal ERROR = 5

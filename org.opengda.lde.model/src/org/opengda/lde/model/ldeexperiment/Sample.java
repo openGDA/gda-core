@@ -26,6 +26,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getEndDate <em>End Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount <em>Data File Count</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFilePath <em>Data File Path</em>}</li>
  * </ul>
  * </p>
  *
@@ -36,6 +37,7 @@ import org.eclipse.emf.ecore.EObject;
 public interface Sample extends EObject {
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.
+	 * The default value is <code>"new_sample"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Name</em>' attribute isn't clear,
@@ -45,7 +47,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Name</em>' attribute.
 	 * @see #setName(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Name()
-	 * @model
+	 * @model default="new_sample"
 	 * @generated
 	 */
 	String getName();
@@ -436,6 +438,33 @@ public interface Sample extends EObject {
 	 * @generated
 	 */
 	void setDataFileCount(int value);
+
+	/**
+	 * Returns the value of the '<em><b>Data File Path</b></em>' attribute.
+	 * The default value is <code>""</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Data File Path</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Data File Path</em>' attribute.
+	 * @see #setDataFilePath(String)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_DataFilePath()
+	 * @model default=""
+	 * @generated
+	 */
+	String getDataFilePath();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFilePath <em>Data File Path</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Data File Path</em>' attribute.
+	 * @see #getDataFilePath()
+	 * @generated
+	 */
+	void setDataFilePath(String value);
 
 	/**
 	 * <!-- begin-user-doc -->

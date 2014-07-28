@@ -22,7 +22,4 @@
    </extension>
 
 
-<extension  point="org.eclipse.emf.ecp.view.model.provider.xmi.file">
-<file filePath="model/Sample.view"/>
-</extension>
 </plugin>

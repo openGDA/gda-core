@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Long Duration Experiments
+Bundle-SymbolicName: org.opengda.lde;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.opengda.lde.Activator
+Bundle-Vendor: Diamond Light Source Ltd
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Export-Package: org.opengda.lde.events

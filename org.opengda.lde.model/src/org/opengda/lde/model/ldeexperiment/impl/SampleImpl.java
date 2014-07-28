@@ -3,17 +3,14 @@
 package org.opengda.lde.model.ldeexperiment.impl;
 
 import java.lang.reflect.InvocationTargetException;
-
 import java.util.Date;
+
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
-
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
@@ -38,6 +35,7 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEndDate <em>End Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getMailCount <em>Mail Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFileCount <em>Data File Count</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFilePath <em>Data File Path</em>}</li>
  * </ul>
  * </p>
  *
@@ -52,7 +50,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String NAME_EDEFAULT = null;
+	protected static final String NAME_EDEFAULT = "new_sample";
 
 	/**
 	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
@@ -323,12 +321,33 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected int dataFileCount = DATA_FILE_COUNT_EDEFAULT;
 
 	/**
+	 * The default value of the '{@link #getDataFilePath() <em>Data File Path</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 * @see #getDataFilePath()
 	 * @generated
+	 * @ordered
+	 */
+	protected static final String DATA_FILE_PATH_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getDataFilePath() <em>Data File Path</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDataFilePath()
+	 * @generated
+	 * @ordered
+	 */
+	protected String dataFilePath = DATA_FILE_PATH_EDEFAULT;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
 	 */
 	protected SampleImpl() {
 		super();
+		setSampleID((EcoreUtil.generateUUID()));
 	}
 
 	/**
@@ -669,6 +688,27 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getDataFilePath() {
+		return dataFilePath;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setDataFilePath(String newDataFilePath) {
+		String oldDataFilePath = dataFilePath;
+		dataFilePath = newDataFilePath;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH, oldDataFilePath, dataFilePath));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public String buildDataFilePath(String filePath) {
 		// TODO: implement this method
 		// Ensure that you remove @generated or mark it @generated NOT
@@ -753,6 +793,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getMailCount();
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
 				return getDataFileCount();
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
+				return getDataFilePath();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -803,6 +845,9 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
 				setDataFileCount((Integer)newValue);
+				return;
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
+				setDataFilePath((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -855,6 +900,9 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
 				setDataFileCount(DATA_FILE_COUNT_EDEFAULT);
 				return;
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
+				setDataFilePath(DATA_FILE_PATH_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -893,6 +941,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return mailCount != MAIL_COUNT_EDEFAULT;
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
 				return dataFileCount != DATA_FILE_COUNT_EDEFAULT;
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
+				return DATA_FILE_PATH_EDEFAULT == null ? dataFilePath != null : !DATA_FILE_PATH_EDEFAULT.equals(dataFilePath);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -955,6 +1005,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(mailCount);
 		result.append(", dataFileCount: ");
 		result.append(dataFileCount);
+		result.append(", dataFilePath: ");
+		result.append(dataFilePath);
 		result.append(')');
 		return result.toString();
 	}

@@ -307,6 +307,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getSample_DataFilePath() {
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(13);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EOperation getSample__BuildDataFilePath__String() {
 		return sampleEClass.getEOperations().get(0);
 	}
@@ -407,6 +416,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(sampleEClass, SAMPLE__END_DATE);
 		createEAttribute(sampleEClass, SAMPLE__MAIL_COUNT);
 		createEAttribute(sampleEClass, SAMPLE__DATA_FILE_COUNT);
+		createEAttribute(sampleEClass, SAMPLE__DATA_FILE_PATH);
 		createEOperation(sampleEClass, SAMPLE___BUILD_DATA_FILE_PATH__STRING);
 		createEOperation(sampleEClass, SAMPLE___BUILD_FILENAME__STRING);
 		createEOperation(sampleEClass, SAMPLE___EXECUTE_COMMAND__STRING);
@@ -461,7 +471,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		addEParameter(op, ecorePackage.getEString(), "sampleName", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(sampleEClass, Sample.class, "Sample", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getSample_Name(), ecorePackage.getEString(), "name", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_Name(), ecorePackage.getEString(), "name", "new_sample", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_SampleID(), ecorePackage.getEString(), "sampleID", "", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Status(), this.getSTATUS(), "status", "READY", 0, 1, Sample.class, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Active(), ecorePackage.getEBoolean(), "active", "true", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -474,6 +484,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getSample_EndDate(), ecorePackage.getEDate(), "endDate", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_MailCount(), ecorePackage.getEInt(), "mailCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_DataFileCount(), ecorePackage.getEInt(), "dataFileCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_DataFilePath(), ecorePackage.getEString(), "dataFilePath", "", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		op = initEOperation(getSample__BuildDataFilePath__String(), ecorePackage.getEString(), "buildDataFilePath", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "filePath", 0, 1, IS_UNIQUE, IS_ORDERED);
@@ -494,9 +505,10 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEEnum(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.class, "STATUS");
 		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.READY);
 		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.RUNNING);
+		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.PAUSED);
 		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.COMPLETED);
 		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.ABORTED);
-		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.INVALID);
+		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.ERROR);
 
 		// Create resource
 		createResource(eNS_URI);

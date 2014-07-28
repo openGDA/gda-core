@@ -13,17 +13,22 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
-import org.opengda.lde.ui.utils.RegionDefinitionResourceUtil;
+import org.opengda.lde.ui.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-public class SequenceViewContentProvider implements IStructuredContentProvider {
-	private static final Logger logger = LoggerFactory.getLogger(SequenceViewContentProvider.class);
+/**
+ * The content provider class is responsible for providing objects to the view. It can wrap
+ * existing objects in adapters or simply return objects as-is. These objects may be sensitive
+ * to the current input of the view, or ignore it and always show the same content 
+ * 
+ */
+public class SampleGroupViewContentProvider implements IStructuredContentProvider {
+	private static final Logger logger = LoggerFactory.getLogger(SampleGroupViewContentProvider.class);
 
 	private Viewer viewer;
-	private RegionDefinitionResourceUtil resUtil;
+	private LDEResourceUtil resUtil;
 
-	public SequenceViewContentProvider(RegionDefinitionResourceUtil resUtil) {
+	public SampleGroupViewContentProvider(LDEResourceUtil resUtil) {
 		this.resUtil = resUtil;
 	}
 
@@ -35,7 +40,7 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 		public void notifyChanged(Notification notification) {
 			super.notifyChanged(notification);
 			if (notification.getNotifier() != null) {
-				// do not want to refresh when Region status change only.
+				// do not want to refresh when status changes only.
 				if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null
 						&& !notification.getFeature().equals(LDEExperimentsPackage.eINSTANCE.getSample_Status())) {
 
@@ -92,6 +97,7 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Object[] getElements(Object inputElement) {
 		if (inputElement instanceof Resource) {
@@ -101,14 +107,8 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 				logger.error("Cannot load regions in the sequence.", e);
 			}
 		} else if (inputElement instanceof List) {
-			List regionList = (List) inputElement;
-			// for (Object object : regionList) {
-			// if (object instanceof Region) {
-			// Region region = (Region) object;
-			// region.eAdapters().add(notifyListener);
-			// }
-			// }
-			return regionList.toArray();
+			List sampleList = (List) inputElement;
+			return sampleList.toArray();
 		}
 		return null;
 	}

@@ -12,7 +12,33 @@ Require-Bundle: org.eclipse.ui,
  org.opengda.lde.model,
  org.eclipse.emf.edit,
  org.opengda.lde.model.edit,
- uk.ac.gda.common
+ uk.ac.gda.common,
+ org.eclipse.nebula.jface.cdatetime;bundle-version="0.14.0",
+ org.eclipse.nebula.widgets.cdatetime;bundle-version="0.14.0",
+ uk.ac.gda.libs,
+ org.eclipse.core.resources,
+ uk.ac.gda.client,
+ org.eclipse.swt,
+ org.eclipse.ui.ide,
+ org.eclipse.core.expressions,
+ org.eclipse.ui.navigator,
+ org.eclipse.ui.console,
+ uk.ac.gda.beamline.i11,
+ org.python.pydev,
+ uk.ac.gda.epics,
+ org.dawnsci.plotting.api,
+ org.opengda.lde,
+ uk.ac.diamond.scisoft.analysis,
+ uk.ac.gda.epics.client,
+ uk.ac.diamond.org.springframework
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Import-Package: org.slf4j
+Import-Package: org.apache.commons.io,
+ org.apache.commons.lang;version="2.6.0",
+ org.dawnsci.plotting.api,
+ org.eclipse.emf.edit.ui.dnd,
+ org.eclipse.search.ui,
+ org.slf4j,
+ org.springframework.beans.factory;version="3.2.2.RELEASE",
+ uk.ac.diamond.scisoft.analysis.dataset

@@ -5,34 +5,229 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Sample Category"
+            name="LDE"
             id="org.opengda.lde.ui">
       </category>
       <view
-            name="Sample View"
-            icon="icons/sample.gif"
             category="org.opengda.lde.ui"
-            class="org.opengda.lde.ui.views.SampleGroupView"
-            id="org.opengda.lde.ui.views.SampleGroupView">
+            class="gda.rcp.views.ViewFactory:sampleGroupViewFactory"
+            icon="icons/table_edit.png"
+            id="org.opengda.lde.ui.views.SampleGroupView"
+            name="Samples View"
+            restorable="true">
       </view>
-   </extension>
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="org.eclipse.jdt.ui.JavaPerspective">
-         <view
-               ratio="0.5"
-               relative="org.eclipse.ui.views.ProblemView"
-               relationship="right"
-               id="org.opengda.lde.ui.views.SampleView">
-         </view>
-      </perspectiveExtension>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:statusViewFactory"
+            icon="icons/status.png"
+            id="uk.ac.gda.epics.client.views.StatusView"
+            name="Detector Status"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:imageviewfactory"
+            icon="icons/image_obj.gif"
+            id="org.opengda.lde.ui.views.liveimageview"
+            name="Pixium Image"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:dataplotviewfactory"
+            icon="icons/chart_curve.png"
+            id="org.opengda.lde.ui.views.reducdeddataplotview"
+            name="Reduced Data"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
       <contexts
             file="contexts.xml">
       </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.opengda.lde.ui.commands.category"
+            id="org.opengda.lde.ui.newfile"
+            name="New File">
+      </command>
+      <command
+            categoryId="org.opengda.lde.ui.commands.category"
+            id="org.opengda.lde.ui.openFile"
+            name="Open File">
+      </command>
+      <category
+            description="LDE commands"
+            id="org.opengda.lde.ui.commands.category"
+            name="LDE">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.opengda.lde.ui.actions.NewFileHandler"
+            commandId="org.opengda.lde.ui.newfile">
+         <activeWhen>
+            <reference
+                  definitionId="org.opengda.lde.ui.samplesView.inView">
+            </reference></activeWhen>
+      </handler>
+      <handler
+            class="org.opengda.lde.ui.actions.OpenFileHandler"
+            commandId="org.opengda.lde.ui.openFile">
+         <activeWhen>
+            <reference
+                  definitionId="org.opengda.lde.ui.samplesView.inView">
+            </reference>
+         </activeWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            category="org.opengda.lde.ui.wizard.category"
+            class="org.opengda.lde.ui.dialogs.NewFileWizard"
+            icon="icons/new_file.gif"
+            id="org.opengda.lde.ui.newfilewizard"
+            name="New File Wizard"
+            project="true">
+         <selection
+               class="org.eclipse.core.resources.IResource">
+         </selection>
+      </wizard>
+      <category
+            id="org.opengda.lde.ui.wizard.category"
+            name="LDE">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="org.opengda.lde.ui.samplesView.inView">
+         <with
+               variable="activePartId">
+            <equals
+                  value="org.opengda.lde.ui.views.SampleGroupView">
+            </equals>
+         </with>
+      </definition>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <actionProvider
+            class="org.opengda.lde.ui.actions.OpenLDEFileProvider"
+            id="org.opengda.lde.ui.actions.OpenLDEFileProvider"
+            overrides="org.eclipse.ui.navigator.resources.OpenActions"
+            priority="highest">
+         <enablement>
+            <and>
+               <instanceof
+                     value="org.eclipse.core.resources.IFile">
+               </instanceof>
+               <test
+                     property="org.eclipse.core.resources.extension"
+                     value="lde">
+               </test>
+            </and>
+         </enablement>
+      </actionProvider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerActionBinding
+            viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+            <actionExtension
+                  pattern="org.opengda.lde.ui.actions.*">
+            </actionExtension>
+         </includes>
+      </viewerActionBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.opengda.lde.ui.views.SampleGroupView">
+         <command
+               commandId="org.opengda.lde.ui.newfile"
+               icon="icons/new_file.gif"
+               label="New"
+               style="push"
+               tooltip="create new LDE file">
+         </command>
+         <command
+               commandId="org.opengda.lde.ui.openFile"
+               icon="icons/open-task.gif"
+               label="Open..."
+               style="push"
+               tooltip="Open a LDE file">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.save"
+               icon="icons/save.gif"
+               label="Save"
+               style="push"
+               tooltip="Save this sample list">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.saveAs"
+               icon="icons/saveas.gif"
+               label="SaveAs"
+               style="push"
+               tooltip="Save the sample list in another file">
+         </command>
+         <separator
+               name="org.opengda.lde.ui.separator1"
+               visible="true">
+         </separator>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.opengda.lde.ui.views.SampleGroupView">
+         <separator
+               name="org.opengda.lde.ui.separator2">
+         </separator>
+         <command
+               commandId="org.opengda.lde.ui.newfile"
+               icon="icons/new_file.gif"
+               label="New"
+               style="push"
+               tooltip="create new LDE file">
+         </command>
+         <command
+               commandId="org.opengda.lde.ui.openFile"
+               icon="icons/open-task.gif"
+               label="Open..."
+               style="push"
+               tooltip="Open a LDE file">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.save"
+               icon="icons/save.gif"
+               label="Save"
+               style="push"
+               tooltip="Overwrite current file">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.saveAs"
+               icon="icons/saveas.gif"
+               label="SaveAs"
+               style="push"
+               tooltip="Save to another file">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.opengda.lde.ui.LDEPerspective"
+            icon="icons/table-edit-icon.png"
+            id="org.opengda.lde.ui.ldeperspective"
+            name="LDE Perspective">
+      </perspective>
    </extension>
 
 </plugin>

@@ -69,14 +69,13 @@ public class Activator extends AbstractUIPlugin {
 			reg.put(imgPath, imageDescriptorFromPlugin(PLUGIN_ID, imgPath));
 		}
 	}
-	public EditingDomain getSequenceEditingDomain() throws Exception {
+	public EditingDomain getSampleGroupEditingDomain() throws Exception {
 		try {
 			// return TransactionalEditingDomain.Registry.INSTANCE
 			// .getEditingDomain(EDITING_DOMAIN_ID);
 			return SampleGroupEditingDomain.INSTANCE.getEditingDomain();
 		} catch (Exception ex) {
-			throw new Exception("Unable to get editing domain:"
-					+ ex.getMessage());
+			throw new Exception("Unable to get editing domain:" + ex.getMessage());
 		}
 	}
 

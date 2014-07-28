@@ -3,10 +3,9 @@
 package org.opengda.lde.model.ldeexperiment.util;
 
 import org.eclipse.emf.common.util.URI;
-
 import org.eclipse.emf.ecore.resource.Resource;
-
 import org.eclipse.emf.ecore.resource.impl.ResourceFactoryImpl;
+import org.eclipse.emf.ecore.xmi.XMLResource;
 
 /**
  * <!-- begin-user-doc -->
@@ -30,11 +29,13 @@ public class LDEExperimentsResourceFactoryImpl extends ResourceFactoryImpl {
 	 * Creates an instance of the resource.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	@Override
 	public Resource createResource(URI uri) {
-		Resource result = new LDEExperimentsResourceImpl(uri);
+		LDEExperimentsResourceImpl result = new LDEExperimentsResourceImpl(uri);
+		// ensure default value persisted in XML file as well.
+		result.getDefaultSaveOptions().put(XMLResource.OPTION_KEEP_DEFAULT_CONTENT, Boolean.TRUE);
 		return result;
 	}
 

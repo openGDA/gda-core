@@ -34,7 +34,8 @@
     <eOperations name="validateCommand" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
       <eParameters name="command" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral="new_sample"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sampleID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="status" eType="#//STATUS"
@@ -55,12 +56,15 @@
         defaultValueLiteral="0"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="dataFileCount" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="0"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dataFilePath" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral=""/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="STATUS">
     <eLiterals name="READY" literal="READY"/>
     <eLiterals name="RUNNING" value="1"/>
-    <eLiterals name="COMPLETED" value="2"/>
-    <eLiterals name="ABORTED" value="3"/>
-    <eLiterals name="INVALID" value="4"/>
+    <eLiterals name="PAUSED" value="2"/>
+    <eLiterals name="COMPLETED" value="3"/>
+    <eLiterals name="ABORTED" value="4"/>
+    <eLiterals name="ERROR" value="5"/>
   </eClassifiers>
 </ecore:EPackage>

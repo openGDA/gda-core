@@ -10,9 +10,10 @@
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="sampledefinition.ecore#//STATUS">
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/READY"/>
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/RUNNING"/>
+      <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/PAUSED"/>
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/COMPLETED"/>
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/ABORTED"/>
-      <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/INVALID"/>
+      <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/ERROR"/>
     </genEnums>
     <genClasses ecoreClass="sampledefinition.ecore#//ExperimentDefinition">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//ExperimentDefinition/samplelist"/>
@@ -41,6 +42,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/endDate"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/mailCount"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/dataFileCount"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/dataFilePath"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//Sample/buildDataFilePath">
         <genParameters ecoreParameter="sampledefinition.ecore#//Sample/buildDataFilePath/filePath"/>
       </genOperations>
