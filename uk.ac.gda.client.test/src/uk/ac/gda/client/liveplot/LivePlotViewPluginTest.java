@@ -34,8 +34,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -48,7 +48,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.gda.ClientManager;
-import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 public class LivePlotViewPluginTest implements IScanDataPointProvider, ScanDataPointHandler {

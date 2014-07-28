@@ -18,13 +18,14 @@
 
 package uk.ac.gda.client.viewer;
 
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.dawnsci.plotting.jreality.tool.IDataPositionEvent.Mode;
-import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
-import org.dawnsci.plotting.jreality.tool.ImagePositionListener;
+import org.eclipse.dawnsci.plotting.api.jreality.tool.IDataPositionEvent.Mode;
+import org.eclipse.dawnsci.plotting.api.jreality.tool.IImagePositionEvent;
+import org.eclipse.dawnsci.plotting.api.jreality.tool.ImagePositionListener;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.swt.SWT;
 

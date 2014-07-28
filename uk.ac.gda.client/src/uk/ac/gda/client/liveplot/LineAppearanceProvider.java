@@ -23,8 +23,8 @@ import gda.rcp.GDAClientActivator;
 import java.awt.Color;
 import java.util.Vector;
 
-import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
-import org.dawnsci.plotting.jreality.util.PlotColorUtility;
+import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DStyles;
+import org.eclipse.dawnsci.plotting.api.jreality.util.PlotColorUtility;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;

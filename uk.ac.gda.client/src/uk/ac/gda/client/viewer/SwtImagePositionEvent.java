@@ -20,7 +20,7 @@ package uk.ac.gda.client.viewer;
 
 import java.util.List;
 
-import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
+import org.eclipse.dawnsci.plotting.api.jreality.tool.IImagePositionEvent;
 
 
 public class SwtImagePositionEvent implements IImagePositionEvent {

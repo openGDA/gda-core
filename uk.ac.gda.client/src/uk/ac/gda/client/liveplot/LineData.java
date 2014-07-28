@@ -19,8 +19,10 @@
 package uk.ac.gda.client.liveplot;
 
 import gda.scan.AxisSpec;
+
+import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
+
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 
 public class LineData {
 	private Plot1DAppearance appearance;
