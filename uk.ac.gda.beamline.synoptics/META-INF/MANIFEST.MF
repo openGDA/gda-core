@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Synoptics
 Bundle-SymbolicName: uk.ac.gda.beamline.synoptics
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.qualifer
 Bundle-Activator: uk.ac.gda.beamline.synoptics.Activator
 Bundle-Vendor: Diamond Light Source Ltd
 Require-Bundle: org.eclipse.ui,
@@ -22,9 +22,23 @@ Import-Package: org.apache.commons.io,
  org.springframework.beans.factory;version="3.2.2.RELEASE",
  uk.ac.diamond.scisoft.analysis.dataset
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
-Export-Package: uk.ac.gda.beamline.synoptics,
- uk.ac.gda.beamline.synoptics.api,
- uk.ac.gda.beamline.synoptics.composites,
+Export-Package: uk.ac.gda.beamline.synoptics;uses:="org.eclipse.jface.resource,org.eclipse.ui.plugin,org.osgi.framework",
+ uk.ac.gda.beamline.synoptics.api;uses:="org.dawnsci.plotting.api",
+ uk.ac.gda.beamline.synoptics.composites;
+  uses:="gda.device.detectorfilemonitor,
+   gda.device,
+   gda.rcp.views,
+   uk.ac.gda.beamline.synoptics.utils,
+   org.eclipse.swt.graphics,
+   org.eclipse.swt.widgets,
+   org.slf4j,
+   org.springframework.beans.factory",
  uk.ac.gda.beamline.synoptics.events,
  uk.ac.gda.beamline.synoptics.utils,
- uk.ac.gda.beamline.synoptics.views
+ uk.ac.gda.beamline.synoptics.views;
+  uses:="uk.ac.diamond.scisoft.analysis.dataset,
+   org.eclipse.core.runtime,
+   org.dawnsci.plotting.api,
+   org.eclipse.ui.part,
+   org.eclipse.swt.widgets,
+   org.dawnsci.plotting.api.trace"
