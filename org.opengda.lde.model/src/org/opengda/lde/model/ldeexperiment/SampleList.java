@@ -19,7 +19,7 @@ import org.eclipse.emf.ecore.EObject;
  * </ul>
  * </p>
  *
- * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSampleList()
+ * @see org.opengda.lde.model.ldeexperiment.LdeexperimentPackage#getSampleList()
  * @model
  * @generated
  */
@@ -35,7 +35,7 @@ public interface SampleList extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Filename</em>' attribute.
 	 * @see #setFilename(String)
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSampleList_Filename()
+	 * @see org.opengda.lde.model.ldeexperiment.LdeexperimentPackage#getSampleList_Filename()
 	 * @model default="samples"
 	 * @generated
 	 */
@@ -63,7 +63,7 @@ public interface SampleList extends EObject {
 	 * @return the value of the '<em>Samples</em>' containment reference list.
 	 * @see #isSetSamples()
 	 * @see #unsetSamples()
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSampleList_Samples()
+	 * @see org.opengda.lde.model.ldeexperiment.LdeexperimentPackage#getSampleList_Samples()
 	 * @model containment="true" unsettable="true"
 	 * @generated
 	 */

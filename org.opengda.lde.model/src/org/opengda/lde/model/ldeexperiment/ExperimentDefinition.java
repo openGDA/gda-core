@@ -16,7 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  * </ul>
  * </p>
  *
- * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperimentDefinition()
+ * @see org.opengda.lde.model.ldeexperiment.LdeexperimentPackage#getExperimentDefinition()
  * @model
  * @generated
  */
@@ -31,7 +31,7 @@ public interface ExperimentDefinition extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Samplelist</em>' containment reference.
 	 * @see #setSamplelist(SampleList)
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperimentDefinition_Samplelist()
+	 * @see org.opengda.lde.model.ldeexperiment.LdeexperimentPackage#getExperimentDefinition_Samplelist()
 	 * @model containment="true"
 	 * @generated
 	 */

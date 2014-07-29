@@ -40,7 +40,7 @@
       <styles xmi:type="notation:FilteringStyle" xmi:id="_dmkiCwAsEeS9oY2j_Yakxw"/>
     </children>
     <element xmi:type="ecore:EClass" href="sampledefinition.ecore#//SampleList"/>
-    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_dmkiAQAsEeS9oY2j_Yakxw" x="595" y="285" width="246" height="196"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_dmkiAQAsEeS9oY2j_Yakxw" x="545" y="63" width="246" height="196"/>
   </children>
   <children xmi:type="notation:Shape" xmi:id="_2m0WkAAwEeS9oY2j_Yakxw" type="2001" fontName="Sans">
     <children xmi:type="notation:DecorationNode" xmi:id="_2m0WkgAwEeS9oY2j_Yakxw" type="5001"/>
@@ -101,10 +101,6 @@
       <styles xmi:type="notation:FilteringStyle" xmi:id="_2m09ogAwEeS9oY2j_Yakxw"/>
     </children>
     <children xmi:type="notation:BasicCompartment" xmi:id="_2m09owAwEeS9oY2j_Yakxw" type="7002">
-      <children xmi:type="notation:Node" xmi:id="_x3R2kAA2EeS9oY2j_Yakxw" type="3002">
-        <element xmi:type="ecore:EOperation" href="sampledefinition.ecore#//Sample/buildDataFilePath"/>
-        <layoutConstraint xmi:type="notation:Location" xmi:id="_x3R2kQA2EeS9oY2j_Yakxw"/>
-      </children>
       <styles xmi:type="notation:SortingStyle" xmi:id="_2m09pAAwEeS9oY2j_Yakxw"/>
       <styles xmi:type="notation:FilteringStyle" xmi:id="_2m09pQAwEeS9oY2j_Yakxw"/>
     </children>
@@ -113,7 +109,7 @@
       <styles xmi:type="notation:FilteringStyle" xmi:id="_2m09qAAwEeS9oY2j_Yakxw"/>
     </children>
     <element xmi:type="ecore:EClass" href="sampledefinition.ecore#//Sample"/>
-    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_2m0WkQAwEeS9oY2j_Yakxw" x="520" y="525" width="366" height="386"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_2m0WkQAwEeS9oY2j_Yakxw" x="515" y="310" width="366" height="441"/>
   </children>
   <children xmi:type="notation:Shape" xmi:id="_s8gX8AAxEeS9oY2j_Yakxw" type="2005" fontName="Sans">
     <children xmi:type="notation:DecorationNode" xmi:id="_s8g_AAAxEeS9oY2j_Yakxw" type="5005"/>

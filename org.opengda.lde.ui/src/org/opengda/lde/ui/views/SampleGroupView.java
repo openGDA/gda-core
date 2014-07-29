@@ -510,6 +510,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					for (Sample sample : samples) {
 						if (sample.isActive()) {
 							//set data file path for each sample before data collection
+							//TODO using dataCollection script
 							String commandString="LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, "+ getDataDirectory(sample) + ");";
 							commandString += sample.getCommand();
 							JythonCommandCommandProvider command = new JythonCommandCommandProvider(commandString, sample.getName(), null);

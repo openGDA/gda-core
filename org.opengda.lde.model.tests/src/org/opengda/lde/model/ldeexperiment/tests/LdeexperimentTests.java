@@ -9,11 +9,11 @@ import junit.textui.TestRunner;
 
 /**
  * <!-- begin-user-doc -->
- * A test suite for the '<em><b>Sampledefinition</b></em>' model.
+ * A test suite for the '<em><b>ldeexperiment</b></em>' package.
  * <!-- end-user-doc -->
  * @generated
  */
-public class SampledefinitionAllTests extends TestSuite {
+public class LdeexperimentTests extends TestSuite {
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -30,8 +30,8 @@ public class SampledefinitionAllTests extends TestSuite {
 	 * @generated
 	 */
 	public static Test suite() {
-		TestSuite suite = new SampledefinitionAllTests("Sampledefinition Tests");
-		suite.addTest(LdeexperimentTests.suite());
+		TestSuite suite = new LdeexperimentTests("ldeexperiment Tests");
+		suite.addTestSuite(SampleListTest.class);
 		return suite;
 	}
 
@@ -40,8 +40,8 @@ public class SampledefinitionAllTests extends TestSuite {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public SampledefinitionAllTests(String name) {
+	public LdeexperimentTests(String name) {
 		super(name);
 	}
 
-} //SampledefinitionAllTests
+} //LdeexperimentTests

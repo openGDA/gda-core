@@ -3,24 +3,17 @@
 package org.opengda.lde.model.ldeexperiment.impl;
 
 import java.lang.reflect.InvocationTargetException;
-
 import java.util.Collection;
-
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
-
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
-
-import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+import org.opengda.lde.model.ldeexperiment.LdeexperimentPackage;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.SampleList;
 
@@ -85,7 +78,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 */
 	@Override
 	protected EClass eStaticClass() {
-		return LDEExperimentsPackage.Literals.SAMPLE_LIST;
+		return LdeexperimentPackage.Literals.SAMPLE_LIST;
 	}
 
 	/**
@@ -106,7 +99,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 		String oldFilename = filename;
 		filename = newFilename;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE_LIST__FILENAME, oldFilename, filename));
+			eNotify(new ENotificationImpl(this, Notification.SET, LdeexperimentPackage.SAMPLE_LIST__FILENAME, oldFilename, filename));
 	}
 
 	/**
@@ -116,7 +109,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 */
 	public EList<Sample> getSamples() {
 		if (samples == null) {
-			samples = new EObjectContainmentEList.Unsettable<Sample>(Sample.class, this, LDEExperimentsPackage.SAMPLE_LIST__SAMPLES);
+			samples = new EObjectContainmentEList.Unsettable<Sample>(Sample.class, this, LdeexperimentPackage.SAMPLE_LIST__SAMPLES);
 		}
 		return samples;
 	}
@@ -169,7 +162,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+			case LdeexperimentPackage.SAMPLE_LIST__SAMPLES:
 				return ((InternalEList<?>)getSamples()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
@@ -183,9 +176,9 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case LDEExperimentsPackage.SAMPLE_LIST__FILENAME:
+			case LdeexperimentPackage.SAMPLE_LIST__FILENAME:
 				return getFilename();
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+			case LdeexperimentPackage.SAMPLE_LIST__SAMPLES:
 				return getSamples();
 		}
 		return super.eGet(featureID, resolve, coreType);
@@ -200,10 +193,10 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case LDEExperimentsPackage.SAMPLE_LIST__FILENAME:
+			case LdeexperimentPackage.SAMPLE_LIST__FILENAME:
 				setFilename((String)newValue);
 				return;
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+			case LdeexperimentPackage.SAMPLE_LIST__SAMPLES:
 				getSamples().clear();
 				getSamples().addAll((Collection<? extends Sample>)newValue);
 				return;
@@ -219,10 +212,10 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case LDEExperimentsPackage.SAMPLE_LIST__FILENAME:
+			case LdeexperimentPackage.SAMPLE_LIST__FILENAME:
 				setFilename(FILENAME_EDEFAULT);
 				return;
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+			case LdeexperimentPackage.SAMPLE_LIST__SAMPLES:
 				unsetSamples();
 				return;
 		}
@@ -237,9 +230,9 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case LDEExperimentsPackage.SAMPLE_LIST__FILENAME:
+			case LdeexperimentPackage.SAMPLE_LIST__FILENAME:
 				return FILENAME_EDEFAULT == null ? filename != null : !FILENAME_EDEFAULT.equals(filename);
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+			case LdeexperimentPackage.SAMPLE_LIST__SAMPLES:
 				return isSetSamples();
 		}
 		return super.eIsSet(featureID);
@@ -253,9 +246,9 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	@Override
 	public Object eInvoke(int operationID, EList<?> arguments) throws InvocationTargetException {
 		switch (operationID) {
-			case LDEExperimentsPackage.SAMPLE_LIST___GET_SAMPLE_BY_ID__STRING:
+			case LdeexperimentPackage.SAMPLE_LIST___GET_SAMPLE_BY_ID__STRING:
 				return getSampleById((String)arguments.get(0));
-			case LDEExperimentsPackage.SAMPLE_LIST___GET_SAMPLE_BY_NAME__STRING:
+			case LdeexperimentPackage.SAMPLE_LIST___GET_SAMPLE_BY_NAME__STRING:
 				return getSampleByName((String)arguments.get(0));
 		}
 		return super.eInvoke(operationID, arguments);

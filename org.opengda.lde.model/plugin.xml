@@ -10,16 +10,8 @@
       <!-- @generated sampledefinition -->
       <package
             uri="http://www.opengda.org/LDEExperiments"
-            class="org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage"
+            class="org.opengda.lde.model.ldeexperiment.LdeexperimentPackage"
             genModel="model/sampledefinition.genmodel"/>
    </extension>
-
-   <extension point="org.eclipse.emf.ecore.extension_parser">
-      <!-- @generated sampledefinition -->
-      <parser
-            type="ldeexperiments"
-            class="org.opengda.lde.model.ldeexperiment.util.LDEExperimentsResourceFactoryImpl"/>
-   </extension>
-
 
 </plugin>

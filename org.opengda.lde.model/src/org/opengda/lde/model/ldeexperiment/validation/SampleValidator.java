@@ -39,4 +39,32 @@ public interface SampleValidator {
 	boolean validateDataFilePath(String value);
 
 	boolean validateCalibrant(String value);
+
+	boolean validateCalibrant_x(double value);
+
+	boolean validateCalibrant_y(double value);
+
+	boolean validateCalibrant_exposure(double value);
+
+	boolean validateX_start(double value);
+
+	boolean validateX_stop(double value);
+
+	boolean validateX_step(double value);
+
+	boolean validateY_stop(Double value);
+
+	boolean validateY_step(Double value);
+
+	boolean validateSample_exposure(double value);
+
+	boolean validateDriverID(String value);
+
+	boolean validatePixium_x(double value);
+
+	boolean validatePixium_y(double value);
+
+	boolean validatePixium_z(double value);
+
+	boolean validateY_start(Double value);
 }

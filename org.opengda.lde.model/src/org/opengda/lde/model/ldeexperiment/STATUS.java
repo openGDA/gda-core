@@ -13,7 +13,7 @@ import org.eclipse.emf.common.util.Enumerator;
  * A representation of the literals of the enumeration '<em><b>STATUS</b></em>',
  * and utility methods for working with them.
  * <!-- end-user-doc -->
- * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSTATUS()
+ * @see org.opengda.lde.model.ldeexperiment.LdeexperimentPackage#getSTATUS()
  * @model
  * @generated
  */

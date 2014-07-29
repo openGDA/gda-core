@@ -3,11 +3,9 @@
 package org.opengda.lde.model.ldeexperiment.tests;
 
 import junit.framework.TestCase;
-
 import junit.textui.TestRunner;
-
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
-import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
+import org.opengda.lde.model.ldeexperiment.LdeexperimentFactory;
 
 /**
  * <!-- begin-user-doc -->
@@ -72,7 +70,7 @@ public class ExperimentDefinitionTest extends TestCase {
 	 */
 	@Override
 	protected void setUp() throws Exception {
-		setFixture(LDEExperimentsFactory.eINSTANCE.createExperimentDefinition());
+		setFixture(LdeexperimentFactory.eINSTANCE.createExperimentDefinition());
 	}
 
 	/**
