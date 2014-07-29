@@ -783,8 +783,10 @@ public abstract class ScannableUtils {
 	 */
 	public static List<String> getScannableNames(List<? extends Scannable> scannables) {
 		Vector<String> names = new Vector<String>();
-		for (Scannable s : scannables) {
-			names.add(s.getName());
+		if( scannables !=null){
+			for (Scannable s : scannables) {
+				names.add(s.getName());
+			}
 		}
 		return names;
 

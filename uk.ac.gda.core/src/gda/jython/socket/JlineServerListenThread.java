@@ -18,28 +18,36 @@
 
 package gda.jython.socket;
 
-import java.io.BufferedReader;
+import gda.configuration.properties.LocalProperties;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-public class ServerListenThread extends ServerListenThreadBase {
+import jline.ConsoleReader;
+import jline.Terminal;
 
-	private BufferedReader in;
-	private PrintWriter out;
+public class JlineServerListenThread extends ServerListenThreadBase {
 
-	public ServerListenThread(InputStream in, PrintWriter out, SessionClosedCallback sessionClosedCallback) {
+	private ConsoleReader cr;
+
+	public JlineServerListenThread(InputStream in, PrintWriter out, SessionClosedCallback sessionClosedCallback) throws IOException {
+		
 		super(sessionClosedCallback);
-		this.in = new BufferedReader(new InputStreamReader(in));
-		this.out = out;
+		
+		Terminal.setupTerminal();
+		
+		this.cr = new ConsoleReader(in, out);
+		
+		final String gdaVar = LocalProperties.getVarDir();
+		final File historyFile = new File(gdaVar, "server.history");
+		cr.getHistory().setHistoryFile(historyFile);
 	}
 
 	@Override
 	protected String readLine(String prompt) throws IOException {
-		out.print(prompt);
-		out.flush();
-		return in.readLine();
+		return cr.readLine(prompt);
 	}
 
 }

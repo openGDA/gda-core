@@ -18,11 +18,14 @@
 
 package gda.scan;
 
+import static gda.jython.InterfaceProvider.getTerminalPrinter;
+import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Vector;
 
@@ -47,6 +50,11 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 
 		try{
 			setStatus(ScanStatus.RUNNING);
+			if (LocalProperties.check(ScanBase.GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
+				java.util.Date date= new java.util.Date();
+				getTerminalPrinter().print("=== Scan started at "+new Timestamp(date.getTime()).toString()+" ===");
+			}
+
 			for (MultiScanItem item : scans) {
 				TotalNumberOfPoints += item.scan.getTotalNumberOfPoints();
 			}			
@@ -98,6 +106,25 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 			}
 			throw e;
 		}	finally {
+
+			switch (getStatus()) {
+			case RUNNING:
+				setStatus(ScanStatus.COMPLETED_OKAY);
+				break;
+			case TIDYING_UP_AFTER_FAILURE:
+				setStatus(ScanStatus.COMPLETED_AFTER_FAILURE);
+				break;
+			case TIDYING_UP_AFTER_STOP:
+				setStatus(ScanStatus.COMPLETED_AFTER_STOP);
+				break;
+			case FINISHING_EARLY:
+				setStatus(ScanStatus.COMPLETED_EARLY);
+				break;
+			default:
+				throw new AssertionError("Unexpected status at the end of scan:" + getStatus().toString());
+			}
+			
+			
 			if( lastscan != null){
 				lastscan.signalScanComplete();
 			}

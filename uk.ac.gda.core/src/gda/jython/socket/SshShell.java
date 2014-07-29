@@ -32,10 +32,18 @@ import org.apache.sshd.server.ShellFactory.Shell;
  */
 public class SshShell implements Shell {
 	
+	private boolean useJline;
+
+	public SshShell(boolean useJline) {
+		this.useJline = useJline;
+	}
+
 	private InputStream inputStream;
 	
 	private OutputStream outputStream;
 	
+	private ExitCallback exitCallback;
+
 	private ServerThread serverThread;
 
 	@Override
@@ -55,12 +63,13 @@ public class SshShell implements Shell {
 
 	@Override
 	public void setExitCallback(ExitCallback callback) {
-		// TODO SshShell: deal with the exit callback
+		this.exitCallback = callback;
 	}
 
 	@Override
 	public void start(Environment env) throws IOException {
-		serverThread = new ServerThread(inputStream, outputStream);
+		serverThread = new SshServerThread(inputStream, outputStream, exitCallback);
+		serverThread.setUseJline(useJline);
 		serverThread.start();
 	}
 	
