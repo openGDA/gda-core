@@ -178,7 +178,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	protected void resetDCMSpeed() throws DeviceException {
 		try {
 			logger.info("Setting energy to max speed");
-			controller.caputWait(currentSpeedChnl, getMaxSpeed());
+			controller.caput(currentSpeedChnl, getMaxSpeed());
 		} catch (Exception e) {
 			throw new DeviceException("Exception while resetting the DCM speed", e);
 		}

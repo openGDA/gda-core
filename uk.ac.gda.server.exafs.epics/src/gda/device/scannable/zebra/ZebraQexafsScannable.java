@@ -159,13 +159,13 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 			// fixed settings
 			logger.debug("Time before fixed zebra settings");
-			controller.caput(armTrigSourceChnl, "Soft");
-			controller.caput(gateTrigSourceChnl, "Position");
-			controller.caput(numGatesChnl, 1);
-			controller.caput(pulseTrigSourceChnl, "Position");
-			controller.caput(pulseStartChnl, 0.0);
+			caputTestChangeString(armTrigSourceChnl, "Soft");
+			caputTestChangeString(gateTrigSourceChnl, "Position");
+			caputTestChangeDouble(numGatesChnl, 1);
+			caputTestChangeString(pulseTrigSourceChnl, "Position");
+			caputTestChangeDouble(pulseStartChnl, 0.0);
 //			controller.caput(pulseWidthChnl, 0.0020);
-			controller.caput(positionTrigChnl, "Enc1-4Av");
+			caputTestChangeString(positionTrigChnl, "Enc1-4Av");
 
 			// variable settings
 			logger.debug("Time before variable zebra settings");
@@ -174,10 +174,10 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			double stepDeg = Math.abs(radToDeg(stepSize));
 			double width = Math.abs(stopDeg - startDeg);
 			String positionDirection = stopDeg > startDeg ? "Positive" : "Negative";
-			controller.caput(positionDirectionChnl, positionDirection);
-			controller.caput(gateStartChnl, startDeg);
-			controller.caput(gateWidthChnl, width);
-			controller.caput(pulseStepChnl, stepDeg);
+			caputTestChangeString(positionDirectionChnl, positionDirection);
+			caputTestChangeDouble(gateStartChnl, startDeg);
+			caputTestChangeDouble(gateWidthChnl, width);
+			caputTestChangeDouble(pulseStepChnl, stepDeg);
 			logger.debug("Time after final zebra set");
 			
 			long timeAtMethodEnd = System.currentTimeMillis();
@@ -186,6 +186,20 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			throw e;
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " exception in prepareForContinuousMove", e);
+		}
+	}
+
+	private void caputTestChangeString(Channel theChannel, String toPut) throws CAException, InterruptedException, TimeoutException {
+		String current = controller.cagetString(theChannel);
+		if (current.compareTo(toPut) != 0){
+			controller.caput(theChannel, toPut.toString());
+		}
+	}
+	
+	private void caputTestChangeDouble(Channel theChannel, double toPut) throws CAException, InterruptedException, TimeoutException {
+		double current = controller.cagetDouble(theChannel);
+		if (current != toPut){
+			controller.caput(theChannel, toPut);
 		}
 	}
 
@@ -215,7 +229,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 						logger.info("-----waiting for qscanAxis to finish moving inside perform before starting scanning. after goto runup");
 						Thread.sleep(100);
 					}
-					controller.caput(currentSpeedChnl, desiredSpeed);
+					caputTestChangeDouble(currentSpeedChnl, desiredSpeed);
 				} else {
 					logger.info("Continuous motion for " + getName()
 							+ " greater than Bragg maximum speed. Speed will be set instead to the max imum speed of "
@@ -257,11 +271,14 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		// return to regular running values
 		resetDCMSpeed();
 		try {
-			controller.caput(disarmChnl, 1);
+			controller.caputWait(disarmChnl, 1);
 		} catch (CAException e) {
 			// TODO Auto-generated catch block
 			logger.error("TODO put description of error here", e);
 		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		} catch (TimeoutException e) {
 			// TODO Auto-generated catch block
 			logger.error("TODO put description of error here", e);
 		}
@@ -274,10 +291,10 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		try {
 			
 			double frameCentre_eV = calculateFrameEnergyFromZebraReadback(frameIndex);
-			double energy_from_demand_steps = calculateFrameEnergyUsingDemandValues(frameIndex);
+//			double energy_from_demand_steps = calculateFrameEnergyUsingDemandValues(frameIndex);
 
-			logger.info(String.format("index: %d, energy: %.2f, demand_energy: %.2f", frameIndex, frameCentre_eV,
-					energy_from_demand_steps));
+//			logger.info(String.format("index: %d, energy: %.2f, demand_energy: %.2f", frameIndex, frameCentre_eV,
+//					energy_from_demand_steps));
 
 			return frameCentre_eV;
 
