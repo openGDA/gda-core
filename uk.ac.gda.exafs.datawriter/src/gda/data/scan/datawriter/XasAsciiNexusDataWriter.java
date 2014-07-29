@@ -52,7 +52,8 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	}
 
 	private void storeFilenamesWithRegistar() {
-		FileRegistrarHelper.registerFiles(new String[] { ascii.fileUrl });
+		if (ascii != null)
+			FileRegistrarHelper.registerFiles(new String[] { ascii.fileUrl });
 	}
 
 	@Override
@@ -127,6 +128,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	@Override
 	public void completeCollection() throws Exception {
+		if (ascii == null) return;
 		storeFilenamesWithRegistar();
 		try {
 			nexus.completeCollection();
