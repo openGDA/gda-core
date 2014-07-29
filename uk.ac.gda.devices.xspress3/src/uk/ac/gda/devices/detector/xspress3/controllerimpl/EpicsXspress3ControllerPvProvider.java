@@ -44,7 +44,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String FILE_PATH_RBV = ":HDF5:FilePath_RBV";
 
 	private static String FILE_PREFIX = ":HDF5:FileName";
-	private static String FILE_PREFIX_RBV = "HDF5:FileName_RBV";
+	private static String FILE_PREFIX_RBV = ":HDF5:FileName_RBV";
 
 	private static String NEXT_FILENUMBER = ":HDF5:FileNumber";
 	

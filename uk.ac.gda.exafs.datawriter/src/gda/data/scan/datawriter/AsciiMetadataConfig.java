@@ -41,13 +41,26 @@ public class AsciiMetadataConfig {
 			Object[] positions = new Object[labelValues.length];
 			for (int i = 0; i < labelValues.length; i++){
 				try {
-					positions[i] = labelValues[i].getPosition();
-					if (positions[i] instanceof Short || positions[i] instanceof Integer)
-						positions[i] = Double.parseDouble(positions[i].toString());
-					
+					if (labelValues[i] == null){
+						positions[i] = "null";
+					} else {
+						positions[i] = labelValues[i].getPosition();
+						if (positions[i] instanceof Short
+								|| positions[i] instanceof Integer) {
+							positions[i] = Double.parseDouble(positions[i]
+									.toString());
+						}
+					}
 				} catch (DeviceException e) {
-					logger.error("DeviceException whilst fetching position from " + labelValues[i].getName() + " to add to metadata in file." + "\nIf this problem persists then the object should be reconfigured or removed from the metadata configuration.",e);
+					logger.error("Cannot give correct value for AsciiMetadataConfig item as DeviceException whilst fetching position from " + labelValues[i].getName() + " to add to metadata in file." + "\nIf this problem persists then the object should be reconfigured or removed from the metadata configuration.",e);
 					positions[i] = "";
+					
+					// if get here then do not do the String.format line below
+					StringBuffer namesOnly = new StringBuffer();
+					for (Scannable scannable : labelValues) {
+						namesOnly.append(scannable.getName() + "\t");
+					}
+					return namesOnly.toString();
 				}
 			}
 			return String.format(label, positions);

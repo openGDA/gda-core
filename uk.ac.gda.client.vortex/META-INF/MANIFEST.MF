@@ -33,8 +33,7 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.devices.xspress3
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Export-Package: uk.ac.gda.exafs.ui.describers,
- uk.ac.gda.exafs.ui.detector.vortex,
+Export-Package: uk.ac.gda.exafs.ui.detector.vortex,
  uk.ac.gda.exafs.ui.detector.wizards.vortex
 Import-Package: gda.device.corba,
  gda.device.detector.xmap.corba,

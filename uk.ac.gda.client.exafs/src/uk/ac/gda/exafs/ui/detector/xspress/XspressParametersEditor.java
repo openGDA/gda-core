@@ -16,41 +16,52 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.detector.vortex;
+package uk.ac.gda.exafs.ui.detector.xspress;
+
 
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.exafs.ui.ExafsBeanFileSelectionEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public class VortexParametersEditor extends ExafsBeanFileSelectionEditor {
+/**
+ *
+ */
+public class XspressParametersEditor extends ExafsBeanFileSelectionEditor {
+
+	
+	/**
+	 * The id for the editor
+	 */
+	public static final String ID = "org.diamond.exafs.ui.XspressParametersEditor";
 
 	@Override
 	public Class<?> getBeanClass() {
-		return VortexParameters.class;
+		return XspressParameters.class;
 	}
 
 	@Override
 	public URL getMappingUrl() {
-		return VortexParameters.mappingURL;
+		return XspressParameters.mappingURL;
 	}
 
 	@Override
-	protected RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new VortexParametersUIEditor(path, getMappingUrl(), this, editingBean);
+	protected RichBeanEditorPart getRichBeanEditorPart(String path,
+			                                           Object editingBean) {
+		return new XspressParametersUIEditor(path, getMappingUrl(), this, editingBean);
 	}
 
 	@Override
 	public URL getSchemaUrl() {
-		return VortexParameters.schemaURL;
+		return XspressParameters.schemaURL;
 	}
 	
 	@Override
 	public List<String> getPrivateXMLFields() {
 		return Arrays.asList(new String[]{"data"});
 	}
-	
+
 }

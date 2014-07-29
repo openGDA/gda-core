@@ -114,6 +114,13 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	public void atScanEnd() throws DeviceException {
 		currentScanNumber = -1;
 	}
+	
+	@Override
+	public void atPointEnd() throws DeviceException {
+		if (controller.getNumFramesToAcquire() > 1) {
+			framesRead++;
+		}
+	}
 
 	private void prepareFileWriting() throws DeviceException {
 		if (writeHDF5Files) {
@@ -130,9 +137,9 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 				if (!scanNumber.isEmpty()) {
 					scanNumber = "_" + scanNumber;
 				}
-				controller.setFilePrefix(filePrefix + scanNumber);
+				controller.setFilePrefix(filePrefix + scanNumber + "_");
 			} else {
-				controller.setFilePrefix("xspress3");
+				controller.setFilePrefix("xspress3_");
 			}
 
 			controller.setNextFileNumber(0);
@@ -178,6 +185,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		return false; // false as this will return data for the GDA to write
 						// itself.
 	}
+	
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
@@ -205,9 +213,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 
 		// get all various info and add to a NexusTreeProvider
 		NexusTreeProvider tree = readoutFrames(framesRead, framesRead)[0];
-		if (controller.getNumFramesToAcquire() > 1) {
-			framesRead++;
-		}
+
 		return tree;
 	}
 
@@ -240,17 +246,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 						+ firstChannelToRead - 1);
 		// calc FF from ROI
 		int numFramesRead = lastFrame - firstFrame + 1;
-		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector
-																			// channel]
-		for (int frame = 0; frame < numFramesRead; frame++) {
-			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
-				if (summingMethod == 1) {
-					FFs[frame][chan] = data[frame][chan][0];
-				} else {
-					FFs[frame][chan] = sumArray(data[frame][chan]);
-				}
-			}
-		}
+		Double[][] FFs = calculateFFs(data, numFramesRead);
 
 		// create trees
 		NexusTreeProvider[] results = new NexusTreeProvider[numFramesRead];
@@ -265,9 +261,42 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 				thisFrame.setPlottableValue(getExtraNames()[chan],
 						FFs[frame][chan]);
 			}
+			thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
+			
 			results[frame] = thisFrame;
 		}
 		return results;
+	}
+	
+	public Double[] readoutFF() throws DeviceException {
+		// assume that this is readout before the full readout() is called!!
+		Double[][][] data = controller.readoutDTCorrectedROI(framesRead,
+				framesRead, firstChannelToRead, numberOfChannelsToRead
+						+ firstChannelToRead - 1);
+		return calculateFFs(data,1)[0];
+	}
+
+	private Double[][] calculateFFs(Double[][][] data, int numFramesRead) {
+		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector
+																			// channel]
+		for (int frame = 0; frame < numFramesRead; frame++) {
+			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
+				if (summingMethod == 1) {
+					FFs[frame][chan] = data[frame][chan][0];
+				} else {
+					FFs[frame][chan] = sumArray(data[frame][chan]);
+				}
+			}
+		}
+		return FFs;
+	}
+
+	private String deriveFilename() throws DeviceException {
+		String path = controller.getFilePath();
+		String prefix = controller.getFilePrefix();
+		String scanNumber = Integer.toString(controller.getNextFileNumber());
+		String xspress3File =  path + prefix + scanNumber + ".hdf5";
+		return xspress3File;
 	}
 
 	@Override
@@ -335,11 +364,12 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	}
 	
 	public int[][] getData() throws DeviceException{
+		
 		Double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
 		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
 		for(int i=0;i<deadTimeCorrectedData.length;i++){
 			for(int j=0;j<deadTimeCorrectedData[0].length;j++){
-				deadTimeCorrectedDataInt[i][j]= deadTimeCorrectedDataInt[i][j];
+				deadTimeCorrectedDataInt[i][j]= (int) Math.round(deadTimeCorrectedData[i][j]);
 			}
 		}
 		return deadTimeCorrectedDataInt;
@@ -350,7 +380,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	 * @return
 	 * @throws DeviceException
 	 */
-	public Double[][] getMCData(int time) throws DeviceException {
+	public Double[][] getMCData(double time) throws DeviceException {
 		controller.doErase();
 		controller.doStart();
 		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time

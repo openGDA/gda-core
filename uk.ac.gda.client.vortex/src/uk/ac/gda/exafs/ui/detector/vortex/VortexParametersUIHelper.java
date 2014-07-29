@@ -20,9 +20,9 @@ package uk.ac.gda.exafs.ui.detector.vortex;
 
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
-import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.VortexROIComposite;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorROIComposite;
+import uk.ac.gda.exafs.ui.detectorviews.IDetectorROICompositeFactory;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.selector.GridListEditor.GRID_ORDER;
 

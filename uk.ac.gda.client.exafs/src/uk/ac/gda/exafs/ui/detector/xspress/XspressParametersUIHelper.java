@@ -23,22 +23,26 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
+import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
+import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.selector.GridListEditor.GRID_ORDER;
 
 public enum XspressParametersUIHelper {
 	INSTANCE;
 	
-//	public IDetectorROICompositeFactory getDetectorROICompositeFactory() {
-//		IDetectorROICompositeFactory factory = new IDetectorROICompositeFactory() {
-//			@Override
-//			public DetectorROIComposite createDetectorROIComposite(Composite parent, int style) {
-//				return new XspressROIComposite(parent, style);
-//			}
-//		};
-//		return factory;
-//	}
+	public IDetectorROICompositeFactory getDetectorROICompositeFactory() {
+		IDetectorROICompositeFactory factory = new IDetectorROICompositeFactory() {
+			@Override
+			public DetectorROIComposite createDetectorROIComposite(Composite parent, int style) {
+				return new XspressROIComposite(parent, style);
+			}
+		};
+		return factory;
+	}
 
 	public void setDetectorListGridOrder(GridListEditor gridListEditor) {
 		final Map<Integer, Integer> pixelMap = getIndexToElectricalChannelMap();
@@ -52,8 +56,10 @@ public enum XspressParametersUIHelper {
 	 * @return map of pixels read from extension point or null.
 	 */
 	public Map<Integer, Integer> getIndexToElectricalChannelMap() {
+		
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.exafs.xspress.pixel.map");
 		if (config==null||config.length<1) return null; 
+			
 		final Map<Integer,Integer> ret = new HashMap<Integer, Integer>(64);
 		for (IConfigurationElement e : config) {
 		    final String pixel = e.getAttribute("pixel");

@@ -33,20 +33,20 @@ import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
-import uk.ac.gda.exafs.ui.detector.DetectorEditor;
-import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorEditor;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorElementComposite;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
-public class XspressParametersUIEditor extends DetectorEditor {
+public class NewXspressParametersUIEditor extends DetectorEditor {
 	private XspressParameters xspressParameters;
 	private String xmlPath;
 	private Xspress xspress;
 	
-	public XspressParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+	public NewXspressParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(xmlPath, mappingURL, dirtyContainer, editingBean, "xspressConfig");
 		this.xmlPath = xmlPath;
 		this.xspressParameters = (XspressParameters) editingBean;

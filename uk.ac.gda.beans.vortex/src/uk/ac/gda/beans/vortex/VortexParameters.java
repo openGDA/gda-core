@@ -107,39 +107,39 @@ public class VortexParameters implements Serializable, IRichBean {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		VortexParameters other = (VortexParameters) obj;
-		if (Double.doubleToLongBits(collectionTime) != Double.doubleToLongBits(other.collectionTime)) {
+		
+		if (Double.doubleToLongBits(collectionTime) != Double.doubleToLongBits(objectCast(obj).collectionTime)) {
 			return false;
 		}
 		if (countType == null) {
-			if (other.countType != null) {
+			if (objectCast(obj).countType != null) {
 				return false;
 			}
-		} else if (!countType.equals(other.countType)) {
+		} else if (!countType.equals(objectCast(obj).countType)) {
 			return false;
 		}
-		if (!Arrays.equals(data, other.data)) {
+		if (!Arrays.equals(data, objectCast(obj).data)) {
 			return false;
 		}
 		if (detectorList == null) {
-			if (other.detectorList != null) {
+			if (objectCast(obj).detectorList != null) {
 				return false;
 			}
-		} else if (!detectorList.equals(other.detectorList)) {
+		} else if (!detectorList.equals(objectCast(obj).detectorList)) {
 			return false;
 		}
 		if (detectorName == null) {
-			if (other.detectorName != null) {
+			if (objectCast(obj).detectorName != null) {
 				return false;
 			}
-		} else if (!detectorName.equals(other.detectorName)) {
+		} else if (!detectorName.equals(objectCast(obj).detectorName)) {
 			return false;
 		}
 		if (tfgName == null) {
-			if (other.tfgName != null) {
+			if (objectCast(obj).tfgName != null) {
 				return false;
 			}
-		} else if (!tfgName.equals(other.tfgName)) {
+		} else if (!tfgName.equals(objectCast(obj).tfgName)) {
 			return false;
 		}
 		return true;
@@ -234,4 +234,9 @@ public class VortexParameters implements Serializable, IRichBean {
 	public void setSelectedRegionNumber(int selectedRegionNumber) {
 		this.selectedRegionNumber = selectedRegionNumber;
 	}
+	
+	public VortexParameters objectCast (Object obj){ 
+		return (VortexParameters) obj;
+	}
+
 }

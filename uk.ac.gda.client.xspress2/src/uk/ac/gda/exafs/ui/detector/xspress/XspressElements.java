@@ -42,9 +42,9 @@ import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.exafs.ui.detector.Counts;
-import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
-import uk.ac.gda.exafs.ui.detector.Elements;
+import uk.ac.gda.exafs.ui.detectorviews.Counts;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detectorviews.Elements;
 import uk.ac.gda.exafs.ui.detector.wizards.xspress.ImportXspressROIWizard;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
@@ -127,10 +127,10 @@ public class XspressElements extends Elements{
 		try {
 			createImportButton(detectorElementsGroup, detectorList.size());
 			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class);
-			XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListComposite.getDetectorList());
+			NewXspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListComposite.getDetectorList());
 			if(showRoi){
-				detectorListComposite.getDetectorElementComposite().setMinimumRegions(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
-				detectorListComposite.getDetectorElementComposite().setMaximumRegions(XspressParametersUIHelper.INSTANCE.getMaximumRegions());
+				detectorListComposite.getDetectorElementComposite().setMinimumRegions(NewXspressParametersUIHelper.INSTANCE.getMinimumRegions());
+				detectorListComposite.getDetectorElementComposite().setMaximumRegions(NewXspressParametersUIHelper.INSTANCE.getMaximumRegions());
 			}
 		} catch (Exception e1) {
 			logger.error("Cannot create region editor.", e1);
@@ -148,7 +148,7 @@ public class XspressElements extends Elements{
 		final Button importButton = new Button(importComposite, SWT.NONE);
 		GridDataFactory grab = GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, false);
 		grab.hint(60, SWT.DEFAULT).applyTo(importButton);
-		importButton.setImage(SWTResourceManager.getImage(XspressParametersUIEditor.class, "/icons/calculator_edit.png"));
+		importButton.setImage(SWTResourceManager.getImage(NewXspressParametersUIEditor.class, "/icons/calculator_edit.png"));
 		importButton.setToolTipText("Import Regions Of Interest from other Parameters files");
 		final SelectionAdapter importButtonListener = new SelectionAdapter() {
 			@Override
