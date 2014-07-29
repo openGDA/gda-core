@@ -79,7 +79,6 @@ import uk.ac.gda.client.ResourceComposite;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.plotting.model.DataNode;
 import uk.ac.gda.client.plotting.model.LineTraceProvider;
-import uk.ac.gda.client.plotting.model.ScanDataItemNode;
 import uk.ac.gda.client.plotting.model.ScanDataNode;
 import uk.ac.gda.client.plotting.model.LineTraceProvider.TraceStyleDetails;
 
@@ -153,6 +152,7 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 				if (node instanceof LineTraceProvider && dataTreeViewer.getChecked(node)) {
 					addTrace((LineTraceProvider) node);
 				}
+				dataTreeViewer.reveal(node);
 			}
 		});
 
@@ -171,7 +171,7 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 		ILineTrace trace = (ILineTrace) plottingSystem.getTrace(((DataNode) lineTraceProvider).getIdentifier());
 		if (trace != null) {
 			trace.setData(lineTraceProvider.getXAxisDataset(), lineTraceProvider.getYAxisDataset());
-			plottingSystem.repaint();
+			//plottingSystem.repaint();
 		}
 	}
 
@@ -415,17 +415,21 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 							if (dialog.open() == Window.OK) {
 								Iterator<?> iterator = selection.iterator();
 								while(iterator.hasNext()) {
-									ScanDataItemNode nodeToChange = (ScanDataItemNode) iterator.next();
-									try {
-										TraceStyleDetails newTraceStyleDetails = new TraceStyleDetails();
-										BeanUtils.copyProperties(newTraceStyleDetails, dialog.getTraceStyle());
-										nodeToChange.setTraceStyle(newTraceStyleDetails);
-										if (dataTreeViewer.getChecked(nodeToChange)) {
-											removeTrace(nodeToChange.getIdentifier());
-											addTrace(nodeToChange);
+									Object selectedNode = iterator.next();
+									if (selectedNode instanceof LineTraceProvider) {
+										LineTraceProvider nodeToChange = (LineTraceProvider) selectedNode;
+										try {
+											TraceStyleDetails newTraceStyleDetails = new TraceStyleDetails();
+											BeanUtils.copyProperties(newTraceStyleDetails, dialog.getTraceStyle());
+											nodeToChange.setTraceStyle(newTraceStyleDetails);
+											if (dataTreeViewer.getChecked(nodeToChange)) {
+												removeTrace(nodeToChange.getIdentifier());
+												addTrace(nodeToChange);
+											}
+											dataTreeViewer.update(nodeToChange, null);
+										} catch (IllegalAccessException | InvocationTargetException e) {
+											logger.error("Unable to copy properties", e);
 										}
-									} catch (IllegalAccessException | InvocationTargetException e) {
-										logger.error("Unable to copy properties", e);
 									}
 								}
 							}

@@ -36,6 +36,7 @@ import org.osgi.framework.ServiceReference;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.liveplot.IPlotLineColorService;
 import uk.ac.gda.client.plotting.model.LineTraceProvider.TraceStyleDetails;
 
@@ -132,7 +133,8 @@ public class ScanDataNode extends DataNode {
 				return colorValue;
 			}
 		}
-		return null;
+		
+		return UIHelper.getRandomColor();
 	}
 
 	private String createIdentifier(String scanDataItem) {
@@ -196,20 +198,34 @@ public class ScanDataNode extends DataNode {
 		}
 	};
 
-	public void update(IScanDataPoint scanDataPoint) {
+	public void update(List<IScanDataPoint> scanDataPoint) {
 		synchronized (cachedData) {
-			cachedData.add(scanDataPoint.getPositionsAsDoubles()[0]);
+			for (IScanDataPoint p : scanDataPoint) {
+				cachedData.add(p.getPositionsAsDoubles()[0]);
+			}
 		}
+		
 		Display.getDefault().asyncExec(saveData);
 		// TODO Currently detectorScanItemNames are added then positionScanItemNames, needs reviewing on how they are shown
-		for (int i = 0; i < scanDataPoint.getPositionsAsDoubles().length - 1; i ++) {
-			((ScanDataItemNode) children.get(i)).update(scanDataPoint.getPositionsAsDoubles()[i + 1]);
+		
+		List<Double> values = new ArrayList<Double>();
+		for (int i = 0; i < scanDataPoint.get(0).getPositionsAsDoubles().length - 1; i++) {
+			for (IScanDataPoint p : scanDataPoint) {
+				values.add( p.getPositionsAsDoubles()[i + 1]);
+			}
+			((ScanDataItemNode) children.get(i)).update(values);
+			values.clear();
 		}
-
-		int offset = scanDataPoint.getPositionsAsDoubles().length - 1;
+			
 		if (detectorScanItemNames != null) {
-			for (int i = 0; i < scanDataPoint.getDetectorDataAsDoubles().length; i++) {
-				((ScanDataItemNode) children.get(i + offset)).update(scanDataPoint.getDetectorDataAsDoubles()[i]);
+			int offset = scanDataPoint.get(0).getPositionsAsDoubles().length - 1;
+			values.clear();
+			for (int i = 0; i < scanDataPoint.get(0).getDetectorDataAsDoubles().length; i++) {
+				for (IScanDataPoint p : scanDataPoint) {
+					values.add(p.getDetectorDataAsDoubles()[i]);
+				}
+				((ScanDataItemNode) children.get(i + offset)).update(values);
+				values.clear();
 			}
 		}
 	}

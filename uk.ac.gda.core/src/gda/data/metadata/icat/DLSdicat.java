@@ -26,9 +26,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
 
 /**
  * The Icat which talks to the Diamond ICAT database.
@@ -84,7 +88,7 @@ public class DLSdicat extends IcatBase {
 		ResultSet resultSet = null;
 		Connection connection = null;
 		PreparedStatement prepared = null;
-		String value = "";
+		List<String> value;
 
 		try {
 			connection = connectToDatabase();
@@ -114,11 +118,11 @@ public class DLSdicat extends IcatBase {
 			// append to the list extra options if local staff
 			if (AuthoriserProvider.getAuthoriser().isLocalStaff(user)) {
 				// allow beamline staff to use the current visit ID
-				String currentVisitID = getLatestCommissioningVisit(connection);
-				if (currentVisitID != null && !currentVisitID.isEmpty()) {
-					if (value.isEmpty())
-						return currentVisitID;
-					return value + ", " + currentVisitID;
+				for (String visitPrefix : new String[] {"CM", "NR"}) {
+					String currentVisitID = getLatestVisitWithPrefix(connection, visitPrefix);
+					if (currentVisitID != null && !currentVisitID.isEmpty()) {
+						value.add(currentVisitID);
+					}
 				}
 			}
 			
@@ -146,7 +150,9 @@ public class DLSdicat extends IcatBase {
 				}
 			}
 		}
-		return value;
+		
+		Joiner joiner = Joiner.on(", ");
+		return joiner.join(value);
 	}
 	
 	protected String getTitleForVisit(String visitID) throws Exception {
@@ -197,7 +203,10 @@ public class DLSdicat extends IcatBase {
 		throw new IllegalArgumentException("unknown query request");
 	}
 
-	private String getLatestCommissioningVisit(Connection connection) throws SQLException {
+	private String getLatestVisitWithPrefix(Connection connection, String visitPrefix) throws SQLException {
+		
+		visitPrefix += "%";
+		
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try {
@@ -205,9 +214,10 @@ public class DLSdicat extends IcatBase {
 					"( select lower(i.visit_id) visit from icatdls42.investigation i "+
 					"inner join icatdls42.instrument ins on i.instrument_id = ins.id "+
 					"inner join icatdls42.shift s on s.investigation_id = i.id "+
-					"where i.visit_id like 'CM%' and ins.name = ? and systimestamp > s.startdate "+
+					"where i.visit_id like ? and ins.name = ? and systimestamp > s.startdate "+
 					"order by s.startdate DESC ) v2 where rownum <=1");
-			statement.setString(1, getInstrumentName());
+			statement.setString(1, visitPrefix);
+			statement.setString(2, getInstrumentName());
 			resultSet = statement.executeQuery();
 			if (resultSet.next())
 				return resultSet.getString(1);
@@ -257,14 +267,11 @@ public class DLSdicat extends IcatBase {
 		return connection;
 	}
 
-	private String concatenateResultSet(ResultSet resultSet) throws SQLException {
-		String value = "";
+	private List<String> concatenateResultSet(ResultSet resultSet) throws SQLException {
+		List<String> value = new ArrayList<String>();
 		while (resultSet.next()) {
 			String result = resultSet.getString(1);
-			if (value.isEmpty()) 
-				value = result;
-			else
-				value += ", " + result;
+			value.add(result);
 		}
 		return value;
 	}

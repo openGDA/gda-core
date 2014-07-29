@@ -117,18 +117,16 @@ public abstract class LineTraceProvider extends DataNode {
 
 		public static TraceStyleDetails  createDefaultSolidTrace() {
 			TraceStyleDetails traceStyle = new TraceStyleDetails();
-			traceStyle.setTraceType(TraceType.DASH_LINE);
-			traceStyle.setPointStyle(PointStyle.DIAMOND);
-			traceStyle.setPointSize(6);
+			traceStyle.setTraceType(TraceType.SOLID_LINE);
+			traceStyle.setPointStyle(PointStyle.NONE);
 			traceStyle.setLineWidth(1);
 			return traceStyle;
 		}
 
 		public static TraceStyleDetails createDefaultDashTrace() {
 			TraceStyleDetails traceStyle = new TraceStyleDetails();
-			traceStyle.setTraceType(TraceType.SOLID_LINE);
+			traceStyle.setTraceType(TraceType.DASH_LINE);
 			traceStyle.setPointStyle(PointStyle.NONE);
-			traceStyle.setPointSize(1);
 			traceStyle.setLineWidth(1);
 			return traceStyle;
 		}

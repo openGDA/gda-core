@@ -56,6 +56,8 @@ public class SocketServer implements Runnable {
 	// the default port
 	int port = 4444;
 
+	private boolean useJline;
+
 	String name = "command_socket";
 
 	private ServerType serverType = ServerType.TELNET;
@@ -98,7 +100,11 @@ public class SocketServer implements Runnable {
 		try {
 			while (listening) {
 				// start a new thread for every connection to this socket
-				new SocketServerThread(serverSocket.accept()).start();
+				if (useJline) {
+					new SocketServerWithTelnetNegotiationThread(serverSocket.accept()).start();
+				} else {
+					new SocketServerThread(serverSocket.accept()).start();
+				}
 			}
 			serverSocket.close();
 		} catch (IOException ex) {
@@ -120,7 +126,7 @@ public class SocketServer implements Runnable {
 		File hostKey = new File(new File(gdaConfig, "etc"), "hostkey.ser");
 		sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(hostKey.getAbsolutePath()));
 		
-		sshd.setShellFactory(new SshShellFactory());
+		sshd.setShellFactory(new SshShellFactory(useJline));
 		
 		sshd.setPasswordAuthenticator(authenticator);
 		
@@ -150,6 +156,10 @@ public class SocketServer implements Runnable {
 		port = portNumber;
 	}
 	
+	public void setUseJline(boolean useJline) {
+		this.useJline = useJline;
+	}
+
 	private PasswordAuthenticator authenticator;
 	
 	public void setAuthenticator(PasswordAuthenticator authenticator) {
