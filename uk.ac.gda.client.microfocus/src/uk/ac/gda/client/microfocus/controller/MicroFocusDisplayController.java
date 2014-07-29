@@ -89,8 +89,7 @@ public class MicroFocusDisplayController {
 			}
 		} else if (fileIsDataSource) {
 			if (plotter != null) {
-				plotter.setDataProvider(fileDataProvider);
-				plotter.plotElement(selectedElement, selectedChannel);
+				plotter.plotElement(fileDataProvider, selectedElement, selectedChannel);
 			}
 		} else {
 			plotter.plotMapFromServer(selectedElement,selectedChannel);

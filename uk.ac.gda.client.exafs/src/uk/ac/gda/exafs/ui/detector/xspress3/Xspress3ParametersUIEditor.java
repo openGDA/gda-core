@@ -1,5 +1,4 @@
-/*-
- * Copyright © 2013 Diamond Light Source Ltd.
+/* Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,14 +15,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.detector.vortex;
+package uk.ac.gda.exafs.ui.detector.xspress3;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
-import gda.device.Timer;
-import gda.device.XmapDetector;
 import gda.factory.Finder;
 import gda.jython.accesscontrol.AccessDeniedException;
 
@@ -59,18 +56,20 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
-import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
-import uk.ac.gda.exafs.ExafsActivator;
+import uk.ac.gda.devices.detector.xspress3.FluorescenceAcquire;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
-import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
+import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
@@ -78,17 +77,14 @@ import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
-import com.swtdesigner.SWTResourceManager;
-
-@SuppressWarnings("unused")
-public class VortexParametersUIEditor extends DetectorEditor {
-
+public class Xspress3ParametersUIEditor extends DetectorEditor {
+	private String detectorName;
+	protected Xspress3Parameters xspress3Parameters;
 	private static final String GDA_DEVICE_VORTEX_SPOOL_DIR = "gda.device.vortex.spoolDir";
 
-	private static final Logger logger = LoggerFactory.getLogger(VortexParametersUIEditor.class);
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3ParametersUIEditor.class);
 
 	public Label acquireFileLabel;
-	protected VortexParameters vortexParameters;
 	protected boolean writeToDisk = LocalProperties.check("gda.detectors.save.single.acquire");
 
 	private FileDialog openDialog;
@@ -103,29 +99,21 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	private Composite acquire;
 	private Button acquireBtn;
 	private boolean autoSaveEnabled;
-	private final XmapDetector detector;
-	private String detectorName;
-	
-
 	private Label lblDeadTime;
 
-	public VortexParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean, "vortexConfig");
-		this.vortexParameters = (VortexParameters) editingBean;
-		detectorName = vortexParameters.getDetectorName();
-		detector = getDetector(detectorName);
+	
+	
+	public Xspress3ParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+		super(path, mappingURL, dirtyContainer, editingBean, path);
+		this.xspress3Parameters = (Xspress3Parameters) editingBean;
+		detectorName = xspress3Parameters.getDetectorName();
 	}
-
-	@Override
+	
+	
 	protected String getRichEditorTabText() {
-		return "Vortex";
+		return "Xspress3";
 	}
-
-	@Override
-	protected String getDetectorName() {
-		return vortexParameters.getDetectorName();
-	}
-
+	
 	@Override
 	public void createPartControl(Composite parent) {
 
@@ -139,11 +127,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 		sashPlotForm.setWeights(new int[] { 35, 74 });
 
-		if (!ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS)) {
-			addOutputPreferences(left);
-		}
-		
 		configureUI();
 	}
 
@@ -152,7 +135,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		grid.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		grid.setLayout(new GridLayout());
 
-		List<DetectorElement> detectorList = vortexParameters.getDetectorList();
+		List<DetectorElement> detectorList = xspress3Parameters.getDetectorList();
 		if (detectorList.size() > 1) {
 			final Composite buttonPanel = new Composite(grid, SWT.NONE);
 			buttonPanel.setLayout(new GridLayout(2, false));
@@ -190,15 +173,15 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		}
 
 		try {
-			IDetectorROICompositeFactory factory = VortexParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
+			IDetectorROICompositeFactory factory = Xspress3ParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
 			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class, factory, false);
-			VortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(getDetectorList());
+			Xspress3ParametersUIHelper.INSTANCE.setDetectorListGridOrder(getDetectorList());
 			getDetectorElementComposite().setWindowsEditable(false);
-			getDetectorElementComposite().setMinimumRegions(VortexParametersUIHelper.INSTANCE.getMinimumRegions());
-			getDetectorElementComposite().setMaximumRegions(VortexParametersUIHelper.INSTANCE.getMaximumRegions());
+			getDetectorElementComposite().setMinimumRegions(Xspress3ParametersUIHelper.INSTANCE.getMinimumRegions());
+			getDetectorElementComposite().setMaximumRegions(Xspress3ParametersUIHelper.INSTANCE.getMaximumRegions());
 
 		} catch (Exception e1) {
-			logger.error("Cannot create ui for VortexParameters", e1);
+			logger.error("Cannot create ui for Xspress3Parameters", e1);
 		}
 	}
 
@@ -318,17 +301,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		deadTimeLabel.setVisible(false);
 	}
 
-	private void addOutputPreferences(Composite comp) {
-		final Group xspressParametersGroup = new Group(comp, SWT.NONE);
-		xspressParametersGroup.setText("Output Preferences");
-		xspressParametersGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		xspressParametersGroup.setLayout(gridLayout);
-		this.saveRawSpectrum = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
-		saveRawSpectrum.setText("Save raw spectrum to file");
-		saveRawSpectrum.setValue(false);
-	}
 
 	@Override
 	public void linkUI(final boolean isPageChange) {
@@ -353,52 +325,19 @@ public class VortexParametersUIEditor extends DetectorEditor {
 			numWorkUnits += 5; // for the extra steps
 
 		if (monitor != null)
-			monitor.beginTask("Acquire xMap data", numWorkUnits);
+			monitor.beginTask("Acquire Xspress3 data", numWorkUnits);
 
-		//String detectorName = vortexParameters.getDetectorName();
-		//final XmapDetector xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
-		if (detector == null)
+		
+		if (getDetector(detectorName) == null)
 			throw new Exception("Unable to find Xmapdetector called :'" + detectorName + "'");
-		String tfgName = vortexParameters.getTfgName();
-		final Timer tfg = (Timer) Finder.getInstance().find(tfgName);
-		if (tfg == null)
-			throw new Exception("Unable to find tfg called :'" + tfgName + "'");
-
+	
 		try {
-			detector.clearAndStart();
+			
+			
+			final Double[][] MCData = getDetector(detectorName).getMCData(collectionTimeValue);
+			final int[][] data = getDetector(detectorName).getData();
 			if (monitor != null)
 				monitor.worked(1);
-			tfg.countAsync(collectionTimeValue);
-			if (monitor != null)
-				monitor.worked(10);
-			while (tfg.getStatus() == Timer.ACTIVE) {
-				try {
-					Thread.sleep(loopSleepTimeInMillis);
-					if (monitor != null) {
-						if (monitor.isCanceled()) {
-							detector.stop();
-							return;
-						}
-						monitor.worked(1);
-					}
-				} catch (InterruptedException e) {
-				}
-			}
-			if (monitor != null)
-				if (monitor.isCanceled())
-					return;
-
-			if (monitor != null)
-				logger.debug("Stopping xmap detector " + tfg.getStatus());
-			detector.stop();
-			detector.waitWhileBusy();
-			if (monitor != null)
-				monitor.worked(1);
-
-			final int[][] data = detector.getData();
-			if (monitor != null)
-				monitor.worked(1);
-			//private String detectorName;
 
 			final int[][][] data3d = get3DArray(data);
 			getDataWrapper().setValue(ElementCountsData.getDataFor(data3d));
@@ -408,8 +347,8 @@ public class VortexParametersUIEditor extends DetectorEditor {
 				monitor.worked(1);
 
 			// returns the icr and ocr
-			Double[] liveStats = (Double[]) detector.getAttribute("countRates");
-			final double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
+			Double[] liveStats = (Double[]) getDetector(detectorName).getAttribute("countRates");
+			//final double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
 
 			// Note: currently has to be in this order.
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -418,7 +357,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 					getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
 					plot(getDetectorList().getSelectedIndex(),true);
 					setEnabled(true);
-					deadTimeLabel.setValue(deadTimeFinal);
+					//deadTimeLabel.setValue(deadTimeFinal);
 					lblDeadTime.setVisible(true);
 					deadTimeLabel.setVisible(true);
 					sashPlotForm.getLeft().layout();
@@ -459,7 +398,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 				}
 			});
 			sashPlotForm.appendStatus(
-					"Cannot get xMap data from Vortex detector. Check the log and inform beamline staff.", logger);
+					"Cannot get Xspress3 data from Vortex detector. Check the log and inform beamline staff.", logger);
 			return;
 		}
 
@@ -469,16 +408,16 @@ public class VortexParametersUIEditor extends DetectorEditor {
 			try {
 				String spoolDirPath = PathConstructor.createFromProperty(GDA_DEVICE_VORTEX_SPOOL_DIR);
 				if (spoolDirPath == null || spoolDirPath.length() == 0)
-					throw new Exception("Error saving data. Vortex device spool dir is not defined in property "
+					throw new Exception("Error saving data. Xspress3 device spool dir is not defined in property "
 							+ GDA_DEVICE_VORTEX_SPOOL_DIR);
 
-				long snapShotNumber = new NumTracker("Vortex_snapshot").incrementNumber();
-				String fileName = "vortex_snap_" + snapShotNumber+ ".mca";
+				long snapShotNumber = new NumTracker("Xspress3_snapshot").incrementNumber();
+				String fileName = "xspress3_snap_" + snapShotNumber+ ".mca";
 				File filePath = new File(spoolDirPath + "/" + fileName);
 				spoolFilePath = filePath.getAbsolutePath();
 				save(detectorData, spoolFilePath);
 				msg = "Saved: " + spoolFilePath;
-				logger.info("Vortex snapshot saved to " + spoolFilePath);
+				logger.info("Xspress3 snapshot saved to " + spoolFilePath);
 			} finally {
 				final String msgFinal = msg;
 				getSite().getShell().getDisplay().syncExec(new Runnable() {
@@ -559,7 +498,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public XMLCommandHandler getXMLCommandHandler() {
-		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(VortexParameters.class);
+		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(Xspress3Parameters.class);
 	}
 
 	@Override
@@ -596,8 +535,8 @@ public class VortexParametersUIEditor extends DetectorEditor {
 						}
 						// find the res grade
 
-						int resGrade = data.size() / vortexParameters.getDetectorList().size();
-						detectorData = new double[vortexParameters.getDetectorList().size()][resGrade][];
+						int resGrade = data.size() / xspress3Parameters.getDetectorList().size();
+						detectorData = new double[xspress3Parameters.getDetectorList().size()][resGrade][];
 						int dataIndex = 0;
 						// Int array above is [element][grade (1, 2 or all 16)][mca channel]
 						for (int i = 0; i < detectorData.length; i++) {
@@ -644,8 +583,9 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		return varDir + "/vortex_editor_data.xml";
 	}
 
-	private XmapDetector getDetector(String detectorName){
-		return (XmapDetector) Finder.getInstance().find(detectorName); 
+	private final FluorescenceAcquire getDetector(String detectorName){
+		FluorescenceAcquire detector = (FluorescenceAcquire) Finder.getInstance().find(detectorName);
+		return detector; 
 	}
 	
 	
@@ -663,4 +603,11 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		acquireBtn.dispose();
 		super.dispose();
 	}
+
+
+	@Override
+	protected String getDetectorName() {
+		return xspress3Parameters.getDetectorName();
+	}	
+	
 }

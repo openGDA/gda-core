@@ -25,8 +25,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /**
  * Write to an Xas and a Nexus file simultaneously
  */
@@ -92,7 +90,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			ascii.setSampleParametersName(detectorParametersName);
 			ascii.setOutputParametersName(outputParametersName);
 			ascii.setFolderName(folderName);
-			
+
 			nexus = new XasNexusDataWriter(newData.getScanIdentifier());
 			setFileNameTemplates();
 			firstData = false;
@@ -123,20 +121,23 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			nexus.setNexusFileNameTemplate(nexusFileNameTemplate);
 		if (asciiFileNameTemplate != null)
 			ascii.setAsciiFileNameTemplate(asciiFileNameTemplate);
-		ascii.setNexusFilePath(nexus.getCurrentFileName()); // to cross reference in its header
+		ascii.setNexusFilePath(nexus.getCurrentFileName()); // to cross
+															// reference in its
+															// header
 	}
 
 	@Override
 	public void completeCollection() throws Exception {
-		if (ascii == null) return;
-		storeFilenamesWithRegistar();
-		try {
-			nexus.completeCollection();
-		} catch (Exception e) {
-			// ignore so we don't prevent the xas file from being written
-			logger.error("ignored nexus error: ", e);
+		if (ascii != null) {
+			storeFilenamesWithRegistar();
+			try {
+				nexus.completeCollection();
+			} catch (Exception e) {
+				// ignore so we don't prevent the xas file from being written
+				logger.error("ignored nexus error: ", e);
+			}
+			ascii.completeCollection();
 		}
-		ascii.completeCollection();
 	}
 
 	@Override
@@ -180,7 +181,6 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		this.asciiFileNameTemplate = asciiFileNameTemplate;
 	}
 
-
 	public List<String> getDescriptions() {
 		return ascii.getDescriptions();
 	}
@@ -208,7 +208,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	public void setOutputParametersName(String outputParametersName) {
 		this.outputParametersName = outputParametersName;
 	}
-	
+
 	public void setFolderName(String folderName) {
 		this.folderName = folderName;
 	}
@@ -220,7 +220,5 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	public void setRunFromExperimentDefinition(Boolean runFromExperimentDefinition) {
 		this.runFromExperimentDefinition = runFromExperimentDefinition;
 	}
-	
-	
-	
+
 }
