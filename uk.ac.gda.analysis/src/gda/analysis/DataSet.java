@@ -866,7 +866,7 @@ public class DataSet extends DoubleDataset {
 		}
 		result = new DataSet(dds.getData(), dds.getShape());
 		result.setName(data.getName());
-		result.metadataStructure = dds.getMetadata();
+		result.metadata = AbstractDataset.getMetadataMap(dds, false);
 		return result;
 	}
 
