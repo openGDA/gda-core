@@ -56,7 +56,7 @@ public class ADUtils {
 		return name;
 	}
 
-	public static String getSuffixTypeFromPVServiceName(String pvServiceName) throws Exception{
+	public static String getSuffixTypeFromPVServiceName(String pvServiceName) {
 		String name = pvServiceName;
 		if(pvServiceName.startsWith(PV_TYPE)){
 			String[] split = pvServiceName.split(PV_TYPE);
