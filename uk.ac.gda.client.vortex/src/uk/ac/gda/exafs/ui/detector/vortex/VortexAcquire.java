@@ -49,12 +49,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.exafs.ui.detector.Acquire;
-import uk.ac.gda.exafs.ui.detector.Counts;
-import uk.ac.gda.exafs.ui.detector.DetectorEditor;
-import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
-import uk.ac.gda.exafs.ui.detector.Plot;
+import uk.ac.gda.exafs.ui.detectorviews.Acquire;
+import uk.ac.gda.exafs.ui.detectorviews.Counts;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorEditor;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detectorviews.Plot;
+import uk.ac.gda.richbeans.components.data.DataWrapper;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
@@ -64,6 +66,8 @@ import com.swtdesigner.SWTResourceManager;
 public class VortexAcquire extends Acquire {
 	private int[][][] mcaData;
 	private static final Logger logger = LoggerFactory.getLogger(VortexAcquire.class);
+	// when switching to Xspress3 then use this interface so the editors can be duplicated
+//	private FluorescenceAcquire xmapDetector;
 	private XmapDetector xmapDetector;
 	private Timer tfg;
 	private SashFormPlotComposite sashPlotFormComposite;
@@ -82,11 +86,22 @@ public class VortexAcquire extends Acquire {
 	public VortexAcquire(SashFormPlotComposite sashPlotFormComposite, Detector xmapDetector, Timer tfg, Display display, final Plot plot, Counts counts){
 		super(display);
 		this.sashPlotFormComposite = sashPlotFormComposite;
-		this.xmapDetector = (XmapDetector)xmapDetector;
+		this.xmapDetector = (XmapDetector) xmapDetector;
 		this.tfg = tfg;
 		this.plot = plot;
 		this.counts = counts;
 		vortexData = new VortexData();
+		
+		DataWrapper storedData = vortexData.readStoredData(getDataXMLName());
+		if (storedData.getValue() != null){
+			ElementCountsData[] ecData = (ElementCountsData[]) storedData.getValue();
+			plot.plot(0, ElementCountsData.getDataFrom(ecData), false, null);
+		}
+	}
+	
+	public String getDataXMLName() {
+		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
+		return varDir + "/vortex_editor_data.xml";
 	}
 	
 	@Override
@@ -106,7 +121,7 @@ public class VortexAcquire extends Acquire {
 				
 				Double[] liveStats = null;
 				try {
-					liveStats = (Double[]) xmapDetector.getAttribute("countRates");
+					liveStats = (Double[]) xmapDetector.getAttribute("countRates");// should be through a method: .getCountRates();
 				} catch (DeviceException e) {
 					logger.error("Problem getting attribute countRates from xmap", e);
 				}
@@ -178,6 +193,12 @@ public class VortexAcquire extends Acquire {
 		int[][] data = xmapDetector.getData();
 		mcaData = convert2DTo3DArray(data);
 		sashPlotFormComposite.appendStatus("Collected data from detector successfully.", logger);
+		
+		vortexData.writeStoredData(getDataXMLName(), ElementCountsData.getDataFor(mcaData));
+
+		// this what we added to XspressAcquire
+//		dataUpdate(0, mcaData);
+//		tableViewer.refresh();
 	}
 	
 	public int[][][] getMcaData() {

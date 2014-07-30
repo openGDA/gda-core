@@ -33,20 +33,20 @@ import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
-import uk.ac.gda.exafs.ui.detector.DetectorEditor;
-import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorEditor;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorElementComposite;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
-public class XspressParametersUIEditor extends DetectorEditor {
+public class NewXspressParametersUIEditor extends DetectorEditor {
 	private XspressParameters xspressParameters;
 	private String xmlPath;
 	private Xspress xspress;
 	
-	public XspressParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+	public NewXspressParametersUIEditor(String xmlPath, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(xmlPath, mappingURL, dirtyContainer, editingBean, "xspressConfig");
 		this.xmlPath = xmlPath;
 		this.xspressParameters = (XspressParameters) editingBean;
@@ -55,7 +55,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	@Override
 	public void createPartControl(Composite parent) {
 		XspressDetector xspressDetector = Finder.getInstance().find(xspressParameters.getDetectorName());
-		xspress = new Xspress(xmlPath, this.getSite(), parent, xspressDetector, xspressParameters.getDetectorList());
+		xspress = new Xspress(xmlPath, this.getSite(), parent, xspressDetector, xspressParameters.getDetectorList(), xspressParameters);
 	}
 
 	@Override
@@ -70,12 +70,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			return;
 		fluorescenceComposite.getDetectorType().setValue("Germanium");
 		fluorescenceComposite.getConfigFileName().setValue(file.getAbsolutePath());
-	}
-
-	@Override
-	protected String getDataXMLName() {
-		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
-		return varDir + "/xspress_editor_data.xml";
 	}
 	
 	public XMLCommandHandler getXMLCommandHandler() {

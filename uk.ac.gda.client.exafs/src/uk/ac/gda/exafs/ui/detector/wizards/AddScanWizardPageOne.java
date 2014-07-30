@@ -29,9 +29,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 public class AddScanWizardPageOne extends WizardPage {
-	private Combo expType;
-	private Label lblChooseType;
-	private String scanType;
+
+	Combo expType;
+	Label lblChooseType;
+	String scanType;
 
 	AddScanWizardPageOne() {
 		super("Choose scan type");
@@ -39,12 +40,15 @@ public class AddScanWizardPageOne extends WizardPage {
 
 	@Override
 	public void createControl(Composite parent) {
-		setTitle("Please select the type of scan.");
+		this.setTitle("Please select the type of scan.");
+
 		Composite selectTypeArea = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(selectTypeArea);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(selectTypeArea);
+
 		lblChooseType = new Label(selectTypeArea, 0);
 		lblChooseType.setText("Please choose an experiment type");
+
 		String[] scanTypes = { "Xas", "Xanes", "Qexafs" };
 		expType = new Combo(selectTypeArea, 0);
 		expType.setItems(scanTypes);
@@ -52,6 +56,7 @@ public class AddScanWizardPageOne extends WizardPage {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
+
 			}
 
 			@Override
@@ -60,6 +65,7 @@ public class AddScanWizardPageOne extends WizardPage {
 			}
 
 		});
+
 		setPageComplete(true);
 		setErrorMessage(null);
 		setMessage(null);
@@ -69,5 +75,4 @@ public class AddScanWizardPageOne extends WizardPage {
 	public String getScanType(){
 		return scanType;
 	}
-	
 }

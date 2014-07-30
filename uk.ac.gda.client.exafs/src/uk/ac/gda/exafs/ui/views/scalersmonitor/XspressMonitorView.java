@@ -23,22 +23,19 @@ import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.detector.xspress.XspressDetector;
 import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 
-import org.dawnsci.plotting.api.PlotType;
-import org.dawnsci.plotting.api.axis.IAxis;
-import org.dawnsci.plotting.api.trace.ILineTrace;
-import org.dawnsci.plotting.api.trace.ILineTrace.TraceType;
+import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.axis.IAxis;
+import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
+import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
@@ -46,11 +43,13 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class XspressMonitorView extends MonitorViewBase {
 	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor";
-	protected static final Logger logger = LoggerFactory.getLogger(XspressMonitorView.class);
+//	protected static final Logger logger = LoggerFactory.getLogger(XspressMonitorView.class);
 	private static final Double MAX_FLUO_RATE = 500000.0;
 	protected ScalersMonitorConfig displayData;
 	private IAxis dtAxis;
 	private IAxis primaryAxis;
+	private XspressDetector xspress;
+	private CounterTimer ionchambers;
 
 	public XspressMonitorView() {
 	}
@@ -163,17 +162,18 @@ public class XspressMonitorView extends MonitorViewBase {
 
 	@Override
 	protected Double[] getIonChamberValues() throws Exception {
-		//TODO why get the detector names from java properties? Spring is a much nicer way of configuring as it means not having to look in the code to see what devices are used.
-		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
-		XspressDetector xspress = (XspressDetector) Finder.getInstance().find(xspressName);
-		String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
-		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
+		if (xspress == null) {
+			String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
+			xspress = (XspressDetector) Finder.getInstance().find(xspressName);
+		}
+		if (ionchambers == null) {
+			String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
+			ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
+		}
 
 		// only collect new data outside of scans else will readout the last data collected
 		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xspress.isBusy()
 				&& !ionchambers.isBusy()) {
-			InterfaceProvider.getCommandRunner().runCommand("ScanBase.setInterrupted(False)");
-			InterfaceProvider.getCommandRunner().runCommand("ScanBase.setPaused(False)");
 			xspress.collectData();
 			ionchambers.setCollectionTime(1);
 			ionchambers.clearFrameSets();

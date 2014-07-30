@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.Platform;
 import uk.ac.gda.richbeans.components.selector.GridListEditor;
 import uk.ac.gda.richbeans.components.selector.GridListEditor.GRID_ORDER;
 
-public enum XspressParametersUIHelper {
+public enum NewXspressParametersUIHelper {
 	INSTANCE;
 	
 //	public IDetectorROICompositeFactory getDetectorROICompositeFactory() {

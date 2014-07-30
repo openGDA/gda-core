@@ -100,12 +100,12 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 			// always make sure the header is the same number of lines, no matter what the parameters are
 			if (sampleName == null || sampleName.isEmpty())
-				file.write("# Sample name:");
+				file.write("# Sample name:\n");
 			else
 				file.write("# Sample name: " + sampleName + "\n");
 			
 			if (descriptions == null || descriptions.isEmpty())
-				file.write("# Sample description:");
+				file.write("# Sample description:\n");
 			else {
 				for (int i = 0; i < descriptions.size(); i++) {
 					String startMsg = "# ";

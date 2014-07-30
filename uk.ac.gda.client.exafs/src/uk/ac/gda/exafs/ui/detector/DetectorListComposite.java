@@ -35,10 +35,11 @@ import com.swtdesigner.SWTResourceManager;
 public class DetectorListComposite extends Composite {
 
 	protected GridListEditor detectorList;
-	public DetectorElementComposite detectorElementComposite;
+	private DetectorElementComposite detectorElementComposite;
 
 	public DetectorListComposite(final Composite parent, final Class<? extends IDetectorElement> editorClass,
-			final int elementListSize, final Class<? extends DetectorROI> regionClass, boolean showRoi) {
+			final int elementListSize, final Class<? extends DetectorROI> regionClass,
+			final IDetectorROICompositeFactory regionEditorFactory, Boolean showAdvanced) {
 		super(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(this);
 
@@ -59,14 +60,17 @@ public class DetectorListComposite extends Composite {
 		} else {
 			throw new NullPointerException("Grid with the list of detectors cannot be created");
 		}
+
 		detectorList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		detectorList.setEditorClass(editorClass);
-		detectorElementComposite = new DetectorElementComposite(detectorList, SWT.NONE, elementListSize > 1,
-				regionClass, showRoi);
+
+		this.detectorElementComposite = new DetectorElementComposite(detectorList, SWT.NONE, elementListSize > 1,
+				regionClass, regionEditorFactory, showAdvanced);
 		detectorElementComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
 		detectorList.setEditorUI(detectorElementComposite);
 		detectorList.setGridWidth(200);
-		detectorList.setEnabled(true);
+		detectorList.setEnabled(false);
 		detectorList.setAdditionalLabelProvider(new ColumnLabelProvider() {
 			private final Color lightGray = SWTResourceManager.getColor(SWT.COLOR_GRAY);
 
@@ -85,6 +89,16 @@ public class DetectorListComposite extends Composite {
 				return null;
 			}
 		});
+
+	}
+
+	/**
+	 * Notified when the advanced section is expanded.
+	 * 
+	 * @param l
+	 */
+	public void addExpansionListener(IExpansionListener l) {
+		detectorElementComposite.addExpansionListener(l);
 	}
 
 	public void removeExpansionListener(IExpansionListener l) {

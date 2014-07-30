@@ -39,9 +39,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.exafs.ui.detector.Counts;
-import uk.ac.gda.exafs.ui.detector.Elements;
 import uk.ac.gda.exafs.ui.detector.wizards.vortex.ImportVortexROIWizard;
+import uk.ac.gda.exafs.ui.detectorviews.Counts;
+import uk.ac.gda.exafs.ui.detectorviews.Elements;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 
 import com.swtdesigner.SWTResourceManager;
@@ -82,7 +82,7 @@ public class VortexElements extends Elements{
 			gridData.widthHint = 60;
 			gridData.minimumWidth = 60;
 			applyToAllButton.setLayoutData(gridData);
-			applyToAllButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class, "/icons/camera_go.png"));
+			applyToAllButton.setImage(SWTResourceManager.getImage(NewVortexParametersUIEditor.class, "/icons/camera_go.png"));
 			applyToAllButton.setToolTipText("Apply current detector regions of interest to all other detector elements.");
 			SelectionAdapter applyToAllListener = new SelectionAdapter() {
 				@Override
@@ -102,10 +102,10 @@ public class VortexElements extends Elements{
 			detectorElementsLabel.setText(" Regions of Interest");
 		try {
 			createImportButton(grid, detectorList.size());
-			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class, true);
+			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class);
 			detectorListComposite.getDetectorElementComposite().setWindowsEditable(false);
-			detectorListComposite.getDetectorElementComposite().setMinimumRegions(VortexParametersUIHelper.INSTANCE.getMinimumRegions());
-			detectorListComposite.getDetectorElementComposite().setMaximumRegions(VortexParametersUIHelper.INSTANCE.getMaximumRegions());
+			detectorListComposite.getDetectorElementComposite().setMinimumRegions(NewVortexParametersUIHelper.INSTANCE.getMinimumRegions());
+			detectorListComposite.getDetectorElementComposite().setMaximumRegions(NewVortexParametersUIHelper.INSTANCE.getMaximumRegions());
 		} catch (Exception e1) {
 			logger.error("Cannot create ui for VortexParameters", e1);
 		}
@@ -120,7 +120,7 @@ public class VortexElements extends Elements{
 		final Button importButton = new Button(importComposite, SWT.NONE);
 		GridDataFactory grab = GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, false);
 		grab.hint(60, SWT.DEFAULT).applyTo(importButton);
-		importButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class, "/icons/calculator_edit.png"));
+		importButton.setImage(SWTResourceManager.getImage(NewVortexParametersUIEditor.class, "/icons/calculator_edit.png"));
 		importButton.setToolTipText("Import Regions Of Interest from other Parameters files");
 		final SelectionAdapter importButtonListener = new SelectionAdapter() {
 			@Override

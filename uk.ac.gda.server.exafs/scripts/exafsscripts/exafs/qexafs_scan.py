@@ -9,6 +9,7 @@ from scan import Scan
 
 from gda.configuration.properties import LocalProperties
 #from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter
+from gda.device import DeviceException
 from gda.epics import CAClient
 from gda.exafs.scan import BeanGroup, BeanGroups, ScanStartedMessage, RepetitionsProperties
 from gda.jython import ScriptBase
@@ -35,7 +36,7 @@ class QexafsScan(Scan):
         self.log("Starting QEXAFS scan...")
         
         experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
-        print "qexafs XML file names",sampleFileName, scanFileName, detectorFileName, outputFileName
+        #print "qexafs XML file names",sampleFileName, scanFileName, detectorFileName, outputFileName
         self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
 
         if self.cirrusEnabled:
@@ -74,7 +75,7 @@ class QexafsScan(Scan):
                 final_energy = scanBean.getFinalEnergy()
                 step_size = scanBean.getStepSize()
                 self.outputPreparer.prepare(outputBean, scanBean)
-                print 'Prepare output'
+                #print 'Prepare output'
                 if len(outputBean.getCheckedSignalList()) > 0:
                     print "Signal parameters not available with QEXAFS"
                 if self.energy_scannable == None:
@@ -133,20 +134,33 @@ class QexafsScan(Scan):
                     controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
                     loggingbean.atScanEnd()            
                     
-                except java.lang.Exception, e:
+                except DeviceException, e:
                     self._resetHeader()
                     loggingbean.atCommandFailure()
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
                         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
-                        # check if a panic stop has been issued, so the whole script should stop
+                        # check if an abort or panic stop has been issued, so the whole script should stop
                         if JThread.currentThread().isInterrupted():
                             raise e
                         # only wanted to skip this repetition, so absorb the exception and continue the loop
                         if numRepetitions > 1:
                             self.log("Repetition " + str(repetitionNumber), + " skipped.")
                     else:
-                        print e
-                        raise # any other exception we are not expecting so raise whatever this is to abort the script
+                        self.log( "Exception while running QEXAFS:" + str(e))
+                        self.log( "Will not abort queue but will continue to the next scan, if available")
+                except java.lang.Exception, e:
+                    self._resetHeader()
+                    loggingbean.atCommandFailure()
+                    if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
+                        LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
+                        # check if an abort or panic stop has been issued, so the whole script should stop
+                        if JThread.currentThread().isInterrupted():
+                            raise e
+                        # only wanted to skip this repetition, so absorb the exception and continue the loop
+                        if numRepetitions > 1:
+                            self.log("Repetition " + str(repetitionNumber) + " skipped.")
+                    else:
+                        raise e
                 except:
                     self._resetHeader()
                     loggingbean.atCommandFailure()
@@ -195,12 +209,14 @@ class QexafsScan(Scan):
         expt_type = detectorBean.getExperimentType()
         detectorList = []
         if expt_type == "Transmission":
-            print "This is a transmission scan"
+            #print "This is a transmission scan"
             if self.gmsd_enabled==True:
                 return self._createDetArray(["qexafs_counterTimer01_gmsd"], scanBean)
             elif self.additional_channels_enabled==True:
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_counterTimer01_gmsd" ], scanBean)
             else:
+                # when using xspress3 in qexafs scans. NB: must use the Transmission option in the UI
+#                return self._createDetArray(["qexafs_FFI0_xspress3","qexafs_xspress3","qexafs_counterTimer01"], scanBean)
                 return self._createDetArray(["qexafs_counterTimer01"], scanBean)
         else:
             if detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon":

@@ -32,8 +32,8 @@ class Scan:
     def determineExperimentPath(self, experimentFullPath):
         experimentFullPath = experimentFullPath + "/"
         experimentFolderName = experimentFullPath[experimentFullPath.find("xml")+4:]
-        self.log("Using data folder " + experimentFullPath)
-        self.log("Using xml subfolder " + experimentFolderName)
+        self.log("Using data folder: " + experimentFullPath)
+        self.log("Using xml subfolder: " + experimentFolderName)
         return experimentFullPath, experimentFolderName
     
     def setXmlFileNames(self, sampleFileName, scanFileName, detectorFileName, outputFileName):
@@ -74,7 +74,7 @@ class Scan:
         scanBean = BeansFactory.getBeanObject(experimentFullPath+"/", scanFileName)
         detectorBean = BeansFactory.getBeanObject(experimentFullPath+"/", detectorFileName)
         outputBean = BeansFactory.getBeanObject(experimentFullPath+"/", outputFileName)
-        print "beans created based on ", experimentFullPath, ", ", sampleFileName, ", ", scanFileName, ", ", detectorFileName, ", ",  outputFileName
+        #print "beans created based on ", experimentFullPath, ", ", sampleFileName, ", ", scanFileName, ", ", detectorFileName, ", ",  outputFileName
         return sampleBean, scanBean, detectorBean, outputBean
     
     # from xas
@@ -123,25 +123,28 @@ class Scan:
         # create XasAsciiNexusDataWriter object and give it the parameters
         dataWriter = XasAsciiNexusDataWriter()
         
-        print "detectorFileName", detectorFileName
-        print "basestring", basestring
+#        print "detectorFileName", detectorFileName
+#        print "basestring", basestring
         
         if (Finder.getInstance().find("metashop") != None and isinstance(detectorFileName, basestring)):
             
             #print "scanning... ", self.detectorFileName
-            print "meta_add detectorFileName", detectorFileName
+           # print "meta_add detectorFileName", detectorFileName
             meta_add(detectorFileName, BeansFactory.getXMLString(detectorBean))
-            print "meta_add outputFileName", outputFileName
+            #print "meta_add outputFileName", outputFileName
             meta_add(outputFileName, BeansFactory.getXMLString(outputBean))
-            print "meta_add sampleFileName", sampleFileName
+            #print "meta_add sampleFileName", sampleFileName
             meta_add(sampleFileName, BeansFactory.getXMLString(sampleBean))
-            print "meta_add scanFileName", scanFileName
+            #print "meta_add scanFileName", scanFileName
             meta_add(scanFileName, BeansFactory.getXMLString(scanBean))
             meta_add("xmlFolderName", experimentFullPath)
             xmlFilename = self._determineDetectorFilename(detectorBean)
             if ((xmlFilename != None) and (experimentFullPath != None)):
                 detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath, xmlFilename)
-                meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
+                if detectorConfigurationBean != None:
+                    meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
+                else:
+                    print "Could not get a bean from",experimentFullPath,xmlFilename
         else: 
             self.logger.info("Metashop not found")
         
@@ -152,7 +155,7 @@ class Scan:
         dataWriter.setFolderName(experimentFullPath)
         
         if isinstance(detectorFileName, basestring):
-            print "add xml filenames to ascii metadata"
+            #print "add xml filenames to ascii metadata"
             
             dataWriter.setScanParametersName(scanFileName)
             dataWriter.setDetectorParametersName(detectorFileName)

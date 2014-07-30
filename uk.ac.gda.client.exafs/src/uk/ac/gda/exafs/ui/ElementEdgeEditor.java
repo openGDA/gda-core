@@ -37,11 +37,11 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.dawb.common.ui.widgets.ActionBarWrapper;
-import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.PlotType;
-import org.dawnsci.plotting.api.PlottingFactory;
-import org.dawnsci.plotting.api.trace.ILineTrace;
-import org.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -565,8 +565,8 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		}
 
 		public void createTrace() {
-			IntegerDataset x = IntegerDataset.arange(5);
-			IntegerDataset y = IntegerDataset.arange(5);
+			IntegerDataset x = IntegerDataset.createRange(5);
+			IntegerDataset y = IntegerDataset.createRange(5);
 			x.setName("Energy (eV)");
 			y.setName("\u0394E (eV)");
 			List<ITrace> traces = plottingsystem.createPlot1D(x, Arrays.asList(new AbstractDataset[] { y }), null);

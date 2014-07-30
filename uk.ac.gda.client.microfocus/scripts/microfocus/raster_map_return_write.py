@@ -1,20 +1,24 @@
 from map import Map
 
+from gdascripts.metadata.metadata_commands import meta_add
+
 from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import TwoDScanRowReverser, NexusDataWriter
 from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
 from gda.factory import Finder
 from gda.jython.commands import ScannableCommands
 from gda.scan import TrajectoryScanLine
+from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.client.microfocus.util import ScanPositionsTwoWay
 
+from microfocus.raster_map import RasterMap
 
 #
 # Faster raster
 #
-class RasterMapReturnWrite(Map):
+class RasterMapReturnWrite(RasterMap):
     
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, raster_xmap, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress, traj1PositionReader, traj3PositionReader):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, raster_xmap, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress, traj1PositionReader, traj3PositionReader, trajBeamMonitor):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -42,6 +46,8 @@ class RasterMapReturnWrite(Map):
         self.traj3PositionReader = traj3PositionReader
         self.trajPositionReader = traj1PositionReader
 
+        self.trajBeamMonitor = trajBeamMonitor
+
         self.beamEnabled = True
         self.finder = Finder.getInstance()
         self.mfd = None
@@ -57,7 +63,7 @@ class RasterMapReturnWrite(Map):
         elif stage==3:
             self.trajSampleX = self.traj3SampleX
             self.trajtfg=self.traj3tfg
-            self.trajtfg.setTtlSocket(2)
+            self.trajtfg.setTtlSocket(1)
             self.trajxmap=self.traj3xmap
             self.trajPositionReader = self.traj3PositionReader
         else:
@@ -65,9 +71,9 @@ class RasterMapReturnWrite(Map):
 
     def _runMap(self,beanGroup, xScannable, yScannable, zScannable, detectorList,scanNumber,experimentFolderName,experimentFullPath,nx,ny):
         scanBean = beanGroup.getScan()
+        
         detectorBean = beanGroup.getDetector()
         detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
-        
         if detectorBean.getExperimentType() != "Fluorescence" or detectorType != "Silicon":
             print "*** Faster maps may only be performed using the Xmap Vortex detector! ***"
             print "*** Change detector type in XML or mapping mode by typing map.disableFasterRaster()"
@@ -83,7 +89,7 @@ class RasterMapReturnWrite(Map):
         tsl  = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, self.trajxmap, scanBean.getRowTime()/(nx)] )
         tsl.setScanDataPointQueueLength(10000)
         tsl.setPositionCallableThreadPoolSize(10)
-        xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(), scanBean.getYStepSize(), tsl, self.trajPositionReader])
+        xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(), scanBean.getYStepSize(), self.trajBeamMonitor, tsl, self.trajPositionReader])
         xmapRasterscan.getScanPlotSettings().setIgnore(1)
         self._setUpTwoDDataWriter(xmapRasterscan, nx, ny, beanGroup, experimentFullPath, experimentFolderName,scanNumber)
         self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
@@ -121,16 +127,37 @@ class RasterMapReturnWrite(Map):
         
         xasWriter = twoDWriter.getXasDataWriter()
         
-        xasWriter.setRunFromExperimentDefinition(True);
-        xasWriter.setScanBean(scanBean);
-        xasWriter.setDetectorBean(detectorBean);
-        xasWriter.setSampleBean(sampleBean);
-        xasWriter.setOutputBean(outputBean);
-        xasWriter.setSampleName(sampleName);
-        xasWriter.setXmlFolderName(experimentFullPath)
+#         xasWriter.setRunFromExperimentDefinition(True);
+#         xasWriter.setScanBean(scanBean);
+#         xasWriter.setDetectorBean(detectorBean);
+#         xasWriter.setSampleBean(sampleBean);
+#         xasWriter.setOutputBean(outputBean);
+#         xasWriter.setSampleName(sampleName);
+#         xasWriter.setXmlFolderName(experimentFullPath)
+        
+        
+        if (Finder.getInstance().find("metashop") != None):
+            meta_add(self.detectorFileName, BeansFactory.getXMLString(detectorBean))
+            meta_add(self.outputFileName, BeansFactory.getXMLString(outputBean))
+            meta_add(self.sampleFileName, BeansFactory.getXMLString(sampleBean))
+            meta_add(self.scanFileName, BeansFactory.getXMLString(scanBean))
+            meta_add("xmlFolderName", experimentFullPath)
+            xmlFilename = self._determineDetectorFilename(detectorBean)
+            if ((xmlFilename != None) and (experimentFullPath != None)):
+                detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath, xmlFilename)
+                meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
+        else: 
+            self.logger.info("Metashop not found")
+            
+               
+        xasWriter.setFolderName(experimentFullPath)
+        xasWriter.setScanParametersName(self.scanFileName)
+        xasWriter.setDetectorParametersName(self.detectorFileName)
+        xasWriter.setSampleParametersName(self.sampleFileName)
+        xasWriter.setOutputParametersName(self.outputFileName)
         
         # add the detector configuration file to the metadata
-        xasWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
+#         xasWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
         xasWriter.setDescriptions(descriptions);
         xasWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         xasWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
@@ -138,3 +165,5 @@ class RasterMapReturnWrite(Map):
         
         xmapRasterscan.setDataWriter(twoDWriter)
         
+        
+

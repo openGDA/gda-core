@@ -71,6 +71,7 @@ public class PositionCompareQexafsScannable extends QexafsScannable {
 	@Override
 	public void prepareForContinuousMove() throws DeviceException {
 		long timeAtMethodStart = System.currentTimeMillis();
+		super.prepareForContinuousMove();
 		if (!channelsConfigured) {
 			throw new DeviceException("Cannot set continuous mode on for " + getName()
 					+ " as Epics channels not configured");

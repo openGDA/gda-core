@@ -66,7 +66,7 @@ public class Xspress3BufferedDetector extends Xspress3Detector implements Buffer
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		return 50;
+		return 500;
 	}
 
 	public TRIGGER_MODE getTriggerModeWhenInContinuousScan() {

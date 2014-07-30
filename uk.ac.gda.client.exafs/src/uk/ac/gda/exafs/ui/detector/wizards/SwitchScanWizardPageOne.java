@@ -37,19 +37,25 @@ import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 public class SwitchScanWizardPageOne extends WizardPage {
-	private Combo expType;
-	private Label lblChooseType;
-	private String scanType;
+
+	Combo expType;
+	Label lblChooseType;
+	String scanType;
 	
 	SwitchScanWizardPageOne() {
 		super("Choose scan type");
 	}
 	
 	private String[] getExperimentTypes(){
-		if (ScanObjectManager.isXESOnlyMode())
+		
+		if (ScanObjectManager.isXESOnlyMode()) {
 			return new String[]{"Xes"};
+		} 
+		
 		String[] types = new String[]{ "Xas", "Xanes"};
-		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.common.beans.factory");
+		
+		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
+				"uk.ac.common.beans.factory");
 		for (IConfigurationElement element : config) {
 			if (element.getName().equals("bean")) {
 				try {
@@ -57,10 +63,11 @@ public class SwitchScanWizardPageOne extends WizardPage {
 					if (thisbean instanceof MicroFocusScanParameters){
 						types = (String[]) ArrayUtils.add(types, "Microfocus");
 						types = (String[]) ArrayUtils.add(types, "Qexafs");
-					} 
-					else if (thisbean instanceof QEXAFSParameters)
+					} else if (thisbean instanceof QEXAFSParameters){
 						types = (String[]) ArrayUtils.add(types, "Qexafs");
+					}
 				} catch (Exception e) {
+					// ignore
 				}
 			}
 		}
@@ -69,13 +76,17 @@ public class SwitchScanWizardPageOne extends WizardPage {
 
 	@Override
 	public void createControl(Composite parent) {
-		setTitle("Please select the type of scan.");
+		this.setTitle("Please select the type of scan.");
+		
 		Composite selectTypeArea = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(selectTypeArea);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(selectTypeArea);
+		
 		lblChooseType = new Label(selectTypeArea, 0);
 		lblChooseType.setText("Please choose an experiment type");
+		
 		String[] scanTypes = getExperimentTypes();
+
 		expType = new Combo(selectTypeArea, 0);
 		expType.setItems(scanTypes);
 		expType.addSelectionListener(new SelectionListener(){
@@ -88,6 +99,7 @@ public class SwitchScanWizardPageOne extends WizardPage {
 				SwitchScanWizardPageOne.this.setPageComplete(true);
 			}
 		});
+		
 		setPageComplete(false);
 		setErrorMessage(null);
 		setMessage(null);
@@ -97,5 +109,4 @@ public class SwitchScanWizardPageOne extends WizardPage {
 	public String getScanType(){
 		return scanType;
 	}
-	
 }

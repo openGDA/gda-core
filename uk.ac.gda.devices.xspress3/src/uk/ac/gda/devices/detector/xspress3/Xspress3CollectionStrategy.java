@@ -131,9 +131,9 @@ public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Co
 	public void collectData() throws Exception {
 		testForErrorState();
 		// at each point set the PV to rin the binary output to drive the xspress3
-		CAClient ca =new CAClient();
-		ca.caput("BL24I-EA-USER-01:BO2",1);
-		Thread.sleep(1100);
+//		CAClient ca =new CAClient();
+//		ca.caput("BL24I-EA-USER-01:BO2","1");
+//		Thread.sleep(1100);
 		// then set the number of the frame we are waiting for
 		frameToLookFor++;
 	}

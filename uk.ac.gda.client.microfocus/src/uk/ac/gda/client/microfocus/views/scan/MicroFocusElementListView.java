@@ -43,8 +43,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
@@ -57,7 +55,6 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
-import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
@@ -83,7 +80,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	private String loadedDetectorFileName;
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private boolean loadMapForScan = false;
-	private PlotView plotView;
 	private XspressParameters xspressBean;
 	private VortexParameters vortexBean;
 	private double pointX;
@@ -119,16 +115,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		openDialog.setFilterPath(LocalProperties.getBaseDataDir());
 
 		this.setTitleToolTip("Choose detector channels and element ROIs to plot");
-
-		try {
-			// get an instance of the plotView we want to use
-			IViewPart newview = getSite().getPage().showView(MapPlotView.ID, null, IWorkbenchPage.VIEW_CREATE);
-			if (newview instanceof PlotView) {
-				plotView = (PlotView) newview;
-			}
-		} catch (Exception e) {
-			logger.error("Error while finding the plot view", e);
-		}
 	}
 
 	private void populateLists(String xmlfile) {
@@ -192,6 +178,9 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 	public void loadXspressNexus(HDF5File tree, final String filePath) {
 		HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
+		if (nl == null){
+			nl = tree.findNodeLink("/entry1/before_scan/DetectorConfigurationParameters");
+		}
 		String xml = nl.toString();
 		xml = xml.substring(xml.indexOf("<?xml"));
 		ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
@@ -257,6 +246,9 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 	public void loadXmapNexus(HDF5File tree, final String filePath) {
 		HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
+		if (nl == null){
+			nl = tree.findNodeLink("/entry1/before_scan/DetectorConfigurationParameters");
+		}
 		String xml = nl.toString();
 		xml = xml.substring(xml.indexOf("<?xml"));
 		ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
@@ -377,7 +369,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	public void dispose() {
 		super.dispose();
 		elementList.dispose();
-		plotView.dispose();
 	}
 
 	public void showErrorMessage(final String messag) {
@@ -422,8 +413,12 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
+				// this update is coming from a MicroFocusWrieterExtender on the server during an active map scan, so
+				// tell the displayController not to use any old opened Nexus file as its source now but to assume data
+				// is coming from the server-side object
 				populateLists(detectorConfig);
 				displayController.setDetectorFile(detectorConfig);
+				displayController.setFileIsDataSource(false);
 			}
 		});
 

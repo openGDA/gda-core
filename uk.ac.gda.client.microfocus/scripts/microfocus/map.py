@@ -2,6 +2,7 @@ from jarray import array
 import time
 
 from exafsscripts.exafs.scan import Scan
+from gdascripts.metadata.metadata_commands import meta_add
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 
 from gda.configuration.properties import LocalProperties
@@ -14,7 +15,7 @@ from gda.factory import Finder
 from gda.jython.commands import ScannableCommands
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
-from gdascripts.metadata.metadata_commands import meta_add
+
 
 class Map(Scan):
 
@@ -37,17 +38,10 @@ class Map(Scan):
         self.finder = Finder.getInstance()
         self.mfd = None
         self.detectorBeanFileName = ""
-        self.beamEnabled = True
         self.sampleFilename= None
         self.scanFilename= None
         self.detectorFilename= None
         self.outputFilename= None
-        
-    def turnOnBeamCheck(self):
-        self.beamEnabled = True
-    
-    def turnOffBeamCheck(self):
-        self.beamEnabled = False
     
     def getMFD(self):
         return self.mfd
@@ -255,27 +249,20 @@ class Map(Scan):
             collectionTime = beanGroup.getScan().getCollectionTime()
             command_server = self.finder.find("command_server")    
             topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
-            beam = command_server.getFromJythonNamespace("beam", None)
+            beamMonitor = command_server.getFromJythonNamespace("beamMonitor", None)
             detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
-            trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
             
             topupMonitor.setPauseBeforePoint(True)
             topupMonitor.setCollectionTime(collectionTime)
             topupMonitor.setPauseBeforeLine(False)
     
-            beam.setPauseBeforePoint(True)
-            beam.setPauseBeforeLine(True)
-            
-            if self.beamEnabled :
-                self.finder.find("command_server").addDefault(beam);
-                beam.setPauseBeforePoint(False)
+            beamMonitor.setPauseBeforePoint(True)
+            beamMonitor.setPauseBeforeLine(True)
             
             if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
-                #self.finder.find("command_server").addDefault(detectorFillingMonitor);
+                self.finder.find("command_server").addDefault(detectorFillingMonitor);
                 detectorFillingMonitor.setPauseBeforePoint(True)
                 detectorFillingMonitor.setPauseBeforeLine(False)
-                detectorFillingMonitor.setCollectionTime(collectionTime)
-            trajBeamMonitor.setActive(False)
 
         self._setupFromSampleParameters(beanGroup)
         

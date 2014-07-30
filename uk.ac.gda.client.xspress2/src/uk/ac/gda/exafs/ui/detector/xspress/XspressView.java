@@ -22,7 +22,7 @@ public class XspressView extends ViewPart {
 		detectorList.add(createElement(2));
 		detectorList.add(createElement(3));
 		detectorList.add(createElement(4));
-		Xspress xspress = new Xspress("", this.getSite(), parent, xspressDetector, detectorList);
+		Xspress xspress = new Xspress("", this.getSite(), parent, xspressDetector, detectorList, null);
 	}
 
 	@Override
