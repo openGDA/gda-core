@@ -55,6 +55,11 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	private Double yStart;
 	private Double yStop;
 	private Double yStep;
+	private Long rate = 1200L; // by default refresh all 2D plotter is 1.2 s
+	private Long timeElapsed;
+	private Long timeInit;
+	
+	
 
 	public TwoDScanPlotter() {
 		this.inputNames = new String[] {};
@@ -67,6 +72,8 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		// re-register with datapoint provider
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 		logger.debug(getName() + " - registering as SDP listener.");
+		timeElapsed = 0L;
+		timeInit = System.currentTimeMillis();
 	}
 
 	private DoubleDataset createTwoDset(Double start, Double stop, Double step, Boolean reverse) {
@@ -109,10 +116,19 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 			int totalPoints = ((ScanDataPoint) arg).getNumberOfPoints();
 			try {
 				unpackSDP((ScanDataPoint) arg);
+				timeElapsed = System.currentTimeMillis() - timeInit;
+				System.out.println("TimeElapsed"+timeElapsed);
+				if (timeElapsed > rate){
+					plot();
+					timeElapsed = 0L;
+					timeInit = System.currentTimeMillis();
+				}
 				logger.debug(getName() + " - Plotting map after receiving point " + currentPoint + " of " + totalPoints);
-				plot();
+				
+				//plot();
 				if (currentPoint == (totalPoints - 1)) {
-					logger.debug(getName() + " - last point recevied; deregistering as SDP listener.");
+					plot(); //plot last points
+					logger.debug(getName() + " - last point received; deregistering as SDP listener.");
 					deregisterAsScanDataPointObserver();
 				}
 			} catch (Exception e) {
