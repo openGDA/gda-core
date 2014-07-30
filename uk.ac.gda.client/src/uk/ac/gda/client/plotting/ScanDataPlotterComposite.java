@@ -171,7 +171,7 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 		ILineTrace trace = (ILineTrace) plottingSystem.getTrace(((DataNode) lineTraceProvider).getIdentifier());
 		if (trace != null) {
 			trace.setData(lineTraceProvider.getXAxisDataset(), lineTraceProvider.getYAxisDataset());
-			//plottingSystem.repaint();
+			plottingSystem.repaint();
 		}
 	}
 
